@@ -85,6 +85,8 @@ public:
     void add(const QStringList &args, bool gccOnlyOptions = false);
     virtual void addExtraOptions() {}
 
+    void remove(const QStringList &args);
+
     static UseToolchainMacros useToolChainMacros();
     void reset();
 

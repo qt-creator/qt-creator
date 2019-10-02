@@ -68,7 +68,12 @@ void TimelineMoveTool::mousePressEvent(TimelineMovableAbstractItem *item,
                                        QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(item)
-    Q_UNUSED(event)
+
+    if (auto *current = currentItem()->asTimelineKeyframeItem()) {
+        const qreal sourceFrame = qRound(current->mapFromSceneToFrame(current->rect().center().x()));
+        const qreal targetFrame = qRound(current->mapFromSceneToFrame(event->scenePos().x()));
+        m_pressKeyframeDelta = targetFrame - sourceFrame;
+    }
 }
 
 void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
@@ -80,34 +85,34 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
         return;
 
     if (auto *current = currentItem()->asTimelineKeyframeItem()) {
+        // prevent dragging if deselecting a keyframe (Ctrl+click and drag a selected keyframe)
+        if (!current->highlighted())
+            return;
+
         const qreal sourceFrame = qRound(current->mapFromSceneToFrame(current->rect().center().x()));
         const qreal targetFrame = qRound(current->mapFromSceneToFrame(event->scenePos().x()));
-        qreal deltaFrame = targetFrame - sourceFrame;
+        qreal deltaFrame = targetFrame - sourceFrame - m_pressKeyframeDelta;
 
         const qreal minFrame = scene()->startFrame();
         const qreal maxFrame = scene()->endFrame();
 
-        auto bbox = scene()->selectionBounds().united(current->rect());
+        auto bbox = scene()->selectionBounds().adjusted(TimelineConstants::keyFrameSize / 2, 0,
+                                                        -TimelineConstants::keyFrameSize / 2, 0);
+        double firstFrame = std::round(current->mapFromSceneToFrame(bbox.left()));
+        double lastFrame = std::round(current->mapFromSceneToFrame(bbox.right()));
 
-        double firstFrame = std::round(current->mapFromSceneToFrame(bbox.center().x()));
-        double lastFrame = std::round(current->mapFromSceneToFrame(bbox.center().x()));
-
-        if ((lastFrame + deltaFrame) > maxFrame)
+        if (lastFrame + deltaFrame > maxFrame)
             deltaFrame = maxFrame - lastFrame;
-
-        if ((firstFrame + deltaFrame) <= minFrame)
+        else if (firstFrame + deltaFrame < minFrame)
             deltaFrame = minFrame - firstFrame;
-
-        current->setPosition(sourceFrame + deltaFrame);
 
         scene()->statusBarMessageChanged(tr(TimelineConstants::statusBarKeyframe)
                                          .arg(sourceFrame + deltaFrame));
 
-        for (auto *keyframe : scene()->selectedKeyframes()) {
-            if (keyframe != current) {
-                qreal pos = std::round(current->mapFromSceneToFrame(keyframe->rect().center().x()));
-                keyframe->setPosition(pos + deltaFrame);
-            }
+        const QList<TimelineKeyframeItem *> selectedKeyframes = scene()->selectedKeyframes();
+        for (auto *keyframe : selectedKeyframes) {
+            qreal pos = std::round(keyframe->mapFromSceneToFrame(keyframe->rect().center().x()));
+            keyframe->setPosition(pos + deltaFrame);
         }
 
     } else {
@@ -120,11 +125,10 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
                                          QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(item)
-    Q_UNUSED(event)
 
     if (auto *current = currentItem()) {
         if (current->asTimelineFrameHandle()) {
-            double mousePos = event->pos().x();
+            double mousePos = event->scenePos().x();
             double start = current->mapFromFrameToScene(scene()->startFrame());
             double end = current->mapFromFrameToScene(scene()->endFrame());
 

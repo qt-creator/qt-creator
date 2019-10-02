@@ -38,6 +38,9 @@ QT_BEGIN_NAMESPACE
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace CppTools {
+class ClangDiagnosticConfig;
+}
 namespace Debugger {
 class DetailedErrorView;
 }
@@ -52,6 +55,7 @@ namespace Internal {
 class ClangToolsDiagnosticModel;
 class Diagnostic;
 class DiagnosticFilterModel;
+class RunSettings;
 
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 
@@ -73,15 +77,18 @@ public:
         AskUser,
     };
     void startTool(FileSelection fileSelection);
+    void startTool(FileSelection fileSelection,
+                   const RunSettings &runSettings,
+                   const CppTools::ClangDiagnosticConfig &diagnosticConfig);
 
     Diagnostics read(OutputFileFormat outputFileFormat,
-                             const QString &logFilePath,
-                             const QString &mainFilePath,
-                             const QSet<Utils::FilePath> &projectFiles,
-                             QString *errorMessage) const;
+                     const QString &logFilePath,
+                     const QString &mainFilePath,
+                     const QSet<Utils::FilePath> &projectFiles,
+                     QString *errorMessage) const;
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,
-                               FileSelection fileSelection) const;
+                               FileSelection fileSelection);
 
     // For testing.
     QSet<Diagnostic> diagnostics() const;
@@ -104,6 +111,9 @@ private:
 
     void initDiagnosticView();
     void loadDiagnosticsFromFiles();
+
+    FileInfoProviders fileInfoProviders(ProjectExplorer::Project *project,
+                                        const FileInfos &allFileInfos);
 
     ClangToolsDiagnosticModel *m_diagnosticModel = nullptr;
     QPointer<Debugger::DetailedErrorView> m_diagnosticView;

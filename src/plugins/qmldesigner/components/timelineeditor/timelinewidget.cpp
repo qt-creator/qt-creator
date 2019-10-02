@@ -176,7 +176,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     widgetLayout->addWidget(m_toolbar);
     widgetLayout->addWidget(m_addButton);
 
-    m_addButton->setIcon(TimelineIcons::ADD_TIMELINE.icon());
+    m_addButton->setIcon(TimelineIcons::ADD_TIMELINE_TOOLBAR.icon());
     m_addButton->setToolTip(tr("Add Timeline"));
     m_addButton->setFlat(true);
     m_addButton->setFixedSize(32, 32);

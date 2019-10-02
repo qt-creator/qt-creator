@@ -62,7 +62,8 @@ SUBDIRS   = \
     compilationdatabaseprojectmanager \
     qmlpreview \
     studiowelcome \
-    webassembly
+    webassembly \
+    mcusupport
 
 qtHaveModule(serialport) {
     SUBDIRS += serialterminal

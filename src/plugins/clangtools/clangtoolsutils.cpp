@@ -31,7 +31,7 @@
 #include "clangtoolssettings.h"
 
 #include <coreplugin/icore.h>
-
+#include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/checkablemessagebox.h>
@@ -39,9 +39,12 @@
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 
-#include <QCoreApplication>
 #include <QFileInfo>
-#include <QRegularExpression>
+
+#include <cpptools/clangdiagnosticconfigsmodel.h>
+#include <cpptools/clangdiagnosticconfigsmodel.h>
+
+using namespace CppTools;
 
 namespace ClangTools {
 namespace Internal {
@@ -151,7 +154,83 @@ QString clazyStandaloneExecutable()
         shippedClazyStandaloneExecutable(),
         qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH"),
         Constants::CLAZY_STANDALONE_EXECUTABLE_NAME,
+                               });
+}
+
+constexpr const char *DEFAULT_TIDY_CHECKS = "-*,"
+                                            "bugprone-*,"
+                                            "cppcoreguidelines-*,"
+                                            "misc-*,"
+                                            "modernize-*,"
+                                            "performance-*,"
+                                            "readability-*,"
+                                            "-cppcoreguidelines-owning-memory,"
+                                            "-readability-braces-around-statements,"
+                                            "-readability-implicit-bool-conversion,"
+                                            "-readability-named-parameter";
+
+static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
+{
+    // Clang-Tidy
+    ClangDiagnosticConfig config;
+    config.setId("Builtin.Tidy");
+    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
+                                                      "Clang-Tidy thorough checks"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{QStringLiteral("-w")});
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyChecks(QString::fromUtf8(DEFAULT_TIDY_CHECKS));
+    model.appendOrUpdate(config);
+
+    // Clang static analyzer
+    config = ClangDiagnosticConfig();
+    config.setId("Builtin.TidyClangAnalyze");
+    config.setDisplayName(QCoreApplication::translate(
+                              "ClangDiagnosticConfigsModel",
+                              "Clang-Tidy static analyzer checks"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{
+        QStringLiteral("-w"),
     });
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyChecks("-*,clang-analyzer-*");
+    model.appendOrUpdate(config);
+
+    // Clazy
+    config = ClangDiagnosticConfig();
+    config.setId("Builtin.Clazy");
+    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
+                                                      "Clazy level0 checks"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{QStringLiteral("-w")});
+    config.setClazyChecks(CppTools::clazyChecksForLevel(0));
+    model.appendOrUpdate(config);
+
+    // Clang-Tidy and Clazy
+    config = ClangDiagnosticConfig();
+    config.setId(Constants::DIAG_CONFIG_TIDY_AND_CLAZY);
+    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
+                                                      "Clang-Tidy and Clazy preselected checks"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{QStringLiteral("-w")});
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyChecks(QString::fromUtf8(DEFAULT_TIDY_CHECKS));
+    config.setClazyChecks(clazyChecksForLevel(0));
+    model.appendOrUpdate(config);
+}
+
+ClangDiagnosticConfigsModel diagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs)
+{
+    ClangDiagnosticConfigsModel model;
+    addBuiltinConfigs(model);
+    for (const ClangDiagnosticConfig &config : customConfigs)
+        model.appendOrUpdate(config);
+    return model;
+}
+
+ClangDiagnosticConfigsModel diagnosticConfigsModel()
+{
+    return Internal::diagnosticConfigsModel(ClangToolsSettings::instance()->diagnosticConfigs());
 }
 
 } // namespace Internal

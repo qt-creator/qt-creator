@@ -49,14 +49,23 @@ ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWi
     setLayout(layout);
     layout->addWidget(m_label);
     layout->addWidget(m_selectionComboBox, 1);
-    auto *manageButton = new QPushButton(tr("Manage..."), this);
-    layout->addWidget(manageButton);
+    m_manageButton = new QPushButton(tr("Manage..."), this);
+    layout->addWidget(m_manageButton);
     layout->addStretch();
+}
 
-    connectToClangDiagnosticConfigsDialog(manageButton);
+void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigsModel &model,
+                                                    const Core::Id &configToSelect,
+                                                    bool showTidyClazyUi)
+{
+    m_showTidyClazyUi = showTidyClazyUi;
+    m_diagnosticConfigsModel = model;
 
-    refresh(codeModelSettings()->clangDiagnosticConfigId());
+    disconnect(m_manageButton, 0, 0, 0);
+    connectToClangDiagnosticConfigsDialog();
 
+    disconnectFromCurrentIndexChanged();
+    refresh(configToSelect);
     connectToCurrentIndexChanged();
 }
 
@@ -83,8 +92,6 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
 
     int configToSelectIndex = -1;
     m_selectionComboBox->clear();
-    m_diagnosticConfigsModel = ClangDiagnosticConfigsModel(
-                codeModelSettings()->clangCustomDiagnosticConfigs());
     const int size = m_diagnosticConfigsModel.size();
     for (int i = 0; i < size; ++i) {
         const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
@@ -104,10 +111,13 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
     connectToCurrentIndexChanged();
 }
 
-void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialog(QPushButton *button)
+void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialog()
 {
-    connect(button, &QPushButton::clicked, [this]() {
-        ClangDiagnosticConfigsWidget *widget = new ClangDiagnosticConfigsWidget(currentConfigId());
+    connect(m_manageButton, &QPushButton::clicked, [this]() {
+        ClangDiagnosticConfigsWidget *widget
+            = new ClangDiagnosticConfigsWidget(m_diagnosticConfigsModel,
+                                               currentConfigId(),
+                                               m_showTidyClazyUi);
         widget->layout()->setContentsMargins(0, 0, 0, 0);
         QDialog dialog;
         dialog.setWindowTitle(ClangDiagnosticConfigsWidget::tr("Diagnostic Configurations"));
@@ -119,19 +129,10 @@ void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialo
         connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
         const bool previousEnableLowerClazyLevels = codeModelSettings()->enableLowerClazyLevels();
-        connect(&dialog, &QDialog::accepted, [widget, previousEnableLowerClazyLevels]() {
-            QSharedPointer<CppCodeModelSettings> settings = codeModelSettings();
-            const ClangDiagnosticConfigs oldDiagnosticConfigs
-                    = settings->clangCustomDiagnosticConfigs();
-            const ClangDiagnosticConfigs currentDiagnosticConfigs = widget->customConfigs();
-            if (oldDiagnosticConfigs != currentDiagnosticConfigs
-                 || previousEnableLowerClazyLevels != codeModelSettings()->enableLowerClazyLevels()) {
-                const ClangDiagnosticConfigsModel configsModel(currentDiagnosticConfigs);
-                if (!configsModel.hasConfigWithId(settings->clangDiagnosticConfigId()))
-                    settings->resetClangDiagnosticConfigId();
-                settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
-                settings->toSettings(Core::ICore::settings());
-            }
+        connect(&dialog, &QDialog::accepted, [this, widget, previousEnableLowerClazyLevels]() {
+            if (previousEnableLowerClazyLevels != codeModelSettings()->enableLowerClazyLevels())
+                codeModelSettings()->toSettings(Core::ICore::settings());
+            emit diagnosticConfigsEdited(widget->customConfigs());
         });
         dialog.exec();
     });

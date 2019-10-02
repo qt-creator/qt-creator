@@ -30,8 +30,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
 
 #include <utils/synchronousprocess.h>

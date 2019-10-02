@@ -66,6 +66,7 @@ FloatControl::FloatControl()
     QColor bg = Theme::instance()->qmlDesignerBackgroundColorDarkAlternate();
 
     auto p = palette();
+    p.setColor(QPalette::Text, Theme::instance()->color(Utils::Theme::PanelTextColorLight));
     p.setColor(QPalette::Base, bg.darker(110));
     setPalette(p);
 

@@ -46,10 +46,8 @@ public:
     DebuggerLanguageStatus useCppDebugger = AutoEnabledLanguage;
     DebuggerLanguageStatus useQmlDebugger = AutoEnabledLanguage;
 
-    const uint QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
-    uint qmlDebugServerPort = QML_DEFAULT_DEBUG_SERVER_PORT;
-
     bool useMultiProcess = false;
+    QString overrideStartup;
 };
 
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
@@ -66,10 +64,9 @@ public:
     bool useCppDebugger() const;
     bool useQmlDebugger() const;
     void setUseQmlDebugger(bool value);
-    uint qmlDebugServerPort() const;
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
-    bool isQmlDebuggingSpinboxSuppressed() const;
+    QString overrideStartup() const;
 
     int portsUsedByDebugger() const;
 

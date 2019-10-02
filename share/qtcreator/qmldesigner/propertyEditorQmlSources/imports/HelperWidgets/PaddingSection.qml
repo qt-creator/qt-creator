@@ -47,6 +47,7 @@ Section {
             SpinBox {
                 maximumValue: 10000
                 minimumValue: -10000
+                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.topPadding
                 Layout.fillWidth: true
@@ -64,6 +65,7 @@ Section {
             SpinBox {
                 maximumValue: 10000
                 minimumValue: -10000
+                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.bottomPadding
                 Layout.fillWidth: true
@@ -82,6 +84,7 @@ Section {
             SpinBox {
                 maximumValue: 10000
                 minimumValue: -10000
+                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.leftPadding
                 Layout.fillWidth: true
@@ -99,6 +102,7 @@ Section {
             SpinBox {
                 maximumValue: 10000
                 minimumValue: -10000
+                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.rightPadding
                 Layout.fillWidth: true
@@ -113,6 +117,7 @@ Section {
             SpinBox {
                 maximumValue: 10000
                 minimumValue: -10000
+                realDragRange: 5000
                 decimals: 0
                 backendValue: backendValues.padding
                 Layout.fillWidth: true

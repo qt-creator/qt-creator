@@ -80,7 +80,7 @@ bool applyTextDocumentEdit(const TextDocumentEdit &edit)
     if (edits.isEmpty())
         return true;
     const DocumentUri &uri = edit.id().uri();
-    if (TextDocument* doc = TextDocument::textDocumentForFileName(uri.toFilePath())) {
+    if (TextDocument* doc = TextDocument::textDocumentForFilePath(uri.toFilePath())) {
         LanguageClientValue<int> version = edit.id().version();
         if (!version.isNull() && version.value(0) < doc->document()->revision())
             return false;
@@ -137,7 +137,7 @@ void updateCodeActionRefactoringMarker(Client *client,
                                        const CodeAction &action,
                                        const DocumentUri &uri)
 {
-    TextDocument* doc = TextDocument::textDocumentForFileName(uri.toFilePath());
+    TextDocument* doc = TextDocument::textDocumentForFilePath(uri.toFilePath());
     if (!doc)
         return;
     const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);

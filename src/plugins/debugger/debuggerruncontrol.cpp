@@ -928,6 +928,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
             m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
         m_runParameters.multiProcess = aspect->useMultiProcess();
+        m_runParameters.additionalStartupCommands = aspect->overrideStartup();
     }
 
     m_runParameters.inferior = runnable();

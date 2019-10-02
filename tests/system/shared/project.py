@@ -662,3 +662,12 @@ def addCPlusPlusFile(name, template, projectName, forceOverwrite=False, addToVCS
             buttonToClick = 'Cancel'
         clickButton("{text='%s' type='QPushButton' unnamed='1' visible='1' window=%s}"
                     % (buttonToClick, overwriteDialog))
+
+# if one of the parameters is set to 0 or below the respective parsing won't be waited for
+def waitForProjectParsing(projectParsingTimeout=10000, codemodelParsingTimeout=10000):
+    if projectParsingTimeout > 0:
+        runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
+        # Wait for parsing to complete
+        waitFor("runButton.enabled", projectParsingTimeout)
+    if codemodelParsingTimeout > 0:
+        progressBarWait(codemodelParsingTimeout)

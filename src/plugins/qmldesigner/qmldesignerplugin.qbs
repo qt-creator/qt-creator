@@ -564,6 +564,8 @@ Project {
                 "propertyeditor/designerpropertymap.h",
                 "propertyeditor/fileresourcesmodel.cpp",
                 "propertyeditor/fileresourcesmodel.h",
+                "propertyeditor/itemfiltermodel.cpp",
+                "propertyeditor/itemfiltermodel.h",
                 "propertyeditor/gradientmodel.cpp",
                 "propertyeditor/gradientmodel.h",
                 "propertyeditor/gradientpresetcustomlistmodel.cpp",

@@ -46,18 +46,19 @@ namespace Internal {
 SessionModel::SessionModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
+    m_sortedSessions = SessionManager::sessions();
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &SessionModel::resetSessions);
 }
 
 int SessionModel::indexOfSession(const QString &session)
 {
-    return SessionManager::sessions().indexOf(session);
+    return m_sortedSessions.indexOf(session);
 }
 
 QString SessionModel::sessionAt(int row) const
 {
-    return SessionManager::sessions().value(row, QString());
+    return m_sortedSessions.value(row, QString());
 }
 
 QVariant SessionModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -92,7 +93,7 @@ int SessionModel::columnCount(const QModelIndex &) const
 
 int SessionModel::rowCount(const QModelIndex &) const
 {
-    return SessionManager::sessions().count();
+    return m_sortedSessions.count();
 }
 
 QStringList pathsToBaseNames(const QStringList &paths)
@@ -113,7 +114,7 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
 {
     QVariant result;
     if (index.isValid()) {
-        QString sessionName = SessionManager::sessions().at(index.row());
+        QString sessionName = m_sortedSessions.at(index.row());
 
         switch (role) {
         case Qt::DisplayRole:
@@ -175,6 +176,23 @@ QHash<int, QByteArray> SessionModel::roleNames() const
     return QAbstractTableModel::roleNames().unite(extraRoles);
 }
 
+void SessionModel::sort(int column, Qt::SortOrder order)
+{
+    beginResetModel();
+    const auto cmp = [column, order](const QString &s1, const QString &s2) {
+        bool isLess;
+        if (column == 0)
+            isLess = s1 < s2;
+        else
+            isLess = SessionManager::sessionDateTime(s1) < SessionManager::sessionDateTime(s2);
+        if (order == Qt::DescendingOrder)
+            isLess = !isLess;
+        return isLess;
+    };
+    Utils::sort(m_sortedSessions, cmp);
+    endResetModel();
+}
+
 bool SessionModel::isDefaultVirgin() const
 {
     return SessionManager::isDefaultVirgin();
@@ -183,6 +201,7 @@ bool SessionModel::isDefaultVirgin() const
 void SessionModel::resetSessions()
 {
     beginResetModel();
+    m_sortedSessions = SessionManager::sessions();
     endResetModel();
 }
 
@@ -244,6 +263,7 @@ void SessionModel::runSessionNameInputDialog(SessionNameInputDialog *sessionInpu
             return;
         beginResetModel();
         createSession(newSession);
+        m_sortedSessions = SessionManager::sessions();
         endResetModel();
 
         if (sessionInputDialog->isSwitchToRequested())

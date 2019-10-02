@@ -110,7 +110,7 @@ struct SshConnection::SshConnectionPrivate
         return masterSocketDir->path() + "/cs";
     }
 
-    QStringList connectionOptions() const
+    QStringList connectionOptions(const FilePath &binary) const
     {
         QString hostKeyCheckingString;
         switch (connParams.hostKeyCheckingMode) {
@@ -134,14 +134,19 @@ struct SshConnection::SshConnectionPrivate
             args << "-o" << "BatchMode=yes";
         if (sharingEnabled)
             args << "-o" << ("ControlPath=" + socketFilePath());
-        if (connParams.timeout != 0)
+        bool useTimeout = connParams.timeout != 0;
+        if (useTimeout && HostOsInfo::isWindowsHost()
+                && binary.toString().toLower().contains("/system32/")) {
+            useTimeout = false;
+        }
+        if (useTimeout)
             args << "-o" << ("ConnectTimeout=" + QString::number(connParams.timeout));
         return args;
     }
 
-    QStringList connectionArgs() const
+    QStringList connectionArgs(const FilePath &binary) const
     {
-        return connectionOptions() << connParams.host();
+        return connectionOptions(binary) << connParams.host();
     }
 
     SshConnectionParameters connParams;
@@ -267,8 +272,8 @@ SshConnectionInfo SshConnection::connectionInfo() const
     if (d->connInfo.isValid())
         return d->connInfo;
     QProcess p;
-    p.start(SshSettings::sshFilePath().toString(), d->connectionArgs() << "echo" << "-n"
-            << "$SSH_CLIENT");
+    p.start(SshSettings::sshFilePath().toString(), d->connectionArgs(SshSettings::sshFilePath())
+            << "echo" << "-n" << "$SSH_CLIENT");
     if (!p.waitForStarted() || !p.waitForFinished()) {
         qCWarning(Internal::sshLog) << "failed to retrieve connection info:" << p.errorString();
         return SshConnectionInfo();
@@ -292,9 +297,9 @@ SshConnectionInfo SshConnection::connectionInfo() const
     return d->connInfo;
 }
 
-QStringList SshConnection::connectionOptions() const
+QStringList SshConnection::connectionOptions(const FilePath &binary) const
 {
-    return d->connectionOptions();
+    return d->connectionOptions(binary);
 }
 
 bool SshConnection::sharingEnabled() const
@@ -312,7 +317,8 @@ SshConnection::~SshConnection()
 SshRemoteProcessPtr SshConnection::createRemoteProcess(const QString &command)
 {
     QTC_ASSERT(state() == Connected, return SshRemoteProcessPtr());
-    return SshRemoteProcessPtr(new SshRemoteProcess(command, d->connectionArgs()));
+    return SshRemoteProcessPtr(new SshRemoteProcess(command,
+                                                    d->connectionArgs(SshSettings::sshFilePath())));
 }
 
 SshRemoteProcessPtr SshConnection::createRemoteShell()
@@ -335,7 +341,7 @@ SftpTransferPtr SshConnection::createDownload(const FilesToTransfer &files,
 SftpSessionPtr SshConnection::createSftpSession()
 {
     QTC_ASSERT(state() == Connected, return SftpSessionPtr());
-    return SftpSessionPtr(new SftpSession(d->connectionArgs()));
+    return SftpSessionPtr(new SftpSession(d->connectionArgs(SshSettings::sftpFilePath())));
 }
 
 void SshConnection::doConnectToHost()
@@ -359,7 +365,8 @@ void SshConnection::doConnectToHost()
                   .arg(d->masterSocketDir->errorString()));
         return;
     }
-    QStringList args = QStringList{"-M", "-N", "-o", "ControlPersist=no"} << d->connectionArgs();
+    QStringList args = QStringList{"-M", "-N", "-o", "ControlPersist=no"}
+            << d->connectionArgs(sshBinary);
     if (!d->connParams.x11DisplayName.isEmpty())
         args.prepend("-X");
     qCDebug(sshLog) << "establishing connection:" << sshBinary.toUserOutput() << args;
@@ -393,7 +400,8 @@ SftpTransferPtr SshConnection::setupTransfer(
         FileTransferErrorHandling errorHandlingMode)
 {
     QTC_ASSERT(state() == Connected, return SftpTransferPtr());
-    return SftpTransferPtr(new SftpTransfer(files, type, errorHandlingMode, d->connectionArgs()));
+    return SftpTransferPtr(new SftpTransfer(files, type, errorHandlingMode,
+                                            d->connectionArgs(SshSettings::sftpFilePath())));
 }
 
 } // namespace QSsh

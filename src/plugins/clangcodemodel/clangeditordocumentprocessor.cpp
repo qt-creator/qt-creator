@@ -39,7 +39,6 @@
 
 #include <cpptools/builtincursorinfo.h>
 #include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
@@ -480,8 +479,8 @@ private:
             ClangProjectSettings &projectSettings = getProjectSettings(m_projectPart.project);
             if (!projectSettings.useGlobalConfig()) {
                 const Core::Id warningConfigId = projectSettings.warningConfigId();
-                const CppTools::ClangDiagnosticConfigsModel configsModel(
-                            CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
+                const CppTools::ClangDiagnosticConfigsModel configsModel
+                    = CppTools::diagnosticConfigsModel();
                 if (configsModel.hasConfigWithId(warningConfigId)) {
                     addDiagnosticOptionsForConfig(configsModel.configWithId(warningConfigId));
                     return;
@@ -500,42 +499,6 @@ private:
                                        : CppTools::UseBuildSystemWarnings::No;
 
         m_options.append(diagnosticConfig.clangOptions());
-        addClangTidyOptions(diagnosticConfig);
-        addClazyOptions(diagnosticConfig.clazyChecks());
-    }
-
-    void addClangTidyOptions(const CppTools::ClangDiagnosticConfig &diagnosticConfig)
-    {
-        using Mode = CppTools::ClangDiagnosticConfig::TidyMode;
-        Mode tidyMode = diagnosticConfig.clangTidyMode();
-        if (tidyMode == Mode::Disabled)
-            return;
-
-        m_options.append(CppTools::XclangArgs({"-add-plugin", "clang-tidy"}));
-
-        if (tidyMode == Mode::File)
-            return;
-
-        const QString checks = diagnosticConfig.clangTidyChecks();
-        if (!checks.isEmpty())
-            m_options.append(CppTools::XclangArgs({"-plugin-arg-clang-tidy", "-checks=" + checks}));
-    }
-
-    void addClazyOptions(const QString &checks)
-    {
-        if (checks.isEmpty())
-            return;
-
-        m_options.append(CppTools::XclangArgs({"-add-plugin",
-                                               "clazy",
-                                               "-plugin-arg-clazy",
-                                               "enable-all-fixits",
-                                               "-plugin-arg-clazy",
-                                               "no-autowrite-fixits",
-                                               "-plugin-arg-clazy",
-                                               checks,
-                                               "-plugin-arg-clazy",
-                                               "ignore-included-files"}));
     }
 
     void addGlobalDiagnosticOptions()

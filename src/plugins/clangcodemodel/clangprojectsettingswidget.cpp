@@ -64,6 +64,17 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
     connect(m_ui.clangDiagnosticConfigsSelectionWidget,
             &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             this, &ClangProjectSettingsWidget::onCurrentWarningConfigChanged);
+    connect(m_ui.clangDiagnosticConfigsSelectionWidget,
+            &ClangDiagnosticConfigsSelectionWidget::diagnosticConfigsEdited,
+            this, [this](const ClangDiagnosticConfigs &configs){
+        QSharedPointer<CppCodeModelSettings> cmSettings = CppTools::codeModelSettings();
+        const ClangDiagnosticConfigsModel configsModel = CppTools::diagnosticConfigsModel(configs);
+        if (!configsModel.hasConfigWithId(cmSettings->clangDiagnosticConfigId()))
+            cmSettings->resetClangDiagnosticConfigId();
+        cmSettings->setClangCustomDiagnosticConfigs(configs);
+        cmSettings->toSettings(Core::ICore::settings());
+        refreshDiagnosticConfigsWidgetFromSettings();
+    });
 
     connect(m_ui.delayedTemplateParseCheckBox, &QCheckBox::toggled,
             this, &ClangProjectSettingsWidget::onDelayedTemplateParseClicked);
@@ -146,7 +157,9 @@ void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
 
 void ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings()
 {
-    m_ui.clangDiagnosticConfigsSelectionWidget->refresh(configIdForProject(m_projectSettings));
+    m_ui.clangDiagnosticConfigsSelectionWidget->refresh(CppTools::diagnosticConfigsModel(),
+                                                        configIdForProject(m_projectSettings),
+                                                        /*showTidyClazyUi=*/false);
 }
 
 } // namespace Internal

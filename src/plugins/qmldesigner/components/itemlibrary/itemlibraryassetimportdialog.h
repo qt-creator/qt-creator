@@ -58,6 +58,7 @@ private:
 
     void onImport();
     void setImportProgress(int value, const QString &text);
+    void onImportNearlyFinished();
     void onImportFinished();
     void onClose();
 

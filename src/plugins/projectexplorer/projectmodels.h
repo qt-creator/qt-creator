@@ -45,6 +45,8 @@ class ProjectNode;
 
 namespace Internal {
 
+bool compareNodes(const Node *n1, const Node *n2);
+
 class WrapperNode : public Utils::TypedTreeItem<WrapperNode>
 {
 public:

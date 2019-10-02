@@ -27,6 +27,8 @@ import QtQuick 2.0
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: itemPane
@@ -283,6 +285,15 @@ Rectangle {
                             onChildRectHeightChanged: {
                                 tabView.layoutSectionHeight = childRectHeight + tabView.extraHeight
                             }
+                        }
+
+                        MarginSection {
+                            visible: anchorBackend.isInLayout
+                            backendValueTopMargin: backendValues.Layout_topMargin
+                            backendValueBottomMargin: backendValues.Layout_bottomMargin
+                            backendValueLeftMargin: backendValues.Layout_leftMargin
+                            backendValueRightMargin: backendValues.Layout_rightMargin
+                            backendValueMargins: backendValues.Layout_margins
                         }
                     }
                 }

@@ -63,8 +63,10 @@ SessionView::SessionView(QWidget *parent)
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setWordWrap(false);
     setRootIsDecorated(false);
+    setSortingEnabled(true);
 
     setModel(&m_sessionModel);
+    sortByColumn(0, Qt::AscendingOrder);
 
     // Ensure that the full session name is visible.
     header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);

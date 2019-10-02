@@ -67,7 +67,7 @@ def startQC(additionalParameters=None, withPreparedSettingsPath=True, cancelTour
     test.log("Starting now: %s" % ' '.join(appWithOptions))
     appContext = startApplication(' '.join(appWithOptions))
     if cancelTour:
-        clickButton(waitForObject(":Take a UI Tour.Cancel_QPushButton"))
+        clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
     return appContext;
 
 def startedWithoutPluginError():

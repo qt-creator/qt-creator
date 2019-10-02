@@ -100,6 +100,7 @@ RowLayout {
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 backendValue: anchorMargin
+                realDragRange: 5000
             }
 
             StudioControls.ButtonRow {

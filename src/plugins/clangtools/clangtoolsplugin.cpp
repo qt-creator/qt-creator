@@ -113,6 +113,10 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    // Import tidy/clazy diagnostic configs from CppTools now
+    // instead of at opening time of the settings page
+    ClangToolsSettings::instance();
+
     d = new ClangToolsPluginPrivate;
 
     ActionManager::registerAction(d->clangTool.startAction(), Constants::RUN_ON_PROJECT);

@@ -26,7 +26,9 @@
 #pragma once
 
 #include <coreplugin/id.h>
+#include <cpptools/clangdiagnosticconfig.h>
 
+#include <QObject>
 #include <QString>
 
 namespace ClangTools {
@@ -44,6 +46,7 @@ public:
 
     Core::Id diagnosticConfigId() const { return m_diagnosticConfigId; }
     void setDiagnosticConfigId(const Core::Id &id) { m_diagnosticConfigId = id; }
+    void resetDiagnosticConfigId();
 
     bool buildBeforeAnalysis() const { return m_buildBeforeAnalysis; }
     void setBuildBeforeAnalysis(bool yesno) { m_buildBeforeAnalysis = yesno; }
@@ -52,13 +55,15 @@ public:
     void setParallelJobs(int jobs) { m_parallelJobs = jobs; }
 
 private:
-    Core::Id m_diagnosticConfigId = "Builtin.TidyAndClazy"; // TODO
+    Core::Id m_diagnosticConfigId;
     int m_parallelJobs = -1;
     bool m_buildBeforeAnalysis = true;
 };
 
-class ClangToolsSettings
+class ClangToolsSettings : public QObject
 {
+    Q_OBJECT
+
 public:
     static ClangToolsSettings *instance();
     void writeSettings();
@@ -69,8 +74,15 @@ public:
     QString clazyStandaloneExecutable() const { return m_clazyStandaloneExecutable; }
     void setClazyStandaloneExecutable(const QString &path) { m_clazyStandaloneExecutable = path; }
 
+    CppTools::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
+    void setDiagnosticConfigs(const CppTools::ClangDiagnosticConfigs &configs)
+    { m_diagnosticConfigs = configs; }
+
     RunSettings runSettings() const { return m_runSettings; }
     void setRunSettings(const RunSettings &settings) { m_runSettings = settings; }
+
+signals:
+    void changed();
 
 private:
     ClangToolsSettings();
@@ -79,6 +91,9 @@ private:
     // Executables
     QString m_clangTidyExecutable;
     QString m_clazyStandaloneExecutable;
+
+    // Diagnostic Configs
+    CppTools::ClangDiagnosticConfigs m_diagnosticConfigs;
 
     // Run settings
     RunSettings m_runSettings;

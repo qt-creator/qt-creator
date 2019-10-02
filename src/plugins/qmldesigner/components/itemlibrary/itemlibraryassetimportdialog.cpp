@@ -149,6 +149,8 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
             this, &ItemLibraryAssetImportDialog::addWarning);
     connect(&m_importer, &ItemLibraryAssetImporter::infoReported,
             this, &ItemLibraryAssetImportDialog::addInfo);
+    connect(&m_importer, &ItemLibraryAssetImporter::importNearlyFinished,
+            this, &ItemLibraryAssetImportDialog::onImportNearlyFinished);
     connect(&m_importer, &ItemLibraryAssetImporter::importFinished,
             this, &ItemLibraryAssetImportDialog::onImportFinished);
     connect(&m_importer, &ItemLibraryAssetImporter::progressChanged,
@@ -163,6 +165,7 @@ ItemLibraryAssetImportDialog::~ItemLibraryAssetImportDialog()
 void ItemLibraryAssetImportDialog::setImportUiState(bool importing)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!importing);
+    ui->buttonBox->button(QDialogButtonBox::Close)->setEnabled(true);
     ui->buttonBox->button(QDialogButtonBox::Close)->setText(importing ? tr("Cancel") : tr("Close"));
 }
 
@@ -201,6 +204,12 @@ void ItemLibraryAssetImportDialog::setImportProgress(int value, const QString &t
     ui->progressBar->setValue(value);
 }
 
+void ItemLibraryAssetImportDialog::onImportNearlyFinished()
+{
+    // Canceling import is no longer doable
+    ui->buttonBox->button(QDialogButtonBox::Close)->setEnabled(false);
+}
+
 void ItemLibraryAssetImportDialog::onImportFinished()
 {
     setImportUiState(false);
@@ -222,8 +231,8 @@ void ItemLibraryAssetImportDialog::onClose()
         m_importer.cancelImport();
     } else {
         reject();
+        close();
+        deleteLater();
     }
-    close();
-    deleteLater();
 }
 }

@@ -52,6 +52,9 @@ public:
 
     void keyPressEvent(QKeyEvent *keyEvent) override;
     void keyReleaseEvent(QKeyEvent *keyEvent) override;
+
+private:
+    qreal m_pressKeyframeDelta = 0.;
 };
 
 } // namespace QmlDesigner

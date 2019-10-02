@@ -76,9 +76,13 @@ const Utils::Icon PREVIOUS_KEYFRAME({
 const Utils::Icon LOCAL_RECORD_KEYFRAMES({
         {":/timelineplugin/images/local_record_keyframes.png", Utils::Theme::IconsStopToolBarColor}});
 const Utils::Icon ADD_TIMELINE({
+        {":/timelineplugin/images/add_timeline.png",  Utils::Theme::PanelTextColorDark}},
+        Utils::Icon::Tint);
+const Utils::Icon ADD_TIMELINE_TOOLBAR({
         {":/timelineplugin/images/add_timeline.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon REMOVE_TIMELINE({
-        {":/timelineplugin/images/remove_timeline.png", Utils::Theme::IconsBaseColor}});
+        {":/timelineplugin/images/remove_timeline.png", Utils::Theme::PanelTextColorDark}},
+        Utils::Icon::Tint);
 
 // Icons on the toolbars
 const Utils::Icon ANIMATION({

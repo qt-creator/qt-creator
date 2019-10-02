@@ -31,7 +31,9 @@
 #include "timelinetooldelegate.h"
 
 #include <QGraphicsRectItem>
+#include <QGraphicsView>
 #include <QGraphicsSceneMouseEvent>
+#include <QScrollBar>
 #include <QPen>
 
 namespace QmlDesigner {
@@ -82,15 +84,21 @@ void TimelineSelectionTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
 
     if (event->buttons() == Qt::LeftButton) {
         auto endPoint = event->scenePos();
-        if (endPoint.x() < 0)
-            endPoint.rx() = 0;
-        if (endPoint.y() < 0)
-            endPoint.ry() = 0;
+
+        const qreal xMin = TimelineConstants::sectionWidth;
+        const qreal xMax = scene()->graphicsView()->width()
+                           - TimelineConstants::timelineLeftOffset - 1;
+        const qreal yMin = scene()->graphicsView()->verticalScrollBar()->value();
+        const qreal yMax = yMin + scene()->graphicsView()->height() - 1;
+
+        endPoint.rx() = qBound(xMin, endPoint.x(), xMax);
+        endPoint.ry() = qBound(yMin, endPoint.y(), yMax);
+
         m_selectionRect->setRect(QRectF(startPosition(), endPoint).normalized());
         m_selectionRect->show();
 
         aboutToSelect(selectionMode(event),
-                      scene()->items(m_selectionRect->rect(), Qt::ContainsItemShape));
+                      scene()->items(m_selectionRect->rect(), Qt::IntersectsItemBoundingRect));
     }
 }
 
@@ -156,6 +164,10 @@ void TimelineSelectionTool::aboutToSelect(SelectionMode mode, QList<QGraphicsIte
 
     for (auto *item : items) {
         if (auto *keyframe = TimelineMovableAbstractItem::asTimelineKeyframeItem(item)) {
+            // if keyframe's center isn't inside m_selectionRect, discard it
+            if (!m_selectionRect->rect().contains(keyframe->rect().center() + item->scenePos()))
+                continue;
+
             if (mode == SelectionMode::Remove)
                 keyframe->setHighlighted(false);
             else if (mode == SelectionMode::Toggle)

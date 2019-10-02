@@ -68,6 +68,7 @@ class ClangToolRunWorker : public ProjectExplorer::RunWorker
 public:
     ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
                        const RunSettings &runSettings,
+                       const CppTools::ClangDiagnosticConfig &diagnosticConfig,
                        const FileInfos &fileInfos,
                        bool preventBuild);
 

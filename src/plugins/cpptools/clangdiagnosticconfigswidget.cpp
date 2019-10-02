@@ -568,19 +568,19 @@ private:
     QStringList m_topics;
 };
 
-ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &configToSelect,
-                                                           QWidget *parent)
+ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
+    const ClangDiagnosticConfigsModel &configsModel,
+    const Core::Id &configToSelect,
+    bool showTidyClazyTabs,
+    QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
-    , m_diagnosticConfigsModel(codeModelSettings()->clangCustomDiagnosticConfigs())
+    , m_diagnosticConfigsModel(configsModel)
     , m_clazyTreeModel(new ClazyChecksTreeModel())
     , m_tidyTreeModel(new TidyChecksTreeModel())
 {
     m_ui->setupUi(this);
-    setupTabs();
-
-    m_selectedConfigIndex = m_diagnosticConfigsModel.indexOfConfig(
-                codeModelSettings()->clangDiagnosticConfigId());
+    setupTabs(showTidyClazyTabs);
 
     connectConfigChooserCurrentIndex();
     connect(m_ui->copyButton, &QPushButton::clicked,
@@ -989,7 +989,7 @@ static void setupTreeView(QTreeView *view, QAbstractItemModel *model, int expand
     view->setHeaderHidden(true);
 }
 
-void ClangDiagnosticConfigsWidget::setupTabs()
+void ClangDiagnosticConfigsWidget::setupTabs(bool showTidyClazyTabs)
 {
     m_clangBaseChecks = std::make_unique<CppTools::Ui::ClangBaseChecks>();
     m_clangBaseChecksWidget = new QWidget();
@@ -1075,8 +1075,10 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     connectClazyItemChanged();
 
     m_ui->tabWidget->addTab(m_clangBaseChecksWidget, tr("Clang"));
-    m_ui->tabWidget->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));
-    m_ui->tabWidget->addTab(m_clazyChecksWidget, tr("Clazy"));
+    if (showTidyClazyTabs) {
+        m_ui->tabWidget->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));
+        m_ui->tabWidget->addTab(m_clazyChecksWidget, tr("Clazy"));
+    }
     m_ui->tabWidget->setCurrentIndex(0);
 }
 

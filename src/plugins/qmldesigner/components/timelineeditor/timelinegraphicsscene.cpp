@@ -112,7 +112,7 @@ TimelineGraphicsScene::TimelineGraphicsScene(TimelineWidget *parent)
         if (auto *rview = rulerView())
             rview->setSceneRect(rect);
 
-        m_currentFrameIndicator->setHeight(m_layout->geometry().height());
+        m_currentFrameIndicator->setHeight(9999); // big enough number (> timeline widget height)
     });
 
     auto moveFrameIndicator = [this](const QPointF &pos) {
@@ -501,6 +501,11 @@ QList<QGraphicsItem *> TimelineGraphicsScene::itemsAt(const QPointF &pos)
 void TimelineGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     auto topItem = TimelineMovableAbstractItem::topMoveableItem(itemsAt(event->scenePos()));
+
+    // if pressed the ruler, set topItem to the playhead
+    if (!topItem && rulerView()->rect().contains(event->scenePos().toPoint()))
+        topItem = m_currentFrameIndicator;
+
     m_tools.mousePressEvent(topItem, event);
     QGraphicsScene::mousePressEvent(event);
 }

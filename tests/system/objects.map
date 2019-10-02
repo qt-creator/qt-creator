@@ -2,6 +2,7 @@
 :*Qt Creator.Cancel Build_QToolButton	{text='Cancel Build' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Clear_QToolButton	{text='Clear' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Continue_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip?='Continue *' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Do Not Show Again_QToolButton	{text='Do Not Show Again' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Find_Find::Internal::FindToolBar	{name='Core__Internal__FindWidget' type='Core::Internal::FindToolBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Find'}
 :*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack	{name='FormEditorStack' type='Designer::Internal::FormEditorStack' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip='Interrupt' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -191,8 +192,6 @@
 :Send to Codepaster_CodePaster::PasteView	{name='CodePaster__Internal__ViewDialog' type='CodePaster::PasteView' visible='1' windowTitle='Send to Codepaster'}
 :Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer__Internal__SessionDialog' type='ProjectExplorer::Internal::SessionDialog' visible='1' windowTitle='Session Manager'}
 :Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
-:Take a UI Tour.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Take a UI Tour_Utils::CheckableMessageBox'}
-:Take a UI Tour_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Take a UI Tour'}
 :User Interface.languageBox_QComboBox	{container=':Core__Internal__GeneralSettings.User Interface_QGroupBox' name='languageBox' type='QComboBox' visible='1'}
 :Widget Box_qdesigner_internal::WidgetBoxTreeWidget	{container=':*Qt Creator.Widget Box_QDockWidget' type='qdesigner_internal::WidgetBoxTreeWidget' unnamed='1' visible='1'}
 :Working Copy_Utils::BaseValidatingLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':New_ProjectExplorer::JsonWizard'}

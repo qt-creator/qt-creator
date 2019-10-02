@@ -316,7 +316,7 @@ Client *LanguageClientManager::clientForDocument(TextEditor::TextDocument *docum
 
 Client *LanguageClientManager::clientForFilePath(const Utils::FilePath &filePath)
 {
-    return clientForDocument(TextEditor::TextDocument::textDocumentForFileName(filePath));
+    return clientForDocument(TextEditor::TextDocument::textDocumentForFilePath(filePath));
 }
 
 Client *LanguageClientManager::clientForUri(const DocumentUri &uri)

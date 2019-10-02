@@ -27,13 +27,10 @@
 
 #include "clangfileinfo.h"
 
-#include <coreplugin/id.h>
-
 #include <QDialog>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -51,18 +48,25 @@ class SelectableFilesDialog : public QDialog
 
 public:
     explicit SelectableFilesDialog(const CppTools::ProjectInfo &projectInfo,
-                                   const FileInfos &allFileInfos);
+                                   const FileInfoProviders &fileInfoProviders,
+                                   int initialProviderIndex);
     ~SelectableFilesDialog() override;
 
-    FileInfos filteredFileInfos() const;
+    FileInfos fileInfos() const;
+    int currentProviderIndex() const;
 
 private:
+    void onFileFilterChanged(int index);
     void accept() override;
 
     std::unique_ptr<Ui::SelectableFilesDialog> m_ui;
+    QTreeView *m_fileView = nullptr;
+    QDialogButtonBox *m_buttons = nullptr;
     std::unique_ptr<SelectableFilesModel> m_filesModel;
 
-    Core::Id m_customDiagnosticConfig;
+    FileInfoProviders m_fileInfoProviders;
+    int m_previousProviderIndex = -1;
+
     ProjectExplorer::Project *m_project;
     QPushButton *m_analyzeButton = nullptr;
 };

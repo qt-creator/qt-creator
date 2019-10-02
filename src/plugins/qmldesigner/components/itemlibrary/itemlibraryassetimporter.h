@@ -32,6 +32,7 @@
 
 QT_BEGIN_NAMESPACE
 class QSSGAssetImportManager;
+class QTemporaryDir;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -61,6 +62,7 @@ signals:
     void warningReported(const QString &, const QString &) const;
     void infoReported(const QString &, const QString &) const;
     void progressChanged(int value, const QString &text) const;
+    void importNearlyFinished() const;
     void importFinished();
 
 private:
@@ -68,6 +70,7 @@ private:
     void reset();
     void parseFiles(const QStringList &filePaths);
     void parseQuick3DAsset(const QString &file);
+    void copyImportedFiles();
 
     void notifyProgress(int value, const QString &text) const;
     void keepUiAlive() const;
@@ -75,10 +78,12 @@ private:
 
 #ifdef IMPORT_QUICK3D_ASSETS
     QScopedPointer<QSSGAssetImportManager> m_quick3DAssetImporter;
-    QHash<QString, Import> m_quick3DAddedImports;
+    QSet<QHash<QString, QString>> m_importFiles;
+    QSet<QString> m_overwrittenImports;
 #endif
     bool m_isImporting = false;
     bool m_cancelled = false;
     QString m_importPath;
+    QTemporaryDir *m_tempDir = nullptr;
 };
 } // QmlDesigner

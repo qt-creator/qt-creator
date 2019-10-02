@@ -27,6 +27,7 @@
 #include "ui_projectwizardpage.h"
 
 #include "project.h"
+#include "projectmodels.h"
 #include "session.h"
 
 #include <coreplugin/icore.h>
@@ -453,6 +454,10 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
             }
         }
     }
+    root->sortChildren([](const TreeItem *ti1, const TreeItem *ti2) {
+        return compareNodes(static_cast<const AddNewTree *>(ti1)->node(),
+                            static_cast<const AddNewTree *>(ti2)->node());
+    });
     root->prependChild(createNoneNode(&selector));
 
     // Set combobox to context node if that appears in the tree:

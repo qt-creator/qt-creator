@@ -27,23 +27,19 @@
 
 #include "ui_clangselectablefilesdialog.h"
 
-#include "clangtoolsprojectsettings.h"
-#include "clangtoolssettings.h"
-#include "clangtoolsutils.h"
-
-#include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <cpptools/projectinfo.h>
-#include <cpptools/projectpart.h>
-
 #include <projectexplorer/selectablefilesmodel.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QDialogButtonBox>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QStandardItem>
 
 using namespace CppTools;
 using namespace Utils;
@@ -96,48 +92,84 @@ class SelectableFilesModel : public ProjectExplorer::SelectableFilesModel
     Q_OBJECT
 
 public:
-    SelectableFilesModel(const CppTools::ProjectInfo &projectInfo, const FileInfos &allFileInfos)
+    SelectableFilesModel()
         : ProjectExplorer::SelectableFilesModel(nullptr)
+    {}
+
+    void buildTree(ProjectExplorer::Project *project, const FileInfos &fileInfos)
     {
-        buildTree(projectInfo.project(), allFileInfos);
+        beginResetModel();
+        m_root->fullPath = project->projectFilePath();
+        m_root->name = project->projectFilePath().fileName();
+        m_root->isDir = true;
+
+        FileInfos outOfBaseDirFiles;
+        Tree *projectDirTree = buildProjectDirTree(project->projectDirectory(),
+                                                   fileInfos,
+                                                   outOfBaseDirFiles);
+        if (outOfBaseDirFiles.empty()) {
+            // Showing the project file and beneath the project dir is pointless in this case,
+            // so get rid of the root node and modify the project dir node as the new root node.
+            projectDirTree->name = m_root->name;
+            projectDirTree->fullPath = m_root->fullPath;
+            projectDirTree->parent = m_root->parent;
+
+            delete m_root; // OK, it has no files / child dirs.
+
+            m_root = projectDirTree;
+        } else {
+            // Set up project dir node as sub node of the project file node
+            linkDirNode(m_root, projectDirTree);
+
+            // Add files outside of the base directory to a separate node
+            Tree *externalFilesNode = createDirNode(SelectableFilesDialog::tr(
+                                                        "Files outside of the base directory"),
+                                                    FilePath::fromString("/"));
+            linkDirNode(m_root, externalFilesNode);
+            for (const FileInfo &fileInfo : outOfBaseDirFiles)
+                linkFileNode(externalFilesNode, createFileNode(fileInfo, true));
+        }
+        endResetModel();
     }
 
     // Returns the minimal selection that can restore all selected files.
     //
     // For example, if a directory node if fully checked, there is no need to
     // save all the children of that node.
-    void minimalSelection(QSet<FilePath> &checkedDirs, QSet<FilePath> &checkedFiles) const
+    void minimalSelection(FileInfoSelection &selection) const
     {
+        selection.dirs.clear();
+        selection.files.clear();
         traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
             auto node = static_cast<Tree *>(index.internalPointer());
 
             if (node->checked == Qt::Checked) {
                 if (node->isDir) {
-                    checkedDirs += node->fullPath;
+                    selection.dirs += node->fullPath;
                     return false; // Do not descend further.
                 }
 
-                checkedFiles += node->fullPath;
+                selection.files += node->fullPath;
             }
 
             return true;
         });
     }
 
-    void restoreMinimalSelection(const QSet<FilePath> &dirs, const QSet<FilePath> &files)
+    void restoreMinimalSelection(const FileInfoSelection &selection)
     {
-        if (dirs.isEmpty() && files.isEmpty())
+        if (selection.dirs.isEmpty() && selection.files.isEmpty())
             return;
 
         traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
             auto node = static_cast<Tree *>(index.internalPointer());
 
-            if (node->isDir && dirs.contains(node->fullPath)) {
+            if (node->isDir && selection.dirs.contains(node->fullPath)) {
                 setData(index, Qt::Checked, Qt::CheckStateRole);
                 return false; // Do not descend further.
             }
 
-            if (!node->isDir && files.contains(node->fullPath))
+            if (!node->isDir && selection.files.contains(node->fullPath))
                 setData(index, Qt::Checked, Qt::CheckStateRole);
 
             return true;
@@ -181,40 +213,6 @@ private:
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j)
                 traverse(this->index(i, j, index), visit);
-        }
-    }
-
-    void buildTree(ProjectExplorer::Project *project, const FileInfos &fileInfos)
-    {
-        m_root->fullPath = project->projectFilePath();
-        m_root->name = project->projectFilePath().fileName();
-        m_root->isDir = true;
-
-        FileInfos outOfBaseDirFiles;
-        Tree *projectDirTree = buildProjectDirTree(project->projectDirectory(),
-                                                   fileInfos,
-                                                   outOfBaseDirFiles);
-        if (outOfBaseDirFiles.empty()) {
-            // Showing the project file and beneath the project dir is pointless in this case,
-            // so get rid of the root node and modify the project dir node as the new root node.
-            projectDirTree->name = m_root->name;
-            projectDirTree->fullPath = m_root->fullPath;
-            projectDirTree->parent = m_root->parent;
-
-            delete m_root; // OK, it has no files / child dirs.
-
-            m_root = projectDirTree;
-        } else {
-            // Set up project dir node as sub node of the project file node
-            linkDirNode(m_root, projectDirTree);
-
-            // Add files outside of the base directory to a separate node
-            Tree *externalFilesNode = createDirNode(SelectableFilesDialog::tr(
-                                                        "Files outside of the base directory"),
-                                                    FilePath::fromString("/"));
-            linkDirNode(m_root, externalFilesNode);
-            for (const FileInfo &fileInfo : outOfBaseDirFiles)
-                linkFileNode(externalFilesNode, createFileNode(fileInfo, true));
         }
     }
 
@@ -266,52 +264,128 @@ private:
     }
 };
 
+class FileFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    FileFilterModel(QObject *parent = nullptr)
+        : QSortFilterProxyModel(parent)
+    {}
+
+private:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
+    {
+        QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+        const int rowCount = sourceModel()->rowCount(index);
+        if (rowCount == 0) // No children -> file node!
+            return sourceModel()->data(index).toString().contains(filterRegExp());
+        for (int row = 0; row < rowCount; ++row) {
+            if (filterAcceptsRow(row, index))
+                return true;
+        }
+        return false;
+    }
+};
+
 SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
-                                             const FileInfos &allFileInfos)
+                                             const FileInfoProviders &fileInfoProviders,
+                                             int initialProviderIndex)
     : QDialog(nullptr)
     , m_ui(new Ui::SelectableFilesDialog)
-    , m_filesModel(new SelectableFilesModel(projectInfo, allFileInfos))
+    , m_filesModel(new SelectableFilesModel)
+    , m_fileInfoProviders(fileInfoProviders)
     , m_project(projectInfo.project())
     , m_analyzeButton(new QPushButton(tr("Analyze"), this))
 {
     m_ui->setupUi(this);
 
-    m_ui->filesView->setModel(m_filesModel.get());
-    m_ui->filesView->expandToDepth(2);
+    // Files View
+    // Make find actions available in this dialog, e.g. Strg+F for the view.
+    addAction(Core::ActionManager::command(Core::Constants::FIND_IN_DOCUMENT)->action());
+    addAction(Core::ActionManager::command(Core::Constants::FIND_NEXT)->action());
+    addAction(Core::ActionManager::command(Core::Constants::FIND_PREVIOUS)->action());
+    m_fileView = new QTreeView;
+    m_fileView->setHeaderHidden(true);
+    m_fileView->setModel(m_filesModel.get());
+    m_ui->verticalLayout->addWidget(
+        Core::ItemViewFind::createSearchableWrapper(m_fileView, Core::ItemViewFind::LightColored));
 
-    m_ui->buttons->setStandardButtons(QDialogButtonBox::Cancel);
-    m_ui->buttons->addButton(m_analyzeButton, QDialogButtonBox::AcceptRole);
+    // Filter combo box
+    for (const FileInfoProvider &provider : m_fileInfoProviders) {
+        m_ui->fileFilterComboBox->addItem(provider.displayName);
 
-    ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
+        // Disable item if it has no file infos
+        auto *model = qobject_cast<QStandardItemModel *>(m_ui->fileFilterComboBox->model());
+        QStandardItem *item = model->item(m_ui->fileFilterComboBox->count() - 1);
+        item->setFlags(provider.fileInfos.empty() ? item->flags() & ~Qt::ItemIsEnabled
+                                                  : item->flags() | Qt::ItemIsEnabled);
+    }
+    int providerIndex = initialProviderIndex;
+    if (m_fileInfoProviders[providerIndex].fileInfos.empty())
+        providerIndex = 0;
+    m_ui->fileFilterComboBox->setCurrentIndex(providerIndex);
+    onFileFilterChanged(providerIndex);
+    connect(m_ui->fileFilterComboBox,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &SelectableFilesDialog::onFileFilterChanged);
 
-    // Restore selection
-    if (settings->selectedDirs().isEmpty() && settings->selectedFiles().isEmpty())
-        m_filesModel->selectAllFiles(); // Initially, all files are selected
-    else // Restore selection
-        m_filesModel->restoreMinimalSelection(settings->selectedDirs(), settings->selectedFiles());
-
+    // Buttons
+    m_buttons = new QDialogButtonBox;
+    m_buttons->setStandardButtons(QDialogButtonBox::Cancel);
+    m_buttons->addButton(m_analyzeButton, QDialogButtonBox::AcceptRole);\
+    connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this]() {
         m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     });
+    m_ui->verticalLayout->addWidget(m_buttons);
 }
 
 SelectableFilesDialog::~SelectableFilesDialog() = default;
 
-FileInfos SelectableFilesDialog::filteredFileInfos() const
+FileInfos SelectableFilesDialog::fileInfos() const
 {
     return m_filesModel->selectedFileInfos();
 }
 
+int SelectableFilesDialog::currentProviderIndex() const
+{
+    return m_ui->fileFilterComboBox->currentIndex();
+}
+
+void SelectableFilesDialog::onFileFilterChanged(int index)
+{
+    // Remember previous filter/selection
+    if (m_previousProviderIndex != -1)
+        m_filesModel->minimalSelection(m_fileInfoProviders[m_previousProviderIndex].selection);
+    m_previousProviderIndex = index;
+
+    // Reset model
+    const FileInfoProvider &provider = m_fileInfoProviders[index];
+    m_filesModel->buildTree(m_project, provider.fileInfos);
+
+    // Expand
+    if (provider.expandPolicy == FileInfoProvider::All)
+        m_fileView->expandAll();
+    else
+        m_fileView->expandToDepth(2);
+
+    // Handle selection
+    if (provider.selection.dirs.isEmpty() && provider.selection.files.isEmpty())
+        m_filesModel->selectAllFiles(); // Initially, all files are selected
+    else
+        m_filesModel->restoreMinimalSelection(provider.selection);
+}
+
 void SelectableFilesDialog::accept()
 {
-    ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
-
-    QSet<FilePath> checkedDirs;
-    QSet<FilePath> checkedFiles;
-    m_filesModel->minimalSelection(checkedDirs, checkedFiles);
-    settings->setSelectedDirs(checkedDirs);
-    settings->setSelectedFiles(checkedFiles);
+    FileInfoSelection selection;
+    m_filesModel->minimalSelection(selection);
+    FileInfoProvider &provider = m_fileInfoProviders[m_ui->fileFilterComboBox->currentIndex()];
+    provider.onSelectionAccepted(selection);
 
     QDialog::accept();
 }

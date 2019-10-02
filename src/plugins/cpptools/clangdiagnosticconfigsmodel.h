@@ -37,7 +37,7 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsModel
 {
 public:
     ClangDiagnosticConfigsModel() = default;
-    explicit ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs);
+    explicit ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &configs);
 
     int size() const;
     const ClangDiagnosticConfig &at(int index) const;

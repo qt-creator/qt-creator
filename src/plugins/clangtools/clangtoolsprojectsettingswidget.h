@@ -51,8 +51,8 @@ private:
     void updateButtonStateRemoveAll();
     void removeSelected();
 
-    Ui::ProjectSettingsWidget * const m_ui;
-    ClangToolsProjectSettings * const m_projectSettings;
+    Ui::ProjectSettingsWidget *const m_ui;
+    ClangToolsProjectSettings *const m_projectSettings;
 };
 
 } // namespace Internal

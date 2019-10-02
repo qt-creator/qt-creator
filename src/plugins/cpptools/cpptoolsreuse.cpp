@@ -26,8 +26,9 @@
 #include "cpptoolsreuse.h"
 
 #include "cppcodemodelsettings.h"
-#include "cpptoolsplugin.h"
 #include "cpptools_clazychecks.h"
+#include "cpptoolsconstants.h"
+#include "cpptoolsplugin.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -349,6 +350,47 @@ QString clazyChecksForLevel(int level)
             checks << check.name;
     }
     return checks.join(',');
+}
+
+static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
+{
+    ClangDiagnosticConfig config;
+
+    // Questionable constructs
+    config = ClangDiagnosticConfig();
+    config.setId(Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE);
+    config.setDisplayName(QCoreApplication::translate(
+                              "ClangDiagnosticConfigsModel",
+                              "Checks for questionable constructs"));
+    config.setIsReadOnly(true);
+    config.setClangOptions({
+        "-Wall",
+        "-Wextra",
+    });
+    model.appendOrUpdate(config);
+
+    // Warning flags from build system
+    config = ClangDiagnosticConfig();
+    config.setId("Builtin.BuildSystem");
+    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
+                                                      "Build-system warnings"));
+    config.setIsReadOnly(true);
+    config.setUseBuildSystemWarnings(true);
+    model.appendOrUpdate(config);
+}
+
+ClangDiagnosticConfigsModel diagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs)
+{
+    ClangDiagnosticConfigsModel model;
+    addBuiltinConfigs(model);
+    for (const ClangDiagnosticConfig &config : customConfigs)
+        model.appendOrUpdate(config);
+    return model;
+}
+
+ClangDiagnosticConfigsModel diagnosticConfigsModel()
+{
+    return diagnosticConfigsModel(CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
 }
 
 } // CppTools

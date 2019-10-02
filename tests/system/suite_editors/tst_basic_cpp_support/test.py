@@ -42,7 +42,7 @@ def main():
     if not startedWithoutPluginError():
         return
     openQmakeProject(proFile)
-    progressBarWait(20000)
+    waitForProjectParsing()
     selectFromLocator("dummy.cpp")
 
 ##   Waiting for a solution from Froglogic to make the below work.

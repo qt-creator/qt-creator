@@ -38,5 +38,7 @@ const char CLANGTIDYCLAZY_RUN_MODE[] = "ClangTidyClazy.RunMode";
 const char CLANG_TIDY_EXECUTABLE_NAME[] = "clang-tidy";
 const char CLAZY_STANDALONE_EXECUTABLE_NAME[] = "clazy-standalone";
 
+const char DIAG_CONFIG_TIDY_AND_CLAZY[] = "Builtin.TidyAndClazy";
+
 } // Constants
 } // ClangTools

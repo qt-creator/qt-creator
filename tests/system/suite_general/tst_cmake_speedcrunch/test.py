@@ -60,7 +60,7 @@ def main():
         test.fatal("Could not open/create cmake project - leaving test")
         invokeMenuItem("File", "Exit")
         return
-    progressBarWait(30000)
+    waitForProjectParsing()
     naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s' type='QModelIndex'}"
     if cmakeSupportsServerMode():
         treeFile = "projecttree_speedcrunch_server.tsv"

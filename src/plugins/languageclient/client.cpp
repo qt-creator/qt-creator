@@ -140,7 +140,7 @@ Client::~Client()
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
     for (const DocumentUri &uri : m_highlights.keys()) {
-        if (TextDocument *doc = TextDocument::textDocumentForFileName(uri.toFilePath())) {
+        if (TextDocument *doc = TextDocument::textDocumentForFilePath(uri.toFilePath())) {
             if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
                 highlighter->clearAllExtraFormats();
         }
@@ -620,7 +620,7 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
 {
     const Utils::FilePath fileName = uri.toFilePath();
-    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(fileName);
+    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(fileName);
     if (!doc)
         return;
 
@@ -918,7 +918,7 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
 void Client::showDiagnostics(const DocumentUri &uri)
 {
     if (TextEditor::TextDocument *doc
-        = TextEditor::TextDocument::textDocumentForFileName(uri.toFilePath())) {
+        = TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath())) {
         for (TextMark *mark : m_diagnostics.value(uri))
             doc->addMark(mark);
     }
@@ -927,7 +927,7 @@ void Client::showDiagnostics(const DocumentUri &uri)
 void Client::removeDiagnostics(const DocumentUri &uri)
 {
     TextEditor::TextDocument *doc
-        = TextEditor::TextDocument::textDocumentForFileName(uri.toFilePath());
+        = TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath());
 
     for (TextMark *mark : m_diagnostics.take(uri)) {
         if (doc)
@@ -1052,7 +1052,7 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     // TextMarks are already added in the TextEditor::TextMark constructor
     // so hide them if we are not the active client for this document
     if (LanguageClientManager::clientForUri(uri) != this)
-        hideDiagnostics(TextEditor::TextDocument::textDocumentForFileName(uri.toFilePath()));
+        hideDiagnostics(TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath()));
     else
         requestCodeActions(uri, diagnostics);
 }
@@ -1062,7 +1062,7 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
     const DocumentUri &uri = params.textDocument().uri();
     m_highlights[uri].clear();
     const LanguageClientValue<int> &version = params.textDocument().version();
-    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(
+    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(
         uri.toFilePath());
 
     if (!doc || LanguageClientManager::clientForDocument(doc) != this
@@ -1082,7 +1082,7 @@ void Client::rehighlight()
 {
     using namespace TextEditor;
     for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
-        if (TextDocument *doc = TextDocument::textDocumentForFileName(it.key().toFilePath())) {
+        if (TextDocument *doc = TextDocument::textDocumentForFilePath(it.key().toFilePath())) {
             if (LanguageClientManager::clientForDocument(doc) == this)
                 SemanticHighligtingSupport::applyHighlight(doc, it.value(), capabilities());
         }

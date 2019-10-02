@@ -277,7 +277,7 @@ void TargetSetupWidget::updateDefaultBuildDirectories()
         if (!buildInfo.factory())
             continue;
         for (BuildInfoStore &buildInfoStore : m_infoStore) {
-            if (buildInfoStore.buildInfo.buildType == buildInfo.buildType) {
+            if (buildInfoStore.buildInfo.typeName == buildInfo.typeName) {
                 if (!buildInfoStore.customBuildDir) {
                     m_ignoreChange = true;
                     buildInfoStore.pathChooser->setFileName(buildInfo.buildDirectory);

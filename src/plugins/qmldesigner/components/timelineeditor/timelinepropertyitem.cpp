@@ -517,10 +517,10 @@ void TimelineKeyframeItem::updateFrame()
     setPosition(m_frame.variantProperty("frame").value().toReal());
 }
 
-void TimelineKeyframeItem::setPosition(qreal position)
+void TimelineKeyframeItem::setPosition(qreal frame)
 {
     int offset = (TimelineConstants::sectionHeight - TimelineConstants::keyFrameSize) / 2;
-    const qreal scenePostion = mapFromFrameToScene(position);
+    const qreal scenePostion = mapFromFrameToScene(frame);
 
     setRect(scenePostion - TimelineConstants::keyFrameSize / 2,
             offset,
@@ -620,6 +620,11 @@ void TimelineKeyframeItem::setHighlighted(bool b)
 {
     m_highlight = b;
     update();
+}
+
+bool TimelineKeyframeItem::highlighted() const
+{
+    return m_highlight;
 }
 
 TimelinePropertyItem *TimelineKeyframeItem::propertyItem() const

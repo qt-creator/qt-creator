@@ -117,7 +117,10 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     connect(copyAction, &QAction::triggered, this, &QPlainTextEdit::copy);
     connect(pasteAction, &QAction::triggered, this, &QPlainTextEdit::paste);
     connect(selectAllAction, &QAction::triggered, this, &QPlainTextEdit::selectAll);
-    connect(this, &QPlainTextEdit::blockCountChanged, this, &OutputWindow::filterNewContent);
+    connect(this, &QPlainTextEdit::blockCountChanged, this, [this] {
+        if (!d->filterText.isEmpty())
+            filterNewContent();
+    });
 
     connect(this, &QPlainTextEdit::undoAvailable, undoAction, &QAction::setEnabled);
     connect(this, &QPlainTextEdit::redoAvailable, redoAction, &QAction::setEnabled);

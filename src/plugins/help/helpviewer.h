@@ -63,8 +63,7 @@ public:
     virtual QString title() const = 0;
 
     virtual QUrl source() const = 0;
-    // metacall in HelpPlugin::updateSideBarSource
-    Q_INVOKABLE virtual void setSource(const QUrl &url) = 0;
+    virtual void setSource(const QUrl &url) = 0;
 
     virtual void setHtml(const QString &html) = 0;
 

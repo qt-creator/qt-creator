@@ -42,7 +42,6 @@
 
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -221,21 +220,14 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
-static ClangDiagnosticConfig diagnosticConfig(const Core::Id &diagConfigId)
-{
-    const ClangDiagnosticConfigsModel configsModel(
-                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
-
-    QTC_ASSERT(configsModel.hasConfigWithId(diagConfigId), return ClangDiagnosticConfig());
-    return configsModel.configWithId(diagConfigId);
-}
 
 ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
                                        const RunSettings &runSettings,
+                                       const CppTools::ClangDiagnosticConfig &diagnosticConfig,
                                        const FileInfos &fileInfos,
                                        bool preventBuild)
     : RunWorker(runControl)
-    , m_diagnosticConfig(diagnosticConfig(runSettings.diagnosticConfigId()))
+    , m_diagnosticConfig(diagnosticConfig)
     , m_fileInfos(fileInfos)
     , m_temporaryDir("clangtools-XXXXXX")
 {
@@ -304,7 +296,10 @@ void ClangToolRunWorker::start()
     }
 
     const Utils::FilePath projectFile = m_projectInfo.project()->projectFilePath();
-    appendMessage(tr("Running %1 on %2").arg(toolName).arg(projectFile.toUserOutput()),
+    appendMessage(tr("Running %1 on %2 with configuration \"%3\".")
+                      .arg(toolName)
+                      .arg(projectFile.toUserOutput())
+                      .arg(m_diagnosticConfig.displayName()),
                   Utils::NormalMessageFormat);
 
     // Create log dir
