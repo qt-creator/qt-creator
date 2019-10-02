@@ -84,6 +84,7 @@ Tricky parts:
       * `ProjectExplorer.ToolChain.Custom` for custom toolchain
       * `Qt4ProjectManager.ToolChain.Android` for the Android tool chain
       * `Qnx.QccToolChain` for the Qnx QCC tool chain
+      * `WebAssembly.ToolChain.Emscripten` for the Emscripten tool chain
 
     Check the classes derived from `ProjectExplorer::ToolChain` for their
     Ids.
@@ -141,7 +142,7 @@ Tricky parts:
 
   - `type` must be the string returned by `BaseQtVersion::type()`.
 
-    Currently these are (Qt Creator 4.6):
+    Currently these are (Qt Creator 4.11):
       * `Qt4ProjectManager.QtVersion.Android` for Android
       * `Qt4ProjectManager.QtVersion.Desktop` for a desktop Qt
       * `Qt4ProjectManager.QtVersion.Ios` for iOS
@@ -149,6 +150,7 @@ Tricky parts:
       * `RemoteLinux.EmbeddedLinuxQt` for Embedded Linux
       * `WinRt.QtVersion.WindowsRuntime` for Windows RT
       * `WinRt.QtVersion.WindowsPhone` for Windows RT phone
+      * `Qt4ProjectManager.QtVersion.WebAssembly` for WebAssembly
 
 Add a kit:
 ==========
@@ -171,7 +173,7 @@ Using the newly set up tool chain and Qt version:
 Tricky parts:
   - `devicetype` is the string returned IDevice::type()
 
-    Currently these are (Qt Creator 4.6):
+    Currently these are (Qt Creator 4.11):
       * `Android.Device.Type` for Android devices
       * `Desktop` for code running on the local desktop
       * `Ios.Device.Type` for an iOS device
@@ -180,6 +182,7 @@ Tricky parts:
       * `WinRt.Device.Local` for Windows RT (local)
       * `WinRt.Device.Emulator` for a Windows RT emulator
       * `WinRt.Device.Phone` for a Windows RT phone
+      * `WebAssemblyDeviceType` for a web browser that supports WebAssembly
 
   - `debuggerid` is one of the ids used when setting up toolchains with
     `sdktool addDebugger`.

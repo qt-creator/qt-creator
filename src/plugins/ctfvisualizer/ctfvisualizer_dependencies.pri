@@ -5,5 +5,4 @@ QTC_LIB_DEPENDS += \
     tracing
 
 QTC_PLUGIN_DEPENDS += \
-    debugger \
-    qtsupport
+    debugger

@@ -186,7 +186,7 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
     if (!bgData->qtBinPath.isEmpty()) {
         if (!qtVersion)
             return false;
-        if (bgData->qtBinPath != qtVersion->binPath())
+        if (bgData->qtBinPath != qtVersion->hostBinPath())
             return false;
     }
     if (bgData->sysroot != SysRootKitAspect::sysRoot(k))

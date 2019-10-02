@@ -212,7 +212,7 @@ bool AndroidBuildApkStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    QString command = version->qmakeProperty("QT_HOST_BINS");
+    QString command = version->hostBinPath().toString();
     if (!command.endsWith('/'))
         command += '/';
     command += "androiddeployqt";
@@ -510,7 +510,6 @@ QString AndroidBuildApkStep::buildTargetSdk() const
 void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 {
     m_buildTargetSdk = sdk;
-    AndroidManager::updateGradleProperties(target());
 }
 
 QVariant AndroidBuildApkStep::data(Core::Id id) const

@@ -507,8 +507,8 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     if (parsedSpec.isEmpty())
         return {};
 
-    FilePath baseMkspecDir = FilePath::fromUserInput(
-            version->qmakeProperty("QT_HOST_DATA") + QLatin1String("/mkspecs"));
+    FilePath baseMkspecDir = FilePath::fromUserInput(version->hostDataPath().toString()
+                                                     + "/mkspecs");
     baseMkspecDir = FilePath::fromString(baseMkspecDir.toFileInfo().canonicalFilePath());
 
     // if the path is relative it can be
@@ -608,7 +608,7 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         QString projectDirectory = projectPath.toFileInfo().absolutePath();
         QDir qtSourceDir = QDir(version->sourcePath().toString());
         QString relativeProjectPath = qtSourceDir.relativeFilePath(projectDirectory);
-        QString qtBuildDir = version->qmakeProperty("QT_INSTALL_PREFIX");
+        QString qtBuildDir = version->prefix().toString();
         QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
 
         info.buildDirectory = FilePath::fromString(absoluteBuildPath);
@@ -672,8 +672,8 @@ void QmakeBuildConfiguration::setupBuildEnvironment(Kit *k, Environment &env)
 {
     prependCompilerPathToEnvironment(k, env);
     const BaseQtVersion *qt = QtKitAspect::qtVersion(k);
-    if (qt && !qt->binPath().isEmpty())
-        env.prependOrSetPath(qt->binPath().toString());
+    if (qt && !qt->hostBinPath().isEmpty())
+        env.prependOrSetPath(qt->hostBinPath().toString());
 }
 
 QmakeBuildConfiguration::LastKitState::LastKitState() = default;

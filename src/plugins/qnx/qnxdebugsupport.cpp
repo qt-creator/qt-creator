@@ -76,15 +76,15 @@ static QStringList searchPaths(Kit *kit)
     if (!qtVersion)
         return {};
 
-    const QDir pluginDir(qtVersion->qmakeProperty("QT_INSTALL_PLUGINS"));
+    const QDir pluginDir(qtVersion->pluginPath().toString());
     const QStringList pluginSubDirs = pluginDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
     QStringList searchPaths;
 
     for (const QString &dir : pluginSubDirs)
-        searchPaths << qtVersion->qmakeProperty("QT_INSTALL_PLUGINS") + '/' + dir;
+        searchPaths << qtVersion->pluginPath().toString() + '/' + dir;
 
-    searchPaths << qtVersion->qmakeProperty("QT_INSTALL_LIBS");
+    searchPaths << qtVersion->libraryPath().toString();
     searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/lib").toString();
     searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/usr/lib").toString();
 

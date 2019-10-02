@@ -615,12 +615,12 @@ void QtOptionsPageWidget::editPath()
     BaseQtVersion *current = currentVersion();
     QString dir = currentVersion()->qmakeCommand().toFileInfo().absolutePath();
     FilePath qtVersion = FilePath::fromString(
-                QFileDialog::getOpenFileName(this,
-                                             tr("Select a qmake Executable"),
-                                             dir,
-                                             BuildableHelperLibrary::filterForQmakeFileDialog(),
-                                             0,
-                                             QFileDialog::DontResolveSymlinks));
+        QFileDialog::getOpenFileName(this,
+                                     tr("Select a qmake Executable"),
+                                     dir,
+                                     BuildableHelperLibrary::filterForQmakeFileDialog(),
+                                     nullptr,
+                                     QFileDialog::DontResolveSymlinks));
     if (qtVersion.isEmpty())
         return;
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);

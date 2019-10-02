@@ -300,7 +300,7 @@ QStringList PerfDataReader::collectArguments(const QString &executableDirPath,
         arguments << QLatin1String("--extra") << QString::fromLatin1("%1%5%2%5%3%5%4")
                      .arg(QDir::toNativeSeparators(qt->libraryPath().toString()))
                      .arg(QDir::toNativeSeparators(qt->pluginPath().toString()))
-                     .arg(QDir::toNativeSeparators(qt->binPath().toString()))
+                     .arg(QDir::toNativeSeparators(qt->hostBinPath().toString()))
                      .arg(QDir::toNativeSeparators(qt->qmlPath().toString()))
                      .arg(QDir::listSeparator());
     }

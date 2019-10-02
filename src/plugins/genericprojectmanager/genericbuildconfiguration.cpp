@@ -106,7 +106,7 @@ void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
     prependCompilerPathToEnvironment(target()->kit(), env);
     const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
     if (qt)
-        env.prependOrSetPath(qt->binPath().toString());
+        env.prependOrSetPath(qt->hostBinPath().toString());
 }
 
 } // namespace Internal

@@ -62,10 +62,10 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         return;
     }
 
-    m_runnerFilePath = qt->binPath().toString() + QStringLiteral("/winrtrunner.exe");
+    m_runnerFilePath = qt->hostBinPath().toString() + QStringLiteral("/winrtrunner.exe");
     if (!QFile::exists(m_runnerFilePath)) {
         *errorMessage = tr("Cannot find winrtrunner.exe in \"%1\".").arg(
-                    QDir::toNativeSeparators(qt->binPath().toString()));
+                    QDir::toNativeSeparators(qt->hostBinPath().toString()));
         return;
     }
 
