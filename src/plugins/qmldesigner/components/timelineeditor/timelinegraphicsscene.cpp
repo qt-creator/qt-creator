@@ -171,12 +171,58 @@ void TimelineGraphicsScene::invalidateLayout()
     m_layout->invalidate();
 }
 
+void TimelineGraphicsScene::updateKeyframePositionsCache()
+{
+    auto kfPos = keyframePositions();
+    std::sort(kfPos.begin(), kfPos.end());
+    kfPos.erase(std::unique(kfPos.begin(), kfPos.end()), kfPos.end()); // remove duplicates
+
+    m_keyframePositionsCache = kfPos;
+}
+
+// snap a frame to nearest keyframe or ruler tick
+qreal TimelineGraphicsScene::snap(qreal frame)
+{
+    qreal frameTick = m_layout->ruler()->getFrameTick();
+    qreal rulerTicksSnapframe = qRound(frame / frameTick) * frameTick;
+    // get nearest keyframe to the input frame
+    bool nearestKeyframeFound = false;
+    qreal nearestKeyframe = 0;
+    for (int i = 0; i < m_keyframePositionsCache.size(); ++i) {
+        qreal kf_i = m_keyframePositionsCache[i];
+        if (kf_i > frame) {
+            nearestKeyframeFound = true;
+            nearestKeyframe = kf_i;
+            if (i > 0) {
+                qreal kf_p = m_keyframePositionsCache[i - 1]; // previous kf
+                if (frame - kf_p < kf_i - frame)
+                    nearestKeyframe = kf_p;
+            }
+            break;
+        }
+    }
+
+    if (!nearestKeyframeFound && !m_keyframePositionsCache.empty()) {
+        // playhead past last keyframe case
+        nearestKeyframe = m_keyframePositionsCache.last();
+        nearestKeyframeFound = true;
+    }
+
+    // return nearest snappable keyframe or ruler tick
+    return nearestKeyframeFound  && qAbs(nearestKeyframe - frame)
+                                  < qAbs(rulerTicksSnapframe - frame) ? nearestKeyframe
+                                                                      : rulerTicksSnapframe;
+}
+
 void TimelineGraphicsScene::setCurrenFrame(const QmlTimeline &timeline, qreal frame)
 {
-    if (timeline.isValid())
+    if (timeline.isValid()) {
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) // playhead snapping
+            frame = snap(frame);
         m_currentFrameIndicator->setPosition(frame);
-    else
+    } else {
         m_currentFrameIndicator->setPosition(0);
+    }
 
     invalidateCurrentValues();
 }

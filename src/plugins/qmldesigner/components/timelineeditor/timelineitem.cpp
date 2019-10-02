@@ -79,15 +79,15 @@ void TimelineFrameHandle::setHeight(int height)
     setRect(rect().x(), rect().y(), rect().width(), height);
 }
 
-void TimelineFrameHandle::setPosition(qreal position)
+void TimelineFrameHandle::setPosition(qreal frame)
 {
-    const qreal scenePos = mapFromFrameToScene(position);
+    const qreal scenePos = mapFromFrameToScene(frame);
     QRectF newRect(scenePos - rect().width() / 2, rect().y(), rect().width(), rect().height());
 
     if (!qFuzzyCompare(newRect.x(), rect().x())) {
         setRect(newRect);
     }
-    m_position = position;
+    m_position = frame;
 }
 
 void TimelineFrameHandle::setPositionInteractive(const QPointF &position)

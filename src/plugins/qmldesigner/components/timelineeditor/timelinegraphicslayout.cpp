@@ -159,4 +159,9 @@ void TimelineGraphicsLayout::activate()
     m_layout->activate();
 }
 
+TimelineRulerSectionItem *TimelineGraphicsLayout::ruler() const
+{
+    return m_rulerItem;
+}
+
 } // End namespace QmlDesigner.

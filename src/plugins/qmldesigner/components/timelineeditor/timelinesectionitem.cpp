@@ -701,8 +701,6 @@ void TimelineRulerSectionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
 void TimelineRulerSectionItem::paintTicks(QPainter *painter)
 {
-    const int totalWidth = size().width() / m_scaling + timelineScene()->scrollOffset() / m_scaling;
-
     QFontMetrics fm(painter->font());
 
     int minSpacingText = fm.horizontalAdvance(QString("X%1X").arg(rulerDuration()));
@@ -734,8 +732,10 @@ void TimelineRulerSectionItem::paintTicks(QPainter *painter)
         }
     }
 
-    int height = size().height();
+    m_frameTick = qreal(deltaLine);
 
+    int height = size().height();
+    const int totalWidth = (size().width() + timelineScene()->scrollOffset()) / m_scaling;
     for (int i = timelineScene()->scrollOffset() / m_scaling; i < totalWidth; ++i) {
         if ((i % deltaText) == 0) {
             drawCenteredText(painter,
@@ -757,6 +757,11 @@ void TimelineRulerSectionItem::paintTicks(QPainter *painter)
                      height * 0.75);
         }
     }
+}
+
+qreal TimelineRulerSectionItem::getFrameTick() const
+{
+    return m_frameTick;
 }
 
 void TimelineRulerSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

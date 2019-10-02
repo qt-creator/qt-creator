@@ -88,6 +88,8 @@ public:
     qreal startFrame() const;
     qreal endFrame() const;
 
+    void updateKeyframePositionsCache();
+
     qreal mapToScene(qreal x) const;
     qreal mapFromScene(qreal x) const;
 
@@ -165,6 +167,8 @@ private:
     QList<QGraphicsItem *> itemsAt(const QPointF &pos);
 
 private:
+    qreal snap(qreal frame);
+
     TimelineWidget *m_parent = nullptr;
 
     TimelineGraphicsLayout *m_layout = nullptr;
@@ -174,6 +178,9 @@ private:
     TimelineToolDelegate m_tools;
 
     QList<TimelineKeyframeItem *> m_selectedKeyframes;
+
+    // sorted, unique cache of keyframes positions, used for snapping
+    QVector<qreal> m_keyframePositionsCache;
 
     int m_scrollOffset = 0;
 };
