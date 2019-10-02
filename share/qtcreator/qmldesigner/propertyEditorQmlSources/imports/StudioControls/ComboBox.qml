@@ -131,7 +131,7 @@ T.ComboBox {
 
         contentItem: Text {
             leftPadding: itemDelegateIconArea.width
-            text: modelData
+            text: myComboBox.textRole ? (Array.isArray(myComboBox.model) ? modelData[myComboBox.textRole] : model[myComboBox.textRole]) : modelData
             color: StudioTheme.Values.themeTextColor
             font: myComboBox.font
             elide: Text.ElideRight
