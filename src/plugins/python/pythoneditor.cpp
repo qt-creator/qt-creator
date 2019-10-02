@@ -126,7 +126,6 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
                                            + QRegularExpression::escape(
                                                QDir::toNativeSeparators("/pyls/__init__.py"))
                                            + '$';
-    static const QString cachedPattern = " matches " + pylsInitPattern;
     static const QRegularExpression regexCached(" matches " + pylsInitPattern,
                                                 QRegularExpression::MultilineOption);
     static const QRegularExpression regexNotCached(" code object from " + pylsInitPattern,
