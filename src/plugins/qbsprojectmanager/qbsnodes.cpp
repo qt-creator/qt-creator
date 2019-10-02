@@ -320,14 +320,7 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
 {
     static QIcon productIcon = Core::FileIconProvider::directoryIcon(Constants::QBS_PRODUCT_OVERLAY_ICON);
     setIcon(productIcon);
-    if (m_qbsProductData.isRunnable()) {
-        setProductType(ProductType::App);
-    } else if (m_qbsProductData.type().contains("dynamiclibrary")
-               || m_qbsProductData.type().contains("staticlibrary")) {
-        setProductType(ProductType::Lib);
-    } else {
-        setProductType(ProductType::Other);
-    }
+    setIsProduct();
 }
 
 bool QbsProductNode::supportsAction(ProjectAction action, const Node *node) const
