@@ -33,7 +33,7 @@ def main():
         # using a temporary directory won't mess up a potentially existing
         createNewQmlExtension(tempDir(), [target])
         # wait for parsing to complete
-        progressBarWait(30000)
+        waitForProjectParsing()
         test.log("Building project Qt Quick 2 Extension Plugin (%s)"
                  % Targets.getStringForTarget(target))
         invokeMenuItem("Build","Build All")

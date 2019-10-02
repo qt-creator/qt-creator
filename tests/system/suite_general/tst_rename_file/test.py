@@ -46,7 +46,7 @@ def main():
               "OTHER_FILES += example.qml")
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Close All")
-    progressBarWait()
+    waitForProjectParsing()
     for filetype, filename in [["Headers", "person.h"],
                                ["Sources", "main.cpp"],
                                ["Sources", "person.cpp"],
@@ -66,7 +66,7 @@ def main():
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        previous, filename)
             # QTCREATORBUG-13176 does update the navigator async
-            progressBarWait()
+            waitForProjectParsing()
             if filetype == "Headers":
                 verifyRenamedIncludes(templateDir, "main.cpp", previous, filename)
                 verifyRenamedIncludes(templateDir, "person.cpp", previous, filename)

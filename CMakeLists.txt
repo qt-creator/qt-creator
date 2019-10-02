@@ -101,8 +101,8 @@ else()
 endif()
 install(TARGETS OptionalSvg EXPORT QtCreator)
 
-find_package(LLVM QUIET)
 find_package(Clang COMPONENTS libclang QUIET)
+find_package(LLVM QUIET)
 
 if (APPLE)
   find_library(FWCoreFoundation CoreFoundation)
