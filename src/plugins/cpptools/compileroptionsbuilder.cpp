@@ -792,6 +792,15 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             containsDriverMode = true;
         }
 
+        // Transfrom the "/" starting commands into "-" commands, which if
+        // unknown will not cause clang to fail because it thinks
+        // it's a missing file.
+        if (theOption.startsWith("/") &&
+            (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID ||
+             toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
+            theOption[0] = '-';
+        }
+
         m_compilerFlags.flags.append(theOption);
     }
 
