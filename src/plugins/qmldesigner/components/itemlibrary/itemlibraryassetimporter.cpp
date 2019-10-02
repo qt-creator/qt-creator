@@ -51,6 +51,9 @@ namespace QmlDesigner {
 ItemLibraryAssetImporter::ItemLibraryAssetImporter(QObject *parent) :
     QObject (parent)
 {
+#ifdef IMPORT_QUICK3D_ASSETS
+    m_quick3DAssetImporter.reset(new QSSGAssetImportManager);
+#endif
 }
 
 ItemLibraryAssetImporter::~ItemLibraryAssetImporter() {
@@ -59,7 +62,8 @@ ItemLibraryAssetImporter::~ItemLibraryAssetImporter() {
 };
 
 void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
-                                             const QString &importPath)
+                                             const QString &importPath,
+                                             const QVariantMap &options)
 {
     if (m_isImporting)
         cancelImport();
@@ -75,7 +79,7 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
 
     m_importPath = importPath;
 
-    parseFiles(inputFiles);
+    parseFiles(inputFiles, options);
 
     if (!isCancelled()) {
         // Don't allow cancel anymore as existing asset overwrites are not trivially recoverable.
@@ -169,6 +173,15 @@ bool ItemLibraryAssetImporter::isQuick3DAsset(const QString &fileName) const
     return quick3DExt.contains(QFileInfo(fileName).suffix());
 }
 
+QVariantMap ItemLibraryAssetImporter::supportedOptions(const QString &modelFile) const
+{
+#ifdef IMPORT_QUICK3D_ASSETS
+    return m_quick3DAssetImporter->getOptionsForFile(modelFile);
+#else
+    return {};
+#endif
+}
+
 void ItemLibraryAssetImporter::notifyFinished()
 {
     m_isImporting = false;
@@ -188,7 +201,7 @@ void ItemLibraryAssetImporter::reset()
 #endif
 }
 
-void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths)
+void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths, const QVariantMap &options)
 {
     if (isCancelled())
         return;
@@ -204,18 +217,16 @@ void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths)
         if (isCancelled())
             return;
         if (isQuick3DAsset(file))
-            parseQuick3DAsset(file);
+            parseQuick3DAsset(file, options);
         notifyProgress(qRound(++count * quota), progressTitle);
     }
     notifyProgress(100, progressTitle);
 }
 
-void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file)
+void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVariantMap &options)
 {
 #ifdef IMPORT_QUICK3D_ASSETS
     addInfo(tr("Parsing 3D Model"), file);
-    if (!m_quick3DAssetImporter)
-        m_quick3DAssetImporter.reset(new QSSGAssetImportManager);
 
     QString errorString;
 
@@ -258,8 +269,8 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file)
     addInfo(tr("Generating 3D assets for: \"%1\"").arg(targetDir.absoluteFilePath(assetName)));
 
     if (m_quick3DAssetImporter->importFile(
-                sourceInfo.absoluteFilePath(), outDir,
-                &errorString) != QSSGAssetImportManager::ImportState::Success) {
+                sourceInfo.absoluteFilePath(), outDir, options, &errorString)
+            != QSSGAssetImportManager::ImportState::Success) {
         addError(tr("Failed to import 3D asset with error: %1").arg(errorString),
                  sourceInfo.absoluteFilePath());
         return;

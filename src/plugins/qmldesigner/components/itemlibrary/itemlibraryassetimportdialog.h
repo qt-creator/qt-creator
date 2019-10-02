@@ -27,6 +27,7 @@
 #include "itemlibraryassetimporter.h"
 
 #include <QtWidgets/qdialog.h>
+#include <QtCore/qjsonobject.h>
 
 namespace Utils {
 class OutputFormatter;
@@ -48,13 +49,16 @@ public:
                                const QString &defaulTargetDirectory, QWidget *parent = nullptr);
     ~ItemLibraryAssetImportDialog();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private slots:
     void addError(const QString &error, const QString &srcPath = {});
     void addWarning(const QString &warning, const QString &srcPath = {});
     void addInfo(const QString &info, const QString &srcPath = {});
 
 private:
-    void setImportUiState(bool importing);
+    void setCloseButtonState(bool importing);
 
     void onImport();
     void setImportProgress(int value, const QString &text);
@@ -68,5 +72,6 @@ private:
     QStringList m_quick3DFiles;
     QString m_quick3DImportPath;
     ItemLibraryAssetImporter m_importer;
+    QJsonObject m_importOptions;
 };
 }

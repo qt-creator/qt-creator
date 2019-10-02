@@ -45,7 +45,8 @@ public:
     ItemLibraryAssetImporter(QObject *parent = nullptr);
     ~ItemLibraryAssetImporter();
 
-    void importQuick3D(const QStringList &inputFiles, const QString &importPath);
+    void importQuick3D(const QStringList &inputFiles, const QString &importPath,
+                       const QVariantMap &options);
 
     bool isImporting() const;
     void cancelImport();
@@ -56,6 +57,7 @@ public:
     void addInfo(const QString &infoMsg, const QString &srcPath = {}) const;
 
     bool isQuick3DAsset(const QString &fileName) const;
+    QVariantMap supportedOptions(const QString &modelFile) const;
 
 signals:
     void errorReported(const QString &, const QString &) const;
@@ -68,8 +70,8 @@ signals:
 private:
     void notifyFinished();
     void reset();
-    void parseFiles(const QStringList &filePaths);
-    void parseQuick3DAsset(const QString &file);
+    void parseFiles(const QStringList &filePaths, const QVariantMap &options);
+    void parseQuick3DAsset(const QString &file, const QVariantMap &options);
     void copyImportedFiles();
 
     void notifyProgress(int value, const QString &text) const;
