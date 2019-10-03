@@ -181,10 +181,10 @@ void TimelineGraphicsScene::updateKeyframePositionsCache()
 }
 
 // snap a frame to nearest keyframe or ruler tick
-qreal TimelineGraphicsScene::snap(qreal frame)
+qreal TimelineGraphicsScene::snap(qreal frame, bool snapToPlayhead)
 {
-    qreal frameTick = m_layout->ruler()->getFrameTick();
-    qreal rulerTicksSnapframe = qRound(frame / frameTick) * frameTick;
+    qreal rulerFrameTick = m_layout->ruler()->getFrameTick();
+    qreal nearestRulerTickFrame = qRound(frame / rulerFrameTick) * rulerFrameTick;
     // get nearest keyframe to the input frame
     bool nearestKeyframeFound = false;
     qreal nearestKeyframe = 0;
@@ -202,23 +202,30 @@ qreal TimelineGraphicsScene::snap(qreal frame)
         }
     }
 
-    if (!nearestKeyframeFound && !m_keyframePositionsCache.empty()) {
-        // playhead past last keyframe case
+    // playhead past last keyframe case
+    if (!nearestKeyframeFound && !m_keyframePositionsCache.empty())
         nearestKeyframe = m_keyframePositionsCache.last();
-        nearestKeyframeFound = true;
-    }
 
-    // return nearest snappable keyframe or ruler tick
-    return nearestKeyframeFound  && qAbs(nearestKeyframe - frame)
-                                  < qAbs(rulerTicksSnapframe - frame) ? nearestKeyframe
-                                                                      : rulerTicksSnapframe;
+    qreal playheadFrame = m_currentFrameIndicator->position();
+
+    qreal dKeyframe = qAbs(nearestKeyframe - frame);
+    qreal dPlayhead = snapToPlayhead ? qAbs(playheadFrame - frame) : 99999.;
+    qreal dRulerTick = qAbs(nearestRulerTickFrame - frame);
+
+    if (dKeyframe <= qMin(dPlayhead, dRulerTick))
+        return nearestKeyframe;
+
+    if (dRulerTick <= dPlayhead)
+        return nearestRulerTickFrame;
+
+    return playheadFrame;
 }
 
 void TimelineGraphicsScene::setCurrenFrame(const QmlTimeline &timeline, qreal frame)
 {
     if (timeline.isValid()) {
         if (QApplication::keyboardModifiers() & Qt::ShiftModifier) // playhead snapping
-            frame = snap(frame);
+            frame = snap(frame, false);
         m_currentFrameIndicator->setPosition(frame);
     } else {
         m_currentFrameIndicator->setPosition(0);

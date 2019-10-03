@@ -97,6 +97,8 @@ public:
     QVector<qreal> keyframePositions() const;
     QVector<qreal> keyframePositions(const QmlTimelineKeyframeGroup &frames) const;
 
+    qreal snap(qreal frame, bool snapToPlayhead = true);
+
     void setRulerScaling(int scaling);
 
     void commitCurrentFrame(qreal frame);
@@ -167,7 +169,6 @@ private:
     QList<QGraphicsItem *> itemsAt(const QPointF &pos);
 
 private:
-    qreal snap(qreal frame);
 
     TimelineWidget *m_parent = nullptr;
 

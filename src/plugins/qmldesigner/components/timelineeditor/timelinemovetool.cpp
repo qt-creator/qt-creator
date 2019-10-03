@@ -90,7 +90,7 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
             return;
 
         const qreal sourceFrame = qRound(current->mapFromSceneToFrame(current->rect().center().x()));
-        const qreal targetFrame = qRound(current->mapFromSceneToFrame(event->scenePos().x()));
+        qreal targetFrame = qRound(current->mapFromSceneToFrame(event->scenePos().x()));
         qreal deltaFrame = targetFrame - sourceFrame - m_pressKeyframeDelta;
 
         const qreal minFrame = scene()->startFrame();
@@ -106,8 +106,16 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
         else if (firstFrame + deltaFrame < minFrame)
             deltaFrame = minFrame - firstFrame;
 
+        targetFrame = sourceFrame + deltaFrame;
+
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) { // keyframe snapping
+            qreal snappedTargetFrame = scene()->snap(targetFrame);
+            deltaFrame += snappedTargetFrame - targetFrame;
+            targetFrame = snappedTargetFrame;
+        }
+
         scene()->statusBarMessageChanged(tr(TimelineConstants::statusBarKeyframe)
-                                         .arg(sourceFrame + deltaFrame));
+                                         .arg(targetFrame));
 
         const QList<TimelineKeyframeItem *> selectedKeyframes = scene()->selectedKeyframes();
         for (auto *keyframe : selectedKeyframes) {
