@@ -25,11 +25,14 @@
 
 #include "generatedfile.h"
 
-#include <utils/fileutils.h>
+#include <coreplugin/editormanager/editormanager.h>
 
-#include <QString>
-#include <QDir>
+#include <utils/fileutils.h>
+#include <utils/textfileformat.h>
+
 #include <QCoreApplication>
+#include <QDir>
+#include <QString>
 
 namespace Core {
 
@@ -142,20 +145,24 @@ bool GeneratedFile::write(QString *errorMessage) const
     const QDir dir = info.absoluteDir();
     if (!dir.exists()) {
         if (!dir.mkpath(dir.absolutePath())) {
-            *errorMessage = QCoreApplication::translate("BaseFileWizard", "Unable to create the directory %1.").arg(
-                        QDir::toNativeSeparators(dir.absolutePath()));
+            *errorMessage = QCoreApplication::translate("BaseFileWizard",
+                                                        "Unable to create the directory %1.")
+                                .arg(QDir::toNativeSeparators(dir.absolutePath()));
             return false;
         }
     }
 
     // Write out
-    QIODevice::OpenMode flags = QIODevice::WriteOnly|QIODevice::Truncate;
-    if (!isBinary())
-        flags |= QIODevice::Text;
+    if (isBinary()) {
+        QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
+        Utils::FileSaver saver(m_d->path, flags);
+        saver.write(m_d->contents);
+        return saver.finalize(errorMessage);
+    }
 
-    Utils::FileSaver saver(m_d->path, flags);
-    saver.write(m_d->contents);
-    return saver.finalize(errorMessage);
+    Utils::TextFileFormat format;
+    format.codec = EditorManager::defaultTextCodec();
+    return format.writeFile(m_d->path, contents(), errorMessage);
 }
 
 GeneratedFile::Attributes GeneratedFile::attributes() const
