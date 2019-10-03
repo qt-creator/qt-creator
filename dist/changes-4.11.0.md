@@ -59,11 +59,11 @@ you can check out from the public Git repository. For example:
 * Added more space for custom command line arguments (QTCREATORBUG-17890)
 * Added option to continue building after a single project failed with `Build` > `Build All`
   (QTCREATORBUG-22140)
-* Added option for setting build process priority (QTCREATORBUG-5155)
 * Added option for temporarily disabling individual environment variables (QTCREATORBUG-20984)
 * Added option for translation file to wizards (QTCREATORBUG-7453)
 * Added option to rename files with same base name when renaming files via project tree
   (QTCREATORBUG-21738)
+* Changed build process to run with low priority (QTCREATORBUG-5155)
 * Made it possible to schedule running the project while building it (QTCREATORBUG-14297)
 * Improved unconfigured project page (QTCREATORBUG-20018)
 * Fixed parsing of `lld` output (QTCREATORBUG-22623)
