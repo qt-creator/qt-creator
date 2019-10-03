@@ -221,7 +221,8 @@ qreal TimelineGraphicsScene::snap(qreal frame, bool snapToPlayhead)
     return playheadFrame;
 }
 
-void TimelineGraphicsScene::setCurrenFrame(const QmlTimeline &timeline, qreal frame)
+// set the playhead frame and return the updated frame in case of snapping
+qreal TimelineGraphicsScene::setCurrenFrame(const QmlTimeline &timeline, qreal frame)
 {
     if (timeline.isValid()) {
         if (QApplication::keyboardModifiers() & Qt::ShiftModifier) // playhead snapping
@@ -232,6 +233,9 @@ void TimelineGraphicsScene::setCurrenFrame(const QmlTimeline &timeline, qreal fr
     }
 
     invalidateCurrentValues();
+    emitStatusBarPlayheadFrameChanged(frame);
+
+    return frame;
 }
 
 void TimelineGraphicsScene::setCurrentFrame(int frame)
@@ -246,8 +250,6 @@ void TimelineGraphicsScene::setCurrentFrame(int frame)
     }
 
     invalidateCurrentValues();
-
-    emitStatusBarPlayheadFrameChanged(frame);
 }
 
 void TimelineGraphicsScene::setStartFrame(int frame)
@@ -367,11 +369,10 @@ void TimelineGraphicsScene::commitCurrentFrame(qreal frame)
     QmlTimeline timeline(timelineModelNode());
 
     if (timeline.isValid()) {
+        frame = setCurrenFrame(timeline, qRound(frame));
         timeline.modelNode().setAuxiliaryData("currentFrame@NodeInstance", qRound(frame));
-        setCurrenFrame(timeline, qRound(frame));
         invalidateCurrentValues();
     }
-    emitStatusBarPlayheadFrameChanged(int(frame));
 }
 
 QList<TimelineKeyframeItem *> TimelineGraphicsScene::selectedKeyframes() const

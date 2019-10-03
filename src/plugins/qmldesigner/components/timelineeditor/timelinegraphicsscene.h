@@ -73,7 +73,7 @@ public:
     void setWidth(int width);
 
     void invalidateLayout();
-    void setCurrenFrame(const QmlTimeline &timeline, qreal frame);
+    qreal setCurrenFrame(const QmlTimeline &timeline, qreal frame);
     void setCurrentFrame(int frame);
     void setStartFrame(int frame);
     void setEndFrame(int frame);
