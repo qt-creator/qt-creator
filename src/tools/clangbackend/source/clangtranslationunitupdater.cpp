@@ -179,7 +179,8 @@ uint TranslationUnitUpdater::defaultParseOptions()
          | CXTranslationUnit_CreatePreambleOnFirstParse
          | CXTranslationUnit_SkipFunctionBodies
          | CXTranslationUnit_LimitSkipFunctionBodiesToPreamble
-#ifdef IS_SKIPWARNINGSFROMINCLUDEDFILES_SUPPORTED
+// CLANG-UPGRADE-CHECK: Remove when required version is 9
+#if (LLVM_VERSION_MAJOR >= 9) || defined(CINDEX_VERSION_HAS_SKIPWARNINGSFROMINCLUDEDFILES_BACKPORTED)
          | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles
 #endif
          | CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
