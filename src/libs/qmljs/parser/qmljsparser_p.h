@@ -1,5 +1,5 @@
 
-#line 178 "qmljs.g"
+#line 182 "qmljs.g"
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
@@ -122,6 +122,9 @@ public:
       AST::ExportsList *ExportsList;
       AST::ExportClause *ExportClause;
       AST::ExportDeclaration *ExportDeclaration;
+      AST::TypeAnnotation *TypeAnnotation;
+      AST::TypeArgumentList *TypeArgumentList;
+      AST::Type *Type;
 
       AST::UiProgram *UiProgram;
       AST::UiHeaderItemList *UiHeaderItemList;
@@ -139,6 +142,7 @@ public:
       AST::UiArrayMemberList *UiArrayMemberList;
       AST::UiQualifiedId *UiQualifiedId;
       AST::UiEnumMemberList *UiEnumMemberList;
+      AST::UiVersionSpecifier *UiVersionSpecifier;
     };
 
 public:
@@ -217,6 +221,9 @@ protected:
     inline QStringRef &stringRef(int index)
     { return string_stack [tos + index - 1]; }
 
+    inline QStringRef &rawStringRef(int index)
+    { return rawString_stack [tos + index - 1]; }
+
     inline AST::SourceLocation &loc(int index)
     { return location_stack [tos + index - 1]; }
 
@@ -225,12 +232,24 @@ protected:
     void pushToken(int token);
     int lookaheadToken(Lexer *lexer);
 
+    static DiagnosticMessage compileError(const AST::SourceLocation &location,
+                                          const QString &message, Severity::Enum kind = Severity::Error)
+    {
+        DiagnosticMessage error;
+        error.loc = location;
+        error.message = message;
+        error.kind = kind;
+        return error;
+    }
+
     void syntaxError(const AST::SourceLocation &location, const char *message) {
-        diagnostic_messages.append(DiagnosticMessage(Severity::Error, location, QLatin1String(message)));
+        diagnostic_messages.append(compileError(location, QLatin1String(message)));
      }
      void syntaxError(const AST::SourceLocation &location, const QString &message) {
-         diagnostic_messages.append(DiagnosticMessage(Severity::Error, location, message));
+        diagnostic_messages.append(compileError(location, message));
       }
+
+    bool ensureNoFunctionTypeAnnotations(AST::TypeAnnotation *returnTypeAnnotation, AST::FormalParameterList *formals);
 
 protected:
     Engine *driver;
@@ -241,6 +260,7 @@ protected:
     int *state_stack = nullptr;
     AST::SourceLocation *location_stack = nullptr;
     QVector<QStringRef> string_stack;
+    QVector<QStringRef> rawString_stack;
 
     AST::Node *program = nullptr;
 
@@ -252,11 +272,13 @@ protected:
        double dval;
        AST::SourceLocation loc;
        QStringRef spell;
+       QStringRef raw;
     };
 
     int yytoken = -1;
     double yylval = 0.;
     QStringRef yytokenspell;
+    QStringRef yytokenraw;
     AST::SourceLocation yylloc;
     AST::SourceLocation yyprevlloc;
 
@@ -281,27 +303,27 @@ protected:
 
 
 
-#line 1511 "qmljs.g"
+#line 1686 "qmljs.g"
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 128
+#define J_SCRIPT_REGEXPLITERAL_RULE1 144
 
-#line 1523 "qmljs.g"
+#line 1698 "qmljs.g"
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 129
+#define J_SCRIPT_REGEXPLITERAL_RULE2 145
 
-#line 3022 "qmljs.g"
+#line 3198 "qmljs.g"
 
-#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 421
+#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 435
 
-#line 3653 "qmljs.g"
+#line 3850 "qmljs.g"
 
-#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 499
+#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 505
 
-#line 4181 "qmljs.g"
+#line 4389 "qmljs.g"
 
-#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 569
+#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 574
 
-#line 4469 "qmljs.g"
+#line 4673 "qmljs.g"
 
 QT_QML_END_NAMESPACE
 

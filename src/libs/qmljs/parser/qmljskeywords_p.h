@@ -728,6 +728,18 @@ static inline int classify8(const QChar *s, int parseModeFlags) {
             }
           }
         }
+      } else if (s[2].unicode() == 'q') {
+        if (s[3].unicode() == 'u') {
+          if (s[4].unicode() == 'i') {
+            if (s[5].unicode() == 'r') {
+              if (s[6].unicode() == 'e') {
+                if (s[7].unicode() == 'd') {
+                  return Lexer::T_REQUIRED;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

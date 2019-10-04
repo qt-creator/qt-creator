@@ -163,6 +163,9 @@ class NestedExpression;
 class ClassExpression;
 class ClassDeclaration;
 class ClassElementList;
+class TypeArgumentList;
+class Type;
+class TypeAnnotation;
 
 // ui elements
 class UiProgram;
@@ -183,6 +186,7 @@ class UiQualifiedId;
 class UiHeaderItemList;
 class UiEnumDeclaration;
 class UiEnumMemberList;
+class UiVersionSpecifier;
 
 } } // namespace AST
 
