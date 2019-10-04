@@ -94,8 +94,9 @@ bool qtVersionNumberCompare(BaseQtVersion *a, BaseQtVersion *b)
 static bool restoreQtVersions();
 static void findSystemQt();
 static void saveQtVersions();
-static void updateDocumentation();
-
+static void updateDocumentation(const QList<BaseQtVersion *> &added,
+                                const QList<BaseQtVersion *> &removed = {},
+                                const QList<BaseQtVersion *> &allNew = {});
 
 // --------------------------------------------------------------------------
 // QtVersionManager
@@ -143,7 +144,7 @@ void QtVersionManager::triggerQtVersionRestore()
                                      FileSystemWatcher::WatchModifiedDate);
     } // exists
 
-    updateDocumentation();
+    updateDocumentation(m_versions.values());
 }
 
 bool QtVersionManager::isLoaded()
@@ -465,20 +466,37 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
     delete version;
 }
 
-static void updateDocumentation()
+static QStringList documentationFiles(BaseQtVersion *v)
 {
     QStringList files;
-    foreach (BaseQtVersion *v, m_versions) {
-        const QStringList docPaths = QStringList(
-            {v->docsPath().toString() + QChar('/'), v->docsPath().toString() + "/qch/"});
-        foreach (const QString &docPath, docPaths) {
-            const QDir versionHelpDir(docPath);
-            foreach (const QString &helpFile,
-                     versionHelpDir.entryList(QStringList("*.qch"), QDir::Files))
-                files << docPath + helpFile;
-        }
+    const QStringList docPaths = QStringList(
+        {v->docsPath().toString() + QChar('/'), v->docsPath().toString() + "/qch/"});
+    for (const QString &docPath : docPaths) {
+        const QDir versionHelpDir(docPath);
+        for (const QString &helpFile : versionHelpDir.entryList(QStringList("*.qch"), QDir::Files))
+            files.append(docPath + helpFile);
     }
-    Core::HelpManager::registerDocumentation(files);
+    return files;
+}
+
+static QStringList documentationFiles(const QList<BaseQtVersion *> &vs)
+{
+    QStringList files;
+    for (BaseQtVersion *v : vs)
+        files += documentationFiles(v);
+    return files;
+}
+static void updateDocumentation(const QList<BaseQtVersion *> &added,
+                                const QList<BaseQtVersion *> &removed,
+                                const QList<BaseQtVersion *> &allNew)
+{
+    const QStringList docsOfAll = documentationFiles(allNew);
+    const QStringList docsToRemove = Utils::filtered(documentationFiles(removed),
+                                                     [&docsOfAll](const QString &f) {
+                                                         return !docsOfAll.contains(f);
+                                                     });
+    Core::HelpManager::unregisterDocumentation(docsToRemove);
+    Core::HelpManager::registerDocumentation(documentationFiles(added));
 }
 
 int QtVersionManager::getUniqueId()
@@ -530,9 +548,9 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     QList<BaseQtVersion *> sortedNewVersions = newVersions;
     Utils::sort(sortedNewVersions, &BaseQtVersion::uniqueId);
 
-    QList<int> addedVersions;
-    QList<int> removedVersions;
-    QList<int> changedVersions;
+    QList<BaseQtVersion *> addedVersions;
+    QList<BaseQtVersion *> removedVersions;
+    QList<std::pair<BaseQtVersion *, BaseQtVersion *>> changedVersions;
     // So we trying to find the minimal set of changed versions,
     // iterate over both sorted list
 
@@ -548,41 +566,54 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
         int nid = (*nit)->uniqueId();
         int oid = (*oit)->uniqueId();
         if (nid < oid) {
-            addedVersions.push_back(nid);
+            addedVersions.push_back(*nit);
             ++nit;
         } else if (oid < nid) {
-            removedVersions.push_back(oid);
+            removedVersions.push_back(*oit);
             ++oit;
         } else {
             if (!equals(*oit, *nit))
-                changedVersions.push_back(oid);
+                changedVersions.push_back({*oit, *nit});
             ++oit;
             ++nit;
         }
     }
 
     while (nit != nend) {
-        addedVersions.push_back((*nit)->uniqueId());
+        addedVersions.push_back(*nit);
         ++nit;
     }
 
     while (oit != oend) {
-        removedVersions.push_back((*oit)->uniqueId());
+        removedVersions.push_back(*oit);
         ++oit;
     }
+
+    if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty()) {
+        const QList<BaseQtVersion *> changedOldVersions
+            = Utils::transform(changedVersions, &std::pair<BaseQtVersion *, BaseQtVersion *>::first);
+        const QList<BaseQtVersion *> changedNewVersions
+            = Utils::transform(changedVersions,
+                               &std::pair<BaseQtVersion *, BaseQtVersion *>::second);
+        updateDocumentation(addedVersions + changedNewVersions,
+                            removedVersions + changedOldVersions,
+                            sortedNewVersions);
+    }
+    const QList<int> addedIds = Utils::transform(addedVersions, &BaseQtVersion::uniqueId);
+    const QList<int> removedIds = Utils::transform(removedVersions, &BaseQtVersion::uniqueId);
+    const QList<int> changedIds = Utils::transform(changedVersions,
+                                                   [](std::pair<BaseQtVersion *, BaseQtVersion *> v) {
+                                                       return v.first->uniqueId();
+                                                   });
 
     qDeleteAll(m_versions);
     m_versions.clear();
     foreach (BaseQtVersion *v, sortedNewVersions)
         m_versions.insert(v->uniqueId(), v);
-
-    if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
-        updateDocumentation();
-
     saveQtVersions();
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
-        emit m_instance->qtVersionsChanged(addedVersions, removedVersions, changedVersions);
+        emit m_instance->qtVersionsChanged(addedIds, removedIds, changedIds);
 }
 
 } // namespace QtVersion
