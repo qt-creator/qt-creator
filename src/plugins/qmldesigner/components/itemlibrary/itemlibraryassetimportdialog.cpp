@@ -279,10 +279,10 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
 
         // Ungrouped options are spread evenly under the groups
         int totalRowCount = (rowIndex[0] + rowIndex[1] + widgets[0].size() + 1) / 2;
-        for (const auto &widgets : qAsConst(widgets[0])) {
+        for (const auto &rowWidgets : qAsConst(widgets[0])) {
             int col = rowIndex[0] < totalRowCount ? 0 : 1;
-            layout->addWidget(widgets.first, rowIndex[col], col * 4, 1, 2);
-            layout->addWidget(widgets.second, rowIndex[col], col * 4 + 2);
+            layout->addWidget(rowWidgets.first, rowIndex[col], col * 4, 1, 2);
+            layout->addWidget(rowWidgets.second, rowIndex[col], col * 4 + 2);
             layout->setRowMinimumHeight(rowIndex[col],rowHeight);
             ++rowIndex[col];
         }
