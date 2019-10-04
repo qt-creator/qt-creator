@@ -81,10 +81,6 @@ public:
     bool setupProject(Project *project);
     QList<Core::Id> selectedKits() const;
 
-    /// Overrides the summary text of the targetsetuppage
-    void setNoteText(const QString &text);
-    void showOptionsHint(bool show);
-
     void openOptions();
     void changeAllKitsSelections();
 
@@ -139,7 +135,6 @@ private:
     QSpacerItem *m_spacer;
     QList<QWidget *> m_potentialWidgets;
 
-    bool m_forceOptionHint = false;
     bool m_widgetsWereSetUp = false;
 };
 
