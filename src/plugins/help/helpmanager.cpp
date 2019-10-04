@@ -172,7 +172,7 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
     futureInterface.reportResult(docsChanged);
 }
 
-void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
+void HelpManager::unregisterNamespaces(const QStringList &nameSpaces)
 {
     if (d->m_needsSetup) {
         for (const QString &name : nameSpaces)
@@ -372,7 +372,7 @@ void HelpManager::setupHelpManager()
     d->cleanUpDocumentation();
 
     if (!d->m_nameSpacesToUnregister.isEmpty()) {
-        m_instance->unregisterDocumentation(Utils::toList(d->m_nameSpacesToUnregister));
+        m_instance->unregisterNamespaces(Utils::toList(d->m_nameSpacesToUnregister));
         d->m_nameSpacesToUnregister.clear();
     }
 

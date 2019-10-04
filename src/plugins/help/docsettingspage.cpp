@@ -27,7 +27,6 @@
 #include "helpconstants.h"
 #include "helpmanager.h"
 
-#include <coreplugin/helpmanager.h>
 #include <utils/algorithm.h>
 
 #include <QFileDialog>
@@ -244,7 +243,7 @@ void DocSettingsPage::addDocumentation()
 
 void DocSettingsPage::apply()
 {
-    Core::HelpManager::unregisterDocumentation(m_filesToUnregister.keys());
+    HelpManager::unregisterNamespaces(m_filesToUnregister.keys());
     QStringList files;
     auto it = m_filesToRegisterUserManaged.constBegin();
     while (it != m_filesToRegisterUserManaged.constEnd()) {
