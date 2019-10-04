@@ -57,8 +57,6 @@ enum class FileType : quint16 {
     FileTypeSize
 };
 
-enum class ProductType { App, Lib, Other, None };
-
 enum ProjectAction {
     // Special value to indicate that the actions are handled by the parent
     InheritedFromParent,
@@ -381,8 +379,7 @@ public:
     virtual QVariant data(Core::Id role) const;
     virtual bool setData(Core::Id role, const QVariant &value) const;
 
-    bool isProduct() const { return m_productType != ProductType::None; }
-    ProductType productType() const { return m_productType; }
+    bool isProduct() const { return m_isProduct; }
 
     // TODO: Currently used only for "Build for current run config" functionality, but we should
     //       probably use it to centralize the node-specific "Build" functionality that
@@ -394,13 +391,13 @@ public:
     void setFallbackData(Core::Id key, const QVariant &value);
 
 protected:
-    void setProductType(ProductType type) { m_productType = type; }
+    void setIsProduct() { m_isProduct = true; }
 
     QString m_target;
 
 private:
     QHash<Core::Id, QVariant> m_fallbackData; // Used in data(), unless overridden.
-    ProductType m_productType = ProductType::None;
+    bool m_isProduct = false;
 };
 
 class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode

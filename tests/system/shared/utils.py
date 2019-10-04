@@ -235,6 +235,11 @@ def getOutputFromCmdline(cmdline, environment=None, acceptedError=0):
         return e.output
 
 def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
+    def __closePopupIfNecessary__():
+        if not isNull(QApplication.activePopupWidget()):
+            test.log("Closing active popup widget")
+            QApplication.activePopupWidget().close()
+
     if platform.system() == "Darwin":
         snooze(1)
         nativeType("<Command+Shift+g>")
@@ -252,12 +257,13 @@ def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
         try:
             waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}", 5000)
             pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
-            snooze(1)
             replaceEditorContent(pathLine, pName)
+            snooze(1)
             clickButton(waitForObject("{text='Open' type='QPushButton'}"))
             waitFor("str(pathLine.text)==''")
-            snooze(1)
             replaceEditorContent(pathLine, fName)
+            snooze(1)
+            __closePopupIfNecessary__()
             clickButton(waitForObject("{text='Open' type='QPushButton'}"))
         except:
             nativeType("<Ctrl+a>")
