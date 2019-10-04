@@ -103,37 +103,26 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
 
         // Find the (sub-)project the file belongs to. We don't want to find resources
         // from other parts of the project tree, e.g. via a qmake subdirs project.
-        Node * const fileNode = project->rootProjectNode()->findNode([&fileName](const Node *n) {
+        ProjectNode *projectNode = project->rootProjectNode();
+        Node * const fileNode = projectNode->findNode([&fileName](const Node *n) {
             return n->filePath().toString() == fileName;
         });
-        ProjectNode *projectNodeForUiFile = nullptr;
         if (fileNode) {
             // We do not want qbs groups or qmake .pri files here, as they contain only a subset
             // of the relevant files.
-            projectNodeForUiFile = fileNode->parentProjectNode();
-            while (projectNodeForUiFile && !projectNodeForUiFile->isProduct())
-                projectNodeForUiFile = projectNodeForUiFile->parentProjectNode();
+            projectNode = fileNode->parentProjectNode();
+            while (projectNode && !projectNode->isProduct())
+                projectNode = projectNode->parentProjectNode();
         }
-        if (!projectNodeForUiFile)
-            projectNodeForUiFile = project->rootProjectNode();
-
-        const auto useQrcFile = [projectNodeForUiFile, project](const Node *qrcNode) {
-            if (projectNodeForUiFile == project->rootProjectNode())
-                return true;
-            ProjectNode *projectNodeForQrcFile = qrcNode->parentProjectNode();
-            while (projectNodeForQrcFile && !projectNodeForQrcFile->isProduct())
-                projectNodeForQrcFile = projectNodeForQrcFile->parentProjectNode();
-            return !projectNodeForQrcFile
-                    || projectNodeForQrcFile == projectNodeForUiFile
-                    || projectNodeForQrcFile->productType() != ProductType::App;
-        };
+        if (!projectNode)
+            projectNode = project->rootProjectNode();
 
         QStringList projectQrcFiles;
-        project->rootProjectNode()->forEachNode([&](FileNode *node) {
-            if (node->fileType() == FileType::Resource && useQrcFile(node))
+        projectNode->forEachNode([&](FileNode *node) {
+            if (node->fileType() == FileType::Resource)
                 projectQrcFiles.append(node->filePath().toString());
         }, [&](FolderNode *node) {
-            if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node) && useQrcFile(node))
+            if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
                 projectQrcFiles.append(node->filePath().toString());
         });
         // Check if the user has chosen to update the lacking resource inside designer
@@ -145,7 +134,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
             }
             if (!qrcPathsToBeAdded.isEmpty()) {
                 m_handlingResources = true;
-                projectNodeForUiFile->addFiles(qrcPathsToBeAdded);
+                projectNode->addFiles(qrcPathsToBeAdded);
                 m_handlingResources = false;
                 projectQrcFiles += qrcPathsToBeAdded;
             }
