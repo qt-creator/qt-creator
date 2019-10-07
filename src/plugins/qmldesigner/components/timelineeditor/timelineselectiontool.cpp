@@ -88,7 +88,8 @@ void TimelineSelectionTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
         const qreal xMin = TimelineConstants::sectionWidth;
         const qreal xMax = scene()->graphicsView()->width()
                            - TimelineConstants::timelineLeftOffset - 1;
-        const qreal yMin = scene()->graphicsView()->verticalScrollBar()->value();
+        const qreal yMin = qMax(TimelineConstants::rulerHeight,
+                                scene()->graphicsView()->verticalScrollBar()->value());
         const qreal yMax = yMin + scene()->graphicsView()->height() - 1;
 
         endPoint.rx() = qBound(xMin, endPoint.x(), xMax);
