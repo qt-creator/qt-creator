@@ -72,7 +72,7 @@ private:
     void triggerQtVersionRestore();
 
     // Used by QtOptionsPage
-    static void setNewQtVersions(QList<BaseQtVersion *> newVersions);
+    static void setNewQtVersions(const QList<BaseQtVersion *> &newVersions);
     // Used by QtVersion
     static int getUniqueId();
 };

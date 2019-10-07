@@ -65,7 +65,8 @@ const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
 const char QTVERSION_FILE_VERSION_KEY[] = "Version";
 const char QTVERSION_FILENAME[] = "/qtversion.xml";
 
-static QMap<int, BaseQtVersion *> m_versions;
+using VersionMap = QMap<int, BaseQtVersion *>;
+static VersionMap m_versions;
 static int m_idcount = 0;
 // managed by QtProjectManagerPlugin
 static QtVersionManager *m_instance = nullptr;
@@ -173,24 +174,24 @@ QtVersionManager *QtVersionManager::instance()
 static bool restoreQtVersions()
 {
     QTC_ASSERT(!m_writer, return false);
-    m_writer = new PersistentSettingsWriter(settingsFileName(QLatin1String(QTVERSION_FILENAME)),
-                                                   QLatin1String("QtCreatorQtVersions"));
+    m_writer = new PersistentSettingsWriter(settingsFileName(QTVERSION_FILENAME),
+                                            "QtCreatorQtVersions");
 
     const QList<QtVersionFactory *> factories = QtVersionFactory::allQtVersionFactories();
 
     PersistentSettingsReader reader;
-    FilePath filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
+    const FilePath filename = settingsFileName(QTVERSION_FILENAME);
 
     if (!reader.load(filename))
         return false;
     QVariantMap data = reader.restoreValues();
 
     // Check version:
-    int version = data.value(QLatin1String(QTVERSION_FILE_VERSION_KEY), 0).toInt();
+    const int version = data.value(QTVERSION_FILE_VERSION_KEY, 0).toInt();
     if (version < 1)
         return false;
 
-    const QString keyPrefix = QLatin1String(QTVERSION_DATA_KEY);
+    const QString keyPrefix(QTVERSION_DATA_KEY);
     const QVariantMap::ConstIterator dcend = data.constEnd();
     for (QVariantMap::ConstIterator it = data.constBegin(); it != dcend; ++it) {
         const QString &key = it.key();
@@ -202,7 +203,7 @@ static bool restoreQtVersions()
             continue;
 
         const QVariantMap qtversionMap = it.value().toMap();
-        const QString type = qtversionMap.value(QLatin1String(QTVERSION_TYPE_KEY)).toString();
+        const QString type = qtversionMap.value(QTVERSION_TYPE_KEY).toString();
 
         bool restored = false;
         for (QtVersionFactory *f : factories) {
@@ -254,7 +255,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     if (debug) {
         qDebug()<< "======= Existing Qt versions =======";
-        foreach (BaseQtVersion *version, m_versions) {
+        for (BaseQtVersion *version : qAsConst(m_versions)) {
             qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
@@ -264,7 +265,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     QStringList sdkVersions;
 
-    const QString keyPrefix = QLatin1String(QTVERSION_DATA_KEY);
+    const QString keyPrefix(QTVERSION_DATA_KEY);
     const QVariantMap::ConstIterator dcend = data.constEnd();
     for (QVariantMap::ConstIterator it = data.constBegin(); it != dcend; ++it) {
         const QString &key = it.key();
@@ -276,12 +277,12 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
             continue;
 
         QVariantMap qtversionMap = it.value().toMap();
-        const QString type = qtversionMap.value(QLatin1String(QTVERSION_TYPE_KEY)).toString();
-        const QString autoDetectionSource = qtversionMap.value(QLatin1String("autodetectionSource")).toString();
+        const QString type = qtversionMap.value(QTVERSION_TYPE_KEY).toString();
+        const QString autoDetectionSource = qtversionMap.value("autodetectionSource").toString();
         sdkVersions << autoDetectionSource;
         int id = -1; // see BaseQtVersion::fromMap()
         QtVersionFactory *factory = nullptr;
-        foreach (QtVersionFactory *f, factories) {
+        for (QtVersionFactory *f : factories) {
             if (f->canRestore(type))
                 factory = f;
         }
@@ -292,14 +293,14 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         }
         // First try to find a existing Qt version to update
         bool restored = false;
-        foreach (BaseQtVersion *v, m_versions) {
+        for (BaseQtVersion *v : qAsConst(m_versions)) {
             if (v->autodetectionSource() == autoDetectionSource) {
                 id = v->uniqueId();
                 if (debug)
                     qDebug() << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
                 m_versions.remove(id);
-                qtversionMap[QLatin1String(Constants::QTVERSIONID)] = id;
-                qtversionMap[QLatin1String(Constants::QTVERSIONNAME)] = v->unexpandedDisplayName();
+                qtversionMap[Constants::QTVERSIONID] = id;
+                qtversionMap[Constants::QTVERSIONNAME] = v->unexpandedDisplayName();
                 delete v;
 
                 if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {
@@ -332,14 +333,14 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     if (debug) {
         qDebug() << "======= Before removing outdated sdk versions =======";
-        foreach (BaseQtVersion *version, m_versions) {
+        for (BaseQtVersion *version : qAsConst(m_versions)) {
             qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
         }
     }
-    foreach (BaseQtVersion *qtVersion, m_versions) {
-        if (qtVersion->autodetectionSource().startsWith(QLatin1String("SDK."))) {
+    for (BaseQtVersion *qtVersion : qAsConst(m_versions)) {
+        if (qtVersion->autodetectionSource().startsWith("SDK.")) {
             if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
                 if (debug)
                     qDebug() << "  removing version"<<qtVersion->autodetectionSource();
@@ -351,8 +352,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     if (debug) {
         qDebug()<< "======= End result =======";
-        foreach (BaseQtVersion *version, m_versions) {
-            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
+        for (BaseQtVersion *version : qAsConst(m_versions)) {
+            qDebug() << version->qmakeCommand().toString() << "id:" << version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
         }
@@ -367,17 +368,16 @@ static void saveQtVersions()
         return;
 
     QVariantMap data;
-    data.insert(QLatin1String(QTVERSION_FILE_VERSION_KEY), 1);
+    data.insert(QTVERSION_FILE_VERSION_KEY, 1);
 
     int count = 0;
-    foreach (BaseQtVersion *qtv, m_versions) {
+    for (BaseQtVersion *qtv : qAsConst(m_versions)) {
         QVariantMap tmp = qtv->toMap();
         if (tmp.isEmpty())
             continue;
-        tmp.insert(QLatin1String(QTVERSION_TYPE_KEY), qtv->type());
+        tmp.insert(QTVERSION_TYPE_KEY, qtv->type());
         data.insert(QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(count), tmp);
         ++count;
-
     }
     m_writer->save(data, Core::ICore::mainWindow());
 }
@@ -395,10 +395,10 @@ static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringLis
 // Asks qtchooser for the qmake path of a given version
 static QString qmakePath(const QString &qtchooser, const QString &version)
 {
-    QList<QByteArray> outputs = runQtChooser(qtchooser, QStringList()
-                                             << QStringLiteral("-qt=%1").arg(version)
-                                             << QStringLiteral("-print-env"));
-    foreach (const QByteArray &output, outputs) {
+    const QList<QByteArray> outputs = runQtChooser(qtchooser,
+                                                   {QStringLiteral("-qt=%1").arg(version),
+                                                    QStringLiteral("-print-env")});
+    for (const QByteArray &output : outputs) {
         if (output.startsWith("QTTOOLDIR=\"")) {
             QByteArray withoutVarName = output.mid(11); // remove QTTOOLDIR="
             withoutVarName.chop(1); // remove trailing quote
@@ -415,9 +415,9 @@ static FilePathList gatherQmakePathsFromQtChooser()
     if (qtchooser.isEmpty())
         return FilePathList();
 
-    QList<QByteArray> versions = runQtChooser(qtchooser, QStringList("-l"));
+    const QList<QByteArray> versions = runQtChooser(qtchooser, QStringList("-l"));
     QSet<FilePath> foundQMakes;
-    foreach (const QByteArray &version, versions) {
+    for (const QByteArray &version : versions) {
         FilePath possibleQMake = FilePath::fromString(
                     qmakePath(qtchooser, QString::fromLocal8Bit(version)));
         if (!possibleQMake.isEmpty())
@@ -433,9 +433,11 @@ static void findSystemQt()
 
     systemQMakes.append(gatherQmakePathsFromQtChooser());
 
-    foreach (const FilePath &qmakePath, Utils::filteredUnique(systemQMakes)) {
-        BaseQtVersion *version
-                = QtVersionFactory::createQtVersionFromQMakePath(qmakePath, false, QLatin1String("PATH"));
+    const FilePathList uniqueSystemQmakes = Utils::filteredUnique(systemQMakes);
+    for (const FilePath &qmakePath : uniqueSystemQmakes) {
+        BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qmakePath,
+                                                                                false,
+                                                                                "PATH");
         if (version) {
             version->setUnexpandedDisplayName(BaseQtVersion::defaultUnexpandedDisplayName(qmakePath, true));
             m_versions.insert(version->uniqueId(), version);
@@ -510,8 +512,7 @@ QList<BaseQtVersion *> QtVersionManager::versions(const BaseQtVersion::Predicate
     QTC_ASSERT(isLoaded(), return versions);
     if (predicate)
         return Utils::filtered(m_versions.values(), predicate);
-    else
-        return m_versions.values();
+    return m_versions.values();
 }
 
 QList<BaseQtVersion *> QtVersionManager::sortVersions(const QList<BaseQtVersion *> &input)
@@ -524,7 +525,7 @@ QList<BaseQtVersion *> QtVersionManager::sortVersions(const QList<BaseQtVersion 
 BaseQtVersion *QtVersionManager::version(int id)
 {
     QTC_ASSERT(isLoaded(), return nullptr);
-    QMap<int, BaseQtVersion *>::const_iterator it = m_versions.constFind(id);
+    VersionMap::const_iterator it = m_versions.constFind(id);
     if (it == m_versions.constEnd())
         return nullptr;
     return it.value();
@@ -541,7 +542,7 @@ static bool equals(BaseQtVersion *a, BaseQtVersion *b)
     return a->equals(b);
 }
 
-void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
+void QtVersionManager::setNewQtVersions(const QList<BaseQtVersion *> &newVersions)
 {
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
@@ -556,7 +557,7 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
 
     // newVersions and oldVersions iterator
     QList<BaseQtVersion *>::const_iterator nit, nend;
-    QMap<int, BaseQtVersion *>::const_iterator oit, oend;
+    VersionMap::const_iterator oit, oend;
     nit = sortedNewVersions.constBegin();
     nend = sortedNewVersions.constEnd();
     oit = m_versions.constBegin();
@@ -607,9 +608,9 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
                                                    });
 
     qDeleteAll(m_versions);
-    m_versions.clear();
-    foreach (BaseQtVersion *v, sortedNewVersions)
-        m_versions.insert(v->uniqueId(), v);
+    m_versions = Utils::transform<VersionMap>(sortedNewVersions, [](BaseQtVersion *v) {
+        return std::make_pair(v->uniqueId(), v);
+    });
     saveQtVersions();
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
