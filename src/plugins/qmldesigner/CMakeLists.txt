@@ -495,8 +495,8 @@ extend_qtc_plugin(QmlDesigner
     model/qmlanchors.cpp
     model/qmlchangeset.cpp
     model/qmlitemnode.cpp
-    model/qmlvisualnode.h
-    model/qml3dnode.h
+    model/qmlvisualnode.cpp
+    model/qml3dnode.cpp
     model/qmlmodelnodefacade.cpp
     model/qmlobjectnode.cpp
     model/qmlstate.cpp
