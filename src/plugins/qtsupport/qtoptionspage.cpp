@@ -243,6 +243,16 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_ui->qtdirList->setTextElideMode(Qt::ElideMiddle);
     m_ui->qtdirList->sortByColumn(0, Qt::AscendingOrder);
 
+    m_ui->documentationSetting->addItem(tr("Highest Version Only"),
+                                        int(QtVersionManager::DocumentationSetting::HighestOnly));
+    m_ui->documentationSetting->addItem(tr("All"), int(QtVersionManager::DocumentationSetting::All));
+    m_ui->documentationSetting->addItem(tr("None"),
+                                        int(QtVersionManager::DocumentationSetting::None));
+    const int selectedIndex = m_ui->documentationSetting->findData(
+        int(QtVersionManager::documentationSetting()));
+    if (selectedIndex >= 0)
+        m_ui->documentationSetting->setCurrentIndex(selectedIndex);
+
     QList<int> additions = transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
 
     updateQtVersions(additions, QList<int>(), QList<int>());
@@ -756,18 +766,20 @@ void QtOptionsPageWidget::updateCurrentQtName()
 
 void QtOptionsPageWidget::apply()
 {
-    disconnect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            this, &QtOptionsPageWidget::updateQtVersions);
+    disconnect(QtVersionManager::instance(),
+               &QtVersionManager::qtVersionsChanged,
+               this,
+               &QtOptionsPageWidget::updateQtVersions);
+
+    QtVersionManager::setDocumentationSetting(
+        QtVersionManager::DocumentationSetting(m_ui->documentationSetting->currentData().toInt()));
 
     QList<BaseQtVersion *> versions;
-
     m_model->forItemsAtLevel<2>([&versions](QtVersionItem *item) {
         item->setChanged(false);
         versions.append(item->version()->clone());
     });
-
     QtVersionManager::setNewQtVersions(versions);
-
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtOptionsPageWidget::updateQtVersions);

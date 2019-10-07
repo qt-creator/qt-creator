@@ -196,6 +196,8 @@ void HelpManager::unregisterNamespaces(const QStringList &nameSpaces)
     bool docsChanged = false;
     for (const QString &nameSpace : nameSpaces) {
         const QString filePath = d->m_helpEngine->documentationFileName(nameSpace);
+        if (filePath.isEmpty()) // wasn't registered anyhow, ignore
+            continue;
         if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
             docsChanged = true;
             d->m_userRegisteredFiles.remove(filePath);

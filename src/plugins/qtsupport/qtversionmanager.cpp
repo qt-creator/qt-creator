@@ -67,6 +67,9 @@ const char QTVERSION_FILENAME[] = "/qtversion.xml";
 
 using VersionMap = QMap<int, BaseQtVersion *>;
 static VersionMap m_versions;
+
+const char DOCUMENTATION_SETTING_KEY[] = "QtSupport/DocumentationSetting";
+
 static int m_idcount = 0;
 // managed by QtProjectManagerPlugin
 static QtVersionManager *m_instance = nullptr;
@@ -95,9 +98,6 @@ bool qtVersionNumberCompare(BaseQtVersion *a, BaseQtVersion *b)
 static bool restoreQtVersions();
 static void findSystemQt();
 static void saveQtVersions();
-static void updateDocumentation(const QList<BaseQtVersion *> &added,
-                                const QList<BaseQtVersion *> &removed = {},
-                                const QList<BaseQtVersion *> &allNew = {});
 
 // --------------------------------------------------------------------------
 // QtVersionManager
@@ -145,7 +145,8 @@ void QtVersionManager::triggerQtVersionRestore()
                                      FileSystemWatcher::WatchModifiedDate);
     } // exists
 
-    updateDocumentation(m_versions.values());
+    const QList<BaseQtVersion *> vs = versions();
+    updateDocumentation(vs, {}, vs);
 }
 
 bool QtVersionManager::isLoaded()
@@ -464,37 +465,57 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
     delete version;
 }
 
-static QStringList documentationFiles(BaseQtVersion *v)
+using Path = QString;
+using FileName = QString;
+static QList<std::pair<Path, FileName>> documentationFiles(BaseQtVersion *v)
 {
-    QStringList files;
+    QList<std::pair<Path, FileName>> files;
     const QStringList docPaths = QStringList(
         {v->docsPath().toString() + QChar('/'), v->docsPath().toString() + "/qch/"});
     for (const QString &docPath : docPaths) {
         const QDir versionHelpDir(docPath);
         for (const QString &helpFile : versionHelpDir.entryList(QStringList("*.qch"), QDir::Files))
-            files.append(docPath + helpFile);
+            files.append({docPath, helpFile});
     }
     return files;
 }
 
-static QStringList documentationFiles(const QList<BaseQtVersion *> &vs)
+static QStringList documentationFiles(const QList<BaseQtVersion *> &vs, bool highestOnly = false)
 {
-    QStringList files;
-    for (BaseQtVersion *v : vs)
-        files += documentationFiles(v);
-    return files;
+    QSet<QString> includedFileNames;
+    QSet<QString> filePaths;
+    const QList<BaseQtVersion *> versions = highestOnly ? QtVersionManager::sortVersions(vs) : vs;
+    for (BaseQtVersion *v : versions) {
+        for (const std::pair<Path, FileName> &file : documentationFiles(v)) {
+            if (!highestOnly || !includedFileNames.contains(file.second)) {
+                filePaths.insert(file.first + file.second);
+                includedFileNames.insert(file.second);
+            }
+        }
+    }
+    return filePaths.values();
 }
-static void updateDocumentation(const QList<BaseQtVersion *> &added,
-                                const QList<BaseQtVersion *> &removed,
-                                const QList<BaseQtVersion *> &allNew)
+
+void QtVersionManager::updateDocumentation(const QList<BaseQtVersion *> &added,
+                                           const QList<BaseQtVersion *> &removed,
+                                           const QList<BaseQtVersion *> &allNew)
 {
-    const QStringList docsOfAll = documentationFiles(allNew);
+    const DocumentationSetting setting = documentationSetting();
+    const QStringList docsOfAll = setting == DocumentationSetting::None
+                                      ? QStringList()
+                                      : documentationFiles(allNew,
+                                                           setting
+                                                               == DocumentationSetting::HighestOnly);
     const QStringList docsToRemove = Utils::filtered(documentationFiles(removed),
                                                      [&docsOfAll](const QString &f) {
                                                          return !docsOfAll.contains(f);
                                                      });
+    const QStringList docsToAdd = Utils::filtered(documentationFiles(added),
+                                                  [&docsOfAll](const QString &f) {
+                                                      return docsOfAll.contains(f);
+                                                  });
     Core::HelpManager::unregisterDocumentation(docsToRemove);
-    Core::HelpManager::registerDocumentation(documentationFiles(added));
+    Core::HelpManager::registerDocumentation(docsToAdd);
 }
 
 int QtVersionManager::getUniqueId()
@@ -611,6 +632,23 @@ void QtVersionManager::setNewQtVersions(const QList<BaseQtVersion *> &newVersion
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
         emit m_instance->qtVersionsChanged(addedIds, removedIds, changedIds);
+}
+
+void QtVersionManager::setDocumentationSetting(const QtVersionManager::DocumentationSetting &setting)
+{
+    if (setting == documentationSetting())
+        return;
+    Core::ICore::settings()->setValue(DOCUMENTATION_SETTING_KEY, int(setting));
+    // force re-evaluating which documentation should be registered
+    // by claiming that all are removed and re-added
+    const QList<BaseQtVersion *> vs = versions();
+    updateDocumentation(vs, vs, vs);
+}
+
+QtVersionManager::DocumentationSetting QtVersionManager::documentationSetting()
+{
+    return DocumentationSetting(
+        Core::ICore::settings()->value(DOCUMENTATION_SETTING_KEY, 0).toInt());
 }
 
 } // namespace QtVersion

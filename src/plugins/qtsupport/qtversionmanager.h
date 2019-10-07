@@ -69,11 +69,18 @@ signals:
     void qtVersionsLoaded();
 
 private:
+    enum class DocumentationSetting { HighestOnly, All, None };
+
+    static void updateDocumentation(const QList<BaseQtVersion *> &added,
+                                    const QList<BaseQtVersion *> &removed,
+                                    const QList<BaseQtVersion *> &allNew);
     void updateFromInstaller(bool emitSignal = true);
     void triggerQtVersionRestore();
 
     // Used by QtOptionsPage
     static void setNewQtVersions(const QList<BaseQtVersion *> &newVersions);
+    static void setDocumentationSetting(const DocumentationSetting &setting);
+    static DocumentationSetting documentationSetting();
     // Used by QtVersion
     static int getUniqueId();
 };

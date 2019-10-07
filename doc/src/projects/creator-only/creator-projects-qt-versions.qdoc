@@ -80,6 +80,16 @@
 
         \endlist
 
+    \section1 Documentation
+
+    By default, \QC registers only the latest available version of the documentation for each
+    installed Qt module.
+
+    To register the documentation sets of all installed Qt versions, choose
+    \uicontrol{All} from the \uicontrol{Register documentation} list.
+    To register no Qt documentation at all, choose \uicontrol{None}.
+    The default behavior is \uicontrol{Highest Version Only}.
+
     \section1 Troubleshooting Qt Installations
 
     If \QC detects problems in the installation of a Qt version, it displays
