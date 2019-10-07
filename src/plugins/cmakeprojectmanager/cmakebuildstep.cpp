@@ -87,7 +87,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
     if (m_buildTarget.isEmpty())
         setBuildTarget(defaultBuildTarget());
 
-    setLowPriority();
+    setLowPriorityIfConfigured();
 
     connect(target(), &Target::kitChanged, this, &CMakeBuildStep::cmakeCommandChanged);
     connect(project(), &Project::parsingFinished,

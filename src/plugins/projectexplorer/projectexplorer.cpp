@@ -256,6 +256,7 @@ const char CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY[]
 const char CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/ClearIssuesOnRebuild";
 const char ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY[]
     = "ProjectExplorer/Settings/AbortBuildAllOnError";
+const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
 
 } // namespace Constants
 
@@ -1395,6 +1396,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             = s->value(Constants::CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.abortBuildAllOnError
             = s->value(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY, true).toBool();
+    dd->m_projectExplorerSettings.lowBuildPriority
+            = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, false).toBool();
     dd->m_projectExplorerSettings.buildDirectoryTemplate
             = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
     if (dd->m_projectExplorerSettings.buildDirectoryTemplate.isEmpty())
@@ -2002,6 +2005,8 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                 dd->m_projectExplorerSettings.clearIssuesOnRebuild);
     s->setValue(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY,
                 dd->m_projectExplorerSettings.abortBuildAllOnError);
+    s->setValue(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY,
+                dd->m_projectExplorerSettings.lowBuildPriority);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations"),
                 dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations);
     s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());

@@ -76,7 +76,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Constants::Q
 {
     //: QMakeStep default display name
     setDefaultDisplayName(tr("qmake"));
-    setLowPriority();
+    setLowPriorityIfConfigured();
 }
 
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
