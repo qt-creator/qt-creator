@@ -443,8 +443,9 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
 
 FilePath QMakeStep::makeCommand() const
 {
-    auto ms = stepList()->firstOfType<MakeStep>();
-    return ms ? ms->effectiveMakeCommand().executable() : FilePath();
+    if (auto ms = stepList()->firstOfType<MakeStep>())
+        return ms->makeExecutable();
+    return FilePath();
 }
 
 QString QMakeStep::makeArguments(const QString &makefile) const

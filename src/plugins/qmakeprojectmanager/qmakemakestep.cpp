@@ -69,7 +69,7 @@ bool QmakeMakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    const Utils::CommandLine unmodifiedMake = effectiveMakeCommand();
+    const Utils::CommandLine unmodifiedMake = effectiveMakeCommand(Execution);
     const Utils::FilePath makeExecutable = unmodifiedMake.executable();
     if (makeExecutable.isEmpty())
         emit addTask(makeCommandMissingTask());
@@ -210,6 +210,14 @@ void QmakeMakeStep::finish(bool success)
                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     MakeStep::finish(success);
+}
+
+QStringList QmakeMakeStep::displayArguments() const
+{
+    const auto bc = static_cast<QmakeBuildConfiguration *>(buildConfiguration());
+    if (bc && !bc->makefile().isEmpty())
+        return {"-f", bc->makefile()};
+    return {};
 }
 
 ///

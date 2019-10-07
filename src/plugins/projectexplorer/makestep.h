@@ -45,6 +45,10 @@ class PROJECTEXPLORER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessS
     Q_OBJECT
 
 public:
+    enum MakeCommandType {
+        Display,
+        Execution
+    };
     explicit MakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
 
     void setBuildTarget(const QString &buildTarget);
@@ -59,7 +63,8 @@ public:
     void setUserArguments(const QString &args);
     Utils::FilePath makeCommand() const;
     void setMakeCommand(const Utils::FilePath &command);
-    Utils::CommandLine effectiveMakeCommand() const;
+    Utils::FilePath makeExecutable() const;
+    Utils::CommandLine effectiveMakeCommand(MakeCommandType type) const;
 
     void setClean(bool clean);
     bool isClean() const;
@@ -88,6 +93,7 @@ public:
 protected:
     bool fromMap(const QVariantMap &map) override;
     void supportDisablingForSubdirs() { m_disablingForSubDirsSupported = true; }
+    virtual QStringList displayArguments() const;
 
 private:
     QVariantMap toMap() const override;

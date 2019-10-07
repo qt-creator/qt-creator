@@ -85,7 +85,7 @@ bool MakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    const CommandLine make = effectiveMakeCommand();
+    const CommandLine make = effectiveMakeCommand(Execution);
     if (make.executable().isEmpty())
         emit addTask(makeCommandMissingTask());
 
@@ -323,15 +323,27 @@ void MakeStep::setUserArguments(const QString &args)
     m_userArguments = args;
 }
 
+QStringList MakeStep::displayArguments() const
+{
+    return {};
+}
+
 FilePath MakeStep::makeCommand() const
 {
     return m_makeCommand;
 }
 
-CommandLine MakeStep::effectiveMakeCommand() const
+FilePath MakeStep::makeExecutable() const
 {
-    CommandLine cmd(m_makeCommand.isEmpty() ? defaultMakeCommand() : m_makeCommand);
+    return m_makeCommand.isEmpty() ? defaultMakeCommand() : m_makeCommand;
+}
 
+CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
+{
+    CommandLine cmd(makeExecutable());
+
+    if (type == Display)
+        cmd.addArgs(displayArguments());
     cmd.addArgs(m_userArguments, CommandLine::Raw);
     cmd.addArgs(jobArguments());
     cmd.addArgs(m_buildTargets);
@@ -431,6 +443,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             this, &MakeStepConfigWidget::updateDetails);
     connect(m_makeStep->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
             this, &MakeStepConfigWidget::updateDetails);
+    connect(m_makeStep->project(), &Project::parsingFinished,
+            this, &MakeStepConfigWidget::updateDetails);
 
     Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
 }
@@ -464,7 +478,7 @@ void MakeStepConfigWidget::updateDetails()
     else
         m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(defaultMake)));
 
-    const CommandLine make = m_makeStep->effectiveMakeCommand();
+    const CommandLine make = m_makeStep->effectiveMakeCommand(MakeStep::Display);
     if (make.executable().isEmpty()) {
         setSummaryText(tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand()));
         return;
