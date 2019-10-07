@@ -82,6 +82,8 @@ public:
                 this, updateConfiguration);
         connect(target->activeBuildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
                 this, updateConfiguration);
+        connect(target->project(), &Project::displayNameChanged,
+                this, updateConfiguration);
     }
 };
 
