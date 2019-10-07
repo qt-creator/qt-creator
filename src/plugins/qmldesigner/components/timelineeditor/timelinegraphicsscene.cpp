@@ -57,6 +57,7 @@
 
 #include <utils/hostosinfo.h>
 
+#include <QApplication>
 #include <QComboBox>
 #include <QGraphicsLinearLayout>
 #include <QGraphicsProxyWidget>

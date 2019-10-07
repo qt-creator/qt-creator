@@ -32,6 +32,7 @@
 
 #include <exception.h>
 
+#include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 
