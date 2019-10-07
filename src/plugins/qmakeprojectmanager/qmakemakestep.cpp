@@ -60,6 +60,7 @@ QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl)
         setClean(true);
         setUserArguments("clean");
     }
+    supportDisablingForSubdirs();
 }
 
 bool QmakeMakeStep::init()
@@ -79,8 +80,7 @@ bool QmakeMakeStep::init()
     }
 
     // Ignore all but the first make step for a non-top-level build. See QTCREATORBUG-15794.
-    m_ignoredNonTopLevelBuild = (bc->fileNodeBuild() || bc->subNodeBuild())
-            && stepList()->firstOfType<QmakeMakeStep>() != this;
+    m_ignoredNonTopLevelBuild = (bc->fileNodeBuild() || bc->subNodeBuild()) && !enabledForSubDirs();
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());

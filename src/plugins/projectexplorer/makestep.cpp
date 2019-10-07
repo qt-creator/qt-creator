@@ -375,6 +375,15 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_ui = new Internal::Ui::MakeStep;
     m_ui->setupUi(this);
 
+    if (!makeStep->disablingForSubdirsSupported()) {
+        m_ui->disableInSubDirsLabel->hide();
+        m_ui->disableInSubDirsCheckBox->hide();
+    } else {
+        connect(m_ui->disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this] {
+            m_makeStep->setEnabledForSubDirs(!m_ui->disableInSubDirsCheckBox->isChecked());
+        });
+    }
+
     const auto availableTargets = makeStep->availableTargets();
     for (const QString &target : availableTargets) {
         auto item = new QListWidgetItem(target, m_ui->targetsList);
@@ -472,6 +481,7 @@ void MakeStepConfigWidget::updateDetails()
         m_makeStep->jobCountOverridesMakeflags() ? Qt::Checked : Qt::Unchecked);
     m_ui->nonOverrideWarning->setVisible(m_makeStep->makeflagsJobCountMismatch()
                                          && !m_makeStep->jobCountOverridesMakeflags());
+    m_ui->disableInSubDirsCheckBox->setChecked(!m_makeStep->enabledForSubDirs());
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());

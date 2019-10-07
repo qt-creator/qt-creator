@@ -79,10 +79,15 @@ public:
     bool userArgsContainsJobCount() const;
     bool makeflagsJobCountMismatch() const;
 
+    bool disablingForSubdirsSupported() const { return m_disablingForSubDirsSupported; }
+    bool enabledForSubDirs() const { return m_enabledForSubDirs; }
+    void setEnabledForSubDirs(bool enabled) { m_enabledForSubDirs = enabled; }
+
     Utils::Environment environment(BuildConfiguration *bc) const;
 
 protected:
     bool fromMap(const QVariantMap &map) override;
+    void supportDisablingForSubdirs() { m_disablingForSubDirsSupported = true; }
 
 private:
     QVariantMap toMap() const override;
@@ -96,6 +101,8 @@ private:
     int m_userJobCount = 4;
     bool m_overrideMakeflags = false;
     bool m_clean = false;
+    bool m_disablingForSubDirsSupported = false;
+    bool m_enabledForSubDirs = true;
 };
 
 class PROJECTEXPLORER_EXPORT MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
