@@ -275,7 +275,8 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
 const QList<BuildTargetInfo> CMakeBuildConfiguration::appTargets() const
 {
     QList<BuildTargetInfo> appTargetList;
-    bool forAndroid = DeviceTypeKitAspect::deviceTypeId(target()->kit()) == Android::Constants::ANDROID_DEVICE_TYPE;
+    const bool forAndroid = DeviceTypeKitAspect::deviceTypeId(target()->kit())
+                            == Android::Constants::ANDROID_DEVICE_TYPE;
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == UtilityType)
             continue;
