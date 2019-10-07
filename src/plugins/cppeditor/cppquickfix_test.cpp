@@ -2502,6 +2502,29 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2(
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+/// Check that the noexcept exception specifier is transferred
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_noexcept_specifier()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    void @foo() noexcept(false);\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    void foo() noexcept(false);\n"
+        "};\n"
+        "\n"
+        "void Foo::foo() noexcept(false)\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 /// Check if a function like macro use is not separated by the function to insert
 /// Case: Macro preceded by preproceesor directives and declaration.
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile1()

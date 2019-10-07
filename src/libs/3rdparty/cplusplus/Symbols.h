@@ -29,6 +29,8 @@
 
 namespace CPlusPlus {
 
+class StringLiteral;
+
 class CPLUSPLUS_EXPORT UsingNamespaceDirective: public Symbol
 {
 public:
@@ -363,6 +365,9 @@ public:
 
     bool maybeValidPrototype(int actualArgumentCount) const;
 
+    const StringLiteral *exceptionSpecification();
+    void setExceptionSpecification(const StringLiteral *spec);
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
@@ -386,6 +391,7 @@ protected:
 
 private:
     FullySpecifiedType _returnType;
+    const StringLiteral *_exceptionSpecification = nullptr;
     struct Flags {
         unsigned _isVirtual: 1;
         unsigned _isOverride: 1;

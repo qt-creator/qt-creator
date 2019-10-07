@@ -1232,7 +1232,7 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     return type;
 }
 
-const StringLiteral *Bind::asStringLiteral(const ExpressionAST *ast)
+const StringLiteral *Bind::asStringLiteral(const AST *ast)
 {
     CPP_ASSERT(ast, return nullptr);
     const int firstToken = ast->firstToken();
@@ -3265,7 +3265,11 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
                                                Function::RvalueRefQualifier);
     }
 
+    // propagate exception spec
     this->exceptionSpecification(ast->exception_specification, type);
+    if (ExceptionSpecificationAST *spec = ast->exception_specification)
+        fun->setExceptionSpecification(asStringLiteral(spec));
+
     if (ast->as_cpp_initializer != nullptr) {
         fun->setAmbiguous(true);
         /*ExpressionTy as_cpp_initializer =*/ this->expression(ast->as_cpp_initializer);
