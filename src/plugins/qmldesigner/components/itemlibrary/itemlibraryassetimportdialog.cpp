@@ -147,9 +147,9 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
         m_importOptions = supportedOptions.value("options").toObject();
         const QJsonObject groups = supportedOptions.value("groups").toObject();
 
-        const int labelWidth = 210;
-        const int valueWidth = 75;
-        const int groupIndent = 10;
+        const int checkBoxColWidth = 18;
+        const int labelMinWidth = 130;
+        const int controlMinWidth = 65;
         const int columnSpacing = 10;
         const int rowHeight = 26;
         int rowIndex[2] = {0, 0};
@@ -160,16 +160,24 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
         QHash<QString, int> groupIndexMap;
         QHash<QString, QPair<QWidget *, QWidget *>> optionToWidgetsMap;
         QHash<QString, QJsonArray> conditionMap;
+        QHash<QWidget *, QWidget *> conditionalWidgetMap;
         QHash<QString, QString> optionToGroupMap;
 
         auto layout = new QGridLayout(ui->optionsAreaContents);
-        layout->setColumnMinimumWidth(0, groupIndent);
-        layout->setColumnMinimumWidth(1, labelWidth);
-        layout->setColumnMinimumWidth(2, valueWidth);
+        layout->setColumnMinimumWidth(0, checkBoxColWidth);
+        layout->setColumnMinimumWidth(1, labelMinWidth);
+        layout->setColumnMinimumWidth(2, controlMinWidth);
         layout->setColumnMinimumWidth(3, columnSpacing);
-        layout->setColumnMinimumWidth(4, groupIndent);
-        layout->setColumnMinimumWidth(5, labelWidth);
-        layout->setColumnMinimumWidth(6, valueWidth);
+        layout->setColumnMinimumWidth(4, checkBoxColWidth);
+        layout->setColumnMinimumWidth(5, labelMinWidth);
+        layout->setColumnMinimumWidth(6, controlMinWidth);
+        layout->setColumnStretch(0, 0);
+        layout->setColumnStretch(1, 4);
+        layout->setColumnStretch(2, 2);
+        layout->setColumnStretch(3, 0);
+        layout->setColumnStretch(4, 0);
+        layout->setColumnStretch(5, 4);
+        layout->setColumnStretch(6, 2);
 
         widgets.append(QVector<QPair<QWidget *, QWidget *>>());
 
@@ -230,6 +238,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
                 optSpin->setDecimals(decimals);
                 optSpin->setValue(optValue.toDouble());
                 optSpin->setSingleStep(step);
+                optSpin->setMinimumWidth(controlMinWidth);
                 optControl = optSpin;
                 QObject::connect(optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                                  [this, optSpin, optKey]() {
@@ -259,37 +268,9 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
             optionToWidgetsMap.insert(optKey, {optLabel, optControl});
         }
 
-        // Add option widgets to layout. Grouped options are added to the tops of the columns
-        for (int i = 1; i < widgets.size(); ++i) {
-            int col = rowIndex[1] < rowIndex[0] ? 1 : 0;
-            const auto &groupWidgets = widgets[i];
-            if (!groupWidgets.isEmpty()) {
-                // First widget in each group is the group label
-                layout->addWidget(groupWidgets[0].first, rowIndex[col], col * 4, 1, 3);
-                layout->setRowMinimumHeight(rowIndex[col],rowHeight);
-                ++rowIndex[col];
-                for (int j = 1; j < groupWidgets.size(); ++j) {
-                    layout->addWidget(groupWidgets[j].first, rowIndex[col], col * 4 + 1);
-                    layout->addWidget(groupWidgets[j].second, rowIndex[col], col * 4 + 2);
-                    layout->setRowMinimumHeight(rowIndex[col],rowHeight);
-                    ++rowIndex[col];
-                }
-            }
-        }
-
-        // Ungrouped options are spread evenly under the groups
-        int totalRowCount = (rowIndex[0] + rowIndex[1] + widgets[0].size() + 1) / 2;
-        for (const auto &rowWidgets : qAsConst(widgets[0])) {
-            int col = rowIndex[0] < totalRowCount ? 0 : 1;
-            layout->addWidget(rowWidgets.first, rowIndex[col], col * 4, 1, 2);
-            layout->addWidget(rowWidgets.second, rowIndex[col], col * 4 + 2);
-            layout->setRowMinimumHeight(rowIndex[col],rowHeight);
-            ++rowIndex[col];
-        }
-
         // Handle conditions
-        QHash<QString, QJsonArray>::const_iterator it = conditionMap.begin();
-        while (it != conditionMap.end()) {
+        auto it = conditionMap.constBegin();
+        while (it != conditionMap.constEnd()) {
             const QString &option = it.key();
             const QJsonArray &conditions = it.value();
             const auto &conWidgets = optionToWidgetsMap.value(option);
@@ -327,6 +308,10 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
                             w2->setEnabled(enable);
                         };
                         enableConditionally(optCb, conLabel, conControl, mode);
+                        if (conditionalWidgetMap.contains(optCb))
+                            conditionalWidgetMap.insert(optCb, nullptr);
+                        else
+                            conditionalWidgetMap.insert(optCb, conControl);
                         QObject::connect(
                                     optCb, &QCheckBox::toggled,
                                     [optCb, conLabel, conControl, mode, enableConditionally]() {
@@ -361,9 +346,86 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
             ++it;
         }
 
+        // Combine options where a non-boolean option depends on a boolean option that no other
+        // option depends on
+        auto condIt = conditionalWidgetMap.constBegin();
+        while (condIt != conditionalWidgetMap.constEnd()) {
+            if (condIt.value()) {
+                // Find and fix widget pairs
+                for (int i = 0; i < widgets.size(); ++i) {
+                    auto &groupWidgets = widgets[i];
+                    auto widgetIt = groupWidgets.begin();
+                    while (widgetIt != groupWidgets.end()) {
+                        if (widgetIt->second == condIt.value()) {
+                            if (widgetIt->first)
+                                widgetIt->first->hide();
+                            groupWidgets.erase(widgetIt);
+                        } else {
+                            ++widgetIt;
+                        }
+                    }
+                    // If group was left with less than two actual members, disband the group
+                    // and move the remaining member to ungrouped options
+                    // Note: <= 2 instead of < 2 because each group has group label member
+                    if (i != 0 && groupWidgets.size() <= 2) {
+                        widgets[0].prepend(groupWidgets[1]);
+                        groupWidgets[0].first->hide(); // hide group label
+                        groupWidgets.clear();
+                    }
+                }
+            }
+            ++condIt;
+        }
+
+        auto incrementColIndex = [&](int col) {
+            layout->setRowMinimumHeight(rowIndex[col], rowHeight);
+            ++rowIndex[col];
+        };
+
+        auto insertOptionToLayout = [&](int col, const QPair<QWidget *, QWidget *> &optionWidgets) {
+            layout->addWidget(optionWidgets.first, rowIndex[col], col * 4 + 1, 1, 2);
+            int adj = qobject_cast<QCheckBox *>(optionWidgets.second) ? 0 : 2;
+            layout->addWidget(optionWidgets.second, rowIndex[col], col * 4 + adj);
+            if (!adj) {
+                // Check box option may have additional conditional value field
+                QWidget *condWidget = conditionalWidgetMap.value(optionWidgets.second);
+                if (condWidget)
+                    layout->addWidget(condWidget, rowIndex[col], col * 4 + 2);
+            }
+            incrementColIndex(col);
+        };
+
+        // Add option widgets to layout. Grouped options are added to the tops of the columns
+        for (int i = 1; i < widgets.size(); ++i) {
+            int col = rowIndex[1] < rowIndex[0] ? 1 : 0;
+            const auto &groupWidgets = widgets[i];
+            if (!groupWidgets.isEmpty()) {
+                // First widget in each group is the group label
+                layout->addWidget(groupWidgets[0].first, rowIndex[col], col * 4, 1, 3);
+                incrementColIndex(col);
+                for (int j = 1; j < groupWidgets.size(); ++j)
+                    insertOptionToLayout(col, groupWidgets[j]);
+                // Add a separator line after each group
+                auto *separator = new QFrame(ui->optionsAreaContents);
+                separator->setMaximumHeight(1);
+                separator->setFrameShape(QFrame::HLine);
+                separator->setFrameShadow(QFrame::Sunken);
+                separator->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+                layout->addWidget(separator, rowIndex[col], col * 4, 1, 3);
+                incrementColIndex(col);
+            }
+        }
+
+        // Ungrouped options are spread evenly under the groups
+        int totalRowCount = (rowIndex[0] + rowIndex[1] + widgets[0].size() + 1) / 2;
+        for (const auto &rowWidgets : qAsConst(widgets[0])) {
+            int col = rowIndex[0] < totalRowCount ? 0 : 1;
+            insertOptionToLayout(col, rowWidgets);
+        }
+
         ui->optionsAreaContents->setLayout(layout);
-        ui->optionsAreaContents->resize(
-                    groupIndent * 2 + labelWidth * 2 + valueWidth * 2 + columnSpacing,
+        ui->optionsAreaContents->setMinimumSize(
+                    checkBoxColWidth * 2 + labelMinWidth * 2 + controlMinWidth * 2 + columnSpacing,
                     rowHeight * qMax(rowIndex[0], rowIndex[1]));
     }
 
@@ -390,6 +452,10 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
     addInfo(tr("Select import options and press \"Import\" to import the following files:"));
     for (const auto &file : m_quick3DFiles)
         addInfo(file);
+
+    QTimer::singleShot(0, [this]() {
+       resizeEvent(nullptr);
+    });
 }
 
 ItemLibraryAssetImportDialog::~ItemLibraryAssetImportDialog()
@@ -400,11 +466,13 @@ ItemLibraryAssetImportDialog::~ItemLibraryAssetImportDialog()
 void ItemLibraryAssetImportDialog::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
-    int scrollBarHeight = ui->optionsArea->horizontalScrollBar()->isVisible()
-            ? ui->optionsArea->horizontalScrollBar()->height() : 0;
-    ui->tabWidget->setMaximumHeight(ui->optionsAreaContents->height() + scrollBarHeight
-                                    + ui->tabWidget->tabBar()->height() + 8);
+    int scrollBarWidth = ui->optionsArea->verticalScrollBar()->isVisible()
+            ? ui->optionsArea->verticalScrollBar()->width() : 0;
+    ui->tabWidget->setMaximumHeight(ui->optionsAreaContents->height()
+                                    + ui->tabWidget->tabBar()->height() + 10);
     ui->optionsArea->resize(ui->tabWidget->currentWidget()->size());
+    ui->optionsAreaContents->resize(ui->optionsArea->contentsRect().width()
+                                    - scrollBarWidth - 8, 0);
 }
 
 void ItemLibraryAssetImportDialog::setCloseButtonState(bool importing)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>631</width>
-    <height>711</height>
+    <height>740</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,7 +48,7 @@
         </sizepolicy>
        </property>
        <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAsNeeded</enum>
+        <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
        <property name="widgetResizable">
         <bool>false</bool>
