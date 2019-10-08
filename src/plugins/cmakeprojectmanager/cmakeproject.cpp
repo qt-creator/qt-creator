@@ -115,10 +115,10 @@ void CMakeProject::runCMake()
         return;
 
     BuildDirParameters parameters(bc);
-    bc->m_buildDirManager
-        .setParametersAndRequestParse(parameters,
-                                      BuildDirManager::REPARSE_CHECK_CONFIGURATION
-                                          | BuildDirManager::REPARSE_FORCE_CMAKE_RUN);
+    bc->m_buildDirManager.setParametersAndRequestParse(parameters,
+                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION
+                                                           | BuildDirManager::REPARSE_FORCE_CMAKE_RUN
+                                                           | BuildDirManager::REPARSE_URGENT);
 }
 
 void CMakeProject::runCMakeAndScanProjectTree()
