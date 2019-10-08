@@ -257,8 +257,6 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
     }
     QTC_ASSERT(parameters.isValid(), return );
 
-    stopParsingAndClearState();
-
     m_parameters = parameters;
     m_parameters.workDirectory = workDirectory(parameters);
     updateReparseParameters(reparseParameters);
