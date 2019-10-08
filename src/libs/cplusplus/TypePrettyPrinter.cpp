@@ -487,6 +487,12 @@ void TypePrettyPrinter::visit(Function *type)
                         ? QLatin1String("&")
                         : QLatin1String("&&");
         }
+
+        // add exception specifier
+        if (const StringLiteral *spec = type->exceptionSpecification()) {
+            appendSpace();
+            _text += QLatin1String(spec->chars());
+        }
     }
 }
 

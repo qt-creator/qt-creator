@@ -552,8 +552,14 @@ void LogWindow::showOutput(int channel, const QString &output)
         out.append(nchar);
 
     m_queuedOutput.append(out);
-    m_outputTimer.setSingleShot(true);
-    m_outputTimer.start(80);
+    // flush the output if it exceeds 16k to prevent out of memory exceptions on regular output
+    if (m_queuedOutput.size() > 16 * 1024) {
+        m_outputTimer.stop();
+        doOutput();
+    } else {
+        m_outputTimer.setSingleShot(true);
+        m_outputTimer.start(80);
+    }
 }
 
 void LogWindow::doOutput()

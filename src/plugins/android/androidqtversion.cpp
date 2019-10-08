@@ -64,8 +64,15 @@ bool AndroidQtVersion::isValid() const
 QString AndroidQtVersion::invalidReason() const
 {
     QString tmp = BaseQtVersion::invalidReason();
-    if (tmp.isEmpty() && qtAbis().isEmpty())
-        return tr("Failed to detect the ABIs used by the Qt version.");
+    if (tmp.isEmpty()) {
+        if (AndroidConfigurations::currentConfig().ndkLocation().isEmpty())
+            return tr("NDK is not configured in Devices > Android.");
+        if (AndroidConfigurations::currentConfig().sdkLocation().isEmpty())
+            return tr("SDK is not configured in Devices > Android.");
+        if (qtAbis().isEmpty())
+            return tr("Failed to detect the ABIs used by the Qt version. Check the settings in "
+                      "Devices > Android for errors.");
+    }
     return tmp;
 }
 

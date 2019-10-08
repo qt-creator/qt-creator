@@ -12,8 +12,11 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/litehtml/CMakeLists.txt)
     set(CMAKE_POSITION_INDEPENDENT_CODE "${ORIG_FPIC}")
     # force optimized litehtml even in debug
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-      target_compile_options(gumbo PRIVATE -O2)
-      target_compile_options(litehtml PRIVATE -O2)
+      # except for windows
+      if (NOT WIN32)
+        target_compile_options(gumbo PRIVATE -O2)
+        target_compile_options(litehtml PRIVATE -O2)
+      endif()
     endif()
 else()
     find_package(litehtml REQUIRED)

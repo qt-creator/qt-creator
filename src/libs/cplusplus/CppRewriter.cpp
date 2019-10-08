@@ -136,6 +136,7 @@ public:
             funTy->setConst(type->isConst());
             funTy->setVolatile(type->isVolatile());
             funTy->setRefQualifier(type->refQualifier());
+            funTy->setExceptionSpecification(type->exceptionSpecification());
 
             funTy->setName(rewrite->rewriteName(type->name()));
 

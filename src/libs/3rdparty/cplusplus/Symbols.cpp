@@ -303,6 +303,7 @@ Function::Function(TranslationUnit *translationUnit, int sourceLocation, const N
 Function::Function(Clone *clone, Subst *subst, Function *original)
     : Scope(clone, subst, original)
     , _returnType(clone->type(original->_returnType, subst))
+    , _exceptionSpecification(original->_exceptionSpecification)
     , _flags(original->_flags)
 { }
 
@@ -534,6 +535,11 @@ bool Function::maybeValidPrototype(int actualArgumentCount) const
     return true;
 }
 
+const StringLiteral *Function::exceptionSpecification()
+{ return _exceptionSpecification; }
+
+void Function::setExceptionSpecification(const StringLiteral *spec)
+{ _exceptionSpecification = spec; }
 
 Block::Block(TranslationUnit *translationUnit, int sourceLocation)
     : Scope(translationUnit, sourceLocation, /*name = */ nullptr)
