@@ -899,9 +899,9 @@ static QColor valueColor(const WatchItem *item, int column)
                 color = Theme::Debugger_WatchItem_ValueInvalid;
             else if (!model->m_contentsValid && !item->isInspect())
                 color = Theme::Debugger_WatchItem_ValueInvalid;
-            else if (column == 1 && item->value.isEmpty()) // This might still show 0x...
+            else if (item->value.isEmpty()) // This might still show 0x...
                 color = Theme::Debugger_WatchItem_ValueInvalid;
-            else if (column == 1 && item->value != model->m_valueCache.value(item->iname))
+            else if (item->value != model->m_valueCache.value(item->iname))
                 color = Theme::Debugger_WatchItem_ValueChanged;
         }
     }
