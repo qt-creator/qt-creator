@@ -443,8 +443,10 @@ void CMakeBuildConfiguration::clearError(ForceEnabledChanged fec)
         m_error.clear();
         fec = ForceEnabledChanged::True;
     }
-    if (fec == ForceEnabledChanged::True)
+    if (fec == ForceEnabledChanged::True) {
+        qCDebug(cmakeBuildConfigurationLog) << "Emitting enabledChanged signal";
         emit enabledChanged();
+    }
 }
 
 void CMakeBuildConfiguration::emitBuildTypeChanged()
@@ -502,11 +504,16 @@ CMakeConfig CMakeBuildConfiguration::configurationForCMake() const
 
 void CMakeBuildConfiguration::setError(const QString &message)
 {
+    qCDebug(cmakeBuildConfigurationLog) << "Setting error to" << message;
+    QTC_ASSERT(!message.isEmpty(), return );
+
     const QString oldMessage = m_error;
     if (m_error != message)
         m_error = message;
-    if (oldMessage.isEmpty() && !message.isEmpty())
+    if (oldMessage.isEmpty() != !message.isEmpty()) {
+        qCDebug(cmakeBuildConfigurationLog) << "Emitting enabledChanged signal";
         emit enabledChanged();
+    }
     emit errorOccured(m_error);
 }
 

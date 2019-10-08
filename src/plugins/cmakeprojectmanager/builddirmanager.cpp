@@ -123,17 +123,22 @@ void BuildDirManager::emitErrorOccured(const QString &message) const
 
 void BuildDirManager::emitReparseRequest() const
 {
-    if (m_reparseParameters & REPARSE_URGENT)
+    if (m_reparseParameters & REPARSE_URGENT) {
+        qCDebug(cmakeBuildDirManagerLog) << "emitting requestReparse";
         emit requestReparse();
-    else
+    } else {
+        qCDebug(cmakeBuildDirManagerLog) << "emitting requestDelayedReparse";
         emit requestDelayedReparse();
+    }
 }
 
 void BuildDirManager::updateReaderType(const BuildDirParameters &p,
                                        std::function<void()> todo)
 {
-    if (!m_reader || !m_reader->isCompatible(p))
+    if (!m_reader || !m_reader->isCompatible(p)) {
+        qCDebug(cmakeBuildDirManagerLog) << "Creating new reader";
         m_reader = BuildDirReader::createReader(p);
+    }
 
     QTC_ASSERT(m_reader, return);
 
@@ -220,6 +225,7 @@ bool BuildDirManager::isParsing() const
 
 void BuildDirManager::stopParsingAndClearState()
 {
+    qCDebug(cmakeBuildDirManagerLog) << "stopping parsing run!";
     if (m_reader) {
         disconnect(m_reader.get(), nullptr, this, nullptr);
         m_reader->stop();
@@ -231,6 +237,7 @@ void BuildDirManager::stopParsingAndClearState()
 void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &parameters,
                                                    const int reparseParameters)
 {
+    qCDebug(cmakeBuildDirManagerLog) << "setting parameters and requesting reparse";
     if (!parameters.cmakeTool()) {
         TaskHub::addTask(Task::Error,
                          tr("The kit needs to define a CMake tool to parse this project."),
@@ -262,6 +269,7 @@ FilePath BuildDirManager::buildDirectory() const
 
 void BuildDirManager::becameDirty()
 {
+    qCDebug(cmakeBuildDirManagerLog) << "BuildDirManager: becameDirty was triggered.";
     if (isParsing() || !buildConfiguration())
         return;
 
@@ -310,6 +318,7 @@ bool BuildDirManager::isFilesystemScanRequested() const
 
 void BuildDirManager::parse()
 {
+    qCDebug(cmakeBuildDirManagerLog) << "parsing!";
     QTC_ASSERT(m_parameters.isValid(), return );
     QTC_ASSERT(m_reader, return);
 
@@ -335,6 +344,7 @@ void BuildDirManager::parse()
         }
     }
 
+    qCDebug(cmakeBuildDirManagerLog) << "Asking reader to parse";
     m_reader->parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
                     reparseParameters & REPARSE_FORCE_CONFIGURATION);
 }
