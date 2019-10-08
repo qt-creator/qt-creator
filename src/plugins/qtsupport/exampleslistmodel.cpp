@@ -496,11 +496,8 @@ void ExamplesListModel::updateExamples()
 
 void ExampleSetModel::updateQtVersionList()
 {
-    QList<BaseQtVersion*> versions
-            = QtVersionManager::sortVersions(
-                QtVersionManager::versions(BaseQtVersion::isValidPredicate([](const BaseQtVersion *v) {
-        return v->hasExamples() || v->hasDemos();
-    })));
+    QList<BaseQtVersion *> versions = QtVersionManager::sortVersions(QtVersionManager::versions(
+        [](const BaseQtVersion *v) { return v->hasExamples() || v->hasDemos(); }));
 
     // prioritize default qt version
     ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
