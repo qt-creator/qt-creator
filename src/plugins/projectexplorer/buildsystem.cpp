@@ -77,7 +77,7 @@ void BuildSystem::requestParse(int delay)
 
 void BuildSystem::triggerParsing()
 {
-    QTC_CHECK(!project()->isParsing());
+    QTC_ASSERT(!project()->isParsing(), return );
 
     Project *p = project();
     Target *t = p->activeTarget();
