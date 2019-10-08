@@ -238,6 +238,8 @@ void BuildDirManager::stopParsingAndClearState()
 {
     qCDebug(cmakeBuildDirManagerLog) << "stopping parsing run!";
     if (m_reader) {
+        if (m_reader->isParsing())
+            m_reader->errorOccured(tr("Parsing has been canceled."));
         disconnect(m_reader.get(), nullptr, this, nullptr);
         m_reader->stop();
     }
@@ -329,7 +331,8 @@ void BuildDirManager::parse()
 {
     qCDebug(cmakeBuildDirManagerLog) << "parsing!";
     QTC_ASSERT(m_parameters.isValid(), return );
-    QTC_ASSERT(m_reader, return);
+    QTC_ASSERT(m_reader, return );
+    QTC_ASSERT(!m_reader->isParsing(), return );
 
     m_reader->stop();
 
