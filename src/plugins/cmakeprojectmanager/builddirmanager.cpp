@@ -136,20 +136,31 @@ void BuildDirManager::updateReaderType(const BuildDirParameters &p,
                                        std::function<void()> todo)
 {
     if (!m_reader || !m_reader->isCompatible(p)) {
-        qCDebug(cmakeBuildDirManagerLog) << "Creating new reader";
+        if (m_reader) {
+            stopParsingAndClearState();
+            qCDebug(cmakeBuildDirManagerLog) << "Creating new reader do to incompatible parameters";
+        } else {
+            qCDebug(cmakeBuildDirManagerLog) << "Creating first reader";
+        }
         m_reader = BuildDirReader::createReader(p);
+
+        connect(m_reader.get(),
+                &BuildDirReader::configurationStarted,
+                this,
+                &BuildDirManager::parsingStarted);
+        connect(m_reader.get(),
+                &BuildDirReader::dataAvailable,
+                this,
+                &BuildDirManager::emitDataAvailable);
+        connect(m_reader.get(),
+                &BuildDirReader::errorOccured,
+                this,
+                &BuildDirManager::emitErrorOccured);
+        connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
+        connect(m_reader.get(), &BuildDirReader::isReadyNow, this, todo);
     }
 
-    QTC_ASSERT(m_reader, return);
-
-    connect(m_reader.get(), &BuildDirReader::configurationStarted,
-            this, &BuildDirManager::parsingStarted);
-    connect(m_reader.get(), &BuildDirReader::dataAvailable,
-            this, &BuildDirManager::emitDataAvailable);
-    connect(m_reader.get(), &BuildDirReader::errorOccured,
-            this, &BuildDirManager::emitErrorOccured);
-    connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
-    connect(m_reader.get(), &BuildDirReader::isReadyNow, this, todo);
+    QTC_ASSERT(m_reader, return );
 
     m_reader->setParameters(p);
 }
