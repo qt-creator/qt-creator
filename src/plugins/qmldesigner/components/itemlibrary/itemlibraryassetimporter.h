@@ -58,6 +58,8 @@ public:
 
     bool isQuick3DAsset(const QString &fileName) const;
     QVariantMap supportedOptions(const QString &modelFile) const;
+    QHash<QString, QVariantMap> allOptions() const;
+    QHash<QString, QStringList> supportedExtensions() const;
 
 signals:
     void errorReported(const QString &, const QString &) const;

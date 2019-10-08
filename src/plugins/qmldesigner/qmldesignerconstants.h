@@ -54,12 +54,6 @@ const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";
 const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
 const char QT_QUICK_3D_MODULE_NAME[] = "QtQuick3D";
 
-const char FbxExtension[] = "fbx";
-const char ColladaExtension[] = "dae";
-const char ObjExtension[] = "obj";
-const char BlenderExtension[] = "blend";
-const char GltfExtension[] = "gltf";
-
 namespace Internal {
     enum { debug = 0 };
 }

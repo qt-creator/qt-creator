@@ -162,21 +162,41 @@ void ItemLibraryAssetImporter::addInfo(const QString &infoMsg, const QString &sr
 
 bool ItemLibraryAssetImporter::isQuick3DAsset(const QString &fileName) const
 {
+#ifdef IMPORT_QUICK3D_ASSETS
     static QStringList quick3DExt;
     if (quick3DExt.isEmpty()) {
-        quick3DExt << QString(Constants::FbxExtension)
-                   << QString(Constants::ColladaExtension)
-                   << QString(Constants::ObjExtension)
-                   << QString(Constants::BlenderExtension)
-                   << QString(Constants::GltfExtension);
+        const auto exts = m_quick3DAssetImporter->getSupportedExtensions();
+        for (const auto &ext : exts)
+            quick3DExt << ext;
     }
     return quick3DExt.contains(QFileInfo(fileName).suffix());
+#else
+    return false;
+#endif
 }
 
 QVariantMap ItemLibraryAssetImporter::supportedOptions(const QString &modelFile) const
 {
 #ifdef IMPORT_QUICK3D_ASSETS
     return m_quick3DAssetImporter->getOptionsForFile(modelFile);
+#else
+    return {};
+#endif
+}
+
+QHash<QString, QVariantMap> ItemLibraryAssetImporter::allOptions() const
+{
+#ifdef IMPORT_QUICK3D_ASSETS
+    return m_quick3DAssetImporter->getAllOptions();
+#else
+    return {};
+#endif
+}
+
+QHash<QString, QStringList> ItemLibraryAssetImporter::supportedExtensions() const
+{
+#ifdef IMPORT_QUICK3D_ASSETS
+    return m_quick3DAssetImporter->getSupportedExtensions();
 #else
     return {};
 #endif

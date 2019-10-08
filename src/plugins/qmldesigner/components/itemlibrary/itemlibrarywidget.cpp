@@ -51,6 +51,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#ifdef IMPORT_QUICK3D_ASSETS
+#include <QtQuick3DAssetImport/private/qssgassetimportmanager_p.h>
+#endif
+
 #include <QApplication>
 #include <QDrag>
 #include <QFileDialog>
@@ -196,30 +200,28 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
         return true;
     };
 
-    const QString category = tr("3D Models");
-
-    auto add3DHandler = [&actionManager, &handle3DModel, &category](const char *ext) {
-        const QString filter = QStringLiteral("*.%1").arg(QString::fromLatin1(ext));
+    auto add3DHandler = [&](const QString &category, const QString &ext) {
+        const QString filter = QStringLiteral("*.%1").arg(ext);
         actionManager->registerAddResourceHandler(
                     AddResourceHandler(category, filter, handle3DModel, 10));
     };
 
+    QSSGAssetImportManager importManager;
+    QHash<QString, QStringList> supportedExtensions = importManager.getSupportedExtensions();
+
     // Skip if 3D model handlers have already been added
     const QList<AddResourceHandler> handlers = actionManager->addResourceHandler();
-    bool categoryAlreadyAdded = false;
-    for (const auto &handler : handlers) {
-        if (handler.category == category) {
-            categoryAlreadyAdded = true;
-            break;
-        }
-    }
+    QSet<QString> handlerCats;
+    for (const auto &h : handlers)
+        handlerCats.insert(h.category);
 
-    if (!categoryAlreadyAdded) {
-        add3DHandler(Constants::FbxExtension);
-        add3DHandler(Constants::ColladaExtension);
-        add3DHandler(Constants::ObjExtension);
-        add3DHandler(Constants::BlenderExtension);
-        add3DHandler(Constants::GltfExtension);
+    const auto categories = supportedExtensions.keys();
+    for (const auto &category : categories) {
+        if (handlerCats.contains(category))
+            continue;
+        const auto extensions = supportedExtensions[category];
+        for (const auto &ext : extensions)
+            add3DHandler(category, ext);
     }
 #endif
 
