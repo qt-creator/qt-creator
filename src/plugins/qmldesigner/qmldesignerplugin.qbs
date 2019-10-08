@@ -348,8 +348,6 @@ Project {
                 "model/qmlanchors.cpp",
                 "model/qmlchangeset.cpp",
                 "model/qmlitemnode.cpp",
-                "model/qmlvisualnode.h",
-                "model/qml3dnode.h",
                 "model/qmlmodelnodefacade.cpp",
                 "model/qmlobjectnode.cpp",
                 "model/qmlstate.cpp",

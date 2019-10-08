@@ -136,8 +136,6 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/model/modeltotextmerger.h \
     $$PWD/model/texttomodelmerger.h \
     $$PWD/include/qmlitemnode.h \
-    $$PWD/model/qmlvisualnode.h \
-    $$PWD/model/qml3dnode.h \
     $$PWD/include/qmlstate.h \
     $$PWD/include/qmlchangeset.h \
     $$PWD/include/qmlmodelnodefacade.h \
