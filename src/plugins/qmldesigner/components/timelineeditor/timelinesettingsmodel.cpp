@@ -29,7 +29,7 @@
 
 #include <modelnode.h>
 #include <variantproperty.h>
-#include <qmlitemnode.h>
+#include <qmlvisualnode.h>
 
 #include <utils/qtcassert.h>
 
@@ -152,7 +152,7 @@ void TimelineSettingsModel::resetModel()
     if (timelineView()->isAttached() && timelineView()->rootModelNode().hasId()) {
         addState(ModelNode());
         for (const QmlModelState &state :
-             QmlItemNode(timelineView()->rootModelNode()).states().allStates())
+             QmlVisualNode(timelineView()->rootModelNode()).states().allStates())
             addState(state);
     }
 

@@ -1,3 +1,5 @@
+add_subdirectory(frontend)
+
 add_qtc_plugin(CodePaster
   PLUGIN_DEPENDS Core TextEditor
   DEFINES CPASTER_PLUGIN_GUI

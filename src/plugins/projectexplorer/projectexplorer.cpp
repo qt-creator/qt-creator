@@ -250,12 +250,26 @@ const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxM
 const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%{CurrentProject:Name}-%{CurrentKit:FileSystemName}-%{CurrentBuild:Name}\")}";
 const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.Template";
 
+const char BUILD_BEFORE_DEPLOY_SETTINGS_KEY[] = "ProjectExplorer/Settings/BuildBeforeDeploy";
+const char DEPLOY_BEFORE_RUN_SETTINGS_KEY[] = "ProjectExplorer/Settings/DeployBeforeRun";
+const char SAVE_BEFORE_BUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/SaveBeforeBuild";
+const char USE_JOM_SETTINGS_KEY[] = "ProjectExplorer/Settings/UseJom";
+const char AUTO_RESTORE_SESSION_SETTINGS_KEY[] = "ProjectExplorer/Settings/AutoRestoreLastSession";
+const char ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY[] =
+        "ProjectExplorer/Settings/AddLibraryPathsToRunEnv";
+const char PROMPT_TO_STOP_RUN_CONTROL_SETTINGS_KEY[] =
+        "ProjectExplorer/Settings/PromptToStopRunControl";
+const char AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY[] =
+        "ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations";
+const char ENVIRONMENT_ID_SETTINGS_KEY[] = "ProjectExplorer/Settings/EnvironmentId";
+const char STOP_BEFORE_BUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/StopBeforeBuild";
 const char TERMINAL_MODE_SETTINGS_KEY[] = "ProjectExplorer/Settings/TerminalMode";
 const char CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY[]
     = "ProjectExplorer/Settings/CloseFilesWithProject";
 const char CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/ClearIssuesOnRebuild";
 const char ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY[]
     = "ProjectExplorer/Settings/AbortBuildAllOnError";
+const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
 
 } // namespace Constants
 
@@ -1363,26 +1377,25 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     }
 
     dd->m_projectExplorerSettings.buildBeforeDeploy =
-            s->value(QLatin1String("ProjectExplorer/Settings/BuildBeforeDeploy"), true).toBool();
+            s->value(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.deployBeforeRun =
-            s->value(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), true).toBool();
+            s->value(Constants::DEPLOY_BEFORE_RUN_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.saveBeforeBuild =
-            s->value(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), false).toBool();
-    dd->m_projectExplorerSettings.useJom =
-            s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), true).toBool();
+            s->value(Constants::SAVE_BEFORE_BUILD_SETTINGS_KEY, false).toBool();
+    dd->m_projectExplorerSettings.useJom = s->value(Constants::USE_JOM_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.autorestoreLastSession =
-            s->value(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), false).toBool();
+            s->value(Constants::AUTO_RESTORE_SESSION_SETTINGS_KEY, false).toBool();
     dd->m_projectExplorerSettings.addLibraryPathsToRunEnv =
-            s->value(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), true).toBool();
+            s->value(Constants::ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.prompToStopRunControl =
-            s->value(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), false).toBool();
+            s->value(Constants::PROMPT_TO_STOP_RUN_CONTROL_SETTINGS_KEY, false).toBool();
     dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations =
-            s->value(QLatin1String("ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations"), true).toBool();
+            s->value(Constants::AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.environmentId =
-            QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toByteArray());
+            QUuid(s->value(Constants::ENVIRONMENT_ID_SETTINGS_KEY).toByteArray());
     if (dd->m_projectExplorerSettings.environmentId.isNull())
         dd->m_projectExplorerSettings.environmentId = QUuid::createUuid();
-    int tmp = s->value(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"),
+    int tmp = s->value(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY,
                             Utils::HostOsInfo::isWindowsHost() ? 1 : 0).toInt();
     if (tmp < 0 || tmp > ProjectExplorerSettings::StopSameBuildDir)
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
@@ -1395,6 +1408,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             = s->value(Constants::CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.abortBuildAllOnError
             = s->value(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY, true).toBool();
+    dd->m_projectExplorerSettings.lowBuildPriority
+            = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, false).toBool();
     dd->m_projectExplorerSettings.buildDirectoryTemplate
             = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
     if (dd->m_projectExplorerSettings.buildDirectoryTemplate.isEmpty())
@@ -1987,13 +2002,13 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/RecentProjects/FileNames"), fileNames);
     s->setValue(QLatin1String("ProjectExplorer/RecentProjects/DisplayNames"), displayNames);
 
-    s->setValue(QLatin1String("ProjectExplorer/Settings/BuildBeforeDeploy"), dd->m_projectExplorerSettings.buildBeforeDeploy);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), dd->m_projectExplorerSettings.deployBeforeRun);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), dd->m_projectExplorerSettings.saveBeforeBuild);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/UseJom"), dd->m_projectExplorerSettings.useJom);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), dd->m_projectExplorerSettings.autorestoreLastSession);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/AddLibraryPathsToRunEnv"), dd->m_projectExplorerSettings.addLibraryPathsToRunEnv);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), dd->m_projectExplorerSettings.prompToStopRunControl);
+    s->setValue(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY, dd->m_projectExplorerSettings.buildBeforeDeploy);
+    s->setValue(Constants::DEPLOY_BEFORE_RUN_SETTINGS_KEY, dd->m_projectExplorerSettings.deployBeforeRun);
+    s->setValue(Constants::SAVE_BEFORE_BUILD_SETTINGS_KEY, dd->m_projectExplorerSettings.saveBeforeBuild);
+    s->setValue(Constants::USE_JOM_SETTINGS_KEY, dd->m_projectExplorerSettings.useJom);
+    s->setValue(Constants::AUTO_RESTORE_SESSION_SETTINGS_KEY, dd->m_projectExplorerSettings.autorestoreLastSession);
+    s->setValue(Constants::ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY, dd->m_projectExplorerSettings.addLibraryPathsToRunEnv);
+    s->setValue(Constants::PROMPT_TO_STOP_RUN_CONTROL_SETTINGS_KEY, dd->m_projectExplorerSettings.prompToStopRunControl);
     s->setValue(Constants::TERMINAL_MODE_SETTINGS_KEY,
                 int(dd->m_projectExplorerSettings.terminalMode));
     s->setValue(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY,
@@ -2002,10 +2017,12 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                 dd->m_projectExplorerSettings.clearIssuesOnRebuild);
     s->setValue(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY,
                 dd->m_projectExplorerSettings.abortBuildAllOnError);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations"),
+    s->setValue(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY,
+                dd->m_projectExplorerSettings.lowBuildPriority);
+    s->setValue(Constants::AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY,
                 dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations);
-    s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());
-    s->setValue(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"), dd->m_projectExplorerSettings.stopBeforeBuild);
+    s->setValue(Constants::ENVIRONMENT_ID_SETTINGS_KEY, dd->m_projectExplorerSettings.environmentId.toByteArray());
+    s->setValue(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY, dd->m_projectExplorerSettings.stopBeforeBuild);
 
     // Store this in the Core directory scope for backward compatibility!
     s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY, dd->m_projectExplorerSettings.buildDirectoryTemplate);

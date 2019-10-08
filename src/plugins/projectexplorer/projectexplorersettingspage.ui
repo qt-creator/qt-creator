@@ -149,6 +149,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="lowBuildPriorityCheckBox">
+        <property name="toolTip">
+         <string>Enable this if your system becomes unresponsive while building.</string>
+        </property>
+        <property name="text">
+         <string>Start build processes with low priority</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QFormLayout" name="formLayout">
         <item row="0" column="0">
          <widget class="QLabel" name="labelStopBeforeBuild">
@@ -310,6 +320,7 @@
      <zorder>addLibraryPathsToRunEnvCheckBox</zorder>
      <zorder>clearIssuesCheckBox</zorder>
      <zorder>abortBuildAllOnErrorCheckBox</zorder>
+     <zorder>lowBuildPriorityCheckBox</zorder>
     </widget>
    </item>
    <item>

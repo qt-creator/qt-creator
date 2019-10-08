@@ -73,7 +73,7 @@ public:
     void setWidth(int width);
 
     void invalidateLayout();
-    void setCurrenFrame(const QmlTimeline &timeline, qreal frame);
+    qreal setCurrenFrame(const QmlTimeline &timeline, qreal frame);
     void setCurrentFrame(int frame);
     void setStartFrame(int frame);
     void setEndFrame(int frame);
@@ -88,12 +88,16 @@ public:
     qreal startFrame() const;
     qreal endFrame() const;
 
+    void updateKeyframePositionsCache();
+
     qreal mapToScene(qreal x) const;
     qreal mapFromScene(qreal x) const;
 
     qreal currentFramePosition() const;
     QVector<qreal> keyframePositions() const;
     QVector<qreal> keyframePositions(const QmlTimelineKeyframeGroup &frames) const;
+
+    qreal snap(qreal frame, bool snapToPlayhead = true);
 
     void setRulerScaling(int scaling);
 
@@ -165,6 +169,7 @@ private:
     QList<QGraphicsItem *> itemsAt(const QPointF &pos);
 
 private:
+
     TimelineWidget *m_parent = nullptr;
 
     TimelineGraphicsLayout *m_layout = nullptr;
@@ -174,6 +179,9 @@ private:
     TimelineToolDelegate m_tools;
 
     QList<TimelineKeyframeItem *> m_selectedKeyframes;
+
+    // sorted, unique cache of keyframes positions, used for snapping
+    QVector<qreal> m_keyframePositionsCache;
 
     int m_scrollOffset = 0;
 };

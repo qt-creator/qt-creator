@@ -148,7 +148,7 @@ void tst_Check::test()
                     columnEnd - columnStart,
                     comment.startLine,
                     columnStart),
-        message.type = static_cast<Type>(type);
+        message.type = static_cast<QmlJS::StaticAnalysis::Type>(type);
         expectedMessages += message;
     }
 

@@ -109,6 +109,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.closeSourceFilesWithProject = m_ui.closeSourceFilesCheckBox->isChecked();
     m_settings.clearIssuesOnRebuild = m_ui.clearIssuesCheckBox->isChecked();
     m_settings.abortBuildAllOnError = m_ui.abortBuildAllOnErrorCheckBox->isChecked();
+    m_settings.lowBuildPriority = m_ui.lowBuildPriorityCheckBox->isChecked();
     m_settings.buildDirectoryTemplate = buildDirectoryTemplate();
     return m_settings;
 }
@@ -128,6 +129,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.closeSourceFilesCheckBox->setChecked(m_settings.closeSourceFilesWithProject);
     m_ui.clearIssuesCheckBox->setChecked(m_settings.clearIssuesOnRebuild);
     m_ui.abortBuildAllOnErrorCheckBox->setChecked(m_settings.abortBuildAllOnError);
+    m_ui.lowBuildPriorityCheckBox->setChecked(m_settings.lowBuildPriority);
     setBuildDirectoryTemplate(pes.buildDirectoryTemplate);
 }
 

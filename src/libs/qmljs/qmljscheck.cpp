@@ -66,7 +66,7 @@ public:
         return _message;
     }
 
-    void setMessage(Type type)
+    void setMessage(StaticAnalysis::Type type)
     {
         _message = Message(type, _location);
     }
@@ -511,7 +511,7 @@ protected:
     }
 
 private:
-    void addMessage(Type type, const SourceLocation &loc, const QString &arg1 = QString())
+    void addMessage(StaticAnalysis::Type type, const SourceLocation &loc, const QString &arg1 = QString())
     {
         _messages.append(Message(type, loc, arg1));
     }
@@ -695,12 +695,12 @@ QList<Message> Check::operator()()
     return _messages;
 }
 
-void Check::enableMessage(Type type)
+void Check::enableMessage(StaticAnalysis::Type type)
 {
     _enabledMessages.insert(type);
 }
 
-void Check::disableMessage(Type type)
+void Check::disableMessage(StaticAnalysis::Type type)
 {
     _enabledMessages.remove(type);
 }
@@ -1267,7 +1267,7 @@ bool Check::visit(BinaryExpression *ast)
     const QLatin1Char newline('\n');
     if (ast->op == QSOperator::Add || ast->op == QSOperator::Sub) {
         QChar match;
-        Type msg;
+        StaticAnalysis::Type msg;
         if (ast->op == QSOperator::Add) {
             match = '+';
             msg = WarnConfusingPluses;
@@ -1522,7 +1522,7 @@ void Check::addMessage(const Message &message)
     }
 }
 
-void Check::addMessage(Type type, const SourceLocation &location, const QString &arg1, const QString &arg2)
+void Check::addMessage(StaticAnalysis::Type type, const SourceLocation &location, const QString &arg1, const QString &arg2)
 {
     addMessage(Message(type, location, arg1, arg2));
 }

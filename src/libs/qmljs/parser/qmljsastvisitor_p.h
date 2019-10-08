@@ -46,7 +46,33 @@ namespace QmlJS { namespace AST {
 class QML_PARSER_EXPORT Visitor
 {
 public:
-    Visitor();
+    class RecursionDepthCheck
+    {
+        Q_DISABLE_COPY(RecursionDepthCheck)
+    public:
+        RecursionDepthCheck(RecursionDepthCheck &&) = delete;
+        RecursionDepthCheck &operator=(RecursionDepthCheck &&) = delete;
+
+        RecursionDepthCheck(Visitor *visitor) : m_visitor(visitor)
+        {
+            ++(m_visitor->m_recursionDepth);
+        }
+
+        ~RecursionDepthCheck()
+        {
+            --(m_visitor->m_recursionDepth);
+        }
+
+        bool operator()() const {
+            return m_visitor->m_recursionDepth < s_recursionLimit;
+        }
+
+    private:
+        static const quint16 s_recursionLimit = 4096;
+        Visitor *m_visitor;
+    };
+
+    Visitor(quint16 parentRecursionDepth = 0);
     virtual ~Visitor();
 
     virtual bool preVisit(Node *) { return true; }
@@ -70,6 +96,7 @@ public:
     virtual bool visit(UiQualifiedId *) { return true; }
     virtual bool visit(UiEnumDeclaration *) { return true; }
     virtual bool visit(UiEnumMemberList *) { return true; }
+    virtual bool visit(UiVersionSpecifier *) { return true; }
 
     virtual void endVisit(UiProgram *) {}
     virtual void endVisit(UiImport *) {}
@@ -88,6 +115,7 @@ public:
     virtual void endVisit(UiQualifiedId *) {}
     virtual void endVisit(UiEnumDeclaration *) {}
     virtual void endVisit(UiEnumMemberList *) { }
+    virtual void endVisit(UiVersionSpecifier *) {}
 
     // QmlJS
     virtual bool visit(ThisExpression *) { return true; }
@@ -359,6 +387,23 @@ public:
 
     virtual bool visit(DebuggerStatement *) { return true; }
     virtual void endVisit(DebuggerStatement *) {}
+
+    virtual bool visit(Type *) { return true; }
+    virtual void endVisit(Type *) {}
+
+    virtual bool visit(TypeArgumentList *) { return true; }
+    virtual void endVisit(TypeArgumentList *) {}
+
+    virtual bool visit(TypeAnnotation *) { return true; }
+    virtual void endVisit(TypeAnnotation *) {}
+
+    virtual void throwRecursionDepthError() {}
+
+    quint16 recursionDepth() const { return m_recursionDepth; }
+
+protected:
+    quint16 m_recursionDepth = 0;
+    friend class RecursionDepthCheck;
 };
 
 } } // namespace AST

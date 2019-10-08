@@ -1,0 +1,113 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-cppcheck.html
+    \page creator-ctf-visualizer.html
+    \nextpage creator-autotest.html
+
+    \title Visualizing Chrome Trace Events
+
+    Several tracing tools (such as \c {chrome://about}) can generate information
+    about Chrome trace events in Chrome Trace Format (CTF). You can open CTF
+    files in \QC for viewing. This is especially useful when viewing trace files
+    larger than 100 MB, which are difficult to view with the built-in
+    trace-viewer (\c{chrome://tracing}) due to its high memory usage.
+
+    The visualizer supports all event types used in data that the
+    \l {https://lttng.org/}{LTTng} tracing framework generates, converted
+    to CTF. However, some of the more advanced event types used, for example,
+    in Android system traces, are not supported. The visualizer silently
+    ignores unsupported event types.
+
+    The visualizer supports the following event types:
+
+    \list
+        \li Begin, end, duration, and instant events
+        \li Counter events (graphs)
+        \li Metadata events (process and thread name)
+    \endlist
+
+    \section1 Opening JSON Files
+
+    To open JSON files for viewing, select \uicontrol Analyze >
+    \uicontrol {Chrome Trace Format Viewer} > \uicontrol {Load JSON File}.
+
+    \section1 Visualizing Events
+
+    The \uicontrol Timeline view displays a graphical representation of trace
+    events and a condensed view of all recorded events.
+
+    \image qtcreator-ctf-visualizer-timeline.png "Chrome Trace Format Visualizer"
+
+    Each category in the timeline describes a thread in the application. Move
+    the cursor on an event (1) on a row to view its duration and event category.
+    To display the information only when an event is selected, disable the
+    \uicontrol {View Event Information on Mouseover} button (2).
+
+    The outline (3) summarizes the period for which data was collected. Drag
+    the zoom range (4) or click the outline to move on the outline. To move
+    between events, select the \uicontrol {Jump to Previous Event} and
+    \uicontrol {Jump to Next Event} buttons (5).
+
+    Select the \uicontrol {Show Zoom Slider} button (6) to open a slider that
+    you can use to set the zoom level. You can also drag the zoom handles (7).
+    To reset the default zoom level, right-click the timeline to open the
+    context menu, and select \uicontrol {Reset Zoom}.
+
+    \section2 Selecting Event Ranges
+
+    You can select an event range (8) to view the time it represents or to zoom
+    into a specific region of the trace. Select the \uicontrol {Select Range}
+    button (9) to activate the selection tool. Then click in the timeline to
+    specify the beginning of the event range. Drag the selection handle to
+    define the end of the range.
+
+    You can use event ranges also to measure delays between two subsequent
+    events. Place a range between the end of the first event and the beginning
+    of the second event. The \uicontrol Duration field displays the delay
+    between the events in milliseconds.
+
+    To zoom into an event range, double-click it.
+
+    To remove an event range, close the \uicontrol Selection dialog.
+
+    \section1 Viewing Statistics
+
+    \image qtcreator-ctf-visualizer-statistics.png
+
+    The \uicontrol Statistics view displays the number of samples each function
+    in the timeline was contained in, in total and when on the top of the
+    stack (called \c self). This allows you to examine which functions you need
+    to optimize. A high number of occurrences might indicate that a function is
+    triggered unnecessarily or takes very long to execute.
+*/

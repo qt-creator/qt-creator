@@ -170,6 +170,7 @@ void TimelineView::instancePropertyChanged(const QList<QPair<ModelNode, Property
 {
     QmlTimeline timeline = currentTimeline();
     bool updated = false;
+    bool keyframeChangeFlag = false;
     for (const auto &pair : propertyList) {
         if (pair.second == "startFrame" || pair.second == "endFrame") {
             if (QmlTimeline::isValidQmlTimeline(pair.first)) {
@@ -182,6 +183,11 @@ void TimelineView::instancePropertyChanged(const QList<QPair<ModelNode, Property
         } else if (!updated && timeline.hasTimeline(pair.first, pair.second)) {
             m_timelineWidget->graphicsScene()->invalidateCurrentValues();
             updated = true;
+        }
+
+        if (!keyframeChangeFlag && pair.second == "frame") {
+            m_timelineWidget->graphicsScene()->updateKeyframePositionsCache();
+            keyframeChangeFlag = true;
         }
     }
 }
@@ -494,7 +500,7 @@ QmlModelState TimelineView::stateForTimeline(const QmlTimeline &timeline)
         return QmlModelState(rootModelNode());
     }
 
-    for (const QmlModelState &state : QmlItemNode(rootModelNode()).states().allStates()) {
+    for (const QmlModelState &state : QmlVisualNode(rootModelNode()).states().allStates()) {
         if (timelineForState(state) == timeline)
             return state;
     }

@@ -30,6 +30,8 @@
 #include "ioutputparser.h"
 #include "processparameters.h"
 #include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
 #include "target.h"
 #include "task.h"
 
@@ -249,9 +251,10 @@ void AbstractProcessStep::doRun()
     processStarted();
 }
 
-void AbstractProcessStep::setLowPriority()
+void AbstractProcessStep::setLowPriorityIfConfigured()
 {
-    d->m_lowPriority = true;
+    if (ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
+        d->m_lowPriority = true;
 }
 
 void AbstractProcessStep::doCancel()

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>399</width>
+    <width>422</width>
     <height>279</height>
    </rect>
   </property>
@@ -59,7 +59,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="targetsLabel">
      <property name="text">
       <string>Targets:</string>
@@ -69,7 +69,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QListWidget" name="targetsList"/>
    </item>
    <item row="2" column="1">
@@ -99,6 +99,23 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="disableInSubDirsLabel">
+     <property name="toolTip">
+      <string/>
+     </property>
+     <property name="text">
+      <string>Disable in subdirectories:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="disableInSubDirsCheckBox">
+     <property name="toolTip">
+      <string>Runs this step only for a top-level build.</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -74,6 +74,8 @@ public:
 
     void activate();
 
+    TimelineRulerSectionItem *ruler() const;
+
 private:
     QGraphicsLinearLayout *m_layout = nullptr;
 

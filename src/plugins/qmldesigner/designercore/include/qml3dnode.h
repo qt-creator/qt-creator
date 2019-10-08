@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,40 +25,35 @@
 
 #pragma once
 
-#include "qmakeprojectmanager_global.h"
+#include <qmldesignercorelib_global.h>
+#include <modelnode.h>
+#include "qmlobjectnode.h"
+#include "qmlstate.h"
+#include "qmlvisualnode.h"
 
-#include <projectexplorer/makestep.h>
+#include <QStringList>
+#include <QRectF>
+#include <QTransform>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmlDesigner {
 
-class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
+class QmlModelStateGroup;
+class QmlAnchors;
+class ItemLibraryEntry;
+
+class QMLDESIGNERCORE_EXPORT Qml3DNode : public QmlVisualNode
 {
+    friend class QmlAnchors;
 public:
-    QmakeMakeStepFactory();
+    Qml3DNode() : QmlVisualNode() {}
+    Qml3DNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
+    bool isValid() const override;
+    static bool isValidQml3DNode(const ModelNode &modelNode);
 };
 
-} //namespace Internal
+QMLDESIGNERCORE_EXPORT uint qHash(const Qml3DNode &node);
 
-class QmakeProject;
+QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<Qml3DNode> &fxItemNodeList);
+QMLDESIGNERCORE_EXPORT QList<Qml3DNode> toQml3DNodeList(const QList<ModelNode> &modelNodeList);
 
-class QMAKEPROJECTMANAGER_EXPORT QmakeMakeStep : public ProjectExplorer::MakeStep
-{
-    Q_OBJECT
-
-public:
-    explicit QmakeMakeStep(ProjectExplorer::BuildStepList *bsl);
-
-private:
-    void finish(bool success) override;
-    bool init() override;
-    void doRun() override;
-    QStringList displayArguments() const override;
-
-    bool m_scriptTarget = false;
-    QString m_makeFileToCheck;
-    bool m_unalignedBuildDir;
-    bool m_ignoredNonTopLevelBuild = false;
-};
-
-} // QmakeProjectManager
+} //QmlDesigner

@@ -60,7 +60,11 @@ static clang::format::FormatStyle qtcStyle()
     style.AllowShortBlocksOnASingleLine = false;
     style.AllowShortCaseLabelsOnASingleLine = false;
     style.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_Inline;
+#if LLVM_VERSION_MAJOR >= 9
+    style.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
+#else
     style.AllowShortIfStatementsOnASingleLine = false;
+#endif
     style.AllowShortLoopsOnASingleLine = false;
     style.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
     style.AlwaysBreakBeforeMultilineStrings = false;

@@ -272,6 +272,8 @@ Project {
                 "include/qmlanchors.h",
                 "include/qmlchangeset.h",
                 "include/qmlitemnode.h",
+                "include/qmlvisualnode.h",
+                "include/qml3dnode.h",
                 "include/qmlmodelnodefacade.h",
                 "include/qmlobjectnode.h",
                 "include/qmlstate.h",

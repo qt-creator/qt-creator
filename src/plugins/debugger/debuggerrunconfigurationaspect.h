@@ -29,26 +29,11 @@
 #include "debuggerconstants.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace Debugger {
 
-namespace Internal { class DebuggerRunConfigWidget;  }
-
-enum DebuggerLanguageStatus {
-    DisabledLanguage = 0,
-    EnabledLanguage,
-    AutoEnabledLanguage
-};
-
-class DEBUGGER_EXPORT DebuggerRunConfigurationAspectData
-{
-public:
-    DebuggerLanguageStatus useCppDebugger = AutoEnabledLanguage;
-    DebuggerLanguageStatus useQmlDebugger = AutoEnabledLanguage;
-
-    bool useMultiProcess = false;
-    QString overrideStartup;
-};
+namespace Internal { class DebuggerLanguageAspect; }
 
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
     : public ProjectExplorer::GlobalOrProjectAspect
@@ -71,8 +56,10 @@ public:
     int portsUsedByDebugger() const;
 
 private:
-    friend class Internal::DebuggerRunConfigWidget;
-    DebuggerRunConfigurationAspectData d;
+    Internal::DebuggerLanguageAspect *m_cppAspect;
+    Internal::DebuggerLanguageAspect *m_qmlAspect;
+    ProjectExplorer::BaseBoolAspect *m_multiProcessAspect;
+    ProjectExplorer::BaseStringAspect *m_overrideStartupAspect;
     ProjectExplorer::Target *m_target;
 };
 

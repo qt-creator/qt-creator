@@ -29,6 +29,7 @@
 #include <modelnode.h>
 #include "qmlobjectnode.h"
 #include "qmlstate.h"
+#include "qmlvisualnode.h"
 
 #include <QStringList>
 #include <QRectF>
@@ -40,15 +41,14 @@ class QmlModelStateGroup;
 class QmlAnchors;
 class ItemLibraryEntry;
 
-class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlObjectNode
+class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlVisualNode
 {
     friend class QmlAnchors;
 public:
-    QmlItemNode() : QmlObjectNode() {}
-    QmlItemNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}
+    QmlItemNode() : QmlVisualNode() {}
+    QmlItemNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
     bool isValid() const override;
     static bool isValidQmlItemNode(const ModelNode &modelNode);
-    bool isRootNode() const;
 
     static bool isItemOrWindow(const ModelNode &modelNode);
 
@@ -74,7 +74,6 @@ public:
                                                   const QPointF &position,
                                                   NodeAbstractProperty parentproperty);
 
-    QmlModelStateGroup states() const;
     QList<QmlItemNode> children() const;
     QList<QmlObjectNode> resources() const;
     QList<QmlObjectNode> allDirectSubNodes() const;
@@ -130,29 +129,6 @@ public:
 };
 
 QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
-
-class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
-{
-    friend class QmlItemNode;
-    friend class StatesEditorView;
-
-public:
-
-    QmlModelStateGroup() : m_modelNode(ModelNode()) {}
-
-    ModelNode modelNode() const { return m_modelNode; }
-    QStringList names() const;
-    QList<QmlModelState> allStates() const;
-    QmlModelState state(const QString &name) const;
-    QmlModelState addState(const QString &name);
-    void removeState(const QString &name);
-
-protected:
-    QmlModelStateGroup(const ModelNode &modelNode) : m_modelNode(modelNode) {}
-
-private:
-    ModelNode m_modelNode;
-};
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &fxItemNodeList);
 QMLDESIGNERCORE_EXPORT QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList);

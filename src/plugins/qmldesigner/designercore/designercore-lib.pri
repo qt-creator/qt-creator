@@ -61,6 +61,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/componenttextmodifier.cpp \
     $$PWD/model/textmodifier.cpp \
     $$PWD/model/qmlitemnode.cpp \
+    $$PWD/model/qmlvisualnode.cpp \
+    $$PWD/model/qml3dnode.cpp \
     $$PWD/model/qmlstate.cpp \
     $$PWD/model/qmlchangeset.cpp \
     $$PWD/model/qmlmodelnodefacade.cpp \

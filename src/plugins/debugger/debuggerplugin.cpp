@@ -836,7 +836,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         vbox->insertWidget(0, label);
     };
 
-    const auto addFontSizeAdaptation = [](QWidget *widget) {
+    const auto addFontSizeAdaptation = [this](QWidget *widget) {
         QObject::connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
                 [widget](const FontSettings &settings) {
             if (!boolSetting(FontSizeFollowsEditor))

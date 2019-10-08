@@ -155,6 +155,7 @@ public:
     void setRulerScaleFactor(int scaling);
 
     int getRulerScaleFactor() const;
+    qreal getFrameTick() const;
 
     qreal rulerScaling() const;
     qreal rulerDuration() const;
@@ -187,6 +188,7 @@ private:
     qreal m_start = 0;
     qreal m_end = 0;
     qreal m_scaling = 1;
+    qreal m_frameTick = 1.; // distance between 2 tick steps (in frames) on the ruler at current scale
 };
 
 } // namespace QmlDesigner

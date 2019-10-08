@@ -52,6 +52,7 @@ public:
     bool closeSourceFilesWithProject = true;
     bool clearIssuesOnRebuild = true;
     bool abortBuildAllOnError = true;
+    bool lowBuildPriority = false;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
     TerminalMode terminalMode = TerminalMode::Smart;
     QString buildDirectoryTemplate;
@@ -78,6 +79,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.closeSourceFilesWithProject == p2.closeSourceFilesWithProject
             && p1.clearIssuesOnRebuild == p2.clearIssuesOnRebuild
             && p1.abortBuildAllOnError == p2.abortBuildAllOnError
+            && p1.lowBuildPriority == p2.lowBuildPriority
             && p1.buildDirectoryTemplate == p2.buildDirectoryTemplate;
 }
 

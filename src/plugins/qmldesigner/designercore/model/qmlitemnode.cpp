@@ -216,39 +216,6 @@ bool QmlItemNode::isValidQmlItemNode(const ModelNode &modelNode)
     return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid() && isItemOrWindow(modelNode);
 }
 
-bool QmlItemNode::isRootNode() const
-{
-    return modelNode().isValid() && modelNode().isRootNode();
-}
-
-QStringList QmlModelStateGroup::names() const
-{
-    QStringList returnList;
-
-    if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
-    if (modelNode().property("states").isNodeListProperty()) {
-        foreach (const ModelNode &node, modelNode().nodeListProperty("states").toModelNodeList()) {
-            if (QmlModelState::isValidQmlModelState(node))
-                returnList.append(QmlModelState(node).name());
-        }
-    }
-    return returnList;
-}
-
-/**
-  \brief Returns list of states (without 'base state').
-  The list contains all states defined by this item.
-  */
-QmlModelStateGroup QmlItemNode::states() const
-{
-    if (isValid())
-        return QmlModelStateGroup(modelNode());
-    else
-        return QmlModelStateGroup();
-}
-
 QList<QmlItemNode> QmlItemNode::children() const
 {
     QList<ModelNode> childrenList;
@@ -492,60 +459,9 @@ QPixmap QmlItemNode::instanceBlurredRenderPixmap() const
     return nodeInstance().blurredRenderPixmap();
 }
 
-QList<QmlModelState> QmlModelStateGroup::allStates() const
-{
-    QList<QmlModelState> returnList;
-
-    if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
-    if (modelNode().property("states").isNodeListProperty()) {
-        foreach (const ModelNode &node, modelNode().nodeListProperty("states").toModelNodeList()) {
-            if (QmlModelState::isValidQmlModelState(node))
-                returnList.append(node);
-        }
-    }
-    return returnList;
-}
-
 uint qHash(const QmlItemNode &node)
 {
     return qHash(node.modelNode());
-}
-
-QmlModelState QmlModelStateGroup::addState(const QString &name)
-{
-    if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
-    ModelNode newState = QmlModelState::createQmlState(
-        modelNode().view(), {{PropertyName("name"), QVariant(name)}});
-    modelNode().nodeListProperty("states").reparentHere(newState);
-
-    return newState;
-}
-
-void QmlModelStateGroup::removeState(const QString &name)
-{
-    if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
-    if (state(name).isValid())
-        state(name).modelNode().destroy();
-}
-
-QmlModelState QmlModelStateGroup::state(const QString &name) const
-{
-    if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
-    if (modelNode().property("states").isNodeListProperty()) {
-        foreach (const ModelNode &node, modelNode().nodeListProperty("states").toModelNodeList()) {
-            if (QmlModelState(node).name() == name)
-                return node;
-        }
-    }
-    return QmlModelState();
 }
 
 QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &qmlItemNodeList)
