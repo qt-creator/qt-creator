@@ -121,6 +121,8 @@ if [ $LLVM_INSTALL_DIR ]; then
         cp -Rf "$clangdsource" "$resource_path/clang/bin/" || exit 1
         clangtidysource="$LLVM_INSTALL_DIR"/bin/clang-tidy
         cp -Rf "$clangtidysource" "$resource_path/clang/bin/" || exit 1
+        clazysource="$LLVM_INSTALL_DIR"/bin/clazy-standalone
+        cp -Rf "$clazysource" "$resource_path/clang/bin/" || exit 1
     fi
     clangbackendArgument="-executable=$resource_path/clangbackend"
     clangpchmanagerArgument="-executable=$resource_path/clangpchmanagerbackend"
