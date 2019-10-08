@@ -65,8 +65,22 @@ protected:
 
         ParsingContext(const ParsingContext &other) = delete;
         ParsingContext &operator=(const ParsingContext &other) = delete;
-        ParsingContext(ParsingContext &&other) = default;
-        ParsingContext &operator=(ParsingContext &&other) = default;
+        ParsingContext(ParsingContext &&other)
+            : guard{std::move(other.guard)}
+            , project{std::move(other.project)}
+            , buildConfiguration{std::move(other.buildConfiguration)}
+            , expander{std::move(other.expander)}
+            , environment{std::move(other.environment)}
+        {}
+        ParsingContext &operator=(ParsingContext &&other)
+        {
+            guard = std::move(other.guard);
+            project = std::move(other.project);
+            buildConfiguration = std::move(other.buildConfiguration);
+            expander = std::move(other.expander);
+            environment = std::move(other.environment);
+            return *this;
+        }
 
         Project::ParseGuard guard;
 

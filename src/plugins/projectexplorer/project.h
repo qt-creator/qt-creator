@@ -192,27 +192,29 @@ public:
             : ParseGuard(nullptr)
         {}
 
-        ~ParseGuard()
-        {
-            if (m_project)
-                m_project->emitParsingFinished(m_success);
-        }
+        ~ParseGuard() { release(); }
 
         void markAsSuccess() const { m_success = true; }
         bool isSuccess() const { return m_success; }
-        bool isNull() const { return !m_project; }
+        bool guardsProject() const { return m_project; }
 
         ParseGuard(const ParseGuard &other) = delete;
         ParseGuard &operator=(const ParseGuard &other) = delete;
         ParseGuard(ParseGuard &&other)
+            : m_project{std::move(other.m_project)}
+            , m_success{std::move(other.m_success)}
         {
-            std::swap(m_project, other.m_project);
-            std::swap(m_success, other.m_success);
+            // No need to release this as this is invalid anyway:-)
+            other.m_project = nullptr;
         }
         ParseGuard &operator=(ParseGuard &&other)
         {
-            std::swap(m_project, other.m_project);
-            std::swap(m_success, other.m_success);
+            release();
+
+            m_project = std::move(other.m_project);
+            m_success = std::move(other.m_success);
+
+            other.m_project = nullptr;
             return *this;
         }
 
@@ -220,8 +222,17 @@ public:
         ParseGuard(Project *p)
             : m_project(p)
         {
-            if (m_project)
+            if (m_project && !m_project->isParsing())
                 m_project->emitParsingStarted();
+            else
+                m_project = nullptr;
+        }
+
+        void release()
+        {
+            if (m_project)
+                m_project->emitParsingFinished(m_success);
+            m_project = nullptr;
         }
 
         Project *m_project = nullptr;

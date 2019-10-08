@@ -95,6 +95,8 @@ void BuildSystem::triggerParsing()
 
     ParsingContext ctx(p->guardParsingRun(), p, bc, e, env);
 
+    QTC_ASSERT(ctx.guard.guardsProject(), return );
+
     if (validateParsingContext(ctx))
         parseProject(std::move(ctx));
 }

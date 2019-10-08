@@ -114,6 +114,7 @@ CMakeBuildSystem::~CMakeBuildSystem()
 
 bool CMakeBuildSystem::validateParsingContext(const ParsingContext &ctx)
 {
+    QTC_ASSERT(!m_currentContext.guard.guardsProject(), return false);
     return ctx.project && qobject_cast<CMakeBuildConfiguration *>(ctx.buildConfiguration);
 }
 
