@@ -151,6 +151,21 @@ bool QmlVisualNode::hasAnySubModelNodes() const
     return modelNode().hasAnySubModelNodes();
 }
 
+void QmlVisualNode::setVisibilityOverride(bool visible)
+{
+    if (visible)
+        modelNode().setAuxiliaryData("invisible", true);
+    else
+        modelNode().removeAuxiliaryData("invisible");
+}
+
+bool QmlVisualNode::visibilityOverride() const
+{
+    if (isValid())
+        return modelNode().auxiliaryData("invisible").toBool();
+    return false;
+}
+
 QmlModelStateGroup QmlVisualNode::states() const
 {
     if (isValid())

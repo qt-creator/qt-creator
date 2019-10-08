@@ -958,7 +958,6 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
 
 void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &auxiliaryContainer)
 {
-    //instanceId() == 0: the item is root
     if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == "width" ||
                                         auxiliaryContainer.name() == "height")) {
 
@@ -977,6 +976,16 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
                                                               auxiliaryContainer.dynamicTypeName()));
         } else {
             rootNodeInstance().resetProperty(propertyName);
+        }
+    } else if (auxiliaryContainer.name() == "invisible") {
+        if (hasInstanceForId(auxiliaryContainer.instanceId())) {
+            ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
+            if (instance.isSubclassOf("QQuick3DNode")) {
+                if (!auxiliaryContainer.value().isNull())
+                    instance.setPropertyVariant("visible", !auxiliaryContainer.value().toBool());
+                else
+                    instance.resetProperty("visible");
+            }
         }
     }
 }
