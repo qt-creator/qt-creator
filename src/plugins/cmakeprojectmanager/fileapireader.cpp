@@ -294,6 +294,8 @@ void FileApiReader::cmakeFinishedState(int code, QProcess::ExitStatus status)
     Q_UNUSED(code)
     Q_UNUSED(status)
 
+    m_cmakeProcess.release()->deleteLater();
+
     endState(m_fileApi->scanForCMakeReplyFile());
 }
 
