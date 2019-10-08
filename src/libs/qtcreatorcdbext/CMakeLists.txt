@@ -1,4 +1,4 @@
-if (NOT WIN32 AND NOT MSVC)
+if (NOT WIN32 OR NOT MSVC)
   return()
 endif()
 
@@ -59,6 +59,23 @@ if (NOT ${PYTHONLIBS_FOUND})
   return()
 endif()
 
+set(PythonRegex "^(.*)/(.*)/(python[0-9]+)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(PythonRegex "^(.*)/(.*)/(python[0-9]+_d)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
+endif()
+
+foreach(lib IN LISTS PYTHON_LIBRARIES)
+  if (lib MATCHES ${PythonRegex})
+    set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    break()
+  endif()
+endforeach()
+
+if (NOT PythonDll)
+  message(WARNING "PythonDll not found. qtcreatorcdbext will be built without Python support.")
+  return()
+endif()
+
 extend_qtc_target(qtcreatorcdbext
   DEPENDS "${PYTHON_LIBRARIES}"
   INCLUDES "${PYTHON_INCLUDE_DIR}"
@@ -70,17 +87,6 @@ extend_qtc_target(qtcreatorcdbext
     pytype.cpp pytype.h
     pyvalue.cpp pyvalue.h
 )
-
-set(PythonRegex "^(.*)/(.*)/(python[0-9]+)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(PythonRegex "^(.*)/(.*)/(python[0-9]+_d)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
-endif()
-
-foreach(lib IN LISTS PYTHON_LIBRARIES)
-  if (lib MATCHES ${PythonRegex})
-    set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-  endif()
-endforeach()
 
 install(FILES "${PythonDll}" DESTINATION lib/qtcreatorcdbext${ArchSuffix}/)
 
