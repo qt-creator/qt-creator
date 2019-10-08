@@ -309,7 +309,8 @@ function(enable_pch target)
       function(_add_pch_target pch_target pch_file pch_dependency)
         if (EXISTS ${pch_file})
           add_library(${pch_target} STATIC
-            ${CMAKE_BINARY_DIR}/empty_pch.cpp)
+            ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp
+            ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c)
           target_compile_definitions(${pch_target} PRIVATE ${DEFAULT_DEFINES})
           set_target_properties(${pch_target} PROPERTIES
             PRECOMPILE_HEADERS ${pch_file})
@@ -318,10 +319,13 @@ function(enable_pch target)
       endfunction()
 
       if (NOT TARGET QtCreatorPchGui AND NOT TARGET QtCreatorPchConsole)
-        file(WRITE ${CMAKE_BINARY_DIR}/empty_pch.cpp.in "/*empty file*/")
+        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in "/*empty file*/")
         configure_file(
-          ${CMAKE_BINARY_DIR}/empty_pch.cpp.in
-          ${CMAKE_BINARY_DIR}/empty_pch.cpp)
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp)
+        configure_file(
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c)
 
         _add_pch_target(QtCreatorPchGui
           "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
