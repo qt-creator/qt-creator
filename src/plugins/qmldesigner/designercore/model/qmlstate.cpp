@@ -254,7 +254,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    if (!QmlItemNode::isValidQmlItemNode(modelNode().parentProperty().parentModelNode()))
+    if (!QmlVisualNode::isValidQmlVisualNode(modelNode().parentProperty().parentModelNode()))
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
 //    QmlModelState newState(stateGroup().addState(name));

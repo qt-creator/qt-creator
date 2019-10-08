@@ -138,7 +138,7 @@ void StatesEditorView::createNewState()
 void StatesEditorView::addState()
 {
     // can happen when root node is e.g. a ListModel
-    if (!QmlItemNode::isValidQmlItemNode(rootModelNode()))
+    if (!QmlVisualNode::isValidQmlVisualNode(rootModelNode()))
         return;
 
     QStringList modelStateNames = rootStateGroup().names();
@@ -202,8 +202,10 @@ void StatesEditorView::duplicateCurrentState()
 
 void StatesEditorView::checkForStatesAvailability()
 {
-    if (m_statesEditorWidget)
-        m_statesEditorWidget->showAddNewStatesButton(rootModelNode().metaInfo().isSubclassOf("QtQuick.Item"));
+    if (m_statesEditorWidget) {
+        const bool isVisual = QmlVisualNode::isValidQmlVisualNode(rootModelNode());
+        m_statesEditorWidget->showAddNewStatesButton(isVisual);
+    }
 }
 
 void StatesEditorView::setCurrentState(const QmlModelState &state)
