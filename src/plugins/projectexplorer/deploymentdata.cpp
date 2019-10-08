@@ -57,8 +57,14 @@ void DeploymentData::addFile(const QString &localFilePath, const QString &remote
 
 DeployableFile DeploymentData::deployableForLocalFile(const QString &localFilePath) const
 {
-    return Utils::findOrDefault(m_files, [&localFilePath](const DeployableFile &d) {
+    const DeployableFile f = Utils::findOrDefault(m_files, [&localFilePath](const DeployableFile &d) {
         return d.localFilePath().toString() == localFilePath;
+    });
+    if (f.isValid())
+        return f;
+    const QString localFileName = QFileInfo(localFilePath).fileName();
+    return Utils::findOrDefault(m_files, [&localFileName](const DeployableFile &d) {
+        return d.localFilePath().toFileInfo().fileName() == localFileName;
     });
 }
 

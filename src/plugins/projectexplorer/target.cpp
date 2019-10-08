@@ -337,6 +337,7 @@ void Target::setDeploymentData(const DeploymentData &deploymentData)
     if (d->m_deploymentData != deploymentData) {
         d->m_deploymentData = deploymentData;
         emit deploymentDataChanged();
+        emit applicationTargetsChanged();
     }
 }
 
