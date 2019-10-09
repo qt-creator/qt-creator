@@ -160,8 +160,7 @@ void CMakeTool::setFilePath(const Utils::FilePath &executable)
     if (m_executable == executable)
         return;
 
-    m_introspection->m_didRun = false;
-    m_introspection->m_didAttemptToRun = false;
+    m_introspection = std::make_unique<Internal::IntrospectionData>();
 
     m_executable = executable;
     CMakeToolManager::notifyAboutUpdate(this);
