@@ -51,6 +51,8 @@
 #include <QPushButton>
 #include <QSet>
 
+#include <app/app_version.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -534,21 +536,27 @@ bool BuildDirManager::checkConfiguration()
         QStringList keyList = changedKeys.keys();
         Utils::sort(keyList);
         QString table = QString::fromLatin1("<table><tr><th>%1</th><th>%2</th><th>%3</th></tr>")
-                .arg(tr("Key")).arg(tr("CMakeCache.txt")).arg(tr("Project"));
+                            .arg(tr("Key"))
+                            .arg(tr("%1 Project").arg(Core::Constants::IDE_DISPLAY_NAME))
+                            .arg(tr("Changed value"));
         foreach (const QString &k, keyList) {
             const QPair<QString, QString> data = changedKeys.value(k);
             table += QString::fromLatin1("\n<tr><td>%1</td><td>%2</td><td>%3</td></tr>")
-                    .arg(k)
-                    .arg(data.first.toHtmlEscaped())
-                    .arg(data.second.toHtmlEscaped());
+                         .arg(k)
+                         .arg(data.second.toHtmlEscaped())
+                         .arg(data.first.toHtmlEscaped());
         }
         table += QLatin1String("\n</table>");
 
         QPointer<QMessageBox> box = new QMessageBox(Core::ICore::mainWindow());
-        box->setText(tr("CMake configuration has changed on disk."));
+        box->setText(tr("The project has been changed outside of %1.")
+                         .arg(Core::Constants::IDE_DISPLAY_NAME));
         box->setInformativeText(table);
-        auto *defaultButton = box->addButton(tr("Overwrite Changes in CMakeCache.txt"), QMessageBox::RejectRole);
-        auto *applyButton = box->addButton(tr("Apply Changes to Project"), QMessageBox::ApplyRole);
+        auto *defaultButton = box->addButton(tr("Discard external changes"),
+                                             QMessageBox::RejectRole);
+        auto *applyButton = box->addButton(tr("Adapt %1 project to changes")
+                                               .arg(Core::Constants::IDE_DISPLAY_NAME),
+                                           QMessageBox::ApplyRole);
         box->setDefaultButton(defaultButton);
 
         box->exec();
