@@ -151,7 +151,7 @@ QString ShellCommand::displayName() const
             result = tr("UNKNOWN");
 
         if (!job.command.arguments().isEmpty())
-            result += ' ' + job.command.arguments().at(0);
+            result += ' ' + job.command.splitArguments().at(0);
 
         return result;
     }
