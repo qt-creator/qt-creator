@@ -65,7 +65,7 @@ MakeStep::MakeStep(BuildStepList *parent, Core::Id id)
       m_userJobCount(defaultJobCount())
 {
     setDefaultDisplayName(defaultDisplayName());
-    setLowPriorityIfConfigured();
+    setLowPriority();
 }
 
 void MakeStep::setBuildTarget(const QString &buildTarget)

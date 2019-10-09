@@ -57,7 +57,7 @@ protected:
     ~AbstractProcessStep() override;
     bool init() override;
     void doRun() override;
-    void setLowPriorityIfConfigured();
+    void setLowPriority();
     virtual void finish(bool success);
 
     virtual void processStarted();
