@@ -129,6 +129,7 @@ public:
 
     bool m_isFiltering = false;
     bool m_firstChange = true;
+    bool m_toolTipSet = false;
 
     QString m_lastFilterText;
 
@@ -520,7 +521,10 @@ void FancyLineEdit::validate()
     const bool validates = d->m_validationFunction(this, &d->m_errorMessage);
     const State newState = isDisplayingPlaceholderText ? DisplayingPlaceholderText
                                                        : (validates ? Valid : Invalid);
-    setToolTip(d->m_errorMessage);
+    if (!validates || d->m_toolTipSet) {
+        setToolTip(d->m_errorMessage);
+        d->m_toolTipSet = true;
+    }
     // Changed..figure out if valid changed. DisplayingPlaceholderText is not valid,
     // but should not show error color. Also trigger on the first change.
     if (newState != d->m_state || d->m_firstChange) {
