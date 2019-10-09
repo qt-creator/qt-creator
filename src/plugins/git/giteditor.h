@@ -29,6 +29,8 @@
 
 #include <QRegExp>
 
+namespace Utils { class FancyLineEdit; }
+
 namespace Git {
 namespace Internal {
 
@@ -40,6 +42,10 @@ public:
     GitEditorWidget();
 
     void setPlainText(const QString &text) override;
+    void setGrepLineEdit(Utils::FancyLineEdit *lineEdit);
+    void setPickaxeLineEdit(Utils::FancyLineEdit *lineEdit);
+    QString grepValue() const;
+    QString pickaxeValue() const;
 
 private:
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
@@ -59,9 +65,13 @@ private:
     bool supportChangeLinks() const override;
     QString fileNameForLine(int line) const override;
     QString sourceWorkingDirectory() const;
+    void refreshOnLineEdit(Utils::FancyLineEdit *lineEdit);
+    void lineEditChanged();
 
     mutable QRegExp m_changeNumberPattern;
     QString m_currentChange;
+    Utils::FancyLineEdit *m_grepLineEdit = nullptr;
+    Utils::FancyLineEdit *m_pickaxeLineEdit = nullptr;
 };
 
 } // namespace Git
