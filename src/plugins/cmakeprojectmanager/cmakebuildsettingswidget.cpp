@@ -319,6 +319,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         });
         QModelIndex idx = m_configModel->indexForItem(item);
         idx = m_configTextFilterModel->mapFromSource(m_configFilterModel->mapFromSource(idx));
+        m_configView->setFocus();
         m_configView->scrollTo(idx);
         m_configView->setCurrentIndex(idx);
         m_configView->edit(idx);
