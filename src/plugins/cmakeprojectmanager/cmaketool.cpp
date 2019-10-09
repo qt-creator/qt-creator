@@ -378,18 +378,16 @@ CMakeTool::ReaderType CMakeTool::readerType() const
 
 void CMakeTool::readInformation(CMakeTool::QueryType type) const
 {
-    if ((type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
-        || (type == QueryType::SERVER_MODE && m_introspection->m_queriedServerMode)
-        || (type == QueryType::VERSION && !m_introspection->m_version.fullVersion.isEmpty()))
-        return;
-
     if (!m_introspection->m_triedCapabilities) {
         fetchFromCapabilities();
         m_introspection->m_triedCapabilities = true;
         m_introspection->m_queriedServerMode = true; // Got added after "-E capabilities" support!
-        if (type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
-            return;
     }
+
+    if ((type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
+        || (type == QueryType::SERVER_MODE && m_introspection->m_queriedServerMode)
+        || (type == QueryType::VERSION && !m_introspection->m_version.fullVersion.isEmpty()))
+        return;
 
     if (type == QueryType::GENERATORS) {
         fetchGeneratorsFromHelp();
