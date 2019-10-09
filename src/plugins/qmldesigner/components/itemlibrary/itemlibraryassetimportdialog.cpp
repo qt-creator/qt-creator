@@ -150,7 +150,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
         const int checkBoxColWidth = 18;
         const int labelMinWidth = 130;
         const int controlMinWidth = 65;
-        const int columnSpacing = 10;
+        const int columnSpacing = 16;
         const int rowHeight = 26;
         int rowIndex[2] = {0, 0};
 
