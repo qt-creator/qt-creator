@@ -105,6 +105,9 @@ void CMakeParser::stdError(const QString &line)
                               Utils::FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
             m_lines = 1;
             return;
+        } else if (trimmedLine.startsWith("-- ") || trimmedLine.startsWith(" * ")) {
+            // Do not pass on lines starting with "-- " or "* ". Those are typical CMake output
+            return;
         }
         IOutputParser::stdError(line);
         return;
@@ -288,6 +291,10 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
                         Utils::FilePath::fromUserInput(QLatin1String("/test/path/CMakeLists.txt")), 9,
                         categoryBuild))
             << QString();
+    QTest::newRow("eat normal CMake output")
+        << QString::fromLatin1("-- Qt5 install prefix: /usr/lib\n"
+                               " * Plugin componentsplugin, with CONDITION TARGET QmlDesigner")
+        << OutputParserTester::STDERR << QString() << QString() << (Tasks()) << QString();
 }
 
 void Internal::CMakeProjectPlugin::testCMakeParser()
