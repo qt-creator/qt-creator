@@ -51,6 +51,8 @@ const char EXPORT_AS_IMAGE[] = "QmlDesigner.ExportAsImage";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";
+const char QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX[] = "_libicon";
+const char QUICK_3D_ASSET_ICON_DIR[] = "_icons";
 const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
 const char QT_QUICK_3D_MODULE_NAME[] = "QtQuick3D";
 

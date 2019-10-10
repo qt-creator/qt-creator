@@ -209,19 +209,27 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QSSGAssetImportManager importManager;
     QHash<QString, QStringList> supportedExtensions = importManager.getSupportedExtensions();
 
-    // Skip if 3D model handlers have already been added
-    const QList<AddResourceHandler> handlers = actionManager->addResourceHandler();
-    QSet<QString> handlerCats;
-    for (const auto &h : handlers)
-        handlerCats.insert(h.category);
+    // All things importable by QSSGAssetImportManager are considered to be in the same category
+    // so we don't get multiple separate import dialogs when different file types are imported.
+    const QString category = tr("3D Assets");
 
-    const auto categories = supportedExtensions.keys();
-    for (const auto &category : categories) {
-        if (handlerCats.contains(category))
-            continue;
-        const auto extensions = supportedExtensions[category];
-        for (const auto &ext : extensions)
-            add3DHandler(category, ext);
+    // Skip if 3D asset handlers have already been added
+    const QList<AddResourceHandler> handlers = actionManager->addResourceHandler();
+    bool categoryAlreadyAdded = false;
+    for (const auto &handler : handlers) {
+        if (handler.category == category) {
+            categoryAlreadyAdded = true;
+            break;
+        }
+    }
+
+    if (!categoryAlreadyAdded) {
+        const auto groups = supportedExtensions.keys();
+        for (const auto &group : groups) {
+            const auto extensions = supportedExtensions[group];
+            for (const auto &ext : extensions)
+                add3DHandler(category, ext);
+        }
     }
 #endif
 
