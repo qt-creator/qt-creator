@@ -30,8 +30,11 @@
 #endif
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QRegularExpression>
+
+#include <utils/algorithm.h>
 
 namespace CppTools {
 
@@ -55,6 +58,31 @@ void HeaderPathFilter::process()
 bool HeaderPathFilter::isProjectHeaderPath(const QString &path) const
 {
     return path.startsWith(projectDirectory) || path.startsWith(buildDirectory);
+}
+
+void HeaderPathFilter::removeGccInternalIncludePaths()
+{
+    if (projectPart.toolchainType != ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+        && projectPart.toolchainType != ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
+        return;
+    }
+
+    if (projectPart.toolChainInstallDir.isEmpty())
+        return;
+
+    const Utils::FilePath gccInstallDir = projectPart.toolChainInstallDir;
+    auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath){
+        const auto includePath = Utils::FilePath::fromString(headerPath.path);
+        if (includePath.isChildOf(gccInstallDir)) {
+           const QString remainingPath = headerPath.path.mid(gccInstallDir.toString().size());
+           // MinGW ships the standard library headers in "<installdir>/include/c++".
+           // Ensure that we do not remove include paths pointing there.
+           return !remainingPath.startsWith("/include/c++");
+        }
+        return false;
+    };
+
+    Utils::erase(builtInHeaderPaths, isGccInternalInclude);
 }
 
 void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
@@ -135,6 +163,7 @@ void removeClangSystemHeaderPaths(HeaderPaths &headerPaths)
 void HeaderPathFilter::tweakHeaderPaths()
 {
     removeClangSystemHeaderPaths(builtInHeaderPaths);
+    removeGccInternalIncludePaths();
 
     auto split = resourceIterator(builtInHeaderPaths,
                                   projectPart.toolChainTargetTriple.contains("darwin"));

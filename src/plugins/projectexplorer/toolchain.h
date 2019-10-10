@@ -38,6 +38,7 @@
 
 #include <utils/cpplanguage_details.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QSet>
@@ -114,6 +115,7 @@ public:
     virtual ProjectExplorer::Abis supportedAbis() const;
     virtual QString originalTargetTriple() const { return QString(); }
     virtual QStringList extraCodeModelFlags() const { return QStringList(); }
+    virtual Utils::FilePath installDir() const { return Utils::FilePath(); }
 
     virtual bool isValid() const = 0;
 

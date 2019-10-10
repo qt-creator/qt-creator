@@ -42,6 +42,7 @@
 #include <cplusplus/Token.h>
 
 #include <utils/cpplanguage_details.h>
+#include <utils/fileutils.h>
 
 #include <QString>
 #include <QSharedPointer>
@@ -108,6 +109,7 @@ public:
     bool isMsvc2015Toolchain = false;
     QString toolChainTargetTriple;
     ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
+    Utils::FilePath toolChainInstallDir;
     ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
 
     // Misc

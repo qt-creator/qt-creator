@@ -27,6 +27,7 @@
 
 #include <cpptools/headerpathfilter.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace {
 
@@ -246,6 +247,51 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
                             HasBuiltIn("/usr/include/x86_64-linux-gnu"),
                             HasBuiltIn("/usr/include"),
                             HasBuiltIn("/builtin_path")));
+}
+
+// Include paths below the installation dir should be removed as they confuse clang.
+TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
+{
+    projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8("/usr/lib/gcc/x86_64-linux-gnu/7");
+    projectPart.toolchainType = ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
+    projectPart.headerPaths = {
+        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/7/include", HeaderPathType::BuiltIn},
+        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed", HeaderPathType::BuiltIn},
+    };
+    CppTools::HeaderPathFilter filter{projectPart,
+                                      CppTools::UseTweakedHeaderPaths::Yes,
+                                      "6.0",
+                                      CLANG_RESOURCE_DIR};
+
+    filter.process();
+
+    ASSERT_THAT(filter.builtInHeaderPaths, ElementsAre(HasBuiltIn(CLANG_RESOURCE_DIR)));
+}
+
+// MinGW ships the standard library headers in "<installdir>/include/c++".
+// Ensure that we do not remove include paths pointing there.
+TEST_F(HeaderPathFilter, RemoveGccInternalPathsExceptForStandardPaths)
+{
+    projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8(
+        "c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0");
+    projectPart.toolchainType = ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
+    projectPart.headerPaths = {
+        HeaderPath{"c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++", HeaderPathType::BuiltIn},
+        HeaderPath{"c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32", HeaderPathType::BuiltIn},
+        HeaderPath{"c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward", HeaderPathType::BuiltIn},
+    };
+
+    auto expected = projectPart.headerPaths;
+    expected << HeaderPath{CLANG_RESOURCE_DIR, HeaderPathType::BuiltIn};
+
+    CppTools::HeaderPathFilter filter{projectPart,
+                                      CppTools::UseTweakedHeaderPaths::Yes,
+                                      "6.0",
+                                      CLANG_RESOURCE_DIR};
+
+    filter.process();
+
+    ASSERT_THAT(filter.builtInHeaderPaths, ContainerEq(expected));
 }
 
 TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderNoVersion)
