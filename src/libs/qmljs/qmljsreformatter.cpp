@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #include "qmljsreformatter.h"
-
 #include "qmljscodeformatter.h"
+#include "qmljsbind.h"
+
 #include "parser/qmljsast_p.h"
 #include "parser/qmljsastvisitor_p.h"
 #include "parser/qmljsengine_p.h"
@@ -122,6 +123,10 @@ public:
 
 
         // emit directives
+        if (_doc->bind()->isJsLibrary()) {
+            out(QLatin1String(".pragma library"));
+            newLine();
+        }
         const QList<SourceLocation> &directives = _doc->jsDirectives();
         for (const auto &d: directives) {
             quint32 line = 1;

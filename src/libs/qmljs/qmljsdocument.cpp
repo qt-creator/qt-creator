@@ -265,6 +265,11 @@ public:
         addLocation(line, column);
     }
 
+    void pragmaLibrary() override
+    {
+        isLibrary = true;
+    }
+
     virtual QList<SourceLocation> locations() { return _locations; }
 
     const QString documentPath;
