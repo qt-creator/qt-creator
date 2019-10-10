@@ -74,7 +74,17 @@ static QVariant objectToVariant(QObject *object)
 static QObject *createEditView3D(QQmlEngine *engine)
 {
     QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
-    return component.create();
+
+
+    QWindow *window = qobject_cast<QWindow *>(component.create());
+
+    //For macOS we have to use the 4.1 core profile
+    QSurfaceFormat surfaceFormat = window->requestedFormat();
+    surfaceFormat.setVersion(4, 1);
+    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+    window->setFormat(surfaceFormat);
+
+    return window;
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
