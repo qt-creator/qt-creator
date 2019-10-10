@@ -99,15 +99,15 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_gridLayout->setContentsMargins(0, 20, 0, 0);
     m_gridLayout->setHorizontalSpacing(6);
     m_gridLayout->setVerticalSpacing(8);
-    m_gridLayout->addWidget(deployTitle, 0, 0, 1, 6);
+    m_gridLayout->addWidget(deployTitle, 0, 0, 1, -1);
     m_gridLayout->addWidget(deployLabel, 1, 0, 1, 1);
     m_gridLayout->addWidget(m_deployConfigurationCombo, 1, 1, 1, 1);
     m_gridLayout->addWidget(m_addDeployToolButton, 1, 2, 1, 1);
     m_gridLayout->addWidget(m_removeDeployToolButton, 1, 3, 1, 1);
     m_gridLayout->addWidget(m_renameDeployButton, 1, 4, 1, 1);
-    m_gridLayout->addWidget(deployWidget, 2, 0, 1, 6);
+    m_gridLayout->addWidget(deployWidget, 2, 0, 1, -1);
 
-    m_gridLayout->addWidget(runTitle, 3, 0, 1, 6);
+    m_gridLayout->addWidget(runTitle, 3, 0, 1, -1);
     m_gridLayout->addWidget(runLabel, 4, 0, 1, 1);
     m_gridLayout->addWidget(m_runConfigurationCombo, 4, 1, 1, 1);
     m_gridLayout->addWidget(m_addRunToolButton, 4, 2, 1, 1);
@@ -115,7 +115,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_gridLayout->addWidget(m_renameRunButton, 4, 4, 1, 1);
     m_gridLayout->addWidget(m_cloneRunButton, 4, 5, 1, 1);
     m_gridLayout->addItem(spacer1, 4, 6, 1, 1);
-    m_gridLayout->addWidget(runWidget, 5, 0, 1, 6);
+    m_gridLayout->addWidget(runWidget, 5, 0, 1, -1);
     m_gridLayout->addItem(spacer2, 6, 0, 1, 1);
 
     // deploy part
