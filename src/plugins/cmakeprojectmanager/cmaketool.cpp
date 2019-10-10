@@ -30,6 +30,7 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -46,6 +47,7 @@ const char CMAKE_INFORMATION_ID[] = "Id";
 const char CMAKE_INFORMATION_COMMAND[] = "Binary";
 const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char CMAKE_INFORMATION_AUTORUN[] = "AutoRun";
+const char CMAKE_INFORMATION_QCH_FILE_PATH[] = "QchFile";
 const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDirectory";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char CMAKE_INFORMATION_READERTYPE[] = "ReaderType";
@@ -146,6 +148,11 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
 
     setFilePath(Utils::FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
+
+    m_qchFilePath = Utils::FilePath::fromVariant(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
+
+    if (m_qchFilePath.isEmpty())
+        m_qchFilePath = searchQchFile(m_executable);
 }
 
 CMakeTool::~CMakeTool() = default;
@@ -229,6 +236,7 @@ QVariantMap CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_DISPLAYNAME, m_displayName);
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
     data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
+    data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toString());
     data.insert(CMAKE_INFORMATION_AUTORUN, m_isAutoRun);
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     if (m_readerType.has_value())
@@ -241,6 +249,16 @@ QVariantMap CMakeTool::toMap() const
 Utils::FilePath CMakeTool::cmakeExecutable() const
 {
     return cmakeExecutable(m_executable);
+}
+
+void CMakeTool::setQchFilePath(const Utils::FilePath &path)
+{
+    m_qchFilePath = path;
+}
+
+Utils::FilePath CMakeTool::qchFilePath() const
+{
+    return m_qchFilePath;
 }
 
 Utils::FilePath CMakeTool::cmakeExecutable(const Utils::FilePath &path)
@@ -374,6 +392,28 @@ CMakeTool::ReaderType CMakeTool::readerType() const
         return TeaLeaf;
     }
     return m_readerType.value();
+}
+
+Utils::FilePath CMakeTool::searchQchFile(const Utils::FilePath &executable)
+{
+    if (executable.isEmpty())
+        return {};
+
+    Utils::FilePath prefixDir = executable.parentDir().parentDir();
+    QDir docDir{prefixDir.pathAppended("doc/cmake").toString()};
+    if (!docDir.exists())
+        docDir.setPath(prefixDir.pathAppended("share/doc/cmake").toString());
+    if (!docDir.exists())
+        return {};
+
+    const QStringList files = docDir.entryList(QStringList("*.qch"));
+    for (const QString &docFile : files) {
+        if (docFile.startsWith("cmake", Qt::CaseInsensitive)) {
+            return Utils::FilePath::fromString(docDir.absoluteFilePath(docFile));
+        }
+    }
+
+    return {};
 }
 
 void CMakeTool::readInformation(CMakeTool::QueryType type) const

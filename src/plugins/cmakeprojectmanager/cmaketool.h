@@ -95,6 +95,8 @@ public:
     void setFilePath(const Utils::FilePath &executable);
     Utils::FilePath filePath() const;
     Utils::FilePath cmakeExecutable() const;
+    void setQchFilePath(const Utils::FilePath &path);
+    Utils::FilePath qchFilePath() const;
     static Utils::FilePath cmakeExecutable(const Utils::FilePath &path);
     bool isAutoRun() const;
     bool autoCreateBuildDirectory() const;
@@ -113,6 +115,8 @@ public:
     PathMapper pathMapper() const;
 
     ReaderType readerType() const;
+
+    static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
 private:
     enum class QueryType {
@@ -136,6 +140,7 @@ private:
     Core::Id m_id;
     QString m_displayName;
     Utils::FilePath m_executable;
+    Utils::FilePath m_qchFilePath;
 
     bool m_isAutoRun = true;
     bool m_isAutoDetected = false;

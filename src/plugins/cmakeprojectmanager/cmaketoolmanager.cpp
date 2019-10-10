@@ -27,6 +27,7 @@
 
 #include "cmaketoolsettingsaccessor.h"
 
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
 #include <utils/pointeralgorithm.h>
@@ -105,6 +106,8 @@ bool CMakeToolManager::registerCMakeTool(std::unique_ptr<CMakeTool> &&tool)
 
     ensureDefaultCMakeToolIsValid();
 
+    updateDocumentation();
+
     return true;
 }
 
@@ -112,8 +115,9 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 {
     auto toRemove = Utils::take(d->m_cmakeTools, Utils::equal(&CMakeTool::id, id));
     if (toRemove.has_value()) {
-
         ensureDefaultCMakeToolIsValid();
+
+        updateDocumentation();
 
         emit m_instance->cmakeRemoved(id);
     }
@@ -152,7 +156,20 @@ void CMakeToolManager::restoreCMakeTools()
     d->m_cmakeTools = std::move(tools.cmakeTools);
     setDefaultCMakeTool(tools.defaultToolId);
 
+    updateDocumentation();
+
     emit m_instance->cmakeToolsLoaded();
+}
+
+void CMakeToolManager::updateDocumentation()
+{
+    const QList<CMakeTool *> tools = cmakeTools();
+    QStringList docs;
+    for (const auto tool : tools) {
+        if (!tool->qchFilePath().isEmpty())
+            docs.append(tool->qchFilePath().toString());
+    }
+    Core::HelpManager::registerDocumentation(docs);
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)

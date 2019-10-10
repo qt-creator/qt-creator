@@ -58,6 +58,8 @@ public:
     static void notifyAboutUpdate(CMakeTool *);
     static void restoreCMakeTools();
 
+    static void updateDocumentation();
+
 signals:
     void cmakeAdded (const Core::Id &id);
     void cmakeRemoved (const Core::Id &id);
