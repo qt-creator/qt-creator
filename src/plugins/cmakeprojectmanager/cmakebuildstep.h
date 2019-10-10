@@ -64,7 +64,6 @@ public:
     QString buildTarget() const;
     bool buildsBuildTarget(const QString &target) const;
     void setBuildTarget(const QString &target);
-    void clearBuildTargets();
 
     QString toolArguments() const;
     void setToolArguments(const QString &list);

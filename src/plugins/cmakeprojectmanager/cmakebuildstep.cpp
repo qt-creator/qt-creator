@@ -321,11 +321,6 @@ void CMakeBuildStep::setBuildTarget(const QString &buildTarget)
     emit targetToBuildChanged();
 }
 
-void CMakeBuildStep::clearBuildTargets()
-{
-    m_buildTarget.clear();
-}
-
 QString CMakeBuildStep::toolArguments() const
 {
     return m_toolArguments;

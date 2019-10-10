@@ -155,7 +155,6 @@ void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
 
     // Change the make step to build only the given target
     QString oldTarget = buildStep->buildTarget();
-    buildStep->clearBuildTargets();
     buildStep->setBuildTarget(selection.displayName);
 
     // Build
