@@ -567,7 +567,8 @@ void LogWindow::doOutput()
     if (m_queuedOutput.isEmpty())
         return;
 
-    theGlobalLog->doOutput(m_queuedOutput);
+    if (theGlobalLog)
+        theGlobalLog->doOutput(m_queuedOutput);
 
     QTextCursor cursor = m_combinedText->textCursor();
     const bool atEnd = cursor.atEnd();
@@ -706,6 +707,7 @@ GlobalLogWindow::GlobalLogWindow()
 
 GlobalLogWindow::~GlobalLogWindow()
 {
+    theGlobalLog = nullptr;
 }
 
 void GlobalLogWindow::doOutput(const QString &output)
