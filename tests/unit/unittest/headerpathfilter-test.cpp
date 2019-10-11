@@ -85,6 +85,11 @@ protected:
         projectPart.project = &project;
     }
 
+    static HeaderPath builtIn(const QString &path)
+    {
+        return HeaderPath{path, HeaderPathType::BuiltIn};
+    }
+
 protected:
     ProjectExplorer::Project project;
     CppTools::ProjectPart projectPart;
@@ -178,16 +183,14 @@ TEST_F(HeaderPathFilter, ClangHeadersPathWitoutClangVersion)
 
 TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderMacOs)
 {
-    auto builtIns = {HeaderPath{"/usr/include/c++/4.2.1", HeaderPathType::BuiltIn},
-                     HeaderPath{"/usr/include/c++/4.2.1/backward", HeaderPathType::BuiltIn},
-                     HeaderPath{"/usr/local/include", HeaderPathType::BuiltIn},
-                     HeaderPath{"/Applications/Xcode.app/Contents/Developer/Toolchains/"
-                                "XcodeDefault.xctoolchain/usr/bin/../lib/clang/6.0/include",
-                                HeaderPathType::BuiltIn},
-                     HeaderPath{"/Applications/Xcode.app/Contents/Developer/Toolchains/"
-                                "XcodeDefault.xctoolchain/usr/include",
-                                HeaderPathType::BuiltIn},
-                     HeaderPath{"/usr/include", HeaderPathType::BuiltIn}};
+    auto builtIns = {
+        builtIn("/usr/include/c++/4.2.1"),
+        builtIn("/usr/include/c++/4.2.1/backward"),
+        builtIn("/usr/local/include"),
+        builtIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/6.0/include"),
+        builtIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
+        builtIn("/usr/include")
+    };
     projectPart.toolChainTargetTriple = "x86_64-apple-darwin10";
     std::copy(builtIns.begin(),
               builtIns.end(),
@@ -204,8 +207,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderMacOs)
                             HasBuiltIn("/usr/include/c++/4.2.1/backward"),
                             HasBuiltIn("/usr/local/include"),
                             HasBuiltIn(CLANG_RESOURCE_DIR),
-                            HasBuiltIn("/Applications/Xcode.app/Contents/Developer/Toolchains/"
-                                       "XcodeDefault.xctoolchain/usr/include"),
+                            HasBuiltIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
                             HasBuiltIn("/usr/include"),
                             HasBuiltIn("/builtin_path")));
 }
@@ -213,16 +215,13 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderMacOs)
 TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
 {
     auto builtIns = {
-        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/c++/4.8",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/c++/4.8/backward",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/x86_64-linux-gnu/c++/4.8",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"/usr/local/include", HeaderPathType::BuiltIn},
-        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/include", HeaderPathType::BuiltIn},
-        HeaderPath{"/usr/include/x86_64-linux-gnu", HeaderPathType::BuiltIn},
-        HeaderPath{"/usr/include", HeaderPathType::BuiltIn}};
+        builtIn("/usr/include/c++/4.8"),
+        builtIn("/usr/include/c++/4.8/backward"),
+        builtIn("/usr/include/x86_64-linux-gnu/c++/4.8"),
+        builtIn("/usr/local/include"),
+        builtIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
+        builtIn("/usr/include/x86_64-linux-gnu"),
+        builtIn("/usr/include")};
     std::copy(builtIns.begin(),
               builtIns.end(),
               std::inserter(projectPart.headerPaths, projectPart.headerPaths.begin()));
@@ -235,12 +234,9 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
     filter.process();
 
     ASSERT_THAT(filter.builtInHeaderPaths,
-                ElementsAre(HasBuiltIn(
-                                "/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/c++/4.8"),
-                            HasBuiltIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/"
-                                       "c++/4.8/backward"),
-                            HasBuiltIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/"
-                                       "x86_64-linux-gnu/c++/4.8"),
+                ElementsAre(HasBuiltIn("/usr/include/c++/4.8"),
+                            HasBuiltIn("/usr/include/c++/4.8/backward"),
+                            HasBuiltIn("/usr/include/x86_64-linux-gnu/c++/4.8"),
                             HasBuiltIn("/usr/local/include"),
                             HasBuiltIn(CLANG_RESOURCE_DIR),
                             HasBuiltIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
@@ -255,8 +251,8 @@ TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
     projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8("/usr/lib/gcc/x86_64-linux-gnu/7");
     projectPart.toolchainType = ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
     projectPart.headerPaths = {
-        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/7/include", HeaderPathType::BuiltIn},
-        HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed", HeaderPathType::BuiltIn},
+        builtIn("/usr/lib/gcc/x86_64-linux-gnu/7/include"),
+        builtIn("/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"),
     };
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
@@ -273,16 +269,16 @@ TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
 TEST_F(HeaderPathFilter, RemoveGccInternalPathsExceptForStandardPaths)
 {
     projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8(
-        "c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0");
+        "c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0");
     projectPart.toolchainType = ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
     projectPart.headerPaths = {
-        HeaderPath{"c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++", HeaderPathType::BuiltIn},
-        HeaderPath{"c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32", HeaderPathType::BuiltIn},
-        HeaderPath{"c:/mingw730_64/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward", HeaderPathType::BuiltIn},
+        builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++"),
+        builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32"),
+        builtIn("c:/mingw/lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward"),
     };
 
     auto expected = projectPart.headerPaths;
-    expected << HeaderPath{CLANG_RESOURCE_DIR, HeaderPathType::BuiltIn};
+    expected << builtIn(CLANG_RESOURCE_DIR);
 
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
@@ -297,12 +293,11 @@ TEST_F(HeaderPathFilter, RemoveGccInternalPathsExceptForStandardPaths)
 TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderNoVersion)
 {
     projectPart.headerPaths = {
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include", HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++", HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward",
-                   HeaderPathType::BuiltIn}};
+        builtIn("C:/mingw/i686-w64-mingw32/include"),
+        builtIn("C:/mingw/i686-w64-mingw32/include/c++"),
+        builtIn("C:/mingw/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
+        builtIn("C:/mingw/i686-w64-mingw32/include/c++/backward"),
+    };
     projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
@@ -313,31 +308,22 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderNoVersion)
 
     ASSERT_THAT(
         filter.builtInHeaderPaths,
-        ElementsAre(HasBuiltIn("C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++"),
-                    HasBuiltIn(
-                        "C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
-                    HasBuiltIn("C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward"),
+        ElementsAre(HasBuiltIn("C:/mingw/i686-w64-mingw32/include/c++"),
+                    HasBuiltIn("C:/mingw/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
+                    HasBuiltIn("C:/mingw/i686-w64-mingw32/include/c++/backward"),
                     HasBuiltIn(CLANG_RESOURCE_DIR),
-                    HasBuiltIn("C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include")));
+                    HasBuiltIn("C:/mingw/i686-w64-mingw32/include")));
 }
 
 TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
 {
     projectPart.headerPaths = {
-        HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                   "bundle/sysroot/usr/include/i686-linux-android",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sources/cxx-"
-                   "stl/llvm-libc++/include",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                   "bundle/sources/android/support/include",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sources/cxx-"
-                   "stl/llvm-libc++abi/include",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sysroot/usr/include",
-                   HeaderPathType::BuiltIn}};
+        builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
+        builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
+        builtIn("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
+        builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
+        builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")
+    };
     projectPart.toolChainTargetTriple = "i686-linux-android";
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
@@ -348,18 +334,12 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
 
     ASSERT_THAT(
         filter.builtInHeaderPaths,
-        ElementsAre(HasBuiltIn("C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                               "bundle/sources/cxx-stl/llvm-libc++/include"),
-                    HasBuiltIn(
-                        "C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                        "bundle/sources/cxx-stl/llvm-libc++abi/include"),
+        ElementsAre(HasBuiltIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
+                    HasBuiltIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
                     HasBuiltIn(CLANG_RESOURCE_DIR),
-                    HasBuiltIn("C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                               "bundle/sysroot/usr/include/i686-linux-android"),
-                    HasBuiltIn("C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                               "bundle/sources/android/support/include"),
-                    HasBuiltIn("C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                               "bundle/sysroot/usr/include")));
+                    HasBuiltIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
+                    HasBuiltIn("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
+                    HasBuiltIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")));
 }
 
 } // namespace
