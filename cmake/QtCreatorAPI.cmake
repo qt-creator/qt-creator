@@ -288,6 +288,14 @@ endfunction()
 
 function(enable_pch target)
   if (BUILD_WITH_PCH)
+    # Skip PCH for targets that do not use the expected visibility settings:
+    get_target_property(visibility_property "${target}" CXX_VISIBILITY_PRESET)
+    get_target_property(inlines_property "${target}" VISIBILITY_INLINES_HIDDEN)
+
+    if (NOT visibility_property STREQUAL "hidden" OR NOT inlines_property)
+      return()
+    endif()
+
     get_target_property(target_type ${target} TYPE)
     if (NOT ${target_type} STREQUAL "OBJECT_LIBRARY")
       function(_recursively_collect_dependencies input_target)
@@ -313,7 +321,9 @@ function(enable_pch target)
             ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c)
           target_compile_definitions(${pch_target} PRIVATE ${DEFAULT_DEFINES})
           set_target_properties(${pch_target} PROPERTIES
-            PRECOMPILE_HEADERS ${pch_file})
+            PRECOMPILE_HEADERS ${pch_file}
+            CXX_VISIBILITY_PRESET hidden
+            VISIBILITY_INLINES_HIDDEN ON)
           target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
         endif()
       endfunction()
