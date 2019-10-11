@@ -45,6 +45,16 @@ private:
     void newTask(const ProjectExplorer::Task &task);
     void amendDescription(const QString &desc);
 
+    // ARM compiler specific parsers.
+    bool parseArmWarningOrErrorDetailsMessage(const QString &lne);
+    bool parseArmErrorOrFatalErorrMessage(const QString &lne);
+
+    // MCS51 compiler specific parsers.
+    bool parseMcs51WarningOrErrorDetailsMessage1(const QString &lne);
+    bool parseMcs51WarningOrErrorDetailsMessage2(const QString &lne);
+    bool parseMcs51FatalErrorMessage1(const QString &lne);
+    bool parseMcs51FatalErrorMessage2(const QString &lne);
+
     void stdError(const QString &line) final;
     void stdOutput(const QString &line) final;
     void doFlush() final;
