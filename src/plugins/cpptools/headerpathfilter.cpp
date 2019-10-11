@@ -123,14 +123,14 @@ QString clangIncludeDirectory(const QString &clangVersion, const QString &clangR
 HeaderPaths::iterator resourceIterator(HeaderPaths &headerPaths, bool isMacOs)
 {
     // include/c++, include/g++, libc++\include and libc++abi\include
-    static const QString cppIncludes = R"((.*\/include\/.*(g\+\+|c\+\+).*))"
-                                       R"(|(.*libc\+\+\/include))"
-                                       R"(|(.*libc\+\+abi\/include))";
+    static const QString cppIncludes = R"((.*/include/.*(g\+\+|c\+\+).*))"
+                                       R"(|(.*libc\+\+/include))"
+                                       R"(|(.*libc\+\+abi/include))";
     static const QRegularExpression includeRegExp("\\A(" + cppIncludes + ")\\z");
 
     // The same as includeRegExp but also matches /usr/local/include
     static const QRegularExpression includeRegExpMac("\\A(" + cppIncludes
-                                                     + R"(|(\/usr\/local\/include))" + ")\\z");
+                                                     + R"(|(/usr/local/include))" + ")\\z");
 
     const QRegularExpression &includePathRegEx = isMacOs ? includeRegExpMac : includeRegExp;
 
@@ -148,7 +148,7 @@ bool isClangSystemHeaderPath(const HeaderPath &headerPath)
     // For example GCC on macOS uses system clang include path which makes clang code model
     // include incorrect system headers.
     static const QRegularExpression clangIncludeDir(
-        R"(\A.*\/lib\d*\/clang\/\d+\.\d+(\.\d+)?\/include\z)");
+        R"(\A.*/lib\d*/clang/\d+\.\d+(\.\d+)?/include\z)");
     return clangIncludeDir.match(headerPath.path).hasMatch();
 }
 
