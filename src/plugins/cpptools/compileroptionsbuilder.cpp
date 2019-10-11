@@ -140,8 +140,6 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addPrecompiledHeaderOptions(usePrecompiledHeaders);
     addProjectConfigFileInclude();
 
-    addExtraCodeModelFlags();
-
     addMsvcCompatibilityVersion();
     addProjectMacros();
     undefineClangVersionMacrosForMsvc();
@@ -727,7 +725,8 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
     const Core::Id &toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;
     bool skipNext = false;
-    for (const QString &option : m_projectPart.compilerFlags) {
+    const QStringList allFlags = m_projectPart.compilerFlags + m_projectPart.extraCodeModelFlags;
+    for (const QString &option : allFlags) {
         if (skipNext) {
             skipNext = false;
             continue;
