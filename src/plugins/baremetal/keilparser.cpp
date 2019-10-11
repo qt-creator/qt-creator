@@ -164,9 +164,9 @@ bool KeilParser::parseMcs51WarningOrErrorDetailsMessage2(const QString &lne)
     return false;
 }
 
-bool KeilParser::parseMcs51FatalErrorMessage1(const QString &lne)
+bool KeilParser::parseMcs51WarningOrFatalErrorMessage(const QString &lne)
 {
-    const QRegularExpression re("^\\*{3} (FATAL ERROR) (.+)$");
+    const QRegularExpression re("^\\*{3} (WARNING|FATAL ERROR) (.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (match.hasMatch()) {
         enum CaptureIndex { MessageTypeIndex = 1, MessageDescriptionIndex };
@@ -228,7 +228,7 @@ void KeilParser::stdOutput(const QString &line)
     const bool parsed = parseMcs51WarningOrErrorDetailsMessage1(lne)
             || parseMcs51WarningOrErrorDetailsMessage2(lne);
     if (!parsed) {
-        if (parseMcs51FatalErrorMessage1(lne))
+        if (parseMcs51WarningOrFatalErrorMessage(lne))
             return;
         if (parseMcs51FatalErrorMessage2(lne))
             return;
@@ -499,6 +499,21 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << QString();
 
     // Linker messages.
+    QTest::newRow("MCS51: Linker warning")
+            << QString::fromLatin1("*** WARNING L16: Some warning\n"
+                                   "    Some detail 1")
+            << OutputParserTester::STDOUT
+            << QString::fromLatin1("*** WARNING L16: Some warning\n"
+                                   "    Some detail 1\n")
+            << QString()
+            << (Tasks() << Task(Task::Warning,
+                                QLatin1String("L16: Some warning\n"
+                                              "    Some detail 1"),
+                                Utils::FilePath(),
+                                -1,
+                                categoryCompile))
+            << QString();
+
     QTest::newRow("MCS51: Linker simple fatal error")
             << QString::fromLatin1("*** FATAL ERROR L456: Some error")
             << OutputParserTester::STDOUT

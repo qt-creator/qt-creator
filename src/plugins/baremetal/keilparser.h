@@ -52,7 +52,7 @@ private:
     // MCS51 compiler specific parsers.
     bool parseMcs51WarningOrErrorDetailsMessage1(const QString &lne);
     bool parseMcs51WarningOrErrorDetailsMessage2(const QString &lne);
-    bool parseMcs51FatalErrorMessage1(const QString &lne);
+    bool parseMcs51WarningOrFatalErrorMessage(const QString &lne);
     bool parseMcs51FatalErrorMessage2(const QString &lne);
 
     void stdError(const QString &line) final;
