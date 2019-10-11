@@ -133,6 +133,13 @@
                 code for a QApplication or create one that contains an
                 empty window.
 
+            \li MCU Support Application
+
+                Creates an application that uses a subset of QML and
+                Qt Quick Controls (as supported by Qt for MCUs) that
+                you can deploy, run, and debug on MCU boards. For more
+                information, see \l {Connecting MCUs}.
+
         \endlist
 
         \li Libraries
