@@ -751,6 +751,16 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
+        // As we always set the target explicitly, filter out target args.
+        if (!m_projectPart.toolChainTargetTriple.isEmpty()) {
+            if (option.startsWith("--target="))
+                continue;
+            if (option == "-target") {
+                skipNext = true;
+                continue;
+            }
+        }
+
         if (option == includeUserPathOption || option == includeSystemPathOption
             || option == includeUserPathOptionWindows) {
             skipNext = true;
