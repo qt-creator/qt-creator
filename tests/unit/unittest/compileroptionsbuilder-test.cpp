@@ -351,9 +351,9 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
             QDir::toNativeSeparators(
                 "/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/x86_64-linux-gnu/c++/4.8"),
             "-isystem",
-            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-            "-isystem",
             QDir::toNativeSeparators("/usr/local/include"),
+            "-isystem",
+            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
             "-isystem",
             QDir::toNativeSeparators("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
             "-isystem",

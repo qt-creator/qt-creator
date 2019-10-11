@@ -120,24 +120,19 @@ QString clangIncludeDirectory(const QString &clangVersion, const QString &clangR
 #endif
 }
 
-HeaderPaths::iterator resourceIterator(HeaderPaths &headerPaths, bool isMacOs)
+HeaderPaths::iterator resourceIterator(HeaderPaths &headerPaths)
 {
     // include/c++, include/g++, libc++\include and libc++abi\include
     static const QString cppIncludes = R"((.*/include/.*(g\+\+|c\+\+).*))"
                                        R"(|(.*libc\+\+/include))"
-                                       R"(|(.*libc\+\+abi/include))";
+                                       R"(|(.*libc\+\+abi/include))"
+                                       R"(|(/usr/local/include))";
     static const QRegularExpression includeRegExp("\\A(" + cppIncludes + ")\\z");
-
-    // The same as includeRegExp but also matches /usr/local/include
-    static const QRegularExpression includeRegExpMac("\\A(" + cppIncludes
-                                                     + R"(|(/usr/local/include))" + ")\\z");
-
-    const QRegularExpression &includePathRegEx = isMacOs ? includeRegExpMac : includeRegExp;
 
     return std::stable_partition(headerPaths.begin(),
                                  headerPaths.end(),
                                  [&](const HeaderPath &headerPath) {
-                                     return includePathRegEx.match(headerPath.path).hasMatch();
+                                     return includeRegExp.match(headerPath.path).hasMatch();
                                  });
 }
 
@@ -165,8 +160,7 @@ void HeaderPathFilter::tweakHeaderPaths()
     removeClangSystemHeaderPaths(builtInHeaderPaths);
     removeGccInternalIncludePaths();
 
-    auto split = resourceIterator(builtInHeaderPaths,
-                                  projectPart.toolChainTargetTriple.contains("darwin"));
+    auto split = resourceIterator(builtInHeaderPaths);
 
     if (!clangVersion.isEmpty()) {
         const QString clangIncludePath = clangIncludeDirectory(clangVersion, clangResourceDirectory);

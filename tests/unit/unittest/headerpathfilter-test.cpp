@@ -241,8 +241,8 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
                                        "c++/4.8/backward"),
                             HasBuiltIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/"
                                        "x86_64-linux-gnu/c++/4.8"),
-                            HasBuiltIn(CLANG_RESOURCE_DIR),
                             HasBuiltIn("/usr/local/include"),
+                            HasBuiltIn(CLANG_RESOURCE_DIR),
                             HasBuiltIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
                             HasBuiltIn("/usr/include/x86_64-linux-gnu"),
                             HasBuiltIn("/usr/include"),
