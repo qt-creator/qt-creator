@@ -44,6 +44,7 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QColorDialog>
 #include <QComboBox>
 #include <QGraphicsProxyWidget>
