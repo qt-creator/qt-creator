@@ -838,6 +838,8 @@ function(add_qtc_executable name)
     INSTALL_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     QT_SKIP_TRANSLATION "${skip_translation}"
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
     ${_arg_PROPERTIES}
   )
   append_extra_translations("${name}" "${_arg_EXTRA_TRANSLATIONS}")

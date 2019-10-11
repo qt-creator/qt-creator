@@ -32,16 +32,7 @@
 
 #if defined __cplusplus
 
-#include <QEvent>
-#include <QTimer>
-#include <QApplication>
-#include <QBitmap>
-#include <QCursor>
-#include <QImage>
-#include <QLayout>
-#include <QPainter>
-#include <QPixmap>
-#include <QStyle>
-#include <QWidget>
+#include <QtGui>
+#include <QtWidgets>
 
 #endif

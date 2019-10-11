@@ -37,18 +37,7 @@
 # undef _POSIX_
 #endif
 
-#include <QCoreApplication>
-#include <QList>
-#include <QVariant>
-#include <QObject>
-#include <QRegExp>
-#include <QString>
-#include <QStringList>
-#include <QTextCodec>
-#include <QPointer>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QDebug>
+#include <QtCore>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QTextStream>
