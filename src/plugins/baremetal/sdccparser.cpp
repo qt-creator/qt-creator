@@ -125,7 +125,7 @@ void SdccParser::stdError(const QString &line)
         return;
     }
 
-    re.setPattern("^at (\\d+): (error) \\d+: (.+)$");
+    re.setPattern("^at (\\d+): (warning|error) \\d+: (.+)$");
     match = re.match(lne);
     if (match.hasMatch()) {
         enum CaptureIndex { MessageCodeIndex = 1, MessageTypeIndex, MessageTextIndex };
@@ -287,6 +287,18 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString::fromLatin1("at 1: error 123: Some error\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("Some error"),
+                                      Utils::FilePath(),
+                                      -1,
+                                      categoryCompile))
+            << QString();
+
+    QTest::newRow("Compiler bad option warning")
+            << QString::fromLatin1("at 1: warning 123: Some warning")
+            << OutputParserTester::STDERR
+            << QString()
+            << QString::fromLatin1("at 1: warning 123: Some warning\n")
+            << (Tasks() << Task(Task::Warning,
+                                      QLatin1String("Some warning"),
                                       Utils::FilePath(),
                                       -1,
                                       categoryCompile))
