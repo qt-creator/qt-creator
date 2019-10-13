@@ -110,7 +110,7 @@ void SdccParser::stdError(const QString &line)
         return;
     }
 
-    re.setPattern("^(.+\\.\\S+):(\\d+): (Error|syntax error): (.+)$");
+    re.setPattern("^(.+\\.\\S+):(\\d+): (Error|error|syntax error): (.+)$");
     match = re.match(lne);
     if (match.hasMatch()) {
         enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
@@ -245,6 +245,18 @@ void BareMetalPlugin::testSdccOutputParsers_data()
                                       QLatin1String("Some warning\n"
                                                     "details #1\n"
                                                     "  details #2"),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      63,
+                                      categoryCompile))
+            << QString();
+
+    QTest::newRow("Compiler simple single line error")
+            << QString::fromLatin1("c:\\foo\\main.c:63: error: Some error")
+            << OutputParserTester::STDERR
+            << QString()
+            << QString::fromLatin1("c:\\foo\\main.c:63: error: Some error\n")
+            << (Tasks() << Task(Task::Error,
+                                      QLatin1String("Some error"),
                                       Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
