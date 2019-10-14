@@ -187,8 +187,7 @@ public:
 
     virtual QtConfigWidget *createConfigurationWidget() const;
 
-    static QString defaultUnexpandedDisplayName(const Utils::FilePath &qmakePath,
-                                                bool fromPath = false);
+    QString defaultUnexpandedDisplayName() const;
 
     virtual QSet<Core::Id> targetDeviceTypes() const = 0;
 
@@ -249,6 +248,8 @@ protected:
     virtual void parseMkSpec(ProFileEvaluator *) const;
 
 private:
+    void updateDefaultDisplayName();
+
     friend class QtVersionFactory;
     friend class QtVersionManager;
     friend class Internal::BaseQtVersionPrivate;

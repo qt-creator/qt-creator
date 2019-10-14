@@ -637,7 +637,7 @@ void QtOptionsPageWidget::editPath()
     }
     // same type, replace
     version->setId(current->uniqueId());
-    if (current->unexpandedDisplayName() != current->defaultUnexpandedDisplayName(current->qmakeCommand()))
+    if (current->unexpandedDisplayName() != current->defaultUnexpandedDisplayName())
         version->setUnexpandedDisplayName(current->displayName());
 
     // Update ui

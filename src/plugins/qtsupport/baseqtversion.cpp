@@ -48,13 +48,14 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/displayname.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
-#include <utils/fileinprojectfinder.h>
 
 #include <resourceeditor/resourcenode.h>
 
@@ -175,7 +176,7 @@ public:
     bool m_qmakeIsExecutable = true;
     bool m_hasQtAbis = false;
 
-    QString m_unexpandedDisplayName;
+    DisplayName m_unexpandedDisplayName;
     QString m_autodetectionSource;
     QSet<Core::Id> m_overrideFeatures;
     FilePath m_sourcePath;
@@ -304,18 +305,17 @@ void BaseQtVersionPrivate::setupQmakePathAndId(const FilePath &qmakeCommand)
     m_id = QtVersionManager::getUniqueId();
     QTC_CHECK(m_qmakeCommand.isEmpty()); // Should only be used once.
     m_qmakeCommand = qmakeCommand;
-    m_unexpandedDisplayName = BaseQtVersion::defaultUnexpandedDisplayName(m_qmakeCommand, false);
 }
 
-QString BaseQtVersion::defaultUnexpandedDisplayName(const FilePath &qmakePath, bool fromPath)
+QString BaseQtVersion::defaultUnexpandedDisplayName() const
 {
     QString location;
-    if (qmakePath.isEmpty()) {
+    if (qmakeCommand().isEmpty()) {
         location = QCoreApplication::translate("QtVersion", "<unknown>");
     } else {
         // Deduce a description from '/foo/qt-folder/[qtbase]/bin/qmake' -> '/foo/qt-folder'.
         // '/usr' indicates System Qt 4.X on Linux.
-        QDir dir = qmakePath.toFileInfo().absoluteDir();
+        QDir dir = qmakeCommand().toFileInfo().absoluteDir();
         do {
             const QString dirName = dir.dirName();
             if (dirName == "usr") { // System-installed Qt.
@@ -332,7 +332,7 @@ QString BaseQtVersion::defaultUnexpandedDisplayName(const FilePath &qmakePath, b
         } while (!dir.isRoot() && dir.cdUp());
     }
 
-    return fromPath ?
+    return autodetectionSource() == "PATH" ?
         QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} in PATH (%2)").arg(location) :
         QCoreApplication::translate("QtVersion", "Qt %{Qt:Version} (%2)").arg(location);
 }
@@ -651,10 +651,9 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     d->m_id = map.value(Constants::QTVERSIONID).toInt();
     if (d->m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
         d->m_id = QtVersionManager::getUniqueId();
-    d->m_unexpandedDisplayName = map.value(Constants::QTVERSIONNAME).toString();
+    d->m_unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
-    if (d->m_isAutodetected)
-        d->m_autodetectionSource = map.value(QTVERSIONAUTODETECTIONSOURCE).toString();
+    d->m_autodetectionSource = map.value(QTVERSIONAUTODETECTIONSOURCE).toString();
     d->m_overrideFeatures = Core::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
     QString string = map.value(QTVERSIONQMAKEPATH).toString();
     if (string.startsWith('~'))
@@ -677,6 +676,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     }
 
     d->m_qmakeCommand = FilePath::fromString(string);
+    updateDefaultDisplayName();
 
     // Clear the cached qmlscene command, it might not match the restored path anymore.
     d->m_qmlsceneCommand.clear();
@@ -686,10 +686,9 @@ QVariantMap BaseQtVersion::toMap() const
 {
     QVariantMap result;
     result.insert(Constants::QTVERSIONID, uniqueId());
-    result.insert(Constants::QTVERSIONNAME, unexpandedDisplayName());
+    d->m_unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
     result.insert(QTVERSIONAUTODETECTED, isAutodetected());
-    if (isAutodetected())
-        result.insert(QTVERSIONAUTODETECTIONSOURCE, autodetectionSource());
+    result.insert(QTVERSIONAUTODETECTIONSOURCE, autodetectionSource());
     if (!d->m_overrideFeatures.isEmpty())
         result.insert(QTVERSION_OVERRIDE_FEATURES, Core::Id::toStringList(d->m_overrideFeatures));
 
@@ -802,17 +801,22 @@ QString BaseQtVersion::autodetectionSource() const
 
 QString BaseQtVersion::displayName() const
 {
-    return macroExpander()->expand(d->m_unexpandedDisplayName);
+    return macroExpander()->expand(unexpandedDisplayName());
 }
 
 QString BaseQtVersion::unexpandedDisplayName() const
 {
-    return d->m_unexpandedDisplayName;
+    return d->m_unexpandedDisplayName.value();
 }
 
 void BaseQtVersion::setUnexpandedDisplayName(const QString &name)
 {
-    d->m_unexpandedDisplayName = name;
+    d->m_unexpandedDisplayName.setValue(name);
+}
+
+void BaseQtVersion::updateDefaultDisplayName()
+{
+    d->m_unexpandedDisplayName.setDefaultValue(defaultUnexpandedDisplayName());
 }
 
 QString BaseQtVersion::toHtml(bool verbose) const
@@ -2212,6 +2216,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
             ver->d->setupQmakePathAndId(qmakePath);
             ver->d->m_autodetectionSource = autoDetectionSource;
             ver->d->m_isAutodetected = isAutoDetected;
+            ver->updateDefaultDisplayName();
             ProFileCacheManager::instance()->decRefCount();
             return ver;
         }

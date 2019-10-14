@@ -435,10 +435,8 @@ static void findSystemQt()
     foreach (const FilePath &qmakePath, Utils::filteredUnique(systemQMakes)) {
         BaseQtVersion *version
                 = QtVersionFactory::createQtVersionFromQMakePath(qmakePath, false, QLatin1String("PATH"));
-        if (version) {
-            version->setUnexpandedDisplayName(BaseQtVersion::defaultUnexpandedDisplayName(qmakePath, true));
+        if (version)
             m_versions.insert(version->uniqueId(), version);
-        }
     }
 }
 
