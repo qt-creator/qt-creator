@@ -311,79 +311,113 @@ signals:
     void changed();
 };
 
-McuSupportOptions::McuSupportOptions(QObject *parent)
-    : QObject(parent)
+static PackageOptions* createQulPackage()
 {
-    auto qulPackage = new PackageOptions(
+    auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("Qt MCU SDK"),
                 QDir::homePath(),
                 Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
                 "qulSdk");
-    qulPackage->setEnvironmentVariableName("Qul_DIR");
+    result->setEnvironmentVariableName("Qul_DIR");
+    return result;
+}
 
-    const QString armGccDefaultPath =
+static PackageOptions* createArmGccPackage()
+{
+    const QString defaultPath =
             Utils::HostOsInfo::isWindowsHost() ?
                 QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)"))
                 + "/GNU Tools ARM Embedded/"
               : QString("%{Env:ARMGCC_DIR}");
-    auto armGcc = new PackageOptions(
+    auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("GNU Arm Embedded Toolchain"),
-                armGccDefaultPath,
+                defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++"),
                 Constants::SETTINGS_KEY_PACKAGE_ARMGCC);
-    armGcc->setDownloadUrl(
+    result->setDownloadUrl(
                 QUrl::fromUserInput("https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads"));
-    armGcc->setEnvironmentVariableName("ARMGCC_DIR");
-    toolchainPackage = armGcc;
+    result->setEnvironmentVariableName("ARMGCC_DIR");
+    return result;
+}
 
-    auto stm32CubeFwF7Sdk = new PackageOptions(
+static PackageOptions* createStm32CubeFwF7SdkPackage()
+{
+    auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("STM32Cube SDK"),
                 "%{Env:STM32Cube_FW_F7_SDK_PATH}",
                 "Drivers/STM32F7xx_HAL_Driver",
                 "stm32CubeFwF7Sdk");
-    stm32CubeFwF7Sdk->setDownloadUrl(
+    result->setDownloadUrl(
                 QUrl::fromUserInput("https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-mcu-packages/stm32cubef7.html"));
-    stm32CubeFwF7Sdk->setEnvironmentVariableName("STM32Cube_FW_F7_SDK_PATH");
+    result->setEnvironmentVariableName("STM32Cube_FW_F7_SDK_PATH");
+    return result;
+}
 
-    const QString stm32CubeProgrammerDefaultPath =
+static PackageOptions* createStm32CubeProgrammerPackage()
+{
+    const QString defaultPath =
             Utils::HostOsInfo::isWindowsHost() ?
                 QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles"))
                 + "/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
               : QDir::homePath();
-    auto stm32CubeProgrammer = new PackageOptions(
+    auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("STM32CubeProgrammer"),
-                stm32CubeProgrammerDefaultPath,
+                defaultPath,
                 "bin",
                 "stm32CubeProgrammer");
-    stm32CubeProgrammer->setDownloadUrl(
+    result->setDownloadUrl(
                 QUrl::fromUserInput("https://www.st.com/en/development-tools/stm32cubeprog.html"));
-    stm32CubeProgrammer->setAddToPath(true);
+    result->setAddToPath(true);
+    return result;
+}
 
-    auto evkbImxrt1050Sdk = new PackageOptions(
+static PackageOptions* createEvkbImxrt1050SdkPackage()
+{
+    auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("NXP EVKB-IMXRT1050 SDK"),
                 "%{Env:EVKB_IMXRT1050_SDK_PATH}",
                 "EVKB-IMXRT1050_manifest_v3_5.xml",
                 "evkbImxrt1050Sdk");
-    evkbImxrt1050Sdk->setDownloadUrl(
+    result->setDownloadUrl(
                 QUrl::fromUserInput("https://mcuxpresso.nxp.com/en/welcome"));
+    return result;
+}
 
-    const QString seggerJLinkDefaultPath =
+static PackageOptions* createSeggerJLinkPackage()
+{
+    const QString defaultPath =
             Utils::HostOsInfo::isWindowsHost() ?
                 QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles")) + "/SEGGER/JLink"
               : QString("%{Env:SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH}");
-    auto seggerJLink = new PackageOptions(
+    auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("SEGGER JLink"),
-                seggerJLinkDefaultPath,
+                defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("JLink"),
                 "seggerJLink");
-    seggerJLink->setDownloadUrl(
+    result->setDownloadUrl(
                 QUrl::fromUserInput("https://www.segger.com/downloads/jlink"));
+    return result;
+}
 
-    auto stmPackages = {armGcc, stm32CubeFwF7Sdk, stm32CubeProgrammer, qulPackage};
-    auto nxpPackages = {armGcc, evkbImxrt1050Sdk, seggerJLink, qulPackage};
-    packages = {armGcc, stm32CubeFwF7Sdk, stm32CubeProgrammer,
-                evkbImxrt1050Sdk, seggerJLink,
-                qulPackage};
+McuSupportOptions::McuSupportOptions(QObject *parent)
+    : QObject(parent)
+{
+    PackageOptions* qulPackage = createQulPackage();
+    PackageOptions* armGccPackage = createArmGccPackage();
+    PackageOptions* stm32CubeFwF7SdkPackage = createStm32CubeFwF7SdkPackage();
+    PackageOptions* stm32CubeProgrammerPackage = createStm32CubeProgrammerPackage();
+    PackageOptions* evkbImxrt1050SdkPackage = createEvkbImxrt1050SdkPackage();
+    PackageOptions* seggerJLinkPackage = createSeggerJLinkPackage();
+
+    toolchainPackage = armGccPackage;
+
+
+    auto stmPackages = {armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
+                        qulPackage};
+    auto nxpPackages = {armGccPackage, evkbImxrt1050SdkPackage, seggerJLinkPackage,
+                        qulPackage};
+    packages = {armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
+                evkbImxrt1050SdkPackage, seggerJLinkPackage, qulPackage};
 
     boards.append(new BoardOptions(
                       "stm32f7508", "CMake/stm32f7508-discovery.cmake", stmPackages));
