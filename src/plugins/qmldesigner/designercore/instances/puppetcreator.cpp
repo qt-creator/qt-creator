@@ -465,6 +465,12 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 
     QStringList importPaths = m_model->importPaths();
 
+    QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick3D", "1.0");
+
+    if (m_model->hasImport(import, true, true))
+        environment.set("QMLDESIGNER_QUICK3D_MODE", "true");
+
+
     /* For the fallback puppet we have to remove the path to the original qtbase plugins to avoid conflics */
     if (m_availablePuppetType == FallbackPuppet)
         filterOutQtBaseImportPath(&importPaths);

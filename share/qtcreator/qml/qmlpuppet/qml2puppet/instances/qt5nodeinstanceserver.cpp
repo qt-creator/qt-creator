@@ -71,8 +71,9 @@ void Qt5NodeInstanceServer::initializeView()
 
     DesignerSupport::createOpenGLContext(m_quickView.data());
 
-    if (QCoreApplication::arguments().at(2) == "editormode") {
-        /* In 'editormode' we do not use the DesignerWindowManager
+    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE")
+        && QCoreApplication::arguments().at(2) == "editormode") {
+        /* In '3d editormode' we do not use the DesignerWindowManager
          * and since we do not show the QQuickView we have to manually create the OpenGL context */
         auto context = new QOpenGLContext(m_quickView);
         context->setFormat(surfaceFormat);

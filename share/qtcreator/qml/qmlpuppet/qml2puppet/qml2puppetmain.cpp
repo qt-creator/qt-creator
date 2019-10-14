@@ -133,14 +133,18 @@ int main(int argc, char *argv[])
     // subpixel antialiasing and instead use gray.
     qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
 #ifdef Q_OS_MACOS
-    // We have to parse the arguments before Q[Gui]Application creation
-    // Since the Qt arguments are not filtered out, yet we do not know the position of the argument
-    for (int i = 0; i < argc; ++i) {
-        const char *arg = argv[i];
-        //In previewmode and rendermode we hide the process
-        if (!qstrcmp(arg, "previewmode") || !qstrcmp(arg, "rendermode"))
-            qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
-        // This keeps qml2puppet from stealing focus
+    if (!qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE")) {
+        qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+    } else {
+        // We have to parse the arguments before Q[Gui]Application creation
+        // Since the Qt arguments are not filtered out, yet we do not know the position of the argument
+        for (int i = 0; i < argc; ++i) {
+            const char *arg = argv[i];
+            //In previewmode and rendermode we hide the process
+            if (!qstrcmp(arg, "previewmode") || !qstrcmp(arg, "rendermode"))
+                qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+            // This keeps qml2puppet from stealing focus
+        }
     }
 #endif
 
