@@ -748,10 +748,8 @@ TargetItem *TargetGroupItem::currentTargetItem() const
 
 TargetItem *TargetGroupItem::targetItem(Target *target) const
 {
-    if (target) {
-        Id needle = target->id(); // Unconfigured project have no active target.
-        return findFirstLevelChild([needle](TargetItem *item) { return item->m_kitId == needle; });
-    }
+    if (target)
+        return findFirstLevelChild([target](TargetItem *item) { return item->target() == target; });
     return nullptr;
 }
 
