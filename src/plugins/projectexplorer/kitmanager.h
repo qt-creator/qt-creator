@@ -208,6 +208,8 @@ private:
     static void registerKitAspect(KitAspect *ki);
     static void deregisterKitAspect(KitAspect *ki);
 
+    static void setBinaryForKit(const Utils::FilePath &binary);
+
     // Make sure the this is only called after all
     // KitAspects are registered!
     static void restoreKits();

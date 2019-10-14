@@ -187,6 +187,7 @@ signals:
 
 private:
     static bool coreAboutToClose();
+    void handleCommandLineArguments(const QStringList &arguments);
 
 #ifdef WITH_TESTS
 private slots:

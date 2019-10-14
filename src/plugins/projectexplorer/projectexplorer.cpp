@@ -655,8 +655,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     qRegisterMetaType<ProjectExplorer::RunControl *>();
     qRegisterMetaType<ProjectExplorer::DeployableFile>("ProjectExplorer::DeployableFile");
 
-    CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
-    JsonWizardFactory::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
+    handleCommandLineArguments(arguments);
 
     dd->m_toolChainManager = new ToolChainManager;
 
@@ -2790,6 +2789,26 @@ bool ProjectExplorerPlugin::coreAboutToClose()
     if (!dd->m_outputPane.aboutToClose())
         return false;
     return true;
+}
+
+void ProjectExplorerPlugin::handleCommandLineArguments(const QStringList &arguments)
+{
+    CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
+    JsonWizardFactory::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
+
+    const int kitForBinaryOptionIndex = arguments.indexOf("-ensure-kit-for-binary");
+    if (kitForBinaryOptionIndex != -1) {
+        if (kitForBinaryOptionIndex == arguments.count() - 1) {
+            qWarning() << "The \"-ensure-kit-for-binary\" option requires a file path argument.";
+        } else {
+            const Utils::FilePath binary =
+                    Utils::FilePath::fromString(arguments.at(kitForBinaryOptionIndex + 1));
+            if (binary.isEmpty() || !binary.exists())
+                qWarning() << QString("No such file \"%1\".").arg(binary.toUserOutput());
+            else
+                KitManager::setBinaryForKit(binary);
+        }
+    }
 }
 
 static bool hasDeploySettings(Project *pro)

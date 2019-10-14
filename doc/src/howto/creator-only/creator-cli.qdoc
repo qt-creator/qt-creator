@@ -219,6 +219,11 @@
                 wizards, see \l{Adding New Custom Wizards}
 
         \row
+            \li -ensure-kit-for-binary <path to binary>
+            \li ProjectExplorer plugin: create a kit with a toolchain
+                corresponding to the given binary's architecture.
+
+        \row
             \li -lastsession
             \li ProjectExplorer plugin: load the last session when \QC starts.
                 Open the projects and files that were open when you last exited

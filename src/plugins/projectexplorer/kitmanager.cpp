@@ -119,11 +119,16 @@ public:
         return m_aspectList;
     }
 
+    void setBinaryForKit(const FilePath &fp) { m_binaryForKit = fp; }
+    FilePath binaryForKit() const { return m_binaryForKit; }
+
 private:
     // Sorted by priority, in descending order...
     QList<KitAspect *> m_aspectList;
     // ... if this here is set:
     bool m_aspectListIsSorted = true;
+
+    FilePath m_binaryForKit;
 };
 
 } // namespace Internal
@@ -230,7 +235,32 @@ void KitManager::restoreKits()
     // Delete all loaded autodetected kits that were not rediscovered:
     kitsToCheck.clear();
 
-    if (resultList.empty()) {
+    static const auto kitMatchesAbiList = [](const Kit *kit, const Abis &abis) {
+        const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
+        for (const ToolChain * const tc : toolchains) {
+            const Abi tcAbi = tc->targetAbi();
+            for (const Abi &abi : abis) {
+                if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
+                        && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == abi.osFlavor())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    const Abis abisOfBinary = d->binaryForKit().isEmpty()
+            ? Abis() : Abi::abisOfBinary(d->binaryForKit());
+    const auto kitMatchesAbiOfBinary = [&abisOfBinary](const Kit *kit) {
+        return kitMatchesAbiList(kit, abisOfBinary);
+    };
+    const bool haveKitForBinary = abisOfBinary.isEmpty()
+            || contains(resultList, [&kitMatchesAbiOfBinary](const std::unique_ptr<Kit> &kit) {
+        return kitMatchesAbiOfBinary(kit.get());
+    });
+    Kit *kitForBinary = nullptr;
+
+    if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
         QHash<Abi, QHash<Core::Id, ToolChain *>> uniqueToolchains;
 
@@ -266,16 +296,7 @@ void KitManager::restoreKits()
         }
 
         static const auto isHostKit = [](const Kit *kit) {
-            const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-            for (const ToolChain * const tc : toolchains) {
-                static const Abi hostAbi = Abi::hostAbi();
-                const Abi tcAbi = tc->targetAbi();
-                if (tcAbi.os() == hostAbi.os() && tcAbi.architecture() == hostAbi.architecture()
-                    && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == hostAbi.osFlavor())) {
-                    return true;
-                }
-            }
-            return false;
+            return kitMatchesAbiList(kit, {Abi::hostAbi()});
         };
 
         static const auto deviceTypeForKit = [](const Kit *kit) {
@@ -306,51 +327,79 @@ void KitManager::restoreKits()
             return Constants::DESKTOP_DEVICE_TYPE;
         };
 
-        // Create temporary kits and make the one(s) with the highest weight permament.
-        // If none of those is a host kit, also consider the host kit with the highest weight.
-        int maxWeight = 0;
-        std::unique_ptr<Kit> bestHostKit;
+        // Create temporary kits for all toolchains found.
+        decltype(resultList) tempList;
         for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
             auto kit = std::make_unique<Kit>();
             kit->setSdkProvided(false);
             kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
             for (ToolChain * const tc : it.value())
                 ToolChainKitAspect::setToolChain(kit.get(), tc);
+            if (contains(resultList, [&kit](const std::unique_ptr<Kit> &existingKit) {
+                return ToolChainKitAspect::toolChains(kit.get())
+                         == ToolChainKitAspect::toolChains(existingKit.get());
+            })) {
+                continue;
+            }
             if (isHostKit(kit.get()))
                 kit->setUnexpandedDisplayName(tr("Desktop (%1)").arg(it.key().toString()));
             else
                 kit->setUnexpandedDisplayName(it.key().toString());
             DeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
             kit->setup();
-            if (kit->weight() < maxWeight)
-                continue;
-            if (kit->weight() > maxWeight) {
-                maxWeight = kit->weight();
-                if (isHostKit(kit.get())) {
-                    bestHostKit.reset(nullptr);
-                } else {
-                    for (auto it = resultList.begin(); it != resultList.end(); ++it) {
-                        if (isHostKit(it->get())) {
-                            bestHostKit = std::move(*it);
-                            resultList.erase(it);
-                            break;
-                        }
+            tempList.emplace_back(std::move(kit));
+        }
+
+        // Now make the "best" temporary kits permanent. The logic is as follows:
+        //     - If the user has requested a kit for a given binary and one or more kits
+        //       with a matching ABI exist, then we randomly choose exactly one among those with
+        //       the highest weight.
+        //     - If the user has not requested a kit for a given binary or no such kit could
+        //       be created, we choose all kits with the highest weight. If none of these
+        //       is a host kit, then we also add the host kit with the highest weight.
+        Utils::sort(tempList, [](const std::unique_ptr<Kit> &k1, const std::unique_ptr<Kit> &k2) {
+            return k1->weight() > k2->weight();
+        });
+        if (!abisOfBinary.isEmpty()) {
+            for (auto it = tempList.begin(); it != tempList.end(); ++it) {
+                if (kitMatchesAbiOfBinary(it->get())) {
+                    kitForBinary = it->get();
+                    resultList.emplace_back(std::move(*it));
+                    tempList.erase(it);
+                    break;
+                }
+            }
+        }
+        QList<Kit *> hostKits;
+        if (!kitForBinary && !tempList.empty()) {
+            const int maxWeight = tempList.front()->weight();
+            for (auto it = tempList.begin(); it != tempList.end(); it = tempList.erase(it)) {
+                if ((*it)->weight() < maxWeight)
+                    break;
+                if (isHostKit(it->get()))
+                    hostKits << it->get();
+                resultList.emplace_back(std::move(*it));
+            }
+            if (!contains(resultList, [](const std::unique_ptr<Kit> &kit) {
+                          return isHostKit(kit.get());})) {
+                QTC_ASSERT(hostKits.isEmpty(), hostKits.clear());
+                for (auto &kit : tempList) {
+                    if (isHostKit(kit.get())) {
+                        hostKits << kit.get();
+                        resultList.emplace_back(std::move(kit));
+                        break;
                     }
                 }
-                resultList.clear();
             }
-            resultList.emplace_back(std::move(kit));
         }
-        Kit *uniqueDesktopKit = bestHostKit.get();
-        if (uniqueDesktopKit)
-            resultList.emplace_back(std::move(bestHostKit));
-        else if (resultList.size() == 1 && isHostKit(resultList.front().get()))
-            uniqueDesktopKit = resultList.front().get();
-        if (uniqueDesktopKit)
-            uniqueDesktopKit->setUnexpandedDisplayName(tr("Desktop"));
+
+        if (hostKits.size() == 1)
+            hostKits.first()->setUnexpandedDisplayName(tr("Desktop"));
     }
 
-    Kit *k = Utils::findOrDefault(resultList, Utils::equal(&Kit::id, defaultUserKit));
+    Kit *k = kitForBinary;
+    if (!k)
+        k = Utils::findOrDefault(resultList, Utils::equal(&Kit::id, defaultUserKit));
     if (!k)
         k = Utils::findOrDefault(resultList, &Kit::isValid);
     std::swap(resultList, d->m_kitList);
@@ -417,6 +466,12 @@ void KitManager::deregisterKitAspect(KitAspect *ki)
     // a destroyed aspect, a destroyed KitManager is not a problem.
     if (d)
         d->removeKitAspect(ki);
+}
+
+void KitManager::setBinaryForKit(const FilePath &binary)
+{
+    QTC_ASSERT(d, return);
+    d->setBinaryForKit(binary);
 }
 
 QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
