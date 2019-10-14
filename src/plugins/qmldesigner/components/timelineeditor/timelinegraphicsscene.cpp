@@ -174,11 +174,13 @@ void TimelineGraphicsScene::invalidateLayout()
 
 void TimelineGraphicsScene::updateKeyframePositionsCache()
 {
-    auto kfPos = keyframePositions();
-    std::sort(kfPos.begin(), kfPos.end());
-    kfPos.erase(std::unique(kfPos.begin(), kfPos.end()), kfPos.end()); // remove duplicates
+    if (currentTimeline().isValid()) {
+        auto kfPos = keyframePositions();
+        std::sort(kfPos.begin(), kfPos.end());
+        kfPos.erase(std::unique(kfPos.begin(), kfPos.end()), kfPos.end()); // remove duplicates
 
-    m_keyframePositionsCache = kfPos;
+        m_keyframePositionsCache = kfPos;
+    }
 }
 
 // snap a frame to nearest keyframe or ruler tick
