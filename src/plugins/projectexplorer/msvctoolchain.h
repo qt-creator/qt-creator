@@ -98,8 +98,6 @@ public:
     void setVarsBatArg(const QString &varsBA) { m_varsBatArg = varsBA; }
     void changeVcVarsCall(const QString &varsBat, const QString &varsBatArgs = QString());
 
-    void setSupportedAbi(const Abi &abi);
-
     bool operator==(const ToolChain &) const override;
 
     bool isJobCountSupported() const override { return false; }

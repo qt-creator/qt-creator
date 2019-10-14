@@ -776,39 +776,51 @@ void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem>
 
 void MsvcToolChain::detectInstalledAbis()
 {
-    if (!m_supportedAbis.isEmpty()) // Build Tools 2015
-        return;
     static QMap<QString, Abis> abiCache;
     const QString vcVarsBase
             = QDir::fromNativeSeparators(m_vcvarsBat).left(m_vcvarsBat.lastIndexOf('/'));
     if (abiCache.contains(vcVarsBase)) {
         m_supportedAbis = abiCache.value(vcVarsBase);
-        return;
+    } else {
+        // Clear previously detected m_supportedAbis to repopulate it.
+        m_supportedAbis.clear();
+        const Abi baseAbi = targetAbi();
+        for (MsvcPlatform platform : platforms) {
+            bool toolchainInstalled = false;
+            QString perhapsVcVarsPath = vcVarsBase + QLatin1Char('/') + QLatin1String(platform.bat);
+            const Platform p = platform.platform;
+            if (QFileInfo(perhapsVcVarsPath).isFile()) {
+                toolchainInstalled = true;
+            } else {
+                // MSVC 2015 and below had various versions of vcvars scripts in subfolders. Try these
+                // as fallbacks.
+                perhapsVcVarsPath = vcVarsBase + platform.prefix + QLatin1Char('/')
+                                    + QLatin1String(platform.bat);
+                toolchainInstalled = QFileInfo(perhapsVcVarsPath).isFile();
+            }
+            if (hostSupportsPlatform(platform.platform) && toolchainInstalled) {
+                Abi newAbi(archForPlatform(p),
+                           baseAbi.os(),
+                           baseAbi.osFlavor(),
+                           baseAbi.binaryFormat(),
+                           wordWidthForPlatform(p));
+                if (!m_supportedAbis.contains(newAbi))
+                    m_supportedAbis.append(newAbi);
+            }
+        }
+
+        abiCache.insert(vcVarsBase, m_supportedAbis);
     }
 
-    QTC_ASSERT(m_supportedAbis.isEmpty(), return);
-    const Abi baseAbi = targetAbi();
-    for (MsvcPlatform platform : platforms) {
-        bool toolchainInstalled = false;
-        QString perhapsVcVarsPath = vcVarsBase + QLatin1Char('/') + QLatin1String(platform.bat);
-        const Platform p = platform.platform;
-        if (QFileInfo(perhapsVcVarsPath).isFile()) {
-            toolchainInstalled = true;
-        } else {
-            // MSVC 2015 and below had various versions of vcvars scripts in subfolders. Try these
-            // as fallbacks.
-            perhapsVcVarsPath = vcVarsBase + platform.prefix + QLatin1Char('/')
-                    + QLatin1String(platform.bat);
-            toolchainInstalled = QFileInfo(perhapsVcVarsPath).isFile();
-        }
-        if (hostSupportsPlatform(platform.platform) && toolchainInstalled) {
-            Abi newAbi(archForPlatform(p), baseAbi.os(), baseAbi.osFlavor(), baseAbi.binaryFormat(),
-                       wordWidthForPlatform(p));
-            if (!m_supportedAbis.contains(newAbi))
-                m_supportedAbis.append(newAbi);
-        }
-    }
-    abiCache.insert(vcVarsBase, m_supportedAbis);
+    // Always add targetAbi in supportedAbis if it is empty.
+    // targetAbi is the abi with which the toolchain was detected.
+    // This is necessary for toolchains that don't have vcvars32.bat and the like in their
+    // vcVarsBase path, like msvc2010.
+    // Also, don't include that one in abiCache to avoid polluting it with values specific
+    // to one toolchain as the cache is global for a vcVarsBase path. For this reason, the
+    // targetAbi needs to be added manually.
+    if (m_supportedAbis.empty())
+        m_supportedAbis.append(targetAbi());
 }
 
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment &env) const
@@ -1282,13 +1294,6 @@ void MsvcToolChain::changeVcVarsCall(const QString &varsBat, const QString &vars
                                           m_vcvarsBat,
                                           m_varsBatArg));
     }
-}
-
-void MsvcToolChain::setSupportedAbi(const Abi &abi)
-{
-    // Hack for Build Tools 2015 only.
-    QTC_CHECK(m_supportedAbis.isEmpty());
-    m_supportedAbis = { abi };
 }
 
 // --------------------------------------------------------------------------
@@ -1909,7 +1914,6 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
                                         QLatin1String(e.varsBatArg));
             tc->setDetection(ToolChain::AutoDetection);
             tc->setLanguage(language);
-            tc->setSupportedAbi(abi);
             list->append(tc);
         }
     }
