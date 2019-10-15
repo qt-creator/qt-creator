@@ -38,6 +38,11 @@
 
 #include <coreplugin/icore.h>
 
+#include <android/androidconstants.h>
+#include <baremetal/baremetalconstants.h>
+#include <qnx/qnxconstants.h>
+#include <remotelinux/remotelinux_constants.h>
+
 #include <utils/environment.h>
 #include <utils/persistentsettings.h>
 #include <utils/pointeralgorithm.h>
@@ -227,15 +232,6 @@ void KitManager::restoreKits()
 
     if (resultList.empty()) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
-        // We consider only host toolchains, because for other ones we lack the knowledge how to
-        // map them to their respective device type.
-        static const auto isHostToolchain = [](const ToolChain *tc) {
-            static const Abi hostAbi = Abi::hostAbi();
-            const Abi tcAbi = tc->targetAbi();
-            return tcAbi.os() == hostAbi.os() && tcAbi.architecture() == hostAbi.architecture()
-                    && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == hostAbi.osFlavor());
-        };
-        const QList<ToolChain *> allToolchains = ToolChainManager::toolChains(isHostToolchain);
         QHash<Abi, QHash<Core::Id, ToolChain *>> uniqueToolchains;
 
         // On Linux systems, we usually detect a plethora of same-ish toolchains. The following
@@ -244,7 +240,7 @@ void KitManager::restoreKits()
         // TODO: This should not need to be done here. Instead, it should be a convenience
         // operation on some lower level, e.g. in the toolchain class(es).
         // Also, we shouldn't detect so many doublets in the first place.
-        for (ToolChain * const tc : allToolchains) {
+        for (ToolChain * const tc : ToolChainManager::toolChains()) {
             ToolChain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
             if (!bestTc) {
                 bestTc = tc;
@@ -269,25 +265,89 @@ void KitManager::restoreKits()
                 bestTc = tc;
         }
 
+        static const auto isHostKit = [](const Kit *kit) {
+            const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
+            for (const ToolChain * const tc : toolchains) {
+                static const Abi hostAbi = Abi::hostAbi();
+                const Abi tcAbi = tc->targetAbi();
+                if (tcAbi.os() == hostAbi.os() && tcAbi.architecture() == hostAbi.architecture()
+                    && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == hostAbi.osFlavor())) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        static const auto deviceTypeForKit = [](const Kit *kit) {
+            if (isHostKit(kit))
+                return Constants::DESKTOP_DEVICE_TYPE;
+            const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
+            for (const ToolChain * const tc : toolchains) {
+                const Abi tcAbi = tc->targetAbi();
+                switch (tcAbi.os()) {
+                case Abi::BareMetalOS:
+                    return BareMetal::Constants::BareMetalOsType;
+                case Abi::BsdOS:
+                case Abi::DarwinOS:
+                case Abi::UnixOS:
+                    return RemoteLinux::Constants::GenericLinuxOsType;
+                case Abi::LinuxOS:
+                    if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
+                        return Android::Constants::ANDROID_DEVICE_TYPE;
+                    return RemoteLinux::Constants::GenericLinuxOsType;
+                case Abi::QnxOS:
+                    return Qnx::Constants::QNX_QNX_OS_TYPE;
+                case Abi::VxWorks:
+                    return "VxWorks.Device.Type";
+                default:
+                    break;
+                }
+            }
+            return Constants::DESKTOP_DEVICE_TYPE;
+        };
+
+        // Create temporary kits and make the one(s) with the highest weight permament.
+        // If none of those is a host kit, also consider the host kit with the highest weight.
         int maxWeight = 0;
+        std::unique_ptr<Kit> bestHostKit;
         for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
             auto kit = std::make_unique<Kit>();
             kit->setSdkProvided(false);
             kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
             for (ToolChain * const tc : it.value())
                 ToolChainKitAspect::setToolChain(kit.get(), tc);
-            kit->setUnexpandedDisplayName(tr("Desktop (%1)").arg(it.key().toString()));
+            if (isHostKit(kit.get()))
+                kit->setUnexpandedDisplayName(tr("Desktop (%1)").arg(it.key().toString()));
+            else
+                kit->setUnexpandedDisplayName(it.key().toString());
+            DeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
             kit->setup();
             if (kit->weight() < maxWeight)
                 continue;
             if (kit->weight() > maxWeight) {
                 maxWeight = kit->weight();
+                if (isHostKit(kit.get())) {
+                    bestHostKit.reset(nullptr);
+                } else {
+                    for (auto it = resultList.begin(); it != resultList.end(); ++it) {
+                        if (isHostKit(it->get())) {
+                            bestHostKit = std::move(*it);
+                            resultList.erase(it);
+                            break;
+                        }
+                    }
+                }
                 resultList.clear();
             }
             resultList.emplace_back(std::move(kit));
         }
-        if (resultList.size() == 1)
-            resultList.front()->setUnexpandedDisplayName(tr("Desktop"));
+        Kit *uniqueDesktopKit = bestHostKit.get();
+        if (uniqueDesktopKit)
+            resultList.emplace_back(std::move(bestHostKit));
+        else if (resultList.size() == 1 && isHostKit(resultList.front().get()))
+            uniqueDesktopKit = resultList.front().get();
+        if (uniqueDesktopKit)
+            uniqueDesktopKit->setUnexpandedDisplayName(tr("Desktop"));
     }
 
     Kit *k = Utils::findOrDefault(resultList, Utils::equal(&Kit::id, defaultUserKit));
