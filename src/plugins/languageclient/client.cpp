@@ -71,8 +71,8 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMs
 class TextMark : public TextEditor::TextMark
 {
 public:
-    TextMark(const Utils::FilePath &fileName, const Diagnostic &diag)
-        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, "lspmark")
+    TextMark(const Utils::FilePath &fileName, const Diagnostic &diag, const Core::Id &clientId)
+        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, clientId)
         , m_diagnostic(diag)
     {
         using namespace Utils;
@@ -783,8 +783,7 @@ bool Client::needsRestart(const BaseSettings *settings) const
 QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const Range &range) const
 {
     QList<Diagnostic> diagnostics;
-    for (const TextMark *mark : m_diagnostics[uri]) {
-        const Diagnostic diagnostic = mark->diagnostic();
+    for (const Diagnostic &diagnostic : m_diagnostics[uri]) {
         if (diagnostic.range().overlaps(range))
             diagnostics << diagnostic;
     }
@@ -852,9 +851,7 @@ void Client::hideDiagnostics(TextEditor::TextDocument *doc)
 {
     if (!doc)
         return;
-    DocumentUri uri = DocumentUri::fromFilePath(doc->filePath());
-    for (TextMark *mark : m_diagnostics.value(uri))
-        doc->removeMark(mark);
+    qDeleteAll(Utils::filtered(doc->marks(), Utils::equal(&TextEditor::TextMark::category, id())));
 }
 
 const ServerCapabilities &Client::capabilities() const
@@ -917,23 +914,18 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
 
 void Client::showDiagnostics(const DocumentUri &uri)
 {
-    if (TextEditor::TextDocument *doc
-        = TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath())) {
-        for (TextMark *mark : m_diagnostics.value(uri))
-            doc->addMark(mark);
+    const FilePath &filePath = uri.toFilePath();
+    if (TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(
+            uri.toFilePath())) {
+        for (const Diagnostic &diagnostic : m_diagnostics.value(uri))
+            doc->addMark(new TextMark(filePath, diagnostic, id()));
     }
 }
 
 void Client::removeDiagnostics(const DocumentUri &uri)
 {
-    TextEditor::TextDocument *doc
-        = TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath());
-
-    for (TextMark *mark : m_diagnostics.take(uri)) {
-        if (doc)
-            doc->removeMark(mark);
-        delete mark;
-    }
+    hideDiagnostics(TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath()));
+    m_diagnostics.remove(uri);
 }
 
 void Client::resetAssistProviders(TextEditor::TextDocument *document)
@@ -1045,16 +1037,11 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 
     removeDiagnostics(uri);
     const QList<Diagnostic> &diagnostics = params.diagnostics();
-    m_diagnostics[uri] =
-        Utils::transform(diagnostics, [fileName = uri.toFilePath()](const Diagnostic &diagnostic) {
-            return new TextMark(fileName, diagnostic);
-    });
-    // TextMarks are already added in the TextEditor::TextMark constructor
-    // so hide them if we are not the active client for this document
-    if (LanguageClientManager::clientForUri(uri) != this)
-        hideDiagnostics(TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath()));
-    else
+    m_diagnostics[uri] = diagnostics;
+    if (LanguageClientManager::clientForUri(uri) == this) {
+        showDiagnostics(uri);
         requestCodeActions(uri, diagnostics);
+    }
 }
 
 void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
