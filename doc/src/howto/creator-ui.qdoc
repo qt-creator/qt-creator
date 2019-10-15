@@ -360,6 +360,8 @@
        \li \uicontrol{Test Results}
 
        \li \uicontrol {To-Do Entries}
+
+       \li \uicontrol {Serial Terminal}
        \endif
 
     \endlist
@@ -389,7 +391,9 @@
     \endif
      panes, select \uicontrol {Window > Output Panes}.
     \if defined(qtcreator)
-    To display the \uicontrol {To-Do Entries} pane, enable the Todo plugin.
+    To display the \l{To-Do Entries} or
+    \l{Connecting Devices by Serial Ports}{Serial Terminal}
+    pane, enable the respective plugin.
     \endif
 
     For more information about the \uicontrol {QML Debugger Console} view, see

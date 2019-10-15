@@ -36,7 +36,7 @@
     \previouspage creator-developing-generic-linux.html
     \nextpage studio-advanced.html
     \else
-    \previouspage creator-developing-qnx.html
+    \previouspage creator-serialterminal.html
     \nextpage creator-testing.html
     \endif
 

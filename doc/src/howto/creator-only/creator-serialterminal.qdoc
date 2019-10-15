@@ -1,0 +1,82 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 Andre Hartmann <aha_1980@gmx.de>
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+    /*!
+
+    \contentspage index.html
+    \previouspage creator-developing-qnx.html
+    \page creator-serialterminal.html
+    \nextpage creator-build-process-customizing.html
+
+    \title Connecting Devices by Serial Ports
+
+    You can use the \uicontrol {Serial Terminal} output pane to connect devices
+    by serial ports. These ports can be real RS-232 ports, or virtual serial
+    ports provided by USB chipsets.
+
+    \image qtcreator-serial-terminal.png "Serial Terminal output pane"
+
+    To set up a connection:
+
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Utilities} > \uicontrol {Serial Terminal}
+            to enable the plugin.
+        \li Restart \QC to load the plugin.
+        \li In the \uicontrol {Serial Terminal} output pane, select a
+            COM port. The list is updated when ports become available.
+        \li Select the bitrate for the communication.
+        \li To establish the connection, select the \inlineimage run_small.png
+            (\uicontrol Connect) button.
+    \endlist
+
+    To create additional connections, select the \inlineimage plus.png
+    (\uicontrol {Add New Terminal}) button.
+
+    To close a connection, select the \inlineimage stop_small.png
+    (\uicontrol Stop) button.
+
+    The \inlineimage reload_gray.png
+    (\uicontrol {Reset Board}) button toggles the DTR (Data Terminal Ready)
+    line, which causes a board reset on Arduino compatible boards.
+
+    Incoming data is displayed in the output pane.
+
+    Use the command line at the bottom to send commands to the remote station.
+
+    Select the line endings in the list next to the command line:
+
+    \list
+        \li None - the lines have no special termination
+        \li LF - the lines are terminated by a line feed (ASCII 0xA) character
+        \li CR - the lines are terminated by a carriage return (ASCII 0xD)
+            character
+        \li CRLF - the lines are terminated by a carriage return and a line feed
+            character
+    \endlist
+
+    \note On Linux, you need the appropriate rights to access serial ports.
+    Often, it is sufficient to add your user account to the group dialout.
+*/

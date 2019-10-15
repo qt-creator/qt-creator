@@ -95,8 +95,15 @@
 
     \list
 
-        \li \l{http://doc.qt.io/qtcreator/creator-overview-qtasam.html}
-            {Qt Application Manager}
+        \li \l{Connecting Devices by Serial Ports}
+
+            You can connect devices by serial ports in the
+            \uicontrol {Serial Terminal} output pane. These
+            ports can be real RS-232 ports, or virtual serial
+            ports provided by USB chipsets.
+
+        \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
+            {Qt Creator Plugin for Qt Application Manager}
 
             You can use the experimental Qt Application Manager plugin
             (commercial only) to deploy, run, and debug applications on the
