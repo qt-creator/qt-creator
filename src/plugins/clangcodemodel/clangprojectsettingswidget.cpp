@@ -33,6 +33,7 @@
 #include <cpptools/clangdiagnosticconfig.h>
 #include <cpptools/clangdiagnosticconfigswidget.h>
 #include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
 
 #include <utils/hostosinfo.h>
@@ -55,6 +56,11 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
     using namespace CppTools;
 
     m_ui.delayedTemplateParseCheckBox->setVisible(Utils::HostOsInfo::isWindowsHost());
+
+    // Links
+    connect(m_ui.gotoGlobalSettingsLabel, &QLabel::linkActivated, [](const QString &) {
+        Core::ICore::showOptionsDialog(CppTools::Constants::CPP_CODE_MODEL_SETTINGS_ID);
+    });
 
     connect(m_ui.clangDiagnosticConfigsSelectionWidget,
             &ClangDiagnosticConfigsSelectionWidget::changed,
