@@ -58,12 +58,15 @@
 #include "changeselectioncommand.h"
 
 #include "dummycontextobject.h"
+#include "../editor3d/cameracontrolhelper.h"
 
 #include <designersupportdelegate.h>
 
 #include <QQmlProperty>
 #include <QOpenGLContext>
 #include <QQuickView>
+#include <QQmlContext>
+#include <QQmlEngine>
 
 namespace QmlDesigner {
 
@@ -74,8 +77,10 @@ static QVariant objectToVariant(QObject *object)
 
 static QObject *createEditView3D(QQmlEngine *engine)
 {
-    QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
+    QmlDesigner::Internal::CameraControlHelper *helper = new QmlDesigner::Internal::CameraControlHelper();
+    engine->rootContext()->setContextProperty("designStudioNativeCameraControlHelper", helper);
 
+    QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
 
     QWindow *window = qobject_cast<QWindow *>(component.create());
 
@@ -84,6 +89,7 @@ static QObject *createEditView3D(QQmlEngine *engine)
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     window->setFormat(surfaceFormat);
+    helper->setParent(window);
 
     return window;
 }

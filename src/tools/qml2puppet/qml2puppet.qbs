@@ -193,6 +193,8 @@ QtcTool {
             "instances/qt5testnodeinstanceserver.h",
             "instances/servernodeinstance.cpp",
             "instances/servernodeinstance.h",
+            "editor3d/cameracontrolhelper.cpp",
+            "editor3d/cameracontrolhelper.h",
             "qml2puppetmain.cpp",
         ]
     }

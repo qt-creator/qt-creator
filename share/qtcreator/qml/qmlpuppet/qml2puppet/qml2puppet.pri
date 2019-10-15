@@ -5,6 +5,7 @@ CONFIG += c++11
 
 DEFINES -= QT_CREATOR
 
+include (editor3d/editor3d.pri)
 include (../instances/instances.pri)
 include (instances/instances.pri)
 include (../commands/commands.pri)
