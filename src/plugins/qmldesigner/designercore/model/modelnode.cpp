@@ -991,7 +991,7 @@ QVariant ModelNode::toVariant() const
     return QVariant::fromValue(*this);
 }
 
-QVariant ModelNode::auxiliaryData(const PropertyName &name) const
+const QVariant ModelNode::auxiliaryData(const PropertyName &name) const
 {
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
