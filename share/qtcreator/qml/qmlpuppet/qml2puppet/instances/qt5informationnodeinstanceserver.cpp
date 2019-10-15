@@ -147,6 +147,22 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuick
     return false;
 }
 
+QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
+        const QList<ServerNodeInstance> &instanceList) const
+{
+    for (const ServerNodeInstance &instance : instanceList) {
+        if (instance.isSubclassOf("QQuick3DViewport")) {
+            for (const ServerNodeInstance &child : instanceList) { /* Look for scene node */
+                /* The QQuick3DViewport always creates a root node.
+                 * This root node contains the complete scene. */
+                if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance)
+                    return child.internalObject()->property("parent").value<QObject *>();
+            }
+        }
+    }
+    return nullptr;
+}
+
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList)
 {
     ServerNodeInstance root = rootNodeInstance();
@@ -157,15 +173,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     if (root.isSubclassOf("QQuick3DNode")) {
         node = root.internalObject();
         showCustomLight = true; // Pure node scene we should add a custom light
-    } else { // Look for QQuick3DView
-        for (const ServerNodeInstance &instance : instanceList) {
-            if (instance.isSubclassOf("QQuick3DViewport")) {
-                for (const ServerNodeInstance &child : instanceList) { /* Look for scene node */
-                    if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance)
-                        node = child.internalObject();
-                }
-            }
-        }
+    } else {
+        node = findRootNodeOf3DViewport(instanceList);
     }
 
     if (node) { // If we found a scene we create the edit view

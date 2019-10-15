@@ -52,6 +52,7 @@ protected:
 
 private:
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
+    QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
 
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
