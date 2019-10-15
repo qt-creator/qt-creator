@@ -300,7 +300,8 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     sendChildrenChangedCommand(instanceList);
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
-    setup3DEditView(instanceList);
+    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE"))
+        setup3DEditView(instanceList);
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)
