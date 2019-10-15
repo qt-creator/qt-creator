@@ -238,6 +238,9 @@ void ModeManager::removeMode(IMode *mode)
 {
     const int index = d->m_modes.indexOf(mode);
     d->m_modes.remove(index);
+    if (d->m_startingUp)
+        return;
+
     d->m_modeCommands.remove(index);
     d->m_modeStack->removeTab(index);
 

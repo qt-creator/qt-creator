@@ -429,6 +429,13 @@ void WelcomeMode::addPage(IWelcomePage *page)
     stackPage->setAutoFillBackground(true);
     m_pageStack->insertWidget(idx, stackPage);
 
+    connect(page, &QObject::destroyed, this, [this, page, stackPage, pageButton] {
+        m_pluginList.removeOne(page);
+        m_pageButtons.removeOne(pageButton);
+        delete pageButton;
+        delete stackPage;
+    });
+
     auto onClicked = [this, pageId, stackPage] {
         m_activePage = pageId;
         m_pageStack->setCurrentWidget(stackPage);
