@@ -70,20 +70,24 @@ void KeilParser::newTask(const Task &task)
     m_lines = 1;
 }
 
-void KeilParser::amendDescription(const QString &desc)
+void KeilParser::amendDescription()
 {
-    const int start = m_lastTask.description.count() + 1;
-    m_lastTask.description.append(QLatin1Char('\n'));
-    m_lastTask.description.append(desc);
+    while (!m_snippets.isEmpty()) {
+        const QString snippet = m_snippets.takeFirst();
 
-    QTextLayout::FormatRange fr;
-    fr.start = start;
-    fr.length = m_lastTask.description.count() + 1;
-    fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
-    fr.format.setFontStyleHint(QFont::Monospace);
-    m_lastTask.formats.append(fr);
+        const int start = m_lastTask.description.count() + 1;
+        m_lastTask.description.append('\n');
+        m_lastTask.description.append(snippet);
 
-    ++m_lines;
+        QTextLayout::FormatRange fr;
+        fr.start = start;
+        fr.length = m_lastTask.description.count() + 1;
+        fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
+        fr.format.setFontStyleHint(QFont::Monospace);
+        m_lastTask.formats.append(fr);
+
+        ++m_lines;
+    }
 }
 
 // ARM compiler specific parsers.
@@ -205,18 +209,34 @@ void KeilParser::stdError(const QString &line)
         return;
 
     if (lne.startsWith(QLatin1Char(' '))) {
-        amendDescription(lne);
+        m_snippets.push_back(lne);
         return;
     }
 
     doFlush();
 }
 
+static bool hasDetailsEntry(const QString &trimmedLine)
+{
+    const QRegularExpression re("^([0-9A-F]{4})");
+    const QRegularExpressionMatch match = re.match(trimmedLine);
+    return match.hasMatch();
+}
+
+static bool hasDetailsPointer(const QString &trimmedLine)
+{
+    if (!trimmedLine.startsWith("*** "))
+        return false;
+    if (!trimmedLine.endsWith('^'))
+        return false;
+    return trimmedLine.contains('_');
+}
+
 void KeilParser::stdOutput(const QString &line)
 {
     IOutputParser::stdOutput(line);
 
-    const QString lne = rightTrimmed(line);
+    QString lne = rightTrimmed(line);
 
     // Check for MSC51 compiler specific patterns.
     const bool parsed = parseMcs51WarningOrErrorDetailsMessage1(lne)
@@ -228,9 +248,27 @@ void KeilParser::stdOutput(const QString &line)
             return;
     }
 
-    if (lne.startsWith(QLatin1Char(' '))) {
-        amendDescription(lne);
-        return;
+    if (m_lastTask.isNull()) {
+        // Check for details, which are comes on a previous
+        // lines, before the message.
+
+        // This code handles the details in a form like:
+        // 0000                  24         ljmp    usb_stub_isr ; (00) Setup data available.
+        // *** _____________________________________^
+        // 003C                  54         ljmp    usb_stub_isr ; (3C) EP8 in/out.
+        // *** _____________________________________^
+        if (hasDetailsEntry(lne) || hasDetailsPointer(lne)) {
+            lne.replace(0, 4, "    ");
+            m_snippets.push_back(lne);
+            return;
+        }
+    } else {
+        // Check for details, which are comes on a next
+        // lines, after the message.
+        if (lne.startsWith(' ')) {
+            m_snippets.push_back(lne);
+            return;
+        }
     }
 
     doFlush();
@@ -240,6 +278,8 @@ void KeilParser::doFlush()
 {
     if (m_lastTask.isNull())
         return;
+
+    amendDescription();
 
     Task t = m_lastTask;
     m_lastTask.clear();
@@ -422,6 +462,24 @@ void BareMetalPlugin::testKeilOutputParsers_data()
                                                     "  Some detail N"),
                                       Utils::FilePath(),
                                       -1,
+                                      categoryCompile))
+            << QString();
+
+    QTest::newRow("MCS51: Assembler details error")
+            << QString::fromLatin1("01AF   Some detail\n"
+                                   "*** ___^\n"
+                                   "*** ERROR #A45 IN 28 (d:\\foo.a51, LINE 28): Some error")
+            << OutputParserTester::STDOUT
+            << QString::fromLatin1("01AF   Some detail\n"
+                                   "*** ___^\n"
+                                   "*** ERROR #A45 IN 28 (d:\\foo.a51, LINE 28): Some error\n")
+            << QString()
+            << (Tasks() << Task(Task::Error,
+                                      QLatin1String("#A45: Some error\n"
+                                                    "       Some detail\n"
+                                                    "    ___^"),
+                                      Utils::FilePath::fromUserInput(QLatin1String("d:\\foo.a51")),
+                                      28,
                                       categoryCompile))
             << QString();
 

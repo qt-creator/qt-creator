@@ -43,7 +43,7 @@ public:
 
 private:
     void newTask(const ProjectExplorer::Task &task);
-    void amendDescription(const QString &desc);
+    void amendDescription();
 
     // ARM compiler specific parsers.
     bool parseArmWarningOrErrorDetailsMessage(const QString &lne);
@@ -61,6 +61,7 @@ private:
 
     ProjectExplorer::Task m_lastTask;
     int m_lines = 0;
+    QStringList m_snippets;
 };
 
 } // namespace Internal
