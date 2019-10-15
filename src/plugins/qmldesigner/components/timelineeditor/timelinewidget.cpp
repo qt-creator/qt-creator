@@ -453,7 +453,11 @@ void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
             else if (playHeadFrame > timeline.endKeyframe())
                 playHeadFrame = timeline.endKeyframe();
 
-            graphicsScene()->setCurrentFrame(playHeadFrame);
+            /* We have to set the current frame asynchronously,
+             * because callbacks are not supposed to mutate the model. */
+            QTimer::singleShot(0, [this, playHeadFrame] {
+                graphicsScene()->setCurrentFrame(playHeadFrame);
+            });
         }
     }
 }
