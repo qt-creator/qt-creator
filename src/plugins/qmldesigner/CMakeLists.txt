@@ -231,6 +231,7 @@ extend_qtc_plugin(QmlDesigner
     snapper.cpp snapper.h
     snappinglinecreator.cpp snappinglinecreator.h
     toolbox.cpp toolbox.h
+    option3daction.cpp option3daction.h
 )
 
 extend_qtc_plugin(QmlDesigner

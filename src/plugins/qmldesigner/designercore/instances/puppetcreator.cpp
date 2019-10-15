@@ -459,17 +459,27 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     if (!m_qrcMapping.isEmpty()) {
         environment.set("QMLDESIGNER_RC_PATHS", m_qrcMapping);
     }
+
+    AbstractView *view = nullptr;
 #ifndef QMLDESIGNER_TEST
-    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
+    view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
+    view->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
 #endif
 
     QStringList importPaths = m_model->importPaths();
 
     QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick3D", "1.0");
+    bool view3DEnabled = false;
 
-    if (m_model->hasImport(import, true, true))
+    if (view && m_model->hasImport(import, true, true)) {
+        if (view->rootModelNode().hasAuxiliaryData("3d-view"))
+            view3DEnabled = view->rootModelNode().auxiliaryData("3d-view").toBool();
+        else
+            view3DEnabled = true;
+    }
+
+    if (view3DEnabled)
         environment.set("QMLDESIGNER_QUICK3D_MODE", "true");
-
 
     /* For the fallback puppet we have to remove the path to the original qtbase plugins to avoid conflics */
     if (m_availablePuppetType == FallbackPuppet)
