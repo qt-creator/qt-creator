@@ -63,12 +63,13 @@ TerminalAspect::TerminalAspect()
             this, &TerminalAspect::calculateUseTerminal);
 }
 
-void TerminalAspect::addToConfigurationLayout(QFormLayout *layout)
+void TerminalAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(tr("Run in terminal"), layout->parentWidget());
+    m_checkBox = new QCheckBox(tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
-    layout->addRow(QString(), m_checkBox);
+    builder.addItem(QString());
+    builder.addItem(m_checkBox.data());
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();
@@ -140,10 +141,10 @@ WorkingDirectoryAspect::WorkingDirectoryAspect()
     setSettingsKey("RunConfiguration.WorkingDirectory");
 }
 
-void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
+void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_chooser);
-    m_chooser = new PathChooser(layout->parentWidget());
+    m_chooser = new PathChooser;
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
@@ -155,7 +156,7 @@ void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
                 m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
             });
 
-    m_resetButton = new QToolButton(layout->parentWidget());
+    m_resetButton = new QToolButton;
     m_resetButton->setToolTip(tr("Reset to Default"));
     m_resetButton->setIcon(Utils::Icons::RESET.icon());
     connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
@@ -168,10 +169,9 @@ void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
         m_chooser->setEnvironment(m_envAspect->environment());
     }
 
-    auto hbox = new QHBoxLayout;
-    hbox->addWidget(m_chooser);
-    hbox->addWidget(m_resetButton);
-    layout->addRow(tr("Working directory:"), hbox);
+    builder.addItem(tr("Working directory:"));
+    builder.addItem(m_chooser.data());
+    builder.addItem(m_resetButton.data());
 }
 
 void WorkingDirectoryAspect::acquaintSiblings(const ProjectConfigurationAspects &siblings)
@@ -337,9 +337,10 @@ QWidget *ArgumentsAspect::setupChooser()
     return m_chooser.data();
 }
 
-void ArgumentsAspect::addToConfigurationLayout(QFormLayout *layout)
+void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
+    builder.addItem(tr("Command line arguments:"));
 
     const auto container = new QWidget;
     const auto containerLayout = new QHBoxLayout(container);
@@ -371,7 +372,8 @@ void ArgumentsAspect::addToConfigurationLayout(QFormLayout *layout)
     });
     containerLayout->addWidget(m_multiLineButton);
     containerLayout->setAlignment(m_multiLineButton, Qt::AlignTop);
-    layout->addRow(tr("Command line arguments:"), container);
+
+    builder.addItem(container);
 }
 
 /*!
@@ -450,11 +452,13 @@ FilePath ExecutableAspect::executable() const
     return m_executable.filePath();
 }
 
-void ExecutableAspect::addToConfigurationLayout(QFormLayout *layout)
+void ExecutableAspect::addToLayout(LayoutBuilder &builder)
 {
-    m_executable.addToConfigurationLayout(layout);
-    if (m_alternativeExecutable)
-        m_alternativeExecutable->addToConfigurationLayout(layout);
+    m_executable.addToLayout(builder);
+    if (m_alternativeExecutable) {
+        builder.startNewRow();
+        m_alternativeExecutable->addToLayout(builder);
+    }
 }
 
 void ExecutableAspect::setLabelText(const QString &labelText)

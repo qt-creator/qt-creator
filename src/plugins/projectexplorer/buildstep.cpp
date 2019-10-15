@@ -149,13 +149,14 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
 {
     auto widget = new BuildStepConfigWidget(this);
 
-    auto formLayout = new QFormLayout(widget);
-    formLayout->setContentsMargins(0, 0, 0, 0);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-    for (ProjectConfigurationAspect *aspect : m_aspects) {
-        if (aspect->isVisible())
-            aspect->addToConfigurationLayout(formLayout);
+    {
+        LayoutBuilder builder(widget);
+        for (ProjectConfigurationAspect *aspect : m_aspects) {
+            if (aspect->isVisible()) {
+                builder.startNewRow();
+                aspect->addToLayout(builder);
+            }
+        }
     }
 
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,

@@ -84,7 +84,7 @@ public:
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
 
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);
@@ -321,14 +321,15 @@ IosDeviceTypeAspect::IosDeviceTypeAspect(IosRunConfiguration *runConfiguration)
             this, &IosDeviceTypeAspect::deviceChanges);
 }
 
-void IosDeviceTypeAspect::addToConfigurationLayout(QFormLayout *layout)
+void IosDeviceTypeAspect::addToLayout(LayoutBuilder &builder)
 {
-    m_deviceTypeComboBox = new QComboBox(layout->parentWidget());
+    m_deviceTypeComboBox = new QComboBox;
     m_deviceTypeComboBox->setModel(&m_deviceTypeModel);
 
-    m_deviceTypeLabel = new QLabel(IosRunConfiguration::tr("Device type:"), layout->parentWidget());
+    m_deviceTypeLabel = new QLabel(IosRunConfiguration::tr("Device type:"));
 
-    layout->addRow(m_deviceTypeLabel, m_deviceTypeComboBox);
+    builder.addItem(m_deviceTypeLabel);
+    builder.addItem(m_deviceTypeComboBox);
 
     updateValues();
 

@@ -82,7 +82,7 @@ public:
         FileInSettings
     };
 
-    void addToConfigurationLayout(QFormLayout *layout) final;
+    void addToLayout(LayoutBuilder &builder) final;
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
 
@@ -117,7 +117,7 @@ MainQmlFileAspect::MainQmlFileAspect(QmlProject *project)
             this, [this] { changeCurrentFile(); });
 }
 
-void MainQmlFileAspect::addToConfigurationLayout(QFormLayout *layout)
+void MainQmlFileAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_ASSERT(!m_fileListCombo, delete m_fileListCombo);
     m_fileListCombo = new QComboBox;
@@ -130,7 +130,8 @@ void MainQmlFileAspect::addToConfigurationLayout(QFormLayout *layout)
     connect(m_fileListCombo, QOverload<int>::of(&QComboBox::activated),
             this, &MainQmlFileAspect::setMainScript);
 
-    layout->addRow(QmlProjectRunConfiguration::tr("Main QML file:"), m_fileListCombo);
+    builder.addItem(QmlProjectRunConfiguration::tr("Main QML file:"));
+    builder.addItem(m_fileListCombo.data());
 }
 
 void MainQmlFileAspect::toMap(QVariantMap &map) const

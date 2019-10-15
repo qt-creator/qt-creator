@@ -50,7 +50,7 @@ public:
     explicit BaseBoolAspect(const QString &settingsKey = QString());
     ~BaseBoolAspect() override;
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     bool value() const;
     void setValue(bool val);
@@ -76,7 +76,7 @@ public:
     BaseSelectionAspect();
     ~BaseSelectionAspect() override;
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     int value() const;
     void setValue(int val);
@@ -101,7 +101,7 @@ public:
     BaseStringAspect();
     ~BaseStringAspect() override;
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     QString value() const;
     void setValue(const QString &val);
@@ -150,7 +150,7 @@ public:
     BaseIntegerAspect();
     ~BaseIntegerAspect() override;
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     qint64 value() const;
     void setValue(qint64 val);

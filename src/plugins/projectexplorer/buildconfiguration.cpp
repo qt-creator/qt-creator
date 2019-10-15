@@ -157,13 +157,12 @@ NamedWidget *BuildConfiguration::createConfigWidget()
         widget = named;
     }
 
-    auto formLayout = new QFormLayout(widget);
-    formLayout->setContentsMargins(0, 0, 0, 0);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
+    LayoutBuilder builder(widget);
     for (ProjectConfigurationAspect *aspect : aspects()) {
-        if (aspect->isVisible())
-            aspect->addToConfigurationLayout(formLayout);
+        if (aspect->isVisible()) {
+            builder.startNewRow();
+            aspect->addToLayout(builder);
+        }
     }
 
     return named;

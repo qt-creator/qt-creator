@@ -248,13 +248,14 @@ QString RunConfiguration::disabledReason() const
 QWidget *RunConfiguration::createConfigurationWidget()
 {
     auto widget = new QWidget;
-    auto formLayout = new QFormLayout(widget);
-    formLayout->setContentsMargins(0, 0, 0, 0);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-    for (ProjectConfigurationAspect *aspect : m_aspects) {
-        if (aspect->isVisible())
-            aspect->addToConfigurationLayout(formLayout);
+    {
+        LayoutBuilder builder(widget);
+        for (ProjectConfigurationAspect *aspect : m_aspects) {
+            if (aspect->isVisible()) {
+                builder.startNewRow();
+                aspect->addToLayout(builder);
+            }
+        }
     }
 
     Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());

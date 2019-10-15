@@ -43,7 +43,7 @@ public:
                                   Core::Id id = Core::Id());
     ~BaseStringListAspect() override;
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
 
     QStringList value() const;
     void setValue(const QStringList &val);

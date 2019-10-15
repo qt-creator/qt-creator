@@ -157,7 +157,7 @@ public:
 
     void fromMap(const QVariantMap &) override;
     void toMap(QVariantMap &) const override;
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
 private:
     void updateCurrentInterpreter();
@@ -190,26 +190,23 @@ void InterpreterAspect::toMap(QVariantMap &map) const
     map.insert(settingsKey(), m_currentId);
 }
 
-void InterpreterAspect::addToConfigurationLayout(QFormLayout *layout)
+void InterpreterAspect::addToLayout(LayoutBuilder &builder)
 {
     if (QTC_GUARD(m_comboBox.isNull()))
         m_comboBox = new QComboBox;
 
     updateComboBox();
-    connect(m_comboBox,
-            &QComboBox::currentTextChanged,
-            this,
-            &InterpreterAspect::updateCurrentInterpreter);
+    connect(m_comboBox, &QComboBox::currentTextChanged,
+            this, &InterpreterAspect::updateCurrentInterpreter);
 
     auto manageButton = new QPushButton(tr("Manage..."));
     connect(manageButton, &QPushButton::clicked, []() {
         Core::ICore::showOptionsDialog(Constants::C_PYTHONOPTIONS_PAGE_ID);
     });
 
-    auto rowLayout = new QHBoxLayout;
-    rowLayout->addWidget(m_comboBox);
-    rowLayout->addWidget(manageButton);
-    layout->addRow(tr("Interpreter"), rowLayout);
+    builder.addItem(tr("Interpreter"));
+    builder.addItem(m_comboBox.data());
+    builder.addItem(manageButton);
 }
 
 void InterpreterAspect::updateCurrentInterpreter()

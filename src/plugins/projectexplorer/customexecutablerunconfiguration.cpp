@@ -99,10 +99,6 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
     auto vbox = new QVBoxLayout(this);
     vbox->addWidget(new QLabel(tr("Could not find the executable, please specify one.")));
 
-    auto layout = new QFormLayout;
-    layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    layout->setContentsMargins(0, 0, 0, 0);
-
     auto detailsContainer = new DetailsWidget(this);
     detailsContainer->setState(DetailsWidget::NoSummary);
     vbox->addWidget(detailsContainer);
@@ -116,24 +112,27 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
 
     auto detailsWidget = new QWidget(detailsContainer);
     detailsContainer->setWidget(detailsWidget);
-    detailsWidget->setLayout(layout);
 
     m_executableChooser = new PathChooser(this);
     m_executableChooser->setHistoryCompleter("Qt.CustomExecutable.History");
     m_executableChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_executableChooser->setPath(rc->aspect<ExecutableAspect>()->executable().toString());
-    layout->addRow(tr("Executable:"), m_executableChooser);
     connect(m_executableChooser, &PathChooser::rawPathChanged,
             this, &CustomExecutableDialog::changed);
 
     copyAspect(rc->aspect<ArgumentsAspect>(), &m_arguments);
-    m_arguments.addToConfigurationLayout(layout);
-
     copyAspect(rc->aspect<WorkingDirectoryAspect>(), &m_workingDirectory);
-    m_workingDirectory.addToConfigurationLayout(layout);
-
     copyAspect(rc->aspect<TerminalAspect>(), &m_terminal);
-    m_terminal.addToConfigurationLayout(layout);
+
+    {
+        LayoutBuilder builder(detailsWidget);
+        builder.addItem(tr("Executable:"));
+        builder.addItem(m_executableChooser);
+        builder.startNewRow();
+        m_arguments.addToLayout(builder);
+        m_workingDirectory.addToLayout(builder);
+        m_terminal.addToLayout(builder);
+    }
 
     auto enviromentAspect = rc->aspect<EnvironmentAspect>();
     connect(enviromentAspect, &EnvironmentAspect::environmentChanged,

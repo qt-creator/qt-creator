@@ -74,10 +74,10 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
     setSettingsKey("RunConfiguration.WebBrowser");
 }
 
-void WebBrowserSelectionAspect::addToConfigurationLayout(QFormLayout *layout)
+void WebBrowserSelectionAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
 {
     QTC_CHECK(!m_webBrowserComboBox);
-    m_webBrowserComboBox = new QComboBox(layout->parentWidget());
+    m_webBrowserComboBox = new QComboBox;
     m_webBrowserComboBox->addItems(m_availableBrowsers);
     m_webBrowserComboBox->setCurrentText(m_currentBrowser);
     connect(m_webBrowserComboBox, &QComboBox::currentTextChanged,
@@ -85,7 +85,8 @@ void WebBrowserSelectionAspect::addToConfigurationLayout(QFormLayout *layout)
                 m_currentBrowser = selectedBrowser;
                 emit changed();
             });
-    layout->addRow(tr("Web browser:"), m_webBrowserComboBox);
+    builder.addItem(tr("Web browser:"));
+    builder.addItem(m_webBrowserComboBox);
 }
 
 void WebBrowserSelectionAspect::fromMap(const QVariantMap &map)

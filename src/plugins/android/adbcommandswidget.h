@@ -39,7 +39,7 @@ class AdbCommandsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    explicit AdbCommandsWidget(QWidget *parent);
+    AdbCommandsWidget();
     ~AdbCommandsWidget() override;
 
     QStringList commandsList() const;

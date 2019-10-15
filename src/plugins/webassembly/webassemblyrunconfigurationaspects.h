@@ -39,7 +39,7 @@ class WebBrowserSelectionAspect : public ProjectExplorer::ProjectConfigurationAs
 public:
     WebBrowserSelectionAspect(ProjectExplorer::Target *target);
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;

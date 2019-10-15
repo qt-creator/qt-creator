@@ -62,7 +62,7 @@ class DebuggerLanguageAspect : public ProjectConfigurationAspect
 public:
     DebuggerLanguageAspect() = default;
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     bool value() const;
     void setValue(bool val);
@@ -91,35 +91,29 @@ public:
     std::function<void(bool)> m_clickCallBack;
 };
 
-void DebuggerLanguageAspect::addToConfigurationLayout(QFormLayout *layout)
+void DebuggerLanguageAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(m_label, layout->parentWidget());
+    m_checkBox = new QCheckBox(m_label);
     m_checkBox->setChecked(m_value);
 
     QTC_CHECK(m_clickCallBack);
     connect(m_checkBox, &QAbstractButton::clicked, this, m_clickCallBack, Qt::QueuedConnection);
 
-    auto innerLayout = new QHBoxLayout;
-    innerLayout->setContentsMargins(0, 0, 0, 0);
-
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_value = m_checkBox->isChecked() ? EnabledLanguage : DisabledLanguage;
         emit changed();
     });
-    innerLayout->addWidget(m_checkBox);
+    builder.addItem(m_checkBox.data());
 
     if (!m_infoLabelText.isEmpty()) {
         QTC_CHECK(!m_infoLabel);
-        m_infoLabel = new QLabel(m_infoLabelText, layout->parentWidget());
+        m_infoLabel = new QLabel(m_infoLabelText);
         connect(m_infoLabel, &QLabel::linkActivated, [](const QString &link) {
             Core::HelpManager::showHelpUrl(link);
         });
-        innerLayout->addWidget(m_infoLabel);
+        builder.addItem(m_infoLabel.data());
     }
-
-    innerLayout->addStretch();
-    layout->addRow(innerLayout);
 }
 
 void DebuggerLanguageAspect::setAutoSettingsKey(const QString &settingsKey)
@@ -172,18 +166,19 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
 
     setConfigWidgetCreator([this] {
         QWidget *w = new QWidget;
-        auto layout = new QFormLayout;
-        layout->setContentsMargins(0, 0, 0, 0);
-
-        m_cppAspect->addToConfigurationLayout(layout);
-        m_qmlAspect->addToConfigurationLayout(layout);
-        m_overrideStartupAspect->addToConfigurationLayout(layout);
+        LayoutBuilder builder(w);
+        m_cppAspect->addToLayout(builder);
+        builder.startNewRow();
+        m_qmlAspect->addToLayout(builder);
+        builder.startNewRow();
+        m_overrideStartupAspect->addToLayout(builder);
 
         static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
-        if (env.toInt())
-            m_multiProcessAspect->addToConfigurationLayout(layout);
+        if (env.toInt()) {
+            builder.startNewRow();
+            m_multiProcessAspect->addToLayout(builder);
+        }
 
-        w->setLayout(layout);
         return w;
     });
 

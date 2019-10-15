@@ -48,7 +48,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public ProjectConfigurationAspect
 public:
     TerminalAspect();
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     bool useTerminal() const;
     void setUseTerminalHint(bool useTerminal);
@@ -74,7 +74,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public ProjectConfiguratio
 public:
     WorkingDirectoryAspect();
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
     void acquaintSiblings(const ProjectConfigurationAspects &) override;
 
     Utils::FilePath workingDirectory(const Utils::MacroExpander *expander) const;
@@ -104,7 +104,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public ProjectConfigurationAspect
 public:
     ArgumentsAspect();
 
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     QString arguments(const Utils::MacroExpander *expander) const;
     QString unexpandedArguments() const;
@@ -157,7 +157,7 @@ public:
 
     void setSettingsKey(const QString &key);
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
-    void addToConfigurationLayout(QFormLayout *layout) override;
+    void addToLayout(LayoutBuilder &builder) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setExecutablePathStyle(Utils::OsType osType);

@@ -62,13 +62,13 @@ BaseStringListAspect::BaseStringListAspect(const QString &settingsKey, Core::Id 
 
 BaseStringListAspect::~BaseStringListAspect() = default;
 
-void BaseStringListAspect::addToConfigurationLayout(QFormLayout *layout)
+void BaseStringListAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_widget);
-    m_widget = new AdbCommandsWidget(layout->parentWidget());
+    m_widget = new AdbCommandsWidget;
     m_widget->setCommandList(m_value);
     m_widget->setTitleText(m_label);
-    layout->addRow(m_widget);
+    builder.addItem(m_widget.data());
     connect(m_widget.data(), &AdbCommandsWidget::commandsChanged, this, [this] {
         m_value = m_widget->commandsList();
         emit changed();

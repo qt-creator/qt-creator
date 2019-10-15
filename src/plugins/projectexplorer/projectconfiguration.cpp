@@ -29,6 +29,9 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QFormLayout>
+#include <QWidget>
+
 using namespace ProjectExplorer;
 
 const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
@@ -49,6 +52,92 @@ void ProjectConfigurationAspect::setConfigWidgetCreator
 QWidget *ProjectConfigurationAspect::createConfigWidget() const
 {
     return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
+}
+
+void ProjectConfigurationAspect::addToLayout(LayoutBuilder &)
+{
+}
+
+// LayoutBuilder
+
+LayoutBuilder::LayoutBuilder(QWidget *parent)
+    : m_layout(new QFormLayout(parent))
+{
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    if (auto fl = qobject_cast<QFormLayout *>(m_layout))
+        fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+}
+
+LayoutBuilder::~LayoutBuilder()
+{
+    flushPendingItems();
+}
+
+void LayoutBuilder::startNewRow()
+{
+    flushPendingItems();
+}
+
+void LayoutBuilder::flushPendingItems()
+{
+    if (m_pendingItems.isEmpty())
+        return;
+
+    if (auto fl = qobject_cast<QFormLayout *>(m_layout)) {
+        // If there are more than two items, we cram the last ones in one hbox.
+        if (m_pendingItems.size() > 2) {
+            auto hbox = new QHBoxLayout;
+            for (int i = 1; i < m_pendingItems.size(); ++i) {
+                if (QWidget *w = m_pendingItems.at(i).widget)
+                    hbox->addWidget(w);
+                else if (QLayout *l = m_pendingItems.at(i).layout)
+                    hbox->addItem(l);
+                else
+                    QTC_CHECK(false);
+            }
+            while (m_pendingItems.size() >= 2)
+                m_pendingItems.takeLast();
+            m_pendingItems.append(LayoutItem(hbox));
+        }
+
+        if (m_pendingItems.size() == 1) { // One one item given, so this spans both columns.
+            if (auto layout = m_pendingItems.at(0).layout)
+                fl->addRow(layout);
+            else if (auto widget = m_pendingItems.at(0).widget)
+                fl->addRow(widget);
+        } else if (m_pendingItems.size() == 2) { // Normal case, both columns used.
+            if (auto label = m_pendingItems.at(0).widget) {
+                if (auto layout = m_pendingItems.at(1).layout)
+                    fl->addRow(label, layout);
+                else if (auto widget = m_pendingItems.at(1).widget)
+                    fl->addRow(label, widget);
+            } else  {
+                if (auto layout = m_pendingItems.at(1).layout)
+                    fl->addRow(m_pendingItems.at(0).text, layout);
+                else if (auto widget = m_pendingItems.at(1).widget)
+                    fl->addRow(m_pendingItems.at(0).text, widget);
+            }
+        } else {
+            QTC_CHECK(false);
+        }
+    } else {
+        QTC_CHECK(false);
+    }
+
+    m_pendingItems.clear();
+}
+
+QLayout *LayoutBuilder::layout() const
+{
+    return m_layout;
+}
+
+void LayoutBuilder::addItem(LayoutItem item)
+{
+    if (item.widget && !item.widget->parent())
+        item.widget->setParent(m_layout->parentWidget());
+
+    m_pendingItems.append(item);
 }
 
 

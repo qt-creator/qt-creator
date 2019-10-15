@@ -253,20 +253,19 @@ void BaseStringAspect::setReadOnly(bool readOnly)
         d->m_textEditDisplay->setReadOnly(readOnly);
 }
 
-void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
+void BaseStringAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_label);
-    QWidget *parent = layout->parentWidget();
-    d->m_label = new QLabel(parent);
+    d->m_label = new QLabel;
     d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
     d->m_label->setText(d->m_labelText);
     if (!d->m_labelPixmap.isNull())
         d->m_label->setPixmap(d->m_labelPixmap);
+    builder.addItem(d->m_label.data());
 
-    auto hbox = new QHBoxLayout;
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
-        d->m_pathChooserDisplay = new PathChooser(parent);
+        d->m_pathChooserDisplay = new PathChooser;
         d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
@@ -275,20 +274,20 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
         d->m_pathChooserDisplay->setReadOnly(d->m_readOnly);
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &BaseStringAspect::setValue);
-        hbox->addWidget(d->m_pathChooserDisplay);
+        builder.addItem(d->m_pathChooserDisplay.data());
         break;
     case LineEditDisplay:
-        d->m_lineEditDisplay = new FancyLineEdit(parent);
+        d->m_lineEditDisplay = new FancyLineEdit;
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_lineEditDisplay->setReadOnly(d->m_readOnly);
         connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
                 this, &BaseStringAspect::setValue);
-        hbox->addWidget(d->m_lineEditDisplay);
+        builder.addItem(d->m_lineEditDisplay.data());
         break;
     case TextEditDisplay:
-        d->m_textEditDisplay = new QTextEdit(parent);
+        d->m_textEditDisplay = new QTextEdit;
         d->m_textEditDisplay->setPlaceholderText(d->m_placeHolderText);
         d->m_textEditDisplay->setReadOnly(d->m_readOnly);
         connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
@@ -298,23 +297,17 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
                 emit changed();
             }
         });
-        hbox->addWidget(d->m_textEditDisplay);
+        builder.addItem(d->m_textEditDisplay.data());
         break;
     case LabelDisplay:
-        d->m_labelDisplay = new QLabel(parent);
+        d->m_labelDisplay = new QLabel;
         d->m_labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        hbox->addWidget(d->m_labelDisplay);
+        builder.addItem(d->m_labelDisplay.data());
         break;
     }
 
-    if (d->m_checker) {
-        auto form = new QFormLayout;
-        form->setContentsMargins(0, 0, 0, 0);
-        form->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        d->m_checker->addToConfigurationLayout(form);
-        hbox->addLayout(form);
-    }
-    layout->addRow(d->m_label, hbox);
+    if (d->m_checker)
+        d->m_checker->addToLayout(builder);
 
     update();
 }
@@ -378,13 +371,14 @@ BaseBoolAspect::BaseBoolAspect(const QString &settingsKey)
 
 BaseBoolAspect::~BaseBoolAspect() = default;
 
-void BaseBoolAspect::addToConfigurationLayout(QFormLayout *layout)
+void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
-    d->m_checkBox = new QCheckBox(d->m_label, layout->parentWidget());
+    d->m_checkBox = new QCheckBox(d->m_label);
     d->m_checkBox->setChecked(d->m_value);
     d->m_checkBox->setToolTip(d->m_tooltip);
-    layout->addRow(QString(), d->m_checkBox);
+    builder.addItem(QString());
+    builder.addItem(d->m_checkBox.data());
     connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         d->m_value = d->m_checkBox->isChecked();
         emit changed();
@@ -444,7 +438,7 @@ BaseSelectionAspect::BaseSelectionAspect()
 
 BaseSelectionAspect::~BaseSelectionAspect() = default;
 
-void BaseSelectionAspect::addToConfigurationLayout(QFormLayout *layout)
+void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
     d->m_buttonGroup = new QButtonGroup;
@@ -453,10 +447,11 @@ void BaseSelectionAspect::addToConfigurationLayout(QFormLayout *layout)
     QTC_ASSERT(d->m_buttons.isEmpty(), d->m_buttons.clear());
     for (int i = 0, n = d->m_options.size(); i < n; ++i) {
         const Internal::BaseSelectionAspectPrivate::Option &option = d->m_options.at(i);
-        auto button = new QRadioButton(option.displayName, layout->parentWidget());
+        auto button = new QRadioButton(option.displayName);
         button->setChecked(i == d->m_value);
         button->setToolTip(option.tooltip);
-        layout->addRow(QString(), button);
+        builder.addItem(QString());
+        builder.addItem(button);
         d->m_buttons.append(button);
         d->m_buttonGroup->addButton(button);
         connect(button, &QAbstractButton::clicked, this, [this, i] {
@@ -515,10 +510,10 @@ BaseIntegerAspect::BaseIntegerAspect()
 
 BaseIntegerAspect::~BaseIntegerAspect() = default;
 
-void BaseIntegerAspect::addToConfigurationLayout(QFormLayout *layout)
+void BaseIntegerAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_spinBox);
-    d->m_spinBox = new QSpinBox(layout->parentWidget());
+    d->m_spinBox = new QSpinBox;
     d->m_spinBox->setValue(int(d->m_value / d->m_displayScaleFactor));
     d->m_spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
     d->m_spinBox->setPrefix(d->m_prefix);
@@ -526,7 +521,8 @@ void BaseIntegerAspect::addToConfigurationLayout(QFormLayout *layout)
     if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
         d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
-    layout->addRow(d->m_label, d->m_spinBox);
+    builder.addItem(d->m_label);
+    builder.addItem(d->m_spinBox.data());
     connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
         d->m_value = value * d->m_displayScaleFactor;

@@ -35,16 +35,43 @@
 #include <QPointer>
 #include <QString>
 #include <QVariantMap>
-
-QT_BEGIN_NAMESPACE
-class QFormLayout;
-QT_END_NAMESPACE
+#include <QWidget>
 
 namespace ProjectExplorer {
 
 class Project;
 class ProjectConfigurationAspects;
 class Target;
+
+class PROJECTEXPLORER_EXPORT LayoutBuilder
+{
+public:
+    explicit LayoutBuilder(QWidget *parent);
+    ~LayoutBuilder();
+
+    class LayoutItem
+    {
+    public:
+        LayoutItem(QLayout *layout) : layout(layout) {}
+        LayoutItem(QWidget *widget) : widget(widget) {}
+        LayoutItem(const QString &text) : text(text) {}
+
+        QLayout *layout = nullptr;
+        QWidget *widget = nullptr;
+        QString text;
+    };
+
+    void addItem(LayoutItem item);
+    void startNewRow();
+
+    QLayout *layout() const;
+
+private:
+    void flushPendingItems();
+
+    QLayout *m_layout = nullptr;
+    QList<LayoutItem> m_pendingItems;
+};
 
 class PROJECTEXPLORER_EXPORT ProjectConfigurationAspect : public QObject
 {
@@ -71,8 +98,9 @@ public:
 
     virtual void fromMap(const QVariantMap &) {}
     virtual void toMap(QVariantMap &) const {}
-    virtual void addToConfigurationLayout(QFormLayout *) {}
     virtual void acquaintSiblings(const ProjectConfigurationAspects &) {}
+
+    virtual void addToLayout(LayoutBuilder &builder);
 
 signals:
     void changed();

@@ -71,9 +71,8 @@ private:
     friend class AdbCommandsWidget;
 };
 
-AdbCommandsWidget::AdbCommandsWidget(QWidget *parent) :
-    QGroupBox(parent),
-    d(new AdbCommandsWidgetPrivate(this))
+AdbCommandsWidget::AdbCommandsWidget()
+    : d(new AdbCommandsWidgetPrivate(this))
 {
 }
 
