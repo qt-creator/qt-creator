@@ -88,7 +88,7 @@ public:
     void setOpenInNewPageActionVisible(bool visible);
 
 signals:
-    void linksActivated(const QMap<QString, QUrl> &links,
+    void linksActivated(const QMultiMap<QString, QUrl> &links,
         const QString &keyword, bool newPage);
 
 private:

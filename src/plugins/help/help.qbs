@@ -1,4 +1,4 @@
-import qbs 1.0
+import qbs.Utilities
 
 Project {
     name: "Help"
@@ -28,6 +28,8 @@ Project {
                 defines.push("QTC_WEBENGINE_HELPVIEWER");
             if (qlitehtml.present)
                 defines.push("QTC_LITEHTML_HELPVIEWER")
+            if (Utilities.versionCompare(Qt.core.version, "5.15") >= 0)
+                defines.push("HELP_NEW_FILTER_ENGINE");
             return defines;
         }
 

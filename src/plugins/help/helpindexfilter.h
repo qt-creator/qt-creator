@@ -42,24 +42,38 @@ public:
     ~HelpIndexFilter() final;
 
     // ILocatorFilter
-    void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(Core::LocatorFilterEntry selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     void refresh(QFutureInterface<void> &future) override;
 
+#ifndef HELP_NEW_FILTER_ENGINE
+    void prepareSearch(const QString &entry) override;
     Q_INVOKABLE QSet<QString> searchMatches(const QString &databaseFilePath,
                                           const QString &term, int limit);
+#else
+    Q_INVOKABLE QStringList allIndices() const;
+#endif
+
 signals:
-    void linksActivated(const QMap<QString, QUrl> &links, const QString &key) const;
+    void linksActivated(const QMultiMap<QString, QUrl> &links, const QString &key) const;
 
 private:
     void invalidateCache();
 
+#ifndef HELP_NEW_FILTER_ENGINE
     QStringList m_helpDatabases;
     QSet<QString> m_keywordCache;
     QString m_searchTermCache;
+#else
+    bool updateCache(QFutureInterface<Core::LocatorFilterEntry> &future,
+                     const QStringList &cache, const QString &entry);
+
+    QStringList m_allIndicesCache;
+    QStringList m_lastIndicesCache;
+    QString m_lastEntry;
+#endif
     bool m_needsUpdate = true;
     QMutex m_mutex;
     QIcon m_icon;

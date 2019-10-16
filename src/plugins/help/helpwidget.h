@@ -96,7 +96,7 @@ public:
     void open(const QUrl &url, bool newPage = false);
     HelpViewer *openNewPage(const QUrl &url);
     void openFromSearch(const QUrl &url, const QStringList &searchTerms, bool newPage = false);
-    void showLinks(const QMap<QString, QUrl> &links, const QString &key,
+    void showLinks(const QMultiMap<QString, QUrl> &links, const QString &key,
                           bool newPage = false);
     void activateSideBarItem(const QString &id);
 
@@ -141,6 +141,12 @@ private:
     void highlightSearchTerms();
     void addSideBar();
     QString sideBarSettingsKey() const;
+
+#ifdef HELP_NEW_FILTER_ENGINE
+    void setupFilterCombo();
+    void filterDocumentation(int filterIndex);
+    void currentFilterChanged(const QString &filter);
+#endif
 
     OpenPagesModel m_model;
     OpenPagesManager *m_openPagesManager = nullptr;

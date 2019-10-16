@@ -61,6 +61,11 @@
 #include <QStatusBar>
 #include <QToolButton>
 
+#ifdef HELP_NEW_FILTER_ENGINE
+#include <QtHelp/QHelpEngine>
+#include <QtHelp/QHelpFilterEngine>
+#endif
+
 static const char kWindowSideBarSettingsKey[] = "Help/WindowSideBar";
 static const char kModeSideBarSettingsKey[] = "Help/ModeSideBar";
 
@@ -359,15 +364,24 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
         m_filterComboBox = new QComboBox;
         m_filterComboBox->setMinimumContentsLength(15);
+        layout->addWidget(m_filterComboBox);
+#ifndef HELP_NEW_FILTER_ENGINE
         m_filterComboBox->setModel(LocalHelpManager::filterModel());
         m_filterComboBox->setCurrentIndex(LocalHelpManager::filterIndex());
-        layout->addWidget(m_filterComboBox);
         connect(m_filterComboBox, QOverload<int>::of(&QComboBox::activated),
                 LocalHelpManager::instance(), &LocalHelpManager::setFilterIndex);
         connect(LocalHelpManager::instance(),
                 &LocalHelpManager::filterIndexChanged,
                 m_filterComboBox,
                 &QComboBox::setCurrentIndex);
+#else
+        connect(&LocalHelpManager::helpEngine(), &QHelpEngine::setupFinished,
+                this, &HelpWidget::setupFilterCombo, Qt::QueuedConnection);
+        connect(m_filterComboBox, QOverload<int>::of(&QComboBox::activated),
+                this, &HelpWidget::filterDocumentation);
+        connect(LocalHelpManager::filterEngine(), &QHelpFilterEngine::filterActivated,
+                this, &HelpWidget::currentFilterChanged);
+#endif
 
         Core::ActionContainer *windowMenu = Core::ActionManager::actionContainer(
             Core::Constants::M_WINDOW);
@@ -486,6 +500,41 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setCurrentIndex(0);
     }
 }
+
+#ifdef HELP_NEW_FILTER_ENGINE
+
+void HelpWidget::setupFilterCombo()
+{
+    const QString currentFilter = LocalHelpManager::filterEngine()->activeFilter();
+    m_filterComboBox->clear();
+    m_filterComboBox->addItem(tr("Unfiltered"));
+    const QStringList allFilters = LocalHelpManager::filterEngine()->filters();
+    if (!allFilters.isEmpty())
+        m_filterComboBox->insertSeparator(1);
+    for (const QString &filter : allFilters)
+        m_filterComboBox->addItem(filter, filter);
+
+    int idx = m_filterComboBox->findData(currentFilter);
+    if (idx < 0)
+        idx = 0;
+    m_filterComboBox->setCurrentIndex(idx);
+}
+
+void HelpWidget::filterDocumentation(int filterIndex)
+{
+    const QString filter = m_filterComboBox->itemData(filterIndex).toString();
+    LocalHelpManager::filterEngine()->setActiveFilter(filter);
+}
+
+void HelpWidget::currentFilterChanged(const QString &filter)
+{
+    int index = m_filterComboBox->findData(filter);
+    if (index < 0)
+        index = 0;
+    m_filterComboBox->setCurrentIndex(index);
+}
+
+#endif
 
 HelpWidget::~HelpWidget()
 {
@@ -753,7 +802,7 @@ HelpViewer *HelpWidget::openNewPage(const QUrl &url)
     return page;
 }
 
-void HelpWidget::showLinks(const QMap<QString, QUrl> &links,
+void HelpWidget::showLinks(const QMultiMap<QString, QUrl> &links,
     const QString &keyword, bool newPage)
 {
     if (links.size() < 1)

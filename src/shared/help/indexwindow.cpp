@@ -196,7 +196,7 @@ void IndexWindow::disableSearchLineEdit()
 void IndexWindow::open(const QModelIndex &index, bool newPage)
 {
     QString keyword = m_filteredIndexModel->data(index, Qt::DisplayRole).toString();
-    QMap<QString, QUrl> links = LocalHelpManager::helpEngine().indexModel()->linksForKeyword(keyword);
+    QMultiMap<QString, QUrl> links = LocalHelpManager::helpEngine().indexModel()->linksForKeyword(keyword);
     emit linksActivated(links, keyword, newPage);
 }
 

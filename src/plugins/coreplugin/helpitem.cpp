@@ -211,7 +211,7 @@ const HelpItem::Links &HelpItem::links() const
             m_helpLinks.emplace(Links{{m_keyword, m_helpUrl}});
         } else {
             m_helpLinks.emplace(); // set a value even if there are no help IDs
-            QMap<QString, QUrl> helpLinks;
+            QMultiMap<QString, QUrl> helpLinks;
             for (const QString &id : m_helpIds) {
                 helpLinks = Core::HelpManager::linksForIdentifier(id);
                 if (!helpLinks.isEmpty()) {

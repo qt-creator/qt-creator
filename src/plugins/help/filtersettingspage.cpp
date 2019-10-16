@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "filtersettingspage.h"
-
 #include "helpconstants.h"
+
+#ifndef HELP_NEW_FILTER_ENGINE
+
 #include "helpmanager.h"
 
 #include <filternamedialog.h>
@@ -38,6 +40,15 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#else
+
+#include <QtCore/QVersionNumber>
+#include <QtHelp/QHelpFilterEngine>
+#include <QtHelp/QHelpFilterSettingsWidget>
+#include "localhelpmanager.h"
+
+#endif
+
 using namespace Help::Internal;
 
 FilterSettingsPage::FilterSettingsPage()
@@ -46,6 +57,8 @@ FilterSettingsPage::FilterSettingsPage()
     setDisplayName(tr("Filters"));
     setCategory(Help::Constants::HELP_CATEGORY);
 }
+
+#ifndef HELP_NEW_FILTER_ENGINE
 
 QWidget *FilterSettingsPage::widget()
 {
@@ -254,3 +267,48 @@ void FilterSettingsPage::updateFilterDescription(const QString &filter)
 {
     m_ui.label->setText(msgFilterLabel(filter));
 }
+
+#else
+
+QWidget *FilterSettingsPage::widget()
+{
+    if (!m_widget) {
+        LocalHelpManager::setupGuiHelpEngine();
+        m_widget = new QHelpFilterSettingsWidget(nullptr);
+        m_widget->readSettings(LocalHelpManager::filterEngine());
+
+        connect(Core::HelpManager::Signals::instance(),
+                &Core::HelpManager::Signals::documentationChanged,
+                this,
+                &FilterSettingsPage::updateFilterPage);
+
+        updateFilterPage();
+    }
+    return m_widget;
+}
+
+void FilterSettingsPage::apply()
+{
+    if (m_widget->applySettings(LocalHelpManager::filterEngine()))
+        emit filtersChanged();
+
+    m_widget->readSettings(LocalHelpManager::filterEngine());
+}
+
+void FilterSettingsPage::finish()
+{
+    disconnect(Core::HelpManager::Signals::instance(),
+               &Core::HelpManager::Signals::documentationChanged,
+               this,
+               &FilterSettingsPage::updateFilterPage);
+    delete m_widget;
+}
+
+void FilterSettingsPage::updateFilterPage()
+{
+    m_widget->setAvailableComponents(LocalHelpManager::filterEngine()->availableComponents());
+    m_widget->setAvailableVersions(LocalHelpManager::filterEngine()->availableVersions());
+}
+
+#endif
+

@@ -40,8 +40,6 @@ class HelpManager : public QObject, public Core::HelpManager::Implementation
     Q_OBJECT
 
 public:
-    using Filters = QHash<QString, QStringList>;
-
     explicit HelpManager(QObject *parent = nullptr);
     ~HelpManager() override;
 
@@ -56,8 +54,8 @@ public:
     static void registerUserDocumentation(const QStringList &filePaths);
     static QSet<QString> userDocumentationPaths();
 
-    QMap<QString, QUrl> linksForIdentifier(const QString &id) override;
-    QMap<QString, QUrl> linksForKeyword(const QString &key) override;
+    QMultiMap<QString, QUrl> linksForIdentifier(const QString &id) override;
+    QMultiMap<QString, QUrl> linksForKeyword(const QString &key) override;
 
     static QUrl findFile(const QUrl &url);
     QByteArray fileData(const QUrl &url) override;
@@ -69,12 +67,16 @@ public:
     static void setCustomValue(const QString &key, const QVariant &value);
     static QVariant customValue(const QString &key, const QVariant &value = QVariant());
 
+#ifndef HELP_NEW_FILTER_ENGINE
+    using Filters = QHash<QString, QStringList>;
+
     static Filters filters();
     static Filters fixedFilters();
 
     static Filters userDefinedFilters();
     static void removeUserDefinedFilter(const QString &filter);
     static void addUserDefinedFilter(const QString &filter, const QStringList &attr);
+#endif
 
     static void aboutToShutdown();
 

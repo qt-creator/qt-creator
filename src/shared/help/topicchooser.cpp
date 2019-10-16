@@ -33,7 +33,7 @@
 #include <QSortFilterProxyModel>
 
 TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
-        const QMap<QString, QUrl> &links)
+        const QMultiMap<QString, QUrl> &links)
     : QDialog(parent)
     , m_filterModel(new QSortFilterProxyModel(this))
 {
@@ -49,7 +49,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     m_filterModel->setSourceModel(model);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    QMap<QString, QUrl>::const_iterator it = links.constBegin();
+    QMultiMap<QString, QUrl>::const_iterator it = links.constBegin();
     for (; it != links.constEnd(); ++it) {
         m_links.append(it.value());
         QStandardItem *item = new QStandardItem(it.key());

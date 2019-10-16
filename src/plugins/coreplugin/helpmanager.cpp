@@ -86,14 +86,14 @@ void unregisterDocumentation(const QStringList &fileNames)
         m_instance->unregisterDocumentation(fileNames);
 }
 
-QMap<QString, QUrl> linksForIdentifier(const QString &id)
+QMultiMap<QString, QUrl> linksForIdentifier(const QString &id)
 {
-    return checkInstance() ? m_instance->linksForIdentifier(id) : QMap<QString, QUrl>();
+    return checkInstance() ? m_instance->linksForIdentifier(id) : QMultiMap<QString, QUrl>();
 }
 
-QMap<QString, QUrl> linksForKeyword(const QString &keyword)
+QMultiMap<QString, QUrl> linksForKeyword(const QString &keyword)
 {
-    return checkInstance() ? m_instance->linksForKeyword(keyword) : QMap<QString, QUrl>();
+    return checkInstance() ? m_instance->linksForKeyword(keyword) : QMultiMap<QString, QUrl>();
 }
 
 QByteArray fileData(const QUrl &url)
