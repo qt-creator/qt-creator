@@ -134,7 +134,7 @@ private:
     QComboBox *m_comboBoxProperty = nullptr;
     QList<BindingEditorDialog::BindingOption> m_bindings;
     bool m_lock = false;
-    const QString undefinedString = "[Undefined]";
+    const QString undefinedString = {"[Undefined]"};
 };
 
 class BindingEditor : public QObject
