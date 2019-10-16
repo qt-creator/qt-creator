@@ -143,7 +143,7 @@ class PlainDumper:
             d.putValue(d.hexencode(val), 'utf8:1:0')
         elif sys.version_info[0] <= 2 and isinstance(val, unicode):
             d.putValue(val)
-        else: # Assuming LazyString
+        elif val is not None: # Assuming LazyString
             d.putCharArrayValue(val.address, val.length,
                                 val.type.target().sizeof)
 

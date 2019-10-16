@@ -188,7 +188,10 @@ void AbiWidget::setAbis(const Abis &abiList, const Abi &currentAbi)
 
         setCustomAbiComboBoxes(defaultAbi);
     }
-    emitAbiChanged(defaultAbi);
+
+    // Update disabled state according to new automatically selected item in main ABI combobox.
+    // This will call emitAbiChanged with the actual selected ABI.
+    mainComboBoxChanged();
 }
 
 Abis AbiWidget::supportedAbis() const
