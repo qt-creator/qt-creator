@@ -23,6 +23,7 @@ you can check out from the public Git repository. For example:
 * Added option to change line ending style via editor tool bar
 * Fixed that explicit colors or styles in KSyntaxHighlighting specifications were ignored
   (QTCREATORBUG-13545, QTCREATORBUG-22229, QTCREATORBUG-22646)
+* Fixed behavior of backtab with multi-line selection (QTCREATORBUG-16970)
 
 ### Language Client
 
@@ -37,10 +38,12 @@ you can check out from the public Git repository. For example:
 * Fixed that build environment was not used for asking compilers about built-in headers
   (QTCREATORBUG-17985)
 * Fixed handling of `-mllvm` command line option
+* Fixed handling of `noexcept` when refactoring (QTCREATORBUG-11849, QTCREATORBUG-19699)
 
 ### QML
 
-* Fixed pragma reformatting
+* Updated to parser from Qt 5.15
+* Fixed pragma reformatting (QTCREATORBUG-22326)
 
 ### Python
 
@@ -55,6 +58,7 @@ you can check out from the public Git repository. For example:
 ## Projects
 
 * Added experimental support for Qt for WebAssembly (QTCREATORBUG-21068)
+* Added experimental support for Qt for MCUs
 * Added `Build` > `Build for Run Configuration` (QTCREATORBUG-22403)
 * Added more space for custom command line arguments (QTCREATORBUG-17890)
 * Added option to continue building after a single project failed with `Build` > `Build All`
@@ -63,13 +67,14 @@ you can check out from the public Git repository. For example:
 * Added option for translation file to wizards (QTCREATORBUG-7453)
 * Added option to rename files with same base name when renaming files via project tree
   (QTCREATORBUG-21738)
-* Changed build process to run with low priority (QTCREATORBUG-5155)
+* Added option for running build process with low priority (QTCREATORBUG-5155)
 * Made it possible to schedule running the project while building it (QTCREATORBUG-14297)
 * Improved unconfigured project page (QTCREATORBUG-20018)
 * Fixed parsing of `lld` output (QTCREATORBUG-22623)
 * Fixed issues with expanding macros in environment variables
 * Fixed that generated files were appearing in Locator and project wide searches
   (QTCREATORBUG-20176)
+* Fixed disabled project context menu item (QTCREATORBUG-22850)
 
 ### QMake
 
@@ -110,7 +115,14 @@ you can check out from the public Git repository. For example:
 * Added support for loading results from `clang-tidy` and `clazy` that were
   exported with `-export-fixes`
 * Added option for overriding configuration per project
+* Added option to analyze only open or edited documents
 * Changed to use separate `clang-tidy` executable
+* Separated diagnostic configuration settings for code model
+  (`C++` > `Code Model`) and analyzer (`Analyzer` > `Clang Tools`)
+
+## Qt Widget Designer
+
+* Fixed lookup of resources (QTCREATORBUG-22909, QTCREATORBUG-22962)
 
 ## Qt Quick Designer
 
@@ -118,7 +130,10 @@ you can check out from the public Git repository. For example:
 * Added support for importing 3D assets into Quick3D components
   (QDS-1051, QDS-1053)
 * Added option for keyframe time in `Edit` dialog (QDS-1072)
+* Added snapping of timeline playhead to keyframes when shift-dragging
+  (QDS-1068)
 * Fixed issues with dragging timeline items (QDS-1074)
+* Fixed various timeline editor issues (QDS-1073)
 
 ## Version Control Systems
 
@@ -146,7 +161,7 @@ you can check out from the public Git repository. For example:
 
 ### Android
 
-* Added warning if `sdkmanager` could not be run, including hint to correct Java SDK
+* Added warning if `sdkmanager` could not be run, including hint to appropriate Java SDK
   (QTCREATORBUG-22626)
 * Added knowledge of Android 10 and API level 29
 * Fixed issue with multiple Java versions in `PATH` (QTCREATORBUG-22504)
@@ -155,15 +170,18 @@ you can check out from the public Git repository. For example:
 
 * Moved support for [Qt for Device Creation](https://doc.qt.io/QtForDeviceCreation/qtdc-index.html)
   (Boot2Qt) to open source
+* Fixed issues with SFTP on Windows (QTCREATORBUG-22471)
 
 ### QNX
 
 * Fixed registration of toolchain as C compiler
 * Fixed issue with license checking of QCC
+* Fixed deployment of public key (QTCREATORBUG-22591)
 
 ### Bare Metal
 
 * Added support for STM8 and MSP430 architectures
+* Fixed that it was not possible to add custom deployment steps (QTCREATORBUG-22977)
 
 ## Credits for these changes go to:
 Aleksei German  
@@ -180,7 +198,9 @@ David Schulz
 Denis Shienkov  
 Eike Ziller  
 Frederik Schwarzer  
+Henning Gruendl  
 Joel Smith  
+Laurent Montel  
 Leander Schulten  
 Leena Miettinen  
 Mahmoud Badri  
@@ -199,6 +219,7 @@ Thomas Hartmann
 Tim Henning  
 Tim Jenssen  
 Tobias Hunger  
+Tommi Pekkala  
 Uladzislau Paulovich  
 Ulf Hermann  
 Ville Nummela  
