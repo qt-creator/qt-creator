@@ -84,6 +84,7 @@ enum ADNCI_MSG {
 
 extern "C" {
 typedef unsigned int ServiceSocket; // match_port_t (i.e. natural_t) or socket (on windows, i.e sock_t)
+typedef unsigned int *ServiceConnRef;
 typedef unsigned int am_res_t; // mach_error_t
 
 #ifndef MOBILE_DEV_DIRECT_LINK
@@ -132,7 +133,6 @@ typedef am_res_t (MDEV_API *AMDeviceStopSessionPtr)(AMDeviceRef);
 typedef am_res_t (MDEV_API *AMDeviceDisconnectPtr)(AMDeviceRef);
 typedef am_res_t (MDEV_API *AMDeviceMountImagePtr)(AMDeviceRef, CFStringRef, CFDictionaryRef,
                                                         AMDeviceMountImageCallback, void *);
-typedef am_res_t (MDEV_API *AMDeviceStartServicePtr)(AMDeviceRef, CFStringRef, ServiceSocket *, void *);
 typedef am_res_t (MDEV_API *AMDeviceUninstallApplicationPtr)(ServiceSocket, CFStringRef, CFDictionaryRef,
                                                                 AMDeviceInstallApplicationCallback,
                                                                 void*);
@@ -141,9 +141,10 @@ typedef char * (MDEV_API *AMDErrorStringPtr)(am_res_t);
 typedef CFStringRef (MDEV_API *MISCopyErrorStringForErrorCodePtr)(am_res_t);
 typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSocket*);
 // secure Api's
-typedef am_res_t (MDEV_API *AMDeviceSecureStartServicePtr)(AMDeviceRef, CFStringRef, void *, ServiceSocket *);
+typedef am_res_t (MDEV_API *AMDeviceSecureStartServicePtr)(AMDeviceRef, CFStringRef, unsigned int *, ServiceConnRef *);
 typedef int (MDEV_API *AMDeviceSecureTransferPathPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
 typedef int (MDEV_API *AMDeviceSecureInstallApplicationPtr)(int, AMDeviceRef, CFURLRef, CFDictionaryRef, AMDeviceSecureInstallApplicationCallback, int);
+typedef int (MDEV_API *AMDServiceConnectionGetSocketPtr)(ServiceConnRef);
 
 
 } // extern C
@@ -182,7 +183,6 @@ public :
     am_res_t deviceDisconnect(AMDeviceRef);
     am_res_t deviceMountImage(AMDeviceRef, CFStringRef, CFDictionaryRef,
                                     AMDeviceMountImageCallback, void *);
-    am_res_t deviceStartService(AMDeviceRef, CFStringRef, ServiceSocket *, void *);
     am_res_t deviceUninstallApplication(int, CFStringRef, CFDictionaryRef,
                                                                     AMDeviceInstallApplicationCallback,
                                                                     void*);
@@ -195,7 +195,8 @@ public :
     void addError(const char *msg);
 
     // Secure API's
-    am_res_t deviceSecureStartService(AMDeviceRef, CFStringRef, void *, ServiceSocket *);
+    am_res_t deviceSecureStartService(AMDeviceRef, CFStringRef, ServiceConnRef *);
+    int deviceConnectionGetSocket(ServiceConnRef);
     int deviceSecureTransferApplicationPath(int, AMDeviceRef, CFURLRef,
                                             CFDictionaryRef, AMDeviceSecureInstallApplicationCallback callback, int);
     int deviceSecureInstallApplication(int zero, AMDeviceRef device, CFURLRef url,
@@ -220,10 +221,10 @@ private:
     AMDeviceStopSessionPtr m_AMDeviceStopSession;
     AMDeviceDisconnectPtr m_AMDeviceDisconnect;
     AMDeviceMountImagePtr m_AMDeviceMountImage;
-    AMDeviceStartServicePtr m_AMDeviceStartService;
     AMDeviceSecureStartServicePtr m_AMDeviceSecureStartService;
     AMDeviceSecureTransferPathPtr m_AMDeviceSecureTransferPath;
     AMDeviceSecureInstallApplicationPtr m_AMDeviceSecureInstallApplication;
+    AMDServiceConnectionGetSocketPtr m_AMDServiceConnectionGetSocket;
     AMDeviceUninstallApplicationPtr m_AMDeviceUninstallApplication;
     AMDeviceLookupApplicationsPtr m_AMDeviceLookupApplications;
     AMDErrorStringPtr m_AMDErrorString;
@@ -382,7 +383,6 @@ public:
 
     bool connectDevice();
     bool disconnectDevice();
-    bool startService(const QString &service, ServiceSocket &fd);
     void stopService(ServiceSocket fd);
     void startDeviceLookup(int timeout);
     bool connectToPort(quint16 port, ServiceSocket *fd) override;
@@ -978,43 +978,21 @@ bool CommandSession::disconnectDevice()
     return true;
 }
 
-bool CommandSession::startService(const QString &serviceName, ServiceSocket &fd)
-{
-    bool success = true;
-
-    // Connect device. AMDeviceConnect + AMDeviceIsPaired + AMDeviceValidatePairing + AMDeviceStartSession
-    if (connectDevice()) {
-        fd = 0;
-        CFStringRef cfsService = serviceName.toCFString();
-        if (am_res_t error = lib()->deviceStartService(device, cfsService, &fd, 0)) {
-            addError(QString::fromLatin1("Starting service \"%1\" on device %2 failed, AMDeviceStartService returned %3 (0x%4)")
-                     .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(QString::number(error, 16)));
-            success = false;
-            fd = -1;
-        }
-        disconnectDevice();
-        CFRelease(cfsService);
-    } else {
-        addError(QString::fromLatin1("Starting service \"%1\" on device %2 failed. Cannot connect to device.")
-                 .arg(serviceName).arg(deviceId));
-        success = false;
-    }
-    return success;
-}
-
 bool CommandSession::startServiceSecure(const QString &serviceName, ServiceSocket &fd)
 {
     bool success = true;
 
     // Connect device. AMDeviceConnect + AMDeviceIsPaired + AMDeviceValidatePairing + AMDeviceStartSession
     if (connectDevice()) {
-        fd = 0;
         CFStringRef cfsService = serviceName.toCFString();
-        if (am_res_t error = lib()->deviceSecureStartService(device, cfsService, &fd, 0)) {
+        ServiceConnRef ref;
+        if (am_res_t error = lib()->deviceSecureStartService(device, cfsService, &ref)) {
             addError(QString::fromLatin1("Starting(Secure) service \"%1\" on device %2 failed, AMDeviceStartSecureService returned %3 (0x%4)")
                      .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(lib(), error)).arg(QString::number(error, 16)));
             success = false;
-            fd = -1;
+            fd = 0;
+        } else {
+            fd = lib()->deviceConnectionGetSocket(ref);
         }
         disconnectDevice();
         CFRelease(cfsService);
@@ -1481,8 +1459,8 @@ bool AppOpSession::runApp()
         addError(QString::fromLatin1("Running app \"%1\" failed. Mount developer disk failed.").arg(bundlePath));
         failure = true;
     }
-    if (!failure && !startService(QLatin1String("com.apple.debugserver"), gdbFd))
-        gdbFd = -1;
+    if (!failure && !startServiceSecure(QLatin1String("com.apple.debugserver"), gdbFd))
+        gdbFd = 0;
 
     if (gdbFd > 0) {
         // gdbServer protocol, see http://sourceware.org/gdb/onlinedocs/gdb/Remote-Protocol.html#Remote-Protocol
@@ -1771,9 +1749,6 @@ bool MobileDeviceLib::load()
     m_AMDeviceMountImage = reinterpret_cast<AMDeviceMountImagePtr>(lib.resolve("AMDeviceMountImage"));
     if (m_AMDeviceMountImage == 0)
         addError("MobileDeviceLib does not define AMDeviceMountImage");
-    m_AMDeviceStartService = reinterpret_cast<AMDeviceStartServicePtr>(lib.resolve("AMDeviceStartService"));
-    if (m_AMDeviceStartService == 0)
-        addError("MobileDeviceLib does not define AMDeviceStartService");
     m_AMDeviceSecureStartService = reinterpret_cast<AMDeviceSecureStartServicePtr>(lib.resolve("AMDeviceSecureStartService"));
     if (m_AMDeviceSecureStartService == 0)
         addError("MobileDeviceLib does not define AMDeviceSecureStartService");
@@ -1783,6 +1758,9 @@ bool MobileDeviceLib::load()
     m_AMDeviceSecureInstallApplication = reinterpret_cast<AMDeviceSecureInstallApplicationPtr>(lib.resolve("AMDeviceSecureInstallApplication"));
     if (m_AMDeviceSecureInstallApplication == 0)
         addError("MobileDeviceLib does not define AMDeviceSecureInstallApplication");
+    m_AMDServiceConnectionGetSocket = reinterpret_cast<AMDServiceConnectionGetSocketPtr>(lib.resolve("AMDServiceConnectionGetSocket"));
+    if (m_AMDServiceConnectionGetSocket == nullptr)
+        addError("MobileDeviceLib does not define AMDServiceConnectionGetSocket");
     m_AMDeviceUninstallApplication = reinterpret_cast<AMDeviceUninstallApplicationPtr>(lib.resolve("AMDeviceUninstallApplication"));
     if (m_AMDeviceUninstallApplication == 0)
         addError("MobileDeviceLib does not define AMDeviceUninstallApplication");
@@ -1921,15 +1899,6 @@ am_res_t MobileDeviceLib::deviceMountImage(AMDeviceRef device, CFStringRef image
     return -1;
 }
 
-am_res_t MobileDeviceLib::deviceStartService(AMDeviceRef device, CFStringRef serviceName,
-                                                   ServiceSocket *fdRef, void *extra)
-{
-    if (m_AMDeviceStartService)
-        return m_AMDeviceStartService(device, serviceName, fdRef, extra);
-    return -1;
-}
-
-
 am_res_t MobileDeviceLib::deviceUninstallApplication(int serviceFd, CFStringRef bundleId,
                                                            CFDictionaryRef options,
                                                            AMDeviceInstallApplicationCallback callback,
@@ -1980,12 +1949,11 @@ void MobileDeviceLib::addError(const char *msg)
     addError(QLatin1String(msg));
 }
 
-am_res_t MobileDeviceLib::deviceSecureStartService(AMDeviceRef device, CFStringRef serviceName, void *extra, ServiceSocket *fdRef)
+am_res_t MobileDeviceLib::deviceSecureStartService(AMDeviceRef device, CFStringRef serviceName, ServiceConnRef *fdRef)
 {
-    int returnCode = -1;
     if (m_AMDeviceSecureStartService)
-        returnCode = m_AMDeviceSecureStartService(device, serviceName, extra, fdRef);
-    return returnCode;
+        return m_AMDeviceSecureStartService(device, serviceName, nullptr, fdRef);
+    return 0;
 }
 
 int MobileDeviceLib::deviceSecureTransferApplicationPath(int zero, AMDeviceRef device, CFURLRef url, CFDictionaryRef dict, AMDeviceSecureInstallApplicationCallback callback, int args)
@@ -2003,6 +1971,13 @@ int MobileDeviceLib::deviceSecureInstallApplication(int zero, AMDeviceRef device
         returnCode = m_AMDeviceSecureInstallApplication(zero, device, url, options, callback, arg);
     }
     return returnCode;
+}
+
+int MobileDeviceLib::deviceConnectionGetSocket(ServiceConnRef ref) {
+    int fd = 0;
+    if (m_AMDServiceConnectionGetSocket)
+        fd = m_AMDServiceConnectionGetSocket(ref);
+    return fd;
 }
 
 void CommandSession::internalDeviceAvailableCallback(QString deviceId, AMDeviceRef device)

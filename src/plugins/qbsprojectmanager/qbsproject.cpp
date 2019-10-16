@@ -27,6 +27,7 @@
 
 #include "qbsbuildconfiguration.h"
 #include "qbsbuildstep.h"
+#include "qbsinstallstep.h"
 #include "qbslogsink.h"
 #include "qbspmlogging.h"
 #include "qbsprojectimporter.h"
@@ -52,6 +53,7 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
@@ -464,6 +466,14 @@ FilePath QbsProject::installRoot()
 {
     if (!activeTarget())
         return FilePath();
+    const auto dc = activeTarget()->activeDeployConfiguration();
+    if (dc) {
+        const QList<QbsInstallStep *> qbsInstallSteps = dc->stepList()->allOfType<QbsInstallStep>();
+        for (QbsInstallStep * const step : qbsInstallSteps) {
+            if (step->enabled())
+                return FilePath::fromString(step->installRoot());
+        }
+    }
     const auto * const bc
             = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     if (!bc)
