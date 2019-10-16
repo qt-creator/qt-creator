@@ -468,10 +468,12 @@ FilePath QbsProject::installRoot()
         return FilePath();
     const auto dc = activeTarget()->activeDeployConfiguration();
     if (dc) {
-        const QList<QbsInstallStep *> qbsInstallSteps = dc->stepList()->allOfType<QbsInstallStep>();
-        for (QbsInstallStep * const step : qbsInstallSteps) {
-            if (step->enabled())
-                return FilePath::fromString(step->installRoot());
+        const QList<BuildStep *> steps = dc->stepList()->steps();
+        for (const BuildStep * const step : steps) {
+            if (!step->enabled())
+                continue;
+            if (const auto qbsInstallStep = qobject_cast<const QbsInstallStep *>(step))
+                return FilePath::fromString(qbsInstallStep->installRoot());
         }
     }
     const auto * const bc
