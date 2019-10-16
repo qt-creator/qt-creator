@@ -39,6 +39,9 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerruncontrol.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -48,6 +51,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/outputformat.h>
 #include <utils/qtcprocess.h>
@@ -59,20 +63,18 @@
 #include <QFuture>
 #include <QFutureInterface>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QPushButton>
 #include <QTimer>
-
-#include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerruncontrol.h>
-
-#include <utils/algorithm.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
+
+static Q_LOGGING_CATEGORY(runnerLog, "qtc.autotest.testrunner", QtWarningMsg)
 
 static TestRunner *s_instance = nullptr;
 
@@ -230,6 +232,11 @@ void TestRunner::scheduleNext()
             this, &TestRunner::onProcessFinished);
     const int timeout = AutotestPlugin::settings()->timeout;
     QTimer::singleShot(timeout, m_currentProcess, [this]() { cancelCurrent(Timeout); });
+
+    qCInfo(runnerLog) << "Command:" << m_currentProcess->program();
+    qCInfo(runnerLog) << "Arguments:" << m_currentProcess->arguments();
+    qCInfo(runnerLog) << "Working directory:" << m_currentProcess->workingDirectory();
+    qCDebug(runnerLog) << "Environment:" << m_currentProcess->environment();
 
     m_currentProcess->start();
     if (!m_currentProcess->waitForStarted()) {
