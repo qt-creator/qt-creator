@@ -98,31 +98,43 @@ void BoostCodeParser::handleIdentifier()
 
     if (identifier == "BOOST_AUTO_TEST_SUITE") {
         handleSuiteBegin(false);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_FIXTURE_TEST_SUITE") {
         handleSuiteBegin(true);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_AUTO_TEST_SUITE_END") {
         handleSuiteEnd();
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_TEST_CASE") {
         handleTestCase(TestCaseType::Functions);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_PARAM_TEST_CASE") {
         m_currentState.setFlag(BoostTestTreeItem::Parameterized);
         handleTestCase(TestCaseType::Parameter);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_AUTO_TEST_CASE") {
         handleTestCase(TestCaseType::Auto);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_FIXTURE_TEST_CASE") {
+        m_currentState.setFlag(BoostTestTreeItem::Fixture);
         handleTestCase(TestCaseType::Fixture);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_DATA_TEST_CASE") {
         handleTestCase(TestCaseType::Data);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_DATA_TEST_CASE_F") {
         m_currentState.setFlag(BoostTestTreeItem::Fixture);
         handleTestCase(TestCaseType::Data);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_AUTO_TEST_CASE_TEMPLATE") {
         m_currentState.setFlag(BoostTestTreeItem::Templated);
         handleTestCase(TestCaseType::Auto);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_FIXTURE_TEST_CASE_TEMPLATE") {
         m_currentState.setFlag(BoostTestTreeItem::Fixture);
         m_currentState.setFlag(BoostTestTreeItem::Templated);
         handleTestCase(TestCaseType::Auto);
+        m_currentState = BoostTestTreeItem::Enabled;
     } else if (identifier == "BOOST_TEST_DECORATOR") {
         handleDecorator();
     }
@@ -155,12 +167,10 @@ void BoostCodeParser::handleSuiteBegin(bool isFixture)
         if (skipCommentsUntil(T_RPAREN)) {
             // we have no decorators (or we have them before this macro)
             m_suites << BoostTestInfo{m_currentSuite, m_currentState, m_lineNo};
-            m_currentState = BoostTestTreeItem::Enabled;
         }
     } else {
         handleDecorators();
         m_suites << BoostTestInfo{m_currentSuite, m_currentState, m_lineNo};
-        m_currentState = BoostTestTreeItem::Enabled;
     }
 }
 
@@ -193,6 +203,7 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
                 const QList<QByteArray> parts = content.split(',');
                 if (parts.size() == 0)
                     return;
+                token = m_tokens.at(m_currentIndex);
                 locationAndType = locationAndTypeFromToken(token, m_source, m_currentState, m_suites);
 
                 const QByteArray functionName = parts.first();
@@ -201,7 +212,6 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
                 else
                     locationAndType.m_name = QString::fromUtf8(functionName);
                 m_testCases.append(locationAndType);
-                m_currentState = BoostTestTreeItem::Enabled;
                 return;
             }
         } else if (m_currentState.testFlag(BoostTestTreeItem::Fixture)) {
@@ -216,7 +226,6 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
         token = m_tokens.at(m_currentIndex);
         locationAndType = locationAndTypeFromToken(token, m_source, m_currentState, m_suites);
         m_testCases.append(locationAndType);
-        m_currentState = BoostTestTreeItem::Enabled;
         return;
 
     case TestCaseType::Auto:
@@ -226,7 +235,6 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
         token = m_tokens.at(m_currentIndex);
 
         if (testCaseType == TestCaseType::Fixture) { // skip fixture class parameter
-            m_currentState |= BoostTestTreeItem::Fixture;
             if (!skipCommentsUntil(T_COMMA))
                 return;
             if (!skipCommentsUntil(T_IDENTIFIER))
@@ -240,14 +248,12 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
         if (skipCommentsUntil(T_RPAREN)) {
             locationAndType = locationAndTypeFromToken(token, m_source, m_currentState, m_suites);
             m_testCases.append(locationAndType);
-            m_currentState = BoostTestTreeItem::Enabled;
         }
     } else {
         if (!m_currentState.testFlag(BoostTestTreeItem::Templated))
             handleDecorators();
         locationAndType = locationAndTypeFromToken(token, m_source, m_currentState, m_suites);
         m_testCases.append(locationAndType);
-        m_currentState = BoostTestTreeItem::Enabled;
     }
 }
 
