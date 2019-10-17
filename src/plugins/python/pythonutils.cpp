@@ -328,8 +328,15 @@ void updateEditorInfoBar(const FilePath &python, TextEditor::TextDocument *docum
 {
     const PythonLanguageServerState &lsState = checkPythonLanguageServer(python);
 
-    if (lsState.state == PythonLanguageServerState::CanNotBeInstalled
-        || lsState.state == PythonLanguageServerState::AlreadyConfigured) {
+    if (lsState.state == PythonLanguageServerState::CanNotBeInstalled)
+        return;
+    if (lsState.state == PythonLanguageServerState::AlreadyConfigured) {
+        if (const LanguageClient::StdIOSettings *setting = languageServerForPython(python)) {
+            if (LanguageClient::Client *client
+                = LanguageClient::LanguageClientManager::clientForSetting(setting).value(0)) {
+                LanguageClient::LanguageClientManager::reOpenDocumentWithClient(document, client);
+            }
+        }
         return;
     }
 
