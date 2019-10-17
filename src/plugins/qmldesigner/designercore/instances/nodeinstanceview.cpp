@@ -476,7 +476,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             const PropertyName &name,
                                             const QVariant &value)
 {
-    if ((node.isRootNode() && (name == "width" || name == "height") || name == "invisible")
+    if (((node.isRootNode() && (name == "width" || name == "height")) || name == "invisible")
             || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
