@@ -1464,6 +1464,10 @@ void ModelPrivate::changeSelectedNodes(const QList<InternalNode::Pointer> &newSe
         Q_ASSERT(view != nullptr);
         view->selectedNodesChanged(toModelNodeList(newSelectedNodeList, view.data()), toModelNodeList(oldSelectedNodeList, view.data()));
     }
+
+    if (nodeInstanceView())
+        nodeInstanceView()->selectedNodesChanged(toModelNodeList(newSelectedNodeList, nodeInstanceView()),
+                                                 toModelNodeList(oldSelectedNodeList, nodeInstanceView()));
 }
 
 QList<InternalNode::Pointer> ModelPrivate::selectedNodes() const

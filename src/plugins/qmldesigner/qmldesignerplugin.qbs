@@ -167,6 +167,8 @@ Project {
                 "commands/tokencommand.h",
                 "commands/valueschangedcommand.cpp",
                 "commands/valueschangedcommand.h",
+                "commands/changeselectioncommand.cpp",
+                "commands/changeselectioncommand.h",
                 "container/addimportcontainer.cpp",
                 "container/addimportcontainer.h",
                 "container/idcontainer.cpp",

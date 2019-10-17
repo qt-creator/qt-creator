@@ -71,6 +71,7 @@ public:
     void createScene(const CreateSceneCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
     void removeInstances(const RemoveInstancesCommand &command) override;
+    void changeSelection(const ChangeSelectionCommand &command) override;
     void removeProperties(const RemovePropertiesCommand &command) override;
     void changePropertyBindings(const ChangeBindingsCommand &command) override;
     void changePropertyValues(const ChangeValuesCommand &command) override;

@@ -151,6 +151,11 @@ void Qt5TestNodeInstanceServer::clearScene(const ClearSceneCommand &command)
     Qt5NodeInstanceServer::clearScene(command);
 }
 
+void Qt5TestNodeInstanceServer::changeSelection(const ChangeSelectionCommand &)
+{
+
+}
+
 void Qt5TestNodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
 {
     ServerNodeInstance oldState = activeStateInstance();

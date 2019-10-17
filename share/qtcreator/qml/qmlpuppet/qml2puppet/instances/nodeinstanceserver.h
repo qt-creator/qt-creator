@@ -68,6 +68,7 @@ class ComponentCompletedCommand;
 class AddImportContainer;
 class MockupTypeContainer;
 class IdContainer;
+class ChangeSelectionCommand;
 
 namespace Internal {
     class ChildrenChangeEventFilter;
@@ -101,6 +102,7 @@ public:
     void changeNodeSource(const ChangeNodeSourceCommand &command) override;
     void token(const TokenCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
+    void changeSelection(const ChangeSelectionCommand &command) override;
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
@@ -170,6 +172,7 @@ protected:
     InformationChangedCommand createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial = false) const;
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
     ComponentCompletedCommand createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList);
+    ChangeSelectionCommand createChangeSelectionCommand(const QList<ServerNodeInstance> &instanceList);
 
     void addChangedProperty(const InstancePropertyPair &property);
 

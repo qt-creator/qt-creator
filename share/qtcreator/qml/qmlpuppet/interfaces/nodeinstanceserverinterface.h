@@ -49,6 +49,7 @@ class CompleteComponentCommand;
 class ChangeNodeSourceCommand;
 class TokenCommand;
 class RemoveSharedMemoryCommand;
+class ChangeSelectionCommand;
 
 class NodeInstanceServerInterface : public QObject
 {
@@ -77,6 +78,7 @@ public:
     virtual void changeNodeSource(const ChangeNodeSourceCommand &command) = 0;
     virtual void token(const TokenCommand &command) = 0;
     virtual void removeSharedMemory(const RemoveSharedMemoryCommand &command) = 0;
+    virtual void changeSelection(const ChangeSelectionCommand &command) = 0;
 
     virtual void benchmark(const QString &)
     {}

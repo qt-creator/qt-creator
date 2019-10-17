@@ -56,7 +56,7 @@ class CompleteComponentCommand;
 class ChangeStateCommand;
 class ChangeNodeSourceCommand;
 class EndPuppetCommand;
-
+class ChangeSelectionCommand;
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
 {
@@ -74,6 +74,7 @@ public:
     void token(const TokenCommand &command) override;
     void debugOutput(const DebugOutputCommand &command) override;
     void puppetAlive(const PuppetAliveCommand &command);
+    void selectionChanged(const ChangeSelectionCommand &command) override;
 
     void flush() override;
     void synchronizeWithClientProcess() override;
@@ -104,6 +105,7 @@ protected:
     void removeSharedMemory(const RemoveSharedMemoryCommand &command);
     void redirectToken(const TokenCommand &command);
     void redirectToken(const EndPuppetCommand &command);
+    void changeSelection(const ChangeSelectionCommand &command);
     static QVariant readCommandFromIOStream(QIODevice *ioDevice, quint32 *readCommandCounter, quint32 *blockSize);
 
 protected slots:

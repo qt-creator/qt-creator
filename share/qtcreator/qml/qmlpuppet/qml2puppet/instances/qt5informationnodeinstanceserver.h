@@ -42,6 +42,7 @@ public:
     void completeComponent(const CompleteComponentCommand &command) override;
     void token(const TokenCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
+    void changeSelection(const ChangeSelectionCommand &command) override;
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -49,6 +50,7 @@ protected:
     void sendTokenBack();
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
+    void selectInstance(const ServerNodeInstance &instance);
 
 private:
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);

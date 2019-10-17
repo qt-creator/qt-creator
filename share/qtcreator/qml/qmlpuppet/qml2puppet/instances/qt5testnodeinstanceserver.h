@@ -50,6 +50,7 @@ public:
     void completeComponent(const CompleteComponentCommand &command) override;
     void changeNodeSource(const ChangeNodeSourceCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
+    void changeSelection(const ChangeSelectionCommand &command) override;
 
     using Qt5NodeInstanceServer::createInstances;
 

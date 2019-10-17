@@ -55,6 +55,7 @@
 #include "createscenecommand.h"
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
+#include "changeselectioncommand.h"
 
 #include "dummycontextobject.h"
 
@@ -145,6 +146,12 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuick
     }
 
     return false;
+}
+
+/* This method allows changing the selection from the puppet */
+void Qt5InformationNodeInstanceServer::selectInstance(const ServerNodeInstance &instance)
+{
+    nodeInstanceClient()->selectionChanged(createChangeSelectionCommand({instance}));
 }
 
 QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
@@ -356,6 +363,12 @@ void QmlDesigner::Qt5InformationNodeInstanceServer::removeSharedMemory(const Qml
 {
     if (command.typeName() == "Values")
         ValuesChangedCommand::removeSharedMemorys(command.keyNumbers());
+}
+
+void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionCommand &command)
+{
+    // keep track of selection.
+    qDebug() << Q_FUNC_INFO << command;
 }
 
 } // namespace QmlDesigner

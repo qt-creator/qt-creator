@@ -45,6 +45,7 @@
 #include "completecomponentcommand.h"
 #include "addimportcontainer.h"
 #include "changenodesourcecommand.h"
+#include "changeselectioncommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -102,6 +103,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<RemoveInstancesCommand>("RemoveInstancesCommand");
     qRegisterMetaTypeStreamOperators<RemoveInstancesCommand>("RemoveInstancesCommand");
+
+    qRegisterMetaType<ChangeSelectionCommand>("ChangeSelectionCommand");
+    qRegisterMetaTypeStreamOperators<ChangeSelectionCommand>("ChangeSelectionCommand");
 
     qRegisterMetaType<RemovePropertiesCommand>("RemovePropertiesCommand");
     qRegisterMetaTypeStreamOperators<RemovePropertiesCommand>("RemovePropertiesCommand");

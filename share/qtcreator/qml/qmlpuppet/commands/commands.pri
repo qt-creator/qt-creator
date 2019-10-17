@@ -26,6 +26,7 @@ HEADERS += $$PWD/valueschangedcommand.h
 HEADERS += $$PWD/changeauxiliarycommand.h
 HEADERS += $$PWD/removesharedmemorycommand.h
 HEADERS += $$PWD/puppetalivecommand.h
+HEADERS += $$PWD/changeselectioncommand.h
 
 SOURCES += $$PWD/synchronizecommand.cpp
 SOURCES += $$PWD/debugoutputcommand.cpp
@@ -53,3 +54,4 @@ SOURCES += $$PWD/pixmapchangedcommand.cpp
 SOURCES += $$PWD/changeauxiliarycommand.cpp
 SOURCES += $$PWD/removesharedmemorycommand.cpp
 SOURCES += $$PWD/puppetalivecommand.cpp
+SOURCES += $$PWD/changeselectioncommand.cpp

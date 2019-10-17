@@ -41,6 +41,7 @@
 #include <changestatecommand.h>
 #include <completecomponentcommand.h>
 #include <changenodesourcecommand.h>
+#include <changeselectioncommand.h>
 
 #include <informationchangedcommand.h>
 #include <pixmapchangedcommand.h>
@@ -278,6 +279,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
+    static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
 
     if (m_destructing)
         return;
@@ -299,6 +301,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
         nodeInstanceClient()->token(command.value<TokenCommand>());
     } else if (command.userType() == debugOutputCommandType) {
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
+    } else if (command.userType() == changeSelectionCommandType) {
+        nodeInstanceClient()->selectionChanged(command.value<ChangeSelectionCommand>());
     } else if (command.userType() == puppetAliveCommandType) {
         puppetAlive(puppetStreamType);
     } else if (command.userType() == synchronizeCommandType) {
@@ -641,6 +645,11 @@ void NodeInstanceServerProxy::clearScene(const ClearSceneCommand &command)
 }
 
 void NodeInstanceServerProxy::removeInstances(const RemoveInstancesCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::changeSelection(const ChangeSelectionCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

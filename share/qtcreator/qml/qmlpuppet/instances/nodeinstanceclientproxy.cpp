@@ -67,6 +67,7 @@
 #include "endpuppetcommand.h"
 #include "debugoutputcommand.h"
 #include "puppetalivecommand.h"
+#include "changeselectioncommand.h"
 
 namespace QmlDesigner {
 
@@ -136,6 +137,7 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
+    static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
 
     if (command.userType() == controlCommand.userType()) {
         if (command.userType() == informationChangedCommandType)
@@ -156,6 +158,8 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
             return command.value<TokenCommand>() == controlCommand.value<TokenCommand>();
         else if (command.userType() == debugOutputCommandType)
             return command.value<DebugOutputCommand>() == controlCommand.value<DebugOutputCommand>();
+        else if (command.userType() == changeSelectionCommandType)
+            return command.value<ChangeSelectionCommand>() == controlCommand.value<ChangeSelectionCommand>();
     }
 
     return false;
@@ -233,6 +237,11 @@ void NodeInstanceClientProxy::puppetAlive(const PuppetAliveCommand &command)
     writeCommand(QVariant::fromValue(command));
 }
 
+void NodeInstanceClientProxy::selectionChanged(const ChangeSelectionCommand &command)
+{
+     writeCommand(QVariant::fromValue(command));
+}
+
 void NodeInstanceClientProxy::flush()
 {
 }
@@ -252,9 +261,6 @@ qint64 NodeInstanceClientProxy::bytesToWrite() const
 
 QVariant NodeInstanceClientProxy::readCommandFromIOStream(QIODevice *ioDevice, quint32 *readCommandCounter, quint32 *blockSize)
 {
-
-
-
     QDataStream in(ioDevice);
     in.setVersion(QDataStream::Qt_4_8);
 
@@ -416,6 +422,11 @@ void NodeInstanceClientProxy::redirectToken(const EndPuppetCommand & /*command*/
     QCoreApplication::exit();
 }
 
+void NodeInstanceClientProxy::changeSelection(const ChangeSelectionCommand &command)
+{
+    nodeInstanceServer()->changeSelection(command);
+}
+
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
     static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
@@ -436,6 +447,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int removeSharedMemoryCommandType = QMetaType::type("RemoveSharedMemoryCommand");
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int endPuppetCommandType = QMetaType::type("EndPuppetCommand");
+    static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
 
     const int commandType = command.userType();
 
@@ -476,6 +488,9 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     else if (commandType == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
+    } else if (commandType == changeSelectionCommandType) {
+        ChangeSelectionCommand changeSelectionCommand = command.value<ChangeSelectionCommand>();
+        changeSelection(changeSelectionCommand);
     } else {
         Q_ASSERT(false);
     }

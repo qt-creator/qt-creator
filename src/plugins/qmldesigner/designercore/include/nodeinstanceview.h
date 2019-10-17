@@ -64,6 +64,7 @@ class ChangeValuesCommand;
 class ChangeBindingsCommand;
 class ChangeIdsCommand;
 class RemoveInstancesCommand;
+class ChangeSelectionCommand;
 class RemovePropertiesCommand;
 class CompleteComponentCommand;
 class InformationContainer;
@@ -134,6 +135,11 @@ public:
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
+    void selectionChanged(const ChangeSelectionCommand &command) override;
+
+    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
+                              const QList<ModelNode> &lastSelectedNodeList) override;
+
 protected:
     void timerEvent(QTimerEvent *event) override;
 
@@ -173,6 +179,7 @@ private: // functions
     ChangeBindingsCommand createChangeBindingCommand(const QList<BindingProperty> &propertyList) const;
     ChangeIdsCommand createChangeIdsCommand(const QList<NodeInstance> &instanceList) const;
     RemoveInstancesCommand createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const;
+    ChangeSelectionCommand createChangeSelectionCommand(const QList<ModelNode> &nodeList) const;
     RemoveInstancesCommand createRemoveInstancesCommand(const ModelNode &node) const;
     RemovePropertiesCommand createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const;
     RemoveSharedMemoryCommand createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, quint32 keyNumber);

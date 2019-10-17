@@ -138,6 +138,7 @@ extend_qtc_plugin(QmlDesigner
     synchronizecommand.cpp synchronizecommand.h
     tokencommand.cpp tokencommand.h
     valueschangedcommand.cpp valueschangedcommand.h
+    changeselectioncommand.cpp changeselectioncommand.h
 )
 
 extend_qtc_plugin(QmlDesigner

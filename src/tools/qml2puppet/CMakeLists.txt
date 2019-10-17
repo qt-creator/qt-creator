@@ -44,6 +44,7 @@ extend_qtc_executable(qml2puppet
     statepreviewimagechangedcommand.cpp statepreviewimagechangedcommand.h
     synchronizecommand.cpp synchronizecommand.h
     tokencommand.cpp tokencommand.h
+    changeselectioncommand.cpp changeselectioncommand.h
     valueschangedcommand.cpp
 )
 
