@@ -182,7 +182,7 @@ protected:
     ProjectConfigurationAspects m_aspects;
 
 private:
-    Target *m_target = nullptr;
+    QPointer<Target> m_target;
     const Core::Id m_id;
     Utils::DisplayName m_displayName;
     QString m_toolTip;
