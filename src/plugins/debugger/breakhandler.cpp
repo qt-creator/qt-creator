@@ -169,16 +169,14 @@ public:
         // running, as this can be triggered by moving the breakpoint to
         // the next line that generated code.
 
-        m_gbp->m_params.lineNumber = lineNumber;
-        m_gbp->update();
+        m_gbp->updateLineNumber(lineNumber);
     }
 
     void updateFileName(const FilePath &fileName) final
     {
         TextMark::updateFileName(fileName);
         QTC_ASSERT(m_gbp, return);
-        m_gbp->m_params.fileName = fileName.toString();
-        m_gbp->update();
+        m_gbp->updateFileName(fileName);
     }
 
     bool isDraggable() const final { return true; }
@@ -188,8 +186,7 @@ public:
         TextMark::move(line);
         QTC_ASSERT(m_gbp, return);
         QTC_ASSERT(BreakpointManager::globalBreakpoints().contains(m_gbp), return);
-        m_gbp->m_params.lineNumber = line;
-        m_gbp->update();
+        m_gbp->updateLineNumber(line);
     }
 
     bool isClickable() const final { return true; }
@@ -2259,6 +2256,18 @@ void GlobalBreakpointItem::removeBreakpointFromModel()
     delete m_marker;
     m_marker = nullptr;
     theBreakpointManager->destroyItem(this);
+}
+
+void GlobalBreakpointItem::updateLineNumber(int lineNumber)
+{
+    m_params.lineNumber = lineNumber;
+    update();
+}
+
+void GlobalBreakpointItem::updateFileName(const FilePath &fileName)
+{
+    m_params.fileName = fileName.toString();
+    update();
 }
 
 QString GlobalBreakpointItem::markerFileName() const
