@@ -47,11 +47,9 @@ void CtfStatisticsModel::beginLoading()
     m_data.clear();
 }
 
-void CtfStatisticsModel::addEvent(const json &event, qint64 durationInNs)
+void CtfStatisticsModel::addEvent(const QString &title, qint64 durationInNs)
 {
-    const std::string name = event.value(CtfEventNameKey, "");
-
-    EventData &data = m_data[QString::fromStdString(name)];
+    EventData &data = m_data[title];
     ++data.count;
     if (durationInNs >= 0) {
         data.totalDuration += durationInNs;

@@ -146,7 +146,6 @@ void CtfTraceManager::addEvent(const json &event)
     if (visibleOnTimeline) {
         m_traceBegin = std::min(m_traceBegin, timestamp);
         m_traceEnd = std::max(m_traceEnd, timestamp);
-        m_statisticsModel->addEvent(event, result.second);
     } else if (m_timeOffset == timestamp) {
         // this timestamp was used as the time offset but it is not a visible element
         // -> reset the time offset again:
@@ -169,10 +168,9 @@ void CtfVisualizer::Internal::CtfTraceManager::load(const QString &filename)
     json::parser_callback_t callback = [&ctfParser](int depth, json::parse_event_t event, json &parsed) {
         return ctfParser.callback(depth, event, parsed);
     };
-    m_statisticsModel->beginLoading();
     json unusedValues = json::parse(file, callback, /*allow_exceptions*/ false);
-    m_statisticsModel->endLoading();
     file.close();
+    updateStatistics();
 }
 
 void CtfTraceManager::finalize()
@@ -264,6 +262,27 @@ void CtfTraceManager::addModelsToAggregator()
             modelsToAdd.append(QVariant::fromValue(model));
     }
     m_modelAggregator->setModels(modelsToAdd);
+    updateStatistics();
+}
+
+void CtfTraceManager::updateStatistics()
+{
+    const bool showAll = std::none_of(m_threadRestrictions.begin(), m_threadRestrictions.end(), [](bool value) {
+        return value;
+    });
+
+    m_statisticsModel->beginLoading();
+    for (auto thread : m_threadModels) {
+        if (showAll || m_threadRestrictions[thread->tid()])
+        {
+            const int eventCount = thread->count();
+            for (int i = 0; i < eventCount; ++i) {
+                QString title = thread->eventTitle(i);
+                m_statisticsModel->addEvent(title, thread->duration(i));
+            }
+        }
+    }
+    m_statisticsModel->endLoading();
 }
 
 void CtfTraceManager::clearAll()

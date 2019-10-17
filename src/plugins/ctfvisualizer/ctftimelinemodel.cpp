@@ -222,6 +222,15 @@ int CtfTimelineModel::tid() const
     return m_threadId;
 }
 
+QString CtfTimelineModel::eventTitle(int index) const
+{
+    const int counterIdx = m_itemToCounterIdx.value(index, 0);
+    if (counterIdx > 0) {
+        return QString::fromStdString(m_counterNames.at(counterIdx - 1));
+    }
+    return m_details.value(index).value(0).second;
+}
+
 void CtfTimelineModel::updateName()
 {
     if (m_threadName.isEmpty()) {

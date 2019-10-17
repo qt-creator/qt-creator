@@ -68,6 +68,7 @@ public:
     void finalize(double traceBegin, double traceEnd, const QString &processName, const QString &threadName);
 
     int tid() const;
+    QString eventTitle(int index) const;
 
 signals:
     void detailsRequested(const QString &eventName) const;

@@ -77,6 +77,8 @@ protected:
     void addModelForThread(int threadId, int processId);
     void addModelsToAggregator();
 
+    void updateStatistics();
+
     void clearAll();
 
     Timeline::TimelineModelAggregator *const m_modelAggregator;

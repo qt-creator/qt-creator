@@ -66,7 +66,7 @@ public:
     ~CtfStatisticsModel() override = default;
 
     void beginLoading();
-    void addEvent(const nlohmann::json &event, qint64 duration);
+    void addEvent(const QString &title, qint64 durationInNs);
     void endLoading();
 
 private:
