@@ -217,12 +217,17 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
     emit contentChanged();
 }
 
+int CtfTimelineModel::tid() const
+{
+    return m_threadId;
+}
+
 void CtfTimelineModel::updateName()
 {
     if (m_threadName.isEmpty()) {
-        setDisplayName(tr("> Thread %1").arg(m_threadId));
+        setDisplayName(tr("Thread %1").arg(m_threadId));
     } else {
-        setDisplayName(QString("> %1 (%2)").arg(m_threadName).arg(m_threadId));
+        setDisplayName(QString("%1 (%2)").arg(m_threadName).arg(m_threadId));
     }
     QString process = m_processName.isEmpty() ? QString::number(m_processId) :
                                                 QString("%1 (%2)").arg(m_processName).arg(m_processId);

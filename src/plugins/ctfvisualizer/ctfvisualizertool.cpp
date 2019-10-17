@@ -29,6 +29,7 @@
 
 #include "ctfstatisticsmodel.h"
 #include "ctfstatisticsview.h"
+#include "ctftimelinemodel.h"
 #include "ctfvisualizertraceview.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -36,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <debugger/analyzer/analyzerconstants.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QApplication>
@@ -62,6 +64,8 @@ CtfVisualizerTool::CtfVisualizerTool()
     , m_statisticsModel(new CtfStatisticsModel(this))
     , m_statisticsView(nullptr)
     , m_traceManager(new CtfTraceManager(this, m_modelAggregator.get(), m_statisticsModel.get()))
+    , m_restrictToThreadsButton(new QToolButton)
+    , m_restrictToThreadsMenu(new QMenu(m_restrictToThreadsButton))
 {
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     ActionContainer *options = ActionManager::createMenu(Constants::CtfVisualizerMenuId);
@@ -78,6 +82,16 @@ CtfVisualizerTool::CtfVisualizerTool()
     options->addAction(command);
 
     m_perspective.setAboutToActivateCallback([this]() { createViews(); });
+
+    m_restrictToThreadsButton->setIcon(Utils::Icons::FILTER.icon());
+    m_restrictToThreadsButton->setToolTip(tr("Restrict to threads"));
+    m_restrictToThreadsButton->setPopupMode(QToolButton::InstantPopup);
+    m_restrictToThreadsButton->setProperty("noArrow", true);
+    m_restrictToThreadsButton->setMenu(m_restrictToThreadsMenu);
+    connect(m_restrictToThreadsMenu, &QMenu::triggered,
+            this, &CtfVisualizerTool::toggleThreadRestriction);
+
+    m_perspective.addToolBarWidget(m_restrictToThreadsButton);
 }
 
 CtfVisualizerTool::~CtfVisualizerTool() = default;
@@ -114,6 +128,24 @@ void CtfVisualizerTool::createViews()
     m_perspective.addWindow(m_statisticsView, Utils::Perspective::AddToTab, m_traceView);
 
     m_perspective.setAboutToActivateCallback(Utils::Perspective::Callback());
+}
+
+void CtfVisualizerTool::setAvailableThreads(const QList<CtfTimelineModel *> &threads)
+{
+    m_restrictToThreadsMenu->clear();
+
+    for (auto timelineModel : threads) {
+        QAction *action = m_restrictToThreadsMenu->addAction(timelineModel->displayName());
+        action->setCheckable(true);
+        action->setData(timelineModel->tid());
+        action->setChecked(m_traceManager->isRestrictedTo(timelineModel->tid()));
+    }
+}
+
+void CtfVisualizerTool::toggleThreadRestriction(QAction *action)
+{
+    const int tid = action->data().toInt();
+    m_traceManager->setThreadRestriction(tid, action->isChecked());
 }
 
 Timeline::TimelineModelAggregator *CtfVisualizerTool::modelAggregator() const
@@ -169,6 +201,7 @@ void CtfVisualizerTool::loadJson()
             zoomControl()->setTrace(m_traceManager->traceBegin(), m_traceManager->traceEnd() + m_traceManager->traceDuration() / 20);
             zoomControl()->setRange(m_traceManager->traceBegin(), m_traceManager->traceEnd() + m_traceManager->traceDuration() / 20);
         }
+        setAvailableThreads(m_traceManager->getSortedThreads());
         thread->deleteLater();
         delete task;
         delete futureInterface;

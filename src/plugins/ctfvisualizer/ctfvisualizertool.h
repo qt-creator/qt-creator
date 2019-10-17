@@ -40,6 +40,7 @@ namespace Internal {
 class CtfTraceManager;
 class CtfStatisticsModel;
 class CtfStatisticsView;
+class CtfTimelineModel;
 class CtfVisualizerTraceView;
 
 
@@ -63,6 +64,9 @@ private:
     void initialize();
     void finalize();
 
+    void setAvailableThreads(const QList<CtfTimelineModel *> &threads);
+    void toggleThreadRestriction(QAction *action);
+
     Utils::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
                                      tr("Chrome Trace Format Visualizer")};
 
@@ -77,6 +81,9 @@ private:
     CtfStatisticsView *m_statisticsView;
 
     const QScopedPointer<CtfTraceManager> m_traceManager;
+
+    QToolButton *const m_restrictToThreadsButton;
+    QMenu *const m_restrictToThreadsMenu;
 };
 
 } // namespace Internal

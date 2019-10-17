@@ -64,6 +64,11 @@ public:
 
     int getSelectionId(const std::string &name);
 
+    QList<CtfTimelineModel *> getSortedThreads() const;
+
+    void setThreadRestriction(int tid, bool restrictToThisThread);
+    bool isRestrictedTo(int tid) const;
+
 signals:
     void detailsRequested(const QString &title);
 
@@ -81,6 +86,7 @@ protected:
     QHash<qint64, QString> m_processNames;
     QHash<qint64, QString> m_threadNames;
     QMap<std::string, int> m_name2selectionId;
+    QHash<qint64, bool> m_threadRestrictions;
 
     double m_traceBegin = std::numeric_limits<double>::max();
     double m_traceEnd = std::numeric_limits<double>::min();

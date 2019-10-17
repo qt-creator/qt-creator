@@ -192,6 +192,7 @@ void CtfTraceManager::finalize()
                 }
             }
             m_threadModels.remove(tid);
+            m_threadRestrictions.remove(tid);
         }
     }
     for (CtfTimelineModel *model: m_threadModels) {
@@ -216,25 +217,51 @@ int CtfTraceManager::getSelectionId(const std::string &name)
     return *it;
 }
 
-void CtfTraceManager::addModelForThread(int threadId, int processId)
-{
-    CtfTimelineModel *model = new CtfTimelineModel(m_modelAggregator, this, threadId, processId);
-    m_threadModels.insert(threadId, model);
-    connect(model, &CtfTimelineModel::detailsRequested, this,
-            &CtfTraceManager::detailsRequested);
-}
-
-void CtfTraceManager::addModelsToAggregator()
+QList<CtfTimelineModel *> CtfTraceManager::getSortedThreads() const
 {
     QList<CtfTimelineModel *> models = m_threadModels.values();
     std::sort(models.begin(), models.end(), [](const CtfTimelineModel *a, const CtfTimelineModel *b) -> bool {
         return (a->m_processId != b->m_processId) ? (a->m_processId < b->m_processId)
                                                   : (std::abs(a->m_threadId) < std::abs(b->m_threadId));
     });
+    return models;
+}
+
+void CtfTraceManager::setThreadRestriction(int tid, bool restrictToThisThread)
+{
+    if (m_threadRestrictions.value(tid) == restrictToThisThread)
+        return;
+
+    m_threadRestrictions[tid] = restrictToThisThread;
+    addModelsToAggregator();
+}
+
+bool CtfTraceManager::isRestrictedTo(int tid) const
+{
+    return m_threadRestrictions.value(tid);
+}
+
+void CtfTraceManager::addModelForThread(int threadId, int processId)
+{
+    CtfTimelineModel *model = new CtfTimelineModel(m_modelAggregator, this, threadId, processId);
+    m_threadModels.insert(threadId, model);
+    m_threadRestrictions.insert(threadId, false);
+    connect(model, &CtfTimelineModel::detailsRequested, this,
+            &CtfTraceManager::detailsRequested);
+}
+
+void CtfTraceManager::addModelsToAggregator()
+{
+    const QList<CtfTimelineModel *> models = getSortedThreads();
+
+    const bool showAll = std::none_of(m_threadRestrictions.begin(), m_threadRestrictions.end(), [](bool value) {
+        return value;
+    });
 
     QVariantList modelsToAdd;
     for (CtfTimelineModel *model: models) {
-        modelsToAdd.append(QVariant::fromValue(model));
+        if (showAll || isRestrictedTo(model->tid()))
+            modelsToAdd.append(QVariant::fromValue(model));
     }
     m_modelAggregator->setModels(modelsToAdd);
 }
