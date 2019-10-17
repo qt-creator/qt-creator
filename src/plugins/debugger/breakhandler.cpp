@@ -2260,13 +2260,18 @@ void GlobalBreakpointItem::removeBreakpointFromModel()
 
 void GlobalBreakpointItem::updateLineNumber(int lineNumber)
 {
+    if (m_params.lineNumber == lineNumber)
+        return;
     m_params.lineNumber = lineNumber;
     update();
 }
 
 void GlobalBreakpointItem::updateFileName(const FilePath &fileName)
 {
-    m_params.fileName = fileName.toString();
+    const QString &file = fileName.toString();
+    if (m_params.fileName == file)
+        return;
+    m_params.fileName = file;
     update();
 }
 
@@ -2305,11 +2310,14 @@ void GlobalBreakpointItem::updateMarker()
 
     const FilePath file = FilePath::fromString(m_params.fileName);
     const int line = m_params.lineNumber;
-    if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
-        destroyMarker();
-
-    if (!m_marker && !file.isEmpty() && line > 0)
+    if (m_marker) {
+        if (file != m_marker->fileName())
+            m_marker->updateFileName(file);
+        if (line != m_marker->lineNumber())
+            m_marker->move(line);
+    } else if (!file.isEmpty() && line > 0) {
         m_marker = new GlobalBreakpointMarker(this, file, line);
+    }
 
     if (m_marker)
         m_marker->setToolTip(toolTip());
