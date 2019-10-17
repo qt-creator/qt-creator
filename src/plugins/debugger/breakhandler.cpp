@@ -170,7 +170,6 @@ public:
         // the next line that generated code.
 
         m_gbp->m_params.lineNumber = lineNumber;
-        m_gbp->updateMarker();
         m_gbp->update();
     }
 
@@ -186,14 +185,11 @@ public:
 
     void dragToLine(int line) final
     {
+        TextMark::move(line);
         QTC_ASSERT(m_gbp, return);
         QTC_ASSERT(BreakpointManager::globalBreakpoints().contains(m_gbp), return);
-        BreakpointParameters params = m_gbp->m_params;
-        params.lineNumber = line;
-        GlobalBreakpoint gbp = m_gbp;
-        m_gbp = GlobalBreakpoint();
-        gbp->deleteBreakpoint();
-        m_gbp = BreakpointManager::createBreakpoint(params);
+        m_gbp->m_params.lineNumber = line;
+        m_gbp->update();
     }
 
     bool isClickable() const final { return true; }
