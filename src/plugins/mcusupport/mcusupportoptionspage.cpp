@@ -370,8 +370,10 @@ static PackageOptions* createStm32CubeProgrammerPackage()
     auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("STM32CubeProgrammer"),
                 defaultPath,
-                "bin",
+                QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
+                                                                 : "/bin/STM32_Programmer.sh"),
                 "stm32CubeProgrammer");
+    result->setRelativePathModifier("/bin");
     result->setDownloadUrl(
                 QUrl::fromUserInput("https://www.st.com/en/development-tools/stm32cubeprog.html"));
     result->setAddToPath(true);
