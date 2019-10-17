@@ -101,6 +101,7 @@ public:
     void reset(const QList<BaseSettings *> &settings);
     QList<BaseSettings *> settings() const { return m_settings; }
     void insertSettings(BaseSettings *settings);
+    void enableSetting(const QString &id);
     QList<BaseSettings *> removed() const { return m_removed; }
     BaseSettings *settingForIndex(const QModelIndex &index) const;
     QModelIndex indexForSetting(BaseSettings *setting) const;
@@ -148,6 +149,7 @@ public:
 
     QList<BaseSettings *> settings() const;
     void addSettings(BaseSettings *settings);
+    void enableSettings(const QString &id);
 
 private:
     LanguageClientSettingsModel m_model;
@@ -311,6 +313,11 @@ void LanguageClientSettingsPage::addSettings(BaseSettings *settings)
     m_model.insertSettings(settings);
 }
 
+void LanguageClientSettingsPage::enableSettings(const QString &id)
+{
+    m_model.enableSetting(id);
+}
+
 LanguageClientSettingsModel::~LanguageClientSettingsModel()
 {
     qDeleteAll(m_settings);
@@ -435,6 +442,17 @@ void LanguageClientSettingsModel::insertSettings(BaseSettings *settings)
     endInsertRows();
 }
 
+void LanguageClientSettingsModel::enableSetting(const QString &id)
+{
+    BaseSettings *setting = Utils::findOrDefault(m_settings, Utils::equal(&BaseSettings::m_id, id));
+    if (!setting)
+        return;
+    setting->m_enabled = true;
+    const QModelIndex &index = indexForSetting(setting);
+    if (index.isValid())
+        emit dataChanged(index, index, {Qt::CheckStateRole});
+}
+
 BaseSettings *LanguageClientSettingsModel::settingForIndex(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= m_settings.size())
@@ -546,6 +564,11 @@ QList<BaseSettings *> LanguageClientSettings::currentPageSettings()
 void LanguageClientSettings::addSettings(BaseSettings *settings)
 {
     settingsPage().addSettings(settings);
+}
+
+void LanguageClientSettings::enableSettings(const QString &id)
+{
+    settingsPage().enableSettings(id);
 }
 
 void LanguageClientSettings::toSettings(QSettings *settings,

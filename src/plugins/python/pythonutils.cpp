@@ -41,6 +41,7 @@
 
 #include <texteditor/textdocument.h>
 
+#include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
@@ -55,12 +56,19 @@ namespace Internal {
 
 static constexpr char startPylsInfoBarId[] = "Python::StartPyls";
 static constexpr char installPylsInfoBarId[] = "Python::InstallPyls";
+static constexpr char enablePylsInfoBarId[] = "Python::EnablePyls";
 static constexpr char installPylsTaskId[] = "Python::InstallPylsTask";
 static constexpr char pythonUtilsTrContext[] = "Python::Utils";
 
 struct PythonLanguageServerState
 {
-    enum { CanNotBeInstalled, CanBeInstalled, AlreadyInstalled, AlreadyConfigured } state;
+    enum {
+        CanNotBeInstalled,
+        CanBeInstalled,
+        AlreadyInstalled,
+        AlreadyConfigured,
+        ConfiguredButDisabled
+    } state;
     FilePath pylsModulePath;
 };
 
@@ -130,8 +138,11 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
     if (response.allOutput().contains("Python Language Server")) {
         const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
         for (const StdIOSettings *serverSetting : configuredPythonLanguageServer()) {
-            if (modulePath == getPylsModulePath(serverSetting->command()))
-                return {PythonLanguageServerState::AlreadyConfigured, FilePath()};
+            if (modulePath == getPylsModulePath(serverSetting->command())) {
+                return {serverSetting->m_enabled ? PythonLanguageServerState::AlreadyConfigured
+                                                 : PythonLanguageServerState::ConfiguredButDisabled,
+                        FilePath()};
+            }
         }
 
         return {PythonLanguageServerState::AlreadyInstalled, getPylsModulePath(pythonLShelpCommand)};
@@ -299,6 +310,20 @@ static void setupPythonLanguageServer(const FilePath &python,
         LanguageClient::LanguageClientManager::reOpenDocumentWithClient(document, client);
 }
 
+static void enablePythonLanguageServer(const FilePath &python,
+                                       QPointer<TextEditor::TextDocument> document)
+{
+    using namespace LanguageClient;
+    document->infoBar()->removeInfo(enablePylsInfoBarId);
+    if (const StdIOSettings *setting = languageServerForPython(python)) {
+        LanguageClientManager::enableClientSettings(setting->m_id);
+        if (const StdIOSettings *setting = languageServerForPython(python)) {
+            if (Client *client = LanguageClientManager::clientForSetting(setting).value(0))
+                LanguageClientManager::reOpenDocumentWithClient(document, client);
+        }
+    }
+}
+
 void updateEditorInfoBar(const FilePath &python, TextEditor::TextDocument *document)
 {
     const PythonLanguageServerState &lsState = checkPythonLanguageServer(python);
@@ -308,9 +333,8 @@ void updateEditorInfoBar(const FilePath &python, TextEditor::TextDocument *docum
         return;
     }
 
+    resetEditorInfoBar(document);
     Core::InfoBar *infoBar = document->infoBar();
-    infoBar->removeInfo(installPylsInfoBarId);
-    infoBar->removeInfo(startPylsInfoBarId);
     if (lsState.state == PythonLanguageServerState::CanBeInstalled
         && infoBar->canInfoBeAdded(installPylsInfoBarId)) {
         auto message
@@ -336,6 +360,17 @@ void updateEditorInfoBar(const FilePath &python, TextEditor::TextDocument *docum
         info.setCustomButtonInfo(QCoreApplication::translate(pythonUtilsTrContext, "Setup"),
                                  [=]() { setupPythonLanguageServer(python, document); });
         infoBar->addInfo(info);
+    } else if (lsState.state == PythonLanguageServerState::ConfiguredButDisabled
+               && infoBar->canInfoBeAdded(enablePylsInfoBarId)) {
+        auto message = QCoreApplication::translate(pythonUtilsTrContext,
+                                                   "Enable Python language server for %1 (%2)?")
+                           .arg(pythonName(python), python.toUserOutput());
+        Core::InfoBarEntry info(enablePylsInfoBarId,
+                                message,
+                                Core::InfoBarEntry::GlobalSuppression::Enabled);
+        info.setCustomButtonInfo(QCoreApplication::translate(pythonUtilsTrContext, "Enable"),
+                                 [=]() { enablePythonLanguageServer(python, document); });
+        infoBar->addInfo(info);
     }
 }
 
@@ -344,6 +379,7 @@ void resetEditorInfoBar(TextEditor::TextDocument *document)
     Core::InfoBar *infoBar = document->infoBar();
     infoBar->removeInfo(installPylsInfoBarId);
     infoBar->removeInfo(startPylsInfoBarId);
+    infoBar->removeInfo(enablePylsInfoBarId);
 }
 
 } // namespace Internal
