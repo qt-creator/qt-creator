@@ -639,6 +639,10 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     delete dd;
     dd = nullptr;
     m_instance = nullptr;
+
+#ifdef WITH_TESTS
+    deleteTestToolchains();
+#endif
 }
 
 ProjectExplorerPlugin *ProjectExplorerPlugin::instance()

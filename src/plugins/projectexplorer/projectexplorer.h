@@ -243,6 +243,7 @@ private slots:
 
     void testToolChainMerging_data();
     void testToolChainMerging();
+    void deleteTestToolchains();
 
     void testUserFileAccessor_prepareToReadSettings();
     void testUserFileAccessor_prepareToReadSettingsObsoleteVersion();

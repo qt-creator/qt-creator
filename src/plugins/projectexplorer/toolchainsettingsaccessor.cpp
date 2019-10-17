@@ -309,7 +309,7 @@ public:
         setTypeDisplayName("Test Tool Chain");
     }
 
-    static QList<TTC *> toolChains();
+    static QList<TTC *> toolChains() { return m_toolChains; }
     static bool hasToolChains() { return !m_toolChains.isEmpty(); }
 
     Abi targetAbi() const override { return Abi::hostAbi(); }
@@ -505,6 +505,11 @@ void ProjectExplorerPlugin::testToolChainMerging()
     QCOMPARE(expToDemote, actToDemote);
     QCOMPARE(Utils::toSet(system + user + autodetect),
              Utils::toSet(ops.toRegister + ops.toDemote + ops.toDelete));
+}
+
+void ProjectExplorerPlugin::deleteTestToolchains()
+{
+    qDeleteAll(TTC::toolChains());
 }
 
 } // namespace ProjectExplorer

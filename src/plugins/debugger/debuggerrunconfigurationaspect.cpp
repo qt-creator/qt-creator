@@ -220,6 +220,14 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     m_overrideStartupAspect->setLabelText(tr("Additional startup commands:"));
 }
 
+DebuggerRunConfigurationAspect::~DebuggerRunConfigurationAspect()
+{
+    delete m_cppAspect;
+    delete m_qmlAspect;
+    delete m_multiProcessAspect;
+    delete m_overrideStartupAspect;
+}
+
 void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 {
     m_qmlAspect->setValue(value);

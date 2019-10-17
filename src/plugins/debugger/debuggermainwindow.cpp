@@ -131,6 +131,7 @@ class DebuggerMainWindowPrivate : public QObject
 {
 public:
     DebuggerMainWindowPrivate(DebuggerMainWindow *parent);
+    ~DebuggerMainWindowPrivate();
 
     void selectPerspective(Perspective *perspective);
     void depopulateCurrentPerspective();
@@ -254,6 +255,11 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     connect(closeButton, &QAbstractButton::clicked, [] {
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
+}
+
+DebuggerMainWindowPrivate::~DebuggerMainWindowPrivate()
+{
+    delete m_editorPlaceHolder;
 }
 
 DebuggerMainWindow::DebuggerMainWindow()

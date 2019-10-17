@@ -94,12 +94,16 @@ auto findComboBox(Utils::Wizard *wizard, const QString &objectName) {
 };
 
 } // namespace
+
+struct FactoryDeleter { void operator()(ProjectExplorer::JsonWizardFactory *f) { f->deleteLater(); } };
+using FactoryPtr = std::unique_ptr<ProjectExplorer::JsonWizardFactory, FactoryDeleter>;
+
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsEmptyWizard()
 {
     QString errorMessage;
     const QJsonObject wizard = createGeneralWizard(QJsonObject());
 
-    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage);
+    const FactoryPtr factory(ProjectExplorer::JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage));
     QVERIFY(factory == nullptr);
     QCOMPARE(qPrintable(errorMessage), "Page has no typeId set.");
 }
@@ -110,7 +114,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsEmptyPage()
     const QJsonObject pages = createFieldPageJsonObject(QJsonArray());
     const QJsonObject wizard = createGeneralWizard(pages);
 
-    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage);
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage));
     QVERIFY(factory == nullptr);
     QCOMPARE(qPrintable(errorMessage), "When parsing fields of page \"PE.Wizard.Page.Fields\": ");
 }
@@ -143,7 +147,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsUnusedKeyAtFields()
     const QJsonObject wizard = createGeneralWizard(pages);
 
     QTest::ignoreMessage(QtWarningMsg, QRegularExpression("has unsupported keys: wrong"));
-    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage);
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), QDir(), &errorMessage));
     QVERIFY(factory);
     QVERIFY(errorMessage.isEmpty());
 }
@@ -166,7 +170,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsCheckBox()
     });
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage);
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
     Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
@@ -198,7 +202,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsLineEdit()
     });
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage);
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
     Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
@@ -227,7 +231,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
 
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage);
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
     Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
 
@@ -285,7 +289,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
 
     const QJsonObject pages = createFieldPageJsonObject(widgets);
     const QJsonObject wizardObject = createGeneralWizard(pages);
-    JsonWizardFactory *factory = ProjectExplorer::JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage);
+    const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
     Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
 

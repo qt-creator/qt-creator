@@ -241,6 +241,7 @@ TargetSetupPage::~TargetSetupPage()
 {
     disconnect();
     reset();
+    delete m_spacer;
     delete m_ui;
 }
 
