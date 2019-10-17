@@ -47,8 +47,6 @@ public:
     CMakeProcess(const CMakeProcess&) = delete;
     ~CMakeProcess();
 
-    static QStringList toArguments(const CMakeConfig &config, const Utils::MacroExpander *expander);
-
     void run(const BuildDirParameters &parameters, const QStringList &arguments);
 
     QProcess::ProcessState state() const;

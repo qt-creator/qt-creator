@@ -231,6 +231,28 @@ bool BuildDirManager::hasConfigChanged()
     return mustReparse || kcit != targetConfig.constEnd();
 }
 
+void BuildDirManager::writeConfigurationIntoBuildDirectory(const Utils::MacroExpander *expander)
+{
+    QTC_ASSERT(expander, return );
+
+    const FilePath buildDir = workDirectory(m_parameters);
+    QTC_ASSERT(buildDir.exists(), return );
+
+    const FilePath settingsFile = buildDir.pathAppended("qtcsettings.cmake");
+
+    QByteArray contents;
+    contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
+    contents.append(
+        transform(m_parameters.configuration,
+                  [expander](const CMakeConfigItem &item) { return item.toCMakeSetLine(expander); })
+            .join('\n')
+            .toUtf8());
+
+    QFile file(settingsFile.toString());
+    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return );
+    file.write(contents);
+}
+
 bool BuildDirManager::isParsing() const
 {
     return m_reader && m_reader->isParsing();
@@ -357,6 +379,8 @@ void BuildDirManager::parse()
                 << "Config check triggered flags change:" << flagsString(reparseParameters);
         }
     }
+
+    writeConfigurationIntoBuildDirectory(m_parameters.expander);
 
     qCDebug(cmakeBuildDirManagerLog) << "Asking reader to parse";
     m_reader->parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,

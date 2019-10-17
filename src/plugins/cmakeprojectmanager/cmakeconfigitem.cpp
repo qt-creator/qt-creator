@@ -149,6 +149,24 @@ CMakeConfigItem::Type CMakeConfigItem::typeStringToType(const QByteArray &type)
     return CMakeConfigItem::INTERNAL;
 }
 
+QString CMakeConfigItem::typeToTypeString(const CMakeConfigItem::Type t)
+{
+    switch (t) {
+    case CMakeProjectManager::CMakeConfigItem::FILEPATH:
+        return "FILEPATH";
+    case CMakeProjectManager::CMakeConfigItem::PATH:
+        return "PATH";
+    case CMakeProjectManager::CMakeConfigItem::STRING:
+        return "STRING";
+    case CMakeProjectManager::CMakeConfigItem::INTERNAL:
+        return "INTERNAL";
+    case CMakeProjectManager::CMakeConfigItem::STATIC:
+        return "STATIC";
+    case CMakeConfigItem::BOOL:
+        return "BOOL";
+    }
+}
+
 Utils::optional<bool> CMakeConfigItem::toBool(const QByteArray &value)
 {
     // Taken from CMakes if(<constant>) documentation:
@@ -365,6 +383,18 @@ QString CMakeConfigItem::toArgument(const Utils::MacroExpander *expander) const
     if (isUnset)
         return "-U" + QString::fromUtf8(key);
     return "-D" + toString(expander);
+}
+
+QString CMakeConfigItem::toCMakeSetLine(const Utils::MacroExpander *expander) const
+{
+    if (isUnset) {
+        return QString("unset(\"%1\" CACHE)").arg(QString::fromUtf8(key));
+    }
+    return QString("set(\"%1\" \"%2\" CACHE \"%3\" \"%4\" FORCE)")
+        .arg(QString::fromUtf8(key))
+        .arg(expandedValue(expander))
+        .arg(typeToTypeString(type))
+        .arg(QString::fromUtf8(documentation));
 }
 
 bool CMakeConfigItem::operator==(const CMakeConfigItem &o) const

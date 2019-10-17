@@ -84,13 +84,6 @@ CMakeProcess::~CMakeProcess()
     }
 }
 
-QStringList CMakeProcess::toArguments(const CMakeConfig &config,
-                                      const Utils::MacroExpander *expander) {
-    return Utils::transform(config, [expander](const CMakeConfigItem &i) -> QString {
-        return i.toArgument(expander);
-    });
-}
-
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
     QTC_ASSERT(!m_process && !m_parser && !m_future, return);

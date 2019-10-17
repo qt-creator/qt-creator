@@ -127,6 +127,7 @@ private:
 
     bool hasConfigChanged();
 
+    void writeConfigurationIntoBuildDirectory(const Utils::MacroExpander *expander);
 
     void becameDirty();
 
