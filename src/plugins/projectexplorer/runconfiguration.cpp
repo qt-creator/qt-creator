@@ -356,9 +356,14 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     m_buildKey = map.value(BUILD_KEY).toString();
 
     if (m_buildKey.isEmpty()) {
-        // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
         const Core::Id mangledId = Core::Id::fromSetting(map.value(settingsIdKey()));
         m_buildKey = mangledId.suffixAfter(id());
+
+        // Hack for cmake projects 4.10 -> 4.11.
+        const QString magicSeparator = "///::///";
+        const int magicIndex = m_buildKey.indexOf(magicSeparator);
+        if (magicIndex != -1)
+            m_buildKey = m_buildKey.mid(magicIndex + magicSeparator.length());
     }
 
     return  true;
