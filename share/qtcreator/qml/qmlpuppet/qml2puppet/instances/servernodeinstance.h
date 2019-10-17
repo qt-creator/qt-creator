@@ -172,6 +172,8 @@ private: // functions
 
     void setPropertyBinding(const PropertyName &name, const QString &expression);
 
+    void setHideInEditor(bool b);
+
     void resetProperty(const PropertyName &name);
     void refreshProperty(const PropertyName &name);
 

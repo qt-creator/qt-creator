@@ -87,6 +87,14 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
 
+find_package(Qt5 COMPONENTS Quick3D QUIET)
+extend_qtc_executable(qml2puppet
+  CONDITION TARGET Qt5::Quick3
+  FEATURE_INFO "Qt Quick 3D"
+  DEPENDS Qt5::Quick3D
+  DEFINES QUICK3D_MODULE
+)
+
 extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/interfaces"
   SOURCES

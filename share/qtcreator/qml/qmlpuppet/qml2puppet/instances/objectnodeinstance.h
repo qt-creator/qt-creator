@@ -193,6 +193,8 @@ public:
 
     virtual PropertyNameList ignoredProperties() const;
 
+    void virtual setHideInEditor(bool b);
+
 protected:
     explicit ObjectNodeInstance(QObject *object);
     void doResetProperty(const PropertyName &propertyName);

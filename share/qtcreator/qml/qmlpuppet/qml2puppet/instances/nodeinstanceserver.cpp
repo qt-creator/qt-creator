@@ -985,12 +985,10 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
     } else if (auxiliaryContainer.name() == "invisible") {
         if (hasInstanceForId(auxiliaryContainer.instanceId())) {
             ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
-            if (instance.isSubclassOf("QQuick3DNode")) {
-                if (!auxiliaryContainer.value().isNull())
-                    instance.setPropertyVariant("visible", !auxiliaryContainer.value().toBool());
-                else
-                    instance.resetProperty("visible");
-            }
+            if (!auxiliaryContainer.value().isNull())
+                instance.setHideInEditor(auxiliaryContainer.value().toBool());
+            else
+                instance.setHideInEditor(false);
         }
     }
 }

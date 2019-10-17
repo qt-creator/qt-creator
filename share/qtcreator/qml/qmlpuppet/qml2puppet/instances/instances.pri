@@ -1,5 +1,10 @@
 INCLUDEPATH += $$PWD/
 
+qtHaveModule(quick3d) {
+    QT *= quick3d-private
+    DEFINES *= QUICK3D_MODULE
+}
+
 HEADERS += $$PWD/qt5nodeinstanceserver.h
 HEADERS += $$PWD/qt5testnodeinstanceserver.h
 HEADERS += $$PWD/qt5informationnodeinstanceserver.h
@@ -23,6 +28,7 @@ HEADERS += $$PWD/anchorchangesnodeinstance.h
 HEADERS += $$PWD/positionernodeinstance.h
 HEADERS += $$PWD/layoutnodeinstance.h
 HEADERS += $$PWD/qt3dpresentationnodeinstance.h
+HEADERS += $$PWD/quick3dnodeinstance.h
 
 SOURCES += $$PWD/qt5nodeinstanceserver.cpp
 SOURCES += $$PWD/qt5testnodeinstanceserver.cpp
@@ -47,3 +53,4 @@ SOURCES += $$PWD/anchorchangesnodeinstance.cpp
 SOURCES += $$PWD/positionernodeinstance.cpp
 SOURCES += $$PWD/layoutnodeinstance.cpp
 SOURCES += $$PWD/qt3dpresentationnodeinstance.cpp
+SOURCES += $$PWD/quick3dnodeinstance.cpp

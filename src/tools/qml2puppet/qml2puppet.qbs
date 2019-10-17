@@ -175,6 +175,8 @@ QtcTool {
             "instances/qmlpropertychangesnodeinstance.h",
             "instances/qmlstatenodeinstance.cpp",
             "instances/qmlstatenodeinstance.h",
+            "instances/quick3dnodeinstance.cpp",
+            "instances/quick3dnodeinstance.h",
             "instances/qmltransitionnodeinstance.cpp",
             "instances/qmltransitionnodeinstance.h",
             "instances/qt3dpresentationnodeinstance.cpp",
