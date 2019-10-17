@@ -87,6 +87,14 @@ QVariantList CtfTimelineModel::labels() const
 QVariantMap CtfTimelineModel::orderedDetails(int index) const
 {
     QMap<int, QPair<QString, QString>> info = m_details.value(index);
+    const int counterIdx = m_itemToCounterIdx.value(index, 0);
+    if (counterIdx > 0) {
+        // this item is a counter, add its properties:
+        info.insert(0, {{}, QString::fromStdString(m_counterNames.at(counterIdx - 1))});
+        info.insert(4, {tr("Value"), QString::number(double(m_counterValues.at(index)), 'g')});
+        info.insert(5, {tr("Min"), QString::number(double(m_counterData.at(counterIdx - 1).min), 'g')});
+        info.insert(6, {tr("Max"), QString::number(double(m_counterData.at(counterIdx - 1).max), 'g')});
+    }
     info.insert(2, {tr("Start"), Timeline::formatTime(startTime(index))});
     info.insert(3, {tr("Wall Duration"), Timeline::formatTime(duration(index))});
     QVariantMap data;
