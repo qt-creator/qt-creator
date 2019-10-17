@@ -34,10 +34,6 @@ if (WITH_TESTS)
   set(IMPLICIT_DEPENDS Qt5::Test)
 endif()
 
-if (BUILD_WITH_PCH)
-  list(APPEND IMPLICIT_DEPENDS Qt5::Core)
-endif()
-
 find_package(Qt5
   COMPONENTS Concurrent Core Gui LinguistTools Network PrintSupport Qml Quick
     QuickWidgets Sql Widgets Xml ${QT_TEST_COMPONENT}

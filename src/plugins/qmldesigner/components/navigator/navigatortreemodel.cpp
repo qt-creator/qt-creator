@@ -607,10 +607,7 @@ bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value
         QTC_ASSERT(m_view, return false);
         m_view->handleChangedExport(modelNode, value.toInt() != 0);
     } else if (index.column() == 2 && role == Qt::CheckStateRole) {
-        if (value.toInt() == 0)
-            modelNode.setAuxiliaryData("invisible", true);
-        else
-            modelNode.removeAuxiliaryData("invisible");
+        QmlVisualNode(modelNode).setVisibilityOverride(value.toInt() == 0);
     }
 
     return true;

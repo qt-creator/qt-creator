@@ -184,6 +184,7 @@ ToolChainInfo::ToolChainInfo(const ToolChain *toolChain,
         wordWidth = toolChain->targetAbi().wordWidth();
         targetTriple = toolChain->originalTargetTriple();
         extraCodeModelFlags = toolChain->extraCodeModelFlags();
+        installDir = toolChain->installDir();
 
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.

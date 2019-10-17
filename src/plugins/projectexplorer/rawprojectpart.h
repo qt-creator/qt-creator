@@ -36,6 +36,7 @@
 
 #include <utils/cpplanguage_details.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QPointer>
 
@@ -152,6 +153,7 @@ public:
     bool isMsvc2015ToolChain = false;
     unsigned wordWidth = 0;
     QString targetTriple;
+    Utils::FilePath installDir;
     QStringList extraCodeModelFlags;
 
     QString sysRootPath; // For headerPathsRunner.

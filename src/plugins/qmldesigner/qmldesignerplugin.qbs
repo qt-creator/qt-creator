@@ -505,6 +505,8 @@ Project {
                 "formeditor/toolbox.h",
                 "formeditor/formeditortoolbutton.cpp",
                 "formeditor/formeditortoolbutton.h",
+                "formeditor/option3daction.cpp",
+                "formeditor/option3daction.h",
                 "importmanager/importlabel.cpp",
                 "importmanager/importlabel.h",
                 "importmanager/importmanagercombobox.cpp",

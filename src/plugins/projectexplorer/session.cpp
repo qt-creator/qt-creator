@@ -156,6 +156,8 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
 
 SessionManager::~SessionManager()
 {
+    EditorManager::setWindowTitleAdditionHandler({});
+    EditorManager::setSessionTitleHandler({});
     emit m_instance->aboutToUnloadSession(d->m_sessionName);
     delete d->m_writer;
     delete d;

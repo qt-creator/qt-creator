@@ -381,7 +381,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
     m_delegate.setAnnotationRole(AnnotationRole);
 
     m_inspectedFile = new TextEditorLinkLabel(this);
-    m_inspectedFile->setMargin(5);
+    m_inspectedFile->setContentsMargins(5, 5, 5, 5);
 
     m_treeView = new CppIncludeHierarchyTreeView;
     m_treeView->setModel(&m_model);

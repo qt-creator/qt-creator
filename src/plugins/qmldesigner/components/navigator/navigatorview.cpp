@@ -208,7 +208,7 @@ void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exporte
 
 bool NavigatorView::isNodeInvisible(const ModelNode &modelNode) const
 {
-    return modelNode.auxiliaryData("invisible").toBool();
+    return QmlVisualNode(modelNode).visibilityOverride();
 }
 
 void NavigatorView::disableWidget()

@@ -71,6 +71,7 @@ public:
 
     Abi targetAbi() const override;
     QString originalTargetTriple() const override;
+    Utils::FilePath installDir() const override;
     QString version() const;
     Abis supportedAbis() const override;
     void setTargetAbi(const Abi &);
@@ -129,6 +130,7 @@ protected:
     void setCompilerCommand(const Utils::FilePath &path);
     void setSupportedAbis(const Abis &abis);
     void setOriginalTargetTriple(const QString &targetTriple);
+    void setInstallDir(const Utils::FilePath &installDir);
     void setMacroCache(const QStringList &allCxxflags, const Macros &macroCache) const;
     Macros macroCache(const QStringList &allCxxflags) const;
 
@@ -137,6 +139,7 @@ protected:
 
     virtual DetectedAbisResult detectSupportedAbis() const;
     virtual QString detectVersion() const;
+    virtual Utils::FilePath detectInstallDir() const;
 
     // Reinterpret options for compiler drivers inheriting from GccToolChain (e.g qcc) to apply -Wp option
     // that passes the initial options directly down to the gcc compiler
@@ -196,6 +199,7 @@ private:
     mutable QString m_originalTargetTriple;
     mutable HeaderPaths m_headerPaths;
     mutable QString m_version;
+    mutable Utils::FilePath m_installDir;
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;

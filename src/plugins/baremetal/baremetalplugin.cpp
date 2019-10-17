@@ -45,10 +45,25 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/deployconfiguration.h>
+
 using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
+
+class BareMetalDeployConfigurationFactory : public DeployConfigurationFactory
+{
+public:
+    BareMetalDeployConfigurationFactory()
+    {
+        setConfigBaseId("BareMetal.DeployConfiguration");
+        setDefaultDisplayName(QCoreApplication::translate("BareMetalDeployConfiguration",
+                                                          "Deploy to BareMetal Device"));
+        addSupportedTargetDeviceType(Constants::BareMetalOsType);
+    }
+};
+
 
 // BareMetalPluginPrivate
 
@@ -63,6 +78,7 @@ public:
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
     GdbServerProvidersSettingsPage gdbServerProviderSettinsPage;
     GdbServerProviderManager gdbServerProviderManager;
+    BareMetalDeployConfigurationFactory deployConfigurationFactory;
 
     RunWorkerFactory runWorkerFactory{
         RunWorkerFactory::make<BareMetalDebugSupport>(),

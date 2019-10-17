@@ -1813,6 +1813,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         {QString::fromLatin1("ToolChain Type"), part->toolchainType.toString()},
         {QString::fromLatin1("ToolChain Target Triple"), part->toolChainTargetTriple},
         {QString::fromLatin1("ToolChain Word Width"), CMI::Utils::toString(part->toolChainWordWidth)},
+        {QString::fromLatin1("ToolChain Install Dir"), part->toolChainInstallDir.toString()},
         {QString::fromLatin1("Language Version"), CMI::Utils::toString(part->languageVersion)},
         {QString::fromLatin1("Language Extensions"), CMI::Utils::toString(part->languageExtensions)},
         {QString::fromLatin1("Qt Version"), CMI::Utils::toString(part->qtVersion)}

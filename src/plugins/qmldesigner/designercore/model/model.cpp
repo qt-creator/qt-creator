@@ -1897,7 +1897,7 @@ static bool compareVersions(const QString &version1, const QString &version2, bo
     return false;
 }
 
-bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVersion)
+bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVersion) const
 {
     if (imports().contains(import))
         return true;
@@ -1915,7 +1915,7 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
     return false;
 }
 
-bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion)
+bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion) const
 {
     if (imports().contains(import))
         return true;

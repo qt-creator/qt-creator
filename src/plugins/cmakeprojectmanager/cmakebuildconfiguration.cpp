@@ -328,7 +328,7 @@ DeploymentData CMakeBuildConfiguration::deploymentData() const
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
             if (!ct.executable.isEmpty()
-                    && !result.deployableForLocalFile(ct.executable).isValid()) {
+                && result.deployableForLocalFile(ct.executable).localFilePath() != ct.executable) {
                 result.addFile(ct.executable.toString(),
                                deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()),
                                DeployableFile::TypeExecutable);
@@ -652,10 +652,9 @@ QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Kit *k,
     for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
         BuildInfo info = createBuildInfo(k, path.toString(), BuildType(type));
         if (forSetup) {
-            info.displayName = info.typeName;
             info.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectPath,
                                                                                 k,
-                                                                                info.displayName,
+                                                                                info.typeName,
                                                                                 info.buildType);
         }
         result << info;
@@ -676,32 +675,36 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     CMakeConfigItem buildTypeItem;
     switch (buildType) {
     case BuildTypeNone:
-        info.typeName = tr("Build");
+        info.typeName = "Build";
+        info.displayName = tr("Build");
+        info.buildType = BuildConfiguration::Unknown;
         break;
     case BuildTypeDebug:
-        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "Debug")};
-        info.typeName = tr("Debug");
+        info.typeName = "Debug";
+        info.displayName = tr("Debug");
         info.buildType = BuildConfiguration::Debug;
         break;
     case BuildTypeRelease:
-        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "Release")};
-        info.typeName = tr("Release");
+        info.typeName = "Release";
+        info.displayName = tr("Release");
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:
-        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "MinSizeRel")};
-        info.typeName = tr("Minimum Size Release");
+        info.typeName = "MinSizeRel";
+        info.displayName = tr("Minimum Size Release");
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeRelWithDebInfo:
-        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "RelWithDebInfo")};
-        info.typeName = tr("Release with Debug Information");
+        info.typeName = "RelWithDebInfo";
+        info.displayName = tr("Release with Debug Information");
         info.buildType = BuildConfiguration::Profile;
         break;
     default:
         QTC_CHECK(false);
         break;
     }
+
+    buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", info.typeName.toUtf8())};
 
     if (!buildTypeItem.isNull())
         extra.configuration.append(buildTypeItem);

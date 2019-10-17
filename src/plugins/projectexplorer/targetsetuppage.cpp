@@ -86,18 +86,13 @@ public:
     QWidget *scrollAreaWidget;
     QScrollArea *scrollArea;
     QLabel *headerLabel;
-    QLabel *descriptionLabel;
     QLabel *noValidKitLabel;
-    QLabel *optionHintLabel;
     QCheckBox *allKitsCheckBox;
     FancyLineEdit *kitFilterLineEdit;
 
     void setupUi(TargetSetupPage *q)
     {
         auto setupTargetPage = new QWidget(q);
-        descriptionLabel = new QLabel(setupTargetPage);
-        descriptionLabel->setWordWrap(true);
-        descriptionLabel->setVisible(false);
 
         headerLabel = new QLabel(setupTargetPage);
         headerLabel->setWordWrap(true);
@@ -105,16 +100,11 @@ public:
 
         noValidKitLabel = new QLabel(setupTargetPage);
         noValidKitLabel->setWordWrap(true);
-        noValidKitLabel->setText(TargetSetupPage::tr("<span style=\" font-weight:600;\">No valid kits found.</span>"));
-
-
-        optionHintLabel = new QLabel(setupTargetPage);
-        optionHintLabel->setWordWrap(true);
-        optionHintLabel->setText(TargetSetupPage::tr(
-                                     "Please add a kit in the <a href=\"buildandrun\">options</a> "
-                                     "or via the maintenance tool of the SDK."));
-        optionHintLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        optionHintLabel->setVisible(false);
+        noValidKitLabel->setText(TargetSetupPage::tr("<span style=\" font-weight:600;\">No suitable kits found.</span><br/>"
+                                 "Please add a kit in the <a href=\"buildandrun\">options</a> "
+                                 "or via the maintenance tool of the SDK."));
+        noValidKitLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        noValidKitLabel->setVisible(false);
 
         allKitsCheckBox = new QCheckBox(setupTargetPage);
         allKitsCheckBox->setTristate(true);
@@ -146,10 +136,8 @@ public:
 
         auto verticalLayout_2 = new QVBoxLayout(setupTargetPage);
         verticalLayout_2->addWidget(headerLabel);
-        verticalLayout_2->addWidget(descriptionLabel);
         verticalLayout_2->addWidget(kitFilterLineEdit);
         verticalLayout_2->addWidget(noValidKitLabel);
-        verticalLayout_2->addWidget(optionHintLabel);
         verticalLayout_2->addWidget(allKitsCheckBox);
         verticalLayout_2->addWidget(centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
@@ -158,7 +146,7 @@ public:
         verticalLayout_3->setContentsMargins(0, 0, 0, -1);
         verticalLayout_3->addWidget(setupTargetPage);
 
-        QObject::connect(optionHintLabel, &QLabel::linkActivated,
+        QObject::connect(noValidKitLabel, &QLabel::linkActivated,
                          q, &TargetSetupPage::openOptions);
 
         QObject::connect(allKitsCheckBox, &QAbstractButton::clicked,
@@ -213,6 +201,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     connect(km, &KitManager::kitUpdated, this, &TargetSetupPage::handleKitUpdate);
     connect(m_importWidget, &ImportWidget::importFrom,
             this, [this](const FilePath &dir) { import(dir); });
+    connect(KitManager::instance(), &KitManager::kitsChanged,
+            this, &TargetSetupPage::updateVisibility);
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Kits"));
 }
@@ -224,6 +214,7 @@ void TargetSetupPage::initializePage()
     setupWidgets();
     setupImports();
     selectAtLeastOneKit();
+    updateVisibility();
 }
 
 void TargetSetupPage::setRequiredKitPredicate(const Kit::Predicate &predicate)
@@ -348,18 +339,6 @@ bool TargetSetupPage::importLineEditHasFocus() const
     return m_importWidget->ownsReturnKey();
 }
 
-void TargetSetupPage::setNoteText(const QString &text)
-{
-    m_ui->descriptionLabel->setText(text);
-    m_ui->descriptionLabel->setVisible(!text.isEmpty());
-}
-
-void TargetSetupPage::showOptionsHint(bool show)
-{
-    m_forceOptionHint = show;
-    updateVisibility();
-}
-
 void TargetSetupPage::setupImports()
 {
     if (!m_importer || m_projectPath.isEmpty())
@@ -446,10 +425,9 @@ void TargetSetupPage::updateVisibility()
     m_ui->scrollAreaWidget->setVisible(m_baseLayout == m_ui->scrollArea->widget()->layout());
     m_ui->centralWidget->setVisible(m_baseLayout == m_ui->centralWidget->layout());
 
-    bool hasKits = m_widgets.size() > 0;
-    m_ui->noValidKitLabel->setVisible(!hasKits);
-    m_ui->optionHintLabel->setVisible(m_forceOptionHint || !hasKits);
-    m_ui->allKitsCheckBox->setVisible(hasKits);
+    const bool hasUsableKits = KitManager::kit([this](const Kit *k) { return isUsable(k); });
+    m_ui->noValidKitLabel->setVisible(!hasUsableKits);
+    m_ui->allKitsCheckBox->setVisible(hasUsableKits);
 
     emit completeChanged();
 }

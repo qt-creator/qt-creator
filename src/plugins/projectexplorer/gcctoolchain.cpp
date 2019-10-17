@@ -232,6 +232,23 @@ static QString gccVersion(const FilePath &path, const QStringList &env)
     return QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
 }
 
+static Utils::FilePath gccInstallDir(const FilePath &path, const QStringList &env)
+{
+    const QStringList arguments("-print-search-dirs");
+    QString output = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+    // Expected output looks like this:
+    //   install: /usr/lib/gcc/x86_64-linux-gnu/7/
+    //   ...
+    // Note that clang also supports "-print-search-dirs". However, the
+    // install dir is not part of the output (tested with clang-8/clang-9).
+
+    const QString prefix = "install: ";
+    const QString line = QTextStream(&output).readLine();
+    if (!line.startsWith(prefix))
+        return {};
+    return Utils::FilePath::fromString(QDir::cleanPath(line.mid(prefix.size())));
+}
+
 // --------------------------------------------------------------------------
 // GccToolChain
 // --------------------------------------------------------------------------
@@ -266,6 +283,15 @@ void GccToolChain::setOriginalTargetTriple(const QString &targetTriple)
         return;
 
     m_originalTargetTriple = targetTriple;
+    toolChainUpdated();
+}
+
+void GccToolChain::setInstallDir(const Utils::FilePath &installDir)
+{
+    if (m_installDir == installDir)
+        return;
+
+    m_installDir = installDir;
     toolChainUpdated();
 }
 
@@ -308,6 +334,13 @@ QString GccToolChain::version() const
     if (m_version.isEmpty())
         m_version = detectVersion();
     return m_version;
+}
+
+FilePath GccToolChain::installDir() const
+{
+    if (m_installDir.isEmpty())
+        m_installDir = detectInstallDir();
+    return m_installDir;
 }
 
 void GccToolChain::setTargetAbi(const Abi &abi)
@@ -715,6 +748,7 @@ void GccToolChain::resetToolChain(const FilePath &path)
     const DetectedAbisResult detectedAbis = detectSupportedAbis();
     m_supportedAbis = detectedAbis.supportedAbis;
     m_originalTargetTriple = detectedAbis.originalTargetTriple;
+    m_installDir = installDir();
 
     m_targetAbi = Abi();
     if (!m_supportedAbis.isEmpty()) {
@@ -854,6 +888,13 @@ QString GccToolChain::detectVersion() const
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
     return gccVersion(findLocalCompiler(m_compilerCommand, env), env.toStringList());
+}
+
+Utils::FilePath GccToolChain::detectInstallDir() const
+{
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+    return gccInstallDir(findLocalCompiler(m_compilerCommand, env), env.toStringList());
 }
 
 // --------------------------------------------------------------------------
@@ -1119,6 +1160,9 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const ToolChainDescr
     const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
                                                                       systemEnvironment.toStringList(),
                                                                       macros);
+    const Utils::FilePath installDir = gccInstallDir(localCompilerPath,
+                                                     systemEnvironment.toStringList());
+
     for (const Abi &abi : detectedAbis.supportedAbis) {
         std::unique_ptr<GccToolChain> tc(dynamic_cast<GccToolChain *>(create()));
         if (!tc)
@@ -1134,6 +1178,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const ToolChainDescr
         tc->setSupportedAbis(detectedAbis.supportedAbis);
         tc->setTargetAbi(abi);
         tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
+        tc->setInstallDir(installDir);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
         if (!checker || checker(tc.get()))
             result.append(tc.release());
@@ -1192,6 +1237,7 @@ void GccToolChainConfigWidget::applyImpl()
         tc->setSupportedAbis(m_abiWidget->supportedAbis());
         tc->setTargetAbi(m_abiWidget->currentAbi());
     }
+    tc->setInstallDir(tc->detectInstallDir());
     tc->setOriginalTargetTriple(tc->detectSupportedAbis().originalTargetTriple);
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));

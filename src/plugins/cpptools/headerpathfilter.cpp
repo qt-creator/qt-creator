@@ -30,8 +30,11 @@
 #endif
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QRegularExpression>
+
+#include <utils/algorithm.h>
 
 namespace CppTools {
 
@@ -55,6 +58,31 @@ void HeaderPathFilter::process()
 bool HeaderPathFilter::isProjectHeaderPath(const QString &path) const
 {
     return path.startsWith(projectDirectory) || path.startsWith(buildDirectory);
+}
+
+void HeaderPathFilter::removeGccInternalIncludePaths()
+{
+    if (projectPart.toolchainType != ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+        && projectPart.toolchainType != ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
+        return;
+    }
+
+    if (projectPart.toolChainInstallDir.isEmpty())
+        return;
+
+    const Utils::FilePath gccInstallDir = projectPart.toolChainInstallDir;
+    auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath){
+        const auto includePath = Utils::FilePath::fromString(headerPath.path);
+        if (includePath.isChildOf(gccInstallDir)) {
+           const QString remainingPath = headerPath.path.mid(gccInstallDir.toString().size());
+           // MinGW ships the standard library headers in "<installdir>/include/c++".
+           // Ensure that we do not remove include paths pointing there.
+           return !remainingPath.startsWith("/include/c++");
+        }
+        return false;
+    };
+
+    Utils::erase(builtInHeaderPaths, isGccInternalInclude);
 }
 
 void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
@@ -92,24 +120,19 @@ QString clangIncludeDirectory(const QString &clangVersion, const QString &clangR
 #endif
 }
 
-HeaderPaths::iterator resourceIterator(HeaderPaths &headerPaths, bool isMacOs)
+HeaderPaths::iterator resourceIterator(HeaderPaths &headerPaths)
 {
     // include/c++, include/g++, libc++\include and libc++abi\include
-    static const QString cppIncludes = R"((.*\/include\/.*(g\+\+|c\+\+).*))"
-                                       R"(|(.*libc\+\+\/include))"
-                                       R"(|(.*libc\+\+abi\/include))";
+    static const QString cppIncludes = R"((.*/include/.*(g\+\+|c\+\+).*))"
+                                       R"(|(.*libc\+\+/include))"
+                                       R"(|(.*libc\+\+abi/include))"
+                                       R"(|(/usr/local/include))";
     static const QRegularExpression includeRegExp("\\A(" + cppIncludes + ")\\z");
-
-    // The same as includeRegExp but also matches /usr/local/include
-    static const QRegularExpression includeRegExpMac("\\A(" + cppIncludes
-                                                     + R"(|(\/usr\/local\/include))" + ")\\z");
-
-    const QRegularExpression &includePathRegEx = isMacOs ? includeRegExpMac : includeRegExp;
 
     return std::stable_partition(headerPaths.begin(),
                                  headerPaths.end(),
                                  [&](const HeaderPath &headerPath) {
-                                     return includePathRegEx.match(headerPath.path).hasMatch();
+                                     return includeRegExp.match(headerPath.path).hasMatch();
                                  });
 }
 
@@ -120,7 +143,7 @@ bool isClangSystemHeaderPath(const HeaderPath &headerPath)
     // For example GCC on macOS uses system clang include path which makes clang code model
     // include incorrect system headers.
     static const QRegularExpression clangIncludeDir(
-        R"(\A.*\/lib\d*\/clang\/\d+\.\d+(\.\d+)?\/include\z)");
+        R"(\A.*/lib\d*/clang/\d+\.\d+(\.\d+)?/include\z)");
     return clangIncludeDir.match(headerPath.path).hasMatch();
 }
 
@@ -135,9 +158,9 @@ void removeClangSystemHeaderPaths(HeaderPaths &headerPaths)
 void HeaderPathFilter::tweakHeaderPaths()
 {
     removeClangSystemHeaderPaths(builtInHeaderPaths);
+    removeGccInternalIncludePaths();
 
-    auto split = resourceIterator(builtInHeaderPaths,
-                                  projectPart.toolChainTargetTriple.contains("darwin"));
+    auto split = resourceIterator(builtInHeaderPaths);
 
     if (!clangVersion.isEmpty()) {
         const QString clangIncludePath = clangIncludeDirectory(clangVersion, clangResourceDirectory);

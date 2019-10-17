@@ -61,6 +61,8 @@ public:
     const QList<QmlVisualNode> allDirectSubModelNodes() const;
     const QList<QmlVisualNode> allSubModelNodes() const;
     bool hasAnySubModelNodes() const;
+    void setVisibilityOverride(bool visible);
+    bool visibilityOverride() const;
 
     static bool isItemOr3DNode(const ModelNode &modelNode);
 };

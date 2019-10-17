@@ -51,6 +51,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#ifdef IMPORT_QUICK3D_ASSETS
+#include <QtQuick3DAssetImport/private/qssgassetimportmanager_p.h>
+#endif
+
 #include <QApplication>
 #include <QDrag>
 #include <QFileDialog>
@@ -196,15 +200,20 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
         return true;
     };
 
-    const QString category = tr("3D Models");
-
-    auto add3DHandler = [&actionManager, &handle3DModel, &category](const char *ext) {
-        const QString filter = QStringLiteral("*.%1").arg(QString::fromLatin1(ext));
+    auto add3DHandler = [&](const QString &category, const QString &ext) {
+        const QString filter = QStringLiteral("*.%1").arg(ext);
         actionManager->registerAddResourceHandler(
                     AddResourceHandler(category, filter, handle3DModel, 10));
     };
 
-    // Skip if 3D model handlers have already been added
+    QSSGAssetImportManager importManager;
+    QHash<QString, QStringList> supportedExtensions = importManager.getSupportedExtensions();
+
+    // All things importable by QSSGAssetImportManager are considered to be in the same category
+    // so we don't get multiple separate import dialogs when different file types are imported.
+    const QString category = tr("3D Assets");
+
+    // Skip if 3D asset handlers have already been added
     const QList<AddResourceHandler> handlers = actionManager->addResourceHandler();
     bool categoryAlreadyAdded = false;
     for (const auto &handler : handlers) {
@@ -215,11 +224,12 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     }
 
     if (!categoryAlreadyAdded) {
-        add3DHandler(Constants::FbxExtension);
-        add3DHandler(Constants::ColladaExtension);
-        add3DHandler(Constants::ObjExtension);
-        add3DHandler(Constants::BlenderExtension);
-        add3DHandler(Constants::GltfExtension);
+        const auto groups = supportedExtensions.keys();
+        for (const auto &group : groups) {
+            const auto extensions = supportedExtensions[group];
+            for (const auto &ext : extensions)
+                add3DHandler(category, ext);
+        }
     }
 #endif
 

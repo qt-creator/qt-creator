@@ -86,42 +86,123 @@ void KeilParser::amendDescription(const QString &desc)
     ++m_lines;
 }
 
+// ARM compiler specific parsers.
+
+bool KeilParser::parseArmWarningOrErrorDetailsMessage(const QString &lne)
+{
+    const QRegularExpression re("^\"(.+)\", line (\\d+).*:\\s+(Warning|Error):(\\s+|.+)([#|L].+)$");
+    const QRegularExpressionMatch match = re.match(lne);
+    if (!match.hasMatch())
+        return false;
+    enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
+                        MessageTypeIndex, MessageNoteIndex, DescriptionIndex };
+    const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
+                match.captured(FilePathIndex));
+    const int lineno = match.captured(LineNumberIndex).toInt();
+    const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
+    const QString descr = match.captured(DescriptionIndex);
+    const Task task(type, descr, fileName, lineno, Constants::TASK_CATEGORY_COMPILE);
+    newTask(task);
+    return true;
+}
+
+bool KeilParser::parseArmErrorOrFatalErorrMessage(const QString &lne)
+{
+    const QRegularExpression re("^(Error|Fatal error):\\s(.+)$");
+    const QRegularExpressionMatch match = re.match(lne);
+    if (!match.hasMatch())
+        return false;
+    enum CaptureIndex { MessageTypeIndex = 1, DescriptionIndex };
+    const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
+    const QString descr = match.captured(DescriptionIndex);
+    const Task task(type, descr, {}, -1, Constants::TASK_CATEGORY_COMPILE);
+    newTask(task);
+    return true;
+}
+
+// MCS51 compiler specific parsers.
+
+bool KeilParser::parseMcs51WarningOrErrorDetailsMessage1(const QString &lne)
+{
+    const QRegularExpression re("^\\*{3} (WARNING|ERROR) (\\w+) IN LINE (\\d+) OF (.+\\.\\S+): (.+)$");
+    const QRegularExpressionMatch match = re.match(lne);
+    if (!match.hasMatch())
+        return false;
+    enum CaptureIndex { MessageTypeIndex = 1, MessageCodeIndex, LineNumberIndex,
+                        FilePathIndex, MessageTextIndex };
+    const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
+    const int lineno = match.captured(LineNumberIndex).toInt();
+    const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
+                match.captured(FilePathIndex));
+    const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
+                                                match.captured(MessageTextIndex));
+    const Task task(type, descr, fileName, lineno, Constants::TASK_CATEGORY_COMPILE);
+    newTask(task);
+    return true;
+}
+
+bool KeilParser::parseMcs51WarningOrErrorDetailsMessage2(const QString &lne)
+{
+    const QRegularExpression re("^\\*{3} (WARNING|ERROR) (#\\w+) IN (\\d+) \\((.+), LINE \\d+\\): (.+)$");
+    const QRegularExpressionMatch match = re.match(lne);
+    if (!match.hasMatch())
+        return false;
+    enum CaptureIndex { MessageTypeIndex = 1, MessageCodeIndex, LineNumberIndex,
+                        FilePathIndex, MessageTextIndex };
+    const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
+    const int lineno = match.captured(LineNumberIndex).toInt();
+    const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
+                match.captured(FilePathIndex));
+    const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
+                                                match.captured(MessageTextIndex));
+    const Task task(type, descr, fileName, lineno, Constants::TASK_CATEGORY_COMPILE);
+    newTask(task);
+    return true;
+}
+
+bool KeilParser::parseMcs51WarningOrFatalErrorMessage(const QString &lne)
+{
+    const QRegularExpression re("^\\*{3} (WARNING|FATAL ERROR) (.+)$");
+    const QRegularExpressionMatch match = re.match(lne);
+    if (!match.hasMatch())
+        return false;
+    enum CaptureIndex { MessageTypeIndex = 1, MessageDescriptionIndex };
+    const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
+    const QString descr = match.captured(MessageDescriptionIndex);
+    const Task task(type, descr, {}, -1, Constants::TASK_CATEGORY_COMPILE);
+    newTask(task);
+    return true;
+}
+
+bool KeilParser::parseMcs51FatalErrorMessage2(const QString &lne)
+{
+    const QRegularExpression re("^(A|C)51 FATAL[ |-]ERROR");
+    const QRegularExpressionMatch match = re.match(lne);
+    if (!match.hasMatch())
+        return false;
+    const QString key = match.captured(1);
+    QString descr;
+    if (key == QLatin1Char('A'))
+        descr = "Assembler fatal error";
+    else if (key == QLatin1Char('C'))
+        descr = "Compiler fatal error";
+    const Task task(Task::TaskType::Error, descr, {}, -1,
+                    Constants::TASK_CATEGORY_COMPILE);
+    newTask(task);
+    return true;
+}
+
 void KeilParser::stdError(const QString &line)
 {
     IOutputParser::stdError(line);
 
     const QString lne = rightTrimmed(line);
 
-    QRegularExpression re;
-    QRegularExpressionMatch match;
-
-    // ARM compiler specific patterns.
-
-    re.setPattern("^\"(.+)\", line (\\d+).*:\\s+(Warning|Error):(\\s+|.+)([#|L].+)$");
-    match = re.match(lne);
-    if (match.hasMatch()) {
-        enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
-                            MessageTypeIndex, MessageNoteIndex, DescriptionIndex };
-        const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
-                    match.captured(FilePathIndex));
-        const int lineno = match.captured(LineNumberIndex).toInt();
-        const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
-        const QString descr = match.captured(DescriptionIndex);
-        const Task task(type, descr, fileName, lineno, Constants::TASK_CATEGORY_COMPILE);
-        newTask(task);
+    // Check for ARM compiler specific patterns.
+    if (parseArmWarningOrErrorDetailsMessage(lne))
         return;
-    }
-
-    re.setPattern("^(Error|Fatal error):\\s(.+)$");
-    match = re.match(lne);
-    if (match.hasMatch()) {
-        enum CaptureIndex { MessageTypeIndex = 1, DescriptionIndex };
-        const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
-        const QString descr = match.captured(DescriptionIndex);
-        const Task task(type, descr, {}, -1, Constants::TASK_CATEGORY_COMPILE);
-        newTask(task);
+    if (parseArmErrorOrFatalErorrMessage(lne))
         return;
-    }
 
     if (lne.startsWith(QLatin1Char(' '))) {
         amendDescription(lne);
@@ -137,65 +218,14 @@ void KeilParser::stdOutput(const QString &line)
 
     const QString lne = rightTrimmed(line);
 
-    QRegularExpression re;
-    QRegularExpressionMatch match;
-
-    // MSC51 compiler specific patterns.
-
-    re.setPattern("^\\*{3} (WARNING|ERROR) (\\w+) IN LINE (\\d+) OF (.+\\.\\S+): (.+)$");
-    match = re.match(lne);
-    if (match.hasMatch()) {
-        enum CaptureIndex { MessageTypeIndex = 1, MessageCodeIndex, LineNumberIndex,
-                            FilePathIndex, MessageTextIndex };
-        const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
-        const int lineno = match.captured(LineNumberIndex).toInt();
-        const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
-                    match.captured(FilePathIndex));
-        const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
-                                                    match.captured(MessageTextIndex));
-        const Task task(type, descr, fileName, lineno, Constants::TASK_CATEGORY_COMPILE);
-        newTask(task);
-    }
-
-    re.setPattern("^\\*{3} (WARNING|ERROR) (#\\w+) IN (\\d+) \\((.+), LINE \\d+\\): (.+)$");
-    match = re.match(lne);
-    if (match.hasMatch()) {
-        enum CaptureIndex { MessageTypeIndex = 1, MessageCodeIndex, LineNumberIndex,
-                            FilePathIndex, MessageTextIndex };
-        const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
-        const int lineno = match.captured(LineNumberIndex).toInt();
-        const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
-                    match.captured(FilePathIndex));
-        const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
-                                                    match.captured(MessageTextIndex));
-        const Task task(type, descr, fileName, lineno, Constants::TASK_CATEGORY_COMPILE);
-        newTask(task);
-    }
-
-    re.setPattern("^\\*{3} (FATAL ERROR) (.+)$");
-    match = re.match(lne);
-    if (match.hasMatch()) {
-        enum CaptureIndex { MessageTypeIndex = 1, MessageDescriptionIndex };
-        const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
-        const QString descr = match.captured(MessageDescriptionIndex);
-        const Task task(type, descr, {}, -1, Constants::TASK_CATEGORY_COMPILE);
-        newTask(task);
-        return;
-    }
-
-    re.setPattern("^(A|C)51 FATAL[ |-]ERROR");
-    match = re.match(lne);
-    if (match.hasMatch()) {
-        const QString key = match.captured(1);
-        QString descr;
-        if (key == QLatin1Char('A'))
-            descr = "Assembler fatal error";
-        else if (key == QLatin1Char('C'))
-            descr = "Compiler fatal error";
-        const Task task(Task::TaskType::Error, descr, {}, -1,
-                        Constants::TASK_CATEGORY_COMPILE);
-        newTask(task);
-        return;
+    // Check for MSC51 compiler specific patterns.
+    const bool parsed = parseMcs51WarningOrErrorDetailsMessage1(lne)
+            || parseMcs51WarningOrErrorDetailsMessage2(lne);
+    if (!parsed) {
+        if (parseMcs51WarningOrFatalErrorMessage(lne))
+            return;
+        if (parseMcs51FatalErrorMessage2(lne))
+            return;
     }
 
     if (lne.startsWith(QLatin1Char(' '))) {
@@ -463,6 +493,21 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << QString();
 
     // Linker messages.
+    QTest::newRow("MCS51: Linker warning")
+            << QString::fromLatin1("*** WARNING L16: Some warning\n"
+                                   "    Some detail 1")
+            << OutputParserTester::STDOUT
+            << QString::fromLatin1("*** WARNING L16: Some warning\n"
+                                   "    Some detail 1\n")
+            << QString()
+            << (Tasks() << Task(Task::Warning,
+                                QLatin1String("L16: Some warning\n"
+                                              "    Some detail 1"),
+                                Utils::FilePath(),
+                                -1,
+                                categoryCompile))
+            << QString();
+
     QTest::newRow("MCS51: Linker simple fatal error")
             << QString::fromLatin1("*** FATAL ERROR L456: Some error")
             << OutputParserTester::STDOUT

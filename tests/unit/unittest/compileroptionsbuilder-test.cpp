@@ -71,6 +71,16 @@ protected:
                                    HeaderPath{"/tmp/path", HeaderPathType::User}};
     }
 
+    static HeaderPath builtIn(const QString &path)
+    {
+        return HeaderPath{path, HeaderPathType::BuiltIn};
+    }
+
+    QString toNative(const QString &toNative)
+    {
+        return QDir::toNativeSeparators(toNative);
+    }
+
     std::unique_ptr<Project> project{std::make_unique<ProjectExplorer::Project>()};
     ProjectPart projectPart;
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart};
@@ -196,14 +206,10 @@ TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrder)
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre("-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/path"),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/system_path"),
-                            "-isystem",
-                            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-                            "-isystem",
-                            QDir::toNativeSeparators("/tmp/builtin_path")));
+                            "-I", toNative("/tmp/path"),
+                            "-I", toNative("/tmp/system_path"),
+                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative("/tmp/builtin_path")));
 }
 
 TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrderCl)
@@ -223,14 +229,12 @@ TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrderCl)
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre("-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/path"),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/system_path"),
+                            "-I", toNative("/tmp/path"),
+                            "-I", toNative("/tmp/system_path"),
                             "/clang:-isystem",
-                            "/clang:" + QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
+                            "/clang:" + toNative(CLANG_RESOURCE_DIR ""),
                             "/clang:-isystem",
-                            "/clang:" + QDir::toNativeSeparators("/tmp/builtin_path")));
+                            "/clang:" + toNative("/tmp/builtin_path")));
 }
 
 TEST_F(CompilerOptionsBuilder, UseSystemHeader)
@@ -248,14 +252,10 @@ TEST_F(CompilerOptionsBuilder, UseSystemHeader)
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre("-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/path"),
-                            "-isystem",
-                            QDir::toNativeSeparators("/tmp/system_path"),
-                            "-isystem",
-                            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-                            "-isystem",
-                            QDir::toNativeSeparators("/tmp/builtin_path")));
+                            "-I", toNative("/tmp/path"),
+                            "-isystem", toNative("/tmp/system_path"),
+                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative("/tmp/builtin_path")));
 }
 
 TEST_F(CompilerOptionsBuilder, NoClangHeadersPath)
@@ -263,22 +263,21 @@ TEST_F(CompilerOptionsBuilder, NoClangHeadersPath)
     compilerOptionsBuilder.addHeaderPathOptions();
 
     ASSERT_THAT(compilerOptionsBuilder.options(),
-                ElementsAre("-I",
-                            QDir::toNativeSeparators("/tmp/path"),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/system_path")));
+                ElementsAre("-I", toNative("/tmp/path"),
+                            "-I", toNative("/tmp/system_path")));
 }
 
 TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderMacOs)
 {
     auto defaultPaths = projectPart.headerPaths;
-    projectPart.headerPaths = {HeaderPath{"/usr/include/c++/4.2.1", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/include/c++/4.2.1/backward", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/local/include", HeaderPathType::BuiltIn},
-                               HeaderPath{"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/6.0/include", HeaderPathType::BuiltIn},
-                               HeaderPath{"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/include", HeaderPathType::BuiltIn}
-                              };
+    projectPart.headerPaths = {
+        builtIn("/usr/include/c++/4.2.1"),
+        builtIn("/usr/include/c++/4.2.1/backward"),
+        builtIn("/usr/local/include"),
+        builtIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/6.0/include"),
+        builtIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
+        builtIn("/usr/include")
+    };
     projectPart.headerPaths.append(defaultPaths);
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
@@ -293,38 +292,28 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderMacOs)
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre("-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/path"),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/system_path"),
-                            "-isystem",
-                            QDir::toNativeSeparators("/usr/include/c++/4.2.1"),
-                            "-isystem",
-                            QDir::toNativeSeparators("/usr/include/c++/4.2.1/backward"),
-                            "-isystem",
-                            QDir::toNativeSeparators("/usr/local/include"),
-                            "-isystem",
-                            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-                            "-isystem",
-                            QDir::toNativeSeparators(
-                                "/Applications/Xcode.app/Contents/Developer/Toolchains/"
-                                "XcodeDefault.xctoolchain/usr/include"),
-                            "-isystem",
-                            QDir::toNativeSeparators("/usr/include"),
-                            "-isystem",
-                            QDir::toNativeSeparators("/tmp/builtin_path")));
+                            "-I", toNative("/tmp/path"),
+                            "-I", toNative("/tmp/system_path"),
+                            "-isystem", toNative("/usr/include/c++/4.2.1"),
+                            "-isystem", toNative("/usr/include/c++/4.2.1/backward"),
+                            "-isystem", toNative("/usr/local/include"),
+                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
+                            "-isystem", toNative("/usr/include"),
+                            "-isystem", toNative("/tmp/builtin_path")));
 }
 
 TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
 {
-    projectPart.headerPaths = {HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/c++/4.8", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/c++/4.8/backward", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/x86_64-linux-gnu/c++/4.8", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/local/include", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/lib/gcc/x86_64-linux-gnu/4.8/include", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/include/x86_64-linux-gnu", HeaderPathType::BuiltIn},
-                               HeaderPath{"/usr/include", HeaderPathType::BuiltIn}
-                              };
+    projectPart.headerPaths = {
+        builtIn("/usr/include/c++/4.8"),
+        builtIn("/usr/include/c++/4.8/backward"),
+        builtIn("/usr/include/x86_64-linux-gnu/c++/4.8"),
+        builtIn("/usr/local/include"),
+        builtIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
+        builtIn("/usr/include/x86_64-linux-gnu"),
+        builtIn("/usr/include"),
+    };
     projectPart.toolChainTargetTriple = "x86_64-linux-gnu";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
@@ -341,37 +330,24 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
         ElementsAre(
             "-nostdinc",
             "-nostdinc++",
-            "-isystem",
-            QDir::toNativeSeparators(
-                "/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/c++/4.8"),
-            "-isystem",
-            QDir::toNativeSeparators(
-                "/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/c++/4.8/backward"),
-            "-isystem",
-            QDir::toNativeSeparators(
-                "/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../include/x86_64-linux-gnu/c++/4.8"),
-            "-isystem",
-            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-            "-isystem",
-            QDir::toNativeSeparators("/usr/local/include"),
-            "-isystem",
-            QDir::toNativeSeparators("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
-            "-isystem",
-            QDir::toNativeSeparators("/usr/include/x86_64-linux-gnu"),
-            "-isystem",
-            QDir::toNativeSeparators("/usr/include")));
+            "-isystem", toNative("/usr/include/c++/4.8"),
+            "-isystem", toNative("/usr/include/c++/4.8/backward"),
+            "-isystem", toNative("/usr/include/x86_64-linux-gnu/c++/4.8"),
+            "-isystem", toNative("/usr/local/include"),
+            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+            "-isystem", toNative("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
+            "-isystem", toNative("/usr/include/x86_64-linux-gnu"),
+            "-isystem", toNative("/usr/include")));
 }
 
 TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderNoVersion)
 {
     projectPart.headerPaths = {
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include", HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32",
-                   HeaderPathType::BuiltIn},
-        HeaderPath{"C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward",
-                   HeaderPathType::BuiltIn}};
+        builtIn("C:/mingw530/i686-w64-mingw32/include"),
+        builtIn("C:/mingw530/i686-w64-mingw32/include/c++"),
+        builtIn("C:/mingw530/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
+        builtIn("C:/mingw530/i686-w64-mingw32/include/c++/backward"),
+    };
     projectPart.toolChainTargetTriple = "x86_64-w64-windows-gnu";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
@@ -387,39 +363,22 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderNoVersion)
         compilerOptionsBuilder.options(),
         ElementsAre("-nostdinc",
                     "-nostdinc++",
-                    "-isystem",
-                    QDir::toNativeSeparators(
-                        "C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++"),
-                    "-isystem",
-                    QDir::toNativeSeparators(
-                        "C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
-                    "-isystem",
-                    QDir::toNativeSeparators(
-                        "C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include/c++/backward"),
-                    "-isystem",
-                    QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-                    "-isystem",
-                    QDir::toNativeSeparators("C:/Qt/Tools/mingw530_32/i686-w64-mingw32/include")));
+                    "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include/c++"),
+                    "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
+                    "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include/c++/backward"),
+                    "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                    "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include")));
 }
 
 TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
 {
-    projectPart.headerPaths
-        = {HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                      "bundle/sysroot/usr/include/i686-linux-android",
-                      HeaderPathType::BuiltIn},
-           HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sources/cxx-"
-                      "stl/llvm-libc++/include",
-                      HeaderPathType::BuiltIn},
-           HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                      "bundle/sources/android/support/include",
-                      HeaderPathType::BuiltIn},
-           HeaderPath{"C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sources/cxx-"
-                      "stl/llvm-libc++abi/include",
-                      HeaderPathType::BuiltIn},
-           HeaderPath{
-               "C:/Users/test/AppData/Local/Android/sdk/ndk-bundle/sysroot/usr/include",
-               HeaderPathType::BuiltIn}};
+    projectPart.headerPaths = {
+        builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
+        builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
+        builtIn("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
+        builtIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
+        builtIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include"),
+    };
     projectPart.toolChainTargetTriple = "i686-linux-android";
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
@@ -434,25 +393,12 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre("-nostdinc",
                             "-nostdinc++",
-                            "-isystem",
-                            QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                                                     "bundle/sources/cxx-stl/llvm-libc++/include"),
-                            "-isystem",
-                            QDir::toNativeSeparators(
-                                "C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                                "bundle/sources/cxx-stl/llvm-libc++abi/include"),
-                            "-isystem",
-                            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-                            "-isystem",
-                            QDir::toNativeSeparators(
-                                "C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                                "bundle/sysroot/usr/include/i686-linux-android"),
-                            "-isystem",
-                            QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                                                     "bundle/sources/android/support/include"),
-                            "-isystem",
-                            QDir::toNativeSeparators("C:/Users/test/AppData/Local/Android/sdk/ndk-"
-                                                     "bundle/sysroot/usr/include")));
+                            "-isystem", toNative("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
+                            "-isystem", toNative("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
+                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
+                            "-isystem", toNative("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
+                            "-isystem", toNative("C:/Android/sdk/ndk-bundle/sysroot/usr/include")));
 }
 
 TEST_F(CompilerOptionsBuilder, NoPrecompiledHeader)
@@ -467,7 +413,8 @@ TEST_F(CompilerOptionsBuilder, UsePrecompiledHeader)
     compilerOptionsBuilder.addPrecompiledHeaderOptions(CppTools::UsePrecompiledHeaders::Yes);
 
     ASSERT_THAT(compilerOptionsBuilder.options(),
-                ElementsAre("-include", QDir::toNativeSeparators(TESTDATA_DIR "/compileroptionsbuilder.pch")));
+                ElementsAre("-include",
+                            toNative(TESTDATA_DIR "/compileroptionsbuilder.pch")));
 }
 
 TEST_F(CompilerOptionsBuilder, UsePrecompiledHeaderCl)
@@ -480,7 +427,7 @@ TEST_F(CompilerOptionsBuilder, UsePrecompiledHeaderCl)
 
     ASSERT_THAT(compilerOptionsBuilder.options(),
                 ElementsAre("/FI",
-                            QDir::toNativeSeparators(TESTDATA_DIR "/compileroptionsbuilder.pch")));
+                            toNative(TESTDATA_DIR "/compileroptionsbuilder.pch")));
 }
 
 TEST_F(CompilerOptionsBuilder, AddMacros)
@@ -655,19 +602,12 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
                             "-arch",
                             "x86_64",
                             "-DprojectFoo=projectBar",
-                            "-I",
-                            IsPartOfHeader("wrappedQtHeaders"),
-                            "-I",
-                            IsPartOfHeader(
-                                QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/path"),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/system_path"),
-                            "-isystem",
-                            QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
-                            "-isystem",
-                            QDir::toNativeSeparators("/tmp/builtin_path")));
+                            "-I", IsPartOfHeader("wrappedQtHeaders"),
+                            "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
+                            "-I", toNative("/tmp/path"),
+                            "-I", toNative("/tmp/system_path"),
+                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative("/tmp/builtin_path")));
 }
 
 TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
@@ -697,18 +637,14 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
                             "-D__FUNCSIG__=\"\"",
                             "-D__FUNCTION__=\"\"",
                             "-D__FUNCDNAME__=\"\"",
-                            "-I",
-                            IsPartOfHeader("wrappedQtHeaders"),
-                            "-I",
-                            IsPartOfHeader(
-                                QDir::toNativeSeparators("wrappedQtHeaders/QtCore").toStdString()),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/path"),
-                            "-I",
-                            QDir::toNativeSeparators("/tmp/system_path"),
+                            "-I", IsPartOfHeader("wrappedQtHeaders"),
+                            "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
+                            "-I", toNative("/tmp/path"),
+                            "-I", toNative("/tmp/system_path"),
                             "/clang:-isystem",
-                            "/clang:" + QDir::toNativeSeparators(CLANG_RESOURCE_DIR ""),
+                            "/clang:" + toNative(CLANG_RESOURCE_DIR ""),
                             "/clang:-isystem",
-                            "/clang:" + QDir::toNativeSeparators("/tmp/builtin_path")));
+                            "/clang:" + toNative("/tmp/builtin_path")));
 }
-}
+
+} // namespace

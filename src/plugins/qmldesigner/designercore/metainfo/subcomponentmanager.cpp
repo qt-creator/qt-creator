@@ -35,6 +35,7 @@
 #include <coreplugin/messagebox.h>
 
 #include <QDir>
+#include <QDirIterator>
 #include <QMessageBox>
 #include <QUrl>
 
@@ -387,19 +388,29 @@ void SubComponentManager::parseQuick3DAssetDir(const QString &assetPath)
     for (auto &import : qAsConst(m_imports)) {
         if (import.isLibraryImport() && assets.contains(import.url())) {
             assets.removeOne(import.url());
-            ItemLibraryEntry itemLibraryEntry;
-            const QString name = import.url().mid(import.url().indexOf(QLatin1Char('.')) + 1);
-            const QString type = import.url() + QLatin1Char('.') + name;
-            // For now we assume version is always 1.0 as that's what importer hardcodes
-            itemLibraryEntry.setType(type.toUtf8(), 1, 0);
-            itemLibraryEntry.setName(name);
-            itemLibraryEntry.setCategory(tr("My Quick3D Components"));
-            itemLibraryEntry.setRequiredImport(import.url());
-            itemLibraryEntry.setLibraryEntryIconPath(iconPath);
-            itemLibraryEntry.setTypeIcon(QIcon(iconPath));
+            QDirIterator qmlIt(assetDir.filePath(import.url().split('.').last()),
+                               {QStringLiteral("*.qml")}, QDir::Files);
+            while (qmlIt.hasNext()) {
+                qmlIt.next();
+                const QString name = qmlIt.fileInfo().baseName();
+                const QString type = import.url() + QLatin1Char('.') + name;
+                // For now we assume version is always 1.0 as that's what importer hardcodes
+                ItemLibraryEntry itemLibraryEntry;
+                itemLibraryEntry.setType(type.toUtf8(), 1, 0);
+                itemLibraryEntry.setName(name);
+                itemLibraryEntry.setCategory(tr("My Quick3D Components"));
+                itemLibraryEntry.setRequiredImport(import.url());
+                QString iconName = qmlIt.fileInfo().absolutePath() + '/'
+                        + Constants::QUICK_3D_ASSET_ICON_DIR + '/' + name
+                        + Constants::QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX;
+                if (!QFileInfo(iconName).exists())
+                    iconName = iconPath;
+                itemLibraryEntry.setLibraryEntryIconPath(iconName);
+                itemLibraryEntry.setTypeIcon(QIcon(iconName));
 
-            if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
-                model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
+                if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
+                    model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
+            }
         }
     }
 

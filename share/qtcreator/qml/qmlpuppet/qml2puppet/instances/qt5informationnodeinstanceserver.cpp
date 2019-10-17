@@ -60,7 +60,32 @@
 
 #include <designersupportdelegate.h>
 
+#include <QQmlProperty>
+#include <QOpenGLContext>
+#include <QQuickView>
+
 namespace QmlDesigner {
+
+static QVariant objectToVariant(QObject *object)
+{
+    return QVariant::fromValue(object);
+}
+
+static QObject *createEditView3D(QQmlEngine *engine)
+{
+    QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
+
+
+    QWindow *window = qobject_cast<QWindow *>(component.create());
+
+    //For macOS we have to use the 4.1 core profile
+    QSurfaceFormat surfaceFormat = window->requestedFormat();
+    surfaceFormat.setVersion(4, 1);
+    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+    window->setFormat(surfaceFormat);
+
+    return window;
+}
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
@@ -120,6 +145,49 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuick
     }
 
     return false;
+}
+
+QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
+        const QList<ServerNodeInstance> &instanceList) const
+{
+    for (const ServerNodeInstance &instance : instanceList) {
+        if (instance.isSubclassOf("QQuick3DViewport")) {
+            for (const ServerNodeInstance &child : instanceList) { /* Look for scene node */
+                /* The QQuick3DViewport always creates a root node.
+                 * This root node contains the complete scene. */
+                if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance)
+                    return child.internalObject()->property("parent").value<QObject *>();
+            }
+        }
+    }
+    return nullptr;
+}
+
+void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList)
+{
+    ServerNodeInstance root = rootNodeInstance();
+
+    QObject *node = nullptr;
+    bool showCustomLight = false;
+
+    if (root.isSubclassOf("QQuick3DNode")) {
+        node = root.internalObject();
+        showCustomLight = true; // Pure node scene we should add a custom light
+    } else {
+        node = findRootNodeOf3DViewport(instanceList);
+    }
+
+    if (node) { // If we found a scene we create the edit view
+        QObject *view = createEditView3D(engine());
+
+        QQmlProperty sceneProperty(view, "scene", context());
+        node->setParent(view);
+        sceneProperty.write(objectToVariant(node));
+        QQmlProperty parentProperty(node, "parent", context());
+        parentProperty.write(objectToVariant(view));
+        QQmlProperty completeSceneProperty(view, "showLight", context());
+        completeSceneProperty.write(showCustomLight);
+    }
 }
 
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
@@ -232,6 +300,8 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     sendChildrenChangedCommand(instanceList);
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
+    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE"))
+        setup3DEditView(instanceList);
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)

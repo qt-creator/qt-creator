@@ -68,7 +68,7 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     connect(&d->deployProcess, &SshRemoteProcessRunner::processClosed,
             this, &SshKeyDeployer::handleKeyUploadFinished);
     const QString command = "test -d .ssh "
-        "|| mkdir .ssh && chmod 0700 .ssh && echo '"
+        "|| mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
             + QString::fromLocal8Bit(reader.data())
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
     d->deployProcess.run(command, sshParams);

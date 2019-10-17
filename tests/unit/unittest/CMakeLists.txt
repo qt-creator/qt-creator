@@ -267,7 +267,7 @@ if (TARGET clangTooling)
     mockrefactoringserver.h
   )
   target_link_libraries(unittest
-    PRIVATE clangTooling clangIndex clangQuery clangToolingRefactor)
+    PRIVATE clangTooling clangIndex clangQuery)
 endif()
 
 if (TARGET clangFormat)

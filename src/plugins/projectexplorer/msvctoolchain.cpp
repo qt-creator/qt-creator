@@ -776,6 +776,8 @@ void MsvcToolChain::updateEnvironmentModifications(Utils::EnvironmentItems modif
 
 void MsvcToolChain::detectInstalledAbis()
 {
+    if (!m_supportedAbis.isEmpty()) // Build Tools 2015
+        return;
     static QMap<QString, Abis> abiCache;
     const QString vcVarsBase
             = QDir::fromNativeSeparators(m_vcvarsBat).left(m_vcvarsBat.lastIndexOf('/'));
@@ -1249,6 +1251,13 @@ void MsvcToolChain::resetVarsBat()
     m_abi = Abi();
     m_vcvarsBat.clear();
     m_varsBatArg.clear();
+}
+
+void MsvcToolChain::setSupportedAbi(const Abi &abi)
+{
+    // Hack for Build Tools 2015 only.
+    QTC_CHECK(m_supportedAbis.isEmpty());
+    m_supportedAbis = { abi };
 }
 
 // --------------------------------------------------------------------------
@@ -1855,6 +1864,7 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
             tc->setDisplayName(name + QLatin1String(e.postFix));
             tc->setDetection(ToolChain::AutoDetection);
             tc->setLanguage(language);
+            tc->setSupportedAbi(abi);
             list->append(tc);
         }
     }

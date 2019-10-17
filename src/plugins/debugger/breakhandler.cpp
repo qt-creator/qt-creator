@@ -345,6 +345,7 @@ private:
     Utils::PathChooser *m_pathChooserFileName;
     QLabel *m_labelLineNumber;
     QLineEdit *m_lineEditLineNumber;
+    QCheckBox *m_checkBoxPropagate;
     QLabel *m_labelEnabled;
     QCheckBox *m_checkBoxEnabled;
     QLabel *m_labelAddress;
@@ -501,6 +502,11 @@ BreakpointDialog::BreakpointDialog(unsigned int enabledParts, QWidget *parent)
     m_labelThreadSpec = new QLabel(tr("&Thread specification:"), groupBoxAdvanced);
     m_labelThreadSpec->setBuddy(m_lineEditThreadSpec);
 
+    m_checkBoxPropagate = new QCheckBox(tr("Propagate Change to Preset Breakpoint"), this);
+    m_checkBoxPropagate->setCheckable(true);
+    m_checkBoxPropagate->setChecked(true);
+    m_checkBoxPropagate->setVisible(false); // FIXME: Make it work.
+
     m_buttonBox = new QDialogButtonBox(this);
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
@@ -537,6 +543,8 @@ BreakpointDialog::BreakpointDialog(unsigned int enabledParts, QWidget *parent)
     verticalLayout->addWidget(groupBoxBasic);
     verticalLayout->addSpacing(10);
     verticalLayout->addWidget(groupBoxAdvanced);
+    verticalLayout->addSpacing(10);
+    verticalLayout->addWidget(m_checkBoxPropagate);
     verticalLayout->addSpacing(10);
     verticalLayout->addWidget(m_buttonBox);
     verticalLayout->setStretchFactor(groupBoxAdvanced, 10);

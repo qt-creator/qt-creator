@@ -34,24 +34,25 @@
 #include <model.h>
 #include <theme.h>
 
-#include <QWheelEvent>
-#include <QVBoxLayout>
-#include <QActionGroup>
-#include <toolbox.h>
-#include <zoomaction.h>
+#include <backgroundaction.h>
 #include <formeditorgraphicsview.h>
 #include <formeditorscene.h>
 #include <formeditorview.h>
 #include <lineeditaction.h>
-#include <backgroundaction.h>
+#include <option3daction.h>
+#include <zoomaction.h>
+#include <toolbox.h>
 
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
+#include <QActionGroup>
 #include <QFileDialog>
 #include <QPainter>
+#include <QVBoxLayout>
+#include <QWheelEvent>
 
 namespace QmlDesigner {
 
@@ -142,6 +143,15 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     addAction(m_backgroundAction.data());
     upperActions.append(m_backgroundAction.data());
     m_toolBox->addRightSideAction(m_backgroundAction.data());
+
+    m_option3DAction = new Option3DAction(m_toolActionGroup.data());
+    addAction(m_option3DAction.data());
+    upperActions.append(m_option3DAction.data());
+    m_toolBox->addRightSideAction(m_option3DAction.data());
+    connect(m_option3DAction.data(), &Option3DAction::enabledChanged,
+            m_formEditorView.data(), &FormEditorView::toggle3DViewEnabled);
+    connect(m_option3DAction.data(), &Option3DAction::activated,
+            this, &FormEditorWidget::resetNodeInstanceView);
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,
@@ -283,6 +293,11 @@ void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warni
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
+}
+
+Option3DAction *FormEditorWidget::option3DAction() const
+{
+    return m_option3DAction.data();
 }
 
 QAction *FormEditorWidget::showBoundingRectAction() const

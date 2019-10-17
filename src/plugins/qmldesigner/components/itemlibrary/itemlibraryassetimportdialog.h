@@ -66,12 +66,18 @@ private:
     void onImportFinished();
     void onClose();
 
+    void createTab(const QString &tabLabel, int optionsIndex, const QJsonObject &groups);
+    void updateUi();
+
     Ui::ItemLibraryAssetImportDialog *ui = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;
 
     QStringList m_quick3DFiles;
     QString m_quick3DImportPath;
     ItemLibraryAssetImporter m_importer;
-    QJsonObject m_importOptions;
+    QVector<QJsonObject> m_importOptions;
+    QHash<QString, int> m_extToImportOptionsMap;
+    int m_optionsHeight = 0;
+    int m_optionsRows = 0;
 };
 }

@@ -2772,6 +2772,8 @@ QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabledForSessio
 
 bool ProjectExplorerPlugin::coreAboutToClose()
 {
+    if (!m_instance)
+        return true;
     if (BuildManager::isBuilding()) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);

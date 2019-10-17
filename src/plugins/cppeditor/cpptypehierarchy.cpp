@@ -91,7 +91,7 @@ namespace Internal {
 CppTypeHierarchyWidget::CppTypeHierarchyWidget()
 {
     m_inspectedClass = new TextEditor::TextEditorLinkLabel(this);
-    m_inspectedClass->setMargin(5);
+    m_inspectedClass->setContentsMargins(5, 5, 5, 5);
     m_model = new CppTypeHierarchyModel(this);
     m_treeView = new NavigationTreeView(this);
     m_treeView->setActivationMode(SingleClickActivation);

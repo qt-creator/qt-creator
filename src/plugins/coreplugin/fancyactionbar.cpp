@@ -176,7 +176,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
                                      : QIcon::Disabled;
     QRect iconRect(0, 0, Constants::MODEBAR_ICON_SIZE, Constants::MODEBAR_ICON_SIZE);
 
-    const bool isTitledAction = defaultAction()->property("titledAction").toBool();
+    const bool isTitledAction = defaultAction() && defaultAction()->property("titledAction").toBool();
     // draw popup texts
     if (isTitledAction && !m_iconsOnly) {
         QFont normalFont(painter.font());
@@ -286,7 +286,7 @@ QSize FancyToolButton::sizeHint() const
     }
 
     QSizeF buttonSize = iconSize().expandedTo(QSize(64, 38));
-    if (defaultAction()->property("titledAction").toBool()) {
+    if (defaultAction() && defaultAction()->property("titledAction").toBool()) {
         QFont boldFont(font());
         boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
         boldFont.setBold(true);

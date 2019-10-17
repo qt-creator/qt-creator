@@ -1,5 +1,5 @@
 pragma main;
-import QtQuick
+import QtQuick 2.0
 
 Rectangle {
     width: 480
@@ -9,5 +9,6 @@ Rectangle {
         anchors.centerIn: parent
         color: "salmon"
         text: "Hello World!"
+        font.pixelSize: 14
     }
 }

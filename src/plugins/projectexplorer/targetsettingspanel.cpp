@@ -117,18 +117,11 @@ private:
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 
-    void kitUpdated(ProjectExplorer::Kit *k)
-    {
-        if (k == KitManager::defaultKit())
-            updateNoteText();
-    }
-
     void completeChanged()
     {
         m_configureButton->setEnabled(m_targetSetupPage && m_targetSetupPage->isComplete());
     }
 
-    void updateNoteText();
     void addTargetSetupPage();
 
     Project * const m_project;
@@ -161,41 +154,6 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
             this, &TargetSetupPageWrapper::done);
 }
 
-void TargetSetupPageWrapper::updateNoteText()
-{
-    if (!m_targetSetupPage)
-        return;
-
-    Kit *k = KitManager::defaultKit();
-
-    QString text;
-    bool showHint = false;
-    if (!k) {
-        text = tr("The project <b>%1</b> is not yet configured.<br/>"
-                  "%2 cannot parse the project, because no kit "
-                  "has been set up.")
-                .arg(m_project->displayName(), Core::Constants::IDE_DISPLAY_NAME);
-        showHint = true;
-    } else if (k->isValid()) {
-        text = tr("The project <b>%1</b> is not yet configured.<br/>"
-                  "%2 uses the kit <b>%3</b> to parse the project.")
-                .arg(m_project->displayName())
-                .arg(Core::Constants::IDE_DISPLAY_NAME)
-                .arg(k->displayName());
-        showHint = false;
-    } else {
-        text = tr("The project <b>%1</b> is not yet configured.<br/>"
-                  "%2 uses the <b>invalid</b> kit <b>%3</b> to parse the project.")
-                .arg(m_project->displayName())
-                .arg(Core::Constants::IDE_DISPLAY_NAME)
-                .arg(k->displayName());
-        showHint = true;
-    }
-
-    m_targetSetupPage->setNoteText(text);
-    m_targetSetupPage->showOptionsHint(showHint);
-}
-
 void TargetSetupPageWrapper::addTargetSetupPage()
 {
     m_targetSetupPage = new TargetSetupPage(this);
@@ -207,16 +165,11 @@ void TargetSetupPageWrapper::addTargetSetupPage()
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     m_setupPageContainer->addWidget(m_targetSetupPage);
-    updateNoteText();
 
     completeChanged();
 
     connect(m_targetSetupPage, &QWizardPage::completeChanged,
             this, &TargetSetupPageWrapper::completeChanged);
-    connect(KitManager::instance(), &KitManager::defaultkitChanged,
-            this, &TargetSetupPageWrapper::updateNoteText);
-    connect(KitManager::instance(), &KitManager::kitUpdated,
-            this, &TargetSetupPageWrapper::kitUpdated);
 }
 
 //
@@ -264,7 +217,7 @@ void TargetGroupItemPrivate::ensureWidget()
         f.setPointSizeF(f.pointSizeF() * 1.4);
         f.setBold(true);
         label->setFont(f);
-        label->setMargin(10);
+        label->setContentsMargins(10, 10, 10, 10);
         label->setAlignment(Qt::AlignTop);
 
         auto layout = new QVBoxLayout(m_noKitLabel);
@@ -795,10 +748,8 @@ TargetItem *TargetGroupItem::currentTargetItem() const
 
 TargetItem *TargetGroupItem::targetItem(Target *target) const
 {
-    if (target) {
-        Id needle = target->id(); // Unconfigured project have no active target.
-        return findFirstLevelChild([needle](TargetItem *item) { return item->m_kitId == needle; });
-    }
+    if (target)
+        return findFirstLevelChild([target](TargetItem *item) { return item->target() == target; });
     return nullptr;
 }
 

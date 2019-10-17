@@ -33,6 +33,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmaketool.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -42,9 +44,17 @@ namespace Internal {
 
 static CommandLine flashAndRunCommand(Target *target)
 {
-    BuildConfiguration *bc = target->activeBuildConfiguration();
+    const QString projectName = target->project()->displayName();
 
-    return CommandLine(bc->environment().searchInPath("cmake"), {});
+    const CMakeProjectManager::CMakeTool *tool =
+            CMakeProjectManager::CMakeKitAspect::cmakeTool(target->kit());
+
+    return CommandLine(tool->filePath(), {
+                           "--build",
+                           ".",
+                           "--target",
+                           QString("flash_%1_and_bootloader").arg(projectName)
+                       });
 }
 
 class FlashAndRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -57,6 +67,17 @@ public:
         effectiveFlashAndRunCall->setLabelText(tr("Effective flash and run call:"));
         effectiveFlashAndRunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
         effectiveFlashAndRunCall->setReadOnly(true);
+
+        auto updateConfiguration = [target, effectiveFlashAndRunCall] {
+            effectiveFlashAndRunCall->setValue(flashAndRunCommand(target).toUserOutput());
+        };
+
+        updateConfiguration();
+
+        connect(target->activeBuildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
+                this, updateConfiguration);
+        connect(target->project(), &Project::displayNameChanged,
+                this, updateConfiguration);
     }
 };
 
@@ -67,8 +88,11 @@ public:
         : SimpleTargetRunner(runControl)
     {
         setStarter([this, runControl] {
-            CommandLine cmd = flashAndRunCommand(runControl->target());
+            ProjectExplorer::Target *target = runControl->target();
+            const CommandLine cmd = flashAndRunCommand(target);
             Runnable r;
+            r.workingDirectory =
+                    target->activeBuildConfiguration()->buildDirectory().toUserOutput();
             r.setCommandLine(cmd);
             SimpleTargetRunner::doStart(r, {});
         });

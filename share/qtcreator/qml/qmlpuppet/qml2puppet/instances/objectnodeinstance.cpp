@@ -633,7 +633,7 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
     if (mockHash.contains(typeName))
         object = QmlPrivateGate::createComponent(mockHash.value(typeName), context);
-    else
+    else if (majorNumber != -1 && minorNumber != -1)
         object = QmlPrivateGate::createPrimitive(polishTypeName, majorNumber, minorNumber, context);
 
     /* Let's try to create the primitive from source, since with incomplete meta info this might be a pure

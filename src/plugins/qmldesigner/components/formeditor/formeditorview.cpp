@@ -26,6 +26,7 @@
 #include "formeditorview.h"
 #include "selectiontool.h"
 #include "movetool.h"
+#include "option3daction.h"
 #include "resizetool.h"
 #include "dragtool.h"
 #include "formeditorwidget.h"
@@ -45,6 +46,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QPair>
@@ -83,6 +85,7 @@ void FormEditorView::modelAttached(Model *model)
         setupFormEditorItemTree(rootModelNode());
 
     m_formEditorWidget->updateActions();
+    setupOption3DAction();
 
     if (!rewriterView()->errors().isEmpty())
         formEditorWidget()->showErrorMessageBox(rewriterView()->errors());
@@ -176,6 +179,22 @@ void FormEditorView::temporaryBlockView()
     connect(timer, &QTimer::timeout, this, [this]() {
         formEditorWidget()->graphicsView()->setUpdatesEnabled(true);
     });
+}
+
+void FormEditorView::setupOption3DAction()
+{
+    auto import = Import::createLibraryImport("QtQuick3D", "1.0");
+    auto action = m_formEditorWidget->option3DAction();
+    if (model() && model()->hasImport(import, true, true)) {
+        bool enabled = true;
+        if (rootModelNode().hasAuxiliaryData("3d-view"))
+            enabled = rootModelNode().auxiliaryData("3d-view").toBool();
+        action->set3DEnabled(enabled);
+        action->setEnabled(true);
+    } else {
+        action->set3DEnabled(false);
+        action->setEnabled(false);
+    }
 }
 
 void FormEditorView::nodeCreated(const ModelNode &node)
@@ -567,6 +586,16 @@ void FormEditorView::exportAsImage()
     m_formEditorWidget->exportAsImage(m_scene->rootFormEditorItem()->boundingRect());
 }
 
+void FormEditorView::toggle3DViewEnabled(bool enabled)
+{
+    QTC_ASSERT(model(), return);
+    QTC_ASSERT(rootModelNode().isValid(), return);
+    if (enabled)
+        rootModelNode().removeAuxiliaryData("3d-view");
+    else
+        rootModelNode().setAuxiliaryData("3d-view", false);
+}
+
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
 {
     QmlObjectNode qmlObjectNode = firstQmlObjectNode;
@@ -629,6 +658,8 @@ void FormEditorView::delayedReset()
     m_scene->clearFormEditorItems();
     if (isAttached() && QmlItemNode::isValidQmlItemNode(rootModelNode()))
         setupFormEditorItemTree(rootModelNode());
+
+    setupOption3DAction();
 }
 
 }

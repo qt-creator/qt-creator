@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,52 +22,31 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "core_global.h"
+#include <QWidgetAction>
 
-#include <QObject>
-#include <QMap>
+QT_FORWARD_DECLARE_CLASS(QComboBox)
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-class QUrl;
-QT_END_NAMESPACE
+namespace QmlDesigner {
 
-namespace Core {
-
-namespace HelpManager {
-
-class CORE_EXPORT Signals : public QObject
+class Option3DAction : public QWidgetAction
 {
     Q_OBJECT
 
 public:
-    static Signals *instance();
+    explicit Option3DAction(QObject *parent);
+    void set3DEnabled(bool enabled);
 
 signals:
-    void setupFinished();
-    void documentationChanged();
+    void enabledChanged(bool enabled);
+    void activated();
+
+protected:
+    QWidget *createWidget(QWidget *parent) override;
+
+private:
+    QComboBox *m_comboBox = nullptr;
 };
 
-enum HelpViewerLocation {
-    SideBySideIfPossible = 0,
-    SideBySideAlways = 1,
-    HelpModeAlways = 2,
-    ExternalHelpAlways = 3
-};
-
-CORE_EXPORT QString documentationPath();
-
-CORE_EXPORT void registerDocumentation(const QStringList &fileNames);
-
-CORE_EXPORT QMap<QString, QUrl> linksForIdentifier(const QString &id);
-CORE_EXPORT QMap<QString, QUrl> linksForKeyword(const QString &id);
-CORE_EXPORT QByteArray fileData(const QUrl &url);
-
-CORE_EXPORT void showHelpUrl(const QUrl &url, HelpViewerLocation location = HelpModeAlways);
-CORE_EXPORT void showHelpUrl(const QString &url, HelpViewerLocation location = HelpModeAlways);
-
-} // HelpManager
-} // Core
+} // namespace QmlDesigner

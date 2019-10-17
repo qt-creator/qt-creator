@@ -98,8 +98,8 @@ public:
     void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved);
     void setPossibleImports(const QList<Import> &possibleImports);
     void setUsedImports(const QList<Import> &usedImports);
-    bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
-    bool isImportPossible(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
+    bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
+    bool isImportPossible(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
     QString pathForImport(const Import &import);
     QStringList importPaths() const;
     Import highestPossibleImport(const QString &importPath);

@@ -472,13 +472,15 @@ void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, con
     restartProcess();
 }
 
-void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
+void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
+                                            const PropertyName &name,
+                                            const QVariant &value)
 {
-    if ((node.isRootNode() && (name == "width" || name == "height")) || name.endsWith(PropertyName("@NodeInstance"))) {
+    if ((node.isRootNode() && (name == "width" || name == "height") || name == "invisible")
+            || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            QVariant value = data;
-            if (value.isValid()) {
+            if (value.isValid() || name == "invisible") {
                 PropertyValueContainer container(instance.instanceId(), name, value, TypeName());
                 ChangeAuxiliaryCommand changeAuxiliaryCommand({container});
                 nodeInstanceServer()->changeAuxiliaryValues(changeAuxiliaryCommand);

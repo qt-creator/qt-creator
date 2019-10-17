@@ -44,6 +44,7 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QColorDialog>
 #include <QComboBox>
 #include <QGraphicsProxyWidget>
@@ -987,7 +988,12 @@ void TimelineBarItem::dragInit(const QRectF &rect, const QPointF &pos)
 void TimelineBarItem::dragCenter(QRectF rect, const QPointF &pos, qreal min, qreal max)
 {
     if (validateBounds(pos.x() - rect.topLeft().x())) {
-        rect.moveLeft(pos.x() - m_pivot);
+        qreal targetX = pos.x() - m_pivot;
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) { // snapping
+            qreal snappedTargetFrame = timelineScene()->snap(mapFromSceneToFrame(targetX));
+            targetX = mapFromFrameToScene(snappedTargetFrame);
+        }
+        rect.moveLeft(targetX);
         if (rect.topLeft().x() < min) {
             rect.moveLeft(min);
             setOutOfBounds(Location::Left);
@@ -1006,7 +1012,12 @@ void TimelineBarItem::dragHandle(QRectF rect, const QPointF &pos, qreal min, qre
 
     if (isActiveHandle(Location::Left)) {
         if (validateBounds(pos.x() - left.topLeft().x())) {
-            rect.setLeft(pos.x() - m_pivot);
+            qreal targetX = pos.x() - m_pivot;
+            if (QApplication::keyboardModifiers() & Qt::ShiftModifier) { // snapping
+                qreal snappedTargetFrame = timelineScene()->snap(mapFromSceneToFrame(targetX));
+                targetX = mapFromFrameToScene(snappedTargetFrame);
+            }
+            rect.setLeft(targetX);
             if (rect.left() < min) {
                 rect.setLeft(min);
                 setOutOfBounds(Location::Left);
@@ -1017,7 +1028,12 @@ void TimelineBarItem::dragHandle(QRectF rect, const QPointF &pos, qreal min, qre
         }
     } else if (isActiveHandle(Location::Right)) {
         if (validateBounds(pos.x() - right.topRight().x())) {
-            rect.setRight(pos.x() - m_pivot);
+            qreal targetX = pos.x() - m_pivot;
+            if (QApplication::keyboardModifiers() & Qt::ShiftModifier) { // snapping
+                qreal snappedTargetFrame = timelineScene()->snap(mapFromSceneToFrame(targetX));
+                targetX = mapFromFrameToScene(snappedTargetFrame);
+            }
+            rect.setRight(targetX);
             if (rect.right() > max) {
                 rect.setRight(max);
                 setOutOfBounds(Location::Right);

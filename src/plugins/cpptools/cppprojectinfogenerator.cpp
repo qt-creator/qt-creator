@@ -167,6 +167,7 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     part->isMsvc2015Toolchain = tcInfo.isMsvc2015ToolChain;
     part->toolChainWordWidth = tcInfo.wordWidth == 64 ? ProjectPart::WordWidth64Bit
                                                       : ProjectPart::WordWidth32Bit;
+    part->toolChainInstallDir = tcInfo.installDir;
     part->toolChainTargetTriple = tcInfo.targetTriple;
     part->extraCodeModelFlags = tcInfo.extraCodeModelFlags;
     part->compilerFlags = flags.commandLineFlags;

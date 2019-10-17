@@ -203,7 +203,7 @@ Item {
             id: mapMouseArea
             anchors.fill: parent
             onPositionChanged: {
-                if (pressed && mouse.button === Qt.LeftButton) {
+                if (pressed && mouse.buttons === Qt.LeftButton) {
                     var xx = Math.max(0, Math.min(mouse.x, parent.width))
                     var yy = Math.max(0, Math.min(mouse.y, parent.height))
 

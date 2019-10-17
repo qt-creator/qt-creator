@@ -115,6 +115,7 @@ IOutputPane::~IOutputPane()
     const int i = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::pane, this));
     QTC_ASSERT(i >= 0, return);
     delete g_outputPanes.at(i).button;
+    g_outputPanes.removeAt(i);
 
     delete m_zoomInButton;
     delete m_zoomOutButton;

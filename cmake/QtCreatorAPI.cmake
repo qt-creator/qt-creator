@@ -288,6 +288,14 @@ endfunction()
 
 function(enable_pch target)
   if (BUILD_WITH_PCH)
+    # Skip PCH for targets that do not use the expected visibility settings:
+    get_target_property(visibility_property "${target}" CXX_VISIBILITY_PRESET)
+    get_target_property(inlines_property "${target}" VISIBILITY_INLINES_HIDDEN)
+
+    if (NOT visibility_property STREQUAL "hidden" OR NOT inlines_property)
+      return()
+    endif()
+
     get_target_property(target_type ${target} TYPE)
     if (NOT ${target_type} STREQUAL "OBJECT_LIBRARY")
       function(_recursively_collect_dependencies input_target)
@@ -309,19 +317,25 @@ function(enable_pch target)
       function(_add_pch_target pch_target pch_file pch_dependency)
         if (EXISTS ${pch_file})
           add_library(${pch_target} STATIC
-            ${CMAKE_BINARY_DIR}/empty_pch.cpp)
+            ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp
+            ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c)
           target_compile_definitions(${pch_target} PRIVATE ${DEFAULT_DEFINES})
           set_target_properties(${pch_target} PROPERTIES
-            PRECOMPILE_HEADERS ${pch_file})
+            PRECOMPILE_HEADERS ${pch_file}
+            CXX_VISIBILITY_PRESET hidden
+            VISIBILITY_INLINES_HIDDEN ON)
           target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
         endif()
       endfunction()
 
       if (NOT TARGET QtCreatorPchGui AND NOT TARGET QtCreatorPchConsole)
-        file(WRITE ${CMAKE_BINARY_DIR}/empty_pch.cpp.in "/*empty file*/")
+        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in "/*empty file*/")
         configure_file(
-          ${CMAKE_BINARY_DIR}/empty_pch.cpp.in
-          ${CMAKE_BINARY_DIR}/empty_pch.cpp)
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp)
+        configure_file(
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in
+          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c)
 
         _add_pch_target(QtCreatorPchGui
           "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
@@ -329,12 +343,14 @@ function(enable_pch target)
           "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_pch.h" Qt5::Core)
       endif()
 
-      set(PCH_TARGET QtCreatorPchConsole)
+      unset(PCH_TARGET)
       if ("Qt5::Widgets" IN_LIST dependencies)
         set(PCH_TARGET QtCreatorPchGui)
+      elseif ("Qt5::Core" IN_LIST dependencies)
+        set(PCH_TARGET QtCreatorPchConsole)
       endif()
 
-      if (TARGET ${PCH_TARGET})
+      if (TARGET "${PCH_TARGET}")
         set_target_properties(${target} PROPERTIES
           PRECOMPILE_HEADERS_REUSE_FROM ${PCH_TARGET})
       endif()
@@ -364,7 +380,7 @@ endfunction()
 #
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION" ""
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT" "DESTINATION"
     "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
   )
 
@@ -384,8 +400,13 @@ function(add_qtc_library name)
     set(library_type OBJECT)
   endif()
 
+  set(_exclude_from_all EXCLUDE_FROM_ALL)
+  if (_arg_BUILD_BY_DEFAULT)
+    unset(_exclude_from_all)
+  endif()
+
   # Do not just build libraries...
-  add_library(${name} ${library_type} EXCLUDE_FROM_ALL ${_arg_SOURCES})
+  add_library(${name} ${library_type} ${_exclude_from_all} ${_arg_SOURCES})
   add_library(${IDE_CASED_ID}::${name} ALIAS ${name})
   set_public_headers(${name} "${_arg_SOURCES}")
 
@@ -432,6 +453,11 @@ function(add_qtc_library name)
     set(skip_translation ON)
   endif()
 
+  set(_DESTINATION "${IDE_BIN_PATH}")
+  if (_arg_DESTINATION)
+    set(_DESTINATION "${_arg_DESTINATION}")
+  endif()
+
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -440,7 +466,7 @@ function(add_qtc_library name)
     VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_LIB_RPATH}"
     INSTALL_RPATH "${_LIB_RPATH}"
-    RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_BIN_PATH}"
+    RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
     ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
     ${_arg_PROPERTIES}
@@ -454,7 +480,7 @@ function(add_qtc_library name)
 
   install(TARGETS ${name}
     EXPORT ${IDE_CASED_ID}
-    RUNTIME DESTINATION "${IDE_BIN_PATH}"
+    RUNTIME DESTINATION "${_DESTINATION}"
     LIBRARY
       DESTINATION "${IDE_LIBRARY_PATH}"
       ${NAMELINK_OPTION}

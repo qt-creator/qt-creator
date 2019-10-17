@@ -32,6 +32,7 @@
 #include <QtCore/qdir.h>
 #include <QtCore/qdiriterator.h>
 #include <QtCore/qsavefile.h>
+#include <QtCore/qfile.h>
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/qtemporarydir.h>
 #include <QtWidgets/qapplication.h>
@@ -63,7 +64,8 @@ ItemLibraryAssetImporter::~ItemLibraryAssetImporter() {
 
 void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
                                              const QString &importPath,
-                                             const QVariantMap &options)
+                                             const QVector<QJsonObject> &options,
+                                             const QHash<QString, int> &extToImportOptionsMap)
 {
     if (m_isImporting)
         cancelImport();
@@ -79,7 +81,7 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
 
     m_importPath = importPath;
 
-    parseFiles(inputFiles, options);
+    parseFiles(inputFiles, options, extToImportOptionsMap);
 
     if (!isCancelled()) {
         // Don't allow cancel anymore as existing asset overwrites are not trivially recoverable.
@@ -162,21 +164,41 @@ void ItemLibraryAssetImporter::addInfo(const QString &infoMsg, const QString &sr
 
 bool ItemLibraryAssetImporter::isQuick3DAsset(const QString &fileName) const
 {
+#ifdef IMPORT_QUICK3D_ASSETS
     static QStringList quick3DExt;
     if (quick3DExt.isEmpty()) {
-        quick3DExt << QString(Constants::FbxExtension)
-                   << QString(Constants::ColladaExtension)
-                   << QString(Constants::ObjExtension)
-                   << QString(Constants::BlenderExtension)
-                   << QString(Constants::GltfExtension);
+        const auto exts = m_quick3DAssetImporter->getSupportedExtensions();
+        for (const auto &ext : exts)
+            quick3DExt << ext;
     }
     return quick3DExt.contains(QFileInfo(fileName).suffix());
+#else
+    return false;
+#endif
 }
 
 QVariantMap ItemLibraryAssetImporter::supportedOptions(const QString &modelFile) const
 {
 #ifdef IMPORT_QUICK3D_ASSETS
     return m_quick3DAssetImporter->getOptionsForFile(modelFile);
+#else
+    return {};
+#endif
+}
+
+QHash<QString, QVariantMap> ItemLibraryAssetImporter::allOptions() const
+{
+#ifdef IMPORT_QUICK3D_ASSETS
+    return m_quick3DAssetImporter->getAllOptions();
+#else
+    return {};
+#endif
+}
+
+QHash<QString, QStringList> ItemLibraryAssetImporter::supportedExtensions() const
+{
+#ifdef IMPORT_QUICK3D_ASSETS
+    return m_quick3DAssetImporter->getSupportedExtensions();
 #else
     return {};
 #endif
@@ -201,7 +223,9 @@ void ItemLibraryAssetImporter::reset()
 #endif
 }
 
-void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths, const QVariantMap &options)
+void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
+                                          const QVector<QJsonObject> &options,
+                                          const QHash<QString, int> &extToImportOptionsMap)
 {
     if (isCancelled())
         return;
@@ -216,8 +240,11 @@ void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths, const QV
     for (const QString &file : filePaths) {
         if (isCancelled())
             return;
-        if (isQuick3DAsset(file))
-            parseQuick3DAsset(file, options);
+        if (isQuick3DAsset(file)) {
+            QVariantMap varOpts;
+            int index = extToImportOptionsMap.value(QFileInfo(file).suffix());
+            parseQuick3DAsset(file, options[index].toVariantMap());
+        }
         notifyProgress(qRound(++count * quota), progressTitle);
     }
     notifyProgress(100, progressTitle);
@@ -276,31 +303,70 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
         return;
     }
 
-    // Generate qmldir file
-    outDir.setNameFilters({QStringLiteral("*.qml")});
-    const QFileInfoList qmlFiles = outDir.entryInfoList(QDir::Files);
-
-    if (!qmlFiles.isEmpty()) {
-        QString qmldirFileName = outDir.absoluteFilePath(QStringLiteral("qmldir"));
+    // Generate qmldir file if importer doesn't already make one
+    QString qmldirFileName = outDir.absoluteFilePath(QStringLiteral("qmldir"));
+    if (!QFileInfo(qmldirFileName).exists()) {
         QSaveFile qmldirFile(qmldirFileName);
         QString version = QStringLiteral("1.0");
-        if (qmldirFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-            for (const auto &fi : qmlFiles) {
+
+        // Note: Currently Quick3D importers only generate externally usable qml files on the top
+        // level of the import directory, so we don't search subdirectories. The qml files in
+        // subdirs assume they are used within the context of the toplevel qml files.
+        QDirIterator qmlIt(outDir.path(), {QStringLiteral("*.qml")}, QDir::Files);
+        if (qmlIt.hasNext()) {
+            outDir.mkdir(Constants::QUICK_3D_ASSET_ICON_DIR);
+            if (qmldirFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                 QString qmlInfo;
-                qmlInfo.append(fi.baseName());
-                qmlInfo.append(QLatin1Char(' '));
-                qmlInfo.append(version);
-                qmlInfo.append(QLatin1Char(' '));
-                qmlInfo.append(fi.fileName());
+                qmlInfo.append("module ");
+                qmlInfo.append(m_importPath.split('/').last());
+                qmlInfo.append(".");
+                qmlInfo.append(assetName);
+                qmlInfo.append('\n');
+                while (qmlIt.hasNext()) {
+                    qmlIt.next();
+                    QFileInfo fi = QFileInfo(qmlIt.filePath());
+                    qmlInfo.append(fi.baseName());
+                    qmlInfo.append(' ');
+                    qmlInfo.append(version);
+                    qmlInfo.append(' ');
+                    qmlInfo.append(outDir.relativeFilePath(qmlIt.filePath()));
+                    qmlInfo.append('\n');
+
+                    // Generate item library icon for qml file based on root component
+                    QFile qmlFile(qmlIt.filePath());
+                    if (qmlFile.open(QIODevice::ReadOnly)) {
+                        QString iconFileName = outDir.path() + '/'
+                                + Constants::QUICK_3D_ASSET_ICON_DIR + '/' + fi.baseName()
+                                + Constants::QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX;
+                        QString iconFileName2x = iconFileName + "@2x";
+                        QByteArray content = qmlFile.readAll();
+                        int braceIdx = content.indexOf('{');
+                        if (braceIdx != -1) {
+                            int nlIdx = content.lastIndexOf('\n', braceIdx);
+                            QByteArray rootItem = content.mid(nlIdx, braceIdx - nlIdx).trimmed();
+                            if (rootItem == "Node") {
+                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon.png",
+                                            iconFileName);
+                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon@2x.png",
+                                            iconFileName2x);
+                            } else {
+                                QFile::copy(":/ItemLibrary/images/item-default-icon.png",
+                                            iconFileName);
+                                QFile::copy(":/ItemLibrary/images/item-default-icon@2x.png",
+                                            iconFileName2x);
+                            }
+                        }
+                    }
+                }
                 qmldirFile.write(qmlInfo.toUtf8());
+                qmldirFile.commit();
+            } else {
+                addError(tr("Failed to create qmldir file for asset: \"%1\"").arg(assetName));
             }
-            qmldirFile.commit();
-        } else {
-            addError(tr("Failed to create qmldir file for asset: \"%1\"").arg(assetName));
         }
     }
 
-    // Gather generated files
+    // Gather all generated files
     const int outDirPathSize = outDir.path().size();
     QDirIterator dirIt(outDir.path(), QDir::Files, QDirIterator::Subdirectories);
     QHash<QString, QString> assetFiles;
@@ -314,7 +380,7 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
 
     // Copy the original asset into a subdirectory
     assetFiles.insert(sourceInfo.absoluteFilePath(),
-                      targetDirPath + QStringLiteral("/source model/") + sourceInfo.fileName());
+                      targetDirPath + QStringLiteral("/source scene/") + sourceInfo.fileName());
     m_importFiles.insert(assetFiles);
 
 #else

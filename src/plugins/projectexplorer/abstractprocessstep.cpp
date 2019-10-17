@@ -230,7 +230,7 @@ void AbstractProcessStep::doRun()
     d->m_process->setWorkingDirectory(wd.absolutePath());
     d->m_process->setEnvironment(d->m_param.environment());
     d->m_process->setCommand(effectiveCommand);
-    if (d->m_lowPriority)
+    if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
         d->m_process->setLowPriority();
 
     connect(d->m_process.get(), &QProcess::readyReadStandardOutput,
@@ -251,10 +251,9 @@ void AbstractProcessStep::doRun()
     processStarted();
 }
 
-void AbstractProcessStep::setLowPriorityIfConfigured()
+void AbstractProcessStep::setLowPriority()
 {
-    if (ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
-        d->m_lowPriority = true;
+    d->m_lowPriority = true;
 }
 
 void AbstractProcessStep::doCancel()

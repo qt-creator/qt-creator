@@ -152,10 +152,14 @@ Item {
                 var y = extendedFunctionButton.mapToGlobal(0,0).y - 40
                 bindingEditor.showWidget(x, y)
                 bindingEditor.text = backendValue.expression
+                bindingEditor.prepareBindings()
             }
 
             BindingEditor {
                 id: bindingEditor
+
+                backendValueProperty: backendValue
+                modelNodeBackendProperty: modelNodeBackend
 
                 onRejected: {
                     hideWidget()

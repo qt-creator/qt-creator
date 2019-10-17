@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,51 +23,44 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "option3daction.h"
 
-#include "core_global.h"
+#include <QComboBox>
+#include <QPainter>
 
-#include <QObject>
-#include <QMap>
+namespace QmlDesigner {
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-class QUrl;
-QT_END_NAMESPACE
-
-namespace Core {
-
-namespace HelpManager {
-
-class CORE_EXPORT Signals : public QObject
+Option3DAction::Option3DAction(QObject *parent) :
+    QWidgetAction(parent)
 {
-    Q_OBJECT
+}
 
-public:
-    static Signals *instance();
+void Option3DAction::set3DEnabled(bool enabled)
+{
+    m_comboBox->setCurrentIndex(enabled ? 1 : 0);
+}
 
-signals:
-    void setupFinished();
-    void documentationChanged();
-};
+QWidget *Option3DAction::createWidget(QWidget *parent)
+{
+    m_comboBox = new QComboBox(parent);
+    m_comboBox->setFixedWidth(82);
 
-enum HelpViewerLocation {
-    SideBySideIfPossible = 0,
-    SideBySideAlways = 1,
-    HelpModeAlways = 2,
-    ExternalHelpAlways = 3
-};
+    m_comboBox->addItem(tr("2D"));
+    m_comboBox->addItem(tr("2D/3D"));
 
-CORE_EXPORT QString documentationPath();
+    m_comboBox->setCurrentIndex(0);
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this](){
+        emit enabledChanged(m_comboBox->currentIndex() != 0);
+    });
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::activated),
+            this, [this](){
+        emit activated();
+    });
 
-CORE_EXPORT void registerDocumentation(const QStringList &fileNames);
+    m_comboBox->setProperty("hideborder", true);
+    m_comboBox->setToolTip(tr("Enable/Disable 3D edit mode."));
+    return m_comboBox;
+}
 
-CORE_EXPORT QMap<QString, QUrl> linksForIdentifier(const QString &id);
-CORE_EXPORT QMap<QString, QUrl> linksForKeyword(const QString &id);
-CORE_EXPORT QByteArray fileData(const QUrl &url);
-
-CORE_EXPORT void showHelpUrl(const QUrl &url, HelpViewerLocation location = HelpModeAlways);
-CORE_EXPORT void showHelpUrl(const QString &url, HelpViewerLocation location = HelpModeAlways);
-
-} // HelpManager
-} // Core
+} // namespace QmlDesigner

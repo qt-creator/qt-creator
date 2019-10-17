@@ -27,6 +27,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qhash.h>
+#include <QtCore/qjsonobject.h>
 
 #include "import.h"
 
@@ -46,7 +47,8 @@ public:
     ~ItemLibraryAssetImporter();
 
     void importQuick3D(const QStringList &inputFiles, const QString &importPath,
-                       const QVariantMap &options);
+                       const QVector<QJsonObject> &options,
+                       const QHash<QString, int> &extToImportOptionsMap);
 
     bool isImporting() const;
     void cancelImport();
@@ -58,6 +60,8 @@ public:
 
     bool isQuick3DAsset(const QString &fileName) const;
     QVariantMap supportedOptions(const QString &modelFile) const;
+    QHash<QString, QVariantMap> allOptions() const;
+    QHash<QString, QStringList> supportedExtensions() const;
 
 signals:
     void errorReported(const QString &, const QString &) const;
@@ -70,7 +74,8 @@ signals:
 private:
     void notifyFinished();
     void reset();
-    void parseFiles(const QStringList &filePaths, const QVariantMap &options);
+    void parseFiles(const QStringList &filePaths, const QVector<QJsonObject> &options,
+                    const QHash<QString, int> &extToImportOptionsMap);
     void parseQuick3DAsset(const QString &file, const QVariantMap &options);
     void copyImportedFiles();
 

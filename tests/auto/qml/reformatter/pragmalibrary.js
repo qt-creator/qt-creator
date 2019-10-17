@@ -1,0 +1,3 @@
+.pragma library
+
+function foo() {}
