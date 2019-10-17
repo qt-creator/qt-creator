@@ -282,6 +282,7 @@ void CtfTraceManager::updateStatistics()
             }
         }
     }
+    m_statisticsModel->setMeasurementDuration(qint64((m_traceEnd - m_traceBegin) * 1000));
     m_statisticsModel->endLoading();
 }
 

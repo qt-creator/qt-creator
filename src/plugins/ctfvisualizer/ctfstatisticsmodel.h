@@ -49,6 +49,7 @@ public:
         Title = 0,
         Count,
         TotalDuration,
+        RelativeDuration,
         MinDuration,
         AvgDuration,
         MaxDuration,
@@ -67,6 +68,7 @@ public:
 
     void beginLoading();
     void addEvent(const QString &title, qint64 durationInNs);
+    void setMeasurementDuration(qint64 timeInNs);
     void endLoading();
 
 private:
@@ -77,6 +79,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     QHash<QString, EventData> m_data;
+    qint64 m_measurementDurationInNs = 0;
 
 };
 

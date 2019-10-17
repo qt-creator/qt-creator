@@ -58,6 +58,11 @@ void CtfStatisticsModel::addEvent(const QString &title, qint64 durationInNs)
     }
 }
 
+void CtfStatisticsModel::setMeasurementDuration(qint64 timeInNs)
+{
+    m_measurementDurationInNs = timeInNs;
+}
+
 void CtfStatisticsModel::endLoading()
 {
     endResetModel();
@@ -87,6 +92,7 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
             return Qt::AlignLeft;
         case Column::Count:
         case Column::TotalDuration:
+        case Column::RelativeDuration:
         case Column::MinDuration:
         case Column::AvgDuration:
         case Column::MaxDuration:
@@ -102,6 +108,8 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::Count:
             return m_data.value(title).count;
         case Column::TotalDuration:
+            return m_data.value(title).totalDuration;
+        case Column::RelativeDuration:
             return m_data.value(title).totalDuration;
         case Column::MinDuration:
         {
@@ -133,6 +141,16 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
                 return Timeline::formatTime(totalDuration);
             else
                 return "-";
+        }
+        case Column::RelativeDuration:
+        {
+            auto totalDuration = m_data.value(title).totalDuration;
+            if (m_measurementDurationInNs > 0 && totalDuration > 0) {
+                const double percent = (totalDuration / double(m_measurementDurationInNs)) * 100;
+                return QString("%1 %").arg(percent, 0, 'f', 2);
+            } else {
+                return "-";
+            }
         }
         case Column::MinDuration:
         {
@@ -175,6 +193,8 @@ QVariant CtfStatisticsModel::headerData(int section, Qt::Orientation orientation
         return tr("Count");
     case Column::TotalDuration:
         return tr("Total Time");
+    case Column::RelativeDuration:
+        return tr("Percentage");
     case Column::MinDuration:
         return tr("Minimum Time");
     case Column::AvgDuration:
