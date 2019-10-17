@@ -33,10 +33,6 @@
 
 #include <QTimer>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
-
 namespace Core {
 
 class FindToolBarPlaceHolder;

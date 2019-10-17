@@ -33,7 +33,6 @@
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
-class QAbstractProxyModel;
 class QModelIndex;
 class QSortFilterProxyModel;
 class QPushButton;

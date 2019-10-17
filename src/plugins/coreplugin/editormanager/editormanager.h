@@ -42,8 +42,6 @@ namespace Utils { class MimeType; }
 namespace Core {
 
 class IEditor;
-class IEditorFactory;
-class IExternalEditor;
 class IDocument;
 class SearchResultItem;
 

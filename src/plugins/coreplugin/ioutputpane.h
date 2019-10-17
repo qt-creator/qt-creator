@@ -36,7 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
 

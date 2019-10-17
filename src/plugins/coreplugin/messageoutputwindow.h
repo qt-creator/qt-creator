@@ -27,11 +27,6 @@
 
 #include "ioutputpane.h"
 
-QT_BEGIN_NAMESPACE
-class QFont;
-class QToolButton;
-QT_END_NAMESPACE
-
 namespace Core {
 class OutputWindow;
 
