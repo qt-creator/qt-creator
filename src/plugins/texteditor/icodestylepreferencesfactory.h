@@ -35,7 +35,6 @@ namespace Core { class Id; }
 namespace TextEditor {
 
 class ICodeStylePreferences;
-class SnippetProvider;
 
 class TEXTEDITOR_EXPORT CodeStyleEditorWidget : public QWidget
 {

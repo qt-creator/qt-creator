@@ -31,8 +31,6 @@
 
 namespace TextEditor {
 
-class AssistInterface;
-
 class TEXTEDITOR_EXPORT DocumentContentCompletionProvider : public CompletionAssistProvider
 {
     Q_OBJECT

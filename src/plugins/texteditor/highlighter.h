@@ -33,7 +33,6 @@
 #include <Definition>
 
 namespace TextEditor {
-class FontSettings;
 class TextDocument;
 
 class Highlighter : public SyntaxHighlighter, public KSyntaxHighlighting::AbstractHighlighter
