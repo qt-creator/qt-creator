@@ -271,6 +271,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
 {
     static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
     static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
+    static const int valuesModifiedCommandType = QMetaType::type("ValuesModifiedCommand");
     static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
     static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
     static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
@@ -285,11 +286,13 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
         return;
 
     qCInfo(instanceViewBenchmark) << "dispatching command" << command.userType() << command.typeName();
-    if (command.userType() ==  informationChangedCommandType) {
+    if (command.userType() == informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
-    } else if (command.userType() ==  valuesChangedCommandType) {
+    } else if (command.userType() == valuesChangedCommandType) {
         nodeInstanceClient()->valuesChanged(command.value<ValuesChangedCommand>());
-    } else if (command.userType() ==  pixmapChangedCommandType) {
+    } else if (command.userType() == valuesModifiedCommandType) {
+        nodeInstanceClient()->valuesModified(command.value<ValuesModifiedCommand>());
+    } else if (command.userType() == pixmapChangedCommandType) {
         nodeInstanceClient()->pixmapChanged(command.value<PixmapChangedCommand>());
     } else if (command.userType() == childrenChangedCommandType) {
         nodeInstanceClient()->childrenChanged(command.value<ChildrenChangedCommand>());

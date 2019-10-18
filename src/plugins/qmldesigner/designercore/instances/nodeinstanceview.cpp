@@ -1190,6 +1190,20 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
         emitInstancePropertyChange(valuePropertyChangeList);
 }
 
+void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
+{
+    if (!model())
+        return;
+
+    for (const PropertyValueContainer &container : command.valueChanges()) {
+        if (hasInstanceForId(container.instanceId())) {
+            NodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid())
+                instance.modelNode().variantProperty(container.name()).setValue(container.value());
+        }
+    }
+}
+
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 {
     if (!model())

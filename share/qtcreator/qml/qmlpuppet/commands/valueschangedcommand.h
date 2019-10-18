@@ -42,7 +42,7 @@ public:
     ValuesChangedCommand();
     explicit ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector);
 
-    QVector<PropertyValueContainer> valueChanges() const;
+    const QVector<PropertyValueContainer> valueChanges() const;
     quint32 keyNumber() const;
 
     static void removeSharedMemorys(const QVector<qint32> &keyNumberVector);
@@ -59,6 +59,26 @@ QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command);
 
 bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second);
 QDebug operator <<(QDebug debug, const ValuesChangedCommand &instance);
+
+/* ValuesChangedCommand is used to notify that the values of a specific instatiated
+ * QObject changed.
+ * The ValuesModifiedCommand is used to notify that a user changed a QML property and
+ * that this property should be changed in the data model.
+ */
+
+class ValuesModifiedCommand : public ValuesChangedCommand
+{
+public:
+    ValuesModifiedCommand()
+    {}
+    explicit ValuesModifiedCommand(const QVector<PropertyValueContainer> &valueChangeVector)
+        : ValuesChangedCommand(valueChangeVector)
+    {}
+
+};
+
 } // namespace QmlDesigner
 
+
+Q_DECLARE_METATYPE(QmlDesigner::ValuesModifiedCommand)
 Q_DECLARE_METATYPE(QmlDesigner::ValuesChangedCommand)

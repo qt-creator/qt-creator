@@ -130,6 +130,7 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
 {
     static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
     static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
+    static const int valuesModifiedCommandType = QMetaType::type("ValuesModifiedCommand");
     static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
     static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
     static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
@@ -144,7 +145,9 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
             return command.value<InformationChangedCommand>() == controlCommand.value<InformationChangedCommand>();
         else if (command.userType() == valuesChangedCommandType)
             return command.value<ValuesChangedCommand>() == controlCommand.value<ValuesChangedCommand>();
-         else if (command.userType() == pixmapChangedCommandType)
+        else if (command.userType() == valuesModifiedCommandType)
+            return command.value<ValuesModifiedCommand>() == controlCommand.value<ValuesModifiedCommand>();
+        else if (command.userType() == pixmapChangedCommandType)
             return command.value<PixmapChangedCommand>() == controlCommand.value<PixmapChangedCommand>();
         else if (command.userType() == childrenChangedCommandType)
             return command.value<ChildrenChangedCommand>() == controlCommand.value<ChildrenChangedCommand>();
@@ -198,6 +201,11 @@ void NodeInstanceClientProxy::informationChanged(const InformationChangedCommand
 }
 
 void NodeInstanceClientProxy::valuesChanged(const ValuesChangedCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::valuesModified(const ValuesModifiedCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

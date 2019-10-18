@@ -125,6 +125,9 @@ void NodeInstanceServerInterface::registerCommands()
     qRegisterMetaType<ValuesChangedCommand>("ValuesChangedCommand");
     qRegisterMetaTypeStreamOperators<ValuesChangedCommand>("ValuesChangedCommand");
 
+    qRegisterMetaType<ValuesModifiedCommand>("ValuesModifiedCommand");
+    qRegisterMetaTypeStreamOperators<ValuesModifiedCommand>("ValuesModifiedCommand");
+
     qRegisterMetaType<PixmapChangedCommand>("PixmapChangedCommand");
     qRegisterMetaTypeStreamOperators<PixmapChangedCommand>("PixmapChangedCommand");
 

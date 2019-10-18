@@ -67,6 +67,7 @@ public:
 
     void informationChanged(const InformationChangedCommand &command) override;
     void valuesChanged(const ValuesChangedCommand &command) override;
+    void valuesModified(const ValuesModifiedCommand &command) override;
     void pixmapChanged(const PixmapChangedCommand &command) override;
     void childrenChanged(const ChildrenChangedCommand &command) override;
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) override;

@@ -120,6 +120,7 @@ public:
     void updatePosition(const QList<VariantProperty>& propertyList);
 
     void valuesChanged(const ValuesChangedCommand &command) override;
+    void valuesModified(const ValuesModifiedCommand &command) override;
     void pixmapChanged(const PixmapChangedCommand &command) override;
     void informationChanged(const InformationChangedCommand &command) override;
     void childrenChanged(const ChildrenChangedCommand &command) override;
