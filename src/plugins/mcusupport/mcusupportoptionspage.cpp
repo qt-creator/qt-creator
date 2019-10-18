@@ -28,6 +28,9 @@
 
 #include <coreplugin/icore.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -623,6 +626,27 @@ static void setKitToolchains(ProjectExplorer::Kit *k, const QString &armGccPath)
     ToolChainKitAspect::setToolChain(k, cxxTc);
 }
 
+static void setKitDebugger(ProjectExplorer::Kit *k, const QString &armGccPath)
+{
+    using namespace Debugger;
+
+    const Utils::FilePath command = Utils::FilePath::fromUserInput(
+                Utils::HostOsInfo::withExecutableSuffix(armGccPath + "/bin/arm-none-eabi-gdb-py"));
+    const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command);
+    QVariant debuggerId;
+    if (!debugger) {
+        DebuggerItem newDebugger;
+        newDebugger.setCommand(command);
+        newDebugger.setUnexpandedDisplayName(
+                    McuSupportOptionsPage::tr("Arm GDB at %1").arg(command.toUserOutput()));
+        debuggerId = DebuggerItemManager::registerDebugger(newDebugger);
+    } else {
+        debuggerId = debugger->id();
+    }
+
+    DebuggerKitAspect::setDebugger(k, debuggerId);
+}
+
 static void setKitDevice(ProjectExplorer::Kit *k)
 {
     using namespace ProjectExplorer;
@@ -650,7 +674,7 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const BoardOptions* board
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
 
-static void setCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* board)
+static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* board)
 {
     using namespace CMakeProjectManager;
 
@@ -674,9 +698,10 @@ static ProjectExplorer::Kit* boardKit(const BoardOptions* board, const QString &
 
             setKitProperties(k, board);
             setKitToolchains(k, armGccPath);
+            setKitDebugger(k, armGccPath);
             setKitDevice(k);
             setKitEnvironment(k, board);
-            setCMakeOptions(k, board);
+            setKitCMakeOptions(k, board);
 
             k->setup();
             k->fix();

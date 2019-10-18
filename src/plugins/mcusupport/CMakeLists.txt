@@ -1,6 +1,6 @@
 add_qtc_plugin(McuSupport
   DEPENDS Qt5::Core
-  PLUGIN_DEPENDS Core ProjectExplorer CMakeProjectManager
+  PLUGIN_DEPENDS Core ProjectExplorer Debugger CMakeProjectManager
   SOURCES
     mcusupport.qrc
     mcusupport_global.h
