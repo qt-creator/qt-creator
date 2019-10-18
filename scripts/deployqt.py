@@ -323,7 +323,7 @@ def main():
     QT_INSTALL_QML = qt_install_info['QT_INSTALL_QML']
     QT_INSTALL_TRANSLATIONS = qt_install_info['QT_INSTALL_TRANSLATIONS']
 
-    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes',
+    plugins = ['assetimporters', 'accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes',
                'platforminputcontexts', 'platforms', 'printsupport', 'qmltooling', 'sqldrivers', 'styles',
                'xcbglintegrations',
                'wayland-decoration-client',
