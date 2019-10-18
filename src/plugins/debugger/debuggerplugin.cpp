@@ -870,6 +870,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     engineManagerView->setSettings(ICore::settings(), "Debugger.SnapshotView");
     engineManagerView->setIconSize(QSize(10, 10));
     engineManagerView->setModel(m_engineManager.model());
+    engineManagerView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     auto engineManagerWindow = addSearch(engineManagerView);
     engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
