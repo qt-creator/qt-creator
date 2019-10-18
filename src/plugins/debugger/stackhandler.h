@@ -112,6 +112,7 @@ public:
     bool isContentsValid() const { return m_contentsValid; }
     bool operatesByInstruction() const;
     void scheduleResetLocation();
+    void resetLocation();
 
     QIcon iconForRow(int row) const;
 
