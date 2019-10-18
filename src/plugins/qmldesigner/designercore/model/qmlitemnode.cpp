@@ -384,6 +384,11 @@ QRectF  QmlItemNode::instanceBoundingRect() const
     return QRectF(QPointF(0, 0), nodeInstance().size());
 }
 
+QRectF  QmlItemNode::instanceSceneBoundingRect() const
+{
+    return QRectF(instanceScenePosition(), nodeInstance().size());
+}
+
 QRectF QmlItemNode::instancePaintedBoundingRect() const
 {
     return nodeInstance().boundingRect();

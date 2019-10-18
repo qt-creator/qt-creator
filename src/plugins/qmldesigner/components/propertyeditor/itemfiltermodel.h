@@ -40,13 +40,16 @@ class ItemFilterModel : public QObject
     Q_PROPERTY(QString typeFilter READ typeFilter WRITE setTypeFilter)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
     Q_PROPERTY(QStringList itemModel READ itemModel NOTIFY itemModelChanged)
+    Q_PROPERTY(bool selectionOnly READ selectionOnly WRITE setSelectionOnly NOTIFY selectionOnlyChanged)
 
 public:
     explicit ItemFilterModel(QObject *parent = nullptr);
 
     void setModelNodeBackend(const QVariant &modelNodeBackend);
     void setTypeFilter(const QString &typeFilter);
+    void setSelectionOnly(bool value);
     QString typeFilter() const;
+    bool selectionOnly() const;
     void setupModel();
     QStringList itemModel() const;
 
@@ -55,6 +58,7 @@ public:
 signals:
     void modelNodeBackendChanged();
     void itemModelChanged();
+    void selectionOnlyChanged();
 
 private:
     QVariant modelNodeBackend() const;
@@ -64,6 +68,7 @@ private:
     bool m_lock;
     QStringList m_model;
     QmlDesigner::ModelNode m_modelNode;
+    bool m_selectionOnly;
 };
 
 QML_DECLARE_TYPE(ItemFilterModel)

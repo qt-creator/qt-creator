@@ -35,6 +35,7 @@
 #include "bindingeditor/bindingeditor.h"
 #include "qmlanchorbindingproxy.h"
 #include "theme.h"
+#include "aligndistribute.h"
 
 namespace QmlDesigner {
 
@@ -59,6 +60,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         SimpleColorPaletteModel::registerDeclarativeType();
         Internal::QmlAnchorBindingProxy::registerDeclarativeType();
         BindingEditor::registerDeclarativeType();
+        AlignDistribute::registerDeclarativeType();
     }
 }
 

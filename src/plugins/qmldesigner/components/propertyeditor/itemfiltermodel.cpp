@@ -34,7 +34,7 @@
 #include <qmlmodelnodeproxy.h>
 
 ItemFilterModel::ItemFilterModel(QObject *parent) :
-    QObject(parent), m_typeFilter("QtQuick.Item"), m_lock(false)
+    QObject(parent), m_typeFilter("QtQuick.Item"), m_lock(false), m_selectionOnly(false)
 {
 }
 
@@ -61,9 +61,22 @@ void ItemFilterModel::setTypeFilter(const QString &filter)
     }
 }
 
+void ItemFilterModel::setSelectionOnly(bool value)
+{
+    if (m_selectionOnly != value) {
+        m_selectionOnly = value;
+        setupModel();
+    }
+}
+
 QString ItemFilterModel::typeFilter() const
 {
     return m_typeFilter;
+}
+
+bool ItemFilterModel::selectionOnly() const
+{
+    return m_selectionOnly;
 }
 
 void ItemFilterModel::registerDeclarativeType()
@@ -85,7 +98,9 @@ void ItemFilterModel::setupModel()
     m_lock = true;
     m_model.clear();
 
-    for (const QmlDesigner::ModelNode &node : m_modelNode.view()->allModelNodes()) {
+    const auto nodes = m_selectionOnly ? m_modelNode.view()->selectedModelNodes() : m_modelNode.view()->allModelNodes();
+
+    for (const QmlDesigner::ModelNode &node : nodes) {
         if (node.hasId() && node.metaInfo().isValid() && node.metaInfo().isSubclassOf(m_typeFilter.toUtf8()))
             m_model.append(node.id());
     }
