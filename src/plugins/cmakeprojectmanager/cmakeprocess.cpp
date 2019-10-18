@@ -128,9 +128,10 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &CMakeProcess::handleProcessFinished);
 
-    QStringList args(srcDir);
+    QStringList args;
     args += parameters.generatorArguments;
     args += arguments;
+    args += srcDir;
     Utils::CommandLine commandLine(cmake->cmakeExecutable(), args);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
