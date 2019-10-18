@@ -393,6 +393,10 @@ void AndroidBuildApkStep::doRun()
         if (!node)
             return false;
 
+        FilePath deploymentSettingsFile = FilePath::fromString(node->data(Android::Constants::AndroidDeploySettingsFile).toString());
+        if (deploymentSettingsFile.exists())
+            return true; // cmake creates this file for us
+
         auto targets = node->data(Android::Constants::AndroidTargets).toStringList();
         if (targets.isEmpty())
             return true; // qmake does this job for us
@@ -449,7 +453,7 @@ void AndroidBuildApkStep::doRun()
             qmlRootPath = target()->project()->rootProjectDirectory().toString();
          deploySettings["qml-root-path"] = qmlRootPath;
 
-        QFile f{bc->buildDirectory().pathAppended("android_deployment_settings.json").toString()};
+        QFile f{deploymentSettingsFile.toString()};
         if (!f.open(QIODevice::WriteOnly))
             return false;
         f.write(QJsonDocument{deploySettings}.toJson());
@@ -518,6 +522,8 @@ QVariant AndroidBuildApkStep::data(Core::Id id) const
         return AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target())).mid(8);
     if (id == Constants::NdkLocation)
         return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation());
+    if (id == Constants::SdkLocation)
+        return QVariant::fromValue(AndroidConfigurations::currentConfig().sdkLocation());
     if (id == Constants::AndroidABIs)
         return AndroidManager::applicationAbis(target());
 
