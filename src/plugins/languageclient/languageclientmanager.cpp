@@ -284,6 +284,13 @@ void LanguageClientManager::registerClientSettings(BaseSettings *settings)
     managerInstance->applySettings();
 }
 
+void LanguageClientManager::enableClientSettings(const QString &settingsId)
+{
+    QTC_ASSERT(managerInstance, return);
+    LanguageClientSettings::enableSettings(settingsId);
+    managerInstance->applySettings();
+}
+
 QVector<Client *> LanguageClientManager::clientForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(managerInstance, return {});

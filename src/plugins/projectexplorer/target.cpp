@@ -867,7 +867,10 @@ bool Target::fromMap(const QVariantMap &map)
         RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
-        QTC_CHECK(rc->id().withSuffix(rc->buildKey()) == ProjectExplorer::idFromMap(valueMap));
+        const Core::Id theIdFromMap = ProjectExplorer::idFromMap(valueMap);
+        if (!theIdFromMap.toString().contains("///::///")) { // Hack for cmake 4.10 -> 4.11
+            QTC_CHECK(rc->id().withSuffix(rc->buildKey()) == theIdFromMap);
+        }
         addRunConfiguration(rc);
         if (i == activeConfiguration)
             setActiveRunConfiguration(rc);

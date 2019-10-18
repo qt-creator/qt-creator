@@ -30,8 +30,6 @@
 
 namespace TextEditor {
 
-class IFunctionHintProposalModel;
-
 class TEXTEDITOR_EXPORT FunctionHintProposal : public IAssistProposal
 {
 public:

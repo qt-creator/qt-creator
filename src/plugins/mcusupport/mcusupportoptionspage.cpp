@@ -80,6 +80,7 @@ public:
     void setAddToPath(bool addToPath);
     bool addToPath() const;
     void writeToSettings() const;
+    void setRelativePathModifier(const QString &path);
 
     QWidget *widget();
 
@@ -103,6 +104,7 @@ private:
     const QString m_settingsKey;
 
     QString m_path;
+    QString m_relativePathModifier; // relative path to m_path to be returned by path()
     QUrl m_downloadUrl;
     QString m_environmentVariableName;
     bool m_addToPath = false;
@@ -126,7 +128,7 @@ PackageOptions::PackageOptions(const QString &label, const QString &defaultPath,
 
 QString PackageOptions::path() const
 {
-    return m_fileChooser->path();
+    return QFileInfo(m_fileChooser->path() + m_relativePathModifier).absoluteFilePath();
 }
 
 QString PackageOptions::label() const
@@ -218,6 +220,11 @@ void PackageOptions::writeToSettings() const
     s->beginGroup(Constants::SETTINGS_GROUP);
     s->setValue(QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey, m_path);
     s->endGroup();
+}
+
+void PackageOptions::setRelativePathModifier(const QString &path)
+{
+    m_relativePathModifier = path;
 }
 
 void PackageOptions::updateStatus()
@@ -363,8 +370,10 @@ static PackageOptions* createStm32CubeProgrammerPackage()
     auto result = new PackageOptions(
                 McuSupportOptionsPage::tr("STM32CubeProgrammer"),
                 defaultPath,
-                "bin",
+                QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
+                                                                 : "/bin/STM32_Programmer.sh"),
                 "stm32CubeProgrammer");
+    result->setRelativePathModifier("/bin");
     result->setDownloadUrl(
                 QUrl::fromUserInput("https://www.st.com/en/development-tools/stm32cubeprog.html"));
     result->setAddToPath(true);

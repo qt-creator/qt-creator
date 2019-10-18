@@ -29,6 +29,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <utils/fileutils.h>
+
 #include <QAbstractItemModel>
 #include <QLabel>
 #include <QPointer>
@@ -119,6 +121,7 @@ public:
     QVariantMap toMap() const override;
     void fromMap(const QVariantMap &map) override;
     QString arguments() const;
+    Utils::CommandLine command() const;
 
 protected:
     BaseClientInterface *createInterface() const override;
@@ -136,6 +139,7 @@ public:
     static QList<BaseSettings *> fromSettings(QSettings *settings);
     static QList<BaseSettings *> currentPageSettings();
     static void addSettings(BaseSettings *settings);
+    static void enableSettings(const QString &id);
     static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
 };
 

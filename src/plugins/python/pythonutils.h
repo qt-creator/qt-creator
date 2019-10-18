@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,21 @@
 **
 ****************************************************************************/
 
+#include <utils/fileutils.h>
+
 #pragma once
 
-#include "ioutputpane.h"
+namespace TextEditor { class TextDocument; }
+namespace LanguageClient { class StdIOSettings; }
 
-namespace Core {
-class OutputWindow;
-
+namespace Python {
 namespace Internal {
 
-class MessageOutputWindow : public IOutputPane
-{
-    Q_OBJECT
-
-public:
-    MessageOutputWindow();
-    ~MessageOutputWindow() override;
-
-    QWidget *outputWidget(QWidget *parent) override;
-
-    QString displayName() const override;
-    int priorityInStatusBar() const override;
-    void clearContents() override;
-    void visibilityChanged(bool visible) override;
-
-    void append(const QString &text);
-    bool canFocus() const override;
-    bool hasFocus() const override;
-    void setFocus() override;
-
-    bool canNext() const override;
-    bool canPrevious() const override;
-    void goToNext() override;
-    void goToPrev() override;
-    bool canNavigate() const override;
-
-private:
-    void updateFilter() override;
-
-    OutputWindow *m_widget;
-};
+QList<const LanguageClient::StdIOSettings *> configuredPythonLanguageServers();
+const LanguageClient::StdIOSettings *languageServerForPython(const Utils::FilePath &python);
+Utils::FilePath detectPython(const Utils::FilePath &NdocumentPath);
+void updateEditorInfoBar(const Utils::FilePath &python, TextEditor::TextDocument *document);
+void resetEditorInfoBar(TextEditor::TextDocument *document);
 
 } // namespace Internal
-} // namespace Core
+} // namespace Python

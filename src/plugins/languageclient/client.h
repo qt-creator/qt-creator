@@ -222,7 +222,7 @@ private:
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;
-    QMap<LanguageServerProtocol::DocumentUri, QList<TextMark *>> m_diagnostics;
+    QMap<LanguageServerProtocol::DocumentUri, QList<LanguageServerProtocol::Diagnostic>> m_diagnostics;
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;

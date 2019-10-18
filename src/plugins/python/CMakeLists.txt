@@ -12,4 +12,5 @@ add_qtc_plugin(Python
     pythonrunconfiguration.cpp pythonrunconfiguration.h
     pythonsettings.cpp pythonsettings.h
     pythonscanner.cpp pythonscanner.h
+    pythonutils.cpp pythonutils.h
 )

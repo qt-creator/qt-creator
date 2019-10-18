@@ -13,7 +13,8 @@ HEADERS += \
     pythonproject.h \
     pythonrunconfiguration.h \
     pythonscanner.h \
-    pythonsettings.h
+    pythonsettings.h \
+    pythonutils.h
 
 SOURCES += \
     pythonplugin.cpp \
@@ -23,7 +24,8 @@ SOURCES += \
     pythonproject.cpp \
     pythonrunconfiguration.cpp \
     pythonscanner.cpp \
-    pythonsettings.cpp
+    pythonsettings.cpp \
+    pythonutils.cpp
 
 RESOURCES += \
     python.qrc

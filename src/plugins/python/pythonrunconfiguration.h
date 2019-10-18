@@ -46,6 +46,7 @@ public:
 
 private:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) final;
+    void updateLanguageServer();
 
     bool supportsDebugger() const;
     QString mainScript() const;

@@ -37,9 +37,6 @@ class QTimeLine;
 QT_END_NAMESPACE
 
 namespace Core {
-
-class IOutputPane;
-
 namespace Internal {
 
 class MainWindow;

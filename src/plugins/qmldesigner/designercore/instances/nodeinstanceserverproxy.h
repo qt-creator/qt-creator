@@ -96,6 +96,7 @@ signals:
 
 private slots:
     void processFinished();
+    void puppetTimeout(PuppetStreamType puppetStreamType);
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void readFirstDataStream();
     void readSecondDataStream();

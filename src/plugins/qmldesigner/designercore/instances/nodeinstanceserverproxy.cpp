@@ -216,9 +216,13 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
     if (QmlDesignerPlugin::instance()->settings().value(DesignerSettingsKey::
             DEBUG_PUPPET).toString().isEmpty()) {
-       connect(&m_firstTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
-       connect(&m_secondTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
-       connect(&m_thirdTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+
+       connect(&m_firstTimer, &QTimer::timeout, this,
+               [this](){ NodeInstanceServerProxy::puppetTimeout(FirstPuppetStream); });
+       connect(&m_secondTimer, &QTimer::timeout, this,
+               [this](){ NodeInstanceServerProxy::puppetTimeout(SecondPuppetStream); });
+       connect(&m_thirdTimer, &QTimer::timeout, this,
+               [this](){ NodeInstanceServerProxy::puppetTimeout(ThirdPuppetStream); });
    }
 #endif
 }
@@ -357,6 +361,37 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 void NodeInstanceServerProxy::processFinished()
 {
     processFinished(-1, QProcess::CrashExit);
+}
+
+void NodeInstanceServerProxy::puppetTimeout(PuppetStreamType puppetStreamType)
+{
+    switch (puppetStreamType) {
+    case FirstPuppetStream:
+        if (m_firstSocket->waitForReadyRead(10)) {
+            m_firstTimer.stop();
+            m_firstTimer.start();
+            return;
+        }
+        break;
+    case SecondPuppetStream:
+        if (m_secondSocket->waitForReadyRead(10)) {
+            m_secondTimer.stop();
+            m_secondTimer.start();
+            return;
+        }
+        break;
+    case ThirdPuppetStream:
+        if (m_thirdSocket->waitForReadyRead(10)) {
+            m_thirdTimer.stop();
+            m_thirdTimer.start();
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+
+    processFinished();
 }
 
 static void writeCommandToIODecive(const QVariant &command, QIODevice *ioDevice, unsigned int commandCounter)
