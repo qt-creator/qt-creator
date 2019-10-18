@@ -32,6 +32,7 @@
 #include <utils/macroexpander.h>
 
 #include <QObject>
+#include <QPointer>
 #include <QString>
 #include <QVariantMap>
 
