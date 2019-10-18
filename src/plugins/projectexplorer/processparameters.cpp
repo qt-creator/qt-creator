@@ -28,6 +28,7 @@
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
+#include <utils/theme/theme.h>
 
 #include <QDir>
 
@@ -169,8 +170,19 @@ QString ProcessParameters::prettyArguments() const
     return args.toString();
 }
 
+static QString invalidCommandMessage(const QString &displayName)
+{
+    return QString("<b>%1:</b> <font color='%3'>%2</font>")
+                    .arg(displayName,
+                         QtcProcess::tr("Invalid command"),
+                         creatorTheme()->color(Theme::TextColorError).name());
+}
+
 QString ProcessParameters::summary(const QString &displayName) const
 {
+    if (m_commandMissing)
+        return invalidCommandMessage(displayName);
+
     return QString::fromLatin1("<b>%1:</b> %2 %3")
             .arg(displayName,
                  Utils::QtcProcess::quoteArg(prettyCommand()),
@@ -179,6 +191,9 @@ QString ProcessParameters::summary(const QString &displayName) const
 
 QString ProcessParameters::summaryInWorkdir(const QString &displayName) const
 {
+    if (m_commandMissing)
+        return invalidCommandMessage(displayName);
+
     return QString::fromLatin1("<b>%1:</b> %2 %3 in %4")
             .arg(displayName,
                  Utils::QtcProcess::quoteArg(prettyCommand()),
