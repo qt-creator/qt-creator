@@ -51,6 +51,8 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
+static PythonPlugin *m_instance = nullptr;
+
 class PythonPluginPrivate
 {
 public:
@@ -65,9 +67,20 @@ public:
     };
 };
 
+PythonPlugin::PythonPlugin()
+{
+    m_instance = this;
+}
+
 PythonPlugin::~PythonPlugin()
 {
+    m_instance = nullptr;
     delete d;
+}
+
+PythonPlugin *PythonPlugin::instance()
+{
+    return m_instance;
 }
 
 bool PythonPlugin::initialize(const QStringList &arguments, QString *errorMessage)

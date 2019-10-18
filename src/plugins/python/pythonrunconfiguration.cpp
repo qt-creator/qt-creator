@@ -297,23 +297,10 @@ void PythonRunConfiguration::updateLanguageServer()
 
     const FilePath python(FilePath::fromUserInput(interpreter()));
 
-    if (const StdIOSettings *lsSetting = languageServerForPython(python)) {
-        if (Client *client = LanguageClientManager::clientForSetting(lsSetting).value(0)) {
-            for (FilePath &file : project()->files(Project::AllFiles)) {
-                if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
-                    if (document->mimeType() == Constants::C_PY_MIMETYPE) {
-                        resetEditorInfoBar(document);
-                        LanguageClientManager::reOpenDocumentWithClient(document, client);
-                    }
-                }
-            }
-        }
-    }
-
     for (FilePath &file : project()->files(Project::AllFiles)) {
         if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
             if (document->mimeType() == Constants::C_PY_MIMETYPE)
-                updateEditorInfoBar(python, document);
+                PyLSConfigureAssistant::instance()->openDocumentWithPython(python, document);
         }
     }
 }
