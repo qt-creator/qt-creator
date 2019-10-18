@@ -133,7 +133,7 @@ void TeaLeafReader::parse(bool forceCMakeRun, bool forceConfiguration)
     const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
     if (!cbpFileFi.exists() || forceConfiguration) {
         // Initial create:
-        const FilePath path = m_parameters.buildDirectory.pathAppended("qtcsettings.cmake");
+        const FilePath path = m_parameters.workDirectory.pathAppended("qtcsettings.cmake");
         startCMake(QStringList({QString("-C"), path.toUserOutput()}));
         return;
     }

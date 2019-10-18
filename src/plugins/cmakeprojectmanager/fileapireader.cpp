@@ -131,7 +131,7 @@ void FileApiReader::parse(bool forceCMakeRun, bool forceConfiguration)
     if (forceConfiguration) {
         // Initial create:
         qCDebug(cmakeFileApiMode) << "FileApiReader: Starting CMake with forced configuration.";
-        const FilePath path = m_parameters.buildDirectory.pathAppended("qtcsettings.cmake");
+        const FilePath path = m_parameters.workDirectory.pathAppended("qtcsettings.cmake");
         startCMakeState(QStringList({QString("-C"), path.toUserOutput()}));
         // Keep m_isParsing enabled!
         return;
