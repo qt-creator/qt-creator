@@ -42,10 +42,6 @@ class IDocument;
 class IEditor;
 }
 
-namespace CppTools {
-class ProjectInfo;
-}
-
 namespace Cppcheck {
 namespace Internal {
 
