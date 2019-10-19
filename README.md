@@ -276,7 +276,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
 The ClangFormat plugin depends on the additional patch
 
-    https://code.qt.io/cgit/clang/clang.git/commit/?h=release_80-based&id=f98a155c89df094fb8f419a20629065f25fe599a
+    https://code.qt.io/cgit/clang/clang.git/commit/?h=release_80-based&id=fa1b9053729ec6a4425a44ec5502dd388928274a
 
 While the plugin builds without it, it will be disabled on start with an error message.
 
