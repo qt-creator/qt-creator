@@ -28,8 +28,12 @@ add_qtc_plugin(ClangTools
     clangtoolsprojectsettingswidget.cpp clangtoolsprojectsettingswidget.h clangtoolsprojectsettingswidget.ui
     clangtoolssettings.cpp clangtoolssettings.h
     clangtoolsutils.cpp clangtoolsutils.h
+    clazychecks.ui
+    diagnosticconfigswidget.cpp diagnosticconfigswidget.h
+    executableinfo.cpp executableinfo.h
     runsettingswidget.cpp runsettingswidget.h runsettingswidget.ui
     settingswidget.cpp settingswidget.h settingswidget.ui
+    tidychecks.ui
 )
 
 extend_qtc_plugin(ClangTools

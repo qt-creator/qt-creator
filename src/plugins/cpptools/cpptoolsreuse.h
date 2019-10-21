@@ -82,8 +82,6 @@ UsePrecompiledHeaders CPPTOOLS_EXPORT getPchUsage();
 int indexerFileSizeLimitInMb();
 bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb);
 
-QString CPPTOOLS_EXPORT clazyChecksForLevel(int level);
-
 class ClangDiagnosticConfigsModel;
 ClangDiagnosticConfigsModel CPPTOOLS_EXPORT diagnosticConfigsModel();
 ClangDiagnosticConfigsModel CPPTOOLS_EXPORT

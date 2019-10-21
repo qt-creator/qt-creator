@@ -75,11 +75,11 @@ static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticCo
 static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticConfig)
 {
     const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
-    if (tidyMode != ClangDiagnosticConfig::TidyMode::Disabled) {
-        if (tidyMode != ClangDiagnosticConfig::TidyMode::File)
-            return {"-checks=" + diagnosticConfig.clangTidyChecks()};
-    }
-
+    // The argument "-config={}" stops stating/evaluating the .clang-tidy file.
+    if (tidyMode == ClangDiagnosticConfig::TidyMode::Default)
+        return {"-config={}"};
+    if (tidyMode == ClangDiagnosticConfig::TidyMode::ChecksPrefixList)
+        return {"-config={}", "-checks=" + diagnosticConfig.clangTidyChecks()};
     return {};
 }
 

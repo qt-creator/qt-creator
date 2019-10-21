@@ -38,6 +38,8 @@
 namespace ClangTools {
 namespace Internal {
 
+static SettingsWidget *m_instance = nullptr;
+
 static void setupPathChooser(Utils::PathChooser *const chooser,
                              const QString &promptDiaglogTitle,
                              const QString &placeHolderText,
@@ -65,11 +67,17 @@ static void setupPathChooser(Utils::PathChooser *const chooser,
     });
 }
 
+SettingsWidget *SettingsWidget::instance()
+{
+    return m_instance;
+}
+
 SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::SettingsWidget)
     , m_settings(settings)
 {
+    m_instance = this;
     m_ui->setupUi(this);
 
     //
@@ -125,7 +133,20 @@ void SettingsWidget::apply()
     m_settings->writeSettings();
 }
 
-SettingsWidget::~SettingsWidget() = default;
+SettingsWidget::~SettingsWidget()
+{
+    m_instance = nullptr;
+}
+
+QString SettingsWidget::clangTidyPath() const
+{
+    return m_ui->clangTidyPathChooser->rawPath();
+}
+
+QString SettingsWidget::clazyStandalonePath() const
+{
+    return m_ui->clazyStandalonePathChooser->rawPath();
+}
 
 } // namespace Internal
 } // namespace ClangTools

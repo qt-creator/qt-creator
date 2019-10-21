@@ -31,12 +31,16 @@
 
 #include <QWidget>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QPushButton;
 QT_END_NAMESPACE
 
 namespace CppTools {
+
+class ClangDiagnosticConfigsWidget;
 
 class CPPTOOLS_EXPORT ClangDiagnosticConfigsSelectionWidget : public QWidget
 {
@@ -45,9 +49,13 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsSelectionWidget : public QWidget
 public:
     explicit ClangDiagnosticConfigsSelectionWidget(QWidget *parent = nullptr);
 
+    using CreateEditWidget
+        = std::function<ClangDiagnosticConfigsWidget *(const ClangDiagnosticConfigs &configs,
+                                                       const Core::Id &configToSelect)>;
+
     void refresh(const ClangDiagnosticConfigsModel &model,
                  const Core::Id &configToSelect,
-                 bool showTidyClazyUi);
+                 const CreateEditWidget &createEditWidget);
 
     Core::Id currentConfigId() const;
     ClangDiagnosticConfigs customConfigs() const;
@@ -64,6 +72,8 @@ private:
 
     QLabel *m_label = nullptr;
     QPushButton *m_button = nullptr;
+
+    CreateEditWidget m_createEditWidget;
 };
 
 } // CppTools namespace

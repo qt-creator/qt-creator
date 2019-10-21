@@ -49,9 +49,13 @@ bool isFileExecutable(const QString &filePath);
 
 QString shippedClazyStandaloneExecutable();
 QString clazyStandaloneExecutable();
+QString clazyStandaloneFallbackExecutable();
 
 QString shippedClangTidyExecutable();
 QString clangTidyExecutable();
+QString clangTidyFallbackExecutable();
+
+QString fullPath(const QString &executable);
 
 CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel();
 CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel(

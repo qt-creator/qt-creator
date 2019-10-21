@@ -24,11 +24,15 @@
 ****************************************************************************/
 
 #include "runsettingswidget.h"
-
 #include "ui_runsettingswidget.h"
 
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
+#include "diagnosticconfigswidget.h"
+#include "executableinfo.h"
+#include "settingswidget.h"
+
+#include <cpptools/clangdiagnosticconfigswidget.h>
 
 #include <QThread>
 
@@ -52,12 +56,39 @@ CppTools::ClangDiagnosticConfigsSelectionWidget *RunSettingsWidget::diagnosticSe
     return m_ui->diagnosticWidget;
 }
 
+static CppTools::ClangDiagnosticConfigsWidget *createEditWidget(
+    const CppTools::ClangDiagnosticConfigs &configs, const Core::Id &configToSelect)
+{
+    // Determine executable paths
+    QString clangTidyPath;
+    QString clazyStandalonePath;
+    if (auto settingsWidget = SettingsWidget::instance()) {
+        // Global settings case; executables might not yet applied to settings
+        clangTidyPath = settingsWidget->clangTidyPath();
+        clangTidyPath = clangTidyPath.isEmpty() ? clangTidyFallbackExecutable()
+                                                : fullPath(clangTidyPath);
+
+        clazyStandalonePath = settingsWidget->clazyStandalonePath();
+        clazyStandalonePath = clazyStandalonePath.isEmpty() ? clazyStandaloneFallbackExecutable()
+                                                            : fullPath(clazyStandalonePath);
+    } else {
+        // "Projects Mode > Clang Tools" case, check settings
+        clangTidyPath = clangTidyExecutable();
+        clazyStandalonePath = clazyStandaloneExecutable();
+    }
+
+    return new DiagnosticConfigsWidget(configs,
+                                       configToSelect,
+                                       ClangTidyInfo(clangTidyPath),
+                                       ClazyStandaloneInfo(clazyStandalonePath));
+}
+
 void RunSettingsWidget::fromSettings(const RunSettings &s)
 {
     disconnect(m_ui->diagnosticWidget, 0, 0, 0);
     m_ui->diagnosticWidget->refresh(diagnosticConfigsModel(),
                                     s.diagnosticConfigId(),
-                                    /*showTidyClazyUi=*/true);
+                                    createEditWidget);
     connect(m_ui->diagnosticWidget,
             &CppTools::ClangDiagnosticConfigsSelectionWidget::changed,
             this,

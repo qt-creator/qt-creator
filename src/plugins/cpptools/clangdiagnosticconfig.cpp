@@ -79,6 +79,7 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
         && m_clangOptions == other.m_clangOptions
         && m_clangTidyMode == other.m_clangTidyMode
         && m_clangTidyChecks == other.m_clangTidyChecks
+        && m_clazyMode == other.m_clazyMode
         && m_clazyChecks == other.m_clazyChecks
         && m_isReadOnly == other.m_isReadOnly
         && m_useBuildSystemWarnings == other.m_useBuildSystemWarnings;
@@ -87,6 +88,16 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
 bool ClangDiagnosticConfig::operator!=(const ClangDiagnosticConfig &other) const
 {
     return !(*this == other);
+}
+
+ClangDiagnosticConfig::ClazyMode ClangDiagnosticConfig::clazyMode() const
+{
+    return m_clazyMode;
+}
+
+void ClangDiagnosticConfig::setClazyMode(const ClazyMode &clazyMode)
+{
+    m_clazyMode = clazyMode;
 }
 
 bool ClangDiagnosticConfig::useBuildSystemWarnings() const
@@ -135,15 +146,9 @@ static QString convertToNewClazyChecksFormat(const QString &checks)
     // Starting with Qt Creator 4.9, checks are a comma-separated string of checks: "x,y,z".
 
     if (checks.isEmpty())
-        return checks;
-
-    if (checks.size() == 6 && checks.startsWith("level")) {
-        bool ok = false;
-        const int level = checks.midRef(5).toInt(&ok);
-        QTC_ASSERT(ok, return QString());
-        return clazyChecksForLevel(level);
-    }
-
+        return {};
+    if (checks.size() == 6 && checks.startsWith("level"))
+        return {};
     return checks;
 }
 
@@ -153,6 +158,7 @@ static const char diagnosticConfigDisplayNameKey[] = "displayName";
 static const char diagnosticConfigWarningsKey[] = "diagnosticOptions";
 static const char diagnosticConfigsTidyChecksKey[] = "clangTidyChecks";
 static const char diagnosticConfigsTidyModeKey[] = "clangTidyMode";
+static const char diagnosticConfigsClazyModeKey[] = "clazyMode";
 static const char diagnosticConfigsClazyChecksKey[] = "clazyChecks";
 
 void diagnosticConfigsToSettings(QSettings *s, const ClangDiagnosticConfigs &configs)
@@ -165,8 +171,8 @@ void diagnosticConfigsToSettings(QSettings *s, const ClangDiagnosticConfigs &con
         s->setValue(diagnosticConfigDisplayNameKey, config.displayName());
         s->setValue(diagnosticConfigWarningsKey, config.clangOptions());
         s->setValue(diagnosticConfigsTidyModeKey, int(config.clangTidyMode()));
-        s->setValue(diagnosticConfigsTidyChecksKey,
-                    config.clangTidyChecks());
+        s->setValue(diagnosticConfigsTidyChecksKey, config.clangTidyChecks());
+        s->setValue(diagnosticConfigsClazyModeKey, int(config.clazyMode()));
         s->setValue(diagnosticConfigsClazyChecksKey, config.clazyChecks());
     }
     s->endArray();
@@ -189,6 +195,8 @@ ClangDiagnosticConfigs diagnosticConfigsFromSettings(QSettings *s)
         config.setClangTidyChecks(
             s->value(diagnosticConfigsTidyChecksKey).toString());
 
+        config.setClazyMode(static_cast<ClangDiagnosticConfig::ClazyMode>(
+            s->value(diagnosticConfigsClazyModeKey).toInt()));
         const QString clazyChecks = s->value(diagnosticConfigsClazyChecksKey).toString();
         config.setClazyChecks(convertToNewClazyChecksFormat(clazyChecks));
         configs.append(config);

@@ -146,9 +146,13 @@ void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
             widget->setEnabled(isCustom);
     }
 
-    m_ui.clangDiagnosticConfigsSelectionWidget->refresh(CppTools::diagnosticConfigsModel(),
-                                                        configIdForProject(m_projectSettings),
-                                                        /*showTidyClazyUi=*/false);
+    m_ui.clangDiagnosticConfigsSelectionWidget
+        ->refresh(CppTools::diagnosticConfigsModel(),
+                  configIdForProject(m_projectSettings),
+                  [](const CppTools::ClangDiagnosticConfigs &configs,
+                     const Core::Id &configToSelect) {
+                      return new CppTools::ClangDiagnosticConfigsWidget(configs, configToSelect);
+                  });
 }
 
 } // namespace Internal

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,22 +25,37 @@
 
 #pragma once
 
+#include <QStringList>
+#include <QVector>
+
 namespace ClangTools {
-namespace Constants {
+namespace Internal {
 
-const char PROJECT_PANEL_ID[] = "ClangTools";
+class ClangTidyInfo
+{
+public:
+    ClangTidyInfo(const QString &executablePath);
+    QStringList defaultChecks;
+    QStringList supportedChecks;
+};
 
-const char RUN_ON_PROJECT[] = "ClangTools.RunOnProject";
-const char RUN_ON_CURRENT_FILE[] = "ClangTools.RunOnCurrentFile";
+class ClazyCheck
+{
+public:
+    QString name;
+    int level;
+    QStringList topics;
+};
+using ClazyChecks = QVector<ClazyCheck>;
 
-const char SETTINGS_PAGE_ID[] = "Analyzer.ClangTools.Settings";
-const char SETTINGS_ID[] = "ClangTools";
-const char CLANGTIDYCLAZY_RUN_MODE[] = "ClangTidyClazy.RunMode";
+class ClazyStandaloneInfo
+{
+public:
+    ClazyStandaloneInfo(const QString &executablePath);
+    QStringList defaultChecks;
+    ClazyChecks supportedChecks;
+};
 
-const char CLANG_TIDY_EXECUTABLE_NAME[] = "clang-tidy";
-const char CLAZY_STANDALONE_EXECUTABLE_NAME[] = "clazy-standalone";
+} // namespace Internal
+} // namespace ClangTools
 
-const char DIAG_CONFIG_TIDY_AND_CLAZY[] = "Builtin.DefaultTidyAndClazy";
-
-} // Constants
-} // ClangTools

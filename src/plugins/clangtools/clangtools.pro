@@ -31,6 +31,8 @@ SOURCES += \
     clangtoolsprojectsettings.cpp \
     clangtoolssettings.cpp \
     clangtoolsutils.cpp \
+    diagnosticconfigswidget.cpp \
+    executableinfo.cpp \
     runsettingswidget.cpp \
     settingswidget.cpp \
 
@@ -53,14 +55,18 @@ HEADERS += \
     clangtoolsprojectsettings.h \
     clangtoolssettings.h \
     clangtoolsutils.h \
+    diagnosticconfigswidget.h \
+    executableinfo.h \
     runsettingswidget.h \
     settingswidget.h \
 
 FORMS += \
     clangselectablefilesdialog.ui \
     clangtoolsprojectsettingswidget.ui \
+    clazychecks.ui \
     runsettingswidget.ui \
     settingswidget.ui \
+    tidychecks.ui \
 
 equals(TEST, 1) {
     HEADERS += \

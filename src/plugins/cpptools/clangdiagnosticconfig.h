@@ -42,36 +42,46 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ClangDiagnosticConfig
 {
 public:
-    enum class TidyMode
-    {
-        Disabled = 0,
-        ChecksPrefixList,
-        File
-    };
-
     Core::Id id() const;
     void setId(const Core::Id &id);
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
+    bool isReadOnly() const;
+    void setIsReadOnly(bool isReadOnly);
+
     QStringList clangOptions() const;
     void setClangOptions(const QStringList &options);
+
+    bool useBuildSystemWarnings() const;
+    void setUseBuildSystemWarnings(bool useBuildSystemWarnings);
+
+    // Clang-Tidy
+    enum class TidyMode
+    {
+        Disabled,
+        ChecksPrefixList,
+        File,
+        Default,
+    };
+    TidyMode clangTidyMode() const;
+    void setClangTidyMode(TidyMode mode);
 
     QString clangTidyChecks() const;
     void setClangTidyChecks(const QString &checks);
 
-    TidyMode clangTidyMode() const;
-    void setClangTidyMode(TidyMode mode);
+    // Clazy
+    enum class ClazyMode
+    {
+        Default,
+        SpecifiedChecks,
+    };
+    ClazyMode clazyMode() const;
+    void setClazyMode(const ClazyMode &clazyMode);
 
     QString clazyChecks() const;
     void setClazyChecks(const QString &checks);
-
-    bool isReadOnly() const;
-    void setIsReadOnly(bool isReadOnly);
-
-    bool useBuildSystemWarnings() const;
-    void setUseBuildSystemWarnings(bool useBuildSystemWarnings);
 
     bool operator==(const ClangDiagnosticConfig &other) const;
     bool operator!=(const ClangDiagnosticConfig &other) const;
@@ -83,6 +93,7 @@ private:
     TidyMode m_clangTidyMode = TidyMode::Disabled;
     QString m_clangTidyChecks;
     QString m_clazyChecks;
+    ClazyMode m_clazyMode = ClazyMode::Default;
     bool m_isReadOnly = false;
     bool m_useBuildSystemWarnings = false;
 };

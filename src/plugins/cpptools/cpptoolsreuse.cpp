@@ -26,7 +26,6 @@
 #include "cpptoolsreuse.h"
 
 #include "cppcodemodelsettings.h"
-#include "cpptools_clazychecks.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
 
@@ -340,16 +339,6 @@ UsePrecompiledHeaders getPchUsage()
     if (cms->pchUsage() == CppCodeModelSettings::PchUse_None)
         return UsePrecompiledHeaders::No;
     return UsePrecompiledHeaders::Yes;
-}
-
-QString clazyChecksForLevel(int level)
-{
-    QStringList checks;
-    for (const Constants::ClazyCheckInfo &check : Constants::CLAZY_CHECKS) {
-        if (check.level == level)
-            checks << check.name;
-    }
-    return checks.join(',');
 }
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)

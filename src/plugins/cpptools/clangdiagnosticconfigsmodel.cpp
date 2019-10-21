@@ -105,9 +105,9 @@ QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
 }
 
 ClangDiagnosticConfig ClangDiagnosticConfigsModel::createCustomConfig(
-    const ClangDiagnosticConfig &config, const QString &displayName)
+    const ClangDiagnosticConfig &baseConfig, const QString &displayName)
 {
-    ClangDiagnosticConfig copied = config;
+    ClangDiagnosticConfig copied = baseConfig;
     copied.setId(Core::Id::fromString(QUuid::createUuid().toString()));
     copied.setDisplayName(displayName);
     copied.setIsReadOnly(false);

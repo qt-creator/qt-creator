@@ -41,8 +41,13 @@ class SettingsWidget : public QWidget
     Q_OBJECT
 
 public:
+    static SettingsWidget *instance();
+
     SettingsWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
     ~SettingsWidget() override;
+
+    QString clangTidyPath() const;
+    QString clazyStandalonePath() const;
 
     void apply();
 

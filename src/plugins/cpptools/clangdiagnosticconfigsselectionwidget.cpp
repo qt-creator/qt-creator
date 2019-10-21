@@ -59,11 +59,11 @@ ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWi
 
 void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigsModel &model,
                                                     const Core::Id &configToSelect,
-                                                    bool showTidyClazyUi)
+                                                    const CreateEditWidget &createEditWidget)
 {
-    m_showTidyClazyUi = showTidyClazyUi;
     m_diagnosticConfigsModel = model;
     m_currentConfigId = configToSelect;
+    m_createEditWidget = createEditWidget;
 
     const ClangDiagnosticConfig config = m_diagnosticConfigsModel.configWithId(configToSelect);
     m_button->setText(config.displayName());
@@ -81,11 +81,11 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsSelectionWidget::customConfigs() co
 
 void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()
 {
-    ClangDiagnosticConfigsWidget *widget
-        = new ClangDiagnosticConfigsWidget(m_diagnosticConfigsModel.allConfigs(),
-                                           m_currentConfigId,
-                                           m_showTidyClazyUi);
+    ClangDiagnosticConfigsWidget *widget = m_createEditWidget(m_diagnosticConfigsModel.allConfigs(),
+                                                              m_currentConfigId);
+    widget->sync();
     widget->layout()->setContentsMargins(0, 0, 0, 0);
+
     QDialog dialog;
     dialog.setWindowTitle(ClangDiagnosticConfigsWidget::tr("Diagnostic Configurations"));
     dialog.setLayout(new QVBoxLayout);

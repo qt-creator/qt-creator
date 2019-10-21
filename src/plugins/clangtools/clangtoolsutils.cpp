@@ -99,7 +99,7 @@ QString shippedClazyStandaloneExecutable()
     return {};
 }
 
-static QString fullPath(const QString &executable)
+QString fullPath(const QString &executable)
 {
     const QString hostExeSuffix = QLatin1String(QTC_HOST_EXE_SUFFIX);
     const Qt::CaseSensitivity caseSensitivity = Utils::HostOsInfo::fileNameCaseSensitivity();
@@ -132,15 +132,28 @@ static QString findValidExecutable(const QStringList &candidates)
     return {};
 }
 
+QString clangTidyFallbackExecutable()
+{
+    return findValidExecutable({
+        shippedClangTidyExecutable(),
+        Constants::CLANG_TIDY_EXECUTABLE_NAME,
+    });
+}
+
 QString clangTidyExecutable()
 {
     const QString fromSettings = ClangToolsSettings::instance()->clangTidyExecutable();
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
+    return clangTidyFallbackExecutable();
+}
 
+QString clazyStandaloneFallbackExecutable()
+{
     return findValidExecutable({
-        shippedClangTidyExecutable(),
-        Constants::CLANG_TIDY_EXECUTABLE_NAME,
+        shippedClazyStandaloneExecutable(),
+        qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH"),
+        Constants::CLAZY_STANDALONE_EXECUTABLE_NAME,
     });
 }
 
@@ -149,73 +162,20 @@ QString clazyStandaloneExecutable()
     const QString fromSettings = ClangToolsSettings::instance()->clazyStandaloneExecutable();
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
-
-    return findValidExecutable({
-        shippedClazyStandaloneExecutable(),
-        qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH"),
-        Constants::CLAZY_STANDALONE_EXECUTABLE_NAME,
-                               });
+    return clazyStandaloneFallbackExecutable();
 }
-
-constexpr const char *DEFAULT_TIDY_CHECKS = "-*,"
-                                            "bugprone-*,"
-                                            "cppcoreguidelines-*,"
-                                            "misc-*,"
-                                            "modernize-*,"
-                                            "performance-*,"
-                                            "readability-*,"
-                                            "-cppcoreguidelines-owning-memory,"
-                                            "-readability-braces-around-statements,"
-                                            "-readability-implicit-bool-conversion,"
-                                            "-readability-named-parameter";
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
 {
-    // Clang-Tidy
     ClangDiagnosticConfig config;
-    config.setId("Builtin.Tidy");
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Clang-Tidy thorough checks"));
-    config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{QStringLiteral("-w")});
-    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
-    config.setClangTidyChecks(QString::fromUtf8(DEFAULT_TIDY_CHECKS));
-    model.appendOrUpdate(config);
-
-    // Clang static analyzer
-    config = ClangDiagnosticConfig();
-    config.setId("Builtin.TidyClangAnalyze");
-    config.setDisplayName(QCoreApplication::translate(
-                              "ClangDiagnosticConfigsModel",
-                              "Clang-Tidy static analyzer checks"));
-    config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{
-        QStringLiteral("-w"),
-    });
-    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
-    config.setClangTidyChecks("-*,clang-analyzer-*");
-    model.appendOrUpdate(config);
-
-    // Clazy
-    config = ClangDiagnosticConfig();
-    config.setId("Builtin.Clazy");
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Clazy level0 checks"));
-    config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{QStringLiteral("-w")});
-    config.setClazyChecks(CppTools::clazyChecksForLevel(0));
-    model.appendOrUpdate(config);
-
-    // Clang-Tidy and Clazy
-    config = ClangDiagnosticConfig();
     config.setId(Constants::DIAG_CONFIG_TIDY_AND_CLAZY);
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Clang-Tidy and Clazy preselected checks"));
+                                                      "Default Clang-Tidy and Clazy checks"));
     config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{QStringLiteral("-w")});
-    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
-    config.setClangTidyChecks(QString::fromUtf8(DEFAULT_TIDY_CHECKS));
-    config.setClazyChecks(clazyChecksForLevel(0));
+    config.setClangOptions({"-w"}); // Do not emit any clang-only warnings
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::Default);
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::Default);
+
     model.appendOrUpdate(config);
 }
 

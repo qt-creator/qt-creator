@@ -54,7 +54,7 @@ public:
 
     static QVector<Core::Id> changedOrRemovedConfigs(const ClangDiagnosticConfigs &oldConfigs,
                                                      const ClangDiagnosticConfigs &newConfigs);
-    static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &config,
+    static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &baseConfig,
                                                     const QString &displayName);
     static QStringList globalDiagnosticOptions();
 

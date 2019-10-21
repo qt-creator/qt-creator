@@ -35,23 +35,19 @@
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QListWidgetItem;
-class QPushButton;
+class QTabWidget;
 QT_END_NAMESPACE
 
 namespace CppTools {
 
+class ClangDiagnosticConfig;
+
 namespace Ui {
 class ClangDiagnosticConfigsWidget;
 class ClangBaseChecks;
-class ClazyChecks;
-class TidyChecks;
 }
 
 class ConfigsModel;
-class TidyChecksTreeModel;
-class ClazyChecksTreeModel;
-class ClazyChecksSortFilterModel;
 
 class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
 {
@@ -60,42 +56,28 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
 public:
     explicit ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigs &configs,
                                           const Core::Id &configToSelect,
-                                          bool showTidyClazyTabs,
                                           QWidget *parent = nullptr);
     ~ClangDiagnosticConfigsWidget() override;
+
+    void sync();
 
     ClangDiagnosticConfigs configs() const;
     const ClangDiagnosticConfig currentConfig() const;
 
-private:
-    void setupTabs(bool showTidyClazyTabs);
+protected:
+    void updateConfig(const CppTools::ClangDiagnosticConfig &config);
+    virtual void syncExtraWidgets(const ClangDiagnosticConfig &) {}
+    QTabWidget *tabWidget() const;
 
+private:
     void onCopyButtonClicked();
     void onRenameButtonClicked();
     void onRemoveButtonClicked();
-    void onClangTidyModeChanged(int index);
-    void onClangTidyTreeChanged();
-    void onClazyTreeChanged();
-    void onClangTidyTreeItemClicked(const QModelIndex &index);
 
     void onClangOnlyOptionsChanged();
 
-    void syncToConfigsView();
-    void syncClangTidyWidgets(const ClangDiagnosticConfig &config);
-    void syncClazyWidgets(const ClangDiagnosticConfig &config);
-    void syncClazyChecksGroupBox();
-    void syncTidyChecksToTree(const ClangDiagnosticConfig &config);
-
-    void updateConfig(const CppTools::ClangDiagnosticConfig &config);
-
     void setDiagnosticOptions(const QString &options);
     void updateValidityWidgets(const QString &errorMessage);
-
-    void connectClangTidyItemChanged();
-    void disconnectClangTidyItemChanged();
-
-    void connectClazyItemChanged();
-    void disconnectClazyItemChanged();
 
     void connectClangOnlyOptionsChanged();
     void disconnectClangOnlyOptionsChanged();
@@ -107,15 +89,6 @@ private:
 
     std::unique_ptr<CppTools::Ui::ClangBaseChecks> m_clangBaseChecks;
     QWidget *m_clangBaseChecksWidget = nullptr;
-
-    std::unique_ptr<CppTools::Ui::ClazyChecks> m_clazyChecks;
-    QWidget *m_clazyChecksWidget = nullptr;
-    std::unique_ptr<ClazyChecksTreeModel> m_clazyTreeModel;
-    ClazyChecksSortFilterModel *m_clazySortFilterProxyModel = nullptr;
-
-    std::unique_ptr<CppTools::Ui::TidyChecks> m_tidyChecks;
-    QWidget *m_tidyChecksWidget = nullptr;
-    std::unique_ptr<TidyChecksTreeModel> m_tidyTreeModel;
 };
 
 } // CppTools namespace

@@ -100,11 +100,9 @@ HEADERS += \
     cursorineditor.h \
     wrappablelineedit.h \
     usages.h \
-    cpptools_clangtidychecks.h \
     cppmodelmanagerinterface.h \
     cppbuiltinmodelmanagersupport.h \
     headerpathfilter.h \
-    cpptools_clazychecks.h
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -198,8 +196,6 @@ FORMS += \
     cppcodestylesettingspage.ui \
     cppfilesettingspage.ui \
     clangbasechecks.ui \
-    clazychecks.ui \
-    tidychecks.ui
 
 equals(TEST, 1) {
     HEADERS += \

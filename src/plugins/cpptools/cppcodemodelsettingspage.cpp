@@ -71,9 +71,13 @@ void CppCodeModelSettingsWidget::applyToSettings() const
 
 void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
 {
-    m_ui->clangDiagnosticConfigsSelectionWidget->refresh(diagnosticConfigsModel(),
-                                                         m_settings->clangDiagnosticConfigId(),
-                                                         /*showTidyClazyUi=*/false);
+    m_ui->clangDiagnosticConfigsSelectionWidget
+        ->refresh(diagnosticConfigsModel(),
+                  m_settings->clangDiagnosticConfigId(),
+                  [](const CppTools::ClangDiagnosticConfigs &configs,
+                     const Core::Id &configToSelect) {
+                      return new CppTools::ClangDiagnosticConfigsWidget(configs, configToSelect);
+                  });
 
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
     m_ui->clangCodeModelIsDisabledHint->setVisible(!isClangActive);
