@@ -97,6 +97,7 @@ public:
 
     bool isChildOf(const FilePath &s) const;
     bool isChildOf(const QDir &dir) const;
+    bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
 
     bool isLocal() const;
