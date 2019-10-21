@@ -34,6 +34,8 @@
 
 namespace ProjectExplorer {
 
+namespace Internal { class BuildConfigurationPrivate; }
+
 class BaseStringAspect;
 class BuildInfo;
 class BuildStepList;
@@ -51,6 +53,8 @@ protected:
     explicit BuildConfiguration(Target *target, Core::Id id);
 
 public:
+    ~BuildConfiguration();
+
     Utils::FilePath buildDirectory() const;
     Utils::FilePath rawBuildDirectory() const;
     void setBuildDirectory(const Utils::FilePath &dir);
@@ -86,12 +90,12 @@ public:
         Profile,
         Release
     };
-    virtual BuildType buildType() const { return m_initialBuildType; }
+    virtual BuildType buildType() const;
 
-    BuildType initialBuildType() const { return m_initialBuildType; } // FIXME: Remove.
-    Utils::FilePath initialBuildDirectory() const { return m_initialBuildDirectory; } // FIXME: Remove.
+    BuildType initialBuildType() const; // FIXME: Remove.
+    Utils::FilePath initialBuildDirectory() const; // FIXME: Remove.
     QString initialDisplayName() const; // FIXME: Remove.
-    QVariant extraInfo() const { return m_extraInfo; } // FIXME: Remove.
+    QVariant extraInfo() const; // FIXME: Remove.
 
     static QString buildTypeName(BuildType type);
 
@@ -117,21 +121,7 @@ protected:
 
 private:
     void emitBuildDirectoryChanged();
-
-    bool m_clearSystemEnvironment = false;
-    Utils::EnvironmentItems m_userEnvironmentChanges;
-    QList<BuildStepList *> m_stepLists;
-    ProjectExplorer::BaseStringAspect *m_buildDirectoryAspect = nullptr;
-    Utils::FilePath m_lastEmmitedBuildDirectory;
-    mutable Utils::Environment m_cachedEnvironment;
-    QString m_configWidgetDisplayName;
-    bool m_configWidgetHasFrame = false;
-
-    // FIXME: Remove.
-    BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
-    Utils::FilePath m_initialBuildDirectory;
-    QString m_initialDisplayName;
-    QVariant m_extraInfo;
+    Internal::BuildConfigurationPrivate *d = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigurationFactory : public QObject

@@ -62,9 +62,31 @@ static const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfigu
 static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.BuildDirectory";
 
 namespace ProjectExplorer {
+namespace Internal {
+
+class BuildConfigurationPrivate
+{
+public:
+    bool m_clearSystemEnvironment = false;
+    Utils::EnvironmentItems m_userEnvironmentChanges;
+    QList<BuildStepList *> m_stepLists;
+    ProjectExplorer::BaseStringAspect *m_buildDirectoryAspect = nullptr;
+    Utils::FilePath m_lastEmittedBuildDirectory;
+    mutable Utils::Environment m_cachedEnvironment;
+    QString m_configWidgetDisplayName;
+    bool m_configWidgetHasFrame = false;
+
+    // FIXME: Remove.
+    BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
+    Utils::FilePath m_initialBuildDirectory;
+    QString m_initialDisplayName;
+    QVariant m_extraInfo;
+};
+
+} // Internal
 
 BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
-    : ProjectConfiguration(target, id)
+    : ProjectConfiguration(target, id), d(new Internal::BuildConfigurationPrivate)
 {
     QTC_CHECK(target && target == this->target());
     Utils::MacroExpander *expander = macroExpander();
@@ -91,18 +113,18 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
 
-    m_buildDirectoryAspect = addAspect<BaseStringAspect>();
-    m_buildDirectoryAspect->setSettingsKey(BUILDDIRECTORY_KEY);
-    m_buildDirectoryAspect->setLabelText(tr("Build directory:"));
-    m_buildDirectoryAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
-    m_buildDirectoryAspect->setExpectedKind(Utils::PathChooser::Directory);
-    m_buildDirectoryAspect->setBaseFileName(target->project()->projectDirectory());
-    m_buildDirectoryAspect->setEnvironment(environment());
-    connect(m_buildDirectoryAspect, &BaseStringAspect::changed,
+    d->m_buildDirectoryAspect = addAspect<BaseStringAspect>();
+    d->m_buildDirectoryAspect->setSettingsKey(BUILDDIRECTORY_KEY);
+    d->m_buildDirectoryAspect->setLabelText(tr("Build directory:"));
+    d->m_buildDirectoryAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    d->m_buildDirectoryAspect->setExpectedKind(Utils::PathChooser::Directory);
+    d->m_buildDirectoryAspect->setBaseFileName(target->project()->projectDirectory());
+    d->m_buildDirectoryAspect->setEnvironment(environment());
+    connect(d->m_buildDirectoryAspect, &BaseStringAspect::changed,
             this, &BuildConfiguration::buildDirectoryChanged);
 
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
-        m_buildDirectoryAspect->setEnvironment(environment());
+        d->m_buildDirectoryAspect->setEnvironment(environment());
         this->target()->buildEnvironmentChanged(this);
     });
 
@@ -117,34 +139,39 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     });
 }
 
+BuildConfiguration::~BuildConfiguration()
+{
+    delete d;
+}
+
 Utils::FilePath BuildConfiguration::buildDirectory() const
 {
-    QString path = environment().expandVariables(m_buildDirectoryAspect->value().trimmed());
+    QString path = environment().expandVariables(d->m_buildDirectoryAspect->value().trimmed());
     path = QDir::cleanPath(macroExpander()->expand(path));
     return Utils::FilePath::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory().toString()).absoluteFilePath(path)));
 }
 
 Utils::FilePath BuildConfiguration::rawBuildDirectory() const
 {
-    return m_buildDirectoryAspect->filePath();
+    return d->m_buildDirectoryAspect->filePath();
 }
 
 void BuildConfiguration::setBuildDirectory(const Utils::FilePath &dir)
 {
-    if (dir == m_buildDirectoryAspect->filePath())
+    if (dir == d->m_buildDirectoryAspect->filePath())
         return;
-    m_buildDirectoryAspect->setFilePath(dir);
+    d->m_buildDirectoryAspect->setFilePath(dir);
     emitBuildDirectoryChanged();
 }
 
 NamedWidget *BuildConfiguration::createConfigWidget()
 {
     NamedWidget *named = new NamedWidget;
-    named->setDisplayName(m_configWidgetDisplayName);
+    named->setDisplayName(d->m_configWidgetDisplayName);
 
     QWidget *widget = nullptr;
 
-    if (m_configWidgetHasFrame) {
+    if (d->m_configWidgetHasFrame) {
         auto container = new Utils::DetailsWidget(named);
         widget = new QWidget(container);
         container->setState(Utils::DetailsWidget::NoSummary);
@@ -170,8 +197,8 @@ NamedWidget *BuildConfiguration::createConfigWidget()
 
 void BuildConfiguration::initialize()
 {
-    m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_BUILD));
-    m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_CLEAN));
+    d->m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_BUILD));
+    d->m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_CLEAN));
 }
 
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
@@ -181,36 +208,36 @@ QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 
 QList<Core::Id> BuildConfiguration::knownStepLists() const
 {
-    return Utils::transform(m_stepLists, &BuildStepList::id);
+    return Utils::transform(d->m_stepLists, &BuildStepList::id);
 }
 
 BuildStepList *BuildConfiguration::stepList(Core::Id id) const
 {
-    return Utils::findOrDefault(m_stepLists, Utils::equal(&BuildStepList::id, id));
+    return Utils::findOrDefault(d->m_stepLists, Utils::equal(&BuildStepList::id, id));
 }
 
 QVariantMap BuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectConfiguration::toMap());
-    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemEnvironment);
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
 
-    map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), m_stepLists.count());
-    for (int i = 0; i < m_stepLists.count(); ++i)
-        map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), m_stepLists.at(i)->toMap());
+    map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), d->m_stepLists.count());
+    for (int i = 0; i < d->m_stepLists.count(); ++i)
+        map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), d->m_stepLists.at(i)->toMap());
 
     return map;
 }
 
 bool BuildConfiguration::fromMap(const QVariantMap &map)
 {
-    m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
-    m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    d->m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
+    d->m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
     updateCacheAndEmitEnvironmentChanged();
 
-    qDeleteAll(m_stepLists);
-    m_stepLists.clear();
+    qDeleteAll(d->m_stepLists);
+    d->m_stepLists.clear();
 
     int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
     for (int i = 0; i < maxI; ++i) {
@@ -225,7 +252,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             delete list;
             return false;
         }
-        m_stepLists.append(list);
+        d->m_stepLists.append(list);
     }
 
     // We currently assume there to be at least a clean and build list!
@@ -239,48 +266,53 @@ void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
 {
     Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
-    if (env == m_cachedEnvironment)
+    if (env == d->m_cachedEnvironment)
         return;
-    m_cachedEnvironment = env;
+    d->m_cachedEnvironment = env;
     emit environmentChanged(); // might trigger buildDirectoryChanged signal!
 }
 
 void BuildConfiguration::emitBuildDirectoryChanged()
 {
-    if (buildDirectory() != m_lastEmmitedBuildDirectory) {
-        m_lastEmmitedBuildDirectory = buildDirectory();
+    if (buildDirectory() != d->m_lastEmittedBuildDirectory) {
+        d->m_lastEmittedBuildDirectory = buildDirectory();
         emit buildDirectoryChanged();
     }
 }
 
 QString BuildConfiguration::initialDisplayName() const
 {
-    return m_initialDisplayName;
+    return d->m_initialDisplayName;
+}
+
+QVariant BuildConfiguration::extraInfo() const
+{
+    return d->m_extraInfo;
 }
 
 ProjectExplorer::BaseStringAspect *BuildConfiguration::buildDirectoryAspect() const
 {
-    return m_buildDirectoryAspect;
+    return d->m_buildDirectoryAspect;
 }
 
 void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)
 {
-    m_configWidgetDisplayName = display;
+    d->m_configWidgetDisplayName = display;
 }
 
 void BuildConfiguration::setBuildDirectoryHistoryCompleter(const QString &history)
 {
-    m_buildDirectoryAspect->setHistoryCompleter(history);
+    d->m_buildDirectoryAspect->setHistoryCompleter(history);
 }
 
 void BuildConfiguration::setConfigWidgetHasFrame(bool configWidgetHasFrame)
 {
-    m_configWidgetHasFrame = configWidgetHasFrame;
+    d->m_configWidgetHasFrame = configWidgetHasFrame;
 }
 
 void BuildConfiguration::setBuildDirectorySettingsKey(const QString &key)
 {
-    m_buildDirectoryAspect->setSettingsKey(key);
+    d->m_buildDirectoryAspect->setSettingsKey(key);
 }
 
 Utils::Environment BuildConfiguration::baseEnvironment() const
@@ -303,14 +335,14 @@ QString BuildConfiguration::baseEnvironmentText() const
 
 Utils::Environment BuildConfiguration::environment() const
 {
-    return m_cachedEnvironment;
+    return d->m_cachedEnvironment;
 }
 
 void BuildConfiguration::setUseSystemEnvironment(bool b)
 {
     if (useSystemEnvironment() == b)
         return;
-    m_clearSystemEnvironment = !b;
+    d->m_clearSystemEnvironment = !b;
     updateCacheAndEmitEnvironmentChanged();
 }
 
@@ -321,19 +353,19 @@ void BuildConfiguration::addToEnvironment(Utils::Environment &env) const
 
 bool BuildConfiguration::useSystemEnvironment() const
 {
-    return !m_clearSystemEnvironment;
+    return !d->m_clearSystemEnvironment;
 }
 
 Utils::EnvironmentItems BuildConfiguration::userEnvironmentChanges() const
 {
-    return m_userEnvironmentChanges;
+    return d->m_userEnvironmentChanges;
 }
 
 void BuildConfiguration::setUserEnvironmentChanges(const Utils::EnvironmentItems &diff)
 {
-    if (m_userEnvironmentChanges == diff)
+    if (d->m_userEnvironmentChanges == diff)
         return;
-    m_userEnvironmentChanges = diff;
+    d->m_userEnvironmentChanges = diff;
     updateCacheAndEmitEnvironmentChanged();
 }
 
@@ -355,6 +387,21 @@ bool BuildConfiguration::regenerateBuildFiles(Node *node)
 {
     Q_UNUSED(node)
     return false;
+}
+
+BuildConfiguration::BuildType BuildConfiguration::buildType() const
+{
+    return d->m_initialBuildType;
+}
+
+BuildConfiguration::BuildType BuildConfiguration::initialBuildType() const
+{
+    return d->m_initialBuildType;
+}
+
+FilePath BuildConfiguration::initialBuildDirectory() const
+{
+    return d->m_initialBuildDirectory;
 }
 
 QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
@@ -510,10 +557,10 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
     bc->setDefaultDisplayName(info.displayName);
     bc->setBuildDirectory(info.buildDirectory);
 
-    bc->m_initialBuildType = info.buildType;
-    bc->m_initialDisplayName = info.displayName;
-    bc->m_initialBuildDirectory = info.buildDirectory;
-    bc->m_extraInfo = info.extraInfo;
+    bc->d->m_initialBuildType = info.buildType;
+    bc->d->m_initialDisplayName = info.displayName;
+    bc->d->m_initialBuildDirectory = info.buildDirectory;
+    bc->d->m_extraInfo = info.extraInfo;
 
     bc->initialize();
 
