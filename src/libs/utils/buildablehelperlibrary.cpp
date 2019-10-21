@@ -78,7 +78,7 @@ static FilePath findQmakeInDir(const FilePath &path)
     if (path.isEmpty())
         return FilePath();
 
-    const QString qmake = "qmake";
+    const QString qmake = HostOsInfo::withExecutableSuffix("qmake");
     QDir dir(path.toString());
     if (dir.exists(qmake)) {
         const QString qmakePath = dir.absoluteFilePath(qmake);
