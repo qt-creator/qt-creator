@@ -93,6 +93,9 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::AvgDuration:
         case Column::MaxDuration:
             return Qt::AlignRight;
+        default:
+            Q_UNREACHABLE();
+            return QVariant();
         }
     case SortRole:
         switch (index.column()) {
