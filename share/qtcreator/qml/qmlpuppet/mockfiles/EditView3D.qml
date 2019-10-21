@@ -61,8 +61,10 @@ Window {
             }
 
             Light {
-                id: directionalLight
+                id: pointLight
                 visible: showEditLight
+                position: editCamera.position
+                lightType: Light.Point
             }
 
             Camera {
@@ -74,7 +76,7 @@ Window {
             }
 
             Component.onCompleted: {
-                directionalLight.setParentItem(editView.scene);
+                pointLight.setParentItem(editView.scene);
                 editCamera.setParentItem(editView.scene);
             }
         }
