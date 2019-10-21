@@ -45,13 +45,13 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QLoggingCategory>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QTextStream>
 #include <QStringList>
+#include <QTextStream>
 #include <QTimer>
 
 using namespace Utils;
@@ -74,7 +74,7 @@ static FileSystemWatcher *m_configFileWatcher = nullptr;
 static QTimer *m_fileWatcherTimer = nullptr;
 static PersistentSettingsWriter *m_writer = nullptr;
 
-enum { debug = 0 };
+static Q_LOGGING_CATEGORY(log, "qtc.qt.versions", QtWarningMsg);
 
 static FilePath globalSettingsFileName()
 {
@@ -253,14 +253,14 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     if (reader.load(path))
         data = reader.restoreValues();
 
-    if (debug) {
-        qDebug()<< "======= Existing Qt versions =======";
+    if (log().isDebugEnabled()) {
+        qCDebug(log) << "======= Existing Qt versions =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
-            qDebug() << "  autodetection source:"<< version->autodetectionSource();
-            qDebug() << "";
+            qCDebug(log) << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
+            qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
+            qCDebug(log) << "";
         }
-        qDebug()<< "======= Adding sdk versions =======";
+        qCDebug(log)<< "======= Adding sdk versions =======";
     }
 
     QStringList sdkVersions;
@@ -287,8 +287,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
                 factory = f;
         }
         if (!factory) {
-            if (debug)
-                qDebug("Warning: Unable to find factory for type '%s'", qPrintable(type));
+            qCDebug(log, "Warning: Unable to find factory for type '%s'", qPrintable(type));
             continue;
         }
         // First try to find a existing Qt version to update
@@ -297,8 +296,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         for (BaseQtVersion *v : versionsCopy) {
             if (v->autodetectionSource() == autoDetectionSource) {
                 id = v->uniqueId();
-                if (debug)
-                    qDebug() << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
+                qCDebug(log) << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
                 m_versions.remove(id);
                 qtversionMap[Constants::QTVERSIONID] = id;
                 qtversionMap[Constants::QTVERSIONNAME] = v->unexpandedDisplayName();
@@ -317,8 +315,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         }
         // Create a new qtversion
         if (!restored) { // didn't replace any existing versions
-            if (debug)
-                qDebug() << " No Qt version found matching" << autoDetectionSource << " => Creating new version";
+            qCDebug(log) << " No Qt version found matching" << autoDetectionSource << " => Creating new version";
             if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {
                 Q_ASSERT(qtv->isAutodetected());
                 m_versions.insert(qtv->uniqueId(), qtv);
@@ -326,38 +323,37 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
                 restored = true;
             }
         }
-        if (!restored)
-            if (debug)
-                qDebug("Warning: Unable to update qtversion '%s' from sdk installer.",
-                       qPrintable(autoDetectionSource));
+        if (!restored) {
+            qCDebug(log, "Warning: Unable to update qtversion '%s' from sdk installer.",
+                    qPrintable(autoDetectionSource));
+        }
     }
 
-    if (debug) {
-        qDebug() << "======= Before removing outdated sdk versions =======";
+    if (log().isDebugEnabled()) {
+        qCDebug(log) << "======= Before removing outdated sdk versions =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
-            qDebug() << "  autodetection source:"<< version->autodetectionSource();
-            qDebug() << "";
+            qCDebug(log) << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
+            qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
+            qCDebug(log) << "";
         }
     }
     const VersionMap versionsCopy = m_versions; // m_versions is modified in loop
     for (BaseQtVersion *qtVersion : versionsCopy) {
         if (qtVersion->autodetectionSource().startsWith("SDK.")) {
             if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
-                if (debug)
-                    qDebug() << "  removing version"<<qtVersion->autodetectionSource();
+                qCDebug(log) << "  removing version"<<qtVersion->autodetectionSource();
                 m_versions.remove(qtVersion->uniqueId());
                 removed << qtVersion->uniqueId();
             }
         }
     }
 
-    if (debug) {
-        qDebug()<< "======= End result =======";
+    if (log().isDebugEnabled()) {
+        qCDebug(log)<< "======= End result =======";
         for (BaseQtVersion *version : qAsConst(m_versions)) {
-            qDebug() << version->qmakeCommand().toString() << "id:" << version->uniqueId();
-            qDebug() << "  autodetection source:"<< version->autodetectionSource();
-            qDebug() << "";
+            qCDebug(log) << version->qmakeCommand().toString() << "id:" << version->uniqueId();
+            qCDebug(log) << "  autodetection source:"<< version->autodetectionSource();
+            qCDebug(log) << "";
         }
     }
     if (emitSignal)
