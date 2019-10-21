@@ -170,20 +170,27 @@
 
     Property bindings are created implicitly in QML whenever a property is
     assigned a JavaScript expression. To set JavaScript expressions as values
-    of properties in the Design mode, select the \uicontrol Settings menu next to
-    a property, and then select \uicontrol {Set Binding}.
+    of properties in the Design mode, select the
+    \inlineimage icons/action-icon.png
+    (\uicontrol Actions) menu next to a property, and then select
+    \uicontrol {Set Binding}.
 
     \image qmldesigner-set-expression.png "Type properties context menu"
 
-    The \uicontrol {Binding Editor} supports code completion. Start typing a
+    In the \uicontrol {Binding Editor}, select an item and a property from
+    lists of available items and their properties.
+
+    \image qmldesigner-binding-editor.png "Binding Editor"
+
+    Alternatively, start typing a
     string and press \key Ctrl+Space to display a list of properties, IDs, and
     code snippets. When you enter a period (.) after a property name, a list of
     available values is displayed. Press \key Enter to accept the first
     suggestion in the list and to complete the code.
 
-    \image qmldesigner-binding-editor.png "Binding Editor"
-
-    To remove bindings, select \uicontrol Reset in the context menu.
+    When a binding is set, the \uicontrol Actions menu icon changes to
+    \inlineimage icons/action-icon-binding
+    . To remove bindings, select \uicontrol Reset in the \uicontrol Actions menu.
 
     You can set bindings also in the \uicontrol Connections view. For more
     information, see \l {Adding Bindings Between Properties}.
