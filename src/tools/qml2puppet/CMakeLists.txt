@@ -134,6 +134,7 @@ extend_qtc_executable(qml2puppet
     qt5previewnodeinstanceserver.cpp qt5previewnodeinstanceserver.h
     qt5rendernodeinstanceserver.cpp qt5rendernodeinstanceserver.h
     qt5testnodeinstanceserver.cpp qt5testnodeinstanceserver.h
+    quick3dnodeinstance.cpp quick3dnodeinstance.h
     quickitemnodeinstance.cpp quickitemnodeinstance.h
     servernodeinstance.cpp servernodeinstance.h
 )
