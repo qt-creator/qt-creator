@@ -153,17 +153,17 @@ QString CMakeConfigItem::typeToTypeString(const CMakeConfigItem::Type t)
 {
     switch (t) {
     case CMakeProjectManager::CMakeConfigItem::FILEPATH:
-        return "FILEPATH";
+        return {"FILEPATH"};
     case CMakeProjectManager::CMakeConfigItem::PATH:
-        return "PATH";
+        return {"PATH"};
     case CMakeProjectManager::CMakeConfigItem::STRING:
-        return "STRING";
+        return {"STRING"};
     case CMakeProjectManager::CMakeConfigItem::INTERNAL:
-        return "INTERNAL";
+        return {"INTERNAL"};
     case CMakeProjectManager::CMakeConfigItem::STATIC:
-        return "STATIC";
+        return {"STATIC"};
     case CMakeConfigItem::BOOL:
-        return "BOOL";
+        return {"BOOL"};
     }
 }
 
