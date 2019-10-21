@@ -293,7 +293,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         }
         // First try to find a existing Qt version to update
         bool restored = false;
-        for (BaseQtVersion *v : qAsConst(m_versions)) {
+        const VersionMap versionsCopy = m_versions; // m_versions is modified in loop
+        for (BaseQtVersion *v : versionsCopy) {
             if (v->autodetectionSource() == autoDetectionSource) {
                 id = v->uniqueId();
                 if (debug)
@@ -339,7 +340,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
             qDebug() << "";
         }
     }
-    for (BaseQtVersion *qtVersion : qAsConst(m_versions)) {
+    const VersionMap versionsCopy = m_versions; // m_versions is modified in loop
+    for (BaseQtVersion *qtVersion : versionsCopy) {
         if (qtVersion->autodetectionSource().startsWith("SDK.")) {
             if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
                 if (debug)
