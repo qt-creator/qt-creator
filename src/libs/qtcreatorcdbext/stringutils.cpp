@@ -33,6 +33,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <codecvt>
 #include <iomanip>
 
 static const char whiteSpace[] = " \t\r\n";
@@ -149,6 +150,11 @@ std::string wStringToString(const std::wstring &w)
     return rc;
 }
 
+std::wstring utf8ToUtf16(const std::string &s)
+{
+    return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(s.data());
+}
+
 // Convert an ASCII hex digit to its value 'A'->10
 static inline unsigned hexDigit(char c)
 {
@@ -208,6 +214,11 @@ std::string stringFromHex(const char *p, const char *end)
         rc.push_back(char(c));
     }
     return rc;
+}
+
+std::string stringFromHex(const std::string &hexEncoded)
+{
+    return stringFromHex(hexEncoded.c_str(), hexEncoded.c_str() + hexEncoded.size());
 }
 
 // Helper for dumping memory

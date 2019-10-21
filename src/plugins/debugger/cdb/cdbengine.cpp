@@ -917,15 +917,6 @@ void CdbEngine::handleJumpToLineAddressResolution(const DebuggerResponse &respon
     }
 }
 
-static inline bool isAsciiWord(const QString &s)
-{
-    for (const QChar &c : s) {
-        if (!c.isLetterOrNumber() || c.toLatin1() == 0)
-            return false;
-    }
-    return true;
-}
-
 void CdbEngine::assignValueInDebugger(WatchItem *w, const QString &expr, const QVariant &value)
 {
     if (debug)
@@ -935,28 +926,8 @@ void CdbEngine::assignValueInDebugger(WatchItem *w, const QString &expr, const Q
         qWarning("Internal error: assignValueInDebugger: Invalid state or no stack frame.");
         return;
     }
-    QString cmd;
-    StringInputStream str(cmd);
-    switch (value.type()) {
-    case QVariant::String: {
-        // Convert qstring to Utf16 data not considering endianness for Windows.
-        const QString s = value.toString();
-        if (isAsciiWord(s)) {
-            str << m_extensionCommandPrefix << "assign \"" << w->iname << '=' << s << '"';
-        } else {
-            const QByteArray utf16(reinterpret_cast<const char *>(s.utf16()), 2 * s.size());
-            str << m_extensionCommandPrefix << "assign -u " << w->iname << '='
-                << QString::fromLatin1(utf16.toHex());
-        }
-    }
-        break;
-    default:
-        str << m_extensionCommandPrefix << "assign " << w->iname << '='
-            << value.toString();
-        break;
-    }
-
-    runCommand({cmd, NoFlags});
+    runCommand({m_extensionCommandPrefix + "assign -h " + w->iname + '=' + toHex(value.toString()),
+                NoFlags});
     // Update all locals in case we change a union or something pointed to
     // that affects other variables, too.
     updateLocals();

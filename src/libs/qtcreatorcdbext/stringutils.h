@@ -167,6 +167,7 @@ inline std::ostream &operator<<(std::ostream &str, const gdbmiWStringFormat &wsf
 }
 
 std::string wStringToString(const std::wstring &w);
+std::wstring utf8ToUtf16(const std::string &s);
 
 // Strings from raw data.
 std::wstring quotedWStringFromCharData(const unsigned char *data, size_t size, bool truncated = false);
@@ -177,6 +178,7 @@ std::string dumpMemory(const unsigned char *data, size_t size, bool wantQuotes =
 
 // String from hex "414A" -> "AJ".
 std::string stringFromHex(const char *begin, const char *end);
+std::string stringFromHex(const std::string &hexEncoded);
 // Decode hex to a memory area.
 void decodeHex(const char *begin, const char *end, unsigned char *target);
 

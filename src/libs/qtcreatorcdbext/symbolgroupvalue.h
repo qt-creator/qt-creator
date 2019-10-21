@@ -286,9 +286,8 @@ enum AssignEncoding
     AssignHexEncodedUtf16
 };
 
-bool assignType(SymbolGroupNode  *n, int knownType, int valueEncoding, const std::string &value,
-                const SymbolGroupValueContext &ctx,
-                std::string *errorMessage);
+bool assignType(SymbolGroupNode *n, int knownType, const std::string &value,
+                const SymbolGroupValueContext &ctx, std::string *errorMessage);
 
 // Non-container complex dumpers (QObjects/QVariants).
 std::vector<AbstractSymbolGroupNode *>
