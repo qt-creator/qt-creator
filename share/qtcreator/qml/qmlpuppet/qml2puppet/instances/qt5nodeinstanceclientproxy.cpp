@@ -55,6 +55,7 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
 {
     prioritizeDown();
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
+        DesignerSupport::activateDesignerWindowManager();
         qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");
         setNodeInstanceServer(new Qt5TestNodeInstanceServer(this));
         initializeCapturedStream(QCoreApplication::arguments().at(2));
