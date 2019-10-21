@@ -722,9 +722,8 @@ void McuSupportOptionsPage::apply()
 
     using namespace ProjectExplorer;
 
-    for (auto board : validBoards) {
-        Kit *kit = boardKit(board, m_options->toolchainPackage->path());
-    }
+    for (auto board : validBoards)
+        boardKit(board, m_options->toolchainPackage->path());
 }
 
 void McuSupportOptionsPage::finish()
