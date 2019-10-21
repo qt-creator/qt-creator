@@ -59,7 +59,11 @@ Qt5NodeInstanceServer *Quick3DNodeInstance::qt5NodeInstanceServer() const
 
 QQuick3DNode *Quick3DNodeInstance::quick3DNode() const
 {
+#ifdef QUICK3D_MODULE
     return qobject_cast<QQuick3DNode *>(object());
+#else
+    return nullptr;
+#endif
 }
 
 Quick3DNodeInstance::Pointer Quick3DNodeInstance::create(QObject *object)
