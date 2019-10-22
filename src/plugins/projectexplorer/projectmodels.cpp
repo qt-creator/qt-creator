@@ -425,6 +425,8 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
     for (Node *node : folderNode->nodes()) {
         if (m_filterGeneratedFiles && node->isGenerated())
             continue;
+        if (m_filterDisabledFiles && !node->isEnabled())
+            continue;
         if (FolderNode *subFolderNode = node->asFolderNode()) {
             const bool isHidden = m_filterProjects && !subFolderNode->showInSimpleTree();
             if (!isHidden && !seen->contains(subFolderNode)) {
@@ -807,6 +809,14 @@ void FlatModel::setGeneratedFilesFilterEnabled(bool filter)
     if (filter == m_filterGeneratedFiles)
         return;
     m_filterGeneratedFiles = filter;
+    rebuildModel();
+}
+
+void FlatModel::setDisabledFilesFilterEnabled(bool filter)
+{
+    if (filter == m_filterDisabledFiles)
+        return;
+    m_filterDisabledFiles = filter;
     rebuildModel();
 }
 

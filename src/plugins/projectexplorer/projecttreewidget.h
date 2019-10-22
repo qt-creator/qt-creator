@@ -56,6 +56,7 @@ public:
     void setAutoSynchronization(bool sync);
     bool projectFilter();
     bool generatedFilesFilter();
+    bool disabledFilesFilter();
     bool trimEmptyDirectoriesFilter();
     QToolButton *toggleSync();
     Node *currentNode();
@@ -72,6 +73,7 @@ public:
 private:
     void setProjectFilter(bool filter);
     void setGeneratedFilesFilter(bool filter);
+    void setDisabledFilesFilter(bool filter);
     void setTrimEmptyDirectories(bool filter);
 
     void handleCurrentItemChange(const QModelIndex &current);
@@ -89,6 +91,7 @@ private:
     FlatModel *m_model = nullptr;
     QAction *m_filterProjectsAction = nullptr;
     QAction *m_filterGeneratedFilesAction = nullptr;
+    QAction *m_filterDisabledFilesAction = nullptr;
     QAction *m_trimEmptyDirectoriesAction = nullptr;
     QToolButton *m_toggleSync = nullptr;
 

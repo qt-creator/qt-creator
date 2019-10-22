@@ -257,6 +257,12 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_filterGeneratedFilesAction, &QAction::toggled,
             this, &ProjectTreeWidget::setGeneratedFilesFilter);
 
+    m_filterDisabledFilesAction = new QAction(tr("Hide Disabled Files"), this);
+    m_filterDisabledFilesAction->setCheckable(true);
+    m_filterDisabledFilesAction->setChecked(false);
+    connect(m_filterDisabledFilesAction, &QAction::toggled,
+            this, &ProjectTreeWidget::setDisabledFilesFilter);
+
     const char focusActionId[] = "ProjectExplorer.FocusDocumentInProjectTree";
     if (!ActionManager::command(focusActionId)) {
         auto focusDocumentInProjectTree = new QAction(tr("Focus Document in Project Tree"), this);
@@ -560,6 +566,12 @@ void ProjectTreeWidget::setGeneratedFilesFilter(bool filter)
     m_filterGeneratedFilesAction->setChecked(filter);
 }
 
+void ProjectTreeWidget::setDisabledFilesFilter(bool filter)
+{
+    m_model->setDisabledFilesFilterEnabled(filter);
+    m_filterDisabledFilesAction->setChecked(filter);
+}
+
 void ProjectTreeWidget::setTrimEmptyDirectories(bool filter)
 {
     m_model->setTrimEmptyDirectories(filter);
@@ -569,6 +581,11 @@ void ProjectTreeWidget::setTrimEmptyDirectories(bool filter)
 bool ProjectTreeWidget::generatedFilesFilter()
 {
     return m_model->generatedFilesFilterEnabled();
+}
+
+bool ProjectTreeWidget::disabledFilesFilter()
+{
+    return m_model->disabledFilesFilterEnabled();
 }
 
 bool ProjectTreeWidget::trimEmptyDirectoriesFilter()
@@ -604,6 +621,7 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(ptw->m_filterProjectsAction);
     filterMenu->addAction(ptw->m_filterGeneratedFilesAction);
+    filterMenu->addAction(ptw->m_filterDisabledFilesAction);
     filterMenu->addAction(ptw->m_trimEmptyDirectoriesAction);
     filter->setMenu(filterMenu);
 
@@ -618,6 +636,7 @@ void ProjectTreeWidgetFactory::saveSettings(QSettings *settings, int position, Q
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     settings->setValue(baseKey + QLatin1String(".ProjectFilter"), ptw->projectFilter());
     settings->setValue(baseKey + QLatin1String(".GeneratedFilter"), ptw->generatedFilesFilter());
+    settings->setValue(baseKey + ".DisabledFilesFilter", ptw->disabledFilesFilter());
     settings->setValue(baseKey + QLatin1String(".TrimEmptyDirsFilter"), ptw->trimEmptyDirectoriesFilter());
     settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), ptw->autoSynchronization());
 }
@@ -629,6 +648,7 @@ void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
     ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());
+    ptw->setDisabledFilesFilter(settings->value(baseKey + ".DisabledFilesFilter", false).toBool());
     ptw->setTrimEmptyDirectories(settings->value(baseKey + QLatin1String(".TrimEmptyDirsFilter"), true).toBool());
     ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
 }
