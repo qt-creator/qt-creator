@@ -370,6 +370,13 @@ LibraryInfo::LibraryInfo(Status status)
     updateFingerprint();
 }
 
+LibraryInfo::LibraryInfo(const QmlDirParser::TypeInfo &typeInfo)
+    : _status(Found)
+{
+    _typeinfos.append(typeInfo);
+    updateFingerprint();
+}
+
 LibraryInfo::LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerprint)
     : _status(Found)
     , _components(parser.components().values())

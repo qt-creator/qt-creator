@@ -605,9 +605,11 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(
     for (const ProjectInfo &pInfo : allProjectInfos) {
         if (res.qtQmlPath.isEmpty())
             res.qtQmlPath = pInfo.qtQmlPath;
+        res.applicationDirectories.append(pInfo.applicationDirectories);
         for (const auto &importPath : pInfo.importPaths)
             res.importPaths.maybeInsert(importPath);
     }
+    res.applicationDirectories = Utils::filteredUnique(res.applicationDirectories);
     return res;
 }
 
@@ -745,6 +747,55 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
     }
 }
 
+enum class LibraryStatus {
+    Accepted,
+    Rejected,
+    Unknown
+};
+
+static LibraryStatus libraryStatus(const QString &path, const Snapshot &snapshot,
+                                   QSet<QString> *newLibraries)
+{
+    if (path.isEmpty())
+        return LibraryStatus::Rejected;
+    // if we know there is a library, done
+    const LibraryInfo &existingInfo = snapshot.libraryInfo(path);
+    if (existingInfo.isValid())
+        return LibraryStatus::Accepted;
+    if (newLibraries->contains(path))
+        return LibraryStatus::Accepted;
+    // if we looked at the path before, done
+    return existingInfo.wasScanned()
+            ? LibraryStatus::Rejected
+            : LibraryStatus::Unknown;
+}
+
+static bool findNewQmlApplicationInPath(const QString &path,
+                                        const Snapshot &snapshot,
+                                        ModelManagerInterface *modelManager,
+                                        QSet<QString> *newLibraries)
+{
+    switch (libraryStatus(path, snapshot, newLibraries)) {
+    case LibraryStatus::Accepted: return true;
+    case LibraryStatus::Rejected: return false;
+    default: break;
+    }
+
+    const QDir dir(path);
+    const QLatin1String appQmltypes("app.qmltypes");
+    QFile appQmltypesFile(dir.filePath(appQmltypes));
+    if (!appQmltypesFile.exists())
+        return false;
+
+    LibraryInfo libraryInfo = LibraryInfo(QmlDirParser::TypeInfo(appQmltypes));
+    const QString libraryPath = dir.absolutePath();
+    newLibraries->insert(libraryPath);
+    modelManager->updateLibraryInfo(path, libraryInfo);
+    modelManager->loadPluginTypes(QFileInfo(libraryPath).canonicalFilePath(), libraryPath,
+                                  QString(), QString());
+    return true;
+}
+
 static bool findNewQmlLibraryInPath(const QString &path,
                                     const Snapshot &snapshot,
                                     ModelManagerInterface *modelManager,
@@ -753,15 +804,11 @@ static bool findNewQmlLibraryInPath(const QString &path,
                                     QSet<QString> *newLibraries,
                                     bool ignoreMissing)
 {
-    // if we know there is a library, done
-    const LibraryInfo &existingInfo = snapshot.libraryInfo(path);
-    if (existingInfo.isValid())
-        return true;
-    if (newLibraries->contains(path))
-        return true;
-    // if we looked at the path before, done
-    if (existingInfo.wasScanned())
-        return false;
+    switch (libraryStatus(path, snapshot, newLibraries)) {
+    case LibraryStatus::Accepted: return true;
+    case LibraryStatus::Rejected: return false;
+    default: break;
+    }
 
     const QDir dir(path);
     QFile qmldirFile(dir.filePath(QLatin1String("qmldir")));
@@ -1097,6 +1144,7 @@ void ModelManagerInterface::updateImportPaths()
     if (m_indexerDisabled)
         return;
     PathsAndLanguages allImportPaths;
+    QStringList allApplicationDirectories;
     QmlLanguageBundles activeBundles;
     QmlLanguageBundles extendedBundles;
     for (const ProjectInfo &pInfo : qAsConst(m_projects)) {
@@ -1107,11 +1155,13 @@ void ModelManagerInterface::updateImportPaths()
                                            importPath.language());
             }
         }
+        allApplicationDirectories.append(pInfo.applicationDirectories);
     }
 
     for (const ViewerContext &vContext : qAsConst(m_defaultVContexts)) {
         for (const QString &path : vContext.paths)
             allImportPaths.maybeInsert(Utils::FilePath::fromString(path), vContext.language);
+        allApplicationDirectories.append(vContext.applicationDirectories);
     }
 
     for (const ProjectInfo &pInfo : qAsConst(m_projects)) {
@@ -1143,6 +1193,7 @@ void ModelManagerInterface::updateImportPaths()
     for (const QString &path : qAsConst(m_defaultImportPaths))
         allImportPaths.maybeInsert(Utils::FilePath::fromString(path), Dialect::Qml);
     allImportPaths.compact();
+    allApplicationDirectories = Utils::filteredUnique(allApplicationDirectories);
 
     {
         QMutexLocker l(&m_mutex);
@@ -1159,6 +1210,8 @@ void ModelManagerInterface::updateImportPaths()
     QSet<QString> newLibraries;
     for (const Document::Ptr &doc : qAsConst(snapshot))
         findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths, &newLibraries);
+    for (const QString &path : allApplicationDirectories)
+        findNewQmlApplicationInPath(path, snapshot, this, &newLibraries);
 
     updateSourceFiles(importedFiles, true);
 
@@ -1366,6 +1419,8 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
     ProjectInfo defaultInfo = defaultProjectInfo();
     if (info.qtQmlPath.isEmpty())
         info.qtQmlPath = defaultInfo.qtQmlPath;
+    info.applicationDirectories = Utils::filteredUnique(info.applicationDirectories
+                                                        + defaultInfo.applicationDirectories);
     switch (res.flags) {
     case ViewerContext::Complete:
         break;
@@ -1433,6 +1488,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         break;
     }
     res.flags = ViewerContext::Complete;
+    res.applicationDirectories = info.applicationDirectories;
     return res;
 }
 

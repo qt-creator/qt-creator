@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <qmljs/qmljsbind.h>
@@ -138,6 +139,13 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             // It enables qmlplugindump to correctly dump custom plugins or other dependent
             // plugins that are not installed in default Qt qml installation directory.
             projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH", bc->environment().expandedValueForKey("QML2_IMPORT_PATH"), ":");
+        }
+
+        const auto appTargets = activeTarget->applicationTargets();
+        for (const auto &target : appTargets) {
+            if (target.targetFilePath.isEmpty())
+                continue;
+            projectInfo.applicationDirectories.append(target.targetFilePath.parentDir().toString());
         }
     }
     if (!setPreferDump && qtVersion)

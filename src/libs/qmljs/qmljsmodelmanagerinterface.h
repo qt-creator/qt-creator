@@ -71,6 +71,7 @@ public:
         QStringList activeResourceFiles;
         QStringList allResourceFiles;
         QHash<QString, QString> resourceFileContents;
+        QStringList applicationDirectories;
 
         // whether trying to run qmldump makes sense
         bool tryQmlDump = false;

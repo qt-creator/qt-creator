@@ -111,6 +111,7 @@ private:
     Snapshot m_snapshot;
     ValueOwner *m_valueOwner = nullptr;
     QStringList m_importPaths;
+    QStringList m_applicationDirectories;
     LibraryInfo m_builtins;
     ViewerContext m_vContext;
 
@@ -140,6 +141,7 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
     d->m_valueOwner = new ValueOwner;
     d->m_snapshot = snapshot;
     d->m_importPaths = vContext.paths;
+    d->m_applicationDirectories = vContext.applicationDirectories;
     d->m_builtins = builtins;
     d->m_vContext = vContext;
 
@@ -380,6 +382,14 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
 
     QString libraryPath = modulePath(packageName, version.toString(), m_importPaths);
     bool importFound = !libraryPath.isEmpty() && importLibrary(doc, libraryPath, &import);
+
+    if (!importFound) {
+        for (const QString &dir : qAsConst(m_applicationDirectories)) {
+            // This adds the types to the C++ types, to be found below if applicable.
+            if (QFile::exists(dir + "/app.qmltypes"))
+                importLibrary(doc, dir, &import);
+        }
+    }
 
     // if there are cpp-based types for this package, use them too
     if (m_valueOwner->cppQmlTypes().hasModule(packageName)) {

@@ -41,6 +41,12 @@
 using namespace LanguageUtils;
 using namespace QmlJS;
 
+static const QStringList qmltypesFileNames = {
+    QLatin1String("plugins.qmltypes"),
+    QLatin1String("app.qmltypes"),
+    QLatin1String("lib.qmltypes")
+};
+
 PluginDumper::PluginDumper(ModelManagerInterface *modelManager)
     : QObject(modelManager)
     , m_modelManager(modelManager)
@@ -146,10 +152,11 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     plugin.importVersion = importVersion;
 
     // add default qmltypes file if it exists
-    const QLatin1String defaultQmltypesFileName("plugins.qmltypes");
-    const QString defaultQmltypesPath = makeAbsolute(defaultQmltypesFileName, canonicalLibraryPath);
-    if (!plugin.typeInfoPaths.contains(defaultQmltypesPath) && QFile::exists(defaultQmltypesPath))
-        plugin.typeInfoPaths += defaultQmltypesPath;
+    for (const QString &qmltypesFileName : qmltypesFileNames) {
+        const QString defaultQmltypesPath = makeAbsolute(qmltypesFileName, canonicalLibraryPath);
+        if (!plugin.typeInfoPaths.contains(defaultQmltypesPath) && QFile::exists(defaultQmltypesPath))
+            plugin.typeInfoPaths += defaultQmltypesPath;
+    }
 
     // add typeinfo files listed in qmldir
     foreach (const QmlDirParser::TypeInfo &typeInfo, libraryInfo.typeInfos()) {
@@ -398,10 +405,11 @@ QString PluginDumper::buildQmltypesPath(const QString &name) const
     if (path.isEmpty())
         return QString();
 
-    const QString filename = path + QLatin1String("/plugins.qmltypes");
-
-    if (QFile::exists(filename))
-        return filename;
+    for (const QString &qmltypesFileName : qmltypesFileNames) {
+        const QString filename = path + QLatin1Char('/') + qmltypesFileName;
+        if (QFile::exists(filename))
+            return filename;
+    }
 
     return QString();
 }

@@ -166,6 +166,7 @@ private:
 public:
     LibraryInfo();
     explicit LibraryInfo(Status status);
+    explicit LibraryInfo(const QmlDirParser::TypeInfo &typeInfo);
     explicit LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerprint = QByteArray());
     ~LibraryInfo() = default;
     LibraryInfo(const LibraryInfo &other) = default;

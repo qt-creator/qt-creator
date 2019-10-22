@@ -44,6 +44,7 @@ struct QMLJS_EXPORT ViewerContext
 
     QStringList selectors;
     QStringList paths;
+    QStringList applicationDirectories;
     Dialect language = Dialect::Qml;
     Flags flags = AddAllPaths;
 };
