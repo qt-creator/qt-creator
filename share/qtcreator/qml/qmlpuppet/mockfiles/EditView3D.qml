@@ -60,11 +60,10 @@ Window {
                 enableAxisLines: false
             }
 
-            Light {
+            PointLight {
                 id: pointLight
                 visible: showEditLight
                 position: editCamera.position
-                lightType: Light.Point
             }
 
             Camera {
