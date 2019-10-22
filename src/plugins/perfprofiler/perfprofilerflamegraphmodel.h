@@ -38,6 +38,7 @@ struct PerfProfilerFlameGraphData;
 class PerfProfilerFlameGraphModel : public QAbstractItemModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(PerfProfilerFlameGraphModel)
     Q_ENUMS(Role)
 public:
     enum Role {
@@ -59,20 +60,9 @@ public:
     };
 
     struct Data {
-        Data(Data *parent = nullptr, int typeId = -1, uint samples = 1) :
-            parent(parent), typeId(typeId), samples(samples)
-        {}
-
-        ~Data() { qDeleteAll(children); }
-
-        bool isEmpty() const
-        {
-            return samples == 0;
-        }
-
-        Data *parent;
-        int typeId;
-        uint samples;
+        Data *parent = nullptr;
+        int typeId = -1;
+        uint samples = 0;
         uint lastResourceChangeId = 0;
 
         uint observedResourceAllocations = 0;
@@ -84,7 +74,7 @@ public:
         qint64 resourceUsage = 0;
         qint64 resourcePeak = 0;
 
-        QVector<Data *> children;
+        std::vector<std::unique_ptr<Data>> children;
     };
 
     PerfProfilerFlameGraphModel(PerfProfilerTraceManager *manager);

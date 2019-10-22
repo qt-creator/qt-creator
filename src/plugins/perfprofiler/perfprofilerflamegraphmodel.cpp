@@ -38,9 +38,10 @@ class Payload
 {
 public:
     Payload(const PerfProfilerFlameGraphData *parent, PerfProfilerFlameGraphModel::Data *data,
-            int numSamples)
+            uint numSamples)
         : m_parent(parent), m_data(data), m_numSamples(numSamples)
     {}
+    ~Payload() = default;
 
     Payload(const Payload &other) = delete;
     Payload &operator=(const Payload &other) = delete;
@@ -55,12 +56,12 @@ public:
     void countLostRequest();
 
 private:
-    const PerfProfilerFlameGraphData *m_parent;
-    PerfProfilerFlameGraphModel::Data *m_data;
-    const int m_numSamples;
+    const PerfProfilerFlameGraphData *m_parent = nullptr;
+    PerfProfilerFlameGraphModel::Data *m_data = nullptr;
+    uint m_numSamples = 0;
 };
 
-typedef PerfResourceCounter<Payload> ThreadResourceCounter;
+using ThreadResourceCounter = PerfResourceCounter<Payload>;
 
 class ProcessResourceCounter
 {
@@ -78,29 +79,41 @@ private:
     ThreadResourceCounter::Container m_container;
 };
 
-struct PerfProfilerFlameGraphData
+class PerfProfilerFlameGraphData
 {
-
+public:
     PerfProfilerFlameGraphData() { clear(); }
 
     void loadEvent(const PerfEvent &event, const PerfEventType &type);
     PerfProfilerFlameGraphModel::Data *pushChild(PerfProfilerFlameGraphModel::Data *parent,
                                                  int typeId, int numSamples);
     void updateTraceData(const PerfEvent &event, const PerfEventType &type,
-                         PerfProfilerFlameGraphModel::Data *data, int numSamples);
+                         PerfProfilerFlameGraphModel::Data *data, uint numSamples);
     void clear();
     bool isEmpty() const;
 
-    QScopedPointer<PerfProfilerFlameGraphModel::Data> stackBottom;
-    std::unordered_map<quint32, ProcessResourceCounter> resourceBlocks;
-    QPointer<const PerfProfilerTraceManager> manager;
-    uint resourcePeakId = 0;
+    void setManager(const PerfProfilerTraceManager *manager) { m_manager = manager; }
+    const PerfProfilerTraceManager *manager() const { return m_manager; }
+
+    PerfProfilerFlameGraphModel::Data *stackBottom() const { return m_stackBottom.data(); }
+    void swapStackBottom(QScopedPointer<PerfProfilerFlameGraphModel::Data> &stackBottom)
+    {
+        m_stackBottom.swap(stackBottom);
+    }
+
+    uint resourcePeakId() const { return m_resourcePeakId; }
+
+private:
+    QScopedPointer<PerfProfilerFlameGraphModel::Data> m_stackBottom;
+    std::unordered_map<quint32, ProcessResourceCounter> m_resourceBlocks;
+    QPointer<const PerfProfilerTraceManager> m_manager;
+    uint m_resourcePeakId = 0;
 };
 
 PerfProfilerFlameGraphModel::PerfProfilerFlameGraphModel(PerfProfilerTraceManager *manager) :
-    QAbstractItemModel(manager), m_stackBottom(new Data(nullptr, -1, 0))
+    QAbstractItemModel(manager), m_stackBottom(new Data)
 {
-    PerfProfilerFlameGraphData *data = new PerfProfilerFlameGraphData;
+    auto *data = new PerfProfilerFlameGraphData;
     manager->registerFeatures(PerfEventType::attributeFeatures(),
                               std::bind(&PerfProfilerFlameGraphData::loadEvent, data,
                                         std::placeholders::_1, std::placeholders::_2),
@@ -120,10 +133,9 @@ QModelIndex PerfProfilerFlameGraphModel::index(int row, int column, const QModel
 {
     if (parent.isValid()) {
         Data *parentData = static_cast<Data *>(parent.internalPointer());
-        return createIndex(row, column, parentData->children[row]);
-    } else {
-        return createIndex(row, column, row >= 0 ? m_stackBottom->children[row] : nullptr);
+        return createIndex(row, column, parentData->children[row].get());
     }
+    return createIndex(row, column, row >= 0 ? m_stackBottom->children[row].get() : nullptr);
 }
 
 QModelIndex PerfProfilerFlameGraphModel::parent(const QModelIndex &child) const
@@ -132,19 +144,17 @@ QModelIndex PerfProfilerFlameGraphModel::parent(const QModelIndex &child) const
         Data *childData = static_cast<Data *>(child.internalPointer());
         return childData->parent == m_stackBottom.data() ? QModelIndex()
                                                          : createIndex(0, 0, childData->parent);
-    } else {
-        return QModelIndex();
     }
+    return {};
 }
 
 int PerfProfilerFlameGraphModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
         Data *parentData = static_cast<Data *>(parent.internalPointer());
-        return parentData->children.count();
-    } else {
-        return m_stackBottom->children.count();
+        return parentData->children.size();
     }
+    return m_stackBottom->children.size();
 }
 
 int PerfProfilerFlameGraphModel::columnCount(const QModelIndex &parent) const
@@ -192,16 +202,19 @@ QVariant PerfProfilerFlameGraphModel::data(const QModelIndex &index, int role) c
         return QVariant();
 
     // Need to look up stuff from modelmanager
-    PerfProfilerTraceManager *manager =
-            static_cast<PerfProfilerTraceManager *>(QObject::parent());
+    auto *manager = qobject_cast<PerfProfilerTraceManager *>(QObject::parent());
+    QTC_ASSERT(manager, return QVariant());
     const bool aggregated = manager->aggregateAddresses();
     const PerfProfilerTraceManager::Symbol &symbol
             = manager->symbol(aggregated ? data->typeId
                                          : manager->symbolLocation(data->typeId));
     const PerfEventType::Location &location = manager->location(data->typeId);
+    const int hexBase = 16;
+    const int addressWidth = 16;
     switch (role) {
     case DisplayNameRole:
-        return QString::fromLatin1("0x%1").arg(location.address, 16, 16, QLatin1Char('0'));
+        return QString::fromLatin1("0x%1").arg(location.address, addressWidth, hexBase,
+                                               QLatin1Char('0'));
     case FunctionRole:
         return orUnknown(manager->string(symbol.name));
     case ElfFileRole:
@@ -220,37 +233,38 @@ void PerfProfilerFlameGraphModel::initialize()
     PerfProfilerFlameGraphData *offline = m_offlineData.take();
     QTC_ASSERT(offline, return);
     QTC_ASSERT(offline->isEmpty(), offline->clear());
-    offline->manager = static_cast<PerfProfilerTraceManager *>(QObject::parent());
+    offline->setManager(qobject_cast<PerfProfilerTraceManager *>(QObject::parent()));
+    QTC_CHECK(offline->manager());
 }
 
 void PerfProfilerFlameGraphData::updateTraceData(const PerfEvent &event, const PerfEventType &type,
                                                  PerfProfilerFlameGraphModel::Data *data,
-                                                 int numSamples)
+                                                 uint numSamples)
 {
     Q_UNUSED(type)
     for (int i = 0, end = event.numAttributes(); i < end; ++i) {
-        const PerfEventType::Attribute &attribute = manager->attribute(event.attributeId(i));
+        const PerfEventType::Attribute &attribute = m_manager->attribute(event.attributeId(i));
         if (attribute.type != PerfEventType::TypeTracepoint)
             continue;
 
         const PerfProfilerTraceManager::TracePoint &tracePoint
-                = manager->tracePoint(static_cast<int>(attribute.config));
+                = m_manager->tracePoint(static_cast<int>(attribute.config));
 
-        const QByteArray &name = manager->string(tracePoint.name);
+        const QByteArray &name = m_manager->string(tracePoint.name);
         if (name.startsWith(PerfProfilerTraceManager::s_resourceNamePrefix)) {
             const QHash<qint32, QVariant> &traceData = event.traceData();
             const auto end = traceData.end();
 
-            const auto released = traceData.find(manager->resourceReleasedIdId());
-            const auto amount = traceData.find(manager->resourceRequestedAmountId());
-            const auto obtained = traceData.find(manager->resourceObtainedIdId());
-            const auto moved = traceData.find(manager->resourceMovedIdId());
+            const auto released = traceData.find(m_manager->resourceReleasedIdId());
+            const auto amount = traceData.find(m_manager->resourceRequestedAmountId());
+            const auto obtained = traceData.find(m_manager->resourceObtainedIdId());
+            const auto moved = traceData.find(m_manager->resourceMovedIdId());
 
-            auto &threadCounter = resourceBlocks[event.pid()][event.tid()];
+            auto &threadCounter = m_resourceBlocks[event.pid()][event.tid()];
             Payload payload(this, data, numSamples);
 
             if (amount != end) {
-                const auto blocks = traceData.find(manager->resourceRequestedBlocksId());
+                const auto blocks = traceData.find(m_manager->resourceRequestedBlocksId());
                 const qint64 amountValue = amount.value().toLongLong()
                         * (blocks == end ? 1 : blocks.value().toLongLong());
 
@@ -270,32 +284,32 @@ void PerfProfilerFlameGraphData::updateTraceData(const PerfEvent &event, const P
                 threadCounter.move(moved.value().toULongLong(), std::move(payload));
             }
 
-            if (stackBottom->resourceUsage > stackBottom->resourcePeak)
-                resourcePeakId += numSamples;
+            if (m_stackBottom->resourceUsage > m_stackBottom->resourcePeak)
+                m_resourcePeakId += numSamples;
         }
     }
 }
 
 void PerfProfilerFlameGraphData::clear()
 {
-    if (!stackBottom || !stackBottom->isEmpty())
-        stackBottom.reset(new PerfProfilerFlameGraphModel::Data(nullptr, -1, 0));
-    resourceBlocks.clear();
-    manager.clear();
-    resourcePeakId = 0;
+    if (!m_stackBottom || m_stackBottom->samples != 0)
+        m_stackBottom.reset(new PerfProfilerFlameGraphModel::Data);
+    m_resourceBlocks.clear();
+    m_manager.clear();
+    m_resourcePeakId = 0;
 }
 
 bool PerfProfilerFlameGraphData::isEmpty() const
 {
-    return stackBottom->isEmpty() && resourceBlocks.empty() && manager.isNull()
-            && resourcePeakId == 0;
+    return m_stackBottom->samples == 0 && m_resourceBlocks.empty() && m_manager.isNull()
+            && m_resourcePeakId == 0;
 }
 
 void PerfProfilerFlameGraphData::loadEvent(const PerfEvent &event, const PerfEventType &type)
 {
-    const int numSamples = (event.timestamp() < 0) ? 0 : 1;
-    stackBottom->samples += numSamples;
-    auto data = stackBottom.data();
+    const uint numSamples = (event.timestamp() < 0) ? 0 : 1;
+    m_stackBottom->samples += numSamples;
+    auto data = m_stackBottom.data();
     const QVector<int> &stack = event.frames();
     for (auto it = stack.rbegin(), end = stack.rend(); it != end; ++it)
         data = pushChild(data, *it, numSamples);
@@ -307,23 +321,23 @@ void PerfProfilerFlameGraphModel::finalize(PerfProfilerFlameGraphData *data)
 {
     beginResetModel();
 
-    m_stackBottom.swap(data->stackBottom);
+    data->swapStackBottom(m_stackBottom);
 
     QQueue<Data *> nodes;
     nodes.enqueue(m_stackBottom.data());
     while (!nodes.isEmpty()) {
         Data *node = nodes.dequeue();
-        if (node->lastResourceChangeId < data->resourcePeakId) {
+        if (node->lastResourceChangeId < data->resourcePeakId()) {
             node->resourcePeak = node->resourceUsage;
-            node->lastResourceChangeId = data->resourcePeakId;
+            node->lastResourceChangeId = data->resourcePeakId();
         }
-        for (Data *child : qAsConst(node->children))
-            nodes.enqueue(child);
+        for (const auto &child : qAsConst(node->children))
+            nodes.enqueue(child.get());
     }
 
     endResetModel();
 
-    QTC_CHECK(data->stackBottom->isEmpty());
+    QTC_CHECK(data->stackBottom()->samples == 0);
     data->clear();
     m_offlineData.reset(data);
 }
@@ -338,17 +352,17 @@ void PerfProfilerFlameGraphModel::clear(PerfProfilerFlameGraphData *data)
     } else {
         QTC_CHECK(data == m_offlineData.data());
     }
-    m_stackBottom.reset(new Data(nullptr, -1, 0));
+    m_stackBottom.reset(new Data);
     endResetModel();
 }
 
 PerfProfilerFlameGraphModel::Data *PerfProfilerFlameGraphData::pushChild(
         PerfProfilerFlameGraphModel::Data *parent, int typeId, int numSamples)
 {
-    QVector<PerfProfilerFlameGraphModel::Data *> &siblings = parent->children;
+    auto &siblings = parent->children;
 
     for (auto it = siblings.begin(), end = siblings.end(); it != end; ++it) {
-        PerfProfilerFlameGraphModel::Data *child = *it;
+        PerfProfilerFlameGraphModel::Data *child = it->get();
         if (child->typeId == typeId) {
             child->samples += numSamples;
             for (auto back = it, front = siblings.begin(); back != front;) {
@@ -362,19 +376,21 @@ PerfProfilerFlameGraphModel::Data *PerfProfilerFlameGraphData::pushChild(
         }
     }
 
-    PerfProfilerFlameGraphModel::Data *child
-            = new PerfProfilerFlameGraphModel::Data(parent, typeId, numSamples);
-    parent->children.append(child);
-    return child;
+    auto child = std::make_unique<PerfProfilerFlameGraphModel::Data>();
+    child->parent = parent;
+    child->typeId = typeId;
+    child->samples = numSamples;
+    parent->children.push_back(std::move(child));
+    return parent->children.back().get();
 }
 
 void Payload::adjust(qint64 diff)
 {
     for (auto allocator = m_data; allocator; allocator = allocator->parent) {
-        if (allocator->lastResourceChangeId < m_parent->resourcePeakId)
+        if (allocator->lastResourceChangeId < m_parent->resourcePeakId())
             allocator->resourcePeak = allocator->resourceUsage;
 
-        allocator->lastResourceChangeId = m_parent->resourcePeakId;
+        allocator->lastResourceChangeId = m_parent->resourcePeakId();
         allocator->resourceUsage += diff;
     }
 }
