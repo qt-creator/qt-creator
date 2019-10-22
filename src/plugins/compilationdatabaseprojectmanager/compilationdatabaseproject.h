@@ -70,6 +70,7 @@ private:
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
     std::unique_ptr<ProjectExplorer::Kit> m_kit;
     MimeBinaryCache m_mimeBinaryCache;
+    QByteArray m_projectFileHash;
     QTimer * const m_parseDelay;
     CompilationDbParser *m_parser = nullptr;
 };

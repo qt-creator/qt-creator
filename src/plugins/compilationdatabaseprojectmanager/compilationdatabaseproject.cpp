@@ -406,10 +406,11 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
     m_kit.reset(KitManager::defaultKit()->clone());
     addTargetForKit(m_kit.get());
 
-    connect(this,
-            &CompilationDatabaseProject::rootProjectDirectoryChanged,
-            m_parseDelay,
-            QOverload<>::of(&QTimer::start));
+    connect(this, &CompilationDatabaseProject::rootProjectDirectoryChanged,
+            this, [this] {
+        m_projectFileHash.clear();
+        m_parseDelay->start();
+    });
 
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
@@ -458,11 +459,13 @@ void CompilationDatabaseProject::reparseProject()
                                        m_mimeBinaryCache,
                                        guardParsingRun(),
                                        this);
-    connect(m_parser, &CompilationDbParser::finished, this, [this](bool success) {
-        if (success)
+    connect(m_parser, &CompilationDbParser::finished, this, [this](ParseResult result) {
+        m_projectFileHash = m_parser->projectFileHash();
+        if (result == ParseResult::Success)
             buildTreeAndProjectParts();
         m_parser = nullptr;
     });
+    m_parser->setPreviousProjectFileHash(m_projectFileHash);
     m_parser->start();
 }
 

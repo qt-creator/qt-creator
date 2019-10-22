@@ -46,6 +46,8 @@ class TreeScanner;
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
+enum class ParseResult { Success, Failure, Cached };
+
 class CompilationDbParser : public QObject
 {
     Q_OBJECT
@@ -56,6 +58,10 @@ public:
                                  MimeBinaryCache &mimeBinaryCache,
                                  ProjectExplorer::Project::ParseGuard &&guard,
                                  QObject *parent = nullptr);
+
+
+    void setPreviousProjectFileHash(const QByteArray &fileHash) { m_projectFileHash = fileHash; }
+    QByteArray projectFileHash() const { return m_projectFileHash; }
 
     void start();
     void stop();
@@ -68,11 +74,12 @@ public:
     }
 
 signals:
-    void finished(bool success);
+    void finished(ParseResult result);
 
 private:
-    void finish();
+    void finish(ParseResult result);
     DbContents parseProject();
+    std::vector<DbEntry> readJsonObjects() const;
 
     const QString m_projectName;
     const Utils::FilePath m_projectFilePath;
@@ -81,6 +88,8 @@ private:
     ProjectExplorer::TreeScanner *m_treeScanner = nullptr;
     QFutureWatcher<DbContents> m_parserWatcher;
     DbContents m_dbContents;
+    QByteArray m_projectFileContents;
+    QByteArray m_projectFileHash;
 
     ProjectExplorer::Project::ParseGuard m_guard;
 };
