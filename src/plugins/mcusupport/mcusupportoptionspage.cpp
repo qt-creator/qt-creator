@@ -178,5 +178,3 @@ void McuSupportOptionsPage::finish()
 
 } // Internal
 } // McuSupport
-
-#include "mcusupportoptionspage.moc"
