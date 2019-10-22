@@ -18,6 +18,8 @@ QtcPlugin {
         "mcusupportconstants.h",
         "mcusupportdevice.cpp",
         "mcusupportdevice.h",
+        "mcusupportoptions.cpp",
+        "mcusupportoptions.h",
         "mcusupportoptionspage.cpp",
         "mcusupportoptionspage.h",
         "mcusupportplugin.cpp",
