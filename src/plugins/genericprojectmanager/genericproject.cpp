@@ -40,6 +40,7 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
@@ -118,17 +119,14 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-class GenericProjectNode : public ProjectNode
+class GenericBuildSytem : public BuildSystem
 {
 public:
-    explicit GenericProjectNode(GenericProject *project) :
-        ProjectNode(project->projectDirectory()),
-        m_project(project)
-    {
-        setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
-    }
+    explicit GenericBuildSytem(GenericProject *project)
+        : BuildSystem(project)
+    {}
 
-    bool supportsAction(ProjectAction action, const Node *) const override
+    bool supportsAction(Node *, ProjectAction action, const Node *) const override
     {
         return action == AddNewFile
                 || action == AddExistingFile
@@ -137,25 +135,25 @@ public:
                 || action == Rename;
     }
 
-    bool addFiles(const QStringList &filePaths, QStringList * = nullptr) override
+    bool addFiles(Node *, const QStringList &filePaths, QStringList *) override
     {
-        return m_project->addFiles(filePaths);
+        return project()->addFiles(filePaths);
     }
 
-    RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+    RemovedFilesFromProject removeFiles(Node *, const QStringList &filePaths,
                                         QStringList * = nullptr) override
     {
-        return m_project->removeFiles(filePaths) ? RemovedFilesFromProject::Ok
+        return project()->removeFiles(filePaths) ? RemovedFilesFromProject::Ok
                                                  : RemovedFilesFromProject::Error;
     }
 
-    bool renameFile(const QString &filePath, const QString &newFilePath) override
+    bool renameFile(Node *, const QString &filePath, const QString &newFilePath) override
     {
-        return m_project->renameFile(filePath, newFilePath);
+        return project()->renameFile(filePath, newFilePath);
     }
 
 private:
-    GenericProject *m_project = nullptr;
+    GenericProject *project() { return static_cast<GenericProject *>(BuildSystem::project()); }
 };
 
 
@@ -178,6 +176,7 @@ GenericProject::GenericProject(const Utils::FilePath &fileName)
     setId(Constants::GENERICPROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
+    setBuildSystem(std::make_unique<GenericBuildSytem>(this));
 
     QObject *projectUpdaterFactory = ExtensionSystem::PluginManager::getObjectByName(
         "CppProjectUpdaterFactory");
@@ -432,7 +431,8 @@ void GenericProject::refresh(RefreshOptions options)
     parseProject(options);
 
     if (options & Files) {
-        auto newRoot = std::make_unique<GenericProjectNode>(this);
+        auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
+        newRoot->setDisplayName(projectFilePath().toFileInfo().completeBaseName());
 
         // find the common base directory of all source files
         Utils::FilePath baseDir = findCommonSourceRoot();

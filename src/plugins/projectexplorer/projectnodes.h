@@ -42,6 +42,7 @@ namespace Utils { class MimeType; }
 
 namespace ProjectExplorer {
 
+class BuildSystem;
 class Project;
 
 // File types common for qt projects
@@ -357,14 +358,14 @@ public:
     bool isProjectNodeType() const override { return true; }
     bool showInSimpleTree() const override { return true; }
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) final;
     RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                        QStringList *notRemoved = nullptr) override;
-    bool deleteFiles(const QStringList &filePaths) override;
-    bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
-    bool addDependencies(const QStringList &dependencies) override;
-    bool supportsAction(ProjectAction action, const Node *node) const override;
+                                        QStringList *notRemoved = nullptr) final;
+    bool deleteFiles(const QStringList &filePaths) final;
+    bool canRenameFile(const QString &filePath, const QString &newFilePath) final;
+    bool renameFile(const QString &filePath, const QString &newFilePath) final;
+    bool addDependencies(const QStringList &dependencies) final;
+    bool supportsAction(ProjectAction action, const Node *node) const final;
 
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
@@ -399,6 +400,8 @@ protected:
     QString m_target;
 
 private:
+    BuildSystem *buildSystem() const;
+
     QHash<Core::Id, QVariant> m_fallbackData; // Used in data(), unless overridden.
     ProductType m_productType = ProductType::None;
 };

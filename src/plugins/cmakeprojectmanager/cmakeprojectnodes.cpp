@@ -138,11 +138,6 @@ bool CMakeListsNode::showInSimpleTree() const
     return false;
 }
 
-bool CMakeListsNode::supportsAction(ProjectExplorer::ProjectAction action, const ProjectExplorer::Node *) const
-{
-    return action == ProjectExplorer::ProjectAction::AddNewFile;
-}
-
 Utils::optional<Utils::FilePath> CMakeListsNode::visibleAfterAddFileAction() const
 {
     return filePath().pathAppended("CMakeLists.txt");
@@ -161,10 +156,19 @@ QString CMakeProjectNode::tooltip() const
     return QString();
 }
 
-bool CMakeProjectNode::addFiles(const QStringList &filePaths, QStringList *)
+bool CMakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded)
 {
-    noAutoAdditionNotify(filePaths, this);
-    return true; // Return always true as autoadd is not supported!
+    if (auto n = dynamic_cast<CMakeProjectNode *>(context)) {
+        noAutoAdditionNotify(filePaths, n);
+        return true; // Return always true as autoadd is not supported!
+    }
+
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        noAutoAdditionNotify(filePaths, n);
+        return true; // Return always true as autoadd is not supported!
+    }
+
+    return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
 CMakeTargetNode::CMakeTargetNode(const Utils::FilePath &directory, const QString &target) :
@@ -243,16 +247,15 @@ void CMakeTargetNode::setConfig(const CMakeConfig &config)
     m_config = config;
 }
 
-bool CMakeTargetNode::supportsAction(ProjectExplorer::ProjectAction action,
-                                     const ProjectExplorer::Node *) const
+bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
-    return action == ProjectExplorer::ProjectAction::AddNewFile;
-}
+    if (dynamic_cast<CMakeTargetNode *>(context))
+        return action == ProjectAction::AddNewFile;
 
-bool CMakeTargetNode::addFiles(const QStringList &filePaths, QStringList *)
-{
-    noAutoAdditionNotify(filePaths, this);
-    return true; // Return always true as autoadd is not supported!
+    if (dynamic_cast<CMakeListsNode *>(context))
+        return action == ProjectAction::AddNewFile;
+
+    return BuildSystem::supportsAction(context, action, node);
 }
 
 Utils::optional<Utils::FilePath> CMakeTargetNode::visibleAfterAddFileAction() const

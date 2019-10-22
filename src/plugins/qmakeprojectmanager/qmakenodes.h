@@ -28,6 +28,7 @@
 #include "qmakeprojectmanager_global.h"
 #include "qmakeparsernodes.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectnodes.h>
 
 namespace Utils { class FilePath; }
@@ -35,6 +36,33 @@ namespace Utils { class FilePath; }
 namespace QmakeProjectManager {
 class QmakeProFileNode;
 class QmakeProject;
+
+class QmakeBuildSystem : public ProjectExplorer::BuildSystem
+{
+public:
+    explicit QmakeBuildSystem(QmakeProject *project);
+
+    bool supportsAction(ProjectExplorer::Node *context,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const override;
+
+    bool addFiles(ProjectExplorer::Node *context,
+                  const QStringList &filePaths,
+                  QStringList *notAdded = nullptr) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
+                                                         const QStringList &filePaths,
+                                                         QStringList *notRemoved = nullptr) override;
+    bool deleteFiles(ProjectExplorer::Node *context,
+                     const QStringList &filePaths) override;
+    bool canRenameFile(ProjectExplorer::Node *context,
+                       const QString &filePath, const QString &newFilePath) override;
+    bool renameFile(ProjectExplorer::Node *context,
+                    const QString &filePath, const QString &newFilePath) override;
+    bool addDependencies(ProjectExplorer::Node *context,
+                         const QStringList &dependencies) override;
+private:
+    QmakeProject *m_project = nullptr;
+};
 
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
@@ -45,9 +73,6 @@ public:
 
     QmakePriFile *priFile() const;
 
-    // ProjectNode interface
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
-
     bool showInSimpleTree() const override { return false; }
 
     bool canAddSubProject(const QString &proFilePath) const override;
@@ -55,13 +80,6 @@ public:
     bool removeSubProject(const QString &proFilePath) override;
     QStringList subProjectFileNamePatterns() const override;
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-            QStringList *notRemoved = nullptr) override;
-    bool deleteFiles(const QStringList &filePaths) override;
-    bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
-    bool addDependencies(const QStringList &dependencies) override;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     bool deploysFolder(const QString &folder) const override;
@@ -92,7 +110,6 @@ public:
     bool isQtcRunnable() const;
     bool includedInExactParse() const;
 
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool showInSimpleTree() const override;
 
     QString buildKey() const override;

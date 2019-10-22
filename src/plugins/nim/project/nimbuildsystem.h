@@ -43,6 +43,18 @@ public:
     bool removeFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
 
+    bool supportsAction(ProjectExplorer::Node *,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const override;
+    bool addFiles(ProjectExplorer::Node *node,
+                  const QStringList &filePaths, QStringList *) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *node,
+                                                         const QStringList &filePaths,
+                                                         QStringList *) override;
+    bool deleteFiles(ProjectExplorer::Node *, const QStringList &) override;
+    bool renameFile(ProjectExplorer::Node *,
+                    const QString &filePath, const QString &newFilePath) override;
+
     void setExcludedFiles(const QStringList &list); // Keep for compatibility with Qt Creator 4.10
     QStringList excludedFiles(); // Make private when no longer supporting Qt Creator 4.10
 

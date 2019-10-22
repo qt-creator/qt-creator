@@ -25,6 +25,7 @@
 
 #include "projectnodes.h"
 
+#include "buildsystem.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projecttree.h"
@@ -882,47 +883,51 @@ bool ProjectNode::removeSubProject(const QString &proFilePath)
 
 bool ProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
-    Q_UNUSED(filePaths)
-    Q_UNUSED(notAdded)
+    if (BuildSystem *bs = buildSystem())
+        return bs->addFiles(this, filePaths, notAdded);
     return false;
 }
 
 RemovedFilesFromProject ProjectNode::removeFiles(const QStringList &filePaths,
                                                  QStringList *notRemoved)
 {
-    Q_UNUSED(filePaths)
-    Q_UNUSED(notRemoved)
+    if (BuildSystem *bs = buildSystem())
+        return bs->removeFiles(this, filePaths, notRemoved);
     return RemovedFilesFromProject::Error;
 }
 
 bool ProjectNode::deleteFiles(const QStringList &filePaths)
 {
-    Q_UNUSED(filePaths)
+    if (BuildSystem *bs = buildSystem())
+        return bs->deleteFiles(this, filePaths);
     return false;
 }
 
 bool ProjectNode::canRenameFile(const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(filePath)
-    Q_UNUSED(newFilePath)
+    if (BuildSystem *bs = buildSystem())
+        return bs->canRenameFile(this, filePath, newFilePath);
     return true;
 }
 
 bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(filePath)
-    Q_UNUSED(newFilePath)
+    if (BuildSystem *bs = buildSystem())
+        return bs->renameFile(this, filePath, newFilePath);
     return false;
 }
 
 bool ProjectNode::addDependencies(const QStringList &dependencies)
 {
-    Q_UNUSED(dependencies)
+    if (BuildSystem *bs = buildSystem())
+        return bs->addDependencies(this, dependencies);
     return false;
 }
 
-bool ProjectNode::supportsAction(ProjectAction, const Node *) const
+bool ProjectNode::supportsAction(ProjectAction action, const Node *node) const
 {
+    if (BuildSystem *bs = buildSystem())
+        return bs->supportsAction(const_cast<ProjectNode *>(this), action, node);
     return false;
 }
 
@@ -957,6 +962,12 @@ bool ProjectNode::setData(Core::Id role, const QVariant &value) const
 void ProjectNode::setFallbackData(Core::Id key, const QVariant &value)
 {
     m_fallbackData.insert(key, value);
+}
+
+BuildSystem *ProjectNode::buildSystem() const
+{
+    Project *p = getProject();
+    return p ? p->buildSystem() : nullptr;
 }
 
 bool FolderNode::isEmpty() const

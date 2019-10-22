@@ -40,29 +40,10 @@ class PythonProject : public ProjectExplorer::Project
 public:
     explicit PythonProject(const Utils::FilePath &filename);
 
-    bool addFiles(const QStringList &filePaths);
-    bool removeFiles(const QStringList &filePaths);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
-    void refresh(ProjectExplorer::Target *target = nullptr);
-
     bool needsConfiguration() const final { return false; }
-
-    bool writePyProjectFile(const QString &fileName, QString &content,
-                            const QStringList &rawList, QString *errorMessage);
-
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
     bool setupTarget(ProjectExplorer::Target *t) override;
-
-    bool saveRawFileList(const QStringList &rawFileList);
-    bool saveRawList(const QStringList &rawList, const QString &fileName);
-    void parseProject();
-    QStringList processEntries(const QStringList &paths,
-                               QHash<QString, QString> *map = nullptr) const;
-
-    QStringList m_rawFileList;
-    QStringList m_files;
-    QHash<QString, QString> m_rawListEntries;
 };
 
 } // namespace Internal

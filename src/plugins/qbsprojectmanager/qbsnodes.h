@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <qbs.h>
@@ -34,6 +35,27 @@ namespace Internal {
 
 class QbsNodeTreeBuilder;
 class QbsProject;
+
+class QbsBuildSystem : public ProjectExplorer::BuildSystem
+{
+public:
+    explicit QbsBuildSystem(QbsProject *project);
+
+    bool supportsAction(ProjectExplorer::Node *context,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const final;
+    bool addFiles(ProjectExplorer::Node *context,
+                  const QStringList &filePaths,
+                  QStringList *notAdded = nullptr) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
+                                                         const QStringList &filePaths,
+                                                         QStringList *notRemoved = nullptr) override;
+    bool renameFile(ProjectExplorer::Node *context,
+                    const QString &filePath, const QString &newFilePath) override;
+
+private:
+    QbsProject *m_project = nullptr;
+};
 
 // --------------------------------------------------------------------
 // QbsGroupNode:
@@ -45,13 +67,9 @@ public:
     QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
     bool showInSimpleTree() const final { return false; }
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const final;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-            QStringList *notRemoved = nullptr) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
+    friend class QbsBuildSystem;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
     QVariant data(Core::Id role) const override;
 
@@ -68,11 +86,6 @@ class QbsProductNode : public ProjectExplorer::ProjectNode
 public:
     explicit QbsProductNode(const qbs::ProductData &prd);
 
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const final;
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-            QStringList *notRemoved = nullptr) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
     void build() override;
     QStringList targetApplications() const override;
 

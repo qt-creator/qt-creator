@@ -67,6 +67,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
+    setBuildSystem(std::make_unique<Internal::QmlBuildSystem>(this));
 
     connect(this, &QmlProject::projectFileIsDirty, this, &QmlProject::refreshProjectFile);
 }
@@ -398,5 +399,6 @@ void QmlProject::updateDeploymentData(ProjectExplorer::Target *target)
 
     target->setDeploymentData(deploymentData);
 }
+
 } // namespace QmlProjectManager
 

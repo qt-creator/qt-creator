@@ -25,59 +25,10 @@
 
 #include "nimprojectnode.h"
 
-#include "nimbuildsystem.h"
-
-#include <projectexplorer/projecttree.h>
-
-using namespace ProjectExplorer;
-using namespace Utils;
-
 namespace Nim {
 
-NimProjectNode::NimProjectNode(const FilePath &projectFilePath)
+NimProjectNode::NimProjectNode(const Utils::FilePath &projectFilePath)
     : ProjectNode(projectFilePath)
 {}
-
-bool NimProjectNode::supportsAction(ProjectAction action, const Node *node) const
-{
-    if (node->asFileNode()) {
-        return action == ProjectAction::Rename
-            || action == ProjectAction::RemoveFile;
-    }
-    if (node->isFolderNodeType() || node->isProjectNodeType()) {
-        return action == ProjectAction::AddNewFile
-            || action == ProjectAction::RemoveFile
-            || action == ProjectAction::AddExistingFile;
-    }
-    return ProjectNode::supportsAction(action, node);
-}
-
-bool NimProjectNode::addFiles(const QStringList &filePaths, QStringList *)
-{
-    return buildSystem()->addFiles(filePaths);
-}
-
-RemovedFilesFromProject NimProjectNode::removeFiles(const QStringList &filePaths,
-                                                    QStringList *)
-{
-    return buildSystem()->removeFiles(filePaths) ? RemovedFilesFromProject::Ok
-                                                 : RemovedFilesFromProject::Error;
-}
-
-bool NimProjectNode::deleteFiles(const QStringList &)
-{
-    return true;
-}
-
-bool NimProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
-{
-    return buildSystem()->renameFile(filePath, newFilePath);
-}
-
-NimBuildSystem *NimProjectNode::buildSystem() const
-{
-    return qobject_cast<NimBuildSystem *>(
-        ProjectTree::instance()->projectForNode(this)->buildSystem());
-}
 
 } // namespace Nim

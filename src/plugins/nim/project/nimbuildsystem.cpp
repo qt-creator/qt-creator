@@ -34,34 +34,6 @@
 
 #include <QVariantMap>
 
-#if 0
-#include "nimbuildconfiguration.h"
-#include "nimtoolchain.h"
-
-#include "../nimconstants.h"
-
-#include <coreplugin/icontext.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/kitinformation.h>
-#include <texteditor/textdocument.h>
-
-#include <utils/runextensions.h>
-
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-
-#include <QFileInfo>
-#include <QQueue>
-#endif
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -176,4 +148,40 @@ void NimBuildSystem::updateProject()
     m_currentContext = {};
 }
 
+bool NimBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
+{
+    if (node->asFileNode()) {
+        return action == ProjectAction::Rename
+            || action == ProjectAction::RemoveFile;
+    }
+    if (node->isFolderNodeType() || node->isProjectNodeType()) {
+        return action == ProjectAction::AddNewFile
+            || action == ProjectAction::RemoveFile
+            || action == ProjectAction::AddExistingFile;
+    }
+    return BuildSystem::supportsAction(context, action, node);
+}
+
+bool NimBuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *)
+{
+    return addFiles(filePaths);
+}
+
+RemovedFilesFromProject NimBuildSystem::removeFiles(Node *,
+                                                    const QStringList &filePaths,
+                                                    QStringList *)
+{
+    return removeFiles(filePaths) ? RemovedFilesFromProject::Ok
+                                                 : RemovedFilesFromProject::Error;
+}
+
+bool NimBuildSystem::deleteFiles(Node *, const QStringList &)
+{
+    return true;
+}
+
+bool NimBuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
+{
+    return renameFile(filePath, newFilePath);
+}
 } // namespace Nim

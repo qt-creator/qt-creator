@@ -135,6 +135,8 @@ QbsProject::QbsProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setCanBuildProducts();
 
+    setBuildSystem(std::make_unique<QbsBuildSystem>(this));
+
     rebuildProjectTree();
 
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);

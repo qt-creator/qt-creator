@@ -54,6 +54,16 @@ Project *BuildSystem::project() const
     return m_project;
 }
 
+FilePath BuildSystem::projectFilePath() const
+{
+    return m_project->projectFilePath();
+}
+
+FilePath BuildSystem::projectDirectory() const
+{
+    return m_project->projectDirectory();
+}
+
 bool BuildSystem::isWaitingForParse() const
 {
     return m_delayedParsingTimer.isActive();
@@ -99,6 +109,52 @@ void BuildSystem::triggerParsing()
 
     if (validateParsingContext(ctx))
         parseProject(std::move(ctx));
+}
+
+bool BuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *notAdded)
+{
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notAdded)
+    return false;
+}
+
+RemovedFilesFromProject BuildSystem::removeFiles(Node *, const QStringList &filePaths,
+                                                 QStringList *notRemoved)
+{
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notRemoved)
+    return RemovedFilesFromProject::Error;
+}
+
+bool BuildSystem::deleteFiles(Node *, const QStringList &filePaths)
+{
+    Q_UNUSED(filePaths)
+    return false;
+}
+
+bool BuildSystem::canRenameFile(Node *, const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(newFilePath)
+    return true;
+}
+
+bool BuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(newFilePath)
+    return false;
+}
+
+bool BuildSystem::addDependencies(Node *, const QStringList &dependencies)
+{
+    Q_UNUSED(dependencies)
+    return false;
+}
+
+bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
+{
+    return false;
 }
 
 } // namespace ProjectExplorer

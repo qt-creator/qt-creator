@@ -27,26 +27,12 @@
 
 #include <projectexplorer/projectnodes.h>
 
-namespace Utils { class FilePath; }
-
 namespace Nim {
-
-class NimBuildSystem;
 
 class NimProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     NimProjectNode(const Utils::FilePath &projectFilePath);
-
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
-    bool addFiles(const QStringList &filePaths, QStringList *) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                                         QStringList *) override;
-    bool deleteFiles(const QStringList &) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
-
-private:
-    NimBuildSystem *buildSystem() const;
 };
 
 }

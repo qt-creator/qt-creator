@@ -82,67 +82,76 @@ QmakeProFileNode *QmakePriFileNode::proFileNode() const
     return m_qmakeProFileNode;
 }
 
-bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) const
+bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
-    if (action == Rename) {
-        const FileNode *fileNode = node->asFileNode();
-        return (fileNode && fileNode->fileType() != FileType::Project)
-                || dynamic_cast<const ResourceEditor::ResourceTopLevelNode *>(node);
-    }
-
-    const FolderNode *folderNode = this;
-    const QmakeProFileNode *proFileNode;
-    while (!(proFileNode = dynamic_cast<const QmakeProFileNode*>(folderNode))) {
-        folderNode = folderNode->parentFolderNode();
-        QTC_ASSERT(folderNode, return false);
-    }
-    QTC_ASSERT(proFileNode, return false);
-    const QmakeProFile *pro = proFileNode->proFile();
-
-    switch (pro ? pro->projectType() : ProjectType::Invalid) {
-    case ProjectType::ApplicationTemplate:
-    case ProjectType::StaticLibraryTemplate:
-    case ProjectType::SharedLibraryTemplate:
-    case ProjectType::AuxTemplate: {
-        // TODO: Some of the file types don't make much sense for aux
-        // projects (e.g. cpp). It'd be nice if the "add" action could
-        // work on a subset of the file types according to project type.
-        if (action == AddNewFile)
-            return true;
-        if (action == EraseFile)
-            return pro && pro->knowsFile(node->filePath());
-        if (action == RemoveFile)
-            return !(pro && pro->knowsFile(node->filePath()));
-
-        bool addExistingFiles = true;
-        if (node->isVirtualFolderType()) {
-            // A virtual folder, we do what the projectexplorer does
-            const FolderNode *folder = node->asFolderNode();
-            if (folder) {
-                QStringList list;
-                foreach (FolderNode *f, folder->folderNodes())
-                    list << f->filePath().toString() + QLatin1Char('/');
-                if (deploysFolder(Utils::commonPath(list)))
-                    addExistingFiles = false;
-            }
+    if (auto n = dynamic_cast<QmakePriFileNode *>(context)) { // Covers QmakeProfile, too.
+        if (action == Rename) {
+            const FileNode *fileNode = node->asFileNode();
+            return (fileNode && fileNode->fileType() != FileType::Project)
+                    || dynamic_cast<const ResourceEditor::ResourceTopLevelNode *>(node);
         }
 
-        addExistingFiles = addExistingFiles && !deploysFolder(node->filePath().toString());
+        const FolderNode *folderNode = n;
+        const QmakeProFileNode *proFileNode;
+        while (!(proFileNode = dynamic_cast<const QmakeProFileNode*>(folderNode))) {
+            folderNode = folderNode->parentFolderNode();
+            QTC_ASSERT(folderNode, return false);
+        }
+        QTC_ASSERT(proFileNode, return false);
+        const QmakeProFile *pro = proFileNode->proFile();
 
-        if (action == AddExistingFile || action == AddExistingDirectory)
-            return addExistingFiles;
+        switch (pro ? pro->projectType() : ProjectType::Invalid) {
+        case ProjectType::ApplicationTemplate:
+        case ProjectType::StaticLibraryTemplate:
+        case ProjectType::SharedLibraryTemplate:
+        case ProjectType::AuxTemplate: {
+            // TODO: Some of the file types don't make much sense for aux
+            // projects (e.g. cpp). It'd be nice if the "add" action could
+            // work on a subset of the file types according to project type.
+            if (action == AddNewFile)
+                return true;
+            if (action == EraseFile)
+                return pro && pro->knowsFile(node->filePath());
+            if (action == RemoveFile)
+                return !(pro && pro->knowsFile(node->filePath()));
 
-        break;
+            bool addExistingFiles = true;
+            if (node->isVirtualFolderType()) {
+                // A virtual folder, we do what the projectexplorer does
+                const FolderNode *folder = node->asFolderNode();
+                if (folder) {
+                    QStringList list;
+                    foreach (FolderNode *f, folder->folderNodes())
+                        list << f->filePath().toString() + QLatin1Char('/');
+                    if (n->deploysFolder(Utils::commonPath(list)))
+                        addExistingFiles = false;
+                }
+            }
+
+            addExistingFiles = addExistingFiles && !n->deploysFolder(node->filePath().toString());
+
+            if (action == AddExistingFile || action == AddExistingDirectory)
+                return addExistingFiles;
+
+            break;
+        }
+        case ProjectType::SubDirsTemplate:
+            if (action == AddSubProject || action == AddExistingProject)
+                return true;
+            break;
+        default:
+            break;
+        }
+
+        return false;
     }
-    case ProjectType::SubDirsTemplate:
-        if (action == AddSubProject || action == AddExistingProject)
-            return true;
-        break;
-    default:
-        break;
+
+    if (auto n = dynamic_cast<QmakeProFileNode *>(context)) {
+        if (action == RemoveSubProject)
+            return n->parentProjectNode() && !n->parentProjectNode()->asContainerNode();
     }
 
-    return false;
+    return BuildSystem::supportsAction(context, action, node);
 }
 
 bool QmakePriFileNode::canAddSubProject(const QString &proFilePath) const
@@ -168,80 +177,104 @@ QStringList QmakePriFileNode::subProjectFileNamePatterns() const
     return QStringList("*.pro");
 }
 
-bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+bool QmakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded)
 {
-    QmakePriFile *pri = priFile();
-    if (!pri)
-        return false;
-    QList<Node *> matchingNodes = findNodes([filePaths](const Node *n) {
-        return n->asFileNode() && filePaths.contains(n->filePath().toString());
-    });
-    matchingNodes = filtered(matchingNodes, [](const Node *n) {
-        for (const Node *parent = n->parentFolderNode(); parent;
-             parent = parent->parentFolderNode()) {
-            if (dynamic_cast<const ResourceEditor::ResourceTopLevelNode *>(parent))
-                return false;
-        }
-        return true;
-    });
-    QStringList alreadyPresentFiles = transform<QStringList>(matchingNodes,
-            [](const Node *n) { return n->filePath().toString(); });
-    alreadyPresentFiles.removeDuplicates();
-    QStringList actualFilePaths = filePaths;
-    for (const QString &e : alreadyPresentFiles)
-        actualFilePaths.removeOne(e);
-    if (notAdded)
-        *notAdded = alreadyPresentFiles;
-    return pri->addFiles(actualFilePaths, notAdded);
+    if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
+        QmakePriFile *pri = n->priFile();
+        if (!pri)
+            return false;
+        QList<Node *> matchingNodes = n->findNodes([filePaths](const Node *nn) {
+            return nn->asFileNode() && filePaths.contains(nn->filePath().toString());
+        });
+        matchingNodes = filtered(matchingNodes, [](const Node *n) {
+            for (const Node *parent = n->parentFolderNode(); parent;
+                 parent = parent->parentFolderNode()) {
+                if (dynamic_cast<const ResourceEditor::ResourceTopLevelNode *>(parent))
+                    return false;
+            }
+            return true;
+        });
+        QStringList alreadyPresentFiles = transform<QStringList>(matchingNodes,
+                                                                 [](const Node *n) { return n->filePath().toString(); });
+        alreadyPresentFiles.removeDuplicates();
+        QStringList actualFilePaths = filePaths;
+        for (const QString &e : alreadyPresentFiles)
+            actualFilePaths.removeOne(e);
+        if (notAdded)
+            *notAdded = alreadyPresentFiles;
+        return pri->addFiles(actualFilePaths, notAdded);
+    }
+
+    return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
-RemovedFilesFromProject QmakePriFileNode::removeFiles(const QStringList &filePaths,
+RemovedFilesFromProject QmakeBuildSystem::removeFiles(Node *context, const QStringList &filePaths,
                                                       QStringList *notRemoved)
 {
-    QmakePriFile * const pri = priFile();
-    if (!pri)
-        return RemovedFilesFromProject::Error;
-    QStringList wildcardFiles;
-    QStringList nonWildcardFiles;
-    for (const QString &file : filePaths) {
-        if (pri->proFile()->isFileFromWildcard(file))
-            wildcardFiles << file;
-        else
-            nonWildcardFiles << file;
+    if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
+        QmakePriFile * const pri = n->priFile();
+        if (!pri)
+            return RemovedFilesFromProject::Error;
+        QStringList wildcardFiles;
+        QStringList nonWildcardFiles;
+        for (const QString &file : filePaths) {
+            if (pri->proFile()->isFileFromWildcard(file))
+                wildcardFiles << file;
+            else
+                nonWildcardFiles << file;
+        }
+        const bool success = pri->removeFiles(nonWildcardFiles, notRemoved);
+        if (notRemoved)
+            *notRemoved += wildcardFiles;
+        if (!success)
+            return RemovedFilesFromProject::Error;
+        if (!wildcardFiles.isEmpty())
+            return RemovedFilesFromProject::Wildcard;
+        return RemovedFilesFromProject::Ok;
     }
-    const bool success = pri->removeFiles(nonWildcardFiles, notRemoved);
-    if (notRemoved)
-        *notRemoved += wildcardFiles;
-    if (!success)
-        return RemovedFilesFromProject::Error;
-    if (!wildcardFiles.isEmpty())
-        return RemovedFilesFromProject::Wildcard;
-    return RemovedFilesFromProject::Ok;
+
+    return BuildSystem::removeFiles(context, filePaths, notRemoved);
 }
 
-bool QmakePriFileNode::deleteFiles(const QStringList &filePaths)
+bool QmakeBuildSystem::deleteFiles(Node *context, const QStringList &filePaths)
 {
-    QmakePriFile *pri = priFile();
-    return pri ? pri->deleteFiles(filePaths) : false;
+    if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
+        QmakePriFile *pri = n->priFile();
+        return pri ? pri->deleteFiles(filePaths) : false;
+    }
+
+    return BuildSystem::deleteFiles(context, filePaths);
 }
 
-bool QmakePriFileNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+bool QmakeBuildSystem::canRenameFile(Node *context, const QString &filePath, const QString &newFilePath)
 {
-    QmakePriFile *pri = priFile();
-    return pri ? pri->canRenameFile(filePath, newFilePath) : false;
+    if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
+        QmakePriFile *pri = n->priFile();
+        return pri ? pri->canRenameFile(filePath, newFilePath) : false;
+    }
+
+    return BuildSystem::canRenameFile(context, filePath, newFilePath);
 }
 
-bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFilePath)
+bool QmakeBuildSystem::renameFile(Node *context, const QString &filePath, const QString &newFilePath)
 {
-    QmakePriFile *pri = priFile();
-    return pri ? pri->renameFile(filePath, newFilePath) : false;
+    if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
+        QmakePriFile *pri = n->priFile();
+        return pri ? pri->renameFile(filePath, newFilePath) : false;
+    }
+
+    return BuildSystem::renameFile(context, filePath, newFilePath);
 }
 
-bool QmakePriFileNode::addDependencies(const QStringList &dependencies)
+bool QmakeBuildSystem::addDependencies(Node *context, const QStringList &dependencies)
 {
-    if (QmakePriFile * const pri = priFile())
-        return pri->addDependencies(dependencies);
-    return false;
+    if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
+        if (QmakePriFile * const pri = n->priFile())
+            return pri->addDependencies(dependencies);
+        return false;
+    }
+
+    return BuildSystem::addDependencies(context, dependencies);
 }
 
 FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
@@ -405,13 +438,6 @@ bool QmakeProFileNode::includedInExactParse() const
     return pro && pro->includedInExactParse();
 }
 
-bool QmakeProFileNode::supportsAction(ProjectAction action, const Node *node) const
-{
-    if (action == RemoveSubProject)
-        return parentProjectNode() && !parentProjectNode()->asContainerNode();
-    return QmakePriFileNode::supportsAction(action, node);
-}
-
 FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
@@ -472,6 +498,11 @@ QString QmakeProFileNode::objectExtension() const
 TargetInformation QmakeProFileNode::targetInformation() const
 {
     return proFile() ? proFile()->targetInformation() : TargetInformation();
+}
+
+QmakeBuildSystem::QmakeBuildSystem(QmakeProject *project)
+    : BuildSystem(project), m_project(project)
+{
 }
 
 } // namespace QmakeProjectManager

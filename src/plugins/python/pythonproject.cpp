@@ -27,6 +27,7 @@
 
 #include "pythonconstants.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -53,19 +54,34 @@ using namespace Utils;
 namespace Python {
 namespace Internal {
 
-class PythonProjectNode : public ProjectNode
+class PythonBuildSystem : public BuildSystem
 {
 public:
-    PythonProjectNode(PythonProject *project);
+    PythonBuildSystem(PythonProject *project);
 
-    bool supportsAction(ProjectAction action, const Node *node) const override;
-    bool addFiles(const QStringList &filePaths, QStringList *) override;
-    RemovedFilesFromProject removeFiles(const QStringList &filePaths, QStringList *) override;
-    bool deleteFiles(const QStringList &) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    bool supportsAction(Node *context, ProjectAction action, const Node *node) const override;
+    bool addFiles(Node *, const QStringList &filePaths, QStringList *) override;
+    RemovedFilesFromProject removeFiles(Node *, const QStringList &filePaths, QStringList *) override;
+    bool deleteFiles(Node *, const QStringList &) override;
+    bool renameFile(Node *, const QString &filePath, const QString &newFilePath) override;
+
+    bool saveRawFileList(const QStringList &rawFileList);
+    bool saveRawList(const QStringList &rawList, const QString &fileName);
+    void parse();
+    QStringList processEntries(const QStringList &paths,
+                               QHash<QString, QString> *map = nullptr) const;
+
+    bool writePyProjectFile(const QString &fileName, QString &content,
+                            const QStringList &rawList, QString *errorMessage);
+
+    void refresh();
 
 private:
-    PythonProject *m_project;
+    PythonProject *project() const;
+
+    QStringList m_rawFileList;
+    QStringList m_files;
+    QHash<QString, QString> m_rawListEntries;
 };
 
 
@@ -156,6 +172,17 @@ static QStringList readLinesJson(const FilePath &projectFile, QString *errorMess
     return lines;
 }
 
+class PythonProjectNode : public ProjectNode
+{
+public:
+    PythonProjectNode(const Utils::FilePath &path)
+        : ProjectNode(path)
+    {
+        setDisplayName(path.toFileInfo().completeBaseName());
+        setAddFileFilter("*.py");
+    }
+};
+
 PythonProject::PythonProject(const FilePath &fileName)
     : Project(Constants::C_PY_MIMETYPE, fileName)
 {
@@ -164,18 +191,18 @@ PythonProject::PythonProject(const FilePath &fileName)
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
-
-    connect(this, &PythonProject::projectFileIsDirty, this, [this]() { refresh(); });
+    setBuildSystem(std::make_unique<PythonBuildSystem>(this));
 }
 
-void PythonProject::refresh(Target *target)
+void PythonBuildSystem::refresh()
 {
-    ParseGuard guard = guardParsingRun();
-    parseProject();
+    Project::ParseGuard guard = project()->guardParsingRun();
+    parse();
 
     const QDir baseDir(projectDirectory().toString());
     QList<BuildTargetInfo> appTargets;
-    auto newRoot = std::make_unique<PythonProjectNode>(this);
+
+    auto newRoot = std::make_unique<PythonProjectNode>(projectDirectory());
     for (const QString &f : qAsConst(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
         const FileType fileType = f.endsWith(".pyproject") || f.endsWith(".pyqtc") ? FileType::Project
@@ -190,24 +217,22 @@ void PythonProject::refresh(Target *target)
             appTargets.append(bti);
         }
     }
-    setRootProjectNode(std::move(newRoot));
+    project()->setRootProjectNode(std::move(newRoot));
 
-    if (!target)
-        target = activeTarget();
-    if (target)
+    if (Target *target = project()->activeTarget())
         target->setApplicationTargets(appTargets);
 
     guard.markAsSuccess();
 }
 
-bool PythonProject::saveRawFileList(const QStringList &rawFileList)
+bool PythonBuildSystem::saveRawFileList(const QStringList &rawFileList)
 {
     const bool result = saveRawList(rawFileList, projectFilePath().toString());
 //    refresh(PythonProject::Files);
     return result;
 }
 
-bool PythonProject::saveRawList(const QStringList &rawList, const QString &fileName)
+bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &fileName)
 {
     FileChangeBlocker changeGuarg(fileName);
     bool result = false;
@@ -238,7 +263,7 @@ bool PythonProject::saveRawList(const QStringList &rawList, const QString &fileN
     return result;
 }
 
-bool PythonProject::writePyProjectFile(const QString &fileName, QString &content,
+bool PythonBuildSystem::writePyProjectFile(const QString &fileName, QString &content,
                                        const QStringList &rawList, QString *errorMessage)
 {
     QFile file(fileName);
@@ -265,7 +290,7 @@ bool PythonProject::writePyProjectFile(const QString &fileName, QString &content
     return true;
 }
 
-bool PythonProject::addFiles(const QStringList &filePaths)
+bool PythonBuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *)
 {
     QStringList newList = m_rawFileList;
 
@@ -276,7 +301,7 @@ bool PythonProject::addFiles(const QStringList &filePaths)
     return saveRawFileList(newList);
 }
 
-bool PythonProject::removeFiles(const QStringList &filePaths)
+RemovedFilesFromProject PythonBuildSystem::removeFiles(Node *, const QStringList &filePaths, QStringList *)
 {
     QStringList newList = m_rawFileList;
 
@@ -286,10 +311,17 @@ bool PythonProject::removeFiles(const QStringList &filePaths)
             newList.removeOne(i.value());
     }
 
-    return saveRawFileList(newList);
+    bool res = saveRawFileList(newList);
+
+    return res ? RemovedFilesFromProject::Ok : RemovedFilesFromProject::Error;
 }
 
-bool PythonProject::renameFile(const QString &filePath, const QString &newFilePath)
+bool PythonBuildSystem::deleteFiles(Node *, const QStringList &)
+{
+    return true;
+}
+
+bool PythonBuildSystem::renameFile(Node *, const QString &filePath, const QString &newFilePath)
 {
     QStringList newList = m_rawFileList;
 
@@ -305,7 +337,7 @@ bool PythonProject::renameFile(const QString &filePath, const QString &newFilePa
     return saveRawFileList(newList);
 }
 
-void PythonProject::parseProject()
+void PythonBuildSystem::parse()
 {
     m_rawListEntries.clear();
     const FilePath filePath = projectFilePath();
@@ -323,6 +355,7 @@ void PythonProject::parseProject()
 
     m_files = processEntries(m_rawFileList, &m_rawListEntries);
 }
+
 /**
  * Expands environment variables in the given \a string when they are written
  * like $$(VARIABLE).
@@ -349,7 +382,7 @@ static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &
  * The \a map variable is an optional argument that will map the returned
  * absolute paths back to their original \a paths.
  */
-QStringList PythonProject::processEntries(const QStringList &paths,
+QStringList PythonBuildSystem::processEntries(const QStringList &paths,
                                           QHash<QString, QString> *map) const
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -382,10 +415,11 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 {
     Project::RestoreResult res = Project::fromMap(map, errorMessage);
     if (res == RestoreResult::Ok) {
-        refresh();
-
         if (!activeTarget())
             addTargetForDefaultKit();
+
+        if (auto bs = dynamic_cast<PythonBuildSystem *>(buildSystem()))
+            bs->refresh();
     }
 
     return res;
@@ -393,19 +427,20 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 
 bool PythonProject::setupTarget(Target *t)
 {
-    refresh(t);
-    return Project::setupTarget(t);
+    bool res = Project::setupTarget(t);
+    if (auto bs = dynamic_cast<PythonBuildSystem *>(buildSystem()))
+        QTimer::singleShot(0, bs, &PythonBuildSystem::refresh);
+    return res;
 }
 
-PythonProjectNode::PythonProjectNode(PythonProject *project)
-    : ProjectNode(project->projectDirectory())
-    , m_project(project)
+PythonBuildSystem::PythonBuildSystem(PythonProject *project)
+    : BuildSystem(project)
 {
-    setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
-    setAddFileFilter("*.py");
+    connect(project, &PythonProject::projectFileIsDirty, this, [this]() { refresh(); });
+    QTimer::singleShot(0, this, &PythonBuildSystem::refresh);
 }
 
-bool PythonProjectNode::supportsAction(ProjectAction action, const Node *node) const
+bool PythonBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
     if (node->asFileNode())  {
         return action == ProjectAction::Rename
@@ -416,28 +451,12 @@ bool PythonProjectNode::supportsAction(ProjectAction action, const Node *node) c
                || action == ProjectAction::RemoveFile
                || action == ProjectAction::AddExistingFile;
     }
-    return ProjectNode::supportsAction(action, node);
+    return BuildSystem::supportsAction(context, action, node);
 }
 
-bool PythonProjectNode::addFiles(const QStringList &filePaths, QStringList *)
+PythonProject *PythonBuildSystem::project() const
 {
-    return m_project->addFiles(filePaths);
-}
-
-RemovedFilesFromProject PythonProjectNode::removeFiles(const QStringList &filePaths, QStringList *)
-{
-    return m_project->removeFiles(filePaths) ? RemovedFilesFromProject::Ok
-                                             : RemovedFilesFromProject::Error;
-}
-
-bool PythonProjectNode::deleteFiles(const QStringList &)
-{
-    return true;
-}
-
-bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
-{
-    return m_project->renameFile(filePath, newFilePath);
+    return static_cast<PythonProject *>(BuildSystem::project());
 }
 
 } // namespace Internal

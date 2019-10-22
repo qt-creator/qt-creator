@@ -55,6 +55,13 @@ protected:
     bool validateParsingContext(const ParsingContext &ctx) final;
     void parseProject(ParsingContext &&ctx) final;
 
+    bool supportsAction(ProjectExplorer::Node *context,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const override;
+
+    bool addFiles(ProjectExplorer::Node *context,
+                  const QStringList &filePaths, QStringList *) final;
+
 private:
     // Treescanner states:
     void handleTreeScanningFinished();

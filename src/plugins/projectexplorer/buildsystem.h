@@ -36,6 +36,7 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class ExtraCompiler;
+class Node;
 
 // --------------------------------------------------------------------
 // BuildSystem:
@@ -51,11 +52,22 @@ public:
     BuildSystem(const BuildSystem &other) = delete;
 
     Project *project() const;
+    Utils::FilePath projectFilePath() const;
+    Utils::FilePath projectDirectory() const;
 
     bool isWaitingForParse() const;
 
     void requestParse();
     void requestDelayedParse();
+
+    virtual bool addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded = nullptr);
+    virtual RemovedFilesFromProject removeFiles(Node *context, const QStringList &filePaths,
+                                                QStringList *notRemoved = nullptr);
+    virtual bool deleteFiles(Node *context, const QStringList &filePaths);
+    virtual bool canRenameFile(Node *context, const QString &filePath, const QString &newFilePath);
+    virtual bool renameFile(Node *context, const QString &filePath, const QString &newFilePath);
+    virtual bool addDependencies(Node *context, const QStringList &dependencies);
+    virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
 
 protected:
     class ParsingContext
@@ -111,7 +123,7 @@ protected:
         return true;
     }
 
-    virtual void parseProject(ParsingContext &&ctx) = 0; // actual code to parse project
+    virtual void parseProject(ParsingContext &&) {} // actual code to parse project
 
 private:
     void requestParse(int delay); // request a (delayed!) parser run.

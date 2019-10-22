@@ -53,71 +53,90 @@ QmlProjectNode::QmlProjectNode(QmlProject *project) : ProjectNode(project->proje
     setIcon(qmlProjectIcon);
 }
 
-bool QmlProjectNode::supportsAction(ProjectAction action, const Node *node) const
+bool QmlBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
-    if (action == AddNewFile || action == EraseFile)
+    if (dynamic_cast<QmlProjectNode *>(context)) {
+        if (action == AddNewFile || action == EraseFile)
+            return true;
+        QTC_ASSERT(node, return false);
+
+        if (action == Rename && node->asFileNode()) {
+            const FileNode *fileNode = node->asFileNode();
+            QTC_ASSERT(fileNode, return false);
+            return fileNode->fileType() != FileType::Project;
+        }
+
+        return false;
+    }
+
+    return BuildSystem::supportsAction(context, action, node);
+}
+
+QmlProject *QmlBuildSystem::project() const
+{
+    return static_cast<QmlProject *>(BuildSystem::project());
+}
+
+bool QmlBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded)
+{
+    if (dynamic_cast<QmlProjectNode *>(context))
+        return project()->addFiles(filePaths);
+
+    return BuildSystem::addFiles(context, filePaths, notAdded);
+}
+
+bool QmlBuildSystem::deleteFiles(Node *context, const QStringList &filePaths)
+{
+    if (dynamic_cast<QmlProjectNode *>(context))
         return true;
-    QTC_ASSERT(node, return false);
 
-    if (action == Rename && node->asFileNode()) {
-        const FileNode *fileNode = node->asFileNode();
-        QTC_ASSERT(fileNode, return false);
-        return fileNode->fileType() != FileType::Project;
-    }
-
-    return false;
+    return BuildSystem::deleteFiles(context, filePaths);
 }
 
-bool QmlProjectNode::addFiles(const QStringList &filePaths, QStringList * /*notAdded*/)
+bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const QString &newFilePath)
 {
-    return m_project->addFiles(filePaths);
-}
+    if (dynamic_cast<QmlProjectNode *>(context)) {
+        if (filePath.endsWith(project()->mainFile())) {
+            project()->setMainFile(newFilePath);
 
-bool QmlProjectNode::deleteFiles(const QStringList & /*filePaths*/)
-{
-    return true;
-}
+            // make sure to change it also in the qmlproject file
+            const QString qmlProjectFilePath = project()->projectFilePath().toString();
+            Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
+            const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(qmlProjectFilePath);
+            TextEditor::TextDocument *document = nullptr;
+            if (!editors.isEmpty()) {
+                document = qobject_cast<TextEditor::TextDocument*>(editors.first()->document());
+                if (document && document->isModified())
+                    if (!Core::DocumentManager::saveDocument(document))
+                        return false;
+            }
 
-bool QmlProjectNode::renameFile(const QString & filePath, const QString & newFilePath)
-{
-    if (filePath.endsWith(m_project->mainFile())) {
-        m_project->setMainFile(newFilePath);
+            QString fileContent;
+            QString error;
+            Utils::TextFileFormat textFileFormat;
+            const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
+            if (Utils::TextFileFormat::readFile(qmlProjectFilePath, codec, &fileContent, &textFileFormat, &error)
+                    != Utils::TextFileFormat::ReadSuccess) {
+                qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
+            }
 
-        // make sure to change it also in the qmlproject file
-        const QString qmlProjectFilePath = m_project->projectFilePath().toString();
-        Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
-        const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(qmlProjectFilePath);
-        TextEditor::TextDocument *document = nullptr;
-        if (!editors.isEmpty()) {
-            document = qobject_cast<TextEditor::TextDocument*>(editors.first()->document());
-            if (document && document->isModified())
-                if (!Core::DocumentManager::saveDocument(document))
-                    return false;
+            // find the mainFile and do the file name with brackets in a capture group and mask the . with \.
+            QString originalFileName = QFileInfo(filePath).fileName();
+            originalFileName.replace(".", "\\.");
+            const QRegularExpression expression(QString("mainFile:\\s*\"(%1)\"").arg(originalFileName));
+            const QRegularExpressionMatch match = expression.match(fileContent);
+
+            fileContent.replace(match.capturedStart(1), match.capturedLength(1), QFileInfo(newFilePath).fileName());
+
+            if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
+                qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
+            project()->refresh(QmlProject::Everything);
         }
 
-        QString fileContent;
-        QString error;
-        Utils::TextFileFormat textFileFormat;
-        const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-        if (Utils::TextFileFormat::readFile(qmlProjectFilePath, codec, &fileContent, &textFileFormat, &error)
-                != Utils::TextFileFormat::ReadSuccess) {
-            qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
-        }
-
-        // find the mainFile and do the file name with brackets in a capture group and mask the . with \.
-        QString originalFileName = QFileInfo(filePath).fileName();
-        originalFileName.replace(".", "\\.");
-        const QRegularExpression expression(QString("mainFile:\\s*\"(%1)\"").arg(originalFileName));
-        const QRegularExpressionMatch match = expression.match(fileContent);
-
-        fileContent.replace(match.capturedStart(1), match.capturedLength(1), QFileInfo(newFilePath).fileName());
-
-        if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
-            qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
-        m_project->refresh(QmlProject::Everything);
+        return true;
     }
 
-    return true;
+    return BuildSystem::renameFile(context, filePath, newFilePath);
 }
 
 } // namespace Internal

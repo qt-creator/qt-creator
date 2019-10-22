@@ -28,6 +28,7 @@
 #include "qmlprojectmanager_global.h"
 #include "qmlprojectnodes.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 
 #include <utils/environment.h>
@@ -38,7 +39,30 @@ namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmlProjectManager {
 
+class QmlProject;
 class QmlProjectItem;
+
+namespace Internal {
+
+class QmlBuildSystem : public ProjectExplorer::BuildSystem
+{
+public:
+    explicit QmlBuildSystem(ProjectExplorer::Project *project) : BuildSystem(project) {}
+
+    bool supportsAction(ProjectExplorer::Node *context,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const override;
+    bool addFiles(ProjectExplorer::Node *context,
+                  const QStringList &filePaths, QStringList *notAdded = nullptr) override;
+    bool deleteFiles(ProjectExplorer::Node *context,
+                     const QStringList &filePaths) override;
+    bool renameFile(ProjectExplorer::Node *context,
+                    const QString &filePath, const QString &newFilePath) override;
+
+    QmlProject *project() const;
+};
+
+} // Internal
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 {
