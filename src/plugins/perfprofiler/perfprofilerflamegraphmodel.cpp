@@ -57,7 +57,7 @@ public:
 private:
     const PerfProfilerFlameGraphData *m_parent;
     PerfProfilerFlameGraphModel::Data *m_data;
-    const int m_numSamples;
+    int m_numSamples;
 };
 
 typedef PerfResourceCounter<Payload> ThreadResourceCounter;
