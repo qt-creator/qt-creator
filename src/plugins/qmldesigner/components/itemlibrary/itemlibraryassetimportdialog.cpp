@@ -298,6 +298,10 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
         QJsonValue optValue = optObj.value("value");
         QJsonArray conditions = optObj.value("conditions").toArray();
 
+        auto *optLabel = new QLabel(optionsAreaContents);
+        optLabel->setText(optName);
+        optLabel->setToolTip(optDesc);
+
         QWidget *optControl = nullptr;
         if (optType == "Boolean") {
             auto *optCheck = new QCheckBox(optionsAreaContents);
@@ -346,14 +350,10 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
             qWarning() << __FUNCTION__ << "Unsupported option type:" << optType;
             continue;
         }
+        optControl->setToolTip(optDesc);
 
         if (!conditions.isEmpty())
             conditionMap.insert(optKey, conditions);
-
-        auto *optLabel = new QLabel(optionsAreaContents);
-        optLabel->setText(optName);
-        optLabel->setToolTip(optDesc);
-        optControl->setToolTip(optDesc);
 
         const QString &groupName = optionToGroupMap.value(optKey);
         if (!groupName.isEmpty() && groupIndexMap.contains(groupName))
