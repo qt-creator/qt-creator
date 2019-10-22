@@ -173,7 +173,7 @@ bool ItemLibraryAssetImporter::isQuick3DAsset(const QString &fileName) const
         for (const auto &ext : exts)
             quick3DExt << ext;
     }
-    return quick3DExt.contains(QFileInfo(fileName).suffix());
+    return quick3DExt.contains(QFileInfo(fileName).suffix().toLower());
 #else
     Q_UNUSED(fileName)
     return false;

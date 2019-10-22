@@ -165,7 +165,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
         QMap<QString, int> tabMap; // QMap used for alphabetical order
         for (const auto &file : qAsConst(m_quick3DFiles)) {
             auto extIt = supportedExtensions.constBegin();
-            QString ext = QFileInfo(file).suffix();
+            QString ext = QFileInfo(file).suffix().toLower();
             while (extIt != supportedExtensions.constEnd()) {
                 if (!tabMap.contains(extIt.key()) && extIt.value().contains(ext)) {
                     tabMap.insert(extIt.key(), m_extToImportOptionsMap.value(ext));
