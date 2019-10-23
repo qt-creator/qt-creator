@@ -87,6 +87,8 @@ public:
     void kitFilterChanged(const QString &filterText);
 
 private:
+    void doInitializePage();
+
     void handleKitAddition(Kit *k);
     void handleKitRemoval(Kit *k);
     void handleKitUpdate(Kit *k);

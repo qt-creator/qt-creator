@@ -209,12 +209,12 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
 void TargetSetupPage::initializePage()
 {
-    reset();
-
-    setupWidgets();
-    setupImports();
-    selectAtLeastOneKit();
-    updateVisibility();
+    if (KitManager::isLoaded()) {
+        doInitializePage();
+    } else {
+        connect(KitManager::instance(), &KitManager::kitsLoaded,
+                this, &TargetSetupPage::doInitializePage);
+    }
 }
 
 void TargetSetupPage::setRequiredKitPredicate(const Kit::Predicate &predicate)
@@ -492,6 +492,15 @@ void TargetSetupPage::kitFilterChanged(const QString &filterText)
     reset();
     setupWidgets(filterText);
     selectAtLeastOneKit();
+}
+
+void TargetSetupPage::doInitializePage()
+{
+    reset();
+    setupWidgets();
+    setupImports();
+    selectAtLeastOneKit();
+    updateVisibility();
 }
 
 void TargetSetupPage::changeAllKitsSelections()
