@@ -31,24 +31,31 @@
 #if defined __cplusplus
 #include <QtGlobal>
 
-#ifdef Q_WS_WIN
-# define _POSIX_
-# include <limits.h>
-# undef _POSIX_
-#endif
+#ifdef Q_OS_WIN
+#undef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 
-#include <QCoreApplication>
-#include <QList>
-#include <QVariant>
-#include <QObject>
-#include <QRegExp>
-#include <QString>
-#include <QStringList>
-#include <QTextCodec>
-#include <QPointer>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QDebug>
+// lib/Utils needs defines for Windows 8
+#undef WINVER
+#define WINVER 0x0602
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0602
+
+#define NOHELP
+#include <qt_windows.h>
+
+#undef DELETE
+#undef IN
+#undef OUT
+#undef ERROR
+#undef ABSOLUTE
+
+#define _POSIX_
+#include <limits.h>
+#undef _POSIX_
+#endif // Q_OS_WIN
+
+#include <QtCore>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QTextStream>

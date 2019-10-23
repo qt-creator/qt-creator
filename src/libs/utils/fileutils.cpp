@@ -45,10 +45,6 @@
 #endif
 
 #ifdef Q_OS_WIN
-// We need defines for Windows 8
-#undef _WIN32_WINNT
-#define _WIN32_WINNT _WIN32_WINNT_WIN8
-
 #include <qt_windows.h>
 #include <shlobj.h>
 #endif

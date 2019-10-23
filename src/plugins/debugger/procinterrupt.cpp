@@ -40,10 +40,6 @@ static inline QString msgCannotInterrupt(qint64 pid, const QString &why)
 }
 
 #if defined(Q_OS_WIN)
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501 /* WinXP, needed for DebugBreakProcess() */
-
 #include <utils/winutils.h>
 #include <windows.h>
 
