@@ -64,6 +64,4 @@ private:
 
 } // namespace Internal
 
-QMLJSTOOLS_EXPORT void setupProjectInfoQmlBundles(QmlJS::ModelManagerInterface::ProjectInfo &projectInfo);
-
 } // namespace QmlJSTools

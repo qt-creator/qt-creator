@@ -76,6 +76,31 @@ using namespace QmlJS;
 namespace QmlJSTools {
 namespace Internal {
 
+static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
+{
+    Target *activeTarget = nullptr;
+    if (projectInfo.project)
+        activeTarget = projectInfo.project->activeTarget();
+    Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
+    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath}};
+
+    for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
+        bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
+
+    projectInfo.extendedBundle = projectInfo.activeBundle;
+
+    if (projectInfo.project) {
+        QSet<Kit *> currentKits;
+        foreach (const Target *t, projectInfo.project->targets())
+            currentKits.insert(t->kit());
+        currentKits.remove(activeKit);
+        foreach (Kit *kit, currentKits) {
+            for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
+                bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
+        }
+    }
+}
+
 ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         Project *project) const
 {
@@ -138,35 +163,6 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     setupProjectInfoQmlBundles(projectInfo);
     return projectInfo;
 }
-
-} // namespace Internal
-
-void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
-{
-    Target *activeTarget = nullptr;
-    if (projectInfo.project)
-        activeTarget = projectInfo.project->activeTarget();
-    Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
-    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath}};
-
-    for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
-        bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
-
-    projectInfo.extendedBundle = projectInfo.activeBundle;
-
-    if (projectInfo.project) {
-        QSet<Kit *> currentKits;
-        foreach (const Target *t, projectInfo.project->targets())
-            currentKits.insert(t->kit());
-        currentKits.remove(activeKit);
-        foreach (Kit *kit, currentKits) {
-            for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
-                bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
-        }
-    }
-}
-
-namespace Internal {
 
 QHash<QString,Dialect> ModelManager::initLanguageForSuffix() const
 {
