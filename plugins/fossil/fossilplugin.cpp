@@ -617,7 +617,7 @@ void FossilPlugin::createRepository()
     // Find current starting directory
     QString directory;
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject())
-        directory = currentProject->document()->filePath().toFileInfo().absolutePath();
+        directory = currentProject->projectDirectory().toString();
     // Prompt for a directory that is not under version control yet
     QWidget *mw = Core::ICore::mainWindow();
     do {
