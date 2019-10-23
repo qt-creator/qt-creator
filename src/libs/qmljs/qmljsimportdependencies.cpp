@@ -40,6 +40,34 @@ static Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports", QtWarningMsg)
 
 namespace QmlJS {
 
+/*
+ which languages might be imported in this context
+ */
+static bool languageIsCompatible(Dialect contextLanguage, Dialect importLanguage)
+{
+    if (importLanguage == Dialect::AnyLanguage && contextLanguage != Dialect::NoLanguage)
+        return true;
+    switch (contextLanguage.dialect()) {
+    case Dialect::JavaScript:
+    case Dialect::Json:
+    case Dialect::QmlProject:
+    case Dialect::QmlQbs:
+    case Dialect::QmlTypeInfo:
+        return contextLanguage == importLanguage;
+    case Dialect::Qml:
+        return importLanguage == Dialect::Qml || importLanguage == Dialect::QmlQtQuick2 || importLanguage == Dialect::JavaScript;
+    case Dialect::QmlQtQuick2:
+    case Dialect::QmlQtQuick2Ui:
+        return importLanguage == Dialect::Qml || importLanguage == Dialect::QmlQtQuick2 || importLanguage == Dialect::QmlQtQuick2Ui
+            || importLanguage == Dialect::JavaScript;
+    case Dialect::AnyLanguage:
+        return true;
+    case Dialect::NoLanguage:
+        break;
+    }
+    return false;
+}
+
 ImportKind::Enum toImportKind(ImportType::Enum type)
 {
     switch (type) {
@@ -587,7 +615,7 @@ void ImportDependencies::filter(const ViewerContext &vContext)
     bool hasChanges = false;
     for (auto j = m_coreImports.cbegin(), end = m_coreImports.cend(); j != end; ++j) {
         const CoreImport &cImport = j.value();
-        if (vContext.languageIsCompatible(cImport.language)) {
+        if (languageIsCompatible(vContext.language, cImport.language)) {
             QList<Export> newExports;
             foreach (const Export &e, cImport.possibleExports) {
                 if (e.visibleInVContext(vContext)) {
@@ -637,7 +665,7 @@ void ImportDependencies::iterateOnCandidateImports(
         const QStringList imp = m_importCache.value(key.flatKey());
         foreach (const QString &cImportName, imp) {
             CoreImport cImport = coreImport(cImportName);
-            if (vContext.languageIsCompatible(cImport.language)) {
+            if (languageIsCompatible(vContext.language, cImport.language)) {
                 foreach (const Export e, cImport.possibleExports) {
                     if (e.visibleInVContext(vContext)) {
                         ImportMatchStrength m = e.exportName.matchImport(key, vContext);
@@ -659,7 +687,7 @@ void ImportDependencies::iterateOnCandidateImports(
         if (c == ImportKey::SameDir) {
             foreach (const QString &cImportName, lb.value()) {
                 CoreImport cImport = coreImport(cImportName);
-                if (vContext.languageIsCompatible(cImport.language)) {
+                if (languageIsCompatible(vContext.language, cImport.language)) {
                     foreach (const Export e, cImport.possibleExports) {
                         if (e.visibleInVContext(vContext)) {
                             ImportMatchStrength m = e.exportName.matchImport(key, vContext);
@@ -835,7 +863,7 @@ void ImportDependencies::iterateOnLibraryImports(
         qCDebug(importsLog) << "libloop:" << i.key().toString() << i.value();
         foreach (const QString &cImportName, i.value()) {
             CoreImport cImport = coreImport(cImportName);
-            if (vContext.languageIsCompatible(cImport.language)) {
+            if (languageIsCompatible(vContext.language, cImport.language)) {
                 foreach (const Export &e, cImport.possibleExports) {
                     if (e.visibleInVContext(vContext) && e.exportName.type == ImportType::Library) {
                         ImportMatchStrength m = e.exportName.matchImport(i.key(), vContext);
@@ -869,7 +897,7 @@ void ImportDependencies::iterateOnSubImports(
             break;
         foreach (const QString &cImportName, i.value()) {
             CoreImport cImport = coreImport(cImportName);
-            if (vContext.languageIsCompatible(cImport.language)) {
+            if (languageIsCompatible(vContext.language, cImport.language)) {
                 foreach (const Export &e, cImport.possibleExports) {
                     if (e.visibleInVContext(vContext)) {
                         ImportMatchStrength m = e.exportName.matchImport(i.key(), vContext);

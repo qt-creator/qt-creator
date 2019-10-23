@@ -224,7 +224,7 @@ void ModelManager::delayedInitialization()
 
     ViewerContext qbsVContext;
     qbsVContext.language = Dialect::QmlQbs;
-    qbsVContext.maybeAddPath(ICore::resourcePath() + QLatin1String("/qbs"));
+    qbsVContext.paths.append(ICore::resourcePath() + QLatin1String("/qbs"));
     setDefaultVContext(qbsVContext);
 }
 

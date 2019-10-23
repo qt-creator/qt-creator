@@ -81,6 +81,12 @@ static ModelManagerInterface *g_instance = nullptr;
 
 const char qtQuickUISuffix[] = "ui.qml";
 
+static void maybeAddPath(ViewerContext &context, const QString &path)
+{
+    if (!path.isEmpty() && !context.paths.contains(path))
+        context.paths.append(path);
+}
+
 static QStringList environmentImportPaths()
 {
     QStringList paths;
@@ -1355,17 +1361,17 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
     case ViewerContext::AddAllPaths:
     {
         foreach (const QString &path, defaultVCtx.paths)
-            res.maybeAddPath(path);
+            maybeAddPath(res, path);
         switch (res.language.dialect()) {
         case Dialect::AnyLanguage:
         case Dialect::Qml:
-            res.maybeAddPath(info.qtQmlPath);
+            maybeAddPath(res, info.qtQmlPath);
             Q_FALLTHROUGH();
         case Dialect::QmlQtQuick2:
         case Dialect::QmlQtQuick2Ui:
         {
             if (res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui)
-                res.maybeAddPath(info.qtQmlPath);
+                maybeAddPath(res, info.qtQmlPath);
             QList<ProjectInfo> allProjects;
             {
                 QMutexLocker locker(&m_mutex);
@@ -1377,11 +1383,11 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
                 for (int i = 0; i< pInfo.importPaths.size(); ++i) {
                     PathAndLanguage pAndL = pInfo.importPaths.at(i);
                     if (languages.contains(pAndL.language()) || pAndL.language().companionLanguages().contains(res.language))
-                        res.maybeAddPath(pAndL.path().toString());
+                        maybeAddPath(res, pAndL.path().toString());
                 }
             }
             foreach (const QString &path, environmentImportPaths())
-                res.maybeAddPath(path);
+                maybeAddPath(res, path);
             break;
         }
         case Dialect::NoLanguage:
@@ -1399,13 +1405,13 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         Q_FALLTHROUGH();
     case ViewerContext::AddDefaultPaths:
         foreach (const QString &path, defaultVCtx.paths)
-            res.maybeAddPath(path);
+            maybeAddPath(res, path);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml)
-            res.maybeAddPath(info.qtQmlPath);
+            maybeAddPath(res, info.qtQmlPath);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
                 || res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui) {
             foreach (const QString &path, environmentImportPaths())
-                res.maybeAddPath(path);
+                maybeAddPath(res, path);
         }
         break;
     }

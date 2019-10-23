@@ -70,7 +70,6 @@ SOURCES += \
     $$PWD/qmljssimplereader.cpp \
     $$PWD/persistenttrie.cpp \
     $$PWD/qmljsimportdependencies.cpp \
-    $$PWD/qmljsviewercontext.cpp \
     $$PWD/qmljsdialect.cpp
 
 contains(QT, gui) {

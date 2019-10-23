@@ -32,9 +32,8 @@
 
 namespace QmlJS {
 
-class QMLJS_EXPORT ViewerContext
+struct QMLJS_EXPORT ViewerContext
 {
-public:
     enum Flags {
         Complete,
         AddAllPathsAndDefaultSelectors,
@@ -43,18 +42,10 @@ public:
         AddDefaultPathsAndSelectors
     };
 
-    ViewerContext();
-    ViewerContext(const QStringList &selectors, const QStringList &paths,
-                  Dialect language = Dialect::Qml,
-                  Flags flags = AddAllPaths);
-
-    bool languageIsCompatible(Dialect l) const;
-    void maybeAddPath(const QString &path);
-
     QStringList selectors;
     QStringList paths;
-    Dialect language;
-    Flags flags;
+    Dialect language = Dialect::Qml;
+    Flags flags = AddAllPaths;
 };
 
 } // namespace QmlJS
