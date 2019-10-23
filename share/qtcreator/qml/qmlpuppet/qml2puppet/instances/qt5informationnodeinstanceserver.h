@@ -51,6 +51,7 @@ protected:
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
     void selectInstance(const ServerNodeInstance &instance);
+    void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
 
 private:
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);

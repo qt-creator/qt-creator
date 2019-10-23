@@ -165,6 +165,15 @@ void Qt5InformationNodeInstanceServer::selectInstance(const ServerNodeInstance &
     nodeInstanceClient()->selectionChanged(createChangeSelectionCommand({instance}));
 }
 
+/* This method allows changing property values from the puppet
+ * For performance reasons (and the undo stack) properties should always be modifed in 'bulks'.
+ */
+void Qt5InformationNodeInstanceServer::modifyProperties(
+    const QVector<NodeInstanceServer::InstancePropertyValueTriple> &properties)
+{
+    nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
+}
+
 QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
         const QList<ServerNodeInstance> &instanceList) const
 {

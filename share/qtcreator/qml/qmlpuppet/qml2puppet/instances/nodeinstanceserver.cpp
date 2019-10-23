@@ -1190,6 +1190,31 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
     return ValuesChangedCommand(valueVector);
 }
 
+ValuesModifiedCommand NodeInstanceServer::createValuesModifiedCommand(
+    const QVector<InstancePropertyValueTriple> &propertyList) const
+{
+    QVector<PropertyValueContainer> valueVector;
+
+    for (const InstancePropertyValueTriple &property : propertyList) {
+        const PropertyName propertyName = property.propertyName;
+        const ServerNodeInstance instance = property.instance;
+        const QVariant propertyValue = property.propertyValue;
+
+        if (instance.isValid()) {
+            if (QMetaType::isRegistered(propertyValue.userType())
+                && supportedVariantType(propertyValue.type())) {
+                valueVector.append(PropertyValueContainer(instance.instanceId(),
+                                                          propertyName,
+                                                          propertyValue,
+                                                          PropertyName()));
+            }
+        }
+    }
+
+    return ValuesModifiedCommand(valueVector);
+}
+
+
 QByteArray NodeInstanceServer::importCode() const
 {
     return m_importCode;
