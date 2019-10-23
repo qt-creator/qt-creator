@@ -41,6 +41,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 #include <texteditor/formattexteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -48,6 +49,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QTextBlock>
+#include <QTextCodec>
 
 using namespace TextEditor;
 
@@ -106,6 +108,25 @@ void ClangFormat::formatFile()
     formatCurrentFile(command());
 }
 
+void ClangFormat::formatAtPosition(const int pos, const int length)
+{
+    const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
+        return;
+
+    const QTextCodec *codec = widget->textDocument()->codec();
+    if (!codec) {
+        formatCurrentFile(command(pos, length));
+        return;
+    }
+
+    const QString &text = widget->textAt(0, pos + length);
+    const QStringView buffer(text);
+    const int encodedOffset = codec->fromUnicode(buffer.left(pos)).size();
+    const int encodedLength = codec->fromUnicode(buffer.mid(pos, length)).size();
+    formatCurrentFile(command(encodedOffset, encodedLength));
+}
+
 void ClangFormat::formatAtCursor()
 {
     const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
@@ -113,18 +134,16 @@ void ClangFormat::formatAtCursor()
         return;
 
     const QTextCursor tc = widget->textCursor();
+
     if (tc.hasSelection()) {
-        const int offset = tc.selectionStart();
-        const int length = tc.selectionEnd() - offset;
-        formatCurrentFile(command(offset, length));
+        const int selectionStart = tc.selectionStart();
+        formatAtPosition(selectionStart, tc.selectionEnd() - selectionStart);
     } else {
         // Pretend that the current line was selected.
         // Note that clang-format will extend the range to the next bigger
         // syntactic construct if needed.
         const QTextBlock block = tc.block();
-        const int offset = block.position();
-        const int length = block.length();
-        formatCurrentFile(command(offset, length));
+        formatAtPosition(block.position(), block.length());
     }
 }
 
@@ -185,7 +204,7 @@ void ClangFormat::disableFormattingSelectedText()
     // The indentation of these markers might be undesired, so reformat.
     // This is not optimal because two undo steps will be needed to remove the markers.
     const int reformatTextLength = insertCursor.position() - selectionStartBlock.position();
-    formatCurrentFile(command(selectionStartBlock.position(), reformatTextLength));
+    formatAtPosition(selectionStartBlock.position(), reformatTextLength);
 }
 
 Command ClangFormat::command() const

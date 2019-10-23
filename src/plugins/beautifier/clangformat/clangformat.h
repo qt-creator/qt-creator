@@ -47,6 +47,7 @@ public:
 
 private:
     void formatFile();
+    void formatAtPosition(const int pos, const int length);
     void formatAtCursor();
     void formatLines();
     void disableFormattingSelectedText();
