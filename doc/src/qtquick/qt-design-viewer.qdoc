@@ -1,0 +1,72 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator}
+    \previouspage creator-live-preview-devices.html
+    \page qt-design-viewer.html
+    \if defined(qtdesignstudio)
+    \nextpage studio-advanced.html
+    \else
+    \nextpage creator-building-targets.html
+    \endif
+
+    \title Previewing in Browsers
+
+    \image qt-design-viewer.png
+
+    \QDV is a QML viewer that runs in your web browser. This means that you can
+    run applications in most widely-used web browsers, such as Apple Safari,
+    Google Chrome, Microsoft Edge, and Mozilla Firefox, on the desktop and on
+    mobile devices.
+
+    The startup and compilation time depend on your browser and configuration.
+    However, the actual performance of the application once started is
+    indistinguishable from the same application running on the desktop.
+
+    \if defined(qtdesignstudio)
+    To create a resource file out of your project, select \uicontrol Tools >
+    \uicontrol {Generate Resource File} in \QC. Then upload the package into
+    \QDV.
+    \else
+    You can run \l{Creating Qt Quick UI Projects}{Qt Quick UI projects}, which
+    have a .qmlproject file that define the main QML file and the import paths.
+    Compress the project folder into a ZIP file that you upload to \QDV.
+    \endif
+
+    The loaded applications remain locally in your browser. No data is uploaded
+    into the cloud.
+
+    To preview an application in a web browser:
+
+    \list
+        \li In the browser, open \l{http://qt-webassembly.io/designviewer/}
+            {\QDV}.
+        \li Drag and drop your application package to \QDV, or click the load
+            icon to browse for your file.
+    \endlist
+
+    Your application is compiled and run on \QDV.
+*/
