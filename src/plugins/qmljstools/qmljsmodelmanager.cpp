@@ -104,7 +104,8 @@ static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &proje
 ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         Project *project) const
 {
-    ModelManagerInterface::ProjectInfo projectInfo(project);
+    ModelManagerInterface::ProjectInfo projectInfo;
+    projectInfo.project = project;
     projectInfo.qmlDumpEnvironment = Utils::Environment::systemEnvironment();
     Target *activeTarget = nullptr;
     if (project) {
@@ -263,13 +264,15 @@ void ModelManager::updateDefaultProjectInfo()
 {
     // needs to be performed in the ui thread
     Project *currentProject = SessionManager::startupProject();
-    ProjectInfo newDefaultProjectInfo = projectInfo(currentProject,
-                                                    defaultProjectInfoForProject(currentProject));
-    setDefaultProject(projectInfo(currentProject,newDefaultProjectInfo), currentProject);
+    setDefaultProject(containsProject(currentProject)
+                            ? projectInfo(currentProject)
+                            : defaultProjectInfoForProject(currentProject),
+                      currentProject);
 }
 
 
-void ModelManager::addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const
+void ModelManager::addTaskInternal(const QFuture<void> &result, const QString &msg,
+                                   const char *taskId) const
 {
     ProgressManager::addTask(result, msg, taskId);
 }
