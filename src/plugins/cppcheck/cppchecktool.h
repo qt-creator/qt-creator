@@ -49,7 +49,6 @@ class Project;
 namespace Cppcheck {
 namespace Internal {
 
-class Diagnostic;
 class CppcheckRunner;
 class CppcheckTextMarkManager;
 class CppcheckOptions;

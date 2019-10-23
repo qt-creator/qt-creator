@@ -46,11 +46,30 @@ Item {
     width: 96
     implicitHeight: spinBox.height
 
+    onFocusChanged: transaction.end();
+
     StudioControls.RealSpinBox {
         id: spinBox
 
-        onDragStarted: hideCursor();
-        onDragEnded: restoreCursor();
+        onDragStarted: {
+            hideCursor();
+            transaction.start();
+        }
+
+        onDragEnded: {
+            restoreCursor();
+            transaction.end();
+        }
+
+        onRealValueModified: {
+            if (transaction.active())
+                commitValue();
+        }
+
+        function commitValue() {
+            if (spinBox.backendValue.value !== spinBox.realValue)
+                spinBox.backendValue.value = spinBox.realValue;
+        }
 
         property variant backendValue
         property bool hasSlider: wrapper.sliderIndicatorVisible
@@ -77,9 +96,6 @@ Item {
 
         labelColor: spinBox.edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
 
-        onCompressedRealValueModified: {
-            if (spinBox.backendValue.value !== spinBox.realValue)
-                spinBox.backendValue.value = spinBox.realValue;
-        }
+        onCompressedRealValueModified: commitValue()
     }
 }

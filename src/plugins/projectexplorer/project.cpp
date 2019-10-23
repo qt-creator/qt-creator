@@ -524,7 +524,9 @@ void Project::emitParsingStarted()
 
 void Project::emitParsingFinished(bool success)
 {
-    QTC_ASSERT(d->m_isParsing, return);
+    // Intentionally no return, as we currently get start - start - end - end
+    // sequences when switching qmake targets quickly.
+    QTC_CHECK(d->m_isParsing);
 
     d->m_isParsing = false;
     d->m_hasParsingData = success;

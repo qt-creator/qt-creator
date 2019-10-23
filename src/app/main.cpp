@@ -43,7 +43,6 @@
 #include <QFontDatabase>
 #include <QFileInfo>
 #include <QLibraryInfo>
-#include <QLoggingCategory>
 #include <QSettings>
 #include <QStyle>
 #include <QTextStream>

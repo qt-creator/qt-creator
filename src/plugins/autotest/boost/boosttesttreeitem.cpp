@@ -203,12 +203,14 @@ QList<TestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
     });
 
     for (auto it = testsPerProjectfile.begin(), end = testsPerProjectfile.end(); it != end; ++it) {
-        BoostTestConfiguration *config = new BoostTestConfiguration;
-        config->setProject(project);
-        config->setProjectFile(it.key());
-        config->setTestCaseCount(it.value().testCases);
-        config->setInternalTargets(it.value().internalTargets);
-        result.append(config);
+        for (const QString &target : qAsConst(it.value().internalTargets)) {
+            BoostTestConfiguration *config = new BoostTestConfiguration;
+            config->setProject(project);
+            config->setProjectFile(it.key());
+            config->setTestCaseCount(it.value().testCases);
+            config->setInternalTarget(target);
+            result.append(config);
+        }
     }
     return result;
 }
@@ -245,12 +247,14 @@ QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() co
 
     auto end = testCasesForProjectFile.cend();
     for (auto it = testCasesForProjectFile.cbegin(); it != end; ++it) {
-        BoostTestConfiguration *config = new BoostTestConfiguration;
-        config->setProject(project);
-        config->setProjectFile(it.key());
-        config->setTestCases(it.value().testCases);
-        config->setInternalTargets(it.value().internalTargets);
-        result.append(config);
+        for (const QString &target : it.value().internalTargets) {
+            BoostTestConfiguration *config = new BoostTestConfiguration;
+            config->setProject(project);
+            config->setProjectFile(it.key());
+            config->setTestCases(it.value().testCases);
+            config->setInternalTarget(target);
+            result.append(config);
+        }
     }
     return result;
 }

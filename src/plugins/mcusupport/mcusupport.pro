@@ -8,12 +8,14 @@ HEADERS += \
     mcusupport_global.h \
     mcusupportconstants.h \
     mcusupportdevice.h \
+    mcusupportoptions.h \
     mcusupportoptionspage.h \
     mcusupportplugin.h \
     mcusupportrunconfiguration.h
 
 SOURCES += \
     mcusupportdevice.cpp \
+    mcusupportoptions.cpp \
     mcusupportoptionspage.cpp \
     mcusupportplugin.cpp \
     mcusupportrunconfiguration.cpp

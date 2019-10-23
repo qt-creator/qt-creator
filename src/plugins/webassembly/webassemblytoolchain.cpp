@@ -91,7 +91,7 @@ static ProjectExplorer::Abi toolChainAbi()
     };
 }
 
-void WebAssemblyToolChain::addToEnvironment(Utils::Environment &env) const
+static void addEmscriptenToEnvironment(Utils::Environment &env)
 {
     const CompilerConfiguration configuration = compilerConfiguration();
 
@@ -111,6 +111,25 @@ void WebAssemblyToolChain::addToEnvironment(Utils::Environment &env) const
     env.set("EMSDK_PYTHON", configuration.emSdkPython.toUserOutput());
     env.set("JAVA_HOME", configuration.javaHome.toUserOutput());
     env.set("EMSCRIPTEN", configuration.emScripten.toUserOutput());
+}
+
+static void addRegisteredMinGWToEnvironment(Utils::Environment &env)
+{
+    using namespace ProjectExplorer;
+    const ToolChain *toolChain = ToolChainManager::toolChain([](const ToolChain *t){
+        return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
+    });
+    if (toolChain) {
+        const QString mingwPath = toolChain->compilerCommand().parentDir().toUserOutput();
+        env.appendOrSetPath(mingwPath);
+    }
+}
+
+void WebAssemblyToolChain::addToEnvironment(Utils::Environment &env) const
+{
+    addEmscriptenToEnvironment(env);
+    if (Utils::HostOsInfo::isWindowsHost())
+        addRegisteredMinGWToEnvironment(env);
 }
 
 WebAssemblyToolChain::WebAssemblyToolChain() :

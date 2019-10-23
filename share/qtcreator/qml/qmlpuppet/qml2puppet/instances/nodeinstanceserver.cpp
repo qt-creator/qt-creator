@@ -66,6 +66,7 @@
 #include <changenodesourcecommand.h>
 #include <tokencommand.h>
 #include <removesharedmemorycommand.h>
+#include <changeselectioncommand.h>
 
 #include <QDebug>
 #include <QQmlEngine>
@@ -328,6 +329,10 @@ void NodeInstanceServer::clearScene(const ClearSceneCommand &/*command*/)
     m_rootNodeInstance.makeInvalid();
     m_changedPropertyList.clear();
     m_fileUrl.clear();
+}
+
+void NodeInstanceServer::changeSelection(const ChangeSelectionCommand & /*command*/)
+{
 }
 
 void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
@@ -980,12 +985,10 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
     } else if (auxiliaryContainer.name() == "invisible") {
         if (hasInstanceForId(auxiliaryContainer.instanceId())) {
             ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
-            if (instance.isSubclassOf("QQuick3DNode")) {
-                if (!auxiliaryContainer.value().isNull())
-                    instance.setPropertyVariant("visible", !auxiliaryContainer.value().toBool());
-                else
-                    instance.resetProperty("visible");
-            }
+            if (!auxiliaryContainer.value().isNull())
+                instance.setHideInEditor(auxiliaryContainer.value().toBool());
+            else
+                instance.setHideInEditor(false);
         }
     }
 }
@@ -1155,6 +1158,17 @@ ComponentCompletedCommand NodeInstanceServer::createComponentCompletedCommand(co
     }
 
     return ComponentCompletedCommand(idVector);
+}
+
+ChangeSelectionCommand NodeInstanceServer::createChangeSelectionCommand(const QList<ServerNodeInstance> &instanceList)
+{
+    QVector<qint32> idVector;
+    for (const ServerNodeInstance &instance : instanceList) {
+        if (instance.instanceId() >= 0)
+            idVector.append(instance.instanceId());
+    }
+
+    return ChangeSelectionCommand(idVector);
 }
 
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const

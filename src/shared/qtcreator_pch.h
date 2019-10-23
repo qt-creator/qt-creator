@@ -29,26 +29,38 @@
  */
 
 #if defined __cplusplus
-#include <QtGlobal>
+#include <QtCore/qsystemdetection.h>
 
-#ifdef Q_WS_WIN
-# define _POSIX_
-# include <limits.h>
-# undef _POSIX_
+#ifdef Q_OS_WIN
+#define WIN32_LEAN_AND_MEAN
+
+// lib/Utils needs defines for Windows 8
+#ifdef Q_CC_MINGW
+#define WINVER _WIN32_WINNT_WIN8
+#define _WIN32_WINNT _WIN32_WINNT_WIN8
+#endif // Q_CC_MINGW
+#define NOHELP
+#include <qt_windows.h>
+
+#undef DELETE
+#undef IN
+#undef OUT
+#undef ERROR
+#undef ABSOLUTE
+
+//QT_NO_FLOAT16_OPERATORS is used on Visual Studio 2017 (and earlier):
+//when including <QFloat16> and <bitset> in the same translation unit,
+//it would cause a compilation error due to a toolchain bug (see [QTBUG-72073])
+#if _MSC_VER <= 1920
+#define QT_NO_FLOAT16_OPERATORS
 #endif
 
-#include <QCoreApplication>
-#include <QList>
-#include <QVariant>
-#include <QObject>
-#include <QRegExp>
-#include <QString>
-#include <QStringList>
-#include <QTextCodec>
-#include <QPointer>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QDebug>
+#define _POSIX_
+#include <limits.h>
+#undef _POSIX_
+#endif // Q_OS_WIN
+
+#include <QtCore>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QTextStream>
@@ -59,7 +71,7 @@ using Qt::dec;
 using Qt::showbase;
 using Qt::hex;
 using Qt::noforcesign;
-#endif
+#endif //QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 
 #include <stdlib.h>
-#endif
+#endif //defined __cplusplus

@@ -424,7 +424,8 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
 
     if (!iconQrcFileNode) {
         // The QRC file that we want doesn't exist or is not listed under RESOURCES in the .pro.
-        *resourceFilePath = project->projectDirectory().toString() + "/" + isoIconsQrcFile;
+        if (project)
+            *resourceFilePath = project->projectDirectory().toString() + "/" + isoIconsQrcFile;
 
         // We assume that the .pro containing the QML file is an acceptable place to add the .qrc file.
         ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::ProjectTree::nodeForFile(qmlFileName)->parentProjectNode();

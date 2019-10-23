@@ -197,12 +197,12 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
     if (m_activeTarget) {
         connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
                 this, &QmakeProject::scheduleAsyncUpdateLater);
+        scheduleAsyncUpdate(QmakeProFile::ParseNow);
     }
 
     connect(this, &Project::activeTargetChanged,
             this, &QmakeProject::activeTargetWasChanged);
 
-    scheduleAsyncUpdate(QmakeProFile::ParseNow);
     return RestoreResult::Ok;
 }
 
@@ -707,7 +707,8 @@ QmakeProFileNode *QmakeProject::rootProjectNode() const
 
 void QmakeProject::activeTargetWasChanged()
 {
-    if (m_activeTarget) {
+    const bool hadActiveTarget = m_activeTarget;
+    if (hadActiveTarget) {
         disconnect(m_activeTarget, &Target::activeBuildConfigurationChanged,
                    this, &QmakeProject::scheduleAsyncUpdateLater);
     }
@@ -721,7 +722,7 @@ void QmakeProject::activeTargetWasChanged()
     connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
             this, &QmakeProject::scheduleAsyncUpdateLater);
 
-    scheduleAsyncUpdate();
+    scheduleAsyncUpdate(hadActiveTarget ? QmakeProFile::ParseLater : QmakeProFile::ParseNow);
 }
 
 static void notifyChangedHelper(const FilePath &fileName, QmakeProFile *file)

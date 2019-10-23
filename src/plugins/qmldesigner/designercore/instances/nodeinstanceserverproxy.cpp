@@ -41,6 +41,7 @@
 #include <changestatecommand.h>
 #include <completecomponentcommand.h>
 #include <changenodesourcecommand.h>
+#include <changeselectioncommand.h>
 
 #include <informationchangedcommand.h>
 #include <pixmapchangedcommand.h>
@@ -270,6 +271,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
 {
     static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
     static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
+    static const int valuesModifiedCommandType = QMetaType::type("ValuesModifiedCommand");
     static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
     static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
     static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
@@ -278,16 +280,19 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
+    static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
 
     if (m_destructing)
         return;
 
     qCInfo(instanceViewBenchmark) << "dispatching command" << command.userType() << command.typeName();
-    if (command.userType() ==  informationChangedCommandType) {
+    if (command.userType() == informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
-    } else if (command.userType() ==  valuesChangedCommandType) {
+    } else if (command.userType() == valuesChangedCommandType) {
         nodeInstanceClient()->valuesChanged(command.value<ValuesChangedCommand>());
-    } else if (command.userType() ==  pixmapChangedCommandType) {
+    } else if (command.userType() == valuesModifiedCommandType) {
+        nodeInstanceClient()->valuesModified(command.value<ValuesModifiedCommand>());
+    } else if (command.userType() == pixmapChangedCommandType) {
         nodeInstanceClient()->pixmapChanged(command.value<PixmapChangedCommand>());
     } else if (command.userType() == childrenChangedCommandType) {
         nodeInstanceClient()->childrenChanged(command.value<ChildrenChangedCommand>());
@@ -299,6 +304,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
         nodeInstanceClient()->token(command.value<TokenCommand>());
     } else if (command.userType() == debugOutputCommandType) {
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
+    } else if (command.userType() == changeSelectionCommandType) {
+        nodeInstanceClient()->selectionChanged(command.value<ChangeSelectionCommand>());
     } else if (command.userType() == puppetAliveCommandType) {
         puppetAlive(puppetStreamType);
     } else if (command.userType() == synchronizeCommandType) {
@@ -641,6 +648,11 @@ void NodeInstanceServerProxy::clearScene(const ClearSceneCommand &command)
 }
 
 void NodeInstanceServerProxy::removeInstances(const RemoveInstancesCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::changeSelection(const ChangeSelectionCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

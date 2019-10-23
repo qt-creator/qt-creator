@@ -42,6 +42,8 @@
 
         \li iOS
 
+        \li Microcontroller Units (MCU)
+
         \li QNX
 
         \li Universal Windows Platform (UWP)
@@ -95,6 +97,11 @@
             \li
             \li \image ok
             \li
+        \row
+            \li MCUs
+            \li \image ok
+            \li \image ok
+            \li \image ok
         \row
             \li QNX
             \li \image ok

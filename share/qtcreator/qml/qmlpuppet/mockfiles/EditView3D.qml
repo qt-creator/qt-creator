@@ -23,79 +23,100 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.12
 import QtQuick.Window 2.0
 import QtQuick3D 1.0
+import QtQuick3D.Helpers 1.0
 import QtQuick.Controls 2.0
+import QtGraphicalEffects 1.0
 
 Window {
+    id: viewWindow
     width: 1024
     height: 768
     visible: true
     title: "3D"
     flags: Qt.WindowStaysOnTopHint | Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
 
+    property alias scene: editView.scene
+    property alias showEditLight: editLightCheckbox.checked
+    property alias usePerspective: usePerspectiveCheckbox.checked
+
     Rectangle {
-        color: "black"
+        id: sceneBg
+        color: "#FFFFFF"
         anchors.fill: parent
-    }
+        focus: true
 
-    Column {
-        y: 32
-        Slider {
-            id: slider
+        View3D {
+            id: editView
+            anchors.fill: parent
+            enableWireframeMode: true
+            camera: editCamera
 
-            value: -600
-            from: -1200
-            to: 600
+            AxisHelper {
+                id: axisGrid
+                enableXZGrid: true
+                enableAxisLines: false
+            }
+
+            Light {
+                id: pointLight
+                visible: showEditLight
+                position: editCamera.position
+                lightType: Light.Point
+            }
+
+            Camera {
+                id: editCamera
+                y: 200
+                z: -300
+                clipFar: 100000
+                projectionMode: usePerspective ? Camera.Perspective : Camera.Orthographic
+            }
+
+            Component.onCompleted: {
+                pointLight.setParentItem(editView.scene);
+                editCamera.setParentItem(editView.scene);
+            }
         }
-        Slider {
-            id: slider2
 
-            value: 0
-            from: -360
-            to: 360
-        }
-        CheckBox {
-            id: checkBox
-            text: "Light"
-            Rectangle {
-                anchors.fill: parent
-                z: -1
+        WasdController {
+            id: cameraControl
+            controlledObject: editView.camera
+            acceptedButtons: Qt.RightButton
+
+            onInputsNeedProcessingChanged: designStudioNativeCameraControlHelper.enabled
+                                           = cameraControl.inputsNeedProcessing
+
+            // Use separate native timer as QML timers don't work inside Qt Design Studio
+            Connections {
+                target: designStudioNativeCameraControlHelper
+                onUpdateInputs: cameraControl.processInputs()
             }
         }
     }
 
-    Binding {
-        target: view.scene
-        property: "rotation.y"
-        value: slider2.value
+    Column {
+        y: 8
+        CheckBox {
+            id: editLightCheckbox
+            checked: false
+            text: qsTr("Use Edit View Light")
+            onCheckedChanged: cameraControl.forceActiveFocus()
+        }
+
+        CheckBox {
+            id: usePerspectiveCheckbox
+            checked: true
+            text: qsTr("Use Perspective Projection")
+            onCheckedChanged: cameraControl.forceActiveFocus()
+        }
     }
 
-    property alias scene: view.scene
-    property alias showLight: checkBox.checked
-
-    id: viewWindow
-
-    View3D {
-        id: view
-        anchors.fill: parent
-        enableWireframeMode: true
-        camera: camera01
-
-        Light {
-            id: directionalLight
-            visible: checkBox.checked
-        }
-
-        Camera {
-            id: camera01
-            z: slider.value
-        }
-
-        Component.onCompleted: {
-            directionalLight.setParentItem(view.scene)
-            camera01.setParentItem(view.scene)
-        }
+    Text {
+        id: helpText
+        text: qsTr("Camera: W,A,S,D,R,F,right mouse drag")
+        anchors.bottom: parent.bottom
     }
 }

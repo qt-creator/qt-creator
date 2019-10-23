@@ -140,8 +140,6 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addPrecompiledHeaderOptions(usePrecompiledHeaders);
     addProjectConfigFileInclude();
 
-    addExtraCodeModelFlags();
-
     addMsvcCompatibilityVersion();
     addProjectMacros();
     undefineClangVersionMacrosForMsvc();
@@ -727,7 +725,8 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
     const Core::Id &toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;
     bool skipNext = false;
-    for (const QString &option : m_projectPart.compilerFlags) {
+    const QStringList allFlags = m_projectPart.compilerFlags + m_projectPart.extraCodeModelFlags;
+    for (const QString &option : allFlags) {
         if (skipNext) {
             skipNext = false;
             continue;
@@ -750,6 +749,16 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
                 || option.startsWith("/w", Qt::CaseInsensitive) || option.startsWith("-pedantic"))) {
             // -w, -W, /w, /W...
             continue;
+        }
+
+        // As we always set the target explicitly, filter out target args.
+        if (!m_projectPart.toolChainTargetTriple.isEmpty()) {
+            if (option.startsWith("--target="))
+                continue;
+            if (option == "-target") {
+                skipNext = true;
+                continue;
+            }
         }
 
         if (option == includeUserPathOption || option == includeSystemPathOption

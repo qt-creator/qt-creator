@@ -77,7 +77,10 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     connect(m_uploadService, &AbstractRemoteLinuxDeployService::errorMessage,
             m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
     connect(m_uploadService, &AbstractRemoteLinuxDeployService::warningMessage,
-            m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
+            this, [this](const QString &message) {
+        if (!message.contains("stat:"))
+            m_ui->deployLogWindow->appendPlainText(message);
+    });
     connect(m_uploadService, &AbstractRemoteLinuxDeployService::stdOutData,
             m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
     connect(m_uploadService, &AbstractRemoteLinuxDeployService::stdErrData,

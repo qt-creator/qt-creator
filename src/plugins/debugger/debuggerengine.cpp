@@ -442,6 +442,7 @@ public:
         m_lookupRequests.clear();
         m_locationTimer.stop();
         m_locationMark.reset();
+        m_stackHandler.resetLocation();
         m_disassemblerAgent.resetLocation();
         m_toolTipManager.resetLocation();
     }

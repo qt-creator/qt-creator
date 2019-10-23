@@ -271,13 +271,15 @@ static QStringList splitFragments(const QStringList &fragments)
 }
 
 RawProjectParts generateRawProjectParts(const PreprocessedData &input,
-                                        const FilePath &sourceDirectory)
+                                        const FilePath &sourceDirectory,
+                                        const FilePath &buildDirectory)
 {
     RawProjectParts rpps;
 
     int counter = 0;
     for (const TargetDetails &t : input.targetDetails) {
         QDir sourceDir(sourceDirectory.toString());
+        QDir buildDir(buildDirectory.toString());
 
         bool needPostfix = t.compileGroups.size() > 1;
         int count = 1;
@@ -321,16 +323,25 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             cxxProjectFlags.commandLineFlags = cProjectFlags.commandLineFlags;
             rpp.setFlagsForCxx(cxxProjectFlags);
 
-            const QString precompiled_header
-                = findOrDefault(t.sources, [&ending](const SourceInfo &si) {
-                      return si.path.endsWith(ending);
-                  }).path;
+            FilePath precompiled_header
+                = FilePath::fromString(findOrDefault(t.sources, [&ending](const SourceInfo &si) {
+                                           return si.path.endsWith(ending);
+                                       }).path);
 
             rpp.setFiles(transform<QList>(ci.sources, [&t, &sourceDir](const int si) {
                 return sourceDir.absoluteFilePath(t.sources[static_cast<size_t>(si)].path);
             }));
-            if (!precompiled_header.isEmpty())
-                rpp.setPreCompiledHeaders({precompiled_header});
+            if (!precompiled_header.isEmpty()) {
+                if (precompiled_header.toFileInfo().isRelative()) {
+                    const FilePath parentDir = FilePath::fromString(buildDir.absolutePath());
+                    const QString dirName = buildDir.dirName();
+                    if (precompiled_header.startsWith(dirName))
+                        precompiled_header = FilePath::fromString(
+                            precompiled_header.toString().mid(dirName.length() + 1));
+                    precompiled_header = parentDir.pathAppended(precompiled_header.toString());
+                }
+                rpp.setPreCompiledHeaders({precompiled_header.toString()});
+            }
 
             const bool isExecutable = t.type == "EXECUTABLE";
             rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
@@ -602,7 +613,7 @@ FileApiQtcData extractData(FileApiData &input,
 
     result.buildTargets = generateBuildTargets(data, sourceDirectory, buildDirectory);
     result.cmakeFiles = std::move(data.cmakeFiles);
-    result.projectParts = generateRawProjectParts(data, sourceDirectory);
+    result.projectParts = generateRawProjectParts(data, sourceDirectory, buildDirectory);
 
     auto pair = generateRootProjectNode(data, sourceDirectory, buildDirectory);
     result.rootProjectNode = std::move(pair.first);

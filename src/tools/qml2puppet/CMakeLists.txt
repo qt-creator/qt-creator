@@ -44,6 +44,7 @@ extend_qtc_executable(qml2puppet
     statepreviewimagechangedcommand.cpp statepreviewimagechangedcommand.h
     synchronizecommand.cpp synchronizecommand.h
     tokencommand.cpp tokencommand.h
+    changeselectioncommand.cpp changeselectioncommand.h
     valueschangedcommand.cpp
 )
 
@@ -86,6 +87,14 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
 
+find_package(Qt5 COMPONENTS Quick3D QUIET)
+extend_qtc_executable(qml2puppet
+  CONDITION TARGET Qt5::Quick3
+  FEATURE_INFO "Qt Quick 3D"
+  DEPENDS Qt5::Quick3D
+  DEFINES QUICK3D_MODULE
+)
+
 extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/interfaces"
   SOURCES
@@ -93,6 +102,12 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientinterface.h
     nodeinstanceglobal.h
     nodeinstanceserverinterface.cpp nodeinstanceserverinterface.h
+)
+
+extend_qtc_executable(qml2puppet
+  SOURCES_PREFIX "${SRCDIR}/qml2puppet/editor3d"
+  SOURCES
+    cameracontrolhelper.cpp cameracontrolhelper.h
 )
 
 extend_qtc_executable(qml2puppet
@@ -119,6 +134,7 @@ extend_qtc_executable(qml2puppet
     qt5previewnodeinstanceserver.cpp qt5previewnodeinstanceserver.h
     qt5rendernodeinstanceserver.cpp qt5rendernodeinstanceserver.h
     qt5testnodeinstanceserver.cpp qt5testnodeinstanceserver.h
+    quick3dnodeinstance.cpp quick3dnodeinstance.h
     quickitemnodeinstance.cpp quickitemnodeinstance.h
     servernodeinstance.cpp servernodeinstance.h
 )

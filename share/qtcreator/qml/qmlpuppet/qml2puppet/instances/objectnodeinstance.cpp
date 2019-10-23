@@ -392,6 +392,10 @@ PropertyNameList ObjectNodeInstance::ignoredProperties() const
     return PropertyNameList();
 }
 
+void ObjectNodeInstance::setHideInEditor(bool)
+{
+}
+
 QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const PropertyName &name)
 {
     Q_ASSERT(value.canConvert<Enumeration>());

@@ -674,7 +674,7 @@ TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
     QObject::connect(project, &Project::removedTarget,
             d.get(), &TargetGroupItemPrivate::handleTargetRemoved);
     QObject::connect(project, &Project::activeTargetChanged,
-            d.get(), &TargetGroupItemPrivate::handleTargetChanged, Qt::QueuedConnection);
+            d.get(), &TargetGroupItemPrivate::handleTargetChanged);
 }
 
 TargetGroupItem::~TargetGroupItem() = default;
@@ -748,8 +748,10 @@ TargetItem *TargetGroupItem::currentTargetItem() const
 
 TargetItem *TargetGroupItem::targetItem(Target *target) const
 {
-    if (target)
-        return findFirstLevelChild([target](TargetItem *item) { return item->target() == target; });
+    if (target) {
+        Id needle = target->id(); // Unconfigured project have no active target.
+        return findFirstLevelChild([needle](TargetItem *item) { return item->m_kitId == needle; });
+    }
     return nullptr;
 }
 

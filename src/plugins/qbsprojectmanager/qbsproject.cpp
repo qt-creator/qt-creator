@@ -738,9 +738,8 @@ void QbsProject::updateDocuments(const std::set<QString> &files)
     const FilePath buildDir = FilePath::fromString(m_projectData.buildDirectory());
     const QVector<FilePath> nonBuildDirFilePaths = filtered(filePaths,
                                                             [buildDir](const FilePath &p) {
-                                                                return p.isChildOf(buildDir);
+                                                                return !p.isChildOf(buildDir);
                                                             });
-
     setExtraProjectFiles(nonBuildDirFilePaths);
 }
 

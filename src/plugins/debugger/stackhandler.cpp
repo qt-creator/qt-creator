@@ -314,6 +314,11 @@ void StackHandler::scheduleResetLocation()
     m_contentsValid = false;
 }
 
+void StackHandler::resetLocation()
+{
+    emit layoutChanged();
+}
+
 int StackHandler::stackRowCount() const
 {
     // Only one "thread" for now.

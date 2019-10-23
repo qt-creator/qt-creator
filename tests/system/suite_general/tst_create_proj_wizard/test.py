@@ -132,6 +132,8 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         clickButton(waitForObject(":Next_QPushButton"))
         if specialHandlingFunc:
             specialHandlingFunc(displayedPlatforms, *args)
+        if not ('Plain C' in template):
+            __createProjectHandleTranslationSelection__()
         verifyKitCheckboxes(kits, displayedPlatforms)
         safeClickButton("Cancel")
         if counter < len(availableBuildSystems) - 1:

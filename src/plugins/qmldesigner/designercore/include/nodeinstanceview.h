@@ -64,6 +64,7 @@ class ChangeValuesCommand;
 class ChangeBindingsCommand;
 class ChangeIdsCommand;
 class RemoveInstancesCommand;
+class ChangeSelectionCommand;
 class RemovePropertiesCommand;
 class CompleteComponentCommand;
 class InformationContainer;
@@ -119,6 +120,7 @@ public:
     void updatePosition(const QList<VariantProperty>& propertyList);
 
     void valuesChanged(const ValuesChangedCommand &command) override;
+    void valuesModified(const ValuesModifiedCommand &command) override;
     void pixmapChanged(const PixmapChangedCommand &command) override;
     void informationChanged(const InformationChangedCommand &command) override;
     void childrenChanged(const ChildrenChangedCommand &command) override;
@@ -133,6 +135,11 @@ public:
     void setProject(ProjectExplorer::Project *project);
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
+
+    void selectionChanged(const ChangeSelectionCommand &command) override;
+
+    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
+                              const QList<ModelNode> &lastSelectedNodeList) override;
 
 protected:
     void timerEvent(QTimerEvent *event) override;
@@ -173,6 +180,7 @@ private: // functions
     ChangeBindingsCommand createChangeBindingCommand(const QList<BindingProperty> &propertyList) const;
     ChangeIdsCommand createChangeIdsCommand(const QList<NodeInstance> &instanceList) const;
     RemoveInstancesCommand createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const;
+    ChangeSelectionCommand createChangeSelectionCommand(const QList<ModelNode> &nodeList) const;
     RemoveInstancesCommand createRemoveInstancesCommand(const ModelNode &node) const;
     RemovePropertiesCommand createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const;
     RemoveSharedMemoryCommand createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, quint32 keyNumber);

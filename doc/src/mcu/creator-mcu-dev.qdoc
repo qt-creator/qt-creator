@@ -1,0 +1,203 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-developing-ios.html
+    \page creator-developing-mcu.html
+    \nextpage creator-developing-qnx.html
+
+    \title Connecting MCUs
+
+    \l{Qt for MCUs} enables you to use subsets of QML and Qt Quick Controls
+    to create user interfaces for devices that are powered by microcontroller
+    units (MCU). It includes a new graphics rendering engine that has a low
+    memory footprint and is optimized for MCUs and other resource-constrained
+    devices.
+
+    You can connect MCU boards to a development host to build applications for
+    them using the GNU Arm Embedded GCC compiler, libraries, and other GNU tools
+    necessary for bare metal software development on devices based on the Arm
+    Cortex-M processors. You can deploy the applications on MCUs to run and
+    debug them using \QC.
+
+    The toolchains are available for cross-compilation on Microsoft Windows,
+    Linux, and macOS.
+
+    The following MCU boards are currently supported:
+
+    \list
+        \li \l{https://www.st.com/en/evaluation-tools/stm32f7508-dk.html}
+            {STM32F7508-DK}
+        \li \l{https://www.st.com/en/evaluation-tools/32f769idiscovery.html}
+            {32F769IDISCOVERY}
+        \li \l{https://www.nxp.com/design/development-boards/i.mx-evaluation-and-development-boards/i.mx-rt1050-evaluation-kit:MIMXRT1050-EVK}
+            {NXP i.MX RT1050 EVK}
+    \endlist
+
+    For a list of Qt for MCU reference implementations, see the Qt for MCU
+    documentation.
+
+    You use the \l{Connecting Bare Metal Devices}{Bare metal plugin} to connect
+    to OpenOCD or ST-LINK Utility for debugging on MCUs.
+
+    \section1 Requirements
+
+    To use \QC to develop QML applications for MCUs, you need the following:
+
+    \list
+        \li Qt for MCU SDK
+        \li The Bare Metal plugin
+        \li GNU ARM Embedded Toolchain
+        \li For STM32 boards:
+        \list
+            \li \l{https://www.st.com/en/embedded-software/stm32cubef7.html}
+                {STM32Cube SDK}
+            \li \l{https://www.st.com/en/development-tools/stm32cubeprog.html}
+                {STM32Cube Programmer}
+        \endlist
+        \li For NXP boards:
+        \list
+            \li \l{https://www.nxp.com/design/development-boards/i.mx-evaluation-and-development-boards/i.mx-rt1050-evaluation-kit:MIMXRT1050-EVK}
+                NXP EVKB-IMXRT 1050 SDK
+            \li \l{https://www.segger.com/downloads/jlink}{SEGGER JLink}
+        \endlist
+    \endlist
+
+    \section1 Setting Up the Development Environment
+
+    You must download and install the required software and create connections
+    between \QC and MCUs.
+
+    \section2 Enabling Bare Metal and MCU Plugins
+
+    To be able to develop for MCUs, you must enable the Bare Metal and MCU
+    plugins:
+
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Device Support} > \uicontrol {Bare Metal} and
+            \uicontrol {MCU Support} to enable the Bare Metal and MCU
+            plugins.
+        \li Restart \QC to be able to use the plugins.
+        \li Create connections for debugging on the MCU board, as described in
+            \l{Connecting Bare Metal Devices}.
+    \endlist
+
+    \section2 Specifying MCU Settings
+
+    To configure a connection between \QC and your MCU board, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+    \uicontrol MCU:
+
+    \image qtcreator-mcu-options.png "MCU options"
+
+    \list 1
+        \li In the \uicontrol {MCU board} field, select your MCU board.
+        \li In the \uicontrol {GNU ARM Embedded Toolchain} field,
+            specify the path to the directory where you installed the
+            tool chain.
+        \li For STM32 boards:
+            \list
+                \li In the \uicontrol {STM32Cube SDK} field, specify the
+                    path to the directory where you installed the SDK.
+                \li In the \uicontrol {STM32Cube Programmer} field,
+                    specify the path to the directory where you
+                    installed the tool.
+            \endlist
+        \li For NXP boards:
+            \list
+                \li In the \uicontrol {NXP EVKB-IMXRT 1050 SDK} field,
+                    specify the path to the directory where you
+                    installed the SDK.
+                \li In the \uicontrol {SEGGER JLink} field, specify the
+                    path to the directory where you installed the tool.
+            \endlist
+        \li In the \uicontrol {Qt MCU SDK} field, specify the path to the
+            directory where you installed Qt MCU.
+        \li Select \uicontrol Apply to save the settings and to generate
+            a MCU device and kit.
+    \endlist
+
+    \section2 Adding MCU Devices
+
+    \QC automatically adds a default MCU device when you select
+    \uicontrol Apply in the \uicontrol MCU tab after configuring the
+    MCU tool chain.
+
+    \image qtcreator-mcu-device.png "MCU devices"
+
+    To add MCU devices, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Devices > \uicontrol Add > \uicontrol {MCU Device} >
+    \uicontrol {Start Wizard}:
+
+       \list 1
+           \li In the \uicontrol Name field, give the device a name.
+           \li In the \uicontrol Type field, select the board type.
+           \li Select \uicontrol Apply to add the device.
+       \endlist
+
+    \section2 Adding MCU Kits
+
+    \QC automatically adds kits for building applications and running them
+    on the specified MCU boards when you select \uicontrol Apply in the
+    \uicontrol MCU tab after configuring the MCU tool chain.
+
+    \image qtcreator-mcu-kit.png "MCU kits"
+
+    To add kits, select \uicontrol Tools > \uicontrol Options > \uicontrol Kits
+    > \uicontrol Add:
+
+    \list 1
+        \li In the \uicontrol Name field, specify a name for the kit.
+        \li In the \uicontrol {Device type} field, select
+            \uicontrol {MCU}.
+        \li In the \uicontrol Device field, select the MCU board for the kit.
+        \li In the \uicontrol Compiler field, select the Arm GCC compiler for
+            the kit.
+        \li Select \uicontrol Apply to add the kit.
+    \endlist
+
+    \section1 Running Applications on MCUs
+
+    You can use a wizard to set up a project for developing an application that
+    you can run on MCUs. The project uses a subset of QML and Qt Quick Controls
+    that are supported by Qt for MCUs. For more information about developing
+    applications for MCUs, see the Qt for MCU documentation.
+
+    To create an application and run it on a MCU board:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {MCU Support Application} >
+            \uicontrol Choose.
+        \li Follow the instructions of the wizard to create the project.
+        \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
+            select the kit for building the application and running it on the
+            MCU board specified in the kit.
+        \li Select \uicontrol Run to specify run settings.
+            Usually, you can use the default settings.
+    \endlist
+*/

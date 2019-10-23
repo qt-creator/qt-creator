@@ -1432,10 +1432,11 @@ std::string SymbolGroupNode::msgAssignError(const std::string &nodeName,
 }
 
 // Simple type
-bool SymbolGroupNode::assign(const std::string &value, std::string *errorMessage /* = 0 */)
+bool SymbolGroupNode::assign(const std::string &value,
+                             std::string *errorMessage /* = 0 */)
 {
     const HRESULT hr =
-        m_symbolGroup->debugSymbolGroup()->WriteSymbol(m_index, const_cast<char *>(value.c_str()));
+        m_symbolGroup->debugSymbolGroup()->WriteSymbol(m_index, value.c_str());
     if (FAILED(hr)) {
         if (errorMessage)
             *errorMessage = SymbolGroupNode::msgAssignError(name(), value, msgDebugEngineComFailed("WriteSymbol", hr));

@@ -93,6 +93,8 @@ QtcTool {
             "commands/tokencommand.h",
             "commands/valueschangedcommand.cpp",
             "commands/valueschangedcommand.h",
+            "commands/changeselectioncommand.cpp",
+            "commands/changeselectioncommand.h",
             "container/addimportcontainer.cpp",
             "container/addimportcontainer.h",
             "container/idcontainer.cpp",
@@ -173,6 +175,8 @@ QtcTool {
             "instances/qmlpropertychangesnodeinstance.h",
             "instances/qmlstatenodeinstance.cpp",
             "instances/qmlstatenodeinstance.h",
+            "instances/quick3dnodeinstance.cpp",
+            "instances/quick3dnodeinstance.h",
             "instances/qmltransitionnodeinstance.cpp",
             "instances/qmltransitionnodeinstance.h",
             "instances/qt3dpresentationnodeinstance.cpp",
@@ -191,6 +195,8 @@ QtcTool {
             "instances/qt5testnodeinstanceserver.h",
             "instances/servernodeinstance.cpp",
             "instances/servernodeinstance.h",
+            "editor3d/cameracontrolhelper.cpp",
+            "editor3d/cameracontrolhelper.h",
             "qml2puppetmain.cpp",
         ]
     }

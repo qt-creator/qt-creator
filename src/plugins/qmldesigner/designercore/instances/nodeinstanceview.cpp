@@ -51,6 +51,7 @@
 #include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
+#include "changeselectioncommand.h"
 #include "changenodesourcecommand.h"
 #include "removeinstancescommand.h"
 #include "removepropertiescommand.h"
@@ -1109,6 +1110,21 @@ RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const QLis
     return RemoveInstancesCommand(idList);
 }
 
+ChangeSelectionCommand NodeInstanceView::createChangeSelectionCommand(const QList<ModelNode> &nodeList) const
+{
+    QVector<qint32> idList;
+    foreach (const ModelNode &node, nodeList) {
+        if (node.isValid() && hasInstanceForModelNode(node)) {
+            NodeInstance instance = instanceForModelNode(node);
+
+            if (instance.instanceId() >= 0)
+                idList.append(instance.instanceId());
+        }
+    }
+
+    return ChangeSelectionCommand(idList);
+}
+
 RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const ModelNode &node) const
 {
     QVector<qint32> idList;
@@ -1172,6 +1188,20 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 
     if (!valuePropertyChangeList.isEmpty())
         emitInstancePropertyChange(valuePropertyChangeList);
+}
+
+void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
+{
+    if (!model())
+        return;
+
+    for (const PropertyValueContainer &container : command.valueChanges()) {
+        if (hasInstanceForId(container.instanceId())) {
+            NodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid())
+                instance.modelNode().variantProperty(container.name()).setValue(container.value());
+        }
+    }
 }
 
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
@@ -1362,6 +1392,20 @@ void NodeInstanceView::sendToken(const QString &token, int number, const QVector
         instanceIdVector.append(node.internalId());
 
     nodeInstanceServer()->token(TokenCommand(token, number, instanceIdVector));
+}
+
+void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
+{
+    foreach (const qint32 &instanceId, command.instanceIds()) {
+        if (hasModelNodeForInternalId(instanceId))
+            selectModelNode(modelNodeForInternalId(instanceId));
+    }
+}
+
+void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
+                                            const QList<ModelNode> & /*lastSelectedNodeList*/)
+{
+    nodeInstanceServer()->changeSelection(createChangeSelectionCommand(selectedNodeList));
 }
 
 void NodeInstanceView::timerEvent(QTimerEvent *event)

@@ -925,6 +925,12 @@ bool FilePath::isChildOf(const QDir &dir) const
     return isChildOf(FilePath::fromString(dir.absolutePath()));
 }
 
+/// \returns whether FilePath startsWith \a s
+bool FilePath::startsWith(const QString &s) const
+{
+    return m_data.startsWith(s, HostOsInfo::fileNameCaseSensitivity());
+}
+
 /// \returns whether FilePath endsWith \a s
 bool FilePath::endsWith(const QString &s) const
 {

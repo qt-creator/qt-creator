@@ -49,6 +49,7 @@ public:
     static QString collectionFilePath();
 
     void registerDocumentation(const QStringList &fileNames) override;
+    void unregisterDocumentation(const QStringList &fileNames) override;
 
     static void unregisterNamespaces(const QStringList &nameSpaces);
 

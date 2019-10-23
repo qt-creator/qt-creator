@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -28,7 +28,7 @@
     \contentspage index.html
     \previouspage creator-developing-generic-linux.html
     \page creator-developing-ios.html
-    \nextpage creator-developing-qnx.html
+    \nextpage creator-developing-mcu.html
 
     \title Connecting iOS Devices
 

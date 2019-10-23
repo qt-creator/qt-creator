@@ -820,7 +820,7 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
 
     std::string errorMessage;
     bool success = false;
-    AssignEncoding enc = AssignPlainValue;
+    bool encoded = false;
     int token = 0;
     do {
         StringList tokens = commandTokens<StringList>(argsIn, &token);
@@ -830,10 +830,7 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
         }
 
         if (tokens.front() == "-h") {
-            enc = AssignHexEncoded;
-            tokens.pop_front();
-        } else if (tokens.front() == "-u") {
-            enc = AssignHexEncodedUtf16;
+            encoded = true;
             tokens.pop_front();
         }
 
@@ -864,7 +861,7 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
         SymbolGroup *symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), currentFrame, &errorMessage);
         if (!symGroup)
             break;
-        success = symGroup->assign(iname, enc, value,
+        success = symGroup->assign(iname, encoded ? stringFromHex(value) : value,
                                    SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()),
                                    &errorMessage);
     } while (false);

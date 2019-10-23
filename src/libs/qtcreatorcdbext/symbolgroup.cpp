@@ -449,7 +449,6 @@ void SymbolGroup::markUninitialized(const std::vector<std::string> &uniniNodes)
 }
 
 bool SymbolGroup::assign(const std::string &nodeName,
-                         int valueEncoding,
                          const std::string &value,
                          const SymbolGroupValueContext &ctx,
                          std::string *errorMessage)
@@ -468,9 +467,9 @@ bool SymbolGroup::assign(const std::string &nodeName,
     int kt = node->dumperType();
     if (kt < 0)
         kt = knownType(node->type(), KnownTypeAutoStripPointer | KnownTypeHasClassPrefix);
-    return (kt & KT_Editable) ? // Edit complex types
-        assignType(node, kt, valueEncoding, value, ctx, errorMessage) :
-        node->assign(value, errorMessage);
+    if (kt & KT_Editable)
+        return assignType(node, kt, value, ctx, errorMessage);
+    return node->assign(value, errorMessage);
 }
 
 bool SymbolGroup::accept(SymbolGroupNodeVisitor &visitor) const

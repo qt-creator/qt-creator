@@ -9,8 +9,8 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "Debugger" }
     Depends { name: "CMakeProjectManager" }
-    Depends { name: "QtSupport" }
 
     files: [
         "mcusupport.qrc",
@@ -18,6 +18,8 @@ QtcPlugin {
         "mcusupportconstants.h",
         "mcusupportdevice.cpp",
         "mcusupportdevice.h",
+        "mcusupportoptions.cpp",
+        "mcusupportoptions.h",
         "mcusupportoptionspage.cpp",
         "mcusupportoptionspage.h",
         "mcusupportplugin.cpp",

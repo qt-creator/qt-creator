@@ -136,8 +136,20 @@ void HelpManager::registerDocumentation(const QStringList &files)
             emit Core::HelpManager::Signals::instance()->documentationChanged();
         }
     });
-    ProgressManager::addTask(future, tr("Update Documentation"),
-                             kUpdateDocumentationTask);
+    ProgressManager::addTask(future, tr("Update Documentation"), kUpdateDocumentationTask);
+}
+
+void HelpManager::unregisterDocumentation(const QStringList &fileNames)
+{
+    if (fileNames.isEmpty())
+        return;
+    const auto getNamespaces = [](const QStringList &fileNames) {
+        QMutexLocker locker(&d->m_helpengineMutex);
+        return Utils::transform(fileNames, [](const QString &filePath) {
+            return d->m_helpEngine->namespaceName(filePath);
+        });
+    };
+    unregisterNamespaces(getNamespaces(fileNames));
 }
 
 void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterface,

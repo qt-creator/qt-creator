@@ -50,7 +50,7 @@ ValuesChangedCommand::ValuesChangedCommand(const QVector<PropertyValueContainer>
 {
 }
 
-QVector<PropertyValueContainer> ValuesChangedCommand::valueChanges() const
+const QVector<PropertyValueContainer> ValuesChangedCommand::valueChanges() const
 {
     return m_valueChangeVector;
 }
