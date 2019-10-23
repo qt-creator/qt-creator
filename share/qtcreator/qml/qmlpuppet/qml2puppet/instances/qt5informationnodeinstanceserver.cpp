@@ -75,7 +75,7 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-static QObject *createEditView3D(QQmlEngine *engine)
+QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 {
     QmlDesigner::Internal::CameraControlHelper *helper = new QmlDesigner::Internal::CameraControlHelper();
     engine->rootContext()->setContextProperty("designStudioNativeCameraControlHelper", helper);
@@ -89,6 +89,8 @@ static QObject *createEditView3D(QQmlEngine *engine)
         return nullptr;
     }
 
+    QObject::connect(window, SIGNAL(objectClicked(QVariant)), this, SLOT(objectClicked(QVariant)));
+
     //For macOS we have to use the 4.1 core profile
     QSurfaceFormat surfaceFormat = window->requestedFormat();
     surfaceFormat.setVersion(4, 1);
@@ -97,6 +99,11 @@ static QObject *createEditView3D(QQmlEngine *engine)
     helper->setParent(window);
 
     return window;
+}
+
+void Qt5InformationNodeInstanceServer::objectClicked(const QVariant &object) {
+    QObject *item = qobject_cast<QObject *>(object.value<QObject *>());
+    selectInstance(instanceForObject(item));
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :

@@ -44,6 +44,9 @@ public:
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;
 
+public slots:
+    void objectClicked(const QVariant &object);
+
 protected:
     void collectItemChangesAndSendChangeCommands() override;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
@@ -54,6 +57,7 @@ protected:
     void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
 
 private:
+    QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
 

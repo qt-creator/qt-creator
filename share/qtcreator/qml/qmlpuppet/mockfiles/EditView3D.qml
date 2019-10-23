@@ -42,11 +42,22 @@ Window {
     property alias showEditLight: editLightCheckbox.checked
     property alias usePerspective: usePerspectiveCheckbox.checked
 
+    signal objectClicked(var object)
+
     Rectangle {
         id: sceneBg
         color: "#FFFFFF"
         anchors.fill: parent
         focus: true
+
+        TapHandler { // check tapping/clicking an object in the scene
+            onTapped: {
+                var pickResult = editView.pick(eventPoint.scenePosition.x,
+                                               eventPoint.scenePosition.y);
+                if (pickResult.objectHit)
+                    viewWindow.objectClicked(pickResult.objectHit);
+            }
+        }
 
         View3D {
             id: editView

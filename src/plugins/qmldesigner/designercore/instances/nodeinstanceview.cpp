@@ -1329,7 +1329,6 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
      if (!model())
         return;
 
-
     QVector<ModelNode> childNodeVector;
 
     foreach (qint32 instanceId, command.childrenInstances()) {
@@ -1396,6 +1395,7 @@ void NodeInstanceView::sendToken(const QString &token, int number, const QVector
 
 void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
 {
+    clearSelectedModelNodes();
     foreach (const qint32 &instanceId, command.instanceIds()) {
         if (hasModelNodeForInternalId(instanceId))
             selectModelNode(modelNodeForInternalId(instanceId));
