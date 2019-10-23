@@ -50,7 +50,7 @@ AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName)
 
     setHasMakeInstallEquivalent(true);
 
-    setBuildSystem(std::make_unique<AutotoolsBuildSystem>(this));
+    setBuildSystemCreator([](Project *p) { return new AutotoolsBuildSystem(p); });
 }
 
 class AutotoolsProjectPluginPrivate

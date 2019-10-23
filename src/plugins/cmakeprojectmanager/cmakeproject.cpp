@@ -91,7 +91,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setKnowsAllBuildExecutables(false);
     setHasMakeInstallEquivalent(true);
 
-    setBuildSystem(std::make_unique<CMakeBuildSystem>(this));
+    setBuildSystemCreator([](Project *p) { return new CMakeBuildSystem(p); });
 }
 
 CMakeProject::~CMakeProject() = default;

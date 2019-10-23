@@ -365,8 +365,8 @@ QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
 // QbsBuildSystem:
 // --------------------------------------------------------------------
 
-QbsBuildSystem::QbsBuildSystem(QbsProject *project)
-    : BuildSystem(project), m_project(project)
+QbsBuildSystem::QbsBuildSystem(Project *project)
+    : BuildSystem(project)
 {
 }
 
@@ -449,7 +449,7 @@ RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const QString
             return RemovedFilesFromProject::Error;
         }
 
-        return m_project->removeFilesFromProduct(filePaths, prdNode->qbsProductData(),
+        return project()->removeFilesFromProduct(filePaths, prdNode->qbsProductData(),
                                                  n->m_qbsGroupData, notRemoved);
     }
 
@@ -486,7 +486,7 @@ bool QbsBuildSystem::renameFile(Node *context, const QString &filePath, const QS
         if (!prdNode || !prdNode->qbsProductData().isValid())
             return false;
 
-        return m_project->renameFileInProduct(filePath, newFilePath,
+        return project()->renameFileInProduct(filePath, newFilePath,
                                               prdNode->qbsProductData(), n->m_qbsGroupData);
     }
 
@@ -500,6 +500,11 @@ bool QbsBuildSystem::renameFile(Node *context, const QString &filePath, const QS
     }
 
     return BuildSystem::renameFile(context, filePath, newFilePath);
+}
+
+QbsProject *QbsBuildSystem::project() const
+{
+    return static_cast<QbsProject *>(BuildSystem::project());
 }
 
 } // namespace Internal

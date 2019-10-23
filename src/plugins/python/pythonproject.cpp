@@ -57,7 +57,7 @@ namespace Internal {
 class PythonBuildSystem : public BuildSystem
 {
 public:
-    PythonBuildSystem(PythonProject *project);
+    explicit PythonBuildSystem(Project *project);
 
     bool supportsAction(Node *context, ProjectAction action, const Node *node) const override;
     bool addFiles(Node *, const QStringList &filePaths, QStringList *) override;
@@ -191,7 +191,7 @@ PythonProject::PythonProject(const FilePath &fileName)
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
-    setBuildSystem(std::make_unique<PythonBuildSystem>(this));
+    setBuildSystemCreator([](Project *p) { return new PythonBuildSystem(p); });
 }
 
 void PythonBuildSystem::refresh()
@@ -433,10 +433,10 @@ bool PythonProject::setupTarget(Target *t)
     return res;
 }
 
-PythonBuildSystem::PythonBuildSystem(PythonProject *project)
+PythonBuildSystem::PythonBuildSystem(Project *project)
     : BuildSystem(project)
 {
-    connect(project, &PythonProject::projectFileIsDirty, this, [this]() { refresh(); });
+    connect(project, &Project::projectFileIsDirty, this, [this]() { refresh(); });
     QTimer::singleShot(0, this, &PythonBuildSystem::refresh);
 }
 

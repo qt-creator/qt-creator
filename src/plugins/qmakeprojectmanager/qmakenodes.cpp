@@ -500,8 +500,8 @@ TargetInformation QmakeProFileNode::targetInformation() const
     return proFile() ? proFile()->targetInformation() : TargetInformation();
 }
 
-QmakeBuildSystem::QmakeBuildSystem(QmakeProject *project)
-    : BuildSystem(project), m_project(project)
+QmakeBuildSystem::QmakeBuildSystem(Project *project)
+    : BuildSystem(project)
 {
 }
 

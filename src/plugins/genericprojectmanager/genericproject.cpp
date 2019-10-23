@@ -122,7 +122,7 @@ private:
 class GenericBuildSytem : public BuildSystem
 {
 public:
-    explicit GenericBuildSytem(GenericProject *project)
+    explicit GenericBuildSytem(Project *project)
         : BuildSystem(project)
     {}
 
@@ -176,7 +176,7 @@ GenericProject::GenericProject(const Utils::FilePath &fileName)
     setId(Constants::GENERICPROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
-    setBuildSystem(std::make_unique<GenericBuildSytem>(this));
+    setBuildSystemCreator([](Project *p) { return new GenericBuildSytem(p); });
 
     QObject *projectUpdaterFactory = ExtensionSystem::PluginManager::getObjectByName(
         "CppProjectUpdaterFactory");

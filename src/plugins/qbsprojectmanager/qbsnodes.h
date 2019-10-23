@@ -39,7 +39,7 @@ class QbsProject;
 class QbsBuildSystem : public ProjectExplorer::BuildSystem
 {
 public:
-    explicit QbsBuildSystem(QbsProject *project);
+    explicit QbsBuildSystem(ProjectExplorer::Project *project);
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
@@ -53,8 +53,7 @@ public:
     bool renameFile(ProjectExplorer::Node *context,
                     const QString &filePath, const QString &newFilePath) override;
 
-private:
-    QbsProject *m_project = nullptr;
+    QbsProject *project() const;
 };
 
 // --------------------------------------------------------------------

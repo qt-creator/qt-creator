@@ -40,7 +40,7 @@ class QmakeProject;
 class QmakeBuildSystem : public ProjectExplorer::BuildSystem
 {
 public:
-    explicit QmakeBuildSystem(QmakeProject *project);
+    explicit QmakeBuildSystem(ProjectExplorer::Project *project);
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
@@ -60,8 +60,6 @@ public:
                     const QString &filePath, const QString &newFilePath) override;
     bool addDependencies(ProjectExplorer::Node *context,
                          const QStringList &dependencies) override;
-private:
-    QmakeProject *m_project = nullptr;
 };
 
 // Implements ProjectNode for qmake .pri files

@@ -310,7 +310,7 @@ protected:
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
 
-    void setBuildSystem(std::unique_ptr<BuildSystem> &&bs); // takes ownership!
+    void setBuildSystemCreator(const std::function<BuildSystem *(Project *)> &creator);
 
 private:
     // Helper methods to manage parsing state and signalling

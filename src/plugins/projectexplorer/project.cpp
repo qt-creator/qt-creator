@@ -888,10 +888,9 @@ Utils::Environment Project::activeParseEnvironment() const
     return result;
 }
 
-void Project::setBuildSystem(std::unique_ptr<BuildSystem> &&bs)
+void Project::setBuildSystemCreator(const std::function<BuildSystem *(Project *)> &creator)
 {
-    QTC_ASSERT(!bs->parent(), bs->setParent(nullptr));
-    d->m_buildSystem = std::move(bs);
+    d->m_buildSystem.reset(creator(this));
 }
 
 Core::Context Project::projectContext() const

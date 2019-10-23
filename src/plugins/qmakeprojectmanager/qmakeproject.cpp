@@ -145,7 +145,7 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
             this, &QmakeProject::buildFinished);
 
     setPreferredKitPredicate([this](const Kit *kit) -> bool { return matchesKit(kit); });
-    setBuildSystem(std::make_unique<QmakeBuildSystem>(this));
+    setBuildSystemCreator([](Project *p) { return new QmakeBuildSystem(p); });
 }
 
 QmakeProject::~QmakeProject()

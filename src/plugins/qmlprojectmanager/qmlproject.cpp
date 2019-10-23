@@ -67,7 +67,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
-    setBuildSystem(std::make_unique<Internal::QmlBuildSystem>(this));
+    setBuildSystemCreator([](Project *p) { return new Internal::QmlBuildSystem(p); });
 
     connect(this, &QmlProject::projectFileIsDirty, this, &QmlProject::refreshProjectFile);
 }

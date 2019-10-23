@@ -48,7 +48,7 @@ class CMakeBuildSystem : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit CMakeBuildSystem(CMakeProject *project);
+    explicit CMakeBuildSystem(ProjectExplorer::Project *project);
     ~CMakeBuildSystem() final;
 
 protected:
