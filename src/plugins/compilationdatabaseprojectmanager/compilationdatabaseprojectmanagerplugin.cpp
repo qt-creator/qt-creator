@@ -33,11 +33,17 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/fileiconprovider.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+
+#include <utils/parameteraction.h>
 #include <utils/utilsicons.h>
+
+using namespace Core;
+using namespace ProjectExplorer;
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
@@ -45,63 +51,69 @@ namespace Internal {
 const char CHANGEROOTDIR[] = "CompilationDatabaseProjectManager.ChangeRootDirectory";
 const char COMPILE_COMMANDS_JSON[] = "compile_commands.json";
 
+class CompilationDatabaseProjectManagerPluginPrivate
+{
+public:
+    CompilationDatabaseEditorFactory editorFactory;
+    CompilationDatabaseBuildConfigurationFactory buildConfigFactory;
+    QAction changeRootAction{CompilationDatabaseProjectManagerPlugin::tr("Change Root Directory")};
+};
+
+CompilationDatabaseProjectManagerPlugin::~CompilationDatabaseProjectManagerPlugin()
+{
+    delete d;
+}
+
 bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-    Core::FileIconProvider::registerIconOverlayForFilename(
+
+    d = new CompilationDatabaseProjectManagerPluginPrivate;
+
+    FileIconProvider::registerIconOverlayForFilename(
                 Utils::Icons::PROJECT.imageFileName(),
                 COMPILE_COMMANDS_JSON);
-    Core::FileIconProvider::registerIconOverlayForFilename(
+    FileIconProvider::registerIconOverlayForFilename(
                 Utils::Icons::PROJECT.imageFileName(),
                 QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
 
-    ProjectExplorer::ProjectManager::registerProjectType<CompilationDatabaseProject>(
+    ProjectManager::registerProjectType<CompilationDatabaseProject>(
                 Constants::COMPILATIONDATABASEMIMETYPE);
-    m_changeProjectRootDirectoryAction = new QAction(tr("Change Root Directory"), this);
-    Core::Command *cmd = Core::ActionManager::registerAction(m_changeProjectRootDirectoryAction,
-                                                             CHANGEROOTDIR);
-    Core::ActionContainer *mprojectContextMenu = Core::ActionManager::actionContainer(
+
+    Command *cmd = ActionManager::registerAction(&d->changeRootAction, CHANGEROOTDIR);
+
+    ActionContainer *mprojectContextMenu = ActionManager::actionContainer(
         ProjectExplorer::Constants::M_PROJECTCONTEXT);
     mprojectContextMenu->addSeparator(ProjectExplorer::Constants::G_PROJECT_TREE);
     mprojectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_TREE);
 
-    connect(m_changeProjectRootDirectoryAction,
-            &QAction::triggered,
-            ProjectExplorer::ProjectTree::instance(),
-            &ProjectExplorer::ProjectTree::changeProjectRootDirectory);
+    connect(&d->changeRootAction, &QAction::triggered,
+            ProjectTree::instance(), &ProjectTree::changeProjectRootDirectory);
 
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
-            this,
-            &CompilationDatabaseProjectManagerPlugin::projectChanged);
-    connect(ProjectExplorer::ProjectTree::instance(),
-            &ProjectExplorer::ProjectTree::currentProjectChanged,
-            this,
-            &CompilationDatabaseProjectManagerPlugin::projectChanged);
+    const auto onProjectChanged = [this] {
+        const auto currentProject = qobject_cast<CompilationDatabaseProject *>(
+                    ProjectTree::currentProject());
+
+        d->changeRootAction.setEnabled(currentProject);
+    };
+
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, onProjectChanged);
+
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, onProjectChanged);
 
     return true;
 }
 
-void CompilationDatabaseProjectManagerPlugin::projectChanged()
-{
-    const auto *currentProject = qobject_cast<CompilationDatabaseProject *>(
-        ProjectExplorer::ProjectTree::currentProject());
-
-    m_changeProjectRootDirectoryAction->setEnabled(currentProject);
-}
-
-void CompilationDatabaseProjectManagerPlugin::extensionsInitialized()
-{
-}
-
 QVector<QObject *> CompilationDatabaseProjectManagerPlugin::createTestObjects() const
 {
-    QVector<QObject *> tests;
+    return {
 #ifdef WITH_TESTS
-    tests << new CompilationDatabaseTests;
+        new CompilationDatabaseTests
 #endif
-    return tests;
+    };
 }
 
 } // namespace Internal
