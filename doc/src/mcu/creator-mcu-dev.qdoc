@@ -31,7 +31,7 @@
 
     \title Connecting MCUs
 
-    \l{Qt for MCUs} enables you to use subsets of QML and Qt Quick Controls
+    \l{Qt for MCU} enables you to use subsets of QML and Qt Quick Controls
     to create user interfaces for devices that are powered by microcontroller
     units (MCU). It includes a new graphics rendering engine that has a low
     memory footprint and is optimized for MCUs and other resource-constrained
@@ -44,7 +44,8 @@
     debug them using \QC.
 
     The toolchains are available for cross-compilation on Microsoft Windows,
-    Linux, and macOS.
+    Linux, and macOS. However, the Qt for MCU SDK is currently only available
+    for Windows.
 
     The following MCU boards are currently supported:
 
@@ -52,7 +53,7 @@
         \li \l{https://www.st.com/en/evaluation-tools/stm32f7508-dk.html}
             {STM32F7508-DK}
         \li \l{https://www.st.com/en/evaluation-tools/32f769idiscovery.html}
-            {32F769IDISCOVERY}
+            {STM32F769I-DISCO}
         \li \l{https://www.nxp.com/design/development-boards/i.mx-evaluation-and-development-boards/i.mx-rt1050-evaluation-kit:MIMXRT1050-EVK}
             {NXP i.MX RT1050 EVK}
     \endlist
@@ -68,9 +69,10 @@
     To use \QC to develop QML applications for MCUs, you need the following:
 
     \list
-        \li Qt for MCU SDK
+        \li Qt for MCU SDK (only available for Windows)
         \li The Bare Metal plugin
-        \li GNU ARM Embedded Toolchain
+        \li \l{https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm}
+            {GNU ARM Embedded Toolchain}
         \li For STM32 boards:
         \list
             \li \l{https://www.st.com/en/embedded-software/stm32cubef7.html}
@@ -81,7 +83,7 @@
         \li For NXP boards:
         \list
             \li \l{https://www.nxp.com/design/development-boards/i.mx-evaluation-and-development-boards/i.mx-rt1050-evaluation-kit:MIMXRT1050-EVK}
-                NXP EVKB-IMXRT 1050 SDK
+                {NXP EVKB-IMXRT 1050 SDK}
             \li \l{https://www.segger.com/downloads/jlink}{SEGGER JLink}
         \endlist
     \endlist
@@ -184,7 +186,7 @@
 
     You can use a wizard to set up a project for developing an application that
     you can run on MCUs. The project uses a subset of QML and Qt Quick Controls
-    that are supported by Qt for MCUs. For more information about developing
+    that are supported by Qt for MCU. For more information about developing
     applications for MCUs, see the Qt for MCU documentation.
 
     To create an application and run it on a MCU board:
