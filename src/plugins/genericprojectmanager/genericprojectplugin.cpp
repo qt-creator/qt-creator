@@ -95,14 +95,8 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
     mproject->addAction(command, PEC::G_PROJECT_FILES);
 
     connect(&editFilesAction, &QAction::triggered, this, [] {
-        auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject());
-        if (!genericProject)
-            return;
-        SelectableFilesDialogEditFiles sfd(genericProject->projectDirectory(),
-                                           genericProject->files(Project::AllFiles),
-                                           ICore::mainWindow());
-        if (sfd.exec() == QDialog::Accepted)
-            genericProject->setFiles(transform(sfd.selectedFiles(), &FilePath::toString));
+        if (auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject()))
+            genericProject->editFilesTriggered();
     });
 
 
@@ -118,10 +112,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
         const QStringList filesToRemove = transform<QStringList>(
                     folderNode->findNodes([](const Node *node) { return node->asFileNode(); }),
                     [](const Node *node) { return node->filePath().toString();});
-        if (!project->removeFiles(filesToRemove)) {
-            TaskHub::addTask(Task::Error, tr("Project files list update failed."),
-                             PEC::TASK_CATEGORY_BUILDSYSTEM, project->filesFilePath());
-        }
+        project->removeFilesTriggered(filesToRemove);
     });
 }
 
