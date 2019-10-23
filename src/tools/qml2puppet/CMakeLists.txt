@@ -108,6 +108,7 @@ extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/qml2puppet/editor3d"
   SOURCES
     cameracontrolhelper.cpp cameracontrolhelper.h
+    mousearea3d.cpp mousearea3d.h
 )
 
 extend_qtc_executable(qml2puppet

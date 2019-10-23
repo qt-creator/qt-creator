@@ -44,8 +44,9 @@ public:
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;
 
-public slots:
+private slots:
     void objectClicked(const QVariant &object);
+    void handleObjectPositionCommit(const QVariant &object);
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;

@@ -59,6 +59,7 @@
 
 #include "dummycontextobject.h"
 #include "../editor3d/cameracontrolhelper.h"
+#include "../editor3d/mousearea3d.h"
 
 #include <designersupportdelegate.h>
 
@@ -77,8 +78,12 @@ static QVariant objectToVariant(QObject *object)
 
 QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 {
-    QmlDesigner::Internal::CameraControlHelper *helper = new QmlDesigner::Internal::CameraControlHelper();
+    auto helper = new QmlDesigner::Internal::CameraControlHelper();
     engine->rootContext()->setContextProperty("designStudioNativeCameraControlHelper", helper);
+
+#ifdef QUICK3D_MODULE
+    qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
+#endif
 
     QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
 
@@ -90,6 +95,8 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     }
 
     QObject::connect(window, SIGNAL(objectClicked(QVariant)), this, SLOT(objectClicked(QVariant)));
+    QObject::connect(window, SIGNAL(commitObjectPosition(QVariant)),
+                     this, SLOT(handleObjectPositionCommit(QVariant)));
 
     //For macOS we have to use the 4.1 core profile
     QSurfaceFormat surfaceFormat = window->requestedFormat();
@@ -101,10 +108,29 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     return window;
 }
 
-// an object is clicked in the 3D edit view
+// an object is clicked in the 3D edit view. Null object indicates selection clearing.
 void Qt5InformationNodeInstanceServer::objectClicked(const QVariant &object)
 {
-    selectInstance(instanceForObject(object.value<QObject *>()));
+    auto obj = object.value<QObject *>();
+    ServerNodeInstance instance;
+    if (obj)
+        instance = instanceForObject(obj);
+    selectInstance(instance);
+}
+
+void Qt5InformationNodeInstanceServer::handleObjectPositionCommit(const QVariant &object)
+{
+    QObject *obj = object.value<QObject *>();
+    if (obj) {
+        ServerNodeInstance instance = instanceForObject(obj);
+        QVector<InstancePropertyValueTriple> modifiedpropertyList;
+        InstancePropertyValueTriple propTriple;
+        propTriple.instance = instance;
+        propTriple.propertyName = "position";
+        propTriple.propertyValue = obj->property(propTriple.propertyName.constData());
+        modifiedpropertyList.append(propTriple);
+        nodeInstanceClient()->valuesModified(createValuesModifiedCommand(modifiedpropertyList));
+    }
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :

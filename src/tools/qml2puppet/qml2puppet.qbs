@@ -197,6 +197,8 @@ QtcTool {
             "instances/servernodeinstance.h",
             "editor3d/cameracontrolhelper.cpp",
             "editor3d/cameracontrolhelper.h",
+            "editor3d/mousearea3d.cpp",
+            "editor3d/mousearea3d.h",
             "qml2puppetmain.cpp",
         ]
     }
