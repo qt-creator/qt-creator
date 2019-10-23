@@ -84,6 +84,11 @@ static QObject *createEditView3D(QQmlEngine *engine)
 
     QWindow *window = qobject_cast<QWindow *>(component.create());
 
+    if (!window) {
+        qWarning() << "Could not create edit view" << component.errors();
+        return nullptr;
+    }
+
     //For macOS we have to use the 4.1 core profile
     QSurfaceFormat surfaceFormat = window->requestedFormat();
     surfaceFormat.setVersion(4, 1);
@@ -192,6 +197,9 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
 
     if (node) { // If we found a scene we create the edit view
         QObject *view = createEditView3D(engine());
+
+        if (!view)
+            return;
 
         QQmlProperty sceneProperty(view, "scene", context());
         node->setParent(view);
