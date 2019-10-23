@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QObject>
+#include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
 QT_FORWARD_DECLARE_CLASS(QLabel)
