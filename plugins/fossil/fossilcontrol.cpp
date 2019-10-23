@@ -265,7 +265,7 @@ Core::ShellCommand *FossilControl::createInitialCheckoutCommand(const QString &s
              << extraOptions
              << sourceUrl
              << fossilFileNative;
-        command->addJob(m_client->vcsBinary(), args, -1);
+        command->addJob({m_client->vcsBinary(), args}, -1);
     }
 
     // check out the cloned repository file into the working copy directory;
@@ -274,20 +274,20 @@ Core::ShellCommand *FossilControl::createInitialCheckoutCommand(const QString &s
     QStringList args({"open", fossilFileNative});
     if (!checkoutBranch.isEmpty())
         args << checkoutBranch;
-    command->addJob(m_client->vcsBinary(), args, -1);
+    command->addJob({m_client->vcsBinary(), args}, -1);
 
     // set user default to admin user if specified
     if (!isLocalRepository
         && !adminUser.isEmpty()) {
         const QStringList args({ "user", "default", adminUser, "--user", adminUser});
-        command->addJob(m_client->vcsBinary(), args, -1);
+        command->addJob({m_client->vcsBinary(), args}, -1);
     }
 
     // turn-off autosync if requested
     if (!isLocalRepository
         && disableAutosync) {
         const QStringList args({"settings", "autosync", "off"});
-        command->addJob(m_client->vcsBinary(), args, -1);
+        command->addJob({m_client->vcsBinary(), args}, -1);
     }
 
     return command;
