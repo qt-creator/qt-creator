@@ -70,16 +70,14 @@ public:
     QAction editFilesAction{GenericProjectPlugin::tr("Edit Files..."), nullptr};
 };
 
-static GenericProjectPluginPrivate *dd = nullptr;
-
 GenericProjectPlugin::~GenericProjectPlugin()
 {
-    delete dd;
+    delete d;
 }
 
 bool GenericProjectPlugin::initialize(const QStringList &, QString *)
 {
-    dd = new GenericProjectPluginPrivate;
+    d = new GenericProjectPluginPrivate;
     return true;
 }
 
