@@ -49,5 +49,5 @@ add_qtc_library(qmljs
     qmljstypedescriptionreader.cpp qmljstypedescriptionreader.h
     qmljsutils.cpp qmljsutils.h
     qmljsvalueowner.cpp qmljsvalueowner.h
-    qmljsviewercontext.cpp qmljsviewercontext.h
+    qmljsviewercontext.h
 )
