@@ -248,7 +248,7 @@ public:
                                          ? QString{"python-language-server[pyflakes]"}
                                          : QString{"python-language-server[all]"};
 
-        m_process.start(m_python.toString(), {"-m", "pip", "install", pylsVersion});
+        m_process.start(m_python.toString(), {"-m", "pip", "install", "--user", pylsVersion});
 
         Core::MessageManager::write(tr("Running '%1 %2' to install python language server")
                                         .arg(m_process.program(), m_process.arguments().join(' ')));
