@@ -199,12 +199,15 @@
     To remove all the changes you recorded for a property, right-click the
     property name on the timeline and select \uicontrol {Remove Property}.
 
-    Keyframes a marked on the timeline by using markers of different colors and
+    Keyframes are marked on the timeline by using markers of different colors and
     shapes, depending on whether they are active or inactive or whether you have
     applied easing curves to them, for example.
 
-    To edit the value of the selected keyframe, select
-    \uicontrol {Edit Value for Keyframe} in the context menu.
+    To edit the value of a keyframe, double-click a keyframe marker or select
+    \uicontrol {Edit Keyframe} in the context menu. In the \uicontrol Frame
+    field, you can set the frame and the value:
+
+    \image studio-edit-keyframe.png "Edit Keyframe dialog"
 
     You can copy the keyframes from the keyframe track for an item and
     paste them to the keyframe track of another item. To copy all
