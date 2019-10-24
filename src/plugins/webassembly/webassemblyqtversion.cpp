@@ -59,6 +59,9 @@ WebAssemblyQtVersionFactory::WebAssemblyQtVersionFactory()
     setQtVersionCreator([] { return new WebAssemblyQtVersion; });
     setSupportedType(Constants::WEBASSEMBLY_QT_VERSION);
     setPriority(1);
+    setRestrictionChecker([](const SetupData &setup) {
+        return setup.platforms.contains("wasm");
+    });
 }
 
 } // namespace Internal
