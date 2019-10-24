@@ -272,15 +272,14 @@ static bool alreadyRegistered(const QList<Interpreter> &pythons, const FilePath 
     });
 }
 
-Interpreter interpreterForPythonExecutable(const FilePath &python,
-                                           const QString &defaultName,
-                                           bool windowedSuffix = false)
+Interpreter::Interpreter(const FilePath &python, const QString &defaultName, bool windowedSuffix)
+    : id(QUuid::createUuid().toString())
+    , command(python)
 {
     SynchronousProcess pythonProcess;
     pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
     SynchronousProcessResponse response = pythonProcess.runBlocking(
         CommandLine(python, {"--version"}));
-    QString name;
     if (response.result == SynchronousProcessResponse::Finished)
         name = response.stdOut().trimmed();
     if (name.isEmpty())
@@ -290,8 +289,13 @@ Interpreter interpreterForPythonExecutable(const FilePath &python,
     QDir pythonDir(python.parentDir().toString());
     if (pythonDir.exists() && pythonDir.exists("activate") && pythonDir.cdUp())
         name += QString(" (%1 Virtual Environment)").arg(pythonDir.dirName());
-    return Interpreter{QUuid::createUuid().toString(), name, python};
 }
+
+Interpreter::Interpreter(const QString &_id, const QString &_name, const FilePath &_command)
+    : id(_id)
+    , name(_name)
+    , command(_command)
+{}
 
 static InterpreterOptionsPage &interpreterOptionsPage()
 {
@@ -388,11 +392,11 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
             const FilePath &path = FilePath::fromUserInput(regVal.toString());
             const FilePath &python = path.pathAppended(HostOsInfo::withExecutableSuffix("python"));
             if (python.exists() && !alreadyRegistered(pythons, python))
-                pythons << interpreterForPythonExecutable(python, "Python " + versionGroup);
+                pythons << Interpreter(python, "Python " + versionGroup);
             const FilePath &pythonw = path.pathAppended(
                 HostOsInfo::withExecutableSuffix("pythonw"));
             if (pythonw.exists() && !alreadyRegistered(pythons, pythonw))
-                pythons << interpreterForPythonExecutable(pythonw, "Python " + versionGroup, true);
+                pythons << Interpreter(pythonw, "Python " + versionGroup, true);
         }
         pythonRegistry.endGroup();
     }
@@ -405,11 +409,11 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
     if (HostOsInfo::isWindowsHost()) {
         for (const FilePath &executable : env.findAllInPath("python")) {
             if (executable.exists() && !alreadyRegistered(pythons, executable))
-                pythons << interpreterForPythonExecutable(executable, "Python from Path");
+                pythons << Interpreter(executable, "Python from Path");
         }
         for (const FilePath &executable : env.findAllInPath("pythonw")) {
             if (executable.exists() && !alreadyRegistered(pythons, executable))
-                pythons << interpreterForPythonExecutable(executable, "Python from Path", true);
+                pythons << Interpreter(executable, "Python from Path", true);
         }
     } else {
         const QStringList filters = {"python",
@@ -421,7 +425,7 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
             for (const QFileInfo &fi : dir.entryInfoList(filters)) {
                 const FilePath executable = Utils::FilePath::fromFileInfo(fi);
                 if (executable.exists() && !alreadyRegistered(pythons, executable))
-                    pythons << interpreterForPythonExecutable(executable, "Python from Path");
+                    pythons << Interpreter(executable, "Python from Path");
             }
         }
     }

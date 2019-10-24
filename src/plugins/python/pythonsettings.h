@@ -35,7 +35,15 @@ namespace Internal {
 class Interpreter
 {
 public:
-    QString id;
+    Interpreter() = default;
+    Interpreter(const Utils::FilePath &python,
+                const QString &defaultName,
+                bool windowedSuffix = false);
+    Interpreter(const QString &id,
+                const QString &name,
+                const Utils::FilePath &command);
+
+    QString id = QUuid::createUuid().toString();
     QString name;
     Utils::FilePath command;
 };
