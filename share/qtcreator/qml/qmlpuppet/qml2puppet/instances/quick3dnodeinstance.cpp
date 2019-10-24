@@ -52,6 +52,23 @@ Quick3DNodeInstance::~Quick3DNodeInstance()
 {
 }
 
+void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
+                                     InstanceContainer::NodeFlags flags)
+{
+    ObjectNodeInstance::initialize(objectNodeInstance, flags);
+
+#ifdef QUICK3D_MODULE
+    if (quick3DNode()) {
+        QQuick3DObject::Type nodeType = quick3DNode()->type();
+        if (nodeType == QQuick3DObject::Camera || nodeType == QQuick3DObject::Light
+            || nodeType == QQuick3DObject::Model || nodeType == QQuick3DObject::Image
+            || nodeType == QQuick3DObject::Text) {
+            setPropertyVariant("pickable", true); // allow 3D objects to receive mouse clicks
+        }
+    }
+#endif
+}
+
 Qt5NodeInstanceServer *Quick3DNodeInstance::qt5NodeInstanceServer() const
 {
     return qobject_cast<Qt5NodeInstanceServer *>(nodeInstanceServer());
