@@ -56,6 +56,7 @@ class ClangToolsDiagnosticModel;
 class Diagnostic;
 class DiagnosticFilterModel;
 class RunSettings;
+class SelectFixitsCheckBox;
 
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 
@@ -127,6 +128,7 @@ private:
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 
     Utils::FancyLineEdit *m_filterLineEdit = nullptr;
+    SelectFixitsCheckBox *m_selectFixitsCheckBox = nullptr;
     QToolButton *m_applyFixitsButton = nullptr;
 
     QAction *m_openProjectSettings = nullptr;

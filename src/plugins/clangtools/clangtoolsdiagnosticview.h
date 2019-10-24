@@ -43,7 +43,7 @@ public:
     DiagnosticView(QWidget *parent = nullptr);
     ~DiagnosticView() override;
 
-    void setSelectedFixItsCount(int fixItsCount);
+    void scheduleAllFixits(bool schedule);
 
 private:
     void openEditorForCurrentIndex();
@@ -58,7 +58,6 @@ private:
     QList<QAction *> customActions() const override;
     bool eventFilter(QObject *watched, QEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
-    void setModel(QAbstractItemModel *theProxyModel) override;
 
     QAction *m_suppressAction;
     std::unique_ptr<DiagnosticViewStyle> m_style;

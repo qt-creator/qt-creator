@@ -64,6 +64,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QCheckBox>
 #include <QFileDialog>
 #include <QLabel>
 #include <QSortFilterProxyModel>
@@ -79,6 +80,17 @@ namespace ClangTools {
 namespace Internal {
 
 static ClangTool *s_instance;
+
+class SelectFixitsCheckBox : public QCheckBox
+{
+    Q_OBJECT
+
+private:
+    void nextCheckState() final override
+    {
+        setCheckState(checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+    }
+};
 
 class ApplyFixIts
 {
@@ -381,16 +393,36 @@ ClangTool::ClangTool()
             QRegExp(filter, Qt::CaseSensitive, QRegExp::WildcardUnix));
     });
 
+    // Schedule/Unschedule all fixits
+    m_selectFixitsCheckBox = new SelectFixitsCheckBox;
+    m_selectFixitsCheckBox->setText("Select Fixits");
+    m_selectFixitsCheckBox->setEnabled(false);
+    m_selectFixitsCheckBox->setTristate(true);
+    connect(m_selectFixitsCheckBox, &QCheckBox::clicked, this, [this]() {
+        auto view = static_cast<DiagnosticView *>(m_diagnosticView.data());
+        view->scheduleAllFixits(m_selectFixitsCheckBox->isChecked());
+    });
+
     // Apply fixits button
     m_applyFixitsButton = new QToolButton;
     m_applyFixitsButton->setText(tr("Apply Fixits"));
     m_applyFixitsButton->setEnabled(false);
-    connect(m_diagnosticModel,
-            &ClangToolsDiagnosticModel::fixItsToApplyCountChanged,
-            [this](int c) {
-        m_applyFixitsButton->setEnabled(c);
-        static_cast<DiagnosticView *>(m_diagnosticView.data())->setSelectedFixItsCount(c);
-    });
+
+    connect(m_diagnosticModel, &ClangToolsDiagnosticModel::fixitStatusChanged,
+            m_diagnosticFilterModel, &DiagnosticFilterModel::onFixitStatusChanged);
+    connect(m_diagnosticFilterModel, &DiagnosticFilterModel::fixitStatisticsChanged,
+            this,
+            [this](int scheduled, int scheduableTotal){
+                m_selectFixitsCheckBox->setEnabled(scheduableTotal > 0);
+                m_applyFixitsButton->setEnabled(scheduled > 0);
+
+                if (scheduled == 0)
+                    m_selectFixitsCheckBox->setCheckState(Qt::Unchecked);
+                else if (scheduled == scheduableTotal)
+                    m_selectFixitsCheckBox->setCheckState(Qt::Checked);
+                else
+                    m_selectFixitsCheckBox->setCheckState(Qt::PartiallyChecked);
+            });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
         QVector<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
@@ -443,6 +475,8 @@ ClangTool::ClangTool()
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
     m_perspective.addToolBarWidget(m_filterLineEdit);
+    m_perspective.addToolbarSeparator();
+    m_perspective.addToolBarWidget(m_selectFixitsCheckBox);
     m_perspective.addToolBarWidget(m_applyFixitsButton);
 
     updateRunActions();
@@ -511,6 +545,7 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     m_diagnosticModel->clear();
 
     m_diagnosticFilterModel->setProject(project);
+    m_selectFixitsCheckBox->setEnabled(false);
     m_applyFixitsButton->setEnabled(false);
     m_running = true;
 
@@ -787,3 +822,5 @@ void ClangTool::setToolBusy(bool busy)
 
 } // namespace Internal
 } // namespace ClangTools
+
+#include "clangtool.moc"

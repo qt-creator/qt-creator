@@ -46,65 +46,6 @@ using namespace Debugger;
 namespace ClangTools {
 namespace Internal {
 
-// A header view that puts a check box in front of a given column.
-class HeaderWithCheckBoxInColumn : public QHeaderView
-{
-    Q_OBJECT
-
-public:
-    HeaderWithCheckBoxInColumn(Qt::Orientation orientation,
-                               int column = 0,
-                               QWidget *parent = nullptr)
-        : QHeaderView(orientation, parent)
-        , m_column(column)
-    {
-        setDefaultAlignment(Qt::AlignLeft);
-    }
-
-    void setState(QFlags<QStyle::StateFlag> newState) { state = newState; }
-
-protected:
-    void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const override
-    {
-        painter->save();
-        QHeaderView::paintSection(painter, rect, logicalIndex);
-        painter->restore();
-        if (logicalIndex == m_column) {
-            QStyleOptionButton option;
-            const int side = sizeHint().height();
-            option.rect = QRect(rect.left() + 1, 1, side - 3, side - 3);
-            option.state = state;
-            painter->save();
-            const int shift = side - 2;
-            painter->translate(QPoint(shift, 0));
-            QHeaderView::paintSection(painter, rect.adjusted(0, 0, -shift, 0), logicalIndex);
-            painter->restore();
-            style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
-        }
-    }
-
-    void mouseReleaseEvent(QMouseEvent *event) override
-    {
-        const int x = event->localPos().x();
-        const int columnX = sectionPosition(m_column);
-        const bool isWithinCheckBox = x > columnX && x < columnX + sizeHint().height() - 3;
-        if (isWithinCheckBox) {
-            state = (state != QStyle::State_On) ? QStyle::State_On : QStyle::State_Off;
-            viewport()->update();
-            emit checkBoxClicked(state == QStyle::State_On);
-            return; // Avoid changing sort order
-        }
-        QHeaderView::mouseReleaseEvent(event);
-    }
-
-signals:
-    void checkBoxClicked(bool checked);
-
-private:
-    const int m_column = 0;
-    QFlags<QStyle::StateFlag> state = QStyle::State_Off;
-};
-
 static QString getBaseStyleName()
 {
     QStyle *style = QApplication::style();
@@ -180,6 +121,7 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     , m_style(new DiagnosticViewStyle)
     , m_delegate(new DiagnosticViewDelegate(m_style.get()))
 {
+    header()->hide();
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
@@ -187,6 +129,22 @@ DiagnosticView::DiagnosticView(QWidget *parent)
 
     setStyle(m_style.get());
     setItemDelegate(m_delegate.get());
+}
+
+void DiagnosticView::scheduleAllFixits(bool schedule)
+{
+    const auto proxyModel = static_cast<QSortFilterProxyModel *>(model());
+    for (int i = 0, count = proxyModel->rowCount(); i < count; ++i) {
+        const QModelIndex filePathItemIndex = proxyModel->index(i, 0);
+        for (int j = 0, count = proxyModel->rowCount(filePathItemIndex); j < count; ++j) {
+            const QModelIndex proxyIndex = proxyModel->index(j, 0, filePathItemIndex);
+            const QModelIndex diagnosticItemIndex = proxyModel->mapToSource(proxyIndex);
+            auto item = static_cast<DiagnosticItem *>(diagnosticItemIndex.internalPointer());
+            item->setData(DiagnosticView::DiagnosticColumn,
+                          schedule ? Qt::Checked : Qt::Unchecked,
+                          Qt::CheckStateRole);
+        }
+    }
 }
 
 DiagnosticView::~DiagnosticView() = default;
@@ -293,53 +251,12 @@ void DiagnosticView::mouseDoubleClickEvent(QMouseEvent *event)
     Debugger::DetailedErrorView::mouseDoubleClickEvent(event);
 }
 
-void DiagnosticView::setSelectedFixItsCount(int fixItsCount)
-{
-    if (m_ignoreSetSelectedFixItsCount)
-        return;
-    auto checkBoxHeader = static_cast<HeaderWithCheckBoxInColumn *>(header());
-    checkBoxHeader->setState(fixItsCount
-                                 ? (QStyle::State_NoChange | QStyle::State_On | QStyle::State_Off)
-                                 : QStyle::State_Off);
-    checkBoxHeader->viewport()->update();
-}
-
 void DiagnosticView::openEditorForCurrentIndex()
 {
     const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
     const auto loc = v.value<Debugger::DiagnosticLocation>();
     if (loc.isValid())
         Core::EditorManager::openEditorAt(loc.filePath, loc.line, loc.column - 1);
-}
-
-void DiagnosticView::setModel(QAbstractItemModel *theProxyModel)
-{
-    const auto proxyModel = static_cast<QSortFilterProxyModel *>(theProxyModel);
-    Debugger::DetailedErrorView::setModel(proxyModel);
-
-    auto *header = new HeaderWithCheckBoxInColumn(Qt::Horizontal,
-                                                  DiagnosticView::DiagnosticColumn,
-                                                  this);
-    connect(header, &HeaderWithCheckBoxInColumn::checkBoxClicked, this, [=](bool checked) {
-        m_ignoreSetSelectedFixItsCount = true;
-        for (int i = 0, count = proxyModel->rowCount(); i < count; ++i) {
-            const QModelIndex filePathItemIndex = proxyModel->index(i, 0);
-            for (int j = 0, count = proxyModel->rowCount(filePathItemIndex); j < count; ++j) {
-                const QModelIndex proxyIndex = proxyModel->index(j, 0, filePathItemIndex);
-                const QModelIndex diagnosticItemIndex = proxyModel->mapToSource(proxyIndex);
-                auto item = static_cast<DiagnosticItem *>(diagnosticItemIndex.internalPointer());
-                item->setData(DiagnosticView::DiagnosticColumn,
-                              checked ? Qt::Checked : Qt::Unchecked,
-                              Qt::CheckStateRole);
-            }
-        }
-        m_ignoreSetSelectedFixItsCount = false;
-    });
-    setHeader(header);
-    header->setSectionResizeMode(DiagnosticView::DiagnosticColumn, QHeaderView::Stretch);
-    const int columnWidth = header->sectionSizeHint(DiagnosticView::DiagnosticColumn);
-    const int checkboxWidth = header->height();
-    header->setMinimumSectionSize(columnWidth + 1.2 * checkboxWidth);
 }
 
 } // namespace Internal

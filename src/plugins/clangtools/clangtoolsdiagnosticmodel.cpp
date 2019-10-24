@@ -84,7 +84,6 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : ClangToolsDiagnosticModelBase(parent)
     , m_filesWatcher(std::make_unique<QFileSystemWatcher>())
 {
-    setHeader({tr("Diagnostic")});
     connectFileWatcher();
 }
 
@@ -101,13 +100,10 @@ QDebug operator<<(QDebug debug, const Diagnostic &d)
 
 void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics)
 {
-    const auto onFixitStatusChanged = [this](FixitStatus oldStatus, FixitStatus newStatus) {
-        if (newStatus == FixitStatus::Scheduled)
-            ++m_fixItsToApplyCount;
-        else if (oldStatus == FixitStatus::Scheduled)
-            --m_fixItsToApplyCount;
-        emit fixItsToApplyCountChanged(m_fixItsToApplyCount);
-    };
+    const auto onFixitStatusChanged =
+        [this](const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus) {
+            emit fixitStatusChanged(index, oldStatus, newStatus);
+        };
 
     for (const Diagnostic &d : diagnostics) {
         // Check for duplicates
@@ -141,10 +137,12 @@ QSet<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
 
 void ClangToolsDiagnosticModel::clear()
 {
+    beginResetModel();
     m_filePathToItem.clear();
     m_diagnostics.clear();
     clearAndSetupCache();
     ClangToolsDiagnosticModelBase::clear();
+    endResetModel();
 }
 
 void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
@@ -463,7 +461,7 @@ void DiagnosticItem::setFixItStatus(const FixitStatus &status)
     m_fixitStatus = status;
     update();
     if (m_onFixitStatusChanged && status != oldStatus)
-        m_onFixitStatusChanged(oldStatus, status);
+        m_onFixitStatusChanged(index(), oldStatus, status);
 }
 
 void DiagnosticItem::setFixitOperations(const ReplacementOperations &replacements)
@@ -554,6 +552,21 @@ DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
                 if (!m_project && project->projectDirectory() == m_lastProjectDirectory)
                     setProject(project);
             });
+    connect(this, &QAbstractItemModel::modelReset, this, [this]() {
+        m_fixItsScheduled = 0;
+        m_fixItsScheduableInTotal = 0;
+        emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+    });
+    connect(this, &QAbstractItemModel::rowsInserted,
+            this, [this](const QModelIndex &parent, int first, int last) {
+        m_fixItsScheduableInTotal += diagnosticsWithFixits(parent, first, last);
+        emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+    });
+    connect(this, &QAbstractItemModel::rowsAboutToBeRemoved,
+            this, [this](const QModelIndex &parent, int first, int last) {
+        m_fixItsScheduableInTotal -= diagnosticsWithFixits(parent, first, last);
+        emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+    });
 }
 
 void DiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
@@ -572,8 +585,7 @@ void DiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
     handleSuppressedDiagnosticsChanged();
 }
 
-void DiagnosticFilterModel::addSuppressedDiagnostic(
-        const SuppressedDiagnostic &diag)
+void DiagnosticFilterModel::addSuppressedDiagnostic(const SuppressedDiagnostic &diag)
 {
     QTC_ASSERT(!m_project, return);
     m_suppressedDiagnostics << diag;
@@ -585,8 +597,45 @@ void DiagnosticFilterModel::invalidateFilter()
     QSortFilterProxyModel::invalidateFilter();
 }
 
-bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
-        const QModelIndex &sourceParent) const
+void DiagnosticFilterModel::onFixitStatusChanged(const QModelIndex &sourceIndex,
+                                                 FixitStatus oldStatus,
+                                                 FixitStatus newStatus)
+{
+    if (!mapFromSource(sourceIndex).isValid())
+        return;
+
+    if (newStatus == FixitStatus::Scheduled)
+        ++m_fixItsScheduled;
+    else if (oldStatus == FixitStatus::Scheduled) {
+        --m_fixItsScheduled;
+        if (newStatus != FixitStatus::NotScheduled)
+            --m_fixItsScheduableInTotal;
+    }
+
+    emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+}
+
+int DiagnosticFilterModel::diagnosticsWithFixits(const QModelIndex &parent,
+                                                 int first,
+                                                 int last) const
+{
+    if (!parent.isValid())
+        return 0;
+
+    int count = 0;
+    auto model = static_cast<ClangToolsDiagnosticModel *>(sourceModel());
+    for (int idx = first; idx <= last; ++idx) {
+        Utils::TreeItem *treeItem = model->itemForIndex(mapToSource(index(idx, 0, parent)));
+        if (treeItem->level() == 2) {
+            if (static_cast<DiagnosticItem *>(treeItem)->diagnostic().hasFixits)
+                ++count;
+        }
+    }
+
+    return count;
+}
+
+bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     auto model = static_cast<ClangToolsDiagnosticModel *>(sourceModel());
 
