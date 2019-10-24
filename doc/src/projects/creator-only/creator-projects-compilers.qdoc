@@ -63,8 +63,9 @@
             Windows applications on Windows. MinGW is
             distributed together with \QC and Qt installers for Windows.
 
-        \li Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
-            for Linux.
+        \li ICC (Intel C++ Compiler) is a group of C and C++ compilers.
+            Only the GCC-compatible variant, available for Linux and \macos,
+            is currently supported by \QC.
 
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and \macos.

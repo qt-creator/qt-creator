@@ -221,8 +221,12 @@ static GccToolChain::DetectedAbisResult guessGccAbi(const FilePath &path, const 
     QStringList arguments = extraArgs;
     arguments << "-dumpmachine";
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
-    if (machine.isEmpty())
+    if (machine.isEmpty()) {
+        // ICC does not implement the -dumpmachine option on macOS.
+        if (HostOsInfo::isMacHost() && (path.fileName() == "icc" || path.fileName() == "icpc"))
+            return GccToolChain::DetectedAbisResult({Abi::hostAbi()});
         return GccToolChain::DetectedAbisResult(); // no need to continue if running failed once...
+    }
     return GccToolChain::DetectedAbisResult(guessGccAbi(machine, macros), machine);
 }
 
@@ -1833,7 +1837,7 @@ QList<ToolChain *> MingwToolChainFactory::detectForImport(const ToolChainDescrip
 LinuxIccToolChain::LinuxIccToolChain() :
     GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(LinuxIccToolChainFactory::tr("Linux ICC"));
+    setTypeDisplayName(LinuxIccToolChainFactory::tr("ICC"));
 }
 
 /**
@@ -1874,7 +1878,7 @@ QStringList LinuxIccToolChain::suggestedMkspecList() const
 
 LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 {
-    setDisplayName(tr("Linux ICC"));
+    setDisplayName(tr("ICC"));
     setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new LinuxIccToolChain; });
