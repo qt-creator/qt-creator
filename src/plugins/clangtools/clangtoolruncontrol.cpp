@@ -258,7 +258,7 @@ QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
 {
     QList<RunnerCreator> creators;
 
-    if (m_diagnosticConfig.clangTidyMode() != CppTools::ClangDiagnosticConfig::TidyMode::Disabled)
+    if (m_diagnosticConfig.clangTidyChecks() != "-*")
         creators << [this]() { return createRunner<ClangTidyRunner>(); };
 
     if (!m_diagnosticConfig.clazyChecks().isEmpty()) {

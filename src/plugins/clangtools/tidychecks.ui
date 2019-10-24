@@ -32,11 +32,6 @@
       <widget class="QComboBox" name="tidyMode">
        <item>
         <property name="text">
-         <string>Disable</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>Select Checks</string>
         </property>
        </item>

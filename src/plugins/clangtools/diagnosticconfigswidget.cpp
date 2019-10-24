@@ -812,21 +812,16 @@ void DiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &
 
     disconnectClangTidyItemChanged();
 
-    ClangDiagnosticConfig::TidyMode tidyMode = config.clangTidyMode();
-
-    const int newIndex = tidyMode == ClangDiagnosticConfig::TidyMode::Default
-                             ? int(ClangDiagnosticConfig::TidyMode::ChecksPrefixList)
-                             : int(tidyMode);
-
-    m_tidyChecks->tidyMode->setCurrentIndex(newIndex);
+    const ClangDiagnosticConfig::TidyMode tidyMode = config.clangTidyMode();
     switch (tidyMode) {
-    case ClangDiagnosticConfig::TidyMode::Disabled:
     case ClangDiagnosticConfig::TidyMode::File:
+        m_tidyChecks->tidyMode->setCurrentIndex(1);
         m_tidyChecks->plainTextEditButton->setVisible(false);
         m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::EmptyPage);
         break;
     case ClangDiagnosticConfig::TidyMode::ChecksPrefixList:
     case ClangDiagnosticConfig::TidyMode::Default:
+        m_tidyChecks->tidyMode->setCurrentIndex(0);
         if (m_tidyInfo.supportedChecks.isEmpty()) {
             m_tidyChecks->plainTextEditButton->setVisible(false);
             m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::InvalidExecutablePage);
@@ -926,8 +921,12 @@ void DiagnosticConfigsWidget::disconnectClazyItemChanged()
 
 void DiagnosticConfigsWidget::onClangTidyModeChanged(int index)
 {
+    const ClangDiagnosticConfig::TidyMode tidyMode
+        = index == 0 ? ClangDiagnosticConfig::TidyMode::ChecksPrefixList
+                     : ClangDiagnosticConfig::TidyMode::File;
+
     ClangDiagnosticConfig config = currentConfig();
-    config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(index));
+    config.setClangTidyMode(tidyMode);
     updateConfig(config);
     syncClangTidyWidgets(config);
 }

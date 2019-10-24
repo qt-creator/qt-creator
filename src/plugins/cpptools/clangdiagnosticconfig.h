@@ -60,8 +60,8 @@ public:
     // Clang-Tidy
     enum class TidyMode
     {
-        Disabled,
-        ChecksPrefixList,
+        // Disabled, // Used by Qt Creator 4.10 and below.
+        ChecksPrefixList = 1,
         File,
         Default,
     };
@@ -90,7 +90,7 @@ private:
     Core::Id m_id;
     QString m_displayName;
     QStringList m_clangOptions;
-    TidyMode m_clangTidyMode = TidyMode::Disabled;
+    TidyMode m_clangTidyMode = TidyMode::Default;
     QString m_clangTidyChecks;
     QString m_clazyChecks;
     ClazyMode m_clazyMode = ClazyMode::Default;

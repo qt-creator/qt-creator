@@ -118,8 +118,7 @@ ClangDiagnosticConfigs importDiagnosticConfigsFromCodeModel()
     ClangDiagnosticConfigs clangOnlyConfigs;
     std::tie(tidyClazyConfigs, clangOnlyConfigs)
         = Utils::partition(configs, [](const ClangDiagnosticConfig &config) {
-              return !config.clazyChecks().isEmpty()
-                     || config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::Disabled;
+              return !config.clazyChecks().isEmpty() || config.clangTidyChecks() != "-*";
           });
 
     if (!tidyClazyConfigs.isEmpty()) {

@@ -190,10 +190,14 @@ ClangDiagnosticConfigs diagnosticConfigsFromSettings(QSettings *s)
         config.setId(Core::Id::fromSetting(s->value(diagnosticConfigIdKey)));
         config.setDisplayName(s->value(diagnosticConfigDisplayNameKey).toString());
         config.setClangOptions(s->value(diagnosticConfigWarningsKey).toStringList());
-        config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(
-            s->value(diagnosticConfigsTidyModeKey).toInt()));
-        config.setClangTidyChecks(
-            s->value(diagnosticConfigsTidyChecksKey).toString());
+        const int tidyModeValue = s->value(diagnosticConfigsTidyModeKey).toInt();
+        if (tidyModeValue == 0) { // Convert from settings of <= Qt Creator 4.10
+            config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+            config.setClangTidyChecks("-*");
+        } else {
+            config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(tidyModeValue));
+            config.setClangTidyChecks(s->value(diagnosticConfigsTidyChecksKey).toString());
+        }
 
         config.setClazyMode(static_cast<ClangDiagnosticConfig::ClazyMode>(
             s->value(diagnosticConfigsClazyModeKey).toInt()));
