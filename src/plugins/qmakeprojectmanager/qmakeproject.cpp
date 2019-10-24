@@ -477,8 +477,8 @@ void QmakeProject::decrementPendingEvaluateFutures()
             // After being done, we need to call:
 
             m_asyncUpdateState = Base;
-            updateCodeModels();
             updateBuildSystemData();
+            updateCodeModels();
             if (activeTarget())
                 activeTarget()->updateDefaultDeployConfigurations();
             m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
