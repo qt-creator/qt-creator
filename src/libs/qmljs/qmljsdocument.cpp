@@ -359,8 +359,6 @@ Bind *Document::bind() const
 }
 
 LibraryInfo::LibraryInfo()
-    : _status(NotScanned)
-    , _dumpStatus(NoTypeInfo)
 {
     static const QByteArray emptyFingerprint = calculateFingerprint();
     _fingerprint = emptyFingerprint;
@@ -368,7 +366,6 @@ LibraryInfo::LibraryInfo()
 
 LibraryInfo::LibraryInfo(Status status)
     : _status(status)
-    , _dumpStatus(NoTypeInfo)
 {
     updateFingerprint();
 }
@@ -379,7 +376,6 @@ LibraryInfo::LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerpri
     , _plugins(parser.plugins())
     , _typeinfos(parser.typeInfos())
     , _fingerprint(fingerprint)
-    , _dumpStatus(NoTypeInfo)
 {
     if (_fingerprint.isEmpty())
         updateFingerprint();

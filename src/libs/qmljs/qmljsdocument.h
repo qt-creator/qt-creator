@@ -150,7 +150,7 @@ public:
     };
 
 private:
-    Status _status;
+    Status _status = NotScanned;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
     QList<QmlDirParser::TypeInfo> _typeinfos;
@@ -160,7 +160,7 @@ private:
     QStringList _dependencies;
     QByteArray _fingerprint;
 
-    PluginTypeInfoStatus _dumpStatus;
+    PluginTypeInfoStatus _dumpStatus = NoTypeInfo;
     QString _dumpError;
 
 public:
