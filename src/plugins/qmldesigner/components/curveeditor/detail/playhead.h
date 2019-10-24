@@ -45,6 +45,8 @@ public:
 
     void paint(QPainter *painter, GraphicsView *view) const;
 
+    void setMoving(bool moving);
+
     void moveToFrame(int frame, GraphicsView *view);
 
     void resize(GraphicsView *view);

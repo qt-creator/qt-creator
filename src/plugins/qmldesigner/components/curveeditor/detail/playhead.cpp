@@ -56,6 +56,11 @@ int Playhead::currentFrame() const
     return m_frame;
 }
 
+void Playhead::setMoving(bool moving)
+{
+    m_moving = moving;
+}
+
 void Playhead::moveToFrame(int frame, GraphicsView *view)
 {
     m_frame = frame;

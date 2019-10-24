@@ -272,7 +272,7 @@ void TimelineToolBar::createLeftControls()
 
     auto *curveEditorAction = createAction(TimelineConstants::C_CURVE_EDITOR,
                                            TimelineIcons::CURVE_EDITORDIALOG.icon(),
-                                           tr("Curve Editor"),
+                                           tr("Animation Curve Editor"),
                                            QKeySequence(Qt::Key_C));
 
     connect(curveEditorAction,
@@ -396,10 +396,10 @@ void TimelineToolBar::createCenterControls()
 
     auto *curvePicker = createAction(TimelineConstants::C_CURVE_PICKER,
                                      TimelineIcons::CURVE_EDITOR.icon(),
-                                     tr("Curve Picker"),
+                                     tr("Easing Curve Editor"),
                                      QKeySequence(Qt::Key_C));
 
-    curvePicker->setObjectName("Curve Picker");
+    curvePicker->setObjectName("Easing Curve Editor");
     connect(curvePicker, &QAction::triggered, this, &TimelineToolBar::openEasingCurveEditor);
     addAction(curvePicker);
 

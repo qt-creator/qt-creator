@@ -113,9 +113,20 @@ QToolBar *CurveEditor::createToolBar()
     durationWidget->setLayout(durationBox);
     bar->addWidget(durationWidget);
 
+    auto *cfspin = new QSpinBox;
+    cfspin->setMinimum(0);
+    cfspin->setMaximum(std::numeric_limits<int>::max());
+
+    auto intSignal = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
+    connect(cfspin, intSignal, [this](int val) { m_view->setCurrentFrame(val, false); });
+    connect(m_view, &GraphicsView::notifyFrameChanged, [cfspin](int val) {
+        QSignalBlocker blocker(cfspin);
+        cfspin->setValue(val);
+    });
+
     auto *positionBox = new QHBoxLayout;
     positionBox->addWidget(new QLabel(tr("Current Frame")));
-    positionBox->addWidget(new QSpinBox);
+    positionBox->addWidget(cfspin);
     auto *positionWidget = new QWidget;
     positionWidget->setLayout(positionBox);
     bar->addWidget(positionWidget);
