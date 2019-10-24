@@ -44,11 +44,6 @@ Node {
         onGlobalTransformChanged: updateScale()
     }
 
-    Connections {
-        target: window
-        onFirstFrameReady: updateScale()
-    }
-
     function getScale(baseScale)
     {
         return Qt.vector3d(baseScale.x * relativeScale, baseScale.y * relativeScale,

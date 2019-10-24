@@ -135,6 +135,36 @@ Window {
             scene: overlayScene
         }
 
+        Overlay2D {
+            id: gizmoLabel
+            targetNode: moveGizmo
+            targetView: overlayView
+            offsetX: 0
+            offsetY: 45
+            visible: moveGizmo.isDragging
+
+            Rectangle {
+                color: "white"
+                x: -width / 2
+                y: -height
+                width: gizmoLabelText.width + 4
+                height: gizmoLabelText.height + 4
+                border.width: 1
+                Text {
+                    id: gizmoLabelText
+                    text: {
+                        var l = Qt.locale();
+                        selectedNode
+                            ? qsTr("x:") + Number(selectedNode.position.x).toLocaleString(l, 'f', 1)
+                              + qsTr(" y:") + Number(selectedNode.position.y).toLocaleString(l, 'f', 1)
+                              + qsTr(" z:") + Number(selectedNode.position.z).toLocaleString(l, 'f', 1)
+                            : "";
+                    }
+                    anchors.centerIn: parent
+                }
+            }
+        }
+
         WasdController {
             id: cameraControl
             controlledObject: editView.camera

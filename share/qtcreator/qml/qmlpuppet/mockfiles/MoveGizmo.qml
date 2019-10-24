@@ -32,6 +32,7 @@ Node {
     property View3D view3D
     property bool highlightOnHover: false
     property Node targetNode: null
+    readonly property bool isDragging: arrowX.isDragging || arrowY.isDragging || arrowZ.isDragging
 
     scale: Qt.vector3d(5, 5, 5)
 
