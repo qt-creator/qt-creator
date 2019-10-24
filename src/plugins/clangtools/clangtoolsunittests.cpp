@@ -87,7 +87,7 @@ static ClangDiagnosticConfig configFor(const QString &tidyChecks,
     config.setDisplayName("Test");
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
-    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
     const QString theTidyChecks = tidyChecks.isEmpty() ? tidyChecks : "-*," + tidyChecks;
     config.setClangTidyChecks(theTidyChecks);
     config.setClazyChecks(clazyChecks);

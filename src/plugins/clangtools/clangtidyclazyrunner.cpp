@@ -76,9 +76,9 @@ static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticCon
 {
     const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
     // The argument "-config={}" stops stating/evaluating the .clang-tidy file.
-    if (tidyMode == ClangDiagnosticConfig::TidyMode::Default)
+    if (tidyMode == ClangDiagnosticConfig::TidyMode::UseDefaultChecks)
         return {"-config={}"};
-    if (tidyMode == ClangDiagnosticConfig::TidyMode::ChecksPrefixList)
+    if (tidyMode == ClangDiagnosticConfig::TidyMode::UseCustomChecks)
         return {"-config={}", "-checks=" + diagnosticConfig.clangTidyChecks()};
     return {};
 }

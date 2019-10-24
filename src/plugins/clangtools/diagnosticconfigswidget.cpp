@@ -814,13 +814,13 @@ void DiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &
 
     const ClangDiagnosticConfig::TidyMode tidyMode = config.clangTidyMode();
     switch (tidyMode) {
-    case ClangDiagnosticConfig::TidyMode::File:
+    case ClangDiagnosticConfig::TidyMode::UseConfigFile:
         m_tidyChecks->tidyMode->setCurrentIndex(1);
         m_tidyChecks->plainTextEditButton->setVisible(false);
         m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::EmptyPage);
         break;
-    case ClangDiagnosticConfig::TidyMode::ChecksPrefixList:
-    case ClangDiagnosticConfig::TidyMode::Default:
+    case ClangDiagnosticConfig::TidyMode::UseCustomChecks:
+    case ClangDiagnosticConfig::TidyMode::UseDefaultChecks:
         m_tidyChecks->tidyMode->setCurrentIndex(0);
         if (m_tidyInfo.supportedChecks.isEmpty()) {
             m_tidyChecks->plainTextEditButton->setVisible(false);
@@ -856,7 +856,8 @@ void DiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &conf
     m_clazyChecks->stackedWidget->setCurrentIndex(ClazyPages::ChecksPage);
 
     disconnectClazyItemChanged();
-    const QStringList checkNames = config.clazyMode() == ClangDiagnosticConfig::ClazyMode::Default
+    const QStringList checkNames = config.clazyMode()
+                                           == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks
                                        ? m_clazyInfo.defaultChecks
                                        : config.clazyChecks().split(',', QString::SkipEmptyParts);
     m_clazyTreeModel->enableChecks(checkNames);
@@ -875,7 +876,8 @@ void DiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &conf
 
 void DiagnosticConfigsWidget::syncTidyChecksToTree(const ClangDiagnosticConfig &config)
 {
-    const QString checks = config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::Default
+    const QString checks = config.clangTidyMode()
+                                   == ClangDiagnosticConfig::TidyMode::UseDefaultChecks
                                ? m_tidyInfo.defaultChecks.join(',')
                                : config.clangTidyChecks();
     m_tidyTreeModel->selectChecks(checks);
@@ -922,8 +924,8 @@ void DiagnosticConfigsWidget::disconnectClazyItemChanged()
 void DiagnosticConfigsWidget::onClangTidyModeChanged(int index)
 {
     const ClangDiagnosticConfig::TidyMode tidyMode
-        = index == 0 ? ClangDiagnosticConfig::TidyMode::ChecksPrefixList
-                     : ClangDiagnosticConfig::TidyMode::File;
+        = index == 0 ? ClangDiagnosticConfig::TidyMode::UseCustomChecks
+                     : ClangDiagnosticConfig::TidyMode::UseConfigFile;
 
     ClangDiagnosticConfig config = currentConfig();
     config.setClangTidyMode(tidyMode);
@@ -934,8 +936,8 @@ void DiagnosticConfigsWidget::onClangTidyModeChanged(int index)
 void DiagnosticConfigsWidget::onClangTidyTreeChanged()
 {
     ClangDiagnosticConfig config = currentConfig();
-    if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::Default)
-        config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks)
+        config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
     config.setClangTidyChecks(m_tidyTreeModel->selectedChecks());
     updateConfig(config);
 }
@@ -945,8 +947,8 @@ void DiagnosticConfigsWidget::onClazyTreeChanged()
     syncClazyChecksGroupBox();
 
     ClangDiagnosticConfig config = currentConfig();
-    if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::Default)
-        config.setClazyMode(ClangDiagnosticConfig::ClazyMode::SpecifiedChecks);
+    if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks)
+        config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
     config.setClazyChecks(m_clazyTreeModel->enabledChecks().join(","));
     updateConfig(config);
 }

@@ -155,7 +155,7 @@ bool isDiagnosticConfigChangable(ProjectExplorer::Project *project,
     const QSharedPointer<CppCodeModelSettings> globalSettings = codeModelSettings();
     const ClangDiagnosticConfig config = diagnosticConfig(projectSettings, *globalSettings);
 
-    if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::File
+    if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseConfigFile
         && diagnosticType(diagnostic) == DiagnosticType::Tidy) {
         return false;
     }

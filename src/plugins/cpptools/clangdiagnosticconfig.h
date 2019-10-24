@@ -61,9 +61,9 @@ public:
     enum class TidyMode
     {
         // Disabled, // Used by Qt Creator 4.10 and below.
-        ChecksPrefixList = 1,
-        File,
-        Default,
+        UseCustomChecks = 1,
+        UseConfigFile,
+        UseDefaultChecks,
     };
     TidyMode clangTidyMode() const;
     void setClangTidyMode(TidyMode mode);
@@ -74,8 +74,8 @@ public:
     // Clazy
     enum class ClazyMode
     {
-        Default,
-        SpecifiedChecks,
+        UseDefaultChecks,
+        UseCustomChecks,
     };
     ClazyMode clazyMode() const;
     void setClazyMode(const ClazyMode &clazyMode);
@@ -90,10 +90,10 @@ private:
     Core::Id m_id;
     QString m_displayName;
     QStringList m_clangOptions;
-    TidyMode m_clangTidyMode = TidyMode::Default;
+    TidyMode m_clangTidyMode = TidyMode::UseDefaultChecks;
     QString m_clangTidyChecks;
     QString m_clazyChecks;
-    ClazyMode m_clazyMode = ClazyMode::Default;
+    ClazyMode m_clazyMode = ClazyMode::UseDefaultChecks;
     bool m_isReadOnly = false;
     bool m_useBuildSystemWarnings = false;
 };

@@ -173,8 +173,8 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
                                                       "Default Clang-Tidy and Clazy checks"));
     config.setIsReadOnly(true);
     config.setClangOptions({"-w"}); // Do not emit any clang-only warnings
-    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::Default);
-    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::Default);
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseDefaultChecks);
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseDefaultChecks);
 
     model.appendOrUpdate(config);
 }

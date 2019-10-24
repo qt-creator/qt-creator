@@ -192,7 +192,7 @@ ClangDiagnosticConfigs diagnosticConfigsFromSettings(QSettings *s)
         config.setClangOptions(s->value(diagnosticConfigWarningsKey).toStringList());
         const int tidyModeValue = s->value(diagnosticConfigsTidyModeKey).toInt();
         if (tidyModeValue == 0) { // Convert from settings of <= Qt Creator 4.10
-            config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+            config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
             config.setClangTidyChecks("-*");
         } else {
             config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(tidyModeValue));
