@@ -54,8 +54,7 @@ Window {
             onTapped: {
                 var pickResult = editView.pick(eventPoint.scenePosition.x,
                                                eventPoint.scenePosition.y);
-                if (pickResult.objectHit)
-                    viewWindow.objectClicked(pickResult.objectHit);
+                viewWindow.objectClicked(pickResult.objectHit);
             }
         }
 

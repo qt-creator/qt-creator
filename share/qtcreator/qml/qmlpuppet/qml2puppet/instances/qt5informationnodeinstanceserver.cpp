@@ -101,9 +101,10 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     return window;
 }
 
-void Qt5InformationNodeInstanceServer::objectClicked(const QVariant &object) {
-    QObject *item = qobject_cast<QObject *>(object.value<QObject *>());
-    selectInstance(instanceForObject(item));
+// an object is clicked in the 3D edit view
+void Qt5InformationNodeInstanceServer::objectClicked(const QVariant &object)
+{
+    selectInstance(instanceForObject(object.value<QObject *>()));
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
