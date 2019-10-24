@@ -406,7 +406,10 @@ static QStringList readFlags(const QString &filePath)
     const QStringList lines = readLines(filePath);
     if (lines.isEmpty())
         return QStringList();
-    return QtcProcess::splitArgs(lines.first());
+    QStringList flags;
+    for (const auto &line : lines)
+        flags.append(QtcProcess::splitArgs(line));
+    return flags;
 }
 
 void GenericBuildSystem::parse(RefreshOptions options)
