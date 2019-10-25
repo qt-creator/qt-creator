@@ -46,7 +46,7 @@ QT_END_NAMESPACE
 
 namespace QmlJS {
 class ImportInfo;
-class ViewerContext;
+struct ViewerContext;
 namespace Internal { class ImportDependenciesPrivate; }
 class ImportDependencies;
 
