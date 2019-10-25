@@ -26,6 +26,7 @@
 #pragma once
 
 #include <utils/fileutils.h>
+#include <utils/optional.h>
 
 #include <QUuid>
 
@@ -57,13 +58,18 @@ public:
     static QList<Interpreter> interpreters();
     static Interpreter defaultInterpreter();
     static void setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId);
+    static void addInterpreter(const Interpreter &interpreter, bool isDefault = false);
     static PythonSettings *instance();
+
+    static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
 
 signals:
     void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
 
 private:
     PythonSettings();
+
+    static void saveSettings();
 };
 
 } // namespace Internal

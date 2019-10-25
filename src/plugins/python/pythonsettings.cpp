@@ -211,6 +211,7 @@ public:
     InterpreterOptionsPage();
 
     void setInterpreter(const QList<Interpreter> &interpreters) { m_interpreters = interpreters; }
+    void addInterpreter(const Interpreter &interpreter) { m_interpreters << interpreter; }
     QList<Interpreter> interpreters() const { return m_interpreters; }
     void setDefaultInterpreter(const QString &defaultId)
     { m_defaultInterpreterId = defaultId; }
@@ -278,6 +279,7 @@ Interpreter::Interpreter(const FilePath &python, const QString &defaultName, boo
 {
     SynchronousProcess pythonProcess;
     pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
+    pythonProcess.setTimeoutS(1);
     SynchronousProcessResponse response = pythonProcess.runBlocking(
         CommandLine(python, {"--version"}));
     if (response.result == SynchronousProcessResponse::Finished)
@@ -467,15 +469,67 @@ void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, cons
 {
     interpreterOptionsPage().setInterpreter(interpreters);
     interpreterOptionsPage().setDefaultInterpreter(defaultId);
-    toSettings(Core::ICore::settings(), {interpreters, defaultId});
-    if (QTC_GUARD(settingsInstance))
-        emit settingsInstance->interpretersChanged(interpreters, defaultId);
+    saveSettings();
+}
+
+void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefault)
+{
+    interpreterOptionsPage().addInterpreter(interpreter);
+    if (isDefault)
+        interpreterOptionsPage().setDefaultInterpreter(interpreter.id);
+    saveSettings();
 }
 
 PythonSettings *PythonSettings::instance()
 {
     QTC_CHECK(settingsInstance);
     return settingsInstance;
+}
+
+QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
+{
+    QList<Interpreter> result;
+    QDir dir = path.toFileInfo().isDir() ? QDir(path.toString()) : path.toFileInfo().dir();
+    if (dir.exists()) {
+        const QString venvPython = HostOsInfo::withExecutableSuffix("python");
+        const QString activatePath = HostOsInfo::isWindowsHost() ? QString{"Scripts"}
+                                                                 : QString{"bin"};
+        do {
+            for (const QString &directory : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+                if (dir.cd(directory)) {
+                    if (dir.cd(activatePath)) {
+                        if (dir.exists("activate") && dir.exists(venvPython)) {
+                            FilePath python = FilePath::fromString(dir.absoluteFilePath(venvPython));
+                            dir.cdUp();
+                            const QString defaultName = QString("Python (%1 Virtual Environment)")
+                                                            .arg(dir.dirName());
+                            Interpreter interpreter
+                                = Utils::findOrDefault(PythonSettings::interpreters(),
+                                                       Utils::equal(&Interpreter::command, python));
+                            if (interpreter.command.isEmpty()) {
+                                interpreter = Interpreter(python, defaultName);
+                                PythonSettings::addInterpreter(interpreter);
+                            }
+                            result << interpreter;
+                        } else {
+                            dir.cdUp();
+                        }
+                    }
+                    dir.cdUp();
+                }
+            }
+        } while (dir.cdUp());
+    }
+    return result;
+}
+
+void PythonSettings::saveSettings()
+{
+    const QList<Interpreter> &interpreters = interpreterOptionsPage().interpreters();
+    const QString &defaultId = interpreterOptionsPage().defaultInterpreter().id;
+    toSettings(Core::ICore::settings(), {interpreters, defaultId});
+    if (QTC_GUARD(settingsInstance))
+        emit settingsInstance->interpretersChanged(interpreters, defaultId);
 }
 
 QList<Interpreter> PythonSettings::interpreters()
