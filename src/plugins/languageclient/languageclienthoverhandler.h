@@ -45,7 +45,6 @@ protected:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
                        int pos,
                        ReportPriority report) override;
-    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
 
 private:
     void handleResponse(const LanguageServerProtocol::HoverRequest::Response &response);

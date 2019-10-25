@@ -96,14 +96,6 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     m_client->sendContent(request);
 }
 
-void HoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point)
-{
-    if (toolTip().isEmpty())
-        Utils::ToolTip::hide();
-    else
-        Utils::ToolTip::show(point, toolTip(), editorWidget);
-}
-
 void HoverHandler::handleResponse(const HoverRequest::Response &response)
 {
     m_currentRequest.reset();
