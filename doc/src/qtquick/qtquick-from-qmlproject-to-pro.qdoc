@@ -64,10 +64,10 @@
     Then you can use the \l QQuickView class in the main C++ source file to
     show the main QML file when the application starts.
 
-    At the time of this writing, the Qt Quick Timeline module is delivered with
-    \QDS, but not with Qt. If you use a timeline in a \QDS project that you
-    import to \QC, you must build the Qt Quick Timeline module and install it to
-    your Qt to be able to build your project.
+    The \l{Qt Quick Timeline} module is delivered with \QDS and with Qt 5.14,
+    and later. If you use a timeline in a \QDS project that you import to \QC,
+    and your Qt is older than 5.14, you must build the Qt Quick Timeline module
+    and install it to your Qt to be able to build your project.
 
     \section1 Converting Projects
 
@@ -116,7 +116,9 @@
 
     \section1 Adding Qt Quick Timeline Module to Qt Installations
 
-    Check out the Qt Quick Timeline module from
+    \note You only need to do this if your Qt version is older than 5.14.
+
+    Check out the \l{Qt Quick Timeline} module from
     \l{https://codereview.qt-project.org/#/admin/projects/qt/qtquicktimeline}
     {Qt Code Review}.
 

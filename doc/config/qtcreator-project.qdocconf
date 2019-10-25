@@ -42,6 +42,7 @@ depends +=    qtwidgets \
               qthelp \
               qtquickcontrols \
               qtquickextras \
+              qtquicktimeline \
               qtlinguist \
               qtscxml \
               qtsensors \
