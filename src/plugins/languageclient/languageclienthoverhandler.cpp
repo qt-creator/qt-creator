@@ -126,10 +126,13 @@ void HoverHandler::setContent(const HoverContent &hoverContent)
 {
     if (auto markupContent = Utils::get_if<MarkupContent>(&hoverContent)) {
         const QString &content = markupContent->content();
-        if (markupContent->kind() == MarkupKind::plaintext)
+        if (markupContent->kind() == MarkupKind::plaintext) {
             setToolTip(content);
-        else if (m_client)
-            m_client->log(tr("Got unsupported markup hover content: ") + content);
+        } else if (m_client) {
+            m_client->log(tr("Got unsupported markup hover content: ") + content,
+                          Core::MessageManager::Silent);
+            setToolTip(content);
+        }
     } else if (auto markedString = Utils::get_if<MarkedString>(&hoverContent)) {
         setToolTip(toolTipForMarkedStrings({*markedString}));
     } else if (auto markedStrings = Utils::get_if<QList<MarkedString>>(&hoverContent)) {
