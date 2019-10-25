@@ -27,6 +27,10 @@
 
 #include "qt5nodeinstanceserver.h"
 #include "tokencommand.h"
+#include "valueschangedcommand.h"
+
+#include <QTimer>
+#include <QVariant>
 
 namespace QmlDesigner {
 
@@ -47,6 +51,7 @@ public:
 private slots:
     void objectClicked(const QVariant &object);
     void handleObjectPositionCommit(const QVariant &object);
+    void handleObjectPositionMove(const QVariant &object);
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -58,17 +63,23 @@ protected:
     void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
 
 private:
+    void handleObjectPositionMoveTimeout();
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
         const PropertyName &propertyName,
         const QVariant &variant);
+    void modifyVariantValue(const QVariant &node,
+                            const PropertyName &propertyName,
+                            ValuesModifiedCommand::TransactionOption option);
 
     QObject *m_editView3D = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;
+    QTimer m_moveTimer;
+    QVariant m_movedNode;
 };
 
 } // namespace QmlDesigner

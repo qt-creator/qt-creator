@@ -43,6 +43,7 @@ Model {
     property var _targetStartPos
 
     signal positionCommit()
+    signal positionMove()
 
     materials: DefaultMaterial {
         id: material
@@ -85,6 +86,7 @@ Model {
             return;
 
         targetNode.position = posInParent(mouseArea, pointerPosition);
+        arrow.positionMove();
     }
 
     function handleReleased(mouseArea, pointerPosition)

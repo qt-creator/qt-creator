@@ -41,6 +41,7 @@ Node {
     property alias arrowZ: arrowZ
 
     signal positionCommit()
+    signal positionMove()
 
     Arrow {
         id: arrowX
@@ -52,6 +53,7 @@ Node {
         view3D: arrows.view3D
 
         onPositionCommit: arrows.positionCommit()
+        onPositionMove: arrows.positionMove()
     }
 
     Arrow {
@@ -64,6 +66,7 @@ Node {
         view3D: arrows.view3D
 
         onPositionCommit: arrows.positionCommit()
+        onPositionMove: arrows.positionMove()
     }
 
     Arrow {
@@ -76,5 +79,6 @@ Node {
         view3D: arrows.view3D
 
         onPositionCommit: arrows.positionCommit()
+        onPositionMove: arrows.positionMove()
     }
 }

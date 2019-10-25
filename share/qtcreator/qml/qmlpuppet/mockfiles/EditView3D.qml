@@ -46,6 +46,7 @@ Window {
 
     signal objectClicked(var object)
     signal commitObjectPosition(var object)
+    signal moveObjectPosition(var object)
 
     function selectObject(object) {
         selectedNode = object;
@@ -70,6 +71,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
+
             rotation: globalControl.checked || !viewWindow.selectedNode
                       ? Qt.vector3d(0, 0, 0)
                       : viewWindow.selectedNode.sceneRotation
@@ -78,6 +80,7 @@ Window {
             view3D: overlayView
 
             onPositionCommit: viewWindow.commitObjectPosition(selectedNode)
+            onPositionMove: viewWindow.moveObjectPosition(selectedNode)
         }
 
         AutoScaleHelper {
