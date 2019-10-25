@@ -310,7 +310,7 @@ public:
         const int documentRevision = textCursor.document()->revision();
         const int position = Text::wordStartCursor(textCursor).position();
         if (m_lastHandlerInfo.applies(documentRevision, position)) {
-            m_lastHandlerInfo.handler->showToolTip(m_widget, point, /*decorate=*/ false);
+            m_lastHandlerInfo.handler->showToolTip(m_widget, point);
             return;
         }
 

@@ -30,14 +30,14 @@
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QVBoxLayout>
+
 namespace TextEditor {
 
 BaseHoverHandler::~BaseHoverHandler() = default;
 
-void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate)
+void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point)
 {
-    if (decorate)
-        decorateToolTip();
     operateTooltip(widget, point);
 }
 
@@ -140,31 +140,32 @@ void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Re
         setToolTip(tooltip);
 }
 
-void BaseHoverHandler::decorateToolTip()
-{
-    if (!m_toolTip.isEmpty())
-        m_toolTip = "<p>" + m_toolTip.toHtmlEscaped().replace('\n', "<br/>") + "</p>";
-
-    if (lastHelpItemIdentified().isValid() && !lastHelpItemIdentified().isFuzzyMatch()) {
-        const QString &helpContents = lastHelpItemIdentified().extractContent(false);
-        if (!helpContents.isEmpty()) {
-            m_toolTip = m_toolTip.isEmpty() ? helpContents
-                                            : (m_toolTip + "<hr/><p>" + helpContents + "</p>");
-        }
-    }
-}
-
 void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
-    if (m_toolTip.isEmpty())
+    const QVariant helpItem = m_lastHelpItemIdentified.isEmpty()
+                                  ? QVariant()
+                                  : QVariant::fromValue(m_lastHelpItemIdentified);
+    const bool extractHelp = m_lastHelpItemIdentified.isValid()
+                             && !m_lastHelpItemIdentified.isFuzzyMatch();
+    const QString helpContents = extractHelp ? m_lastHelpItemIdentified.firstParagraph()
+                                             : QString();
+    if (m_toolTip.isEmpty() && helpContents.isEmpty()) {
         Utils::ToolTip::hide();
-    else
-        Utils::ToolTip::show(point,
-                             m_toolTip,
-                             editorWidget,
-                             m_lastHelpItemIdentified.isEmpty()
-                                 ? QVariant()
-                                 : QVariant::fromValue(m_lastHelpItemIdentified));
+    } else {
+        if (helpContents.isEmpty()) {
+            Utils::ToolTip::show(point, m_toolTip, editorWidget, helpItem);
+        } else if (m_toolTip.isEmpty()) {
+            Utils::ToolTip::show(point, helpContents, editorWidget, helpItem);
+        } else {
+            // separate labels for tool tip text and help,
+            // so the text format (plain, rich, markdown) can be handled differently
+            auto layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(new QLabel(m_toolTip));
+            layout->addWidget(new QLabel("<hr/>" + helpContents));
+            Utils::ToolTip::show(point, layout, editorWidget, helpItem);
+        }
+    }
 }
 
 } // namespace TextEditor

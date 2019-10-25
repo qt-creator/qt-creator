@@ -107,6 +107,13 @@ bool HelpItem::isValid() const
     return !links().empty();
 }
 
+QString HelpItem::firstParagraph() const
+{
+    if (!m_firstParagraph)
+        m_firstParagraph = extractContent(false);
+    return *m_firstParagraph;
+}
+
 QString HelpItem::extractContent(bool extended) const
 {
     Utils::HtmlDocExtractor htmlExtractor;

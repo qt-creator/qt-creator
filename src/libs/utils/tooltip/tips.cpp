@@ -171,12 +171,7 @@ bool TextTip::isInteractive() const
 
 void TextTip::configure(const QPoint &pos, QWidget *w)
 {
-    if (contextHelp().isNull())
-        setText(m_text);
-    else
-        setText(QString::fromLatin1("<table><tr><td valign=middle>%1</td><td>&nbsp;&nbsp;"
-                                    "<img src=\":/utils/tooltip/images/f1.png\"></td>"
-                                    "</tr></table>").arg(m_text));
+    setText(m_text);
 
     // Make it look good with the default ToolTip font on Mac, which has a small descent.
     QFontMetrics fm(font());

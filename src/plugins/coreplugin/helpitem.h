@@ -79,19 +79,21 @@ public:
     bool isEmpty() const;
     bool isValid() const;
 
-    QString extractContent(bool extended) const;
-
+    QString firstParagraph() const;
     const Links &links() const;
     const Links bestLinks() const;
     const QString keyword() const;
     bool isFuzzyMatch() const;
 
 private:
+    QString extractContent(bool extended) const;
+
     QUrl m_helpUrl;
     QStringList m_helpIds;
     QString m_docMark;
     Category m_category = Unknown;
     mutable Utils::optional<Links> m_helpLinks; // cached help links
+    mutable Utils::optional<QString> m_firstParagraph;
     mutable QString m_keyword;
     mutable bool m_isFuzzyMatch = false;
 };

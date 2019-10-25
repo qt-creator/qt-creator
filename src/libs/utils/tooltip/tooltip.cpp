@@ -35,6 +35,7 @@
 #include <QColor>
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMouseEvent>
@@ -60,14 +61,47 @@ ToolTip *ToolTip::instance()
     return &tooltip;
 }
 
-void ToolTip::show(const QPoint &pos, const QString &content, QWidget *w, const QVariant &contextHelp, const QRect &rect)
+static QWidget *createF1Icon()
 {
-    if (content.isEmpty())
-        instance()->hideTipWithDelay();
-    else
-        instance()->showInternal(pos, QVariant(content), TextContent, w, contextHelp, rect);
+    auto label = new QLabel;
+    label->setPixmap({":/utils/tooltip/images/f1.png"});
+    label->setAlignment(Qt::AlignTop);
+    return label;
 }
 
+/*!
+    Shows a tool tip with the text \a content. If \a contextHelp is given, a context help icon
+    is shown as well.
+    \a contextHelp of the current shown tool tip can be retrieved via ToolTip::contextHelp().
+*/
+void ToolTip::show(const QPoint &pos, const QString &content, QWidget *w, const QVariant &contextHelp, const QRect &rect)
+{
+    if (content.isEmpty()) {
+        instance()->hideTipWithDelay();
+    } else {
+        if (contextHelp.isNull()) {
+            instance()->showInternal(pos, QVariant(content), TextContent, w, contextHelp, rect);
+        } else {
+            auto tooltipWidget = new FakeToolTip;
+            auto layout = new QHBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            tooltipWidget->setLayout(layout);
+            layout->addWidget(new QLabel(content));
+            layout->addWidget(createF1Icon());
+            instance()->showInternal(pos,
+                                     QVariant::fromValue(tooltipWidget),
+                                     WidgetContent,
+                                     w,
+                                     contextHelp,
+                                     rect);
+        }
+    }
+}
+
+/*!
+    Shows a tool tip with a small rectangle in the given \a color.
+    \a contextHelp of the current shown tool tip can be retrieved via ToolTip::contextHelp().
+*/
 void ToolTip::show(const QPoint &pos, const QColor &color, QWidget *w, const QVariant &contextHelp, const QRect &rect)
 {
     if (!color.isValid())
@@ -76,6 +110,10 @@ void ToolTip::show(const QPoint &pos, const QColor &color, QWidget *w, const QVa
         instance()->showInternal(pos, QVariant(color), ColorContent, w, contextHelp, rect);
 }
 
+/*!
+    Shows the widget \a content as a tool tip. The tool tip takes ownership of the widget.
+    \a contextHelp of the current shown tool tip can be retrieved via ToolTip::contextHelp().
+*/
 void ToolTip::show(const QPoint &pos, QWidget *content, QWidget *w, const QVariant &contextHelp, const QRect &rect)
 {
     if (!content)
@@ -84,11 +122,25 @@ void ToolTip::show(const QPoint &pos, QWidget *content, QWidget *w, const QVaria
         instance()->showInternal(pos, QVariant::fromValue(content), WidgetContent, w, contextHelp, rect);
 }
 
-void ToolTip::show(const QPoint &pos, QLayout *content, QWidget *w, const QVariant &contextHelp, const QRect &rect)
+/*!
+    Shows the layout \a content as a tool tip. The tool tip takes ownership of the layout.
+    If \a contextHelp is given, a context help icon is shown as well.
+    \a contextHelp of the current shown tool tip can be retrieved via ToolTip::contextHelp().
+*/
+void ToolTip::show(
+    const QPoint &pos, QLayout *content, QWidget *w, const QVariant &contextHelp, const QRect &rect)
 {
     if (content && content->count()) {
         auto tooltipWidget = new FakeToolTip;
-        tooltipWidget->setLayout(content);
+        if (contextHelp.isNull()) {
+            tooltipWidget->setLayout(content);
+        } else {
+            auto layout = new QHBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            tooltipWidget->setLayout(layout);
+            layout->addLayout(content);
+            layout->addWidget(createF1Icon());
+        }
         instance()->showInternal(pos, QVariant::fromValue(tooltipWidget), WidgetContent, w, contextHelp, rect);
     } else {
         instance()->hideTipWithDelay();

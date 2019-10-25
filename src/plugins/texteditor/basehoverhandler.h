@@ -53,7 +53,7 @@ public:
     void checkPriority(TextEditorWidget *widget, int pos, ReportPriority report);
     virtual void abort() {} // Implement for asynchronous priority reporter
 
-    void showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate = true);
+    void showToolTip(TextEditorWidget *widget, const QPoint &point);
 
 protected:
     enum {
@@ -84,7 +84,6 @@ protected:
 
 private:
     void process(TextEditorWidget *widget, int pos, ReportPriority report);
-    void decorateToolTip();
 
     QString m_toolTip;
     Core::HelpItem m_lastHelpItemIdentified;
