@@ -50,6 +50,7 @@ private:
     bool parseErrorOrFatalErrorDetailsMessage2(const QString &lne);
     bool parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &lne);
     bool parseErrorInCommandLineMessage(const QString &lne);
+    bool parseErrorMessage1(const QString &lne);
 
     void stdError(const QString &line) final;
     void stdOutput(const QString &line) final;

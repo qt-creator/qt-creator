@@ -179,6 +179,22 @@ bool IarParser::parseErrorInCommandLineMessage(const QString &lne)
     return true;
 }
 
+bool IarParser::parseErrorMessage1(const QString &lne)
+{
+    const QRegularExpression re("^(Error)\\[(.+)\\]:\\s(.+)$");
+    const QRegularExpressionMatch match = re.match(lne);
+    if (!match.hasMatch())
+        return false;
+    enum CaptureIndex { MessageTypeIndex = 1, MessageCodeIndex, DescriptionIndex };
+    const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
+    const QString descr = QString("[%1]: %2").arg(match.captured(MessageCodeIndex),
+                                                  match.captured(DescriptionIndex));
+    // This task has not a file path and line number (as it is a linker message)
+    const Task task(type, descr, {}, -1, Constants::TASK_CATEGORY_COMPILE);
+    newTask(task);
+    return true;
+}
+
 void IarParser::stdError(const QString &line)
 {
     IOutputParser::stdError(line);
@@ -225,7 +241,10 @@ void IarParser::stdOutput(const QString &line)
 
     const QString lne = rightTrimmed(line);
 
-    if (!parseErrorInCommandLineMessage(lne))
+    // The call sequence has the meaning!
+    const bool leastOneParsed = parseErrorInCommandLineMessage(lne)
+            || parseErrorMessage1(lne);
+    if (!leastOneParsed)
         return;
 
     doFlush();
@@ -292,6 +311,18 @@ void BareMetalPlugin::testIarOutputParsers_data()
             << QString()
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("Error in command line: Some error"),
+                                      Utils::FilePath(),
+                                      -1,
+                                      categoryCompile))
+            << QString();
+
+    QTest::newRow("Linker error")
+            << QString::fromLatin1("Error[e46]: Some error")
+            << OutputParserTester::STDOUT
+            << QString::fromLatin1("Error[e46]: Some error\n")
+            << QString()
+            << (Tasks() << Task(Task::Error,
+                                      QLatin1String("[e46]: Some error"),
                                       Utils::FilePath(),
                                       -1,
                                       categoryCompile))
