@@ -42,6 +42,13 @@ PropertyValueContainer::PropertyValueContainer(qint32 instanceId, const Property
 {
 }
 
+PropertyValueContainer::PropertyValueContainer(qint32 option)
+    : m_instanceId(option),
+    m_name("-option-")
+{
+// '-option-' is not a valid property name and indicates that we store the transaction option.
+}
+
 qint32 PropertyValueContainer::instanceId() const
 {
     return m_instanceId;

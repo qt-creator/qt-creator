@@ -95,7 +95,14 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
 {
     static const bool dontUseSharedMemory = qEnvironmentVariableIsSet("DESIGNER_DONT_USE_SHARED_MEMORY");
 
-    if (!dontUseSharedMemory && command.valueChanges().count() > 5) {
+    QVector<PropertyValueContainer> propertyValueContainer = command.valueChanges();
+
+    if (command.transactionOption != ValuesChangedCommand::TransactionOption::None) {
+        PropertyValueContainer optionContainer(command.transactionOption);
+        propertyValueContainer.append(optionContainer);
+    }
+
+    if (!dontUseSharedMemory && propertyValueContainer.count() > 5) {
         static quint32 keyCounter = 0;
         ++keyCounter;
         command.m_keyNumber = keyCounter;
@@ -103,7 +110,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
         QDataStream temporaryOutDataStream(&outDataStreamByteArray, QIODevice::WriteOnly);
         temporaryOutDataStream.setVersion(QDataStream::Qt_4_8);
 
-        temporaryOutDataStream << command.valueChanges();
+        temporaryOutDataStream << propertyValueContainer;
 
         SharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
 
@@ -118,7 +125,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
     }
 
     out << qint32(0);
-    out << command.valueChanges();
+    out << propertyValueContainer;
 
     return out;
 }
@@ -144,17 +151,29 @@ QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command)
 {
     in >> command.m_keyNumber;
 
-    if (command.keyNumber() > 0) {
-        readSharedMemory(command.keyNumber(), &command.m_valueChangeVector);
-    } else {
-        in >> command.m_valueChangeVector;
+    QVector<PropertyValueContainer> valueChangeVector;
+
+    if (command.keyNumber() > 0)
+        readSharedMemory(command.keyNumber(), &valueChangeVector);
+    else
+        in >> valueChangeVector;
+
+    // '-option-' is not a valid property name and indicates that we store the transaction option.
+    if (!valueChangeVector.isEmpty() && valueChangeVector.last().name() == "-option-") {
+        command.transactionOption =
+            static_cast<ValuesChangedCommand::TransactionOption>(valueChangeVector.last().instanceId());
+        valueChangeVector.removeLast();
     }
+
+    command.m_valueChangeVector = valueChangeVector;
+
     return in;
 }
 
 bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second)
 {
-    return first.m_valueChangeVector == second.m_valueChangeVector;
+    return first.m_valueChangeVector == second.m_valueChangeVector
+        && first.transactionOption == second.transactionOption;
 }
 
 QDebug operator <<(QDebug debug, const ValuesChangedCommand &command)

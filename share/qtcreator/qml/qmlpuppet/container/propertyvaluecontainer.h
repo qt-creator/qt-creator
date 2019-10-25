@@ -43,6 +43,7 @@ class PropertyValueContainer
 public:
     PropertyValueContainer();
     PropertyValueContainer(qint32 instanceId, const PropertyName &name, const QVariant &value, const TypeName &dynamicTypeName);
+    PropertyValueContainer(qint32 option);
 
     qint32 instanceId() const;
     PropertyName name() const;
