@@ -67,6 +67,8 @@ private:
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
+    void findCamerasAndLights( const QList<ServerNodeInstance> &instanceList,
+                               QObjectList &cameras, QObjectList &lights) const;
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
         const PropertyName &propertyName,
         const QVariant &variant);

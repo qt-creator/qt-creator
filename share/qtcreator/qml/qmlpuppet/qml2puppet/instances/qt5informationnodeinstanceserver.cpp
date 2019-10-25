@@ -294,6 +294,19 @@ QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
     return nullptr;
 }
 
+void Qt5InformationNodeInstanceServer::findCamerasAndLights(
+        const QList<ServerNodeInstance> &instanceList,
+        QObjectList &cameras, QObjectList &lights) const
+{
+    QObjectList objList;
+    for (const ServerNodeInstance &instance : instanceList) {
+        if (instance.isSubclassOf("QQuick3DCamera"))
+            cameras << instance.internalObject();
+        else if (instance.isSubclassOf("QQuick3DAbstractLight"))
+            lights << instance.internalObject();
+    }
+}
+
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList)
 {
     ServerNodeInstance root = rootNodeInstance();
@@ -321,6 +334,19 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         parentProperty.write(objectToVariant(m_editView3D));
         QQmlProperty completeSceneProperty(m_editView3D, "showLight", context());
         completeSceneProperty.write(showCustomLight);
+
+        // Create camera and light gizmos
+        QObjectList cameras;
+        QObjectList lights;
+        findCamerasAndLights(instanceList, cameras, lights);
+        for (auto &obj : qAsConst(cameras)) {
+            QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
+                    Q_ARG(QVariant, objectToVariant(obj)));
+        }
+        for (auto &obj : qAsConst(lights)) {
+            QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
+                    Q_ARG(QVariant, objectToVariant(obj)));
+        }
     }
 }
 

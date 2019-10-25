@@ -26,42 +26,16 @@
 import QtQuick 2.0
 import QtQuick3D 1.0
 
-Item {
-    id: root
-    property Node targetNode
-    property View3D targetView
+IconGizmo {
+    id: cameraGizmo
 
-    property real offsetX: 0
-    property real offsetY: 0
-
-    property bool isBehindCamera
-
-    onTargetNodeChanged: updateOverlay()
-
-    Connections {
-        target: targetNode
-        onSceneTransformChanged: updateOverlay()
-    }
-
-    Connections {
-        target: targetView.camera
-        onSceneTransformChanged: updateOverlay()
-    }
-
-    Connections {
-        target: designStudioNativeCameraControlHelper
-        onOverlayUpdateNeeded: updateOverlay()
-    }
-
-    function updateOverlay()
-    {
-        var scenePos = targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0);
-        var scenePosWithOffset = Qt.vector3d(scenePos.x + offsetX, scenePos.y + offsetY, scenePos.z);
-        var viewPos = targetView ? targetView.mapFrom3DScene(scenePosWithOffset)
-                                 : Qt.vector3d(0, 0, 0);
-        root.x = viewPos.x;
-        root.y = viewPos.y;
-
-        isBehindCamera = viewPos.z <= 0;
-    }
+    iconSource: "qrc:///qtquickplugin/mockfiles/images/camera-pick-icon.png"
+    gizmoModel.source: "#Cube"
+    gizmoModel.materials: [
+        DefaultMaterial {
+            id: defaultMaterial
+            emissiveColor: "blue"
+            lighting: DefaultMaterial.NoLighting
+        }
+    ]
 }

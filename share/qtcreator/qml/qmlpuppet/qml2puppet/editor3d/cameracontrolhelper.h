@@ -41,16 +41,20 @@ public:
     bool enabled();
     void setEnabled(bool enabled);
 
+    Q_INVOKABLE void requestOverlayUpdate();
+
 public slots:
     void handleUpdateTimer();
 
 signals:
     void updateInputs();
     void enabledChanged(bool enabled);
+    void overlayUpdateNeeded();
 
 private:
     bool m_enabled = false;
-    QTimer m_timer;
+    QTimer m_inputUpdateTimer;
+    QTimer m_overlayUpdateTimer;
 };
 
 }

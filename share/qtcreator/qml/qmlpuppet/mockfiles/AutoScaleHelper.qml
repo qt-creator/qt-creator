@@ -39,9 +39,15 @@ Node {
 
     onSceneTransformChanged: updateScale()
     onAutoScaleChanged: updateScale()
+
     Connections {
         target: view3D.camera
         onSceneTransformChanged: updateScale()
+    }
+
+    Connections {
+        target: designStudioNativeCameraControlHelper
+        onOverlayUpdateNeeded: updateScale()
     }
 
     function getScale(baseScale)

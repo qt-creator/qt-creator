@@ -44,6 +44,9 @@ Window {
 
     property Node selectedNode: null
 
+    property var lightGizmos: []
+    property var cameraGizmos: []
+
     signal objectClicked(var object)
     signal commitObjectPosition(var object)
     signal moveObjectPosition(var object)
@@ -52,16 +55,54 @@ Window {
         selectedNode = object;
     }
 
+    function emitObjectClicked(object) {
+        selectObject(object);
+        objectClicked(object);
+    }
+
+    function addLightGizmo(obj)
+    {
+        var component = Qt.createComponent("LightGizmo.qml");
+        if (component.status === Component.Ready) {
+            var gizmo = component.createObject(overlayScene,
+                                               {"view3D": overlayView, "targetNode": obj});
+            lightGizmos[lightGizmos.length] = gizmo;
+            gizmo.selected.connect(emitObjectClicked);
+        }
+    }
+
+    function addCameraGizmo(obj)
+    {
+        var component = Qt.createComponent("CameraGizmo.qml");
+        if (component.status === Component.Ready) {
+            var gizmo = component.createObject(overlayScene,
+                                               {"view3D": overlayView, "targetNode": obj});
+            cameraGizmos[cameraGizmos.length] = gizmo;
+            gizmo.selected.connect(emitObjectClicked);
+        }
+    }
+
+    // Work-around the fact that the projection matrix for the camera is not calculated until
+    // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
+    Component.onCompleted: designStudioNativeCameraControlHelper.requestOverlayUpdate();
+
+    onWidthChanged: designStudioNativeCameraControlHelper.requestOverlayUpdate();
+    onHeightChanged: designStudioNativeCameraControlHelper.requestOverlayUpdate();
+
     Node {
         id: overlayScene
 
-        Camera {
-            id: overlayCamera
-            projectionMode: usePerspectiveCheckbox.checked ? Camera.Perspective
-                                                           : Camera.Orthographic
-            clipFar: editCamera.clipFar
-            position: editCamera.position
-            rotation: editCamera.rotation
+        PerspectiveCamera {
+            id: overlayPerspectiveCamera
+            clipFar: editPerspectiveCamera.clipFar
+            position: editPerspectiveCamera.position
+            rotation: editPerspectiveCamera.rotation
+        }
+
+        OrthographicCamera {
+            id: overlayOrthoCamera
+            position: editOrthoCamera.position
+            rotation: editOrthoCamera.rotation
         }
 
         MoveGizmo {
@@ -100,15 +141,14 @@ Window {
             onTapped: {
                 var pickResult = editView.pick(eventPoint.scenePosition.x,
                                                eventPoint.scenePosition.y);
-                viewWindow.objectClicked(pickResult.objectHit);
-                selectObject(pickResult.objectHit);
+                emitObjectClicked(pickResult.objectHit);
             }
         }
 
         View3D {
             id: editView
             anchors.fill: parent
-            camera: editCamera
+            camera: usePerspective ? editPerspectiveCamera : editOrthoCamera
 
             Node {
                 id: mainSceneHelpers
@@ -122,15 +162,21 @@ Window {
                 PointLight {
                     id: pointLight
                     visible: showEditLight
-                    position: editCamera.position
+                    position: usePerspective ? editPerspectiveCamera.position
+                                             : editOrthoCamera.position
                 }
 
-                Camera {
-                    id: editCamera
+                PerspectiveCamera {
+                    id: editPerspectiveCamera
                     y: 200
                     z: -300
                     clipFar: 100000
-                    projectionMode: usePerspective ? Camera.Perspective : Camera.Orthographic
+                }
+
+                OrthographicCamera {
+                    id: editOrthoCamera
+                    y: 200
+                    z: -300
                 }
             }
         }
@@ -138,7 +184,7 @@ Window {
         View3D {
             id: overlayView
             anchors.fill: parent
-            camera: overlayCamera
+            camera: usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
             scene: overlayScene
         }
 
@@ -207,7 +253,7 @@ Window {
         CheckBox {
             id: globalControl
             checked: true
-            text: qsTr("Use global orientation")
+            text: qsTr("Use Global Orientation")
             onCheckedChanged: cameraControl.forceActiveFocus()
         }
     }
