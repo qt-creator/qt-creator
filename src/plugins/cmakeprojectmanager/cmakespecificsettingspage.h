@@ -54,8 +54,9 @@ private:
 class CMakeSpecificSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
-    CMakeSpecificSettingsPage(CMakeSpecificSettings *settings, QObject *parent);
+    explicit CMakeSpecificSettingsPage(CMakeSpecificSettings *settings);
 
     QWidget *widget() override;
     void apply() override;

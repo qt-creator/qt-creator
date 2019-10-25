@@ -72,9 +72,8 @@ void CMakeSpecificSettingWidget::setProjectPopupSetting(AfterAddFileAction mode)
     }
 }
 
-CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings,
-                                                     QObject *parent):
-    Core::IOptionsPage(parent), m_settings(settings)
+CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
+    : m_settings(settings)
 {
     setId("CMakeSpecificSettings");
     setDisplayName(tr("CMake"));

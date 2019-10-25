@@ -54,6 +54,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -63,11 +64,17 @@ class CMakeProjectPluginPrivate
 public:
     CMakeToolManager cmakeToolManager; // have that before the first CMakeKitAspect
 
-    Utils::ParameterAction *m_buildTargetContextAction = nullptr;
+    ParameterAction buildTargetContextAction{
+        CMakeProjectPlugin::tr("Build"),
+        CMakeProjectPlugin:: tr("Build \"%1\""),
+        ParameterAction::AlwaysEnabled/*handled manually*/
+    };
+
     QMetaObject::Connection m_actionConnect;
 
     CMakeSettingsPage settingsPage;
-    static const std::unique_ptr<CMakeSpecificSettings> projectTypeSpecificSettings;
+    CMakeSpecificSettingsPage specificSettings{CMakeProjectPlugin::projectTypeSpecificSettings()};
+
     CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
@@ -80,12 +87,10 @@ public:
     CMakeConfigurationKitAspect cmakeConfigurationKitAspect;
 };
 
-const std::unique_ptr<CMakeSpecificSettings>
-CMakeProjectPluginPrivate::projectTypeSpecificSettings{std::make_unique<CMakeSpecificSettings>()};
-
 CMakeSpecificSettings *CMakeProjectPlugin::projectTypeSpecificSettings()
 {
-    return CMakeProjectPluginPrivate::projectTypeSpecificSettings.get();
+    static CMakeSpecificSettings theSettings;
+    return &theSettings;
 }
 
 CMakeProjectPlugin::~CMakeProjectPlugin()
@@ -98,36 +103,27 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     Q_UNUSED(errorMessage)
 
     d = new CMakeProjectPluginPrivate;
-    CMakeProjectPluginPrivate::projectTypeSpecificSettings->fromSettings(ICore::settings());
-    new CMakeSpecificSettingsPage(CMakeProjectPluginPrivate::projectTypeSpecificSettings.get(),
-                                  this); //do not store as this will be cleaned after program close
+    projectTypeSpecificSettings()->fromSettings(ICore::settings());
 
-    const Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
+    const Context projectContext{CMakeProjectManager::Constants::CMAKEPROJECT_ID};
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
-    Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE,
-                                                           "CMakeLists.txt");
+    FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
+    FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE,
+                                                     "CMakeLists.txt");
 
     TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
                                                tr("CMake", "SnippetProvider"));
     ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKEPROJECTMIMETYPE);
 
-    //menus
-    ActionContainer *msubproject =
-            ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
-
     //register actions
-    Command *command = nullptr;
-
-    d->m_buildTargetContextAction = new Utils::ParameterAction(tr("Build"), tr("Build \"%1\""),
-                                                               Utils::ParameterAction::AlwaysEnabled/*handled manually*/,
-                                                               this);
-    command = ActionManager::registerAction(d->m_buildTargetContextAction,
-                                            Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
+    Command *command = ActionManager::registerAction(&d->buildTargetContextAction,
+                         Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(d->m_buildTargetContextAction->text());
-    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    command->setDescription(d->buildTargetContextAction.text());
+
+    ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT)
+            ->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
 
     // Wire up context menu updates:
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
@@ -153,11 +149,11 @@ void CMakeProjectPlugin::updateContextActions()
 
     // Build Target:
     disconnect(d->m_actionConnect);
-    d->m_buildTargetContextAction->setParameter(targetDisplayName);
-    d->m_buildTargetContextAction->setEnabled(targetNode);
-    d->m_buildTargetContextAction->setVisible(targetNode);
+    d->buildTargetContextAction.setParameter(targetDisplayName);
+    d->buildTargetContextAction.setEnabled(targetNode);
+    d->buildTargetContextAction.setVisible(targetNode);
     if (cmProject && targetNode) {
-        d->m_actionConnect = connect(d->m_buildTargetContextAction, &Utils::ParameterAction::triggered,
+        d->m_actionConnect = connect(&d->buildTargetContextAction, &ParameterAction::triggered,
         cmProject, [cmProject, targetDisplayName]() {
             cmProject->buildCMakeTarget(targetDisplayName);
         });
