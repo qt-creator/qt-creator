@@ -267,17 +267,17 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     }
 
     if (node) { // If we found a scene we create the edit view
-        QObject *view = createEditView3D(engine());
+        m_editView3D = createEditView3D(engine());
 
-        if (!view)
+        if (!m_editView3D)
             return;
 
-        QQmlProperty sceneProperty(view, "scene", context());
-        node->setParent(view);
+        QQmlProperty sceneProperty(m_editView3D, "scene", context());
+        node->setParent(m_editView3D);
         sceneProperty.write(objectToVariant(node));
         QQmlProperty parentProperty(node, "parent", context());
-        parentProperty.write(objectToVariant(view));
-        QQmlProperty completeSceneProperty(view, "showLight", context());
+        parentProperty.write(objectToVariant(m_editView3D));
+        QQmlProperty completeSceneProperty(m_editView3D, "showLight", context());
         completeSceneProperty.write(showCustomLight);
     }
 }
@@ -452,8 +452,23 @@ void QmlDesigner::Qt5InformationNodeInstanceServer::removeSharedMemory(const Qml
 
 void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionCommand &command)
 {
-    // keep track of selection.
-    qDebug() << Q_FUNC_INFO << command;
+    if (!m_editView3D)
+        return;
+
+    const QVector<qint32> instanceIds = command.instanceIds();
+    for (qint32 id : instanceIds) {
+        if (hasInstanceForId(id)) {
+            ServerNodeInstance instance = instanceForId(id);
+            QObject *object = nullptr;
+            if (instance.isSubclassOf("QQuick3DModel") || instance.isSubclassOf("QQuick3DCamera")
+                || instance.isSubclassOf("QQuick3DAbstractLight")) {
+                object = instance.internalObject();
+            }
+            QMetaObject::invokeMethod(m_editView3D, "selectObject", Q_ARG(QVariant,
+                                                                          objectToVariant(object)));
+            return; // TODO: support multi-selection
+        }
+    }
 }
 
 } // namespace QmlDesigner

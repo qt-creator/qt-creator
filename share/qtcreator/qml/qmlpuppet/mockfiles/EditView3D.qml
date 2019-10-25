@@ -47,6 +47,10 @@ Window {
     signal objectClicked(var object)
     signal commitObjectPosition(var object)
 
+    function selectObject(object) {
+        selectedNode = object;
+    }
+
     Node {
         id: overlayScene
 
@@ -94,7 +98,7 @@ Window {
                 var pickResult = editView.pick(eventPoint.scenePosition.x,
                                                eventPoint.scenePosition.y);
                 viewWindow.objectClicked(pickResult.objectHit);
-                selectedNode = pickResult.objectHit; // TODO selection needs to come from studio
+                selectObject(pickResult.objectHit);
             }
         }
 

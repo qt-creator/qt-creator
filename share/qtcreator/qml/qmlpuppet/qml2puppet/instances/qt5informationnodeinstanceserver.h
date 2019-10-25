@@ -65,6 +65,7 @@ private:
         const PropertyName &propertyName,
         const QVariant &variant);
 
+    QObject *m_editView3D = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;
