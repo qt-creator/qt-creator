@@ -63,6 +63,7 @@
 
 #include <designersupportdelegate.h>
 
+#include <QVector3D>
 #include <QQmlProperty>
 #include <QOpenGLContext>
 #include <QQuickView>
@@ -118,18 +119,45 @@ void Qt5InformationNodeInstanceServer::objectClicked(const QVariant &object)
     selectInstance(instance);
 }
 
+QVector<Qt5InformationNodeInstanceServer::InstancePropertyValueTriple>
+Qt5InformationNodeInstanceServer::vectorToPropertyValue(
+    const ServerNodeInstance &instance,
+    const PropertyName &propertyName,
+    const QVariant &variant)
+{
+    QVector<InstancePropertyValueTriple> result;
+
+    auto vector3d = variant.value<QVector3D>();
+
+    if (vector3d.isNull())
+        return result;
+
+    const PropertyName dot = propertyName.isEmpty() ? "" : ".";
+
+    InstancePropertyValueTriple propTriple;
+    propTriple.instance = instance;
+    propTriple.propertyName = propertyName + dot + PropertyName("x");
+    propTriple.propertyValue = vector3d.x();
+    result.append(propTriple);
+    propTriple.propertyName = propertyName + dot + PropertyName("y");
+    propTriple.propertyValue = vector3d.y();
+    result.append(propTriple);
+    propTriple.propertyName = propertyName + dot + PropertyName("z");
+    propTriple.propertyValue = vector3d.z();
+    result.append(propTriple);
+
+    return result;
+}
+
 void Qt5InformationNodeInstanceServer::handleObjectPositionCommit(const QVariant &object)
 {
-    QObject *obj = object.value<QObject *>();
+    auto *obj = object.value<QObject *>();
     if (obj) {
-        ServerNodeInstance instance = instanceForObject(obj);
-        QVector<InstancePropertyValueTriple> modifiedpropertyList;
-        InstancePropertyValueTriple propTriple;
-        propTriple.instance = instance;
-        propTriple.propertyName = "position";
-        propTriple.propertyValue = obj->property(propTriple.propertyName.constData());
-        modifiedpropertyList.append(propTriple);
-        nodeInstanceClient()->valuesModified(createValuesModifiedCommand(modifiedpropertyList));
+        /* We do have to split position into position.x, position.y, position.z */
+        nodeInstanceClient()->valuesModified(createValuesModifiedCommand(vectorToPropertyValue(
+            instanceForObject(obj),
+            "position",
+            obj->property("position"))));
     }
 }
 

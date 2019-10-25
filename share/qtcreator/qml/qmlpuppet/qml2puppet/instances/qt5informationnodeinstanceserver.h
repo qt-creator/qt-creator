@@ -61,6 +61,9 @@ private:
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
+    QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
+        const PropertyName &propertyName,
+        const QVariant &variant);
 
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
