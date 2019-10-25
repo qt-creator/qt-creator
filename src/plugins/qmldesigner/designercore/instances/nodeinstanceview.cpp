@@ -70,6 +70,7 @@
 #include "nodeinstanceserverproxy.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QUrl>
 #include <QMultiHash>
@@ -216,6 +217,30 @@ void NodeInstanceView::handleCrash()
         emitDocumentMessage(tr("Qt Quick emulation layer crashed."));
 
     emitCustomNotification(QStringLiteral("puppet crashed"));
+}
+
+void NodeInstanceView::startPuppetTransaction()
+{
+    /* We assume no transaction is active. */
+    QTC_ASSERT(!m_puppetTransaction.isValid(), return);
+    m_puppetTransaction = beginRewriterTransaction("NodeInstanceView::PuppetTransaction");
+}
+
+void NodeInstanceView::endPuppetTransaction()
+{
+    /* We assume a transaction is active. */
+    QTC_ASSERT(m_puppetTransaction.isValid(), return);
+
+    /* Committing a transaction should not throw, but if there is
+     * an issue with rewriting we should show an error message, instead
+     * of simply crashing.
+     */
+
+    try {
+        m_puppetTransaction.commit();
+    } catch (Exception &e) {
+        e.showException();
+    }
 }
 
 void NodeInstanceView::restartProcess()
@@ -1195,11 +1220,20 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
     if (!model())
         return;
 
+    if (command.transactionOption == ValuesModifiedCommand::TransactionOption::Start)
+        startPuppetTransaction();
+    else if (command.transactionOption == ValuesModifiedCommand::TransactionOption::End)
+        endPuppetTransaction();
+
     for (const PropertyValueContainer &container : command.valueChanges()) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
-            if (instance.isValid())
-                instance.modelNode().variantProperty(container.name()).setValue(container.value());
+            if (instance.isValid()) {
+                ModelNode node = instance.modelNode();
+                VariantProperty property = instance.modelNode().variantProperty(container.name());
+                if (property.value() != container.value())
+                    property.setValue(container.value());
+            }
         }
     }
 }

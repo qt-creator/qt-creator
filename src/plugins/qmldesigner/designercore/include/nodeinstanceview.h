@@ -194,6 +194,8 @@ private: // functions
 
 private:
     void handleCrash();
+    void startPuppetTransaction();
+    void endPuppetTransaction();
 
 private: //variables
     NodeInstance m_rootNodeInstance;
@@ -209,6 +211,7 @@ private: //variables
     ProjectExplorer::Kit *m_currentKit = nullptr;
     ProjectExplorer::Project *m_currentProject = nullptr;
     int m_restartProcessTimerId;
+    RewriterTransaction m_puppetTransaction;
 };
 
 } // namespace ProxyNodeInstanceView
