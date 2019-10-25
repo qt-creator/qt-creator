@@ -165,6 +165,8 @@ QString CMakeConfigItem::typeToTypeString(const CMakeConfigItem::Type t)
     case CMakeConfigItem::BOOL:
         return {"BOOL"};
     }
+    QTC_CHECK(false);
+    return {};
 }
 
 Utils::optional<bool> CMakeConfigItem::toBool(const QByteArray &value)
