@@ -530,6 +530,7 @@ void BaseSettings::fromMap(const QVariantMap &map)
         map.value(startupBehaviorKey, BaseSettings::RequiresFile).toInt());
     m_languageFilter.mimeTypes = map[mimeTypeKey].toStringList();
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
+    m_languageFilter.filePattern.removeAll({}); // remove empty entries
 }
 
 static LanguageClientSettingsPage &settingsPage()
