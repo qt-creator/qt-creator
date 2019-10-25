@@ -53,9 +53,17 @@
     \li \l {Display low-level data in the debugger}
     \li \l {See the value of variables in tooltips while debugging}
     \li \l {Quickly locate files using the keyboard}
+    \li \l {Perform calculations}
+    \li \l {Jump to a function in QML code}
     \li \l {Add a license header template for C++ code}
     \li \l {Paste text from my clipboard history}
     \li \l {Sort lines alphabetically}
+    \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
+    \li \l {Select the enclosing block in C++}
+    \li \l {Add my own code snippets to the auto-complete menu}
+    \li \l {Quickly write down notes somewhere}
+    \li \l {Configure the amount of recent files shown}
+    \li \l {Search and replace across files using a regular expression}
     \endlist
 
     \section1 Switch between modes
@@ -251,6 +259,19 @@
 
     For more information, see \l{Creating Locator Filters}.
 
+    \section1 Perform calculations
+
+    Open the \uicontrol Locator with \key {Ctrl+K} and type =, followed by a space.
+    You can now do basic calculations, with options to copy the results to the clipboard
+    by navigating through the entries and pressing \key {Enter}.
+
+    For more information, see \l{Executing JavaScript}.
+
+    \section1 Jump to a function in QML code
+
+    Open the \uicontrol Locator with \key {Ctrl+K} and type m, followed by a space.
+    You can now go directly to any QML method in the file.
+
     \section1 Add a license header template for C++ code
 
     A file containing a license header for C++ can be specified under
@@ -283,4 +304,73 @@
     \uicontrol Advanced > \uicontrol {Sort Selected Lines} or press
     \key {Alt+Shift+S} (or \key Ctrl+Shift+S on \macos).
 
+    \section1 Enclose selected code in curly braces, parentheses, or double quotes
+
+    Press \key {Shift} and then the opening character.
+
+    \list
+    \li Curly braces: \key {Shift+\{}
+    \li Parentheses: \key {Shift+(}
+    \li Double quotes: \key {Shift+"}
+    \endlist
+
+    \section1 Select the enclosing block in C++
+
+    Press \key {Ctrl+U}.
+
+    \section1 Add my own code snippets to the auto-complete menu
+
+    You can add, modify, and remove snippets in the snippet editor.
+    To open the editor, select \uicontrol Tools > \uicontrol Options
+    > \uicontrol {Text Editor} > \uicontrol Snippets.
+
+    For more information, see \l {Adding and Editing Snippets}.
+
+    \section1 Quickly write down notes somewhere
+
+    Select \uicontrol File > \uicontrol {New File or Project} >
+    \uicontrol {Files and Classes} > \uicontrol General > \uicontrol {Scratch Buffer}.
+    Alternatively, \key {Ctrl+N} can be used to open this dialog, which is
+    fully navigable via keyboard by using the up and down arrow keys and the
+    tab key.
+
+    This creates a new empty text file and saves it to the temporary directory
+    on your machine. You can use it to write down notes without having to worry
+    about deleting the file afterwards. The operating system will eventually
+    remove the file automatically. If you want to keep the file, you can easily
+    save it as a new file somewhere else. If you accidentally close the file,
+    you can find it in the \uicontrol File > \uicontrol {Recent Files} menu.
+
+    \section1 Configure the amount of recent files shown
+
+    Select \uicontrol Tools > \uicontrol Options, and change the value of the
+    list under \uicontrol Environment > \uicontrol System
+    > \uicontrol {Maximum number of entries in "Recent Files"}.
+
+    \section1 Search and replace across files using a regular expression
+
+    As an example, say you want to replace equality checks (\c {foo == bar})
+    with a function (\c {foo.equals(bar)}):
+
+    \list 1
+    \li Ensure that any work you have done is committed to version control,
+        as the changes cannot be undone.
+    \li Press \key {Ctrl+Shift+F} to bring up the \uicontrol {Advanced Find}
+        form.
+    \li Change the scope to whatever is appropriate for your search.
+    \li Under the \uicontrol {Search for} text field, select
+        the \uicontrol {Use regular expressions} check box.
+    \li Enter the following text in the \uicontrol {Search for} text field:
+        \badcode
+        if \((.*) == (.*)\)
+        \endcode
+    \li Press \uicontrol {Search & Replace} to see a list of search results.
+    \li In the \uicontrol {Replace with} text field, enter the following text:
+        \badcode
+        if (\1.strictlyEquals(\2))
+        \endcode
+    \li Press \uicontrol Replace to replace all instances of the text.
+    \endlist
+
+    For more information, see \l {Advanced Search}.
 */
