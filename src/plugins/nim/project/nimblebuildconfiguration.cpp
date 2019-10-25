@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "nimblebuildconfiguration.h"
+
 #include "nimconstants.h"
 #include "nimblebuildstep.h"
 #include "nimbleproject.h"
+#include "nimblebuildsystem.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildstep.h>
@@ -52,10 +54,8 @@ NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Core::Id id)
     setConfigWidgetHasFrame(true);
     setBuildDirectorySettingsKey("Nim.NimbleBuildConfiguration.BuildDirectory");
 
-    m_nimbleProject = dynamic_cast<NimbleProject*>(project());
-    QTC_ASSERT(m_nimbleProject, return);
-    QObject::connect(m_nimbleProject, &NimbleProject::metadataChanged, this, &NimbleBuildConfiguration::updateApplicationTargets);
-    updateApplicationTargets();
+    m_nimbleBuildSystem = dynamic_cast<NimbleBuildSystem *>(buildSystem());
+    QTC_ASSERT(m_nimbleBuildSystem, return);
 }
 
 BuildConfiguration::BuildType NimbleBuildConfiguration::buildType() const
@@ -72,33 +72,11 @@ void NimbleBuildConfiguration::initialize()
     setBuildDirectory(project()->projectDirectory());
 
     // Don't add a nimble build step when the package has no binaries (i.e a library package)
-    if (!m_nimbleProject->metadata().bin.empty())
+    if (!m_nimbleBuildSystem->metadata().bin.empty())
     {
         BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         buildSteps->appendStep(new NimbleBuildStep(buildSteps));
     }
-}
-
-void NimbleBuildConfiguration::updateApplicationTargets()
-{
-    QTC_ASSERT(m_nimbleProject, return);
-
-    const NimbleMetadata &metaData = m_nimbleProject->metadata();
-    const FilePath &projectDir = project()->projectDirectory();
-    const FilePath binDir = projectDir.pathAppended(metaData.binDir);
-    const FilePath srcDir = projectDir.pathAppended("src");
-
-    QList<BuildTargetInfo> targets = Utils::transform(metaData.bin, [&](const QString &bin){
-        BuildTargetInfo info = {};
-        info.displayName = bin;
-        info.targetFilePath = binDir.pathAppended(HostOsInfo::withExecutableSuffix(bin));
-        info.projectFilePath = srcDir.pathAppended(bin).stringAppended(".nim");
-        info.workingDirectory = binDir;
-        info.buildKey = bin;
-        return info;
-    });
-
-    target()->setApplicationTargets(std::move(targets));
 }
 
 bool NimbleBuildConfiguration::fromMap(const QVariantMap &map)

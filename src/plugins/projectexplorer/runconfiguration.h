@@ -43,6 +43,7 @@ namespace Utils { class OutputFormatter; }
 
 namespace ProjectExplorer {
 class BuildConfiguration;
+class BuildSystem;
 class GlobalOrProjectAspect;
 class Runnable;
 class RunConfigurationFactory;
@@ -126,10 +127,8 @@ public:
 
     bool isActive() const override;
 
-    bool isEnabled() const { return m_isEnabled; }
-    void setEnabled(bool enabled);
-
     virtual QString disabledReason() const;
+    virtual bool isEnabled() const;
 
     virtual QWidget *createConfigurationWidget();
 
@@ -182,6 +181,7 @@ protected:
 
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
+    BuildSystem *activeBuildSystem() const;
 
     virtual void updateEnabledState();
     virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
@@ -193,7 +193,6 @@ private:
     friend class RunConfigurationFactory;
 
     QString m_buildKey;
-    bool m_isEnabled = false;
     CommandLineGetter m_commandLineGetter;
 };
 

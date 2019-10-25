@@ -28,18 +28,12 @@
 #include <projectexplorer/projectnodes.h>
 
 namespace QmlProjectManager {
-
-class QmlProject;
-
 namespace Internal {
 
 class QmlProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    QmlProjectNode(QmlProject *project);
-
-private:
-    QmlProject *m_project;
+    explicit QmlProjectNode(ProjectExplorer::Project *project);
 };
 
 } // namespace Internal

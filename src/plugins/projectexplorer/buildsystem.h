@@ -27,15 +27,15 @@
 
 #include "projectexplorer_export.h"
 
+#include "buildtargetinfo.h"
 #include "project.h"
 #include "treescanner.h"
 
-#include <QTimer>
+#include <QObject>
 
 namespace ProjectExplorer {
 
 class BuildConfiguration;
-class ExtraCompiler;
 class Node;
 
 // --------------------------------------------------------------------
@@ -47,11 +47,13 @@ class PROJECTEXPLORER_EXPORT BuildSystem : public QObject
     Q_OBJECT
 
 public:
-    explicit BuildSystem(Project *project);
-
-    BuildSystem(const BuildSystem &other) = delete;
+    explicit BuildSystem(Target *target);
+    explicit BuildSystem(BuildConfiguration *bc);
+    ~BuildSystem() override;
 
     Project *project() const;
+    Target *target() const;
+
     Utils::FilePath projectFilePath() const;
     Utils::FilePath projectDirectory() const;
 
@@ -59,6 +61,11 @@ public:
 
     void requestParse();
     void requestDelayedParse();
+
+    bool isParsing() const;
+    bool hasParsingData() const;
+
+    Utils::Environment activeParseEnvironment() const;
 
     virtual bool addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded = nullptr);
     virtual RemovedFilesFromProject removeFiles(Node *context, const QStringList &filePaths,
@@ -69,69 +76,64 @@ public:
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
 
-protected:
-    class ParsingContext
+    virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
+    virtual QVariant additionalData(Core::Id id) const;
+
+    void setDeploymentData(const DeploymentData &deploymentData);
+    DeploymentData deploymentData() const;
+
+    void setApplicationTargets(const QList<BuildTargetInfo> &appTargets);
+    const QList<BuildTargetInfo> applicationTargets() const;
+    BuildTargetInfo buildTarget(const QString &buildKey) const;
+
+    class ParseGuard
     {
+        friend class BuildSystem;
+        explicit ParseGuard(BuildSystem *p);
+
+        void release();
+
     public:
-        ParsingContext() = default;
+        ParseGuard() = default;
+        ~ParseGuard() { release(); }
 
-        ParsingContext(const ParsingContext &other) = delete;
-        ParsingContext &operator=(const ParsingContext &other) = delete;
-        ParsingContext(ParsingContext &&other)
-            : guard{std::move(other.guard)}
-            , project{std::move(other.project)}
-            , buildConfiguration{std::move(other.buildConfiguration)}
-            , expander{std::move(other.expander)}
-            , environment{std::move(other.environment)}
-        {}
-        ParsingContext &operator=(ParsingContext &&other)
-        {
-            guard = std::move(other.guard);
-            project = std::move(other.project);
-            buildConfiguration = std::move(other.buildConfiguration);
-            expander = std::move(other.expander);
-            environment = std::move(other.environment);
-            return *this;
-        }
+        void markAsSuccess() const { m_success = true; }
+        bool isSuccess() const { return m_success; }
+        bool guardsProject() const { return m_buildSystem; }
 
-        Project::ParseGuard guard;
-
-        Project *project = nullptr;
-        BuildConfiguration *buildConfiguration = nullptr;
-        Utils::MacroExpander *expander = nullptr;
-        Utils::Environment environment;
+        ParseGuard(const ParseGuard &other) = delete;
+        ParseGuard &operator=(const ParseGuard &other) = delete;
+        ParseGuard(ParseGuard &&other);
+        ParseGuard &operator=(ParseGuard &&other);
 
     private:
-        ParsingContext(Project::ParseGuard &&g,
-                       Project *p,
-                       BuildConfiguration *bc,
-                       Utils::MacroExpander *e,
-                       Utils::Environment &env)
-            : guard(std::move(g))
-            , project(p)
-            , buildConfiguration(bc)
-            , expander(e)
-            , environment(env)
-        {}
-
-        friend class BuildSystem;
+        BuildSystem *m_buildSystem = nullptr;
+        mutable bool m_success = false;
     };
 
-    virtual bool validateParsingContext(const ParsingContext &ctx)
-    {
-        Q_UNUSED(ctx)
-        return true;
-    }
+public:
+    // FIXME: Make this private and the BuildSystem a friend
+    ParseGuard guardParsingRun() { return ParseGuard(this); }
 
-    virtual void parseProject(ParsingContext &&) {} // actual code to parse project
+    QString disabledReason(const QString &buildKey) const;
+
+    virtual void triggerParsing() = 0;
+
+signals:
+    void deploymentDataChanged();
+    void applicationTargetsChanged();
+
+protected:
+    // Helper methods to manage parsing state and signalling
+    // Call in GUI thread before the actual parsing starts
+    void emitParsingStarted();
+    // Call in GUI thread right after the actual parsing is done
+    void emitParsingFinished(bool success);
 
 private:
-    void requestParse(int delay); // request a (delayed!) parser run.
-    void triggerParsing();
+    void requestParseHelper(int delay); // request a (delayed!) parser run.
 
-    QTimer m_delayedParsingTimer;
-
-    Project *m_project;
+    class BuildSystemPrivate *d = nullptr;
 };
 
 } // namespace ProjectExplorer

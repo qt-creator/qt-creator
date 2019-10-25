@@ -170,7 +170,7 @@ QbsBuildStep::~QbsBuildStep()
 
 bool QbsBuildStep::init()
 {
-    if (project()->isParsing() || m_job)
+    if (qbsBuildSystem()->isParsing() || m_job)
         return false;
 
     auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
@@ -212,7 +212,7 @@ ProjectExplorer::BuildStepConfigWidget *QbsBuildStep::createConfigWidget()
 void QbsBuildStep::doCancel()
 {
     if (m_parsingProject)
-        qbsProject()->cancelParsing();
+        qbsBuildSystem()->cancelParsing();
     else if (m_job)
         m_job->cancel();
 }
@@ -238,10 +238,8 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
 
 void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
 {
-    auto pro = static_cast<QbsProject *>(project());
-
     QVariantMap tmp = config;
-    tmp.insert(Constants::QBS_CONFIG_PROFILE_KEY, pro->profileForTarget(target()));
+    tmp.insert(Constants::QBS_CONFIG_PROFILE_KEY, qbsBuildSystem()->profile());
     if (!tmp.contains(Constants::QBS_CONFIG_VARIANT_KEY))
         tmp.insert(Constants::QBS_CONFIG_VARIANT_KEY,
                    QString::fromLatin1(Constants::QBS_VARIANT_DEBUG));
@@ -347,14 +345,12 @@ void QbsBuildStep::buildingDone(bool success)
         createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
                             item.codeLocation().filePath(), item.codeLocation().line());
 
-    auto pro = static_cast<QbsProject *>(project());
-
     // Building can uncover additional target artifacts.
-    pro->updateAfterBuild();
+    qbsBuildSystem()->updateAfterBuild();
 
     // The reparsing, if it is necessary, has to be done before finished() is emitted, as
     // otherwise a potential additional build step could conflict with the parsing step.
-    if (pro->parsingScheduled())
+    if (qbsBuildSystem()->parsingScheduled())
         parseProject();
     else
         finish();
@@ -362,7 +358,7 @@ void QbsBuildStep::buildingDone(bool success)
 
 void QbsBuildStep::reparsingDone(bool success)
 {
-    disconnect(project(), &Project::parsingFinished, this, &QbsBuildStep::reparsingDone);
+    disconnect(target(), &Target::parsingFinished, this, &QbsBuildStep::reparsingDone);
     m_parsingProject = false;
     if (m_job) { // This was a scheduled reparsing after building.
         finish();
@@ -431,6 +427,11 @@ QString QbsBuildStep::buildVariant() const
     return qbsConfiguration(PreserveVariables).value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
 }
 
+QbsBuildSystem *QbsBuildStep::qbsBuildSystem() const
+{
+    return static_cast<QbsBuildSystem *>(buildConfiguration()->buildSystem());
+}
+
 void QbsBuildStep::setBuildVariant(const QString &variant)
 {
     if (m_qbsConfiguration.value(Constants::QBS_CONFIG_VARIANT_KEY).toString() == variant)
@@ -490,8 +491,8 @@ void QbsBuildStep::setCleanInstallRoot(bool clean)
 void QbsBuildStep::parseProject()
 {
     m_parsingProject = true;
-    connect(project(), &Project::parsingFinished, this, &QbsBuildStep::reparsingDone);
-    qbsProject()->parseCurrentBuildConfiguration();
+    connect(target(), &Target::parsingFinished, this, &QbsBuildStep::reparsingDone);
+    qbsBuildSystem()->parseCurrentBuildConfiguration();
 }
 
 void QbsBuildStep::build()
@@ -503,7 +504,7 @@ void QbsBuildStep::build()
     options.setLogElapsedTime(!qEnvironmentVariableIsEmpty(Constants::QBS_PROFILING_ENV));
 
     QString error;
-    m_job = qbsProject()->build(options, m_products, error);
+    m_job = qbsBuildSystem()->build(options, m_products, error);
     if (!m_job) {
         emit addOutput(error, OutputFormat::ErrorMessage);
         emit finished(false);

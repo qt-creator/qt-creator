@@ -27,7 +27,6 @@
 
 #include "builddirparameters.h"
 #include "builddirreader.h"
-#include "cmakebuildsystem.h"
 #include "cmakebuildtarget.h"
 #include "cmakeconfigitem.h"
 
@@ -46,14 +45,11 @@
 namespace ProjectExplorer { class FileNode; }
 
 namespace CMakeProjectManager {
-
-class CMakeProject;
-class CMakeTool;
-
 namespace Internal {
 
-class CMakeProjectNode;
 class CMakeBuildConfiguration;
+class CMakeBuildSystem;
+class CMakeProjectNode;
 
 class BuildDirManager : public QObject
 {
@@ -71,7 +67,7 @@ public:
 
     static QString flagsString(int reparseFlags);
 
-    BuildDirManager(CMakeProject *project);
+    explicit BuildDirManager(CMakeBuildSystem *buildSystem);
     ~BuildDirManager() final;
 
     bool isParsing() const;
@@ -81,8 +77,7 @@ public:
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
                                       const int reparseOptions);
     // nullptr if the BC is not active anymore!
-    CMakeBuildConfiguration *buildConfiguration() const;
-    CMakeProject *project() const {return m_project; }
+    CMakeBuildSystem *buildSystem() const;
     Utils::FilePath buildDirectory() const;
 
     void clearCache();
@@ -133,7 +128,7 @@ private:
 
     BuildDirParameters m_parameters;
     int m_reparseParameters;
-    CMakeProject *m_project = nullptr;
+    CMakeBuildSystem *m_buildSystem = nullptr;
     mutable std::unordered_map<Utils::FilePath, std::unique_ptr<Utils::TemporaryDirectory>> m_buildDirToTempDir;
     mutable std::unique_ptr<BuildDirReader> m_reader;
     mutable bool m_isHandlingError = false;

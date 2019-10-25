@@ -78,7 +78,7 @@ void NimBuildConfiguration::initialize()
 {
     BuildConfiguration::initialize();
 
-    auto bs = qobject_cast<NimBuildSystem *>(project()->buildSystem());
+    auto bs = qobject_cast<NimBuildSystem *>(buildSystem());
     QTC_ASSERT(bs, return );
 
     // Create the build configuration and initialize it from build info

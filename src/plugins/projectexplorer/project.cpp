@@ -176,14 +176,15 @@ public:
     ~ProjectPrivate();
 
     Core::Id m_id;
-    bool m_isParsing = false;
-    bool m_hasParsingData = false;
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
     bool m_knowsAllBuildExecutables = true;
     bool m_hasMakeInstallEquivalent = false;
     bool m_needsBuildConfigurations = true;
-    std::unique_ptr<BuildSystem> m_buildSystem;
+    bool m_needsDeployConfigurations = true;
+
+    std::function<BuildSystem *(Target *)> m_buildSystemCreator;
+
     std::unique_ptr<Core::IDocument> m_document;
     std::vector<std::unique_ptr<Core::IDocument>> m_extraProjectDocuments;
     std::unique_ptr<ProjectNode> m_rootProjectNode;
@@ -255,9 +256,9 @@ bool Project::canBuildProducts() const
     return d->m_canBuildProducts;
 }
 
-BuildSystem *Project::buildSystem() const
+BuildSystem *Project::createBuildSystem(Target *target) const
 {
-    return d->m_buildSystem.get();
+    return d->m_buildSystemCreator ? d->m_buildSystemCreator(target) : nullptr;
 }
 
 Utils::FilePath Project::projectFilePath() const
@@ -341,8 +342,6 @@ void Project::setActiveTarget(Target *target)
         (target && Utils::contains(d->m_targets, target))) {
         d->m_activeTarget = target;
         emit activeTargetChanged(d->m_activeTarget);
-        emit activeBuildConfigurationChanged(
-            d->m_activeTarget ? d->m_activeTarget->activeBuildConfiguration() : nullptr);
     }
 }
 
@@ -506,31 +505,12 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 
 bool Project::setupTarget(Target *t)
 {
-    if (needsBuildConfigurations())
+    if (d->m_needsBuildConfigurations)
         t->updateDefaultBuildConfigurations();
-    t->updateDefaultDeployConfigurations();
+    if (d->m_needsDeployConfigurations)
+        t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;
-}
-
-void Project::emitParsingStarted()
-{
-    QTC_ASSERT(!d->m_isParsing, return);
-
-    d->m_isParsing = true;
-    d->m_hasParsingData = false;
-    emit parsingStarted();
-}
-
-void Project::emitParsingFinished(bool success)
-{
-    // Intentionally no return, as we currently get start - start - end - end
-    // sequences when switching qmake targets quickly.
-    QTC_CHECK(d->m_isParsing);
-
-    d->m_isParsing = false;
-    d->m_hasParsingData = success;
-    emit parsingFinished(success);
 }
 
 void Project::setDisplayName(const QString &name)
@@ -596,19 +576,12 @@ void Project::saveSettings()
 
 Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
-    BuildConfiguration *oldBc = activeTarget() ? activeTarget()->activeBuildConfiguration()
-                                               : nullptr;
-
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
     QVariantMap map(d->m_accessor->restoreSettings(Core::ICore::mainWindow()));
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
-
-    BuildConfiguration *bc = activeTarget() ? activeTarget()->activeBuildConfiguration() : nullptr;
-    if (bc != oldBc)
-        emit activeBuildConfigurationChanged(bc);
 
     return result;
 }
@@ -798,12 +771,6 @@ EditorConfiguration *Project::editorConfiguration() const
     return &d->m_editorConfiguration;
 }
 
-QStringList Project::filesGeneratedFrom(const QString &file) const
-{
-    Q_UNUSED(file)
-    return QStringList();
-}
-
 bool Project::isKnownFile(const Utils::FilePath &filename) const
 {
     if (d->m_sortedNodeList.empty())
@@ -852,10 +819,6 @@ void Project::setHasMakeInstallEquivalent(bool enabled)
     d->m_hasMakeInstallEquivalent = enabled;
 }
 
-void Project::projectLoaded()
-{
-}
-
 void Project::setKnowsAllBuildExecutables(bool value)
 {
     d->m_knowsAllBuildExecutables = value;
@@ -866,31 +829,19 @@ void Project::setNeedsBuildConfigurations(bool value)
     d->m_needsBuildConfigurations = value;
 }
 
+void Project::setNeedsDeployConfigurations(bool value)
+{
+    d->m_needsDeployConfigurations = value;
+}
+
 Task Project::createProjectTask(Task::TaskType type, const QString &description)
 {
     return Task(type, description, Utils::FilePath(), -1, Core::Id());
 }
 
-Utils::Environment Project::activeParseEnvironment() const
+void Project::setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator)
 {
-    const Target *const t = activeTarget();
-    const BuildConfiguration *const bc = t ? t->activeBuildConfiguration() : nullptr;
-    if (bc)
-        return bc->environment();
-
-    const RunConfiguration *const rc = t ? t->activeRunConfiguration() : nullptr;
-    if (rc)
-        return rc->runnable().environment;
-
-    Utils::Environment result = Utils::Environment::systemEnvironment();
-    if (t)
-        t->kit()->addToEnvironment(result);
-    return result;
-}
-
-void Project::setBuildSystemCreator(const std::function<BuildSystem *(Project *)> &creator)
-{
-    d->m_buildSystem.reset(creator(this));
+    d->m_buildSystemCreator = creator;
 }
 
 Core::Context Project::projectContext() const
@@ -988,23 +939,6 @@ Utils::MacroExpander *Project::macroExpander() const
     return &d->m_macroExpander;
 }
 
-QVariant Project::additionalData(Core::Id id, const Target *target) const
-{
-    Q_UNUSED(id)
-    Q_UNUSED(target)
-    return QVariant();
-}
-
-bool Project::isParsing() const
-{
-    return d->m_isParsing;
-}
-
-bool Project::hasParsingData() const
-{
-    return d->m_hasParsingData;
-}
-
 ProjectNode *Project::findNodeForBuildKey(const QString &buildKey) const
 {
     if (!d->m_rootProjectNode)
@@ -1072,6 +1006,14 @@ const QString TEST_PROJECT_MIMETYPE = "application/vnd.test.qmakeprofile";
 const QString TEST_PROJECT_DISPLAYNAME = "testProjectFoo";
 const char TEST_PROJECT_ID[] = "Test.Project.Id";
 
+class TestBuildSystem : public BuildSystem
+{
+public:
+    using BuildSystem::BuildSystem;
+
+    void triggerParsing() {}
+};
+
 class TestProject : public Project
 {
 public:
@@ -1079,9 +1021,17 @@ public:
     {
         setId(TEST_PROJECT_ID);
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
+        setBuildSystemCreator([](Target *t) { return new TestBuildSystem(t); });
+        setNeedsBuildConfigurations(false);
+        setNeedsDeployConfigurations(false);
+
+        target = addTargetForKit(&testKit);
     }
 
     bool needsConfiguration() const final { return false; }
+
+    Kit testKit;
+    Target *target = nullptr;
 };
 
 void ProjectExplorerPlugin::testProject_setup()
@@ -1108,8 +1058,8 @@ void ProjectExplorerPlugin::testProject_setup()
 
     QCOMPARE(project.id(), Core::Id(TEST_PROJECT_ID));
 
-    QVERIFY(!project.isParsing());
-    QVERIFY(!project.hasParsingData());
+    QVERIFY(!project.target->buildSystem()->isParsing());
+    QVERIFY(!project.target->buildSystem()->hasParsingData());
 }
 
 void ProjectExplorerPlugin::testProject_changeDisplayName()
@@ -1132,16 +1082,16 @@ void ProjectExplorerPlugin::testProject_parsingSuccess()
 {
     TestProject project;
 
-    QSignalSpy startSpy(&project, &Project::parsingStarted);
-    QSignalSpy stopSpy(&project, &Project::parsingFinished);
+    QSignalSpy startSpy(project.target, &Target::parsingStarted);
+    QSignalSpy stopSpy(project.target, &Target::parsingFinished);
 
     {
-        Project::ParseGuard guard = project.guardParsingRun();
+        BuildSystem::ParseGuard guard = project.target->buildSystem()->guardParsingRun();
         QCOMPARE(startSpy.count(), 1);
         QCOMPARE(stopSpy.count(), 0);
 
-        QVERIFY(project.isParsing());
-        QVERIFY(!project.hasParsingData());
+        QVERIFY(project.target->buildSystem()->isParsing());
+        QVERIFY(!project.target->buildSystem()->hasParsingData());
 
         guard.markAsSuccess();
     }
@@ -1150,32 +1100,32 @@ void ProjectExplorerPlugin::testProject_parsingSuccess()
     QCOMPARE(stopSpy.count(), 1);
     QCOMPARE(stopSpy.at(0), {QVariant(true)});
 
-    QVERIFY(!project.isParsing());
-    QVERIFY(project.hasParsingData());
+    QVERIFY(!project.target->buildSystem()->isParsing());
+    QVERIFY(project.target->buildSystem()->hasParsingData());
 }
 
 void ProjectExplorerPlugin::testProject_parsingFail()
 {
     TestProject project;
 
-    QSignalSpy startSpy(&project, &Project::parsingStarted);
-    QSignalSpy stopSpy(&project, &Project::parsingFinished);
+    QSignalSpy startSpy(project.target, &Target::parsingStarted);
+    QSignalSpy stopSpy(project.target, &Target::parsingFinished);
 
     {
-        Project::ParseGuard guard = project.guardParsingRun();
+        BuildSystem::ParseGuard guard = project.target->buildSystem()->guardParsingRun();
         QCOMPARE(startSpy.count(), 1);
         QCOMPARE(stopSpy.count(), 0);
 
-        QVERIFY(project.isParsing());
-        QVERIFY(!project.hasParsingData());
+        QVERIFY(project.target->buildSystem()->isParsing());
+        QVERIFY(!project.target->buildSystem()->hasParsingData());
     }
 
     QCOMPARE(startSpy.count(), 1);
     QCOMPARE(stopSpy.count(), 1);
     QCOMPARE(stopSpy.at(0), {QVariant(false)});
 
-    QVERIFY(!project.isParsing());
-    QVERIFY(!project.hasParsingData());
+    QVERIFY(!project.target->buildSystem()->isParsing());
+    QVERIFY(!project.target->buildSystem()->hasParsingData());
 }
 
 std::unique_ptr<ProjectNode> createFileTree(Project *project)

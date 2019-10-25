@@ -45,11 +45,11 @@ AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(ProjectExplorer::Targ
 {
     updateModel();
 
-    connect(target->project(), &ProjectExplorer::Project::parsingStarted,
+    connect(target, &Target::parsingStarted,
             this, &AndroidExtraLibraryListModel::updateModel);
-    connect(target->project(), &ProjectExplorer::Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &AndroidExtraLibraryListModel::updateModel);
-    connect(target, &ProjectExplorer::Target::activeRunConfigurationChanged,
+    connect(target, &Target::activeRunConfigurationChanged,
             this, &AndroidExtraLibraryListModel::updateModel);
 }
 

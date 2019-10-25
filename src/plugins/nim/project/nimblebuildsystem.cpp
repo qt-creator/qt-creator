@@ -26,6 +26,8 @@
 #include "nimblebuildsystem.h"
 #include "nimbleproject.h"
 
+#include <projectexplorer/target.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -37,6 +39,9 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace {
+
+const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
+const char C_NIMBLEPROJECT_METADATA[] = "Nim.NimbleProject.Metadata";
 
 std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QString &workingDirectory)
 {
@@ -102,28 +107,25 @@ NimbleMetadata parseMetadata(const QString &nimblePath, const QString &workingDi
 
 }
 
-NimbleBuildSystem::NimbleBuildSystem(Project *project)
-    : NimBuildSystem(project)
+NimbleBuildSystem::NimbleBuildSystem(Target *target)
+    : NimBuildSystem(target)
 {
     // Not called in parseProject due to nimble behavior to create temporary
     // files in project directory. This creation in turn stimulate the fs watcher
     // that in turn causes project parsing (thus a loop if invoke in parseProject).
     // For this reason we call this function manually during project creation
     // See https://github.com/nim-lang/nimble/issues/720
-    m_directoryWatcher.addFile(this->project()->projectFilePath().toString(),
-                               FileSystemWatcher::WatchModifiedDate);
+    m_directoryWatcher.addFile(projectFilePath().toString(), FileSystemWatcher::WatchModifiedDate);
+
     connect(&m_directoryWatcher, &FileSystemWatcher::fileChanged, this, [this](const QString &path) {
-        if (path == this->project()->projectFilePath().toString()) {
+        if (path == project()->projectFilePath().toString()) {
             updateProject();
         }
     });
+
     updateProject();
 }
 
-void NimbleBuildSystem::parseProject(BuildSystem::ParsingContext &&ctx)
-{
-    NimBuildSystem::parseProject(std::move(ctx));
-}
 
 void NimbleBuildSystem::updateProject()
 {
@@ -133,14 +135,82 @@ void NimbleBuildSystem::updateProject()
 
 void NimbleBuildSystem::updateProjectTasks()
 {
-    auto prj = dynamic_cast<NimbleProject*>(project());
-    QTC_ASSERT(prj, return);
-    prj->setTasks(parseTasks(QStandardPaths::findExecutable("nimble"), project()->projectDirectory().toString()));
+    setTasks(parseTasks(QStandardPaths::findExecutable("nimble"), projectDirectory().toString()));
 }
 
 void NimbleBuildSystem::updateProjectMetaData()
 {
-    auto prj = dynamic_cast<NimbleProject*>(project());
-    QTC_ASSERT(prj, return);
-    prj->setMetadata(parseMetadata(QStandardPaths::findExecutable("nimble"), project()->projectDirectory().toString()));
+    setMetadata(parseMetadata(QStandardPaths::findExecutable("nimble"), projectDirectory().toString()));
+}
+
+void NimbleBuildSystem::updateApplicationTargets()
+{
+    const NimbleMetadata &metaData = metadata();
+    const FilePath &projectDir = project()->projectDirectory();
+    const FilePath binDir = projectDir.pathAppended(metaData.binDir);
+    const FilePath srcDir = projectDir.pathAppended("src");
+
+    QList<BuildTargetInfo> targets = Utils::transform(metaData.bin, [&](const QString &bin){
+        BuildTargetInfo info = {};
+        info.displayName = bin;
+        info.targetFilePath = binDir.pathAppended(HostOsInfo::withExecutableSuffix(bin));
+        info.projectFilePath = srcDir.pathAppended(bin).stringAppended(".nim");
+        info.workingDirectory = binDir;
+        info.buildKey = bin;
+        return info;
+    });
+
+    setApplicationTargets(std::move(targets));
+}
+
+std::vector<NimbleTask> NimbleBuildSystem::tasks() const
+{
+    return m_tasks;
+}
+
+NimbleMetadata NimbleBuildSystem::metadata() const
+{
+    return m_metadata;
+}
+
+void NimbleBuildSystem::setTasks(std::vector<NimbleTask> tasks)
+{
+    if (tasks == m_tasks)
+        return;
+    m_tasks = std::move(tasks);
+    emit tasksChanged();
+    emit target()->targetPropertiesChanged();
+}
+
+void NimbleBuildSystem::setMetadata(NimbleMetadata metadata)
+{
+    if (m_metadata == metadata)
+        return;
+    m_metadata = std::move(metadata);
+
+    updateApplicationTargets();
+}
+
+void NimbleBuildSystem::saveSettings()
+{
+    QStringList result;
+    for (const NimbleTask &task : m_tasks) {
+        result.push_back(task.name);
+        result.push_back(task.description);
+    }
+
+    project()->setNamedSettings(C_NIMBLEPROJECT_TASKS, result);
+}
+
+void NimbleBuildSystem::loadSettings()
+{
+    QStringList list = project()->namedSettings(C_NIMBLEPROJECT_TASKS).toStringList();
+
+    m_tasks.clear();
+    if (list.size() % 2 != 0)
+        return;
+
+    std::vector<NimbleTask> result;
+    for (int i = 0; i < list.size(); i += 2)
+        result.push_back({list[i], list[i + 1]});
 }

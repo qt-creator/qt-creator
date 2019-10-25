@@ -34,13 +34,12 @@
 #include <projectexplorer/deploymentdata.h>
 
 namespace CMakeProjectManager {
-class CMakeBuildSystem;
-class CMakeExtraBuildInfo;
 class CMakeProject;
 
 namespace Internal {
 
 class BuildDirManager;
+class CMakeBuildSystem;
 class CMakeBuildSettingsWidget;
 
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
@@ -49,6 +48,7 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
     friend class ProjectExplorer::BuildConfigurationFactory;
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    ~CMakeBuildConfiguration() final;
 
 public:
     void emitBuildTypeChanged();
@@ -61,17 +61,14 @@ public:
 
     CMakeProject *project() const;
 
-    QStringList buildTargetTitles() const;
-    const QList<CMakeBuildTarget> &buildTargets() const;
-    const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
-    ProjectExplorer::DeploymentData deploymentData() const;
-
     static Utils::FilePath
     shadowBuildDirectory(const Utils::FilePath &projectFilePath, const ProjectExplorer::Kit *k,
                          const QString &bcName, BuildConfiguration::BuildType buildType);
 
     // Context menu action:
     void buildTarget(const QString &buildTarget);
+    ProjectExplorer::BuildSystem *buildSystem() const final;
+
 signals:
     void errorOccured(const QString &message);
     void warningOccured(const QString &message);
@@ -92,7 +89,6 @@ private:
     enum ForceEnabledChanged { False, True };
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
 
-    void setBuildTargets(const QList<CMakeBuildTarget> &targets);
     void setConfigurationFromCMake(const CMakeConfig &config);
     void setConfigurationForCMake(const QList<ConfigModel::DataItem> &items);
     void setConfigurationForCMake(const CMakeConfig &config);
@@ -100,27 +96,17 @@ private:
     void setError(const QString &message);
     void setWarning(const QString &message);
 
-    void handleParsingSucceeded();
-    void handleParsingFailed(const QString &msg);
-
-    std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const QList<const ProjectExplorer::FileNode *> &allFiles);
-
-    void checkAndReportError(QString &errorMessage);
-
-    Internal::BuildDirManager m_buildDirManager;
-
     CMakeConfig m_configurationForCMake;
     CMakeConfig m_initialConfiguration;
     QString m_error;
     QString m_warning;
 
     CMakeConfig m_configurationFromCMake;
-    QList<CMakeBuildTarget> m_buildTargets;
+    CMakeBuildSystem *m_buildSystem = nullptr;
 
     friend class CMakeBuildSettingsWidget;
-    friend class CMakeProjectManager::CMakeBuildSystem;
-    friend class CMakeProjectManager::CMakeProject;
+    friend class CMakeBuildSystem;
+    friend class CMakeProject;
     friend class BuildDirManager;
 };
 

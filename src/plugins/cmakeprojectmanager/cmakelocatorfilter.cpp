@@ -66,12 +66,11 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
         auto cmakeProject = qobject_cast<const CMakeProject *>(p);
         if (!cmakeProject || !cmakeProject->activeTarget())
             continue;
-        auto bc = qobject_cast<CMakeBuildConfiguration *>(
-            cmakeProject->activeTarget()->activeBuildConfiguration());
-        if (!bc)
+        auto bs = qobject_cast<CMakeBuildSystem *>(cmakeProject->activeTarget()->buildSystem());
+        if (!bs)
             continue;
 
-        const QList<CMakeBuildTarget> buildTargets = bc->buildTargets();
+        const QList<CMakeBuildTarget> buildTargets = bs->buildTargets();
         for (const CMakeBuildTarget &target : buildTargets) {
             const int index = target.title.indexOf(entry);
             if (index >= 0) {

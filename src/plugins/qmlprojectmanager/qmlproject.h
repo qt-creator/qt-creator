@@ -35,19 +35,18 @@
 
 #include <QPointer>
 
-namespace ProjectExplorer { class RunConfiguration; }
-
 namespace QmlProjectManager {
 
 class QmlProject;
 class QmlProjectItem;
 
-namespace Internal {
-
 class QmlBuildSystem : public ProjectExplorer::BuildSystem
 {
 public:
-    explicit QmlBuildSystem(ProjectExplorer::Project *project) : BuildSystem(project) {}
+    explicit QmlBuildSystem(ProjectExplorer::Target *target);
+    ~QmlBuildSystem();
+
+    void triggerParsing() final;
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
@@ -59,20 +58,9 @@ public:
     bool renameFile(ProjectExplorer::Node *context,
                     const QString &filePath, const QString &newFilePath) override;
 
-    QmlProject *project() const;
-};
+    QmlProject *qmlProject() const;
 
-} // Internal
-
-class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
-{
-    Q_OBJECT
-
-public:
-    explicit QmlProject(const Utils::FilePath &filename);
-    ~QmlProject() override;
-
-    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
+    QVariant additionalData(Core::Id id) const override;
 
     enum RefreshOption {
         ProjectFile   = 0x01,
@@ -87,9 +75,8 @@ public:
     Utils::FilePath canonicalProjectDir() const;
     QString mainFile() const;
     void setMainFile(const QString &mainFilePath);
-    Utils::FilePath targetDirectory(const ProjectExplorer::Target *target) const;
-    Utils::FilePath targetFile(const Utils::FilePath &sourceFile,
-                               const ProjectExplorer::Target *target) const;
+    Utils::FilePath targetDirectory() const;
+    Utils::FilePath targetFile(const Utils::FilePath &sourceFile) const;
 
     Utils::EnvironmentItems environment() const;
     QStringList customImportPaths() const;
@@ -101,7 +88,28 @@ public:
 
     static QStringList makeAbsolute(const Utils::FilePath &path, const QStringList &relativePaths);
 
-    QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const override;
+    void generateProjectTree();
+    void updateDeploymentData();
+    void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
+    void refreshTargetDirectory();
+    void onActiveTargetChanged(ProjectExplorer::Target *target);
+    void onKitChanged();
+
+    // plain format
+    void parseProject(RefreshOptions options);
+
+    QPointer<QmlProjectItem> m_projectItem;
+    Utils::FilePath m_canonicalProjectDir;
+};
+
+class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
+{
+    Q_OBJECT
+
+public:
+    explicit QmlProject(const Utils::FilePath &filename);
+
+    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
@@ -109,23 +117,8 @@ protected:
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
 
-    void generateProjectTree();
-    void updateDeploymentData(ProjectExplorer::Target *target);
-    void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
-    void refreshTargetDirectory();
-    void addedTarget(ProjectExplorer::Target *target);
-    void onActiveTargetChanged(ProjectExplorer::Target *target);
-    void onKitChanged();
-
-    // plain format
-    void parseProject(RefreshOptions options);
-
-    ProjectExplorer::Target *m_activeTarget = nullptr;
-
-    QPointer<QmlProjectItem> m_projectItem;
-    Utils::FilePath m_canonicalProjectDir;
 };
 
 } // namespace QmlProjectManager
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QmlProjectManager::QmlProject::RefreshOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QmlProjectManager::QmlBuildSystem::RefreshOptions)

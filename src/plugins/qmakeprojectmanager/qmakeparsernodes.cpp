@@ -162,12 +162,12 @@ public:
 
 } // namespace Internal
 
-QmakePriFile::QmakePriFile(QmakeProject *project, QmakeProFile *qmakeProFile,
+QmakePriFile::QmakePriFile(QmakeBuildSystem *buildSystem, QmakeProFile *qmakeProFile,
                            const FilePath &filePath) :
-    m_project(project),
+    m_buildSystem(buildSystem),
     m_qmakeProFile(qmakeProFile)
 {
-    Q_ASSERT(project);
+    Q_ASSERT(buildSystem);
     m_priFileDocument = std::make_unique<QmakePriFileDocument>(this, filePath);
     Core::DocumentManager::addDocument(m_priFileDocument.get());
 }
@@ -194,7 +194,7 @@ QmakePriFile *QmakePriFile::parent() const
 
 QmakeProject *QmakePriFile::project() const
 {
-    return m_project;
+    return static_cast<QmakeProject *>(m_buildSystem->project());
 }
 
 QVector<QmakePriFile *> QmakePriFile::children() const
@@ -255,7 +255,7 @@ QmakePriFile::~QmakePriFile()
 void QmakePriFile::scheduleUpdate()
 {
     QtSupport::ProFileCacheManager::instance()->discardFile(
-                filePath().toString(), m_project->qmakeVfs());
+                filePath().toString(), m_buildSystem->qmakeVfs());
     m_qmakeProFile->scheduleUpdate(QmakeProFile::ParseLater);
 }
 
@@ -399,8 +399,8 @@ void QmakePriFile::watchFolders(const QSet<FilePath> &folders)
     QSet<QString> toWatch = folderStrings;
     toWatch.subtract(m_watchedFolders);
 
-    m_project->unwatchFolders(Utils::toList(toUnwatch), this);
-    m_project->watchFolders(Utils::toList(toWatch), this);
+    m_buildSystem->unwatchFolders(Utils::toList(toUnwatch), this);
+    m_buildSystem->watchFolders(Utils::toList(toWatch), this);
 
     m_watchedFolders = folderStrings;
 }
@@ -416,6 +416,11 @@ QString QmakePriFile::continuationIndent() const
         return QString("\t");
     }
     return QString(tabSettings.m_indentSize, ' ');
+}
+
+QmakeBuildSystem *QmakePriFile::buildSystem() const
+{
+    return m_buildSystem;
 }
 
 bool QmakePriFile::knowsFile(const FilePath &filePath) const
@@ -710,8 +715,9 @@ bool QmakePriFile::saveModifiedEditors()
 
     // force instant reload of ourselves
     QtSupport::ProFileCacheManager::instance()->discardFile(
-                filePath().toString(), m_project->qmakeVfs());
-    QmakeProject::notifyChanged(filePath());
+                filePath().toString(), m_buildSystem->qmakeVfs());
+
+    m_buildSystem->notifyChanged(filePath());
     return true;
 }
 
@@ -784,7 +790,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
                         &contents,
                         &m_textFormat,
                         &errorMsg) != TextFileFormat::ReadSuccess) {
-                QmakeProject::proFileParseError(errorMsg);
+                QmakeBuildSystem::proFileParseError(errorMsg);
                 return qMakePair(includeFile, lines);
             }
             lines = contents.split('\n');
@@ -1171,8 +1177,8 @@ QByteArray QmakeProFile::cxxDefines() const
   \class QmakeProFile
   Implements abstract ProjectNode class
   */
-QmakeProFile::QmakeProFile(QmakeProject *project, const FilePath &filePath) :
-    QmakePriFile(project, this, filePath)
+QmakeProFile::QmakeProFile(QmakeBuildSystem *buildSystem, const FilePath &filePath) :
+    QmakePriFile(buildSystem, this, filePath)
 {
     // The lifetime of the m_parserFutureWatcher is shorter
     // than of this, so this is all safe
@@ -1245,10 +1251,7 @@ void QmakeProFile::setParseInProgressRecursive(bool b)
 
 void QmakeProFile::setParseInProgress(bool b)
 {
-    if (m_parseInProgress == b)
-        return;
     m_parseInProgress = b;
-    emit m_project->proFileUpdated(this, m_validParse, m_parseInProgress);
 }
 
 // Do note the absence of signal emission, always set validParse
@@ -1275,12 +1278,12 @@ bool QmakeProFile::parseInProgress() const
 void QmakeProFile::scheduleUpdate(QmakeProFile::AsyncUpdateDelay delay)
 {
     setParseInProgressRecursive(true);
-    m_project->scheduleAsyncUpdate(this, delay);
+    m_buildSystem->scheduleAsyncUpdateFile(this, delay);
 }
 
 void QmakeProFile::asyncUpdate()
 {
-    m_project->incrementPendingEvaluateFutures();
+    m_buildSystem->incrementPendingEvaluateFutures();
     setupReader();
     if (!includedInExactParse())
         m_readerExact->setExact(false);
@@ -1307,11 +1310,11 @@ QmakeEvalInput QmakeProFile::evalInput() const
     input.projectDir = directoryPath().toString();
     input.projectFilePath = filePath();
     input.buildDirectory = buildDir();
-    input.sysroot = FilePath::fromString(m_project->qmakeSysroot());
+    input.sysroot = FilePath::fromString(m_buildSystem->qmakeSysroot());
     input.readerExact = m_readerExact;
     input.readerCumulative = m_readerCumulative;
-    input.qmakeGlobals = m_project->qmakeGlobals();
-    input.qmakeVfs = m_project->qmakeVfs();
+    input.qmakeGlobals = m_buildSystem->qmakeGlobals();
+    input.qmakeVfs = m_buildSystem->qmakeVfs();
     return input;
 }
 
@@ -1320,9 +1323,9 @@ void QmakeProFile::setupReader()
     Q_ASSERT(!m_readerExact);
     Q_ASSERT(!m_readerCumulative);
 
-    m_readerExact = m_project->createProFileReader(this);
+    m_readerExact = m_buildSystem->createProFileReader(this);
 
-    m_readerCumulative = m_project->createProFileReader(this);
+    m_readerCumulative = m_buildSystem->createProFileReader(this);
     m_readerCumulative->setCumulative(true);
 }
 
@@ -1588,7 +1591,7 @@ void QmakeProFile::applyAsyncEvaluate()
 {
     if (m_parseFutureWatcher.isFinished())
         applyEvaluate(m_parseFutureWatcher.result());
-    m_project->decrementPendingEvaluateFutures();
+    m_buildSystem->decrementPendingEvaluateFutures();
 }
 
 bool sortByParserNodes(Node *a, Node *b)
@@ -1602,23 +1605,24 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
     if (!m_readerExact)
         return;
 
-    if (m_project->asyncUpdateState() == QmakeProject::ShuttingDown) {
+    if (m_buildSystem->asyncUpdateState() == QmakeBuildSystem::ShuttingDown) {
         cleanupProFileReaders();
         return;
     }
 
     foreach (const QString &error, evalResult->errors)
-        QmakeProject::proFileParseError(error);
+        QmakeBuildSystem::proFileParseError(error);
 
     // we are changing what is executed in that case
-    if (result->state == QmakeEvalResult::EvalFail || m_project->wasEvaluateCanceled()) {
+    if (result->state == QmakeEvalResult::EvalFail || m_buildSystem->wasEvaluateCanceled()) {
         m_validParse = false;
         cleanupProFileReaders();
         setValidParseRecursive(false);
         setParseInProgressRecursive(false);
 
         if (result->state == QmakeEvalResult::EvalFail) {
-            QmakeProject::proFileParseError(QCoreApplication::translate("QmakeProFile", "Error while parsing file %1. Giving up.")
+            QmakeBuildSystem::proFileParseError(
+                        QCoreApplication::translate("QmakeProFile", "Error while parsing file %1. Giving up.")
                                             .arg(filePath().toUserOutput()));
             if (m_projectType == ProjectType::Invalid)
                 return;
@@ -1678,14 +1682,14 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
                 continue; // Do nothing
 
             if (priFile->proFile) {
-                auto *qmakePriFileNode = new QmakePriFile(m_project, this, priFile->name);
+                auto *qmakePriFileNode = new QmakePriFile(m_buildSystem, this, priFile->name);
                 pn->addChild(qmakePriFileNode);
                 qmakePriFileNode->setIncludedInExactParse(
                             (result->state == QmakeEvalResult::EvalOk) && pn->includedInExactParse());
                 qmakePriFileNode->update(priFile->result);
                 toCompare.append(qMakePair(qmakePriFileNode, priFile));
             } else {
-                auto *qmakeProFileNode = new QmakeProFile(m_project, priFile->name);
+                auto *qmakeProFileNode = new QmakeProFile(m_buildSystem, priFile->name);
                 pn->addChild(qmakeProFileNode);
                 qmakeProFileNode->setIncludedInExactParse(
                             result->exactSubdirs.contains(qmakeProFileNode->filePath())
@@ -1765,9 +1769,9 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
 void QmakeProFile::cleanupProFileReaders()
 {
     if (m_readerExact)
-        m_project->destroyProFileReader(m_readerExact);
+        m_buildSystem->destroyProFileReader(m_readerExact);
     if (m_readerCumulative)
-        m_project->destroyProFileReader(m_readerCumulative);
+        m_buildSystem->destroyProFileReader(m_readerCumulative);
 
     m_readerExact = nullptr;
     m_readerCumulative = nullptr;
@@ -2017,15 +2021,16 @@ FilePath QmakeProFile::sourceDir() const
     return directoryPath();
 }
 
-FilePath QmakeProFile::buildDir(QmakeBuildConfiguration *bc) const
+FilePath QmakeProFile::buildDir(BuildConfiguration *bc) const
 {
-    const QDir srcDirRoot = QDir(m_project->projectDirectory().toString());
+    if (!bc)
+        bc = m_buildSystem->target()->activeBuildConfiguration();
+
+    const QDir srcDirRoot = QDir(m_buildSystem->projectDirectory().toString());
     const QString relativeDir = srcDirRoot.relativeFilePath(directoryPath().toString());
-    if (!bc && m_project->activeTarget())
-        bc = static_cast<QmakeBuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     const QString buildConfigBuildDir = bc ? bc->buildDirectory().toString() : QString();
     const QString buildDir = buildConfigBuildDir.isEmpty()
-                                 ? m_project->projectDirectory().toString()
+                                 ? m_buildSystem->projectDirectory().toString()
                                  : buildConfigBuildDir;
     return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
 }
@@ -2075,7 +2080,7 @@ void QmakeProFile::setupExtraCompiler(const FilePath &buildDir,
     for (const FilePath &fn : collectFiles(fileType)) {
         const FilePathList generated = generatedFiles(buildDir, fn, fileType);
         if (!generated.isEmpty())
-            m_extraCompilers.append(factory->create(m_project, fn, generated));
+            m_extraCompilers.append(factory->create(m_buildSystem->project(), fn, generated));
     }
 }
 

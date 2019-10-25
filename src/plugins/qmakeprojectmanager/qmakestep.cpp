@@ -81,7 +81,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Constants::Q
 
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
 {
-    return static_cast<QmakeBuildConfiguration *>(buildConfiguration());
+    return qobject_cast<QmakeBuildConfiguration *>(buildConfiguration());
 }
 
 ///
@@ -174,17 +174,17 @@ bool QMakeStep::init()
         return false;
     }
 
-    QString workingDirectory;
+    FilePath workingDirectory;
 
     if (qmakeBc->subNodeBuild())
-        workingDirectory = qmakeBc->subNodeBuild()->buildDir();
+        workingDirectory = qmakeBc->subNodeBuild()->buildDir(qmakeBc);
     else
-        workingDirectory = qmakeBc->buildDirectory().toString();
+        workingDirectory = qmakeBc->buildDirectory();
 
     m_qmakeCommand = CommandLine{qtVersion->qmakeCommand(), allArguments(qtVersion), CommandLine::Raw};
     m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
 
-    QString makefile = workingDirectory + '/';
+    QString makefile = workingDirectory.toString() + '/';
 
     if (qmakeBc->subNodeBuild()) {
         QmakeProFileNode *pro = qmakeBc->subNodeBuild();
@@ -220,18 +220,18 @@ bool QMakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(qmakeBc->macroExpander());
-    pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
+    pp->setWorkingDirectory(workingDirectory);
     pp->setEnvironment(qmakeBc->environment());
 
     setOutputParser(new QMakeParser);
 
-    QmakeProFileNode *node = static_cast<QmakeProject *>(qmakeBc->target()->project())->rootProjectNode();
+    QmakeProFileNode *node = static_cast<QmakeProFileNode *>(qmakeBc->project()->rootProjectNode());
     if (qmakeBc->subNodeBuild())
         node = qmakeBc->subNodeBuild();
     QTC_ASSERT(node, return false);
     QString proFile = node->filePath().toString();
 
-    Tasks tasks = qtVersion->reportIssues(proFile, workingDirectory);
+    Tasks tasks = qtVersion->reportIssues(proFile, workingDirectory.toString());
     Utils::sort(tasks);
 
     if (!tasks.isEmpty()) {
@@ -292,8 +292,7 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     bool result = AbstractProcessStep::processSucceeded(exitCode, status);
     if (!result)
         m_needToRunQMake = true;
-    auto *project = static_cast<QmakeProject *>(qmakeBuildConfiguration()->target()->project());
-    project->emitBuildDirectoryInitialized();
+    emit buildConfiguration()->buildDirectoryChanged();
     return result;
 }
 
@@ -591,7 +590,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
     connect(step->project(), &Project::projectLanguagesUpdated,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
-    connect(step->project(), &Project::parsingFinished,
+    connect(step->target(), &Target::parsingFinished,
             this, &QMakeStepConfigWidget::updateEffectiveQMakeCall);
     connect(step, &QMakeStep::useQtQuickCompilerChanged,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChanged);
@@ -866,7 +865,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Yes) {
-        QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
+        BuildConfiguration *bc = m_step->buildConfiguration();
         if (!bc)
             return;
 

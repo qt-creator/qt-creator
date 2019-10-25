@@ -27,7 +27,7 @@
 
 #include "compilationdatabaseutils.h"
 
-#include <projectexplorer/project.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <utils/fileutils.h>
 
@@ -56,7 +56,7 @@ public:
                                  const Utils::FilePath &projectPath,
                                  const Utils::FilePath &rootPath,
                                  MimeBinaryCache &mimeBinaryCache,
-                                 ProjectExplorer::Project::ParseGuard &&guard,
+                                 ProjectExplorer::BuildSystem::ParseGuard &&guard,
                                  QObject *parent = nullptr);
 
 
@@ -91,7 +91,7 @@ private:
     QByteArray m_projectFileContents;
     QByteArray m_projectFileHash;
 
-    ProjectExplorer::Project::ParseGuard m_guard;
+    ProjectExplorer::BuildSystem::ParseGuard m_guard;
 };
 
 } // namespace Internal

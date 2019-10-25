@@ -29,6 +29,7 @@
 #include "buildconfiguration.h"
 #include "buildinfo.h"
 #include "buildmanager.h"
+#include "buildsystem.h"
 #include "buildtargetinfo.h"
 #include "deployconfiguration.h"
 #include "deploymentdata.h"
@@ -98,20 +99,24 @@ public:
         m_runConfigurationModel(t)
     { }
 
+    ~TargetPrivate()
+    {
+        delete m_buildSystem;
+    }
+
     QIcon m_overlayIcon;
 
     QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_activeBuildConfiguration = nullptr;
+    QPointer<BuildConfiguration> m_activeBuildConfiguration;
     QList<DeployConfiguration *> m_deployConfigurations;
     DeployConfiguration *m_activeDeployConfiguration = nullptr;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration = nullptr;
-    DeploymentData m_deploymentData;
-    QList<BuildTargetInfo> m_appTargets;
     QVariantMap m_pluginSettings;
 
     Kit *const m_kit;
     MacroExpander m_macroExpander;
+    BuildSystem *m_buildSystem = nullptr;
 
     ProjectConfigurationModel m_buildConfigurationModel;
     ProjectConfigurationModel m_deployConfigurationModel;
@@ -123,13 +128,24 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     QObject(project),
     d(std::make_unique<TargetPrivate>(this, k))
 {
+    // Note: nullptr is a valid state for the per-buildConfig systems.
+    d->m_buildSystem = project->createBuildSystem(this);
+
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
-    connect(project, &Project::parsingFinished, this, [this](bool success) {
-        if (success && this->project() == SessionManager::startupProject()
-                && this == this->project()->activeTarget()) {
+
+    connect(this, &Target::parsingStarted, this, [this, project] {
+        project->anyParsingStarted(this);
+    });
+
+    connect(this, &Target::parsingFinished, this, [this, project](bool success) {
+        if (success && project == SessionManager::startupProject()
+                && this == project->activeTarget()) {
             updateDefaultRunConfigurations();
         }
+        // For testing.
+        emit SessionManager::instance()->projectFinishedParsing(project);
+        project->anyParsingFinished(this, success);
     }, Qt::QueuedConnection); // Must wait for run configs to change their enabled state.
 
     KitManager *km = KitManager::instance();
@@ -191,6 +207,37 @@ Project *Target::project() const
 Kit *Target::kit() const
 {
     return d->m_kit;
+}
+
+BuildSystem *Target::buildSystem() const
+{
+    if (d->m_activeBuildConfiguration)
+        return d->m_activeBuildConfiguration->buildSystem();
+
+    return d->m_buildSystem;
+}
+
+BuildSystem *Target::fallbackBuildSystem() const
+{
+    return d->m_buildSystem;
+}
+
+DeploymentData Target::deploymentData() const
+{
+    QTC_ASSERT(buildSystem(), return {});
+    return buildSystem()->deploymentData();
+}
+
+const QList<BuildTargetInfo> Target::applicationTargets() const
+{
+    QTC_ASSERT(buildSystem(), return {});
+    return buildSystem()->applicationTargets();
+}
+
+BuildTargetInfo Target::buildTarget(const QString &buildKey) const
+{
+    QTC_ASSERT(buildSystem(), return {});
+    return buildSystem()->buildTarget(buildKey);
 }
 
 Core::Id Target::id() const
@@ -277,7 +324,6 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
         (bc && d->m_buildConfigurations.contains(bc) &&
          bc != d->m_activeBuildConfiguration)) {
         d->m_activeBuildConfiguration = bc;
-        project()->activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
     }
 }
@@ -351,49 +397,6 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
         emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
     }
     updateDeviceState();
-}
-
-void Target::setDeploymentData(const DeploymentData &deploymentData)
-{
-    if (d->m_deploymentData != deploymentData) {
-        d->m_deploymentData = deploymentData;
-        emit deploymentDataChanged();
-        emit applicationTargetsChanged();
-    }
-}
-
-DeploymentData Target::deploymentData() const
-{
-    return d->m_deploymentData;
-}
-
-void Target::setApplicationTargets(const QList<BuildTargetInfo> &appTargets)
-{
-    if (Utils::toSet(appTargets) != Utils::toSet(d->m_appTargets)) {
-        d->m_appTargets = appTargets;
-        emit applicationTargetsChanged();
-    }
-}
-
-const QList<BuildTargetInfo> Target::applicationTargets() const
-{
-    return d->m_appTargets;
-}
-
-BuildTargetInfo Target::buildTarget(const QString &buildKey) const
-{
-    return Utils::findOrDefault(d->m_appTargets, [&buildKey](const BuildTargetInfo &ti) {
-        return ti.buildKey == buildKey;
-    });
-}
-
-QList<ProjectConfiguration *> Target::projectConfigurations() const
-{
-    QList<ProjectConfiguration *> result;
-    result.append(Utils::static_container_cast<ProjectConfiguration *>(buildConfigurations()));
-    result.append(Utils::static_container_cast<ProjectConfiguration *>(deployConfigurations()));
-    result.append(Utils::static_container_cast<ProjectConfiguration *>(runConfigurations()));
-    return result;
 }
 
 QList<RunConfiguration *> Target::runConfigurations() const
@@ -716,7 +719,7 @@ void Target::setNamedSettings(const QString &name, const QVariant &value)
 
 QVariant Target::additionalData(Core::Id id) const
 {
-    return project()->additionalData(id, this);
+    return buildSystem()->additionalData(id);
 }
 
 MakeInstallCommand Target::makeInstallCommand(const QString &installRoot) const

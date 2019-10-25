@@ -37,36 +37,11 @@ namespace QmakeProjectManager {
 class QmakeProFileNode;
 class QmakeProject;
 
-class QmakeBuildSystem : public ProjectExplorer::BuildSystem
-{
-public:
-    explicit QmakeBuildSystem(ProjectExplorer::Project *project);
-
-    bool supportsAction(ProjectExplorer::Node *context,
-                        ProjectExplorer::ProjectAction action,
-                        const ProjectExplorer::Node *node) const override;
-
-    bool addFiles(ProjectExplorer::Node *context,
-                  const QStringList &filePaths,
-                  QStringList *notAdded = nullptr) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
-                                                         const QStringList &filePaths,
-                                                         QStringList *notRemoved = nullptr) override;
-    bool deleteFiles(ProjectExplorer::Node *context,
-                     const QStringList &filePaths) override;
-    bool canRenameFile(ProjectExplorer::Node *context,
-                       const QString &filePath, const QString &newFilePath) override;
-    bool renameFile(ProjectExplorer::Node *context,
-                    const QString &filePath, const QString &newFilePath) override;
-    bool addDependencies(ProjectExplorer::Node *context,
-                         const QStringList &dependencies) override;
-};
-
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
 {
 public:
-    QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode,
+    QmakePriFileNode(QmakeBuildSystem *buildSystem, QmakeProFileNode *qmakeProFileNode,
                      const Utils::FilePath &filePath, QmakePriFile *pf);
 
     QmakePriFile *priFile() const;
@@ -85,7 +60,7 @@ public:
     QmakeProFileNode *proFileNode() const;
 
 protected:
-    QmakeProject *m_project = nullptr;
+    QPointer<QmakeBuildSystem> m_buildSystem;
 
 private:
     QmakeProFileNode *m_qmakeProFileNode = nullptr;
@@ -96,7 +71,7 @@ private:
 class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
 public:
-    QmakeProFileNode(QmakeProject *project, const Utils::FilePath &filePath, QmakeProFile *pf);
+    QmakeProFileNode(QmakeBuildSystem *buildSystem, const Utils::FilePath &filePath, QmakeProFile *pf);
 
     QmakeProFile *proFile() const;
 
@@ -122,8 +97,7 @@ public:
     bool setData(Core::Id role, const QVariant &value) const override;
 
     QmakeProjectManager::ProjectType projectType() const;
-    QString buildDir() const;
-    Utils::FilePath buildDir(QmakeBuildConfiguration *bc) const;
+    Utils::FilePath buildDir(ProjectExplorer::BuildConfiguration *bc) const;
 
     QStringList variableValue(const Variable var) const;
     QString singleVariableValue(const Variable var) const;

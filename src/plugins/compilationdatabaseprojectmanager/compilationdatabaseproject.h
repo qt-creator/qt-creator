@@ -28,8 +28,11 @@
 #include "compilationdatabaseutils.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
+
 #include <texteditor/texteditor.h>
+
 #include <utils/filesystemwatcher.h>
 
 #include <QFutureWatcher>
@@ -52,20 +55,31 @@ class CompilationDatabaseProject : public ProjectExplorer::Project
 
 public:
     explicit CompilationDatabaseProject(const Utils::FilePath &filename);
-    ~CompilationDatabaseProject() override;
+
     bool needsConfiguration() const override { return false; }
+
+    Utils::FilePath rootPathFromSettings() const;
+    ProjectExplorer::Kit *kit() const { return m_kit.get(); }
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    std::unique_ptr<ProjectExplorer::Kit> m_kit;
+};
+
+class CompilationDatabaseBuildSystem : public ProjectExplorer::BuildSystem
+{
+public:
+    explicit CompilationDatabaseBuildSystem(ProjectExplorer::Target *target);
+    ~CompilationDatabaseBuildSystem();
+
+    void triggerParsing() final;
 
     void reparseProject();
     void updateDeploymentData();
     void buildTreeAndProjectParts();
-    Utils::FilePath rootPathFromSettings() const;
 
     QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
-    std::unique_ptr<ProjectExplorer::Kit> m_kit;
     MimeBinaryCache m_mimeBinaryCache;
     QByteArray m_projectFileHash;
     QTimer * const m_parseDelay;

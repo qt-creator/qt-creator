@@ -78,7 +78,7 @@ CMakeManager::CMakeManager() :
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_runCMakeAction, &QAction::triggered, [this]() {
-        runCMake(SessionManager::startupProject());
+        runCMake(SessionManager::startupBuildSystem());
     });
 
     command = Core::ActionManager::registerAction(m_clearCMakeCacheAction,
@@ -86,7 +86,7 @@ CMakeManager::CMakeManager() :
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_clearCMakeCacheAction, &QAction::triggered, [this]() {
-        clearCMakeCache(SessionManager::startupProject());
+        clearCMakeCache(SessionManager::startupBuildSystem());
     });
 
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
@@ -95,7 +95,7 @@ CMakeManager::CMakeManager() :
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runCMakeActionContextMenu, &QAction::triggered, [this]() {
-        runCMake(ProjectTree::currentProject());
+        runCMake(ProjectTree::currentBuildSystem());
     });
 
     m_buildFileContextMenu = new QAction(tr("Build"), this);
@@ -111,7 +111,7 @@ CMakeManager::CMakeManager() :
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_rescanProjectAction, &QAction::triggered, [this]() {
-        rescanProject(ProjectTree::currentProject());
+        rescanProject(ProjectTree::currentBuildSystem());
     });
 
     m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
@@ -146,34 +146,29 @@ void CMakeManager::updateCmakeActions()
     enableBuildFileMenus(ProjectTree::currentNode());
 }
 
-void CMakeManager::clearCMakeCache(Project *project)
+void CMakeManager::clearCMakeCache(BuildSystem *buildSystem)
 {
-    auto cmakeProject = qobject_cast<CMakeProject *>(project);
-    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
-        return;
+    auto cmakeBuildSystem = dynamic_cast<CMakeBuildSystem *>(buildSystem);
+    QTC_ASSERT(cmakeBuildSystem, return);
 
-    cmakeProject->clearCMakeCache();
+    cmakeBuildSystem->clearCMakeCache();
 }
 
-void CMakeManager::runCMake(Project *project)
+void CMakeManager::runCMake(BuildSystem *buildSystem)
 {
-    auto cmakeProject = qobject_cast<CMakeProject *>(project);
-    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
-        return;
+    auto cmakeBuildSystem = dynamic_cast<CMakeBuildSystem *>(buildSystem);
+    QTC_ASSERT(cmakeBuildSystem, return);
 
-    if (!ProjectExplorerPlugin::saveModifiedFiles())
-        return;
-
-    cmakeProject->runCMake();
+    if (ProjectExplorerPlugin::saveModifiedFiles())
+        cmakeBuildSystem->runCMake();
 }
 
-void CMakeManager::rescanProject(Project *project)
+void CMakeManager::rescanProject(BuildSystem *buildSystem)
 {
-    auto cmakeProject = qobject_cast<CMakeProject *>(project);
-    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
-        return;
+    auto cmakeBuildSystem = dynamic_cast<CMakeBuildSystem *>(buildSystem);
+    QTC_ASSERT(cmakeBuildSystem, return);
 
-    cmakeProject->runCMakeAndScanProjectTree();// by my experience: every rescan run requires cmake run too
+    cmakeBuildSystem->runCMakeAndScanProjectTree();// by my experience: every rescan run requires cmake run too
 }
 
 void CMakeManager::updateBuildFileAction()
@@ -235,14 +230,15 @@ void CMakeManager::buildFile(Node *node)
     CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(fileNode->parentProjectNode());
     if (!targetNode)
         return;
-    auto cmakeProject = static_cast<CMakeProject *>(project);
-    Target *target = cmakeProject->activeTarget();
+    Target *target = project->activeTarget();
+    QTC_ASSERT(target, return);
     const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
     const QString relativeSource = fileNode->filePath().relativeChildPath(targetNode->filePath()).toString();
     const QString objExtension = Utils::HostOsInfo::isWindowsHost() ? QString(".obj") : QString(".o");
     Utils::FilePath targetBase;
+    BuildConfiguration *bc = target->activeBuildConfiguration();
+    QTC_ASSERT(bc, return);
     if (generator == "Ninja") {
-        BuildConfiguration *bc = target->activeBuildConfiguration();
         const Utils::FilePath relativeBuildDir = targetNode->buildDirectory().relativeChildPath(
                     bc->buildDirectory());
         targetBase = relativeBuildDir
@@ -253,7 +249,9 @@ void CMakeManager::buildFile(Node *node)
                                     .arg(generator));
         return;
     }
-    cmakeProject->buildCMakeTarget(targetBase.pathAppended(relativeSource).toString() + objExtension);
+
+    static_cast<CMakeBuildSystem *>(bc->buildSystem())
+            ->buildCMakeTarget(targetBase.pathAppended(relativeSource).toString() + objExtension);
 }
 
 void CMakeManager::buildFileContextMenu()

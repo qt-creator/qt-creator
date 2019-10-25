@@ -29,19 +29,55 @@
 
 namespace Nim {
 
+struct NimbleTask
+{
+    QString name;
+    QString description;
+
+    bool operator==(const NimbleTask &o) const {
+        return name == o.name && description == o.description;
+    }
+};
+
+struct NimbleMetadata
+{
+    QStringList bin;
+    QString binDir;
+    QString srcDir;
+
+    bool operator==(const NimbleMetadata &o) const {
+        return bin == o.bin && binDir == o.binDir && srcDir == o.srcDir;
+    }
+};
+
 class NimbleBuildSystem : public NimBuildSystem
 {
     Q_OBJECT
 
 public:
-    NimbleBuildSystem(ProjectExplorer::Project *project);
+    NimbleBuildSystem(ProjectExplorer::Target *target);
 
-protected:
-    void parseProject(ParsingContext &&ctx) override;
+    std::vector<NimbleTask> tasks() const;
+
+    NimbleMetadata metadata() const;
+
+    void setTasks(std::vector<NimbleTask> tasks);
+    void setMetadata(NimbleMetadata metadata);
+
+signals:
+    void tasksChanged();
+
+private:
+    void loadSettings() override;
+    void saveSettings() override;
 
     void updateProject();
     void updateProjectTasks();
     void updateProjectMetaData();
+    void updateApplicationTargets();
+
+    NimbleMetadata m_metadata;
+    std::vector<NimbleTask> m_tasks;
 };
 
 }

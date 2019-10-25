@@ -28,6 +28,8 @@
 #include "buildenvironmentwidget.h"
 #include "buildinfo.h"
 #include "buildsteplist.h"
+#include "buildstepspage.h"
+#include "buildsystem.h"
 #include "namedwidget.h"
 #include "kit.h"
 #include "kitinformation.h"
@@ -89,6 +91,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id), d(new Internal::BuildConfigurationPrivate)
 {
     QTC_CHECK(target && target == this->target());
+
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Build Settings"));
     expander->setAccumulating(true);
@@ -128,8 +131,8 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
         this->target()->buildEnvironmentChanged(this);
     });
 
-    connect(project(), &Project::parsingStarted, this, &BuildConfiguration::enabledChanged);
-    connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
+    connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
+    connect(target, &Target::parsingFinished, this, &BuildConfiguration::enabledChanged);
 
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
         if (isActive() && project() == SessionManager::startupProject()) {
@@ -162,6 +165,19 @@ void BuildConfiguration::setBuildDirectory(const Utils::FilePath &dir)
         return;
     d->m_buildDirectoryAspect->setFilePath(dir);
     emitBuildDirectoryChanged();
+}
+
+void BuildConfiguration::addConfigWidgets(const std::function<void(NamedWidget *)> &adder)
+{
+    if (NamedWidget *generalConfigWidget = createConfigWidget())
+        adder(generalConfigWidget);
+
+    adder(new Internal::BuildStepListWidget(stepList(Constants::BUILDSTEPS_BUILD)));
+    adder(new Internal::BuildStepListWidget(stepList(Constants::BUILDSTEPS_CLEAN)));
+
+    QList<NamedWidget *> subConfigWidgets = createSubConfigWidgets();
+    foreach (NamedWidget *subConfigWidget, subConfigWidgets)
+        adder(subConfigWidget);
 }
 
 NamedWidget *BuildConfiguration::createConfigWidget()
@@ -201,6 +217,12 @@ void BuildConfiguration::initialize()
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
     return {new BuildEnvironmentWidget(this)};
+}
+
+BuildSystem *BuildConfiguration::buildSystem() const
+{
+    QTC_CHECK(target()->fallbackBuildSystem());
+    return target()->fallbackBuildSystem();
 }
 
 QList<Core::Id> BuildConfiguration::knownStepLists() const
@@ -368,14 +390,14 @@ void BuildConfiguration::setUserEnvironmentChanges(const Utils::EnvironmentItems
 
 bool BuildConfiguration::isEnabled() const
 {
-    return !project()->isParsing() && project()->hasParsingData();
+    return !buildSystem()->isParsing() && buildSystem()->hasParsingData();
 }
 
 QString BuildConfiguration::disabledReason() const
 {
-    if (project()->isParsing())
+    if (buildSystem()->isParsing())
         return (tr("The project is currently being parsed."));
-    if (!project()->hasParsingData())
+    if (!buildSystem()->hasParsingData())
         return (tr("The project was not parsed successfully."));
     return QString();
 }

@@ -48,7 +48,7 @@ CompilationDbParser::CompilationDbParser(const QString &projectName,
                                          const FilePath &projectPath,
                                          const FilePath &rootPath,
                                          MimeBinaryCache &mimeBinaryCache,
-                                         ProjectExplorer::Project::ParseGuard &&guard,
+                                         BuildSystem::ParseGuard &&guard,
                                          QObject *parent)
     : QObject(parent)
     , m_projectName(projectName)

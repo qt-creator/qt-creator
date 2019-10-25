@@ -39,6 +39,7 @@
 #include <QJsonObject>
 #include <QProcessEnvironment>
 #include <QRegularExpression>
+#include <QTimer>
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
@@ -57,7 +58,7 @@ namespace Internal {
 class PythonBuildSystem : public BuildSystem
 {
 public:
-    explicit PythonBuildSystem(Project *project);
+    explicit PythonBuildSystem(Target *target);
 
     bool supportsAction(Node *context, ProjectAction action, const Node *node) const override;
     bool addFiles(Node *, const QStringList &filePaths, QStringList *) override;
@@ -74,11 +75,9 @@ public:
     bool writePyProjectFile(const QString &fileName, QString &content,
                             const QStringList &rawList, QString *errorMessage);
 
-    void refresh();
+    void triggerParsing() final;
 
 private:
-    PythonProject *project() const;
-
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -191,12 +190,12 @@ PythonProject::PythonProject(const FilePath &fileName)
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
-    setBuildSystemCreator([](Project *p) { return new PythonBuildSystem(p); });
+    setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });
 }
 
-void PythonBuildSystem::refresh()
+void PythonBuildSystem::triggerParsing()
 {
-    Project::ParseGuard guard = project()->guardParsingRun();
+    ParseGuard guard = guardParsingRun();
     parse();
 
     const QDir baseDir(projectDirectory().toString());
@@ -225,8 +224,7 @@ void PythonBuildSystem::refresh()
     }
     project()->setRootProjectNode(std::move(newRoot));
 
-    if (Target *target = project()->activeTarget())
-        target->setApplicationTargets(appTargets);
+    setApplicationTargets(appTargets);
 
     guard.markAsSuccess();
 }
@@ -423,27 +421,16 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
     if (res == RestoreResult::Ok) {
         if (!activeTarget())
             addTargetForDefaultKit();
-
-        if (auto bs = dynamic_cast<PythonBuildSystem *>(buildSystem()))
-            bs->refresh();
     }
 
     return res;
 }
 
-bool PythonProject::setupTarget(Target *t)
+PythonBuildSystem::PythonBuildSystem(Target *target)
+    : BuildSystem(target)
 {
-    bool res = Project::setupTarget(t);
-    if (auto bs = dynamic_cast<PythonBuildSystem *>(buildSystem()))
-        QTimer::singleShot(0, bs, &PythonBuildSystem::refresh);
-    return res;
-}
-
-PythonBuildSystem::PythonBuildSystem(Project *project)
-    : BuildSystem(project)
-{
-    connect(project, &Project::projectFileIsDirty, this, [this]() { refresh(); });
-    QTimer::singleShot(0, this, &PythonBuildSystem::refresh);
+    connect(target->project(), &Project::projectFileIsDirty, this, [this]() { triggerParsing(); });
+    QTimer::singleShot(0, this, &PythonBuildSystem::triggerParsing);
 }
 
 bool PythonBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
@@ -458,11 +445,6 @@ bool PythonBuildSystem::supportsAction(Node *context, ProjectAction action, cons
                || action == ProjectAction::AddExistingFile;
     }
     return BuildSystem::supportsAction(context, action, node);
-}
-
-PythonProject *PythonBuildSystem::project() const
-{
-    return static_cast<PythonProject *>(BuildSystem::project());
 }
 
 } // namespace Internal

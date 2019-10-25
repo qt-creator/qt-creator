@@ -72,7 +72,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
     connect(target, &Target::applicationTargetsChanged,
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
-    connect(target->project(), &Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);

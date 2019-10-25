@@ -59,6 +59,8 @@
 #include <QStyledItemDelegate>
 #include <QMenu>
 
+using namespace ProjectExplorer;
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -102,7 +104,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setColumnStretch(1, 10);
 
-    auto project = static_cast<CMakeProject *>(bc->project());
+    auto project = bc->project();
 
     auto buildDirChooser = new Utils::PathChooser;
     buildDirChooser->setBaseFileName(project->projectDirectory());
@@ -245,21 +247,20 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     setError(bc->error());
     setWarning(bc->warning());
 
-    connect(project, &ProjectExplorer::Project::parsingStarted, this, [this]() {
+    connect(bc->target(), &Target::parsingStarted, this, [this]() {
         updateButtonState();
         m_configView->setEnabled(false);
         m_showProgressTimer.start();
     });
 
-    if (project->isParsing())
+    if (bc->buildSystem()->isParsing())
         m_showProgressTimer.start();
     else {
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configView->expandAll();
     }
 
-    connect(project, &ProjectExplorer::Project::parsingFinished,
-            this, [this, buildDirChooser, stretcher]() {
+    connect(bc->target(), &Target::parsingFinished, this, [this, buildDirChooser, stretcher] {
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configView->expandAll();
         m_configView->setEnabled(true);
@@ -363,7 +364,7 @@ void CMakeBuildSettingsWidget::setWarning(const QString &message)
 
 void CMakeBuildSettingsWidget::updateButtonState()
 {
-    const bool isParsing = m_buildConfiguration->project()->isParsing();
+    const bool isParsing = m_buildConfiguration->buildSystem()->isParsing();
     const bool hasChanges = m_configModel->hasChanges();
     m_resetButton->setEnabled(hasChanges && !isParsing);
     m_reconfigureButton->setEnabled((hasChanges || m_configModel->hasCMakeChanges()) && !isParsing);

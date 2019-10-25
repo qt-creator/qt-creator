@@ -65,24 +65,29 @@ Q_LOGGING_CATEGORY(cmakeBuildDirManagerLog, "qtc.cmake.builddirmanager", QtWarni
 // BuildDirManager:
 // --------------------------------------------------------------------
 
-BuildDirManager::BuildDirManager(CMakeProject *project) : m_project(project) { assert(project); }
+BuildDirManager::BuildDirManager(CMakeBuildSystem *buildSystem)
+    : m_buildSystem(buildSystem)
+{
+    assert(buildSystem);
+}
 
 BuildDirManager::~BuildDirManager() = default;
 
-Utils::FilePath BuildDirManager::workDirectory(const BuildDirParameters &parameters) const
+FilePath BuildDirManager::workDirectory(const BuildDirParameters &parameters) const
 {
     const Utils::FilePath bdir = parameters.buildDirectory;
     const CMakeTool *cmake = parameters.cmakeTool();
     if (bdir.exists()) {
         m_buildDirToTempDir.erase(bdir);
         return bdir;
-    } else {
-        if (cmake && cmake->autoCreateBuildDirectory()) {
-            if (!QDir().mkpath(bdir.toString()))
-                emitErrorOccured(tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
-            return bdir;
-        }
     }
+
+    if (cmake && cmake->autoCreateBuildDirectory()) {
+        if (!QDir().mkpath(bdir.toString()))
+            emitErrorOccured(tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
+        return bdir;
+    }
+
     auto tmpDirIt = m_buildDirToTempDir.find(bdir);
     if (tmpDirIt == m_buildDirToTempDir.end()) {
         auto ret = m_buildDirToTempDir.emplace(std::make_pair(bdir, std::make_unique<Utils::TemporaryDirectory>("qtc-cmake-XXXXXXXX")));
@@ -290,22 +295,20 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
     updateReaderType(m_parameters, [this]() { emitReparseRequest(); });
 }
 
-CMakeBuildConfiguration *BuildDirManager::buildConfiguration() const
+CMakeBuildSystem *BuildDirManager::buildSystem() const
 {
-    if (m_project->activeTarget() && m_project->activeTarget()->activeBuildConfiguration() == m_parameters.buildConfiguration)
-        return m_parameters.buildConfiguration;
-    return nullptr;
+    return m_buildSystem;
 }
 
 FilePath BuildDirManager::buildDirectory() const
 {
-    return buildConfiguration() ? m_parameters.buildDirectory : FilePath();
+    return m_parameters.buildDirectory;
 }
 
 void BuildDirManager::becameDirty()
 {
     qCDebug(cmakeBuildDirManagerLog) << "BuildDirManager: becameDirty was triggered.";
-    if (isParsing() || !buildConfiguration())
+    if (isParsing() || !buildSystem())
         return;
 
     const CMakeTool *tool = m_parameters.cmakeTool();
@@ -444,7 +447,7 @@ static CMakeBuildTarget utilityTarget(const QString &title, const BuildDirManage
     target.title = title;
     target.targetType = UtilityType;
     target.workingDirectory = bdm->buildDirectory();
-    target.sourceDirectory = bdm->project()->projectDirectory();
+    target.sourceDirectory = bdm->buildSystem()->project()->projectDirectory();
 
     return target;
 }
@@ -528,13 +531,10 @@ QString BuildDirManager::flagsString(int reparseFlags)
 
 bool BuildDirManager::checkConfiguration()
 {
-    CMakeBuildConfiguration *bc = buildConfiguration();
-    QTC_ASSERT(m_parameters.isValid() || !bc, return false);
-
     if (m_parameters.workDirectory != m_parameters.buildDirectory) // always throw away changes in the tmpdir!
         return false;
 
-    const CMakeConfig cache = bc->configurationFromCMake();
+    const CMakeConfig cache = m_buildSystem->cmakeBuildConfiguration()->configurationFromCMake();
     if (cache.isEmpty())
         return false; // No cache file yet.
 
@@ -586,8 +586,8 @@ bool BuildDirManager::checkConfiguration()
         box->exec();
         if (box->clickedButton() == applyButton) {
             m_parameters.configuration = newConfig;
-            QSignalBlocker blocker(bc);
-            bc->setConfigurationForCMake(newConfig);
+            QSignalBlocker blocker(m_buildSystem->buildConfiguration());
+            m_buildSystem->cmakeBuildConfiguration()->setConfigurationForCMake(newConfig);
             return false;
         } else if (box->clickedButton() == defaultButton)
             return true;

@@ -132,7 +132,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
     postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
 
-    connect(target->project(), &Project::parsingFinished, this, [this] {
+    connect(target, &Target::parsingFinished, this, [this] {
         updateTargetInformation();
         AndroidManager::updateGradleProperties(this->target(), buildKey());
     });

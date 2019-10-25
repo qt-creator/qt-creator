@@ -43,20 +43,15 @@ using namespace ProjectExplorer;
 NimbleRunConfiguration::NimbleRunConfiguration(ProjectExplorer::Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto project = dynamic_cast<NimbleProject*>(target->project());
-    QTC_ASSERT(project, return);
-
     addAspect<LocalEnvironmentAspect>(target);
     addAspect<ExecutableAspect>();
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
-    connect(project, &Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &NimbleRunConfiguration::updateTargetInformation);
-    connect(project, &NimbleProject::metadataChanged,
-            this, &NimbleRunConfiguration::updateTargetInformation);
-    connect(project, &NimbleProject::tasksChanged,
+    connect(target, &Target::targetPropertiesChanged,
             this, &NimbleRunConfiguration::updateTargetInformation);
 
     updateTargetInformation();
@@ -83,14 +78,6 @@ QString NimbleRunConfiguration::disabledReason() const
     if (!isBuildTargetValid())
         return tr("The project no longer builds the target associated with this run configuration.");
     return RunConfiguration::disabledReason();
-}
-
-void NimbleRunConfiguration::updateEnabledState()
-{
-    if (!isBuildTargetValid())
-        setEnabled(false);
-    else
-        RunConfiguration::updateEnabledState();
 }
 
 NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()

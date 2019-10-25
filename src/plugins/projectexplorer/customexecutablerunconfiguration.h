@@ -45,6 +45,7 @@ public:
     /** Returns whether this runconfiguration ever was configured with an executable
      */
     bool isConfigured() const override;
+    bool isEnabled() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
 
     QString defaultDisplayName() const;

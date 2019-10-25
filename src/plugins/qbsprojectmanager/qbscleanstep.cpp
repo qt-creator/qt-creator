@@ -81,7 +81,7 @@ QbsCleanStep::~QbsCleanStep()
 
 bool QbsCleanStep::init()
 {
-    if (project()->isParsing() || m_job)
+    if (buildSystem()->isParsing() || m_job)
         return false;
 
     auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
@@ -95,13 +95,12 @@ bool QbsCleanStep::init()
 
 void QbsCleanStep::doRun()
 {
-    auto pro = static_cast<QbsProject *>(project());
     qbs::CleanOptions options;
     options.setDryRun(m_dryRunAspect->value());
     options.setKeepGoing(m_keepGoingAspect->value());
 
     QString error;
-    m_job = pro->clean(options, m_products, error);
+    m_job = qbsBuildSystem()->clean(options, m_products, error);
     if (!m_job) {
         emit addOutput(error, OutputFormat::ErrorMessage);
         emit finished(false);
@@ -155,6 +154,11 @@ void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, con
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);
     emit addOutput(message, OutputFormat::Stdout);
+}
+
+QbsBuildSystem *QbsCleanStep::qbsBuildSystem() const
+{
+    return static_cast<QbsBuildSystem *>(buildSystem());
 }
 
 // --------------------------------------------------------------------

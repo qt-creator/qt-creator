@@ -40,10 +40,6 @@ const char C_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Nim
 const char C_NIMTOOLCHAIN_TYPEID[] = "Nim.NimToolChain";
 const char C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY[] = "Nim.NimToolChain.CompilerCommand";
 
-// NimbleProject
-const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
-const char C_NIMBLEPROJECT_METADATA[] = "Nim.NimbleProject.Metadata";
-
 // NimProject
 const char C_NIMPROJECT_EXCLUDEDFILES[] = "Nim.NimProjectExcludedFiles";
 

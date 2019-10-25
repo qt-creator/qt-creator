@@ -42,6 +42,8 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
+using namespace QmakeProjectManager::Internal;
+
 namespace {
 
 // Static cached data in struct QmakeStaticData providing information and icons
@@ -128,7 +130,10 @@ void clearQmakeStaticData()
 
 namespace QmakeProjectManager {
 
-static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const FilePathList &toExclude)
+static void createTree(QmakeBuildSystem *buildSystem,
+                       const QmakePriFile *pri,
+                       QmakePriFileNode *node,
+                       const FilePathList &toExclude)
 {
     QTC_ASSERT(pri, return);
     QTC_ASSERT(node, return);
@@ -166,7 +171,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
 
             if (type == FileType::Resource) {
                 for (const auto &file : newFilePaths) {
-                    auto vfs = pri->project()->qmakeVfs();
+                    auto vfs = buildSystem->qmakeVfs();
                     QString contents;
                     QString errorMessage;
                     // Prefer the cumulative file if it's non-empty, based on the assumption
@@ -223,26 +228,26 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
     for (QmakePriFile *c : pri->children()) {
         std::unique_ptr<QmakePriFileNode> newNode;
         if (auto pf = dynamic_cast<QmakeProFile *>(c))
-            newNode = std::make_unique<QmakeProFileNode>(c->project(), c->filePath(), pf);
+            newNode = std::make_unique<QmakeProFileNode>(c->buildSystem(), c->filePath(), pf);
         else
-            newNode = std::make_unique<QmakePriFileNode>(c->project(), node->proFileNode(), c->filePath(), c);
-        createTree(c, newNode.get(), toExclude);
+            newNode = std::make_unique<QmakePriFileNode>(c->buildSystem(), node->proFileNode(), c->filePath(), c);
+        createTree(buildSystem, c, newNode.get(), toExclude);
         node->addNode(std::move(newNode));
     }
 }
 
-std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
+std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeBuildSystem *buildSystem)
 {
     // Remove qmake implementation details that litter up the project data:
-    Target *t = project->activeTarget();
-    Kit *k = t ? t->kit() : KitManager::defaultKit();
-    BaseQtVersion *qt = k ? QtKitAspect::qtVersion(k) : nullptr;
+    Target *t = buildSystem->target();
+    BaseQtVersion *qt = QtKitAspect::qtVersion(t->kit());
 
     const FilePathList toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FilePathList();
 
-    auto root = std::make_unique<QmakeProFileNode>(project, project->projectFilePath(),
-                                                   project->rootProFile());
-    createTree(project->rootProFile(), root.get(), toExclude);
+    auto root = std::make_unique<QmakeProFileNode>(buildSystem,
+                                                   buildSystem->projectFilePath(),
+                                                   buildSystem->rootProFile());
+    createTree(buildSystem, buildSystem->rootProFile(), root.get(), toExclude);
 
     return root;
 }

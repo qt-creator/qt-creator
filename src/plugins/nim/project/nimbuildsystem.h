@@ -37,7 +37,7 @@ class NimBuildSystem : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit NimBuildSystem(ProjectExplorer::Project *project);
+    explicit NimBuildSystem(ProjectExplorer::Target *target);
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
@@ -58,22 +58,20 @@ public:
     void setExcludedFiles(const QStringList &list); // Keep for compatibility with Qt Creator 4.10
     QStringList excludedFiles(); // Make private when no longer supporting Qt Creator 4.10
 
-    void parseProject(ParsingContext &&ctx) override;
+    void triggerParsing();
 
     const Utils::FilePathList nimFiles() const;
 
 protected:
-    void loadSettings();
-    void saveSettings();
+    virtual void loadSettings();
+    virtual void saveSettings();
 
     void collectProjectFiles();
     void updateProject();
 
-    QStringList m_excludedFiles;
-
     ProjectExplorer::TreeScanner m_scanner;
 
-    ParsingContext m_currentContext;
+    ParseGuard m_guard;
 
     Utils::FileSystemWatcher m_directoryWatcher;
 };

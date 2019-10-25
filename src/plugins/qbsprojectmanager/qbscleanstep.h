@@ -62,6 +62,8 @@ private:
     ProjectExplorer::BaseBoolAspect *m_dryRunAspect = nullptr;
     ProjectExplorer::BaseBoolAspect *m_keepGoingAspect = nullptr;
 
+    QbsBuildSystem *qbsBuildSystem() const;
+
     QStringList m_products;
 
     qbs::CleanJob *m_job = nullptr;

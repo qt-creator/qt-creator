@@ -26,9 +26,13 @@
 #include "buildsystem.h"
 
 #include "buildconfiguration.h"
+#include "runconfiguration.h"
+#include "runcontrol.h"
 #include "target.h"
 
 #include <utils/qtcassert.h>
+
+#include <QTimer>
 
 using namespace Utils;
 
@@ -38,77 +42,129 @@ namespace ProjectExplorer {
 // BuildSystem:
 // --------------------------------------------------------------------
 
-BuildSystem::BuildSystem(Project *project)
-    : m_project(project)
+class BuildSystemPrivate
 {
-    QTC_CHECK(project);
+public:
+    Target *m_target = nullptr;
+    BuildConfiguration *m_buildConfiguration = nullptr;
+
+    QTimer m_delayedParsingTimer;
+
+    bool m_isParsing = false;
+    bool m_hasParsingData = false;
+
+    DeploymentData m_deploymentData;
+    QList<BuildTargetInfo> m_appTargets;
+};
+
+BuildSystem::BuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc->target())
+{
+    d->m_buildConfiguration = bc;
+}
+
+BuildSystem::BuildSystem(Target *target)
+    : d(new BuildSystemPrivate)
+{
+    QTC_CHECK(target);
+    d->m_target = target;
 
     // Timer:
-    m_delayedParsingTimer.setSingleShot(true);
+    d->m_delayedParsingTimer.setSingleShot(true);
 
-    connect(&m_delayedParsingTimer, &QTimer::timeout, this, &BuildSystem::triggerParsing);
+    connect(&d->m_delayedParsingTimer, &QTimer::timeout, this, &BuildSystem::triggerParsing);
+}
+
+BuildSystem::~BuildSystem()
+{
+    delete d;
 }
 
 Project *BuildSystem::project() const
 {
-    return m_project;
+    return d->m_target->project();
+}
+
+Target *BuildSystem::target() const
+{
+    return d->m_target;
+}
+
+void BuildSystem::emitParsingStarted()
+{
+    QTC_ASSERT(!d->m_isParsing, return);
+
+    d->m_isParsing = true;
+    d->m_hasParsingData = false;
+    emit d->m_target->parsingStarted();
+}
+
+void BuildSystem::emitParsingFinished(bool success)
+{
+    // Intentionally no return, as we currently get start - start - end - end
+    // sequences when switching qmake targets quickly.
+    QTC_CHECK(d->m_isParsing);
+
+    d->m_isParsing = false;
+    d->m_hasParsingData = success;
+    emit d->m_target->parsingFinished(success);
 }
 
 FilePath BuildSystem::projectFilePath() const
 {
-    return m_project->projectFilePath();
+    return d->m_target->project()->projectFilePath();
 }
 
 FilePath BuildSystem::projectDirectory() const
 {
-    return m_project->projectDirectory();
+    return d->m_target->project()->projectDirectory();
 }
 
 bool BuildSystem::isWaitingForParse() const
 {
-    return m_delayedParsingTimer.isActive();
+    return d->m_delayedParsingTimer.isActive();
 }
 
 void BuildSystem::requestParse()
 {
-    requestParse(0);
+    requestParseHelper(0);
 }
 
 void BuildSystem::requestDelayedParse()
 {
-    requestParse(1000);
+    requestParseHelper(1000);
 }
 
-void BuildSystem::requestParse(int delay)
+bool BuildSystem::isParsing() const
 {
-    m_delayedParsingTimer.setInterval(delay);
-    m_delayedParsingTimer.start();
+    return d->m_isParsing;
 }
 
-void BuildSystem::triggerParsing()
+bool BuildSystem::hasParsingData() const
 {
-    QTC_ASSERT(!project()->isParsing(), return );
+    return d->m_hasParsingData;
+}
 
-    Project *p = project();
-    Target *t = p->activeTarget();
-    BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
-
-    MacroExpander *e = nullptr;
+Environment BuildSystem::activeParseEnvironment() const
+{
+    const BuildConfiguration *const bc = d->m_target->activeBuildConfiguration();
     if (bc)
-        e = bc->macroExpander();
-    else if (t)
-        e = t->macroExpander();
-    else
-        e = p->macroExpander();
+        return bc->environment();
 
-    Utils::Environment env = p->activeParseEnvironment();
+    const RunConfiguration *const rc = d->m_target->activeRunConfiguration();
+    if (rc)
+        return rc->runnable().environment;
 
-    ParsingContext ctx(p->guardParsingRun(), p, bc, e, env);
+    Environment result = Utils::Environment::systemEnvironment();
+    d->m_target->kit()->addToEnvironment(result);
 
-    QTC_ASSERT(ctx.guard.guardsProject(), return );
+    return result;
+}
 
-    if (validateParsingContext(ctx))
-        parseProject(std::move(ctx));
+void BuildSystem::requestParseHelper(int delay)
+{
+    d->m_delayedParsingTimer.setInterval(delay);
+    d->m_delayedParsingTimer.start();
 }
 
 bool BuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *notAdded)
@@ -155,6 +211,105 @@ bool BuildSystem::addDependencies(Node *, const QStringList &dependencies)
 bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
 {
     return false;
+}
+
+QStringList BuildSystem::filesGeneratedFrom(const QString &sourceFile) const
+{
+    Q_UNUSED(sourceFile)
+    return {};
+}
+
+QVariant BuildSystem::additionalData(Core::Id id) const
+{
+    Q_UNUSED(id)
+    return {};
+}
+
+// ParseGuard
+
+BuildSystem::ParseGuard::ParseGuard(BuildSystem::ParseGuard &&other)
+    : m_buildSystem{std::move(other.m_buildSystem)}
+    , m_success{std::move(other.m_success)}
+{
+    // No need to release this as this is invalid anyway:-)
+    other.m_buildSystem = nullptr;
+}
+
+BuildSystem::ParseGuard::ParseGuard(BuildSystem *p)
+    : m_buildSystem(p)
+{
+    if (m_buildSystem && !m_buildSystem->isParsing())
+        m_buildSystem->emitParsingStarted();
+    else
+        m_buildSystem = nullptr;
+}
+
+void BuildSystem::ParseGuard::release()
+{
+    if (m_buildSystem)
+        m_buildSystem->emitParsingFinished(m_success);
+    m_buildSystem = nullptr;
+}
+
+BuildSystem::ParseGuard &BuildSystem::ParseGuard::operator=(BuildSystem::ParseGuard &&other)
+{
+    release();
+
+    m_buildSystem = std::move(other.m_buildSystem);
+    m_success = std::move(other.m_success);
+
+    other.m_buildSystem = nullptr;
+    return *this;
+}
+
+void BuildSystem::setDeploymentData(const DeploymentData &deploymentData)
+{
+    if (d->m_deploymentData != deploymentData) {
+        d->m_deploymentData = deploymentData;
+        emit deploymentDataChanged();
+        emit applicationTargetsChanged();
+        emit target()->deploymentDataChanged();
+        emit target()->applicationTargetsChanged();
+    }
+}
+
+DeploymentData BuildSystem::deploymentData() const
+{
+    return d->m_deploymentData;
+}
+
+void BuildSystem::setApplicationTargets(const QList<BuildTargetInfo> &appTargets)
+{
+    if (Utils::toSet(appTargets) != Utils::toSet(d->m_appTargets)) {
+        d->m_appTargets = appTargets;
+        emit applicationTargetsChanged();
+        emit target()->applicationTargetsChanged();
+    }
+}
+
+const QList<BuildTargetInfo> BuildSystem::applicationTargets() const
+{
+    return d->m_appTargets;
+}
+
+BuildTargetInfo BuildSystem::buildTarget(const QString &buildKey) const
+{
+    return Utils::findOrDefault(d->m_appTargets, [&buildKey](const BuildTargetInfo &ti) {
+        return ti.buildKey == buildKey;
+    });
+}
+
+QString BuildSystem::disabledReason(const QString &buildKey) const
+{
+    if (hasParsingData()) {
+        QString msg = isParsing() ? tr("The project is currently being parsed.")
+                                  : tr("The project could not be fully parsed.");
+        const FilePath projectFilePath = buildTarget(buildKey).projectFilePath;
+        if (!projectFilePath.isEmpty() && !projectFilePath.exists())
+            msg += '\n' + tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
+        return msg;
+    }
+    return {};
 }
 
 } // namespace ProjectExplorer

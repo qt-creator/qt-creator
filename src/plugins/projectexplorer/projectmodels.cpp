@@ -25,6 +25,7 @@
 
 #include "projectmodels.h"
 
+#include "buildsystem.h"
 #include "project.h"
 #include "projectnodes.h"
 #include "projectexplorer.h"
@@ -119,6 +120,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     const FolderNode * const folderNode = node->asFolderNode();
     const ContainerNode * const containerNode = node->asContainerNode();
     const Project * const project = containerNode ? containerNode->project() : nullptr;
+    const Target * const target = project ? project->activeTarget() : nullptr;
+    const BuildSystem * const bs = target ? target->buildSystem() : nullptr;
 
     switch (role) {
     case Qt::DisplayRole:
@@ -128,7 +131,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole: {
         QString tooltip = node->tooltip();
         if (project) {
-            if (project->activeTarget()) {
+            if (target) {
                 QString projectIssues = toHtml(project->projectIssues(project->activeTarget()->kit()));
                 if (!projectIssues.isEmpty())
                     tooltip += "<p>" + projectIssues;
@@ -148,10 +151,9 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         static QIcon emptyIcon = Utils::Icons::EMPTY16.icon();
         if (project->needsConfiguration())
             return warnIcon;
-        if (project->isParsing())
+        if (bs && bs->isParsing())
             return emptyIcon;
-        if (!project->activeTarget()
-                || !project->projectIssues(project->activeTarget()->kit()).isEmpty())
+        if (!target || !project->projectIssues(target->kit()).isEmpty())
             return warnIcon;
         return containerNode->rootProjectNode() ? containerNode->rootProjectNode()->icon()
                                                 : folderNode->icon();
@@ -167,7 +169,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     case Project::FilePathRole:
         return node->filePath().toString();
     case Project::isParsingRole:
-        return project ? project->isParsing() && !project->needsConfiguration() : false;
+        return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
     }
 
     return QVariant();
@@ -359,12 +361,12 @@ void FlatModel::handleProjectAdded(Project *project)
 {
     QTC_ASSERT(project, return);
 
-    connect(project, &Project::parsingStarted,
+    connect(project, &Project::anyParsingStarted,
             this, [this, project]() {
         if (nodeForProject(project))
             parsingStateChanged(project);
     });
-    connect(project, &Project::parsingFinished,
+    connect(project, &Project::anyParsingFinished,
             this, [this, project]() {
         if (nodeForProject(project))
             parsingStateChanged(project);

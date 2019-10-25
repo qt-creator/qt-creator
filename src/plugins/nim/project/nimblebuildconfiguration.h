@@ -30,7 +30,7 @@
 
 namespace Nim {
 
-class NimbleProject;
+class NimbleBuildSystem;
 
 class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -49,10 +49,8 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 protected:
     void initialize() override;
 
-    void updateApplicationTargets();
-
 private:
-    NimbleProject *m_nimbleProject = nullptr;
+    NimbleBuildSystem *m_nimbleBuildSystem = nullptr;
     BuildType m_buildType;
 };
 

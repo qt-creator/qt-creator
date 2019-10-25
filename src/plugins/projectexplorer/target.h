@@ -35,6 +35,7 @@ QT_FORWARD_DECLARE_CLASS(QIcon)
 namespace ProjectExplorer {
 class BuildConfiguration;
 class BuildTargetInfo;
+class BuildSystem;
 class DeployConfiguration;
 class DeploymentData;
 class Kit;
@@ -60,6 +61,7 @@ public:
 
     Project *project() const;
     Kit *kit() const;
+    BuildSystem *buildSystem() const;
 
     Core::Id id() const;
     QString displayName() const;
@@ -78,15 +80,6 @@ public:
 
     QList<DeployConfiguration *> deployConfigurations() const;
     DeployConfiguration *activeDeployConfiguration() const;
-
-    void setDeploymentData(const DeploymentData &deploymentData);
-    DeploymentData deploymentData() const;
-
-    void setApplicationTargets(const QList<BuildTargetInfo> &appTargets);
-    const QList<BuildTargetInfo> applicationTargets() const;
-    BuildTargetInfo buildTarget(const QString &buildKey) const;
-
-    QList<ProjectConfiguration *> projectConfigurations() const;
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;
@@ -119,12 +112,20 @@ public:
     ProjectConfigurationModel *deployConfigurationModel() const;
     ProjectConfigurationModel *runConfigurationModel() const;
 
+    BuildSystem *fallbackBuildSystem() const;
+
+    DeploymentData deploymentData() const;
+    const QList<BuildTargetInfo> applicationTargets() const;
+    BuildTargetInfo buildTarget(const QString &buildKey) const;
+
 signals:
     void targetEnabled(bool);
     void iconChanged();
     void overlayIconChanged();
 
     void kitChanged();
+    void parsingStarted();
+    void parsingFinished(bool);
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
@@ -143,6 +144,7 @@ signals:
 
     void deploymentDataChanged();
     void applicationTargetsChanged();
+    void targetPropertiesChanged();
 
 private:
     bool fromMap(const QVariantMap &map);

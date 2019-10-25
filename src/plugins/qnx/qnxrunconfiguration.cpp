@@ -82,7 +82,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
 
     connect(target, &Target::deploymentDataChanged, this, updateTargetInformation);
     connect(target, &Target::applicationTargetsChanged, this, updateTargetInformation);
-    connect(target->project(), &Project::parsingFinished, this, updateTargetInformation);
+    connect(target, &Target::parsingFinished, this, updateTargetInformation);
     connect(target, &Target::kitChanged, this, updateTargetInformation);
 }
 

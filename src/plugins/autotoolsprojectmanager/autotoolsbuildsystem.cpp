@@ -42,13 +42,13 @@ using namespace ProjectExplorer;
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-AutotoolsBuildSystem::AutotoolsBuildSystem(Project *project)
-    : BuildSystem(project)
+AutotoolsBuildSystem::AutotoolsBuildSystem(Target *target)
+    : BuildSystem(target)
     , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
-    connect(project, &Project::activeBuildConfigurationChanged, this, [this]() { requestParse(); });
+    connect(target, &Target::activeBuildConfigurationChanged, this, [this]() { requestParse(); });
 
-    connect(project, &Project::projectFileIsDirty, this, [this]() { requestParse(); });
+    connect(target->project(), &Project::projectFileIsDirty, this, [this]() { requestParse(); });
 }
 
 AutotoolsBuildSystem::~AutotoolsBuildSystem()
@@ -62,7 +62,7 @@ AutotoolsBuildSystem::~AutotoolsBuildSystem()
     }
 }
 
-void AutotoolsBuildSystem::parseProject(BuildSystem::ParsingContext &&ctx)
+void AutotoolsBuildSystem::triggerParsing()
 {
     if (m_makefileParserThread) {
         // The thread is still busy parsing a previous configuration.
@@ -78,8 +78,7 @@ void AutotoolsBuildSystem::parseProject(BuildSystem::ParsingContext &&ctx)
     }
 
     // Parse the makefile asynchronously in a thread
-    m_makefileParserThread = new MakefileParserThread(project()->projectFilePath().toString(),
-                                                      std::move(ctx.guard));
+    m_makefileParserThread = new MakefileParserThread(this);
 
     connect(m_makefileParserThread,
             &MakefileParserThread::finished,
@@ -114,7 +113,7 @@ void AutotoolsBuildSystem::makefileParsingFinished()
     QVector<Utils::FilePath> filesToWatch;
 
     // Apply sources to m_files, which are returned at AutotoolsBuildSystem::files()
-    const QFileInfo fileInfo = project()->projectFilePath().toFileInfo();
+    const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.absoluteDir();
     const QStringList files = m_makefileParserThread->sources();
     foreach (const QString& file, files)
@@ -202,7 +201,7 @@ void AutotoolsBuildSystem::updateCppCodeModel()
     rpp.setMacros(m_makefileParserThread->macros());
     rpp.setFiles(m_files);
 
-    m_cppCodeModelUpdater->update({project(), kitInfo, project()->activeParseEnvironment(), {rpp}});
+    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 }
 
 } // namespace Internal

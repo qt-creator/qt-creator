@@ -279,7 +279,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
 
     connect(target, &Target::applicationTargetsChanged,
             this, &PythonRunConfiguration::updateTargetInformation);
-    connect(target->project(), &Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &PythonRunConfiguration::updateTargetInformation);
 }
 

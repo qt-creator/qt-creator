@@ -39,7 +39,7 @@ namespace Internal {
 class QbsNodeTreeBuilder
 {
 public:
-    static std::unique_ptr<QbsRootProjectNode> buildTree(QbsProject *project);
+    static std::unique_ptr<QbsRootProjectNode> buildTree(QbsBuildSystem *project);
 };
 
 } // namespace Internal

@@ -47,10 +47,10 @@ class FileSystemWatcher;
 } // namespace Utils;
 
 namespace QtSupport { class ProFileReader; }
-namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
+class QmakeBuildSystem;
 class QmakeProFile;
 class QmakeProject;
 
@@ -122,7 +122,7 @@ using SourceFiles = QSet<SourceFile>;
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFile
 {
 public:
-    QmakePriFile(QmakeProject *project, QmakeProFile *qmakeProFile, const Utils::FilePath &filePath);
+    QmakePriFile(QmakeBuildSystem *buildSystem, QmakeProFile *qmakeProFile, const Utils::FilePath &filePath);
     virtual ~QmakePriFile();
 
     Utils::FilePath filePath() const;
@@ -178,6 +178,8 @@ public:
 
     void scheduleUpdate();
 
+    QmakeBuildSystem *buildSystem() const;
+
 protected:
     void setIncludedInExactParse(bool b);
     static QStringList varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact);
@@ -225,7 +227,7 @@ private:
 
     QString continuationIndent() const;
 
-    QmakeProject *m_project = nullptr;
+    QPointer<QmakeBuildSystem> m_buildSystem;
     QmakeProFile *m_qmakeProFile = nullptr;
     QmakePriFile *m_parent = nullptr;
     QVector<QmakePriFile *> m_children;
@@ -289,7 +291,7 @@ public:
 class QMAKEPROJECTMANAGER_EXPORT QmakeProFile : public QmakePriFile
 {
 public:
-    QmakeProFile(QmakeProject *project, const Utils::FilePath &filePath);
+    QmakeProFile(QmakeBuildSystem *buildSystem, const Utils::FilePath &filePath);
     ~QmakeProFile() override;
 
     bool isParent(QmakeProFile *node);
@@ -309,7 +311,7 @@ public:
     }
 
     Utils::FilePath sourceDir() const;
-    Utils::FilePath buildDir(QmakeBuildConfiguration *bc = nullptr) const;
+    Utils::FilePath buildDir(ProjectExplorer::BuildConfiguration *bc = nullptr) const;
 
     Utils::FilePathList generatedFiles(const Utils::FilePath &buildDirectory,
                                        const Utils::FilePath &sourceFile,

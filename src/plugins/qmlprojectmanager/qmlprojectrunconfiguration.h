@@ -44,7 +44,7 @@ public:
 private:
     ProjectExplorer::Runnable runnable() const final;
     QString disabledReason() const final;
-    void updateEnabledState() final;
+    bool isEnabled() const final;
 
     QString mainScript() const;
     QString theExecutable() const;

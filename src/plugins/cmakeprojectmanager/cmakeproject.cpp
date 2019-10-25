@@ -68,11 +68,6 @@ namespace CMakeProjectManager {
 
 using namespace Internal;
 
-static CMakeBuildConfiguration *activeBc(const CMakeProject *p)
-{
-    return qobject_cast<CMakeBuildConfiguration *>(p->activeTarget() ? p->activeTarget()->activeBuildConfiguration() : nullptr);
-}
-
 // QtCreator CMake Generator wishlist:
 // Which make targets we need to build to get all executables
 // What is the actual compiler executable
@@ -90,8 +85,6 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setCanBuildProducts();
     setKnowsAllBuildExecutables(false);
     setHasMakeInstallEquivalent(true);
-
-    setBuildSystemCreator([](Project *p) { return new CMakeBuildSystem(p); });
 }
 
 CMakeProject::~CMakeProject() = default;
@@ -108,57 +101,12 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
     return result;
 }
 
-void CMakeProject::runCMake()
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-    if (isParsing() || !bc)
-        return;
-
-    BuildDirParameters parameters(bc);
-    bc->m_buildDirManager.setParametersAndRequestParse(parameters,
-                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION
-                                                           | BuildDirManager::REPARSE_FORCE_CMAKE_RUN
-                                                           | BuildDirManager::REPARSE_URGENT);
-}
-
-void CMakeProject::runCMakeAndScanProjectTree()
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-    if (isParsing() || !bc)
-        return;
-
-    BuildDirParameters parameters(bc);
-    bc->m_buildDirManager.setParametersAndRequestParse(parameters,
-                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION
-                                                           | BuildDirManager::REPARSE_SCAN);
-}
-
-void CMakeProject::buildCMakeTarget(const QString &buildTarget)
-{
-    QTC_ASSERT(!buildTarget.isEmpty(), return);
-    CMakeBuildConfiguration *bc = activeBc(this);
-    if (bc)
-        bc->buildTarget(buildTarget);
-}
 
 ProjectImporter *CMakeProject::projectImporter() const
 {
     if (!m_projectImporter)
         m_projectImporter = std::make_unique<CMakeProjectImporter>(projectFilePath());
     return m_projectImporter.get();
-}
-
-bool CMakeProject::persistCMakeState()
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-    return bc ? bc->m_buildDirManager.persistCMakeState() : false;
-}
-
-void CMakeProject::clearCMakeCache()
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-    if (bc)
-        bc->m_buildDirManager.clearCache();
 }
 
 bool CMakeProject::setupTarget(Target *t)
@@ -168,42 +116,6 @@ bool CMakeProject::setupTarget(Target *t)
         return false;
     t->updateDefaultDeployConfigurations();
     return true;
-}
-
-QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
-{
-    if (!activeTarget())
-        return QStringList();
-    QFileInfo fi(sourceFile);
-    FilePath project = projectDirectory();
-    FilePath baseDirectory = FilePath::fromString(fi.absolutePath());
-
-    while (baseDirectory.isChildOf(project)) {
-        const FilePath cmakeListsTxt = baseDirectory.pathAppended("CMakeLists.txt");
-        if (cmakeListsTxt.exists())
-            break;
-        baseDirectory = baseDirectory.parentDir();
-    }
-
-    QDir srcDirRoot = QDir(project.toString());
-    QString relativePath = srcDirRoot.relativeFilePath(baseDirectory.toString());
-    QDir buildDir = QDir(activeTarget()->activeBuildConfiguration()->buildDirectory().toString());
-    QString generatedFilePath = buildDir.absoluteFilePath(relativePath);
-
-    if (fi.suffix() == "ui") {
-        generatedFilePath += "/ui_";
-        generatedFilePath += fi.completeBaseName();
-        generatedFilePath += ".h";
-        return QStringList(QDir::cleanPath(generatedFilePath));
-    } else if (fi.suffix() == "scxml") {
-        generatedFilePath += "/";
-        generatedFilePath += QDir::cleanPath(fi.completeBaseName());
-        return QStringList({generatedFilePath + ".h",
-                            generatedFilePath + ".cpp"});
-    } else {
-        // TODO: Other types will be added when adapters for their compilers become available.
-        return QStringList();
-    }
 }
 
 ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
@@ -230,11 +142,6 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     cmd.arguments << "--build" << "." << "--target" << "install";
     cmd.environment.set("DESTDIR", QDir::toNativeSeparators(installRoot));
     return cmd;
-}
-
-bool CMakeProject::mustUpdateCMakeStateBeforeBuild() const
-{
-    return buildSystem()->isWaitingForParse();
 }
 
 } // namespace CMakeProjectManager

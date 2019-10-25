@@ -38,6 +38,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
@@ -85,8 +86,10 @@ QString ProFileEditorWidget::checkForPrfFile(const QString &baseName) const
     const FilePath projectFile = textDocument()->filePath();
     const QmakePriFileNode *projectNode = nullptr;
     for (const Project * const project : SessionManager::projects()) {
-        if (project->isParsing())
-            continue;
+        if (Target *t = project->activeTarget()) {
+            if (t->buildSystem()->isParsing())
+                continue;
+        }
         projectNode = dynamic_cast<const QmakePriFileNode *>(project->rootProjectNode()
                 ->findProjectNode([&projectFile](const ProjectNode *pn) {
             return pn->filePath() == projectFile;

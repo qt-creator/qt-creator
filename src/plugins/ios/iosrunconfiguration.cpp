@@ -139,19 +139,17 @@ void IosRunConfiguration::updateDisplayNames()
     aspect<ExecutableAspect>()->setExecutable(localExecutable());
 }
 
-void IosRunConfiguration::updateEnabledState()
+bool IosRunConfiguration::isEnabled() const
 {
     Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
-    if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE) {
-        setEnabled(false);
-        return;
-    }
+    if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
+        return false;
+
     IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
-    if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse) {
-        setEnabled(false);
-        return;
-    }
-    return RunConfiguration::updateEnabledState();
+    if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
+        return false;
+
+    return true;
 }
 
 QString IosRunConfiguration::applicationName() const

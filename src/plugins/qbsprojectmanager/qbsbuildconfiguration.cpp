@@ -52,6 +52,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -92,6 +93,18 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
             this, &QbsBuildConfiguration::triggerReparseIfActive);
     connect(this, &QbsBuildConfiguration::qbsConfigurationChanged,
             this, &QbsBuildConfiguration::triggerReparseIfActive);
+
+    m_buildSystem = new QbsBuildSystem(this);
+}
+
+QbsBuildConfiguration::~QbsBuildConfiguration()
+{
+    delete m_buildSystem;
+}
+
+BuildSystem *QbsBuildConfiguration::buildSystem() const
+{
+    return m_buildSystem;
 }
 
 void QbsBuildConfiguration::initialize()
@@ -119,7 +132,15 @@ void QbsBuildConfiguration::initialize()
                 + Utils::FileUtils::fileSystemFriendlyName(initialDisplayName());
     }
 
-    m_configurationName->setValue(configName);
+    const Kit *kit = target()->kit();
+    const QString kitName = kit->displayName();
+    const QByteArray kitHash = QCryptographicHash::hash(kitName.toUtf8(), QCryptographicHash::Sha1);
+
+    const QString uniqueConfigName = configName
+            + '_' + kit->fileSystemFriendlyName().left(8)
+            + '_' + kitHash.toHex().left(16);
+
+    m_configurationName->setValue(uniqueConfigName);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto bs = new QbsBuildStep(buildSteps);
@@ -137,7 +158,7 @@ void QbsBuildConfiguration::initialize()
 void QbsBuildConfiguration::triggerReparseIfActive()
 {
     if (isActive())
-        qbsProject()->delayParsing();
+        m_buildSystem->delayParsing();
 }
 
 bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
@@ -167,11 +188,6 @@ QVariantMap QbsBuildConfiguration::qbsConfiguration() const
     if (qbsBs)
         config = qbsBs->qbsConfiguration(QbsBuildStep::ExpandVariables);
     return config;
-}
-
-Internal::QbsProject *QbsBuildConfiguration::qbsProject() const
-{
-    return qobject_cast<Internal::QbsProject *>(project());
 }
 
 BuildConfiguration::BuildType QbsBuildConfiguration::buildType() const

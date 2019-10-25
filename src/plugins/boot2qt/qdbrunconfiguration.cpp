@@ -91,7 +91,7 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
             this, &QdbRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
             this, &QdbRunConfiguration::updateTargetInformation);
-    connect(target->project(), &Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &QdbRunConfiguration::updateTargetInformation);
 
     setDefaultDisplayName(tr("Run on Boot2Qt Device"));

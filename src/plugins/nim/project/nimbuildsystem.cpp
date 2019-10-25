@@ -25,8 +25,11 @@
 
 #include "nimbuildsystem.h"
 
+#include "nimproject.h"
 #include "nimbleproject.h"
 #include "nimprojectnode.h"
+
+#include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -42,11 +45,11 @@ namespace Nim {
 const char SETTINGS_KEY[] = "Nim.BuildSystem";
 const char EXCLUDED_FILES_KEY[] = "ExcludedFiles";
 
-NimBuildSystem::NimBuildSystem(Project *project)
-    : BuildSystem(project)
+NimBuildSystem::NimBuildSystem(Target *target)
+    : BuildSystem(target)
 {
-    connect(project, &Project::settingsLoaded, this, &NimBuildSystem::loadSettings);
-    connect(project, &Project::aboutToSaveSettings, this, &NimBuildSystem::saveSettings);
+    connect(target->project(), &Project::settingsLoaded, this, &NimBuildSystem::loadSettings);
+    connect(target->project(), &Project::aboutToSaveSettings, this, &NimBuildSystem::saveSettings);
 
     connect(&m_scanner, &TreeScanner::finished, this, &NimBuildSystem::updateProject);
     m_scanner.setFilter([this](const Utils::MimeType &, const Utils::FilePath &fp) {
@@ -64,17 +67,16 @@ NimBuildSystem::NimBuildSystem(Project *project)
 
 bool NimBuildSystem::addFiles(const QStringList &filePaths)
 {
-    m_excludedFiles = Utils::filtered(m_excludedFiles, [&](const QString & f) {
+    setExcludedFiles(Utils::filtered(excludedFiles(), [&](const QString & f) {
         return !filePaths.contains(f);
-    });
+    }));
     requestParse();
     return true;
 }
 
 bool NimBuildSystem::removeFiles(const QStringList &filePaths)
 {
-    m_excludedFiles.append(filePaths);
-    m_excludedFiles = Utils::filteredUnique(m_excludedFiles);
+    setExcludedFiles(Utils::filteredUnique(excludedFiles() + filePaths));
     requestParse();
     return true;
 }
@@ -82,27 +84,27 @@ bool NimBuildSystem::removeFiles(const QStringList &filePaths)
 bool NimBuildSystem::renameFile(const QString &filePath, const QString &newFilePath)
 {
     Q_UNUSED(filePath)
-    m_excludedFiles.removeOne(newFilePath);
+    QStringList files = excludedFiles();
+    files.removeOne(newFilePath);
+    setExcludedFiles(files);
     requestParse();
     return true;
 }
 
 void NimBuildSystem::setExcludedFiles(const QStringList &list)
 {
-    m_excludedFiles = list;
+    static_cast<NimProject *>(project())->setExcludedFiles(list);
 }
 
 QStringList NimBuildSystem::excludedFiles()
 {
-    return m_excludedFiles;
+    return static_cast<NimProject *>(project())->excludedFiles();
 }
 
-void NimBuildSystem::parseProject(BuildSystem::ParsingContext &&ctx)
+void NimBuildSystem::triggerParsing()
 {
-    QTC_ASSERT(!m_currentContext.project, return );
-    m_currentContext = std::move(ctx);
-    QTC_CHECK(m_currentContext.project);
-    m_scanner.asyncScanForFiles(m_currentContext.project->projectDirectory());
+    m_guard = guardParsingRun();
+    m_scanner.asyncScanForFiles(projectDirectory());
 }
 
 const FilePathList NimBuildSystem::nimFiles() const
@@ -116,7 +118,7 @@ void NimBuildSystem::loadSettings()
 {
     QVariantMap settings = project()->namedSettings(SETTINGS_KEY).toMap();
     if (settings.contains(EXCLUDED_FILES_KEY))
-        m_excludedFiles = settings.value(EXCLUDED_FILES_KEY, m_excludedFiles).toStringList();
+        setExcludedFiles(settings.value(EXCLUDED_FILES_KEY, excludedFiles()).toStringList());
 
     requestParse();
 }
@@ -124,7 +126,7 @@ void NimBuildSystem::loadSettings()
 void NimBuildSystem::saveSettings()
 {
     QVariantMap settings;
-    settings.insert(EXCLUDED_FILES_KEY, m_excludedFiles);
+    settings.insert(EXCLUDED_FILES_KEY, excludedFiles());
     project()->setNamedSettings(SETTINGS_KEY, settings);
 }
 
@@ -156,8 +158,8 @@ void NimBuildSystem::updateProject()
     }
 
     // Complete scan
-    m_currentContext.guard.markAsSuccess();
-    m_currentContext = {};
+    m_guard.markAsSuccess();
+    m_guard = {}; // Trigger destructor of previous object, emitting parsingFinished()
 }
 
 bool NimBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const

@@ -25,30 +25,10 @@
 
 #pragma once
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 
 namespace Nim {
-
-struct NimbleTask
-{
-    QString name;
-    QString description;
-
-    bool operator==(const NimbleTask &o) const {
-        return name == o.name && description == o.description;
-    }
-};
-
-struct NimbleMetadata
-{
-    QStringList bin;
-    QString binDir;
-    QString srcDir;
-
-    bool operator==(const NimbleMetadata &o) const {
-        return bin == o.bin && binDir == o.binDir && srcDir == o.srcDir;
-    }
-};
 
 class NimbleProject : public ProjectExplorer::Project
 {
@@ -56,33 +36,6 @@ class NimbleProject : public ProjectExplorer::Project
 
 public:
     NimbleProject(const Utils::FilePath &filename);
-
-    std::vector<NimbleTask> tasks() const;
-
-    NimbleMetadata metadata() const;
-
-    void setTasks(std::vector<NimbleTask> tasks);
-
-    void setMetadata(NimbleMetadata metadata);
-
-    // Keep for compatibility with Qt Creator 4.10
-    QVariantMap toMap() const final;
-
-signals:
-    void tasksChanged(std::vector<NimbleTask>);
-    void metadataChanged(NimbleMetadata);
-
-protected:
-    // Keep for compatibility with Qt Creator 4.10
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
-
-private:
-    static QStringList toStringList(const std::vector<NimbleTask> &tasks);
-
-    static std::tuple<RestoreResult, std::vector<NimbleTask>> fromStringList(const QStringList &list);
-
-    NimbleMetadata m_metadata;
-    std::vector<NimbleTask> m_tasks;
 };
 
 }

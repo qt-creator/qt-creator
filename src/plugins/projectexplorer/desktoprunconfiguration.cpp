@@ -78,7 +78,7 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     if (kind == Qbs) {
 
-        connect(project(), &Project::parsingFinished,
+        connect(target, &Target::parsingFinished,
                 envAspect, &EnvironmentAspect::environmentChanged);
 
         connect(target, &Target::deploymentDataChanged,
@@ -95,12 +95,15 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     }
 
-    connect(target->project(), &Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &DesktopRunConfiguration::updateTargetInformation);
 }
 
 void DesktopRunConfiguration::updateTargetInformation()
 {
+    if (!activeBuildSystem())
+        return;
+
     BuildTargetInfo bti = buildTargetInfo();
 
     auto terminalAspect = aspect<TerminalAspect>();
@@ -182,28 +185,6 @@ Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &
 
     const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() + deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
-}
-
-bool DesktopRunConfiguration::isBuildTargetValid() const
-{
-    return Utils::anyOf(target()->applicationTargets(), [this](const BuildTargetInfo &bti) {
-        return bti.buildKey == buildKey();
-    });
-}
-
-void DesktopRunConfiguration::updateEnabledState()
-{
-    if (m_kind == CMake && !isBuildTargetValid())
-        setEnabled(false);
-    else
-        RunConfiguration::updateEnabledState();
-}
-
-QString DesktopRunConfiguration::disabledReason() const
-{
-    if (m_kind == CMake && !isBuildTargetValid())
-        return tr("The project no longer builds the target associated with this run configuration.");
-    return RunConfiguration::disabledReason();
 }
 
 // Factory

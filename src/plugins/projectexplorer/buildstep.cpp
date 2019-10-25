@@ -204,6 +204,13 @@ ProjectConfiguration *BuildStep::projectConfiguration() const
     return static_cast<ProjectConfiguration *>(parent()->parent());
 }
 
+BuildSystem *BuildStep::buildSystem() const
+{
+    if (auto bc = buildConfiguration())
+        return bc->buildSystem();
+    return target()->buildSystem();
+}
+
 void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)
 {
     fi.reportResult(success);

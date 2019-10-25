@@ -25,10 +25,12 @@
 
 #include "projectnodes.h"
 
+#include "buildconfiguration.h"
 #include "buildsystem.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projecttree.h"
+#include "target.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
@@ -988,7 +990,8 @@ void ProjectNode::setFallbackData(Core::Id key, const QVariant &value)
 BuildSystem *ProjectNode::buildSystem() const
 {
     Project *p = getProject();
-    return p ? p->buildSystem() : nullptr;
+    Target *t = p ? p->activeTarget() : nullptr;
+    return t ? t->buildSystem() : nullptr;
 }
 
 bool FolderNode::isEmpty() const

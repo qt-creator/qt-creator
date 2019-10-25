@@ -104,10 +104,10 @@ bool NimbleTaskStep::validate()
     if (m_taskName.isEmpty())
         return true;
 
-    auto nimbleProject = dynamic_cast<NimbleProject*>(project());
-    QTC_ASSERT(nimbleProject, return false);
+    auto nimbleBuildSystem = dynamic_cast<NimbleBuildSystem*>(buildSystem());
+    QTC_ASSERT(nimbleBuildSystem, return false);
 
-    if (!Utils::contains(nimbleProject->tasks(), [this](const NimbleTask &task){ return task.name == m_taskName; })) {
+    if (!Utils::contains(nimbleBuildSystem->tasks(), [this](const NimbleTask &task){ return task.name == m_taskName; })) {
         emit addTask(Task(Task::Error,
                           tr("Nimble task %1 not found").arg(m_taskName),
                           Utils::FilePath(), -1,

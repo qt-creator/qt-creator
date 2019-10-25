@@ -38,6 +38,7 @@ namespace Internal { class BuildConfigurationPrivate; }
 
 class BaseStringAspect;
 class BuildInfo;
+class BuildSystem;
 class BuildStepList;
 class Kit;
 class NamedWidget;
@@ -58,6 +59,8 @@ public:
     Utils::FilePath buildDirectory() const;
     Utils::FilePath rawBuildDirectory() const;
     void setBuildDirectory(const Utils::FilePath &dir);
+
+    virtual BuildSystem *buildSystem() const;
 
     virtual NamedWidget *createConfigWidget();
     virtual QList<NamedWidget *> createSubConfigWidgets();
@@ -109,6 +112,8 @@ public:
     void setBuildDirectoryHistoryCompleter(const QString &history);
     void setConfigWidgetHasFrame(bool configWidgetHasFrame);
     void setBuildDirectorySettingsKey(const QString &key);
+
+    void addConfigWidgets(const std::function<void (NamedWidget *)> &adder);
 
 signals:
     void environmentChanged();

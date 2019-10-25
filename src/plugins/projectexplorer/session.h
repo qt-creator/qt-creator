@@ -42,7 +42,9 @@ namespace ProjectExplorer {
 class Project;
 class Target;
 class BuildConfiguration;
+class BuildSystem;
 class DeployConfiguration;
+
 enum class SetActive { Cascade, NoCascade };
 
 class PROJECTEXPLORER_EXPORT SessionManager : public QObject
@@ -96,6 +98,8 @@ public:
 
     static Utils::FilePath sessionNameToFileName(const QString &session);
     static Project *startupProject();
+    static Target *startupTarget();
+    static BuildSystem *startupBuildSystem();
 
     static const QList<Project *> projects();
     static bool hasProjects();
@@ -119,6 +123,8 @@ public:
     static bool loadingSession();
 
 signals:
+    void targetAdded(ProjectExplorer::Target *target);
+    void targetRemoved(ProjectExplorer::Target *target);
     void projectAdded(ProjectExplorer::Project *project);
     void aboutToRemoveProject(ProjectExplorer::Project *project);
     void projectDisplayNameChanged(ProjectExplorer::Project *project);

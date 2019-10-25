@@ -1018,8 +1018,12 @@ void InternalLibraryDetailsController::updateProFile()
 
     m_rootProjectPath = project->projectDirectory().toString();
 
+    auto t = project->activeTarget();
+    auto bs = dynamic_cast<QmakeBuildSystem *>(t ? t->buildSystem() : nullptr);
+    QTC_ASSERT(bs, return);
+
     QDir rootDir(m_rootProjectPath);
-    foreach (QmakeProFile *proFile, project->rootProFile()->allProFiles()) {
+    foreach (QmakeProFile *proFile, bs->rootProFile()->allProFiles()) {
         QmakeProjectManager::ProjectType type = proFile->projectType();
         if (type != ProjectType::SharedLibraryTemplate && type != ProjectType::StaticLibraryTemplate)
             continue;

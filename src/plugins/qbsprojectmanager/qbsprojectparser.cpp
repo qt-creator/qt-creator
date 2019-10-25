@@ -48,11 +48,11 @@ namespace Internal {
 // QbsProjectParser:
 // --------------------------------------------------------------------
 
-QbsProjectParser::QbsProjectParser(QbsProject *project, QFutureInterface<bool> *fi) :
+QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface<bool> *fi) :
     m_fi(fi)
 {
-    m_project = project->qbsProject();
-    m_projectFilePath = project->projectFilePath().toString();
+    m_project = buildSystem->qbsProject();
+    m_projectFilePath = buildSystem->projectFilePath().toString();
     auto * const watcher = new QFutureWatcher<bool>(this);
     connect(watcher, &QFutureWatcher<bool>::canceled, this, &QbsProjectParser::cancel);
     watcher->setFuture(fi->future());

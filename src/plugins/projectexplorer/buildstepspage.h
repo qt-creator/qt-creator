@@ -97,7 +97,7 @@ class BuildStepListWidget : public NamedWidget
     Q_OBJECT
 
 public:
-    BuildStepListWidget(BuildStepList *bsl, QWidget *parent = nullptr);
+    explicit BuildStepListWidget(BuildStepList *bsl);
     ~BuildStepListWidget() override;
 
 private:

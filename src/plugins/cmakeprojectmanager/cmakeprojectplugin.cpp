@@ -47,6 +47,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/target.h>
 
 #include <texteditor/snippets/snippetprovider.h>
 
@@ -69,8 +70,6 @@ public:
         CMakeProjectPlugin:: tr("Build \"%1\""),
         ParameterAction::AlwaysEnabled/*handled manually*/
     };
-
-    QMetaObject::Connection m_actionConnect;
 
     CMakeSettingsPage settingsPage;
     CMakeSpecificSettingsPage specificSettings{CMakeProjectPlugin::projectTypeSpecificSettings()};
@@ -129,6 +128,13 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &CMakeProjectPlugin::updateContextActions);
 
+    connect(&d->buildTargetContextAction, &ParameterAction::triggered, this, [] {
+        if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+            auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
+            bs->buildCMakeTarget(targetNode ? targetNode->displayName() : QString());
+        }
+    });
+
     return true;
 }
 
@@ -140,24 +146,13 @@ void CMakeProjectPlugin::extensionsInitialized()
 
 void CMakeProjectPlugin::updateContextActions()
 {
-    Project *project = ProjectTree::currentProject();
-    const Node *node = ProjectTree::currentNode();
-    auto targetNode = dynamic_cast<const CMakeTargetNode *>(node);
-    // as targetNode can be deleted while the menu is open, we keep only the
+    auto targetNode = dynamic_cast<const CMakeTargetNode *>(ProjectTree::currentNode());
     const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
-    auto cmProject = dynamic_cast<CMakeProject *>(project);
 
     // Build Target:
-    disconnect(d->m_actionConnect);
     d->buildTargetContextAction.setParameter(targetDisplayName);
     d->buildTargetContextAction.setEnabled(targetNode);
     d->buildTargetContextAction.setVisible(targetNode);
-    if (cmProject && targetNode) {
-        d->m_actionConnect = connect(&d->buildTargetContextAction, &ParameterAction::triggered,
-        cmProject, [cmProject, targetDisplayName]() {
-            cmProject->buildCMakeTarget(targetDisplayName);
-        });
-    }
 }
 
 } // Internal

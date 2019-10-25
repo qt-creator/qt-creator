@@ -48,7 +48,6 @@
 #include <QDir>
 #include <QFileInfo>
 
-using ExtensionSystem::PluginManager;
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
@@ -85,12 +84,12 @@ bool QmakeMakeStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
 
-    QString workingDirectory;
+    Utils::FilePath workingDirectory;
     if (bc->subNodeBuild())
-        workingDirectory = bc->subNodeBuild()->buildDir();
+        workingDirectory = bc->subNodeBuild()->buildDir(bc);
     else
-        workingDirectory = bc->buildDirectory().toString();
-    pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
+        workingDirectory = bc->buildDirectory();
+    pp->setWorkingDirectory(workingDirectory);
 
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
@@ -117,13 +116,14 @@ bool QmakeMakeStep::init()
         if (makefile != "Makefile")
             makeCmd.addArgs({"-f", makefile});
 
-        m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);
+        m_makeFileToCheck = QDir(workingDirectory.toString()).filePath(makefile);
     } else {
-        if (!bc->makefile().isEmpty()) {
-            makeCmd.addArgs({"-f", bc->makefile()});
-            m_makeFileToCheck = QDir(workingDirectory).filePath(bc->makefile());
+        QString makefile = bc->makefile();
+        if (!makefile.isEmpty()) {
+            makeCmd.addArgs({"-f", makefile});
+            m_makeFileToCheck = QDir(workingDirectory.toString()).filePath(makefile);
         } else {
-            m_makeFileToCheck = QDir(workingDirectory).filePath("Makefile");
+            m_makeFileToCheck = QDir(workingDirectory.toString()).filePath("Makefile");
         }
     }
 
@@ -168,7 +168,9 @@ bool QmakeMakeStep::init()
     appendOutputParser(new QMakeParser); // make may cause qmake to be run, add last to make sure
                                          // it has a low priority.
 
-    m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootProjectNode()->projectType() == ProjectType::ScriptTemplate);
+    auto rootNode = dynamic_cast<QmakeProFileNode *>(bc->project()->rootProjectNode());
+    QTC_ASSERT(rootNode, return false);
+    m_scriptTarget = rootNode->projectType() == ProjectType::ScriptTemplate;
     m_unalignedBuildDir = !bc->isBuildDirAtSafeLocation();
 
     // A user doing "make clean" indicates they want a proper rebuild, so make sure to really

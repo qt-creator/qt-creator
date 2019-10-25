@@ -2046,7 +2046,6 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(cons
         return result;
     dd->addToRecentProjects(fileName, project->displayName());
     SessionManager::setStartupProject(project);
-    project->projectLoaded();
     return result;
 }
 
@@ -2113,9 +2112,6 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
                 appendError(errorString,
                             tr("Failed opening project \"%1\": Project is not a file.").arg(fileName));
             } else if (Project *pro = ProjectManager::openProject(mt, filePath)) {
-                QObject::connect(pro, &Project::parsingFinished, [pro]() {
-                    emit SessionManager::instance()->projectFinishedParsing(pro);
-                });
                 QString restoreError;
                 Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
                 if (restoreResult == Project::RestoreResult::Ok) {

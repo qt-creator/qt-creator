@@ -27,6 +27,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -167,7 +168,7 @@ void MakeInstallStep::finish(bool success)
             m_deploymentData.addFile(fi.filePath(),
                                      fi.dir().path().mid(installRoot().toString().length()));
         }
-        target()->setDeploymentData(m_deploymentData);
+        buildSystem()->setDeploymentData(m_deploymentData);
     } else if (m_noInstallTarget && m_isCmakeProject) {
         emit addTask(Task(Task::Warning, tr("You need to add an install statement to your "
                                             "CMakeLists.txt file for deployment to work."),

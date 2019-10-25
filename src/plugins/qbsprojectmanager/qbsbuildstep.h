@@ -79,6 +79,8 @@ public:
     }
     bool isQmlDebuggingEnabled() const { return m_enableQmlDebugging; }
 
+    QbsBuildSystem *qbsBuildSystem() const;
+
 signals:
     void qbsConfigurationChanged();
     void qbsBuildOptionsChanged();

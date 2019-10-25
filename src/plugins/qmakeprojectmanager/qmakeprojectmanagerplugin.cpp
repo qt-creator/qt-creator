@@ -319,8 +319,6 @@ void QmakeProjectManagerPluginPrivate::projectChanged()
     if (m_previousStartupProject) {
         connect(m_previousStartupProject, &Project::activeTargetChanged,
                 this, &QmakeProjectManagerPluginPrivate::activeTargetChanged);
-        connect(m_previousStartupProject, &Project::parsingFinished,
-                this, &QmakeProjectManagerPluginPrivate::updateActions);
     }
 
     activeTargetChanged();
@@ -334,9 +332,12 @@ void QmakeProjectManagerPluginPrivate::activeTargetChanged()
 
     m_previousTarget = m_previousStartupProject ? m_previousStartupProject->activeTarget() : nullptr;
 
-    if (m_previousTarget)
+    if (m_previousTarget) {
         connect(m_previousTarget, &Target::activeBuildConfigurationChanged,
                 this, &QmakeProjectManagerPluginPrivate::updateRunQMakeAction);
+        connect(m_previousTarget, &Target::parsingFinished,
+                this, &QmakeProjectManagerPluginPrivate::updateActions);
+    }
 
     updateRunQMakeAction();
 }

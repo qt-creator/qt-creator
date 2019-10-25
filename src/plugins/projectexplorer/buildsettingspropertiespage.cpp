@@ -139,6 +139,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
 
 void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 {
+    widget->setParent(this);
     widget->setContentsMargins(0, 10, 0, 0);
 
     auto label = new QLabel(this);
@@ -192,23 +193,8 @@ void BuildSettingsWidget::updateBuildSettings()
     m_renameButton->setEnabled(!bcs.isEmpty());
     m_cloneButton->setEnabled(!bcs.isEmpty());
 
-    if (!m_buildConfiguration)
-        return;
-
-    // Add pages
-    NamedWidget *generalConfigWidget = m_buildConfiguration->createConfigWidget();
-    if (generalConfigWidget)
-        addSubWidget(generalConfigWidget);
-
-    BuildStepList *buildSteps = m_buildConfiguration->stepList(Constants::BUILDSTEPS_BUILD);
-    addSubWidget(new BuildStepListWidget(buildSteps, this));
-
-    BuildStepList *cleanSteps = m_buildConfiguration->stepList(Constants::BUILDSTEPS_CLEAN);
-    addSubWidget(new BuildStepListWidget(cleanSteps, this));
-
-    QList<NamedWidget *> subConfigWidgets = m_buildConfiguration->createSubConfigWidgets();
-    foreach (NamedWidget *subConfigWidget, subConfigWidgets)
-        addSubWidget(subConfigWidget);
+    if (m_buildConfiguration)
+        m_buildConfiguration->addConfigWidgets([this](NamedWidget *w) { addSubWidget(w); });
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)

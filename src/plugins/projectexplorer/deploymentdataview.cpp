@@ -25,9 +25,11 @@
 
 #include "deploymentdataview.h"
 
+#include "buildsystem.h"
 #include "deploymentdata.h"
 #include "target.h"
 
+#include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
 #include <QAbstractTableModel>
@@ -78,7 +80,8 @@ DeploymentDataView::DeploymentDataView(Target *target)
 
     auto updatModel = [this, target, model, view] {
         model->clear();
-        for (const DeployableFile &file : target->deploymentData().allFiles())
+        QTC_ASSERT(target->buildSystem(), return);
+        for (const DeployableFile &file : target->buildSystem()->deploymentData().allFiles())
             model->rootItem()->appendChild(new DeploymentDataItem(file));
 
         QHeaderView *header = view->header();

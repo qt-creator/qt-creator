@@ -381,6 +381,17 @@ Project *SessionManager::startupProject()
     return d->m_startupProject;
 }
 
+Target *SessionManager::startupTarget()
+{
+    return d->m_startupProject ? d->m_startupProject->activeTarget() : nullptr;
+}
+
+BuildSystem *SessionManager::startupBuildSystem()
+{
+    Target *t = startupTarget();
+    return t ? t->buildSystem() : nullptr;
+}
+
 void SessionManager::addProject(Project *pro)
 {
     QTC_ASSERT(pro, return);

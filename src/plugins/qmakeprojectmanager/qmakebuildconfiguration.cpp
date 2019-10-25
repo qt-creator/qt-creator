@@ -108,6 +108,8 @@ enum { debug = 0 };
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
     : BuildConfiguration(target, id)
 {
+    m_buildSystem = new QmakeBuildSystem(this);
+
     connect(this, &BuildConfiguration::buildDirectoryChanged,
             this, &QmakeBuildConfiguration::emitProFileEvaluateNeeded);
     connect(this, &BuildConfiguration::environmentChanged,
@@ -175,7 +177,10 @@ void QmakeBuildConfiguration::initialize()
     updateCacheAndEmitEnvironmentChanged();
 }
 
-QmakeBuildConfiguration::~QmakeBuildConfiguration() = default;
+QmakeBuildConfiguration::~QmakeBuildConfiguration()
+{
+    delete m_buildSystem;
+}
 
 QVariantMap QmakeBuildConfiguration::toMap() const
 {
@@ -219,6 +224,11 @@ void QmakeBuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<i
         emitProFileEvaluateNeeded();
 }
 
+BuildSystem *QmakeBuildConfiguration::buildSystem() const
+{
+    return m_buildSystem;
+}
+
 NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 {
     return new QmakeProjectConfigWidget(this);
@@ -255,8 +265,7 @@ void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
 
 QString QmakeBuildConfiguration::makefile() const
 {
-    auto rootNode = dynamic_cast<QmakeProFileNode *>(target()->project()->rootProjectNode());
-    return rootNode ? rootNode->makefile() : QString();
+    return m_buildSystem->rootProFile()->singleVariableValue(Variable::Makefile);
 }
 
 BaseQtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
@@ -277,10 +286,7 @@ void QmakeBuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBui
 
 void QmakeBuildConfiguration::emitProFileEvaluateNeeded()
 {
-    Target *t = target();
-    Project *p = t->project();
-    if (t->activeBuildConfiguration() == this && p->activeTarget() == t)
-        static_cast<QmakeProject *>(p)->scheduleAsyncUpdate();
+    m_buildSystem->scheduleUpdateAllNowOrLater();
 }
 
 QString QmakeBuildConfiguration::unalignedBuildDirWarning()
@@ -339,6 +345,11 @@ QmakeMakeStep *QmakeBuildConfiguration::makeStep() const
         if ((ms = qobject_cast<QmakeMakeStep *>(bsl->at(i))) != nullptr)
             return ms;
     return nullptr;
+}
+
+QmakeBuildSystem *QmakeBuildConfiguration::qmakeBuildSystem() const
+{
+    return m_buildSystem;
 }
 
 // Returns true if both are equal.

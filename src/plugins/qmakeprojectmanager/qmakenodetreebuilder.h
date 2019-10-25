@@ -28,16 +28,14 @@
 #include "qmakeprojectmanager_global.h"
 #include "qmakeparsernodes.h"
 #include "qmakenodes.h"
-
-namespace Utils { class FilePath; }
-namespace ProjectExplorer { class RunConfiguration; }
+#include "qmakeproject.h"
 
 namespace QmakeProjectManager {
 
 class QmakeNodeTreeBuilder
 {
 public:
-    static std::unique_ptr<QmakeProFileNode> buildTree(QmakeProject *project);
+    static std::unique_ptr<QmakeProFileNode> buildTree(QmakeBuildSystem *buildSystem);
 };
 
 } // namespace QmakeProjectManager

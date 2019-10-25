@@ -50,6 +50,7 @@ namespace ProjectExplorer {
 
 class BuildInfo;
 class BuildSystem;
+class BuildConfiguration;
 class ContainerNode;
 class EditorConfiguration;
 class FolderNode;
@@ -64,7 +65,6 @@ class Target;
 class PROJECTEXPLORER_EXPORT Project : public QObject
 {
     friend class SessionManager; // for setActiveTarget
-    friend class ProjectExplorerPlugin; // for projectLoaded
     Q_OBJECT
 
 public:
@@ -84,7 +84,7 @@ public:
     QString mimeType() const;
     bool canBuildProducts() const;
 
-    BuildSystem *buildSystem() const;
+    BuildSystem *createBuildSystem(Target *target) const;
 
     Utils::FilePath projectFilePath() const;
     Utils::FilePath projectDirectory() const;
@@ -124,7 +124,6 @@ public:
     static const NodeMatcher GeneratedFiles;
 
     Utils::FilePathList files(const NodeMatcher &matcher) const;
-    virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
     bool isKnownFile(const Utils::FilePath &filename) const;
 
     virtual QVariantMap toMap() const;
@@ -155,81 +154,20 @@ public:
     void setup(const QList<BuildInfo> &infoList);
     Utils::MacroExpander *macroExpander() const;
 
-    virtual QVariant additionalData(Core::Id id, const Target *target) const;
-
-    bool isParsing() const;
-    bool hasParsingData() const;
-
     ProjectNode *findNodeForBuildKey(const QString &buildKey) const;
 
     bool needsInitialExpansion() const;
     void setNeedsInitialExpansion(bool needsInitialExpansion);
 
-    class ParseGuard
-    {
-    public:
-        ParseGuard()
-            : ParseGuard(nullptr)
-        {}
-
-        ~ParseGuard() { release(); }
-
-        void markAsSuccess() const { m_success = true; }
-        bool isSuccess() const { return m_success; }
-        bool guardsProject() const { return m_project; }
-
-        ParseGuard(const ParseGuard &other) = delete;
-        ParseGuard &operator=(const ParseGuard &other) = delete;
-        ParseGuard(ParseGuard &&other)
-            : m_project{std::move(other.m_project)}
-            , m_success{std::move(other.m_success)}
-        {
-            // No need to release this as this is invalid anyway:-)
-            other.m_project = nullptr;
-        }
-        ParseGuard &operator=(ParseGuard &&other)
-        {
-            release();
-
-            m_project = std::move(other.m_project);
-            m_success = std::move(other.m_success);
-
-            other.m_project = nullptr;
-            return *this;
-        }
-
-    private:
-        ParseGuard(Project *p)
-            : m_project(p)
-        {
-            if (m_project && !m_project->isParsing())
-                m_project->emitParsingStarted();
-            else
-                m_project = nullptr;
-        }
-
-        void release()
-        {
-            if (m_project)
-                m_project->emitParsingFinished(m_success);
-            m_project = nullptr;
-        }
-
-        Project *m_project = nullptr;
-        mutable bool m_success = false;
-
-        friend class Project;
-    };
-
-    // FIXME: Make this private and the BuildSystem a friend
-    ParseGuard guardParsingRun() { return ParseGuard(this); }
     void setRootProjectNode(std::unique_ptr<ProjectNode> &&root);
 
     // Set project files that will be watched and trigger the same callback
     // as the main project file.
     void setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocumentPaths);
 
-    Utils::Environment activeParseEnvironment() const;
+    void setDisplayName(const QString &name);
+    void setProjectLanguage(Core::Id id, bool enabled);
+    void addProjectLanguage(Core::Id id);
 
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
@@ -243,11 +181,6 @@ signals:
     void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
     void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
 
-    // *ANY* active build configuration changed somewhere in the tree. This might not be
-    // the one that would get started right now, since some part of the tree in between might
-    // not be active.
-    void activeBuildConfigurationChanged(ProjectExplorer::ProjectConfiguration *bc);
-
     void aboutToRemoveTarget(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);
     void addedTarget(ProjectExplorer::Target *target);
@@ -257,8 +190,8 @@ signals:
 
     void projectLanguagesUpdated();
 
-    void parsingStarted();
-    void parsingFinished(bool success);
+    void anyParsingStarted(Target *target);
+    void anyParsingFinished(Target *target, bool success);
 
     void rootProjectDirectoryChanged();
 
@@ -267,7 +200,6 @@ protected:
     void createTargetFromMap(const QVariantMap &map, int index);
     virtual bool setupTarget(Target *t);
 
-    void setDisplayName(const QString &name);
     // Used to pre-check kits in the TargetSetupPage. RequiredKitPredicate
     // is used to select kits available in the TargetSetupPage
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
@@ -278,35 +210,26 @@ protected:
 
     void setId(Core::Id id);
     void setProjectLanguages(Core::Context language);
-    void addProjectLanguage(Core::Id id);
     void removeProjectLanguage(Core::Id id);
-    void setProjectLanguage(Core::Id id, bool enabled);
     void setHasMakeInstallEquivalent(bool enabled);
-    virtual void projectLoaded(); // Called when the project is fully loaded.
 
     void setKnowsAllBuildExecutables(bool value);
     void setNeedsBuildConfigurations(bool value);
+    void setNeedsDeployConfigurations(bool value);
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
 
-    void setBuildSystemCreator(const std::function<BuildSystem *(Project *)> &creator);
+    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
 
 private:
-    // Helper methods to manage parsing state and signalling
-    // Call in GUI thread before the actual parsing starts
-    void emitParsingStarted();
-    // Call in GUI thread right after the actual parsing is done
-    void emitParsingFinished(bool success);
-
     void addTarget(std::unique_ptr<Target> &&target);
 
     void handleSubTreeChanged(FolderNode *node);
     void setActiveTarget(Target *target);
 
-    ProjectPrivate *d;
-
     friend class ContainerNode;
+    ProjectPrivate *d;
 };
 
 } // namespace ProjectExplorer

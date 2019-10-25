@@ -376,7 +376,7 @@ void RunControl::setTarget(Target *target)
     QTC_CHECK(!d->target);
     d->target = target;
 
-    if (!d->buildKey.isEmpty())
+    if (!d->buildKey.isEmpty() && target->buildSystem())
         d->buildTargetInfo = target->buildTarget(d->buildKey);
 
     if (auto bc = target->activeBuildConfiguration()) {

@@ -149,10 +149,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(bc, &BuildConfiguration::enabledChanged,
             this, &QmakeProjectConfigWidget::environmentChanged);
 
-    auto qmakeProject = static_cast<QmakeProject *>(bc->target()->project());
-    connect(qmakeProject, &QmakeProject::buildDirectoryInitialized,
-            this, &QmakeProjectConfigWidget::updateProblemLabel);
-    connect(qmakeProject, &Project::parsingFinished,
+    connect(bc->target(), &Target::parsingFinished,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
     connect(&QmakeSettings::instance(), &QmakeSettings::settingsChanged,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
@@ -254,8 +251,8 @@ void QmakeProjectConfigWidget::updateProblemLabel()
         return;
     }
 
-    auto *p = static_cast<QmakeProject *>(m_buildConfiguration->target()->project());
-    if (p->rootProFile()->parseInProgress() || !p->rootProFile()->validParse()) {
+    auto bs = m_buildConfiguration->qmakeBuildSystem();
+    if (bs->rootProFile()->parseInProgress() || !bs->rootProFile()->validParse()) {
         setProblemLabel(QString());
         return;
     }

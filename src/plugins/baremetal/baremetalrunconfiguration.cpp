@@ -55,7 +55,7 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
             this, &BareMetalRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
             this, &BareMetalRunConfiguration::updateTargetInformation); // Handles device changes, etc.
-    connect(target->project(), &Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &BareMetalRunConfiguration::updateTargetInformation);
 }
 

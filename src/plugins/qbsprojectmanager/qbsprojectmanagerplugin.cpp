@@ -246,9 +246,9 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &QbsProjectManagerPlugin::updateBuildActions);
 
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &QbsProjectManagerPlugin::projectWasAdded);
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(SessionManager::instance(), &SessionManager::targetAdded,
+            this, &QbsProjectManagerPlugin::targetWasAdded);
+    connect(SessionManager::instance(), &SessionManager::targetRemoved,
             this, &QbsProjectManagerPlugin::updateBuildActions);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &QbsProjectManagerPlugin::updateReparseQbsAction);
@@ -264,16 +264,14 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 void QbsProjectManagerPlugin::extensionsInitialized()
 { }
 
-void QbsProjectManagerPlugin::projectWasAdded(Project *project)
+void QbsProjectManagerPlugin::targetWasAdded(Target *target)
 {
-    auto qbsProject = qobject_cast<QbsProject *>(project);
-
-    if (!qbsProject)
+    if (!qobject_cast<QbsProject *>(target->project()))
         return;
 
-    connect(qbsProject, &Project::parsingStarted,
+    connect(target, &Target::parsingStarted,
             this, &QbsProjectManagerPlugin::projectChanged);
-    connect(qbsProject, &Project::parsingFinished,
+    connect(target, &Target::parsingFinished,
             this, &QbsProjectManagerPlugin::projectChanged);
 }
 
@@ -282,7 +280,8 @@ void QbsProjectManagerPlugin::updateContextActions()
     auto project = qobject_cast<Internal::QbsProject *>(ProjectTree::currentProject());
     const Node *node = ProjectTree::currentNode();
     bool isEnabled = !BuildManager::isBuilding(project)
-            && project && !project->isParsing()
+            && project && project->activeTarget()
+            && !project->activeTarget()->buildSystem()->isParsing()
             && node && node->isEnabled();
 
     const bool isFile = project && node && node->asFileNode();
@@ -305,7 +304,8 @@ void QbsProjectManagerPlugin::updateReparseQbsAction()
     auto project = qobject_cast<QbsProject *>(SessionManager::startupProject());
     m_reparseQbs->setEnabled(project
                              && !BuildManager::isBuilding(project)
-                             && !project->isParsing());
+                             && project && project->activeTarget()
+                             && !project->activeTarget()->buildSystem()->isParsing());
 }
 
 void QbsProjectManagerPlugin::updateBuildActions()
@@ -334,7 +334,9 @@ void QbsProjectManagerPlugin::updateBuildActions()
         }
 
         if (QbsProject *editorProject = currentEditorProject()) {
-            enabled = !BuildManager::isBuilding(editorProject) && !editorProject->isParsing();
+            enabled = !BuildManager::isBuilding(editorProject)
+                    && editorProject->activeTarget()
+                    && !editorProject->activeTarget()->buildSystem()->isParsing();
             fileVisible = productNode
                     || dynamic_cast<QbsProjectNode *>(parentProjectNode)
                     || dynamic_cast<QbsGroupNode *>(parentProjectNode);
@@ -567,12 +569,20 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
     if (!project)
         return;
 
+    Target *t = project->activeTarget();
+    if (!t)
+        return;
+
+    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(t->buildSystem());
+    if (!bs)
+        return;
+
     // Qbs does update the build graph during the build. So we cannot
     // start to parse while a build is running or we will lose information.
     if (BuildManager::isBuilding(project))
-        project->scheduleParsing();
+        bs->scheduleParsing();
     else
-        project->parseCurrentBuildConfiguration();
+        bs->parseCurrentBuildConfiguration();
 }
 
 void QbsProjectManagerPlugin::buildNamedProduct(QbsProject *project, const QString &product)

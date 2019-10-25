@@ -35,6 +35,7 @@ namespace ProjectExplorer { class FileNode; }
 namespace QmakeProjectManager {
 
 class QMakeStep;
+class QmakeBuildSystem;
 class QmakeMakeStep;
 class QmakeProFileNode;
 
@@ -45,6 +46,8 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplore
 public:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     ~QmakeBuildConfiguration() override;
+
+    ProjectExplorer::BuildSystem *buildSystem() const final;
 
     void initialize() override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
@@ -71,6 +74,8 @@ public:
     // So that we can later enable people to build qmake the way they would like
     QMakeStep *qmakeStep() const;
     QmakeMakeStep *makeStep() const;
+
+    QmakeBuildSystem *qmakeBuildSystem() const;
 
     QString makefile() const;
 
@@ -125,6 +130,7 @@ private:
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
+    QmakeBuildSystem *m_buildSystem = nullptr;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory

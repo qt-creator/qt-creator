@@ -30,6 +30,7 @@
 #include "projectnodes.h"
 #include "projecttreewidget.h"
 #include "session.h"
+#include "target.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -102,6 +103,18 @@ ProjectTree *ProjectTree::instance()
 Project *ProjectTree::currentProject()
 {
     return s_instance->m_currentProject;
+}
+
+Target *ProjectTree::currentTarget()
+{
+    Project *p = currentProject();
+    return p ? p->activeTarget() : nullptr;
+}
+
+BuildSystem *ProjectTree::currentBuildSystem()
+{
+    Target *t = currentTarget();
+    return t ? t->buildSystem() : nullptr;
 }
 
 Node *ProjectTree::currentNode()

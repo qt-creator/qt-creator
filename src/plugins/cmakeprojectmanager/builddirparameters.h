@@ -42,14 +42,14 @@ class CMakeBuildConfiguration;
 class BuildDirParameters {
 public:
     BuildDirParameters();
-    BuildDirParameters(CMakeBuildConfiguration *bc);
+    explicit BuildDirParameters(CMakeBuildConfiguration *bc);
     BuildDirParameters(const BuildDirParameters &other);
     BuildDirParameters &operator=(const BuildDirParameters &other);
 
     bool isValid() const;
     CMakeTool *cmakeTool() const;
 
-    CMakeBuildConfiguration *buildConfiguration = nullptr;
+    bool initialized = false;
     QString projectName;
 
     Utils::FilePath sourceDirectory;

@@ -73,7 +73,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 class MainQmlFileAspect : public ProjectConfigurationAspect
 {
 public:
-    explicit MainQmlFileAspect(QmlProject *project);
+    explicit MainQmlFileAspect(Target *target);
     ~MainQmlFileAspect() override { delete m_fileListCombo; }
 
     enum MainScriptSource {
@@ -97,7 +97,12 @@ public:
     bool isQmlFilePresent();
 
 public:
-    QmlProject *m_project;
+    QmlBuildSystem *qmlBuildSystem() const
+    {
+        return static_cast<QmlBuildSystem *>(m_target->buildSystem());
+    }
+
+    Target *m_target = nullptr;
     QPointer<QComboBox> m_fileListCombo;
     QStandardItemModel m_fileListModel;
     QString m_scriptFile;
@@ -107,8 +112,8 @@ public:
     QString m_mainScriptFilename;
 };
 
-MainQmlFileAspect::MainQmlFileAspect(QmlProject *project)
-    : m_project(project)
+MainQmlFileAspect::MainQmlFileAspect(Target *target)
+    : m_target(target)
     , m_scriptFile(M_CURRENT_FILE)
 {
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
@@ -153,7 +158,7 @@ void MainQmlFileAspect::fromMap(const QVariantMap &map)
 
 void MainQmlFileAspect::updateFileComboBox()
 {
-    QDir projectDir(m_project->projectDirectory().toString());
+    QDir projectDir(m_target->project()->projectDirectory().toString());
 
     if (mainScriptSource() == FileInProjectFile) {
         const QString mainScriptInFilePath = projectDir.relativeFilePath(mainScript());
@@ -170,7 +175,7 @@ void MainQmlFileAspect::updateFileComboBox()
     m_fileListModel.appendRow(new QStandardItem(QLatin1String(CURRENT_FILE)));
     QModelIndex currentIndex;
 
-    QStringList sortedFiles = Utils::transform(m_project->files(Project::SourceFiles),
+    QStringList sortedFiles = Utils::transform(m_target->project()->files(Project::SourceFiles),
                                                &Utils::FilePath::toString);
 
     // make paths relative to project directory
@@ -207,7 +212,7 @@ void MainQmlFileAspect::updateFileComboBox()
 
 MainQmlFileAspect::MainScriptSource MainQmlFileAspect::mainScriptSource() const
 {
-    if (!m_project->mainFile().isEmpty())
+    if (!qmlBuildSystem()->mainFile().isEmpty())
         return FileInProjectFile;
     if (!m_mainScriptFilename.isEmpty())
         return FileInSettings;
@@ -234,7 +239,7 @@ void MainQmlFileAspect::setScriptSource(MainScriptSource source, const QString &
         m_mainScriptFilename.clear();
     } else { // FileInSettings
         m_scriptFile = settingsPath;
-        m_mainScriptFilename = m_project->projectDirectory().toString() + '/' + m_scriptFile;
+        m_mainScriptFilename = m_target->project()->projectDirectory().toString() + '/' + m_scriptFile;
     }
 
     emit changed();
@@ -246,12 +251,12 @@ void MainQmlFileAspect::setScriptSource(MainScriptSource source, const QString &
   */
 QString MainQmlFileAspect::mainScript() const
 {
-    if (!m_project->mainFile().isEmpty()) {
-        const QString pathInProject = m_project->mainFile();
+    if (!qmlBuildSystem()->mainFile().isEmpty()) {
+        const QString pathInProject = qmlBuildSystem()->mainFile();
         if (QFileInfo(pathInProject).isAbsolute())
             return pathInProject;
         else
-            return QDir(m_project->canonicalProjectDir().toString()).absoluteFilePath(pathInProject);
+            return QDir(qmlBuildSystem()->canonicalProjectDir().toString()).absoluteFilePath(pathInProject);
     }
 
     if (!m_mainScriptFilename.isEmpty())
@@ -279,9 +284,9 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 {
     auto envAspect = addAspect<EnvironmentAspect>();
 
-    auto envModifier = [target](Environment env) {
-        if (auto project = qobject_cast<const QmlProject *>(target->project()))
-            env.modify(project->environment());
+    auto envModifier = [this](Environment env) {
+        if (auto bs = dynamic_cast<const QmlBuildSystem *>(activeBuildSystem()))
+            env.modify(bs->environment());
         return env;
     };
 
@@ -311,9 +316,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
                            CommandLine::Raw);
     });
 
-    auto qmlProject = qobject_cast<QmlProject *>(target->project());
-    QTC_ASSERT(qmlProject, return);
-    m_mainQmlFileAspect = addAspect<MainQmlFileAspect>(qmlProject);
+    m_mainQmlFileAspect = addAspect<MainQmlFileAspect>(target);
     connect(m_mainQmlFileAspect, &MainQmlFileAspect::changed,
             this, &QmlProjectRunConfiguration::updateEnabledState);
 
@@ -329,7 +332,8 @@ Runnable QmlProjectRunConfiguration::runnable() const
     Runnable r;
     r.setCommandLine(commandLine());
     r.environment = aspect<EnvironmentAspect>()->environment();
-    r.workingDirectory = static_cast<QmlProject *>(project())->targetDirectory(target()).toString();
+    const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
+    r.workingDirectory = bs->targetDirectory().toString();
     return r;
 }
 
@@ -377,38 +381,35 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
     QString args = aspect<ArgumentsAspect>()->arguments(macroExpander());
-    const Target *currentTarget = target();
-    const IDevice::ConstPtr device = DeviceKitAspect::device(currentTarget->kit());
+    const IDevice::ConstPtr device = DeviceKitAspect::device(target()->kit());
     const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();
 
     // arguments from .qmlproject file
-    const QmlProject *project = static_cast<QmlProject *>(currentTarget->project());
+    const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(target()->buildSystem());
     foreach (const QString &importPath,
-             QmlProject::makeAbsolute(project->targetDirectory(currentTarget), project->customImportPaths())) {
+             QmlBuildSystem::makeAbsolute(bs->targetDirectory(), bs->customImportPaths())) {
         Utils::QtcProcess::addArg(&args, QLatin1String("-I"), osType);
         Utils::QtcProcess::addArg(&args, importPath, osType);
     }
 
-    for (const QString &fileSelector : project->customFileSelectors()) {
+    for (const QString &fileSelector : bs->customFileSelectors()) {
         Utils::QtcProcess::addArg(&args, QLatin1String("-S"), osType);
         Utils::QtcProcess::addArg(&args, fileSelector, osType);
     }
 
-    const QString main = project->targetFile(Utils::FilePath::fromString(mainScript()),
-                                             currentTarget).toString();
+    const QString main = bs->targetFile(FilePath::fromString(mainScript())).toString();
     if (!main.isEmpty())
         Utils::QtcProcess::addArg(&args, main, osType);
     return args;
 }
 
-void QmlProjectRunConfiguration::updateEnabledState()
+bool QmlProjectRunConfiguration::isEnabled() const
 {
-    bool enabled = false;
     if (m_mainQmlFileAspect->isQmlFilePresent() && !commandLine().executable().isEmpty()) {
-        Project *p = target()->project();
-        enabled = !p->isParsing() && p->hasParsingData();
+        BuildSystem *bs = activeBuildSystem();
+        return !bs->isParsing() && bs->hasParsingData();
     }
-    setEnabled(enabled);
+    return false;
 }
 
 bool MainQmlFileAspect::isQmlFilePresent()
@@ -430,7 +431,7 @@ bool MainQmlFileAspect::isQmlFilePresent()
                 || mainScriptMimeType.matchesName(QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE))) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
-            const auto files = m_project->files(Project::SourceFiles);
+            const auto files = m_target->project()->files(Project::SourceFiles);
             for (const Utils::FilePath &filename : files) {
                 const QFileInfo fi = filename.toFileInfo();
 

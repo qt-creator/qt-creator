@@ -109,14 +109,14 @@ QbsInstallStep::~QbsInstallStep()
 
 bool QbsInstallStep::init()
 {
-    QTC_ASSERT(!project()->isParsing() && !m_job, return false);
+    QTC_ASSERT(!buildConfiguration()->buildSystem()->isParsing() && !m_job, return false);
     return true;
 }
 
 void QbsInstallStep::doRun()
 {
-    auto pro = static_cast<QbsProject *>(project());
-    m_job = pro->install(m_qbsInstallOptions);
+    auto bs = static_cast<QbsBuildSystem *>(buildSystem());
+    m_job = bs->install(m_qbsInstallOptions);
 
     if (!m_job) {
         emit finished(false);
@@ -336,7 +336,7 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     connect(m_keepGoingCheckBox, &QAbstractButton::toggled,
             this, &QbsInstallStepConfigWidget::changeKeepGoing);
 
-    connect(m_step->project(), &Project::parsingFinished,
+    connect(m_step->target(), &Target::parsingFinished,
             this, &QbsInstallStepConfigWidget::updateState);
 
     updateState();

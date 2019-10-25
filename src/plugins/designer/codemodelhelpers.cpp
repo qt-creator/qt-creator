@@ -27,14 +27,18 @@
 
 #include <cpptools/cppmodelmanager.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 
 // Debug helpers for code model. @todo: Move to some CppTools library?
+
+using namespace ProjectExplorer;
 
 typedef QMap<QString, QStringList> DependencyMap;
 typedef CPlusPlus::Document::Ptr DocumentPtr;
@@ -46,11 +50,15 @@ static const char setupUiC[] = "setupUi";
 // Find the generated "ui_form.h" header of the form via project.
 static QString generatedHeaderOf(const QString &uiFileName)
 {
-    if (const ProjectExplorer::Project *uiProject =
-            ProjectExplorer::SessionManager::projectForFile(Utils::FilePath::fromString(uiFileName))) {
-        QStringList files = uiProject->filesGeneratedFrom(uiFileName);
-        if (!files.isEmpty()) // There should be at most one header generated from a .ui
-            return files.front();
+    if (const Project *uiProject =
+            SessionManager::projectForFile(Utils::FilePath::fromString(uiFileName))) {
+        if (Target *t = uiProject->activeTarget()) {
+            if (BuildSystem *bs = t->buildSystem()) {
+                QStringList files = bs->filesGeneratedFrom(uiFileName);
+                if (!files.isEmpty()) // There should be at most one header generated from a .ui
+                    return files.front();
+            }
+        }
     }
     return QString();
 }

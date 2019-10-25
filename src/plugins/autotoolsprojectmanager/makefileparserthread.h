@@ -29,7 +29,7 @@
 
 #include "makefileparser.h"
 
-#include <projectexplorer/project.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectmacro.h>
 
 #include <QMutex>
@@ -54,7 +54,7 @@ class MakefileParserThread : public QThread
     using Macros = ProjectExplorer::Macros;
 
 public:
-    MakefileParserThread(const QString &makefile, ProjectExplorer::Project::ParseGuard &&guard);
+    explicit MakefileParserThread(ProjectExplorer::BuildSystem *bs);
 
     /** @see QThread::run() */
     void run() override;
@@ -143,7 +143,7 @@ private:
     QStringList m_cflags;       ///< Return value for MakefileParserThread::cflags()
     QStringList m_cxxflags;     ///< Return value for MakefileParserThread::cxxflags()
 
-    ProjectExplorer::Project::ParseGuard m_guard;
+    ProjectExplorer::BuildSystem::ParseGuard m_guard;
 };
 
 } // namespace Internal

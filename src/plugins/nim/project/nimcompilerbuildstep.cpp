@@ -271,8 +271,8 @@ void NimCompilerBuildStep::updateTargetNimFile()
 {
     if (!m_targetNimFile.isEmpty())
         return;
-    const Utils::FilePathList nimFiles = static_cast<NimBuildSystem *>(project()->buildSystem())
-                                             ->nimFiles();
+    const Utils::FilePathList nimFiles =
+            static_cast<NimBuildSystem *>(buildConfiguration()->buildSystem())->nimFiles();
     if (!nimFiles.isEmpty())
         setTargetNimFile(nimFiles.at(0));
 }

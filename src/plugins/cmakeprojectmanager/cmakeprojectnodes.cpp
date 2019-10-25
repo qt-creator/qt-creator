@@ -265,7 +265,10 @@ Utils::optional<Utils::FilePath> CMakeTargetNode::visibleAfterAddFileAction() co
 
 void CMakeTargetNode::build()
 {
-    static_cast<CMakeProject *>(getProject())->buildCMakeTarget(displayName());
+    Project *p = getProject();
+    Target *t = p ? p->activeTarget() : nullptr;
+    if (t)
+        static_cast<CMakeBuildSystem *>(t->buildSystem())->buildCMakeTarget(displayName());
 }
 
 void CMakeTargetNode::setTargetInformation(const QList<Utils::FilePath> &artifacts,

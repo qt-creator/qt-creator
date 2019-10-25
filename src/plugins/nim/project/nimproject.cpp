@@ -45,7 +45,7 @@ NimProject::NimProject(const FilePath &fileName) : Project(Constants::C_NIM_MIME
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
-    setBuildSystemCreator([](Project *p) { return new NimBuildSystem(p); });
+    setBuildSystemCreator([](Target *t) { return new NimBuildSystem(t); });
 }
 
 Tasks NimProject::projectIssues(const Kit *k) const
@@ -65,17 +65,25 @@ Tasks NimProject::projectIssues(const Kit *k) const
 QVariantMap NimProject::toMap() const
 {
     QVariantMap result = Project::toMap();
-    result[Constants::C_NIMPROJECT_EXCLUDEDFILES] = static_cast<NimBuildSystem *>(buildSystem())
-                                                        ->excludedFiles();
+    result[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
     return result;
 }
 
 Project::RestoreResult NimProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     auto result = Project::fromMap(map, errorMessage);
-    static_cast<NimBuildSystem *>(buildSystem())
-        ->setExcludedFiles(map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES).toStringList());
+    m_excludedFiles = map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES).toStringList();
     return result;
+}
+
+QStringList NimProject::excludedFiles() const
+{
+    return m_excludedFiles;
+}
+
+void NimProject::setExcludedFiles(const QStringList &excludedFiles)
+{
+    m_excludedFiles = excludedFiles;
 }
 
 } // namespace Nim

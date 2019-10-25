@@ -337,9 +337,46 @@ void createTree(std::unique_ptr<ProjectNode> &root,
 
 } // anonymous namespace
 
-void CompilationDatabaseProject::buildTreeAndProjectParts()
+CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
+    : BuildSystem(target)
+    , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
+    , m_parseDelay(new QTimer(this))
+    , m_deployFileWatcher(new FileSystemWatcher(this))
 {
-    ProjectExplorer::KitInfo kitInfo(this);
+    connect(target->project(), &CompilationDatabaseProject::rootProjectDirectoryChanged,
+            this, [this] {
+        m_projectFileHash.clear();
+        m_parseDelay->start();
+    });
+
+    connect(m_parseDelay, &QTimer::timeout, this, &CompilationDatabaseBuildSystem::reparseProject);
+
+    m_parseDelay->setSingleShot(true);
+    m_parseDelay->setInterval(1000);
+    m_parseDelay->start();
+
+    connect(project(), &Project::projectFileIsDirty, this, &CompilationDatabaseBuildSystem::reparseProject);
+
+    connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
+            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
+    connect(target->project(), &Project::activeTargetChanged,
+            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
+}
+
+CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem()
+{
+    m_parserWatcher.cancel();
+    m_parserWatcher.waitForFinished();
+}
+
+void CompilationDatabaseBuildSystem::triggerParsing()
+{
+    reparseProject();
+}
+
+void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
+{
+    ProjectExplorer::KitInfo kitInfo(project());
     QTC_ASSERT(kitInfo.isValid(), return);
     // Reset toolchains to pick them based on the database entries.
     kitInfo.cToolChain = nullptr;
@@ -349,6 +386,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
     QTC_ASSERT(m_parser, return);
     const DbContents dbContents = m_parser->dbContents();
     const DbEntry *prevEntry = nullptr;
+    Kit *kit = static_cast<CompilationDatabaseProject *>(project())->kit();
     for (const DbEntry &entry : dbContents.entries) {
         if (prevEntry && prevEntry->flags == entry.flags) {
             rpps.back().files.append(entry.fileName.toString());
@@ -358,7 +396,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
         prevEntry = &entry;
 
         RawProjectPart rpp = makeRawProjectPart(projectFilePath(),
-                                                m_kit.get(),
+                                                kit,
                                                 kitInfo,
                                                 entry.workingDir,
                                                 entry.fileName,
@@ -381,7 +419,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
 
 
     auto root = std::make_unique<ProjectNode>(projectDirectory());
-    createTree(root, rootProjectDirectory(), rpps, m_parser->scannedFiles());
+    createTree(root, project()->rootProjectDirectory(), rpps, m_parser->scannedFiles());
 
     root->addNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
@@ -389,43 +427,26 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
         root->addNode(std::make_unique<FileNode>(Utils::FilePath::fromString(dbContents.extraFileName),
                                                  FileType::Project));
 
-    setRootProjectNode(std::move(root));
+    project()->setRootProjectNode(std::move(root));
 
-    m_cppCodeModelUpdater->update({this, kitInfo, activeParseEnvironment(), rpps});
+    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps});
     updateDeploymentData();
 }
 
 CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &projectFile)
     : Project(Constants::COMPILATIONDATABASEMIMETYPE, projectFile)
-    , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
-    , m_parseDelay(new QTimer(this))
-    , m_deployFileWatcher(new FileSystemWatcher(this))
 {
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
 
+    setBuildSystemCreator([](Target *t) { return new CompilationDatabaseBuildSystem(t); });
+
     m_kit.reset(KitManager::defaultKit()->clone());
     addTargetForKit(m_kit.get());
 
-    connect(this, &CompilationDatabaseProject::rootProjectDirectoryChanged,
-            this, [this] {
-        m_projectFileHash.clear();
-        m_parseDelay->start();
-    });
-
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
-    connect(m_parseDelay, &QTimer::timeout, this, &CompilationDatabaseProject::reparseProject);
-
-    m_parseDelay->setSingleShot(true);
-    m_parseDelay->setInterval(1000);
-
-    connect(this, &Project::projectFileIsDirty, this, &CompilationDatabaseProject::reparseProject);
-    connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
-            this, &CompilationDatabaseProject::updateDeploymentData);
-    connect(this, &Project::activeTargetChanged,
-            this, &CompilationDatabaseProject::updateDeploymentData);
 }
 
 Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
@@ -442,26 +463,19 @@ Project::RestoreResult CompilationDatabaseProject::fromMap(const QVariantMap &ma
                                                            QString *errorMessage)
 {
     Project::RestoreResult result = Project::fromMap(map, errorMessage);
-    if (result == Project::RestoreResult::Ok) {
-        const Utils::FilePath rootPath = rootPathFromSettings();
-        if (rootPath.isEmpty())
-            changeRootProjectDirectory(); // This triggers reparse itself.
-        else
-            reparseProject();
-    }
-
     return result;
 }
 
-void CompilationDatabaseProject::reparseProject()
+void CompilationDatabaseBuildSystem::reparseProject()
 {
     if (m_parser) {
         QTC_CHECK(isParsing());
         m_parser->stop();
     }
-    m_parser = new CompilationDbParser(displayName(),
+    const FilePath rootPath = static_cast<CompilationDatabaseProject *>(project())->rootPathFromSettings();
+    m_parser = new CompilationDbParser(project()->displayName(),
                                        projectFilePath(),
-                                       rootPathFromSettings(),
+                                       rootPath,
                                        m_mimeBinaryCache,
                                        guardParsingRun(),
                                        this);
@@ -475,28 +489,19 @@ void CompilationDatabaseProject::reparseProject()
     m_parser->start();
 }
 
-void CompilationDatabaseProject::updateDeploymentData()
+void CompilationDatabaseBuildSystem::updateDeploymentData()
 {
-    Target * const target = activeTarget();
-    if (!target)
-        return;
     const Utils::FilePath deploymentFilePath = projectDirectory()
             .pathAppended("QtCreatorDeployment.txt");
     DeploymentData deploymentData;
     deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
                                               projectDirectory().toString());
-    target->setDeploymentData(deploymentData);
+    setDeploymentData(deploymentData);
     if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.toString())) {
         m_deployFileWatcher->removeFiles(m_deployFileWatcher->files());
         m_deployFileWatcher->addFile(deploymentFilePath.toString(),
                                      FileSystemWatcher::WatchModifiedDate);
     }
-}
-
-CompilationDatabaseProject::~CompilationDatabaseProject()
-{
-    m_parserWatcher.cancel();
-    m_parserWatcher.waitForFinished();
 }
 
 static TextEditor::TextDocument *createCompilationDatabaseDocument()

@@ -46,14 +46,14 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
     friend class ProjectExplorer::BuildConfigurationFactory;
     QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    ~QbsBuildConfiguration() final;
 
 public:
-    void initialize() override;
+    ProjectExplorer::BuildSystem *buildSystem() const final;
+    void initialize() final;
 
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;
-
-    Internal::QbsProject *qbsProject() const;
 
     BuildType buildType() const override;
 
@@ -67,7 +67,6 @@ public:
     QStringList products() const;
 
     QString configurationName() const;
-
     QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
 
 signals:
@@ -80,7 +79,8 @@ private:
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
-    ProjectExplorer::BaseStringAspect *m_configurationName;
+    ProjectExplorer::BaseStringAspect *m_configurationName = nullptr;
+    QbsBuildSystem *m_buildSystem = nullptr;
 };
 
 class QbsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory

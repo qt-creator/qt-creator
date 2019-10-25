@@ -40,14 +40,14 @@ NimbleTaskStepWidget::NimbleTaskStepWidget(NimbleTaskStep *bs)
 {
     ui->setupUi(this);
 
-    auto project = dynamic_cast<NimbleProject*>(bs->project());
-    QTC_ASSERT(project, return);
+    auto buildSystem = dynamic_cast<NimbleBuildSystem *>(bs->buildSystem());
+    QTC_ASSERT(buildSystem, return);
 
     ui->taskList->setModel(&m_tasks);
     QObject::connect(&m_tasks, &QAbstractItemModel::dataChanged, this, &NimbleTaskStepWidget::onDataChanged);
 
-    updateTaskList(project->tasks());
-    QObject::connect(project, &NimbleProject::tasksChanged, this, &NimbleTaskStepWidget::updateTaskList);
+    updateTaskList();
+    QObject::connect(buildSystem, &NimbleBuildSystem::tasksChanged, this, &NimbleTaskStepWidget::updateTaskList);
 
     selectTask(bs->taskName());
     QObject::connect(bs, &NimbleTaskStep::taskNameChanged, this, &NimbleTaskStepWidget::selectTask);
@@ -73,8 +73,12 @@ NimbleTaskStepWidget::~NimbleTaskStepWidget()
     delete ui;
 }
 
-void NimbleTaskStepWidget::updateTaskList(const std::vector<NimbleTask> &tasks)
+void NimbleTaskStepWidget::updateTaskList()
 {
+    auto buildSystem = dynamic_cast<NimbleBuildSystem *>(step()->buildSystem());
+    QTC_ASSERT(buildSystem, return);
+    const std::vector<NimbleTask> &tasks = buildSystem->tasks();
+
     QSet<QString> newTasks;
     for (const NimbleTask &t : tasks)
         newTasks.insert(t.name);

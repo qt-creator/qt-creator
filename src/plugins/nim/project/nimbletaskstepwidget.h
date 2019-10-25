@@ -28,6 +28,7 @@
 #include <projectexplorer/buildstep.h>
 
 #include <nim/project/nimbleproject.h>
+#include <nim/project/nimblebuildsystem.h>
 
 #include <QStandardItemModel>
 
@@ -50,7 +51,7 @@ signals:
     void selectedTaskChanged(const QString &name);
 
 private:
-    void updateTaskList(const std::vector<NimbleTask> &tasks);
+    void updateTaskList();
 
     void selectTask(const QString &name);
 

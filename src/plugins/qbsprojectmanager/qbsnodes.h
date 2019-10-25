@@ -35,26 +35,7 @@ namespace Internal {
 
 class QbsNodeTreeBuilder;
 class QbsProject;
-
-class QbsBuildSystem : public ProjectExplorer::BuildSystem
-{
-public:
-    explicit QbsBuildSystem(ProjectExplorer::Project *project);
-
-    bool supportsAction(ProjectExplorer::Node *context,
-                        ProjectExplorer::ProjectAction action,
-                        const ProjectExplorer::Node *node) const final;
-    bool addFiles(ProjectExplorer::Node *context,
-                  const QStringList &filePaths,
-                  QStringList *notAdded = nullptr) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
-                                                         const QStringList &filePaths,
-                                                         QStringList *notRemoved = nullptr) override;
-    bool renameFile(ProjectExplorer::Node *context,
-                    const QString &filePath, const QString &newFilePath) override;
-
-    QbsProject *project() const;
-};
+class QbsBuildSystem;
 
 // --------------------------------------------------------------------
 // QbsGroupNode:
@@ -106,8 +87,7 @@ class QbsProjectNode : public ProjectExplorer::ProjectNode
 public:
     explicit QbsProjectNode(const Utils::FilePath &projectDirectory);
 
-    virtual QbsProject *project() const;
-    const qbs::Project qbsProject() const;
+    virtual ProjectExplorer::Project *project() const;
     const qbs::ProjectData qbsProjectData() const { return m_projectData; }
 
     void setProjectData(const qbs::ProjectData &data); // FIXME: Needed?
@@ -125,12 +105,12 @@ private:
 class QbsRootProjectNode : public QbsProjectNode
 {
 public:
-    explicit QbsRootProjectNode(QbsProject *project);
+    explicit QbsRootProjectNode(ProjectExplorer::Project *project);
 
-    QbsProject *project() const  override { return m_project; }
+    ProjectExplorer::Project *project() const  override { return m_project; }
 
 private:
-    QbsProject *const m_project;
+    ProjectExplorer::Project *const m_project;
 };
 
 

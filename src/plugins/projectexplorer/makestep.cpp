@@ -443,7 +443,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             this, &MakeStepConfigWidget::updateDetails);
     connect(m_makeStep->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
             this, &MakeStepConfigWidget::updateDetails);
-    connect(m_makeStep->project(), &Project::parsingFinished,
+    connect(m_makeStep->target(), &Target::parsingFinished,
             this, &MakeStepConfigWidget::updateDetails);
 
     Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());

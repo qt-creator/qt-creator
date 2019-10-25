@@ -43,14 +43,10 @@ protected:
 private:
     void doAdditionalSetup(const RunConfigurationCreationInfo &info) final;
     bool fromMap(const QVariantMap &map) final;
-    void updateEnabledState() final;
 
     void updateTargetInformation();
 
     Utils::FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
-    QString disabledReason() const override;
-
-    bool isBuildTargetValid() const;
 
     const Kind m_kind;
 };

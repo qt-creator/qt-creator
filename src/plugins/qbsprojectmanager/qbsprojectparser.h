@@ -35,15 +35,14 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsProject;
+class QbsBuildSystem;
 
 class QbsProjectParser : public QObject
 {
     Q_OBJECT
 
 public:
-    QbsProjectParser(QbsProjectManager::Internal::QbsProject *project,
-                     QFutureInterface<bool> *fi);
+    QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface<bool> *fi);
     ~QbsProjectParser() override;
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,

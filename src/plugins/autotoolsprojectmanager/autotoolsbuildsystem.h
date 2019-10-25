@@ -29,12 +29,9 @@
 
 #include <projectexplorer/buildsystem.h>
 
-namespace Utils { class FileSystemWatcher; }
-
 namespace CppTools { class CppProjectUpdater; }
 
 namespace AutotoolsProjectManager {
-
 namespace Internal {
 
 class MakefileParserThread;
@@ -44,13 +41,12 @@ class AutotoolsBuildSystem : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit AutotoolsBuildSystem(ProjectExplorer::Project *project);
+    explicit AutotoolsBuildSystem(ProjectExplorer::Target *target);
     ~AutotoolsBuildSystem() override;
 
-protected:
-    void parseProject(ParsingContext &&ctx) final;
-
 private:
+    void triggerParsing() final;
+
     /**
      * Is invoked when the makefile parsing by m_makefileParserThread has
      * been finished. Adds all sources and files into the project tree and

@@ -27,6 +27,7 @@
 
 #include "abi.h"
 #include "buildconfiguration.h"
+#include "buildsystem.h"
 #include "environmentaspect.h"
 #include "kitinformation.h"
 #include "kitinformation.h"
@@ -168,8 +169,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id)
 {
     QTC_CHECK(target && target == this->target());
-    connect(target->project(), &Project::parsingFinished,
-            this, [this]() { updateEnabledState(); });
+    connect(target, &Target::parsingFinished, this, [this] { updateEnabledState(); });
 
     connect(target, &Target::addedRunConfiguration,
             this, [this](const RunConfiguration *rc) {
@@ -224,25 +224,16 @@ bool RunConfiguration::isActive() const
     return target()->isActive() && target()->activeRunConfiguration() == this;
 }
 
-void RunConfiguration::setEnabled(bool enabled)
-{
-    if (enabled == m_isEnabled)
-        return;
-    m_isEnabled = enabled;
-    emit enabledChanged();
-}
-
 QString RunConfiguration::disabledReason() const
 {
-    if (!project()->hasParsingData()) {
-        QString msg = project()->isParsing() ? tr("The project is currently being parsed.")
-                                             : tr("The project could not be fully parsed.");
-        const FilePath projectFilePath = buildTargetInfo().projectFilePath;
-        if (!projectFilePath.isEmpty() && !projectFilePath.exists())
-            msg += '\n' + tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
-        return msg;
-    }
-    return QString();
+    BuildSystem *bs = activeBuildSystem();
+    return bs ? bs->disabledReason(m_buildKey) : tr("No build system active");
+}
+
+bool RunConfiguration::isEnabled() const
+{
+    BuildSystem *bs = activeBuildSystem();
+    return bs && bs->hasParsingData();
 }
 
 QWidget *RunConfiguration::createConfigurationWidget()
@@ -266,7 +257,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
 void RunConfiguration::updateEnabledState()
 {
-    setEnabled(project()->hasParsingData());
+    emit enabledChanged();
 }
 
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
@@ -312,9 +303,12 @@ RunConfiguration::ConfigurationState RunConfiguration::ensureConfigured(QString 
 
 BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 {
-    if (!target())
-        return nullptr;
     return target()->activeBuildConfiguration();
+}
+
+BuildSystem *RunConfiguration::activeBuildSystem() const
+{
+    return target()->buildSystem();
 }
 
 QVariantMap RunConfiguration::toMap() const
@@ -344,7 +338,9 @@ CommandLine RunConfiguration::commandLine() const
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
-    return target()->buildTarget(m_buildKey);
+    BuildSystem *bs = target()->buildSystem();
+    QTC_ASSERT(bs, return {});
+    return bs->buildTarget(m_buildKey);
 }
 
 bool RunConfiguration::fromMap(const QVariantMap &map)

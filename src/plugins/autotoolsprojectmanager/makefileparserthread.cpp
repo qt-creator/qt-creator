@@ -31,10 +31,9 @@
 
 using namespace AutotoolsProjectManager::Internal;
 
-MakefileParserThread::MakefileParserThread(const QString &makefile,
-                                           ProjectExplorer::Project::ParseGuard &&guard)
-    : m_parser(makefile)
-    , m_guard(std::move(guard))
+MakefileParserThread::MakefileParserThread(ProjectExplorer::BuildSystem *bs)
+    : m_parser(bs->projectFilePath().toString()),
+      m_guard(bs->guardParsingRun())
 {
     connect(&m_parser, &MakefileParser::status,
             this, &MakefileParserThread::status);

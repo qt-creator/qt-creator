@@ -36,7 +36,9 @@
 #include "makestep.h"
 
 #include <coreplugin/icontext.h>
+
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -50,7 +52,7 @@ AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName)
 
     setHasMakeInstallEquivalent(true);
 
-    setBuildSystemCreator([](Project *p) { return new AutotoolsBuildSystem(p); });
+    setBuildSystemCreator([](ProjectExplorer::Target *t) { return new AutotoolsBuildSystem(t); });
 }
 
 class AutotoolsProjectPluginPrivate

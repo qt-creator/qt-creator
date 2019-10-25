@@ -49,24 +49,12 @@ public:
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
-    void runCMake();
-    void runCMakeAndScanProjectTree();
-
-    // Context menu actions:
-    void buildCMakeTarget(const QString &buildTarget);
-
     ProjectExplorer::ProjectImporter *projectImporter() const final;
-
-    bool persistCMakeState();
-    void clearCMakeCache();
-    bool mustUpdateCMakeStateBeforeBuild() const;
 
 protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
-    QStringList filesGeneratedFrom(const QString &sourceFile) const final;
-
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
     ProjectExplorer::MakeInstallCommand makeInstallCommand(const ProjectExplorer::Target *target,
                                                            const QString &installRoot) override;

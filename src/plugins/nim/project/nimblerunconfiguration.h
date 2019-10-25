@@ -38,9 +38,6 @@ public:
 
     QString disabledReason() const override;
 
-protected:
-    void updateEnabledState() override;
-
 private:
     void updateTargetInformation();
 

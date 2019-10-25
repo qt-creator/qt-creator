@@ -203,19 +203,19 @@ QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
 
 } // namespace
 
-std::unique_ptr<QbsRootProjectNode> QbsNodeTreeBuilder::buildTree(QbsProject *project)
+std::unique_ptr<QbsRootProjectNode> QbsNodeTreeBuilder::buildTree(QbsBuildSystem *buildSystem)
 {
-    if (!project->qbsProjectData().isValid())
+    if (!buildSystem->qbsProjectData().isValid())
         return {};
 
-    auto root = std::make_unique<QbsRootProjectNode>(project);
-    setupProjectNode(root.get(), project->qbsProjectData(), project->qbsProject());
+    auto root = std::make_unique<QbsRootProjectNode>(buildSystem->project());
+    setupProjectNode(root.get(), buildSystem->qbsProjectData(), buildSystem->qbsProject());
 
-    auto buildSystemFiles = std::make_unique<FolderNode>(project->projectDirectory());
+    auto buildSystemFiles = std::make_unique<FolderNode>(buildSystem->projectDirectory());
     buildSystemFiles->setDisplayName(QCoreApplication::translate("QbsRootProjectNode", "Qbs files"));
 
-    const FilePath base = project->projectDirectory();
-    const QStringList files = unreferencedBuildSystemFiles(project->qbsProject());
+    const FilePath base = buildSystem->projectDirectory();
+    const QStringList files = unreferencedBuildSystemFiles(buildSystem->qbsProject());
     for (const QString &f : files) {
         const FilePath filePath = FilePath::fromString(f);
         if (filePath.isChildOf(base))

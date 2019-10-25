@@ -45,7 +45,7 @@ BuildDirParameters::BuildDirParameters() = default;
 
 BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 {
-    buildConfiguration = bc;
+    initialized = bc != nullptr;
 
     const Kit *k = bc->target()->kit();
 
@@ -82,7 +82,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     generatorArguments = CMakeGeneratorKitAspect::generatorArguments(k);
 }
 
-bool BuildDirParameters::isValid() const { return buildConfiguration && cmakeTool(); }
+bool BuildDirParameters::isValid() const { return initialized && cmakeTool(); }
 
 CMakeTool *BuildDirParameters::cmakeTool() const
 {

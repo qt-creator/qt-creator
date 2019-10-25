@@ -26,6 +26,7 @@
 #include "cmakebuildstep.h"
 
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
 #include "cmakeparser.h"
 #include "cmakeprojectconstants.h"
@@ -91,7 +92,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
     setLowPriority();
 
     connect(target(), &Target::kitChanged, this, &CMakeBuildStep::cmakeCommandChanged);
-    connect(project(), &Project::parsingFinished,
+    connect(target(), &Target::parsingFinished,
             this, &CMakeBuildStep::handleBuildTargetChanges);
 }
 
@@ -221,17 +222,17 @@ void CMakeBuildStep::doRun()
     QTC_ASSERT(bc, return);
 
     m_waiting = false;
-    auto p = static_cast<CMakeProject *>(bc->project());
-    if (p->persistCMakeState()) {
+    auto bs = static_cast<CMakeBuildSystem *>(buildConfiguration()->buildSystem());
+    if (bs->persistCMakeState()) {
         emit addOutput(tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
         m_waiting = true;
-    } else if (p->mustUpdateCMakeStateBeforeBuild()) {
+    } else if (buildConfiguration()->buildSystem()->isWaitingForParse()) {
         emit addOutput(tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
         m_waiting = true;
     }
 
     if (m_waiting) {
-        m_runTrigger = connect(project(), &Project::parsingFinished,
+        m_runTrigger = connect(target(), &Target::parsingFinished,
                                this, [this](bool success) { handleProjectWasParsed(success); });
     } else {
         runImpl();
@@ -367,7 +368,7 @@ Utils::CommandLine CMakeBuildStep::cmakeCommand(RunConfiguration *rc) const
 
 QStringList CMakeBuildStep::knownBuildTargets()
 {
-    auto bc = qobject_cast<CMakeBuildConfiguration *>(buildConfiguration());
+    auto bc = qobject_cast<CMakeBuildSystem *>(buildConfiguration()->buildSystem());
     return bc ? bc->buildTargetTitles() : QStringList();
 }
 

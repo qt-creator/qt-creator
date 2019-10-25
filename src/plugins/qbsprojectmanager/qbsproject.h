@@ -41,12 +41,12 @@
 #include <QHash>
 #include <QTimer>
 
-namespace Core { class IDocument; }
 namespace CppTools { class CppProjectUpdater; }
 
 namespace QbsProjectManager {
 namespace Internal {
 
+class QbsBuildConfiguration;
 class QbsProjectParser;
 
 class QbsProject : public ProjectExplorer::Project
@@ -55,9 +55,43 @@ class QbsProject : public ProjectExplorer::Project
 
 public:
     explicit QbsProject(const Utils::FilePath &filename);
-    ~QbsProject() override;
+    ~QbsProject();
 
-    QStringList filesGeneratedFrom(const QString &sourceFile) const override;
+    ProjectExplorer::ProjectImporter *projectImporter() const override;
+
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+
+    void configureAsExampleProject() final;
+
+    static QString uniqueProductName(const qbs::ProductData &product);
+
+private:
+    mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;
+};
+
+class QbsBuildSystem : public ProjectExplorer::BuildSystem
+{
+    Q_OBJECT
+
+public:
+    explicit QbsBuildSystem(QbsBuildConfiguration *bc);
+    ~QbsBuildSystem() final;
+
+    void triggerParsing() final;
+    bool supportsAction(ProjectExplorer::Node *context,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const final;
+    bool addFiles(ProjectExplorer::Node *context,
+                  const QStringList &filePaths,
+                  QStringList *notAdded = nullptr) final;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
+                                                         const QStringList &filePaths,
+                                                         QStringList *notRemoved = nullptr) final;
+    bool renameFile(ProjectExplorer::Node *context,
+                    const QString &filePath, const QString &newFilePath) final;
+
+    QStringList filesGeneratedFrom(const QString &sourceFile) const final;
+    QVariant additionalData(Core::Id id) const final;
 
     bool isProjectEditable() const;
     // qbs::ProductData and qbs::GroupData are held by the nodes in the project tree.
@@ -81,39 +115,27 @@ public:
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
-    QString profileForTarget(const ProjectExplorer::Target *t) const;
+    QString profile() const;
     void parseCurrentBuildConfiguration();
     void scheduleParsing() { m_parsingScheduled = true; }
     bool parsingScheduled() const { return m_parsingScheduled; }
     void cancelParsing();
     void updateAfterBuild();
 
-    void registerQbsProjectParser(QbsProjectParser *p);
-
     qbs::Project qbsProject() const;
     qbs::ProjectData qbsProjectData() const;
 
     void generateErrors(const qbs::ErrorInfo &e);
 
-    static QString uniqueProductName(const qbs::ProductData &product);
-
-    void configureAsExampleProject() final;
-
     void delayParsing();
 
-signals:
-    void dataChanged();
-
 private:
+    friend class QbsProject;
     void handleQbsParsingDone(bool success);
 
     void rebuildProjectTree();
 
     void changeActiveTarget(ProjectExplorer::Target *t);
-    void startParsing();
-
-    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
-               const QString &configName);
 
     void prepareForParsing();
     void updateDocuments(const std::set<QString> &files);
@@ -129,19 +151,12 @@ private:
     void updateProjectNodes();
     Utils::FilePath installRoot();
 
-    void projectLoaded() override;
-    ProjectExplorer::ProjectImporter *projectImporter() const override;
-    QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const final;
-
-    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
-
     static bool ensureWriteableQbsFile(const QString &file);
 
     template<typename Options> qbs::AbstractJob *buildOrClean(const Options &opts,
             const QStringList &productNames, QString &error);
 
-    QHash<ProjectExplorer::Target *, qbs::Project> m_qbsProjects;
-    qbs::Project m_qbsProject; // for activeTarget()
+    qbs::Project m_qbsProject;
     qbs::ProjectData m_projectData; // Cached m_qbsProject.projectData()
     Utils::Environment m_lastParseEnv;
 
@@ -158,15 +173,14 @@ private:
 
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
-    mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;
-
     QTimer m_parsingDelay;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     bool m_extraCompilersPending = false;
 
     QHash<QString, Utils::Environment> m_envCache;
 
-    ParseGuard m_guard;
+    ProjectExplorer::BuildSystem::ParseGuard m_guard;
+    QbsBuildConfiguration *m_buildConfiguration = nullptr;
 };
 
 } // namespace Internal

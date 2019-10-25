@@ -47,6 +47,8 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
+using namespace QmakeProjectManager::Internal;
+
 namespace QmakeProjectManager {
 
 /*!
@@ -54,21 +56,26 @@ namespace QmakeProjectManager {
   Implements abstract ProjectNode class
   */
 
-QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode,
+QmakePriFileNode::QmakePriFileNode(QmakeBuildSystem *buildSystem, QmakeProFileNode *qmakeProFileNode,
                                    const FilePath &filePath, QmakePriFile *pf) :
     ProjectNode(filePath),
-    m_project(project),
+    m_buildSystem(buildSystem),
     m_qmakeProFileNode(qmakeProFileNode),
     m_qmakePriFile(pf)
 { }
 
 QmakePriFile *QmakePriFileNode::priFile() const
 {
-    if (!m_project->isParsing())
+    if (!m_buildSystem)
+        return nullptr;
+
+    if (!m_buildSystem->isParsing())
         return m_qmakePriFile;
+
     // During a parsing run the qmakePriFile tree will change, so search for the PriFile and
     // do not depend on the cached value.
-    return m_project->rootProFile()->findPriFile(filePath());
+    // NOTE: This would go away if the node tree would be per-buildsystem
+    return m_buildSystem->rootProFile()->findPriFile(filePath());
 }
 
 bool QmakePriFileNode::deploysFolder(const QString &folder) const
@@ -91,16 +98,21 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                     || dynamic_cast<const ResourceEditor::ResourceTopLevelNode *>(node);
         }
 
-        const FolderNode *folderNode = n;
-        const QmakeProFileNode *proFileNode;
-        while (!(proFileNode = dynamic_cast<const QmakeProFileNode*>(folderNode))) {
-            folderNode = folderNode->parentFolderNode();
-            QTC_ASSERT(folderNode, return false);
+        ProjectType t = ProjectType::Invalid;
+        const QmakeProFile *pro = nullptr;
+        if (hasParsingData()) {
+            const FolderNode *folderNode = n;
+            const QmakeProFileNode *proFileNode;
+            while (!(proFileNode = dynamic_cast<const QmakeProFileNode*>(folderNode))) {
+                folderNode = folderNode->parentFolderNode();
+                QTC_ASSERT(folderNode, return false);
+            }
+            QTC_ASSERT(proFileNode, return false);
+            pro = proFileNode->proFile();
+            t = pro->projectType();
         }
-        QTC_ASSERT(proFileNode, return false);
-        const QmakeProFile *pro = proFileNode->proFile();
 
-        switch (pro ? pro->projectType() : ProjectType::Invalid) {
+        switch (t) {
         case ProjectType::ApplicationTemplate:
         case ProjectType::StaticLibraryTemplate:
         case ProjectType::SharedLibraryTemplate:
@@ -287,8 +299,8 @@ FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringL
   \class QmakeProFileNode
   Implements abstract ProjectNode class
   */
-QmakeProFileNode::QmakeProFileNode(QmakeProject *project, const FilePath &filePath, QmakeProFile *pf) :
-    QmakePriFileNode(project, this, filePath, pf)
+QmakeProFileNode::QmakeProFileNode(QmakeBuildSystem *buildSystem, const FilePath &filePath, QmakeProFile *pf) :
+    QmakePriFileNode(buildSystem, this, filePath, pf)
 {
     if (projectType() == ProjectType::ApplicationTemplate) {
         setProductType(ProductType::App);
@@ -302,7 +314,7 @@ QmakeProFileNode::QmakeProFileNode(QmakeProject *project, const FilePath &filePa
 
 bool QmakeProFileNode::showInSimpleTree() const
 {
-    return showInSimpleTree(projectType()) || m_project->rootProjectNode() == this;
+    return showInSimpleTree(projectType()) || m_buildSystem->project()->rootProjectNode() == this;
 }
 
 QString QmakeProFileNode::buildKey() const
@@ -407,7 +419,7 @@ bool QmakeProFileNode::setData(Core::Id role, const QVariant &value) const
 
 QmakeProFile *QmakeProFileNode::proFile() const
 {
-    return static_cast<QmakeProFile*>(QmakePriFileNode::priFile());
+    return dynamic_cast<QmakeProFile*>(QmakePriFileNode::priFile());
 }
 
 QString QmakeProFileNode::makefile() const
@@ -469,19 +481,7 @@ QString QmakeProFileNode::singleVariableValue(const Variable var) const
     return values.isEmpty() ? QString() : values.first();
 }
 
-QString QmakeProFileNode::buildDir() const
-{
-    if (Target *target = m_project->activeTarget()) {
-        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            const QDir srcDirRoot(m_project->projectDirectory().toString());
-            const QString relativeDir = srcDirRoot.relativeFilePath(filePath().parentDir().toString());
-            return QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir));
-        }
-    }
-    return QString();
-}
-
-FilePath QmakeProFileNode::buildDir(QmakeBuildConfiguration *bc) const
+FilePath QmakeProFileNode::buildDir(BuildConfiguration *bc) const
 {
     const QmakeProFile *pro = proFile();
     return pro ? pro->buildDir(bc) : FilePath();
@@ -498,11 +498,6 @@ QString QmakeProFileNode::objectExtension() const
 TargetInformation QmakeProFileNode::targetInformation() const
 {
     return proFile() ? proFile()->targetInformation() : TargetInformation();
-}
-
-QmakeBuildSystem::QmakeBuildSystem(Project *project)
-    : BuildSystem(project)
-{
 }
 
 } // namespace QmakeProjectManager

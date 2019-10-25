@@ -191,9 +191,9 @@ BuildStepsWidgetData::~BuildStepsWidgetData()
     // We do not own the step
 }
 
-BuildStepListWidget::BuildStepListWidget(BuildStepList *bsl, QWidget *parent)
+BuildStepListWidget::BuildStepListWidget(BuildStepList *bsl)
     //: %1 is the name returned by BuildStepList::displayName
-    : NamedWidget(tr("%1 Steps").arg(bsl->displayName()), parent), m_buildStepList(bsl)
+    : NamedWidget(tr("%1 Steps").arg(bsl->displayName())), m_buildStepList(bsl)
 {
     setupUi();
 

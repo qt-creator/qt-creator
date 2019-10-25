@@ -44,6 +44,7 @@ class BuildConfiguration;
 class BuildStepConfigWidget;
 class BuildStepFactory;
 class BuildStepList;
+class BuildSystem;
 class DeployConfiguration;
 class Target;
 class Task;
@@ -74,6 +75,8 @@ public:
     BuildConfiguration *buildConfiguration() const;
     DeployConfiguration *deployConfiguration() const;
     ProjectConfiguration *projectConfiguration() const;
+
+    BuildSystem *buildSystem() const;
 
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools

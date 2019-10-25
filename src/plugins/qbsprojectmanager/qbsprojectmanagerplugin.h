@@ -29,7 +29,7 @@
 #include <extensionsystem/iplugin.h>
 #include <utils/parameteraction.h>
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer { class Target; }
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -51,7 +51,7 @@ private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;
 
-    void projectWasAdded(ProjectExplorer::Project *project);
+    void targetWasAdded(ProjectExplorer::Target *target);
     void projectChanged();
 
     void buildFileContextMenu();

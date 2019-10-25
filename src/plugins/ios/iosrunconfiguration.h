@@ -55,7 +55,7 @@ public:
 private:
     friend class IosDeviceTypeAspect;
     void updateDisplayNames();
-    void updateEnabledState() final;
+    bool isEnabled() const final;
 
     IosDeviceTypeAspect *m_deviceTypeAspect = nullptr;
 };

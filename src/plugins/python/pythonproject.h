@@ -43,7 +43,6 @@ public:
     bool needsConfiguration() const final { return false; }
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
-    bool setupTarget(ProjectExplorer::Target *t) override;
 };
 
 } // namespace Internal

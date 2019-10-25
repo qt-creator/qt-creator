@@ -45,9 +45,9 @@ public:
 
 private:
     void updateCmakeActions();
-    void clearCMakeCache(ProjectExplorer::Project *project);
-    void runCMake(ProjectExplorer::Project *project);
-    void rescanProject(ProjectExplorer::Project *project);
+    void clearCMakeCache(ProjectExplorer::BuildSystem *buildSystem);
+    void runCMake(ProjectExplorer::BuildSystem *buildSystem);
+    void rescanProject(ProjectExplorer::BuildSystem *buildSystem);
     void buildFileContextMenu();
     void buildFile(ProjectExplorer::Node *node = nullptr);
     void updateBuildFileAction();

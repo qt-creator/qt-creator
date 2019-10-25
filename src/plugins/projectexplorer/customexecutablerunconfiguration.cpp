@@ -246,6 +246,11 @@ bool CustomExecutableRunConfiguration::isConfigured() const
     return !rawExecutable().isEmpty();
 }
 
+bool CustomExecutableRunConfiguration::isEnabled() const
+{
+    return true;
+}
+
 Runnable CustomExecutableRunConfiguration::runnable() const
 {
     FilePath workingDirectory =

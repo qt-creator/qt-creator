@@ -116,7 +116,7 @@ void NimCompilerBuildStepConfigWidget::updateTargetComboBox()
 {
     QTC_ASSERT(m_buildStep, return );
 
-    const auto bs = qobject_cast<NimBuildSystem *>(m_buildStep->project()->buildSystem());
+    const auto bs = qobject_cast<NimBuildSystem *>(m_buildStep->buildConfiguration()->buildSystem());
     QTC_ASSERT(bs, return );
 
     // Re enter the files
