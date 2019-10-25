@@ -57,7 +57,7 @@ Model {
 
         var maskedPosition = Qt.vector3d(pointerPosition.x, 0, 0);
         _pointerPosPressed = mouseArea.mapPositionToScene(maskedPosition);
-        var sp = targetNode.positionInScene;
+        var sp = targetNode.scenePosition;
         _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
         isDragging = true;
     }

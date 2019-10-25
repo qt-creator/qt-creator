@@ -64,11 +64,11 @@ Window {
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
-            position: viewWindow.selectedNode ? viewWindow.selectedNode.positionInScene
+            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
             rotation: globalControl.checked || !viewWindow.selectedNode
                       ? Qt.vector3d(0, 0, 0)
-                      : viewWindow.selectedNode.rotationInScene
+                      : viewWindow.selectedNode.sceneRotation
 
             visible: selectedNode
             view3D: overlayView
@@ -79,7 +79,7 @@ Window {
         AutoScaleHelper {
             id: autoScale
             view3D: overlayView
-            position: moveGizmo.positionInScene
+            position: moveGizmo.scenePosition
         }
     }
 

@@ -37,11 +37,11 @@ Node {
     // Read-only
     property real relativeScale: 1
 
-    onGlobalTransformChanged: updateScale()
+    onSceneTransformChanged: updateScale()
     onAutoScaleChanged: updateScale()
     Connections {
         target: view3D.camera
-        onGlobalTransformChanged: updateScale()
+        onSceneTransformChanged: updateScale()
     }
 
     function getScale(baseScale)
@@ -60,16 +60,16 @@ Node {
             // "anchor" distance. Map the two positions back to the target node, and measure the
             // distance between them now, in the 3D scene. The difference of the two distances,
             // view and scene, will tell us what the distance independent scale should be.
-            var posInView1 = view3D.mapFrom3DScene(positionInScene);
+            var posInView1 = view3D.mapFrom3DScene(scenePosition);
             var posInView2 = Qt.vector3d(posInView1.x + 100, posInView1.y, posInView1.z);
 
             var rayPos1 = view3D.mapTo3DScene(Qt.vector3d(posInView2.x, posInView2.y, 0));
             var rayPos2 = view3D.mapTo3DScene(Qt.vector3d(posInView2.x, posInView2.y, 10));
 
             var planeNormal = view3D.camera.forward;
-            var rayHitPos = helper.rayIntersectsPlane(rayPos1, rayPos2, positionInScene,
+            var rayHitPos = helper.rayIntersectsPlane(rayPos1, rayPos2, scenePosition,
                                                       planeNormal);
-            relativeScale = positionInScene.minus(rayHitPos).length() / 100;
+            relativeScale = scenePosition.minus(rayHitPos).length() / 100;
         }
     }
 
