@@ -141,6 +141,7 @@ public:
     static void showQtSettings();
 
     static void startRunControl(RunControl *runControl);
+    static void showOutputPaneForRunControl(RunControl *runControl);
     static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel

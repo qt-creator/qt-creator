@@ -80,7 +80,7 @@ bool isFileExecutable(const QString &filePath)
         return false;
 
     const QFileInfo fileInfo(filePath);
-    return fileInfo.isFile() && fileInfo.isExecutable();
+    return fileInfo.exists() && fileInfo.isFile() && fileInfo.isExecutable();
 }
 
 QString shippedClangTidyExecutable()

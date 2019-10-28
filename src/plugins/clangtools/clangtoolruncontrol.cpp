@@ -56,11 +56,9 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
-#include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
@@ -137,29 +135,6 @@ private:
         Target *target = runControl()->target();
         QTC_ASSERT(target, reportFailure(); return);
 
-        if (runControl()->buildType() == BuildConfiguration::Release) {
-            const QString wrongMode = ClangToolRunWorker::tr("Release");
-            const QString toolName = tool()->name();
-            const QString title = ClangToolRunWorker::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
-            const QString problem = ClangToolRunWorker::tr(
-                        "You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
-                        "designed to be used in Debug mode since enabled assertions can reduce the number of "
-                        "false positives.").arg(toolName, wrongMode);
-            const QString question = ClangToolRunWorker::tr(
-                        "Do you want to continue and run the tool in %1 mode?").arg(wrongMode);
-            const QString message = QString("<html><head/><body>"
-                                            "<p>%1</p>"
-                                            "<p>%2</p>"
-                                            "</body></html>").arg(problem, question);
-            if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
-                                                                  title, message, Core::ICore::settings(),
-                                                                  "ClangToolsCorrectModeWarning") != QDialogButtonBox::Yes)
-            {
-                reportFailure();
-                return;
-            }
-        }
-
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &ProjectBuilder::onBuildFinished, Qt::QueuedConnection);
 
@@ -225,7 +200,7 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
                                        const RunSettings &runSettings,
                                        const CppTools::ClangDiagnosticConfig &diagnosticConfig,
                                        const FileInfos &fileInfos,
-                                       bool preventBuild)
+                                       bool buildBeforeAnalysis)
     : RunWorker(runControl)
     , m_runSettings(runSettings)
     , m_diagnosticConfig(diagnosticConfig)
@@ -235,7 +210,7 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
     setId("ClangTidyClazyRunner");
     setSupportsReRunning(false);
 
-    if (!preventBuild && runSettings.buildBeforeAnalysis()) {
+    if (buildBeforeAnalysis) {
         m_projectBuilder = new ProjectBuilder(runControl);
         addStartDependency(m_projectBuilder);
     }
@@ -273,11 +248,11 @@ QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
 
 void ClangToolRunWorker::start()
 {
-    TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
     ProjectExplorerPlugin::saveModifiedFiles();
 
     if (m_projectBuilder && !m_projectBuilder->success()) {
-        reportFailure();
+        emit buildFailed();
+        reportFailure(tr("Failed to build the project."));
         return;
     }
 
@@ -286,13 +261,23 @@ void ClangToolRunWorker::start()
     m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
     m_projectFiles = Utils::toSet(project->files(Project::AllFiles));
 
-    // Some projects provides CompilerCallData once a build is finished,
+    // Project changed in the mean time?
     if (m_projectInfo.configurationOrFilesChanged(m_projectInfoBeforeBuild)) {
         // If it's more than a release/debug build configuration change, e.g.
         // a version control checkout, files might be not valid C++ anymore
         // or even gone, so better stop here.
         reportFailure(tr("The project configuration changed since the start of "
-                         "the %1. Please re-run with current configuration.").arg(toolName));
+                         "the %1. Please re-run with current configuration.")
+                          .arg(toolName));
+        emit startFailed();
+        return;
+    }
+
+    // Create log dir
+    if (!m_temporaryDir.isValid()) {
+        reportFailure(
+            tr("Failed to create temporary directory: %1.").arg(m_temporaryDir.errorString()));
+        emit startFailed();
         return;
     }
 
@@ -302,17 +287,6 @@ void ClangToolRunWorker::start()
                       .arg(projectFile.toUserOutput())
                       .arg(m_diagnosticConfig.displayName()),
                   Utils::NormalMessageFormat);
-
-    // Create log dir
-    if (!m_temporaryDir.isValid()) {
-        const QString errorMessage
-                = tr("%1: Failed to create temporary directory. Stopped.").arg(toolName);
-        appendMessage(errorMessage, Utils::ErrorMessageFormat);
-        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
-        reportFailure(errorMessage);
-        return;
-    }
 
     // Collect files
     const AnalyzeUnits unitsToProcess = unitsToAnalyze();
@@ -389,22 +363,14 @@ void ClangToolRunWorker::analyzeNextFile()
     ClangToolRunner *runner = queueItem.runnerCreator();
     m_runners.insert(runner);
 
-    const QString executable = runner->executable();
-    if (!isFileExecutable(executable)) {
-        const QString errorMessage = tr("%1: Invalid executable \"%2\". Stopped.")
-                                         .arg(runner->name(), executable);
-        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
-        reportFailure(errorMessage);
+    if (runner->run(unit.file, unit.arguments)) {
+        const QString filePath = FilePath::fromString(unit.file).toUserOutput();
+        appendMessage(tr("Analyzing \"%1\" [%2].").arg(filePath, runner->name()),
+                      Utils::StdOutFormat);
+    } else {
+        reportFailure(tr("Failed to start runner \"%1\".").arg(runner->name()));
         stop();
-        return;
     }
-
-    QTC_ASSERT(runner->run(unit.file, unit.arguments), return);
-
-    appendMessage(tr("Analyzing \"%1\" [%2].")
-                      .arg(FilePath::fromString(unit.file).toUserOutput(), runner->name()),
-                  Utils::StdOutFormat);
 }
 
 void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
@@ -412,6 +378,8 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
     auto runner = qobject_cast<ClangToolRunner *>(sender());
     const QString outputFilePath = runner->outputFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << outputFilePath;
+
+    emit runnerFinished();
 
     QString errorMessage;
     const Diagnostics diagnostics = tool()->read(runner->outputFileFormat(),
@@ -444,6 +412,8 @@ void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage
     qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:"
                            << errorMessage << '\n' << errorDetails;
 
+    emit runnerFinished();
+
     auto *toolRunner = qobject_cast<ClangToolRunner *>(sender());
     const QString fileToAnalyze = toolRunner->fileToAnalyze();
     const QString outputFilePath = toolRunner->outputFilePath();
@@ -458,7 +428,6 @@ void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage
     const QString message = tr("Failed to analyze \"%1\": %2").arg(fileToAnalyze, errorMessage);
     appendMessage(message, Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
-    TaskHub::addTask(Task::Error, message, Debugger::Constants::ANALYZERTASK_ID);
     handleFinished();
 }
 
@@ -484,28 +453,25 @@ void ClangToolRunWorker::updateProgressValue()
 void ClangToolRunWorker::finalize()
 {
     const QString toolName = tool()->name();
+    if (m_filesNotAnalyzed.size() != 0) {
+        appendMessage(tr("Error: Failed to analyze %1 files.").arg(m_filesAnalyzed.size()),
+                      ErrorMessageFormat);
+        Target *target = runControl()->target();
+        if (target && target->activeBuildConfiguration() && !target->activeBuildConfiguration()->buildDirectory().exists()
+            && !m_runSettings.buildBeforeAnalysis()) {
+            appendMessage(
+                tr("Note: You might need to build the project to generate or update source "
+                   "files. To build automatically, enable \"Build the project before analysis\"."),
+                NormalMessageFormat);
+        }
+    }
+
     appendMessage(tr("%1 finished: "
                      "Processed %2 files successfully, %3 failed.")
                       .arg(toolName)
                       .arg(m_filesAnalyzed.size())
                       .arg(m_filesNotAnalyzed.size()),
                   Utils::NormalMessageFormat);
-
-    if (m_filesNotAnalyzed.size() != 0) {
-        QString msg = tr("%1: Not all files could be analyzed.").arg(toolName);
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        Target *target = runControl()->target();
-        if (target && target->activeBuildConfiguration() && !target->activeBuildConfiguration()->buildDirectory().exists()
-            && !m_runSettings.buildBeforeAnalysis()) {
-            msg = tr("%1: You might need to build the project to generate or update source "
-                     "files. To build automatically, enable \"Build the project before starting "
-                     "analysis\".")
-                      .arg(toolName);
-            TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        }
-
-        TaskHub::requestPopup();
-    }
 
     m_progress.reportFinished();
     runControl()->initiateStop();

@@ -59,13 +59,17 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
 #include <utils/fancymainwindow.h>
+#include <utils/progressindicator.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QCheckBox>
 #include <QFileDialog>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QSortFilterProxyModel>
 #include <QToolButton>
@@ -80,6 +84,145 @@ namespace ClangTools {
 namespace Internal {
 
 static ClangTool *s_instance;
+
+static QString makeLink(const QString &text)
+{
+    return QString("<a href=t>%1</a>").arg(text);
+}
+
+class IconAndLabel : public QWidget
+{
+    Q_OBJECT
+
+public:
+    IconAndLabel(const QPixmap &pixmap, const QString &text = {})
+        : m_icon(new QLabel)
+        , m_label(new QLabel)
+    {
+        QSizePolicy minSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        minSizePolicy.setHorizontalStretch(0);
+
+        m_icon->setPixmap(pixmap);
+        m_icon->setSizePolicy(minSizePolicy);
+
+        m_label->setSizePolicy(minSizePolicy);
+        m_label->setText(text);
+        m_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+
+        QHBoxLayout *layout = new QHBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(m_icon);
+        layout->addWidget(m_label);
+        setLayout(layout);
+
+        connect(m_label, &QLabel::linkActivated, this, &IconAndLabel::linkActivated);
+    }
+
+    void setIcon(const QPixmap &pixmap) {
+        m_icon->setPixmap(pixmap);
+        m_icon->setVisible(!pixmap.isNull());
+    }
+
+    QString text() const { return m_label->text(); }
+    void setText(const QString &text)
+    {
+        m_label->setText(text);
+        setVisible(!text.isEmpty());
+    }
+
+signals:
+    void linkActivated(const QString &link);
+
+private:
+    QLabel *m_icon;
+    QLabel *m_label;
+};
+
+class InfoBarWidget : public QFrame
+{
+    Q_OBJECT
+
+public:
+    InfoBarWidget()
+        : m_progressIndicator(new Utils::ProgressIndicator(ProgressIndicatorSize::Small))
+        , m_info(new IconAndLabel(Utils::Icons::INFO.pixmap()))
+        , m_error(new IconAndLabel(Utils::Icons::WARNING.pixmap()))
+        , m_diagStats(new QLabel)
+    {
+        m_diagStats->setTextInteractionFlags(Qt::TextBrowserInteraction);
+
+        QHBoxLayout *layout = new QHBoxLayout;
+        layout->setContentsMargins(5, 5, 5, 5);
+        layout->addWidget(m_progressIndicator);
+        layout->addWidget(m_info);
+        layout->addWidget(m_error);
+        layout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        layout->addWidget(m_diagStats);
+        setLayout(layout);
+
+        QPalette pal;
+        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
+        pal.setColor(QPalette::WindowText, Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
+        setPalette(pal);
+
+        setAutoFillBackground(true);
+    }
+
+    // Info
+    enum InfoIconType { ProgressIcon, InfoIcon };
+    void setInfoIcon(InfoIconType type)
+    {
+        const bool showProgress = type == ProgressIcon;
+        m_progressIndicator->setVisible(showProgress);
+        m_info->setIcon(showProgress ? QPixmap() : Utils::Icons::INFO.pixmap());
+    }
+    QString infoText() const { return m_info->text(); }
+    void setInfoText(const QString &text)
+    {
+        m_info->setText(text);
+        evaluateVisibility();
+    }
+
+    // Error
+    using OnLinkActivated = std::function<void()>;
+    enum IssueType { Warning, Error };
+
+    QString errorText() const { return m_error->text(); }
+    void setError(IssueType type,
+                  const QString &text,
+                  const OnLinkActivated &linkAction = OnLinkActivated())
+    {
+        m_error->setText(text);
+        m_error->setIcon(type == Warning ? Utils::Icons::WARNING.pixmap()
+                                         : Utils::Icons::CRITICAL.pixmap());
+        m_error->disconnect();
+        if (linkAction)
+            connect(m_error, &IconAndLabel::linkActivated, this, linkAction);
+        evaluateVisibility();
+    }
+
+    // Diag stats
+    void setDiagText(const QString &text) { m_diagStats->setText(text); }
+
+    void reset()
+    {
+        setInfoIcon(InfoIcon);
+        setInfoText({});
+        setError(Warning, {}, {});
+        setDiagText({});
+    }
+
+    void evaluateVisibility()
+    {
+        setVisible(!infoText().isEmpty() || !errorText().isEmpty());
+    }
+
+private:
+    Utils::ProgressIndicator *m_progressIndicator;
+    IconAndLabel *m_info;
+    IconAndLabel *m_error;
+    QLabel *m_diagStats;
+};
 
 class SelectFixitsCheckBox : public QCheckBox
 {
@@ -257,11 +400,12 @@ static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &proj
 
 static RunSettings runSettings()
 {
-    Project *project = SessionManager::startupProject();
-    auto *projectSettings = ClangToolsProjectSettingsManager::getSettings(project);
-    if (projectSettings->useGlobalSettings())
-        return ClangToolsSettings::instance()->runSettings();
-    return projectSettings->runSettings();
+    if (Project *project = SessionManager::startupProject()) {
+        auto *projectSettings = ClangToolsProjectSettingsManager::getSettings(project);
+        if (!projectSettings->useGlobalSettings())
+            return projectSettings->runSettings();
+    }
+    return ClangToolsSettings::instance()->runSettings();
 }
 
 static ClangDiagnosticConfig diagnosticConfig(const Core::Id &diagConfigId)
@@ -310,25 +454,25 @@ ClangTool::ClangTool()
     m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
     m_diagnosticFilterModel->setDynamicSortFilter(true);
 
+    m_infoBarWidget = new InfoBarWidget;
+
     m_diagnosticView = new DiagnosticView;
     initDiagnosticView();
     m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setSortingEnabled(true);
     m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::DiagnosticColumn,
                                    Qt::AscendingOrder);
-    m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));
-    m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Diagnostics"));
 
     foreach (auto * const model,
              QList<QAbstractItemModel *>({m_diagnosticModel, m_diagnosticFilterModel})) {
         connect(model, &QAbstractItemModel::rowsInserted,
-                this, &ClangTool::handleStateUpdate);
+                this, &ClangTool::updateForCurrentState);
         connect(model, &QAbstractItemModel::rowsRemoved,
-                this, &ClangTool::handleStateUpdate);
+                this, &ClangTool::updateForCurrentState);
         connect(model, &QAbstractItemModel::modelReset,
-                this, &ClangTool::handleStateUpdate);
+                this, &ClangTool::updateForCurrentState);
         connect(model, &QAbstractItemModel::layoutChanged, // For QSortFilterProxyModel::invalidate()
-                this, &ClangTool::handleStateUpdate);
+                this, &ClangTool::updateForCurrentState);
     }
 
     // Go to previous diagnostic
@@ -359,10 +503,9 @@ ClangTool::ClangTool()
     action->setDisabled(true);
     action->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     action->setToolTip(tr("Clear"));
-    connect(action, &QAction::triggered, [this](){
-        m_clear->setEnabled(false);
-        m_diagnosticModel->clear();
-        Debugger::showPermanentStatusMessage(QString());
+    connect(action, &QAction::triggered, this, [this]() {
+        reset();
+        update();
     });
     m_clear = action;
 
@@ -410,18 +553,20 @@ ClangTool::ClangTool()
 
     connect(m_diagnosticModel, &ClangToolsDiagnosticModel::fixitStatusChanged,
             m_diagnosticFilterModel, &DiagnosticFilterModel::onFixitStatusChanged);
-    connect(m_diagnosticFilterModel, &DiagnosticFilterModel::fixitStatisticsChanged,
+    connect(m_diagnosticFilterModel, &DiagnosticFilterModel::fixitCountersChanged,
             this,
-            [this](int scheduled, int scheduableTotal){
-                m_selectFixitsCheckBox->setEnabled(scheduableTotal > 0);
+            [this](int scheduled, int scheduable){
+                m_selectFixitsCheckBox->setEnabled(scheduable > 0);
                 m_applyFixitsButton->setEnabled(scheduled > 0);
 
                 if (scheduled == 0)
                     m_selectFixitsCheckBox->setCheckState(Qt::Unchecked);
-                else if (scheduled == scheduableTotal)
+                else if (scheduled == scheduable)
                     m_selectFixitsCheckBox->setCheckState(Qt::Checked);
                 else
                     m_selectFixitsCheckBox->setCheckState(Qt::PartiallyChecked);
+
+                updateForCurrentState();
             });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
         QVector<DiagnosticItem *> diagnosticItems;
@@ -445,7 +590,17 @@ ClangTool::ClangTool()
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                "Clang project to search for diagnostics.");
 
-    m_perspective.addWindow(m_diagnosticView, Perspective::SplitVertical, nullptr);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(1);
+    mainLayout->addWidget(m_infoBarWidget);
+    mainLayout->addWidget(m_diagnosticView);
+    auto mainWidget = new QWidget;
+    mainWidget->setObjectName("ClangTidyClazyIssuesView");
+    mainWidget->setWindowTitle(tr("Clang-Tidy and Clazy"));
+    mainWidget->setLayout(mainLayout);
+
+    m_perspective.addWindow(mainWidget, Perspective::SplitVertical, nullptr);
 
     action = new QAction(tr("Clang-Tidy and Clazy..."), this);
     action->setToolTip(toolTip);
@@ -479,10 +634,14 @@ ClangTool::ClangTool()
     m_perspective.addToolBarWidget(m_selectFixitsCheckBox);
     m_perspective.addToolBarWidget(m_applyFixitsButton);
 
-    updateRunActions();
+    update();
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
-            this, &ClangTool::updateRunActions);
+            this, &ClangTool::update);
+    connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated,
+            this, &ClangTool::update);
+    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
+            this, &ClangTool::update);
 }
 
 ClangTool::~ClangTool()
@@ -501,6 +660,33 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection)
     startTool(fileSelection, theRunSettings, diagnosticConfig(theRunSettings.diagnosticConfigId()));
 }
 
+static bool continueDespiteReleaseBuild(const QString &toolName)
+{
+    const QString wrongMode = ClangTool::tr("Release");
+    const QString title = ClangTool::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
+    const QString problem
+        = ClangTool::tr(
+              "You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
+              "designed to be used in Debug mode since enabled assertions can reduce the number of "
+              "false positives.")
+              .arg(toolName, wrongMode);
+    const QString question = ClangTool::tr(
+                                 "Do you want to continue and run the tool in %1 mode?")
+                                 .arg(wrongMode);
+    const QString message = QString("<html><head/><body>"
+                                    "<p>%1</p>"
+                                    "<p>%2</p>"
+                                    "</body></html>")
+                                .arg(problem, question);
+    return CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
+                                                      title,
+                                                      message,
+                                                      ICore::settings(),
+                                                      "ClangToolsCorrectModeWarning")
+           == QDialogButtonBox::Yes;
+}
+
+
 void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                           const RunSettings &runSettings,
                           const CppTools::ClangDiagnosticConfig &diagnosticConfig)
@@ -509,51 +695,58 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     QTC_ASSERT(project, return);
     QTC_ASSERT(project->activeTarget(), return);
 
-    auto runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
-    runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
-    runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    runControl->setTarget(project->activeTarget());
+    // Continue despite release mode?
+    if (BuildConfiguration *bc = project->activeTarget()->activeBuildConfiguration()) {
+        if (bc->buildType() == BuildConfiguration::Release)
+            if (!continueDespiteReleaseBuild(m_name))
+                return;
+    }
 
+    // Collect files to analyze
     const FileInfos fileInfos = collectFileInfos(project, fileSelection);
     if (fileInfos.empty())
         return;
 
-    const bool preventBuild = fileSelection == FileSelection::CurrentFile;
-    auto clangTool = new ClangToolRunWorker(runControl,
-                                            runSettings,
-                                            diagnosticConfig,
-                                            fileInfos,
-                                            preventBuild);
+    // Reset
+    reset();
 
+    // Run control
+    m_runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
+    m_runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
+    m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
+    m_runControl->setTarget(project->activeTarget());
     m_stopAction->disconnect();
-    connect(m_stopAction, &QAction::triggered, runControl, [runControl] {
-        runControl->appendMessage(tr("Clang-Tidy and Clazy tool stopped by user."),
-                                  NormalMessageFormat);
-        runControl->initiateStop();
+    connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
+        m_runControl->appendMessage(tr("Clang-Tidy and Clazy tool stopped by user."),
+                                    NormalMessageFormat);
+        m_runControl->initiateStop();
+        setState(State::StoppedByUser);
     });
+    connect(m_runControl, &RunControl::stopped, this, &ClangTool::onRunControlStopped);
 
-    connect(runControl, &RunControl::stopped, this, [this, clangTool] {
-        bool success = clangTool->success();
-        setToolBusy(false);
-        m_running = false;
-        handleStateUpdate();
-        updateRunActions();
-        emit finished(success);
-    });
+    // Run worker
+    const bool preventBuild = fileSelection == FileSelection::CurrentFile;
+    const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
+    m_runWorker = new ClangToolRunWorker(m_runControl,
+                                         runSettings,
+                                         diagnosticConfig,
+                                         fileInfos,
+                                         buildBeforeAnalysis);
+    connect(m_runWorker, &ClangToolRunWorker::buildFailed,this, &ClangTool::onBuildFailed);
+    connect(m_runWorker, &ClangToolRunWorker::startFailed, this, &ClangTool::onStartFailed);
+    connect(m_runWorker, &ClangToolRunWorker::started, this, &ClangTool::onStarted);
+    connect(m_runWorker, &ClangToolRunWorker::runnerFinished,
+            this, &ClangTool::updateForCurrentState);
 
-    m_perspective.select();
-    m_diagnosticModel->clear();
-
+    // More init and UI update
     m_diagnosticFilterModel->setProject(project);
-    m_selectFixitsCheckBox->setEnabled(false);
-    m_applyFixitsButton->setEnabled(false);
-    m_running = true;
+    m_perspective.select();
+    if (buildBeforeAnalysis)
+        m_infoBarWidget->setInfoText("Waiting for build to finish...");
+    setState(State::PreparationStarted);
 
-    setToolBusy(true);
-    handleStateUpdate();
-    updateRunActions();
-
-    ProjectExplorerPlugin::startRunControl(runControl);
+    // Start
+    ProjectExplorerPlugin::startRunControl(m_runControl);
 }
 
 Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
@@ -656,12 +849,145 @@ void ClangTool::loadDiagnosticsFromFiles()
     }
 
     // Show errors
-    if (!errors.isEmpty())
+    if (!errors.isEmpty()) {
         AsynchronousMessageBox::critical(tr("Error Loading Diagnostics"), errors);
+        return;
+    }
 
     // Show imported
-    m_diagnosticModel->clear();
+    reset();
     onNewDiagnosticsAvailable(diagnostics);
+    setState(State::ImportFinished);
+}
+
+void ClangTool::showOutputPane()
+{
+    ProjectExplorerPlugin::showOutputPaneForRunControl(m_runControl);
+}
+
+void ClangTool::reset()
+{
+    m_clear->setEnabled(false);
+    m_selectFixitsCheckBox->setEnabled(false);
+    m_applyFixitsButton->setEnabled(false);
+
+    m_diagnosticModel->clear();
+    m_diagnosticFilterModel->resetCounters();
+
+    m_infoBarWidget->reset();
+
+    m_state = State::Initial;
+    m_runControl = nullptr;
+    m_runWorker = nullptr;
+}
+
+static bool canAnalyzeProject(Project *project)
+{
+    if (const Target *target = project->activeTarget()) {
+        const Core::Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
+        const Core::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+        const bool projectSupportsLanguage = project->projectLanguages().contains(c)
+                                             || project->projectLanguages().contains(cxx);
+        return projectSupportsLanguage
+               && CppModelManager::instance()->projectInfo(project).isValid()
+               && ToolChainKitAspect::toolChain(target->kit(), cxx);
+    }
+    return false;
+}
+
+struct CheckResult {
+    enum {
+        InvalidTidyExecutable,
+        InvalidClazyExecutable,
+        ProjectNotOpen,
+        ProjectNotSuitable,
+        ReadyToAnalyze,
+    } kind;
+    QString errorText;
+};
+
+static CheckResult canAnalyze()
+{
+    const ClangDiagnosticConfig config = diagnosticConfig(runSettings().diagnosticConfigId());
+
+    if (config.isClangTidyEnabled() && !isFileExecutable(clangTidyExecutable())) {
+        return {CheckResult::InvalidTidyExecutable,
+                ClangTool::tr("Set a valid Clang-Tidy executable.")};
+    }
+
+    if (config.isClazyEnabled() && !isFileExecutable(clazyStandaloneExecutable())) {
+        return {CheckResult::InvalidClazyExecutable,
+                ClangTool::tr("Set a valid Clazy-Standalone executable.")};
+    }
+
+    if (Project *project = SessionManager::startupProject()) {
+        if (!canAnalyzeProject(project)) {
+            return {CheckResult::ProjectNotSuitable,
+                    ClangTool::tr("Project \"%1\" is not a C/C++ project.")
+                        .arg(project->displayName())};
+        }
+    } else {
+        return {CheckResult::ProjectNotOpen,
+                ClangTool::tr("Open a C/C++ project to start analyzing.")};
+    }
+
+    return {CheckResult::ReadyToAnalyze, {}};
+}
+
+void ClangTool::updateForInitialState()
+{
+    if (m_state != State::Initial)
+        return;
+
+    m_infoBarWidget->reset();
+
+    const CheckResult result = canAnalyze();
+    switch (result.kind)
+    case CheckResult::InvalidTidyExecutable: {
+    case CheckResult::InvalidClazyExecutable:
+        m_infoBarWidget->setError(InfoBarWidget::Warning,
+                                  makeLink(result.errorText),
+                                  [](){ ICore::showOptionsDialog(Constants::SETTINGS_PAGE_ID); });
+        break;
+    case CheckResult::ProjectNotSuitable:
+    case CheckResult::ProjectNotOpen:
+    case CheckResult::ReadyToAnalyze:
+        break;
+        }
+}
+
+void ClangTool::onBuildFailed()
+{
+    m_infoBarWidget->setError(InfoBarWidget::Error,
+                              tr("Failed to build the project."),
+                              [this]() { showOutputPane(); });
+    setState(State::PreparationFailed);
+}
+
+void ClangTool::onStartFailed()
+{
+    m_infoBarWidget->setError(InfoBarWidget::Error,
+                              makeLink(tr("Failed to start the analyzer.")),
+                              [this]() { showOutputPane(); });
+    setState(State::PreparationFailed);
+}
+
+void ClangTool::onStarted()
+{
+    setState(State::AnalyzerRunning);
+}
+
+void ClangTool::onRunControlStopped()
+{
+    if (m_state != State::StoppedByUser && m_state != State::PreparationFailed)
+        setState(State::AnalyzerFinished);
+    emit finished(m_runWorker->success());
+}
+
+void ClangTool::update()
+{
+    updateForInitialState();
+    updateForCurrentState();
 }
 
 using DocumentPredicate = std::function<bool(Core::IDocument *)>;
@@ -726,6 +1052,12 @@ FileInfoProviders ClangTool::fileInfoProviders(ProjectExplorer::Project *project
     };
 }
 
+void ClangTool::setState(ClangTool::State state)
+{
+    m_state = state;
+    updateForCurrentState();
+}
+
 QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
@@ -742,82 +1074,98 @@ void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics)
         m_diagnosticFilterModel->invalidateFilter();
 }
 
-void ClangTool::updateRunActions()
+void ClangTool::updateForCurrentState()
 {
-    if (m_toolBusy) {
-        QString tooltipText = tr("Clang-Tidy and Clazy are still running.");
-
-        m_startAction->setEnabled(false);
-        m_startAction->setToolTip(tooltipText);
-
-        m_startOnCurrentFileAction->setEnabled(false);
-        m_startOnCurrentFileAction->setToolTip(tooltipText);
-
-        m_stopAction->setEnabled(true);
-        m_loadExported->setEnabled(false);
-        m_clear->setEnabled(false);
-    } else {
-        QString toolTipStart = m_startAction->text();
-        QString toolTipStartOnCurrentFile = m_startOnCurrentFileAction->text();
-
-        Project *project = SessionManager::startupProject();
-        Target *target = project ? project->activeTarget() : nullptr;
-        const Core::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        bool canRun = target && project->projectLanguages().contains(cxx)
-                && ToolChainKitAspect::toolChain(target->kit(), cxx);
-        if (!canRun)
-            toolTipStart = toolTipStartOnCurrentFile = tr("This is not a C/C++ project.");
-
-        m_startAction->setEnabled(canRun);
-        m_startAction->setToolTip(toolTipStart);
-
-        m_startOnCurrentFileAction->setEnabled(canRun);
-        m_startOnCurrentFileAction->setToolTip(toolTipStartOnCurrentFile);
-
-        m_stopAction->setEnabled(false);
-        m_loadExported->setEnabled(true);
-        m_clear->setEnabled(m_diagnosticModel->diagnostics().count());
+    // Actions
+    bool canStart = false;
+    const bool isPreparing = m_state == State::PreparationStarted;
+    const bool isRunning = m_state == State::AnalyzerRunning;
+    QString startActionToolTip = m_startAction->text();
+    QString startOnCurrentToolTip = m_startOnCurrentFileAction->text();
+    if (!isRunning) {
+        const CheckResult result = canAnalyze();
+        canStart = result.kind == CheckResult::ReadyToAnalyze;
+        if (!canStart) {
+            startActionToolTip = result.errorText;
+            startOnCurrentToolTip = result.errorText;
+        }
     }
-}
-
-void ClangTool::handleStateUpdate()
-{
-    QTC_ASSERT(m_goBack, return);
-    QTC_ASSERT(m_goNext, return);
-    QTC_ASSERT(m_diagnosticModel, return);
-    QTC_ASSERT(m_diagnosticFilterModel, return);
+    m_startAction->setEnabled(canStart);
+    m_startAction->setToolTip(startActionToolTip);
+    m_startOnCurrentFileAction->setEnabled(canStart);
+    m_startOnCurrentFileAction->setToolTip(startOnCurrentToolTip);
+    m_stopAction->setEnabled(isPreparing || isRunning);
 
     const int issuesFound = m_diagnosticModel->diagnostics().count();
-    const int issuesVisible = m_diagnosticFilterModel->rowCount();
+    const int issuesVisible = m_diagnosticFilterModel->diagnostics();
     m_goBack->setEnabled(issuesVisible > 1);
     m_goNext->setEnabled(issuesVisible > 1);
-    m_clear->setEnabled(issuesFound > 0);
+    m_clear->setEnabled(!isRunning);
     m_expandCollapse->setEnabled(issuesVisible);
+    m_loadExported->setEnabled(!isRunning);
 
-    m_loadExported->setEnabled(!m_running);
+    // Diagnostic view
+    m_diagnosticView->setCursor(isRunning ? Qt::BusyCursor : Qt::ArrowCursor);
 
-    QString message;
-    if (m_running) {
-        if (issuesFound)
-            message = tr("Running - %n diagnostics", nullptr, issuesFound);
-        else
-            message = tr("Running - No diagnostics");
-    } else {
-        if (issuesFound)
-            message = tr("Finished - %n diagnostics", nullptr, issuesFound);
-        else
-            message = tr("Finished - No diagnostics");
+    // Info bar: errors
+    const bool hasErrorText = !m_infoBarWidget->errorText().isEmpty();
+    const bool hasErrors = m_runWorker && m_runWorker->filesNotAnalyzed() > 0;
+    if (hasErrors && !hasErrorText) {
+        const QString text = makeLink( tr("Failed to analyze %1 files.").arg(m_runWorker->filesNotAnalyzed()));
+        m_infoBarWidget->setError(InfoBarWidget::Warning, text, [this]() { showOutputPane(); });
     }
 
-    Debugger::showPermanentStatusMessage(message);
-}
+    // Info bar: info
+    bool showProgressIcon = false;
+    QString infoText;
+    switch (m_state) {
+    case State::Initial:
+        infoText = m_infoBarWidget->infoText();
+        break;
+    case State::AnalyzerRunning:
+        showProgressIcon = true;
+        if (m_runWorker->totalFilesToAnalyze() == 0) {
+            infoText = tr("Analyzing..."); // Not yet fully started/initialized
+        } else {
+            infoText = tr("Analyzing... %1 of %2 files processed.")
+                           .arg(m_runWorker->filesAnalyzed() + m_runWorker->filesNotAnalyzed())
+                           .arg(m_runWorker->totalFilesToAnalyze());
+        }
+        break;
+    case State::PreparationStarted:
+        showProgressIcon = true;
+        infoText = m_infoBarWidget->infoText();
+        break;
+    case State::PreparationFailed:
+        break; // OK, we just show an error.
+    case State::StoppedByUser:
+        infoText = tr("Analysis stopped by user.");
+        break;
+    case State::AnalyzerFinished:
+        infoText = tr("Finished processing %1 files.").arg(m_runWorker->totalFilesToAnalyze());
+        break;
+    case State::ImportFinished:
+        infoText = tr("Diagnostics imported.");
+        break;
+    }
+    m_infoBarWidget->setInfoText(infoText);
+    m_infoBarWidget->setInfoIcon(showProgressIcon ? InfoBarWidget::ProgressIcon
+                                                  : InfoBarWidget::InfoIcon);
 
-void ClangTool::setToolBusy(bool busy)
-{
-    QTC_ASSERT(m_diagnosticView, return);
-    QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
-    m_diagnosticView->setCursor(cursor);
-    m_toolBusy = busy;
+    // Info bar: diagnostic stats
+    QString diagText;
+    if (issuesFound) {
+        diagText = tr("%1 diagnostics. %2 fixits, %4 selected.")
+                   .arg(issuesVisible)
+                   .arg(m_diagnosticFilterModel->fixitsScheduable())
+                   .arg(m_diagnosticFilterModel->fixitsScheduled());
+    } else if (m_state != State::AnalyzerRunning
+               && m_state != State::Initial
+               && m_state != State::PreparationStarted
+               && m_state != State::PreparationFailed) {
+        diagText = tr("No diagnostics.");
+    }
+    m_infoBarWidget->setDiagText(diagText);
 }
 
 } // namespace Internal

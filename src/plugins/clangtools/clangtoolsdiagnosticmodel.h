@@ -161,22 +161,31 @@ public:
                               FixitStatus oldStatus,
                               FixitStatus newStatus);
 
+    void resetCounters();
+    int diagnostics() const { return m_diagnostics; }
+    int fixitsScheduable() const { return m_fixitsScheduable; }
+    int fixitsScheduled() const { return m_fixitsScheduled; }
+
 signals:
-    void fixitStatisticsChanged(int scheduled, int scheduableTotal);
+    void fixitCountersChanged(int scheduled, int scheduableTotal);
 
 private:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     bool lessThan(const QModelIndex &l, const QModelIndex &r) const override;
-
-    int diagnosticsWithFixits(const QModelIndex &parent, int first, int last) const;
+    struct Counters {
+        int diagnostics = 0;
+        int fixits = 0;
+    };
+    Counters countDiagnostics(const QModelIndex &parent, int first, int last) const;
     void handleSuppressedDiagnosticsChanged();
 
     QPointer<ProjectExplorer::Project> m_project;
     Utils::FilePath m_lastProjectDirectory;
     SuppressedDiagnosticsList m_suppressedDiagnostics;
 
-    int m_fixItsScheduableInTotal = 0;
-    int m_fixItsScheduled = 0;
+    int m_diagnostics = 0;
+    int m_fixitsScheduable = 0;
+    int m_fixitsScheduled = 0;
 };
 
 } // namespace Internal

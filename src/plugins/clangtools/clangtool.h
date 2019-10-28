@@ -35,6 +35,7 @@
 #include <cpptools/projectinfo.h>
 
 QT_BEGIN_NAMESPACE
+class QFrame;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -44,6 +45,9 @@ class ClangDiagnosticConfig;
 namespace Debugger {
 class DetailedErrorView;
 }
+namespace ProjectExplorer {
+class RunControl;
+}
 namespace Utils {
 class FilePath;
 class FancyLineEdit;
@@ -52,7 +56,9 @@ class FancyLineEdit;
 namespace ClangTools {
 namespace Internal {
 
+class InfoBarWidget;
 class ClangToolsDiagnosticModel;
+class ClangToolRunWorker;
 class Diagnostic;
 class DiagnosticFilterModel;
 class RunSettings;
@@ -105,25 +111,47 @@ signals:
     void finished(bool success); // For testing.
 
 private:
-    void updateRunActions();
-    void handleStateUpdate();
+    enum class State {
+        Initial,
+        PreparationStarted,
+        PreparationFailed,
+        AnalyzerRunning,
+        StoppedByUser,
+        AnalyzerFinished,
+        ImportFinished,
+    };
+    void setState(State state);
+    void update();
+    void updateForCurrentState();
+    void updateForInitialState();
 
-    void setToolBusy(bool busy);
+    void onBuildFailed();
+    void onStartFailed();
+    void onStarted();
+    void onRunControlStopped();
 
     void initDiagnosticView();
     void loadDiagnosticsFromFiles();
+
+    void showOutputPane();
+
+    void reset();
 
     FileInfoProviders fileInfoProviders(ProjectExplorer::Project *project,
                                         const FileInfos &allFileInfos);
 
     ClangToolsDiagnosticModel *m_diagnosticModel = nullptr;
+    ProjectExplorer::RunControl *m_runControl = nullptr;
+    ClangToolRunWorker *m_runWorker = nullptr;
+
+    InfoBarWidget *m_infoBarWidget = nullptr;
     QPointer<Debugger::DetailedErrorView> m_diagnosticView;
 
     QAction *m_startAction = nullptr;
     QAction *m_startOnCurrentFileAction = nullptr;
     QAction *m_stopAction = nullptr;
-    bool m_running = false;
-    bool m_toolBusy = false;
+
+    State m_state = State::Initial;
 
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 

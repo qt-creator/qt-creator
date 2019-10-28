@@ -368,6 +368,7 @@ public:
 
     void addToRecentProjects(const QString &fileName, const QString &displayName);
     void startRunControl(RunControl *runControl);
+    void showOutputPaneForRunControl(RunControl *runControl);
 
     void updateActions();
     void updateContext();
@@ -2342,6 +2343,11 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
     dd->startRunControl(runControl);
 }
 
+void ProjectExplorerPlugin::showOutputPaneForRunControl(RunControl *runControl)
+{
+    dd->showOutputPaneForRunControl(runControl);
+}
+
 void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
 {
     m_outputPane.createNewOutputWindow(runControl);
@@ -2359,6 +2365,12 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     ++m_activeRunControlCount;
     runControl->initiateStart();
     emit m_instance->updateRunActions();
+}
+
+void ProjectExplorerPluginPrivate::showOutputPaneForRunControl(RunControl *runControl)
+{
+    m_outputPane.showTabFor(runControl);
+    m_outputPane.popup(IOutputPane::NoModeSwitch | IOutputPane::WithFocus);
 }
 
 void ProjectExplorerPluginPrivate::checkForShutdown()

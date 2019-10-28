@@ -70,9 +70,18 @@ public:
                        const RunSettings &runSettings,
                        const CppTools::ClangDiagnosticConfig &diagnosticConfig,
                        const FileInfos &fileInfos,
-                       bool preventBuild);
+                       bool buildBeforeAnalysis);
 
     bool success() const { return m_success; } // For testing.
+
+    int filesAnalyzed() const { return m_filesAnalyzed.size(); }
+    int filesNotAnalyzed() const { return m_filesNotAnalyzed.size(); }
+    int totalFilesToAnalyze() const { return m_fileInfos.size(); }
+
+signals:
+    void buildFailed();
+    void runnerFinished();
+    void startFailed();
 
 protected:
     void onRunnerFinishedWithSuccess(const QString &filePath);

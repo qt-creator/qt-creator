@@ -553,19 +553,22 @@ DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
                     setProject(project);
             });
     connect(this, &QAbstractItemModel::modelReset, this, [this]() {
-        m_fixItsScheduled = 0;
-        m_fixItsScheduableInTotal = 0;
-        emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+        resetCounters();
+        emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
     });
     connect(this, &QAbstractItemModel::rowsInserted,
             this, [this](const QModelIndex &parent, int first, int last) {
-        m_fixItsScheduableInTotal += diagnosticsWithFixits(parent, first, last);
-        emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+        const Counters counters = countDiagnostics(parent, first, last);
+        m_diagnostics += counters.diagnostics;
+        m_fixitsScheduable += counters.fixits;
+        emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
     });
     connect(this, &QAbstractItemModel::rowsAboutToBeRemoved,
             this, [this](const QModelIndex &parent, int first, int last) {
-        m_fixItsScheduableInTotal -= diagnosticsWithFixits(parent, first, last);
-        emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+        const Counters counters = countDiagnostics(parent, first, last);
+        m_diagnostics -= counters.diagnostics;
+        m_fixitsScheduable -= counters.fixits;
+        emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
     });
 }
 
@@ -605,34 +608,46 @@ void DiagnosticFilterModel::onFixitStatusChanged(const QModelIndex &sourceIndex,
         return;
 
     if (newStatus == FixitStatus::Scheduled)
-        ++m_fixItsScheduled;
+        ++m_fixitsScheduled;
     else if (oldStatus == FixitStatus::Scheduled) {
-        --m_fixItsScheduled;
+        --m_fixitsScheduled;
         if (newStatus != FixitStatus::NotScheduled)
-            --m_fixItsScheduableInTotal;
+            --m_fixitsScheduable;
     }
 
-    emit fixitStatisticsChanged(m_fixItsScheduled, m_fixItsScheduableInTotal);
+    emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
 }
 
-int DiagnosticFilterModel::diagnosticsWithFixits(const QModelIndex &parent,
-                                                 int first,
-                                                 int last) const
+void DiagnosticFilterModel::resetCounters()
 {
-    if (!parent.isValid())
-        return 0;
+    m_fixitsScheduled = 0;
+    m_fixitsScheduable = 0;
+    m_diagnostics = 0;
+}
 
-    int count = 0;
+DiagnosticFilterModel::Counters DiagnosticFilterModel::countDiagnostics(const QModelIndex &parent,
+                                                                        int first,
+                                                                        int last) const
+{
+    Counters counters;
+    const auto countItem = [&](Utils::TreeItem *item){
+        if (!mapFromSource(item->index()).isValid())
+            return; // Do not count filtered out items.
+        ++counters.diagnostics;
+        if (static_cast<DiagnosticItem *>(item)->diagnostic().hasFixits)
+            ++counters.fixits;
+    };
+
     auto model = static_cast<ClangToolsDiagnosticModel *>(sourceModel());
-    for (int idx = first; idx <= last; ++idx) {
-        Utils::TreeItem *treeItem = model->itemForIndex(mapToSource(index(idx, 0, parent)));
-        if (treeItem->level() == 2) {
-            if (static_cast<DiagnosticItem *>(treeItem)->diagnostic().hasFixits)
-                ++count;
-        }
+    for (int row = first; row <= last; ++row) {
+        Utils::TreeItem *treeItem = model->itemForIndex(mapToSource(index(row, 0, parent)));
+        if (treeItem->level() == 1)
+            static_cast<FilePathItem *>(treeItem)->forChildrenAtLevel(1, countItem);
+        else if (treeItem->level() == 2)
+            countItem(treeItem);
     }
 
-    return count;
+    return counters;
 }
 
 bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
