@@ -213,6 +213,7 @@ void updateEditorToolBar(Core::IEditor *editor)
         } else {
             widget->toolBar()->removeAction(action);
             actions.remove(widget);
+            delete action;
         }
     } else if (client) {
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
