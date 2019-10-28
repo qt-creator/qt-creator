@@ -34,6 +34,7 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
@@ -47,6 +48,7 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -390,18 +392,18 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
     setRootProjectNode(std::move(root));
 
     m_cppCodeModelUpdater->update({this, kitInfo, activeParseEnvironment(), rpps});
+    updateDeploymentData();
 }
 
 CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &projectFile)
     : Project(Constants::COMPILATIONDATABASEMIMETYPE, projectFile)
     , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
     , m_parseDelay(new QTimer(this))
+    , m_deployFileWatcher(new FileSystemWatcher(this))
 {
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
-    setRequiredKitPredicate([](const Kit *) { return false; });
-    setPreferredKitPredicate([](const Kit *) { return false; });
 
     m_kit.reset(KitManager::defaultKit()->clone());
     addTargetForKit(m_kit.get());
@@ -420,6 +422,10 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
     m_parseDelay->setInterval(1000);
 
     connect(this, &Project::projectFileIsDirty, this, &CompilationDatabaseProject::reparseProject);
+    connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
+            this, &CompilationDatabaseProject::updateDeploymentData);
+    connect(this, &Project::activeTargetChanged,
+            this, &CompilationDatabaseProject::updateDeploymentData);
 }
 
 Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
@@ -469,6 +475,24 @@ void CompilationDatabaseProject::reparseProject()
     m_parser->start();
 }
 
+void CompilationDatabaseProject::updateDeploymentData()
+{
+    Target * const target = activeTarget();
+    if (!target)
+        return;
+    const Utils::FilePath deploymentFilePath = projectDirectory()
+            .pathAppended("QtCreatorDeployment.txt");
+    DeploymentData deploymentData;
+    deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
+                                              projectDirectory().toString());
+    target->setDeploymentData(deploymentData);
+    if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.toString())) {
+        m_deployFileWatcher->removeFiles(m_deployFileWatcher->files());
+        m_deployFileWatcher->addFile(deploymentFilePath.toString(),
+                                     FileSystemWatcher::WatchModifiedDate);
+    }
+}
+
 CompilationDatabaseProject::~CompilationDatabaseProject()
 {
     m_parserWatcher.cancel();
@@ -501,19 +525,6 @@ CompilationDatabaseBuildConfiguration::CompilationDatabaseBuildConfiguration(
     ProjectExplorer::Target *target, Core::Id id)
     : ProjectExplorer::BuildConfiguration(target, id)
 {
-    target->setApplicationTargets({BuildTargetInfo()});
-}
-
-void CompilationDatabaseBuildConfiguration::initialize()
-{
-    ProjectExplorer::BuildConfiguration::initialize();
-    BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    buildSteps->appendStep(ProjectExplorer::Constants::PROCESS_STEP_ID);
-}
-
-ProjectExplorer::NamedWidget *CompilationDatabaseBuildConfiguration::createConfigWidget()
-{
-    return new ProjectExplorer::NamedWidget();
 }
 
 CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurationFactory()
@@ -526,13 +537,14 @@ CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurat
 }
 
 QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds
-    (const Kit *kit, const FilePath &, bool) const
+    (const Kit *kit, const FilePath &projectPath, bool) const
 {
     const QString name = tr("Release");
     ProjectExplorer::BuildInfo info(this);
     info.typeName = name;
     info.displayName = name;
     info.buildType = BuildConfiguration::Release;
+    info.buildDirectory = projectPath.parentDir();
     info.kitId = kit->id();
     return {info};
 }

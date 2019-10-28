@@ -38,13 +38,9 @@ QT_BEGIN_NAMESPACE
 class QTimer;
 QT_END_NAMESPACE
 
-namespace CppTools {
-class CppProjectUpdater;
-}
-
-namespace ProjectExplorer {
-class Kit;
-}
+namespace CppTools { class CppProjectUpdater; }
+namespace ProjectExplorer { class Kit; }
+namespace Utils { class FileSystemWatcher; }
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
@@ -63,6 +59,7 @@ private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
     void reparseProject();
+    void updateDeploymentData();
     void buildTreeAndProjectParts();
     Utils::FilePath rootPathFromSettings() const;
 
@@ -73,6 +70,7 @@ private:
     QByteArray m_projectFileHash;
     QTimer * const m_parseDelay;
     CompilationDbParser *m_parser = nullptr;
+    Utils::FileSystemWatcher * const m_deployFileWatcher;
 };
 
 class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
@@ -88,10 +86,6 @@ class CompilationDatabaseBuildConfiguration : public ProjectExplorer::BuildConfi
     Q_OBJECT
 public:
     CompilationDatabaseBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
-
-protected:
-    void initialize() override;
 };
 
 class CompilationDatabaseBuildConfigurationFactory
