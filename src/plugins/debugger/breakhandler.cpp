@@ -169,31 +169,24 @@ public:
         // running, as this can be triggered by moving the breakpoint to
         // the next line that generated code.
 
-        m_gbp->m_params.lineNumber = lineNumber;
-        m_gbp->updateMarker();
-        m_gbp->update();
+        m_gbp->updateLineNumber(lineNumber);
     }
 
     void updateFileName(const FilePath &fileName) final
     {
         TextMark::updateFileName(fileName);
         QTC_ASSERT(m_gbp, return);
-        m_gbp->m_params.fileName = fileName.toString();
-        m_gbp->update();
+        m_gbp->updateFileName(fileName);
     }
 
     bool isDraggable() const final { return true; }
 
     void dragToLine(int line) final
     {
+        TextMark::move(line);
         QTC_ASSERT(m_gbp, return);
         QTC_ASSERT(BreakpointManager::globalBreakpoints().contains(m_gbp), return);
-        BreakpointParameters params = m_gbp->m_params;
-        params.lineNumber = line;
-        GlobalBreakpoint gbp = m_gbp;
-        m_gbp = GlobalBreakpoint();
-        gbp->deleteBreakpoint();
-        m_gbp = BreakpointManager::createBreakpoint(params);
+        m_gbp->updateLineNumber(line);
     }
 
     bool isClickable() const final { return true; }
@@ -2273,6 +2266,23 @@ void GlobalBreakpointItem::removeBreakpointFromModel()
     theBreakpointManager->destroyItem(this);
 }
 
+void GlobalBreakpointItem::updateLineNumber(int lineNumber)
+{
+    if (m_params.lineNumber == lineNumber)
+        return;
+    m_params.lineNumber = lineNumber;
+    update();
+}
+
+void GlobalBreakpointItem::updateFileName(const FilePath &fileName)
+{
+    const QString &file = fileName.toString();
+    if (m_params.fileName == file)
+        return;
+    m_params.fileName = file;
+    update();
+}
+
 QString GlobalBreakpointItem::markerFileName() const
 {
     // Some heuristics to find a "good" file name.
@@ -2308,11 +2318,14 @@ void GlobalBreakpointItem::updateMarker()
 
     const FilePath file = FilePath::fromString(m_params.fileName);
     const int line = m_params.lineNumber;
-    if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
-        destroyMarker();
-
-    if (!m_marker && !file.isEmpty() && line > 0)
+    if (m_marker) {
+        if (file != m_marker->fileName())
+            m_marker->updateFileName(file);
+        if (line != m_marker->lineNumber())
+            m_marker->move(line);
+    } else if (!file.isEmpty() && line > 0) {
         m_marker = new GlobalBreakpointMarker(this, file, line);
+    }
 
     if (m_marker)
         m_marker->setToolTip(toolTip());

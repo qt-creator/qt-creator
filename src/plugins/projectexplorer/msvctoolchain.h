@@ -95,8 +95,6 @@ public:
     void setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg);
     void resetVarsBat();
 
-    void setSupportedAbi(const Abi &abi);
-
     bool operator==(const ToolChain &) const override;
 
     bool isJobCountSupported() const override { return false; }
