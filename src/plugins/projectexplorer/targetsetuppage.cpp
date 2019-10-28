@@ -101,7 +101,7 @@ public:
         noValidKitLabel = new QLabel(setupTargetPage);
         noValidKitLabel->setWordWrap(true);
         noValidKitLabel->setText(TargetSetupPage::tr("<span style=\" font-weight:600;\">No suitable kits found.</span><br/>"
-                                 "Please add a kit in the <a href=\"buildandrun\">options</a> "
+                                 "Add a kit in the <a href=\"buildandrun\">options</a> "
                                  "or via the maintenance tool of the SDK."));
         noValidKitLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
         noValidKitLabel->setVisible(false);
