@@ -109,7 +109,7 @@ void QdbWatcher::handleWatchError(QLocalSocket::LocalSocketError error)
 
     if (m_retried) {
         stop();
-        emit watcherError(tr("Could not connect to QDB host server even after trying to start it"));
+        emit watcherError(tr("Could not connect to QDB host server even after trying to start it."));
         return;
     }
     retry();
@@ -142,7 +142,7 @@ void QdbWatcher::forkHostServer()
         return;
     }
     if (QProcess::startDetached(qdbFilePath.toString(), {"server"}))
-        showMessage(tr("QDB host server started"), false);
+        showMessage(tr("QDB host server started."), false);
     else
         showMessage(tr("Could not start QDB host server in %1").arg(qdbFilePath.toString()), true);
 }
@@ -153,7 +153,7 @@ void QdbWatcher::retry()
     {
         QMutexLocker lock(&s_startMutex);
         if (!s_startedServer) {
-            showMessage(tr("Starting QDB host server"), false);
+            showMessage(tr("Starting QDB host server."), false);
             forkHostServer();
             s_startedServer = true;
         }

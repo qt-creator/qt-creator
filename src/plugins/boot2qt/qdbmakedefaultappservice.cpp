@@ -77,7 +77,7 @@ void QdbMakeDefaultAppService::handleProcessFinished(const QString &error)
     QByteArray processOutput = d->processRunner->readAllStandardOutput();
 
     if (d->makeDefault)
-        emit progressMessage(tr("Application made as the default one."));
+        emit progressMessage(tr("Application set as the default one."));
     else
         emit progressMessage(tr("Reset the default application."));
 
