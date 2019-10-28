@@ -459,7 +459,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
 void LanguageClientManager::documentClosed(Core::IDocument *document)
 {
     if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-        for (Client *client : reachableClients())
+        for (Client *client : m_clients)
             client->closeDocument(textDocument);
         m_clientForDocument.remove(textDocument);
     }
