@@ -48,6 +48,7 @@
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
@@ -199,11 +200,13 @@ void CMakeBuildConfiguration::initialize()
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NDK",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::PATH,
                                                                             "Android NDK PATH",
-                                                                            ndkLocation.toUserOutput().toUtf8()});
+                                                                            ndkLocation.toString().toUtf8()});
+
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_TOOLCHAIN_FILE",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::PATH,
                                                                             "Android CMake toolchain file",
-                                                                            ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").toUserOutput().toUtf8()});
+                                                                            ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").toString().toUtf8()});
+
         auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
         QString preferredAbi;
         if (androidAbis.contains("arm64-v8a")) {
@@ -219,14 +222,23 @@ void CMakeBuildConfiguration::initialize()
                                                                             "Android ABI",
                                                                             preferredAbi.toLatin1(),
                                                                             androidAbis});
+
+        QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
+        if (qt->qtVersion() >= QtSupport::QtVersionNumber{5, 14, 0}) {
+            auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
+            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_SDK",
+                                                                                CMakeProjectManager::CMakeConfigItem::Type::PATH,
+                                                                                "Android SDK PATH",
+                                                                                sdkLocation.toString().toUtf8()});
+
+        }
+
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_STL",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::STRING,
                                                                             "Android STL",
                                                                             "c++_shared"});
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_PROGRAM", "BOTH"});
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_LIBRARY", "BOTH"});
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_INCLUDE", "BOTH"});
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH_MODE_PACKAGE", "BOTH"});
+
+        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH", "%{Qt:QT_INSTALL_PREFIX}"});
     }
 
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
@@ -435,6 +447,16 @@ void CMakeBuildConfiguration::setConfigurationForCMake(const QList<ConfigModel::
 
     const CMakeConfig config = configurationForCMake() + newConfig;
     setConfigurationForCMake(config);
+
+    if (Utils::indexOf(newConfig, [](const CMakeConfigItem &item){
+            return item.key.startsWith("ANDROID_BUILD_ABI_");
+        }) != -1) {
+        // We always need to clean when we change the ANDROID_BUILD_ABI_ variables
+        QList<ProjectExplorer::BuildStepList *> stepLists;
+        const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
+        stepLists << stepList(clean);
+        BuildManager::buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean));
+    }
 }
 
 void CMakeBuildConfiguration::clearError(ForceEnabledChanged fec)
@@ -474,7 +496,8 @@ void CMakeBuildConfiguration::setConfigurationForCMake(const CMakeConfig &config
 {
     auto configs = removeDuplicates(config);
     if (m_configurationForCMake.isEmpty())
-        m_configurationForCMake = removeDuplicates(configs + m_initialConfiguration);
+        m_configurationForCMake = removeDuplicates(m_initialConfiguration +
+            CMakeConfigurationKitAspect::configuration(target()->kit()) + configs);
     else
         m_configurationForCMake = configs;
 

@@ -31,8 +31,6 @@
 #include <QHash>
 
 namespace qmt {
-class Uid;
-class DiagramView;
 class MDiagram;
 }
 

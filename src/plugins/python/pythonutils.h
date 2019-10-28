@@ -23,21 +23,45 @@
 **
 ****************************************************************************/
 
-#include <utils/fileutils.h>
-
 #pragma once
 
+#include <utils/fileutils.h>
+
+#include <QHash>
+#include <QObject>
+
+namespace Core { class IDocument; }
+namespace LanguageClient {
+class Client;
+class StdIOSettings;
+}
 namespace TextEditor { class TextDocument; }
-namespace LanguageClient { class StdIOSettings; }
 
 namespace Python {
 namespace Internal {
 
-QList<const LanguageClient::StdIOSettings *> configuredPythonLanguageServers();
-const LanguageClient::StdIOSettings *languageServerForPython(const Utils::FilePath &python);
-Utils::FilePath detectPython(const Utils::FilePath &NdocumentPath);
-void updateEditorInfoBar(const Utils::FilePath &python, TextEditor::TextDocument *document);
-void resetEditorInfoBar(TextEditor::TextDocument *document);
+class PyLSConfigureAssistant : public QObject
+{
+    Q_OBJECT
+public:
+    static PyLSConfigureAssistant *instance();
+
+    static const LanguageClient::StdIOSettings *languageServerForPython(
+        const Utils::FilePath &python);
+    static void documentOpened(Core::IDocument *document);
+    static void updateEditorInfoBars(const Utils::FilePath &python, LanguageClient::Client *client);
+
+    void openDocumentWithPython(const Utils::FilePath &python, TextEditor::TextDocument *document);
+
+private:
+    explicit PyLSConfigureAssistant(QObject *parent);
+
+    void resetEditorInfoBar(TextEditor::TextDocument *document);
+    void installPythonLanguageServer(const Utils::FilePath &python,
+                                     QPointer<TextEditor::TextDocument> document);
+
+    QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
+};
 
 } // namespace Internal
 } // namespace Python

@@ -36,8 +36,10 @@ class PythonPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Python.json")
 
 public:
-    PythonPlugin() = default;
+    PythonPlugin();
     ~PythonPlugin() final;
+
+    static PythonPlugin *instance();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;

@@ -513,7 +513,8 @@ void OutputPaneManager::shortcutTriggered(int idx)
     // then just give it focus.
     int current = currentIndex();
     if (OutputPanePlaceHolder::isCurrentVisible() && current == idx) {
-        if (!outputPane->hasFocus() && outputPane->canFocus()) {
+        if ((!m_outputWidgetPane->isActiveWindow() || !outputPane->hasFocus())
+            && outputPane->canFocus()) {
             outputPane->setFocus();
             ICore::raiseWindow(m_outputWidgetPane);
         } else {

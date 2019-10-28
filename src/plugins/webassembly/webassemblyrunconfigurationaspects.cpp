@@ -41,24 +41,26 @@ static QStringList detectedBrowsers(ProjectExplorer::Target *target)
 {
     static QStringList result;
     if (result.isEmpty()) {
-        const Utils::Environment environment = target->activeBuildConfiguration()->environment();
-        const Utils::FilePath emrunPath = environment.searchInPath("emrun");
+        if (auto bc = target->activeBuildConfiguration()) {
+            const Utils::Environment environment = bc->environment();
+            const Utils::FilePath emrunPath = environment.searchInPath("emrun");
 
-        QProcess browserLister;
-        browserLister.setProcessEnvironment(environment.toProcessEnvironment());
-        browserLister.setProgram(emrunPath.toString());
-        browserLister.setArguments({"--list_browsers"});
-        browserLister.start(QIODevice::ReadOnly);
+            QProcess browserLister;
+            browserLister.setProcessEnvironment(environment.toProcessEnvironment());
+            browserLister.setProgram(emrunPath.toString());
+            browserLister.setArguments({"--list_browsers"});
+            browserLister.start(QIODevice::ReadOnly);
 
-        if (browserLister.waitForFinished()) {
-            const QByteArray output = browserLister.readAllStandardOutput();
-            QTextStream ts(output);
-            QString line;
-            const QRegularExpression regExp("  - (.*):.*");
-            while (ts.readLineInto(&line)) {
-                const QRegularExpressionMatch match = regExp.match(line);
-                if (match.hasMatch())
-                    result << match.captured(1);
+            if (browserLister.waitForFinished()) {
+                const QByteArray output = browserLister.readAllStandardOutput();
+                QTextStream ts(output);
+                QString line;
+                const QRegularExpression regExp("  - (.*):.*");
+                while (ts.readLineInto(&line)) {
+                    const QRegularExpressionMatch match = regExp.match(line);
+                    if (match.hasMatch())
+                        result << match.captured(1);
+                }
             }
         }
     }
@@ -68,7 +70,8 @@ static QStringList detectedBrowsers(ProjectExplorer::Target *target)
 WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *target)
     : m_availableBrowsers(detectedBrowsers(target))
 {
-    m_currentBrowser = m_availableBrowsers.first();
+    if (!m_availableBrowsers.isEmpty())
+        m_currentBrowser = m_availableBrowsers.first();
     setDisplayName(tr("Web browser"));
     setId("WebBrowserAspect");
     setSettingsKey("RunConfiguration.WebBrowser");
@@ -91,7 +94,8 @@ void WebBrowserSelectionAspect::addToLayout(ProjectExplorer::LayoutBuilder &buil
 
 void WebBrowserSelectionAspect::fromMap(const QVariantMap &map)
 {
-    m_currentBrowser = map.value(BROWSER_KEY, m_availableBrowsers.first()).toString();
+    if (!m_availableBrowsers.isEmpty())
+        m_currentBrowser = map.value(BROWSER_KEY, m_availableBrowsers.first()).toString();
 }
 
 void WebBrowserSelectionAspect::toMap(QVariantMap &map) const

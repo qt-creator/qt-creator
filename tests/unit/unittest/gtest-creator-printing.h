@@ -81,7 +81,7 @@ std::ostream &operator<<(std::ostream &out, const HeaderPath &headerPath);
 namespace Utils {
 class LineColumn;
 class SmallStringView;
-class Link;
+struct Link;
 
 std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn);
 std::ostream &operator<<(std::ostream &out, const Utils::Language &language);

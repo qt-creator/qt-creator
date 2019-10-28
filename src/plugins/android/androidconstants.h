@@ -82,6 +82,7 @@ const char AndroidManifest[] = "Android.Manifest"; // QStringList
 
 const char AndroidNdkPlatform[] = "AndroidNdkPlatform"; //QString
 const char NdkLocation[] = "NdkLocation"; // FileName
+const char SdkLocation[] = "SdkLocation"; // FileName
 const char AndroidABIs[] = "AndroidABIs"; // QString
 
 } // namespace Constants;

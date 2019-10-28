@@ -27,11 +27,7 @@
     \contentspage {Qt Creator}
     \previouspage creator-live-preview-desktop.html
     \page creator-live-preview-devices.html
-    \if defined(qtdesignstudio)
-    \nextpage studio-advanced.html
-    \else
-    \nextpage creator-building-targets.html
-    \endif
+    \nextpage qt-design-viewer.html
 
     \title Previewing on Devices
 

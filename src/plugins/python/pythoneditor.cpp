@@ -35,19 +35,6 @@
 namespace Python {
 namespace Internal {
 
-static void documentOpened(Core::IDocument *document)
-{
-    auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-    if (!textDocument || textDocument->mimeType() != Constants::C_PY_MIMETYPE)
-        return;
-
-    const Utils::FilePath &python = detectPython(textDocument->filePath());
-    if (!python.exists())
-        return;
-
-    updateEditorInfoBar(python, textDocument);
-}
-
 PythonEditorFactory::PythonEditorFactory()
 {
     setId(Constants::C_PYTHONEDITOR_ID);
@@ -68,7 +55,7 @@ PythonEditorFactory::PythonEditorFactory()
     setCodeFoldingSupported(true);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
-            this, documentOpened);
+            this, &PyLSConfigureAssistant::documentOpened);
 }
 
 } // namespace Internal

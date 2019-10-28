@@ -39,6 +39,7 @@ class ValuesChangedCommand
     friend bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second);
 
 public:
+    enum TransactionOption { Start, End, None };
     ValuesChangedCommand();
     explicit ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector);
 
@@ -48,6 +49,7 @@ public:
     static void removeSharedMemorys(const QVector<qint32> &keyNumberVector);
 
     void sort();
+    TransactionOption transactionOption = TransactionOption::None;
 
 private:
     QVector<PropertyValueContainer> m_valueChangeVector;
@@ -69,12 +71,11 @@ QDebug operator <<(QDebug debug, const ValuesChangedCommand &instance);
 class ValuesModifiedCommand : public ValuesChangedCommand
 {
 public:
-    ValuesModifiedCommand()
-    {}
+    ValuesModifiedCommand() = default;
+
     explicit ValuesModifiedCommand(const QVector<PropertyValueContainer> &valueChangeVector)
         : ValuesChangedCommand(valueChangeVector)
     {}
-
 };
 
 } // namespace QmlDesigner

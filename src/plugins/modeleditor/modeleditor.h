@@ -42,7 +42,6 @@ class MPackage;
 class MDiagram;
 class DElement;
 class DContainer;
-class DocumentController;
 }
 
 namespace ModelEditor {
@@ -50,7 +49,6 @@ namespace Internal {
 
 class UiController;
 class ActionHandler;
-class DiagramsViewManager;
 
 enum class SelectedArea {
     Nothing,

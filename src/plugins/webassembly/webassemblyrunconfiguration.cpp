@@ -42,17 +42,19 @@ namespace Internal {
 
 static CommandLine emrunCommand(Target *target, const QString &browser, const QString &port)
 {
-    BuildConfiguration *bc = target->activeBuildConfiguration();
-    const QFileInfo emrunScript = bc->environment().searchInPath("emrun").toFileInfo();
-    auto html = bc->buildDirectory().pathAppended(target->project()->displayName() + ".html");
+    if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+        const QFileInfo emrunScript = bc->environment().searchInPath("emrun").toFileInfo();
+        auto html = bc->buildDirectory().pathAppended(target->project()->displayName() + ".html");
 
-    return CommandLine(bc->environment().searchInPath("python"), {
-            emrunScript.absolutePath() + "/" + emrunScript.baseName() + ".py",
-            "--browser", browser,
-            "--port", port,
-            "--no_emrun_detect",
-            html.toString()
-        });
+        return CommandLine(bc->environment().searchInPath("python"), {
+                emrunScript.absolutePath() + "/" + emrunScript.baseName() + ".py",
+                "--browser", browser,
+                "--port", port,
+                "--no_emrun_detect",
+                html.toString()
+            });
+    }
+    return {};
 }
 
 // Runs a webassembly application via emscripten's "emrun" tool

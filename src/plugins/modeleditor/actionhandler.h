@@ -37,7 +37,6 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
-class ActionContainer;
 class Command;
 }
 

@@ -77,6 +77,7 @@ GdbServerProviderManager::~GdbServerProviderManager()
 {
     qDeleteAll(m_providers);
     m_providers.clear();
+    qDeleteAll(m_factories);
     delete m_writer;
     m_instance = nullptr;
 }

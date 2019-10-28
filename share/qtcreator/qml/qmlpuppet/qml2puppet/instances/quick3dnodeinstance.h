@@ -44,6 +44,8 @@ public:
     ~Quick3DNodeInstance() override;
     static Pointer create(QObject *objectToBeWrapped);
     void setHideInEditor(bool b) override;
+    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
+                    InstanceContainer::NodeFlags flags) override;
 
 protected:
     explicit Quick3DNodeInstance(QObject *node);

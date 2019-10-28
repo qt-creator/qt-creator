@@ -40,7 +40,6 @@ class TextEditorWidget;
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QSplitter;
-class QTextBlock;
 QT_END_NAMESPACE
 
 namespace DiffEditor {

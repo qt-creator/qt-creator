@@ -59,9 +59,11 @@
 
 #include "dummycontextobject.h"
 #include "../editor3d/cameracontrolhelper.h"
+#include "../editor3d/mousearea3d.h"
 
 #include <designersupportdelegate.h>
 
+#include <QVector3D>
 #include <QQmlProperty>
 #include <QOpenGLContext>
 #include <QQuickView>
@@ -75,14 +77,27 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-static QObject *createEditView3D(QQmlEngine *engine)
+QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 {
-    QmlDesigner::Internal::CameraControlHelper *helper = new QmlDesigner::Internal::CameraControlHelper();
+    auto helper = new QmlDesigner::Internal::CameraControlHelper();
     engine->rootContext()->setContextProperty("designStudioNativeCameraControlHelper", helper);
+
+#ifdef QUICK3D_MODULE
+    qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
+#endif
 
     QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
 
     QWindow *window = qobject_cast<QWindow *>(component.create());
+
+    if (!window) {
+        qWarning() << "Could not create edit view" << component.errors();
+        return nullptr;
+    }
+
+    QObject::connect(window, SIGNAL(objectClicked(QVariant)), this, SLOT(objectClicked(QVariant)));
+    QObject::connect(window, SIGNAL(commitObjectPosition(QVariant)),
+                     this, SLOT(handleObjectPositionCommit(QVariant)));
 
     //For macOS we have to use the 4.1 core profile
     QSurfaceFormat surfaceFormat = window->requestedFormat();
@@ -92,6 +107,58 @@ static QObject *createEditView3D(QQmlEngine *engine)
     helper->setParent(window);
 
     return window;
+}
+
+// an object is clicked in the 3D edit view. Null object indicates selection clearing.
+void Qt5InformationNodeInstanceServer::objectClicked(const QVariant &object)
+{
+    auto obj = object.value<QObject *>();
+    ServerNodeInstance instance;
+    if (obj)
+        instance = instanceForObject(obj);
+    selectInstance(instance);
+}
+
+QVector<Qt5InformationNodeInstanceServer::InstancePropertyValueTriple>
+Qt5InformationNodeInstanceServer::vectorToPropertyValue(
+    const ServerNodeInstance &instance,
+    const PropertyName &propertyName,
+    const QVariant &variant)
+{
+    QVector<InstancePropertyValueTriple> result;
+
+    auto vector3d = variant.value<QVector3D>();
+
+    if (vector3d.isNull())
+        return result;
+
+    const PropertyName dot = propertyName.isEmpty() ? "" : ".";
+
+    InstancePropertyValueTriple propTriple;
+    propTriple.instance = instance;
+    propTriple.propertyName = propertyName + dot + PropertyName("x");
+    propTriple.propertyValue = vector3d.x();
+    result.append(propTriple);
+    propTriple.propertyName = propertyName + dot + PropertyName("y");
+    propTriple.propertyValue = vector3d.y();
+    result.append(propTriple);
+    propTriple.propertyName = propertyName + dot + PropertyName("z");
+    propTriple.propertyValue = vector3d.z();
+    result.append(propTriple);
+
+    return result;
+}
+
+void Qt5InformationNodeInstanceServer::handleObjectPositionCommit(const QVariant &object)
+{
+    auto *obj = object.value<QObject *>();
+    if (obj) {
+        /* We do have to split position into position.x, position.y, position.z */
+        nodeInstanceClient()->valuesModified(createValuesModifiedCommand(vectorToPropertyValue(
+            instanceForObject(obj),
+            "position",
+            obj->property("position"))));
+    }
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -160,6 +227,15 @@ void Qt5InformationNodeInstanceServer::selectInstance(const ServerNodeInstance &
     nodeInstanceClient()->selectionChanged(createChangeSelectionCommand({instance}));
 }
 
+/* This method allows changing property values from the puppet
+ * For performance reasons (and the undo stack) properties should always be modifed in 'bulks'.
+ */
+void Qt5InformationNodeInstanceServer::modifyProperties(
+    const QVector<NodeInstanceServer::InstancePropertyValueTriple> &properties)
+{
+    nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
+}
+
 QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
         const QList<ServerNodeInstance> &instanceList) const
 {
@@ -191,14 +267,17 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     }
 
     if (node) { // If we found a scene we create the edit view
-        QObject *view = createEditView3D(engine());
+        m_editView3D = createEditView3D(engine());
 
-        QQmlProperty sceneProperty(view, "scene", context());
-        node->setParent(view);
+        if (!m_editView3D)
+            return;
+
+        QQmlProperty sceneProperty(m_editView3D, "scene", context());
+        node->setParent(m_editView3D);
         sceneProperty.write(objectToVariant(node));
         QQmlProperty parentProperty(node, "parent", context());
-        parentProperty.write(objectToVariant(view));
-        QQmlProperty completeSceneProperty(view, "showLight", context());
+        parentProperty.write(objectToVariant(m_editView3D));
+        QQmlProperty completeSceneProperty(m_editView3D, "showLight", context());
         completeSceneProperty.write(showCustomLight);
     }
 }
@@ -373,8 +452,23 @@ void QmlDesigner::Qt5InformationNodeInstanceServer::removeSharedMemory(const Qml
 
 void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionCommand &command)
 {
-    // keep track of selection.
-    qDebug() << Q_FUNC_INFO << command;
+    if (!m_editView3D)
+        return;
+
+    const QVector<qint32> instanceIds = command.instanceIds();
+    for (qint32 id : instanceIds) {
+        if (hasInstanceForId(id)) {
+            ServerNodeInstance instance = instanceForId(id);
+            QObject *object = nullptr;
+            if (instance.isSubclassOf("QQuick3DModel") || instance.isSubclassOf("QQuick3DCamera")
+                || instance.isSubclassOf("QQuick3DAbstractLight")) {
+                object = instance.internalObject();
+            }
+            QMetaObject::invokeMethod(m_editView3D, "selectObject", Q_ARG(QVariant,
+                                                                          objectToVariant(object)));
+            return; // TODO: support multi-selection
+        }
+    }
 }
 
 } // namespace QmlDesigner

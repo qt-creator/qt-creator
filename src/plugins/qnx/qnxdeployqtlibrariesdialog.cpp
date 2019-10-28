@@ -169,12 +169,11 @@ void QnxDeployQtLibrariesDialog::updateProgress(const QString &progressMessage)
 {
     QTC_CHECK(m_state == Uploading);
 
-    if (!progressMessage.startsWith(QLatin1String("Uploading file")))
-        return;
-
-    ++m_progressCount;
-
-    m_ui->deployProgress->setValue(m_progressCount);
+    const int progress = progressMessage.count("sftp> put");
+    if (progress != 0) {
+        m_progressCount += progress;
+        m_ui->deployProgress->setValue(m_progressCount);
+    }
 }
 
 void QnxDeployQtLibrariesDialog::handleUploadFinished()

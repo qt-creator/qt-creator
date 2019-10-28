@@ -44,6 +44,10 @@ public:
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;
 
+private slots:
+    void objectClicked(const QVariant &object);
+    void handleObjectPositionCommit(const QVariant &object);
+
 protected:
     void collectItemChangesAndSendChangeCommands() override;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
@@ -51,11 +55,17 @@ protected:
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
     void selectInstance(const ServerNodeInstance &instance);
+    void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
 
 private:
+    QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
+    QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
+        const PropertyName &propertyName,
+        const QVariant &variant);
 
+    QObject *m_editView3D = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;

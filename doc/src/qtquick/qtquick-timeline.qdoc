@@ -59,14 +59,10 @@
     \uicontrol {Qt Quick Designer} > \uicontrol {Enable Timeline editor}. You
     need to restart \QC for the \uicontrol Timeline view to appear.
 
-    To be able to create timelines, you also need the Qt Quick Timeline module.
-    At the time of this writing, the module is not available as a library in
-    the Qt installer, and therefore you must check out the repository and build
-    the module yourself using the same Qt version that you used to build \QC.
-
-    You can check out the module from
-    \l{https://codereview.qt-project.org/#/admin/projects/qt/qtquicktimeline}
-    {Qt Code Review Tool}.
+    To be able to create timelines, you also need the \l {Qt Quick Timeline}
+    module, which is delivered with Qt 5.14, and later. For more
+   information about adding the module to an older Qt version, see
+    \l{Adding Qt Quick Timeline Module to Qt Installations}.
     \endif
 
     \section1 Creating Timelines

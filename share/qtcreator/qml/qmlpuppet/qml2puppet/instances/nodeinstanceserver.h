@@ -60,6 +60,7 @@ namespace QmlDesigner {
 
 class NodeInstanceClientInterface;
 class ValuesChangedCommand;
+class ValuesModifiedCommand;
 class PixmapChangedCommand;
 class InformationChangedCommand;
 class ChildrenChangedCommand;
@@ -82,6 +83,11 @@ public:
     using IdPropertyPair = QPair<qint32, QString>;
     using InstancePropertyPair= QPair<ServerNodeInstance, PropertyName>;
     using DummyPair = QPair<QString, QPointer<QObject> >;
+    using InstancePropertyValueTriple = struct {
+        ServerNodeInstance instance;
+        PropertyName propertyName;
+        QVariant propertyValue;
+    };
 
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
@@ -168,6 +174,7 @@ protected:
 
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     ValuesChangedCommand createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const;
+    ValuesModifiedCommand createValuesModifiedCommand(const QVector<InstancePropertyValueTriple> &propertyList) const;
     PixmapChangedCommand createPixmapChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     InformationChangedCommand createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial = false) const;
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;

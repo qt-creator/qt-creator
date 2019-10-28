@@ -160,6 +160,7 @@
             \list
                 \li \l{Previewing on Desktop}
                 \li \l{Previewing on Devices}
+                \li \l{Previewing in Browsers}
             \endlist
             \li \l{Building for Multiple Platforms}
             \li \l{Running on Multiple Platforms}

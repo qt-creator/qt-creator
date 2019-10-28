@@ -142,12 +142,15 @@ void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Re
 
 void BaseHoverHandler::decorateToolTip()
 {
-    m_toolTip = m_toolTip.toHtmlEscaped();
+    if (!m_toolTip.isEmpty())
+        m_toolTip = "<p>" + m_toolTip.toHtmlEscaped().replace('\n', "<br/>") + "</p>";
 
     if (lastHelpItemIdentified().isValid() && !lastHelpItemIdentified().isFuzzyMatch()) {
         const QString &helpContents = lastHelpItemIdentified().extractContent(false);
-        if (!helpContents.isEmpty())
-            m_toolTip = m_toolTip.isEmpty() ? helpContents : ("<p>" + m_toolTip + "</p><hr/><p>" + helpContents + "</p>");
+        if (!helpContents.isEmpty()) {
+            m_toolTip = m_toolTip.isEmpty() ? helpContents
+                                            : (m_toolTip + "<hr/><p>" + helpContents + "</p>");
+        }
     }
 }
 
@@ -159,7 +162,9 @@ void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoi
         Utils::ToolTip::show(point,
                              m_toolTip,
                              editorWidget,
-                             QVariant::fromValue(m_lastHelpItemIdentified));
+                             m_lastHelpItemIdentified.isEmpty()
+                                 ? QVariant()
+                                 : QVariant::fromValue(m_lastHelpItemIdentified));
 }
 
 } // namespace TextEditor

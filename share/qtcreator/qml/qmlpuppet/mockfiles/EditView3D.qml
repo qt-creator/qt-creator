@@ -42,42 +42,130 @@ Window {
     property alias showEditLight: editLightCheckbox.checked
     property alias usePerspective: usePerspectiveCheckbox.checked
 
+    property Node selectedNode: null
+
+    signal objectClicked(var object)
+    signal commitObjectPosition(var object)
+
+    function selectObject(object) {
+        selectedNode = object;
+    }
+
+    Node {
+        id: overlayScene
+
+        Camera {
+            id: overlayCamera
+            projectionMode: usePerspectiveCheckbox.checked ? Camera.Perspective
+                                                           : Camera.Orthographic
+            clipFar: editCamera.clipFar
+            position: editCamera.position
+            rotation: editCamera.rotation
+        }
+
+        MoveGizmo {
+            id: moveGizmo
+            scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
+            highlightOnHover: true
+            targetNode: viewWindow.selectedNode
+            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
+                                              : Qt.vector3d(0, 0, 0)
+            rotation: globalControl.checked || !viewWindow.selectedNode
+                      ? Qt.vector3d(0, 0, 0)
+                      : viewWindow.selectedNode.sceneRotation
+
+            visible: selectedNode
+            view3D: overlayView
+
+            onPositionCommit: viewWindow.commitObjectPosition(selectedNode)
+        }
+
+        AutoScaleHelper {
+            id: autoScale
+            view3D: overlayView
+            position: moveGizmo.scenePosition
+        }
+    }
+
     Rectangle {
         id: sceneBg
         color: "#FFFFFF"
         anchors.fill: parent
         focus: true
 
+        TapHandler { // check tapping/clicking an object in the scene
+            onTapped: {
+                var pickResult = editView.pick(eventPoint.scenePosition.x,
+                                               eventPoint.scenePosition.y);
+                viewWindow.objectClicked(pickResult.objectHit);
+                selectObject(pickResult.objectHit);
+            }
+        }
+
         View3D {
             id: editView
             anchors.fill: parent
-            enableWireframeMode: true
             camera: editCamera
 
-            AxisHelper {
-                id: axisGrid
-                enableXZGrid: true
-                enableAxisLines: false
-            }
+            Node {
+                id: mainSceneHelpers
 
-            Light {
-                id: pointLight
-                visible: showEditLight
-                position: editCamera.position
-                lightType: Light.Point
-            }
+                AxisHelper {
+                    id: axisGrid
+                    enableXZGrid: true
+                    enableAxisLines: false
+                }
 
-            Camera {
-                id: editCamera
-                y: 200
-                z: -300
-                clipFar: 100000
-                projectionMode: usePerspective ? Camera.Perspective : Camera.Orthographic
-            }
+                PointLight {
+                    id: pointLight
+                    visible: showEditLight
+                    position: editCamera.position
+                }
 
-            Component.onCompleted: {
-                pointLight.setParentItem(editView.scene);
-                editCamera.setParentItem(editView.scene);
+                Camera {
+                    id: editCamera
+                    y: 200
+                    z: -300
+                    clipFar: 100000
+                    projectionMode: usePerspective ? Camera.Perspective : Camera.Orthographic
+                }
+            }
+        }
+
+        View3D {
+            id: overlayView
+            anchors.fill: parent
+            camera: overlayCamera
+            scene: overlayScene
+        }
+
+        Overlay2D {
+            id: gizmoLabel
+            targetNode: moveGizmo
+            targetView: overlayView
+            offsetX: 0
+            offsetY: 45
+            visible: moveGizmo.isDragging
+
+            Rectangle {
+                color: "white"
+                x: -width / 2
+                y: -height
+                width: gizmoLabelText.width + 4
+                height: gizmoLabelText.height + 4
+                border.width: 1
+                Text {
+                    id: gizmoLabelText
+                    text: {
+                        var l = Qt.locale();
+                        selectedNode
+                            ? qsTr("x:") + Number(selectedNode.position.x).toLocaleString(l, 'f', 1)
+                              + qsTr(" y:") + Number(selectedNode.position.y).toLocaleString(l, 'f', 1)
+                              + qsTr(" z:") + Number(selectedNode.position.z).toLocaleString(l, 'f', 1)
+                            : "";
+                    }
+                    anchors.centerIn: parent
+                }
             }
         }
 
@@ -110,6 +198,13 @@ Window {
             id: usePerspectiveCheckbox
             checked: true
             text: qsTr("Use Perspective Projection")
+            onCheckedChanged: cameraControl.forceActiveFocus()
+        }
+
+        CheckBox {
+            id: globalControl
+            checked: true
+            text: qsTr("Use global orientation")
             onCheckedChanged: cameraControl.forceActiveFocus()
         }
     }
