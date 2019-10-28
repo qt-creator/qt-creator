@@ -495,12 +495,13 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     });
 
     m_perspective.select();
-
     m_diagnosticModel->clear();
 
-    setToolBusy(true);
     m_diagnosticFilterModel->setProject(project);
+    m_applyFixitsButton->setEnabled(false);
     m_running = true;
+
+    setToolBusy(true);
     handleStateUpdate();
     updateRunActions();
 

@@ -101,10 +101,10 @@ QDebug operator<<(QDebug debug, const Diagnostic &d)
 
 void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics)
 {
-    const auto onFixitStatusChanged = [this](FixitStatus newStatus) {
+    const auto onFixitStatusChanged = [this](FixitStatus oldStatus, FixitStatus newStatus) {
         if (newStatus == FixitStatus::Scheduled)
             ++m_fixItsToApplyCount;
-        else
+        else if (oldStatus == FixitStatus::Scheduled)
             --m_fixItsToApplyCount;
         emit fixItsToApplyCountChanged(m_fixItsToApplyCount);
     };
@@ -463,7 +463,7 @@ void DiagnosticItem::setFixItStatus(const FixitStatus &status)
     m_fixitStatus = status;
     update();
     if (m_onFixitStatusChanged && status != oldStatus)
-        m_onFixitStatusChanged(status);
+        m_onFixitStatusChanged(oldStatus, status);
 }
 
 void DiagnosticItem::setFixitOperations(const ReplacementOperations &replacements)
