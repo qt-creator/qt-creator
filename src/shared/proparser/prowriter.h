@@ -52,13 +52,26 @@ public:
     static void putVarValues(ProFile *profile, QStringList *lines,
         const QStringList &values, const QString &var, PutFlags flags,
         const QString &scope, const QString &continuationIndent);
-    static QList<int> removeVarValues(ProFile *profile, QStringList *lines,
-        const QStringList &values, const QStringList &vars);
+
+    using VarLocation = QPair<QString, int>;
+    using VarLocations = QList<VarLocation>;
+    static QList<int> removeVarValues(
+            ProFile *profile,
+            QStringList *lines,
+            const QStringList &values,
+            const QStringList &vars,
+            VarLocations *removedLocations = nullptr
+            );
 
     static void addFiles(ProFile *profile, QStringList *lines, const QStringList &filePaths,
                          const QString &var, const QString &continuationIndent);
-    static QStringList removeFiles(ProFile *profile, QStringList *lines,
-        const QDir &proFileDir, const QStringList &filePaths, const QStringList &vars);
+    static QStringList removeFiles(
+            ProFile *profile,
+            QStringList *lines,
+            const QDir &proFileDir,
+            const QStringList &filePaths,
+            const QStringList &vars,
+            VarLocations *removedLocations = nullptr);
 
 private:
     static bool locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,

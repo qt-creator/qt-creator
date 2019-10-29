@@ -415,7 +415,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines, const QStringList
 }
 
 static void findProVariables(const ushort *tokPtr, const QStringList &vars,
-                             QList<int> *proVars, const uint firstLine = 0)
+                             ProWriter::VarLocations &proVars, const uint firstLine = 0)
 {
     int lineNo = firstLine;
     QString tmp;
@@ -433,8 +433,11 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
                 tokPtr += blockLen;
             }
         } else if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
-            if (getLiteral(lastXpr, tokPtr - 1, tmp) && vars.contains(tmp))
-                *proVars << lineNo;
+            if (getLiteral(lastXpr, tokPtr - 1, tmp) && vars.contains(tmp)) {
+                QString varName = tmp;
+                varName.detach(); // tmp was constructed via setRawData()
+                proVars << qMakePair(varName, lineNo);
+            }
             skipExpression(++tokPtr, lineNo);
         } else {
             lastXpr = skipToken(tok, tokPtr, lineNo);
@@ -443,21 +446,21 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
 }
 
 QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
-    const QStringList &values, const QStringList &vars)
+    const QStringList &values, const QStringList &vars, VarLocations *removedLocations)
 {
     QList<int> notChanged;
     // yeah, this is a bit silly
     for (int i = 0; i < values.size(); i++)
         notChanged << i;
 
-    QList<int> varLines;
-    findProVariables(profile->tokPtr(), vars, &varLines);
+    VarLocations varLocations;
+    findProVariables(profile->tokPtr(), vars, varLocations);
 
     // This code expects proVars to be sorted by the variables' appearance in the file.
     int delta = 1;
-    for (int ln : qAsConst(varLines)) {
+    for (const VarLocation &loc : qAsConst(varLocations)) {
        bool first = true;
-       int lineNo = ln - delta;
+       int lineNo = loc.second - delta;
        typedef QPair<int, int> ContPos;
        QList<ContPos> contPos;
        while (lineNo < lines->count()) {
@@ -507,6 +510,8 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
                    const int pos = values.indexOf(fn);
                    if (pos != -1) {
                        notChanged.removeOne(pos);
+                       if (removedLocations)
+                           *removedLocations << qMakePair(loc.first, loc.second - delta);
                        if (colNo < lineLen)
                            colNo++;
                        else if (varCol)
@@ -559,8 +564,13 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
     return notChanged;
 }
 
-QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
-    const QDir &proFileDir, const QStringList &values, const QStringList &vars)
+QStringList ProWriter::removeFiles(
+        ProFile *profile,
+        QStringList *lines,
+        const QDir &proFileDir,
+        const QStringList &values,
+        const QStringList &vars,
+        VarLocations *removedLocations)
 {
     // This is a tad stupid - basically, it can remove only entries which
     // the above code added.
@@ -569,7 +579,7 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
         valuesToFind << proFileDir.relativeFilePath(absoluteFilePath);
 
     const QStringList notYetChanged =
-            Utils::transform(removeVarValues(profile, lines, valuesToFind, vars),
+            Utils::transform(removeVarValues(profile, lines, valuesToFind, vars, removedLocations),
                              [values](int i) { return values.at(i); });
 
     if (!profile->fileName().endsWith(".pri"))
@@ -585,7 +595,7 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
         valuesToFind << (prefixPwd + baseDir.relativeFilePath(absoluteFilePath));
 
     const QStringList notChanged =
-            Utils::transform(removeVarValues(profile, lines, valuesToFind, vars),
+            Utils::transform(removeVarValues(profile, lines, valuesToFind, vars, removedLocations),
                              [notYetChanged](int i) { return notYetChanged.at(i); });
 
     return notChanged;

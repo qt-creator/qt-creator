@@ -192,10 +192,7 @@ protected:
     };
 
     enum class Change { Save, TestOnly };
-    bool renameFile(const QString &oldName,
-                    const QString &newName,
-                    const QString &mimeType,
-                    Change mode = Change::Save);
+    bool renameFile(const QString &oldName, const QString &newName, Change mode);
     void changeFiles(const QString &mimeType,
                      const QStringList &filePaths,
                      QStringList *notChanged,
