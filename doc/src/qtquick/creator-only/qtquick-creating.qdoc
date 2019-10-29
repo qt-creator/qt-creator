@@ -172,7 +172,7 @@
             \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
 
         \li In the \uicontrol {Qt Quick Controls Style} field, select one of
-            the predefined \l{Styling Qt Quick Controls 2}{UI styles} to use,
+            the predefined \l{Styling Qt Quick Controls}{UI styles} to use,
             and then select \uicontrol Next.
 
         \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
