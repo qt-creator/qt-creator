@@ -56,6 +56,7 @@
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
 #include "changeselectioncommand.h"
+#include "objectnodeinstance.h"
 
 #include "dummycontextobject.h"
 #include "../editor3d/cameracontrolhelper.h"
@@ -166,10 +167,18 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
         targetPopertyName = propertyName;
 
     auto *obj = node.value<QObject *>();
+
     if (obj) {
+        ServerNodeInstance instance = instanceForObject(obj);
+
+        if (option == ValuesModifiedCommand::TransactionOption::Start)
+            instance.setModifiedFlag(true);
+        else if (option == ValuesModifiedCommand::TransactionOption::End)
+            instance.setModifiedFlag(false);
+
         // We do have to split position into position.x, position.y, position.z
         ValuesModifiedCommand command = createValuesModifiedCommand(vectorToPropertyValue(
-            instanceForObject(obj),
+            instance,
             targetPopertyName,
             obj->property(propertyName)));
 
@@ -537,6 +546,23 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
             return; // TODO: support multi-selection
         }
     }
+}
+
+void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
+{
+    bool hasDynamicProperties = false;
+    const QVector<PropertyValueContainer> values = command.valueChanges();
+    for (const PropertyValueContainer &container : values) {
+        if (!container.isReflected()) {
+            hasDynamicProperties |= container.isDynamic();
+            setInstancePropertyVariant(container);
+        }
+    }
+
+    if (hasDynamicProperties)
+        refreshBindings();
+
+    startRenderTimer();
 }
 
 } // namespace QmlDesigner

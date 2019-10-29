@@ -165,6 +165,8 @@ public:
 
     static bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
 
+    void setModifiedFlag(bool b);
+
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 

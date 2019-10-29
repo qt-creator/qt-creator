@@ -47,6 +47,7 @@ public:
     void token(const TokenCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;
+    void changePropertyValues(const ChangeValuesCommand &command) override;
 
 private slots:
     void objectClicked(const QVariant &object);

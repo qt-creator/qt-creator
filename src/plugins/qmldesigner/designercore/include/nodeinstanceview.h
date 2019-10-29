@@ -54,7 +54,7 @@ class Project;
 
 namespace QmlDesigner {
 
-class NodeInstanceServerInterface;
+class NodeInstanceServerProxy;
 class CreateSceneCommand;
 class CreateInstancesCommand;
 class ClearSceneCommand;
@@ -204,7 +204,7 @@ private: //variables
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
     QHash<ModelNode, QImage> m_statePreviewImage;
 
-    QPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
+    QPointer<NodeInstanceServerProxy> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QElapsedTimer m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;
