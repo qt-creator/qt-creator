@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -224,6 +224,13 @@
     branch is shown in bold and underlined in the list of branches in the
     \uicontrol {Git Branches} sidebar view.
 
+    \image qtcreator-vcs-gitbranch.png "Git Branches sidebar view"
+
+    Old entries and tags are filtered out of the list of branches
+    by default. To include them, select \inlineimage filtericon.png
+    (\uicontrol {Filter Tree}), and then select
+    \uicontrol {Include Old Entries} and \uicontrol {Include Tags}.
+
     If you checked out a specific commit, the list of branches displays a
     \e {Detached HEAD} entry.
 
@@ -232,8 +239,6 @@
 
     To refresh the list of branches, click \inlineimage reload_gray.png
     (\uicontrol Refresh).
-
-    \image qtcreator-vcs-gitbranch.png "Git Branches sidebar view"
 
     The following operations are supported in the context-menu for a branch:
 
@@ -249,7 +254,8 @@
             \li Remove a local branch. You cannot delete remote branches.
         \row
             \li \uicontrol Rename
-            \li Rename a local branch. You cannot rename remote branches.
+            \li Rename a local branch or a tag. You cannot rename remote
+                branches.
         \row
             \li \uicontrol{Checkout}
             \li Check out the selected branch and make it current. You can stash
@@ -302,12 +308,12 @@
             \li Description
         \row
             \li \uicontrol{Fetch}
-            \li Fetches all the branches and changes information from a
+            \li Fetch all the branches and changes information from a
                 specific remote repository, or from all remotes if applied
                 to \uicontrol {Remote Branches}.
         \row
             \li \uicontrol{Manage Remotes}
-            \li Opens the \uicontrol Remotes dialog.
+            \li Open the \uicontrol Remotes dialog.
     \endtable
 
     \section3 Configuring Merge Tools
@@ -357,10 +363,32 @@
 
     To browse a directory or the commit history and to apply actions on the
     commits, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Actions on Commits}. You can checkout, revert, or cherry-pick
-    commits or view them in the diff editor.
+    \uicontrol {Actions on Commits}.
 
     \image creator-git-commit-actions.png "Select a Git Commit dialog"
+
+    You can apply the following actions on commits:
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \uicontrol Archive
+            \li Package the commit as a ZIP or tarball.
+        \row
+            \li \uicontrol Checkout
+            \li Check out the change in a headless state.
+        \row
+            \li \uicontrol {Cherry Pick}
+            \li Cherry-pick the selected change to the local repository.
+        \row
+            \li \uicontrol Revert
+            \li Revert back to the state of the last commit.
+        \row
+            \li \uicontrol Show
+            \li Show the commit in the diff editor.
+    \endtable
 
     \section1 Initializing Git Repositories
 
