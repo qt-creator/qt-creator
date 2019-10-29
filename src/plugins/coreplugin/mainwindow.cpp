@@ -131,6 +131,7 @@ MainWindow::MainWindow()
     QCoreApplication::setApplicationName(QLatin1String(Constants::IDE_CASED_ID));
     QCoreApplication::setApplicationVersion(QLatin1String(Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Constants::IDE_SETTINGSVARIANT_STR));
+    QGuiApplication::setApplicationDisplayName(QLatin1String(Constants::IDE_DISPLAY_NAME));
     QString baseName = QApplication::style()->objectName();
     // Sometimes we get the standard windows 95 style as a fallback
     if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()
