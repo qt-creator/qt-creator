@@ -19,6 +19,8 @@ include(../../../qtcreator.pri)
 
 # put into a subdir, so we can deploy a separate qt.conf for it
 DESTDIR = $$IDE_LIBEXEC_PATH/ios
+
+RPATH_BASE = $$DESTDIR
 include(../../rpath.pri)
 
 SOURCES += main.cpp \

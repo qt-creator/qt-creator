@@ -1,6 +1,5 @@
 QTC_LIB_DEPENDS += cplusplus utils extensionsystem
 include(../../../qttest.pri)
-include($$IDE_SOURCE_TREE/src/rpath.pri)
 DEFINES += QMLJS_LIBRARY
 
 QT += qml xml

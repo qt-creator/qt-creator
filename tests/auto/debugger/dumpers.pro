@@ -30,9 +30,6 @@ msvc {
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
 DUMPERDIR   = $$IDE_SOURCE_TREE/share/qtcreator/debugger
 
-include($$IDE_SOURCE_TREE/src/rpath.pri)
-
-
 SOURCES += \
     $$DEBUGGERDIR/debuggerprotocol.cpp \
     $$DEBUGGERDIR/simplifytype.cpp \
