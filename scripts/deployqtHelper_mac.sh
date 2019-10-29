@@ -67,7 +67,7 @@ if [ -d "$assetimporterSrcDir" ]; then
             cp "$plugin" "$assetimporterDestDir"/ || exit 1
         done
     fi
-if
+fi
 
 # copy Qt Quick 1 imports
 importsDir="$app_path/Contents/Imports/qtquick1"
