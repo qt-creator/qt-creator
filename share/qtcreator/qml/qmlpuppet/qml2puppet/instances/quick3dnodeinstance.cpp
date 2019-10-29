@@ -96,6 +96,8 @@ void Quick3DNodeInstance::setHideInEditor(bool b)
     QQuick3DNodePrivate *privateNode = QQuick3DNodePrivate::get(quick3DNode());
     if (privateNode)
         privateNode->setIsHiddenInEditor(b);
+#else
+    Q_UNUSED(b);
 #endif
 }
 
