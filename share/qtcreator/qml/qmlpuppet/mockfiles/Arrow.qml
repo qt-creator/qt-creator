@@ -30,7 +30,7 @@ import MouseArea3D 1.0
 Model {
     id: arrow
     rotationOrder: Node.XYZr
-    source: "meshes/Arrow.mesh"
+    source: "meshes/arrow.mesh"
 
     property View3D view3D
     property alias color: material.emissiveColor
@@ -106,7 +106,7 @@ Model {
         y: -1.5
         width: 12
         height: 3
-        rotation: Qt.vector3d(0, 90, 0)
+        rotation: Qt.vector3d(0, 0, 90)
         grabsMouse: targetNode
         onPressed: arrow.handlePressed(mouseAreaYZ, pointerPosition)
         onDragged: arrow.handleDragged(mouseAreaYZ, pointerPosition)
@@ -120,12 +120,11 @@ Model {
         y: -1.5
         width: 12
         height: 3
-        rotation: Qt.vector3d(90, 90, 0)
+        rotation: Qt.vector3d(0, 90, 90)
         grabsMouse: targetNode
         onPressed: arrow.handlePressed(mouseAreaXZ, pointerPosition)
         onDragged: arrow.handleDragged(mouseAreaXZ, pointerPosition)
         onReleased: arrow.handleReleased(mouseAreaXZ, pointerPosition)
     }
-
 }
 

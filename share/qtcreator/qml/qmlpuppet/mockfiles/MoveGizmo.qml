@@ -36,17 +36,13 @@ Node {
 
     scale: Qt.vector3d(5, 5, 5)
 
-    property alias arrowX: arrowX
-    property alias arrowY: arrowY
-    property alias arrowZ: arrowZ
-
     signal positionCommit()
     signal positionMove()
 
     Arrow {
         id: arrowX
         objectName: "Arrow X"
-        rotation: Qt.vector3d(0, -90, 0)
+        rotation: Qt.vector3d(0, 0, -90)
         targetNode: arrows.targetNode
         color: highlightOnHover && hovering ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
                                             : Qt.rgba(1, 0, 0, 1)
@@ -59,7 +55,7 @@ Node {
     Arrow {
         id: arrowY
         objectName: "Arrow Y"
-        rotation: Qt.vector3d(90, 0, 0)
+        rotation: Qt.vector3d(0, 0, 0)
         targetNode: arrows.targetNode
         color: highlightOnHover && hovering ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
                                             : Qt.rgba(0, 0, 1, 1)
@@ -72,7 +68,7 @@ Node {
     Arrow {
         id: arrowZ
         objectName: "Arrow Z"
-        rotation: Qt.vector3d(0, 180, 0)
+        rotation: Qt.vector3d(90, 0, 0)
         targetNode: arrows.targetNode
         color: highlightOnHover && hovering ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                                             : Qt.rgba(0, 0.6, 0, 1)
