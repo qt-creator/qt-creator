@@ -77,6 +77,7 @@ if [ -d "$quick1_src" ]; then
         echo "- Copying Qt Quick 1 imports"
         mkdir -p "$importsDir"
         cp -R "$quick1_src"/ "$importsDir"/
+        find "$importsDir" -path "*.dylib.dSYM*" -delete
     fi
 fi
 
@@ -87,6 +88,7 @@ if [ -d "$quick2_src" ]; then
         echo "- Copying Qt Quick 2 imports"
         mkdir -p "$imports2Dir"
         cp -R "$quick2_src"/ "$imports2Dir"/
+        find "$imports2Dir" -path "*.dylib.dSYM*" -delete
     fi
 fi
 
@@ -159,6 +161,17 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
     fi
 
     qbsapp="$app_path/Contents/MacOS/qbs"
+    if [ -f "$qbsapp" ]; then
+        qbsArguments=("-executable=$qbsapp" \
+        "-executable=$qbsapp-config" \
+        "-executable=$qbsapp-config-ui" \
+        "-executable=$qbsapp-qmltypes" \
+        "-executable=$qbsapp-setup-android" \
+        "-executable=$qbsapp-setup-qt" \
+        "-executable=$qbsapp-setup-toolchains" \
+        "-executable=$qbsapp-create-project" \
+        "-executable=$libexec_path/qbs_processlauncher")
+    fi
 
     echo "- Running macdeployqt ($bin_src/macdeployqt)"
 
@@ -169,15 +182,7 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$libexec_path/ios/iostool" \
         "-executable=$libexec_path/buildoutputparser" \
         "-executable=$libexec_path/cpaster" \
-        "-executable=$libexec_path/qbs_processlauncher" \
-        "-executable=$qbsapp" \
-        "-executable=$qbsapp-config" \
-        "-executable=$qbsapp-config-ui" \
-        "-executable=$qbsapp-qmltypes" \
-        "-executable=$qbsapp-setup-android" \
-        "-executable=$qbsapp-setup-qt" \
-        "-executable=$qbsapp-setup-toolchains" \
-        "-executable=$qbsapp-create-project" \
+        "${qbsArguments[@]}" \
         "$qml2puppetArgument" \
         "$clangbackendArgument" "$clangpchmanagerArgument" "$clangrefactoringArgument" || exit 1
 
