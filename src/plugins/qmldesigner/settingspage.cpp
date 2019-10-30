@@ -161,6 +161,8 @@ DesignerSettings SettingsPageWidget::settings() const
         m_ui.showWarnExceptionsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ENABLE_TIMELINEVIEW,
                     m_ui.featureTimelineEditorCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::ALWAYS_DESIGN_MODE,
+                    m_ui.designerAlwaysDesignModeCheckBox->isChecked());
 
     return settings;
 }
@@ -226,13 +228,15 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 
     m_ui.controls2StyleComboBox->setCurrentText(m_ui.styleLineEdit->text());
 
+    m_ui.designerAlwaysDesignModeCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
     m_ui.featureTimelineEditorCheckBox->setChecked(settings.value(
         DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool());
 
     if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
         m_ui.emulationGroupBox->hide();
         m_ui.debugGroupBox->hide();
-        m_ui.featuresGroupBox->hide();
+        m_ui.featureTimelineEditorCheckBox->hide();
     }
 }
 

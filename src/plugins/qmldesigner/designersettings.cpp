@@ -77,6 +77,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::STANDALONE_MODE, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW, false);
     restoreValue(settings, DesignerSettingsKey::SIMPLE_COLOR_PALETTE_CONTENT, QStringList());
+    restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
 
     settings->endGroup();
     settings->endGroup();

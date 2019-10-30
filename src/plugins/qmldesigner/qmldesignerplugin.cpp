@@ -96,7 +96,9 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
     addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);
     setDocumentCreator([this]() {
         auto document = new QmlJSEditor::QmlJSEditorDocument(id());
-        document->setIsDesignModePreferred(true);
+        document->setIsDesignModePreferred(
+                    QmlDesigner::DesignerSettings::getValue(
+                        QmlDesigner::DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
         return document;
     });
 }

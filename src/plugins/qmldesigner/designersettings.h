@@ -66,6 +66,7 @@ const char IGNORE_DEVICE_PIXEL_RATIO[] = "IgnoreDevicePixelRaio"; /* The setting
 const char STANDALONE_MODE[] = "StandAloneMode";
 const char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
 const char SIMPLE_COLOR_PALETTE_CONTENT[] = "SimpleColorPaletteContent";
+const char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 }
 
 class DesignerSettings : public QHash<QByteArray, QVariant>
