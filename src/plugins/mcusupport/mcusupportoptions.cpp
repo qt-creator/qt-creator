@@ -306,6 +306,7 @@ static PackageOptions *createSeggerJLinkPackage()
                 Utils::HostOsInfo::withExecutableSuffix("JLink"),
                 "seggerJLink");
     result->setDownloadUrl("https://www.segger.com/downloads/jlink");
+    result->setEnvironmentVariableName("SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH");
     return result;
 }
 
