@@ -40,8 +40,7 @@ class QProcess;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Kit;
-class Project;
+class Target;
 }
 
 namespace QmlDesigner {
@@ -63,8 +62,7 @@ public:
 
     explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView,
                                      RunModus runModus,
-                                     ProjectExplorer::Kit *kit,
-                                     ProjectExplorer::Project *project);
+                                     ProjectExplorer::Target *target);
     ~NodeInstanceServerProxy() override;
     void createInstances(const CreateInstancesCommand &command) override;
     void changeFileUrl(const ChangeFileUrlCommand &command) override;

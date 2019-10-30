@@ -123,7 +123,7 @@ NodeInstanceView::~NodeInstanceView()
 {
     removeAllInstanceNodeRelationships();
     delete nodeInstanceServer();
-    m_currentKit = nullptr;
+    m_currentTarget = nullptr;
 }
 
 //\{
@@ -173,7 +173,7 @@ bool static parentTakesOverRendering(const ModelNode &modelNode)
 void NodeInstanceView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
+    auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentTarget);
     m_nodeInstanceServer = server;
     m_lastCrashTime.start();
     connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
@@ -256,7 +256,7 @@ void NodeInstanceView::restartProcess()
     if (model()) {
         delete nodeInstanceServer();
 
-        auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
+        auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentTarget);
         m_nodeInstanceServer = server;
         connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
 
@@ -1300,18 +1300,10 @@ QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
     return m_statePreviewImage.value(stateNode);
 }
 
-void NodeInstanceView::setKit(ProjectExplorer::Kit *newKit)
+void NodeInstanceView::setTarget(ProjectExplorer::Target *newTarget)
 {
-    if (m_currentKit != newKit) {
-        m_currentKit = newKit;
-        restartProcess();
-    }
-}
-
-void NodeInstanceView::setProject(ProjectExplorer::Project *project)
-{
-    if (m_currentProject != project) {
-        m_currentProject = project;
+    if (m_currentTarget != newTarget) {
+        m_currentTarget = newTarget;
         restartProcess();
     }
 }

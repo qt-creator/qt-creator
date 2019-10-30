@@ -76,7 +76,7 @@ DesignDocument::DesignDocument(QObject *parent) :
         m_subComponentManager(new SubComponentManager(m_documentModel.data(), this)),
         m_rewriterView (new RewriterView(RewriterView::Amend, m_documentModel.data())),
         m_documentLoaded(false),
-        m_currentKit(nullptr)
+        m_currentTarget(nullptr)
 {
 }
 
@@ -216,9 +216,9 @@ Utils::FilePath DesignDocument::fileName() const
     return Utils::FilePath();
 }
 
-Kit *DesignDocument::currentKit() const
+ProjectExplorer::Target *DesignDocument::currentTarget() const
 {
-    return m_currentKit;
+    return m_currentTarget;
 }
 
 bool DesignDocument::isDocumentLoaded() const
@@ -551,8 +551,8 @@ void DesignDocument::setEditor(Core::IEditor *editor)
     connect(editor->document(), &Core::IDocument::filePathChanged,
             this, &DesignDocument::updateFileName);
 
-    updateActiveQtVersion();
-    updateCurrentProject();
+    updateActiveTarget();
+    updateActiveTarget();
 }
 
 Core::IEditor *DesignDocument::editor() const
@@ -594,53 +594,38 @@ void DesignDocument::redo()
     viewManager().resetPropertyEditorView();
 }
 
-static inline Kit *getActiveKit(DesignDocument *designDocument)
+static Target *getActiveTarget(DesignDocument *designDocument)
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
+    Project *currentProject = SessionManager::projectForFile(designDocument->fileName());
 
     if (!currentProject)
-        currentProject = ProjectExplorer::ProjectTree::currentProject();
+        currentProject = ProjectTree::currentProject();
 
     if (!currentProject)
         return nullptr;
 
 
     QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
-                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
+                     designDocument, &DesignDocument::updateActiveTarget, Qt::UniqueConnection);
 
     QObject::connect(currentProject, &Project::activeTargetChanged,
-                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
-
-    QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
-                     designDocument, &DesignDocument::updateCurrentProject, Qt::UniqueConnection);
-
-    QObject::connect(currentProject, &Project::activeTargetChanged,
-                     designDocument, &DesignDocument::updateCurrentProject, Qt::UniqueConnection);
-
+                     designDocument, &DesignDocument::updateActiveTarget, Qt::UniqueConnection);
 
     Target *target = currentProject->activeTarget();
 
-    if (!target)
+    if (!target || !target->kit()->isValid())
         return nullptr;
 
-    if (!target->kit() || !target->kit()->isValid())
-        return nullptr;
     QObject::connect(target, &Target::kitChanged,
-                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
+                     designDocument, &DesignDocument::updateActiveTarget, Qt::UniqueConnection);
 
-    return target->kit();
+    return target;
 }
 
-void DesignDocument::updateActiveQtVersion()
+void DesignDocument::updateActiveTarget()
 {
-    m_currentKit = getActiveKit(this);
-    viewManager().setNodeInstanceViewKit(m_currentKit);
-}
-
-void DesignDocument::updateCurrentProject()
-{
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
-    viewManager().setNodeInstanceViewProject(currentProject);
+    m_currentTarget = getActiveTarget(this);
+    viewManager().setNodeInstanceViewTarget(m_currentTarget);
 }
 
 void DesignDocument::contextHelp(const Core::IContext::HelpCallback &callback) const

@@ -103,8 +103,7 @@ void NodeInstanceServerProxy::showCannotConnectToPuppetWarningAndSwitchToEditMod
 
 NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView,
                                                  RunModus runModus,
-                                                 ProjectExplorer::Kit *kit,
-                                                 ProjectExplorer::Project *project)
+                                                 ProjectExplorer::Target *target)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
@@ -117,7 +116,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(3);
 
-   PuppetCreator puppetCreator(kit, project, nodeInstanceView->model());
+   PuppetCreator puppetCreator(target, nodeInstanceView->model());
    puppetCreator.setQrcMappingString(qrcMappingString());
 
    puppetCreator.createQml2PuppetExecutableIfMissing();

@@ -40,16 +40,8 @@
 #include <QRectF>
 #include <QTime>
 
-QT_BEGIN_NAMESPACE
-class QDeclarativeEngine;
-class QGraphicsView;
-class QFileSystemWatcher;
-class QPainter;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
-class Kit;
-class Project;
+class Target;
 }
 
 namespace QmlDesigner {
@@ -131,8 +123,7 @@ public:
 
     QImage statePreviewImage(const ModelNode &stateNode) const;
 
-    void setKit(ProjectExplorer::Kit *kit);
-    void setProject(ProjectExplorer::Project *project);
+    void setTarget(ProjectExplorer::Target *newTarget);
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
@@ -208,8 +199,7 @@ private: //variables
     QImage m_baseStatePreviewImage;
     QElapsedTimer m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;
-    ProjectExplorer::Kit *m_currentKit = nullptr;
-    ProjectExplorer::Project *m_currentProject = nullptr;
+    ProjectExplorer::Target *m_currentTarget = nullptr;
     int m_restartProcessTimerId;
     RewriterTransaction m_puppetTransaction;
 };

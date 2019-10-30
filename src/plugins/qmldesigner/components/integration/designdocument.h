@@ -39,12 +39,11 @@
 #include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
-class QWidget;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Kit;
+class Target;
 }
 
 namespace QmlDesigner {
@@ -91,7 +90,7 @@ public:
     TextEditor::BaseTextEditor *textEditor() const;
     QPlainTextEdit *plainTextEdit() const;
     Utils::FilePath fileName() const;
-    ProjectExplorer::Kit *currentKit() const;
+    ProjectExplorer::Target *currentTarget() const;
     bool isDocumentLoaded() const;
 
     void resetToDocumentModel();
@@ -115,8 +114,7 @@ public:
     void selectAll();
     void undo();
     void redo();
-    void updateActiveQtVersion();
-    void updateCurrentProject();
+    void updateActiveTarget();
     void changeToSubComponent(const ModelNode &componentNode);
     void changeToMaster();
 
@@ -152,7 +150,7 @@ private: // variables
     QScopedPointer<RewriterView> m_rewriterView;
 
     bool m_documentLoaded;
-    ProjectExplorer::Kit *m_currentKit;
+    ProjectExplorer::Target *m_currentTarget;
 };
 
 } // namespace QmlDesigner
