@@ -1225,8 +1225,6 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
 
     if (command.transactionOption == ValuesModifiedCommand::TransactionOption::Start)
         startPuppetTransaction();
-    else if (command.transactionOption == ValuesModifiedCommand::TransactionOption::End)
-        endPuppetTransaction();
 
     for (const PropertyValueContainer &container : command.valueChanges()) {
         if (hasInstanceForId(container.instanceId())) {
@@ -1239,6 +1237,9 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
             }
         }
     }
+
+    if (command.transactionOption == ValuesModifiedCommand::TransactionOption::End)
+        endPuppetTransaction();
 }
 
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
