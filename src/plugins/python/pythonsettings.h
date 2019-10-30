@@ -44,6 +44,11 @@ public:
                 const QString &name,
                 const Utils::FilePath &command);
 
+    inline bool operator==(const Interpreter &other) const
+    {
+        return id == other.id && name == other.name && command == other.command;
+    }
+
     QString id = QUuid::createUuid().toString();
     QString name;
     Utils::FilePath command;

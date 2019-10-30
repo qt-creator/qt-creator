@@ -467,6 +467,10 @@ void PythonSettings::init()
 
 void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId)
 {
+    if (defaultId == interpreterOptionsPage().defaultInterpreter().id
+            && interpreters == interpreterOptionsPage().interpreters()) {
+        return;
+    }
     interpreterOptionsPage().setInterpreter(interpreters);
     interpreterOptionsPage().setDefaultInterpreter(defaultId);
     saveSettings();
