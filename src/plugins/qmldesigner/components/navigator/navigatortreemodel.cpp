@@ -257,14 +257,15 @@ void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode>
 
 QList<ModelNode> filteredList(const NodeListProperty &property, bool filter)
 {
-    if (!filter)
-        return property.toModelNodeList();
-
     QList<ModelNode> list;
 
-    list.append(Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
-        return QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
-    }));
+    if (filter) {
+        list.append(Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
+            return QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
+        }));
+    } else {
+        list = property.toModelNodeList();
+    }
 
     appendForcedNodes(property, list);
 
