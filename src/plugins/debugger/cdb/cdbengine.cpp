@@ -394,14 +394,7 @@ void CdbEngine::setupEngine()
     if (!sourcePaths.isEmpty())
         debugger.addArgs({"-srcpath", sourcePaths.join(';')});
 
-    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
-    QString symbolPath = sp.inferior.environment.expandedValueForKey("_NT_ALT_SYMBOL_PATH");
-    if (!symbolPath.isEmpty())
-        symbolPaths += symbolPath;
-    symbolPath = sp.inferior.environment.expandedValueForKey("_NT_SYMBOL_PATH");
-    if (!symbolPath.isEmpty())
-        symbolPaths += symbolPath;
-    debugger.addArgs({"-y", symbolPaths.join(';')});
+    debugger.addArgs({"-y", QChar('"') + stringListSetting(CdbSymbolPaths).join(';') + '"'});
 
     switch (sp.startMode) {
     case StartInternal:
@@ -501,6 +494,16 @@ void CdbEngine::handleInitialSessionIdle()
     }
     // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
     BreakpointManager::claimBreakpointsForEngine(this);
+
+    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
+    QString symbolPath = rp.inferior.environment.expandedValueForKey("_NT_ALT_SYMBOL_PATH");
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+    symbolPath = rp.inferior.environment.expandedValueForKey("_NT_SYMBOL_PATH");
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+
+    runCommand({QString(".sympath \"") + symbolPaths.join(';') + '"'});
     runCommand({".symopt+0x8000"}); // disable searching public symbol table - improving the symbol lookup speed
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
