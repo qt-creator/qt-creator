@@ -286,8 +286,8 @@ static PackageOptions *createStm32CubeProgrammerPackage()
 static PackageOptions *createEvkbImxrt1050SdkPackage()
 {
     auto result = new PackageOptions(
-                PackageOptions::tr("NXP EVKB-IMXRT1050 SDK"),
-                "%{Env:EVKB_IMXRT1050_SDK_PATH}",
+                PackageOptions::tr("NXP i.MXRT SDK"),
+                "%{Env:EVKB_IMXRT1050_SDK_PATH}", // TODO: Try to not use 1050 specifics
                 "EVKB-IMXRT1050_manifest_v3_5.xml",
                 "evkbImxrt1050Sdk");
     result->setDownloadUrl("https://mcuxpresso.nxp.com/en/welcome");
