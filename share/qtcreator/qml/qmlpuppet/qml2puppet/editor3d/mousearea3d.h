@@ -48,6 +48,7 @@ class MouseArea3D : public QQuick3DNode
     Q_PROPERTY(qreal height READ height WRITE setHeight NOTIFY heightChanged)
     Q_PROPERTY(bool hovering READ hovering NOTIFY hoveringChanged)
     Q_PROPERTY(bool dragging READ dragging NOTIFY draggingChanged)
+    Q_PROPERTY(int priority READ priority WRITE setPriority NOTIFY priorityChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -60,6 +61,7 @@ public:
     qreal y() const;
     qreal width() const;
     qreal height() const;
+    int priority() const;
 
     bool hovering() const;
     bool dragging() const;
@@ -73,6 +75,7 @@ public slots:
     void setY(qreal y);
     void setWidth(qreal width);
     void setHeight(qreal height);
+    void setPriority(int level);
 
     Q_INVOKABLE QVector3D rayIntersectsPlane(const QVector3D &rayPos0,
                                              const QVector3D &rayPos1,
@@ -86,6 +89,7 @@ signals:
     void yChanged(qreal y);
     void widthChanged(qreal width);
     void heightChanged(qreal height);
+    void priorityChanged(int level);
 
     void hoveringChanged();
     void draggingChanged();
@@ -100,6 +104,9 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
+    void setDragging(bool enable);
+    void setHovering(bool enable);
+
     Q_DISABLE_COPY(MouseArea3D)
     QQuick3DViewport *m_view3D = nullptr;
 
@@ -107,6 +114,7 @@ private:
     qreal m_y;
     qreal m_width;
     qreal m_height;
+    int m_priority = 0;
 
     bool m_hovering = false;
     bool m_dragging = false;
@@ -115,6 +123,7 @@ private:
 
     static MouseArea3D *s_mouseGrab;
     bool m_grabsMouse;
+    QVector3D m_mousePosInPlane;
 };
 
 }

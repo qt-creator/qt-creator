@@ -112,11 +112,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
-
-            rotation: globalControl.checked || !viewWindow.selectedNode
-                      ? Qt.vector3d(0, 0, 0)
-                      : viewWindow.selectedNode.sceneRotation
-
+            globalOrientation: globalControl.checked
             visible: selectedNode
             view3D: overlayView
 
@@ -194,7 +190,7 @@ Window {
             targetView: overlayView
             offsetX: 0
             offsetY: 45
-            visible: moveGizmo.isDragging
+            visible: moveGizmo.dragging
 
             Rectangle {
                 color: "white"

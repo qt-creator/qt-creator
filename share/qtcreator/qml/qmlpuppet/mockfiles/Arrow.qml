@@ -35,7 +35,7 @@ Model {
     property View3D view3D
     property alias color: material.emissiveColor
     property Node targetNode: null
-    property bool isDragging: false
+    property bool dragging: false
 
     readonly property bool hovering: mouseAreaYZ.hovering || mouseAreaXZ.hovering
 
@@ -47,7 +47,7 @@ Model {
 
     materials: DefaultMaterial {
         id: material
-        emissiveColor: mouseAreaFront.hovering ? "white" : Qt.rgba(1.0, 0.0, 0.0, 1.0)
+        emissiveColor: "white"
         lighting: DefaultMaterial.NoLighting
     }
 
@@ -60,7 +60,7 @@ Model {
         _pointerPosPressed = mouseArea.mapPositionToScene(maskedPosition);
         var sp = targetNode.scenePosition;
         _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
-        isDragging = true;
+        dragging = true;
     }
 
     function posInParent(mouseArea, pointerPosition)
@@ -95,7 +95,7 @@ Model {
             return;
 
         targetNode.position = posInParent(mouseArea, pointerPosition);
-        isDragging = false;
+        dragging = false;
         arrow.positionCommit();
     }
 
