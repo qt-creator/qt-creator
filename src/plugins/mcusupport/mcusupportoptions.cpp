@@ -455,10 +455,10 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const BoardOptions* board
             changes.append({package->environmentVariableName(),
                             QDir::toNativeSeparators(package->path())});
     }
-    if (!pathAdditions.isEmpty()) {
-        pathAdditions.append("${Path}");
-        changes.append({"Path", pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
-    }
+    pathAdditions.append("${Path}");
+    if (Utils::HostOsInfo::isWindowsHost())
+        pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath())); // for jom
+    changes.append({"Path", pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
 
@@ -471,6 +471,8 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* boar
                                   ("%{CurrentBuild:Env:Qul_DIR}/" +
                                    board->toolChainFile()).toUtf8()));
     CMakeConfigurationKitAspect::setConfiguration(k, config);
+    if (Utils::HostOsInfo::isWindowsHost())
+        CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
 }
 
 ProjectExplorer::Kit *McuSupportOptions::kit(const BoardOptions* board)
