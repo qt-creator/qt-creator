@@ -71,6 +71,8 @@ public:
     QString clangTidyChecks() const;
     void setClangTidyChecks(const QString &checks);
 
+    bool isClangTidyEnabled() const;
+
     // Clazy
     enum class ClazyMode
     {
@@ -82,6 +84,8 @@ public:
 
     QString clazyChecks() const;
     void setClazyChecks(const QString &checks);
+
+    bool isClazyEnabled() const;
 
     bool operator==(const ClangDiagnosticConfig &other) const;
     bool operator!=(const ClangDiagnosticConfig &other) const;

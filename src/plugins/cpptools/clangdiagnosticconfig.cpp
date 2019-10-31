@@ -130,6 +130,11 @@ void ClangDiagnosticConfig::setClangTidyChecks(const QString &checks)
     m_clangTidyChecks = checks;
 }
 
+bool ClangDiagnosticConfig::isClangTidyEnabled() const
+{
+    return m_clangTidyMode != TidyMode::UseCustomChecks || clangTidyChecks() != "-*";
+}
+
 QString ClangDiagnosticConfig::clazyChecks() const
 {
     return m_clazyChecks;
@@ -138,6 +143,11 @@ QString ClangDiagnosticConfig::clazyChecks() const
 void ClangDiagnosticConfig::setClazyChecks(const QString &checks)
 {
     m_clazyChecks = checks;
+}
+
+bool ClangDiagnosticConfig::isClazyEnabled() const
+{
+    return m_clazyMode != ClazyMode::UseCustomChecks || !m_clazyChecks.isEmpty();
 }
 
 static QString convertToNewClazyChecksFormat(const QString &checks)

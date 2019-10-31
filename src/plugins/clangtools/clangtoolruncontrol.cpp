@@ -258,10 +258,10 @@ QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
 {
     QList<RunnerCreator> creators;
 
-    if (m_diagnosticConfig.clangTidyChecks() != "-*")
+    if (m_diagnosticConfig.isClangTidyEnabled())
         creators << [this]() { return createRunner<ClangTidyRunner>(); };
 
-    if (!m_diagnosticConfig.clazyChecks().isEmpty()) {
+    if (m_diagnosticConfig.isClazyEnabled()) {
         if (!qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH").isEmpty())
             creators << [this]() { return createRunner<ClazyStandaloneRunner>(); };
         else
