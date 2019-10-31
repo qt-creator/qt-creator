@@ -499,9 +499,10 @@ public:
 class TreeView : public QTreeView
 {
 public:
-    TreeView(QWidget *parent)
+    TreeView(QWidget *parent, const QString &name)
         : QTreeView(parent)
     {
+        setObjectName(name);
         header()->hide();
         setMouseTracking(true); // To enable hover.
         setIndentation(0);
@@ -559,13 +560,13 @@ public:
         recentProjectsLabel->setFont(sizedFont(16, this));
         recentProjectsLabel->setText(ProjectWelcomePage::tr("Projects"));
 
-        auto sessionsList = new TreeView(this);
+        auto sessionsList = new TreeView(this, "Sessions");
         sessionsList->setModel(projectWelcomePage->m_sessionModel);
         sessionsList->header()->setSectionHidden(1, true); // The "last modified" column.
         sessionsList->setItemDelegate(&m_sessionDelegate);
         sessionsList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-        auto projectsList = new TreeView(this);
+        auto projectsList = new TreeView(this, "Recent Projects");
         projectsList->setUniformRowHeights(true);
         projectsList->setModel(projectWelcomePage->m_projectModel);
         projectsList->setItemDelegate(&m_projectDelegate);
