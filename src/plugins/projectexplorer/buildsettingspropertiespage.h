@@ -52,7 +52,6 @@ public:
 
     void clearWidgets();
     void addSubWidget(NamedWidget *widget);
-    QList<NamedWidget *> subWidgets() const;
 
 private:
     void updateBuildSettings();

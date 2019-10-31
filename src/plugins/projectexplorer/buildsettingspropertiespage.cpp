@@ -167,11 +167,6 @@ void BuildSettingsWidget::clearWidgets()
     m_labels.clear();
 }
 
-QList<NamedWidget *> BuildSettingsWidget::subWidgets() const
-{
-    return m_subWidgets;
-}
-
 void BuildSettingsWidget::updateAddButtonMenu()
 {
     m_addButtonMenu->clear();
