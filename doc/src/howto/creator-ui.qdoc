@@ -404,6 +404,9 @@
         \if defined(qtdesignstudio)
         \li \uicontrol {Asset Importer Error} - Errors and warnings encountered
             while importing assets from a design tool.
+        \else
+        \li \uicontrol Autotests - Errors and warnings encountered while running
+            tests.
         \endif
 
         \li \uicontrol {Build System} - Errors and warnings encountered during a
