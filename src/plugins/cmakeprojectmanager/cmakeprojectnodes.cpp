@@ -88,7 +88,7 @@ void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::P
                                                                      "\nCopy the path to the source files to the clipboard?"),
                                                      "Remember My Choice", &checkValue, QDialogButtonBox::Yes | QDialogButtonBox::No,
                                                      QDialogButtonBox::Yes);
-            if (true == checkValue) {
+            if (checkValue) {
                 if (QDialogButtonBox::Yes == reply)
                     settings->setAfterAddFileSetting(AfterAddFileAction::COPY_FILE_PATH);
                 else if (QDialogButtonBox::No == reply)
