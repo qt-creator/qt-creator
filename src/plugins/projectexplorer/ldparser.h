@@ -26,6 +26,7 @@
 #pragma once
 
 #include "ioutputparser.h"
+#include "task.h"
 
 #include <QRegularExpression>
 
@@ -37,12 +38,15 @@ class LdParser : public ProjectExplorer::IOutputParser
 
 public:
     LdParser();
-    void stdError(const QString &line) override;
-
 private:
+    void stdError(const QString &line) override;
+    void doFlush() override;
+
     QRegularExpression m_ranlib;
     QRegularExpression m_regExpLinker;
     QRegularExpression m_regExpGccNames;
+
+    Task m_incompleteTask;
 };
 
 } // namespace ProjectExplorer

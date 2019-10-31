@@ -25,7 +25,6 @@
 
 #include "ldparser.h"
 #include "projectexplorerconstants.h"
-#include "task.h"
 
 #include <utils/qtcassert.h>
 
@@ -58,10 +57,28 @@ LdParser::LdParser()
 void LdParser::stdError(const QString &line)
 {
     QString lne = rightTrimmed(line);
+    if (!lne.isEmpty() && !lne.at(0).isSpace() && !m_incompleteTask.isNull())
+        flush();
+
     if (lne.startsWith(QLatin1String("TeamBuilder "))
             || lne.startsWith(QLatin1String("distcc["))
             || lne.contains(QLatin1String("ar: creating "))) {
         IOutputParser::stdError(line);
+        return;
+    }
+
+    // ld on macOS
+    if (lne.startsWith("Undefined symbols for architecture") && lne.endsWith(":")) {
+        m_incompleteTask = Task(Task::Error, lne, Utils::FilePath(), -1,
+                                Constants::TASK_CATEGORY_COMPILE);
+        return;
+    }
+    if (!m_incompleteTask.isNull() && lne.startsWith("  ")) {
+        m_incompleteTask.description.append('\n').append(lne);
+        static const QRegularExpression locRegExp("    (?<symbol>\\S+) in (?<file>\\S+)");
+        const QRegularExpressionMatch match = locRegExp.match(lne);
+        if (match.hasMatch())
+            m_incompleteTask.setFile(Utils::FilePath::fromString(match.captured("file")));
         return;
     }
 
@@ -133,4 +150,13 @@ void LdParser::stdError(const QString &line)
     }
 
     IOutputParser::stdError(line);
+}
+
+void LdParser::doFlush()
+{
+    if (m_incompleteTask.isNull())
+        return;
+    const Task t = m_incompleteTask;
+    m_incompleteTask.clear();
+    emit addTask(t);
 }

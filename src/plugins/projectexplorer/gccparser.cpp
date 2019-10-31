@@ -132,7 +132,7 @@ void GccParser::stdError(const QString &line)
                      match.captured(3).toInt() /* linenumber */,
                      Constants::TASK_CATEGORY_COMPILE));
         return;
-    } else if (lne.startsWith(QLatin1Char(' '))) {
+    } else if (lne.startsWith(' ') && !m_currentTask.isNull()) {
         amendDescription(lne, true);
         return;
     }
@@ -864,6 +864,19 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         Utils::FilePath(), -1,
                         categoryCompile)
                 )
+            << QString();
+
+
+    QTest::newRow("Undefined symbol (Apple ld)")
+            << "Undefined symbols for architecture x86_64:\n"
+               "  \"SvgLayoutTest()\", referenced from:\n"
+               "      _main in main.cpp.o"
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << Tasks({Task(Task::Error, "Undefined symbols for architecture x86_64:\n"
+                      "  \"SvgLayoutTest()\", referenced from:\n"
+                      "      _main in main.cpp.o",
+                      FilePath::fromString("main.cpp.o"), -1, categoryCompile)})
             << QString();
 
     QTest::newRow("ld: undefined member function reference")
