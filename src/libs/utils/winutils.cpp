@@ -120,10 +120,16 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
     QString rc;
     switch (t) {
     case WinDLLFileVersion:
-        QTextStream(&rc) << HIWORD(versionInfo->dwFileVersionMS) << '.' << LOWORD(versionInfo->dwFileVersionMS);
+        QTextStream(&rc) << HIWORD(versionInfo->dwFileVersionMS) << '.'
+                         << LOWORD(versionInfo->dwFileVersionMS) << '.'
+                         << HIWORD(versionInfo->dwFileVersionLS) << '.'
+                         << LOWORD(versionInfo->dwFileVersionLS);
         break;
     case WinDLLProductVersion:
-        QTextStream(&rc) << HIWORD(versionInfo->dwProductVersionMS) << '.' << LOWORD(versionInfo->dwProductVersionMS);
+        QTextStream(&rc) << HIWORD(versionInfo->dwProductVersionMS) << '.'
+                         << LOWORD(versionInfo->dwProductVersionMS) << '.'
+                         << HIWORD(versionInfo->dwProductVersionLS) << '.'
+                         << LOWORD(versionInfo->dwProductVersionLS);
         break;
     }
     return rc;
