@@ -664,7 +664,7 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
                                   extraHeaderPathsFunction,
                                   flags,
                                   sysRoot,
-                                  /*target=*/""); // Target must be empty for gcc.
+                                  /*originalTargetTriple=*/""); // Must be empty for gcc.
     };
 }
 
