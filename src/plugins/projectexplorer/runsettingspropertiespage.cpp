@@ -424,8 +424,7 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     if (m_deployConfigurationWidget)
         m_deployLayout->addWidget(m_deployConfigurationWidget);
 
-    m_deploySteps = new BuildStepListWidget;
-    m_deploySteps->init(dc->stepList());
+    m_deploySteps = new BuildStepListWidget(dc->stepList());
     m_deployLayout->addWidget(m_deploySteps);
 }
 
