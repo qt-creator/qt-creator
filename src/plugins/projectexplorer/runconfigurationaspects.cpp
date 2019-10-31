@@ -104,7 +104,7 @@ void TerminalAspect::calculateUseTerminal()
     switch (ProjectExplorerPlugin::projectExplorerSettings().terminalMode) {
     case Internal::TerminalMode::On: useTerminal = true; break;
     case Internal::TerminalMode::Off: useTerminal = false; break;
-    case Internal::TerminalMode::Smart: useTerminal = m_useTerminalHint;
+    default: useTerminal = m_useTerminalHint;
     }
     if (m_useTerminal != useTerminal) {
         m_useTerminal = useTerminal;
