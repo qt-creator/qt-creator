@@ -227,6 +227,7 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
                                        const FileInfos &fileInfos,
                                        bool preventBuild)
     : RunWorker(runControl)
+    , m_runSettings(runSettings)
     , m_diagnosticConfig(diagnosticConfig)
     , m_fileInfos(fileInfos)
     , m_temporaryDir("clangtools-XXXXXX")
