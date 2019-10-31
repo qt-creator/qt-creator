@@ -81,14 +81,13 @@ static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex 
 // --------------------------------------------------------------------
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
+    NamedWidget(tr("CMake")),
     m_buildConfiguration(bc),
     m_configModel(new ConfigModel(this)),
     m_configFilterModel(new Utils::CategorySortFilterModel),
     m_configTextFilterModel(new Utils::CategorySortFilterModel)
 {
     QTC_CHECK(bc);
-
-    setDisplayName(tr("CMake"));
 
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);

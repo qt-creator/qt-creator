@@ -35,24 +35,9 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 
-#include <utils/fileutils.h>
-
-#include <QFuture>
-#include <QHash>
-#include <QTimer>
-
 #include <memory>
 
-namespace CppTools { class CppProjectUpdater; }
-namespace ProjectExplorer { class FileNode; }
-
 namespace CMakeProjectManager {
-
-namespace Internal {
-class CMakeBuildConfiguration;
-class CMakeBuildSettingsWidget;
-class CMakeProjectNode;
-} // namespace Internal
 
 class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
 {

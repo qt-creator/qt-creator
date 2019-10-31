@@ -54,7 +54,7 @@ static bool isShadowBuild(BuildConfiguration *bc)
 }
 
 QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
-    : NamedWidget(),
+    : NamedWidget(tr("General")),
       m_buildConfiguration(bc)
 {
     Project *project = bc->target()->project();
@@ -163,8 +163,6 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
             this, &QmakeProjectConfigWidget::buildDirectoryChanged);
     connect(m_buildConfiguration, &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
-
-    setDisplayName(tr("General"));
 
     updateDetails();
     updateProblemLabel();

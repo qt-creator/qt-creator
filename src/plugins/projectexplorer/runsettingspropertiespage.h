@@ -39,9 +39,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class DeployConfiguration;
-class NamedWidget;
 class RunConfiguration;
-class RunConfigWidget;
 class Target;
 
 namespace Internal {

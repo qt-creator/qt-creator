@@ -98,7 +98,8 @@ private:
 };
 
 IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
-    : m_bc(bc),
+    : NamedWidget(IosBuildConfiguration::tr("iOS Settings")),
+      m_bc(bc),
       m_isDevice(DeviceTypeKitAspect::deviceTypeId(bc->target()->kit())
                  == Constants::IOS_DEVICE_TYPE)
 {
@@ -165,8 +166,6 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
 
     detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     detailsWidget->setWidget(container);
-
-    setDisplayName(IosBuildConfiguration::tr("iOS Settings"));
 
     if (m_isDevice) {
         connect(IosConfigurations::instance(), &IosConfigurations::provisioningDataChanged,

@@ -25,24 +25,16 @@
 
 #include "namedwidget.h"
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
-///
-// NamedWidget
-///
-
-NamedWidget::NamedWidget(QWidget *parent) : QWidget(parent)
-{ }
+NamedWidget::NamedWidget(const QString &displayName, QWidget *parent)
+    : QWidget(parent), m_displayName(displayName)
+{
+}
 
 QString NamedWidget::displayName() const
 {
     return m_displayName;
 }
 
-void NamedWidget::setDisplayName(const QString &displayName)
-{
-    if (m_displayName == displayName)
-        return;
-    m_displayName = displayName;
-    emit displayNameChanged(m_displayName);
-}
+} // ProjectExplorer

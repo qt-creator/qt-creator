@@ -33,16 +33,10 @@ namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT NamedWidget : public QWidget
 {
-    Q_OBJECT
-
 public:
-    explicit NamedWidget(QWidget *parent = nullptr);
+    explicit NamedWidget(const QString &displayName, QWidget *parent = nullptr);
 
     QString displayName() const;
-    void setDisplayName(const QString &displayName);
-
-signals:
-    void displayNameChanged(const QString &);
 
 private:
     QString m_displayName;

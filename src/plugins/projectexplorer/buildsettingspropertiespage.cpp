@@ -143,8 +143,6 @@ void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 
     auto label = new QLabel(this);
     label->setText(widget->displayName());
-    connect(widget, &NamedWidget::displayNameChanged,
-            label, &QLabel::setText);
     QFont f = label->font();
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.2);

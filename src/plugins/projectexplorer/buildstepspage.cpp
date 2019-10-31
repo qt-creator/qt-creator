@@ -192,16 +192,14 @@ BuildStepsWidgetData::~BuildStepsWidgetData()
 }
 
 BuildStepListWidget::BuildStepListWidget(BuildStepList *bsl, QWidget *parent)
-    : NamedWidget(parent), m_buildStepList(bsl)
+    //: %1 is the name returned by BuildStepList::displayName
+    : NamedWidget(tr("%1 Steps").arg(bsl->displayName()), parent), m_buildStepList(bsl)
 {
     setupUi();
 
     connect(bsl, &BuildStepList::stepInserted, this, &BuildStepListWidget::addBuildStep);
     connect(bsl, &BuildStepList::stepRemoved, this, &BuildStepListWidget::removeBuildStep);
     connect(bsl, &BuildStepList::stepMoved, this, &BuildStepListWidget::stepMoved);
-
-    //: %1 is the name returned by BuildStepList::displayName
-    setDisplayName(tr("%1 Steps").arg(bsl->displayName()));
 
     for (int i = 0; i < bsl->count(); ++i) {
         addBuildStep(i);

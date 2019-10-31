@@ -166,8 +166,7 @@ void BuildConfiguration::setBuildDirectory(const Utils::FilePath &dir)
 
 NamedWidget *BuildConfiguration::createConfigWidget()
 {
-    NamedWidget *named = new NamedWidget;
-    named->setDisplayName(d->m_configWidgetDisplayName);
+    NamedWidget *named = new NamedWidget(d->m_configWidgetDisplayName);
 
     QWidget *widget = nullptr;
 

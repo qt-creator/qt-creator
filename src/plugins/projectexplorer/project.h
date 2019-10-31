@@ -53,7 +53,6 @@ class BuildSystem;
 class ContainerNode;
 class EditorConfiguration;
 class FolderNode;
-class NamedWidget;
 class Node;
 class ProjectConfiguration;
 class ProjectImporter;
