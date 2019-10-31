@@ -273,10 +273,7 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setContentsMargins(0, 0, 0, 0);
 
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
-        if (qobject_cast<QToolButton*>(widget)) {
-            widget->setAttribute(Qt::WA_Hover);
-            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
-        } else if (qobject_cast<QLineEdit*>(widget)) {
+        if (qobject_cast<QToolButton*>(widget) || qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
             widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
         } else if (qobject_cast<QLabel*>(widget)) {
@@ -303,12 +300,11 @@ void ManhattanStyle::unpolish(QWidget *widget)
     QProxyStyle::unpolish(widget);
     if (panelWidget(widget)) {
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, false);
-        if (qobject_cast<QTabBar*>(widget))
+        if (qobject_cast<QTabBar*>(widget)
+                || qobject_cast<QToolBar*>(widget)
+                || qobject_cast<QComboBox*>(widget)) {
             widget->setAttribute(Qt::WA_Hover, false);
-        else if (qobject_cast<QToolBar*>(widget))
-            widget->setAttribute(Qt::WA_Hover, false);
-        else if (qobject_cast<QComboBox*>(widget))
-            widget->setAttribute(Qt::WA_Hover, false);
+        }
     }
 }
 
