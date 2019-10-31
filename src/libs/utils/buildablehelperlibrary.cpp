@@ -338,9 +338,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Running %1 %2 ...\n")
                 .arg(makeFullPath.toUserOutput(), arguments.makeArguments.join(QLatin1Char(' '))));
-    if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120, false, log, errorMessage))
-        return false;
-    return true;
+    return runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120, false, log, errorMessage);
 }
 
 bool BuildableHelperLibrary::getHelperFileInfoFor(const QStringList &validBinaryFilenames,

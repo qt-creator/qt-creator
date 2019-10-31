@@ -102,22 +102,14 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
 }
 
 QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
-        fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent)
+        fileDeletedPrompt(const QString &fileName, QWidget *parent)
 {
     const QString title = QCoreApplication::translate("Utils::fileDeletedPrompt",
                                                       "File Has Been Removed");
-    QString msg;
-    if (triggerExternally) {
-        msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
-                                          "The file %1 has been removed from disk. "
-                                          "Do you want to save it under a different name, or close "
-                                          "the editor?").arg(QDir::toNativeSeparators(fileName));
-    } else {
-        msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
-                                          "The file %1 has been removed from disk. "
-                                          "Do you want to save it under a different name, or close "
-                                          "the editor?").arg(QDir::toNativeSeparators(fileName));
-    }
+    QString msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
+                                              "The file %1 has been removed from disk. "
+                                              "Do you want to save it under a different name, or close "
+                                              "the editor?").arg(QDir::toNativeSeparators(fileName));
     QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, parent);
     QPushButton *close =
             box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Close"),

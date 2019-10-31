@@ -236,16 +236,12 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
 
 static bool isWhitespace(const QChar &c)
 {
-    if (c == ' ' || c == '\t')
-        return true;
-    return false;
+    return c == ' ' || c == '\t';
 }
 
 static bool isNewLine(const QChar &c)
 {
-    if (c == '\n')
-        return true;
-    return false;
+    return c == '\n';
 }
 
 /*
@@ -719,9 +715,7 @@ static bool diffWithWhitespaceExpandedInEqualities(const QList<Diff> &leftInput,
         return false;
     *rightOutput = decodeExpandedWhitespace(rightDiffList,
                                             commonRightCodeMap, &ok);
-    if (!ok)
-        return false;
-    return true;
+    return ok;
 }
 
 static void appendWithEqualitiesSquashed(const QList<Diff> &leftInput,

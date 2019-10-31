@@ -62,7 +62,6 @@ enum FileDeletedPromptAnswer {
 };
 
 QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName,
-                                                                 bool triggerExternally,
                                                                  QWidget *parent);
 
 } // namespace Utils
