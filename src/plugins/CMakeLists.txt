@@ -82,7 +82,13 @@ add_subdirectory(ctfvisualizer)
 
 # Level 7:
 add_subdirectory(boot2qt)
-add_subdirectory(qmldesigner)
+unset(qmldesigner_builddir)
+if (WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # Workaround for @CMakeFiles\QmlDesigner.rsp ld.lld.exe: The filename or extension is too long.
+  # Clang on Windows is having problems with QmlDesigner.rsp which is bigger than 32KiB
+  set(qmldesigner_builddir ${PROJECT_BINARY_DIR}/qmldsgnr)
+endif()
+add_subdirectory(qmldesigner ${qmldesigner_builddir})
 add_subdirectory(qnx)
 add_subdirectory(webassembly)
 add_subdirectory(mcusupport)
