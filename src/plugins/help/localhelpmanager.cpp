@@ -544,12 +544,9 @@ void LocalHelpManager::updateFilterModel()
 bool LocalHelpManager::canOpenOnlineHelp(const QUrl &url)
 {
     const QString address = url.toString();
-    if (address.startsWith("qthelp://org.qt-project.")
-            || address.startsWith("qthelp://com.nokia.")
-            || address.startsWith("qthelp://com.trolltech.")) {
-        return true;
-    }
-    return false;
+    return address.startsWith("qthelp://org.qt-project.")
+        || address.startsWith("qthelp://com.nokia.")
+        || address.startsWith("qthelp://com.trolltech.");
 }
 
 bool LocalHelpManager::openOnlineHelp(const QUrl &url)
