@@ -1179,7 +1179,6 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         if (!pos)
             return QString();
         selStart = pos.value();
-        selEnd = selStart;
         byteCount = 1;
     }
 
