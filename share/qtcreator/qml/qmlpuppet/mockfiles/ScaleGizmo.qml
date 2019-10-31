@@ -28,69 +28,68 @@ import QtQuick3D 1.0
 import MouseArea3D 1.0
 
 Node {
-    id: moveGizmo
+    id: scaleGizmo
 
     property View3D view3D
     property bool highlightOnHover: false
     property Node targetNode: null
     property bool globalOrientation: true
-    readonly property bool dragging: arrowX.dragging || arrowY.dragging || arrowZ.dragging
+    readonly property bool dragging: scaleRodX.dragging || scaleRodY.dragging || scaleRodZ.dragging
                                      || centerMouseArea.dragging
 
-    signal positionCommit()
-    signal positionMove()
+    signal scaleCommit()
+    signal scaleChange()
 
     Node {
         rotation: globalOrientation || !targetNode ? Qt.vector3d(0, 0, 0) : targetNode.sceneRotation
 
-        Arrow {
-            id: arrowX
-            objectName: "Arrow X"
+        ScaleRod {
+            id: scaleRodX
+            objectName: "scaleRod X"
             rotation: Qt.vector3d(0, 0, -90)
-            targetNode: moveGizmo.targetNode
+            targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
                                                               : Qt.rgba(1, 0, 0, 1)
-            view3D: moveGizmo.view3D
-            active: moveGizmo.visible
+            view3D: scaleGizmo.view3D
+            active: scaleGizmo.visible
 
-            onPositionCommit: moveGizmo.positionCommit()
-            onPositionMove: moveGizmo.positionMove()
+            onScaleCommit: scaleGizmo.scaleCommit()
+            onScaleChange: scaleGizmo.scaleChange()
         }
 
-        Arrow {
-            id: arrowY
-            objectName: "Arrow Y"
+        ScaleRod {
+            id: scaleRodY
+            objectName: "scaleRod Y"
             rotation: Qt.vector3d(0, 0, 0)
-            targetNode: moveGizmo.targetNode
+            targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                                                               : Qt.rgba(0, 0.6, 0, 1)
-            view3D: moveGizmo.view3D
-            active: moveGizmo.visible
+            view3D: scaleGizmo.view3D
+            active: scaleGizmo.visible
 
-            onPositionCommit: moveGizmo.positionCommit()
-            onPositionMove: moveGizmo.positionMove()
+            onScaleCommit: scaleGizmo.scaleCommit()
+            onScaleChange: scaleGizmo.scaleChange()
         }
 
-        Arrow {
-            id: arrowZ
-            objectName: "Arrow Z"
+        ScaleRod {
+            id: scaleRodZ
+            objectName: "scaleRod Z"
             rotation: Qt.vector3d(90, 0, 0)
-            targetNode: moveGizmo.targetNode
+            targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
                                                               : Qt.rgba(0, 0, 1, 1)
-            view3D: moveGizmo.view3D
-            active: moveGizmo.visible
+            view3D: scaleGizmo.view3D
+            active: scaleGizmo.visible
 
-            onPositionCommit: moveGizmo.positionCommit()
-            onPositionMove: moveGizmo.positionMove()
+            onScaleCommit: scaleGizmo.scaleCommit()
+            onScaleChange: scaleGizmo.scaleChange()
         }
-
     }
 
     Model {
-        id: centerBall
+        id: centerCube
 
-        source: "#Sphere"
+        source: "#Cube"
         scale: Qt.vector3d(0.024, 0.024, 0.024)
         materials: DefaultMaterial {
             id: material
@@ -103,56 +102,57 @@ Node {
 
         MouseArea3D {
             id: centerMouseArea
-            view3D: moveGizmo.view3D
+            view3D: scaleGizmo.view3D
             x: -60
             y: -60
             width: 120
             height: 120
             rotation: view3D.camera.rotation
-            grabsMouse: moveGizmo.targetNode
+            grabsMouse: scaleGizmo.targetNode
             priority: 1
-            active: moveGizmo.visible
+            active: scaleGizmo.visible
 
-            property var _pointerPosPressed
-            property var _targetStartPos
+            property var _startScale
+            property var _startScreenPos
 
-            function localPos(scenePos)
+            function localScale(screenPos)
             {
-                var scenePointerPos = mapPositionToScene(scenePos);
-                var sceneRelativeDistance = Qt.vector3d(
-                            scenePointerPos.x - _pointerPosPressed.x,
-                            scenePointerPos.y - _pointerPosPressed.y,
-                            scenePointerPos.z - _pointerPosPressed.z);
-
-                var newScenePos = Qt.vector3d(
-                            _targetStartPos.x + sceneRelativeDistance.x,
-                            _targetStartPos.y + sceneRelativeDistance.y,
-                            _targetStartPos.z + sceneRelativeDistance.z);
-
-                return moveGizmo.targetNode.parent.mapPositionFromScene(newScenePos);
+                var yDelta = screenPos.y - _startScreenPos.y;
+                if (yDelta === 0)
+                    return;
+                var scaler = 1.0 + (yDelta * 0.025);
+                if (scaler === 0 )
+                    scaler = 0.0001;
+                if (scaler < 0)
+                    scaler = -scaler;
+                return Qt.vector3d(scaler * _startScale.x,
+                                   scaler * _startScale.y,
+                                   scaler * _startScale.z);
             }
 
             onPressed: {
-                if (!moveGizmo.targetNode)
+                if (!scaleGizmo.targetNode)
                     return;
 
-                _pointerPosPressed = mapPositionToScene(scenePos);
-                var sp = moveGizmo.targetNode.scenePosition;
-                _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
+                // Recreate vector so we don't follow the changes in targetNode.scale
+                _startScale = Qt.vector3d(scaleGizmo.targetNode.scale.x,
+                                          scaleGizmo.targetNode.scale.y,
+                                          scaleGizmo.targetNode.scale.z);
+                _startScreenPos = screenPos;
             }
             onDragged: {
-                if (!moveGizmo.targetNode)
+                if (!scaleGizmo.targetNode)
                     return;
 
-                moveGizmo.targetNode.position = localPos(scenePos);
-                moveGizmo.positionMove();
+                scaleGizmo.targetNode.scale = localScale(screenPos);
+                scaleGizmo.scaleChange();
             }
             onReleased: {
-                if (!moveGizmo.targetNode)
+                if (!scaleGizmo.targetNode)
                     return;
 
-                moveGizmo.targetNode.position = localPos(scenePos);
-                moveGizmo.positionCommit();
+                scaleGizmo.targetNode.scale = localScale(screenPos);
+                scaleGizmo.scaleCommit();
             }
         }
     }

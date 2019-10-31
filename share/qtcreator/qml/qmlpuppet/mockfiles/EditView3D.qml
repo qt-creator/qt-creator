@@ -48,8 +48,8 @@ Window {
     property var cameraGizmos: []
 
     signal objectClicked(var object)
-    signal commitObjectPosition(var object)
-    signal moveObjectPosition(var object)
+    signal commitObjectProperty(var object, var propName)
+    signal changeObjectProperty(var object, var propName)
 
     function selectObject(object) {
         selectedNode = object;
@@ -113,11 +113,26 @@ Window {
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
             globalOrientation: globalControl.checked
-            visible: selectedNode
+            visible: selectedNode && moveToolControl.checked
             view3D: overlayView
 
-            onPositionCommit: viewWindow.commitObjectPosition(selectedNode)
-            onPositionMove: viewWindow.moveObjectPosition(selectedNode)
+            onPositionCommit: viewWindow.commitObjectProperty(selectedNode, "position")
+            onPositionMove: viewWindow.changeObjectProperty(selectedNode, "position")
+        }
+
+        ScaleGizmo {
+            id: scaleGizmo
+            scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
+            highlightOnHover: true
+            targetNode: viewWindow.selectedNode
+            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
+                                              : Qt.vector3d(0, 0, 0)
+            globalOrientation: globalControl.checked
+            visible: selectedNode && scaleToolControl.checked
+            view3D: overlayView
+
+            onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
+            onScaleChange: viewWindow.changeObjectProperty(selectedNode, "scale")
         }
 
         AutoScaleHelper {
@@ -186,11 +201,11 @@ Window {
 
         Overlay2D {
             id: gizmoLabel
-            targetNode: moveGizmo
+            targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
             targetView: overlayView
             offsetX: 0
             offsetY: 45
-            visible: moveGizmo.dragging
+            visible: targetNode.dragging
 
             Rectangle {
                 color: "white"
@@ -203,11 +218,18 @@ Window {
                     id: gizmoLabelText
                     text: {
                         var l = Qt.locale();
-                        selectedNode
-                            ? qsTr("x:") + Number(selectedNode.position.x).toLocaleString(l, 'f', 1)
-                              + qsTr(" y:") + Number(selectedNode.position.y).toLocaleString(l, 'f', 1)
-                              + qsTr(" z:") + Number(selectedNode.position.z).toLocaleString(l, 'f', 1)
-                            : "";
+                        var targetProperty;
+                        if (viewWindow.selectedNode) {
+                            if (gizmoLabel.targetNode === moveGizmo)
+                                targetProperty = viewWindow.selectedNode.position;
+                            else
+                                targetProperty = viewWindow.selectedNode.scale;
+                            return qsTr("x:") + Number(targetProperty.x).toLocaleString(l, 'f', 1)
+                                + qsTr(" y:") + Number(targetProperty.y).toLocaleString(l, 'f', 1)
+                                + qsTr(" z:") + Number(targetProperty.z).toLocaleString(l, 'f', 1);
+                        } else {
+                            return "";
+                        }
                     }
                     anchors.centerIn: parent
                 }
@@ -251,6 +273,19 @@ Window {
             checked: true
             text: qsTr("Use Global Orientation")
             onCheckedChanged: cameraControl.forceActiveFocus()
+        }
+        Column {
+            x: 8
+            RadioButton {
+                id: moveToolControl
+                checked: false
+                text: qsTr("Move Tool")
+            }
+            RadioButton {
+                id: scaleToolControl
+                checked: true
+                text: qsTr("Scale Tool")
+            }
         }
     }
 

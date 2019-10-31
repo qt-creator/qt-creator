@@ -28,28 +28,45 @@ import QtQuick3D 1.0
 import MouseArea3D 1.0
 
 DirectionalDraggable {
-    id: arrow
-    source: "meshes/arrow.mesh"
+    id: scaleRod
+    source: "meshes/scalerod.mesh"
 
-    signal positionCommit()
-    signal positionMove()
+    signal scaleCommit()
+    signal scaleChange()
 
-    function localPos(sceneRelativeDistance)
+    property var _startScale
+
+    Model {
+        source: "#Cube"
+        y: 10
+        scale: Qt.vector3d(0.025, 0.025, 0.025)
+        materials: DefaultMaterial {
+            id: material
+            emissiveColor: scaleRod.color
+            lighting: DefaultMaterial.NoLighting
+        }
+    }
+
+    function localScale(mouseArea, sceneRelativeDistance)
     {
-        var newScenePos = Qt.vector3d(
-                    _targetStartPos.x + sceneRelativeDistance.x,
-                    _targetStartPos.y + sceneRelativeDistance.y,
-                    _targetStartPos.z + sceneRelativeDistance.z);
-        return targetNode.parent.mapPositionFromScene(newScenePos);
+        return mouseArea.getNewScale(targetNode, _startScale, _pointerPosPressed,
+                                     sceneRelativeDistance, sceneScale.x);
+    }
+
+    onPressed: {
+        // Recreate vector so we don't follow the changes in targetNode.sceneScale
+        _startScale = Qt.vector3d(targetNode.sceneScale.x,
+                                  targetNode.sceneScale.y,
+                                  targetNode.sceneScale.z);
     }
 
     onDragged: {
-        targetNode.position = localPos(sceneRelativeDistance);
-        positionMove();
+        targetNode.scale = localScale(mouseArea, sceneRelativeDistance);
+        scaleChange();
     }
 
     onReleased: {
-        targetNode.position = localPos(sceneRelativeDistance);
-        positionCommit();
+        targetNode.scale = localScale(mouseArea, sceneRelativeDistance);
+        scaleCommit();
     }
 }

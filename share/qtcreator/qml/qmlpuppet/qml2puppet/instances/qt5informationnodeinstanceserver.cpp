@@ -97,12 +97,12 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     }
 
     QObject::connect(window, SIGNAL(objectClicked(QVariant)), this, SLOT(objectClicked(QVariant)));
-    QObject::connect(window, SIGNAL(commitObjectPosition(QVariant)),
-                     this, SLOT(handleObjectPositionCommit(QVariant)));
-    QObject::connect(window, SIGNAL(moveObjectPosition(QVariant)),
-                     this, SLOT(handleObjectPositionMove(QVariant)));
-    QObject::connect(&m_moveTimer, &QTimer::timeout,
-                     this, &Qt5InformationNodeInstanceServer::handleObjectPositionMoveTimeout);
+    QObject::connect(window, SIGNAL(commitObjectProperty(QVariant, QVariant)),
+                     this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
+    QObject::connect(window, SIGNAL(changeObjectProperty(QVariant, QVariant)),
+                     this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
+    QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
 
     //For macOS we have to use the 4.1 core profile
     QSurfaceFormat surfaceFormat = window->requestedFormat();
@@ -188,28 +188,36 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
     }
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPositionCommit(const QVariant &object)
+void Qt5InformationNodeInstanceServer::handleObjectPropertyCommit(const QVariant &object,
+                                                                  const QVariant &propName)
 {
-    modifyVariantValue(object, "position", ValuesModifiedCommand::TransactionOption::End);
-    m_movedNode = {};
-    m_moveTimer.stop();
+    modifyVariantValue(object, propName.toByteArray(),
+                       ValuesModifiedCommand::TransactionOption::End);
+    m_changedNode = {};
+    m_changedProperty = {};
+    m_propertyChangeTimer.stop();
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPositionMove(const QVariant &object)
+void Qt5InformationNodeInstanceServer::handleObjectPropertyChange(const QVariant &object,
+                                                                  const QVariant &propName)
 {
-    if (m_movedNode.isNull()) {
-        modifyVariantValue(object, "position", ValuesModifiedCommand::TransactionOption::Start);
-    } else {
-        if (!m_moveTimer.isActive())
-            m_moveTimer.start();
+    PropertyName propertyName(propName.toByteArray());
+    if (m_changedProperty != propertyName || m_changedNode != object) {
+        if (!m_changedNode.isNull())
+            handleObjectPropertyCommit(m_changedNode, m_changedProperty);
+        modifyVariantValue(object, propertyName,
+                           ValuesModifiedCommand::TransactionOption::Start);
+    } else if (!m_propertyChangeTimer.isActive()) {
+        m_propertyChangeTimer.start();
     }
-    m_movedNode = object;
+    m_changedNode = object;
+    m_changedProperty = propertyName;
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
-    m_moveTimer.setInterval(100);
+    m_propertyChangeTimer.setInterval(100);
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
@@ -282,9 +290,10 @@ void Qt5InformationNodeInstanceServer::modifyProperties(
     nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPositionMoveTimeout()
+void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 {
-    modifyVariantValue(m_movedNode, "position", ValuesModifiedCommand::TransactionOption::None);
+    modifyVariantValue(m_changedNode, m_changedProperty,
+                       ValuesModifiedCommand::TransactionOption::None);
 }
 
 QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
