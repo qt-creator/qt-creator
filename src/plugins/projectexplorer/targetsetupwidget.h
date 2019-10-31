@@ -78,6 +78,9 @@ signals:
 private:
     static const QList<BuildInfo> buildInfoList(const Kit *k, const Utils::FilePath &projectPath);
 
+    bool hasSelectedBuildConfigurations() const;
+
+    void toggleEnabled(bool enabled);
     void checkBoxToggled(bool b);
     void pathChanged();
     void targetCheckBoxToggled(bool b);

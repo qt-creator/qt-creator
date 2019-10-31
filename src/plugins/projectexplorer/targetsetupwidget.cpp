@@ -122,7 +122,7 @@ bool TargetSetupWidget::isKitSelected() const
 void TargetSetupWidget::setKitSelected(bool b)
 {
     // Only check target if there are build configurations possible
-    b &= !selectedBuildInfoList().isEmpty();
+    b &= hasSelectedBuildConfigurations();
     m_ignoreChange = true;
     m_detailsWidget->setChecked(b);
     m_detailsWidget->widget()->setEnabled(b);
@@ -187,9 +187,12 @@ void TargetSetupWidget::targetCheckBoxToggled(bool b)
     if (m_ignoreChange)
         return;
     m_detailsWidget->widget()->setEnabled(b);
-    m_detailsWidget->setState(b && Utils::contains(m_infoStore, &BuildInfoStore::hasIssues)
-                              ? Utils::DetailsWidget::Expanded
-                              : Utils::DetailsWidget::Collapsed);
+    if (b && (contains(m_infoStore, &BuildInfoStore::hasIssues)
+              || !contains(m_infoStore, &BuildInfoStore::isEnabled))) {
+        m_detailsWidget->setState(DetailsWidget::Expanded);
+    } else if (!b) {
+        m_detailsWidget->setState(Utils::DetailsWidget::Collapsed);
+    }
     emit selectedToggled();
 }
 
@@ -230,12 +233,13 @@ void TargetSetupWidget::update(const Kit::Predicate &predicate)
     // Kits that don't fulfill the project predicate are not selectable, because we cannot
     // guarantee that we can handle the project sensibly (e.g. qmake project without Qt).
     if (predicate && !predicate(kit())) {
-        setEnabled(false);
+        toggleEnabled(false);
+        m_infoStore.clear();
         m_detailsWidget->setToolTip(tr("You cannot use this kit, because it does not fulfill "
                                        "the project's prerequisites."));
         return;
     }
-    setEnabled(true);
+    toggleEnabled(true);
     m_detailsWidget->setIcon(kit()->isValid() ? kit()->icon() : Icons::CRITICAL.icon());
     m_detailsWidget->setToolTip(m_kit->toHtml());
     updateDefaultBuildDirectories();
@@ -249,6 +253,22 @@ const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const File
     BuildInfo info(nullptr);
     info.kitId = k->id();
     return {info};
+}
+
+bool TargetSetupWidget::hasSelectedBuildConfigurations() const
+{
+    return !selectedBuildInfoList().isEmpty();
+}
+
+void TargetSetupWidget::toggleEnabled(bool enabled)
+{
+    m_detailsWidget->widget()->setEnabled(enabled && hasSelectedBuildConfigurations());
+    m_detailsWidget->setCheckable(enabled);
+    m_detailsWidget->setExpandable(enabled);
+    if (!enabled) {
+        m_detailsWidget->setState(DetailsWidget::Collapsed);
+        m_detailsWidget->setChecked(false);
+    }
 }
 
 const QList<BuildInfo> TargetSetupWidget::selectedBuildInfoList() const
