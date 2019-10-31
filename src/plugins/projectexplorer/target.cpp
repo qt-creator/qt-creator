@@ -98,7 +98,6 @@ public:
         m_runConfigurationModel(t)
     { }
 
-    bool m_isEnabled = true;
     QIcon m_overlayIcon;
 
     QList<BuildConfiguration *> m_buildConfigurations;
@@ -459,11 +458,6 @@ void Target::setActiveRunConfiguration(RunConfiguration *rc)
     updateDeviceState();
 }
 
-bool Target::isEnabled() const
-{
-    return d->m_isEnabled;
-}
-
 QIcon Target::icon() const
 {
     return d->m_kit->icon();
@@ -778,15 +772,6 @@ void Target::updateDeviceState()
     }
 
     setOverlayIcon(overlay);
-}
-
-void Target::setEnabled(bool enabled)
-{
-    if (enabled == d->m_isEnabled)
-        return;
-
-    d->m_isEnabled = enabled;
-    emit targetEnabled(d->m_isEnabled);
 }
 
 bool Target::fromMap(const QVariantMap &map)

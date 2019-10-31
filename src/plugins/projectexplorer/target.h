@@ -96,13 +96,6 @@ public:
     RunConfiguration *activeRunConfiguration() const;
     void setActiveRunConfiguration(RunConfiguration *rc);
 
-    // Returns whether this target is actually available at he time
-    // of the call. A target may become unavailable e.g. when a Qt version
-    // is removed.
-    //
-    // Note: Enabled state is not saved!
-    bool isEnabled() const;
-
     QIcon icon() const;
     QIcon overlayIcon() const;
     void setOverlayIcon(const QIcon &icon);
@@ -152,8 +145,6 @@ signals:
     void applicationTargetsChanged();
 
 private:
-    void setEnabled(bool);
-
     bool fromMap(const QVariantMap &map);
 
     void updateDeviceState();
