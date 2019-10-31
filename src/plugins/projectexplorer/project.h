@@ -29,7 +29,6 @@
 
 #include "deploymentdata.h"
 #include "kit.h"
-#include "subscription.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
@@ -163,24 +162,6 @@ public:
     bool hasParsingData() const;
 
     ProjectNode *findNodeForBuildKey(const QString &buildKey) const;
-
-    template<typename S, typename R, typename T, typename ...Args1, typename ...Args2>
-    void subscribeSignal(void (S::*sig)(Args1...), R*recv, T (R::*sl)(Args2...)) {
-        new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
-            if (S* sender = qobject_cast<S*>(pc))
-                return connect(sender, sig, recv, sl);
-            return QMetaObject::Connection();
-        }, recv, this);
-    }
-
-    template<typename S, typename R, typename T, typename ...Args1>
-    void subscribeSignal(void (S::*sig)(Args1...), R*recv, T sl) {
-        new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
-            if (S* sender = qobject_cast<S*>(pc))
-                return connect(sender, sig, recv, sl);
-            return QMetaObject::Connection();
-        }, recv, this);
-    }
 
     bool needsInitialExpansion() const;
     void setNeedsInitialExpansion(bool needsInitialExpansion);

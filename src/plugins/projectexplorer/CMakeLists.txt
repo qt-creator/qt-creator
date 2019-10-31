@@ -161,7 +161,6 @@ add_qtc_plugin(ProjectExplorer
     sessionview.cpp sessionview.h
     showineditortaskhandler.cpp showineditortaskhandler.h
     showoutputtaskhandler.cpp showoutputtaskhandler.h
-    subscription.cpp subscription.h
     target.cpp target.h
     targetsettingspanel.cpp targetsettingspanel.h
     targetsetuppage.cpp targetsetuppage.h

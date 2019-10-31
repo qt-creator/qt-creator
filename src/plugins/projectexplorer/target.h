@@ -28,8 +28,6 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
-#include "subscription.h"
-
 #include <memory>
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
