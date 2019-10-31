@@ -45,10 +45,7 @@ bool CMakeAutoCompleter::isInComment(const QTextCursor &cursor) const
     // NOTE: This doesn't handle '#' inside quotes, nor multi-line comments
     QTextCursor moved = cursor;
     moved.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-    if (moved.selectedText().contains(QLatin1Char('#')))
-        return true;
-    else
-        return false;
+    return moved.selectedText().contains(QLatin1Char('#'));
 }
 
 bool CMakeAutoCompleter::isInString(const QTextCursor &cursor) const
