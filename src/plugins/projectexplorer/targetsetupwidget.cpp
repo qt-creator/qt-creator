@@ -276,6 +276,7 @@ void TargetSetupWidget::updateDefaultBuildDirectories()
     for (const BuildInfo &buildInfo : buildInfoList(m_kit, m_projectPath)) {
         if (!buildInfo.factory())
             continue;
+        bool found = false;
         for (BuildInfoStore &buildInfoStore : m_infoStore) {
             if (buildInfoStore.buildInfo.typeName == buildInfo.typeName) {
                 if (!buildInfoStore.customBuildDir) {
@@ -283,9 +284,12 @@ void TargetSetupWidget::updateDefaultBuildDirectories()
                     buildInfoStore.pathChooser->setFileName(buildInfo.buildDirectory);
                     m_ignoreChange = false;
                 }
+                found = true;
                 break;
             }
         }
+        if (!found)  // the change of the kit may have produced more build information than before
+            addBuildInfo(buildInfo, false);
     }
 }
 
