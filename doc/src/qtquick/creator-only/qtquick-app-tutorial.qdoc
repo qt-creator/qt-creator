@@ -188,9 +188,9 @@
 
     \endlist
 
-    To check your code, you can view \e Page1Form.ui.qml in the
-    \uicontrol {Text Editor} and compare it with the \l{transitions/Page1Form.ui.qml}
-    {Page1Form.ui.qml} example file.
+    To check your code, you can view your \e {Page1Form.ui.qml} file in the
+    \uicontrol {Text Editor} and compare it with the \e {Page1Form.ui.qml}
+    example file.
 
     The new project wizard adds boilerplate code to the \e Page1.qml file to
     create menu items and push buttons. Modify the boilerplate code by removing
