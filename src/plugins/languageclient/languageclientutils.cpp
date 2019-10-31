@@ -258,8 +258,8 @@ const QIcon symbolIcon(int type)
     if (!icons.contains(kind)) {
         switch (kind) {
         case SymbolKind::File: icons[kind] = Utils::Icons::NEWFILE.icon(); break;
-        case SymbolKind::Module: icons[kind] = iconForType(Namespace); break;
-        case SymbolKind::Namespace: icons[kind] = iconForType(Namespace); break;
+        case SymbolKind::Module:
+        case SymbolKind::Namespace:
         case SymbolKind::Package: icons[kind] = iconForType(Namespace); break;
         case SymbolKind::Class: icons[kind] = iconForType(Class); break;
         case SymbolKind::Method: icons[kind] = iconForType(FuncPublic); break;
@@ -269,18 +269,18 @@ const QIcon symbolIcon(int type)
         case SymbolKind::Enum: icons[kind] = iconForType(Enum); break;
         case SymbolKind::Interface: icons[kind] = iconForType(Class); break;
         case SymbolKind::Function: icons[kind] = iconForType(FuncPublic); break;
-        case SymbolKind::Variable: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Constant: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::String: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Number: icons[kind] = iconForType(VarPublic); break;
-        case SymbolKind::Boolean: icons[kind] = iconForType(VarPublic); break;
+        case SymbolKind::Variable:
+        case SymbolKind::Constant:
+        case SymbolKind::String:
+        case SymbolKind::Number:
+        case SymbolKind::Boolean:
         case SymbolKind::Array: icons[kind] = iconForType(VarPublic); break;
         case SymbolKind::Object: icons[kind] = iconForType(Class); break;
-        case SymbolKind::Key: icons[kind] = iconForType(Keyword); break;
+        case SymbolKind::Key:
         case SymbolKind::Null: icons[kind] = iconForType(Keyword); break;
         case SymbolKind::EnumMember: icons[kind] = iconForType(Enumerator); break;
         case SymbolKind::Struct: icons[kind] = iconForType(Struct); break;
-        case SymbolKind::Event: icons[kind] = iconForType(FuncPublic); break;
+        case SymbolKind::Event:
         case SymbolKind::Operator: icons[kind] = iconForType(FuncPublic); break;
         case SymbolKind::TypeParameter: icons[kind] = iconForType(VarPublic); break;
         }

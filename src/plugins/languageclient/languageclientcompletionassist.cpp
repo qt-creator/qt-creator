@@ -143,7 +143,7 @@ QIcon LanguageClientCompletionItem::icon() const
     case CompletionItemKind::Method:
     case CompletionItemKind::Function:
     case CompletionItemKind::Constructor: icon = iconForType(FuncPublic); break;
-    case CompletionItemKind::Field: icon = iconForType(VarPublic); break;
+    case CompletionItemKind::Field:
     case CompletionItemKind::Variable: icon = iconForType(VarPublic); break;
     case CompletionItemKind::Class: icon = iconForType(Class); break;
     case CompletionItemKind::Module: icon = iconForType(Namespace); break;
