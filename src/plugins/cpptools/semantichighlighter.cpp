@@ -87,7 +87,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
 {
     if (documentRevision() != m_revision)
         return; // outdated
-    else if (!m_watcher || m_watcher->isCanceled())
+    if (!m_watcher || m_watcher->isCanceled())
         return; // aborted
 
     qCDebug(log) << "onHighlighterResultAvailable()" << from << to;
