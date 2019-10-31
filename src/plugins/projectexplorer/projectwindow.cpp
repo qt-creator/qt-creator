@@ -213,8 +213,6 @@ public:
     {
         switch (role) {
         case Qt::DisplayRole:
-            return m_project->displayName();
-
         case ProjectDisplayNameRole:
             return m_project->displayName();
 

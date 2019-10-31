@@ -977,9 +977,7 @@ bool ListField::validate(MacroExpander *expander, QString *message)
         return false;
 
     updateIndex();
-    if (selectionModel()->hasSelection())
-        return true;
-    return false;
+    return selectionModel()->hasSelection();
 }
 
 void ListField::initializeData(MacroExpander *expander)

@@ -82,7 +82,6 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         return data.second;
     case Qt::ToolTipRole:
-        return data.first;
     case FilePathRole:
         return data.first;
     case PrettyFilePathRole:
