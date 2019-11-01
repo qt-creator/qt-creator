@@ -234,11 +234,26 @@ static PackageOptions *createQulPackage()
 
 static PackageOptions *createArmGccPackage()
 {
-    const QString defaultPath =
-            Utils::HostOsInfo::isWindowsHost() ?
-                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)"))
-                + "/GNU Tools ARM Embedded/"
-              : QString("%{Env:ARMGCC_DIR}");
+    const char envVar[] = "ARMGCC_DIR";
+
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar))
+        defaultPath = qEnvironmentVariable(envVar);
+    if (defaultPath.isEmpty() && Utils::HostOsInfo::isWindowsHost()) {
+        const QDir installDir(
+                qEnvironmentVariable("ProgramFiles(x86)") + "/GNU Tools ARM Embedded/");
+        if (installDir.exists()) {
+            // If GNU Tools installation dir has only one sub dir,
+            // select the sub dir, otherwise the installation dir.
+            const QFileInfoList subDirs =
+                    installDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+            if (subDirs.count() == 1)
+                defaultPath = subDirs.first().filePath() + '/';
+        }
+    }
+    if (defaultPath.isEmpty())
+        defaultPath = QDir::homePath();
+
     auto result = new PackageOptions(
                 PackageOptions::tr("GNU Arm Embedded Toolchain"),
                 defaultPath,
@@ -246,7 +261,7 @@ static PackageOptions *createArmGccPackage()
                 Constants::SETTINGS_KEY_PACKAGE_ARMGCC);
     result->setDownloadUrl(
                 "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads");
-    result->setEnvironmentVariableName("ARMGCC_DIR");
+    result->setEnvironmentVariableName(envVar);
     return result;
 }
 
