@@ -458,7 +458,7 @@
     user interfaces for \l{glossary-device}{devices}.
 
     Qt Quick Controls 2 achieve improved efficiency by employing a simplified
-    \l {Styling Qt Quick Controls 2}{styling architecture} when compared to
+    \l {Styling Qt Quick Controls}{styling architecture} when compared to
     Qt Quick Controls, on which the module is based. The visual editor reads the
     \c qtquickcontrols2.conf file that specifies the preferred style and some
     style-specific arguments. To change the style, select another style from

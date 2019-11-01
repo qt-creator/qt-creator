@@ -298,6 +298,7 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
   SOURCES
+    aligndistribute.cpp aligndistribute.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h

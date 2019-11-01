@@ -257,8 +257,10 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
             interpreterAspect, &InterpreterAspect::updateInterpreters);
 
-    interpreterAspect->updateInterpreters(PythonSettings::interpreters());
-    interpreterAspect->setDefaultInterpreter(PythonSettings::defaultInterpreter());
+    QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(project()->projectDirectory());
+    aspect<InterpreterAspect>()->updateInterpreters(PythonSettings::interpreters());
+    aspect<InterpreterAspect>()->setDefaultInterpreter(
+        interpreters.isEmpty() ? PythonSettings::defaultInterpreter() : interpreters.first());
 
     auto scriptAspect = addAspect<MainScriptAspect>();
     scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");

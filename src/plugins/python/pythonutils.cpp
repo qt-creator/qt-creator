@@ -175,6 +175,11 @@ static FilePath detectPython(const FilePath &documentPath)
         }
     }
 
+    // check whether this file is inside a python virtual environment
+    QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
+    if (!python.exists())
+        python = venvInterpreters.value(0).command;
+
     if (!python.exists())
         python = PythonSettings::defaultInterpreter().command;
 
@@ -248,9 +253,15 @@ public:
                                          ? QString{"python-language-server[pyflakes]"}
                                          : QString{"python-language-server[all]"};
 
-        m_process.start(m_python.toString(), {"-m", "pip", "install", "--user", pylsVersion});
+        QStringList arguments = {"-m", "pip", "install", pylsVersion};
 
-        Core::MessageManager::write(tr("Running '%1 %2' to install python language server")
+        // add --user to global pythons, but skip it for venv pythons
+        if (!QDir(m_python.parentDir().toString()).exists("activate"))
+            arguments << "--user";
+
+        m_process.start(m_python.toString(), arguments);
+
+        Core::MessageManager::write(tr("Running \"%1 %2\" to install Python language server")
                                         .arg(m_process.program(), m_process.arguments().join(' ')));
 
         m_killTimer.setSingleShot(true);
@@ -261,7 +272,7 @@ private:
     void cancel()
     {
         SynchronousProcess::stopProcess(m_process);
-        Core::MessageManager::write(tr("The Python language server installation canceled by %1.")
+        Core::MessageManager::write(tr("The Python language server installation was canceled by %1.")
                                         .arg(m_killTimer.isActive() ? tr("user") : tr("time out")));
     }
 
@@ -371,7 +382,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
         && infoBar->canInfoBeAdded(installPylsInfoBarId)) {
         auto message
             = tr("Install and set up Python language server (PyLS) for %1 (%2). "
-                 "The language server provides Python specific completions and annotations.")
+                 "The language server provides Python specific completion and annotation.")
                   .arg(pythonName(python), python.toUserOutput());
         Core::InfoBarEntry info(installPylsInfoBarId,
                                 message,
@@ -383,7 +394,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
     } else if (lsState.state == PythonLanguageServerState::AlreadyInstalled
                && infoBar->canInfoBeAdded(startPylsInfoBarId)) {
         auto message = tr("Found a Python language server for %1 (%2). "
-                          "Should this one be set up for this document?")
+                          "Set it up for this document?")
                            .arg(pythonName(python), python.toUserOutput());
         Core::InfoBarEntry info(startPylsInfoBarId,
                                 message,

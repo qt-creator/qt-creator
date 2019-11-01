@@ -39,7 +39,7 @@ class ValuesChangedCommand
     friend bool operator ==(const ValuesChangedCommand &first, const ValuesChangedCommand &second);
 
 public:
-    enum TransactionOption { Start, End, None };
+    enum TransactionOption { Start = 1, End = 2, None = 0 };
     ValuesChangedCommand();
     explicit ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector);
 

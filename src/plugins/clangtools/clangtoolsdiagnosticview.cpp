@@ -283,7 +283,7 @@ bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
         return true;
     }
     default:
-        return QObject::eventFilter(watched, event);
+        return QAbstractItemView::eventFilter(watched, event);
     }
 }
 

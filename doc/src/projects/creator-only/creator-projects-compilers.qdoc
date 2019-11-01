@@ -63,8 +63,9 @@
             Windows applications on Windows. MinGW is
             distributed together with \QC and Qt installers for Windows.
 
-        \li Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
-            for Linux.
+        \li ICC (Intel C++ Compiler) is a group of C and C++ compilers.
+            Only the GCC-compatible variant, available for Linux and \macos,
+            is currently supported by \QC.
 
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and \macos.
@@ -87,7 +88,8 @@
         \li \l{https://www.iar.com/iar-embedded-workbench/}{IAREW} is a group of
             C and C++ bare-metal compilers from the various IAR Embedded Workbench
             development environments.
-            \note Currently supported architectures are \c 8051, \c AVR, and \c ARM.
+            \note Currently supported architectures are \c 8051, \c AVR, \c ARM,
+            \c STM8, and \c MSP430.
 
         \li \l{https://www.keil.com}{KEIL} is a group of C and C++ bare-metal
             compilers from the various KEIL development environments.
@@ -95,7 +97,7 @@
 
         \li \l{https://sdcc.sourceforge.net}{SDCC} is a retargetable, optimizing
             C bare-metal compiler for various architectures.
-            \note Currently supported architecture is \c 8051.
+            \note Currently supported architectures are \c 8051 and \c STM8.
 
     \endlist
 

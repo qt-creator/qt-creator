@@ -78,6 +78,8 @@ public:
 
     bool useCheckBox();
     void setUseCheckBox(bool b);
+    void setCheckable(bool b);
+    void setExpandable(bool b);
     void setIcon(const QIcon &icon);
 
     static QPixmap createBackground(const QSize &size, int topHeight, QWidget *widget);

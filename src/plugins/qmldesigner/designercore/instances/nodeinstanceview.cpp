@@ -1074,11 +1074,14 @@ ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<Varia
 {
     QVector<PropertyValueContainer> containerList;
 
+    const bool reflectionFlag = m_puppetTransaction.isValid();
+
     foreach (const VariantProperty &property, propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
             PropertyValueContainer container(instance.instanceId(), property.name(), property.value(), property.dynamicTypeName());
+            container.setReflectionFlag(reflectionFlag);
             containerList.append(container);
         }
 
@@ -1222,8 +1225,6 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
 
     if (command.transactionOption == ValuesModifiedCommand::TransactionOption::Start)
         startPuppetTransaction();
-    else if (command.transactionOption == ValuesModifiedCommand::TransactionOption::End)
-        endPuppetTransaction();
 
     for (const PropertyValueContainer &container : command.valueChanges()) {
         if (hasInstanceForId(container.instanceId())) {
@@ -1236,6 +1237,9 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
             }
         }
     }
+
+    if (command.transactionOption == ValuesModifiedCommand::TransactionOption::End)
+        endPuppetTransaction();
 }
 
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)

@@ -568,6 +568,8 @@ Project {
                 "navigator/navigatorview.h",
                 "navigator/navigatorwidget.cpp",
                 "navigator/navigatorwidget.h",
+                "propertyeditor/aligndistribute.cpp",
+                "propertyeditor/aligndistribute.h",
                 "propertyeditor/designerpropertymap.cpp",
                 "propertyeditor/designerpropertymap.h",
                 "propertyeditor/fileresourcesmodel.cpp",

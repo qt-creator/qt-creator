@@ -93,7 +93,7 @@ public:
         Runnable r;
         r.setCommandLine(command);
         m_appRunner.start(r, device);
-        showMessage(QdbDevice::tr("Starting command '%1' on device '%2'.")
+        showMessage(QdbDevice::tr("Starting command \"%1\" on device \"%2\".")
                     .arg(command.toUserOutput(), m_deviceName));
     }
 
@@ -112,18 +112,18 @@ private:
         if (!success) {
             QString errorString;
             if (!m_error.isEmpty()) {
-                errorString = QdbDevice::tr("Command failed on device '%1': %2")
+                errorString = QdbDevice::tr("Command failed on device \"%1\": %2")
                         .arg(m_deviceName, m_error);
             } else {
-                errorString = QdbDevice::tr("Command failed on device '%1'.").arg(m_deviceName);
+                errorString = QdbDevice::tr("Command failed on device \"%1\".").arg(m_deviceName);
             }
             showMessage(errorString, true);
             if (!m_stdout.isEmpty())
-                showMessage(QdbDevice::tr("stdout was: '%1'").arg(m_stdout));
+                showMessage(QdbDevice::tr("stdout was: \"%1\"").arg(m_stdout));
             if (!m_stderr.isEmpty())
-                showMessage(QdbDevice::tr("stderr was: '%1'").arg(m_stderr));
+                showMessage(QdbDevice::tr("stderr was: \"%1\"").arg(m_stderr));
         } else {
-            showMessage(QdbDevice::tr("Commands on device '%1' finished successfully.")
+            showMessage(QdbDevice::tr("Commands on device \"%1\" finished successfully.")
                         .arg(m_deviceName));
         }
         deleteLater();

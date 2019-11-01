@@ -28,6 +28,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectmacro.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
 
@@ -155,14 +156,16 @@ void filteredFlags(const QString &fileName,
             continue;
         }
 
-        if ((flag.startsWith("-I") || flag.startsWith("-isystem") || flag.startsWith("/I"))
-                   && flag != "-I" && flag != "-isystem" && flag != "/I") {
-            bool userInclude = flag.startsWith("-I");
-            const QString pathStr = updatedPathFlag(flag.mid(userInclude ? 2 : 8),
-                                                    workingDir);
-            headerPaths.append({pathStr, userInclude
-                                             ? HeaderPathType::User
-                                             : HeaderPathType::System});
+        const QStringList userIncludeFlags{"-I", "/I"};
+        const QStringList systemIncludeFlags{"-isystem", "-imsvc", "/imsvc"};
+        const QStringList allIncludeFlags = QStringList(userIncludeFlags) << systemIncludeFlags;
+        const QString includeOpt = Utils::findOrDefault(allIncludeFlags, [flag](const QString &opt) {
+            return flag.startsWith(opt) && flag != opt;
+        });
+        if (!includeOpt.isEmpty()) {
+            const QString pathStr = updatedPathFlag(flag.mid(includeOpt.length()), workingDir);
+            headerPaths.append({pathStr, userIncludeFlags.contains(includeOpt)
+                                ? HeaderPathType::User : HeaderPathType::System});
             continue;
         }
 
@@ -174,8 +177,12 @@ void filteredFlags(const QString &fileName,
             continue;
         }
 
-        if (flag == "-I" || flag == "-isystem" || flag == "/I") {
-            includePathType = (flag != "-isystem") ? HeaderPathType::User : HeaderPathType::System;
+        if (userIncludeFlags.contains(flag)) {
+            includePathType = HeaderPathType::User;
+            continue;
+        }
+        if (systemIncludeFlags.contains(flag)) {
+            includePathType = HeaderPathType::System;
             continue;
         }
 

@@ -19,7 +19,8 @@ SOURCES += propertyeditorview.cpp \
     simplecolorpalette.cpp \
     simplecolorpalettemodel.cpp \
     simplecolorpalettesingleton.cpp \
-    itemfiltermodel.cpp
+    itemfiltermodel.cpp \
+    aligndistribute.cpp
 
 HEADERS += propertyeditorview.h \
     qmlanchorbindingproxy.h \
@@ -40,6 +41,7 @@ HEADERS += propertyeditorview.h \
     simplecolorpalette.h \
     simplecolorpalettemodel.h \
     simplecolorpalettesingleton.h \
-    itemfiltermodel.h
+    itemfiltermodel.h \
+    aligndistribute.h
 
 QT += qml quick

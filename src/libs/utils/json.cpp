@@ -225,17 +225,13 @@ bool JsonSchema::typeMatches(const QString &expected, const QString &actual)
 
 bool JsonSchema::isCheckableType(const QString &s)
 {
-    if (s == QLatin1String("string")
-            || s == QLatin1String("number")
-            || s == QLatin1String("integer")
-            || s == QLatin1String("boolean")
-            || s == QLatin1String("object")
-            || s == QLatin1String("array")
-            || s == QLatin1String("null")) {
-        return true;
-    }
-
-    return false;
+    return s == QLatin1String("string")
+        || s == QLatin1String("number")
+        || s == QLatin1String("integer")
+        || s == QLatin1String("boolean")
+        || s == QLatin1String("object")
+        || s == QLatin1String("array")
+        || s == QLatin1String("null");
 }
 
 QStringList JsonSchema::validTypes() const

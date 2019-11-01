@@ -799,7 +799,7 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const QString
                                        "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory",
                                        "Qbs.RunConfiguration.WorkingDirectory",
                                        "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory",
-                                       "RemoteLinux.CustomRunConfig.WorkingDirectory"
+                                       "RemoteLinux.CustomRunConfig.WorkingDirectory",
                                        "RemoteLinux.RunConfig.WorkingDirectory",
                                        "WorkingDir"};
     static const QStringList termKeys = {"CMakeProjectManager.CMakeRunConfiguration.UseTerminal",

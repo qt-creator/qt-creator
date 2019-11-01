@@ -107,7 +107,7 @@
     \section1 Useful Features
 
     For a list of useful \QC features described in other parts of the
-    documentation, see \l{Tips and Tricks}.
+    documentation, see \l{How-tos}.
     \endif
 
     \section1 Changing Languages
@@ -404,6 +404,9 @@
         \if defined(qtdesignstudio)
         \li \uicontrol {Asset Importer Error} - Errors and warnings encountered
             while importing assets from a design tool.
+        \else
+        \li \uicontrol Autotests - Errors and warnings encountered while running
+            tests.
         \endif
 
         \li \uicontrol {Build System} - Errors and warnings encountered during a

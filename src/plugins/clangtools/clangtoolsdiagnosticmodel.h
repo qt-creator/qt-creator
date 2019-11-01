@@ -71,8 +71,9 @@ private:
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
-    using OnFixitStatusChanged = std::function<void(FixitStatus newStatus)>;
-    DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged,
+    using OnFixitStatusChanged = std::function<void(FixitStatus oldStatus, FixitStatus newStatus)>;
+    DiagnosticItem(const Diagnostic &diag,
+                   const OnFixitStatusChanged &onFixitStatusChanged,
                    ClangToolsDiagnosticModel *parent);
     ~DiagnosticItem() override;
 

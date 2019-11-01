@@ -193,7 +193,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
         Core::InfoBarEntry info(InstallUpdates,
-                                tr("New updates are available. Do you want to start the update?"));
+                                tr("New updates are available. Start the update?"));
         info.setCustomButtonInfo(tr("Start Update"), [this] {
             Core::ICore::infoBar()->removeInfo(InstallUpdates);
             startUpdater();
@@ -202,7 +202,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
         info.setDetailsWidgetCreator([updates]() -> QWidget * {
             const QString updateText = updates.join("</li><li>");
             auto label = new QLabel;
-            label->setText("<qt><p>" + tr("Available Updates:") + "<ul><li>" + updateText
+            label->setText("<qt><p>" + tr("Available updates:") + "<ul><li>" + updateText
                            + "</li></ul></p></qt>");
             label->setContentsMargins(0, 0, 0, 8);
             return label;

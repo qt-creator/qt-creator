@@ -110,6 +110,14 @@ bool DetailsButton::event(QEvent *e)
     return false;
 }
 
+void DetailsButton::changeEvent(QEvent *e)
+{
+    if (e->type() == QEvent::EnabledChange) {
+        m_checkedPixmap = QPixmap();
+        m_uncheckedPixmap = QPixmap();
+    }
+}
+
 void DetailsButton::paintEvent(QPaintEvent *e)
 {
     QWidget::paintEvent(e);

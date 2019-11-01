@@ -215,12 +215,12 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
     QString msg;
     if (status != QProcess::NormalExit) {
         if (m_processWasCanceled) {
-            msg = tr("*** cmake process was canceled by the user.");
+            msg = tr("CMake process was canceled by the user.");
         } else {
-            msg = tr("*** cmake process crashed.");
+            msg = tr("CMake process crashed.");
         }
     } else if (code != 0) {
-        msg = tr("*** cmake process exited with exit code %1.").arg(code);
+        msg = tr("CMake process exited with exit code %1.").arg(code);
     }
 
     if (!msg.isEmpty()) {

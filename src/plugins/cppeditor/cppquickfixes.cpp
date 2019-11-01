@@ -581,21 +581,11 @@ static bool checkDeclarationForSplit(SimpleDeclarationAST *declaration)
 
     for (SpecifierListAST *it = declaration->decl_specifier_list; it; it = it->next) {
         SpecifierAST *specifier = it->value;
-
-        if (specifier->asEnumSpecifier() != nullptr)
-            return false;
-
-        else if (specifier->asClassSpecifier() != nullptr)
+        if (specifier->asEnumSpecifier() || specifier->asClassSpecifier())
             return false;
     }
 
-    if (!declaration->declarator_list)
-        return false;
-
-    else if (!declaration->declarator_list->next)
-        return false;
-
-    return true;
+    return declaration->declarator_list && declaration->declarator_list->next;
 }
 
 namespace {
@@ -3502,9 +3492,7 @@ public:
 
     bool preVisit(AST *) override
     {
-        if (m_done)
-            return false;
-        return true;
+        return !m_done;
     }
 
     void statement(StatementAST *stmt)

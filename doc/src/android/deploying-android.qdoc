@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,9 +32,19 @@
 
     \title Deploying Applications to Android Devices
 
-    On Android, applications are distributed in a specially structured type of
-    ZIP package called an APK. \QC supports the following methods of deployment
-    for Android applications:
+    On Android, applications are distributed in specially structured types of
+    ZIP packages called Application Packages (APK) or Android App Bundles (AAB).
+    APK files can be downloaded to and executed on a device, whereas AAB is
+    intended to be interpreted by the Google Play store and is used to generate
+    APK files.
+
+    \l{Qt for Android} has binaries for armv7a, arm64-v8a, x86, and x86-64.
+    To support several different ABIs in your application, build an AAB that
+    contains binaries for each of the ABIs. The Google Play store uses the
+    AAB to generate optimized APK packages for the devices issuing the download
+    request and automatically signs them with your publisher key.
+
+    \QC supports the following methods of deployment for Android applications:
 
      \list
 
@@ -43,6 +53,9 @@
         \li As a minimal APK that contains a dependency to the Ministro tool.
             The Ministro tool downloads the necessary Qt libraries from a
             repository of your choice.
+
+        \li Since Qt 5.14.0, as an app bundle (AAB), intended for distribution
+            in the Google Play store.
 
     \endlist
 
@@ -136,6 +149,23 @@
     You can view information about what the anddroiddeployqt tool is doing in
     the \uicontrol {Compile Output} pane. To view additional information, select the
     \uicontrol {Verbose output} check box.
+
+    \section3 Building AABs
+
+    For testing the application locally, use the APK format, because
+    the package can be uploaded directly to the device and run. For
+    distribution to the Google Play store, create an AAB by selecting
+    the \uicontrol {Build .aab (Android App Bundle)} check box.
+
+    When building with CMake, you can select the ABIs to build the application
+    for in the \uicontrol CMake settings:
+
+    \image qtcreator-android-cmake-settings.png "CMake settings for building AABs"
+
+    When building with qmake, you can select the ABIs in the \uicontrol ABIs
+    field in the \uicontrol {Build Steps}:
+
+    \image qtcreator-android-build-steps.png "Android Build Steps"
 
     \section3 Selecting API Level
 

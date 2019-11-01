@@ -80,6 +80,11 @@ qreal MouseArea3D::height() const
     return m_height;
 }
 
+int MouseArea3D::priority() const
+{
+    return m_priority;
+}
+
 void MouseArea3D::setView3D(QQuick3DViewport *view3D)
 {
     if (m_view3D == view3D)
@@ -132,6 +137,15 @@ void MouseArea3D::setHeight(qreal height)
 
     m_height = height;
     emit heightChanged(height);
+}
+
+void MouseArea3D::setPriority(int level)
+{
+    if (m_priority == level)
+        return;
+
+    m_priority = level;
+    emit priorityChanged(level);
 }
 
 void MouseArea3D::componentComplete()
@@ -193,56 +207,117 @@ QVector3D MouseArea3D::getMousePosInPlane(const QPointF &mousePosInView) const
 
 bool MouseArea3D::eventFilter(QObject *, QEvent *event)
 {
-    switch (event->type()) {
-    case QEvent::HoverMove: {
-        if (m_grabsMouse && s_mouseGrab && s_mouseGrab != this)
-            break;
+    if (m_grabsMouse && s_mouseGrab && s_mouseGrab != this
+            && (m_priority <= s_mouseGrab->m_priority || s_mouseGrab->m_dragging)) {
+        return false;
+    }
 
+    auto mouseOnTopOfMouseArea = [this](const QVector3D &mousePosInPlane) -> bool {
+        return !qFuzzyCompare(mousePosInPlane.z(), -1)
+                && mousePosInPlane.x() >= float(m_x)
+                && mousePosInPlane.x() <= float(m_x + m_width)
+                && mousePosInPlane.y() >= float(m_y)
+                && mousePosInPlane.y() <= float(m_y + m_height);
+    };
+
+    switch (event->type()) {
+    case QEvent::MouseButtonPress: {
+        auto const mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->button() == Qt::LeftButton) {
+            m_mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
+            if (mouseOnTopOfMouseArea(m_mousePosInPlane)) {
+                setDragging(true);
+                emit pressed(m_mousePosInPlane);
+                if (m_grabsMouse) {
+                    if (s_mouseGrab && s_mouseGrab != this) {
+                        s_mouseGrab->setDragging(false);
+                        s_mouseGrab->setHovering(false);
+                    }
+                    s_mouseGrab = this;
+                    setHovering(true);
+                }
+                event->accept();
+                return true;
+            }
+        }
+        break;
+    }
+    case QEvent::MouseButtonRelease: {
+        auto const mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->button() == Qt::LeftButton) {
+            if (m_dragging) {
+                QVector3D mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
+                if (qFuzzyCompare(mousePosInPlane.z(), -1))
+                    mousePosInPlane = m_mousePosInPlane;
+                setDragging(false);
+                emit released(mousePosInPlane);
+                if (m_grabsMouse) {
+                    if (s_mouseGrab && s_mouseGrab != this) {
+                        s_mouseGrab->setDragging(false);
+                        s_mouseGrab->setHovering(false);
+                    }
+                    if (mouseOnTopOfMouseArea(mousePosInPlane)) {
+                        s_mouseGrab = this;
+                        setHovering(true);
+                    } else {
+                        s_mouseGrab = nullptr;
+                        setHovering(false);
+                    }
+                }
+                event->accept();
+                return true;
+            }
+        }
+        break;
+    }
+    case QEvent::MouseMove:
+    case QEvent::HoverMove: {
         auto const mouseEvent = static_cast<QMouseEvent *>(event);
         const QVector3D mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
-        if (qFuzzyCompare(mousePosInPlane.z(), -1))
-            break;
+        const bool hasMouse = mouseOnTopOfMouseArea(mousePosInPlane);
 
-        const bool mouseOnTopOfMouseArea =
-                mousePosInPlane.x() >= float(m_x) &&
-                mousePosInPlane.x() <= float(m_x + m_width) &&
-                mousePosInPlane.y() >= float(m_y) &&
-                mousePosInPlane.y() <= float(m_y + m_height);
+        setHovering(hasMouse);
 
-        const bool buttonPressed = QGuiApplication::mouseButtons().testFlag(Qt::LeftButton);
+        if (m_grabsMouse) {
+            if (m_hovering && s_mouseGrab && s_mouseGrab != this)
+                s_mouseGrab->setHovering(false);
 
-        // The filter will detect a mouse press on the view, but not a mouse release, since the
-        // former is not accepted by the view, which means that the release will end up being
-        // sent elsewhere. So we need this extra logic inside HoverMove, rather than in
-        // MouseButtonRelease, which would otherwise be more elegant.
-
-        if (m_hovering != mouseOnTopOfMouseArea) {
-            m_hovering = mouseOnTopOfMouseArea;
-            emit hoveringChanged();
+            if (m_hovering || m_dragging)
+                s_mouseGrab = this;
+            else if (s_mouseGrab == this)
+                s_mouseGrab = nullptr;
         }
 
-        if (!m_dragging && m_hovering && buttonPressed) {
-            m_dragging = true;
-            emit pressed(mousePosInPlane);
-            emit draggingChanged();
-        } else if (m_dragging && !buttonPressed) {
-            m_dragging = false;
-            emit released(mousePosInPlane);
-            emit draggingChanged();
-        }
-
-        if (m_grabsMouse)
-            s_mouseGrab = m_hovering || m_dragging ? this : nullptr;
-
-        if (m_dragging)
+        if (m_dragging && !qFuzzyCompare(mousePosInPlane.z(), -1)) {
+            m_mousePosInPlane = mousePosInPlane;
             emit dragged(mousePosInPlane);
+        }
 
-        break; }
+        break;
+    }
     default:
         break;
     }
 
     return false;
+}
+
+void MouseArea3D::setDragging(bool enable)
+{
+    if (m_dragging == enable)
+        return;
+
+    m_dragging = enable;
+    emit draggingChanged();
+}
+
+void MouseArea3D::setHovering(bool enable)
+{
+    if (m_hovering == enable)
+        return;
+
+    m_hovering = enable;
+    emit hoveringChanged();
 }
 
 }

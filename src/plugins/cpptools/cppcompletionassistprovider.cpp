@@ -51,9 +51,7 @@ bool CppCompletionAssistProvider::isActivationCharSequence(const QString &sequen
     const QChar &ch  = sequence.at(2);
     const QChar &ch2 = sequence.at(1);
     const QChar &ch3 = sequence.at(0);
-    if (activationSequenceChar(ch, ch2, ch3, nullptr, true, false) != 0)
-        return true;
-    return false;
+    return activationSequenceChar(ch, ch2, ch3, nullptr, true, false);
 }
 
 bool CppCompletionAssistProvider::isContinuationChar(const QChar &c) const

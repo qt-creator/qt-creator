@@ -209,7 +209,6 @@ static Abi macAbiForCpu(quint32 type) {
     case 0x01000000 +  7: // CPU_TYPE_X86_64
         return Abi(Abi::X86Architecture, Abi::DarwinOS, Abi::GenericFlavor, Abi::MachOFormat, 64);
     case 18: // CPU_TYPE_POWERPC
-        return Abi(Abi::PowerPCArchitecture, Abi::DarwinOS, Abi::GenericFlavor, Abi::MachOFormat, 32);
     case 0x01000000 + 18: // CPU_TYPE_POWERPC64
         return Abi(Abi::PowerPCArchitecture, Abi::DarwinOS, Abi::GenericFlavor, Abi::MachOFormat, 32);
     case 12: // CPU_TYPE_ARM
@@ -515,9 +514,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             if (flavor == UnknownFlavor)
                 flavor = GenericFlavor;
             format = ElfFormat;
-        } else if (p == "android") {
-            flavor = AndroidLinuxFlavor;
-        } else if (p == "androideabi") {
+        } else if (p == "android" || p == "androideabi") {
             flavor = AndroidLinuxFlavor;
         } else if (p.startsWith("freebsd")) {
             os = BsdOS;

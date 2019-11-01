@@ -80,7 +80,7 @@ void QdbMessageTracker::handleWatchMessage(const QJsonDocument &document)
         }
 
         m_messageCache.append(message);
-        showMessage(tr("Qdb message: %1").arg(message), true);
+        showMessage(tr("QDB message: %1").arg(message), true);
     }
 }
 

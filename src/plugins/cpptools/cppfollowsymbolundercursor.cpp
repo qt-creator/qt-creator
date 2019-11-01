@@ -374,7 +374,7 @@ Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *s
     if (symbol->isFunction())
         return nullptr; // symbol is a function definition.
 
-    else if (!symbol->type()->isFunctionType())
+    if (!symbol->type()->isFunctionType())
         return nullptr; // not a function declaration
 
     return symbolFinder->findMatchingDefinition(symbol, snapshot);

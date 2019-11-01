@@ -11,7 +11,14 @@
         <file>mockfiles/Arrow.qml</file>
         <file>mockfiles/AutoScaleHelper.qml</file>
         <file>mockfiles/MoveGizmo.qml</file>
+        <file>mockfiles/CameraGizmo.qml</file>
+        <file>mockfiles/LightGizmo.qml</file>
+        <file>mockfiles/IconGizmo.qml</file>
         <file>mockfiles/Overlay2D.qml</file>
-        <file>mockfiles/meshes/Arrow.mesh</file>
+        <file>mockfiles/meshes/arrow.mesh</file>
+        <file>mockfiles/images/camera-pick-icon.png</file>
+        <file>mockfiles/images/camera-pick-icon@2x.png</file>
+        <file>mockfiles/images/light-pick-icon.png</file>
+        <file>mockfiles/images/light-pick-icon@2x.png</file>
     </qresource>
 </RCC>

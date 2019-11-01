@@ -461,11 +461,7 @@ Scope *CheckSymbols::enclosingScope() const
 bool CheckSymbols::preVisit(AST *ast)
 {
     _astStack.append(ast);
-
-    if (isCanceled())
-        return false;
-
-    return true;
+    return !isCanceled();
 }
 
 void CheckSymbols::postVisit(AST *)
@@ -1256,13 +1252,12 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
         Symbol *c = r.declaration();
         if (c->isUsingDeclaration()) // skip using declarations...
             continue;
-        else if (c->isUsingNamespaceDirective()) // ... and using namespace directives.
+        if (c->isUsingNamespaceDirective()) // ... and using namespace directives.
             continue;
-        else if (c->isTypedef() || c->isNamespace() ||
-                 c->isStatic() || //consider also static variable
-                 c->isClass() || c->isEnum() || isTemplateClass(c) ||
-                 c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum() != nullptr) {
-
+        if (c->isTypedef() || c->isNamespace() ||
+                c->isStatic() || //consider also static variable
+                c->isClass() || c->isEnum() || isTemplateClass(c) ||
+                c->isForwardClassDeclaration() || c->isTypenameArgument() || c->enclosingEnum()) {
             int line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.utf16chars();
@@ -1298,11 +1293,11 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
         Symbol *c = r.declaration();
         if (!c)
             continue;
-        else if (!c->isDeclaration())
+        if (!c->isDeclaration())
             return false;
-        else if (!(c->enclosingScope() && c->enclosingScope()->isClass()))
+        if (!(c->enclosingScope() && c->enclosingScope()->isClass()))
             return false; // shadowed
-        else if (c->isTypedef() || (c->type() && c->type()->isFunctionType()))
+        if (c->isTypedef() || (c->type() && c->type()->isFunctionType()))
             return false; // shadowed
 
         int line, column;

@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 import QtQuick.Layouts 1.0
 import QtQuick.Controls.Styles 1.1
 
@@ -145,8 +146,7 @@ RowLayout {
     }
 
     StudioControls.AbstractButton {
-        buttonIcon: "..."
-        iconFont: StudioTheme.Constants.font.family
+        buttonIcon: StudioTheme.Constants.addFile
         iconColor: urlChooser.textColor
         onClicked: {
             fileModel.openFileDialog()

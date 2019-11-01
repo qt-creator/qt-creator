@@ -158,7 +158,7 @@
 :Qt Creator_Issues_Core::Internal::OutputPaneToggleButton	{occurrence='1' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QHelpContentWidget	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView	{type='QmlJSEditor::Internal::QmlJSOutlineTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::Internal::QmlJSEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::QmlJSEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_TextEditor::TextEditorWidget	{type='TextEditor::TextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::BuildDirectoryLineEdit	{name='LineEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

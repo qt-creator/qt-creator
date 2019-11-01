@@ -68,7 +68,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     auto mainLayout = new QVBoxLayout(this);
 
     auto boardChooserlayout = new QHBoxLayout;
-    auto boardChooserLabel = new QLabel(McuSupportOptionsPage::tr("MCU board:"));
+    auto boardChooserLabel = new QLabel(McuSupportOptionsPage::tr("Target:"));
     boardChooserlayout->addWidget(boardChooserLabel);
     auto boardComboBox = new QComboBox;
     boardChooserLabel->setBuddy(boardComboBox);

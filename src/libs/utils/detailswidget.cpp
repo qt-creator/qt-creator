@@ -229,6 +229,16 @@ void DetailsWidget::setUseCheckBox(bool b)
     d->updateControls();
 }
 
+void DetailsWidget::setCheckable(bool b)
+{
+    d->m_summaryCheckBox->setEnabled(b);
+}
+
+void DetailsWidget::setExpandable(bool b)
+{
+    d->m_detailsButton->setEnabled(b);
+}
+
 void DetailsWidget::setChecked(bool b)
 {
     d->m_summaryCheckBox->setChecked(b);

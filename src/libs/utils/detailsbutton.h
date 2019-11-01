@@ -71,6 +71,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *e) override;
     bool event(QEvent *e) override;
+    void changeEvent(QEvent *e) override;
 
 private:
     QPixmap cacheRendering(const QSize &size, bool checked);

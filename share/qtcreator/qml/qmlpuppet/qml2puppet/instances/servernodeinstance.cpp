@@ -129,6 +129,11 @@ bool ServerNodeInstance::isSubclassOf(QObject *object, const QByteArray &superTy
     return  Internal::QmlPrivateGate::isSubclassOf(object, superTypeName);
 }
 
+void ServerNodeInstance::setModifiedFlag(bool b)
+{
+    m_nodeInstance->setModifiedFlag(b);
+}
+
 void ServerNodeInstance::setNodeSource(const QString &source)
 {
     m_nodeInstance->setNodeSource(source);

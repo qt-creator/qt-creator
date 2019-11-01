@@ -236,10 +236,11 @@ private:
 
 class ComboBoxField : public ListField
 {
-public:
+private:
     void setup(JsonFieldPage *page, const QString &name) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
     void initializeData(Utils::MacroExpander *expander) override;
+    QVariant toSettings() const override;
 };
 
 class IconListField : public ListField

@@ -111,9 +111,6 @@ QVariant ModuleItem::data(int column, int role) const
                           "information.\nStepping into the module or setting "
                           "breakpoints by file and line will not work.");
             case PlainSymbols:
-                return tr("This module contains debug information.\nStepping "
-                          "into the module or setting breakpoints by file and "
-                          "line is expected to work.");
             case FastSymbols:
                 return tr("This module contains debug information.\nStepping "
                           "into the module or setting breakpoints by file and "

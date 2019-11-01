@@ -382,10 +382,7 @@ Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
         if (ProjectNode *projectNode = project->rootProjectNode()) {
             projectNode->forEachGenericNode([&](Node *node) {
                 if (node->filePath() == fileName) {
-                    if (!bestNode) {
-                        bestNode = node;
-                        bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-                    } else if (priority(node) < priority(bestNode)) {
+                    if (!bestNode || priority(node) < priority(bestNode)) {
                         bestNode = node;
                         bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
                     } else if (priority(node) == priority(bestNode)) {

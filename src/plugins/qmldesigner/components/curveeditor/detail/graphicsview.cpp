@@ -184,11 +184,14 @@ void GraphicsView::setZoomY(double zoom, const QPoint &pivot)
     viewport()->update();
 }
 
-void GraphicsView::setCurrentFrame(int frame)
+void GraphicsView::setCurrentFrame(int frame, bool notify)
 {
     int clampedFrame = clamp(frame, m_model->minimumTime(), m_model->maximumTime());
     m_playhead.moveToFrame(clampedFrame, this);
     viewport()->update();
+
+    if (notify)
+        notifyFrameChanged(frame);
 }
 
 void GraphicsView::scrollContent(double x, double y)
@@ -251,6 +254,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
         QPointF pos = mapToScene(event->pos());
         if (timeScaleRect().contains(pos)) {
             setCurrentFrame(std::round(mapXtoTime(pos.x())));
+            m_playhead.setMoving(true);
             event->accept();
             return;
         }

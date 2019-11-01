@@ -98,6 +98,7 @@ public:
     bool modelIsInLayout() const;
 
     QRectF instanceBoundingRect() const;
+    QRectF instanceSceneBoundingRect() const;
     QRectF instancePaintedBoundingRect() const;
     QRectF instanceContentItemBoundingRect() const;
     QTransform instanceTransform() const;

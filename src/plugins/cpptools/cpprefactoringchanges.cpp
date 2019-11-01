@@ -172,10 +172,7 @@ bool CppRefactoringFile::isCursorOn(unsigned tokenIndex) const
     int start = startOf(tokenIndex);
     int end = endOf(tokenIndex);
 
-    if (cursorBegin >= start && cursorBegin <= end)
-        return true;
-
-    return false;
+    return cursorBegin >= start && cursorBegin <= end;
 }
 
 bool CppRefactoringFile::isCursorOn(const AST *ast) const
@@ -186,10 +183,7 @@ bool CppRefactoringFile::isCursorOn(const AST *ast) const
     int start = startOf(ast);
     int end = endOf(ast);
 
-    if (cursorBegin >= start && cursorBegin <= end)
-        return true;
-
-    return false;
+    return cursorBegin >= start && cursorBegin <= end;
 }
 
 Utils::ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const

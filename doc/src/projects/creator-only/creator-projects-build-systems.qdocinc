@@ -45,7 +45,7 @@
     configuration. qmake is installed and configured when you install Qt.
     To use one of the other supported build systems, you need to set it up.
 
-    \l {CMake Manual}{CMake} is an alternative to qmake for automating the
+    \l {Build with CMake}{CMake} is an alternative to qmake for automating the
     generation of build configurations. For more information, see
     \l {Setting Up CMake}.
 

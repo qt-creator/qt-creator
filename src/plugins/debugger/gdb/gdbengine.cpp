@@ -806,7 +806,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 int GdbEngine::commandTimeoutTime() const
 {
     int time = action(GdbWatchdogTimeout)->value().toInt();
-    return 1000 * qMax(40, time);
+    return 1000 * qMax(20, time);
 }
 
 void GdbEngine::commandTimeout()

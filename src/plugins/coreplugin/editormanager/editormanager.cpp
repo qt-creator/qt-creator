@@ -2427,9 +2427,7 @@ IEditor *EditorManager::currentEditor()
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
     DocumentModelPrivate::removeAllSuspendedEntries();
-    if (closeDocuments(DocumentModel::openedDocuments(), askAboutModifiedEditors))
-        return true;
-    return false;
+    return closeDocuments(DocumentModel::openedDocuments(), askAboutModifiedEditors);
 }
 
 void EditorManager::closeOtherDocuments(IDocument *document)

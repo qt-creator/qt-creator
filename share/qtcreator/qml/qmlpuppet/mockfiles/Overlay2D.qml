@@ -34,6 +34,8 @@ Item {
     property real offsetX: 0
     property real offsetY: 0
 
+    property bool isBehindCamera
+
     onTargetNodeChanged: updateOverlay()
 
     Connections {
@@ -46,13 +48,20 @@ Item {
         onSceneTransformChanged: updateOverlay()
     }
 
+    Connections {
+        target: designStudioNativeCameraControlHelper
+        onOverlayUpdateNeeded: updateOverlay()
+    }
+
     function updateOverlay()
     {
-        var scenePos = targetNode.scenePosition;
+        var scenePos = targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0);
         var scenePosWithOffset = Qt.vector3d(scenePos.x + offsetX, scenePos.y + offsetY, scenePos.z);
-        var viewPos = targetView.mapFrom3DScene(scenePosWithOffset);
+        var viewPos = targetView ? targetView.mapFrom3DScene(scenePosWithOffset)
+                                 : Qt.vector3d(0, 0, 0);
         root.x = viewPos.x;
         root.y = viewPos.y;
-        root.z = 100000 - viewPos.z; // flip left-handed to right-handed
+
+        isBehindCamera = viewPos.z <= 0;
     }
 }

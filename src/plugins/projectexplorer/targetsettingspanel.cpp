@@ -669,8 +669,7 @@ TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
 {
     d->m_displayName = displayName;
     QObject::connect(project, &Project::addedTarget,
-            d.get(), &TargetGroupItemPrivate::handleTargetAdded,
-            Qt::QueuedConnection);
+            d.get(), &TargetGroupItemPrivate::handleTargetAdded);
     QObject::connect(project, &Project::removedTarget,
             d.get(), &TargetGroupItemPrivate::handleTargetRemoved);
     QObject::connect(project, &Project::activeTargetChanged,

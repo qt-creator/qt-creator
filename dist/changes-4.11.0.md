@@ -18,6 +18,11 @@ you can check out from the public Git repository. For example:
 * Made update notification less intrusive and more informative (QTCREATORBUG-22817)
 * Made wizards remember user choices (QTCREATORBUG-16657)
 
+## Help
+
+* Fixed that removing Qt version only unregistered its documentation after
+  restart (QTCREATORBUG-16631)
+
 ## Editing
 
 * Added option to change line ending style via editor tool bar
@@ -90,6 +95,7 @@ you can check out from the public Git repository. For example:
 * Fixed handling of boolean semantics (`OFF`, `NO`, `FALSE`, and so on)
 * Fixed `Build` > `Run CMake` (QTCREATORBUG-19704)
 * Fixed registering `CMake.app` from official installer on macOS
+* Fixed code model issues when using precompiled headers (QTCREATORBUG-22888)
 
 ### Qbs
 
@@ -105,6 +111,12 @@ you can check out from the public Git repository. For example:
 
 * Added option to remove directories directly from project tree (QTCREATORBUG-16575)
 * Added support for Framework paths (QTCREATORBUG-20099)
+
+## Debugging
+
+### CDB
+
+* Fixed assigning negative values to variables (QTCREATORBUG-17269)
 
 ## Analyzer
 
@@ -148,6 +160,10 @@ you can check out from the public Git repository. For example:
 * Added settings per project (QTCREATORBUG-16704)
 * Added option to run tests after successful build
 
+### Boost
+
+* Fixed running multiple tests (QTCREATORBUG-23091)
+
 ## Platforms
 
 ### Windows
@@ -184,6 +200,7 @@ you can check out from the public Git repository. For example:
 * Fixed that it was not possible to add custom deployment steps (QTCREATORBUG-22977)
 
 ## Credits for these changes go to:
+
 Aleksei German  
 Alessandro Portale  
 Andre Hartmann  
@@ -211,6 +228,9 @@ Miikka Heikkinen
 Milian Wolff  
 Nikolai Kosjar  
 Orgad Shaneh  
+Pasi Keränen  
+Richard Weickelt  
+Robert Löhning  
 Sergey Levin  
 Sona Kurazyan  
 Tasuku Suzuki  

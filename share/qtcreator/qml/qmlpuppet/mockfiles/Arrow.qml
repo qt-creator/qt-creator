@@ -30,12 +30,12 @@ import MouseArea3D 1.0
 Model {
     id: arrow
     rotationOrder: Node.XYZr
-    source: "meshes/Arrow.mesh"
+    source: "meshes/arrow.mesh"
 
     property View3D view3D
     property alias color: material.emissiveColor
     property Node targetNode: null
-    property bool isDragging: false
+    property bool dragging: false
 
     readonly property bool hovering: mouseAreaYZ.hovering || mouseAreaXZ.hovering
 
@@ -43,10 +43,11 @@ Model {
     property var _targetStartPos
 
     signal positionCommit()
+    signal positionMove()
 
     materials: DefaultMaterial {
         id: material
-        emissiveColor: mouseAreaFront.hovering ? "white" : Qt.rgba(1.0, 0.0, 0.0, 1.0)
+        emissiveColor: "white"
         lighting: DefaultMaterial.NoLighting
     }
 
@@ -59,7 +60,7 @@ Model {
         _pointerPosPressed = mouseArea.mapPositionToScene(maskedPosition);
         var sp = targetNode.scenePosition;
         _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
-        isDragging = true;
+        dragging = true;
     }
 
     function posInParent(mouseArea, pointerPosition)
@@ -85,6 +86,7 @@ Model {
             return;
 
         targetNode.position = posInParent(mouseArea, pointerPosition);
+        arrow.positionMove();
     }
 
     function handleReleased(mouseArea, pointerPosition)
@@ -93,7 +95,7 @@ Model {
             return;
 
         targetNode.position = posInParent(mouseArea, pointerPosition);
-        isDragging = false;
+        dragging = false;
         arrow.positionCommit();
     }
 
@@ -104,7 +106,7 @@ Model {
         y: -1.5
         width: 12
         height: 3
-        rotation: Qt.vector3d(0, 90, 0)
+        rotation: Qt.vector3d(0, 0, 90)
         grabsMouse: targetNode
         onPressed: arrow.handlePressed(mouseAreaYZ, pointerPosition)
         onDragged: arrow.handleDragged(mouseAreaYZ, pointerPosition)
@@ -118,12 +120,11 @@ Model {
         y: -1.5
         width: 12
         height: 3
-        rotation: Qt.vector3d(90, 90, 0)
+        rotation: Qt.vector3d(0, 90, 90)
         grabsMouse: targetNode
         onPressed: arrow.handlePressed(mouseAreaXZ, pointerPosition)
         onDragged: arrow.handleDragged(mouseAreaXZ, pointerPosition)
         onReleased: arrow.handleReleased(mouseAreaXZ, pointerPosition)
     }
-
 }
 

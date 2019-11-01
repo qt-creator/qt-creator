@@ -62,7 +62,8 @@ def main():
             template = template.replace(".", "\\.")
             # skip non-configurable
             if template not in ["Qt Quick UI Prototype", "Auto Test Project",  # FIXME
-                                "Qt for Python - Empty", "Qt for Python - Window"]:
+                                "Qt for Python - Empty", "Qt for Python - Window",
+                                "Qt Quick 2 Extension Plugin"]:
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:

@@ -30,10 +30,14 @@ namespace Internal {
 CameraControlHelper::CameraControlHelper()
     : QObject()
 {
-    m_timer.setInterval(16);
-    m_timer.setSingleShot(false);
-    QObject::connect(&m_timer, &QTimer::timeout,
+    m_inputUpdateTimer.setInterval(16);
+    QObject::connect(&m_inputUpdateTimer, &QTimer::timeout,
                      this, &CameraControlHelper::handleUpdateTimer);
+
+    m_overlayUpdateTimer.setInterval(16);
+    m_overlayUpdateTimer.setSingleShot(true);
+    QObject::connect(&m_overlayUpdateTimer, &QTimer::timeout,
+                     this, &CameraControlHelper::overlayUpdateNeeded);
 }
 
 bool CameraControlHelper::enabled()
@@ -49,10 +53,16 @@ void CameraControlHelper::handleUpdateTimer()
 void CameraControlHelper::setEnabled(bool enabled)
 {
     if (enabled)
-        m_timer.start();
+        m_inputUpdateTimer.start();
     else
-        m_timer.stop();
+        m_inputUpdateTimer.stop();
     m_enabled = enabled;
+}
+
+void CameraControlHelper::requestOverlayUpdate()
+{
+    if (!m_overlayUpdateTimer.isActive())
+        m_overlayUpdateTimer.start();
 }
 
 }

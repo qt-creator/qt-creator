@@ -234,11 +234,26 @@ static PackageOptions *createQulPackage()
 
 static PackageOptions *createArmGccPackage()
 {
-    const QString defaultPath =
-            Utils::HostOsInfo::isWindowsHost() ?
-                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)"))
-                + "/GNU Tools ARM Embedded/"
-              : QString("%{Env:ARMGCC_DIR}");
+    const char envVar[] = "ARMGCC_DIR";
+
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar))
+        defaultPath = qEnvironmentVariable(envVar);
+    if (defaultPath.isEmpty() && Utils::HostOsInfo::isWindowsHost()) {
+        const QDir installDir(
+                qEnvironmentVariable("ProgramFiles(x86)") + "/GNU Tools ARM Embedded/");
+        if (installDir.exists()) {
+            // If GNU Tools installation dir has only one sub dir,
+            // select the sub dir, otherwise the installation dir.
+            const QFileInfoList subDirs =
+                    installDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+            if (subDirs.count() == 1)
+                defaultPath = subDirs.first().filePath() + '/';
+        }
+    }
+    if (defaultPath.isEmpty())
+        defaultPath = QDir::homePath();
+
     auto result = new PackageOptions(
                 PackageOptions::tr("GNU Arm Embedded Toolchain"),
                 defaultPath,
@@ -246,7 +261,7 @@ static PackageOptions *createArmGccPackage()
                 Constants::SETTINGS_KEY_PACKAGE_ARMGCC);
     result->setDownloadUrl(
                 "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads");
-    result->setEnvironmentVariableName("ARMGCC_DIR");
+    result->setEnvironmentVariableName(envVar);
     return result;
 }
 
@@ -286,8 +301,8 @@ static PackageOptions *createStm32CubeProgrammerPackage()
 static PackageOptions *createEvkbImxrt1050SdkPackage()
 {
     auto result = new PackageOptions(
-                PackageOptions::tr("NXP EVKB-IMXRT1050 SDK"),
-                "%{Env:EVKB_IMXRT1050_SDK_PATH}",
+                PackageOptions::tr("NXP i.MXRT SDK"),
+                "%{Env:EVKB_IMXRT1050_SDK_PATH}", // TODO: Try to not use 1050 specifics
                 "EVKB-IMXRT1050_manifest_v3_5.xml",
                 "evkbImxrt1050Sdk");
     result->setDownloadUrl("https://mcuxpresso.nxp.com/en/welcome");
@@ -306,6 +321,7 @@ static PackageOptions *createSeggerJLinkPackage()
                 Utils::HostOsInfo::withExecutableSuffix("JLink"),
                 "seggerJLink");
     result->setDownloadUrl("https://www.segger.com/downloads/jlink");
+    result->setEnvironmentVariableName("SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH");
     return result;
 }
 
@@ -454,10 +470,11 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const BoardOptions* board
             changes.append({package->environmentVariableName(),
                             QDir::toNativeSeparators(package->path())});
     }
-    if (!pathAdditions.isEmpty()) {
-        pathAdditions.append("${Path}");
-        changes.append({"Path", pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
-    }
+    pathAdditions.append("${Path}");
+    if (Utils::HostOsInfo::isWindowsHost())
+        pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath())); // for jom
+    pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
+    changes.append({"Path", pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
 
@@ -470,6 +487,8 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* boar
                                   ("%{CurrentBuild:Env:Qul_DIR}/" +
                                    board->toolChainFile()).toUtf8()));
     CMakeConfigurationKitAspect::setConfiguration(k, config);
+    if (Utils::HostOsInfo::isWindowsHost())
+        CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
 }
 
 ProjectExplorer::Kit *McuSupportOptions::kit(const BoardOptions* board)

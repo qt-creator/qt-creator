@@ -56,6 +56,7 @@
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
 #include "changeselectioncommand.h"
+#include "objectnodeinstance.h"
 
 #include "dummycontextobject.h"
 #include "../editor3d/cameracontrolhelper.h"
@@ -98,6 +99,10 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     QObject::connect(window, SIGNAL(objectClicked(QVariant)), this, SLOT(objectClicked(QVariant)));
     QObject::connect(window, SIGNAL(commitObjectPosition(QVariant)),
                      this, SLOT(handleObjectPositionCommit(QVariant)));
+    QObject::connect(window, SIGNAL(moveObjectPosition(QVariant)),
+                     this, SLOT(handleObjectPositionMove(QVariant)));
+    QObject::connect(&m_moveTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::handleObjectPositionMoveTimeout);
 
     //For macOS we have to use the 4.1 core profile
     QSurfaceFormat surfaceFormat = window->requestedFormat();
@@ -149,21 +154,62 @@ Qt5InformationNodeInstanceServer::vectorToPropertyValue(
     return result;
 }
 
+void Qt5InformationNodeInstanceServer::modifyVariantValue(
+    const QVariant &node,
+    const PropertyName &propertyName,
+    ValuesModifiedCommand::TransactionOption option)
+{
+    PropertyName targetPopertyName;
+
+    // Position is a special case, because the position can be 'position.x 'or simply 'x'.
+    // We prefer 'x'.
+    if (propertyName != "position")
+        targetPopertyName = propertyName;
+
+    auto *obj = node.value<QObject *>();
+
+    if (obj) {
+        ServerNodeInstance instance = instanceForObject(obj);
+
+        if (option == ValuesModifiedCommand::TransactionOption::Start)
+            instance.setModifiedFlag(true);
+        else if (option == ValuesModifiedCommand::TransactionOption::End)
+            instance.setModifiedFlag(false);
+
+        // We do have to split position into position.x, position.y, position.z
+        ValuesModifiedCommand command = createValuesModifiedCommand(vectorToPropertyValue(
+            instance,
+            targetPopertyName,
+            obj->property(propertyName)));
+
+        command.transactionOption = option;
+
+        nodeInstanceClient()->valuesModified(command);
+    }
+}
+
 void Qt5InformationNodeInstanceServer::handleObjectPositionCommit(const QVariant &object)
 {
-    auto *obj = object.value<QObject *>();
-    if (obj) {
-        /* We do have to split position into position.x, position.y, position.z */
-        nodeInstanceClient()->valuesModified(createValuesModifiedCommand(vectorToPropertyValue(
-            instanceForObject(obj),
-            "position",
-            obj->property("position"))));
+    modifyVariantValue(object, "position", ValuesModifiedCommand::TransactionOption::End);
+    m_movedNode = {};
+    m_moveTimer.stop();
+}
+
+void Qt5InformationNodeInstanceServer::handleObjectPositionMove(const QVariant &object)
+{
+    if (m_movedNode.isNull()) {
+        modifyVariantValue(object, "position", ValuesModifiedCommand::TransactionOption::Start);
+    } else {
+        if (!m_moveTimer.isActive())
+            m_moveTimer.start();
     }
+    m_movedNode = object;
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
+    m_moveTimer.setInterval(100);
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
@@ -236,6 +282,11 @@ void Qt5InformationNodeInstanceServer::modifyProperties(
     nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
 }
 
+void Qt5InformationNodeInstanceServer::handleObjectPositionMoveTimeout()
+{
+    modifyVariantValue(m_movedNode, "position", ValuesModifiedCommand::TransactionOption::None);
+}
+
 QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
         const QList<ServerNodeInstance> &instanceList) const
 {
@@ -250,6 +301,19 @@ QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
         }
     }
     return nullptr;
+}
+
+void Qt5InformationNodeInstanceServer::findCamerasAndLights(
+        const QList<ServerNodeInstance> &instanceList,
+        QObjectList &cameras, QObjectList &lights) const
+{
+    QObjectList objList;
+    for (const ServerNodeInstance &instance : instanceList) {
+        if (instance.isSubclassOf("QQuick3DCamera"))
+            cameras << instance.internalObject();
+        else if (instance.isSubclassOf("QQuick3DAbstractLight"))
+            lights << instance.internalObject();
+    }
 }
 
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList)
@@ -279,6 +343,19 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         parentProperty.write(objectToVariant(m_editView3D));
         QQmlProperty completeSceneProperty(m_editView3D, "showLight", context());
         completeSceneProperty.write(showCustomLight);
+
+        // Create camera and light gizmos
+        QObjectList cameras;
+        QObjectList lights;
+        findCamerasAndLights(instanceList, cameras, lights);
+        for (auto &obj : qAsConst(cameras)) {
+            QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
+                    Q_ARG(QVariant, objectToVariant(obj)));
+        }
+        for (auto &obj : qAsConst(lights)) {
+            QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
+                    Q_ARG(QVariant, objectToVariant(obj)));
+        }
     }
 }
 
@@ -469,6 +546,23 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
             return; // TODO: support multi-selection
         }
     }
+}
+
+void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
+{
+    bool hasDynamicProperties = false;
+    const QVector<PropertyValueContainer> values = command.valueChanges();
+    for (const PropertyValueContainer &container : values) {
+        if (!container.isReflected()) {
+            hasDynamicProperties |= container.isDynamic();
+            setInstancePropertyVariant(container);
+        }
+    }
+
+    if (hasDynamicProperties)
+        refreshBindings();
+
+    startRenderTimer();
 }
 
 } // namespace QmlDesigner

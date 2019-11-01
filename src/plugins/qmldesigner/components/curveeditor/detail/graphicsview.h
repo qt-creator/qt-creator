@@ -45,6 +45,9 @@ class GraphicsView : public QGraphicsView
 
     friend class Playhead;
 
+signals:
+    void notifyFrameChanged(int frame);
+
 public:
     GraphicsView(CurveEditorModel *model, QWidget *parent = nullptr);
 
@@ -94,7 +97,7 @@ public:
 
     void setZoomY(double zoom, const QPoint &pivot = QPoint());
 
-    void setCurrentFrame(int frame);
+    void setCurrentFrame(int frame, bool notify = true);
 
     void scrollContent(double x, double y);
 

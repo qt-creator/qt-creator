@@ -56,6 +56,19 @@ if [ ! -d "$designerDestDir" ]; then
     done
 fi
 
+# collect 3d assetimporter plugins
+assetimporterDestDir="$app_path/Contents/PlugIns/assetimporters"
+assetimporterSrcDir="$plugin_src/assetimporters"
+if [ -d "$assetimporterSrcDir" ]; then
+    if [ ! -d "$assetimporterDestDir" ]; then
+        echo "- Copying 3d assetimporter plugins"
+        mkdir -p "$assetimporterDestDir"
+        for plugin in "$assetimporterSrcDir"/*.dylib; do
+            cp "$plugin" "$assetimporterDestDir"/ || exit 1
+        done
+    fi
+fi
+
 # copy Qt Quick 1 imports
 importsDir="$app_path/Contents/Imports/qtquick1"
 if [ -d "$quick1_src" ]; then

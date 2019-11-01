@@ -73,7 +73,7 @@
     The main view of the application displays an SVG bubble image that moves
     around the screen when you tilt the device.
 
-    To use \l{accelbubble/Bluebubble.svg}{Bluebubble.svg} in your project,
+    To use \e {Bluebubble.svg} in your project,
     copy it to the project directory (same subdirectory as the QML file).
     The image appears in \uicontrol Resources. You can also use any other
     image or a QML type, instead.
@@ -140,9 +140,8 @@
 
     \QC creates a reference to the Bubble type in \e Page1Form.ui.qml.
 
-    To check your code, you can compare \e Page1Form.ui.qml with the
-    \l{accelbubble/Page1Form.ui.qml}{Page1Form.ui.qml} example file and
-    \e Bubble.qml with the \l{accelbubble/Bubble.qml}{Bubble.qml} example file.
+    To check your code, you can compare your \e Page1Form.ui.qml and
+    \e {Bubble.qml} with the corresponding example files.
 
     The UI is now ready and you can switch to editing the \e Bubble.qml and
     \e main.qml files in the \uicontrol {Text Editor}, as described in the

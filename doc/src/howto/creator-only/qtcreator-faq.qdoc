@@ -27,13 +27,13 @@
     \contentspage index.html
     \previouspage creator-help.html
     \page creator-faq.html
-    \nextpage creator-tips.html
+    \nextpage creator-how-tos.html
 
     \title FAQ
 
     This section contains answers to some frequently asked questions about \QC.
     You might also find answers to your questions in the
-    \l{Known Issues} and \l{Tips and Tricks} sections, or the Troubleshooting
+    \l{Known Issues} and \l{How-tos} sections, or the Troubleshooting
     sections for a special area, such as
     \l{Troubleshooting Debugger}{debugging}.
 

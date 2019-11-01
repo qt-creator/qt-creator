@@ -977,9 +977,7 @@ bool ListField::validate(MacroExpander *expander, QString *message)
         return false;
 
     updateIndex();
-    if (selectionModel()->hasSelection())
-        return true;
-    return false;
+    return selectionModel()->hasSelection();
 }
 
 void ListField::initializeData(MacroExpander *expander)
@@ -1116,11 +1114,8 @@ void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
         selectionModel()->blockSignals(true);
         w->blockSignals(false);
     });
-    page->registerObjectAsFieldWithName<QItemSelectionModel>(name, selectionModel(), &QItemSelectionModel::selectionChanged, [this]() {
-        const QModelIndex i = selectionModel()->currentIndex();
-        if (i.isValid())
-            return i.data(ValueRole);
-        return QVariant();
+    page->registerObjectAsFieldWithName<QComboBox>(name, w, QOverload<int>::of(&QComboBox::activated), [w]() {
+        return w->currentData(ValueRole);
     });
     QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, page, [page]() {
         emit page->completeChanged();
@@ -1141,6 +1136,13 @@ void ComboBoxField::initializeData(MacroExpander *expander)
     // refresh also the current text of the combobox
     auto w = qobject_cast<QComboBox*>(widget());
     w->setCurrentIndex(selectionModel()->currentIndex().row());
+}
+
+QVariant ComboBoxField::toSettings() const
+{
+    if (auto w = qobject_cast<QComboBox*>(widget()))
+        return w->currentData(ValueRole);
+    return {};
 }
 
 void IconListField::setup(JsonFieldPage *page, const QString &name)

@@ -32,12 +32,41 @@
 /*!
     \contentspage index.html
     \previouspage creator-faq.html
-    \page creator-tips.html
+    \page creator-how-tos.html
     \nextpage creator-known-issues.html
 
-    \title Tips and Tricks
+    \title How-tos
 
-    \section1 Switching Between Modes
+    How do I:
+
+    \list
+    \li \l {Switch between modes}
+    \li \l {Move between open files}
+    \li \l {Switch to Edit mode}
+    \li \l {Find a specific setting}
+    \li \l {Open output panes}
+    \li \l {Find keyboard shortcuts}
+    \li \l {Run \QC from the command line}
+    \li \l {Show and hide sidebars}
+    \li \l {Move to symbols}
+    \li \l {Inspect signal-slot connections while debugging}
+    \li \l {Display low-level data in the debugger}
+    \li \l {See the value of variables in tooltips while debugging}
+    \li \l {Quickly locate files using the keyboard}
+    \li \l {Perform calculations}
+    \li \l {Jump to a function in QML code}
+    \li \l {Add a license header template for C++ code}
+    \li \l {Paste text from my clipboard history}
+    \li \l {Sort lines alphabetically}
+    \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
+    \li \l {Select the enclosing block in C++}
+    \li \l {Add my own code snippets to the auto-complete menu}
+    \li \l {Quickly write down notes somewhere}
+    \li \l {Configure the amount of recent files shown}
+    \li \l {Search and replace across files using a regular expression}
+    \endlist
+
+    \section1 Switch between modes
 
     \QC uses different modes for different purposes. You can quickly
     switch between these modes with the following keyboard shortcuts:
@@ -55,7 +84,7 @@
 
     For more information about \QC modes, see \l {Selecting Modes}.
 
-    \section1 Moving Between Open Files
+    \section1 Move between open files
 
     To quickly move between currently open files, press
     \key Ctrl+Tab.
@@ -66,7 +95,7 @@
     to jump to a symbol in the same file, you can jump back to your original
     location in that file by pressing \key {Alt+Left}.
 
-    \section1 Moving To the Edit Mode
+    \section1 Switch to Edit mode
 
     To move to the \uicontrol Edit mode and currently active file, press
     \key Esc.
@@ -81,12 +110,12 @@
 
     \endlist
 
-    \section1 Using the Filter in Options Dialog
+    \section1 Find a specific setting
 
     To find specific settings you require in \uicontrol{Tools} > \uicontrol{Options}
     use the filter located at the top left of the \uicontrol Options dialog box.
 
-    \section1 Opening Output Panes
+    \section1 Open output panes
 
     The output panes provide a list of errors and warnings encountered during
     a build, detailed output from the compiler, status of a program when it is
@@ -112,7 +141,7 @@
 
     For more information about output panes, see \l{Viewing Output}.
 
-    \section1 Using Keyboard Shortcuts
+    \section1 Find keyboard shortcuts
 
     \QC provides \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
     You can see the keyboard shortcut for a menu command in the menu
@@ -121,7 +150,7 @@
     To customize, import or export keyboard shortcuts, select \uicontrol Tools >
     \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard.
 
-    \section1 Running \QC From Command Line
+    \section1 Run \QC from the command line
 
     You can launch \QC from command line using the name of an
     existing session or \c .pro file by giving the name as the command
@@ -132,7 +161,7 @@
 
     For more information, see \l{Using Command Line Options}.
 
-    \section1 Showing and Hiding Sidebars
+    \section1 Show and hide sidebars
 
     You can toggle the left and right sidebar in some \QC modes.
 
@@ -147,7 +176,7 @@
     For more information on using the sidebars, see
     \l {Browsing Project Contents}.
 
-    \section1 Moving To Symbols
+    \section1 Move to symbols
 
     To move straight to a symbol used in a project, select the symbol in the
     \uicontrol Editor toolbar drop-down menu. For more information on the editor
@@ -163,7 +192,7 @@
     cursor on the symbol and press \key {F2}. For more information, see
     \l{Moving to Symbol Definition or Declaration}.
 
-    \section1 Displaying Signals and Slots
+    \section1 Inspect signal-slot connections while debugging
 
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
@@ -177,7 +206,7 @@
     For more information about the \uicontrol{Locals} view, see
     \l{Local Variables and Function Parameters}.
 
-    \section1 Displaying Low Level Data
+    \section1 Display low-level data in the debugger
 
     If special debugging of Qt objects fails due to data corruption within the
     debugged objects, you can switch off the debugging helpers. When debugging
@@ -193,7 +222,7 @@
 
     \endlist
 
-    \section1 Showing Tooltips in Debug Mode
+    \section1 See the value of variables in tooltips while debugging
 
     To inspect the value of variables from the editor, you can turn
     on tooltips. Tooltips are hidden by default for performance reasons.
@@ -218,7 +247,7 @@
     select \uicontrol {Close Editor Tooltips} in the context menu in the
     \uicontrol {Locals} view.
 
-    \section1 Locating Files
+    \section1 Quickly locate files using the keyboard
 
     The \uicontrol Locator provides one of the easiest ways in \QC to browse
     through projects, files, classes, functions, documentation and file systems.
@@ -230,7 +259,20 @@
 
     For more information, see \l{Creating Locator Filters}.
 
-    \section1 Adding a License Header Template for C++ Code
+    \section1 Perform calculations
+
+    Open the \uicontrol Locator with \key {Ctrl+K} and type =, followed by a space.
+    You can now do basic calculations, with options to copy the results to the clipboard
+    by navigating through the entries and pressing \key {Enter}.
+
+    For more information, see \l{Executing JavaScript}.
+
+    \section1 Jump to a function in QML code
+
+    Open the \uicontrol Locator with \key {Ctrl+K} and type m, followed by a space.
+    You can now go directly to any QML method in the file.
+
+    \section1 Add a license header template for C++ code
 
     A file containing a license header for C++ can be specified under
     \uicontrol{Tools > Options > C++ > License Template}. It may contain special
@@ -250,16 +292,85 @@
 
     \endlist
 
-    \section1 Pasting from Clipboard History
+    \section1 Paste text from my clipboard history
 
     \QC stores copied text in clipboard history. To retrieve clips from the
     history, press \key {Ctrl+Shift+V} until the clip appears.
     The number of clips in the history is fixed to 10.
 
-    \section1 Sorting Lines Alphabetically
+    \section1 Sort lines alphabetically
 
     To sort selected lines alphabetically, select \uicontrol Edit >
     \uicontrol Advanced > \uicontrol {Sort Selected Lines} or press
     \key {Alt+Shift+S} (or \key Ctrl+Shift+S on \macos).
 
+    \section1 Enclose selected code in curly braces, parentheses, or double quotes
+
+    Press \key {Shift} and then the opening character.
+
+    \list
+    \li Curly braces: \key {Shift+\{}
+    \li Parentheses: \key {Shift+(}
+    \li Double quotes: \key {Shift+"}
+    \endlist
+
+    \section1 Select the enclosing block in C++
+
+    Press \key {Ctrl+U}.
+
+    \section1 Add my own code snippets to the auto-complete menu
+
+    You can add, modify, and remove snippets in the snippet editor.
+    To open the editor, select \uicontrol Tools > \uicontrol Options
+    > \uicontrol {Text Editor} > \uicontrol Snippets.
+
+    For more information, see \l {Adding and Editing Snippets}.
+
+    \section1 Quickly write down notes somewhere
+
+    Select \uicontrol File > \uicontrol {New File or Project} >
+    \uicontrol {Files and Classes} > \uicontrol General > \uicontrol {Scratch Buffer}.
+    Alternatively, \key {Ctrl+N} can be used to open this dialog, which is
+    fully navigable via keyboard by using the up and down arrow keys and the
+    tab key.
+
+    This creates a new empty text file and saves it to the temporary directory
+    on your machine. You can use it to write down notes without having to worry
+    about deleting the file afterwards. The operating system will eventually
+    remove the file automatically. If you want to keep the file, you can easily
+    save it as a new file somewhere else. If you accidentally close the file,
+    you can find it in the \uicontrol File > \uicontrol {Recent Files} menu.
+
+    \section1 Configure the amount of recent files shown
+
+    Select \uicontrol Tools > \uicontrol Options, and change the value of the
+    list under \uicontrol Environment > \uicontrol System
+    > \uicontrol {Maximum number of entries in "Recent Files"}.
+
+    \section1 Search and replace across files using a regular expression
+
+    As an example, say you want to replace equality checks (\c {foo == bar})
+    with a function (\c {foo.equals(bar)}):
+
+    \list 1
+    \li Ensure that any work you have done is committed to version control,
+        as the changes cannot be undone.
+    \li Press \key {Ctrl+Shift+F} to bring up the \uicontrol {Advanced Find}
+        form.
+    \li Change the scope to whatever is appropriate for your search.
+    \li Under the \uicontrol {Search for} text field, select
+        the \uicontrol {Use regular expressions} check box.
+    \li Enter the following text in the \uicontrol {Search for} text field:
+        \badcode
+        if \((.*) == (.*)\)
+        \endcode
+    \li Press \uicontrol {Search & Replace} to see a list of search results.
+    \li In the \uicontrol {Replace with} text field, enter the following text:
+        \badcode
+        if (\1.strictlyEquals(\2))
+        \endcode
+    \li Press \uicontrol Replace to replace all instances of the text.
+    \endlist
+
+    For more information, see \l {Advanced Search}.
 */

@@ -105,7 +105,7 @@ void ClangToolsProjectSettings::load()
     // Load map
     QVariantMap map = m_project->namedSettings(SETTINGS_KEY_MAIN).toMap();
 
-    bool write;
+    bool write = false;
     if (map.isEmpty()) {
         if (!m_project->namedSettings(SETTINGS_KEY_SELECTED_DIRS).isNull()) {
             map = convertToMapFromVersionBefore410(m_project);

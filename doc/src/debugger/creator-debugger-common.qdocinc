@@ -398,7 +398,7 @@
     entry.
 
     You can enable tooltips in the main editor displaying this information.
-    For more information, see \l{Showing Tooltips in Debug Mode}.
+    For more information, see \l{See the value of variables in tooltips while debugging}.
 
 //! [debugger-qt-basic-objects]
 */

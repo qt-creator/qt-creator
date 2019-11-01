@@ -1065,6 +1065,7 @@ QVariant BreakpointItem::data(int column, int role) const
             if (role == Qt::DisplayRole) {
                 if (!m_parameters.functionName.isEmpty())
                     return simplifyType(m_parameters.functionName);
+
                 if (m_parameters.type == BreakpointAtMain
                         || m_parameters.type == BreakpointAtThrow
                         || m_parameters.type == BreakpointAtCatch
@@ -1073,15 +1074,13 @@ QVariant BreakpointItem::data(int column, int role) const
                         //|| m_response.type == BreakpointAtVFork
                         || m_parameters.type == BreakpointAtSysCall)
                     return typeToString(m_parameters.type);
-                if (m_parameters.type == WatchpointAtAddress) {
-                    quint64 address = m_parameters.address ? m_parameters.address : m_parameters.address;
-                    return BreakHandler::tr("Data at 0x%1").arg(address, 0, 16);
-                }
-                if (m_parameters.type == WatchpointAtExpression) {
-                    QString expression = !m_parameters.expression.isEmpty()
-                            ? m_parameters.expression : m_parameters.expression;
-                    return BreakHandler::tr("Data at %1").arg(expression);
-                }
+
+                if (m_parameters.type == WatchpointAtAddress)
+                    return BreakHandler::tr("Data at 0x%1").arg(m_parameters.address, 0, 16);
+
+                if (m_parameters.type == WatchpointAtExpression)
+                    return BreakHandler::tr("Data at %1").arg(m_parameters.expression);
+
                 return empty;
             }
             break;

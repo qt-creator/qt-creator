@@ -1199,7 +1199,6 @@ void DocumentManager::checkForReload()
                     if (previousDeletedAnswer != FileDeletedCloseAll) {
                         previousDeletedAnswer =
                                 fileDeletedPrompt(document->filePath().toString(),
-                                                  trigger == IDocument::TriggerExternal,
                                                   ICore::dialogParent());
                     }
                     switch (previousDeletedAnswer) {

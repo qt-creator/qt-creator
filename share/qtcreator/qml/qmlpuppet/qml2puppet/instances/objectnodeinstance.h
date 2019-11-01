@@ -195,6 +195,8 @@ public:
 
     void virtual setHideInEditor(bool b);
 
+    void setModifiedFlag(bool b);
+
 protected:
     explicit ObjectNodeInstance(QObject *object);
     void doResetProperty(const PropertyName &propertyName);
@@ -220,6 +222,7 @@ private:
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;
+    bool m_isModified = false;
     static QHash<EnumerationName, QVariant> m_enumationValueHash;
 };
 

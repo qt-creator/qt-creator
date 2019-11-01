@@ -151,7 +151,6 @@ void CMakeBuildSystem::handleTreeScanningFinished()
     qDeleteAll(m_allFiles);
     m_allFiles = Utils::transform(m_treeScanner.release(), [](const FileNode *fn) { return fn; });
 
-    m_combinedScanAndParseResult = m_combinedScanAndParseResult && true;
     m_waitingForScan = false;
 
     combineScanAndParse();
@@ -165,7 +164,6 @@ void CMakeBuildSystem::handleParsingSuccess(CMakeBuildConfiguration *bc)
     QTC_ASSERT(m_waitingForParse, return );
 
     m_waitingForParse = false;
-    m_combinedScanAndParseResult = m_combinedScanAndParseResult && true;
 
     combineScanAndParse();
 }

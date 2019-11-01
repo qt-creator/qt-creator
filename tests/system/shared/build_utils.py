@@ -225,7 +225,6 @@ def runVerify():
         test.fatal("Haven't found build configurations, quitting")
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")
-    # select debug configuration
     for kit, config in availableConfigs:
         selectBuildConfig(kit, config)
         test.log("Using build config '%s'" % config)

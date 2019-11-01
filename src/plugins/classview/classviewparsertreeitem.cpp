@@ -333,11 +333,7 @@ bool ParserTreeItem::canFetchMore(QStandardItem *item) const
 
     int storedChildren = item->rowCount();
     int internalChildren = d->symbolInformations.count();
-
-    if (storedChildren < internalChildren)
-        return true;
-
-    return false;
+    return storedChildren < internalChildren;
 }
 
 /*!

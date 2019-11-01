@@ -227,6 +227,7 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
                                        const FileInfos &fileInfos,
                                        bool preventBuild)
     : RunWorker(runControl)
+    , m_runSettings(runSettings)
     , m_diagnosticConfig(diagnosticConfig)
     , m_fileInfos(fileInfos)
     , m_temporaryDir("clangtools-XXXXXX")
@@ -305,7 +306,7 @@ void ClangToolRunWorker::start()
     // Create log dir
     if (!m_temporaryDir.isValid()) {
         const QString errorMessage
-                = tr("%1: Failed to create temporary dir, stop.").arg(toolName);
+                = tr("%1: Failed to create temporary directory. Stopped.").arg(toolName);
         appendMessage(errorMessage, Utils::ErrorMessageFormat);
         TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
@@ -390,7 +391,7 @@ void ClangToolRunWorker::analyzeNextFile()
 
     const QString executable = runner->executable();
     if (!isFileExecutable(executable)) {
-        const QString errorMessage = tr("%1: Invalid executable \"%2\", stop.")
+        const QString errorMessage = tr("%1: Invalid executable \"%2\". Stopped.")
                                          .arg(runner->name(), executable);
         TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
