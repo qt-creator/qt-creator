@@ -12,7 +12,8 @@ add_qtc_library(ExtensionSystem
     pluginmanager.cpp pluginmanager.h pluginmanager_p.h
     pluginspec.cpp pluginspec.h pluginspec_p.h
     pluginview.cpp pluginview.h
-    EXPLICIT_MOC
-      pluginmanager.h
-      pluginmanager_p.h
+  EXPLICIT_MOC
+    pluginmanager.h
+    pluginmanager_p.h
+  SKIP_AUTOMOC pluginmanager.cpp
 )
