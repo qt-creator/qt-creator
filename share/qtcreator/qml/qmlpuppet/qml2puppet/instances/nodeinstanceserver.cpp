@@ -67,6 +67,7 @@
 #include <tokencommand.h>
 #include <removesharedmemorycommand.h>
 #include <changeselectioncommand.h>
+#include <drop3dlibraryitemcommand.h>
 
 #include <QDebug>
 #include <QQmlEngine>
@@ -1169,6 +1170,11 @@ ChangeSelectionCommand NodeInstanceServer::createChangeSelectionCommand(const QL
     }
 
     return ChangeSelectionCommand(idVector);
+}
+
+Drop3DLibraryItemCommand NodeInstanceServer::createDrop3DLibraryItemCommand(const QByteArray &itemData)
+{
+    return Drop3DLibraryItemCommand(itemData);
 }
 
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const

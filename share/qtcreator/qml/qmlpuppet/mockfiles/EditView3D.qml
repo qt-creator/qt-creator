@@ -161,6 +161,10 @@ Window {
             }
         }
 
+        DropArea {
+            anchors.fill: parent
+        }
+
         View3D {
             id: editView
             anchors.fill: parent

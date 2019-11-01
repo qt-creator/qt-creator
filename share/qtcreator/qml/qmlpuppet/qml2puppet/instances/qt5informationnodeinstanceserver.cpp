@@ -27,6 +27,8 @@
 
 #include <QQuickItem>
 #include <QQuickView>
+#include <QDropEvent>
+#include <QMimeData>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -57,6 +59,7 @@
 #include "removesharedmemorycommand.h"
 #include "changeselectioncommand.h"
 #include "objectnodeinstance.h"
+#include <drop3dlibraryitemcommand.h>
 
 #include "dummycontextobject.h"
 #include "../editor3d/cameracontrolhelper.h"
@@ -79,6 +82,25 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
+bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::Drop: {
+        QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
+        QByteArray data = dropEvent->mimeData()->data(
+                                        QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+        if (!data.isEmpty())
+            nodeInstanceClient()->library3DItemDropped(createDrop3DLibraryItemCommand(data));
+
+    } break;
+
+    default:
+        break;
+    }
+
+    return false;
+}
+
 QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 {
     auto helper = new QmlDesigner::Internal::CameraControlHelper();
@@ -98,6 +120,7 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
         return nullptr;
     }
 
+    window->installEventFilter(this);
     QObject::connect(window, SIGNAL(objectClicked(QVariant)), this, SLOT(objectClicked(QVariant)));
     QObject::connect(window, SIGNAL(commitObjectProperty(QVariant, QVariant)),
                      this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));

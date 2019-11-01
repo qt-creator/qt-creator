@@ -70,6 +70,7 @@ class AddImportContainer;
 class MockupTypeContainer;
 class IdContainer;
 class ChangeSelectionCommand;
+class Drop3DLibraryItemCommand;
 
 namespace Internal {
     class ChildrenChangeEventFilter;
@@ -180,6 +181,7 @@ protected:
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
     ComponentCompletedCommand createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList);
     ChangeSelectionCommand createChangeSelectionCommand(const QList<ServerNodeInstance> &instanceList);
+    Drop3DLibraryItemCommand createDrop3DLibraryItemCommand(const QByteArray &itemData);
 
     void addChangedProperty(const InstancePropertyPair &property);
 

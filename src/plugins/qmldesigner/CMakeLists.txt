@@ -139,6 +139,7 @@ extend_qtc_plugin(QmlDesigner
     tokencommand.cpp tokencommand.h
     valueschangedcommand.cpp valueschangedcommand.h
     changeselectioncommand.cpp changeselectioncommand.h
+    drop3dlibraryitemcommand.cpp drop3dlibraryitemcommand.h
 )
 
 extend_qtc_plugin(QmlDesigner

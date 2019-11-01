@@ -169,6 +169,8 @@ Project {
                 "commands/valueschangedcommand.h",
                 "commands/changeselectioncommand.cpp",
                 "commands/changeselectioncommand.h",
+                "commands/drop3dlibraryitemcommand.cpp",
+                "commands/drop3dlibraryitemcommand.h",
                 "container/addimportcontainer.cpp",
                 "container/addimportcontainer.h",
                 "container/idcontainer.cpp",
