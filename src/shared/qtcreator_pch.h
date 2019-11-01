@@ -35,17 +35,6 @@
 #undef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 
-//QT_NO_FLOAT16_OPERATORS is used on Visual Studio 2017 (and earlier):
-//when including <QFloat16> and <bitset> in the same translation unit,
-//it would cause a compilation error due to a toolchain bug (see [QTBUG-72073])
-#if _MSC_VER <= 1920
-#define QT_NO_FLOAT16_OPERATORS
-#if QT_VERSION < QT_VERSION_CHECK(5, 12, 4)
-//https://doc.qt.io/qt-5/qfloat16.html#QT_NO_FLOAT16_OPERATORS
-#error QT_NO_FLOAT16_OPERATORS requires Qt 5.12.4
-#endif
-#endif
-
 // lib/Utils needs defines for Windows 8
 #undef WINVER
 #define WINVER 0x0602
@@ -66,7 +55,18 @@
 #undef _POSIX_
 #endif // Q_OS_WIN
 
-#include <QtCore>
+#include <QCoreApplication>
+#include <QList>
+#include <QVariant>
+#include <QObject>
+#include <QRegExp>
+#include <QString>
+#include <QStringList>
+#include <QTextCodec>
+#include <QPointer>
+#include <QScopedPointer>
+#include <QSharedPointer>
+#include <QDebug>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QTextStream>
