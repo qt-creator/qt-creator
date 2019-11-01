@@ -33,6 +33,8 @@ namespace Internal {
 
 class EmrunRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
 {
+    Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::EmrunRunConfigurationFactory)
+
 public:
     EmrunRunConfigurationFactory();
 };

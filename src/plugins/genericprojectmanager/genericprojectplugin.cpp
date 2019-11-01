@@ -107,8 +107,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
             genericProject->setFiles(transform(sfd.selectedFiles(), &FilePath::toString));
     });
 
-
-    const auto removeDirAction = new QAction(tr("Remove Directory"), this);
+    const auto removeDirAction = new QAction(GenericProjectPlugin::tr("Remove Directory"), this);
     Command * const cmd = ActionManager::registerAction(removeDirAction, "GenericProject.RemoveDir",
                                                         Context(PEC::C_PROJECT_TREE));
     ActionManager::actionContainer(PEC::M_FOLDERCONTEXT)->addAction(cmd, PEC::G_FOLDER_OTHER);
@@ -121,8 +120,10 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
                     folderNode->findNodes([](const Node *node) { return node->asFileNode(); }),
                     [](const Node *node) { return node->filePath().toString();});
         if (!project->removeFiles(filesToRemove)) {
-            TaskHub::addTask(Task::Error, tr("Project files list update failed."),
-                             PEC::TASK_CATEGORY_BUILDSYSTEM, project->filesFilePath());
+            TaskHub::addTask(Task::Error,
+                             GenericProjectPlugin::tr("Project files list update failed."),
+                             PEC::TASK_CATEGORY_BUILDSYSTEM,
+                             project->filesFilePath());
         }
     });
 }

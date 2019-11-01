@@ -154,7 +154,7 @@ void CtfTraceManager::addEvent(const json &event)
     }
 }
 
-void CtfVisualizer::Internal::CtfTraceManager::load(const QString &filename)
+void CtfTraceManager::load(const QString &filename)
 {
     clearAll();
 

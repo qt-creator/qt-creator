@@ -62,9 +62,9 @@ public:
         , m_executable(new Utils::PathChooser())
     {
         auto mainLayout = new QGridLayout();
-        mainLayout->addWidget(new QLabel(tr("Name:")), 0, 0);
+        mainLayout->addWidget(new QLabel(PythonSettings::tr("Name:")), 0, 0);
         mainLayout->addWidget(m_name, 0, 1);
-        mainLayout->addWidget(new QLabel(tr("Executable")), 1, 0);
+        mainLayout->addWidget(new QLabel(PythonSettings::tr("Executable")), 1, 0);
         mainLayout->addWidget(m_executable, 1, 1);
         m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
         setLayout(mainLayout);
@@ -138,12 +138,12 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
             this,
             &InterpreterOptionsWidget::currentChanged);
     auto buttonLayout = new QVBoxLayout();
-    auto addButton = new QPushButton(InterpreterOptionsWidget::tr("&Add"));
+    auto addButton = new QPushButton(PythonSettings::tr("&Add"));
     connect(addButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::addItem);
-    m_deleteButton = new QPushButton(InterpreterOptionsWidget::tr("&Delete"));
+    m_deleteButton = new QPushButton(PythonSettings::tr("&Delete"));
     m_deleteButton->setEnabled(false);
     connect(m_deleteButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::deleteItem);
-    m_makeDefaultButton = new QPushButton(InterpreterOptionsWidget::tr("&Make Default"));
+    m_makeDefaultButton = new QPushButton(PythonSettings::tr("&Make Default"));
     m_makeDefaultButton->setEnabled(false);
     connect(m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
     mainLayout->addLayout(layout);
@@ -230,9 +230,9 @@ private:
 InterpreterOptionsPage::InterpreterOptionsPage()
 {
     setId(Constants::C_PYTHONOPTIONS_PAGE_ID);
-    setDisplayName(tr("Interpreters"));
+    setDisplayName(PythonSettings::tr("Interpreters"));
     setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-    setDisplayCategory(tr("Python"));
+    setDisplayCategory(PythonSettings::tr("Python"));
     setCategoryIcon(Utils::Icon({{":/python/images/settingscategory_python.png",
                                   Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
@@ -385,7 +385,7 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
             const FilePath &executable = FilePath::fromUserInput(regVal.toString());
             if (executable.exists() && !alreadyRegistered(pythons, executable)) {
                 pythons << Interpreter{QUuid::createUuid().toString(),
-                                       name + InterpreterOptionsPage::tr(" (Windowed)"),
+                                       name + PythonSettings::tr(" (Windowed)"),
                                        FilePath::fromUserInput(regVal.toString())};
             }
         }

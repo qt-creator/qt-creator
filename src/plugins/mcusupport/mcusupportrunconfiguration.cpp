@@ -57,29 +57,26 @@ static CommandLine flashAndRunCommand(Target *target)
                        });
 }
 
-class FlashAndRunConfiguration : public ProjectExplorer::RunConfiguration
+FlashAndRunConfiguration::FlashAndRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
-public:
-    FlashAndRunConfiguration(Target *target, Core::Id id)
-        : RunConfiguration(target, id)
-    {
-        auto effectiveFlashAndRunCall = addAspect<BaseStringAspect>();
-        effectiveFlashAndRunCall->setLabelText(tr("Effective flash and run call:"));
-        effectiveFlashAndRunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
-        effectiveFlashAndRunCall->setReadOnly(true);
+    auto effectiveFlashAndRunCall = addAspect<BaseStringAspect>();
+    effectiveFlashAndRunCall->setLabelText(tr("Effective flash and run call:"));
+    effectiveFlashAndRunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+    effectiveFlashAndRunCall->setReadOnly(true);
 
-        auto updateConfiguration = [target, effectiveFlashAndRunCall] {
-            effectiveFlashAndRunCall->setValue(flashAndRunCommand(target).toUserOutput());
-        };
+    auto updateConfiguration = [target, effectiveFlashAndRunCall] {
+        effectiveFlashAndRunCall->setValue(flashAndRunCommand(target).toUserOutput());
+    };
 
-        updateConfiguration();
+    updateConfiguration();
 
-        connect(target->activeBuildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-                this, updateConfiguration);
-        connect(target->project(), &Project::displayNameChanged,
-                this, updateConfiguration);
-    }
-};
+    connect(target->activeBuildConfiguration(),
+            &BuildConfiguration::buildDirectoryChanged,
+            this,
+            updateConfiguration);
+    connect(target->project(), &Project::displayNameChanged, this, updateConfiguration);
+}
 
 class FlashAndRunWorker : public SimpleTargetRunner
 {
