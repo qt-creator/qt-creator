@@ -329,8 +329,13 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders u
     for (const QString &pchFile : m_projectPart.precompiledHeaders) {
         // Bail if build system precomiple header artifacts exists
         // Clang cannot handle foreign PCH files.
-        if (QFile::exists(pchFile + ".gch") || QFile::exists(pchFile + ".pch"))
+        if (QFile::exists(pchFile + ".gch") || QFile::exists(pchFile + ".pch")) {
             usePrecompiledHeaders = UsePrecompiledHeaders::No;
+
+            // In case of Clang compilers, remove the pch-inclusion arguments
+            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".gch"});
+            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".pch"});
+        }
 
         if (usePrecompiledHeaders == UsePrecompiledHeaders::No) {
             // CMake PCH will already have force included the header file in
