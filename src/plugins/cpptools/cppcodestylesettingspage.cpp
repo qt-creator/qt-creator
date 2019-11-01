@@ -161,8 +161,6 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
             this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
 
     m_ui->categoryTab->setCurrentIndex(0);
-
-    m_ui->tabSettingsWidget->setFlat(true);
 }
 
 CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()

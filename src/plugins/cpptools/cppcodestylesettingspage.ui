@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>463</width>
-    <height>314</height>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,19 +69,7 @@
          <property name="title">
           <string>Indent</string>
          </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
            <widget class="QCheckBox" name="indentAccessSpecifiers">
             <property name="text">
@@ -155,19 +143,7 @@
          <property name="title">
           <string>Indent Braces</string>
          </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
            <widget class="QCheckBox" name="indentClassBraces">
             <property name="text">
@@ -238,19 +214,7 @@
          <property name="title">
           <string>Indent within &quot;switch&quot;</string>
          </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
            <widget class="QCheckBox" name="indentSwitchLabels">
             <property name="text">
@@ -317,19 +281,7 @@
          <property name="title">
           <string>Align</string>
          </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
            <widget class="QCheckBox" name="alignAssignments">
             <property name="toolTip">
@@ -413,9 +365,6 @@ if they would align to the next line</string>
         <widget class="QGroupBox" name="pointerReferencesGroupBox">
          <property name="title">
           <string>Bind '*' and '&amp;&amp;' in types/declarations to</string>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
