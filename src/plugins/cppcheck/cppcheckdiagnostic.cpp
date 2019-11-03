@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Sergey Morozov
+** Copyright (C) 2019 Sergey Morozov
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,33 +23,20 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <cppcheck/cppcheckdiagnosticmanager.h>
-
-#include <utils/fileutils.h>
-
-#include <unordered_map>
+#include "cppcheckdiagnostic.h"
 
 namespace Cppcheck {
 namespace Internal {
 
-class Diagnostic;
-class CppcheckTextMark;
-
-class CppcheckTextMarkManager final : public CppcheckDiagnosticManager
+bool Diagnostic::operator==(const Diagnostic &r) const
 {
-public:
-    explicit CppcheckTextMarkManager();
-    ~CppcheckTextMarkManager() override;
+    return std::tie(severity, message, fileName, lineNumber)
+           == std::tie(r.severity, r.message, r.fileName, r.lineNumber);
+}
 
-    void add(const Diagnostic &diagnostic) override;
-    void clearFiles(const Utils::FilePathList &files);
-
-private:
-    using MarkPtr = std::unique_ptr<CppcheckTextMark>;
-    std::unordered_map<Utils::FilePath, std::vector<MarkPtr>> m_marks;
-};
-
+quint32 qHash(const Diagnostic &diagnostic)
+{
+    return qHash(diagnostic.message) ^ qHash(diagnostic.fileName) ^ diagnostic.lineNumber;
+}
 } // namespace Internal
 } // namespace Cppcheck

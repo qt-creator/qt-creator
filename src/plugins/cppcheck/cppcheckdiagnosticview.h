@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Sergey Morozov
+** Copyright (C) 2019 Sergey Morozov
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,30 +25,24 @@
 
 #pragma once
 
-#include <cppcheck/cppcheckdiagnosticmanager.h>
-
-#include <utils/fileutils.h>
-
-#include <unordered_map>
+#include <debugger/analyzer/detailederrorview.h>
 
 namespace Cppcheck {
 namespace Internal {
 
-class Diagnostic;
-class CppcheckTextMark;
-
-class CppcheckTextMarkManager final : public CppcheckDiagnosticManager
+class DiagnosticView : public Debugger::DetailedErrorView
 {
+    Q_OBJECT
 public:
-    explicit CppcheckTextMarkManager();
-    ~CppcheckTextMarkManager() override;
+    explicit DiagnosticView(QWidget *parent = nullptr);
+    ~DiagnosticView() override;
 
-    void add(const Diagnostic &diagnostic) override;
-    void clearFiles(const Utils::FilePathList &files);
+    void goNext() override;
+    void goBack() override;
 
 private:
-    using MarkPtr = std::unique_ptr<CppcheckTextMark>;
-    std::unordered_map<Utils::FilePath, std::vector<MarkPtr>> m_marks;
+    void openEditorForCurrentIndex();
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 
 } // namespace Internal

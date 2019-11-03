@@ -5,6 +5,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "CppTools" }
+    Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
@@ -13,7 +14,15 @@ QtcPlugin {
 
     files: [
         "cppcheckconstants.h",
+        "cppcheckdiagnostic.cpp",
         "cppcheckdiagnostic.h",
+        "cppcheckdiagnosticmanager.h",
+        "cppcheckdiagnosticsmodel.cpp",
+        "cppcheckdiagnosticsmodel.h",
+        "cppcheckdiagnosticview.cpp",
+        "cppcheckdiagnosticview.h",
+        "cppcheckmanualrundialog.cpp",
+        "cppcheckmanualrundialog.h",
         "cppcheckoptions.cpp",
         "cppcheckoptions.h",
         "cppcheckplugin.cpp",

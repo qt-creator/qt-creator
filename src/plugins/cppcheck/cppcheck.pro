@@ -1,6 +1,10 @@
 include(../../qtcreatorplugin.pri)
 
 SOURCES += \
+    cppcheckdiagnostic.cpp \
+    cppcheckdiagnosticsmodel.cpp \
+    cppcheckdiagnosticview.cpp \
+    cppcheckmanualrundialog.cpp \
     cppcheckoptions.cpp \
     cppcheckplugin.cpp \
     cppcheckrunner.cpp \
@@ -12,6 +16,10 @@ SOURCES += \
 HEADERS += \
     cppcheckconstants.h \
     cppcheckdiagnostic.h \
+    cppcheckdiagnosticmanager.h \
+    cppcheckdiagnosticsmodel.h \
+    cppcheckdiagnosticview.h \
+    cppcheckmanualrundialog.h \
     cppcheckoptions.h \
     cppcheckplugin.h \
     cppcheckrunner.h \

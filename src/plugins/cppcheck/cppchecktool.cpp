@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "cppcheckconstants.h"
 #include "cppcheckdiagnostic.h"
 #include "cppcheckoptions.h"
 #include "cppcheckrunner.h"
@@ -45,10 +44,12 @@
 namespace Cppcheck {
 namespace Internal {
 
-CppcheckTool::CppcheckTool(CppcheckTextMarkManager &marks) :
-    m_marks(marks),
+CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager,
+                           const Core::Id &progressId) :
+    m_manager(manager),
     m_progressRegexp("^.* checked (\\d+)% done$"),
-    m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$")
+    m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$"),
+    m_progressId(progressId)
 {
     m_runner = std::make_unique<CppcheckRunner>(*this);
     QTC_ASSERT(m_progressRegexp.isValid(), return);
@@ -246,8 +247,7 @@ void CppcheckTool::startParsing()
 
     m_progress = std::make_unique<QFutureInterface<void>>();
     const Core::FutureProgress *progress = Core::ProgressManager::addTask(
-                m_progress->future(), QObject::tr("Cppcheck"),
-                Constants::CHECK_PROGRESS_ID);
+                m_progress->future(), QObject::tr("Cppcheck"), m_progressId);
     QObject::connect(progress, &Core::FutureProgress::canceled,
                      this, [this]{stop({});});
     m_progress->setProgressRange(0, 100);
@@ -310,7 +310,7 @@ void CppcheckTool::parseErrorLine(const QString &line)
     diagnostic.checkId = match.captured(Id);
     diagnostic.message = match.captured(Message);
     if (diagnostic.isValid())
-        m_marks.add(diagnostic);
+        m_manager.add(diagnostic);
 }
 
 void CppcheckTool::finishParsing()

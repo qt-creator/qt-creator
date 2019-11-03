@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Sergey Morozov
+** Copyright (C) 2019 Sergey Morozov
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,69 +25,38 @@
 
 #pragma once
 
-#include <cppcheck/cppcheckoptions.h>
-
-#include <QFuture>
-#include <QPointer>
-#include <QRegularExpression>
-
-#include <memory>
+#include <QDialog>
 
 namespace Utils {
 class FilePath;
 using FilePathList = QList<FilePath>;
-}
-
-namespace CppTools {
-class ProjectPart;
-}
+} // namespace Utils
 
 namespace ProjectExplorer {
 class Project;
-}
+class SelectableFilesFromDirModel;
+} // namespace ProjectExplorer
 
 namespace Cppcheck {
 namespace Internal {
 
-class CppcheckRunner;
-class CppcheckDiagnosticManager;
+class OptionsWidget;
 class CppcheckOptions;
 
-class CppcheckTool final : public QObject
+class ManualRunDialog : public QDialog
 {
     Q_OBJECT
-
 public:
-    CppcheckTool(CppcheckDiagnosticManager &manager, const Core::Id &progressId);
-    ~CppcheckTool() override;
+    ManualRunDialog(const CppcheckOptions &options,
+                    const ProjectExplorer::Project *project);
 
-    void updateOptions(const CppcheckOptions &options);
-    void setProject(ProjectExplorer::Project *project);
-    void check(const Utils::FilePathList &files);
-    void stop(const Utils::FilePathList &files);
-
-    void startParsing();
-    void parseOutputLine(const QString &line);
-    void parseErrorLine(const QString &line);
-    void finishParsing();
-
-    const CppcheckOptions &options() const;
+    CppcheckOptions options() const;
+    Utils::FilePathList filePaths() const;
+    QSize sizeHint() const override;
 
 private:
-    void updateArguments();
-    void addToQueue(const Utils::FilePathList &files, CppTools::ProjectPart &part);
-    QStringList additionalArguments(const CppTools::ProjectPart &part) const;
-
-    CppcheckDiagnosticManager &m_manager;
-    CppcheckOptions m_options;
-    QPointer<ProjectExplorer::Project> m_project;
-    std::unique_ptr<CppcheckRunner> m_runner;
-    std::unique_ptr<QFutureInterface<void>> m_progress;
-    QHash<QString, QString> m_cachedAdditionalArguments;
-    QVector<QRegExp> m_filters;
-    QRegularExpression m_progressRegexp;
-    QRegularExpression m_messageRegexp;
-    Core::Id m_progressId;
+    OptionsWidget *m_options;
+    ProjectExplorer::SelectableFilesFromDirModel *m_model;
 };
 
 } // namespace Internal

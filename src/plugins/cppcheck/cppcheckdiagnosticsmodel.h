@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Sergey Morozov
+** Copyright (C) 2019 Sergey Morozov
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,30 +25,56 @@
 
 #pragma once
 
+#include <cppcheck/cppcheckdiagnostic.h>
 #include <cppcheck/cppcheckdiagnosticmanager.h>
 
-#include <utils/fileutils.h>
+#include <debugger/analyzer/detailederrorview.h>
 
-#include <unordered_map>
+#include <utils/treemodel.h>
 
 namespace Cppcheck {
 namespace Internal {
 
-class Diagnostic;
-class CppcheckTextMark;
+class DiagnosticsModel;
 
-class CppcheckTextMarkManager final : public CppcheckDiagnosticManager
+class FilePathItem : public Utils::TreeItem
 {
 public:
-    explicit CppcheckTextMarkManager();
-    ~CppcheckTextMarkManager() override;
-
-    void add(const Diagnostic &diagnostic) override;
-    void clearFiles(const Utils::FilePathList &files);
+    explicit FilePathItem(const QString &filePath);
+    QVariant data(int column, int role) const override;
 
 private:
-    using MarkPtr = std::unique_ptr<CppcheckTextMark>;
-    std::unordered_map<Utils::FilePath, std::vector<MarkPtr>> m_marks;
+    const QString m_filePath;
+};
+
+class DiagnosticItem : public Utils::TreeItem
+{
+public:
+    explicit DiagnosticItem(const Diagnostic &diagnostic);
+    QVariant data(int column, int role) const override;
+
+private:
+    const Diagnostic m_diagnostic;
+};
+
+using BaseModel = Utils::TreeModel<Utils::TreeItem, FilePathItem, DiagnosticItem>;
+
+class DiagnosticsModel : public BaseModel, public CppcheckDiagnosticManager
+{
+    Q_OBJECT
+public:
+    enum Column {DiagnosticColumn};
+
+    explicit DiagnosticsModel(QObject *parent = nullptr);
+    void clear();
+    void add(const Diagnostic &diagnostic) override;
+
+signals:
+    void hasDataChanged(bool hasData);
+
+private:
+    QHash<QString, FilePathItem *> m_filePathToItem;
+    QSet<Diagnostic> m_diagnostics;
 };
 
 } // namespace Internal

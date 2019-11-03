@@ -27,7 +27,16 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QCoreApplication>
 #include <QPointer>
+#include <QWidget>
+
+class QLineEdit;
+class QCheckBox;
+
+namespace Utils {
+class PathChooser;
+}
 
 namespace Cppcheck {
 namespace Internal {
@@ -56,6 +65,32 @@ public:
     bool showOutput = false;
     bool addIncludePaths = false;
     bool guessArguments = true;
+};
+
+class OptionsWidget final : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CppcheckOptionsPage)
+public:
+    explicit OptionsWidget(QWidget *parent = nullptr);
+    void load(const CppcheckOptions &options);
+    void save(CppcheckOptions &options) const;
+
+private:
+    Utils::PathChooser *m_binary = nullptr;
+    QLineEdit *m_customArguments = nullptr;
+    QLineEdit *m_ignorePatterns = nullptr;
+    QCheckBox *m_warning = nullptr;
+    QCheckBox *m_style = nullptr;
+    QCheckBox *m_performance = nullptr;
+    QCheckBox *m_portability = nullptr;
+    QCheckBox *m_information = nullptr;
+    QCheckBox *m_unusedFunction = nullptr;
+    QCheckBox *m_missingInclude = nullptr;
+    QCheckBox *m_inconclusive = nullptr;
+    QCheckBox *m_forceDefines = nullptr;
+    QCheckBox *m_showOutput = nullptr;
+    QCheckBox *m_addIncludePaths = nullptr;
+    QCheckBox *m_guessArguments = nullptr;
 };
 
 class CppcheckOptionsPage final : public Core::IOptionsPage
