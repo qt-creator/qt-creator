@@ -32,7 +32,7 @@
 namespace BareMetal {
 namespace Internal {
 
-class GdbServerProvider;
+class IDebugServerProvider;
 
 // BareMetalDevice
 
@@ -51,13 +51,13 @@ public:
 
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const final;
 
-    bool canCreateProcess() const final { return true; }
+    bool canCreateProcess() const final;
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const final;
 
-    QString gdbServerProviderId() const;
-    void setGdbServerProviderId(const QString &id);
-    void unregisterProvider(GdbServerProvider *provider);
-    void providerUpdated(GdbServerProvider *provider);
+    QString debugServerProviderId() const;
+    void setDebugServerProviderId(const QString &id);
+    void unregisterDebugServerProvider(IDebugServerProvider *provider);
+    void debugServerProviderUpdated(IDebugServerProvider *provider);
 
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
@@ -65,8 +65,10 @@ public:
 private:
     BareMetalDevice();
 
-    void setChannelByServerProvider(GdbServerProvider *provider);
-    QString m_gdbServerProviderId;
+    // Only for GDB servers!
+    void setChannelByServerProvider(IDebugServerProvider *provider);
+
+    QString m_debugServerProviderId;
 };
 
 // BareMetalDeviceFactory

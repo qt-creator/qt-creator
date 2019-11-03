@@ -23,20 +23,19 @@
 **
 ****************************************************************************/
 
-#include "baremetalconstants.h"
-
-#include "gdbserverprovidermanager.h"
 #include "openocdgdbserverprovider.h"
+
+#include <baremetal/baremetalconstants.h>
+#include <baremetal/debugserverprovidermanager.h>
+
+#include <coreplugin/variablechooser.h>
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <coreplugin/variablechooser.h>
-
 #include <QComboBox>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QPlainTextEdit>
@@ -158,10 +157,10 @@ GdbServerProvider *OpenOcdGdbServerProvider::clone() const
 QVariantMap OpenOcdGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(QLatin1String(executableFileKeyC), m_executableFile.toVariant());
-    data.insert(QLatin1String(rootScriptsDirKeyC), m_rootScriptsDir);
-    data.insert(QLatin1String(configurationFileKeyC), m_configurationFile);
-    data.insert(QLatin1String(additionalArgumentsKeyC), m_additionalArguments);
+    data.insert(executableFileKeyC, m_executableFile.toVariant());
+    data.insert(rootScriptsDirKeyC, m_rootScriptsDir);
+    data.insert(configurationFileKeyC, m_configurationFile);
+    data.insert(additionalArgumentsKeyC, m_additionalArguments);
     return data;
 }
 
@@ -170,14 +169,14 @@ bool OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_executableFile = FilePath::fromVariant(data.value(QLatin1String(executableFileKeyC)));
-    m_rootScriptsDir = data.value(QLatin1String(rootScriptsDirKeyC)).toString();
-    m_configurationFile = data.value(QLatin1String(configurationFileKeyC)).toString();
-    m_additionalArguments = data.value(QLatin1String(additionalArgumentsKeyC)).toString();
+    m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
+    m_rootScriptsDir = data.value(rootScriptsDirKeyC).toString();
+    m_configurationFile = data.value(configurationFileKeyC).toString();
+    m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
     return true;
 }
 
-bool OpenOcdGdbServerProvider::operator==(const GdbServerProvider &other) const
+bool OpenOcdGdbServerProvider::operator==(const IDebugServerProvider &other) const
 {
     if (!GdbServerProvider::operator==(other))
         return false;
@@ -227,10 +226,10 @@ GdbServerProvider *OpenOcdGdbServerProviderFactory::restore(const QVariantMap &d
 // OpenOcdGdbServerProviderConfigWidget
 
 OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
-        OpenOcdGdbServerProvider *p)
-    : GdbServerProviderConfigWidget(p)
+        OpenOcdGdbServerProvider *provider)
+    : GdbServerProviderConfigWidget(provider)
 {
-    Q_ASSERT(p);
+    Q_ASSERT(provider);
 
     m_hostWidget = new HostWidget(this);
     m_mainLayout->addRow(tr("Host:"), m_hostWidget);
@@ -285,6 +284,27 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
             this, &OpenOcdGdbServerProviderConfigWidget::startupModeChanged);
 }
 
+void OpenOcdGdbServerProviderConfigWidget::apply()
+{
+    const auto p = static_cast<OpenOcdGdbServerProvider *>(m_provider);
+    Q_ASSERT(p);
+
+    p->setChannel(m_hostWidget->channel());
+    p->m_executableFile = m_executableFileChooser->fileName();
+    p->m_rootScriptsDir = m_rootScriptsDirChooser->fileName().toString();
+    p->m_configurationFile = m_configurationFileChooser->fileName().toString();
+    p->m_additionalArguments = m_additionalArgumentsLineEdit->text();
+    p->setInitCommands(m_initCommandsTextEdit->toPlainText());
+    p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
+    GdbServerProviderConfigWidget::apply();
+}
+
+void OpenOcdGdbServerProviderConfigWidget::discard()
+{
+    setFromProvider();
+    GdbServerProviderConfigWidget::discard();
+}
+
 void OpenOcdGdbServerProviderConfigWidget::startupModeChanged()
 {
     const GdbServerProvider::StartupMode m = startupMode();
@@ -302,28 +322,9 @@ void OpenOcdGdbServerProviderConfigWidget::startupModeChanged()
     m_mainLayout->labelForField(m_hostWidget)->setVisible(isNetwork);
 }
 
-void OpenOcdGdbServerProviderConfigWidget::applyImpl()
-{
-    const auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
-    Q_ASSERT(p);
-
-    p->setChannel(m_hostWidget->channel());
-    p->m_executableFile = m_executableFileChooser->fileName();
-    p->m_rootScriptsDir = m_rootScriptsDirChooser->fileName().toString();
-    p->m_configurationFile = m_configurationFileChooser->fileName().toString();
-    p->m_additionalArguments = m_additionalArgumentsLineEdit->text();
-    p->setInitCommands(m_initCommandsTextEdit->toPlainText());
-    p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
-}
-
-void OpenOcdGdbServerProviderConfigWidget::discardImpl()
-{
-    setFromProvider();
-}
-
 void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
 {
-    const auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
+    const auto p = static_cast<OpenOcdGdbServerProvider *>(m_provider);
     Q_ASSERT(p);
 
     const QSignalBlocker blocker(this);

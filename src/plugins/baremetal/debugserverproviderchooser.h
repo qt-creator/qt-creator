@@ -37,16 +37,16 @@ namespace Core { class Id; }
 namespace BareMetal {
 namespace Internal {
 
-class GdbServerProvider;
+class IDebugServerProvider;
 
-// GdbServerProviderChooser
+// DebugServerProviderChooser
 
-class GdbServerProviderChooser final : public QWidget
+class DebugServerProviderChooser final : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit GdbServerProviderChooser(
+    explicit DebugServerProviderChooser(
             bool useManageButton = true, QWidget *parent = nullptr);
 
     QString currentProviderId() const;
@@ -59,8 +59,8 @@ signals:
 private:
     void currentIndexChanged(int index);
     void manageButtonClicked();
-    bool providerMatches(const GdbServerProvider *) const;
-    QString providerText(const GdbServerProvider *) const;
+    bool providerMatches(const IDebugServerProvider *) const;
+    QString providerText(const IDebugServerProvider *) const;
 
     QComboBox *m_chooser = nullptr;
     QPushButton *m_manageButton = nullptr;

@@ -25,33 +25,23 @@
 
 #pragma once
 
-#include <QObject>
-#include <QSet>
-#include <QVariantMap>
-#include <QWidget>
+#include <baremetal/idebugserverprovider.h>
+
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/fileutils.h>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
 class QComboBox;
-class QFormLayout;
-class QLabel;
-class QLineEdit;
-class QPlainTextEdit;
 class QSpinBox;
 QT_END_NAMESPACE
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalDevice;
-class GdbServerProviderConfigWidget;
-class GdbServerProviderManager;
-
 // GdbServerProvider
 
-class GdbServerProvider
+class GdbServerProvider : public IDebugServerProvider
 {
 public:
     enum StartupMode {
@@ -61,35 +51,23 @@ public:
         StartupModesCount
     };
 
-    virtual ~GdbServerProvider();
-
-    QString displayName() const;
-    void setDisplayName(const QString &name);
-
-    QString id() const;
-
     StartupMode startupMode() const;
     QString initCommands() const;
     QString resetCommands() const;
     bool useExtendedRemote() const;
-    QString typeDisplayName() const;
 
-    virtual bool operator==(const GdbServerProvider &) const;
-
-    virtual GdbServerProviderConfigWidget *configurationWidget() = 0;
+    bool operator==(const IDebugServerProvider &other) const override;
 
     virtual QString channelString() const;
-    virtual GdbServerProvider *clone() const = 0;
 
-    virtual QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
     virtual Utils::CommandLine command() const;
 
-    virtual bool isValid() const;
+    bool isValid() const override;
+    Debugger::DebuggerEngineType engineType() const final {
+        return Debugger::DebuggerEngineType::GdbEngineType; }
     virtual bool canStartupMode(StartupMode) const;
-
-    void registerDevice(BareMetalDevice *);
-    void unregisterDevice(BareMetalDevice *);
 
     QUrl channel() const;
     void setChannel(const QUrl &channelString);
@@ -97,101 +75,57 @@ public:
 
 protected:
     explicit GdbServerProvider(const QString &id);
-    explicit GdbServerProvider(const GdbServerProvider &);
+    explicit GdbServerProvider(const GdbServerProvider &other);
 
     void setStartupMode(StartupMode);
     void setInitCommands(const QString &);
     void setResetCommands(const QString &);
     void setUseExtendedRemote(bool);
     void setSettingsKeyBase(const QString &settingsBase);
-    void setTypeDisplayName(const QString &typeDisplayName);
 
-    void providerUpdated();
+    bool fromMap(const QVariantMap &data) override;
 
-    virtual bool fromMap(const QVariantMap &data);
-
-private:
-    QString m_id;
     QString m_settingsBase;
-    mutable QString m_displayName;
-    QString m_typeDisplayName;
     QUrl m_channel;
     StartupMode m_startupMode = NoStartup;
     QString m_initCommands;
     QString m_resetCommands;
-    QSet<BareMetalDevice *> m_devices;
     bool m_useExtendedRemote = false;
 
     friend class GdbServerProviderConfigWidget;
 };
 
-// GdbServerProviderFactory
-
-class GdbServerProviderFactory : public QObject
-{
-    Q_OBJECT
-
-public:
-    QString id() const;
-    QString displayName() const;
-
-    virtual GdbServerProvider *create() = 0;
-
-    virtual bool canRestore(const QVariantMap &data) const = 0;
-    virtual GdbServerProvider *restore(const QVariantMap &data) = 0;
-
-    static QString idFromMap(const QVariantMap &data);
-    static void idToMap(QVariantMap &data, const QString &id);
-
-protected:
-    void setId(const QString &id);
-    void setDisplayName(const QString &name);
-
-private:
-    QString m_displayName;
-    QString m_id;
-};
-
 // GdbServerProviderConfigWidget
 
-class GdbServerProviderConfigWidget : public QWidget
+class GdbServerProviderConfigWidget : public IDebugServerProviderConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit GdbServerProviderConfigWidget(GdbServerProvider *);
-    GdbServerProvider *provider() const;
-    void apply();
-    void discard();
-
-signals:
-    void dirty();
+    explicit GdbServerProviderConfigWidget(GdbServerProvider *provider);
+    void apply() override;
+    void discard() override;
 
 protected:
-    virtual void applyImpl() = 0;
-    virtual void discardImpl() = 0;
-
-    void setErrorMessage(const QString &);
-    void clearErrorMessage();
-    void addErrorLabel();
-
     GdbServerProvider::StartupMode startupModeFromIndex(int idx) const;
     GdbServerProvider::StartupMode startupMode() const;
     void setStartupMode(GdbServerProvider::StartupMode mode);
     void populateStartupModes();
+    void setFromProvider();
 
     static QString defaultInitCommandsTooltip();
     static QString defaultResetCommandsTooltip();
 
-    QFormLayout *m_mainLayout = nullptr;
-    QLineEdit *m_nameLineEdit = nullptr;
     QComboBox *m_startupModeComboBox = nullptr;
+};
 
-private:
-    void setFromProvider();
+// GdbServerProviderRunner
 
-    GdbServerProvider *m_provider = nullptr;
-    QLabel *m_errorLabel = nullptr;
+class GdbServerProviderRunner final : public ProjectExplorer::SimpleTargetRunner
+{
+public:
+    explicit GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
+                                     const ProjectExplorer::Runnable &runnable);
 };
 
 // HostWidget
@@ -209,7 +143,7 @@ public:
 signals:
     void dataChanged();
 
-private:
+protected:
     QLineEdit *m_hostLineEdit = nullptr;
     QSpinBox *m_portSpinBox = nullptr;
 };

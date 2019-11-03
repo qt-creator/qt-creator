@@ -12,30 +12,41 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 
-    files: [
-        "baremetal.qrc",
-        "baremetalconstants.h",
-        "baremetalcustomrunconfiguration.cpp", "baremetalcustomrunconfiguration.h",
-        "baremetaldevice.cpp", "baremetaldevice.h",
-        "baremetaldeviceconfigurationwidget.cpp", "baremetaldeviceconfigurationwidget.h",
-        "baremetaldeviceconfigurationwizard.cpp", "baremetaldeviceconfigurationwizard.h",
-        "baremetaldeviceconfigurationwizardpages.cpp", "baremetaldeviceconfigurationwizardpages.h",
-        "baremetalplugin.cpp", "baremetalplugin.h",
-        "baremetalrunconfiguration.cpp", "baremetalrunconfiguration.h",
-        "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
-        "gdbserverproviderprocess.cpp", "gdbserverproviderprocess.h",
-        "gdbserverproviderssettingspage.cpp", "gdbserverproviderssettingspage.h",
-        "gdbserverprovider.cpp", "gdbserverprovider.h",
-        "gdbserverproviderchooser.cpp", "gdbserverproviderchooser.h",
-        "gdbserverprovidermanager.cpp", "gdbserverprovidermanager.h",
-        "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
-        "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
-        "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
-        "iarewtoolchain.cpp", "iarewtoolchain.h",
-        "keiltoolchain.cpp", "keiltoolchain.h",
-        "sdcctoolchain.cpp", "sdcctoolchain.h",
-        "iarewparser.cpp", "iarewparser.h",
-        "keilparser.cpp", "keilparser.h",
-        "sdccparser.cpp", "sdccparser.h",
-    ]
+    Group {
+        name: "General"
+        files: [
+            "baremetal.qrc",
+            "baremetalconstants.h",
+            "baremetalcustomrunconfiguration.cpp", "baremetalcustomrunconfiguration.h",
+            "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
+            "baremetaldevice.cpp", "baremetaldevice.h",
+            "baremetaldeviceconfigurationwidget.cpp", "baremetaldeviceconfigurationwidget.h",
+            "baremetaldeviceconfigurationwizard.cpp", "baremetaldeviceconfigurationwizard.h",
+            "baremetaldeviceconfigurationwizardpages.cpp", "baremetaldeviceconfigurationwizardpages.h",
+            "baremetalplugin.cpp", "baremetalplugin.h",
+            "baremetalrunconfiguration.cpp", "baremetalrunconfiguration.h",
+            "debugserverproviderchooser.cpp", "debugserverproviderchooser.h",
+            "debugserverprovidermanager.cpp", "debugserverprovidermanager.h",
+            "debugserverproviderssettingspage.cpp", "debugserverproviderssettingspage.h",
+            "iarewparser.cpp", "iarewparser.h",
+            "iarewtoolchain.cpp", "iarewtoolchain.h",
+            "idebugserverprovider.cpp", "idebugserverprovider.h",
+            "keilparser.cpp", "keilparser.h",
+            "keiltoolchain.cpp", "keiltoolchain.h",
+            "sdccparser.cpp", "sdccparser.h",
+            "sdcctoolchain.cpp", "sdcctoolchain.h",
+        ]
+    }
+
+    Group {
+        name: "GDB Servers"
+        prefix: "debugservers/gdb/"
+        files: [
+            "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
+            "gdbserverprovider.cpp", "gdbserverprovider.h",
+            "gdbserverproviderprocess.cpp", "gdbserverproviderprocess.h",
+            "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
+            "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
+        ]
+    }
 }

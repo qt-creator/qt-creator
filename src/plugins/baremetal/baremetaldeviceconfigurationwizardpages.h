@@ -35,7 +35,7 @@ QT_END_NAMESPACE
 namespace BareMetal {
 namespace Internal {
 
-class GdbServerProviderChooser;
+class DebugServerProviderChooser;
 
 // BareMetalDeviceConfigurationWizardSetupPage
 
@@ -49,11 +49,11 @@ public:
     void initializePage() final;
     bool isComplete() const final;
     QString configurationName() const;
-    QString gdbServerProviderId() const;
+    QString debugServerProviderId() const;
 
 private:
     QLineEdit *m_nameLineEdit = nullptr;
-    GdbServerProviderChooser *m_gdbServerProviderChooser = nullptr;
+    DebugServerProviderChooser *m_debugServerProviderChooser = nullptr;
 };
 
 } // namespace Internal

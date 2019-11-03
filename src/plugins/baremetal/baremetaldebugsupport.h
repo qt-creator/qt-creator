@@ -27,8 +27,14 @@
 
 #include <debugger/debuggerruncontrol.h>
 
+namespace ProjectExplorer {
+class RunControl;
+}
+
 namespace BareMetal {
 namespace Internal {
+
+class IDebugServerProvider;
 
 // BareMetalDebugSupport
 
@@ -41,6 +47,9 @@ public:
 
 private:
     void start() final;
+    bool aboutToStart(const IDebugServerProvider *provider);
+    void addTargetRunnerForProvider(const IDebugServerProvider *provider,
+                                    ProjectExplorer::RunControl *runControl);
 };
 
 } // namespace Internal

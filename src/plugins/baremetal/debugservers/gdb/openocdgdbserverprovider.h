@@ -27,13 +27,14 @@
 
 #include "gdbserverprovider.h"
 
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+QT_END_NAMESPACE
+
 namespace Utils { class PathChooser; }
 
 namespace BareMetal {
 namespace Internal {
-
-class OpenOcdGdbServerProviderConfigWidget;
-class OpenOcdGdbServerProviderFactory;
 
 // OpenOcdGdbServerProvider
 
@@ -43,7 +44,7 @@ public:
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;
 
-    bool operator==(const GdbServerProvider &) const final;
+    bool operator==(const IDebugServerProvider &other) const final;
 
     GdbServerProviderConfigWidget *configurationWidget() final;
     GdbServerProvider *clone() const final;
@@ -53,6 +54,7 @@ public:
 
     bool canStartupMode(StartupMode mode) const final;
     bool isValid() const final;
+    bool hasProcess() const final { return true; }
 
 private:
     explicit OpenOcdGdbServerProvider();
@@ -71,7 +73,8 @@ private:
 
 // OpenOcdGdbServerProviderFactory
 
-class OpenOcdGdbServerProviderFactory final : public GdbServerProviderFactory
+class OpenOcdGdbServerProviderFactory final
+        : public IDebugServerProviderFactory
 {
     Q_OBJECT
 
@@ -82,25 +85,24 @@ public:
 
     bool canRestore(const QVariantMap &data) const final;
     GdbServerProvider *restore(const QVariantMap &data) final;
-
-    GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
 };
 
 // OpenOcdGdbServerProviderConfigWidget
 
-class OpenOcdGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+class OpenOcdGdbServerProviderConfigWidget final
+        : public GdbServerProviderConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit OpenOcdGdbServerProviderConfigWidget(OpenOcdGdbServerProvider *);
+    explicit OpenOcdGdbServerProviderConfigWidget(
+            OpenOcdGdbServerProvider *provider);
 
 private:
+    void apply() final;
+    void discard() final;
+
     void startupModeChanged();
-
-    void applyImpl() final;
-    void discardImpl() final;
-
     void setFromProvider();
 
     HostWidget *m_hostWidget = nullptr;

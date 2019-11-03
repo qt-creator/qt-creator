@@ -33,7 +33,7 @@ namespace Utils { class PathChooser; }
 namespace BareMetal {
 namespace Internal {
 
-class GdbServerProviderChooser;
+class DebugServerProviderChooser;
 
 // BareMetalDeviceConfigurationWidget
 
@@ -46,11 +46,11 @@ public:
     explicit BareMetalDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &deviceConfig);
 
 private:
-    void gdbServerProviderChanged();
+    void debugServerProviderChanged();
     void peripheralDescriptionFileChanged();
     void updateDeviceFromUi() final;
 
-    GdbServerProviderChooser *m_gdbServerProviderChooser = nullptr;
+    DebugServerProviderChooser *m_debugServerProviderChooser = nullptr;
     Utils::PathChooser *m_peripheralDescriptionFileChooser = nullptr;
 };
 

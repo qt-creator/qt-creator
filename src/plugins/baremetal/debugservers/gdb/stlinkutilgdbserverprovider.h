@@ -29,15 +29,13 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QPlainTextEdit;
 QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
 namespace BareMetal {
 namespace Internal {
-
-class StLinkUtilGdbServerProviderConfigWidget;
-class StLinkUtilGdbServerProviderFactory;
 
 // StLinkUtilGdbServerProvider
 
@@ -49,7 +47,7 @@ public:
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;
 
-    bool operator==(const GdbServerProvider &) const final;
+    bool operator==(const IDebugServerProvider &other) const final;
 
     GdbServerProviderConfigWidget *configurationWidget() final;
     GdbServerProvider *clone() const final;
@@ -59,6 +57,7 @@ public:
 
     bool canStartupMode(StartupMode mode) const final;
     bool isValid() const final;
+    bool hasProcess() const final { return true; }
 
 private:
     explicit StLinkUtilGdbServerProvider();
@@ -79,7 +78,8 @@ private:
 
 // StLinkUtilGdbServerProviderFactory
 
-class StLinkUtilGdbServerProviderFactory final : public GdbServerProviderFactory
+class StLinkUtilGdbServerProviderFactory final
+        : public IDebugServerProviderFactory
 {
     Q_OBJECT
 
@@ -90,8 +90,6 @@ public:
 
     bool canRestore(const QVariantMap &data) const final;
     GdbServerProvider *restore(const QVariantMap &data) final;
-
-    GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
 };
 
 // StLinkUtilGdbServerProviderConfigWidget
@@ -102,18 +100,18 @@ class StLinkUtilGdbServerProviderConfigWidget final
     Q_OBJECT
 
 public:
-    explicit StLinkUtilGdbServerProviderConfigWidget(StLinkUtilGdbServerProvider *);
+    explicit StLinkUtilGdbServerProviderConfigWidget(
+            StLinkUtilGdbServerProvider *provider);
 
 private:
-    void startupModeChanged();
-
-    void applyImpl() final;
-    void discardImpl() final;
+    void apply() final;
+    void discard() final;
 
     StLinkUtilGdbServerProvider::TransportLayer transportLayerFromIndex(int idx) const;
     StLinkUtilGdbServerProvider::TransportLayer transportLayer() const;
     void setTransportLayer(StLinkUtilGdbServerProvider::TransportLayer);
 
+    void startupModeChanged();
     void populateTransportLayers();
     void setFromProvider();
 

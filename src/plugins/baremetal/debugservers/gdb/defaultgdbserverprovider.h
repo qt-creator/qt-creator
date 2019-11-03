@@ -27,11 +27,13 @@
 
 #include "gdbserverprovider.h"
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QPlainTextEdit;
+QT_END_NAMESPACE
+
 namespace BareMetal {
 namespace Internal {
-
-class DefaultGdbServerProviderConfigWidget;
-class DefaultGdbServerProviderFactory;
 
 // DefaultGdbServerProvider
 
@@ -51,7 +53,8 @@ private:
 
 // DefaultGdbServerProviderFactory
 
-class DefaultGdbServerProviderFactory final : public GdbServerProviderFactory
+class DefaultGdbServerProviderFactory final
+        : public IDebugServerProviderFactory
 {
     Q_OBJECT
 
@@ -66,16 +69,18 @@ public:
 
 // DefaultGdbServerProviderConfigWidget
 
-class DefaultGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+class DefaultGdbServerProviderConfigWidget final
+        : public GdbServerProviderConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit DefaultGdbServerProviderConfigWidget(DefaultGdbServerProvider *);
+    explicit DefaultGdbServerProviderConfigWidget(
+            DefaultGdbServerProvider *provider);
 
 private:
-    void applyImpl() final;
-    void discardImpl() final;
+    void apply() final;
+    void discard() final;
 
     void setFromProvider();
 

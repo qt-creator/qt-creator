@@ -23,27 +23,22 @@
 **
 ****************************************************************************/
 
-#include "baremetaldevice.h"
 #include "gdbserverprovider.h"
-#include "gdbserverprovidermanager.h"
+
+#include <baremetal/baremetaldevice.h>
+#include <baremetal/debugserverprovidermanager.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
-#include <QCoreApplication>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
-#include <QPlainTextEdit>
 #include <QSpinBox>
-#include <QUuid>
 
 namespace BareMetal {
 namespace Internal {
 
-const char idKeyC[] = "BareMetal.GdbServerProvider.Id";
-const char displayNameKeyC[] = "BareMetal.GdbServerProvider.DisplayName";
 const char startupModeKeyC[] = "BareMetal.GdbServerProvider.Mode";
 const char initCommandsKeyC[] = "BareMetal.GdbServerProvider.InitCommands";
 const char resetCommandsKeyC[] = "BareMetal.GdbServerProvider.ResetCommands";
@@ -52,58 +47,20 @@ const char useExtendedRemoteKeyC[] = "BareMetal.GdbServerProvider.UseExtendedRem
 const char hostKeySuffixC[] = ".Host";
 const char portKeySuffixC[] = ".Port";
 
-static QString createId(const QString &id)
-{
-    QString newId = id.left(id.indexOf(QLatin1Char(':')));
-    newId.append(QLatin1Char(':') + QUuid::createUuid().toString());
-    return newId;
-}
-
 // GdbServerProvider
 
 GdbServerProvider::GdbServerProvider(const QString &id)
-    : m_id(createId(id))
+    : IDebugServerProvider(id)
 {
 }
 
 GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
-    : m_id(createId(other.m_id))
+    : IDebugServerProvider(other.id())
     , m_startupMode(other.m_startupMode)
     , m_initCommands(other.m_initCommands)
     , m_resetCommands(other.m_resetCommands)
     , m_useExtendedRemote(other.useExtendedRemote())
 {
-    m_displayName = QCoreApplication::translate(
-                "BareMetal::GdbServerProvider", "Clone of %1")
-            .arg(other.displayName());
-}
-
-GdbServerProvider::~GdbServerProvider()
-{
-    const QSet<BareMetalDevice *> devices = m_devices;
-    for (BareMetalDevice *device : devices)
-        device->unregisterProvider(this);
-}
-
-QString GdbServerProvider::displayName() const
-{
-    if (m_displayName.isEmpty())
-        return typeDisplayName();
-    return m_displayName;
-}
-
-void GdbServerProvider::setDisplayName(const QString &name)
-{
-    if (m_displayName == name)
-        return;
-
-    m_displayName = name;
-    providerUpdated();
-}
-
-QString GdbServerProvider::id() const
-{
-    return m_id;
 }
 
 GdbServerProvider::StartupMode GdbServerProvider::startupMode() const
@@ -129,11 +86,6 @@ void GdbServerProvider::setInitCommands(const QString &cmds)
 bool GdbServerProvider::useExtendedRemote() const
 {
     return m_useExtendedRemote;
-}
-
-QString GdbServerProvider::typeDisplayName() const
-{
-    return m_typeDisplayName;
 }
 
 void GdbServerProvider::setUseExtendedRemote(bool useExtendedRemote)
@@ -172,21 +124,17 @@ Utils::CommandLine GdbServerProvider::command() const
     return {};
 }
 
-bool GdbServerProvider::operator==(const GdbServerProvider &other) const
+bool GdbServerProvider::operator==(const IDebugServerProvider &other) const
 {
-    if (this == &other)
-        return true;
+    if (!IDebugServerProvider::operator==(other))
+        return false;
 
-    const QString thisId = id().left(id().indexOf(QLatin1Char(':')));
-    const QString otherId = other.id().left(other.id().indexOf(QLatin1Char(':')));
-
-    // We ignore displayname
-    return thisId == otherId
-            && m_channel == other.m_channel
-            && m_startupMode == other.m_startupMode
-            && m_initCommands == other.m_initCommands
-            && m_resetCommands == other.m_resetCommands
-            && m_useExtendedRemote == other.m_useExtendedRemote;
+    const auto p = static_cast<const GdbServerProvider *>(&other);
+    return m_channel == p->m_channel
+            && m_startupMode == p->m_startupMode
+            && m_initCommands == p->m_initCommands
+            && m_resetCommands == p->m_resetCommands
+            && m_useExtendedRemote == p->m_useExtendedRemote;
 }
 
 QString GdbServerProvider::channelString() const
@@ -199,16 +147,14 @@ QString GdbServerProvider::channelString() const
 
 QVariantMap GdbServerProvider::toMap() const
 {
-    return {
-        {QLatin1String(idKeyC), m_id},
-        {QLatin1String(displayNameKeyC), m_displayName},
-        {QLatin1String(startupModeKeyC), m_startupMode},
-        {QLatin1String(initCommandsKeyC), m_initCommands},
-        {QLatin1String(resetCommandsKeyC), m_resetCommands},
-        {QLatin1String(useExtendedRemoteKeyC), m_useExtendedRemote},
-        {m_settingsBase + hostKeySuffixC, m_channel.host()},
-        {m_settingsBase + portKeySuffixC, m_channel.port()},
-    };
+    QVariantMap data = IDebugServerProvider::toMap();
+    data.insert(startupModeKeyC, m_startupMode);
+    data.insert(initCommandsKeyC, m_initCommands);
+    data.insert(resetCommandsKeyC, m_resetCommands);
+    data.insert(useExtendedRemoteKeyC, m_useExtendedRemote);
+    data.insert(m_settingsBase + hostKeySuffixC, m_channel.host());
+    data.insert(m_settingsBase + portKeySuffixC, m_channel.port());
+    return data;
 }
 
 bool GdbServerProvider::isValid() const
@@ -221,40 +167,18 @@ bool GdbServerProvider::canStartupMode(StartupMode m) const
     return m == NoStartup;
 }
 
-void GdbServerProvider::registerDevice(BareMetalDevice *device)
-{
-    m_devices.insert(device);
-}
-
-void GdbServerProvider::unregisterDevice(BareMetalDevice *device)
-{
-    m_devices.remove(device);
-}
-
-void GdbServerProvider::providerUpdated()
-{
-    GdbServerProviderManager::notifyAboutUpdate(this);
-    for (BareMetalDevice *device : qAsConst(m_devices))
-        device->providerUpdated(this);
-}
-
 bool GdbServerProvider::fromMap(const QVariantMap &data)
 {
-    m_id = data.value(QLatin1String(idKeyC)).toString();
-    m_displayName = data.value(QLatin1String(displayNameKeyC)).toString();
-    m_startupMode = static_cast<StartupMode>(data.value(QLatin1String(startupModeKeyC)).toInt());
-    m_initCommands = data.value(QLatin1String(initCommandsKeyC)).toString();
-    m_resetCommands = data.value(QLatin1String(resetCommandsKeyC)).toString();
-    m_useExtendedRemote = data.value(QLatin1String(useExtendedRemoteKeyC)).toBool();
+    if (!IDebugServerProvider::fromMap(data))
+        return false;
+
+    m_startupMode = static_cast<StartupMode>(data.value(startupModeKeyC).toInt());
+    m_initCommands = data.value(initCommandsKeyC).toString();
+    m_resetCommands = data.value(resetCommandsKeyC).toString();
+    m_useExtendedRemote = data.value(useExtendedRemoteKeyC).toBool();
     m_channel.setHost(data.value(m_settingsBase + hostKeySuffixC).toString());
     m_channel.setPort(data.value(m_settingsBase + portKeySuffixC).toInt());
-
     return true;
-}
-
-void GdbServerProvider::setTypeDisplayName(const QString &typeDisplayName)
-{
-    m_typeDisplayName = typeDisplayName;
 }
 
 void GdbServerProvider::setSettingsKeyBase(const QString &settingsBase)
@@ -262,53 +186,12 @@ void GdbServerProvider::setSettingsKeyBase(const QString &settingsBase)
     m_settingsBase = settingsBase;
 }
 
-// GdbServerProviderFactory
-
-QString GdbServerProviderFactory::id() const
-{
-    return m_id;
-}
-
-void GdbServerProviderFactory::setId(const QString &id)
-{
-    m_id = id;
-}
-
-QString GdbServerProviderFactory::displayName() const
-{
-    return m_displayName;
-}
-
-void GdbServerProviderFactory::setDisplayName(const QString &name)
-{
-    m_displayName = name;
-}
-
-QString GdbServerProviderFactory::idFromMap(const QVariantMap &data)
-{
-    return data.value(QLatin1String(idKeyC)).toString();
-}
-
-void GdbServerProviderFactory::idToMap(QVariantMap &data, const QString &id)
-{
-    data.insert(QLatin1String(idKeyC), id);
-}
-
 // GdbServerProviderConfigWidget
 
 GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
         GdbServerProvider *provider)
-    : m_provider(provider)
+    : IDebugServerProviderConfigWidget(provider)
 {
-    Q_ASSERT(provider);
-
-    m_mainLayout = new QFormLayout(this);
-    m_mainLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-    m_nameLineEdit = new QLineEdit(this);
-    m_nameLineEdit->setToolTip(tr("Enter the name of the GDB server provider."));
-    m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
-
     m_startupModeComboBox = new QComboBox(this);
     m_startupModeComboBox->setToolTip(tr("Choose the desired startup mode "
                                          "of the GDB server provider."));
@@ -317,8 +200,6 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
     populateStartupModes();
     setFromProvider();
 
-    connect(m_nameLineEdit, &QLineEdit::textChanged,
-            this, &GdbServerProviderConfigWidget::dirty);
     connect(m_startupModeComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &GdbServerProviderConfigWidget::dirty);
@@ -326,30 +207,14 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
 
 void GdbServerProviderConfigWidget::apply()
 {
-    m_provider->setDisplayName(m_nameLineEdit->text());
-    m_provider->setStartupMode(startupMode());
-
-    applyImpl();
+    static_cast<GdbServerProvider *>(m_provider)->setStartupMode(startupMode());
+    IDebugServerProviderConfigWidget::apply();
 }
 
 void GdbServerProviderConfigWidget::discard()
 {
-    m_nameLineEdit->setText(m_provider->displayName());
-    discardImpl();
-}
-
-GdbServerProvider *GdbServerProviderConfigWidget::provider() const
-{
-    return m_provider;
-}
-
-void GdbServerProviderConfigWidget::addErrorLabel()
-{
-    if (!m_errorLabel) {
-        m_errorLabel = new QLabel;
-        m_errorLabel->setVisible(false);
-    }
-    m_mainLayout->addRow(m_errorLabel);
+    setFromProvider();
+    IDebugServerProviderConfigWidget::discard();
 }
 
 GdbServerProvider::StartupMode GdbServerProviderConfigWidget::startupModeFromIndex(
@@ -379,7 +244,7 @@ void GdbServerProviderConfigWidget::populateStartupModes()
 {
     for (int i = 0; i < GdbServerProvider::StartupModesCount; ++i) {
         const auto m = static_cast<GdbServerProvider::StartupMode>(i);
-        if (!m_provider->canStartupMode(m))
+        if (!static_cast<GdbServerProvider *>(m_provider)->canStartupMode(m))
             continue;
 
         const int idx = m_startupModeComboBox->count();
@@ -394,31 +259,9 @@ void GdbServerProviderConfigWidget::populateStartupModes()
     }
 }
 
-void GdbServerProviderConfigWidget::setErrorMessage(const QString &m)
-{
-    QTC_ASSERT(m_errorLabel, return);
-    if (m.isEmpty()) {
-        clearErrorMessage();
-    } else {
-        m_errorLabel->setText(m);
-        m_errorLabel->setStyleSheet(QLatin1String("background-color: \"red\""));
-        m_errorLabel->setVisible(true);
-    }
-}
-
-void GdbServerProviderConfigWidget::clearErrorMessage()
-{
-    QTC_ASSERT(m_errorLabel, return);
-    m_errorLabel->clear();
-    m_errorLabel->setStyleSheet(QString());
-    m_errorLabel->setVisible(false);
-}
-
 void GdbServerProviderConfigWidget::setFromProvider()
 {
-    const QSignalBlocker blocker(this);
-    m_nameLineEdit->setText(m_provider->displayName());
-    setStartupMode(m_provider->startupMode());
+    setStartupMode(static_cast<GdbServerProvider *>(m_provider)->startupMode());
 }
 
 QString GdbServerProviderConfigWidget::defaultInitCommandsTooltip()
@@ -433,6 +276,17 @@ QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()
     return QCoreApplication::translate("BareMetal",
                                        "Enter GDB commands to reset the hardware. "
                                        "The MCU should be halted after these commands.");
+}
+
+// GdbServerProviderRunner
+
+GdbServerProviderRunner::GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
+                                                 const ProjectExplorer::Runnable &runnable)
+    : SimpleTargetRunner(runControl)
+{
+    setId("BareMetalGdbServer");
+    // Baremetal's GDB servers are launched on the host, not on the target.
+    setStarter([this, runnable] { doStart(runnable, {}); });
 }
 
 // HostWidget

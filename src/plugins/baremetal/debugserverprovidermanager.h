@@ -37,48 +37,48 @@ namespace Internal {
 
 class BareMetalPlugin;
 class BareMetalPluginPrivate;
-class GdbServerProvider;
-class GdbServerProviderFactory;
+class IDebugServerProvider;
+class IDebugServerProviderFactory;
 
-// GdbServerProviderManager
+// DebugServerProviderManager
 
-class GdbServerProviderManager final : public QObject
+class DebugServerProviderManager final : public QObject
 {
     Q_OBJECT
 
 public:
-    static GdbServerProviderManager *instance();
-    ~GdbServerProviderManager() final;
+    static DebugServerProviderManager *instance();
+    ~DebugServerProviderManager() final;
 
-    static QList<GdbServerProvider *> providers();
-    static QList<GdbServerProviderFactory *> factories();
-    static GdbServerProvider *findProvider(const QString &id);
-    static GdbServerProvider *findByDisplayName(const QString &displayName);
-    static bool registerProvider(GdbServerProvider *);
-    static void deregisterProvider(GdbServerProvider *);
+    static QList<IDebugServerProvider *> providers();
+    static QList<IDebugServerProviderFactory *> factories();
+    static IDebugServerProvider *findProvider(const QString &id);
+    static IDebugServerProvider *findByDisplayName(const QString &displayName);
+    static bool registerProvider(IDebugServerProvider *provider);
+    static void deregisterProvider(IDebugServerProvider *provider);
 
 signals:
-    void providerAdded(GdbServerProvider *);
-    void providerRemoved(GdbServerProvider *);
-    void providerUpdated(GdbServerProvider *);
+    void providerAdded(IDebugServerProvider *provider);
+    void providerRemoved(IDebugServerProvider *provider);
+    void providerUpdated(IDebugServerProvider *provider);
     void providersChanged();
     void providersLoaded();
 
 private:
     void saveProviders();
-    GdbServerProviderManager();
+    DebugServerProviderManager();
 
     void restoreProviders();
-    static void notifyAboutUpdate(GdbServerProvider *);
+    static void notifyAboutUpdate(IDebugServerProvider *provider);
 
     Utils::PersistentSettingsWriter *m_writer = nullptr;
-    QList<GdbServerProvider *> m_providers;
+    QList<IDebugServerProvider *> m_providers;
     const Utils::FilePath m_configFile;
-    const QList<GdbServerProviderFactory *> m_factories;
+    const QList<IDebugServerProviderFactory *> m_factories;
 
     friend class BareMetalPlugin; // for restoreProviders
     friend class BareMetalPluginPrivate; // for constructor
-    friend class GdbServerProvider;
+    friend class IDebugServerProvider;
 };
 
 } // namespace Internal

@@ -40,61 +40,61 @@ namespace Utils { class DetailsWidget; }
 namespace BareMetal {
 namespace Internal {
 
-class GdbServerProvider;
-class GdbServerProviderConfigWidget;
-class GdbServerProviderFactory;
-class GdbServerProviderNode;
-class GdbServerProvidersSettingsWidget;
+class DebugServerProviderNode;
+class DebugServerProvidersSettingsWidget;
+class IDebugServerProvider;
+class IDebugServerProviderConfigWidget;
+class IDebugServerProviderFactory;
 
-// GdbServerProviderModel
+// DebugServerProviderModel
 
-class GdbServerProviderModel final
-    : public Utils::TreeModel<Utils::TypedTreeItem<GdbServerProviderNode>, GdbServerProviderNode>
+class DebugServerProviderModel final
+    : public Utils::TreeModel<Utils::TypedTreeItem<DebugServerProviderNode>, DebugServerProviderNode>
 {
     Q_OBJECT
 
 public:
-    explicit GdbServerProviderModel();
+    explicit DebugServerProviderModel();
 
-    GdbServerProvider *provider(const QModelIndex &) const;
-    GdbServerProviderConfigWidget *widget(const QModelIndex &) const;
-    GdbServerProviderNode *nodeForIndex(const QModelIndex &index) const;
-    QModelIndex indexForProvider(GdbServerProvider *provider) const;
+    IDebugServerProvider *provider(const QModelIndex &) const;
+    IDebugServerProviderConfigWidget *widget(const QModelIndex &) const;
+    DebugServerProviderNode *nodeForIndex(const QModelIndex &index) const;
+    QModelIndex indexForProvider(IDebugServerProvider *provider) const;
 
     void apply();
 
-    void markForRemoval(GdbServerProvider *);
-    void markForAddition(GdbServerProvider *);
+    void markForRemoval(IDebugServerProvider *);
+    void markForAddition(IDebugServerProvider *);
 
 signals:
     void providerStateChanged();
 
 private:
-    void addProvider(GdbServerProvider *);
-    void removeProvider(GdbServerProvider *);
+    void addProvider(IDebugServerProvider *);
+    void removeProvider(IDebugServerProvider *);
 
-    GdbServerProviderNode *findNode(const GdbServerProvider *provider) const;
-    GdbServerProviderNode *createNode(GdbServerProvider *, bool changed);
+    DebugServerProviderNode *findNode(const IDebugServerProvider *provider) const;
+    DebugServerProviderNode *createNode(IDebugServerProvider *, bool changed);
 
-    QList<GdbServerProvider *> m_providersToAdd;
-    QList<GdbServerProvider *> m_providersToRemove;
+    QList<IDebugServerProvider *> m_providersToAdd;
+    QList<IDebugServerProvider *> m_providersToRemove;
 };
 
-// GdbServerProvidersSettingsPage
+// DebugServerProvidersSettingsPage
 
-class GdbServerProvidersSettingsPage final : public Core::IOptionsPage
+class DebugServerProvidersSettingsPage final : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    GdbServerProvidersSettingsPage();
+    DebugServerProvidersSettingsPage();
 
 private:
     QWidget *widget() final;
     void apply() final;
     void finish() final;
 
-    GdbServerProvidersSettingsWidget *m_configWidget = nullptr;
+    DebugServerProvidersSettingsWidget *m_configWidget = nullptr;
 };
 
 } // namespace Internal

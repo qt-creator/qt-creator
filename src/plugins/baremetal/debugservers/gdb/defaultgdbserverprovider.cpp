@@ -23,13 +23,14 @@
 **
 ****************************************************************************/
 
-#include "baremetalconstants.h"
 #include "defaultgdbserverprovider.h"
-#include "gdbserverprovidermanager.h"
 
-#include <utils/qtcassert.h>
+#include <baremetal/baremetalconstants.h>
+#include <baremetal/debugserverprovidermanager.h>
 
 #include <coreplugin/variablechooser.h>
+
+#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QFormLayout>
@@ -126,25 +127,27 @@ DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
 }
 
-void DefaultGdbServerProviderConfigWidget::applyImpl()
+void DefaultGdbServerProviderConfigWidget::apply()
 {
-    auto p = static_cast<DefaultGdbServerProvider *>(provider());
+    const auto p = static_cast<DefaultGdbServerProvider *>(m_provider);
     Q_ASSERT(p);
 
     p->setChannel(m_hostWidget->channel());
     p->setUseExtendedRemote(m_useExtendedRemoteCheckBox->isChecked());
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
+    IDebugServerProviderConfigWidget::apply();
 }
 
-void DefaultGdbServerProviderConfigWidget::discardImpl()
+void DefaultGdbServerProviderConfigWidget::discard()
 {
     setFromProvider();
+    IDebugServerProviderConfigWidget::discard();
 }
 
 void DefaultGdbServerProviderConfigWidget::setFromProvider()
 {
-    const auto p = static_cast<DefaultGdbServerProvider *>(provider());
+    const auto p = static_cast<DefaultGdbServerProvider *>(m_provider);
     Q_ASSERT(p);
 
     const QSignalBlocker blocker(this);

@@ -25,9 +25,9 @@
 
 #include "baremetalconstants.h"
 
-#include "gdbserverprovider.h"
-#include "gdbserverprovidermanager.h"
-#include "gdbserverproviderssettingspage.h"
+#include "debugserverprovidermanager.h"
+#include "debugserverproviderssettingspage.h"
+#include "idebugserverprovider.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -56,12 +56,12 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-// GdbServerProviderNode
+// DebugServerProviderNode
 
-class GdbServerProviderNode final : public TreeItem
+class DebugServerProviderNode final : public TreeItem
 {
 public:
-    explicit GdbServerProviderNode(GdbServerProvider *provider, bool changed = false)
+    explicit DebugServerProviderNode(IDebugServerProvider *provider, bool changed = false)
         : provider(provider), changed(changed)
     {
     }
@@ -83,54 +83,54 @@ public:
         return {};
     }
 
-    GdbServerProvider *provider = nullptr;
-    GdbServerProviderConfigWidget *widget = nullptr;
+    IDebugServerProvider *provider = nullptr;
+    IDebugServerProviderConfigWidget *widget = nullptr;
     bool changed = false;
 };
 
-// GdbServerProviderModel
+// DebugServerProviderModel
 
-GdbServerProviderModel::GdbServerProviderModel()
+DebugServerProviderModel::DebugServerProviderModel()
 {
     setHeader({tr("Name"), tr("Type")});
 
-    const GdbServerProviderManager *manager = GdbServerProviderManager::instance();
+    const DebugServerProviderManager *manager = DebugServerProviderManager::instance();
 
-    connect(manager, &GdbServerProviderManager::providerAdded,
-            this, &GdbServerProviderModel::addProvider);
-    connect(manager, &GdbServerProviderManager::providerRemoved,
-            this, &GdbServerProviderModel::removeProvider);
+    connect(manager, &DebugServerProviderManager::providerAdded,
+            this, &DebugServerProviderModel::addProvider);
+    connect(manager, &DebugServerProviderManager::providerRemoved,
+            this, &DebugServerProviderModel::removeProvider);
 
-    for (GdbServerProvider *p : GdbServerProviderManager::providers())
+    for (IDebugServerProvider *p : DebugServerProviderManager::providers())
         addProvider(p);
 }
 
-GdbServerProvider *GdbServerProviderModel::provider(const QModelIndex &index) const
+IDebugServerProvider *DebugServerProviderModel::provider(const QModelIndex &index) const
 {
-    if (const GdbServerProviderNode *node = nodeForIndex(index))
+    if (const DebugServerProviderNode *node = nodeForIndex(index))
         return node->provider;
 
     return nullptr;
 }
 
-GdbServerProviderNode *GdbServerProviderModel::nodeForIndex(const QModelIndex &index) const
+DebugServerProviderNode *DebugServerProviderModel::nodeForIndex(const QModelIndex &index) const
 {
     if (!index.isValid())
         return nullptr;
 
-    return static_cast<GdbServerProviderNode *>(itemForIndex(index));
+    return static_cast<DebugServerProviderNode *>(itemForIndex(index));
 }
 
-void GdbServerProviderModel::apply()
+void DebugServerProviderModel::apply()
 {
     // Remove unused providers
-    for (GdbServerProvider *provider : qAsConst(m_providersToRemove))
-        GdbServerProviderManager::deregisterProvider(provider);
+    for (IDebugServerProvider *provider : qAsConst(m_providersToRemove))
+        DebugServerProviderManager::deregisterProvider(provider);
     QTC_ASSERT(m_providersToRemove.isEmpty(), m_providersToRemove.clear());
 
     // Update providers
     for (TreeItem *item : *rootItem()) {
-        const auto n = static_cast<GdbServerProviderNode *>(item);
+        const auto n = static_cast<DebugServerProviderNode *>(item);
         if (!n->changed)
             continue;
 
@@ -144,8 +144,8 @@ void GdbServerProviderModel::apply()
 
     // Add new (and already updated) providers
     QStringList skippedProviders;
-    for (GdbServerProvider *provider: qAsConst(m_providersToAdd)) {
-        if (!GdbServerProviderManager::registerProvider(provider))
+    for (IDebugServerProvider *provider: qAsConst(m_providersToAdd)) {
+        if (!DebugServerProviderManager::registerProvider(provider))
             skippedProviders << provider->displayName();
     }
 
@@ -161,24 +161,24 @@ void GdbServerProviderModel::apply()
     }
 }
 
-GdbServerProviderNode *GdbServerProviderModel::findNode(const GdbServerProvider *provider) const
+DebugServerProviderNode *DebugServerProviderModel::findNode(const IDebugServerProvider *provider) const
 {
     auto test = [provider](TreeItem *item) {
-        return static_cast<GdbServerProviderNode *>(item)->provider == provider;
+        return static_cast<DebugServerProviderNode *>(item)->provider == provider;
     };
 
-    return static_cast<GdbServerProviderNode *>(Utils::findOrDefault(*rootItem(), test));
+    return static_cast<DebugServerProviderNode *>(Utils::findOrDefault(*rootItem(), test));
 }
 
-QModelIndex GdbServerProviderModel::indexForProvider(GdbServerProvider *provider) const
+QModelIndex DebugServerProviderModel::indexForProvider(IDebugServerProvider *provider) const
 {
-    const GdbServerProviderNode *n = findNode(provider);
+    const DebugServerProviderNode *n = findNode(provider);
     return n ? indexForItem(n) : QModelIndex();
 }
 
-void GdbServerProviderModel::markForRemoval(GdbServerProvider *provider)
+void DebugServerProviderModel::markForRemoval(IDebugServerProvider *provider)
 {
-    GdbServerProviderNode *n = findNode(provider);
+    DebugServerProviderNode *n = findNode(provider);
     QTC_ASSERT(n, return);
     destroyItem(n);
 
@@ -190,26 +190,26 @@ void GdbServerProviderModel::markForRemoval(GdbServerProvider *provider)
     }
 }
 
-void GdbServerProviderModel::markForAddition(GdbServerProvider *provider)
+void DebugServerProviderModel::markForAddition(IDebugServerProvider *provider)
 {
-    GdbServerProviderNode *n = createNode(provider, true);
+    DebugServerProviderNode *n = createNode(provider, true);
     rootItem()->appendChild(n);
     m_providersToAdd.append(provider);
 }
 
-GdbServerProviderNode *GdbServerProviderModel::createNode(
-        GdbServerProvider *provider, bool changed)
+DebugServerProviderNode *DebugServerProviderModel::createNode(
+        IDebugServerProvider *provider, bool changed)
 {
-    const auto node = new GdbServerProviderNode(provider, changed);
+    const auto node = new DebugServerProviderNode(provider, changed);
     node->widget = provider->configurationWidget();
-    connect(node->widget, &GdbServerProviderConfigWidget::dirty, this, [node] {
+    connect(node->widget, &IDebugServerProviderConfigWidget::dirty, this, [node] {
         node->changed = true;
         node->update();
     });
     return node;
 }
 
-void GdbServerProviderModel::addProvider(GdbServerProvider *provider)
+void DebugServerProviderModel::addProvider(IDebugServerProvider *provider)
 {
     if (findNode(provider))
         m_providersToAdd.removeOne(provider);
@@ -219,34 +219,34 @@ void GdbServerProviderModel::addProvider(GdbServerProvider *provider)
     emit providerStateChanged();
 }
 
-void GdbServerProviderModel::removeProvider(GdbServerProvider *provider)
+void DebugServerProviderModel::removeProvider(IDebugServerProvider *provider)
 {
     m_providersToRemove.removeAll(provider);
-    if (GdbServerProviderNode *n = findNode(provider))
+    if (DebugServerProviderNode *n = findNode(provider))
         destroyItem(n);
 
     emit providerStateChanged();
 }
 
-// GdbServerProvidersSettingsWidget
+// DebugServerProvidersSettingsWidget
 
-class GdbServerProvidersSettingsWidget final : public QWidget
+class DebugServerProvidersSettingsWidget final : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::GdbServerProvidersSettingsPage)
+    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::DebugServerProvidersSettingsPage)
 
 public:
-    explicit GdbServerProvidersSettingsWidget(GdbServerProvidersSettingsPage *page);
+    explicit DebugServerProvidersSettingsWidget(DebugServerProvidersSettingsPage *page);
 
     void providerSelectionChanged();
     void removeProvider();
     void updateState();
 
-    void createProvider(GdbServerProviderFactory *f);
+    void createProvider(IDebugServerProviderFactory *f);
     QModelIndex currentIndex() const;
 
 public:
-    GdbServerProvidersSettingsPage *m_page = nullptr;
-    GdbServerProviderModel m_model;
+    DebugServerProvidersSettingsPage *m_page = nullptr;
+    DebugServerProviderModel m_model;
     QItemSelectionModel *m_selectionModel = nullptr;
     QTreeView *m_providerView = nullptr;
     Utils::DetailsWidget *m_container = nullptr;
@@ -255,8 +255,8 @@ public:
     QPushButton *m_delButton = nullptr;
 };
 
-GdbServerProvidersSettingsWidget::GdbServerProvidersSettingsWidget
-        (GdbServerProvidersSettingsPage *page)
+DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget
+        (DebugServerProvidersSettingsPage *page)
     : m_page(page)
 {
     m_providerView = new QTreeView(this);
@@ -289,14 +289,14 @@ GdbServerProvidersSettingsWidget::GdbServerProvidersSettingsWidget
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addWidget(m_container);
 
-    const auto groupBox = new QGroupBox(tr("GDB Server Providers"), this);
+    const auto groupBox = new QGroupBox(tr("Debug Server Providers"), this);
     groupBox->setLayout(horizontalLayout);
 
     const auto topLayout = new QVBoxLayout(this);
     topLayout->addWidget(groupBox);
 
-    connect(&m_model, &GdbServerProviderModel::providerStateChanged,
-            this, &GdbServerProvidersSettingsWidget::updateState);
+    connect(&m_model, &DebugServerProviderModel::providerStateChanged,
+            this, &DebugServerProvidersSettingsWidget::updateState);
 
     m_providerView->setModel(&m_model);
 
@@ -308,15 +308,15 @@ GdbServerProvidersSettingsWidget::GdbServerProvidersSettingsWidget
     m_selectionModel = m_providerView->selectionModel();
 
     connect(m_selectionModel, &QItemSelectionModel::selectionChanged,
-            this, &GdbServerProvidersSettingsWidget::providerSelectionChanged);
+            this, &DebugServerProvidersSettingsWidget::providerSelectionChanged);
 
-    connect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
-            this, &GdbServerProvidersSettingsWidget::providerSelectionChanged);
+    connect(DebugServerProviderManager::instance(), &DebugServerProviderManager::providersChanged,
+            this, &DebugServerProvidersSettingsWidget::providerSelectionChanged);
 
     // Set up add menu:
     const auto addMenu = new QMenu(m_addButton);
 
-    for (const auto f : GdbServerProviderManager::factories()) {
+    for (const auto f : DebugServerProviderManager::factories()) {
         const auto action = new QAction(addMenu);
         action->setText(f->displayName());
         connect(action, &QAction::triggered, this, [this, f] { createProvider(f); });
@@ -328,12 +328,12 @@ GdbServerProvidersSettingsWidget::GdbServerProvidersSettingsWidget
     m_addButton->setMenu(addMenu);
 
     connect(m_delButton, &QPushButton::clicked,
-            this, &GdbServerProvidersSettingsWidget::removeProvider);
+            this, &DebugServerProvidersSettingsWidget::removeProvider);
 
     updateState();
 }
 
-void GdbServerProvidersSettingsWidget::providerSelectionChanged()
+void DebugServerProvidersSettingsWidget::providerSelectionChanged()
 {
     if (!m_container)
         return;
@@ -342,18 +342,18 @@ void GdbServerProvidersSettingsWidget::providerSelectionChanged()
     if (w)
         w->setVisible(false);
 
-    const GdbServerProviderNode *node = m_model.nodeForIndex(current);
+    const DebugServerProviderNode *node = m_model.nodeForIndex(current);
     w = node ? node->widget : nullptr;
     m_container->setWidget(w);
     m_container->setVisible(w != nullptr);
     updateState();
 }
 
-void GdbServerProvidersSettingsWidget::createProvider(GdbServerProviderFactory *f)
+void DebugServerProvidersSettingsWidget::createProvider(IDebugServerProviderFactory *f)
 {
-    GdbServerProvider *provider = nullptr;
+    IDebugServerProvider *provider = nullptr;
     if (!f) {
-        const GdbServerProvider *old = m_model.provider(currentIndex());
+        const IDebugServerProvider *old = m_model.provider(currentIndex());
         if (!old)
             return;
         provider = old->clone();
@@ -372,20 +372,20 @@ void GdbServerProvidersSettingsWidget::createProvider(GdbServerProviderFactory *
                              | QItemSelectionModel::Rows);
 }
 
-void GdbServerProvidersSettingsWidget::removeProvider()
+void DebugServerProvidersSettingsWidget::removeProvider()
 {
-    if (GdbServerProvider *p = m_model.provider(currentIndex()))
+    if (IDebugServerProvider *p = m_model.provider(currentIndex()))
         m_model.markForRemoval(p);
 }
 
-void GdbServerProvidersSettingsWidget::updateState()
+void DebugServerProvidersSettingsWidget::updateState()
 {
     if (!m_cloneButton)
         return;
 
     bool canCopy = false;
     bool canDelete = false;
-    if (const GdbServerProvider *p = m_model.provider(currentIndex())) {
+    if (const IDebugServerProvider *p = m_model.provider(currentIndex())) {
         canCopy = p->isValid();
         canDelete = true;
     }
@@ -394,7 +394,7 @@ void GdbServerProvidersSettingsWidget::updateState()
     m_delButton->setEnabled(canDelete);
 }
 
-QModelIndex GdbServerProvidersSettingsWidget::currentIndex() const
+QModelIndex DebugServerProvidersSettingsWidget::currentIndex() const
 {
     if (!m_selectionModel)
         return {};
@@ -406,31 +406,31 @@ QModelIndex GdbServerProvidersSettingsWidget::currentIndex() const
 }
 
 
-GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage()
+DebugServerProvidersSettingsPage::DebugServerProvidersSettingsPage()
 {
     setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
     setDisplayName(tr("Bare Metal"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
 }
 
-QWidget *GdbServerProvidersSettingsPage::widget()
+QWidget *DebugServerProvidersSettingsPage::widget()
 {
     if (!m_configWidget)
-        m_configWidget = new GdbServerProvidersSettingsWidget(this);
+        m_configWidget = new DebugServerProvidersSettingsWidget(this);
      return m_configWidget;
 }
 
-void GdbServerProvidersSettingsPage::apply()
+void DebugServerProvidersSettingsPage::apply()
 {
     if (m_configWidget)
         m_configWidget->m_model.apply();
 }
 
-void GdbServerProvidersSettingsPage::finish()
+void DebugServerProvidersSettingsPage::finish()
 {
     if (m_configWidget)
-        disconnect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
-                   m_configWidget, &GdbServerProvidersSettingsWidget::providerSelectionChanged);
+        disconnect(DebugServerProviderManager::instance(), &DebugServerProviderManager::providersChanged,
+                   m_configWidget, &DebugServerProvidersSettingsWidget::providerSelectionChanged);
 
     delete m_configWidget;
     m_configWidget = nullptr;

@@ -12,18 +12,19 @@ add_qtc_plugin(BareMetal
     baremetaldeviceconfigurationwizardpages.cpp baremetaldeviceconfigurationwizardpages.h
     baremetalplugin.cpp baremetalplugin.h
     baremetalrunconfiguration.cpp baremetalrunconfiguration.h
-    defaultgdbserverprovider.cpp defaultgdbserverprovider.h
-    gdbserverprovider.cpp gdbserverprovider.h
-    gdbserverproviderchooser.cpp gdbserverproviderchooser.h
-    gdbserverprovidermanager.cpp gdbserverprovidermanager.h
-    gdbserverproviderprocess.cpp gdbserverproviderprocess.h
-    gdbserverproviderssettingspage.cpp gdbserverproviderssettingspage.h
+    debugserverproviderchooser.cpp debugserverproviderchooser.h
+    debugserverprovidermanager.cpp debugserverprovidermanager.h
+    debugserverproviderssettingspage.cpp debugserverproviderssettingspage.h
+    debugservers/gdb/defaultgdbserverprovider.cpp debugservers/gdb/defaultgdbserverprovider.h
+    debugservers/gdb/gdbserverprovider.cpp debugservers/gdb/gdbserverprovider.h
+    debugservers/gdb/gdbserverproviderprocess.cpp debugservers/gdb/gdbserverproviderprocess.h
+    debugservers/gdb/openocdgdbserverprovider.cpp debugservers/gdb/openocdgdbserverprovider.h
+    debugservers/gdb/stlinkutilgdbserverprovider.cpp debugservers/gdb/stlinkutilgdbserverprovider.h
     iarewparser.cpp iarewparser.h
     iarewtoolchain.cpp iarewtoolchain.h
+    idebugserverprovider.cpp idebugserverprovider.h
     keilparser.cpp keilparser.h
     keiltoolchain.cpp keiltoolchain.h
     sdccparser.cpp sdccparser.h
     sdcctoolchain.cpp sdcctoolchain.h
-    openocdgdbserverprovider.cpp openocdgdbserverprovider.h
-    stlinkutilgdbserverprovider.cpp stlinkutilgdbserverprovider.h
 )

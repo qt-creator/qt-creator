@@ -27,7 +27,7 @@
 #include "baremetaldevice.h"
 #include "baremetaldeviceconfigurationwizardpages.h"
 
-#include "gdbserverproviderchooser.h"
+#include "debugserverproviderchooser.h"
 
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -44,19 +44,19 @@ BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardS
         QWidget *parent)
     : QWizardPage(parent)
 {
-    setTitle(tr("Set up GDB Server or Hardware Debugger"));
+    setTitle(tr("Set up Debug Server or Hardware Debugger"));
 
     const auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     m_nameLineEdit = new QLineEdit(this);
     formLayout->addRow(tr("Name:"), m_nameLineEdit);
-    m_gdbServerProviderChooser = new GdbServerProviderChooser(false, this);
-    m_gdbServerProviderChooser->populate();
-    formLayout->addRow(tr("GDB server provider:"), m_gdbServerProviderChooser);
+    m_debugServerProviderChooser = new DebugServerProviderChooser(false, this);
+    m_debugServerProviderChooser->populate();
+    formLayout->addRow(tr("Debug server provider:"), m_debugServerProviderChooser);
 
     connect(m_nameLineEdit, &QLineEdit::textChanged,
             this, &BareMetalDeviceConfigurationWizardSetupPage::completeChanged);
-    connect(m_gdbServerProviderChooser, &GdbServerProviderChooser::providerChanged,
+    connect(m_debugServerProviderChooser, &DebugServerProviderChooser::providerChanged,
             this, &QWizardPage::completeChanged);
 }
 
@@ -75,9 +75,9 @@ QString BareMetalDeviceConfigurationWizardSetupPage::configurationName() const
     return m_nameLineEdit->text().trimmed();
 }
 
-QString BareMetalDeviceConfigurationWizardSetupPage::gdbServerProviderId() const
+QString BareMetalDeviceConfigurationWizardSetupPage::debugServerProviderId() const
 {
-   return m_gdbServerProviderChooser->currentProviderId();
+   return m_debugServerProviderChooser->currentProviderId();
 }
 
 } // namespace Internal

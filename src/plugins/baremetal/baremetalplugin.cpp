@@ -31,8 +31,8 @@
 #include "baremetalplugin.h"
 #include "baremetalrunconfiguration.h"
 
-#include "gdbserverprovidermanager.h"
-#include "gdbserverproviderssettingspage.h"
+#include "debugserverprovidermanager.h"
+#include "debugserverproviderssettingspage.h"
 
 #include "iarewtoolchain.h"
 #include "keiltoolchain.h"
@@ -76,8 +76,8 @@ public:
     BareMetalDeviceFactory deviceFactory;
     BareMetalRunConfigurationFactory runConfigurationFactory;
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
-    GdbServerProvidersSettingsPage gdbServerProviderSettinsPage;
-    GdbServerProviderManager gdbServerProviderManager;
+    DebugServerProvidersSettingsPage debugServerProviderSettinsPage;
+    DebugServerProviderManager debugServerProviderManager;
     BareMetalDeployConfigurationFactory deployConfigurationFactory;
 
     RunWorkerFactory runWorkerFactory{
@@ -105,7 +105,7 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
 
 void BareMetalPlugin::extensionsInitialized()
 {
-    GdbServerProviderManager::instance()->restoreProviders();
+    DebugServerProviderManager::instance()->restoreProviders();
 }
 
 } // namespace Internal

@@ -26,8 +26,10 @@
 #include "baremetaldebugsupport.h"
 #include "baremetaldevice.h"
 
-#include "gdbserverprovider.h"
-#include "gdbserverprovidermanager.h"
+#include "debugserverprovidermanager.h"
+#include "idebugserverprovider.h"
+
+#include "debugservers/gdb/gdbserverprovider.h"
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
@@ -54,18 +56,6 @@ namespace Internal {
 
 // BareMetalDebugSupport
 
-class BareMetalGdbServer : public SimpleTargetRunner
-{
-public:
-    BareMetalGdbServer(RunControl *runControl, const Runnable &runnable)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("BareMetalGdbServer");
-        // Baremetal's GDB servers are launched on the host, not on the target.
-        setStarter([this, runnable] { doStart(runnable, {}); });
-    }
-};
-
 BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
     : Debugger::DebuggerRunTool(runControl)
 {
@@ -75,42 +65,48 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
         return;
     }
 
-    const QString providerId = dev->gdbServerProviderId();
-    const GdbServerProvider *p = GdbServerProviderManager::findProvider(providerId);
+    const QString providerId = dev->debugServerProviderId();
+    const IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
     if (!p) {
-        reportFailure(tr("No GDB server provider found for %1").arg(providerId));
+        reportFailure(tr("No debug server provider found for %1").arg(providerId));
         return;
     }
 
-    if (p->startupMode() == GdbServerProvider::StartupOnNetwork) {
-        Runnable r;
-        r.setCommandLine(p->command());
-        // Command arguments are in host OS style as the bare metal's GDB servers are launched
-        // on the host, not on that target.
-        auto gdbServer = new BareMetalGdbServer(runControl, r);
-        addStartDependency(gdbServer);
-    }
+    addTargetRunnerForProvider(p, runControl);
 }
 
 void BareMetalDebugSupport::start()
 {
+    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+    QTC_ASSERT(dev, reportFailure(); return);
+    const IDebugServerProvider *p = DebugServerProviderManager::findProvider(
+                dev->debugServerProviderId());
+    QTC_ASSERT(p, reportFailure(); return);
+
+    if (aboutToStart(p))
+        DebuggerRunTool::start();
+}
+
+bool BareMetalDebugSupport::aboutToStart(const IDebugServerProvider *provider)
+{
+    if (provider->engineType() != Debugger::GdbEngineType)
+        return true;
+
     const auto exeAspect = runControl()->aspect<ExecutableAspect>();
-    QTC_ASSERT(exeAspect, reportFailure(); return);
+    QTC_ASSERT(exeAspect, reportFailure(); return false);
 
     const FilePath bin = exeAspect->executable();
     if (bin.isEmpty()) {
         reportFailure(tr("Cannot debug: Local executable is not set."));
-        return;
+        return false;
     }
     if (!bin.exists()) {
-        reportFailure(tr("Cannot debug: Could not find executable for \"%1\".").arg(bin.toString()));
-        return;
+        reportFailure(tr("Cannot debug: Could not find executable for \"%1\".")
+                      .arg(bin.toString()));
+        return false;
     }
 
-    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
-    QTC_ASSERT(dev, reportFailure(); return);
-    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
-    QTC_ASSERT(p, reportFailure(); return);
+    const auto gdbProvider = static_cast<const GdbServerProvider *>(provider);
 
     Runnable inferior;
     inferior.executable = bin;
@@ -119,13 +115,28 @@ void BareMetalDebugSupport::start()
     setInferior(inferior);
     setSymbolFile(bin);
     setStartMode(AttachToRemoteServer);
-    setCommandsAfterConnect(p->initCommands()); // .. and here?
-    setCommandsForReset(p->resetCommands());
-    setRemoteChannel(p->channelString());
+    setCommandsAfterConnect(gdbProvider->initCommands()); // .. and here?
+    setCommandsForReset(gdbProvider->resetCommands());
+    setRemoteChannel(gdbProvider->channelString());
     setUseContinueInsteadOfRun(true);
-    setUseExtendedRemote(p->useExtendedRemote());
+    setUseExtendedRemote(gdbProvider->useExtendedRemote());
+    return true;
+}
 
-    DebuggerRunTool::start();
+void BareMetalDebugSupport::addTargetRunnerForProvider(const IDebugServerProvider *provider,
+                                                       ProjectExplorer::RunControl *runControl)
+{
+    if (provider->engineType() != Debugger::GdbEngineType)
+        return;
+    const auto gdbProvider = static_cast<const GdbServerProvider *>(provider);
+    if (gdbProvider->startupMode() == GdbServerProvider::StartupOnNetwork) {
+        Runnable r;
+        r.setCommandLine(gdbProvider->command());
+        // Command arguments are in host OS style as the bare metal's GDB servers are launched
+        // on the host, not on that target.
+        const auto gdbServer = new GdbServerProviderRunner(runControl, r);
+        addStartDependency(gdbServer);
+    }
 }
 
 } // namespace Internal

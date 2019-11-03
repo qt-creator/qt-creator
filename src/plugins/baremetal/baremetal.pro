@@ -1,54 +1,51 @@
 QT += network
 include(../../qtcreatorplugin.pri)
 
+# GDB debug servers
+include(debugservers/gdb/gdbservers.pri)
+
 # BareMetal files
 
-SOURCES += baremetalplugin.cpp \
+SOURCES += \
     baremetalcustomrunconfiguration.cpp\
-    baremetaldevice.cpp \
-    baremetalrunconfiguration.cpp \
-    baremetaldeviceconfigurationwizardpages.cpp \
-    baremetaldeviceconfigurationwizard.cpp \
-    baremetaldeviceconfigurationwidget.cpp \
     baremetaldebugsupport.cpp \
-    gdbserverproviderprocess.cpp \
-    gdbserverproviderssettingspage.cpp \
-    gdbserverprovider.cpp \
-    gdbserverproviderchooser.cpp \
-    gdbserverprovidermanager.cpp \
-    openocdgdbserverprovider.cpp \
-    defaultgdbserverprovider.cpp \
-    stlinkutilgdbserverprovider.cpp \
-    iarewtoolchain.cpp \
-    keiltoolchain.cpp \
-    sdcctoolchain.cpp \
+    baremetaldevice.cpp \
+    baremetaldeviceconfigurationwidget.cpp \
+    baremetaldeviceconfigurationwizard.cpp \
+    baremetaldeviceconfigurationwizardpages.cpp \
+    baremetalplugin.cpp \
+    baremetalrunconfiguration.cpp \
+    debugserverproviderchooser.cpp \
+    debugserverprovidermanager.cpp \
+    debugserverproviderssettingspage.cpp \
     iarewparser.cpp \
+    iarewtoolchain.cpp \
+    idebugserverprovider.cpp \
     keilparser.cpp \
+    keiltoolchain.cpp \
     sdccparser.cpp \
+    sdcctoolchain.cpp
 
-HEADERS += baremetalplugin.h \
+HEADERS += \
     baremetalconstants.h \
     baremetalcustomrunconfiguration.h \
+    baremetaldebugsupport.h \
     baremetaldevice.h \
-    baremetalrunconfiguration.h \
     baremetaldeviceconfigurationwidget.h \
     baremetaldeviceconfigurationwizard.h \
     baremetaldeviceconfigurationwizardpages.h \
-    baremetaldebugsupport.h \
-    gdbserverproviderprocess.h \
-    gdbserverproviderssettingspage.h \
-    gdbserverprovider.h \
-    gdbserverproviderchooser.h \
-    gdbserverprovidermanager.h \
-    openocdgdbserverprovider.h \
-    defaultgdbserverprovider.h \
-    stlinkutilgdbserverprovider.h \
-    iarewtoolchain.h \
-    keiltoolchain.h \
-    sdcctoolchain.h \
+    baremetalplugin.h \
+    baremetalrunconfiguration.h \
+    debugserverproviderchooser.h \
+    debugserverprovidermanager.h \
+    debugserverproviderssettingspage.h \
     iarewparser.h \
+    iarewtoolchain.h \
+    idebugserverprovider.h \
     keilparser.h \
+    keiltoolchain.h \
     sdccparser.h \
+    sdcctoolchain.h
 
 RESOURCES += \
     baremetal.qrc

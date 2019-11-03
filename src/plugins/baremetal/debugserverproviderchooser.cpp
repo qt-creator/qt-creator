@@ -25,9 +25,9 @@
 
 #include "baremetalconstants.h"
 
-#include "gdbserverprovider.h"
-#include "gdbserverproviderchooser.h"
-#include "gdbserverprovidermanager.h"
+#include "debugserverproviderchooser.h"
+#include "debugserverprovidermanager.h"
+#include "idebugserverprovider.h"
 
 #include <coreplugin/icore.h>
 
@@ -39,9 +39,9 @@
 namespace BareMetal {
 namespace Internal {
 
-// GdbServerProviderChooser
+// DebugServerProviderChooser
 
-GdbServerProviderChooser::GdbServerProviderChooser(
+DebugServerProviderChooser::DebugServerProviderChooser(
         bool useManageButton, QWidget *parent)
     : QWidget(parent)
 {
@@ -58,20 +58,20 @@ GdbServerProviderChooser::GdbServerProviderChooser(
     setFocusProxy(m_manageButton);
 
     connect(m_chooser, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &GdbServerProviderChooser::currentIndexChanged);
+            this, &DebugServerProviderChooser::currentIndexChanged);
     connect(m_manageButton, &QAbstractButton::clicked,
-            this, &GdbServerProviderChooser::manageButtonClicked);
-    connect(GdbServerProviderManager::instance(), &GdbServerProviderManager::providersChanged,
-            this, &GdbServerProviderChooser::populate);
+            this, &DebugServerProviderChooser::manageButtonClicked);
+    connect(DebugServerProviderManager::instance(), &DebugServerProviderManager::providersChanged,
+            this, &DebugServerProviderChooser::populate);
 }
 
-QString GdbServerProviderChooser::currentProviderId() const
+QString DebugServerProviderChooser::currentProviderId() const
 {
     const int idx = m_chooser->currentIndex();
     return qvariant_cast<QString>(m_chooser->itemData(idx));
 }
 
-void GdbServerProviderChooser::setCurrentProviderId(const QString &id)
+void DebugServerProviderChooser::setCurrentProviderId(const QString &id)
 {
     for (int i = 0; i < m_chooser->count(); ++i) {
         if (id != qvariant_cast<QString>(m_chooser->itemData(i)))
@@ -80,34 +80,34 @@ void GdbServerProviderChooser::setCurrentProviderId(const QString &id)
     }
 }
 
-void GdbServerProviderChooser::manageButtonClicked()
+void DebugServerProviderChooser::manageButtonClicked()
 {
     Core::ICore::showOptionsDialog(Constants::GDB_PROVIDERS_SETTINGS_ID, this);
 }
 
-void GdbServerProviderChooser::currentIndexChanged(int index)
+void DebugServerProviderChooser::currentIndexChanged(int index)
 {
     Q_UNUSED(index)
     emit providerChanged();
 }
 
-bool GdbServerProviderChooser::providerMatches(const GdbServerProvider *provider) const
+bool DebugServerProviderChooser::providerMatches(const IDebugServerProvider *provider) const
 {
     return provider->isValid();
 }
 
-QString GdbServerProviderChooser::providerText(const GdbServerProvider *provider) const
+QString DebugServerProviderChooser::providerText(const IDebugServerProvider *provider) const
 {
     return provider->displayName();
 }
 
-void GdbServerProviderChooser::populate()
+void DebugServerProviderChooser::populate()
 {
     const QSignalBlocker blocker(m_chooser);
     m_chooser->clear();
     m_chooser->addItem(tr("None"));
 
-    for (const GdbServerProvider *p : GdbServerProviderManager::providers()) {
+    for (const IDebugServerProvider *p : DebugServerProviderManager::providers()) {
         if (!providerMatches(p))
             continue;
         m_chooser->addItem(providerText(p), QVariant::fromValue(p->id()));

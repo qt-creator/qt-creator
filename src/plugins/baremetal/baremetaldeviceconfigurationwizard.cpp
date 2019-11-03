@@ -52,7 +52,7 @@ ProjectExplorer::IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
     dev->setDisplayName(m_setupPage->configurationName());
     dev->setType(Constants::BareMetalOsType);
     dev->setMachineType(ProjectExplorer::IDevice::Hardware);
-    dev->setGdbServerProviderId(m_setupPage->gdbServerProviderId());
+    dev->setDebugServerProviderId(m_setupPage->debugServerProviderId());
     return dev;
 }
 

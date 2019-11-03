@@ -23,12 +23,13 @@
 **
 ****************************************************************************/
 
-#include "gdbserverprovider.h"
-#include "gdbserverprovidermanager.h"
+#include "debugserverprovidermanager.h"
+#include "idebugserverprovider.h"
 
-#include "defaultgdbserverprovider.h"
-#include "openocdgdbserverprovider.h"
-#include "stlinkutilgdbserverprovider.h"
+// GDB debug servers.
+#include "debugservers/gdb/defaultgdbserverprovider.h"
+#include "debugservers/gdb/openocdgdbserverprovider.h"
+#include "debugservers/gdb/stlinkutilgdbserverprovider.h"
 
 #include <coreplugin/icore.h>
 
@@ -43,16 +44,16 @@
 namespace BareMetal {
 namespace Internal {
 
-const char dataKeyC[] = "GdbServerProvider.";
-const char countKeyC[] = "GdbServerProvider.Count";
+const char dataKeyC[] = "DebugServerProvider.";
+const char countKeyC[] = "DebugServerProvider.Count";
 const char fileVersionKeyC[] = "Version";
-const char fileNameKeyC[] = "/gdbserverproviders.xml";
+const char fileNameKeyC[] = "/debugserverproviders.xml";
 
-static GdbServerProviderManager *m_instance = nullptr;
+static DebugServerProviderManager *m_instance = nullptr;
 
-// GdbServerProviderManager
+// DebugServerProviderManager
 
-GdbServerProviderManager::GdbServerProviderManager()
+DebugServerProviderManager::DebugServerProviderManager()
     : m_configFile(Utils::FilePath::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
     , m_factories({new DefaultGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
@@ -60,20 +61,20 @@ GdbServerProviderManager::GdbServerProviderManager()
 {
     m_instance = this;
     m_writer = new Utils::PersistentSettingsWriter(
-                m_configFile, QLatin1String("QtCreatorGdbServerProviders"));
+                m_configFile, QLatin1String("QtCreatorDebugServerProviders"));
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, &GdbServerProviderManager::saveProviders);
+            this, &DebugServerProviderManager::saveProviders);
 
-    connect(this, &GdbServerProviderManager::providerAdded,
-            this, &GdbServerProviderManager::providersChanged);
-    connect(this, &GdbServerProviderManager::providerRemoved,
-            this, &GdbServerProviderManager::providersChanged);
-    connect(this, &GdbServerProviderManager::providerUpdated,
-            this, &GdbServerProviderManager::providersChanged);
+    connect(this, &DebugServerProviderManager::providerAdded,
+            this, &DebugServerProviderManager::providersChanged);
+    connect(this, &DebugServerProviderManager::providerRemoved,
+            this, &DebugServerProviderManager::providersChanged);
+    connect(this, &DebugServerProviderManager::providerUpdated,
+            this, &DebugServerProviderManager::providersChanged);
 }
 
-GdbServerProviderManager::~GdbServerProviderManager()
+DebugServerProviderManager::~DebugServerProviderManager()
 {
     qDeleteAll(m_providers);
     m_providers.clear();
@@ -82,12 +83,12 @@ GdbServerProviderManager::~GdbServerProviderManager()
     m_instance = nullptr;
 }
 
-GdbServerProviderManager *GdbServerProviderManager::instance()
+DebugServerProviderManager *DebugServerProviderManager::instance()
 {
     return m_instance;
 }
 
-void GdbServerProviderManager::restoreProviders()
+void DebugServerProviderManager::restoreProviders()
 {
     Utils::PersistentSettingsReader reader;
     if (!reader.load(m_configFile))
@@ -106,9 +107,9 @@ void GdbServerProviderManager::restoreProviders()
 
         const QVariantMap map = data.value(key).toMap();
         bool restored = false;
-        for (GdbServerProviderFactory *f : qAsConst(m_factories)) {
+        for (IDebugServerProviderFactory *f : qAsConst(m_factories)) {
             if (f->canRestore(map)) {
-                if (GdbServerProvider *p = f->restore(map)) {
+                if (IDebugServerProvider *p = f->restore(map)) {
                     registerProvider(p);
                     restored = true;
                     break;
@@ -117,20 +118,20 @@ void GdbServerProviderManager::restoreProviders()
         }
         if (!restored)
             qWarning("Warning: Unable to restore provider '%s' stored in %s.",
-                     qPrintable(GdbServerProviderFactory::idFromMap(map)),
+                     qPrintable(IDebugServerProviderFactory::idFromMap(map)),
                      qPrintable(m_configFile.toUserOutput()));
     }
 
     emit providersLoaded();
 }
 
-void GdbServerProviderManager::saveProviders()
+void DebugServerProviderManager::saveProviders()
 {
     QVariantMap data;
     data.insert(QLatin1String(fileVersionKeyC), 1);
 
     int count = 0;
-    for (const GdbServerProvider *p : qAsConst(m_providers)) {
+    for (const IDebugServerProvider *p : qAsConst(m_providers)) {
         if (p->isValid()) {
             const QVariantMap tmp = p->toMap();
             if (tmp.isEmpty())
@@ -144,45 +145,45 @@ void GdbServerProviderManager::saveProviders()
     m_writer->save(data, Core::ICore::mainWindow());
 }
 
-QList<GdbServerProvider *> GdbServerProviderManager::providers()
+QList<IDebugServerProvider *> DebugServerProviderManager::providers()
 {
     return m_instance->m_providers;
 }
 
-QList<GdbServerProviderFactory *> GdbServerProviderManager::factories()
+QList<IDebugServerProviderFactory *> DebugServerProviderManager::factories()
 {
     return m_instance->m_factories;
 }
 
-GdbServerProvider *GdbServerProviderManager::findProvider(const QString &id)
+IDebugServerProvider *DebugServerProviderManager::findProvider(const QString &id)
 {
     if (id.isEmpty() || !m_instance)
         return nullptr;
 
-    return Utils::findOrDefault(m_instance->m_providers, Utils::equal(&GdbServerProvider::id, id));
+    return Utils::findOrDefault(m_instance->m_providers, Utils::equal(&IDebugServerProvider::id, id));
 }
 
-GdbServerProvider *GdbServerProviderManager::findByDisplayName(const QString &displayName)
+IDebugServerProvider *DebugServerProviderManager::findByDisplayName(const QString &displayName)
 {
     if (displayName.isEmpty())
         return nullptr;
 
     return Utils::findOrDefault(m_instance->m_providers,
-                                Utils::equal(&GdbServerProvider::displayName, displayName));
+                                Utils::equal(&IDebugServerProvider::displayName, displayName));
 }
 
-void GdbServerProviderManager::notifyAboutUpdate(GdbServerProvider *provider)
+void DebugServerProviderManager::notifyAboutUpdate(IDebugServerProvider *provider)
 {
     if (!provider || !m_instance->m_providers.contains(provider))
         return;
     emit m_instance->providerUpdated(provider);
 }
 
-bool GdbServerProviderManager::registerProvider(GdbServerProvider *provider)
+bool DebugServerProviderManager::registerProvider(IDebugServerProvider *provider)
 {
     if (!provider || m_instance->m_providers.contains(provider))
         return true;
-    for (const GdbServerProvider *current : qAsConst(m_instance->m_providers)) {
+    for (const IDebugServerProvider *current : qAsConst(m_instance->m_providers)) {
         if (*provider == *current)
             return false;
         QTC_ASSERT(current->id() != provider->id(), return false);
@@ -193,7 +194,7 @@ bool GdbServerProviderManager::registerProvider(GdbServerProvider *provider)
     return true;
 }
 
-void GdbServerProviderManager::deregisterProvider(GdbServerProvider *provider)
+void DebugServerProviderManager::deregisterProvider(IDebugServerProvider *provider)
 {
     if (!provider || !m_instance->m_providers.contains(provider))
         return;

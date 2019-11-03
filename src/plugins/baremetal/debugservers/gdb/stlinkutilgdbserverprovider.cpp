@@ -23,22 +23,20 @@
 **
 ****************************************************************************/
 
-#include "baremetalconstants.h"
-
-#include "gdbserverprovidermanager.h"
 #include "stlinkutilgdbserverprovider.h"
+
+#include <baremetal/baremetalconstants.h>
+#include <baremetal/debugserverprovidermanager.h>
+
+#include <coreplugin/variablechooser.h>
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <coreplugin/variablechooser.h>
-
 #include <QCheckBox>
 #include <QComboBox>
-#include <QFileInfo>
 #include <QFormLayout>
-#include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QSpinBox>
 
@@ -152,11 +150,11 @@ GdbServerProvider *StLinkUtilGdbServerProvider::clone() const
 QVariantMap StLinkUtilGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(QLatin1String(executableFileKeyC), m_executableFile.toVariant());
-    data.insert(QLatin1String(verboseLevelKeyC), m_verboseLevel);
-    data.insert(QLatin1String(extendedModeKeyC), m_extendedMode);
-    data.insert(QLatin1String(resetBoardKeyC), m_resetBoard);
-    data.insert(QLatin1String(transportLayerKeyC), m_transport);
+    data.insert(executableFileKeyC, m_executableFile.toVariant());
+    data.insert(verboseLevelKeyC, m_verboseLevel);
+    data.insert(extendedModeKeyC, m_extendedMode);
+    data.insert(resetBoardKeyC, m_resetBoard);
+    data.insert(transportLayerKeyC, m_transport);
     return data;
 }
 
@@ -165,16 +163,16 @@ bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_executableFile = FilePath::fromVariant(data.value(QLatin1String(executableFileKeyC)));
-    m_verboseLevel = data.value(QLatin1String(verboseLevelKeyC)).toInt();
-    m_extendedMode = data.value(QLatin1String(extendedModeKeyC)).toBool();
-    m_resetBoard = data.value(QLatin1String(resetBoardKeyC)).toBool();
+    m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
+    m_verboseLevel = data.value(verboseLevelKeyC).toInt();
+    m_extendedMode = data.value(extendedModeKeyC).toBool();
+    m_resetBoard = data.value(resetBoardKeyC).toBool();
     m_transport = static_cast<TransportLayer>(
-                data.value(QLatin1String(transportLayerKeyC)).toInt());
+                data.value(transportLayerKeyC).toInt());
     return true;
 }
 
-bool StLinkUtilGdbServerProvider::operator==(const GdbServerProvider &other) const
+bool StLinkUtilGdbServerProvider::operator==(const IDebugServerProvider &other) const
 {
     if (!GdbServerProvider::operator==(other))
         return false;
@@ -296,25 +294,9 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
             this, &StLinkUtilGdbServerProviderConfigWidget::startupModeChanged);
 }
 
-void StLinkUtilGdbServerProviderConfigWidget::startupModeChanged()
+void StLinkUtilGdbServerProviderConfigWidget::apply()
 {
-    const GdbServerProvider::StartupMode m = startupMode();
-    const bool isStartup = m != GdbServerProvider::NoStartup;
-    m_executableFileChooser->setVisible(isStartup);
-    m_mainLayout->labelForField(m_executableFileChooser)->setVisible(isStartup);
-    m_verboseLevelSpinBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_verboseLevelSpinBox)->setVisible(isStartup);
-    m_extendedModeCheckBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_extendedModeCheckBox)->setVisible(isStartup);
-    m_resetBoardCheckBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_resetBoardCheckBox)->setVisible(isStartup);
-    m_transportLayerComboBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_transportLayerComboBox)->setVisible(isStartup);
-}
-
-void StLinkUtilGdbServerProviderConfigWidget::applyImpl()
-{
-    const auto p = static_cast<StLinkUtilGdbServerProvider *>(provider());
+    const auto p = static_cast<StLinkUtilGdbServerProvider *>(m_provider);
     Q_ASSERT(p);
 
     p->setChannel(m_hostWidget->channel());
@@ -325,11 +307,13 @@ void StLinkUtilGdbServerProviderConfigWidget::applyImpl()
     p->m_transport = transportLayer();
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
+    GdbServerProviderConfigWidget::apply();
 }
 
-void StLinkUtilGdbServerProviderConfigWidget::discardImpl()
+void StLinkUtilGdbServerProviderConfigWidget::discard()
 {
     setFromProvider();
+    GdbServerProviderConfigWidget::discard();
 }
 
 StLinkUtilGdbServerProvider::TransportLayer
@@ -357,6 +341,22 @@ void StLinkUtilGdbServerProviderConfigWidget::setTransportLayer(
     }
 }
 
+void StLinkUtilGdbServerProviderConfigWidget::startupModeChanged()
+{
+    const GdbServerProvider::StartupMode m = startupMode();
+    const bool isStartup = m != GdbServerProvider::NoStartup;
+    m_executableFileChooser->setVisible(isStartup);
+    m_mainLayout->labelForField(m_executableFileChooser)->setVisible(isStartup);
+    m_verboseLevelSpinBox->setVisible(isStartup);
+    m_mainLayout->labelForField(m_verboseLevelSpinBox)->setVisible(isStartup);
+    m_extendedModeCheckBox->setVisible(isStartup);
+    m_mainLayout->labelForField(m_extendedModeCheckBox)->setVisible(isStartup);
+    m_resetBoardCheckBox->setVisible(isStartup);
+    m_mainLayout->labelForField(m_resetBoardCheckBox)->setVisible(isStartup);
+    m_transportLayerComboBox->setVisible(isStartup);
+    m_mainLayout->labelForField(m_transportLayerComboBox)->setVisible(isStartup);
+}
+
 void StLinkUtilGdbServerProviderConfigWidget::populateTransportLayers()
 {
     m_transportLayerComboBox->insertItem(
@@ -369,7 +369,7 @@ void StLinkUtilGdbServerProviderConfigWidget::populateTransportLayers()
 
 void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
 {
-    const auto p = static_cast<StLinkUtilGdbServerProvider *>(provider());
+    const auto p = static_cast<StLinkUtilGdbServerProvider *>(m_provider);
     Q_ASSERT(p);
 
     const QSignalBlocker blocker(this);
