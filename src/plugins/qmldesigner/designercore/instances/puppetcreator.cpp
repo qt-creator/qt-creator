@@ -457,8 +457,8 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.set("QMLDESIGNER_RC_PATHS", m_qrcMapping);
     }
 
-    AbstractView *view = nullptr;
 #ifndef QMLDESIGNER_TEST
+    AbstractView *view = nullptr;
     view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
     view->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
 

@@ -5,12 +5,12 @@ add_qtc_plugin(CompilationDatabaseProjectManager
     compilationdatabaseconstants.h
     compilationdatabaseproject.cpp compilationdatabaseproject.h
     compilationdatabaseprojectmanagerplugin.cpp compilationdatabaseprojectmanagerplugin.h
-    compilationdatabasetests.qrc
     compilationdatabaseutils.cpp compilationdatabaseutils.h
     compilationdbparser.cpp compilationdbparser.h
 )
 
 extend_qtc_plugin(CompilationDatabaseProjectManager
   CONDITION WITH_TESTS
-  SOURCES compilationdatabasetests.cpp compilationdatabasetests.h
+  SOURCES
+    compilationdatabasetests.cpp compilationdatabasetests.h compilationdatabasetests.qrc
 )

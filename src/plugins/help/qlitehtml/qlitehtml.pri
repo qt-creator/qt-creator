@@ -1,6 +1,8 @@
 exists($$PWD/litehtml/CMakeLists.txt) {
     LH_SRC = $$PWD/litehtml
+    LH_HDR = $$LH_SRC/include/litehtml
     GB_SRC = $$PWD/litehtml/src/gumbo
+    GB_HDR = $$GB_SRC/include/gumbo
 
     # gumbo
     SOURCES += \
@@ -17,24 +19,26 @@ exists($$PWD/litehtml/CMakeLists.txt) {
         $$GB_SRC/vector.c
 
     HEADERS += \
-        $$GB_SRC/attribute.h \
-        $$GB_SRC/char_ref.h \
-        $$GB_SRC/error.h \
-        $$GB_SRC/gumbo.h \
-        $$GB_SRC/insertion_mode.h \
-        $$GB_SRC/parser.h \
-        $$GB_SRC/string_buffer.h \
-        $$GB_SRC/string_piece.h \
-        $$GB_SRC/tag_enum.h \
-        $$GB_SRC/tag_gperf.h \
-        $$GB_SRC/tag_sizes.h \
-        $$GB_SRC/tag_strings.h \
-        $$GB_SRC/token_type.h \
-        $$GB_SRC/tokenizer.h \
-        $$GB_SRC/tokenizer_states.h \
-        $$GB_SRC/utf8.h \
-        $$GB_SRC/util.h \
-        $$GB_SRC/vector.h
+        $$GB_SRC/include//gumbo.h \
+        $$GB_HDR/attribute.h \
+        $$GB_HDR/char_ref.h \
+        $$GB_HDR/error.h \
+        $$GB_HDR/insertion_mode.h \
+        $$GB_HDR/parser.h \
+        $$GB_HDR/string_buffer.h \
+        $$GB_HDR/string_piece.h \
+        $$GB_HDR/tag_enum.h \
+        $$GB_HDR/tag_gperf.h \
+        $$GB_HDR/tag_sizes.h \
+        $$GB_HDR/tag_strings.h \
+        $$GB_HDR/token_type.h \
+        $$GB_HDR/tokenizer.h \
+        $$GB_HDR/tokenizer_states.h \
+        $$GB_HDR/utf8.h \
+        $$GB_HDR/util.h \
+        $$GB_HDR/vector.h
+
+    INCLUDEPATH *= $$GB_SRC/include $$GB_HDR
 
     win32 {
         HEADERS += \
@@ -83,51 +87,51 @@ exists($$PWD/litehtml/CMakeLists.txt) {
 
     HEADERS += \
         $$LH_SRC/include/litehtml.h \
-        $$LH_SRC/src/attributes.h \
-        $$LH_SRC/src/background.h \
-        $$LH_SRC/src/borders.h \
-        $$LH_SRC/src/box.h \
-        $$LH_SRC/src/context.h \
-        $$LH_SRC/src/css_length.h \
-        $$LH_SRC/src/css_margins.h \
-        $$LH_SRC/src/css_offsets.h \
-        $$LH_SRC/src/css_position.h \
-        $$LH_SRC/src/css_selector.h \
-        $$LH_SRC/src/document.h \
-        $$LH_SRC/src/el_anchor.h \
-        $$LH_SRC/src/el_base.h \
-        $$LH_SRC/src/el_before_after.h \
-        $$LH_SRC/src/el_body.h \
-        $$LH_SRC/src/el_break.h \
-        $$LH_SRC/src/el_cdata.h \
-        $$LH_SRC/src/el_comment.h \
-        $$LH_SRC/src/el_div.h \
-        $$LH_SRC/src/el_font.h \
-        $$LH_SRC/src/el_image.h \
-        $$LH_SRC/src/el_link.h \
-        $$LH_SRC/src/el_para.h \
-        $$LH_SRC/src/el_script.h \
-        $$LH_SRC/src/el_space.h \
-        $$LH_SRC/src/el_style.h \
-        $$LH_SRC/src/el_table.h \
-        $$LH_SRC/src/el_td.h \
-        $$LH_SRC/src/el_text.h \
-        $$LH_SRC/src/el_title.h \
-        $$LH_SRC/src/el_tr.h \
-        $$LH_SRC/src/element.h \
-        $$LH_SRC/src/html.h \
-        $$LH_SRC/src/html_tag.h \
-        $$LH_SRC/src/iterators.h \
-        $$LH_SRC/src/media_query.h \
-        $$LH_SRC/src/os_types.h \
-        $$LH_SRC/src/style.h \
-        $$LH_SRC/src/stylesheet.h \
-        $$LH_SRC/src/table.h \
-        $$LH_SRC/src/types.h \
-        $$LH_SRC/src/utf8_strings.h \
-        $$LH_SRC/src/web_color.h
+        $$LH_HDR/attributes.h \
+        $$LH_HDR/background.h \
+        $$LH_HDR/borders.h \
+        $$LH_HDR/box.h \
+        $$LH_HDR/context.h \
+        $$LH_HDR/css_length.h \
+        $$LH_HDR/css_margins.h \
+        $$LH_HDR/css_offsets.h \
+        $$LH_HDR/css_position.h \
+        $$LH_HDR/css_selector.h \
+        $$LH_HDR/document.h \
+        $$LH_HDR/el_anchor.h \
+        $$LH_HDR/el_base.h \
+        $$LH_HDR/el_before_after.h \
+        $$LH_HDR/el_body.h \
+        $$LH_HDR/el_break.h \
+        $$LH_HDR/el_cdata.h \
+        $$LH_HDR/el_comment.h \
+        $$LH_HDR/el_div.h \
+        $$LH_HDR/el_font.h \
+        $$LH_HDR/el_image.h \
+        $$LH_HDR/el_link.h \
+        $$LH_HDR/el_para.h \
+        $$LH_HDR/el_script.h \
+        $$LH_HDR/el_space.h \
+        $$LH_HDR/el_style.h \
+        $$LH_HDR/el_table.h \
+        $$LH_HDR/el_td.h \
+        $$LH_HDR/el_text.h \
+        $$LH_HDR/el_title.h \
+        $$LH_HDR/el_tr.h \
+        $$LH_HDR/element.h \
+        $$LH_HDR/html.h \
+        $$LH_HDR/html_tag.h \
+        $$LH_HDR/iterators.h \
+        $$LH_HDR/media_query.h \
+        $$LH_HDR/os_types.h \
+        $$LH_HDR/style.h \
+        $$LH_HDR/stylesheet.h \
+        $$LH_HDR/table.h \
+        $$LH_HDR/types.h \
+        $$LH_HDR/utf8_strings.h \
+        $$LH_HDR/web_color.h
 
-    INCLUDEPATH *= $$LH_SRC/include $$LH_SRC/src $$GB_SRC
+    INCLUDEPATH *= $$LH_SRC/include $$LH_HDR
 
     # litehtml without optimization is not fun
     QMAKE_CFLAGS_DEBUG += -O2

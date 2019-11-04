@@ -395,14 +395,14 @@
 
     \image qtcreator-add-resource.png "Editing resource files"
 
-    Select \uicontrol Add > \uicontrol {Add Files} to locate and add individual
+    Select \uicontrol {Add Files} to locate and add individual
     files.
 
     By default, resources are accessible in the application under the same file
     name as they have in the source tree, with a \c{:/} prefix, or by a URL with
     a \c qrc scheme. To specify a path prefix for all files in the \c .qrc file,
-    select \uicontrol Add > \uicontrol {Add Prefix} or enter the prefix in the
-    \uicontrol Prefix field.
+    select \uicontrol {Add Prefix} and enter the prefix in the \uicontrol Prefix
+    field.
 
     Some resources need to change based on the user's locale, such as
     translation files or icons. You can specify a locale in the

@@ -79,11 +79,12 @@ FilePathList FileInSessionFinder::doFindFile(const FilePath &filePath)
     return m_finder.findFile(QUrl::fromLocalFile(filePath.toString()));
 }
 
+} // namespace Internal
+
 FilePathList findFileInSession(const FilePath &filePath)
 {
-    static FileInSessionFinder finder;
+    static Internal::FileInSessionFinder finder;
     return finder.doFindFile(filePath);
 }
 
-} // namespace Internal
 } // namespace ProjectExplorer

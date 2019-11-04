@@ -25,12 +25,13 @@
 
 #pragma once
 
+#include "projectexplorer_export.h"
+
 #include <utils/fileutils.h>
 
 namespace ProjectExplorer {
-namespace Internal {
 
-Utils::FilePathList findFileInSession(const Utils::FilePath &filePath);
+// Possibly used by "QtCreatorTerminalPlugin"
+PROJECTEXPLORER_EXPORT Utils::FilePathList findFileInSession(const Utils::FilePath &filePath);
 
-} // namespace Internal
 } // namespace ProjectExplorer

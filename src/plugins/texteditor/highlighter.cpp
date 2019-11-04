@@ -29,7 +29,9 @@
 #include "textdocumentlayout.h"
 #include "tabsettings.h"
 #include "texteditorsettings.h"
+#include "texteditor.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -250,7 +252,7 @@ void Highlighter::addCustomHighlighterPath(const Utils::FilePath &path)
     highlightRepository()->addCustomSearchPath(path.toString());
 }
 
-void Highlighter::updateDefinitions(std::function<void()> callback) {
+void Highlighter::downloadDefinitions(std::function<void()> callback) {
     auto downloader =
         new KSyntaxHighlighting::DefinitionDownloader(highlightRepository());
     connect(downloader, &KSyntaxHighlighting::DefinitionDownloader::done,
@@ -269,6 +271,17 @@ void Highlighter::updateDefinitions(std::function<void()> callback) {
                                             Core::MessageManager::ModeSwitch);
             });
     downloader->start();
+}
+
+void Highlighter::reload()
+{
+    highlightRepository()->reload();
+    for (auto editor : Core::DocumentModel::editorsForOpenedDocuments()) {
+        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+            if (qobject_cast<Highlighter *>(textEditor->textDocument()->syntaxHighlighter()))
+                textEditor->editorWidget()->configureGenericHighlighter();
+        }
+    }
 }
 
 void Highlighter::handleShutdown()

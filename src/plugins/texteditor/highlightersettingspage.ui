@@ -64,9 +64,12 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QPushButton" name="updateDefinitions">
+         <widget class="QPushButton" name="downloadDefinitions">
+          <property name="toolTip">
+           <string>Download missing and update existing syntax definition files.</string>
+          </property>
           <property name="text">
-           <string>Update Definitions</string>
+           <string>Download Definitions</string>
           </property>
          </widget>
         </item>
@@ -107,6 +110,16 @@
            <widget class="Utils::PathChooser" name="definitionFilesPath" native="true"/>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="reloadDefinitions">
+          <property name="toolTip">
+           <string>Reload externally modified definition files.</string>
+          </property>
+          <property name="text">
+           <string>Reload Definitions</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

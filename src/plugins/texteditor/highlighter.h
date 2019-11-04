@@ -58,7 +58,8 @@ public:
     static void clearDefintionForDocumentCache();
 
     static void addCustomHighlighterPath(const Utils::FilePath &path);
-    static void updateDefinitions(std::function<void()> callback = nullptr);
+    static void downloadDefinitions(std::function<void()> callback = nullptr);
+    static void reload();
 
     static void handleShutdown();
 

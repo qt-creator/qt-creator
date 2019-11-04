@@ -1,6 +1,8 @@
 QTC_LIB_DEPENDS += cplusplus
 
 include(../../../qtcreator.pri)
+
+RPATH_BASE = $$IDE_BIN_PATH
 include(../../rpath.pri)
 
 DESTDIR = $$IDE_BIN_PATH

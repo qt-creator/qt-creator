@@ -104,14 +104,17 @@ QWidget *HighlighterSettingsPage::widget()
         m_d->m_page->setupUi(m_d->m_widget);
         m_d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
         m_d->m_page->definitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
-        connect(m_d->m_page->updateDefinitions,
+        connect(m_d->m_page->downloadDefinitions,
                 &QPushButton::pressed,
                 [label = QPointer<QLabel>(m_d->m_page->updateStatus)]() {
-                    Highlighter::updateDefinitions([label](){
+                    Highlighter::downloadDefinitions([label](){
                         if (label)
-                            label->setText(tr("Update finished"));
+                            label->setText(tr("Download finished"));
                     });
                 });
+        connect(m_d->m_page->reloadDefinitions, &QPushButton::pressed, []() {
+            Highlighter::reload();
+        });
         connect(m_d->m_page->resetCache, &QPushButton::clicked, []() {
             Highlighter::clearDefintionForDocumentCache();
         });
