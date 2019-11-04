@@ -530,7 +530,7 @@ QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
 void PythonSettings::saveSettings()
 {
     const QList<Interpreter> &interpreters = interpreterOptionsPage().interpreters();
-    const QString &defaultId = interpreterOptionsPage().defaultInterpreter().id;
+    const QString defaultId = interpreterOptionsPage().defaultInterpreter().id;
     toSettings(Core::ICore::settings(), {interpreters, defaultId});
     if (QTC_GUARD(settingsInstance))
         emit settingsInstance->interpretersChanged(interpreters, defaultId);
