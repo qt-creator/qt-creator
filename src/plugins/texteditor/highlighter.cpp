@@ -260,6 +260,7 @@ void Highlighter::downloadDefinitions(std::function<void()> callback) {
                 Core::MessageManager::write(tr("Highlighter updates: done"),
                                             Core::MessageManager::ModeSwitch);
                 downloader->deleteLater();
+                reload();
                 if (callback)
                     callback();
             });

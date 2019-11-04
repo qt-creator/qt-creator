@@ -3104,10 +3104,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
                           InfoBarEntry::GlobalSuppression::Enabled);
         info.setCustomButtonInfo(BaseTextEditor::tr("Download Definitions"), [missing, this]() {
             m_document->infoBar()->removeInfo(missing);
-            Highlighter::downloadDefinitions([widget = QPointer<TextEditorWidget>(q)]() {
-                if (widget)
-                    widget->configureGenericHighlighter();
-            });
+            Highlighter::downloadDefinitions();
         });
 
         infoBar->removeInfo(multiple);
