@@ -84,12 +84,14 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : ClangToolsDiagnosticModelBase(parent)
     , m_filesWatcher(std::make_unique<QFileSystemWatcher>())
 {
+    setRootItem(new Utils::StaticTreeItem(QString()));
     connectFileWatcher();
 }
 
 QDebug operator<<(QDebug debug, const Diagnostic &d)
 {
-    return debug << "category:" << d.category
+    return debug << "name:" << d.name
+                 << "category:" << d.category
                  << "type:" << d.type
                  << "hasFixits:" << d.hasFixits
                  << "explainingSteps:" << d.explainingSteps.size()
@@ -120,7 +122,6 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics)
         if (!filePathItem) {
             filePathItem = new FilePathItem(filePath);
             rootItem()->appendChild(filePathItem);
-
             addWatchedPath(d.location.filePath);
         }
 
@@ -133,6 +134,16 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics)
 QSet<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
 {
     return m_diagnostics;
+}
+
+QSet<QString> ClangToolsDiagnosticModel::allChecks() const
+{
+    QSet<QString> checks;
+    forItemsAtLevel<2>([&](DiagnosticItem *item) {
+        checks.insert(item->diagnostic().name);
+    });
+
+    return checks;
 }
 
 void ClangToolsDiagnosticModel::clear()
@@ -553,7 +564,7 @@ DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
                     setProject(project);
             });
     connect(this, &QAbstractItemModel::modelReset, this, [this]() {
-        resetCounters();
+        reset();
         emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
     });
     connect(this, &QAbstractItemModel::rowsInserted,
@@ -595,11 +606,6 @@ void DiagnosticFilterModel::addSuppressedDiagnostic(const SuppressedDiagnostic &
     invalidate();
 }
 
-void DiagnosticFilterModel::invalidateFilter()
-{
-    QSortFilterProxyModel::invalidateFilter();
-}
-
 void DiagnosticFilterModel::onFixitStatusChanged(const QModelIndex &sourceIndex,
                                                  FixitStatus oldStatus,
                                                  FixitStatus newStatus)
@@ -618,8 +624,10 @@ void DiagnosticFilterModel::onFixitStatusChanged(const QModelIndex &sourceIndex,
     emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
 }
 
-void DiagnosticFilterModel::resetCounters()
+void DiagnosticFilterModel::reset()
 {
+    m_filterOptions.reset();
+
     m_fixitsScheduled = 0;
     m_fixitsScheduable = 0;
     m_diagnostics = 0;
@@ -673,9 +681,13 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     if (parentItem->level() == 1) {
         auto filePathItem = static_cast<FilePathItem *>(parentItem);
         auto diagnosticItem = static_cast<DiagnosticItem *>(filePathItem->childAt(sourceRow));
-
-        // Is the diagnostic explicitly suppressed?
         const Diagnostic &diag = diagnosticItem->diagnostic();
+
+        // Filtered out?
+        if (m_filterOptions && !m_filterOptions->checks.contains(diag.name))
+            return false;
+
+        // Explicitly suppressed?
         foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
             if (d.description != diag.description)
                 continue;
@@ -687,8 +699,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
                 return false;
         }
 
-        // Does the diagnostic match the filter?
-        return diag.description.contains(filterRegExp());
+        return true;
     }
 
     return true; // ExplainingStepItem
@@ -742,6 +753,17 @@ void DiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
     m_suppressedDiagnostics
             = ClangToolsProjectSettingsManager::getSettings(m_project)->suppressedDiagnostics();
     invalidate();
+}
+
+OptionalFilterOptions DiagnosticFilterModel::filterOptions() const
+{
+    return m_filterOptions;
+}
+
+void DiagnosticFilterModel::setFilterOptions(const OptionalFilterOptions &filterOptions)
+{
+    m_filterOptions = filterOptions;
+    invalidateFilter();
 }
 
 } // namespace Internal

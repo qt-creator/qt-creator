@@ -27,6 +27,7 @@
 
 #include "clangfileinfo.h"
 #include "clangtoolsdiagnostic.h"
+#include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolslogfilereader.h"
 
 #include <debugger/debuggermainwindow.h>
@@ -61,6 +62,7 @@ class ClangToolsDiagnosticModel;
 class ClangToolRunWorker;
 class Diagnostic;
 class DiagnosticFilterModel;
+class DiagnosticView;
 class RunSettings;
 class SelectFixitsCheckBox;
 
@@ -74,7 +76,6 @@ public:
     static ClangTool *instance();
 
     ClangTool();
-    ~ClangTool() override;
 
     void selectPerspective();
 
@@ -125,6 +126,12 @@ private:
     void updateForCurrentState();
     void updateForInitialState();
 
+    void filter();
+    void clearFilter();
+    void filterForCurrentKind();
+    void filterOutCurrentKind();
+    void setFilterOptions(const OptionalFilterOptions &filterOptions);
+
     void onBuildFailed();
     void onStartFailed();
     void onStarted();
@@ -133,6 +140,7 @@ private:
     void initDiagnosticView();
     void loadDiagnosticsFromFiles();
 
+    DiagnosticItem *diagnosticItem(const QModelIndex &index) const;
     void showOutputPane();
 
     void reset();
@@ -145,7 +153,7 @@ private:
     ClangToolRunWorker *m_runWorker = nullptr;
 
     InfoBarWidget *m_infoBarWidget = nullptr;
-    QPointer<Debugger::DetailedErrorView> m_diagnosticView;
+    DiagnosticView *m_diagnosticView = nullptr;;
 
     QAction *m_startAction = nullptr;
     QAction *m_startOnCurrentFileAction = nullptr;
@@ -155,7 +163,7 @@ private:
 
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 
-    Utils::FancyLineEdit *m_filterLineEdit = nullptr;
+    QAction *m_showFilter = nullptr;
     SelectFixitsCheckBox *m_selectFixitsCheckBox = nullptr;
     QToolButton *m_applyFixitsButton = nullptr;
 

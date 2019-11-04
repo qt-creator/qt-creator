@@ -32,8 +32,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
 
+#include <debugger/analyzer/diagnosticlocation.h>
+
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QApplication>
@@ -95,8 +99,9 @@ class DiagnosticViewDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    DiagnosticViewDelegate(DiagnosticViewStyle *style)
-        : m_style(style)
+    DiagnosticViewDelegate(DiagnosticViewStyle *style, QObject *parent)
+        : QStyledItemDelegate(parent)
+        ,  m_style(style)
     {}
 
     void paint(QPainter *painter,
@@ -119,16 +124,41 @@ private:
 DiagnosticView::DiagnosticView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
     , m_style(new DiagnosticViewStyle)
-    , m_delegate(new DiagnosticViewDelegate(m_style.get()))
+    , m_delegate(new DiagnosticViewDelegate(m_style, this))
 {
     header()->hide();
+
+    const QIcon filterIcon
+        = Utils::Icon({{":/utils/images/filtericon.png", Utils::Theme::IconsBaseColor}}).icon();
+
+    m_showFilter = new QAction(tr("Filter..."), this);
+    m_showFilter->setIcon(filterIcon);
+    connect(m_showFilter, &QAction::triggered,
+            this, &DiagnosticView::showFilter);
+    m_clearFilter = new QAction(tr("Clear Filter"), this);
+    m_clearFilter->setIcon(filterIcon);
+    connect(m_clearFilter, &QAction::triggered,
+            this, &DiagnosticView::clearFilter);
+    m_filterForCurrentKind = new QAction(tr("Filter for This Diagnostic Kind"), this);
+    m_filterForCurrentKind->setIcon(filterIcon);
+    connect(m_filterForCurrentKind, &QAction::triggered,
+            this, &DiagnosticView::filterForCurrentKind);
+    m_filterOutCurrentKind = new QAction(tr("Filter out This Diagnostic Kind"), this);
+    m_filterOutCurrentKind->setIcon(filterIcon);
+    connect(m_filterOutCurrentKind, &QAction::triggered,
+            this, &DiagnosticView::filterOutCurrentKind);
+
+    m_separator = new QAction(this);
+    m_separator->setSeparator(true);
+
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
+
     installEventFilter(this);
 
-    setStyle(m_style.get());
-    setItemDelegate(m_delegate.get());
+    setStyle(m_style);
+    setItemDelegate(m_delegate);
 }
 
 void DiagnosticView::scheduleAllFixits(bool schedule)
@@ -147,7 +177,10 @@ void DiagnosticView::scheduleAllFixits(bool schedule)
     }
 }
 
-DiagnosticView::~DiagnosticView() = default;
+DiagnosticView::~DiagnosticView()
+{
+    delete m_style;
+}
 
 void DiagnosticView::suppressCurrentDiagnostic()
 {
@@ -225,7 +258,20 @@ QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction
 
 QList<QAction *> DiagnosticView::customActions() const
 {
-    return {m_suppressAction};
+    const QModelIndex currentIndex = selectionModel()->currentIndex();
+    const bool isDiagnosticItem = currentIndex.parent().isValid();
+    m_filterForCurrentKind->setEnabled(isDiagnosticItem);
+    m_filterOutCurrentKind->setEnabled(isDiagnosticItem);
+    m_suppressAction->setEnabled(isDiagnosticItem);
+
+    return {
+        m_showFilter,
+        m_clearFilter,
+        m_filterForCurrentKind,
+        m_filterOutCurrentKind,
+        m_separator,
+        m_suppressAction,
+    };
 }
 
 bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)

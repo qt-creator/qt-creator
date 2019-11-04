@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,50 +23,41 @@
 **
 ****************************************************************************/
 
-#include "clangtoolsdiagnostic.h"
+#pragma once
+
+#include <QDialog>
 
 namespace ClangTools {
 namespace Internal {
 
-bool ExplainingStep::isValid() const
-{
-    return location.isValid() && !ranges.isEmpty() && !message.isEmpty();
-}
+namespace Ui { class FilterDialog; }
 
-bool operator==(const ExplainingStep &lhs, const ExplainingStep &rhs)
-{
-    return lhs.message == rhs.message
-        && lhs.location == rhs.location
-        && lhs.ranges == rhs.ranges
-        && lhs.isFixIt == rhs.isFixIt
-        ;
-}
+class FilterChecksModel;
 
-bool Diagnostic::isValid() const
-{
-    return !description.isEmpty();
-}
+class Check {
+public:
+    QString name;
+    QString displayName;
+    int count = 0;
+    bool isShown = false;
+    bool hasFixit = false;
+};
+using Checks = QList<Check>;
 
-quint32 qHash(const Diagnostic &diagnostic)
+class FilterDialog : public QDialog
 {
-    return qHash(diagnostic.name)
-         ^ qHash(diagnostic.description)
-         ^ qHash(diagnostic.location.filePath)
-         ^ diagnostic.location.line
-         ^ diagnostic.location.column;
-}
+    Q_OBJECT
 
-bool operator==(const Diagnostic &lhs, const Diagnostic &rhs)
-{
-    return lhs.name == rhs.name
-        && lhs.description == rhs.description
-        && lhs.category == rhs.category
-        && lhs.type == rhs.type
-        && lhs.location == rhs.location
-        && lhs.explainingSteps == rhs.explainingSteps
-        && lhs.hasFixits == rhs.hasFixits
-        ;
-}
+public:
+    explicit FilterDialog(const Checks &selectedChecks, QWidget *parent = nullptr);
+    ~FilterDialog();
+
+    QSet<QString> selectedChecks() const;
+
+private:
+    Ui::FilterDialog *m_ui;
+    FilterChecksModel *m_model;
+};
 
 } // namespace Internal
 } // namespace ClangTools

@@ -31,6 +31,7 @@
 
 #include <debugger/analyzer/detailederrorview.h>
 #include <utils/fileutils.h>
+#include <utils/optional.h>
 #include <utils/treemodel.h>
 
 #include <QFileSystemWatcher>
@@ -124,6 +125,8 @@ public:
         CheckBoxEnabledRole
     };
 
+    QSet<QString> allChecks() const;
+
     void clear();
     void removeWatchedPath(const QString &path);
     void addWatchedPath(const QString &path);
@@ -144,6 +147,12 @@ private:
     std::unique_ptr<QFileSystemWatcher> m_filesWatcher;
 };
 
+class FilterOptions {
+public:
+    QSet<QString> checks;
+};
+using OptionalFilterOptions = Utils::optional<FilterOptions>;
+
 class DiagnosticFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -155,13 +164,14 @@ public:
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
     ProjectExplorer::Project *project() const { return m_project; }
 
-    void invalidateFilter();
+    OptionalFilterOptions filterOptions() const;
+    void setFilterOptions(const OptionalFilterOptions &filterOptions);
 
     void onFixitStatusChanged(const QModelIndex &sourceIndex,
                               FixitStatus oldStatus,
                               FixitStatus newStatus);
 
-    void resetCounters();
+    void reset();
     int diagnostics() const { return m_diagnostics; }
     int fixitsScheduable() const { return m_fixitsScheduable; }
     int fixitsScheduled() const { return m_fixitsScheduled; }
@@ -182,6 +192,8 @@ private:
     QPointer<ProjectExplorer::Project> m_project;
     Utils::FilePath m_lastProjectDirectory;
     SuppressedDiagnosticsList m_suppressedDiagnostics;
+
+    OptionalFilterOptions m_filterOptions;
 
     int m_diagnostics = 0;
     int m_fixitsScheduable = 0;

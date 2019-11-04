@@ -432,8 +432,8 @@ Diagnostics readExportedDiagnostics(const Utils::FilePath &logFilePath,
             Diagnostic diag;
             diag.location = loc.toDiagnosticLocation();
             diag.type = "warning";
-            diag.description = asString(node["Message"]) + " ["
-                               + (asString(diagNode["DiagnosticName"])) + "]";
+            diag.name = asString(diagNode["DiagnosticName"]);
+            diag.description = asString(node["Message"]) + " [" + diag.name + "]";
 
             // Process fixits/replacements
             const YAML::Node &replacementsNode = node["Replacements"];

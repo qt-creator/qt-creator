@@ -33,6 +33,7 @@ SOURCES += \
     clangtoolsutils.cpp \
     diagnosticconfigswidget.cpp \
     executableinfo.cpp \
+    filterdialog.cpp \
     runsettingswidget.cpp \
     settingswidget.cpp \
 
@@ -57,6 +58,7 @@ HEADERS += \
     clangtoolsutils.h \
     diagnosticconfigswidget.h \
     executableinfo.h \
+    filterdialog.h \
     runsettingswidget.h \
     settingswidget.h \
 
@@ -64,6 +66,7 @@ FORMS += \
     clangselectablefilesdialog.ui \
     clangtoolsprojectsettingswidget.ui \
     clazychecks.ui \
+    filterdialog.ui \
     runsettingswidget.ui \
     settingswidget.ui \
     tidychecks.ui \

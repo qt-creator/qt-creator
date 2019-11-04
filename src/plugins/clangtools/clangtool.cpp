@@ -37,6 +37,7 @@
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
+#include "filterdialog.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -462,6 +463,14 @@ ClangTool::ClangTool()
     m_diagnosticView->setSortingEnabled(true);
     m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::DiagnosticColumn,
                                    Qt::AscendingOrder);
+    connect(m_diagnosticView, &DiagnosticView::showFilter,
+            this, &ClangTool::filter);
+    connect(m_diagnosticView, &DiagnosticView::clearFilter,
+            this, &ClangTool::clearFilter);
+    connect(m_diagnosticView, &DiagnosticView::filterForCurrentKind,
+            this, &ClangTool::filterForCurrentKind);
+    connect(m_diagnosticView, &DiagnosticView::filterOutCurrentKind,
+            this, &ClangTool::filterOutCurrentKind);
 
     foreach (auto * const model,
              QList<QAbstractItemModel *>({m_diagnosticModel, m_diagnosticFilterModel})) {
@@ -526,15 +535,13 @@ ClangTool::ClangTool()
     });
     m_expandCollapse = action;
 
-    // Filter line edit
-    m_filterLineEdit = new Utils::FancyLineEdit();
-    m_filterLineEdit->setFiltering(true);
-    m_filterLineEdit->setPlaceholderText(tr("Filter Diagnostics"));
-    m_filterLineEdit->setHistoryCompleter("CppTools.ClangTidyClazyIssueFilter", true);
-    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged, [this](const QString &filter) {
-        m_diagnosticFilterModel->setFilterRegExp(
-            QRegExp(filter, Qt::CaseSensitive, QRegExp::WildcardUnix));
-    });
+    // Filter button
+    action = m_showFilter = new QAction(this);
+    action->setIcon(
+        Utils::Icon({{":/utils/images/filtericon.png", Utils::Theme::IconsBaseColor}}).icon());
+    action->setToolTip(tr("Filter Diagnostics"));
+    action->setCheckable(true);
+    connect(action, &QAction::triggered, this, &ClangTool::filter);
 
     // Schedule/Unschedule all fixits
     m_selectFixitsCheckBox = new SelectFixitsCheckBox;
@@ -542,8 +549,7 @@ ClangTool::ClangTool()
     m_selectFixitsCheckBox->setEnabled(false);
     m_selectFixitsCheckBox->setTristate(true);
     connect(m_selectFixitsCheckBox, &QCheckBox::clicked, this, [this]() {
-        auto view = static_cast<DiagnosticView *>(m_diagnosticView.data());
-        view->scheduleAllFixits(m_selectFixitsCheckBox->isChecked());
+        m_diagnosticView->scheduleAllFixits(m_selectFixitsCheckBox->isChecked());
     });
 
     // Apply fixits button
@@ -625,12 +631,12 @@ ClangTool::ClangTool()
     m_perspective.addToolbarSeparator();
     m_perspective.addToolBarAction(m_loadExported);
     m_perspective.addToolBarAction(m_clear);
-    m_perspective.addToolBarAction(m_expandCollapse);
     m_perspective.addToolbarSeparator();
+    m_perspective.addToolBarAction(m_expandCollapse);
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
-    m_perspective.addToolBarWidget(m_filterLineEdit);
     m_perspective.addToolbarSeparator();
+    m_perspective.addToolBarAction(m_showFilter);
     m_perspective.addToolBarWidget(m_selectFixitsCheckBox);
     m_perspective.addToolBarWidget(m_applyFixitsButton);
 
@@ -642,11 +648,6 @@ ClangTool::ClangTool()
             this, &ClangTool::update);
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
             this, &ClangTool::update);
-}
-
-ClangTool::~ClangTool()
-{
-    delete m_diagnosticView;
 }
 
 void ClangTool::selectPerspective()
@@ -860,6 +861,20 @@ void ClangTool::loadDiagnosticsFromFiles()
     setState(State::ImportFinished);
 }
 
+DiagnosticItem *ClangTool::diagnosticItem(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return {};
+
+    TreeItem *item = m_diagnosticModel->itemForIndex(m_diagnosticFilterModel->mapToSource(index));
+    if (item->level() == 3)
+        item = item->parent();
+    if (item->level() == 2)
+        return static_cast<DiagnosticItem *>(item);
+
+    return {};
+}
+
 void ClangTool::showOutputPane()
 {
     ProjectExplorerPlugin::showOutputPaneForRunControl(m_runControl);
@@ -868,11 +883,13 @@ void ClangTool::showOutputPane()
 void ClangTool::reset()
 {
     m_clear->setEnabled(false);
+    m_showFilter->setEnabled(false);
+    m_showFilter->setChecked(false);
     m_selectFixitsCheckBox->setEnabled(false);
     m_applyFixitsButton->setEnabled(false);
 
     m_diagnosticModel->clear();
-    m_diagnosticFilterModel->resetCounters();
+    m_diagnosticFilterModel->reset();
 
     m_infoBarWidget->reset();
 
@@ -954,6 +971,71 @@ void ClangTool::updateForInitialState()
     case CheckResult::ReadyToAnalyze:
         break;
         }
+}
+
+void ClangTool::setFilterOptions(const OptionalFilterOptions &filterOptions)
+{
+    m_diagnosticFilterModel->setFilterOptions(filterOptions);
+    const bool isFilterActive = filterOptions
+                                    ? (filterOptions->checks != m_diagnosticModel->allChecks())
+                                    : false;
+    m_showFilter->setChecked(isFilterActive);
+}
+
+void ClangTool::filter()
+{
+    const OptionalFilterOptions filterOptions = m_diagnosticFilterModel->filterOptions();
+
+    // Collect available and currently shown checks
+    QHash<QString, Check> checks;
+    m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item) {
+        const QString checkName = item->diagnostic().name;
+        Check &check = checks[checkName];
+        if (check.name.isEmpty()) {
+            check.name = checkName;
+            check.displayName = checkName;
+            const QString clangDiagPrefix = "clang-diagnostic-";
+            if (check.displayName.startsWith(clangDiagPrefix))
+                check.displayName = QString("-W%1").arg(check.name.mid(clangDiagPrefix.size()));
+            check.count = 1;
+            check.isShown = filterOptions ? filterOptions->checks.contains(checkName) : true;
+            check.hasFixit = check.hasFixit || item->diagnostic().hasFixits;
+            checks.insert(check.name, check);
+        } else {
+            ++check.count;
+        }
+    });
+
+    // Show dialog
+    FilterDialog dialog(checks.values());
+    if (dialog.exec() == QDialog::Rejected)
+        return;
+
+    // Apply filter
+    setFilterOptions(FilterOptions{dialog.selectedChecks()});
+}
+
+void ClangTool::clearFilter()
+{
+    m_diagnosticFilterModel->setFilterOptions({});
+    m_showFilter->setChecked(false);
+}
+
+void ClangTool::filterForCurrentKind()
+{
+    if (DiagnosticItem *item = diagnosticItem(m_diagnosticView->currentIndex()))
+        setFilterOptions(FilterOptions{{item->diagnostic().name}});
+}
+
+void ClangTool::filterOutCurrentKind()
+{
+    if (DiagnosticItem *item = diagnosticItem(m_diagnosticView->currentIndex())) {
+        const OptionalFilterOptions filterOpts = m_diagnosticFilterModel->filterOptions();
+        QSet<QString> checks = filterOpts ? filterOpts->checks : m_diagnosticModel->allChecks();
+        checks.remove(item->diagnostic().name);
+
+        setFilterOptions(FilterOptions{checks});
+    }
 }
 
 void ClangTool::onBuildFailed()
@@ -1070,8 +1152,6 @@ void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics)
 {
     QTC_ASSERT(m_diagnosticModel, return);
     m_diagnosticModel->addDiagnostics(diagnostics);
-    if (!m_diagnosticFilterModel->filterRegExp().pattern().isEmpty())
-        m_diagnosticFilterModel->invalidateFilter();
 }
 
 void ClangTool::updateForCurrentState()
@@ -1103,6 +1183,7 @@ void ClangTool::updateForCurrentState()
     m_clear->setEnabled(!isRunning);
     m_expandCollapse->setEnabled(issuesVisible);
     m_loadExported->setEnabled(!isRunning);
+    m_showFilter->setEnabled(issuesFound > 1);
 
     // Diagnostic view
     m_diagnosticView->setCursor(isRunning ? Qt::BusyCursor : Qt::ArrowCursor);

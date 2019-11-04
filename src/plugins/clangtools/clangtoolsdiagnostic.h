@@ -54,6 +54,7 @@ class Diagnostic
 public:
     bool isValid() const;
 
+    QString name;
     QString description;
     QString category;
     QString type;
