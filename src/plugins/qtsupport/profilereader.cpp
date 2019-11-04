@@ -55,7 +55,7 @@ void ProMessageHandler::message(int type, const QString &msg, const QString &fil
 {
     if ((type & CategoryMask) == ErrorMessage && ((type & SourceMask) == SourceParser || m_verbose)) {
         QString fmsg = format(fileName, lineNo, msg);
-        if ((type & SourceMask) == SourceParser || m_exact)
+        if (m_exact)
             emit writeMessage(fmsg, Core::MessageManager::NoModeSwitch);
         else
             emit writeMessage(m_prefix + fmsg, Core::MessageManager::NoModeSwitch);
@@ -91,6 +91,7 @@ ProFileReader::~ProFileReader()
 void ProFileReader::setCumulative(bool on)
 {
     ProMessageHandler::setVerbose(!on);
+    ProMessageHandler::setExact(!on);
     ProFileEvaluator::setCumulative(on);
 }
 
