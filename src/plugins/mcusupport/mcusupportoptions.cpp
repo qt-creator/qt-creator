@@ -319,7 +319,8 @@ static PackageOptions *createSeggerJLinkPackage()
 {
     const QString defaultPath =
             Utils::HostOsInfo::isWindowsHost() ?
-                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles")) + "/SEGGER/JLink"
+                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)"))
+                + "/SEGGER/JLink"
               : QString("%{Env:SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH}");
     auto result = new PackageOptions(
                 PackageOptions::tr("SEGGER JLink"),
