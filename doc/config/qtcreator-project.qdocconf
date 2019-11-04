@@ -23,7 +23,8 @@ imagedirs = ../images \
             ../../src/plugins/qmldesigner/qmlpreviewplugin/images \
             ../../src/plugins/scxmleditor/common/images \
             ../../src/plugins/texteditor/images \
-            ../../src/plugins/valgrind/images
+            ../../src/plugins/valgrind/images \
+            ../../src/plugins/welcome/images
 
 exampledirs = ../examples
 examples.fileextensions += *.qml *.svg
