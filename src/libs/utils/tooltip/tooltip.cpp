@@ -76,17 +76,40 @@ static QWidget *createF1Icon()
 */
 void ToolTip::show(const QPoint &pos, const QString &content, QWidget *w, const QVariant &contextHelp, const QRect &rect)
 {
+    show(pos, content, Qt::AutoText, w, contextHelp, rect);
+}
+
+/*!
+    Shows a tool tip with the text \a content with a specific text \a format.
+    If \a contextHelp is given, a context help icon is shown as well.
+    \a contextHelp of the current shown tool tip can be retrieved via ToolTip::contextHelp().
+*/
+void ToolTip::show(const QPoint &pos,
+                   const QString &content,
+                   Qt::TextFormat format,
+                   QWidget *w,
+                   const QVariant &contextHelp,
+                   const QRect &rect)
+{
     if (content.isEmpty()) {
         instance()->hideTipWithDelay();
     } else {
         if (contextHelp.isNull()) {
-            instance()->showInternal(pos, QVariant(content), TextContent, w, contextHelp, rect);
+            instance()->showInternal(pos,
+                                     qVariantFromValue(TextItem(content, format)),
+                                     TextContent,
+                                     w,
+                                     contextHelp,
+                                     rect);
         } else {
             auto tooltipWidget = new FakeToolTip;
             auto layout = new QHBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             tooltipWidget->setLayout(layout);
-            layout->addWidget(new QLabel(content));
+            auto label = new QLabel;
+            label->setTextFormat(format);
+            label->setText(content);
+            layout->addWidget(label);
             layout->addWidget(createF1Icon());
             instance()->showInternal(pos,
                                      QVariant::fromValue(tooltipWidget),

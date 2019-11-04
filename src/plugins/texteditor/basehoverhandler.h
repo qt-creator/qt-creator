@@ -65,7 +65,7 @@ protected:
     void setPriority(int priority);
     int priority() const;
 
-    void setToolTip(const QString &tooltip);
+    void setToolTip(const QString &tooltip, Qt::TextFormat format = Qt::PlainText);
     const QString &toolTip() const;
 
     void setLastHelpItemIdentified(const Core::HelpItem &help);
@@ -86,6 +86,7 @@ private:
     void process(TextEditorWidget *widget, int pos, ReportPriority report);
 
     QString m_toolTip;
+    Qt::TextFormat m_textFormat = Qt::PlainText;
     Core::HelpItem m_lastHelpItemIdentified;
     int m_priority = -1;
     bool m_isContextHelpRequest = false;

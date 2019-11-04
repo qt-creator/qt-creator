@@ -74,8 +74,17 @@ public:
 
     static void show(const QPoint &pos, const QString &content, QWidget *w = nullptr,
                      const QVariant &contextHelp = {}, const QRect &rect = QRect());
-    static void show(const QPoint &pos, const QColor &color, QWidget *w = nullptr,
-                     const QVariant &contextHelp = {}, const QRect &rect = QRect());
+    static void show(const QPoint &pos,
+                     const QString &content,
+                     Qt::TextFormat format,
+                     QWidget *w = nullptr,
+                     const QVariant &contextHelp = {},
+                     const QRect &rect = QRect());
+    static void show(const QPoint &pos,
+                     const QColor &color,
+                     QWidget *w = nullptr,
+                     const QVariant &contextHelp = {},
+                     const QRect &rect = QRect());
     static void show(const QPoint &pos, QWidget *content, QWidget *w = nullptr,
                      const QVariant &contextHelp = {}, const QRect &rect = QRect());
     static void show(const QPoint &pos, QLayout *content, QWidget *w = nullptr,

@@ -60,6 +60,8 @@ private:
     QVariant m_contextHelp;
 };
 
+using TextItem = std::pair<QString, Qt::TextFormat>;
+
 class TextTip : public TipLabel
 {
 public:
@@ -76,6 +78,7 @@ public:
 
 private:
     QString m_text;
+    Qt::TextFormat m_format = Qt::AutoText;
 };
 
 class ColorTip : public TipLabel
@@ -117,3 +120,5 @@ private:
 
 } // namespace Internal
 } // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::Internal::TextItem)

@@ -89,9 +89,10 @@ void BaseHoverHandler::contextHelpId(TextEditorWidget *widget,
     m_isContextHelpRequest = false;
 }
 
-void BaseHoverHandler::setToolTip(const QString &tooltip)
+void BaseHoverHandler::setToolTip(const QString &tooltip, Qt::TextFormat format)
 {
     m_toolTip = tooltip;
+    m_textFormat = format;
 }
 
 const QString &BaseHoverHandler::toolTip() const
@@ -153,15 +154,18 @@ void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoi
         Utils::ToolTip::hide();
     } else {
         if (helpContents.isEmpty()) {
-            Utils::ToolTip::show(point, m_toolTip, editorWidget, helpItem);
+            Utils::ToolTip::show(point, m_toolTip, m_textFormat, editorWidget, helpItem);
         } else if (m_toolTip.isEmpty()) {
-            Utils::ToolTip::show(point, helpContents, editorWidget, helpItem);
+            Utils::ToolTip::show(point, helpContents, Qt::RichText, editorWidget, helpItem);
         } else {
             // separate labels for tool tip text and help,
             // so the text format (plain, rich, markdown) can be handled differently
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
-            layout->addWidget(new QLabel(m_toolTip));
+            auto label = new QLabel;
+            label->setTextFormat(m_textFormat);
+            label->setText(m_toolTip);
+            layout->addWidget(label);
             layout->addWidget(new QLabel("<hr/>" + helpContents));
             Utils::ToolTip::show(point, layout, editorWidget, helpItem);
         }
