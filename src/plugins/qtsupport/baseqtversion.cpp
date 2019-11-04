@@ -1228,17 +1228,17 @@ void BaseQtVersionPrivate::updateVersionInfo()
         }
     }
     const QString qtInstallDocs = q->docsPath().toString();
-    if (!qtInstallDocs.isNull()) {
+    if (!qtInstallDocs.isEmpty()) {
         if (QFileInfo::exists(qtInstallDocs))
             m_hasDocumentation = true;
     }
     const QString qtInstallExamples = q->examplesPath().toString();
-    if (!qtInstallExamples.isNull()) {
+    if (!qtInstallExamples.isEmpty()) {
         if (QFileInfo::exists(qtInstallExamples))
             m_hasExamples = true;
     }
     const QString qtInstallDemos = q->demosPath().toString();
-    if (!qtInstallDemos.isNull()) {
+    if (!qtInstallDemos.isEmpty()) {
         if (QFileInfo::exists(qtInstallDemos))
             m_hasDemos = true;
     }
