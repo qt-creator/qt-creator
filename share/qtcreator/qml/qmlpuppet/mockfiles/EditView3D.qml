@@ -38,7 +38,7 @@ Window {
     title: "3D"
     flags: Qt.WindowStaysOnTopHint | Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
 
-    property alias scene: editView.scene
+    property alias scene: editView.importScene
     property alias showEditLight: editLightCheckbox.checked
     property alias usePerspective: usePerspectiveCheckbox.checked
 
@@ -181,7 +181,7 @@ Window {
             id: overlayView
             anchors.fill: parent
             camera: usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
-            scene: overlayScene
+            importScene: overlayScene
         }
 
         Overlay2D {
