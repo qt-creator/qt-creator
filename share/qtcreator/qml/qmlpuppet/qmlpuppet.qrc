@@ -22,8 +22,12 @@
         <file>mockfiles/ScaleRod.qml</file>
         <file>mockfiles/ScaleGizmo.qml</file>
         <file>mockfiles/ToolBarButton.qml</file>
+        <file>mockfiles/RotateGizmo.qml</file>
+        <file>mockfiles/RotateRing.qml</file>
         <file>mockfiles/meshes/arrow.mesh</file>
         <file>mockfiles/meshes/scalerod.mesh</file>
+        <file>mockfiles/meshes/ring.mesh</file>
+        <file>mockfiles/meshes/ringselect.mesh</file>
         <file>mockfiles/images/camera-pick-icon.png</file>
         <file>mockfiles/images/camera-pick-icon@2x.png</file>
         <file>mockfiles/images/light-pick-icon.png</file>

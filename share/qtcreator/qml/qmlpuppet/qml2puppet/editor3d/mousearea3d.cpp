@@ -29,11 +29,15 @@
 
 #include <QtGui/qguiapplication.h>
 #include <QtQml/qqmlinfo.h>
+#include <QtQuick3D/private/qquick3dcamera_p.h>
+#include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
+#include <QtQuick3DRuntimeRender/private/qssgrendercamera_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
 MouseArea3D *MouseArea3D::s_mouseGrab = nullptr;
+static const qreal s_mouseDragMultiplier = .02;
 
 MouseArea3D::MouseArea3D(QQuick3DNode *parent)
     : QQuick3DNode(parent)
@@ -63,6 +67,21 @@ bool MouseArea3D::grabsMouse() const
 bool MouseArea3D::active() const
 {
     return m_active;
+}
+
+QPointF MouseArea3D::circlePickArea() const
+{
+    return m_circlePickArea;
+}
+
+qreal MouseArea3D::minAngle() const
+{
+    return m_minAngle;
+}
+
+QQuick3DNode *MouseArea3D::pickNode() const
+{
+    return m_pickNode;
 }
 
 qreal MouseArea3D::x() const
@@ -105,7 +124,7 @@ void MouseArea3D::setGrabsMouse(bool grabsMouse)
         return;
 
     m_grabsMouse = grabsMouse;
-    emit grabsMouseChanged(grabsMouse);
+    emit grabsMouseChanged();
 }
 
 void MouseArea3D::setActive(bool active)
@@ -114,7 +133,37 @@ void MouseArea3D::setActive(bool active)
         return;
 
     m_active = active;
-    emit activeChanged(active);
+    emit activeChanged();
+}
+
+void MouseArea3D::setCirclePickArea(const QPointF &pickArea)
+{
+    if (m_circlePickArea == pickArea)
+        return;
+
+    m_circlePickArea = pickArea;
+    emit circlePickAreaChanged();
+}
+
+// This is the minimum angle for circle picking. At lower angles we fall back to picking on pickNode
+void MouseArea3D::setMinAngle(qreal angle)
+{
+    if (qFuzzyCompare(m_minAngle, angle))
+        return;
+
+    m_minAngle = angle;
+    emit minAngleChanged();
+}
+
+// This is the fallback pick node when circle picking can't be done due to low angle
+// Pick node can't be used except in low angles, as long as only bounding box picking is supported
+void MouseArea3D::setPickNode(QQuick3DNode *node)
+{
+    if (m_pickNode == node)
+        return;
+
+    m_pickNode = node;
+    emit pickNodeChanged();
 }
 
 void MouseArea3D::setX(qreal x)
@@ -123,7 +172,7 @@ void MouseArea3D::setX(qreal x)
         return;
 
     m_x = x;
-    emit xChanged(x);
+    emit xChanged();
 }
 
 void MouseArea3D::setY(qreal y)
@@ -132,7 +181,7 @@ void MouseArea3D::setY(qreal y)
         return;
 
     m_y = y;
-    emit yChanged(y);
+    emit yChanged();
 }
 
 void MouseArea3D::setWidth(qreal width)
@@ -141,7 +190,7 @@ void MouseArea3D::setWidth(qreal width)
         return;
 
     m_width = width;
-    emit widthChanged(width);
+    emit widthChanged();
 }
 
 void MouseArea3D::setHeight(qreal height)
@@ -150,7 +199,7 @@ void MouseArea3D::setHeight(qreal height)
         return;
 
     m_height = height;
-    emit heightChanged(height);
+    emit heightChanged();
 }
 
 void MouseArea3D::setPriority(int level)
@@ -159,7 +208,7 @@ void MouseArea3D::setPriority(int level)
         return;
 
     m_priority = level;
-    emit priorityChanged(level);
+    emit priorityChanged();
 }
 
 void MouseArea3D::componentComplete()
@@ -278,6 +327,84 @@ QVector3D MouseArea3D::getNewScale(QQuick3DNode *node, const QVector3D &startSca
     return startScale;
 }
 
+qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
+        QQuick3DNode *node, const QVector3D &pressPos, const QVector3D &currentPos,
+        const QVector3D &nodePos, qreal prevAngle, bool trackBall)
+{
+    const QVector3D cameraToNodeDir = getCameraToNodeDir(node);
+    if (trackBall) {
+        // Only the distance in plane direction is relevant in trackball drag
+        QVector3D dragDir = QVector3D::crossProduct(getNormal(), cameraToNodeDir).normalized();
+        QVector3D screenDragDir = m_view3D->mapFrom3DScene(node->scenePosition() + dragDir);
+        screenDragDir.setZ(0);
+        dragDir = (screenDragDir - nodePos).normalized();
+        const QVector3D pressToCurrent = (currentPos - pressPos);
+        float magnitude = QVector3D::dotProduct(pressToCurrent, dragDir);
+        qreal angle = -s_mouseDragMultiplier * qreal(magnitude);
+        return angle;
+    } else {
+        const QVector3D nodeToPress = (pressPos - nodePos).normalized();
+        const QVector3D nodeToCurrent = (currentPos - nodePos).normalized();
+        qreal angle = qAcos(qreal(QVector3D::dotProduct(nodeToPress, nodeToCurrent)));
+
+        // Determine drag direction left/right
+        const QVector3D dragNormal = QVector3D::crossProduct(nodeToPress, nodeToCurrent).normalized();
+        angle *= QVector3D::dotProduct(QVector3D(0.f, 0.f, 1.f), dragNormal) < 0 ? -1.0 : 1.0;
+
+        // Determine drag ring orientation relative to camera
+        angle *= QVector3D::dotProduct(getNormal(), cameraToNodeDir) < 0 ? 1.0 : -1.0;
+
+        qreal adjustedPrevAngle = prevAngle;
+        const qreal PI_2 = M_PI * 2.0;
+        while (adjustedPrevAngle < -PI_2)
+            adjustedPrevAngle += PI_2;
+        while (adjustedPrevAngle > PI_2)
+            adjustedPrevAngle -= PI_2;
+
+        // at M_PI rotation, the angle flips to negative
+        if (qAbs(angle - adjustedPrevAngle) > M_PI) {
+            if (angle > adjustedPrevAngle)
+                return prevAngle - (PI_2 - angle + adjustedPrevAngle);
+            else
+                return prevAngle + (PI_2 + angle - adjustedPrevAngle);
+        } else {
+            return prevAngle + angle - adjustedPrevAngle;
+        }
+    }
+
+}
+
+void QmlDesigner::Internal::MouseArea3D::applyRotationAngleToNode(
+        QQuick3DNode *node, const QVector3D &startRotation, qreal angle)
+{
+    if (!qFuzzyIsNull(angle)) {
+        node->setRotation(startRotation);
+        node->rotate(qRadiansToDegrees(angle), getNormal(), QQuick3DNode::SceneSpace);
+    }
+}
+
+void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRotation,
+                                    const QVector3D &pressPos, const QVector3D &currentPos)
+{
+    QVector3D dragVector = currentPos - pressPos;
+
+    if (dragVector.length() < 0.001f)
+        return;
+
+    const float *dataPtr(sceneTransform().data());
+    QVector3D xAxis = QVector3D(-dataPtr[0], -dataPtr[1], -dataPtr[2]).normalized();
+    QVector3D yAxis = QVector3D(-dataPtr[4], -dataPtr[5], -dataPtr[6]).normalized();
+
+    QVector3D finalAxis = (dragVector.x() * yAxis + dragVector.y() * xAxis);
+
+    qreal degrees = qRadiansToDegrees(qreal(finalAxis.length()) * s_mouseDragMultiplier);
+
+    finalAxis.normalize();
+
+    node->setRotation(startRotation);
+    node->rotate(degrees, finalAxis, QQuick3DNode::SceneSpace);
+}
+
 QVector3D MouseArea3D::getMousePosInPlane(const QPointF &mousePosInView) const
 {
     const QVector3D mousePos1(float(mousePosInView.x()), float(mousePosInView.y()), 0);
@@ -300,12 +427,50 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
         return false;
     }
 
-    auto mouseOnTopOfMouseArea = [this](const QVector3D &mousePosInPlane) -> bool {
-        return !qFuzzyCompare(mousePosInPlane.z(), -1)
+    qreal pickAngle = 0.;
+
+    auto mouseOnTopOfMouseArea = [this, &pickAngle](
+            const QVector3D &mousePosInPlane, const QPointF &mousePos) -> bool {
+        const bool onPlane = !qFuzzyCompare(mousePosInPlane.z(), -1)
                 && mousePosInPlane.x() >= float(m_x)
                 && mousePosInPlane.x() <= float(m_x + m_width)
                 && mousePosInPlane.y() >= float(m_y)
                 && mousePosInPlane.y() <= float(m_y + m_height);
+
+        bool onCircle = true;
+        bool pickSuccess = false;
+        if (!qFuzzyIsNull(m_circlePickArea.y()) || !qFuzzyIsNull(m_minAngle)) {
+
+            QVector3D cameraToMouseAreaDir = getCameraToNodeDir(this);
+            const QVector3D mouseAreaDir = getNormal();
+            qreal angle = qreal(QVector3D::dotProduct(cameraToMouseAreaDir, mouseAreaDir));
+            // Do not allow selecting ring that is nearly perpendicular to camera, as dragging along
+            // that plane would be difficult
+            pickAngle = qAcos(angle);
+            pickAngle = pickAngle > M_PI_2 ? pickAngle - M_PI_2 : M_PI_2 - pickAngle;
+            if (pickAngle > m_minAngle) {
+                if (!qFuzzyIsNull(m_circlePickArea.y())) {
+                    qreal ringCenter = m_circlePickArea.x();
+                    // Thickness is increased according to the angle to camera to keep projected
+                    // circle thickness constant at all angles.
+                    qreal divisor = qSin(pickAngle) * 2.; // This is never zero
+                    qreal thickness = ((m_circlePickArea.y() / divisor));
+                    qreal mousePosRadius = qSqrt(qreal(mousePosInPlane.x() * mousePosInPlane.x())
+                                                 + qreal(mousePosInPlane.y() * mousePosInPlane.y()));
+                    onCircle = ringCenter - thickness <= mousePosRadius
+                            && ringCenter + thickness >= mousePosRadius;
+                }
+            } else {
+                // Fall back to picking on the pickNode. At this angle, bounding box pick is not
+                // a problem
+                onCircle = false;
+                if (m_pickNode) {
+                    QQuick3DPickResult pr = m_view3D->pick(float(mousePos.x()), float(mousePos.y()));
+                    pickSuccess = pr.objectHit() == m_pickNode;
+                }
+            }
+        }
+        return (onCircle && onPlane) || pickSuccess;
     };
 
     switch (event->type()) {
@@ -313,9 +478,9 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
         auto const mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::LeftButton) {
             m_mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
-            if (mouseOnTopOfMouseArea(m_mousePosInPlane)) {
+            if (mouseOnTopOfMouseArea(m_mousePosInPlane, mouseEvent->pos())) {
                 setDragging(true);
-                emit pressed(m_mousePosInPlane, mouseEvent->globalPos());
+                emit pressed(m_mousePosInPlane, mouseEvent->pos(), pickAngle);
                 if (m_grabsMouse) {
                     if (s_mouseGrab && s_mouseGrab != this) {
                         s_mouseGrab->setDragging(false);
@@ -338,13 +503,13 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                 if (qFuzzyCompare(mousePosInPlane.z(), -1))
                     mousePosInPlane = m_mousePosInPlane;
                 setDragging(false);
-                emit released(mousePosInPlane, mouseEvent->globalPos());
+                emit released(mousePosInPlane, mouseEvent->pos());
                 if (m_grabsMouse) {
                     if (s_mouseGrab && s_mouseGrab != this) {
                         s_mouseGrab->setDragging(false);
                         s_mouseGrab->setHovering(false);
                     }
-                    if (mouseOnTopOfMouseArea(mousePosInPlane)) {
+                    if (mouseOnTopOfMouseArea(mousePosInPlane, mouseEvent->pos())) {
                         s_mouseGrab = this;
                         setHovering(true);
                     } else {
@@ -362,7 +527,7 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
     case QEvent::HoverMove: {
         auto const mouseEvent = static_cast<QMouseEvent *>(event);
         const QVector3D mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
-        const bool hasMouse = mouseOnTopOfMouseArea(mousePosInPlane);
+        const bool hasMouse = mouseOnTopOfMouseArea(mousePosInPlane, mouseEvent->pos());
 
         setHovering(hasMouse);
 
@@ -376,9 +541,9 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                 s_mouseGrab = nullptr;
         }
 
-        if (m_dragging && !qFuzzyCompare(mousePosInPlane.z(), -1)) {
+        if (m_dragging && (m_circlePickArea.y() > 0. || !qFuzzyCompare(mousePosInPlane.z(), -1))) {
             m_mousePosInPlane = mousePosInPlane;
-            emit dragged(mousePosInPlane, mouseEvent->globalPos());
+            emit dragged(mousePosInPlane, mouseEvent->pos());
         }
 
         break;
@@ -406,6 +571,25 @@ void MouseArea3D::setHovering(bool enable)
 
     m_hovering = enable;
     emit hoveringChanged();
+}
+
+QVector3D MouseArea3D::getNormal() const
+{
+    const float *dataPtr(sceneTransform().data());
+    return QVector3D(dataPtr[8], dataPtr[9], dataPtr[10]).normalized();
+}
+
+QVector3D MouseArea3D::getCameraToNodeDir(QQuick3DNode *node) const
+{
+    QVector3D dir;
+    if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
+        dir = m_view3D->camera()->cameraNode()->getDirection();
+        // Camera direction has x and y flipped
+        dir = QVector3D(-dir.x(), -dir.y(), dir.z());
+    } else {
+        dir = (node->scenePosition() - m_view3D->camera()->scenePosition()).normalized();
+    }
+    return dir;
 }
 
 }

@@ -100,12 +100,15 @@ Window {
         PerspectiveCamera {
             id: overlayPerspectiveCamera
             clipFar: editPerspectiveCamera.clipFar
+            clipNear: editPerspectiveCamera.clipNear
             position: editPerspectiveCamera.position
             rotation: editPerspectiveCamera.rotation
         }
 
         OrthographicCamera {
             id: overlayOrthoCamera
+            clipFar: editOrthoCamera.clipFar
+            clipNear: editOrthoCamera.clipNear
             position: editOrthoCamera.position
             rotation: editOrthoCamera.rotation
         }
@@ -138,6 +141,21 @@ Window {
 
             onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
             onScaleChange: viewWindow.changeObjectProperty(selectedNode, "scale")
+        }
+
+        RotateGizmo {
+            id: rotateGizmo
+            scale: autoScale.getScale(Qt.vector3d(7, 7, 7))
+            highlightOnHover: true
+            targetNode: viewWindow.selectedNode
+            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
+                                              : Qt.vector3d(0, 0, 0)
+            globalOrientation: globalControl.checked
+            visible: selectedNode && btnRotate.selected
+            view3D: overlayView
+
+            onRotateCommit: viewWindow.commitObjectProperty(selectedNode, "rotation")
+            onRotateChange: viewWindow.changeObjectProperty(selectedNode, "rotation")
         }
 
         AutoScaleHelper {
@@ -193,12 +211,15 @@ Window {
                     y: 200
                     z: -300
                     clipFar: 100000
+                    clipNear: 1
                 }
 
                 OrthographicCamera {
                     id: editOrthoCamera
                     y: 200
                     z: -300
+                    clipFar: 100000
+                    clipNear: 1
                 }
             }
         }
@@ -346,7 +367,19 @@ Window {
             id: usePerspectiveCheckbox
             checked: true
             text: qsTr("Use Perspective Projection")
-            onCheckedChanged: cameraControl.forceActiveFocus()
+            onCheckedChanged: {
+                // Since WasdController always acts on active camera, we need to update pos/rot
+                // to the other camera when we change
+                if (checked) {
+                    editPerspectiveCamera.position = editOrthoCamera.position;
+                    editPerspectiveCamera.rotation = editOrthoCamera.rotation;
+                } else {
+                    editOrthoCamera.position = editPerspectiveCamera.position;
+                    editOrthoCamera.rotation = editPerspectiveCamera.rotation;
+                }
+                designStudioNativeCameraControlHelper.requestOverlayUpdate();
+                cameraControl.forceActiveFocus();
+            }
         }
 
         CheckBox {
