@@ -42,7 +42,7 @@ namespace Internal {
 // DefaultGdbServerProvider
 
 DefaultGdbServerProvider::DefaultGdbServerProvider()
-    : GdbServerProvider(QLatin1String(Constants::DEFAULT_PROVIDER_ID))
+    : GdbServerProvider(Constants::DEFAULT_PROVIDER_ID)
 {
     setDefaultChannel("localhost", 3333);
     setSettingsKeyBase("BareMetal.DefaultGdbServerProvider");
@@ -63,7 +63,7 @@ GdbServerProviderConfigWidget *DefaultGdbServerProvider::configurationWidget()
 
 DefaultGdbServerProviderFactory::DefaultGdbServerProviderFactory()
 {
-    setId(QLatin1String(Constants::DEFAULT_PROVIDER_ID));
+    setId(Constants::DEFAULT_PROVIDER_ID);
     setDisplayName(tr("Default"));
 }
 
@@ -75,8 +75,7 @@ GdbServerProvider *DefaultGdbServerProviderFactory::create()
 bool DefaultGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const auto id = idFromMap(data);
-    return id.startsWith(QLatin1String(Constants::DEFAULT_PROVIDER_ID)
-                         + QLatin1Char(':'));
+    return id.startsWith(Constants::DEFAULT_PROVIDER_ID + QLatin1Char(':'));
 }
 
 GdbServerProvider *DefaultGdbServerProviderFactory::restore(const QVariantMap &data)

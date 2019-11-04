@@ -73,7 +73,7 @@ void SdccParser::newTask(const Task &task)
 void SdccParser::amendDescription(const QString &desc)
 {
     const int start = m_lastTask.description.count() + 1;
-    m_lastTask.description.append(QLatin1Char('\n'));
+    m_lastTask.description.append('\n');
     m_lastTask.description.append(desc);
 
     QTextLayout::FormatRange fr;
@@ -214,10 +214,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("c:\\foo\\main.c:63: Error: Some error\n")
             << (Tasks() << Task(Task::Error,
-                                      QLatin1String("Some error"),
-                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
-                                      63,
-                                      categoryCompile))
+                                "Some error",
+                                Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
+                                63,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler single line warning")
@@ -226,10 +226,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("c:\\foo\\main.c:63: warning 123: Some warning\n")
             << (Tasks() << Task(Task::Warning,
-                                      QLatin1String("Some warning"),
-                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
-                                      63,
-                                      categoryCompile))
+                                "Some warning",
+                                Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
+                                63,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler multi line warning")
@@ -242,12 +242,12 @@ void BareMetalPlugin::testSdccOutputParsers_data()
                                    "details #1\n"
                                    "  details #2\n")
             << (Tasks() << Task(Task::Warning,
-                                      QLatin1String("Some warning\n"
-                                                    "details #1\n"
-                                                    "  details #2"),
-                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
-                                      63,
-                                      categoryCompile))
+                                "Some warning\n"
+                                "details #1\n"
+                                "  details #2",
+                                Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
+                                63,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler simple single line error")
@@ -256,10 +256,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("c:\\foo\\main.c:63: error: Some error\n")
             << (Tasks() << Task(Task::Error,
-                                      QLatin1String("Some error"),
-                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
-                                      63,
-                                      categoryCompile))
+                                "Some error",
+                                Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
+                                63,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler single line error")
@@ -268,10 +268,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("c:\\foo\\main.c:63: error 123: Some error\n")
             << (Tasks() << Task(Task::Error,
-                                      QLatin1String("Some error"),
-                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
-                                      63,
-                                      categoryCompile))
+                                "Some error",
+                                Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
+                                63,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler multi line error")
@@ -284,12 +284,12 @@ void BareMetalPlugin::testSdccOutputParsers_data()
                                    "details #1\n"
                                    "  details #2\n")
             << (Tasks() << Task(Task::Error,
-                                      QLatin1String("Some error\n"
-                                                    "details #1\n"
-                                                    "  details #2"),
-                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
-                                      63,
-                                      categoryCompile))
+                                "Some error\n"
+                                "details #1\n"
+                                "  details #2",
+                                Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
+                                63,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler syntax error")
@@ -298,10 +298,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("c:\\foo\\main.c:63: syntax error: Some error\n")
             << (Tasks() << Task(Task::Error,
-                                      QLatin1String("Some error"),
-                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
-                                      63,
-                                      categoryCompile))
+                                "Some error",
+                                Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
+                                63,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler bad option error")
@@ -310,10 +310,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("at 1: error 123: Some error\n")
             << (Tasks() << Task(Task::Error,
-                                      QLatin1String("Some error"),
-                                      Utils::FilePath(),
-                                      -1,
-                                      categoryCompile))
+                                "Some error",
+                                Utils::FilePath(),
+                                -1,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Compiler bad option warning")
@@ -322,10 +322,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("at 1: warning 123: Some warning\n")
             << (Tasks() << Task(Task::Warning,
-                                      QLatin1String("Some warning"),
-                                      Utils::FilePath(),
-                                      -1,
-                                      categoryCompile))
+                                "Some warning",
+                                Utils::FilePath(),
+                                -1,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Linker warning")
@@ -334,10 +334,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("?ASlink-Warning-Couldn't find library 'foo.lib'\n")
             << (Tasks() << Task(Task::Warning,
-                                      QLatin1String("Couldn't find library 'foo.lib'"),
-                                      Utils::FilePath(),
-                                      -1,
-                                      categoryCompile))
+                                "Couldn't find library 'foo.lib'",
+                                Utils::FilePath(),
+                                -1,
+                                categoryCompile))
             << QString();
 
     QTest::newRow("Linker error")
@@ -346,10 +346,10 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString()
             << QString::fromLatin1("?ASlink-Error-<cannot open> : \"foo.rel\"\n")
             << (Tasks() << Task(Task::Error,
-                                      QLatin1String("<cannot open> : \"foo.rel\""),
-                                      Utils::FilePath(),
-                                      -1,
-                                      categoryCompile))
+                                "<cannot open> : \"foo.rel\"",
+                                Utils::FilePath(),
+                                -1,
+                                categoryCompile))
             << QString();
 }
 

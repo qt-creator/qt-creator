@@ -54,7 +54,7 @@ const char transportLayerKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.Transpo
 // StLinkUtilGdbServerProvider
 
 StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
-    : GdbServerProvider(QLatin1String(Constants::STLINK_UTIL_PROVIDER_ID))
+    : GdbServerProvider(Constants::STLINK_UTIL_PROVIDER_ID)
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
@@ -76,7 +76,7 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider(
 
 QString StLinkUtilGdbServerProvider::defaultInitCommands()
 {
-    return QLatin1String("load\n");
+    return "load\n";
 }
 
 QString StLinkUtilGdbServerProvider::defaultResetCommands()
@@ -194,7 +194,7 @@ GdbServerProviderConfigWidget *StLinkUtilGdbServerProvider::configurationWidget(
 
 StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
 {
-    setId(QLatin1String(Constants::STLINK_UTIL_PROVIDER_ID));
+    setId(Constants::STLINK_UTIL_PROVIDER_ID);
     setDisplayName(tr("ST-LINK Utility"));
 }
 
@@ -206,8 +206,7 @@ GdbServerProvider *StLinkUtilGdbServerProviderFactory::create()
 bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
-    return id.startsWith(QLatin1String(Constants::STLINK_UTIL_PROVIDER_ID)
-                         + QLatin1Char(':'));
+    return id.startsWith(Constants::STLINK_UTIL_PROVIDER_ID + QLatin1Char(':'));
 }
 
 GdbServerProvider *StLinkUtilGdbServerProviderFactory::restore(const QVariantMap &data)

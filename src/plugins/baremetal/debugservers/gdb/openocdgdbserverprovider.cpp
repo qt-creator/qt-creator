@@ -53,7 +53,7 @@ const char additionalArgumentsKeyC[] = "BareMetal.OpenOcdGdbServerProvider.Addit
 // OpenOcdGdbServerProvider
 
 OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
-    : GdbServerProvider(QLatin1String(Constants::OPENOCD_PROVIDER_ID))
+    : GdbServerProvider(Constants::OPENOCD_PROVIDER_ID)
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
@@ -64,16 +64,16 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
 
 QString OpenOcdGdbServerProvider::defaultInitCommands()
 {
-    return QLatin1String("set remote hardware-breakpoint-limit 6\n"
+    return "set remote hardware-breakpoint-limit 6\n"
                          "set remote hardware-watchpoint-limit 4\n"
                          "monitor reset halt\n"
                          "load\n"
-                         "monitor reset halt\n");
+                         "monitor reset halt\n";
 }
 
 QString OpenOcdGdbServerProvider::defaultResetCommands()
 {
-    return QLatin1String("monitor reset halt\n");
+    return "monitor reset halt\n";
 }
 
 QString OpenOcdGdbServerProvider::channelString() const
@@ -197,7 +197,7 @@ GdbServerProviderConfigWidget *OpenOcdGdbServerProvider::configurationWidget()
 
 OpenOcdGdbServerProviderFactory::OpenOcdGdbServerProviderFactory()
 {
-    setId(QLatin1String(Constants::OPENOCD_PROVIDER_ID));
+    setId(Constants::OPENOCD_PROVIDER_ID);
     setDisplayName(tr("OpenOCD"));
 }
 
@@ -209,8 +209,7 @@ GdbServerProvider *OpenOcdGdbServerProviderFactory::create()
 bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
-    return id.startsWith(QLatin1String(Constants::OPENOCD_PROVIDER_ID)
-                         + QLatin1Char(':'));
+    return id.startsWith(Constants::OPENOCD_PROVIDER_ID + QLatin1Char(':'));
 }
 
 GdbServerProvider *OpenOcdGdbServerProviderFactory::restore(const QVariantMap &data)
@@ -236,7 +235,7 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
 
     m_executableFileChooser = new Utils::PathChooser;
     m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_executableFileChooser->setCommandVersionArguments(QStringList(QLatin1String("--version")));
+    m_executableFileChooser->setCommandVersionArguments({"--version"});
     m_mainLayout->addRow(tr("Executable file:"), m_executableFileChooser);
 
     m_rootScriptsDirChooser = new Utils::PathChooser;
@@ -245,7 +244,7 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
 
     m_configurationFileChooser = new Utils::PathChooser;
     m_configurationFileChooser->setExpectedKind(Utils::PathChooser::File);
-    m_configurationFileChooser->setPromptDialogFilter(QLatin1String("*.cfg"));
+    m_configurationFileChooser->setPromptDialogFilter("*.cfg");
     m_mainLayout->addRow(tr("Configuration file:"), m_configurationFileChooser);
 
     m_additionalArgumentsLineEdit = new QLineEdit(this);

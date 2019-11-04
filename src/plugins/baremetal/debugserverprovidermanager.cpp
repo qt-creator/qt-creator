@@ -61,7 +61,7 @@ DebugServerProviderManager::DebugServerProviderManager()
 {
     m_instance = this;
     m_writer = new Utils::PersistentSettingsWriter(
-                m_configFile, QLatin1String("QtCreatorDebugServerProviders"));
+                m_configFile, "QtCreatorDebugServerProviders");
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &DebugServerProviderManager::saveProviders);
@@ -95,11 +95,11 @@ void DebugServerProviderManager::restoreProviders()
         return;
 
     const QVariantMap data = reader.restoreValues();
-    const int version = data.value(QLatin1String(fileVersionKeyC), 0).toInt();
+    const int version = data.value(fileVersionKeyC, 0).toInt();
     if (version < 1)
         return;
 
-    const int count = data.value(QLatin1String(countKeyC), 0).toInt();
+    const int count = data.value(countKeyC, 0).toInt();
     for (int i = 0; i < count; ++i) {
         const QString key = QString::fromLatin1(dataKeyC) + QString::number(i);
         if (!data.contains(key))
@@ -128,7 +128,7 @@ void DebugServerProviderManager::restoreProviders()
 void DebugServerProviderManager::saveProviders()
 {
     QVariantMap data;
-    data.insert(QLatin1String(fileVersionKeyC), 1);
+    data.insert(fileVersionKeyC, 1);
 
     int count = 0;
     for (const IDebugServerProvider *p : qAsConst(m_providers)) {
@@ -141,7 +141,7 @@ void DebugServerProviderManager::saveProviders()
             ++count;
         }
     }
-    data.insert(QLatin1String(countKeyC), count);
+    data.insert(countKeyC, count);
     m_writer->save(data, Core::ICore::mainWindow());
 }
 

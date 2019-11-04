@@ -157,7 +157,7 @@ void DebugServerProviderModel::apply()
                              tr("The following providers were already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "They were not configured again.")
-                             .arg(skippedProviders.join(QLatin1String(",<br>&nbsp;"))));
+                             .arg(skippedProviders.join(",<br>&nbsp;")));
     }
 }
 

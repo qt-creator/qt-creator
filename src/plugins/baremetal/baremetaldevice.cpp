@@ -112,7 +112,7 @@ void BareMetalDevice::setChannelByServerProvider(IDebugServerProvider *provider)
 
     const auto gdbProvider = static_cast<GdbServerProvider *>(provider);
     const QString channel = gdbProvider->channelString();
-    const int colon = channel.indexOf(QLatin1Char(':'));
+    const int colon = channel.indexOf(':');
     if (colon < 0)
         return;
     QSsh::SshConnectionParameters sshParams = sshParameters();
@@ -124,7 +124,7 @@ void BareMetalDevice::setChannelByServerProvider(IDebugServerProvider *provider)
 void BareMetalDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    QString providerId = map.value(QLatin1String(debugServerProviderIdKeyC)).toString();
+    QString providerId = map.value(debugServerProviderIdKeyC).toString();
     if (providerId.isEmpty()) {
         const QString name = displayName();
         if (IDebugServerProvider *provider =
@@ -147,7 +147,7 @@ void BareMetalDevice::fromMap(const QVariantMap &map)
 QVariantMap BareMetalDevice::toMap() const
 {
     QVariantMap map = IDevice::toMap();
-    map.insert(QLatin1String(debugServerProviderIdKeyC), debugServerProviderId());
+    map.insert(debugServerProviderIdKeyC, debugServerProviderId());
     return map;
 }
 

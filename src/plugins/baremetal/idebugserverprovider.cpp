@@ -44,8 +44,8 @@ const char displayNameKeyC[] = "BareMetal.IDebugServerProvider.DisplayName";
 
 static QString createId(const QString &id)
 {
-    QString newId = id.left(id.indexOf(QLatin1Char(':')));
-    newId.append(QLatin1Char(':') + QUuid::createUuid().toString());
+    QString newId = id.left(id.indexOf(':'));
+    newId.append(':' + QUuid::createUuid().toString());
     return newId;
 }
 
@@ -102,8 +102,8 @@ bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
     if (this == &other)
         return true;
 
-    const QString thisId = id().left(id().indexOf(QLatin1Char(':')));
-    const QString otherId = other.id().left(other.id().indexOf(QLatin1Char(':')));
+    const QString thisId = id().left(id().indexOf(':'));
+    const QString otherId = other.id().left(other.id().indexOf(':'));
 
     // We ignore displayname
     return thisId == otherId;
@@ -112,8 +112,8 @@ bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
 QVariantMap IDebugServerProvider::toMap() const
 {
     return {
-        {QLatin1String(idKeyC), m_id},
-        {QLatin1String(displayNameKeyC), m_displayName},
+        {idKeyC, m_id},
+        {displayNameKeyC, m_displayName},
     };
 }
 
@@ -136,8 +136,8 @@ void IDebugServerProvider::providerUpdated()
 
 bool IDebugServerProvider::fromMap(const QVariantMap &data)
 {
-    m_id = data.value(QLatin1String(idKeyC)).toString();
-    m_displayName = data.value(QLatin1String(displayNameKeyC)).toString();
+    m_id = data.value(idKeyC).toString();
+    m_displayName = data.value(displayNameKeyC).toString();
     return true;
 }
 
@@ -170,12 +170,12 @@ void IDebugServerProviderFactory::setDisplayName(const QString &name)
 
 QString IDebugServerProviderFactory::idFromMap(const QVariantMap &data)
 {
-    return data.value(QLatin1String(idKeyC)).toString();
+    return data.value(idKeyC).toString();
 }
 
 void IDebugServerProviderFactory::idToMap(QVariantMap &data, const QString &id)
 {
-    data.insert(QLatin1String(idKeyC), id);
+    data.insert(idKeyC, id);
 }
 
 // IDebugServerProviderConfigWidget
@@ -225,7 +225,7 @@ void IDebugServerProviderConfigWidget::setErrorMessage(const QString &m)
         clearErrorMessage();
     } else {
         m_errorLabel->setText(m);
-        m_errorLabel->setStyleSheet(QLatin1String("background-color: \"red\""));
+        m_errorLabel->setStyleSheet("background-color: \"red\"");
         m_errorLabel->setVisible(true);
     }
 }
