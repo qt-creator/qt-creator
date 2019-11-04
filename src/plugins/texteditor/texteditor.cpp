@@ -3100,11 +3100,11 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
         && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName)) {
         InfoBarEntry info(missing,
                           BaseTextEditor::tr("A highlight definition was not found for this file. "
-                                             "Would you like to update highlight definition files?"),
+                                             "Would you like to download additional highlight definition files?"),
                           InfoBarEntry::GlobalSuppression::Enabled);
-        info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [missing, this]() {
+        info.setCustomButtonInfo(BaseTextEditor::tr("Download Definitions"), [missing, this]() {
             m_document->infoBar()->removeInfo(missing);
-            Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(q)]() {
+            Highlighter::downloadDefinitions([widget = QPointer<TextEditorWidget>(q)]() {
                 if (widget)
                     widget->configureGenericHighlighter();
             });
