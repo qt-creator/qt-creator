@@ -1015,6 +1015,38 @@ static Utils::FilePathList atmelSearchPathsFromRegistry()
     return searchPaths;
 }
 
+static Utils::FilePathList renesasRl78SearchPathsFromRegistry()
+{
+    if (!HostOsInfo::isWindowsHost())
+        return {};
+
+    // Registry token for the "Renesas RL78" toolchain.
+    static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
+                                         "Windows\\CurrentVersion\\Uninstall";
+
+    Utils::FilePathList searchPaths;
+
+    QSettings registry(QLatin1String(kRegistryToken), QSettings::NativeFormat);
+    const auto productGroups = registry.childGroups();
+    for (const QString &productKey : productGroups) {
+        if (!productKey.startsWith("GCC for Renesas RL78"))
+            continue;
+        registry.beginGroup(productKey);
+        const QString installLocation = registry.value("InstallLocation").toString();
+        registry.endGroup();
+        if (installLocation.isEmpty())
+            continue;
+
+        const FilePath toolchainPath = FilePath::fromUserInput(installLocation)
+                .pathAppended("rl78-elf/rl78-elf/bin");
+        if (!toolchainPath.exists())
+            continue;
+        searchPaths.push_back(toolchainPath);
+    }
+
+    return searchPaths;
+}
+
 GccToolChainFactory::GccToolChainFactory()
 {
     setDisplayName(tr("GCC"));
@@ -1070,6 +1102,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
         FilePathList searchPaths = Environment::systemEnvironment().path();
         searchPaths << gnuSearchPathsFromRegistry();
         searchPaths << atmelSearchPathsFromRegistry();
+        searchPaths << renesasRl78SearchPathsFromRegistry();
         for (const FilePath &dir : searchPaths) {
             static const QRegularExpression regexp(binaryRegexp);
             QDir binDir(dir.toString());
