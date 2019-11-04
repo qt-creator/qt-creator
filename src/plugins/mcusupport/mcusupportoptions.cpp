@@ -198,9 +198,11 @@ void PackageOptions::updateStatus()
     m_statusLabel->setText(statusText);
 }
 
-BoardOptions::BoardOptions(const QString &model, const QString &toolChainFileName,
-                           const QString &qulPlatform, const QVector<PackageOptions*> &packages)
-    : m_model(model)
+BoardOptions::BoardOptions(const QString &vendor, const QString &model,
+                           const QString &toolChainFileName, const QString &qulPlatform,
+                           const QVector<PackageOptions*> &packages)
+    : m_vendor(vendor)
+    , m_model(model)
     , m_toolChainFile(toolChainFileName)
     , m_qulPlatform(qulPlatform)
     , m_packages(packages)
@@ -225,6 +227,11 @@ QString BoardOptions::qulPlatform() const
 QVector<PackageOptions *> BoardOptions::packages() const
 {
     return m_packages;
+}
+
+QString BoardOptions::vendor() const
+{
+    return m_vendor;
 }
 
 static PackageOptions *createQulPackage()
@@ -353,13 +360,16 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     packages = {armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
                 evkbImxrt1050SdkPackage, seggerJLinkPackage, qulPackage};
 
-    boards.append(new BoardOptions(
+    const QString vendorStm = "STM";
+    const QString vendorNxp = "NXP";
+    const QString vendorQt = "Qt";
+    boards.append(new BoardOptions(vendorStm,
                       "stm32f7508", "CMake/stm32f7508-discovery.cmake", "", stmPackages));
-    boards.append(new BoardOptions(
+    boards.append(new BoardOptions(vendorStm,
                       "stm32f769i", "CMake/stm32f769i-discovery.cmake", "", stmPackages));
-    boards.append(new BoardOptions(
+    boards.append(new BoardOptions(vendorNxp,
                       "evkbimxrt1050", "CMake/evkbimxrt1050-toolchain.cmake", "", nxpPackages));
-    boards.append(new BoardOptions(
+    boards.append(new BoardOptions(vendorQt,
                       "Desktop", "", "Qt", desktopPackages));
 
     for (auto package : packages)
@@ -419,7 +429,8 @@ static void setKitProperties(ProjectExplorer::Kit *k, const BoardOptions* board)
 {
     using namespace ProjectExplorer;
 
-    k->setUnexpandedDisplayName("Qt MCU - " + board->model());
+    k->setUnexpandedDisplayName("QtMCU - " + board->model());
+    k->setValue(Constants::KIT_BOARD_VENDOR_KEY, board->vendor());
     k->setValue(Constants::KIT_BOARD_MODEL_KEY, board->model());
     k->setAutoDetected(false);
     if (!isDesktop(board)) {

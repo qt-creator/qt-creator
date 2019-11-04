@@ -101,16 +101,17 @@ class BoardOptions : public QObject
     Q_OBJECT
 
 public:
-    BoardOptions(const QString &model, const QString &toolChainFile, const QString &qulPlatform,
-                 const QVector<PackageOptions *> &packages);
+    BoardOptions(const QString &vendor, const QString &model, const QString &toolChainFile,
+                 const QString &qulPlatform, const QVector<PackageOptions *> &packages);
 
+    QString vendor() const;
     QString model() const;
     QString toolChainFile() const;
     QString qulPlatform() const;
     QVector<PackageOptions *> packages() const;
 
-
 private:
+    const QString m_vendor;
     const QString m_model;
     const QString m_toolChainFile;
     const QString m_qulPlatform;

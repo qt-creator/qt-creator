@@ -34,6 +34,7 @@ const char DEVICE_ID[] = "McuSupport.Device";
 const char MCUSUPPORT_QT_VERSION[] = "Qt4ProjectManager.QtVersion.McuSupport";
 const char RUNCONFIGURATION[] = "McuSupport.RunConfiguration";
 const char SETTINGS_ID[] = "CC.McuSupport.Configuration";
+const char KIT_BOARD_VENDOR_KEY[] = "McuSupport.BoardVendor";
 const char KIT_BOARD_MODEL_KEY[] = "McuSupport.BoardModel";
 
 const char ENVVAR_ARMGCC_DIR[] = "ARMGCC_DIR";
