@@ -65,8 +65,6 @@ public:
     virtual Utils::CommandLine command() const;
 
     bool isValid() const override;
-    Debugger::DebuggerEngineType engineType() const final {
-        return Debugger::DebuggerEngineType::GdbEngineType; }
     virtual bool canStartupMode(StartupMode) const;
 
     QUrl channel() const;

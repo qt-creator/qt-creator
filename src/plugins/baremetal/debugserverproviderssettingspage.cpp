@@ -51,12 +51,44 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+using namespace Debugger;
 using namespace Utils;
 
 namespace BareMetal {
 namespace Internal {
 
 // DebugServerProviderNode
+
+enum {
+    ProviderNameColumn = 0,
+    ProviderTypeColumn,
+    ProviderEngineColumn
+};
+
+static QString engineTypeName(DebuggerEngineType engineType)
+{
+    switch (engineType) {
+    case NoEngineType:
+        return DebugServerProviderModel::tr("Not recognized");
+    case GdbEngineType:
+        return DebugServerProviderModel::tr("GDB");
+    default:
+        return {};
+    }
+}
+
+static QString engineTypeDescription(DebuggerEngineType engineType)
+{
+    switch (engineType) {
+    case NoEngineType:
+        return DebugServerProviderModel::tr("Not recognized");
+    case GdbEngineType:
+        return DebugServerProviderModel::tr("GDB compatible provider engine\n" \
+                                            "(used together with the GDB debuggers).");
+    default:
+        return {};
+    }
+}
 
 class DebugServerProviderNode final : public TreeItem
 {
@@ -76,10 +108,17 @@ public:
         }
 
         if (role == Qt::DisplayRole) {
-            return column == 0 ? provider->displayName() : provider->typeDisplayName();
+            if (column == ProviderNameColumn)
+                return provider->displayName();
+            if (column == ProviderTypeColumn)
+                return provider->typeDisplayName();
+            if (column == ProviderEngineColumn)
+                return engineTypeName(provider->engineType());
+        } else if (role == Qt::ToolTipRole) {
+            if (column == ProviderEngineColumn)
+                return engineTypeDescription(provider->engineType());
         }
 
-        // FIXME: Need to handle ToolTipRole role?
         return {};
     }
 
@@ -92,7 +131,7 @@ public:
 
 DebugServerProviderModel::DebugServerProviderModel()
 {
-    setHeader({tr("Name"), tr("Type")});
+    setHeader({tr("Name"), tr("Type"), tr("Engine")});
 
     const DebugServerProviderManager *manager = DebugServerProviderManager::instance();
 

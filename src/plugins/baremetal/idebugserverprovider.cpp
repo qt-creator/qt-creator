@@ -41,6 +41,7 @@ namespace Internal {
 
 const char idKeyC[] = "BareMetal.IDebugServerProvider.Id";
 const char displayNameKeyC[] = "BareMetal.IDebugServerProvider.DisplayName";
+const char engineTypeKeyC[] = "BareMetal.IDebugServerProvider.EngineType";
 
 static QString createId(const QString &id)
 {
@@ -97,6 +98,24 @@ QString IDebugServerProvider::typeDisplayName() const
     return m_typeDisplayName;
 }
 
+void IDebugServerProvider::setTypeDisplayName(const QString &typeDisplayName)
+{
+    m_typeDisplayName = typeDisplayName;
+}
+
+Debugger::DebuggerEngineType IDebugServerProvider::engineType() const
+{
+    return m_engineType;
+}
+
+void IDebugServerProvider::setEngineType(Debugger::DebuggerEngineType engineType)
+{
+    if (m_engineType == engineType)
+        return;
+    m_engineType = engineType;
+    providerUpdated();
+}
+
 bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
 {
     if (this == &other)
@@ -106,7 +125,8 @@ bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
     const QString otherId = other.id().left(other.id().indexOf(':'));
 
     // We ignore displayname
-    return thisId == otherId;
+    return thisId == otherId
+            && m_engineType == other.m_engineType;
 }
 
 QVariantMap IDebugServerProvider::toMap() const
@@ -114,6 +134,7 @@ QVariantMap IDebugServerProvider::toMap() const
     return {
         {idKeyC, m_id},
         {displayNameKeyC, m_displayName},
+        {engineTypeKeyC, m_engineType}
     };
 }
 
@@ -138,12 +159,9 @@ bool IDebugServerProvider::fromMap(const QVariantMap &data)
 {
     m_id = data.value(idKeyC).toString();
     m_displayName = data.value(displayNameKeyC).toString();
+    m_engineType = static_cast<Debugger::DebuggerEngineType>(
+                data.value(engineTypeKeyC, Debugger::NoEngineType).toInt());
     return true;
-}
-
-void IDebugServerProvider::setTypeDisplayName(const QString &typeDisplayName)
-{
-    m_typeDisplayName = typeDisplayName;
 }
 
 // IDebugServerProviderFactory

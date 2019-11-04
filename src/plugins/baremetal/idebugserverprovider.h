@@ -57,8 +57,8 @@ public:
     void setDisplayName(const QString &name);
 
     QString id() const;
-
     QString typeDisplayName() const;
+    Debugger::DebuggerEngineType engineType() const;
 
     virtual bool operator==(const IDebugServerProvider &other) const;
 
@@ -70,7 +70,6 @@ public:
 
     virtual bool isValid() const = 0;
     virtual bool hasProcess() const { return false; }
-    virtual Debugger::DebuggerEngineType engineType() const = 0;
 
     void registerDevice(BareMetalDevice *device);
     void unregisterDevice(BareMetalDevice *device);
@@ -80,6 +79,7 @@ protected:
     explicit IDebugServerProvider(const IDebugServerProvider &provider);
 
     void setTypeDisplayName(const QString &typeDisplayName);
+    void setEngineType(Debugger::DebuggerEngineType engineType);
 
     void providerUpdated();
 
@@ -88,6 +88,7 @@ protected:
     QString m_id;
     mutable QString m_displayName;
     QString m_typeDisplayName;
+    Debugger::DebuggerEngineType m_engineType = Debugger::NoEngineType;
     QSet<BareMetalDevice *> m_devices;
 
     friend class IDebugServerProviderConfigWidget;

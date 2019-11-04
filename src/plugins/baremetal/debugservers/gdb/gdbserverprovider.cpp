@@ -52,6 +52,7 @@ const char portKeySuffixC[] = ".Port";
 GdbServerProvider::GdbServerProvider(const QString &id)
     : IDebugServerProvider(id)
 {
+    setEngineType(Debugger::GdbEngineType);
 }
 
 GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
@@ -61,6 +62,7 @@ GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
     , m_resetCommands(other.m_resetCommands)
     , m_useExtendedRemote(other.useExtendedRemote())
 {
+    setEngineType(Debugger::GdbEngineType);
 }
 
 GdbServerProvider::StartupMode GdbServerProvider::startupMode() const
