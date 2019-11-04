@@ -61,6 +61,7 @@ public:
         AsmJsArchitecture,
         Stm8Architecture,
         Msp430Architecture,
+        Rl78Architecture,
         UnknownArchitecture
     };
 

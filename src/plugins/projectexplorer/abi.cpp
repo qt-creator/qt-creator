@@ -497,6 +497,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             flavor = GenericFlavor;
             format = ElfFormat;
             width = 16;
+        } else if (p == "rl78") {
+            arch = Rl78Architecture;
+            os = BareMetalOS;
+            flavor = GenericFlavor;
+            format = ElfFormat;
+            width = 16;
         } else if (p.startsWith("mips")) {
             arch = MipsArchitecture;
             width = p.contains("64") ? 64 : 32;
@@ -705,6 +711,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("stm8");
     case Msp430Architecture:
         return QLatin1String("msp430");
+    case Rl78Architecture:
+        return QLatin1String("rl78");
     case UnknownArchitecture:
         Q_FALLTHROUGH();
     default:
@@ -845,6 +853,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return Stm8Architecture;
     if (a == "msp430")
         return Msp430Architecture;
+    if (a == "rl78")
+        return Rl78Architecture;
     else if (a == "xtensa")
         return XtensaArchitecture;
     if (a == "asmjs")
