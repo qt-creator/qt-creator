@@ -53,22 +53,38 @@ bool NimSuggestClient::disconnectFromServer()
     return true;
 }
 
-std::shared_ptr<SugRequest> NimSuggestClient::sug(const QString &nimFile,
-                                                  int line, int column,
-                                                  const QString &dirtyFile)
+std::shared_ptr<NimSuggestClientRequest> NimSuggestClient::sug(const QString &nimFile,
+                                                               int line, int column,
+                                                               const QString &dirtyFile)
+{
+    return sendRequest(QLatin1String("sug"), nimFile, line, column, dirtyFile);
+}
+
+std::shared_ptr<NimSuggestClientRequest> NimSuggestClient::def(const QString &nimFile,
+                                                               int line, int column,
+                                                               const QString &dirtyFile)
+{
+    return sendRequest(QLatin1String("def"), nimFile, line, column, dirtyFile);
+}
+
+std::shared_ptr<NimSuggestClientRequest> NimSuggestClient::sendRequest(const QString& type,
+                                                                       const QString &nimFile,
+                                                                       int line, int column,
+                                                                       const QString &dirtyFile)
 {
     if (!m_socket.isOpen())
         return nullptr;
 
-    auto result = std::make_shared<SugRequest>(m_lastMessageId++);
+    auto result = std::make_shared<NimSuggestClientRequest>(m_lastMessageId++);
     m_requests.emplace(result->id(), result);
 
-    QByteArray body = QString(R"((call %1 sug ("%2" %3 %4 "%5"))\n)")
-                      .arg(result->id())
-                      .arg(nimFile)
-                      .arg(line).arg(column)
-                      .arg(dirtyFile)
-                      .toUtf8();
+    QByteArray body = QString(R"((call %1 %2 ("%3" %4 %5 "%6"))\n)")
+            .arg(result->id())
+            .arg(type)
+            .arg(nimFile)
+            .arg(line).arg(column)
+            .arg(dirtyFile)
+            .toUtf8();
 
     QByteArray length = QString::number(body.size(), 16).rightJustified(6, '0').toUtf8();
     QByteArray message = length + body;
@@ -135,7 +151,7 @@ void NimSuggestClient::parsePayload(const char *payload, std::size_t size)
     if (it == m_requests.end())
         return;
 
-    auto req = std::dynamic_pointer_cast<SugRequest>((*it).second.lock());
+    auto req = std::dynamic_pointer_cast<NimSuggestClientRequest>((*it).second.lock());
     if (!req)
         return;
 

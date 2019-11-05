@@ -28,6 +28,7 @@ QtcPlugin {
             "nimeditorfactory.h", "nimeditorfactory.cpp",
             "nimhighlighter.h", "nimhighlighter.cpp",
             "nimindenter.h", "nimindenter.cpp",
+            "nimtexteditorwidget.h", "nimtexteditorwidget.cpp",
             "nimcompletionassistprovider.h", "nimcompletionassistprovider.cpp"
         ]
     }

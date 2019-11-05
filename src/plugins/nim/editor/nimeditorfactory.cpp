@@ -30,6 +30,7 @@
 
 #include "../nimconstants.h"
 #include "../nimplugin.h"
+#include "nimtexteditorwidget.h"
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
@@ -50,12 +51,10 @@ NimEditorFactory::NimEditorFactory()
 
     setEditorActionHandlers(TextEditorActionHandler::Format
                             | TextEditorActionHandler::UnCommentSelection
-                            | TextEditorActionHandler::UnCollapseAll);
-
+                            | TextEditorActionHandler::UnCollapseAll
+                            | TextEditorActionHandler::FollowSymbolUnderCursor);
     setEditorWidgetCreator([]{
-        auto result = new TextEditorWidget();
-        result->setLanguageSettingsId(Nim::Constants::C_NIMLANGUAGE_ID);
-        return result;
+        return new NimTextEditorWidget();
     });
     setDocumentCreator([]() {
         return new TextDocument(Constants::C_NIMEDITOR_ID);

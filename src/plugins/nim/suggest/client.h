@@ -49,15 +49,24 @@ public:
 
     bool disconnectFromServer();
 
-    std::shared_ptr<SugRequest> sug(const QString &nimFile,
-                                    int line, int column,
-                                    const QString &dirtyFile);
+    std::shared_ptr<NimSuggestClientRequest> sug(const QString &nimFile,
+                                                 int line, int column,
+                                                 const QString &dirtyFile);
+
+    std::shared_ptr<NimSuggestClientRequest> def(const QString &nimFile,
+                                                 int line, int column,
+                                                 const QString &dirtyFile);
 
 signals:
     void connected();
     void disconnected();
 
 private:
+    std::shared_ptr<NimSuggestClientRequest> sendRequest(const QString &type,
+                                                         const QString &nimFile,
+                                                         int line, int column,
+                                                         const QString &dirtyFile);
+
     void clear();
     void onDisconnectedFromServer();
     void onReadyRead();
@@ -65,7 +74,7 @@ private:
 
     QTcpSocket m_socket;
     quint16 m_port;
-    std::unordered_map<quint64, std::weak_ptr<BaseNimSuggestClientRequest>> m_requests;
+    std::unordered_map<quint64, std::weak_ptr<NimSuggestClientRequest>> m_requests;
     std::vector<QString> m_lines;
     std::vector<char> m_readBuffer;
     quint64 m_lastMessageId = 0;

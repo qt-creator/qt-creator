@@ -46,8 +46,11 @@ public:
 
     bool isReady() const;
 
-    std::shared_ptr<SugRequest> sug(const QString &filename, int line, int column,
-                                    const QString &dirtyFilename);
+    std::shared_ptr<NimSuggestClientRequest> sug(const QString &filename, int line, int column,
+                                                 const QString &dirtyFilename);
+
+    std::shared_ptr<NimSuggestClientRequest> def(const QString &filename, int line, int column,
+                                                 const QString &dirtyFilename);
 
 signals:
     void readyChanged(bool ready);

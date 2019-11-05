@@ -119,12 +119,12 @@ private:
         std::unique_ptr<QTemporaryFile> dirtyFile = writeDirtyFile(interface);
         QTC_ASSERT(dirtyFile, return);
 
-        std::shared_ptr<Suggest::SugRequest> request = sendRequest(interface,
+        std::shared_ptr<Suggest::NimSuggestClientRequest> request = sendRequest(interface,
                                                                    suggest,
                                                                    dirtyFile->fileName(),
                                                                    pos);
         QTC_ASSERT(request, return);
-        connect(request.get(), &Suggest::SugRequest::finished, this,
+        connect(request.get(), &Suggest::NimSuggestClientRequest::finished, this,
                 &NimCompletionAssistProcessor::onRequestFinished);
 
         m_pos = pos;
@@ -162,10 +162,10 @@ private:
         return Nim::Suggest::NimSuggestCache::instance().get(filename);
     }
 
-    static std::shared_ptr<Suggest::SugRequest> sendRequest(const AssistInterface *interface,
-                                                            Suggest::NimSuggest *suggest,
-                                                            QString dirtyFile,
-                                                            int pos)
+    static std::shared_ptr<Suggest::NimSuggestClientRequest> sendRequest(const AssistInterface *interface,
+                                                                         Suggest::NimSuggest *suggest,
+                                                                         QString dirtyFile,
+                                                                         int pos)
     {
         int line = 0, column = 0;
         Utils::Text::convertPosition(interface->textDocument(), pos, &line, &column);
@@ -256,7 +256,7 @@ private:
     bool m_running = false;
     int m_pos = -1;
     std::weak_ptr<Suggest::NimSuggest> m_suggest;
-    std::shared_ptr<Suggest::SugRequest> m_request;
+    std::shared_ptr<Suggest::NimSuggestClientRequest> m_request;
     std::unique_ptr<QTemporaryFile> m_dirtyFile;
     const TextEditor::AssistInterface *m_interface = nullptr;
 };

@@ -76,10 +76,15 @@ bool NimSuggest::isReady() const
     return m_ready;
 }
 
-std::shared_ptr<SugRequest> NimSuggest::sug(const QString &filename, int line, int column,
-                                            const QString &dirtyFilename)
+std::shared_ptr<NimSuggestClientRequest> NimSuggest::sug(const QString &filename, int line, int column,
+                                                         const QString &dirtyFilename)
 {
     return m_ready ? m_client.sug(filename, line, column, dirtyFilename) : nullptr;
+}
+
+std::shared_ptr<NimSuggestClientRequest> NimSuggest::def(const QString &filename, int line, int column, const QString &dirtyFilename)
+{
+    return m_ready ? m_client.def(filename, line, column, dirtyFilename) : nullptr;
 }
 
 void NimSuggest::restart()

@@ -93,26 +93,17 @@ public:
     QString doc;
 };
 
-class BaseNimSuggestClientRequest : public QObject
+class NimSuggestClientRequest : public QObject
 {
     Q_OBJECT
 
 public:
-    BaseNimSuggestClientRequest(quint64 id);
+    NimSuggestClientRequest(quint64 id);
 
-    quint64 id() const;
-
-signals:
-    void finished();
-
-private:
-    const quint64 m_id;
-};
-
-class SugRequest : public BaseNimSuggestClientRequest
-{
-public:
-    using BaseNimSuggestClientRequest::BaseNimSuggestClientRequest;
+    quint64 id() const
+    {
+        return m_id;
+    }
 
     std::vector<Line> &lines()
     {
@@ -124,14 +115,19 @@ public:
         return m_lines;
     }
 
+signals:
+    void finished();
+
 private:
     friend class NimSuggestClient;
+
     void setFinished(std::vector<Line> lines)
     {
         m_lines = std::move(lines);
         emit finished();
     }
 
+    const quint64 m_id;
     std::vector<Line> m_lines;
 };
 

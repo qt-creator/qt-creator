@@ -14,6 +14,7 @@ HEADERS += \
     editor/nimcompletionassistprovider.h \
     editor/nimhighlighter.h \
     editor/nimindenter.h \
+    editor/nimtexteditorwidget.h \
     project/nimblebuildconfiguration.h \
     project/nimblebuildstep.h \
     project/nimblebuildstepwidget.h \
@@ -53,6 +54,7 @@ SOURCES += \
     editor/nimcompletionassistprovider.cpp \
     editor/nimhighlighter.cpp \
     editor/nimindenter.cpp \
+    editor/nimtexteditorwidget.cpp \
     project/nimblebuildconfiguration.cpp \
     project/nimblebuildstep.cpp \
     project/nimbletaskstep.cpp \
