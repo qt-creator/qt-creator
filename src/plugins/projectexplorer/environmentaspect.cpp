@@ -73,11 +73,17 @@ void EnvironmentAspect::setUserEnvironmentChanges(const Utils::EnvironmentItems 
 
 Utils::Environment EnvironmentAspect::environment() const
 {
+    Environment env = modifiedBaseEnvironment();
+    env.modify(m_userChanges);
+    return env;
+}
+
+Environment EnvironmentAspect::modifiedBaseEnvironment() const
+{
     QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return Environment());
     Environment env = m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment();
     for (const EnvironmentModifier &modifier : m_modifiers)
         modifier(env);
-    env.modify(m_userChanges);
     return env;
 }
 

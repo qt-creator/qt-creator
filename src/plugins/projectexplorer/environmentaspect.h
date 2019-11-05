@@ -46,6 +46,9 @@ public:
     // The environment including the user's modifications.
     Utils::Environment environment() const;
 
+    // Environment including modifiers, but without explicit user changes.
+    Utils::Environment modifiedBaseEnvironment() const;
+
     int baseEnvironmentBase() const;
     void setBaseEnvironmentBase(int base);
 
@@ -57,7 +60,7 @@ public:
     void addPreferredBaseEnvironment(const QString &displayName,
                                      const std::function<Utils::Environment()> &getter);
 
-    // The environment the user chose as base for his modifications.
+    // The pure base environment.
     Utils::Environment currentUnmodifiedBaseEnvironment() const;
     QString currentDisplayName() const;
 
