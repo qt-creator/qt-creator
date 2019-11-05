@@ -207,6 +207,7 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
     , m_fileInfos(fileInfos)
     , m_temporaryDir("clangtools-XXXXXX")
 {
+    m_temporaryDir.setAutoRemove(qEnvironmentVariable("QTC_CLANG_DONT_DELETE_OUTPUT_FILES") != "1");
     setId("ClangTidyClazyRunner");
     setSupportsReRunning(false);
 
@@ -387,7 +388,6 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
                                                  filePath,
                                                  m_projectFiles,
                                                  &errorMessage);
-    QFile::remove(outputFilePath); // Clean-up.
 
     if (!errorMessage.isEmpty()) {
         m_filesAnalyzed.remove(filePath);
@@ -417,9 +417,6 @@ void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage
     auto *toolRunner = qobject_cast<ClangToolRunner *>(sender());
     const QString fileToAnalyze = toolRunner->fileToAnalyze();
     const QString outputFilePath = toolRunner->outputFilePath();
-
-    // Even in the error case the log file was created, so clean it up here, too.
-    QFile::remove(outputFilePath);
 
     m_filesAnalyzed.remove(fileToAnalyze);
     m_filesNotAnalyzed.insert(fileToAnalyze);
