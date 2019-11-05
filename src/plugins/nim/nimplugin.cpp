@@ -74,6 +74,7 @@ public:
     NimbleBuildConfigurationFactory nimbleBuildConfigFactory;
     NimRunConfigurationFactory nimRunConfigFactory;
     NimbleRunConfigurationFactory nimbleRunConfigFactory;
+    NimbleTestConfigurationFactory nimbleTestConfigFactory;
     RunWorkerFactory nimRunWorkerFactory {
         RunWorkerFactory::make<SimpleTargetRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
@@ -83,6 +84,11 @@ public:
         RunWorkerFactory::make<SimpleTargetRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
         {nimbleRunConfigFactory.id()}
+    };
+    RunWorkerFactory nimbleTestWorkerFactory {
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {nimbleTestConfigFactory.id()}
     };
     NimbleBuildStepFactory nimbleBuildStepFactory;
     NimbleTaskStepFactory nimbleTaskStepFactory;

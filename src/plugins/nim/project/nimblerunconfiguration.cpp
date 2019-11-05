@@ -35,6 +35,8 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 
+#include <QStandardPaths>
+
 using namespace Nim;
 using namespace ProjectExplorer;
 
@@ -58,11 +60,6 @@ NimbleRunConfiguration::NimbleRunConfiguration(ProjectExplorer::Target *target, 
             this, &NimbleRunConfiguration::updateTargetInformation);
 
     updateTargetInformation();
-}
-
-NimbleRunConfiguration::~NimbleRunConfiguration()
-{
-
 }
 
 void NimbleRunConfiguration::updateTargetInformation()
@@ -107,4 +104,23 @@ NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
 QList<RunConfigurationCreationInfo> NimbleRunConfigurationFactory::availableCreators(Target *parent) const
 {
     return RunConfigurationFactory::availableCreators(parent);
+}
+
+NimbleTestConfiguration::NimbleTestConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
+{
+    addAspect<ExecutableAspect>()->setExecutable(Utils::FilePath::fromString(QStandardPaths::findExecutable("nimble")));
+    addAspect<ArgumentsAspect>()->setArguments("test");
+    addAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(project()->projectDirectory());
+    addAspect<TerminalAspect>();
+
+    setDisplayName(tr("Nimble Test"));
+    setDefaultDisplayName(tr("Nimble Test"));
+}
+
+NimbleTestConfigurationFactory::NimbleTestConfigurationFactory()
+    : FixedRunConfigurationFactory(QString())
+{
+    registerRunConfiguration<NimbleTestConfiguration>("Nim.NimbleTestConfiguration");
+    addSupportedProjectType(Constants::C_NIMBLEPROJECT_ID);
 }

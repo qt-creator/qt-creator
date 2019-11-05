@@ -36,8 +36,6 @@ class NimbleRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     NimbleRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    ~NimbleRunConfiguration();
-
     QString disabledReason() const override;
 
 protected:
@@ -56,6 +54,20 @@ public:
 
 protected:
     QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::Target *parent) const override;
+};
+
+class NimbleTestConfiguration : public ProjectExplorer::RunConfiguration
+{
+    Q_OBJECT
+
+public:
+    NimbleTestConfiguration(ProjectExplorer::Target *target, Core::Id id);
+};
+
+class NimbleTestConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+{
+public:
+    NimbleTestConfigurationFactory();
 };
 
 }
