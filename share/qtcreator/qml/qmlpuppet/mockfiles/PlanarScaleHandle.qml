@@ -27,9 +27,9 @@ import QtQuick 2.0
 import QtQuick3D 1.0
 import MouseArea3D 1.0
 
-DirectionalDraggable {
-    id: scaleRod
-    source: "meshes/scalerod.mesh"
+PlanarDraggable {
+    id: planarHandle
+    scale: Qt.vector3d(0.024, 0.024, 0.024)
 
     property bool globalOrientation: false
 
@@ -37,17 +37,6 @@ DirectionalDraggable {
     signal scaleChange()
 
     property var _startScale
-
-    Model {
-        source: "#Cube"
-        y: 10
-        scale: Qt.vector3d(0.020, 0.020, 0.020)
-        materials: DefaultMaterial {
-            id: material
-            emissiveColor: scaleRod.color
-            lighting: DefaultMaterial.NoLighting
-        }
-    }
 
     onPressed: {
         // Recreate vector so we don't follow the changes in targetNode.sceneScale

@@ -87,7 +87,7 @@ public slots:
 
     Q_INVOKABLE QVector3D getNewScale(QQuick3DNode *node, const QVector3D &startScale,
                                       const QVector3D &pressPos,
-                                      const QVector3D &sceneRelativeDistance, float scaler);
+                                      const QVector3D &sceneRelativeDistance, bool global);
 
 signals:
     void view3DChanged();

@@ -204,34 +204,36 @@ QVector3D MouseArea3D::rayIntersectsPlane(const QVector3D &rayPos0,
     return rayPos0 + distanceFromRayPos0ToPlane * rayDirection;
 }
 
-// Get a new scale based on a relative scene distance along an axis (used to adjust scale via drag)
-// This function never returns a negative scaling
+// Get a new scale based on a relative scene distance along a drag axis.
+// This function never returns a negative scaling.
+// Note that scaling a rotated object in global coordinate space can't be meaningfully done without
+// distorting the object beyond what current scale property can represent, so global scaling is
+// effectively same as local scaling.
 QVector3D MouseArea3D::getNewScale(QQuick3DNode *node, const QVector3D &startScale,
                                    const QVector3D &pressPos,
-                                   const QVector3D &sceneRelativeDistance, float scaler)
+                                   const QVector3D &sceneRelativeDistance, bool global)
 {
     if (node) {
         // Note: This only returns correct scale when scale is positive
         auto getScale = [&](const QMatrix4x4 &m) -> QVector3D {
             return QVector3D(m.column(0).length(), m.column(1).length(), m.column(2).length());
         };
-        const float constantDragScaler = 0.1f;
         const float nonZeroValue = 0.0001f;
-
-        if (qFuzzyIsNull(scaler))
-            scaler = nonZeroValue;
 
         const QVector3D scenePos = node->scenePosition();
         const QMatrix4x4 parentTransform = node->parentNode()->sceneTransform();
         QMatrix4x4 newTransform = node->sceneTransform();
-        QVector3D normalRelDist = sceneRelativeDistance.normalized();
-        float direction = QVector3D::dotProduct((pressPos - scenePos).normalized(), normalRelDist);
-        float magnitude = constantDragScaler * sceneRelativeDistance.length() / scaler;
+        const QVector3D nodeToPressPos = pressPos - scenePos;
+        const QVector3D nodeToRelPos = nodeToPressPos + sceneRelativeDistance;
+        const float sceneToPressLen = nodeToPressPos.length();
+        QVector3D scaleDirVector = nodeToRelPos;
+        float magnitude = (scaleDirVector.length() / sceneToPressLen);
+        scaleDirVector.normalize();
 
-        // Reset everything but rotation to ensure translation and scale do not affect rotate below
-        newTransform(0,3) = 0;
-        newTransform(1,3) = 0;
-        newTransform(2,3) = 0;
+        // Reset everything but rotation to ensure translation and scale don't affect rotation below
+        newTransform(0, 3) = 0;
+        newTransform(1, 3) = 0;
+        newTransform(2, 3) = 0;
         QVector3D curScale = getScale(newTransform);
         if (qFuzzyIsNull(curScale.x()))
             curScale.setX(nonZeroValue);
@@ -241,24 +243,29 @@ QVector3D MouseArea3D::getNewScale(QQuick3DNode *node, const QVector3D &startSca
             curScale.setZ(nonZeroValue);
         newTransform.scale({1.f / curScale.x(), 1.f / curScale.y(), 1.f / curScale.z()});
 
-        // Rotate relative distance according to object rotation
-        normalRelDist = newTransform.inverted().map(normalRelDist).normalized();
+        // Rotate the local scale vector so that scale axes are parallel to global axes for easier
+        // scale vector manipulation
+        if (!global)
+            scaleDirVector = newTransform.inverted().map(scaleDirVector).normalized();
 
         // Ensure scaling is always positive/negative according to direction
-        normalRelDist.setX(qAbs(normalRelDist.x()));
-        normalRelDist.setY(qAbs(normalRelDist.y()));
-        normalRelDist.setZ(qAbs(normalRelDist.z()));
-        QVector3D scaleVec = normalRelDist;
+        scaleDirVector.setX(qAbs(scaleDirVector.x()));
+        scaleDirVector.setY(qAbs(scaleDirVector.y()));
+        scaleDirVector.setZ(qAbs(scaleDirVector.z()));
+
+        // Make sure the longest scale vec axis is equal to 1 before applying magnitude to avoid
+        // initial jump in size when planar drag starts
+        float maxDir = qMax(qMax(scaleDirVector.x(), scaleDirVector.y()), scaleDirVector.z());
+        QVector3D scaleVec = scaleDirVector / maxDir;
         scaleVec *= magnitude;
-        if (direction > 0) {
-            scaleVec.setX(scaleVec.x() + 1.f);
-            scaleVec.setY(scaleVec.y() + 1.f);
-            scaleVec.setZ(scaleVec.z() + 1.f);
-        } else {
-            scaleVec.setX(1.f - scaleVec.x());
-            scaleVec.setY(1.f - scaleVec.y());
-            scaleVec.setZ(1.f - scaleVec.z());
-        }
+
+        // Zero axes on scale vector indicate directions we don't want scaling to affect
+        if (qFuzzyIsNull(scaleVec.x()))
+            scaleVec.setX(1.f);
+        if (qFuzzyIsNull(scaleVec.y()))
+            scaleVec.setY(1.f);
+        if (qFuzzyIsNull(scaleVec.z()))
+            scaleVec.setZ(1.f);
         scaleVec *= startScale;
 
         newTransform = parentTransform;

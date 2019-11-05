@@ -16,6 +16,9 @@
         <file>mockfiles/IconGizmo.qml</file>
         <file>mockfiles/Overlay2D.qml</file>
         <file>mockfiles/DirectionalDraggable.qml</file>
+        <file>mockfiles/PlanarDraggable.qml</file>
+        <file>mockfiles/PlanarMoveHandle.qml</file>
+        <file>mockfiles/PlanarScaleHandle.qml</file>
         <file>mockfiles/ScaleRod.qml</file>
         <file>mockfiles/ScaleGizmo.qml</file>
         <file>mockfiles/meshes/arrow.mesh</file>

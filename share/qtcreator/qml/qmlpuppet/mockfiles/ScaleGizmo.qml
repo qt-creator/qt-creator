@@ -35,6 +35,7 @@ Node {
     property Node targetNode: null
     property bool globalOrientation: true
     readonly property bool dragging: scaleRodX.dragging || scaleRodY.dragging || scaleRodZ.dragging
+                                     || planeX.dragging || planeY.dragging || planeZ.dragging
                                      || centerMouseArea.dragging
 
     signal scaleCommit()
@@ -45,13 +46,13 @@ Node {
 
         ScaleRod {
             id: scaleRodX
-            objectName: "scaleRod X"
             rotation: Qt.vector3d(0, 0, -90)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
                                                               : Qt.rgba(1, 0, 0, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
+            globalOrientation: scaleGizmo.globalOrientation
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -59,13 +60,13 @@ Node {
 
         ScaleRod {
             id: scaleRodY
-            objectName: "scaleRod Y"
             rotation: Qt.vector3d(0, 0, 0)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                                                               : Qt.rgba(0, 0.6, 0, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
+            globalOrientation: scaleGizmo.globalOrientation
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -73,13 +74,67 @@ Node {
 
         ScaleRod {
             id: scaleRodZ
-            objectName: "scaleRod Z"
             rotation: Qt.vector3d(90, 0, 0)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
                                                               : Qt.rgba(0, 0, 1, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
+            globalOrientation: scaleGizmo.globalOrientation
+
+            onScaleCommit: scaleGizmo.scaleCommit()
+            onScaleChange: scaleGizmo.scaleChange()
+        }
+
+        PlanarScaleHandle {
+            id: planeX
+
+            y: 10
+            z: 10
+
+            rotation: Qt.vector3d(0, 90, 0)
+            targetNode: scaleGizmo.targetNode
+            color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
+                                                              : Qt.rgba(1, 0, 0, 1)
+            view3D: scaleGizmo.view3D
+            active: scaleGizmo.visible
+            globalOrientation: scaleGizmo.globalOrientation
+
+            onScaleCommit: scaleGizmo.scaleCommit()
+            onScaleChange: scaleGizmo.scaleChange()
+        }
+
+        PlanarScaleHandle {
+            id: planeY
+
+            x: 10
+            z: 10
+
+            rotation: Qt.vector3d(90, 0, 0)
+            targetNode: scaleGizmo.targetNode
+            color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
+                                                              : Qt.rgba(0, 0.6, 0, 1)
+            view3D: scaleGizmo.view3D
+            active: scaleGizmo.visible
+            globalOrientation: scaleGizmo.globalOrientation
+
+            onScaleCommit: scaleGizmo.scaleCommit()
+            onScaleChange: scaleGizmo.scaleChange()
+        }
+
+        PlanarScaleHandle {
+            id: planeZ
+
+            x: 10
+            y: 10
+
+            rotation: Qt.vector3d(0, 0, 0)
+            targetNode: scaleGizmo.targetNode
+            color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
+                                                              : Qt.rgba(0, 0, 1, 1)
+            view3D: scaleGizmo.view3D
+            active: scaleGizmo.visible
+            globalOrientation: scaleGizmo.globalOrientation
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -121,7 +176,7 @@ Node {
                 if (yDelta === 0)
                     return;
                 var scaler = 1.0 + (yDelta * 0.025);
-                if (scaler === 0 )
+                if (scaler === 0)
                     scaler = 0.0001;
                 if (scaler < 0)
                     scaler = -scaler;

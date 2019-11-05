@@ -27,46 +27,29 @@ import QtQuick 2.0
 import QtQuick3D 1.0
 import MouseArea3D 1.0
 
-DirectionalDraggable {
-    id: scaleRod
-    source: "meshes/scalerod.mesh"
+PlanarDraggable {
+    id: planarHandle
+    scale: Qt.vector3d(0.024, 0.024, 0.024)
 
-    property bool globalOrientation: false
+    signal positionCommit()
+    signal positionMove()
 
-    signal scaleCommit()
-    signal scaleChange()
-
-    property var _startScale
-
-    Model {
-        source: "#Cube"
-        y: 10
-        scale: Qt.vector3d(0.020, 0.020, 0.020)
-        materials: DefaultMaterial {
-            id: material
-            emissiveColor: scaleRod.color
-            lighting: DefaultMaterial.NoLighting
-        }
-    }
-
-    onPressed: {
-        // Recreate vector so we don't follow the changes in targetNode.sceneScale
-        _startScale = Qt.vector3d(targetNode.sceneScale.x,
-                                  targetNode.sceneScale.y,
-                                  targetNode.sceneScale.z);
+    function localPos(sceneRelativeDistance)
+    {
+        var newScenePos = Qt.vector3d(
+                    _targetStartPos.x + sceneRelativeDistance.x,
+                    _targetStartPos.y + sceneRelativeDistance.y,
+                    _targetStartPos.z + sceneRelativeDistance.z);
+        return targetNode.parent.mapPositionFromScene(newScenePos);
     }
 
     onDragged: {
-        targetNode.scale = mouseArea.getNewScale(targetNode, _startScale,
-                                                 _pointerPosPressed, sceneRelativeDistance,
-                                                 globalOrientation);
-        scaleChange();
+        targetNode.position = localPos(sceneRelativeDistance);
+        positionMove();
     }
 
     onReleased: {
-        targetNode.scale = mouseArea.getNewScale(targetNode, _startScale,
-                                                 _pointerPosPressed, sceneRelativeDistance,
-                                                 globalOrientation);
-        scaleCommit();
+        targetNode.position = localPos(sceneRelativeDistance);
+        positionCommit();
     }
 }

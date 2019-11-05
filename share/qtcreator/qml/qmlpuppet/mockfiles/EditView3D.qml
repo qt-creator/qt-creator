@@ -278,12 +278,12 @@ Window {
             x: 8
             RadioButton {
                 id: moveToolControl
-                checked: false
+                checked: true
                 text: qsTr("Move Tool")
             }
             RadioButton {
                 id: scaleToolControl
-                checked: true
+                checked: false
                 text: qsTr("Scale Tool")
             }
         }
