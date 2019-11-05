@@ -26,9 +26,8 @@
 
 #include "ksyntaxhighlighting_export.h"
 
-#include <QTypeInfo>
 #include <QPair>
-
+#include <QVector>
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -329,9 +328,27 @@ public:
     /**
      * Returns the list of keywords for the keyword list @p name.
      * @since 5.49
-     * @see keywordLists()
+     * @see keywordLists(), setKeywordList()
      */
     QStringList keywordList(const QString& name) const;
+
+    /**
+     * Set the contents of the keyword list @p name to @p content.
+     * Only existing keywordLists() can be changed. For non-existent keyword lists,
+     * false is returned.
+     *
+     * Whenever you change a keyword list, make sure to trigger a rehighlight of
+     * your documents. In case you are using QSyntaxHighlighter via SyntaxHighlighter,
+     * this can be done by calling SyntaxHighlighter::rehighlight().
+     *
+     * @note In general, changing keyword lists via setKeywordList() is discouraged,
+     *       since if a keyword list name in the syntax highlighting definition
+     *       file changes, the call setKeywordList() may suddenly fail.
+     *
+     * @see keywordList(), keywordLists()
+     * @since 5.62
+     */
+    bool setKeywordList(const QString& name, const QStringList& content);
 
     /**
      * Returns a list of all Format items used by this definition.

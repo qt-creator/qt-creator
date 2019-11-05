@@ -279,9 +279,10 @@
   -->
   <xs:element name="list">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="item"/>
-      </xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="item"/>
+        <xs:element ref="include"/>
+      </xs:choice>
       <xs:attribute name="name" use="required"/>
     </xs:complexType>
   </xs:element>
@@ -290,6 +291,11 @@
     contains string used in <keyword>
   -->
   <xs:element name="item" type="xs:string"/>
+  <!--
+    List include
+    contains a name of <keyword>
+  -->
+  <xs:element name="include" type="xs:string"/>
   <!-- List of contexts -->
   <xs:element name="contexts">
     <xs:complexType>
@@ -305,6 +311,7 @@
       lineEndContext:   Next context if end of line is encountered
       lineEmptyContext: Next context if an empty line is encountered [optional]
       fallthrough:      Use a fallthrough context [optional]
+                deprecated since 5.62 but preserved to maintain compatibility in older versions of KF5
       fallthroughContext: Fall through to this context [optional]
       dynamic:          Dynamic context [boolean, optional]
       noIndentationBasedFolding: Python uses indentation based folding. However, Python has parts where
@@ -314,7 +321,6 @@
 
     TODO:
       - Explain fallthrough.
-      - Do we need fallthrough at all? It could be true, if fallthroughContext is set, false otherwise.
       - Make lineEndContext optional, defaults to '#stay'. Reasonable?
   -->
   <xs:element name="context">
@@ -344,7 +350,15 @@
       <xs:attribute name="attribute" use="required"/>
       <xs:attribute name="lineEndContext" use="required"/>
       <xs:attribute name="lineEmptyContext"/>
-      <xs:attribute name="fallthrough" type="xs:boolean"/>
+      <xs:attribute name="fallthrough">
+        <xs:simpleType>
+          <!-- alway true since 5.62 -->
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="1"/>
+            <xs:enumeration value="true"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
       <xs:attribute name="fallthroughContext"/>
       <xs:attribute name="dynamic" type="xs:boolean"/>
       <xs:attribute name="noIndentationBasedFolding" type="xs:boolean"/>

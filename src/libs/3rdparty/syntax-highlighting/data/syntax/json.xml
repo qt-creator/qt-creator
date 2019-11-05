@@ -12,7 +12,7 @@
  ** http://tools.ietf.org/html/rfc4627
  ***************************************************************************
 -->
-<language name="JSON" section="Markup" version="3" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.gltf" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
+<language name="JSON" section="Markup" version="4" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.geojson;*.gltf" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
   <highlighting>
     <list name="Constants">
       <item>null</item>

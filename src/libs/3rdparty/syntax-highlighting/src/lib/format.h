@@ -28,7 +28,6 @@
 #include "theme.h"
 
 #include <QExplicitlySharedDataPointer>
-#include <QTypeInfo>
 
 QT_BEGIN_NAMESPACE
 class QColor;
@@ -138,6 +137,70 @@ public:
      * Returns whether characters with this format should be spell checked.
      */
     bool spellCheck() const;
+
+    /** Returns @c true if the syntax definition file sets a value for the bold text
+     *  attribute and, therefore, overrides the theme and the default formatting
+     *  style. If the return is @p true, this value is obtained by isBold().
+     *  @see isBold()
+     *  @since 5.62
+     */
+    bool hasBoldOverride() const;
+
+    /** Returns @c true if the syntax definition file sets a value for the italic text
+     *  attribute and, therefore, overrides the theme and the default formatting style.
+     *  If the return is @p true, this value is obtained by isItalic().
+     *  @see isItalic()
+     *  @since 5.62
+     */
+    bool hasItalicOverride() const;
+
+    /** Returns @c true if the syntax definition file sets a value for the underlined
+     *  text attribute and, therefore, overrides the theme and the default formatting
+     *  style. If the return is @p true, this value is obtained by isUnderline().
+     *  @see isUnderline()
+     *  @since 5.62
+     */
+    bool hasUnderlineOverride() const;
+
+    /** Returns @c true if the syntax definition file specifies a value for the
+     *  struck through text attribute. If the return is @p true, this value
+     *  is obtained by isStrikeThrough().
+     *  @see isStrikeThrough()
+     *  @since 5.62
+     */
+    bool hasStrikeThroughOverride() const;
+
+    /** Returns @c true if the syntax definition file sets a value for the foreground
+     *  text color attribute and, therefore, overrides the theme and the default formatting
+     *  style. If the return is @p true, this value is obtained  by textColor().
+     *  @see textColor(), hasTextColor()
+     *  @since 5.62
+     */
+    bool hasTextColorOverride() const;
+
+    /** Returns @c true if the syntax definition file sets a value for the background
+     *  color attribute and, therefore, overrides the theme and the default formatting
+     *  style. If the return is @p true, this value is obtained by backgroundColor().
+     *  @see backgroundColor(), hasBackgroundColor()
+     *  @since 5.62
+     */
+    bool hasBackgroundColorOverride() const;
+
+    /** Returns @c true if the syntax definition file specifies a value for the
+     *  selected text color attribute. If the return is @p true, this value is
+     *  obtained by selectedTextColor().
+     *  @see selectedTextColor()
+     *  @since 5.62
+     */
+    bool hasSelectedTextColorOverride() const;
+
+    /** Returns @c true if the syntax definition file specifies a value for the
+     *  selected background color attribute. If the return is @p true, this
+     *  value is obtained by selectedBackgroundColor().
+     *  @see selectedBackgroundColor()
+     *  @since 5.62
+     */
+    bool hasSelectedBackgroundColorOverride() const;
 
 private:
     friend class FormatPrivate;

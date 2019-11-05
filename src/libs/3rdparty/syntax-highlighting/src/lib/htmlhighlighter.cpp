@@ -29,7 +29,6 @@
 #include "theme.h"
 #include "ksyntaxhighlighting_logging.h"
 
-#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>

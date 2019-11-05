@@ -29,7 +29,6 @@
 #include "state.h"
 #include "theme.h"
 
-#include <QDebug>
 
 Q_DECLARE_METATYPE(QTextBlock)
 

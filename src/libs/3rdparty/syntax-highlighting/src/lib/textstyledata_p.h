@@ -24,7 +24,6 @@
 #ifndef KSYNTAXHIGHLIGHTING_TEXTSTYLEDATA_P_H
 #define KSYNTAXHIGHLIGHTING_TEXTSTYLEDATA_P_H
 
-#include <QColor>
 
 namespace KSyntaxHighlighting {
 
