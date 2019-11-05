@@ -64,16 +64,16 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
 
 QString OpenOcdGdbServerProvider::defaultInitCommands()
 {
-    return "set remote hardware-breakpoint-limit 6\n"
+    return {"set remote hardware-breakpoint-limit 6\n"
                          "set remote hardware-watchpoint-limit 4\n"
                          "monitor reset halt\n"
                          "load\n"
-                         "monitor reset halt\n";
+                         "monitor reset halt\n"};
 }
 
 QString OpenOcdGdbServerProvider::defaultResetCommands()
 {
-    return "monitor reset halt\n";
+    return {"monitor reset halt\n"};
 }
 
 QString OpenOcdGdbServerProvider::channelString() const
