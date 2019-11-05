@@ -105,6 +105,19 @@ NimbleMetadata parseMetadata(const QString &nimblePath, const QString &workingDi
 NimbleBuildSystem::NimbleBuildSystem(Project *project)
     : NimBuildSystem(project)
 {
+    // Not called in parseProject due to nimble behavior to create temporary
+    // files in project directory. This creation in turn stimulate the fs watcher
+    // that in turn causes project parsing (thus a loop if invoke in parseProject).
+    // For this reason we call this function manually during project creation
+    // See https://github.com/nim-lang/nimble/issues/720
+    m_directoryWatcher.addFile(this->project()->projectFilePath().toString(),
+                               FileSystemWatcher::WatchModifiedDate);
+    connect(&m_directoryWatcher, &FileSystemWatcher::fileChanged, this, [this](const QString &path) {
+        if (path == this->project()->projectFilePath().toString()) {
+            updateProject();
+        }
+    });
+    updateProject();
 }
 
 void NimbleBuildSystem::parseProject(BuildSystem::ParsingContext &&ctx)
@@ -116,22 +129,6 @@ void NimbleBuildSystem::updateProject()
 {
     updateProjectMetaData();
     updateProjectTasks();
-}
-
-void NimbleBuildSystem::init()
-{
-    // Not called in parseProject due to nimble behavior to create temporary
-    // files in project directory. This creation in turn stimulate the fs watcher
-    // that in turn causes project parsing (thus a loop if invoke in parseProject).
-    // For this reason we call this function manually during project creation
-    // See https://github.com/nim-lang/nimble/issues/720
-    m_directoryWatcher.addFile(project()->projectFilePath().toString(), FileSystemWatcher::WatchModifiedDate);
-    connect(&m_directoryWatcher, &FileSystemWatcher::fileChanged, this, [this](const QString &path) {
-        if (path == project()->projectFilePath().toString()) {
-            updateProject();
-        }
-    });
-    updateProject();
 }
 
 void NimbleBuildSystem::updateProjectTasks()

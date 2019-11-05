@@ -36,8 +36,6 @@ class NimbleBuildSystem : public NimBuildSystem
 public:
     NimbleBuildSystem(ProjectExplorer::Project *project);
 
-    void init();
-
 protected:
     void parseProject(ParsingContext &&ctx) override;
 

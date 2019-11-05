@@ -41,9 +41,7 @@ NimbleProject::NimbleProject(const Utils::FilePath &fileName)
     setDisplayName(fileName.toFileInfo().completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    auto bs = std::make_unique<NimbleBuildSystem>(this);
-    bs->init();
-    setBuildSystem(std::move(bs));
+    setBuildSystemCreator([] (Project *p) { return new NimbleBuildSystem(p); });
 }
 
 std::vector<NimbleTask> NimbleProject::tasks() const
@@ -103,10 +101,10 @@ QStringList NimbleProject::toStringList(const std::vector<NimbleTask> &tasks)
 std::tuple<Project::RestoreResult, std::vector<NimbleTask>> NimbleProject::fromStringList(const QStringList &list)
 {
     if (list.size() % 2 != 0)
-        return {Project::RestoreResult::Error, {}};
+        return std::make_tuple(Project::RestoreResult::Error, std::vector<NimbleTask>());
 
     std::vector<NimbleTask> result;
     for (int i = 0; i < list.size(); i += 2)
         result.push_back({list[i], list[i + 1]});
-    return {Project::RestoreResult::Ok, std::move(result)};
+    return std::make_tuple(Project::RestoreResult::Ok, result);
 }

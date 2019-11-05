@@ -164,12 +164,12 @@ QString NimbleBuildStep::defaultArguments() const
     QTC_ASSERT(buildConfiguration(), return {}; );
     switch (buildConfiguration()->buildType()) {
     case ProjectExplorer::BuildConfiguration::Debug:
-        return "--debugger:native";
+        return {"--debugger:native"};
     case ProjectExplorer::BuildConfiguration::Unknown:
     case ProjectExplorer::BuildConfiguration::Profile:
     case ProjectExplorer::BuildConfiguration::Release:
     default:
-        return "";
+        return {};
     }
 }
 
