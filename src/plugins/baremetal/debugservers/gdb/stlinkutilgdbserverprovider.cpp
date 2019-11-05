@@ -76,7 +76,7 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider(
 
 QString StLinkUtilGdbServerProvider::defaultInitCommands()
 {
-    return "load\n";
+    return {"load\n"};
 }
 
 QString StLinkUtilGdbServerProvider::defaultResetCommands()
