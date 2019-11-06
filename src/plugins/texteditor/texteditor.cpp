@@ -5640,7 +5640,8 @@ void TextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuConte
 
 void TextEditorWidget::addHoverHandler(BaseHoverHandler *handler)
 {
-    d->m_hoverHandlers.append(handler);
+    if (!d->m_hoverHandlers.contains(handler))
+        d->m_hoverHandlers.append(handler);
 }
 
 void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
