@@ -59,4 +59,7 @@ enum class TestRunMode
     DebugWithoutDeploy,
     RunAfterBuild
 };
+
+enum class OutputChannel { StdOut, StdErr };
+
 } // namespace Autotest

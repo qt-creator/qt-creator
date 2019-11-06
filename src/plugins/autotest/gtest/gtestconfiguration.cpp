@@ -54,7 +54,6 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
                                                          "--gtest_stream_result_to=",
                                                          "--gtest_break_on_failure",
                                                          "--gtest_throw_on_failure",
-                                                         "--gtest_color=",
                                                          "--gtest_print_time="
                                                          };
 
@@ -110,11 +109,13 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
 
 Utils::Environment GTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
 {
-    const QStringList interfering{"GTEST_FILTER", "GTEST_COLOR", "GTEST_ALSO_RUN_DISABLED_TESTS",
+    const QStringList interfering{"GTEST_FILTER", "GTEST_ALSO_RUN_DISABLED_TESTS",
                                   "GTEST_REPEAT", "GTEST_SHUFFLE", "GTEST_RANDOM_SEED",
                                   "GTEST_OUTPUT", "GTEST_BREAK_ON_FAILURE", "GTEST_PRINT_TIME",
                                   "GTEST_CATCH_EXCEPTIONS"};
     Utils::Environment result = original;
+    if (!result.hasKey("GTEST_COLOR"))
+        result.set("GTEST_COLOR", "1");  // use colored output by default
     for (const QString &key : interfering)
         result.unset(key);
     return result;

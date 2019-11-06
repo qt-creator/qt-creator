@@ -34,6 +34,7 @@
 #include "testcodeparser.h"
 #include "testeditormark.h"
 #include "testoutputreader.h"
+#include "outputhighlighter.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -135,6 +136,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_textOutput->setFont(font);
     m_textOutput->setWordWrapMode(QTextOption::WordWrap);
     m_textOutput->setReadOnly(true);
+    new OutputHighlighter(m_textOutput->document());
     m_outputWidget->addWidget(m_textOutput);
 
     auto agg = new Aggregation::Aggregate;
@@ -705,6 +707,13 @@ void TestResultsPane::showTestResult(const QModelIndex &index)
         popup(IOutputPane::NoModeSwitch);
         m_treeView->setCurrentIndex(mapped);
     }
+}
+
+OutputChannel TestResultsPane::channelForBlockNumber(int blockNumber) const
+{
+    QTC_ASSERT(blockNumber > -1 && blockNumber < m_outputChannels.size(),
+               return OutputChannel::StdOut);
+    return m_outputChannels.at(blockNumber);
 }
 
 } // namespace Internal

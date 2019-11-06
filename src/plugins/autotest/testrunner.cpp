@@ -291,6 +291,7 @@ void TestRunner::onProcessFinished()
     if (m_currentOutputReader->hasSummary())
         emit reportSummary(m_currentOutputReader->id(), m_currentOutputReader->summary());
 
+    m_currentOutputReader->resetCommandlineColor();
     resetInternalPointers();
 
     if (!m_fakeFutureInterface) {

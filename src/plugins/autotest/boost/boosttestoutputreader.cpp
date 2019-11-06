@@ -210,7 +210,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
                                         "test module \"(.*}\"; see standard output for details");
     QString noErrors("*** No errors detected");
 
-    const QString line = QString::fromUtf8(outputLine);
+    const QString line = removeCommandlineColors(QString::fromUtf8(outputLine));
     if (line.trimmed().isEmpty())
         return;
 

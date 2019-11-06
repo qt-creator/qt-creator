@@ -57,7 +57,7 @@ static QStringList interfering(InterferingType type)
 {
     const QStringList knownInterfering { "log_level", "log_format", "log_sink",
                                          "report_level", "report_format", "report_sink",
-                                         "output_format", "color_output", "no_color_output",
+                                         "output_format",
                                          "catch_system_errors", "no_catch_system_errors",
                                          "detect_fp_exceptions", "no_detect_fp_exceptions",
                                          "detect_memory_leaks", "random", "run_test",
@@ -117,7 +117,6 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     QStringList arguments;
     arguments << "-l" << BoostTestSettings::logLevelToOption(boostSettings->logLevel);
     arguments << "-r" << BoostTestSettings::reportLevelToOption(boostSettings->reportLevel);
-    arguments << "--no_color_output"; // ensure that colored output is not used as default
 
     if (boostSettings->randomize)
         arguments << QString("--random=").append(QString::number(boostSettings->seed));
@@ -145,6 +144,8 @@ Utils::Environment BoostTestConfiguration::filteredEnvironment(const Utils::Envi
     const QStringList interferingEnv = interfering(InterferingType::EnvironmentVariables);
 
     Utils::Environment result = original;
+    if (!result.hasKey("BOOST_TEST_COLOR_OUTPUT"))
+        result.set("BOOST_TEST_COLOR_OUTPUT", "1");  // use colored output by default
     for (const QString &key : interferingEnv)
         result.unset(key);
     return result;

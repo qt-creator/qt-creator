@@ -74,7 +74,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression iterations("^Repeating all tests "
                                                "\\(iteration (\\d+)\\) \\. \\. \\.$");
 
-    const QString line = QString::fromLatin1(outputLine);
+    const QString line = removeCommandlineColors(QString::fromLatin1(outputLine));
     if (line.trimmed().isEmpty())
         return;
 

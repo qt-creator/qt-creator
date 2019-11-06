@@ -34,8 +34,6 @@
 
 namespace Autotest {
 
-enum class OutputChannel { StdOut, StdErr };
-
 class TestOutputReader : public QObject
 {
     Q_OBJECT
@@ -54,9 +52,11 @@ public:
     void setId(const QString &id) { m_id = id; }
     QString id() const { return m_id; }
 
+    void resetCommandlineColor();
 signals:
     void newOutputLineAvailable(const QByteArray &outputLine, OutputChannel channel);
 protected:
+    QString removeCommandlineColors(const QString &original);
     virtual void processOutputLine(const QByteArray &outputLine) = 0;
     virtual TestResultPtr createDefaultResult() const = 0;
 

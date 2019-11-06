@@ -93,6 +93,26 @@ void TestOutputReader::createAndReportResult(const QString &message, ResultType 
     reportResult(result);
 }
 
+void TestOutputReader::resetCommandlineColor()
+{
+    emit newOutputLineAvailable("\u001B[m", OutputChannel::StdOut);
+    emit newOutputLineAvailable("\u001B[m", OutputChannel::StdErr);
+}
+
+QString TestOutputReader::removeCommandlineColors(const QString &original)
+{
+    static const QRegularExpression pattern("\u001B\\[.*?m");
+    QString result = original;
+    while (!result.isEmpty()) {
+        QRegularExpressionMatch match = pattern.match(result);
+        if (match.hasMatch())
+            result.remove(match.capturedStart(), match.captured().length());
+        else
+            break;
+    }
+    return result;
+}
+
 void TestOutputReader::reportResult(const TestResultPtr &result)
 {
     m_futureInterface.reportResult(result);

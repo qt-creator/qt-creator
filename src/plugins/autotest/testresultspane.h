@@ -98,6 +98,8 @@ public:
     void addOutputLine(const QByteArray &outputLine, OutputChannel channel);
     void showTestResult(const QModelIndex &index);
 
+    OutputChannel channelForBlockNumber(int blockNumber) const;
+
 private:
     explicit TestResultsPane(QObject *parent = nullptr);
 

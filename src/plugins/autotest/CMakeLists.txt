@@ -36,6 +36,7 @@ add_qtc_plugin(AutoTest
     itestframework.h
     itestparser.cpp itestparser.h
     itestsettingspage.h
+    outputhighlighter.cpp outputhighlighter.h
     projectsettingswidget.cpp projectsettingswidget.h
     qtest/qttest_utils.cpp qtest/qttest_utils.h
     qtest/qttestconfiguration.cpp qtest/qttestconfiguration.h
