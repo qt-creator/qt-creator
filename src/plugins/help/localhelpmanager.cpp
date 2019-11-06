@@ -231,7 +231,10 @@ Core::HelpManager::HelpViewerLocation LocalHelpManager::contextHelpOption()
 
 void LocalHelpManager::setContextHelpOption(Core::HelpManager::HelpViewerLocation location)
 {
+    if (location == contextHelpOption())
+        return;
     Core::ICore::settings()->setValue(kContextHelpOptionKey, location);
+    emit m_instance->contextHelpOptionChanged(location);
 }
 
 bool LocalHelpManager::returnOnClose()

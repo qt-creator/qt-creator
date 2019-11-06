@@ -105,6 +105,82 @@ static bool isBookmarkable(const QUrl &url)
     return !url.isEmpty() && url != QUrl(Help::Constants::AboutBlank);
 }
 
+static bool isTargetOfContextHelp(HelpWidget::WidgetStyle style)
+{
+    const Core::HelpManager::HelpViewerLocation option = LocalHelpManager::contextHelpOption();
+    switch (style) {
+    case HelpWidget::ModeWidget:
+        return option == Core::HelpManager::HelpModeAlways;
+    case HelpWidget::ExternalWindow:
+        return option == Core::HelpManager::ExternalHelpAlways;
+    case HelpWidget::SideBarWidget:
+        return option == Core::HelpManager::SideBySideAlways
+               || option == Core::HelpManager::SideBySideIfPossible;
+    }
+    QTC_CHECK(false);
+    return false;
+}
+
+static QString helpTargetActionText(Core::HelpManager::HelpViewerLocation option)
+{
+    switch (option) {
+    case Core::HelpManager::SideBySideIfPossible:
+        return HelpWidget::tr("Show Context Help Side-by-Side if Possible");
+    case Core::HelpManager::SideBySideAlways:
+        return HelpWidget::tr("Always Show Context Help Side-by-Side");
+    case Core::HelpManager::HelpModeAlways:
+        return HelpWidget::tr("Always Show Context Help in Help Mode");
+    case Core::HelpManager::ExternalHelpAlways:
+        return HelpWidget::tr("Always Show Context Help in External Window");
+    }
+    QTC_CHECK(false);
+    return {};
+}
+
+static Core::HelpManager::HelpViewerLocation optionForStyle(HelpWidget::WidgetStyle style)
+{
+    switch (style) {
+    case HelpWidget::ModeWidget:
+        return Core::HelpManager::HelpModeAlways;
+    case HelpWidget::ExternalWindow:
+        return Core::HelpManager::ExternalHelpAlways;
+    case HelpWidget::SideBarWidget:
+        return Core::HelpManager::SideBySideIfPossible;
+    }
+    QTC_CHECK(false);
+    return Core::HelpManager::SideBySideIfPossible;
+}
+
+static QString helpTargetActionToolTip(HelpWidget::WidgetStyle style)
+{
+    return helpTargetActionText(optionForStyle(style));
+}
+
+static QMenu *createHelpTargetMenu(QWidget *parent)
+{
+    auto menu = new QMenu(parent);
+
+    const auto addAction = [menu](Core::HelpManager::HelpViewerLocation option) {
+        QAction *action = menu->addAction(helpTargetActionText(option));
+        action->setCheckable(true);
+        action->setChecked(LocalHelpManager::contextHelpOption() == option);
+        QObject::connect(action, &QAction::triggered, menu, [option] {
+            LocalHelpManager::setContextHelpOption(option);
+        });
+        QObject::connect(LocalHelpManager::instance(),
+                         &LocalHelpManager::contextHelpOptionChanged,
+                         menu,
+                         [action, option](Core::HelpManager::HelpViewerLocation newOption) {
+                             action->setChecked(newOption == option);
+                         });
+    };
+    addAction(Core::HelpManager::SideBySideIfPossible);
+    addAction(Core::HelpManager::SideBySideAlways);
+    addAction(Core::HelpManager::HelpModeAlways);
+    addAction(Core::HelpManager::ExternalHelpAlways);
+    return menu;
+}
+
 HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent)
     : QWidget(parent)
     , m_model(this)
@@ -245,7 +321,37 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     m_openOnlineDocumentationAction = new QAction(Utils::Icons::ONLINE_TOOLBAR.icon(), tr("Open Online Documentation..."), this);
     cmd = Core::ActionManager::registerAction(m_openOnlineDocumentationAction, Constants::HELP_OPENONLINE, context);
     connect(m_openOnlineDocumentationAction, &QAction::triggered, this, &HelpWidget::openOnlineDocumentation);
-    layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_openOnlineDocumentationAction, cmd));
+    layout->addWidget(
+        Core::Command::toolButtonWithAppendedShortcut(m_openOnlineDocumentationAction, cmd));
+
+    auto helpTargetAction = new QAction(Utils::Icons::LINK_TOOLBAR.icon(),
+                                        helpTargetActionToolTip(style),
+                                        this);
+    helpTargetAction->setCheckable(true);
+    helpTargetAction->setChecked(isTargetOfContextHelp(style));
+    cmd = Core::ActionManager::registerAction(helpTargetAction, "Help.OpenContextHelpHere", context);
+    QToolButton *helpTargetButton = Core::Command::toolButtonWithAppendedShortcut(helpTargetAction,
+                                                                                  cmd);
+    helpTargetButton->setProperty("noArrow", true);
+    helpTargetButton->setPopupMode(QToolButton::DelayedPopup);
+    helpTargetButton->setMenu(createHelpTargetMenu(helpTargetButton));
+    connect(LocalHelpManager::instance(),
+            &LocalHelpManager::contextHelpOptionChanged,
+            [this, helpTargetAction] {
+                helpTargetAction->setChecked(isTargetOfContextHelp(m_style));
+            });
+    connect(helpTargetAction,
+            &QAction::triggered,
+            this,
+            [this, helpTargetAction, helpTargetButton](bool checked) {
+                if (checked) {
+                    LocalHelpManager::setContextHelpOption(optionForStyle(m_style));
+                } else {
+                    helpTargetAction->setChecked(true);
+                    helpTargetButton->showMenu();
+                }
+            });
+    layout->addWidget(helpTargetButton);
 
     if (supportsPages()) {
         layout->addWidget(new Utils::StyledSeparator(toolBar));

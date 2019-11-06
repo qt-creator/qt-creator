@@ -130,6 +130,7 @@ signals:
     void fallbackFontChanged(const QFont &font);
     void returnOnCloseChanged();
     void scrollWheelZoomingEnabledChanged(bool enabled);
+    void contextHelpOptionChanged(Core::HelpManager::HelpViewerLocation option);
 
 private:
     static bool m_guiNeedsSetup;
