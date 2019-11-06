@@ -239,13 +239,14 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     navigateStateChanged();
 }
 
-void TestResultsPane::addOutputLine(const QByteArray &outputLine)
+void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel channel)
 {
     if (!QTC_GUARD(!outputLine.contains('\n'))) {
         for (auto line : outputLine.split('\n'))
-            addOutputLine(line);
+            addOutputLine(line, channel);
         return;
     }
+    m_outputChannels.append(channel);
     m_textOutput->appendPlainText(QString::fromUtf8(outputLine));
 }
 
@@ -286,6 +287,7 @@ void TestResultsPane::clearContents()
     m_autoScroll = AutotestPlugin::settings()->autoScroll;
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
+    m_outputChannels.clear();
     m_textOutput->clear();
     clearMarks();
 }

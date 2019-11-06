@@ -49,6 +49,7 @@ class IContext;
 
 namespace Autotest {
 
+enum class OutputChannel;
 class TestResult;
 
 namespace Internal {
@@ -94,7 +95,7 @@ public:
     void goToPrev() override;
 
     void addTestResult(const TestResultPtr &result);
-    void addOutputLine(const QByteArray &outputLine);
+    void addOutputLine(const QByteArray &outputLine, OutputChannel channel);
     void showTestResult(const QModelIndex &index);
 
 private:
@@ -144,6 +145,7 @@ private:
     bool m_atEnd = false;
     bool m_testRunning = false;
     QVector<TestEditorMark *> m_marks;
+    QList<OutputChannel> m_outputChannels;
 };
 
 } // namespace Internal

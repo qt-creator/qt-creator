@@ -68,13 +68,13 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
 void TestOutputReader::processStdOutput(const QByteArray &outputLine)
 {
     processOutputLine(outputLine);
-    emit newOutputLineAvailable(outputLine);
+    emit newOutputLineAvailable(outputLine, OutputChannel::StdOut);
 }
 
 void TestOutputReader::processStdError(const QByteArray &outputLine)
 {
     qWarning() << "AutoTest.Run: Ignored plain output:" << outputLine;
-    emit newOutputLineAvailable(outputLine);
+    emit newOutputLineAvailable(outputLine, OutputChannel::StdErr);
 }
 
 void TestOutputReader::reportCrash()

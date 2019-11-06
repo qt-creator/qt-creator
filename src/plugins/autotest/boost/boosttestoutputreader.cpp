@@ -380,7 +380,7 @@ void BoostTestOutputReader::processStdError(const QByteArray &outputLine)
 {
     // we need to process the output, Boost UTF uses both out streams
     processOutputLine(outputLine);
-    emit newOutputLineAvailable(outputLine);
+    emit newOutputLineAvailable(outputLine, OutputChannel::StdErr);
 }
 
 TestResultPtr BoostTestOutputReader::createDefaultResult() const
