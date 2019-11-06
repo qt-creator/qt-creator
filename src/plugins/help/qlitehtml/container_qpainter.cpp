@@ -1165,7 +1165,7 @@ void DocumentContainer::findText(const QString &text,
         return Selection::Element{e.element, e.index, fm.size(0, text.left(e.index)).width()};
     };
 
-    QString term = text;
+    QString term = QRegularExpression::escape(text);
     if (flags & QTextDocument::FindWholeWords)
         term = QString("\\b%1\\b").arg(term);
     const QRegularExpression::PatternOptions patternOptions
