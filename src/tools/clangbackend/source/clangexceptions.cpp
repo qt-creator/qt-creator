@@ -43,7 +43,7 @@ DocumentDoesNotExistException::DocumentDoesNotExistException(const Utf8String &f
 {
     m_info += Utf8StringLiteral("Document '")
             + filePath
-            + Utf8StringLiteral("' does not exists!");
+            + Utf8StringLiteral("' does not exist!");
 }
 
 DocumentFileDoesNotExistException::DocumentFileDoesNotExistException(
