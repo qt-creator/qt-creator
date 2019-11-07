@@ -171,8 +171,12 @@ function(separate_object_libraries libraries REGULAR_LIBS OBJECT_LIBS OBJECT_LIB
 endfunction(separate_object_libraries)
 
 function(set_explicit_moc target_name file)
+  unset(file_dependencies)
+  if (file MATCHES "^.*plugin.h$")
+    set(file_dependencies DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${target_name}.json")
+  endif()
   set_property(SOURCE "${file}" PROPERTY SKIP_AUTOMOC ON)
-  qt5_wrap_cpp(file_moc "${file}")
+  qt5_wrap_cpp(file_moc "${file}" ${file_dependencies})
   target_sources(${target_name} PRIVATE "${file_moc}")
 endfunction()
 
