@@ -517,8 +517,11 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* boar
     if (!board->qulPlatform().isEmpty())
         config.append(CMakeConfigItem("QUL_PLATFORM",
                                       board->qulPlatform().toUtf8()));
-    if (isDesktop(board)) // TODO: Hack! Implement color depth variants of all targets
+    if (isDesktop(board)) {
+        config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
+        // TODO: Hack! Implement color depth variants of all targets
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH", "32"));
+    }
     CMakeConfigurationKitAspect::setConfiguration(k, config);
     if (Utils::HostOsInfo::isWindowsHost())
         CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
