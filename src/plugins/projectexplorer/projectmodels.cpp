@@ -112,84 +112,65 @@ FlatModel::FlatModel(QObject *parent)
 
 QVariant FlatModel::data(const QModelIndex &index, int role) const
 {
-    QVariant result;
+    const Node * const node = nodeForIndex(index);
+    if (!node)
+        return QVariant();
 
-    if (const Node *node = nodeForIndex(index)) {
-        const FolderNode *folderNode = node->asFolderNode();
-        const ContainerNode *containerNode = node->asContainerNode();
-        const Project *project = containerNode ? containerNode->project() : nullptr;
+    const FolderNode * const folderNode = node->asFolderNode();
+    const ContainerNode * const containerNode = node->asContainerNode();
+    const Project * const project = containerNode ? containerNode->project() : nullptr;
 
-        switch (role) {
-        case Qt::DisplayRole: {
-            result = node->displayName();
-            break;
-        }
-        case Qt::EditRole: {
-            result = node->filePath().fileName();
-            break;
-        }
-        case Qt::ToolTipRole: {
-            QString tooltip = node->tooltip();
-
-            if (project) {
-                if (project->activeTarget()) {
-                    QString projectIssues = toHtml(project->projectIssues(project->activeTarget()->kit()));
-                    if (!projectIssues.isEmpty())
-                        tooltip += "<p>" + projectIssues;
-                } else {
-                    tooltip += "<p>" + tr("No kits are enabled for this project. "
-                                          "Enable kits in the \"Projects\" mode.");
-                }
-            }
-            result = tooltip;
-            break;
-        }
-        case Qt::DecorationRole: {
-            if (folderNode) {
-                static QIcon warnIcon = Utils::Icons::WARNING.icon();
-                static QIcon emptyIcon = Utils::Icons::EMPTY16.icon();
-                if (project) {
-                    if (project->needsConfiguration())
-                        result = warnIcon;
-                    else if (project->isParsing())
-                        result = emptyIcon;
-                    else if (!project->activeTarget()
-                             || !project->projectIssues(project->activeTarget()->kit()).isEmpty())
-                        result = warnIcon;
-                    else
-                        result = containerNode->rootProjectNode() ? containerNode->rootProjectNode()->icon() :
-                                                                    folderNode->icon();
-                } else {
-                    result = folderNode->icon();
-                }
+    switch (role) {
+    case Qt::DisplayRole:
+        return node->displayName();
+    case Qt::EditRole:
+        return node->filePath().fileName();
+    case Qt::ToolTipRole: {
+        QString tooltip = node->tooltip();
+        if (project) {
+            if (project->activeTarget()) {
+                QString projectIssues = toHtml(project->projectIssues(project->activeTarget()->kit()));
+                if (!projectIssues.isEmpty())
+                    tooltip += "<p>" + projectIssues;
             } else {
-                result = Core::FileIconProvider::icon(node->filePath().toString());
+                tooltip += "<p>" + tr("No kits are enabled for this project. "
+                                      "Enable kits in the \"Projects\" mode.");
             }
-            break;
         }
-        case Qt::FontRole: {
-            QFont font;
-            if (project == SessionManager::startupProject())
-                font.setBold(true);
-            result = font;
-            break;
-        }
-        case Qt::ForegroundRole: {
-            result = node->isEnabled() ? m_enabledTextColor : m_disabledTextColor;
-            break;
-        }
-        case Project::FilePathRole: {
-            result = node->filePath().toString();
-            break;
-        }
-        case Project::isParsingRole: {
-            result = project ? project->isParsing() && !project->needsConfiguration() : false;
-            break;
-        }
-        }
+        return tooltip;
+    }
+    case Qt::DecorationRole: {
+        if (!folderNode)
+            return Core::FileIconProvider::icon(node->filePath().toString());
+        if (!project)
+            return folderNode->icon();
+        static QIcon warnIcon = Utils::Icons::WARNING.icon();
+        static QIcon emptyIcon = Utils::Icons::EMPTY16.icon();
+        if (project->needsConfiguration())
+            return warnIcon;
+        if (project->isParsing())
+            return emptyIcon;
+        if (!project->activeTarget()
+                || !project->projectIssues(project->activeTarget()->kit()).isEmpty())
+            return warnIcon;
+        return containerNode->rootProjectNode() ? containerNode->rootProjectNode()->icon()
+                                                : folderNode->icon();
+    }
+    case Qt::FontRole: {
+        QFont font;
+        if (project == SessionManager::startupProject())
+            font.setBold(true);
+        return font;
+    }
+    case Qt::ForegroundRole:
+        return node->isEnabled() ? m_enabledTextColor : m_disabledTextColor;
+    case Project::FilePathRole:
+        return node->filePath().toString();
+    case Project::isParsingRole:
+        return project ? project->isParsing() && !project->needsConfiguration() : false;
     }
 
-    return result;
+    return QVariant();
 }
 
 Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
