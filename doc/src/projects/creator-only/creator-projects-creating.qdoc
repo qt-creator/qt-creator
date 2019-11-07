@@ -212,16 +212,12 @@
                 Plain C or C++ application that uses qmake, Qbs, or CMake but does
                 not use the Qt library
 
-            \li Nim Application (experimental)
+            \li Nim or Nimble Applications (experimental)
 
-                \l{http://nim-lang.org/}{Nim} application that uses qmake
-                or CMake but does not use the Qt library
+                Nim or Nimble application that uses Nimble, but does not use
+                the Qt library
 
-                \note The \uicontrol {Nim Application} option becomes visible
-                after you enable the experimental Nim plugin. Select
-                \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Other Languages} > \uicontrol Nim, and then restart
-                \QC.
+                For more information, see \l {Setting Up Nimble}.
 
         \endlist
 

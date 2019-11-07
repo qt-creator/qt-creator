@@ -216,6 +216,7 @@
                 \li \l{Setting Up Qbs}
                 \li \l{Setting Up an Autotools Project}
                 \li \l{Setting Up a Generic Project}
+                \li \l{Setting Up Nimble}
             \endlist
             \li \l{Using Command Line Options}
             \li \l{Keyboard Shortcuts}
