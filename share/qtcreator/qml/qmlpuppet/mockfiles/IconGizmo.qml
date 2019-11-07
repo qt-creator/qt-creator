@@ -45,7 +45,6 @@ Node {
 
     Model {
         id: gizmoModel
-        scale: Qt.vector3d(0.05, 0.05, 0.05)
         visible: iconGizmo.visible
     }
     Overlay2D {

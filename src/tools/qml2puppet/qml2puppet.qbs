@@ -199,6 +199,8 @@ QtcTool {
             "editor3d/cameracontrolhelper.h",
             "editor3d/mousearea3d.cpp",
             "editor3d/mousearea3d.h",
+            "editor3d/camerageometry.cpp",
+            "editor3d/camerageometry.h",
             "qml2puppetmain.cpp",
         ]
     }

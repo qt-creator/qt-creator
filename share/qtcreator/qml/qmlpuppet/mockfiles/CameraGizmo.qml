@@ -25,17 +25,27 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.0
+import CameraGeometry 1.0
 
 IconGizmo {
     id: cameraGizmo
 
     iconSource: "qrc:///qtquickplugin/mockfiles/images/camera-pick-icon.png"
-    gizmoModel.source: "#Cube"
+    gizmoModel.geometry: cameraGeometry
+    property alias geometryName: cameraGeometry.name // Name must be unique for each geometry
+    property alias viewPortRect: cameraGeometry.viewPortRect
+
+    CameraGeometry {
+        id: cameraGeometry
+        camera: cameraGizmo.targetNode
+    }
+
     gizmoModel.materials: [
         DefaultMaterial {
             id: defaultMaterial
             emissiveColor: "blue"
             lighting: DefaultMaterial.NoLighting
+            cullingMode: Material.DisableCulling
         }
     ]
 }

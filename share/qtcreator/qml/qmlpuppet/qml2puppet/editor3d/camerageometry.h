@@ -22,55 +22,51 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#include "cameracontrolhelper.h"
+
+#pragma once
+
+#ifdef QUICK3D_MODULE
+
+#include <QtQuick3D/private/qquick3dgeometry_p.h>
+#include <QtQuick3D/private/qquick3dcamera_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-CameraControlHelper::CameraControlHelper()
-    : QObject()
+class CameraGeometry : public QQuick3DGeometry
 {
-    m_inputUpdateTimer.setInterval(16);
-    QObject::connect(&m_inputUpdateTimer, &QTimer::timeout,
-                     this, &CameraControlHelper::handleUpdateTimer);
+    Q_OBJECT
+    Q_PROPERTY(QQuick3DCamera *camera READ camera WRITE setCamera NOTIFY cameraChanged)
+    Q_PROPERTY(QRectF viewPortRect READ viewPortRect WRITE setViewPortRect NOTIFY viewPortRectChanged)
 
-    m_overlayUpdateTimer.setInterval(16);
-    m_overlayUpdateTimer.setSingleShot(true);
-    QObject::connect(&m_overlayUpdateTimer, &QTimer::timeout,
-                     this, &CameraControlHelper::overlayUpdateNeeded);
-}
+public:
+    CameraGeometry();
+    ~CameraGeometry() override;
 
-bool CameraControlHelper::enabled()
-{
-    return m_enabled;
-}
+    QQuick3DCamera *camera() const;
+    QRectF viewPortRect() const;
 
-void CameraControlHelper::handleUpdateTimer()
-{
-    emit updateInputs();
-}
+public Q_SLOTS:
+    void setCamera(QQuick3DCamera *camera);
+    void setViewPortRect(const QRectF &rect);
 
-void CameraControlHelper::setEnabled(bool enabled)
-{
-    if (enabled)
-        m_inputUpdateTimer.start();
-    else
-        m_inputUpdateTimer.stop();
-    m_enabled = enabled;
-}
+Q_SIGNALS:
+    void cameraChanged();
+    void viewPortRectChanged();
 
-void CameraControlHelper::requestOverlayUpdate()
-{
-    if (!m_overlayUpdateTimer.isActive())
-        m_overlayUpdateTimer.start();
-}
+protected:
+    QSSGRenderGraphObject *updateSpatialNode(QSSGRenderGraphObject *node) override;
 
-QString CameraControlHelper::generateUniqueName(const QString &nameRoot)
-{
-    static QHash<QString, int> counters;
-    int count = counters[nameRoot]++;
-    return QStringLiteral("%1_%2").arg(nameRoot).arg(count);
-}
+private:
+    void fillVertexData(QByteArray &vertexData, QByteArray &indexData,
+                        QVector3D &minBounds, QVector3D &maxBounds);
+    QQuick3DCamera *m_camera = nullptr;
+    QRectF m_viewPortRect;
+};
 
 }
 }
+
+QML_DECLARE_TYPE(QmlDesigner::Internal::CameraGeometry)
+
+#endif // QUICK3D_MODULE

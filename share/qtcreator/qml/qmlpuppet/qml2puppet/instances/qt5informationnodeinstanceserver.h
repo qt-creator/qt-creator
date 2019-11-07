@@ -53,6 +53,7 @@ private slots:
     void objectClicked(const QVariant &object);
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
+    void updateViewPortRect();
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -70,6 +71,7 @@ private:
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
     void findCamerasAndLights( const QList<ServerNodeInstance> &instanceList,
                                QObjectList &cameras, QObjectList &lights) const;
+    ServerNodeInstance findViewPort(const QList<ServerNodeInstance> &instanceList);
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
         const PropertyName &propertyName,
         const QVariant &variant);
@@ -84,6 +86,7 @@ private:
     QTimer m_propertyChangeTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
+    ServerNodeInstance m_viewPortInstance;
 };
 
 } // namespace QmlDesigner

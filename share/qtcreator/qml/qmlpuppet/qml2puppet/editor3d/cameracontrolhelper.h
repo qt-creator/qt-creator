@@ -42,6 +42,7 @@ public:
     void setEnabled(bool enabled);
 
     Q_INVOKABLE void requestOverlayUpdate();
+    Q_INVOKABLE QString generateUniqueName(const QString &nameRoot);
 
 public slots:
     void handleUpdateTimer();

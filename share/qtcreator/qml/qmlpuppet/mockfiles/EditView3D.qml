@@ -46,6 +46,7 @@ Window {
 
     property var lightGizmos: []
     property var cameraGizmos: []
+    property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
 
     signal objectClicked(var object)
     signal commitObjectProperty(var object, var propName)
@@ -75,10 +76,14 @@ Window {
     {
         var component = Qt.createComponent("CameraGizmo.qml");
         if (component.status === Component.Ready) {
-            var gizmo = component.createObject(overlayScene,
-                                               {"view3D": overlayView, "targetNode": obj});
+            var geometryName = designStudioNativeCameraControlHelper.generateUniqueName("CameraGeometry");
+            var gizmo = component.createObject(
+                        overlayScene,
+                        {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
+                         "viewPortRect": viewPortRect});
             cameraGizmos[cameraGizmos.length] = gizmo;
             gizmo.selected.connect(emitObjectClicked);
+            gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
         }
     }
 
