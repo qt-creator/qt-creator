@@ -377,8 +377,7 @@ void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
     d->m_checkBox = new QCheckBox(d->m_label);
     d->m_checkBox->setChecked(d->m_value);
     d->m_checkBox->setToolTip(d->m_tooltip);
-    builder.addItem(QString());
-    builder.addItem(d->m_checkBox.data());
+    builder.addItems(QString(), d->m_checkBox.data());
     connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         d->m_value = d->m_checkBox->isChecked();
         emit changed();
@@ -450,8 +449,7 @@ void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
         auto button = new QRadioButton(option.displayName);
         button->setChecked(i == d->m_value);
         button->setToolTip(option.tooltip);
-        builder.addItem(QString());
-        builder.addItem(button);
+        builder.addItems(QString(), button);
         d->m_buttons.append(button);
         d->m_buttonGroup->addButton(button);
         connect(button, &QAbstractButton::clicked, this, [this, i] {
@@ -521,8 +519,7 @@ void BaseIntegerAspect::addToLayout(LayoutBuilder &builder)
     if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
         d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
-    builder.addItem(d->m_label);
-    builder.addItem(d->m_spinBox.data());
+    builder.addItems(d->m_label, d->m_spinBox.data());
     connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
         d->m_value = value * d->m_displayScaleFactor;

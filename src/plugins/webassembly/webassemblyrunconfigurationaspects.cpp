@@ -88,8 +88,7 @@ void WebBrowserSelectionAspect::addToLayout(ProjectExplorer::LayoutBuilder &buil
                 m_currentBrowser = selectedBrowser;
                 emit changed();
             });
-    builder.addItem(tr("Web browser:"));
-    builder.addItem(m_webBrowserComboBox);
+    builder.addItems(tr("Web browser:"), m_webBrowserComboBox);
 }
 
 void WebBrowserSelectionAspect::fromMap(const QVariantMap &map)

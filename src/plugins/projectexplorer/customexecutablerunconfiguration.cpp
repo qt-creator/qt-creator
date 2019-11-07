@@ -126,9 +126,7 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
 
     {
         LayoutBuilder builder(detailsWidget);
-        builder.addItem(tr("Executable:"));
-        builder.addItem(m_executableChooser);
-        builder.startNewRow();
+        builder.addItems(tr("Executable:"), m_executableChooser).startNewRow();
         m_arguments.addToLayout(builder);
         m_workingDirectory.addToLayout(builder);
         m_terminal.addToLayout(builder);

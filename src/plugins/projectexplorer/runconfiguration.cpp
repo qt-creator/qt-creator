@@ -251,10 +251,8 @@ QWidget *RunConfiguration::createConfigurationWidget()
     {
         LayoutBuilder builder(widget);
         for (ProjectConfigurationAspect *aspect : m_aspects) {
-            if (aspect->isVisible()) {
-                builder.startNewRow();
-                aspect->addToLayout(builder);
-            }
+            if (aspect->isVisible())
+                aspect->addToLayout(builder.startNewRow());
         }
     }
 

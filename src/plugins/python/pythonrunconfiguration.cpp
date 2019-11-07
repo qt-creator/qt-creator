@@ -204,9 +204,7 @@ void InterpreterAspect::addToLayout(LayoutBuilder &builder)
         Core::ICore::showOptionsDialog(Constants::C_PYTHONOPTIONS_PAGE_ID);
     });
 
-    builder.addItem(tr("Interpreter"));
-    builder.addItem(m_comboBox.data());
-    builder.addItem(manageButton);
+    builder.addItems(tr("Interpreter"), m_comboBox.data(), manageButton);
 }
 
 void InterpreterAspect::updateCurrentInterpreter()

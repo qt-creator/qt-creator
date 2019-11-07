@@ -73,9 +73,10 @@ LayoutBuilder::~LayoutBuilder()
     flushPendingItems();
 }
 
-void LayoutBuilder::startNewRow()
+LayoutBuilder &LayoutBuilder::startNewRow()
 {
     flushPendingItems();
+    return *this;
 }
 
 void LayoutBuilder::flushPendingItems()
@@ -132,12 +133,12 @@ QLayout *LayoutBuilder::layout() const
     return m_layout;
 }
 
-void LayoutBuilder::addItem(LayoutItem item)
+LayoutBuilder &LayoutBuilder::addItem(LayoutItem item)
 {
     if (item.widget && !item.widget->parent())
         item.widget->setParent(m_layout->parentWidget());
-
     m_pendingItems.append(item);
+    return *this;
 }
 
 

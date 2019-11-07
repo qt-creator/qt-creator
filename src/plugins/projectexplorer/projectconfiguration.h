@@ -61,8 +61,14 @@ public:
         QString text;
     };
 
-    void addItem(LayoutItem item);
-    void startNewRow();
+    template<typename ...Items>
+    LayoutBuilder &addItems(LayoutItem first, Items... rest) {
+        return addItem(first).addItems(rest...);
+    }
+    LayoutBuilder &addItems() { return *this; }
+    LayoutBuilder &addItem(LayoutItem item);
+
+    LayoutBuilder &startNewRow();
 
     QLayout *layout() const;
 
