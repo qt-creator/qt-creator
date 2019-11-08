@@ -39,6 +39,7 @@
 
 #include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QRegExp>
 
@@ -633,6 +634,13 @@ bool AbstractView::executeInTransaction(const QByteArray &identifier, const Abst
 QList<ModelNode> AbstractView::allModelNodes() const
 {
     return toModelNodeList(model()->d->allNodes());
+}
+
+QList<ModelNode> AbstractView::allModelNodesOfType(const TypeName &typeName) const
+{
+    return Utils::filtered(allModelNodes(), [typeName](const ModelNode &node){
+        return node.metaInfo().isValid() && node.metaInfo().isSubclassOf(typeName);
+    });
 }
 
 void AbstractView::emitDocumentMessage(const QString &error)
