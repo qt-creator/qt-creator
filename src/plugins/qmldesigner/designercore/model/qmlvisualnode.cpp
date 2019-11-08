@@ -39,6 +39,8 @@
 #include "modelmerger.h"
 #include "rewritingexception.h"
 
+#include <utils/qtcassert.h>
+
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QFileInfo>
@@ -287,6 +289,32 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
     Q_ASSERT(newQmlObjectNode.isValid());
 
     return newQmlObjectNode;
+}
+
+QmlVisualNode QmlVisualNode::createQmlVisualNode(AbstractView *view,
+                                                 const ItemLibraryEntry &itemLibraryEntry,
+                                                 const QVector3D &position)
+{
+    NodeAbstractProperty sceneNodeProperty = findSceneNodeProperty(view);
+    QTC_ASSERT(sceneNodeProperty.isValid(), return {});
+    ModelNode node = createQmlObjectNode(view, itemLibraryEntry, position, sceneNodeProperty).modelNode();
+
+    return node;
+}
+
+NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view)
+{
+    QTC_ASSERT(view, return {});
+
+    QList<ModelNode> quickViews = view->allModelNodesOfType("QtQuick3D.View3D");
+    QTC_ASSERT(!quickViews.isEmpty(), return {});
+    const ModelNode quickView = quickViews.first();
+
+    QList<ModelNode> nodes = quickView.directSubModelNodesOfType("QtQuick3D.Node");
+    QTC_ASSERT(!nodes.isEmpty(), return {});
+    const ModelNode node = nodes.first();
+
+    return node.defaultNodeListProperty();
 }
 
 QList<ModelNode> toModelNodeList(const QList<QmlVisualNode> &qmlVisualNodeList)

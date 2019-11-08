@@ -101,6 +101,13 @@ public:
                                              const ItemLibraryEntry &itemLibraryEntry,
                                              const Position &position,
                                              NodeAbstractProperty parentproperty);
+
+    static QmlVisualNode createQmlVisualNode(AbstractView *view,
+                                             const ItemLibraryEntry &itemLibraryEntry,
+                                             const QVector3D &position);
+
+    static NodeListProperty findSceneNodeProperty(AbstractView *view);
+
 private:
     void setDoubleProperty(const PropertyName &name, double value);
 };
