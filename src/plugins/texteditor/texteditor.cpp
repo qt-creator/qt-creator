@@ -8438,8 +8438,9 @@ void TextEditorWidget::setupGenericHighlighter()
 // TextEditorLinkLabel
 //
 TextEditorLinkLabel::TextEditorLinkLabel(QWidget *parent)
-    : QLabel(parent)
+    : Utils::ElidingLabel(parent)
 {
+    setElideMode(Qt::ElideMiddle);
 }
 
 void TextEditorLinkLabel::setLink(Utils::Link link)
