@@ -74,7 +74,6 @@ bool QmlVisualNode::isRootNode() const
     return modelNode().isValid() && modelNode().isRootNode();
 }
 
-
 QList<QmlVisualNode> QmlVisualNode::children() const
 {
     QList<ModelNode> childrenList;
@@ -166,6 +165,23 @@ bool QmlVisualNode::visibilityOverride() const
     return false;
 }
 
+void QmlVisualNode::setDoubleProperty(const PropertyName &name, double value)
+{
+    modelNode().variantProperty(name).setValue(value);
+}
+
+void QmlVisualNode::initializePosition(const QmlVisualNode::Position &position)
+{
+    if (!position.m_2dPos.isNull()) {
+        setDoubleProperty("x", qRound(position.m_2dPos.x()));
+        setDoubleProperty("y", qRound(position.m_2dPos.y()));
+    } else if (!position.m_3dPos.isNull()) {
+        setDoubleProperty("x", position.m_3dPos.x());
+        setDoubleProperty("y", position.m_3dPos.y());
+        setDoubleProperty("z", position.m_3dPos.z());
+    }
+}
+
 QmlModelStateGroup QmlVisualNode::states() const
 {
     if (isValid())
@@ -176,7 +192,7 @@ QmlModelStateGroup QmlVisualNode::states() const
 
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
-                                                 const QPointF &position,
+                                                 const Position &position,
                                                  QmlVisualNode parentQmlItemNode)
 {
     if (!parentQmlItemNode.isValid())
@@ -190,7 +206,9 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 }
 
 
-static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view, const QString &source, const QPointF &position)
+static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
+                                                   const QString &source,
+                                                   const QmlVisualNode::Position &position)
 {
     QScopedPointer<Model> inputModel(Model::create("QtQuick.Item", 1, 0, view->model()));
     inputModel->setFileUrl(view->model()->fileUrl());
@@ -207,10 +225,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view, const QSt
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
         ModelNode rootModelNode = rewriterView->rootModelNode();
         inputModel->detachView(rewriterView.data());
-
-        rootModelNode.variantProperty("x").setValue(qRound(position.x()));
-        rootModelNode.variantProperty("y").setValue(qRound(position.y()));
-
+        QmlVisualNode(rootModelNode).initializePosition(position);
         ModelMerger merger(view);
         return merger.insertModel(rootModelNode);
     }
@@ -220,7 +235,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view, const QSt
 
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
-                                                 const QPointF &position,
+                                                 const Position &position,
                                                  NodeAbstractProperty parentproperty)
 {
     QmlObjectNode newQmlObjectNode;
@@ -235,11 +250,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
         QList<PropertyBindingEntry> propertyBindingList;
         QList<PropertyBindingEntry> propertyEnumList;
         if (itemLibraryEntry.qmlSource().isEmpty()) {
-            QList<QPair<PropertyName, QVariant> > propertyPairList;
-            if (!position.isNull()) {
-                propertyPairList.append({"x", QVariant(qRound(position.x()))});
-                propertyPairList.append({"y", QVariant(qRound(position.y()))});
-            }
+            QList<QPair<PropertyName, QVariant> > propertyPairList = position.propertyPairList();
 
             for (const auto &property : itemLibraryEntry.properties()) {
                 if (property.type() == "binding") {
@@ -365,6 +376,22 @@ QmlModelState QmlModelStateGroup::state(const QString &name) const
         }
     }
     return QmlModelState();
+}
+
+QList<QPair<PropertyName, QVariant> > QmlVisualNode::Position::propertyPairList() const
+{
+    QList<QPair<PropertyName, QVariant> > propertyPairList;
+
+    if (!m_2dPos.isNull()) {
+        propertyPairList.append({"x", QVariant(qRound(m_2dPos.x()))});
+        propertyPairList.append({"y", QVariant(qRound(m_2dPos.y()))});
+    } else if (!m_3dPos.isNull()) {
+        propertyPairList.append({"x", QVariant(m_3dPos.x())});
+        propertyPairList.append({"y", QVariant(m_3dPos.y())});
+        propertyPairList.append({"z", QVariant(m_3dPos.z())});
+    }
+
+    return propertyPairList;
 }
 
 } //QmlDesigner

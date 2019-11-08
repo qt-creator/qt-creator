@@ -33,6 +33,7 @@
 #include <QStringList>
 #include <QRectF>
 #include <QTransform>
+#include <QVector3D>
 
 namespace QmlDesigner {
 
@@ -44,6 +45,26 @@ class QMLDESIGNERCORE_EXPORT QmlVisualNode : public QmlObjectNode
 {
     friend class QmlAnchors;
 public:
+
+    class Position
+    {
+        friend class QmlVisualNode;
+    public:
+        Position() {}
+        Position(const QPointF &position) :
+            m_2dPos(position)
+        {}
+        Position(const QVector3D &position) :
+            m_3dPos(position)
+        {}
+
+        QList<QPair<PropertyName, QVariant>> propertyPairList() const;
+
+    private:
+        QPointF m_2dPos;
+        QVector3D m_3dPos;
+    };
+
     QmlVisualNode() : QmlObjectNode() {}
     QmlVisualNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}
     bool isValid() const override;
@@ -64,16 +85,24 @@ public:
     void setVisibilityOverride(bool visible);
     bool visibilityOverride() const;
 
+    void initializePosition(const Position &position);
+
     static bool isItemOr3DNode(const ModelNode &modelNode);
 
     static QmlObjectNode createQmlObjectNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,
-                                             const QPointF &position,
+                                             const Position &position,
                                              QmlVisualNode parentQmlItemNode);
+
+
+
+
     static QmlObjectNode createQmlObjectNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,
-                                             const QPointF &position,
+                                             const Position &position,
                                              NodeAbstractProperty parentproperty);
+private:
+    void setDoubleProperty(const PropertyName &name, double value);
 };
 
 QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
