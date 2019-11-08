@@ -177,10 +177,10 @@ QmlModelStateGroup QmlVisualNode::states() const
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
                                                  const QPointF &position,
-                                                 QmlItemNode parentQmlItemNode)
+                                                 QmlVisualNode parentQmlItemNode)
 {
     if (!parentQmlItemNode.isValid())
-        parentQmlItemNode = QmlItemNode(view->rootModelNode());
+        parentQmlItemNode = QmlVisualNode(view->rootModelNode());
 
     Q_ASSERT(parentQmlItemNode.isValid());
 

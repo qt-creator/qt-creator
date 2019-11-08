@@ -69,7 +69,7 @@ public:
     static QmlObjectNode createQmlObjectNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,
                                              const QPointF &position,
-                                             QmlItemNode parentQmlItemNode);
+                                             QmlVisualNode parentQmlItemNode);
     static QmlObjectNode createQmlObjectNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,
                                              const QPointF &position,
