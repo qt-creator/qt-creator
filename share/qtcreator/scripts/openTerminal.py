@@ -54,10 +54,10 @@ while read -r line; do
 done < <(env)
 '''
 
-def system_login_script():
+def system_login_script_bash():
     return 'if [ -f /etc/profile ]; then source /etc/profile; fi\n'
 
-def login_script():
+def login_script_bash():
     return '''
 if [ -f $HOME/.bash_profile ]; then
   source $HOME/.bash_profile
@@ -66,6 +66,16 @@ elif [ -f $HOME/.bash_login ]; then
 elif [ -f $HOME/.profile ]; then
   source $HOME/.profile
 fi
+'''
+
+def system_login_script_zsh():
+    return '[ -r /etc/profile ] && source /etc/profile\n'
+
+def login_script_zsh():
+    return '''
+[ -r $HOME/.zprofile ] && source $HOME/.zprofile
+[ -r $HOME/.zshrc ] && source $HOME/.zshrc
+[ -r $HOME/.zlogin ] && source $HOME/.zlogin
 '''
 
 def environment_script():
@@ -98,6 +108,10 @@ end tell
 def main():
     # create temporary file to be sourced into bash that deletes itself
     with NamedTemporaryFile(delete=False) as shell_script:
+        shell = os.environ.get('SHELL')
+        shell_is_zsh = shell is not None and shell.endswith('/zsh')
+        system_login_script = system_login_script_zsh if shell_is_zsh else system_login_script_bash
+        login_script = login_script_zsh if shell_is_zsh else login_script_bash
         quoted_shell_script = quote_shell(shell_script.name)
         commands = (clean_environment_script() +
                     system_login_script() + # /etc/profile by default resets the path, so do first
