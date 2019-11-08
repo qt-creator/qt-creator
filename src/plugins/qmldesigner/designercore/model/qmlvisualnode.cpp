@@ -174,6 +174,110 @@ QmlModelStateGroup QmlVisualNode::states() const
         return QmlModelStateGroup();
 }
 
+QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
+                                                 const ItemLibraryEntry &itemLibraryEntry,
+                                                 const QPointF &position,
+                                                 QmlItemNode parentQmlItemNode)
+{
+    if (!parentQmlItemNode.isValid())
+        parentQmlItemNode = QmlItemNode(view->rootModelNode());
+
+    Q_ASSERT(parentQmlItemNode.isValid());
+
+    NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
+
+    return QmlItemNode::createQmlObjectNode(view, itemLibraryEntry, position, parentProperty);
+}
+
+
+static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view, const QString &source, const QPointF &position)
+{
+    QScopedPointer<Model> inputModel(Model::create("QtQuick.Item", 1, 0, view->model()));
+    inputModel->setFileUrl(view->model()->fileUrl());
+    QPlainTextEdit textEdit;
+
+    textEdit.setPlainText(source);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
+    rewriterView->setCheckSemanticErrors(false);
+    rewriterView->setTextModifier(&modifier);
+    inputModel->setRewriterView(rewriterView.data());
+
+    if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
+        ModelNode rootModelNode = rewriterView->rootModelNode();
+        inputModel->detachView(rewriterView.data());
+
+        rootModelNode.variantProperty("x").setValue(qRound(position.x()));
+        rootModelNode.variantProperty("y").setValue(qRound(position.y()));
+
+        ModelMerger merger(view);
+        return merger.insertModel(rootModelNode);
+    }
+
+    return {};
+}
+
+QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
+                                                 const ItemLibraryEntry &itemLibraryEntry,
+                                                 const QPointF &position,
+                                                 NodeAbstractProperty parentproperty)
+{
+    QmlObjectNode newQmlObjectNode;
+
+    view->executeInTransaction("QmlItemNode::createQmlItemNode", [=, &newQmlObjectNode, &parentproperty](){
+        NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
+
+        int minorVersion = metaInfo.minorVersion();
+        int majorVersion = metaInfo.majorVersion();
+
+        using PropertyBindingEntry = QPair<PropertyName, QString>;
+        QList<PropertyBindingEntry> propertyBindingList;
+        QList<PropertyBindingEntry> propertyEnumList;
+        if (itemLibraryEntry.qmlSource().isEmpty()) {
+            QList<QPair<PropertyName, QVariant> > propertyPairList;
+            if (!position.isNull()) {
+                propertyPairList.append({"x", QVariant(qRound(position.x()))});
+                propertyPairList.append({"y", QVariant(qRound(position.y()))});
+            }
+
+            for (const auto &property : itemLibraryEntry.properties()) {
+                if (property.type() == "binding") {
+                    propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
+                } else if (property.type() == "enum")  {
+                    propertyEnumList.append(PropertyBindingEntry(property.name(), property.value().toString()));
+                } else {
+                    propertyPairList.append({property.name(), property.value()});
+                }
+            }
+
+            newQmlObjectNode = QmlObjectNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
+        } else {
+            newQmlObjectNode = createQmlObjectNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
+        }
+
+        if (parentproperty.isValid())
+            parentproperty.reparentHere(newQmlObjectNode);
+
+        if (!newQmlObjectNode.isValid())
+            return;
+
+        newQmlObjectNode.setId(view->generateNewId(itemLibraryEntry.name()));
+
+        for (const auto &propertyBindingEntry : propertyBindingList)
+            newQmlObjectNode.modelNode().bindingProperty(propertyBindingEntry.first).setExpression(propertyBindingEntry.second);
+
+        for (const auto &propertyBindingEntry : propertyEnumList)
+            newQmlObjectNode.modelNode().variantProperty(propertyBindingEntry.first).setEnumeration(propertyBindingEntry.second.toUtf8());
+
+        Q_ASSERT(newQmlObjectNode.isValid());
+    });
+
+    Q_ASSERT(newQmlObjectNode.isValid());
+
+    return newQmlObjectNode;
+}
+
 QList<ModelNode> toModelNodeList(const QList<QmlVisualNode> &qmlVisualNodeList)
 {
     QList<ModelNode> modelNodeList;

@@ -65,6 +65,15 @@ public:
     bool visibilityOverride() const;
 
     static bool isItemOr3DNode(const ModelNode &modelNode);
+
+    static QmlObjectNode createQmlObjectNode(AbstractView *view,
+                                             const ItemLibraryEntry &itemLibraryEntry,
+                                             const QPointF &position,
+                                             QmlItemNode parentQmlItemNode);
+    static QmlObjectNode createQmlObjectNode(AbstractView *view,
+                                             const ItemLibraryEntry &itemLibraryEntry,
+                                             const QPointF &position,
+                                             NodeAbstractProperty parentproperty);
 };
 
 QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
