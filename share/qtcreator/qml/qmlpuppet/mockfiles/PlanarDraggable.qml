@@ -49,18 +49,11 @@ Model {
     rotationOrder: Node.XYZr
     source: "#Rectangle"
 
-    // Workaround for Material.DisableCulling bug QTBUG-79768: Show the back with another model
-    Model {
-        source: rootModel.source
-        rotationOrder: rootModel.rotationOrder
-        materials: gizmoMaterial
-        rotation: Qt.vector3d(0, 180, 0)
-    }
-
     DefaultMaterial {
         id: gizmoMaterial
         emissiveColor: "white"
         lighting: DefaultMaterial.NoLighting
+        cullingMode: Material.DisableCulling
     }
     materials: gizmoMaterial
 
