@@ -171,10 +171,12 @@ Window {
                 }
 
                 PointLight {
-                    id: pointLight
+                    id: editLight
                     visible: showEditLight
                     position: usePerspective ? editPerspectiveCamera.position
                                              : editOrthoCamera.position
+                    quadraticFade: 0
+                    linearFade: 0
                 }
 
                 PerspectiveCamera {
