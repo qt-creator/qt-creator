@@ -27,12 +27,10 @@
 
 import os
 import pipes
+import stat
 import subprocess
 import sys
 from tempfile import NamedTemporaryFile
-
-def quote_applescript(arg):
-    return arg.replace('\\', '\\\\').replace('"', '\\"')
 
 def quote_shell(arg):
     return pipes.quote(arg)
@@ -42,7 +40,7 @@ def clean_environment_script():
     env_to_keep = ' '.join(['_', 'HOME', 'LOGNAME', 'PWD', 'SHELL', 'TMPDIR', 'USER', 'TERM',
                             'TERM_PROGRAM', 'TERM_PROGRAM_VERSION', 'TERM_SESSION_CLASS_ID',
                             'TERM_SESSION_ID'])
-    return '''
+    return r'''
 function ignore() {
   local keys="''' + env_to_keep + '''"
   local v=$1
@@ -55,10 +53,15 @@ done < <(env)
 '''
 
 def system_login_script_bash():
-    return 'if [ -f /etc/profile ]; then source /etc/profile; fi\n'
+    return r'''
+[ -r /etc/profile ] && source /etc/profile
+# fake behavior of /etc/profile as if BASH was set. It isn't for non-interactive shell
+export PS1='\h:\W \u\$ '
+[ -r /etc/bashrc ] && source /etc/bashrc
+'''
 
 def login_script_bash():
-    return '''
+    return r'''
 if [ -f $HOME/.bash_profile ]; then
   source $HOME/.bash_profile
 elif [ -f $HOME/.bash_login ]; then
@@ -72,7 +75,7 @@ def system_login_script_zsh():
     return '[ -r /etc/profile ] && source /etc/profile\n'
 
 def login_script_zsh():
-    return '''
+    return r'''
 [ -r $HOME/.zprofile ] && source $HOME/.zprofile
 [ -r $HOME/.zshrc ] && source $HOME/.zshrc
 [ -r $HOME/.zlogin ] && source $HOME/.zlogin
@@ -82,51 +85,44 @@ def environment_script():
     return ''.join(['export ' + quote_shell(key + '=' + os.environ[key]) + '\n'
                     for key in os.environ])
 
-def apple_script(shell_command):
-    return '''
---Terminal opens a window by default when it is not running, so check
-on applicationIsRunning(applicationName)
-        tell application "System Events" to count (every process whose name is applicationName)
-        return result is greater than 0
-end applicationIsRunning
-set terminalWasRunning to applicationIsRunning("Terminal")
+def zsh_setup(shell):
+    return (shell,
+            system_login_script_zsh,
+            login_script_zsh,
+            shell + ' -c',
+            shell + ' -d -f')
 
-set cdScript to "{}"
-tell application "Terminal"
-    --do script will open a new window if none given, but terminal already opens one if not running
-    if terminalWasRunning then
-        do script cdScript
-    else
-        do script cdScript in first window
-    end if
-    set currentTab to the result
-    set currentWindow to first window whose tabs contains currentTab
-    activate
-end tell
-'''.format(shell_command)
+def bash_setup(shell):
+    bash = shell if shell is not None and shell.endswith('/bash') else '/bin/bash'
+    return (bash,
+            system_login_script_bash,
+            login_script_bash,
+            bash + ' -c',
+            bash + ' --noprofile -l')
 
 def main():
     # create temporary file to be sourced into bash that deletes itself
     with NamedTemporaryFile(delete=False) as shell_script:
         shell = os.environ.get('SHELL')
-        shell_is_zsh = shell is not None and shell.endswith('/zsh')
-        system_login_script = system_login_script_zsh if shell_is_zsh else system_login_script_bash
-        login_script = login_script_zsh if shell_is_zsh else login_script_bash
-        quoted_shell_script = quote_shell(shell_script.name)
-        commands = (clean_environment_script() +
-                    system_login_script() + # /etc/profile by default resets the path, so do first
+        shell, system_login_script, login_script, non_interactive_shell, interactive_shell = (
+            zsh_setup(shell) if shell is not None and shell.endswith('/zsh')
+            else bash_setup(shell))
+
+        commands = ('#!' + shell + '\n' +
+                    'rm ' + quote_shell(shell_script.name) + '\n' +
+                    clean_environment_script() +
+                    system_login_script() + # /etc/(z)profile by default resets the path, so do first
                     environment_script() +
                     login_script() +
                     'cd ' + quote_shell(os.getcwd()) + '\n' +
-                    ' '.join([quote_shell(arg) for arg in sys.argv[1:]]) + '\n' +
-                    'rm ' + quoted_shell_script + '\n' +
-                    ('exit\n' if len(sys.argv) > 1 else '')
+                    ('exec ' + non_interactive_shell + ' ' +
+                     quote_shell(' '.join([quote_shell(arg) for arg in sys.argv[1:]])) + '\n'
+                     if len(sys.argv) > 1 else 'exec ' + interactive_shell + '\n')
                     )
         shell_script.write(commands)
         shell_script.flush()
-        shell_command = quote_applescript('source ' + quoted_shell_script)
-        osascript_process = subprocess.Popen(['/usr/bin/osascript'], stdin=subprocess.PIPE)
-        osascript_process.communicate(apple_script(shell_command))
+        os.chmod(shell_script.name, stat.S_IXUSR | stat.S_IRUSR | stat.S_IWUSR)
+        subprocess.call(['/usr/bin/open', '-a', 'Terminal', shell_script.name])
 
 if __name__ == "__main__":
     main()
