@@ -118,7 +118,7 @@ Window {
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
             globalOrientation: globalControl.checked
-            visible: selectedNode && moveToolControl.checked
+            visible: selectedNode && btnMove.selected
             view3D: overlayView
 
             onPositionCommit: viewWindow.commitObjectProperty(selectedNode, "position")
@@ -133,7 +133,7 @@ Window {
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
             globalOrientation: globalControl.checked
-            visible: selectedNode && scaleToolControl.checked
+            visible: selectedNode && btnScale.selected
             view3D: overlayView
 
             onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
@@ -263,8 +263,78 @@ Window {
         }
     }
 
+    Rectangle { // toolbar
+        id: toolbar
+        color: "#9F000000"
+        width: 35
+        height: col.height
+
+        Column {
+            id: col
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 5
+            padding: 5
+
+            property var group: [btnSelectItem, btnSelectGroup, btnMove, btnRotate, btnScale]
+
+            ToolbarButton {
+                id: btnSelectItem
+                selected: true
+                tooltip: qsTr("Select Item")
+                shortcut: "Q"
+                currentShortcut: selected ? "" : shortcut
+                tool: "item_selection"
+                buttonsGroup: col.group
+            }
+
+            ToolbarButton {
+                id: btnSelectGroup
+                tooltip: qsTr("Select Group")
+                shortcut: "Q"
+                currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
+                tool: "group_selection"
+                buttonsGroup: col.group
+            }
+
+            Rectangle { // separator
+                width: 25
+                height: 1
+                color: "#f1f1f1"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ToolbarButton {
+                id: btnMove
+                tooltip: qsTr("Move current selection")
+                shortcut: "M"
+                currentShortcut: shortcut
+                tool: "move"
+                buttonsGroup: col.group
+            }
+
+            ToolbarButton {
+                id: btnRotate
+                tooltip: qsTr("Rotate current selection")
+                shortcut: "E"
+                currentShortcut: shortcut
+                tool: "rotate"
+                buttonsGroup: col.group
+            }
+
+            ToolbarButton {
+                id: btnScale
+                tooltip: qsTr("Scale current selection")
+                shortcut: "T"
+                currentShortcut: shortcut
+                tool: "scale"
+                buttonsGroup: col.group
+            }
+        }
+    }
+
     Column {
         y: 8
+        anchors.right: parent.right
         CheckBox {
             id: editLightCheckbox
             checked: false
@@ -284,19 +354,6 @@ Window {
             checked: true
             text: qsTr("Use Global Orientation")
             onCheckedChanged: cameraControl.forceActiveFocus()
-        }
-        Column {
-            x: 8
-            RadioButton {
-                id: moveToolControl
-                checked: true
-                text: qsTr("Move Tool")
-            }
-            RadioButton {
-                id: scaleToolControl
-                checked: false
-                text: qsTr("Scale Tool")
-            }
         }
     }
 

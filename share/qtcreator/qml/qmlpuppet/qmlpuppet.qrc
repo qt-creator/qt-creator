@@ -21,11 +21,32 @@
         <file>mockfiles/PlanarScaleHandle.qml</file>
         <file>mockfiles/ScaleRod.qml</file>
         <file>mockfiles/ScaleGizmo.qml</file>
+        <file>mockfiles/ToolbarButton.qml</file>
         <file>mockfiles/meshes/arrow.mesh</file>
         <file>mockfiles/meshes/scalerod.mesh</file>
         <file>mockfiles/images/camera-pick-icon.png</file>
         <file>mockfiles/images/camera-pick-icon@2x.png</file>
         <file>mockfiles/images/light-pick-icon.png</file>
         <file>mockfiles/images/light-pick-icon@2x.png</file>
+        <file>mockfiles/images/item_selection_active.png</file>
+        <file>mockfiles/images/item_selection_active@2x.png</file>
+        <file>mockfiles/images/item_selection_selected.png</file>
+        <file>mockfiles/images/item_selection_selected@2x.png</file>
+        <file>mockfiles/images/group_selection_selected.png</file>
+        <file>mockfiles/images/group_selection_selected@2x.png</file>
+        <file>mockfiles/images/group_selection_active.png</file>
+        <file>mockfiles/images/group_selection_active@2x.png</file>
+        <file>mockfiles/images/move_active.png</file>
+        <file>mockfiles/images/move_active@2x.png</file>
+        <file>mockfiles/images/move_selected.png</file>
+        <file>mockfiles/images/move_selected@2x.png</file>
+        <file>mockfiles/images/rotate_active.png</file>
+        <file>mockfiles/images/rotate_active@2x.png</file>
+        <file>mockfiles/images/rotate_selected.png</file>
+        <file>mockfiles/images/rotate_selected@2x.png</file>
+        <file>mockfiles/images/scale_active.png</file>
+        <file>mockfiles/images/scale_active@2x.png</file>
+        <file>mockfiles/images/scale_selected.png</file>
+        <file>mockfiles/images/scale_selected@2x.png</file>
     </qresource>
 </RCC>
