@@ -88,7 +88,7 @@ public:
         Q_UNUSED(option)
         Q_UNUSED(widget)
 
-        QPen pen(QBrush(Qt::gray), 1.0, Qt::DotLine);
+        QPen pen(QBrush(Qt::lightGray), 1.0, Qt::DotLine);
         painter->setPen(pen);
         painter->drawLine(QLineF(0.0, 0.0, 20.0, 0.0));
         painter->drawLine(QLineF(0.0, 0.0, 0.0, 20.0));
