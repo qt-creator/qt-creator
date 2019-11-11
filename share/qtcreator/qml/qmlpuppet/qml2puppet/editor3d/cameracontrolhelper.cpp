@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "cameracontrolhelper.h"
 
+#include <QHash>
+
 namespace QmlDesigner {
 namespace Internal {
 
