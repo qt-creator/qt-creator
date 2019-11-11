@@ -55,8 +55,8 @@ protected:
     TestResultPtr createDefaultResult() const override;
 
 private:
-    void processXMLOutput(const QByteArray &outputLineWithNewline);
-    void processPlainTextOutput(const QByteArray &outputLineWithNewline);
+    void processXMLOutput(const QByteArray &outputLine);
+    void processPlainTextOutput(const QByteArray &outputLine);
     void processResultOutput(const QString &result, const QString &message);
     void processLocationOutput(const QString &fileWithLine);
     void processSummaryFinishOutput();

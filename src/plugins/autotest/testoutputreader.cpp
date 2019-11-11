@@ -41,32 +41,40 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     , m_buildDir(buildDirectory)
     , m_id(testApplication ? testApplication->program() : QString())
 {
+    auto chopLineBreak = [](QByteArray line) {
+        if (line.endsWith('\n'))
+            line.chop(1);
+        if (line.endsWith('\r'))
+            line.chop(1);
+        return line;
+    };
+
     if (m_testApplication) {
         connect(m_testApplication, &QProcess::readyRead,
-                this, [this] () {
-            while (m_testApplication->canReadLine()) {
-                const QByteArray output = m_testApplication->readLine();
-                processOutput(output);
-            }
+                this, [chopLineBreak, this] () {
+            m_testApplication->setReadChannel(QProcess::StandardOutput);
+            while (m_testApplication->canReadLine())
+                processStdOutput(chopLineBreak(m_testApplication->readLine()));
         });
         connect(m_testApplication, &QProcess::readyReadStandardError,
-                this, [this] () {
-            const QByteArray output = m_testApplication->readAllStandardError();
-            processStdError(output);
+                this, [chopLineBreak, this] () {
+            m_testApplication->setReadChannel(QProcess::StandardError);
+            while (m_testApplication->canReadLine())
+                processStdError(chopLineBreak(m_testApplication->readLine()));
         });
     }
 }
 
-void TestOutputReader::processOutput(const QByteArray &output)
+void TestOutputReader::processStdOutput(const QByteArray &outputLine)
 {
-    processOutputLine(output);
-    emit newOutputAvailable(output);
+    processOutputLine(outputLine);
+    emit newOutputLineAvailable(outputLine);
 }
 
-void TestOutputReader::processStdError(const QByteArray &outputLineWithNewLine)
+void TestOutputReader::processStdError(const QByteArray &outputLine)
 {
-    qWarning() << "AutoTest.Run: Ignored plain output:" << outputLineWithNewLine;
-    emit newOutputAvailable(outputLineWithNewLine);
+    qWarning() << "AutoTest.Run: Ignored plain output:" << outputLine;
+    emit newOutputLineAvailable(outputLine);
 }
 
 void TestOutputReader::reportCrash()
@@ -83,16 +91,6 @@ void TestOutputReader::createAndReportResult(const QString &message, ResultType 
     result->setDescription(message);
     result->setResult(type);
     reportResult(result);
-}
-
-QByteArray TestOutputReader::chopLineBreak(const QByteArray &original)
-{
-    QTC_ASSERT(original.endsWith('\n'), return original);
-    QByteArray output(original);
-    output.chop(1); // remove the newline from the output
-    if (output.endsWith('\r'))
-        output.chop(1);
-    return output;
 }
 
 void TestOutputReader::reportResult(const TestResultPtr &result)

@@ -43,7 +43,7 @@ public:
                       QProcess *testApplication, const QString &buildDirectory,
                       const QString &projectFile);
 protected:
-    void processOutputLine(const QByteArray &outputLineWithNewLine) override;
+    void processOutputLine(const QByteArray &outputLine) override;
     TestResultPtr createDefaultResult() const override;
 
 private:

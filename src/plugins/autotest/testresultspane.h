@@ -94,7 +94,7 @@ public:
     void goToPrev() override;
 
     void addTestResult(const TestResultPtr &result);
-    void addOutput(const QByteArray &outputWithNewLine);
+    void addOutputLine(const QByteArray &outputLine);
     void showTestResult(const QModelIndex &index);
 
 private:

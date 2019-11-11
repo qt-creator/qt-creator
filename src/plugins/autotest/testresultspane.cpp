@@ -46,6 +46,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/texteditor.h>
+#include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -238,9 +239,14 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     navigateStateChanged();
 }
 
-void TestResultsPane::addOutput(const QByteArray &output)
+void TestResultsPane::addOutputLine(const QByteArray &outputLine)
 {
-    m_textOutput->appendPlainText(QString::fromUtf8(TestOutputReader::chopLineBreak(output)));
+    if (!QTC_GUARD(!outputLine.contains('\n'))) {
+        for (auto line : outputLine.split('\n'))
+            addOutputLine(line);
+        return;
+    }
+    m_textOutput->appendPlainText(QString::fromUtf8(outputLine));
 }
 
 QWidget *TestResultsPane::outputWidget(QWidget *parent)

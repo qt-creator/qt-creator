@@ -61,7 +61,7 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
     }
 }
 
-void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLine)
+void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
     static const QRegularExpression newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
     static const QRegularExpression testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$");
@@ -74,7 +74,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
     static const QRegularExpression iterations("^Repeating all tests "
                                                "\\(iteration (\\d+)\\) \\. \\. \\.$");
 
-    const QString line = QString::fromLatin1(chopLineBreak(outputLineWithNewLine));
+    const QString line = QString::fromLatin1(outputLine);
     if (line.trimmed().isEmpty())
         return;
 

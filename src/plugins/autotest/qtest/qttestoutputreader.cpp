@@ -354,7 +354,7 @@ static QStringList extractFunctionInformation(const QString &testClassName,
     return result;
 }
 
-void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLineWithNewLine)
+void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
 {
     static const QRegularExpression start("^[*]{9} Start testing of (.*) [*]{9}$");
     static const QRegularExpression config("^Config: Using QtTest library (.*), "
@@ -375,7 +375,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLineWith
     if (m_futureInterface.isCanceled())
         return;
 
-    const QString line = QString::fromUtf8(chopLineBreak(outputLineWithNewLine));
+    const QString line = QString::fromUtf8(outputLine);
     QRegularExpressionMatch match;
 
     auto hasMatch = [&match, line](const QRegularExpression &regex) {

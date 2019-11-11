@@ -204,8 +204,8 @@ void TestRunner::scheduleNext()
     m_currentOutputReader = m_currentConfig->outputReader(*m_fakeFutureInterface, m_currentProcess);
     QTC_ASSERT(m_currentOutputReader, onProcessFinished();return);
 
-    connect(m_currentOutputReader, &TestOutputReader::newOutputAvailable,
-            TestResultsPane::instance(), &TestResultsPane::addOutput);
+    connect(m_currentOutputReader, &TestOutputReader::newOutputLineAvailable,
+            TestResultsPane::instance(), &TestResultsPane::addOutputLine);
 
 
     QStringList omitted;
@@ -494,34 +494,23 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
 {
     QByteArray message = msg.toUtf8();
     switch (format) {
+    case Utils::OutputFormat::StdErrFormatSameLine:
     case Utils::OutputFormat::StdOutFormatSameLine:
     case Utils::OutputFormat::DebugFormat: {
         static const QByteArray gdbSpecialOut = "Qt: gdb: -nograb added to command-line options.\n"
                                                 "\t Use the -dograb option to enforce grabbing.";
-        int start = message.startsWith(gdbSpecialOut) ? gdbSpecialOut.length() + 1 : 0;
-        if (start) {
-            int maxIndex = message.length() - 1;
-            while (start < maxIndex && msg.at(start + 1) == '\n')
-                ++start;
-            if (start >= message.length()) // we cut out the whole message
-                break;
-        }
+        if (message.startsWith(gdbSpecialOut))
+            message = message.mid(gdbSpecialOut.length() + 1);
+        message.chop(1); // all messages have an additional \n at the end
 
-        int index = message.indexOf('\n', start);
-        while (index != -1) {
-            const QByteArray line = message.mid(start, index - start + 1);
-            outputreader->processOutput(line);
-            start = index + 1;
-            index = message.indexOf('\n', start);
+        for (auto line : message.split('\n')) {
+            if (format == Utils::OutputFormat::StdOutFormatSameLine)
+                outputreader->processStdOutput(line);
+            else
+                outputreader->processStdError(line);
         }
-        if (!QTC_GUARD(start == message.length())) // paranoia
-            outputreader->processOutput(message.mid(start).append('\n'));
-
         break;
     }
-    case Utils::OutputFormat::StdErrFormatSameLine:
-        outputreader->processStdError(message);
-        break;
     default:
         break; // channels we're not caring about
     }
@@ -612,8 +601,8 @@ void TestRunner::debugTests()
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->outputReader(*futureInterface, nullptr);
         outputreader->setId(inferior.executable.toString());
-        connect(outputreader, &TestOutputReader::newOutputAvailable,
-                TestResultsPane::instance(), &TestResultsPane::addOutput);
+        connect(outputreader, &TestOutputReader::newOutputLineAvailable,
+                TestResultsPane::instance(), &TestResultsPane::addOutputLine);
         connect(runControl, &RunControl::appendMessage,
                 this, [outputreader](const QString &msg, Utils::OutputFormat format) {
             processOutput(outputreader, msg, format);

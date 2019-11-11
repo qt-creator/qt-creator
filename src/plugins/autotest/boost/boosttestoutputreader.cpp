@@ -182,7 +182,7 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
         sendCompleteInformation();
 }
 
-void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLine)
+void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
     static QRegularExpression newTestStart("^Running (\\d+) test cases?\\.\\.\\.$");
     static QRegularExpression dependency("^Including test case (.+) as a dependency of "
@@ -210,7 +210,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNe
                                         "test module \"(.*}\"; see standard output for details");
     QString noErrors("*** No errors detected");
 
-    const QString line = QString::fromUtf8(chopLineBreak(outputLineWithNewLine));
+    const QString line = QString::fromUtf8(outputLine);
     if (line.trimmed().isEmpty())
         return;
 
@@ -376,28 +376,11 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNe
     m_description.append(line);
 }
 
-void BoostTestOutputReader::processStdError(const QByteArray &output)
+void BoostTestOutputReader::processStdError(const QByteArray &outputLine)
 {
     // we need to process the output, Boost UTF uses both out streams
-    int start = 0;
-    int index = -1;
-    while ((index = output.indexOf('\n', start)) != -1) {
-        const QByteArray &line = output.mid(start, index - start + 1);
-        if (!line.isEmpty()) {
-            if (line != QByteArray(1, '\n'))
-                processOutputLine(line);
-            emit newOutputAvailable(line);
-        }
-        start = index + 1;
-    }
-    if (start > 0) { // remove? this never happens
-        const QByteArray lastLine = output.mid(start) + '\n';
-        if (!lastLine.isEmpty()) {
-            if (lastLine != QByteArray(1, '\n'))
-                processOutputLine(lastLine);
-            emit newOutputAvailable(lastLine);
-        }
-    }
+    processOutputLine(outputLine);
+    emit newOutputLineAvailable(outputLine);
 }
 
 TestResultPtr BoostTestOutputReader::createDefaultResult() const
