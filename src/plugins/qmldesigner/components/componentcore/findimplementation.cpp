@@ -84,7 +84,7 @@ protected:
 
     bool visit(AST::UiPublicMember *node) override
     {
-        if (node->memberType->name == m_typeName){
+        if (node->memberType && node->memberType->name == m_typeName){
             const ObjectValue * objectValue = m_context->lookupType(m_document.data(), QStringList(m_typeName));
             if (objectValue == m_typeValue)
                 m_implemenations.append(node->typeToken);

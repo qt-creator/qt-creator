@@ -57,14 +57,7 @@ public:
                                              const QPointF &position,
                                              QmlItemNode parentQmlItemNode);
 
-    static QmlObjectNode createQmlObjectNode(AbstractView *view,
-                                         const ItemLibraryEntry &itemLibraryEntry,
-                                         const QPointF &position,
-                                         QmlItemNode parentQmlItemNode);
-    static QmlObjectNode createQmlObjectNode(AbstractView *view,
-                                         const ItemLibraryEntry &itemLibraryEntry,
-                                         const QPointF &position,
-                                         NodeAbstractProperty parentproperty);
+
     static QmlItemNode createQmlItemNodeFromImage(AbstractView *view,
                                                   const QString &imageName,
                                                   const QPointF &position,

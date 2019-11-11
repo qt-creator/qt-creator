@@ -46,16 +46,14 @@ def getWelcomeScreenSideBarButton(buttonLabel, isUrlButton = False):
     return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar, isUrlButton)
 
 def getWelcomeScreenMainButton(buttonLabel):
-    stackedWidget = waitForObject("{type='QStackedWidget' name='WelcomeScreenStackedWidget' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}")
+    stackedWidget = waitForObject(":Qt Creator.WelcomeScreenStackedWidget")
     currentStackWidget = stackedWidget.currentWidget()
     return __getWelcomeScreenButtonHelper__(buttonLabel, currentStackWidget)
 
 def getWelcomeTreeView(treeViewLabel):
     try:
-        return waitForObject("{aboveWidget={text='%s' type='QLabel' unnamed='1' visible='1' "
-                             "window=':Qt Creator_Core::Internal::MainWindow'} "
-                             "type='QTreeView' unnamed='1' visible='1'}" % treeViewLabel)
+        return waitForObjectExists("{container=':Qt Creator.WelcomeScreenStackedWidget' "
+                                   "name='%s' type='QTreeView' visible='1'}" % treeViewLabel)
     except:
         return None
 

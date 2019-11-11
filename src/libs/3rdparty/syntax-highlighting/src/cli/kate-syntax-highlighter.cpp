@@ -32,7 +32,6 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QFile>
-#include <QVector>
 
 #include <iostream>
 

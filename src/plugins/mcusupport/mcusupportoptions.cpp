@@ -198,10 +198,13 @@ void PackageOptions::updateStatus()
     m_statusLabel->setText(statusText);
 }
 
-BoardOptions::BoardOptions(const QString &model, const QString &toolChainFileName,
+BoardOptions::BoardOptions(const QString &vendor, const QString &model,
+                           const QString &toolChainFileName, const QString &qulPlatform,
                            const QVector<PackageOptions*> &packages)
-    : m_model(model)
+    : m_vendor(vendor)
+    , m_model(model)
     , m_toolChainFile(toolChainFileName)
+    , m_qulPlatform(qulPlatform)
     , m_packages(packages)
 {
 }
@@ -216,9 +219,19 @@ QString BoardOptions::toolChainFile() const
     return m_toolChainFile;
 }
 
+QString BoardOptions::qulPlatform() const
+{
+    return m_qulPlatform;
+}
+
 QVector<PackageOptions *> BoardOptions::packages() const
 {
     return m_packages;
+}
+
+QString BoardOptions::vendor() const
+{
+    return m_vendor;
 }
 
 static PackageOptions *createQulPackage()
@@ -313,7 +326,8 @@ static PackageOptions *createSeggerJLinkPackage()
 {
     const QString defaultPath =
             Utils::HostOsInfo::isWindowsHost() ?
-                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles")) + "/SEGGER/JLink"
+                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)"))
+                + "/SEGGER/JLink"
               : QString("%{Env:SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH}");
     auto result = new PackageOptions(
                 PackageOptions::tr("SEGGER JLink"),
@@ -342,15 +356,21 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
                         qulPackage};
     auto nxpPackages = {armGccPackage, evkbImxrt1050SdkPackage, seggerJLinkPackage,
                         qulPackage};
+    auto desktopPackages = {qulPackage};
     packages = {armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
                 evkbImxrt1050SdkPackage, seggerJLinkPackage, qulPackage};
 
-    boards.append(new BoardOptions(
-                      "stm32f7508", "CMake/stm32f7508-discovery.cmake", stmPackages));
-    boards.append(new BoardOptions(
-                      "stm32f769i", "CMake/stm32f769i-discovery.cmake", stmPackages));
-    boards.append(new BoardOptions(
-                      "evkbimxrt1050", "CMake/evkbimxrt1050-toolchain.cmake", nxpPackages));
+    const QString vendorStm = "STM";
+    const QString vendorNxp = "NXP";
+    const QString vendorQt = "Qt";
+    boards.append(new BoardOptions(vendorStm,
+                      "stm32f7508", "CMake/stm32f7508-discovery.cmake", "", stmPackages));
+    boards.append(new BoardOptions(vendorStm,
+                      "stm32f769i", "CMake/stm32f769i-discovery.cmake", "", stmPackages));
+    boards.append(new BoardOptions(vendorNxp,
+                      "evkbimxrt1050", "CMake/evkbimxrt1050-toolchain.cmake", "", nxpPackages));
+    boards.append(new BoardOptions(vendorQt,
+                      "Desktop", "", "Qt", desktopPackages));
 
     for (auto package : packages)
         connect(package, &PackageOptions::changed, [this](){
@@ -400,17 +420,24 @@ static ProjectExplorer::ToolChain* armGccToolchain(const Utils::FilePath &path, 
     return toolChain;
 }
 
+static bool isDesktop(const BoardOptions* board)
+{
+    return board->qulPlatform() == "Qt";
+}
+
 static void setKitProperties(ProjectExplorer::Kit *k, const BoardOptions* board)
 {
     using namespace ProjectExplorer;
 
-    k->setUnexpandedDisplayName("Qt MCU - " + board->model());
+    k->setUnexpandedDisplayName("QtMCU - " + board->model());
+    k->setValue(Constants::KIT_BOARD_VENDOR_KEY, board->vendor());
     k->setValue(Constants::KIT_BOARD_MODEL_KEY, board->model());
     k->setAutoDetected(false);
-    k->setIrrelevantAspects({
-        SysRootKitAspect::id(),
-        "QtSupport.QtInformation" // QtKitAspect::id()
-    });
+    if (!isDesktop(board)) {
+        k->setIrrelevantAspects({SysRootKitAspect::id(),
+                                 "QtSupport.QtInformation" // QtKitAspect::id()
+                                });
+    }
 }
 
 static void setKitToolchains(ProjectExplorer::Kit *k, const QString &armGccPath)
@@ -483,9 +510,18 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* boar
     using namespace CMakeProjectManager;
 
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
-    config.append(CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
-                                  ("%{CurrentBuild:Env:Qul_DIR}/" +
-                                   board->toolChainFile()).toUtf8()));
+    if (!board->toolChainFile().isEmpty())
+        config.append(CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
+                                      ("%{CurrentBuild:Env:Qul_DIR}/" +
+                                       board->toolChainFile()).toUtf8()));
+    if (!board->qulPlatform().isEmpty())
+        config.append(CMakeConfigItem("QUL_PLATFORM",
+                                      board->qulPlatform().toUtf8()));
+    if (isDesktop(board)) {
+        config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
+        // TODO: Hack! Implement color depth variants of all targets
+        config.append(CMakeConfigItem("QUL_COLOR_DEPTH", "32"));
+    }
     CMakeConfigurationKitAspect::setConfiguration(k, config);
     if (Utils::HostOsInfo::isWindowsHost())
         CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
@@ -504,9 +540,11 @@ ProjectExplorer::Kit *McuSupportOptions::kit(const BoardOptions* board)
             KitGuard kitGuard(k);
 
             setKitProperties(k, board);
-            setKitToolchains(k, armGccPath);
-            setKitDebugger(k, armGccPath);
-            setKitDevice(k);
+            if (!isDesktop(board)) {
+                setKitToolchains(k, armGccPath);
+                setKitDebugger(k, armGccPath);
+                setKitDevice(k);
+            }
             setKitEnvironment(k, board);
             setKitCMakeOptions(k, board);
 

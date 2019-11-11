@@ -355,7 +355,7 @@ void QbsInstallStepConfigWidget::updateState()
 
     m_commandLineTextEdit->setPlainText(command);
 
-    setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
+    setSummaryText(QbsInstallStep::tr("<b>Qbs:</b> %1").arg(command));
 }
 
 // --------------------------------------------------------------------

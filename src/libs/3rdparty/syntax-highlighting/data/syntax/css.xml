@@ -38,7 +38,8 @@ Changelog:
 
 -->
 
-<language name="CSS" version="8" kateversion="5.0" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="CSS" version="9" kateversion="5.0" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+    <!-- https://www.w3.org/Style/CSS/current-work -->
 
     <highlighting>
         <list name="properties">
@@ -1258,8 +1259,9 @@ Changelog:
             <item>selection</item>
         </list>
 
-        <list name="pseudoclass-not">
+        <list name="pseudoclass-selector">
             <item>not</item>
+            <item>matches</item>
         </list>
 
         <list name="pseudoclasses-@page">
@@ -1383,8 +1385,8 @@ Changelog:
                 <keyword attribute="Value Keyword" context="#stay" String="value keywords" />
                 <keyword attribute="Value" context="#stay" String="values" />
                 <keyword attribute="Color" context="#stay" String="colors" />
-                <RegExpr attribute="Color" context="#stay" String="#([0-9A-Fa-f]{3}){1,2}\b" />
-                <RegExpr attribute="Number" context="FindUnits" String="[-+]?[0-9.]+(?![-+])" />
+                <RegExpr attribute="Color" context="#stay" String="#([0-9A-Fa-f]{3,4}){1,2}\b" />
+                <RegExpr attribute="Number" context="FindUnits" String="[-+]?([0-9]+(\.[0-9]+)?|\.[0-9]+)([eE][+-]?[0-9]+)?(?![-+])" />
                 <RegExpr attribute="Normal Text" context="#stay" String="[-]?(&nmstart;)(&nmchar;)*" />
             </context>
 
@@ -1393,7 +1395,8 @@ Changelog:
             </context>
 
             <context name="FindUnits" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
-                <RegExpr attribute="Unit" context="#stay" String="(%|(em|ex|ch|rem|vw|vh|vm|px|in|cm|mm|pt|pc|deg|rad|grad|turn|ms|s|Hz|kHz)\b)(?![-+])" />
+                <!-- https://drafts.csswg.org/css-values-4/#lengths -->
+                <RegExpr attribute="Unit" context="#stay" String="(%|(em|ex|cap|ch|ic|rem|lh|rlh|vw|vh|vi|vb|vmin|vmax|cm|mm|Q|in|pc|pt|px|deg|rad|grad|turn|s|ms|Hz|kHz|dpi|dpcm|dppx|x)\b)(?![-+])" />
             </context>
 
             <!-- find strings // "some words" 'some words' -->
@@ -1548,7 +1551,7 @@ Changelog:
 
             <context name="SelectorPseudo" attribute="Selector Pseudo" lineEndContext="#pop">
                 <DetectChar attribute="Selector Pseudo" context="SelectorPseudoElements" char=":" />
-                <keyword attribute="Selector Pseudo" context="SelectorPseudoValueSelector" String="pseudoclass-not" />
+                <keyword attribute="Selector Pseudo" context="SelectorPseudoValueSelector" String="pseudoclass-selector" />
                 <keyword attribute="Selector Pseudo" context="SelectorPseudoValue" String="pseudoclasses" />
                 <RegExpr attribute="Selector Pseudo" context="SelectorPseudoValue" String="[-a-zA-Z][-a-zA-Z0-9]*" />
             </context>

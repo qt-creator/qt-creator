@@ -44,6 +44,8 @@ T.ComboBox {
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __actionIndicatorHeight: StudioTheme.Values.height
 
+    property alias textInput: comboBoxInput
+
     signal compressedActivated(int index)
 
     width: StudioTheme.Values.squareComponentWidth * 5

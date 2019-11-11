@@ -61,6 +61,7 @@
 #include "dummycontextobject.h"
 #include "../editor3d/cameracontrolhelper.h"
 #include "../editor3d/mousearea3d.h"
+#include "../editor3d/camerageometry.h"
 
 #include <designersupportdelegate.h>
 
@@ -85,6 +86,7 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 
 #ifdef QUICK3D_MODULE
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
+    qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
 #endif
 
     QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
@@ -97,12 +99,12 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     }
 
     QObject::connect(window, SIGNAL(objectClicked(QVariant)), this, SLOT(objectClicked(QVariant)));
-    QObject::connect(window, SIGNAL(commitObjectPosition(QVariant)),
-                     this, SLOT(handleObjectPositionCommit(QVariant)));
-    QObject::connect(window, SIGNAL(moveObjectPosition(QVariant)),
-                     this, SLOT(handleObjectPositionMove(QVariant)));
-    QObject::connect(&m_moveTimer, &QTimer::timeout,
-                     this, &Qt5InformationNodeInstanceServer::handleObjectPositionMoveTimeout);
+    QObject::connect(window, SIGNAL(commitObjectProperty(QVariant, QVariant)),
+                     this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
+    QObject::connect(window, SIGNAL(changeObjectProperty(QVariant, QVariant)),
+                     this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
+    QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
 
     //For macOS we have to use the 4.1 core profile
     QSurfaceFormat surfaceFormat = window->requestedFormat();
@@ -188,28 +190,44 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
     }
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPositionCommit(const QVariant &object)
+void Qt5InformationNodeInstanceServer::handleObjectPropertyCommit(const QVariant &object,
+                                                                  const QVariant &propName)
 {
-    modifyVariantValue(object, "position", ValuesModifiedCommand::TransactionOption::End);
-    m_movedNode = {};
-    m_moveTimer.stop();
+    modifyVariantValue(object, propName.toByteArray(),
+                       ValuesModifiedCommand::TransactionOption::End);
+    m_changedNode = {};
+    m_changedProperty = {};
+    m_propertyChangeTimer.stop();
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPositionMove(const QVariant &object)
+void Qt5InformationNodeInstanceServer::handleObjectPropertyChange(const QVariant &object,
+                                                                  const QVariant &propName)
 {
-    if (m_movedNode.isNull()) {
-        modifyVariantValue(object, "position", ValuesModifiedCommand::TransactionOption::Start);
-    } else {
-        if (!m_moveTimer.isActive())
-            m_moveTimer.start();
+    PropertyName propertyName(propName.toByteArray());
+    if (m_changedProperty != propertyName || m_changedNode != object) {
+        if (!m_changedNode.isNull())
+            handleObjectPropertyCommit(m_changedNode, m_changedProperty);
+        modifyVariantValue(object, propertyName,
+                           ValuesModifiedCommand::TransactionOption::Start);
+    } else if (!m_propertyChangeTimer.isActive()) {
+        m_propertyChangeTimer.start();
     }
-    m_movedNode = object;
+    m_changedNode = object;
+    m_changedProperty = propertyName;
+}
+
+void Qt5InformationNodeInstanceServer::updateViewPortRect()
+{
+    QRectF viewPortrect(0, 0, m_viewPortInstance.internalObject()->property("width").toDouble(),
+                        m_viewPortInstance.internalObject()->property("height").toDouble());
+    QQmlProperty viewPortProperty(m_editView3D, "viewPortRect", context());
+    viewPortProperty.write(viewPortrect);
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
-    m_moveTimer.setInterval(100);
+    m_propertyChangeTimer.setInterval(100);
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
@@ -282,9 +300,10 @@ void Qt5InformationNodeInstanceServer::modifyProperties(
     nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
 }
 
-void Qt5InformationNodeInstanceServer::handleObjectPositionMoveTimeout()
+void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 {
-    modifyVariantValue(m_movedNode, "position", ValuesModifiedCommand::TransactionOption::None);
+    modifyVariantValue(m_changedNode, m_changedProperty,
+                       ValuesModifiedCommand::TransactionOption::None);
 }
 
 QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
@@ -307,13 +326,22 @@ void Qt5InformationNodeInstanceServer::findCamerasAndLights(
         const QList<ServerNodeInstance> &instanceList,
         QObjectList &cameras, QObjectList &lights) const
 {
-    QObjectList objList;
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DCamera"))
             cameras << instance.internalObject();
         else if (instance.isSubclassOf("QQuick3DAbstractLight"))
             lights << instance.internalObject();
     }
+}
+
+ServerNodeInstance Qt5InformationNodeInstanceServer::findViewPort(
+        const QList<ServerNodeInstance> &instanceList)
+{
+    for (const ServerNodeInstance &instance : instanceList) {
+        if (instance.isSubclassOf("QQuick3DViewport"))
+            return instance;
+    }
+    return ServerNodeInstance();
 }
 
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList)
@@ -341,8 +369,17 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         sceneProperty.write(objectToVariant(node));
         QQmlProperty parentProperty(node, "parent", context());
         parentProperty.write(objectToVariant(m_editView3D));
-        QQmlProperty completeSceneProperty(m_editView3D, "showLight", context());
-        completeSceneProperty.write(showCustomLight);
+        QQmlProperty showLightProperty(m_editView3D, "showLight", context());
+        showLightProperty.write(showCustomLight);
+
+        m_viewPortInstance = findViewPort(instanceList);
+        if (m_viewPortInstance.internalObject()) {
+            QObject::connect(m_viewPortInstance.internalObject(), SIGNAL(widthChanged()),
+                             this, SLOT(updateViewPortRect()));
+            QObject::connect(m_viewPortInstance.internalObject(), SIGNAL(heightChanged()),
+                             this, SLOT(updateViewPortRect()));
+            updateViewPortRect();
+        }
 
         // Create camera and light gizmos
         QObjectList cameras;

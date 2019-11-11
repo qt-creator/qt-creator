@@ -9,7 +9,7 @@
   Copyright 2004 Alexander Neundorf (neundorf@kde.org)
   Copyright 2005 Dominik Haumann (dhdev@gmx.de)
   Copyright 2007,2008,2013,2014 Matthew Woehlke (mw_triad@users.sourceforge.net)
-  Copyright 2013-2015,2017-2018 Alex Turbov (i.zaufi@gmail.com)
+  Copyright 2013-2015,2017-2019 Alex Turbov (i.zaufi@gmail.com)
 
  **********************************************************************
  * This library is free software; you can redistribute it and/or      *
@@ -31,7 +31,7 @@
 
 <language
     name="CMake"
-    version="12"
+    version="16"
     kateversion="2.4"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
@@ -248,6 +248,7 @@
     </list>
     <list name="execute_process_nargs">
       <item>COMMAND</item>
+      <item>COMMAND_ECHO</item>
       <item>ENCODING</item>
       <item>ERROR_FILE</item>
       <item>ERROR_QUIET</item>
@@ -268,6 +269,8 @@
       <item>AUTO</item>
       <item>NONE</item>
       <item>OEM</item>
+      <item>STDERR</item>
+      <item>STDOUT</item>
       <item>UTF8</item>
     </list>
     <list name="file_nargs">
@@ -287,6 +290,7 @@
       <item>FILES_MATCHING</item>
       <item>FILE_PERMISSIONS</item>
       <item>FOLLOW_SYMLINKS</item>
+      <item>FOLLOW_SYMLINK_CHAIN</item>
       <item>GENERATE</item>
       <item>GLOB</item>
       <item>GLOB_RECURSE</item>
@@ -567,6 +571,8 @@
       <item>LENGTH</item>
       <item>ORDER</item>
       <item>OUTPUT_VARIABLE</item>
+      <item>POP_BACK</item>
+      <item>POP_FRONT</item>
       <item>PREPEND</item>
       <item>REGEX</item>
       <item>REMOVE_AT</item>
@@ -602,10 +608,14 @@
     </list>
     <list name="message_nargs">
       <item>AUTHOR_WARNING</item>
+      <item>DEBUG</item>
       <item>DEPRECATION</item>
       <item>FATAL_ERROR</item>
+      <item>NOTICE</item>
       <item>SEND_ERROR</item>
       <item>STATUS</item>
+      <item>TRACE</item>
+      <item>VERBOSE</item>
       <item>WARNING</item>
     </list>
     <list name="separate_arguments_nargs">
@@ -671,6 +681,7 @@
       <item>RANDOM</item>
       <item>RANDOM_SEED</item>
       <item>REGEX</item>
+      <item>REPEAT</item>
       <item>REPLACE</item>
       <item>REVERSE</item>
       <item>SHA1</item>
@@ -737,6 +748,7 @@
       <item>DEPENDS</item>
       <item>DEPFILE</item>
       <item>IMPLICIT_DEPENDS</item>
+      <item>JOB_POOL</item>
       <item>MAIN_DEPENDENCY</item>
       <item>OUTPUT</item>
       <item>POST_BUILD</item>
@@ -757,6 +769,7 @@
       <item>DEPENDS</item>
       <item>DEPFILE</item>
       <item>IMPLICIT_DEPENDS</item>
+      <item>JOB_POOL</item>
       <item>SOURCES</item>
       <item>USES_TERMINAL</item>
       <item>VERBATIM</item>
@@ -1135,6 +1148,7 @@
       <item>TRACK</item>
     </list>
     <list name="ctest_submit_nargs">
+      <item>BUILD_ID</item>
       <item>CDASH_UPLOAD</item>
       <item>CDASH_UPLOAD_TYPE</item>
       <item>FILES</item>
@@ -1144,6 +1158,7 @@
       <item>RETRY_COUNT</item>
       <item>RETRY_DELAY</item>
       <item>RETURN_VALUE</item>
+      <item>SUBMIT_URL</item>
     </list>
     <list name="ctest_test_nargs">
       <item>APPEND</item>
@@ -1214,7 +1229,6 @@
       <item>CMAKE_AR</item>
       <item>CMAKE_ARCHIVE_OUTPUT_DIRECTORY</item>
       <item>CMAKE_ARGC</item>
-      <item>CMAKE_ARGV0</item>
       <item>CMAKE_AUTOGEN_ORIGIN_DEPENDS</item>
       <item>CMAKE_AUTOGEN_PARALLEL</item>
       <item>CMAKE_AUTOGEN_VERBOSE</item>
@@ -1288,10 +1302,12 @@
       <item>CMAKE_ERROR_DEPRECATED</item>
       <item>CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION</item>
       <item>CMAKE_EXECUTABLE_SUFFIX</item>
+      <item>CMAKE_EXECUTE_PROCESS_COMMAND_ECHO</item>
       <item>CMAKE_EXE_LINKER_FLAGS</item>
       <item>CMAKE_EXE_LINKER_FLAGS_INIT</item>
       <item>CMAKE_EXPORT_COMPILE_COMMANDS</item>
       <item>CMAKE_EXPORT_NO_PACKAGE_REGISTRY</item>
+      <item>CMAKE_EXPORT_PACKAGE_REGISTRY</item>
       <item>CMAKE_EXTRA_GENERATOR</item>
       <item>CMAKE_EXTRA_INCLUDE_FILES</item>
       <item>CMAKE_EXTRA_SHARED_LIBRARY_SUFFIXES</item>
@@ -1305,6 +1321,7 @@
       <item>CMAKE_FIND_PACKAGE_NAME</item>
       <item>CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY</item>
       <item>CMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY</item>
+      <item>CMAKE_FIND_PACKAGE_PREFER_CONFIG</item>
       <item>CMAKE_FIND_PACKAGE_RESOLVE_SYMLINKS</item>
       <item>CMAKE_FIND_PACKAGE_SORT_DIRECTION</item>
       <item>CMAKE_FIND_PACKAGE_SORT_ORDER</item>
@@ -1315,6 +1332,7 @@
       <item>CMAKE_FIND_ROOT_PATH_MODE_PACKAGE</item>
       <item>CMAKE_FIND_ROOT_PATH_MODE_PROGRAM</item>
       <item>CMAKE_FOLDER</item>
+      <item>CMAKE_FRAMEWORK</item>
       <item>CMAKE_FRAMEWORK_PATH</item>
       <item>CMAKE_Fortran_FORMAT</item>
       <item>CMAKE_Fortran_MODDIR_DEFAULT</item>
@@ -1432,6 +1450,8 @@
       <item>CMAKE_MODULE_LINKER_FLAGS</item>
       <item>CMAKE_MODULE_LINKER_FLAGS_INIT</item>
       <item>CMAKE_MODULE_PATH</item>
+      <item>CMAKE_MSVCIDE_RUN_PATH</item>
+      <item>CMAKE_MSVC_RUNTIME_LIBRARY</item>
       <item>CMAKE_NETRC</item>
       <item>CMAKE_NETRC_FILE</item>
       <item>CMAKE_NINJA_OUTPUT_PATH_PREFIX</item>
@@ -1454,6 +1474,8 @@
       <item>CMAKE_PROGRAM_PATH</item>
       <item>CMAKE_PROJECT_DESCRIPTION</item>
       <item>CMAKE_PROJECT_HOMEPAGE_URL</item>
+      <item>CMAKE_PROJECT_INCLUDE</item>
+      <item>CMAKE_PROJECT_INCLUDE_BEFORE</item>
       <item>CMAKE_PROJECT_NAME</item>
       <item>CMAKE_PROJECT_VERSION</item>
       <item>CMAKE_PROJECT_VERSION_MAJOR</item>
@@ -1465,6 +1487,7 @@
       <item>CMAKE_REQUIRED_FLAGS</item>
       <item>CMAKE_REQUIRED_INCLUDES</item>
       <item>CMAKE_REQUIRED_LIBRARIES</item>
+      <item>CMAKE_REQUIRED_LINK_OPTIONS</item>
       <item>CMAKE_REQUIRED_QUIET</item>
       <item>CMAKE_ROOT</item>
       <item>CMAKE_RUNTIME_OUTPUT_DIRECTORY</item>
@@ -1509,6 +1532,7 @@
       <item>CMAKE_SYSTEM_PROGRAM_PATH</item>
       <item>CMAKE_SYSTEM_VERSION</item>
       <item>CMAKE_Swift_LANGUAGE_VERSION</item>
+      <item>CMAKE_Swift_MODULE_DIRECTORY</item>
       <item>CMAKE_THREAD_LIBS_INIT</item>
       <item>CMAKE_THREAD_PREFER_PTHREAD</item>
       <item>CMAKE_TOOLCHAIN_FILE</item>
@@ -1529,6 +1553,7 @@
       <item>CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD</item>
       <item>CMAKE_VS_INCLUDE_PACKAGE_TO_DEFAULT_BUILD</item>
       <item>CMAKE_VS_INTEL_Fortran_PROJECT_VERSION</item>
+      <item>CMAKE_VS_JUST_MY_CODE_DEBUGGING</item>
       <item>CMAKE_VS_MSBUILD_COMMAND</item>
       <item>CMAKE_VS_NsightTegra_VERSION</item>
       <item>CMAKE_VS_PLATFORM_NAME</item>
@@ -1658,6 +1683,7 @@
       <item>CPACK_IFW_PACKAGE_REMOVE_TARGET_DIR</item>
       <item>CPACK_IFW_PACKAGE_RESOURCES</item>
       <item>CPACK_IFW_PACKAGE_START_MENU_DIRECTORY</item>
+      <item>CPACK_IFW_PACKAGE_STYLE_SHEET</item>
       <item>CPACK_IFW_PACKAGE_TITLE</item>
       <item>CPACK_IFW_PACKAGE_TITLE_COLOR</item>
       <item>CPACK_IFW_PACKAGE_WATERMARK</item>
@@ -1908,6 +1934,7 @@
       <item>CTEST_UPDATE_COMMAND</item>
       <item>CTEST_UPDATE_OPTIONS</item>
       <item>CTEST_UPDATE_VERSION_ONLY</item>
+      <item>CTEST_UPDATE_VERSION_OVERRIDE</item>
       <item>CTEST_USE_LAUNCHERS</item>
       <item>CYGWIN</item>
       <item>EXECUTABLE_OUTPUT_PATH</item>
@@ -1990,6 +2017,45 @@
       <item>XCODE</item>
       <item>XCODE_VERSION</item>
     </list>
+
+    <list name="environment-variables">
+      <item>CC</item>
+      <item>CFLAGS</item>
+      <item>CMAKE_APPBUNDLE_PATH</item>
+      <item>CMAKE_BUILD_PARALLEL_LEVEL</item>
+      <item>CMAKE_CONFIG_TYPE</item>
+      <item>CMAKE_FRAMEWORK_PATH</item>
+      <item>CMAKE_GENERATOR</item>
+      <item>CMAKE_GENERATOR_INSTANCE</item>
+      <item>CMAKE_GENERATOR_PLATFORM</item>
+      <item>CMAKE_GENERATOR_TOOLSET</item>
+      <item>CMAKE_MSVCIDE_RUN_PATH</item>
+      <item>CMAKE_NO_VERBOSE</item>
+      <item>CMAKE_OSX_ARCHITECTURES</item>
+      <item>CMAKE_PREFIX_PATH</item>
+      <item>CSFLAGS</item>
+      <item>CTEST_INTERACTIVE_DEBUG_MODE</item>
+      <item>CTEST_OUTPUT_ON_FAILURE</item>
+      <item>CTEST_PARALLEL_LEVEL</item>
+      <item>CTEST_PROGRESS_OUTPUT</item>
+      <item>CTEST_USE_LAUNCHERS_DEFAULT</item>
+      <item>CUDACXX</item>
+      <item>CUDAFLAGS</item>
+      <item>CUDAHOSTCXX</item>
+      <item>CXX</item>
+      <item>CXXFLAGS</item>
+      <item>DASHBOARD_TEST_FROM_CTEST</item>
+      <item>DESTDIR</item>
+      <item>FC</item>
+      <item>FFLAGS</item>
+      <item>LDFLAGS</item>
+      <item>MACOSX_DEPLOYMENT_TARGET</item>
+      <item>PATH</item>
+      <item>RC</item>
+      <item>RCFLAGS</item>
+      <item>SWIFTC</item>
+      <item>VERBOSE</item>
+    </list>
     <list name="global-properties">
       <item>ALLOW_DUPLICATE_CUSTOM_TARGETS</item>
       <item>AUTOGEN_SOURCE_GROUP</item>
@@ -2032,6 +2098,7 @@
       <item>XCODE_EMIT_EFFECTIVE_PLATFORM_NAME</item>
     </list>
     <list name="directory-properties">
+      <item>ADDITIONAL_CLEAN_FILES</item>
       <item>ADDITIONAL_MAKE_CLEAN_FILES</item>
       <item>BINARY_DIR</item>
       <item>BUILDSYSTEM_TARGETS</item>
@@ -2064,6 +2131,7 @@
       <item>VS_STARTUP_PROJECT</item>
     </list>
     <list name="target-properties">
+      <item>ADDITIONAL_CLEAN_FILES</item>
       <item>ALIASED_TARGET</item>
       <item>ANDROID_ANT_ADDITIONAL_OPTIONS</item>
       <item>ANDROID_API</item>
@@ -2207,6 +2275,7 @@
       <item>MACOSX_FRAMEWORK_INFO_PLIST</item>
       <item>MACOSX_RPATH</item>
       <item>MANUALLY_ADDED_DEPENDENCIES</item>
+      <item>MSVC_RUNTIME_LIBRARY</item>
       <item>NAME</item>
       <item>NO_SONAME</item>
       <item>NO_SYSTEM_FROM_IMPORTED</item>
@@ -2232,6 +2301,9 @@
       <item>STATIC_LIBRARY_FLAGS</item>
       <item>STATIC_LIBRARY_OPTIONS</item>
       <item>SUFFIX</item>
+      <item>Swift_DEPENDENCIES_FILE</item>
+      <item>Swift_MODULE_DIRECTORY</item>
+      <item>Swift_MODULE_NAME</item>
       <item>TYPE</item>
       <item>VERSION</item>
       <item>VISIBILITY_INLINES_HIDDEN</item>
@@ -2249,8 +2321,12 @@
       <item>VS_GLOBAL_ROOTNAMESPACE</item>
       <item>VS_IOT_EXTENSIONS_VERSION</item>
       <item>VS_IOT_STARTUP_TASK</item>
+      <item>VS_JUST_MY_CODE_DEBUGGING</item>
       <item>VS_KEYWORD</item>
       <item>VS_MOBILE_EXTENSIONS_VERSION</item>
+      <item>VS_NO_SOLUTION_DEPLOY</item>
+      <item>VS_PACKAGE_REFERENCES</item>
+      <item>VS_PROJECT_IMPORT</item>
       <item>VS_SCC_AUXPATH</item>
       <item>VS_SCC_LOCALPATH</item>
       <item>VS_SCC_PROJECTNAME</item>
@@ -2264,10 +2340,12 @@
       <item>WIN32_EXECUTABLE</item>
       <item>WINDOWS_EXPORT_ALL_SYMBOLS</item>
       <item>XCODE_EXPLICIT_FILE_TYPE</item>
+      <item>XCODE_GENERATE_SCHEME</item>
       <item>XCODE_PRODUCT_TYPE</item>
       <item>XCODE_SCHEME_ADDRESS_SANITIZER</item>
       <item>XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN</item>
       <item>XCODE_SCHEME_ARGUMENTS</item>
+      <item>XCODE_SCHEME_DEBUG_AS_ROOT</item>
       <item>XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER</item>
       <item>XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS</item>
       <item>XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE</item>
@@ -2309,6 +2387,8 @@
       <item>SKIP_AUTORCC</item>
       <item>SKIP_AUTOUIC</item>
       <item>SYMBOLIC</item>
+      <item>Swift_DEPENDENCIES_FILE</item>
+      <item>Swift_DIAGNOSTICS_FILE</item>
       <item>VS_COPY_TO_OUT_DIR</item>
       <item>VS_DEPLOYMENT_CONTENT</item>
       <item>VS_DEPLOYMENT_LOCATION</item>
@@ -2375,61 +2455,76 @@
     <list name="generator-expressions">
       <item>0</item>
       <item>1</item>
-      <item>AND</item>
-      <item>ANGLE-R</item>
       <item>BOOL</item>
-      <item>BUILD_INTERFACE</item>
-      <item>COMMA</item>
-      <item>COMPILE_FEATURES</item>
-      <item>COMPILE_LANGUAGE</item>
-      <item>CONFIG</item>
-      <item>CXX_COMPILER_ID</item>
-      <item>CXX_COMPILER_VERSION</item>
-      <item>C_COMPILER_ID</item>
-      <item>C_COMPILER_VERSION</item>
-      <item>EQUAL</item>
-      <item>GENEX_EVAL</item>
-      <item>IF</item>
-      <item>INSTALL_INTERFACE</item>
-      <item>INSTALL_PREFIX</item>
-      <item>IN_LIST</item>
-      <item>JOIN</item>
-      <item>LINK_ONLY</item>
-      <item>LOWER_CASE</item>
-      <item>MAKE_C_IDENTIFIER</item>
-      <item>NOT</item>
+      <item>AND</item>
       <item>OR</item>
-      <item>PLATFORM_ID</item>
-      <item>SEMICOLON</item>
-      <item>SHELL_PATH</item>
+      <item>NOT</item>
       <item>STREQUAL</item>
-      <item>TARGET_BUNDLE_CONTENT_DIR</item>
-      <item>TARGET_BUNDLE_DIR</item>
-      <item>TARGET_EXISTS</item>
-      <item>TARGET_FILE</item>
-      <item>TARGET_FILE_DIR</item>
-      <item>TARGET_FILE_NAME</item>
-      <item>TARGET_GENEX_EVAL</item>
-      <item>TARGET_LINKER_FILE</item>
-      <item>TARGET_LINKER_FILE_DIR</item>
-      <item>TARGET_LINKER_FILE_NAME</item>
-      <item>TARGET_NAME</item>
-      <item>TARGET_NAME_IF_EXISTS</item>
-      <item>TARGET_OBJECTS</item>
-      <item>TARGET_PDB_FILE</item>
-      <item>TARGET_PDB_FILE_DIR</item>
-      <item>TARGET_PDB_FILE_NAME</item>
-      <item>TARGET_POLICY</item>
-      <item>TARGET_PROPERTY</item>
-      <item>TARGET_SONAME_FILE</item>
-      <item>TARGET_SONAME_FILE_DIR</item>
-      <item>TARGET_SONAME_FILE_NAME</item>
-      <item>UPPER_CASE</item>
-      <item>VERSION_EQUAL</item>
-      <item>VERSION_GREATER</item>
-      <item>VERSION_GREATER_EQUAL</item>
+      <item>EQUAL</item>
+      <item>IN_LIST</item>
       <item>VERSION_LESS</item>
+      <item>VERSION_GREATER</item>
+      <item>VERSION_EQUAL</item>
       <item>VERSION_LESS_EQUAL</item>
+      <item>VERSION_GREATER_EQUAL</item>
+      <item>TARGET_EXISTS</item>
+      <item>CONFIG</item>
+      <item>PLATFORM_ID</item>
+      <item>C_COMPILER_ID</item>
+      <item>CXX_COMPILER_ID</item>
+      <item>CUDA_COMPILER_ID</item>
+      <item>Fortran_COMPILER_ID</item>
+      <item>C_COMPILER_VERSION</item>
+      <item>CXX_COMPILER_VERSION</item>
+      <item>CUDA_COMPILER_VERSION</item>
+      <item>Fortran_COMPILER_VERSION</item>
+      <item>TARGET_POLICY</item>
+      <item>COMPILE_FEATURES</item>
+      <item>COMPILE_LANG_AND_ID</item>
+      <item>COMPILE_LANGUAGE</item>
+      <item>ANGLE-R</item>
+      <item>COMMA</item>
+      <item>SEMICOLON</item>
+      <item>IF</item>
+      <item>JOIN</item>
+      <item>REMOVE_DUPLICATES</item>
+      <item>FILTER</item>
+      <item>LOWER_CASE</item>
+      <item>UPPER_CASE</item>
+      <item>GENEX_EVAL</item>
+      <item>TARGET_GENEX_EVAL</item>
+      <item>TARGET_NAME_IF_EXISTS</item>
+      <item>TARGET_FILE</item>
+      <item>TARGET_FILE_BASE_NAME</item>
+      <item>TARGET_FILE_PREFIX</item>
+      <item>TARGET_FILE_SUFFIX</item>
+      <item>TARGET_FILE_NAME</item>
+      <item>TARGET_FILE_DIR</item>
+      <item>TARGET_LINKER_FILE</item>
+      <item>TARGET_LINKER_FILE_BASE_NAME</item>
+      <item>TARGET_LINKER_FILE_PREFIX</item>
+      <item>TARGET_LINKER_FILE_SUFFIX</item>
+      <item>TARGET_LINKER_FILE_NAME</item>
+      <item>TARGET_LINKER_FILE_DIR</item>
+      <item>TARGET_SONAME_FILE</item>
+      <item>TARGET_SONAME_FILE</item>
+      <item>TARGET_SONAME_FILE_NAME</item>
+      <item>TARGET_SONAME_FILE_DIR</item>
+      <item>TARGET_PDB_FILE</item>
+      <item>TARGET_PDB_FILE_BASE_NAME</item>
+      <item>TARGET_PDB_FILE_NAME</item>
+      <item>TARGET_PDB_FILE_DIR</item>
+      <item>TARGET_BUNDLE_DIR</item>
+      <item>TARGET_BUNDLE_CONTENT_DIR</item>
+      <item>TARGET_PROPERTY</item>
+      <item>INSTALL_PREFIX</item>
+      <item>TARGET_NAME</item>
+      <item>LINK_ONLY</item>
+      <item>INSTALL_INTERFACE</item>
+      <item>BUILD_INTERFACE</item>
+      <item>MAKE_C_IDENTIFIER</item>
+      <item>TARGET_OBJECTS</item>
+      <item>SHELL_PATH</item>
     </list>
 
     <contexts>
@@ -2662,7 +2757,14 @@
         <DetectChar attribute="Normal Text" context="execute_process_ctx_op" char="(" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="execute_process_ctx_op">
+        <DetectChar attribute="Normal Text" context="execute_process_ctx_op_nested" char="(" />
         <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="execute_process_nargs" />
+        <keyword attribute="Special Args" context="#stay" String="execute_process_sargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="execute_process_ctx_op_nested">
+        <IncludeRules context="EndCmdPop" />
         <keyword attribute="Named Args" context="#stay" String="execute_process_nargs" />
         <keyword attribute="Special Args" context="#stay" String="execute_process_sargs" />
         <IncludeRules context="User Function Args" />
@@ -2978,7 +3080,13 @@
         <DetectChar attribute="Normal Text" context="add_custom_command_ctx_op" char="(" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="add_custom_command_ctx_op">
+        <DetectChar attribute="Normal Text" context="add_custom_command_ctx_op_nested" char="(" />
         <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="add_custom_command_nargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="add_custom_command_ctx_op_nested">
+        <IncludeRules context="EndCmdPop" />
         <keyword attribute="Named Args" context="#stay" String="add_custom_command_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
@@ -2986,7 +3094,13 @@
         <DetectChar attribute="Normal Text" context="add_custom_target_ctx_op" char="(" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="add_custom_target_ctx_op">
+        <DetectChar attribute="Normal Text" context="add_custom_target_ctx_op_nested" char="(" />
         <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="add_custom_target_nargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="add_custom_target_ctx_op_nested">
+        <IncludeRules context="EndCmdPop" />
         <keyword attribute="Named Args" context="#stay" String="add_custom_target_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
@@ -3039,7 +3153,13 @@
         <DetectChar attribute="Normal Text" context="add_test_ctx_op" char="(" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="add_test_ctx_op">
+        <DetectChar attribute="Normal Text" context="add_test_ctx_op_nested" char="(" />
         <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="add_test_nargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="add_test_ctx_op_nested">
+        <IncludeRules context="EndCmdPop" />
         <keyword attribute="Named Args" context="#stay" String="add_test_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
@@ -3619,6 +3739,7 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_STANDARD_LIBRARIES\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_VISIBILITY_PRESET\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_ARCHIVE_OUTPUT_DIRECTORY_&id_re;\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_ARGV[0-9]+\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_COMPILE_PDB_OUTPUT_DIRECTORY_&id_re;\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_DISABLE_FIND_PACKAGE_&id_re;\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_EXE_LINKER_FLAGS_&id_re;\b" />
@@ -3727,9 +3848,26 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Variable Substitutions">
-        <RegExpr attribute="Environment Variable Substitution" context="#stay" String="\$ENV\{\s*[\w-]+\s*\}" />
+        <RegExpr attribute="Cache Variable Substitution" context="#stay" String="\$CACHE\{\s*[\w-]+\s*\}" />
+        <RegExpr attribute="Environment Variable Substitution" context="EnvVarSubst" String="\$ENV\{\s*[\w-]+\s*\}" lookAhead="true" />
         <Detect2Chars attribute="Variable Substitution" context="VarSubst" char="$" char1="{" />
         <RegExpr attribute="@Variable Substitution" context="@VarSubst" String="@&id_re;@" lookAhead="true" />
+      </context>
+
+      <context attribute="Environment Variable Substitution" lineEndContext="#pop" name="EnvVarSubst">
+        <DetectIdentifier />
+        <DetectChar attribute="Environment Variable Substitution" context="EnvVarSubstVar" char="{" />
+        <DetectChar attribute="Environment Variable Substitution" context="#pop" char="}" />
+      </context>
+
+      <context attribute="Environment Variable Substitution" lineEndContext="#pop" name="EnvVarSubstVar">
+        <keyword attribute="Standard Environment Variable" context="#stay" String="environment-variables" insensitive="false" />
+        <RegExpr attribute="Standard Environment Variable" context="#stay" String="\b&id_re;_DIR\b" />
+        <RegExpr attribute="Standard Environment Variable" context="#stay" String="\b&id_re;_ROOT\b" />
+        <RegExpr attribute="Standard Environment Variable" context="#stay" String="\bASM&id_re;\b" />
+        <RegExpr attribute="Standard Environment Variable" context="#stay" String="\bASM&id_re;FLAGS\b" />
+        <DetectIdentifier />
+        <DetectChar attribute="Environment Variable Substitution" context="#pop#pop" char="}" />
       </context>
 
       <context attribute="Variable Substitution" lineEndContext="#pop" name="VarSubst">
@@ -3830,10 +3968,12 @@
       <itemData name="Strings" defStyleNum="dsString" spellChecking="true" />
       <itemData name="Escapes" defStyleNum="dsChar" spellChecking="false" />
       <itemData name="Builtin Variable" defStyleNum="dsDecVal" color="#c09050" selColor="#c09050" spellChecking="false" />
+      <itemData name="Internal Name" defStyleNum="dsDecVal" color="#303030" selColor="#303030" spellChecking="false" />
       <itemData name="Variable Substitution" defStyleNum="dsDecVal" spellChecking="false" />
       <itemData name="@Variable Substitution" defStyleNum="dsBaseN" spellChecking="false" />
-      <itemData name="Internal Name" defStyleNum="dsDecVal" color="#303030" selColor="#303030" spellChecking="false" />
+      <itemData name="Cache Variable Substitution" defStyleNum="dsFloat" spellChecking="false" />
       <itemData name="Environment Variable Substitution" defStyleNum="dsFloat" spellChecking="false" />
+      <itemData name="Standard Environment Variable" defStyleNum="dsFloat" spellChecking="false" />
       <itemData name="Generator Expression Keyword" defStyleNum="dsKeyword" color="#b84040" selColor="#b84040" spellChecking="false" />
       <itemData name="Generator Expression" defStyleNum="dsOthers" color="#b86050" selColor="#b86050" spellChecking="false" />
       <itemData name="Comment" defStyleNum="dsComment" spellChecking="true" />

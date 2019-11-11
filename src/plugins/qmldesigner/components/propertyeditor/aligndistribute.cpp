@@ -109,7 +109,7 @@ void AlignDistribute::setModelNodeBackend(const QVariant &modelNodeBackend)
 // The purpose of this function is to suppress the following warning:
 // Warning: Property declaration modelNodeBackendProperty has no READ accessor
 // function or associated MEMBER variable. The property will be invalid.
-QVariant AlignDistribute::getModelNodeBackend() const
+QVariant AlignDistribute::modelNodeBackend() const
 {
     return {};
 }

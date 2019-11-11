@@ -39,6 +39,7 @@ namespace Internal {
 
 class CtfStatisticsModel : public QAbstractTableModel
 {
+    Q_OBJECT
 
 public:
     enum Role {

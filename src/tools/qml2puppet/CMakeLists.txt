@@ -109,6 +109,7 @@ extend_qtc_executable(qml2puppet
   SOURCES
     cameracontrolhelper.cpp cameracontrolhelper.h
     mousearea3d.cpp mousearea3d.h
+    camerageometry.cpp camerageometry.h
 )
 
 extend_qtc_executable(qml2puppet

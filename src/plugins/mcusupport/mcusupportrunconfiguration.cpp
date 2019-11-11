@@ -49,37 +49,39 @@ static CommandLine flashAndRunCommand(Target *target)
     const CMakeProjectManager::CMakeTool *tool =
             CMakeProjectManager::CMakeKitAspect::cmakeTool(target->kit());
 
+    // TODO: Hack! Implement flash target name handling, properly
+    const QString targetName =
+            target->kit()->value(Constants::KIT_BOARD_VENDOR_KEY).toString() == "NXP"
+            ? QString("flash_%1").arg(projectName)
+            : QString("flash_%1_and_bootloader").arg(projectName);
+
     return CommandLine(tool->filePath(), {
                            "--build",
                            ".",
                            "--target",
-                           QString("flash_%1_and_bootloader").arg(projectName)
+                           targetName
                        });
 }
 
-class FlashAndRunConfiguration : public ProjectExplorer::RunConfiguration
+FlashAndRunConfiguration::FlashAndRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
-public:
-    FlashAndRunConfiguration(Target *target, Core::Id id)
-        : RunConfiguration(target, id)
-    {
-        auto effectiveFlashAndRunCall = addAspect<BaseStringAspect>();
-        effectiveFlashAndRunCall->setLabelText(tr("Effective flash and run call:"));
-        effectiveFlashAndRunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
-        effectiveFlashAndRunCall->setReadOnly(true);
+    auto effectiveFlashAndRunCall = addAspect<BaseStringAspect>();
+    effectiveFlashAndRunCall->setLabelText(tr("Effective flash and run call:"));
+    effectiveFlashAndRunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
 
-        auto updateConfiguration = [target, effectiveFlashAndRunCall] {
-            effectiveFlashAndRunCall->setValue(flashAndRunCommand(target).toUserOutput());
-        };
+    auto updateConfiguration = [target, effectiveFlashAndRunCall] {
+        effectiveFlashAndRunCall->setValue(flashAndRunCommand(target).toUserOutput());
+    };
 
-        updateConfiguration();
+    updateConfiguration();
 
-        connect(target->activeBuildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-                this, updateConfiguration);
-        connect(target->project(), &Project::displayNameChanged,
-                this, updateConfiguration);
-    }
-};
+    connect(target->activeBuildConfiguration(),
+            &BuildConfiguration::buildDirectoryChanged,
+            this,
+            updateConfiguration);
+    connect(target->project(), &Project::displayNameChanged, this, updateConfiguration);
+}
 
 class FlashAndRunWorker : public SimpleTargetRunner
 {

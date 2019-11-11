@@ -200,7 +200,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
 
     Core::Context projectTreeContext(Constants::C_PROJECT_TREE);
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
-    action = new QAction(tr("Preview File"), this);
+    action = new QAction(QmlPreviewPlugin::tr("Preview File"), this);
     action->setEnabled(false);
     connect(q, &QmlPreviewPlugin::runningPreviewsChanged,
             action, [action](const QmlPreviewRunControlList &previews) {

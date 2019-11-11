@@ -44,7 +44,7 @@ class AlignDistribute : public QObject
     Q_PROPERTY(bool selectionContainsRootItem READ selectionContainsRootItem NOTIFY
                    modelNodeBackendChanged)
 
-    Q_PROPERTY(QVariant modelNodeBackendProperty READ getModelNodeBackend WRITE setModelNodeBackend
+    Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend
                    NOTIFY modelNodeBackendChanged)
 
 public:
@@ -68,7 +68,6 @@ public:
     bool selectionContainsRootItem() const;
 
     void setModelNodeBackend(const QVariant &modelNodeBackend);
-    QVariant getModelNodeBackend() const;
 
     static void registerDeclarativeType();
 
@@ -82,6 +81,9 @@ public:
 
 signals:
     void modelNodeBackendChanged();
+
+private:
+    QVariant modelNodeBackend() const;
 
 private:
     using CompareFunction = std::function<bool(const ModelNode &, const ModelNode &)>;

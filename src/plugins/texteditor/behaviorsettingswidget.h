@@ -55,7 +55,7 @@ public:
     void setActive(bool active);
 
     void setAssignedCodec(QTextCodec *codec);
-    QTextCodec *assignedCodec() const;
+    QByteArray assignedCodecName() const;
 
     void setCodeStyle(ICodeStylePreferences *preferences);
 

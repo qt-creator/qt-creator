@@ -38,7 +38,7 @@ Window {
     title: "3D"
     flags: Qt.WindowStaysOnTopHint | Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
 
-    property alias scene: editView.scene
+    property alias scene: editView.importScene
     property alias showEditLight: editLightCheckbox.checked
     property alias usePerspective: usePerspectiveCheckbox.checked
 
@@ -46,10 +46,11 @@ Window {
 
     property var lightGizmos: []
     property var cameraGizmos: []
+    property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
 
     signal objectClicked(var object)
-    signal commitObjectPosition(var object)
-    signal moveObjectPosition(var object)
+    signal commitObjectProperty(var object, var propName)
+    signal changeObjectProperty(var object, var propName)
 
     function selectObject(object) {
         selectedNode = object;
@@ -75,10 +76,14 @@ Window {
     {
         var component = Qt.createComponent("CameraGizmo.qml");
         if (component.status === Component.Ready) {
-            var gizmo = component.createObject(overlayScene,
-                                               {"view3D": overlayView, "targetNode": obj});
+            var geometryName = designStudioNativeCameraControlHelper.generateUniqueName("CameraGeometry");
+            var gizmo = component.createObject(
+                        overlayScene,
+                        {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
+                         "viewPortRect": viewPortRect});
             cameraGizmos[cameraGizmos.length] = gizmo;
             gizmo.selected.connect(emitObjectClicked);
+            gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
         }
     }
 
@@ -113,11 +118,26 @@ Window {
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
             globalOrientation: globalControl.checked
-            visible: selectedNode
+            visible: selectedNode && moveToolControl.checked
             view3D: overlayView
 
-            onPositionCommit: viewWindow.commitObjectPosition(selectedNode)
-            onPositionMove: viewWindow.moveObjectPosition(selectedNode)
+            onPositionCommit: viewWindow.commitObjectProperty(selectedNode, "position")
+            onPositionMove: viewWindow.changeObjectProperty(selectedNode, "position")
+        }
+
+        ScaleGizmo {
+            id: scaleGizmo
+            scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
+            highlightOnHover: true
+            targetNode: viewWindow.selectedNode
+            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
+                                              : Qt.vector3d(0, 0, 0)
+            globalOrientation: globalControl.checked
+            visible: selectedNode && scaleToolControl.checked
+            view3D: overlayView
+
+            onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
+            onScaleChange: viewWindow.changeObjectProperty(selectedNode, "scale")
         }
 
         AutoScaleHelper {
@@ -156,10 +176,12 @@ Window {
                 }
 
                 PointLight {
-                    id: pointLight
+                    id: editLight
                     visible: showEditLight
                     position: usePerspective ? editPerspectiveCamera.position
                                              : editOrthoCamera.position
+                    quadraticFade: 0
+                    linearFade: 0
                 }
 
                 PerspectiveCamera {
@@ -181,16 +203,16 @@ Window {
             id: overlayView
             anchors.fill: parent
             camera: usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
-            scene: overlayScene
+            importScene: overlayScene
         }
 
         Overlay2D {
             id: gizmoLabel
-            targetNode: moveGizmo
+            targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
             targetView: overlayView
             offsetX: 0
             offsetY: 45
-            visible: moveGizmo.dragging
+            visible: targetNode.dragging
 
             Rectangle {
                 color: "white"
@@ -203,11 +225,18 @@ Window {
                     id: gizmoLabelText
                     text: {
                         var l = Qt.locale();
-                        selectedNode
-                            ? qsTr("x:") + Number(selectedNode.position.x).toLocaleString(l, 'f', 1)
-                              + qsTr(" y:") + Number(selectedNode.position.y).toLocaleString(l, 'f', 1)
-                              + qsTr(" z:") + Number(selectedNode.position.z).toLocaleString(l, 'f', 1)
-                            : "";
+                        var targetProperty;
+                        if (viewWindow.selectedNode) {
+                            if (gizmoLabel.targetNode === moveGizmo)
+                                targetProperty = viewWindow.selectedNode.position;
+                            else
+                                targetProperty = viewWindow.selectedNode.scale;
+                            return qsTr("x:") + Number(targetProperty.x).toLocaleString(l, 'f', 1)
+                                + qsTr(" y:") + Number(targetProperty.y).toLocaleString(l, 'f', 1)
+                                + qsTr(" z:") + Number(targetProperty.z).toLocaleString(l, 'f', 1);
+                        } else {
+                            return "";
+                        }
                     }
                     anchors.centerIn: parent
                 }
@@ -251,6 +280,19 @@ Window {
             checked: true
             text: qsTr("Use Global Orientation")
             onCheckedChanged: cameraControl.forceActiveFocus()
+        }
+        Column {
+            x: 8
+            RadioButton {
+                id: moveToolControl
+                checked: true
+                text: qsTr("Move Tool")
+            }
+            RadioButton {
+                id: scaleToolControl
+                checked: false
+                text: qsTr("Scale Tool")
+            }
         }
     }
 

@@ -195,7 +195,7 @@ void BehaviorSettingsPage::apply()
 
     if (s) {
         s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
-                    d->m_page->behaviorWidget->assignedCodec()->name());
+                    d->m_page->behaviorWidget->assignedCodecName());
     }
 }
 

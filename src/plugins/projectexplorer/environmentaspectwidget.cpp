@@ -75,7 +75,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     const EnvironmentWidget::Type widgetType = aspect->isLocal()
             ? EnvironmentWidget::TypeLocal : EnvironmentWidget::TypeRemote;
     m_environmentWidget = new EnvironmentWidget(this, widgetType, baseEnvironmentWidget);
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
+    m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
     m_environmentWidget->setUserChanges(m_aspect->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -106,7 +106,7 @@ void EnvironmentAspectWidget::baseEnvironmentSelected(int idx)
 {
     m_ignoreChange = true;
     m_aspect->setBaseEnvironmentBase(idx);
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
+    m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
     m_ignoreChange = false;
 }
@@ -122,7 +122,7 @@ void EnvironmentAspectWidget::changeBaseEnvironment()
             m_baseEnvironmentComboBox->setCurrentIndex(i);
     }
     m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
+    m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
 }
 
 void EnvironmentAspectWidget::userChangesEdited()
@@ -143,7 +143,7 @@ void EnvironmentAspectWidget::environmentChanged()
 {
     if (m_ignoreChange)
         return;
-    m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
+    m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
 }
 
 } // namespace ProjectExplorer
