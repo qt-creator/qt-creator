@@ -335,6 +335,11 @@ void DebuggerRunTool::setRemoteChannel(const QUrl &url)
     m_runParameters.remoteChannel = QString("%1:%2").arg(url.host()).arg(url.port());
 }
 
+QString DebuggerRunTool::remoteChannel() const
+{
+    return m_runParameters.remoteChannel;
+}
+
 void DebuggerRunTool::setRemoteChannel(const QString &host, int port)
 {
     m_runParameters.remoteChannel = QString("%1:%2").arg(host).arg(port);

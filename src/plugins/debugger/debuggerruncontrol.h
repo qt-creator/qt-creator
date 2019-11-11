@@ -95,6 +95,7 @@ public:
     void setRemoteChannel(const QString &channel);
     void setRemoteChannel(const QString &host, int port);
     void setRemoteChannel(const QUrl &url);
+    QString remoteChannel() const;
 
     void setUseExtendedRemote(bool on);
     void setUseContinueInsteadOfRun(bool on);

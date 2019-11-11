@@ -423,6 +423,7 @@ void StartApplicationDialog::run(bool attachRemote)
         debugger->setStartMode(AttachToRemoteServer);
         debugger->setCloseMode(KillAtClose);
         debugger->setUseContinueInsteadOfRun(true);
+        debugger->setRunControlName(tr("Attach to %1").arg(debugger->remoteChannel()));
     }
     debugger->startRunControl();
 }
