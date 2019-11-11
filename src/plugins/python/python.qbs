@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "LanguageClient" }
+    Depends { name: "LanguageServerProtocol" }
 
     Group {
         name: "General"

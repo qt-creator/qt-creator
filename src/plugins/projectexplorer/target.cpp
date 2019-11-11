@@ -408,9 +408,13 @@ void Target::addRunConfiguration(RunConfiguration *rc)
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = rc->displayName();
-    QStringList displayNames = Utils::transform(d->m_runConfigurations, &RunConfiguration::displayName);
-    configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName, displayNames);
-    rc->setDisplayName(configurationDisplayName);
+    if (!configurationDisplayName.isEmpty()) {
+        QStringList displayNames = Utils::transform(d->m_runConfigurations,
+                                                    &RunConfiguration::displayName);
+        configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName,
+                                                               displayNames);
+        rc->setDisplayName(configurationDisplayName);
+    }
 
     d->m_runConfigurations.push_back(rc);
 

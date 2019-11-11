@@ -34,6 +34,8 @@ namespace Internal {
 
 class QdbDevice : public RemoteLinux::LinuxDevice
 {
+    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbDevice)
+
 public:
     typedef QSharedPointer<QdbDevice> Ptr;
     typedef QSharedPointer<const QdbDevice> ConstPtr;

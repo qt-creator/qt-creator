@@ -106,7 +106,7 @@ void ConfigModelItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *
         if (data.type == ConfigModel::DataItem::FILE || data.type == ConfigModel::DataItem::DIRECTORY) {
             auto edit = static_cast<Utils::PathChooser *>(editor);
             if (edit->rawPath() != data.value)
-                model->setData(index, edit->fileName().toUserOutput(), Qt::EditRole);
+                model->setData(index, edit->fileName().toString(), Qt::EditRole);
             return;
         } else if (!data.values.isEmpty()) {
             auto edit = static_cast<QComboBox *>(editor);

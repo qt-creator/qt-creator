@@ -42,6 +42,8 @@
 #include "nodeproperty.h"
 #include <rewriterview.h>
 
+#include <utils/algorithm.h>
+
 #include <QHash>
 #include <QRegExp>
 #include <QSet>
@@ -773,6 +775,13 @@ properties.
 const QList<ModelNode> ModelNode::directSubModelNodes() const
 {
     return toModelNodeList(internalNode()->allDirectSubNodes(), view());
+}
+
+const QList<ModelNode> ModelNode::directSubModelNodesOfType(const TypeName &typeName) const
+{
+    return Utils::filtered(directSubModelNodes(), [typeName](const ModelNode &node){
+        return node.metaInfo().isValid() && node.metaInfo().isSubclassOf(typeName);
+    });
 }
 
 

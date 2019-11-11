@@ -251,7 +251,7 @@ public:
     QdbDeviceWizard(QWidget *parent)
         : QWizard(parent)
     {
-        setWindowTitle(QdbDeviceWizard::tr("Boot2Qt Network Device Setup"));
+        setWindowTitle(QdbDevice::tr("Boot2Qt Network Device Setup"));
         settingsPage.setCommitPage(true);
 
         enum { SettingsPageId };

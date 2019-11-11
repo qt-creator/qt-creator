@@ -68,7 +68,7 @@ public:
         auto webBrowserAspect = addAspect<WebBrowserSelectionAspect>(target);
 
         auto effectiveEmrunCall = addAspect<BaseStringAspect>();
-        effectiveEmrunCall->setLabelText(tr("Effective emrun call:"));
+        effectiveEmrunCall->setLabelText(EmrunRunConfigurationFactory::tr("Effective emrun call:"));
         effectiveEmrunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
         effectiveEmrunCall->setReadOnly(true);
 
@@ -117,7 +117,7 @@ RunWorkerFactory::WorkerCreator makeEmrunWorker()
 // Factories
 
 EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
-    : FixedRunConfigurationFactory(EmrunRunConfiguration::tr("Launch with emrun"))
+    : FixedRunConfigurationFactory(EmrunRunConfigurationFactory::tr("Launch with emrun"))
 {
     registerRunConfiguration<EmrunRunConfiguration>(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
     addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);

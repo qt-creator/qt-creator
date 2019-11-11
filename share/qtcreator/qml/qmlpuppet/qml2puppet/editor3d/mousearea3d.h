@@ -49,6 +49,7 @@ class MouseArea3D : public QQuick3DNode
     Q_PROPERTY(bool hovering READ hovering NOTIFY hoveringChanged)
     Q_PROPERTY(bool dragging READ dragging NOTIFY draggingChanged)
     Q_PROPERTY(int priority READ priority WRITE setPriority NOTIFY priorityChanged)
+    Q_PROPERTY(int active READ active WRITE setActive NOTIFY activeChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -66,10 +67,12 @@ public:
     bool hovering() const;
     bool dragging() const;
     bool grabsMouse() const;
+    bool active() const;
 
 public slots:
     void setView3D(QQuick3DViewport *view3D);
     void setGrabsMouse(bool grabsMouse);
+    void setActive(bool active);
 
     void setX(qreal x);
     void setY(qreal y);
@@ -82,6 +85,10 @@ public slots:
                                              const QVector3D &planePos,
                                              const QVector3D &planeNormal) const;
 
+    Q_INVOKABLE QVector3D getNewScale(QQuick3DNode *node, const QVector3D &startScale,
+                                      const QVector3D &pressPos,
+                                      const QVector3D &sceneRelativeDistance, bool global);
+
 signals:
     void view3DChanged();
 
@@ -93,9 +100,10 @@ signals:
 
     void hoveringChanged();
     void draggingChanged();
-    void pressed(const QVector3D &pointerPosition);
-    void released(const QVector3D &pointerPosition);
-    void dragged(const QVector3D &pointerPosition);
+    void activeChanged(bool active);
+    void pressed(const QVector3D &scenePos, const QPoint &screenPos);
+    void released(const QVector3D &scenePos, const QPoint &screenPos);
+    void dragged(const QVector3D &scenePos, const QPoint &screenPos);
     void grabsMouseChanged(bool grabsMouse);
 
 protected:
@@ -118,6 +126,7 @@ private:
 
     bool m_hovering = false;
     bool m_dragging = false;
+    bool m_active = false;
 
     QVector3D getMousePosInPlane(const QPointF &mousePosInView) const;
 

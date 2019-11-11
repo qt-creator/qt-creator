@@ -1,0 +1,1785 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd"
+[
+  <!--
+  identifier:
+    Alphabetic characters include characters with the Unicode General Category value Letter (L), and the underscore _.
+    Alphanumeric characters additionally include characters with the Unicode General Category value Number, Decimal Digit (Nd).
+  -->
+  <!-- Large values -->
+  <!ENTITY rangealphabetic "_A-Za-z\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\x{2c1}\x{2C6}-\x{2D1}\x{2E0}-\x{2EE}\x{370}-\x{588}\x{5d0}-\x{17dc}\x{1820}-\x{1aa7}\x{1b05}-\x{2139}\x{2c00}-\x{31ff}\x{3400}\x{4db5}\x{4db5}\x{4e00}-\x{ac00}\x{d7a3}-\x{d7fb}\x{f900}-\x{FD3D}\x{FF64}\x{100fa}\x{10000}-\x{100fa}\x{10280}-\x{20000}\x{2a6d6}-\x{2fa1d}">
+  <!ENTITY rangenumeric "0-9">
+  <!ENTITY alphabetic "[&rangealphabetic;]">
+  <!ENTITY numeric "[&rangenumeric;]">
+  <!ENTITY alnum "[&rangealphabetic;&rangenumeric;]">
+  <!ENTITY ident "(?:&alphabetic;(?:&alnum;+|[-']&alphabetic;)*)">
+
+  <!ENTITY prefixdollarvarname "(?:[&rangealphabetic;0-9/!]|\(\))">
+  <!ENTITY dollarvarname "(?:&ident;|[0-9]+|[/!]|\(\))">
+  <!ENTITY twigils "*?!.&lt;^:=~">
+
+  <!ENTITY podfmt "BCEIKLMNPRTUVXZ">
+  <!ENTITY allnopodfmt "(?:[^&podfmt;]+|[&podfmt;](?![&lt;«]))+">
+  <!ENTITY allnopodfmt1 "(?:[^&podfmt;&lt;>]+|[&podfmt;](&lt;(?:&lt;*(?=&lt;))|(?![&lt;«])))+">
+  <!ENTITY allnopodfmt2 "(?:[^&podfmt;«»]+|[&podfmt;](?![&lt;«]))+">
+  <!ENTITY allnopodfmt3 "(?:[^&podfmt;&lt;>]+|[&podfmt;](?![&lt;«])|>(?!>)|&lt;(?!&lt;))+">
+
+  <!ENTITY quotingform_q "(?:q?(?::?[xsahfcb]|:?ww?|:(?:v|exec|words|quotewords|scalar|array|hash|function|closure|backslash|to|heredoc)|)(?::[xsahfcbv]|ww?|exec|words|quotewords|scalar|array|hash|function|closure|backslash|to|heredoc)*)">
+  <!ENTITY quotingform_q_assert "(?:\s+(?=\()|\s*(?=[^()>｣\]}a-zA-Z0-9]|$))">
+  <!ENTITY quotingconstruct "q&quotingform_q;&quotingform_q_assert;">
+
+  <!ENTITY int10 "(?:[0-9]+(?:_[0-9]+)*)">
+  <!ENTITY intN "(?:[0-9a-zA-Z]+(?:_[0-9a-zA-Z]+)*)">
+
+  <!-- <!ENTITY operators "(?:\b(?:X[*~]|Z=|xx=)|\((?:[&lt;>][+=]|[-&amp;+.&lt;>|^]|cont|elem)\)|\+[&amp;+&lt;=>^|]?|~[&amp;&lt;>^|~]?|\.(?::&lt;[^>]+>|\.\.?\^?|[=?^*+.])?|\^(?:fff?\b|\.\.)?\^?|(?:[?…]|f?ff)\^|\[[*+]\]|=(?:==?|=>>?|>|~=)?|&lt;(?:&lt;==|=[=>]?)?|\*\*=?|\?[?|]?|!(?:[=]|eqv\b)?|&#37;&#37;?|&amp;&amp;?|//?|\|\|?|>=?|-[-=]?|::|[−∈∉∋∌∘∩∪≅≠≤≥≼≽⊂⊃⊄⊅⊆⊇⊈⊉⊍⊎⊖×÷∖*…])"> -->
+  <!-- <!ENTITY hyperoperators "(?:[«»]|&lt;&lt;|&gt;&gt;)"> -->
+  <!ENTITY safesymboloperators "−∈∉∋∌∘∩∪≅≠≤≥≼≽⊂⊃⊄⊅⊆⊇⊈⊉⊍⊎⊖×÷∖*…?.+-/=!~&amp;|^&#37;">
+  <!ENTITY unsafesymboloperators "&lt;>«»">
+  <!ENTITY symboloperators "&safesymboloperators;&unsafesymboloperators;">
+  <!ENTITY bracehyperoperator "(?:\[[^\s]+\]|\([^\s]+\))">
+  <!ENTITY prefixoperator "R?(?:[XZ]|xx)?">
+  <!ENTITY extrasymboloperators "(?:\^fff?\b\^?|\bf?ff\^|\((?:[&lt;>][+=]|[-&amp;+.&lt;>|^]|cont|elem)\))">
+  <!ENTITY hyperoperators1 "[«»]&prefixoperator;(?:&amp;&ident;|[&safesymboloperators;&lt;>]+|&bracehyperoperator;)[«»]">
+  <!ENTITY hyperoperators2 "(?:&lt;&lt;|&gt;&gt;)&prefixoperator;(?:&amp;&ident;|[&safesymboloperators;«»]+|&bracehyperoperator;)(?:&lt;&lt;|&gt;&gt;)">
+  <!ENTITY hyperoperators "&hyperoperators1;|&hyperoperators2;">
+  <!ENTITY startstringasoperator "&prefixoperator;&lt;[&symboloperators;]*(?=\s|$)">
+  <!ENTITY funcoperator "\[\[\&amp;&ident;\]\]">
+  <!ENTITY reductionoperator "\[&prefixoperator;[&symboloperators;]+\]">
+  <!ENTITY innerbraceoperator "[&symboloperators;'&quot;]+">
+  <!ENTITY operators "&prefixoperator;(?:(?:[&safesymboloperators;>]|&extrasymboloperators;)[&symboloperators;]*|\(&innerbraceoperator;\)|\[&innerbraceoperator;\]|&lt;[&safesymboloperators;'&quot;]+>)">
+
+  <!-- <!ENTITY regadverb "(?!\()\s*(?::\w+\s*)*(?=[^\w\s])"> -->
+  <!ENTITY regadverb "(?!\()\s*(?=[^\w\s])">
+]>
+<language name="Perl6" version="1" kateversion="5.53" section="Scripts" extensions="*.pl6;*.PL6;*.p6;*.pm6;*.pod6" mimetype="application/x-perl;text/x-perl" priority="5" author="Jonathan Poelen (jonathan.poelen@gmail.com)" license="MIT">
+  <highlighting>
+
+    <list name="pod">
+      <item>begin</item>
+      <item>end</item>
+      <item>finish</item>
+      <item>for</item>
+      <include>podtypename</include>
+    </list>
+
+    <list name="podblocktypename">
+      <item>pod</item>
+      <include>podtypename</include>
+    </list>
+
+    <list name="podvalue">
+      <item>True</item>
+      <item>False</item>
+    </list>
+
+    <list name="podtypename">
+      <item>head1</item>
+      <item>head2</item>
+      <item>head3</item>
+      <item>head4</item>
+      <item>head5</item>
+      <item>head6</item>
+      <item>item</item>
+      <item>item1</item>
+      <item>item2</item>
+      <item>item3</item>
+      <item>item4</item>
+      <item>item5</item>
+      <item>item6</item>
+      <item>para</item>
+      <item>code</item>
+      <item>defn</item>
+      <item>comment</item>
+      <item>table</item>
+      <item>input</item>
+      <item>output</item>
+    </list>
+
+    <list name="quoting">
+      <item>exec</item>
+      <item>words</item>
+      <item>quotewords</item>
+      <item>scalar</item>
+      <item>array</item>
+      <item>hash</item>
+      <item>function</item>
+      <item>closure</item>
+      <item>backslash</item>
+      <item>heredoc</item>
+      <item>val</item>
+    </list>
+
+    <list name="declareRoutine">
+      <item>macro</item>
+      <item>sub</item>
+      <item>submethod</item>
+      <item>method</item>
+      <item>multi</item>
+      <item>proto</item>
+      <item>only</item>
+      <item>category</item>
+    </list>
+
+    <list name="regexKeyword">
+      <item>rule</item>
+      <item>token</item>
+      <item>regex</item>
+    </list>
+
+    <list name="value">
+      <include>podvalue</include>
+      <item>self</item>
+    </list>
+
+    <list name="varStorage">
+      <item>let</item>
+      <item>my</item>
+      <item>our</item>
+      <item>state</item>
+      <item>temp</item>
+      <item>has</item>
+      <item>constant</item>
+    </list>
+
+    <list name="controlFlow">
+      <!-- conditional -->
+      <item>if</item>
+      <item>else</item>
+      <item>elsif</item>
+      <item>unless</item>
+      <!-- repeat -->
+      <item>for</item>
+      <item>loop</item>
+      <item>repeat</item>
+      <item>while</item>
+      <item>until</item>
+      <item>gather</item>
+      <item>given</item>
+      <!-- control flow -->
+      <item>take</item>
+      <item>do</item>
+      <item>when</item>
+      <item>next</item>
+      <item>last</item>
+      <item>redo</item>
+      <item>return</item>
+      <item>contend</item>
+      <item>maybe</item>
+      <item>defer</item>
+      <item>default</item>
+      <item>exit</item>
+      <item>make</item>
+      <item>continue</item>
+      <item>break</item>
+      <item>goto</item>
+      <item>leave</item>
+      <item>async</item>
+      <item>lift</item>
+      <!-- exception -->
+      <item>die</item>
+      <item>fail</item>
+      <item>try</item>
+      <item>warn</item>
+    </list>
+
+    <list name="keyword">
+      <!-- include -->
+      <item>no</item>
+      <item>use</item>
+      <item>require</item>
+      <!-- typeConstraint -->
+      <item>is</item>
+      <item>as</item>
+      <item>but</item>
+      <item>trusts</item>
+      <item>of</item>
+      <item>returns</item>
+      <item>handles</item>
+      <item>where</item>
+      <item>augment</item>
+      <item>supersede</item>
+      <!-- module -->
+      <item>module</item>
+      <item>class</item>
+      <item>role</item>
+      <item>package</item>
+      <item>enum</item>
+      <item>grammar</item>
+      <item>slang</item>
+      <item>subset</item>
+      <!-- closure trait -->
+      <item>BEGIN</item>
+      <item>CHECK</item>
+      <item>INIT</item>
+      <item>START</item>
+      <item>FIRST</item>
+      <item>ENTER</item>
+      <item>LEAVE</item>
+      <item>KEEP</item>
+      <item>UNDO</item>
+      <item>NEXT</item>
+      <item>LAST</item>
+      <item>PRE</item>
+      <item>POST</item>
+      <item>END</item>
+      <item>CATCH</item>
+      <item>CONTROL</item>
+      <item>TEMP</item>
+    </list>
+
+    <list name="property">
+      <item>prec</item>
+      <item>irs</item>
+      <item>ofs</item>
+      <item>ors</item>
+      <item>export</item>
+      <item>deep</item>
+      <item>binary</item>
+      <item>unary</item>
+      <item>reparsed</item>
+      <item>rw</item>
+      <item>parsed</item>
+      <item>cached</item>
+      <item>readonly</item>
+      <item>defequiv</item>
+      <item>will</item>
+      <item>ref</item>
+      <item>copy</item>
+      <item>inline</item>
+      <item>tighter</item>
+      <item>looser</item>
+      <item>equiv</item>
+      <item>assoc</item>
+      <item>required</item>
+    </list>
+
+    <list name="isProperty">
+      <include>property</include>
+      <item>signature</item>
+      <item>context</item>
+      <item>also</item>
+      <item>shape</item>
+    </list>
+
+    <list name="Number">
+      <item>NaN</item>
+      <item>Inf</item>
+    </list>
+
+    <list name="type">
+      <item>Object</item>
+      <item>Any</item>
+      <item>Junction</item>
+      <item>Whatever</item>
+      <item>Capture</item>
+      <item>Match</item>
+      <item>Signature</item>
+      <item>Proxy</item>
+      <item>Matcher</item>
+      <item>Package</item>
+      <item>Module</item>
+      <item>Class</item>
+      <item>Grammar</item>
+      <item>Scalar</item>
+      <item>Array</item>
+      <item>Hash</item>
+      <item>KeyHash</item>
+      <item>KeySet</item>
+      <item>KeyBag</item>
+      <item>Pair</item>
+      <item>List</item>
+      <item>Seq</item>
+      <item>Range</item>
+      <item>Set</item>
+      <item>Bag</item>
+      <item>Mapping</item>
+      <item>Void</item>
+      <item>Undef</item>
+      <item>Failure</item>
+      <item>Exception</item>
+      <item>Code</item>
+      <item>Block</item>
+      <item>Routine</item>
+      <item>Sub</item>
+      <item>Macro</item>
+      <item>Method</item>
+      <item>Submethod</item>
+      <item>Regex</item>
+      <item>Str</item>
+      <item>Blob</item>
+      <item>Char</item>
+      <item>Byte</item>
+      <item>Codepoint</item>
+      <item>Grapheme</item>
+      <item>StrPos</item>
+      <item>StrLen</item>
+      <item>Version</item>
+      <item>Num</item>
+      <item>Complex</item>
+      <item>num</item>
+      <item>complex</item>
+      <item>Bit</item>
+      <item>bit</item>
+      <item>bool</item>
+      <item>True</item>
+      <item>False</item>
+      <item>Increasing</item>
+      <item>Decreasing</item>
+      <item>Ordered</item>
+      <item>Callable</item>
+      <item>AnyChar</item>
+      <item>Positional</item>
+      <item>Associative</item>
+      <item>Ordering</item>
+      <item>KeyExtractor</item>
+      <item>Comparator</item>
+      <item>OrderingPair</item>
+      <item>IO</item>
+      <item>KitchenSink</item>
+      <item>Role</item>
+      <item>Int</item>
+      <item>int</item>
+      <item>int1</item>
+      <item>int2</item>
+      <item>int4</item>
+      <item>int8</item>
+      <item>int16</item>
+      <item>int32</item>
+      <item>int64</item>
+      <item>Rat</item>
+      <item>rat</item>
+      <item>rat1</item>
+      <item>rat2</item>
+      <item>rat4</item>
+      <item>rat8</item>
+      <item>rat16</item>
+      <item>rat32</item>
+      <item>rat64</item>
+      <item>Buf</item>
+      <item>buf</item>
+      <item>buf1</item>
+      <item>buf2</item>
+      <item>buf4</item>
+      <item>buf8</item>
+      <item>buf16</item>
+      <item>buf32</item>
+      <item>buf64</item>
+      <item>UInt</item>
+      <item>uint</item>
+      <item>uint1</item>
+      <item>uint2</item>
+      <item>uint4</item>
+      <item>uint8</item>
+      <item>uint16</item>
+      <item>uint32</item>
+      <item>uint64</item>
+      <item>Abstraction</item>
+      <item>utf8</item>
+      <item>utf16</item>
+      <item>utf32</item>
+    </list>
+
+    <list name="operator">
+      <item>X</item>
+      <item>gcd</item>
+      <item>ge</item>
+      <item>gt</item>
+      <item>lcm</item>
+      <item>le</item>
+      <item>leg</item>
+      <item>let</item>
+      <item>lt</item>
+      <item>map</item>
+      <item>max</item>
+      <item>min</item>
+      <item>minmax</item>
+      <item>mod</item>
+      <item>ne</item>
+      <item>not</item>
+      <item>notandthen</item>
+      <item>o</item>
+      <item>or</item>
+      <item>orelse</item>
+      <item>print</item>
+      <item>push</item>
+      <item>say</item>
+      <item>so</item>
+      <item>substr</item>
+      <item>temp</item>
+      <item>unicmp</item>
+      <item>x</item>
+      <item>xor</item>
+      <item>xx</item>
+      <item>Xeqv</item>
+      <item>Z</item>
+      <item>and</item>
+      <item>andthen</item>
+      <item>any</item>
+      <item>but</item>
+      <item>cmp</item>
+      <item>coll</item>
+      <item>die</item>
+      <item>div</item>
+      <item>does</item>
+      <item>eq</item>
+      <item>eqv</item>
+      <item>ff</item>
+      <item>fff</item>
+    </list>
+
+    <list name="unicodeGeneralCategories">
+      <item>L</item>  <item>Letter</item>
+      <item>LC</item> <item>Cased_Letter</item>
+      <item>Lu</item> <item>Uppercase_Letter</item>
+      <item>Ll</item> <item>Lowercase_Letter</item>
+      <item>Lt</item> <item>Titlecase_Letter</item>
+      <item>Lm</item> <item>Modifier_Letter</item>
+      <item>Lo</item> <item>Other_Letter</item>
+      <item>M</item>  <item>Mark</item>
+      <item>Mn</item> <item>Nonspacing_Mark</item>
+      <item>Mc</item> <item>Spacing_Mark</item>
+      <item>Me</item> <item>Enclosing_Mark</item>
+      <item>N</item>  <item>Number</item>
+      <item>Nd</item> <item>Decimal_Number</item> <item>digit</item>
+      <item>Nl</item> <item>Letter_Number</item>
+      <item>No</item> <item>Other_Number</item>
+      <item>P</item>  <item>Punctuation</item> <item>punct</item>
+      <item>Pc</item> <item>Connector_Punctuation</item>
+      <item>Pd</item> <item>Dash_Punctuation</item>
+      <item>Ps</item> <item>Open_Punctuation</item>
+      <item>Pe</item> <item>Close_Punctuation</item>
+      <item>Pi</item> <item>Initial_Punctuation</item>
+      <item>Pf</item> <item>Final_Punctuation</item>
+      <item>Po</item> <item>Other_Punctuation</item>
+      <item>S</item>  <item>Symbol</item>
+      <item>Sm</item> <item>Math_Symbol</item>
+      <item>Sc</item> <item>Currency_Symbol</item>
+      <item>Sk</item> <item>Modifier_Symbol</item>
+      <item>So</item> <item>Other_Symbol</item>
+      <item>Z</item>  <item>Separator</item>
+      <item>Zs</item> <item>Space_Separator</item>
+      <item>Zl</item> <item>Line_Separator</item>
+      <item>Zp</item> <item>Paragraph_Separator</item>
+      <item>C</item>  <item>Other</item>
+      <item>Cc</item> <item>Control</item> <item>cntrl</item>
+      <item>Cf</item> <item>Format</item>
+      <item>Cs</item> <item>Surrogate</item>
+      <item>Co</item> <item>Private_Use</item>
+      <item>Cn</item> <item>Unassigned</item>
+    </list>
+
+    <list name="assertion">
+      <item>before</item>
+      <item>after</item>
+    </list>
+
+    <contexts>
+
+      <context name="Shebang" attribute="Comment" lineEndContext="#pop!base" fallthrough="1" fallthroughContext="#pop!base">
+        <RegExpr attribute="Keyword" context="#pop!base" String="^#!\/.*" column="0"/>
+      </context>
+
+      <context name="base" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectChar attribute="Comment" context="StartComment" char="#"/>
+        <!-- <DetectChar attribute="Unspace" context="#stay" char="\"/> -->
+        <DetectChar attribute="String Delimiter" context="qq_RawString" char="&quot;"/>
+        <DetectChar attribute="String Delimiter" context="q_RawString" char="'"/>
+        <DetectChar char="{" context="Interpolation" attribute="Operator" beginRegion="block"/>
+        <RegExpr String="(?:s|tr|TR)&regadverb;" context="RegexSubstitution" attribute="Operator"/>
+        <RegExpr String="(?:rx|m)&regadverb;" context="Regex" attribute="Operator"/>
+        <IncludeRules context="find_Variable"/>
+        <DetectChar attribute="Pod" context="StartPod" char="=" firstNonSpace="1"/>
+        <RegExpr String="»\.|&lt;&lt;\.|&hyperoperators;|&startstringasoperator;|&funcoperator;|&reductionoperator;|&operators;" context="MaybeRegex" attribute="Operator"/>
+        <DetectChar char="(" context="SubExpression(" attribute="Operator" beginRegion="block"/>
+        <DetectChar char="[" context="SubExpression[" attribute="Operator" beginRegion="block"/>
+        <AnyChar String=",;" context="#stay" attribute="Separator Symbol"/>
+        <DetectChar attribute="String Delimiter" context="qq_String«" char="«"/>
+        <Detect2Chars attribute="String Delimiter" context="qq_String&lt;&lt;" char="&lt;" char1="&lt;"/>
+        <DetectChar attribute="String Delimiter" context="q_String&lt;" char="&lt;"/>
+        <DetectChar attribute="String Delimiter" context="Q_String｢" char="｢"/>
+        <DetectChar attribute="Operator" context="Q_String" char="Q" lookAhead="1"/>
+        <DetectChar char=":" context="MaybeAttribute" attribute="Operator"/>
+        <AnyChar String="0123456789." context="Number" lookAhead="1"/>
+        <RegExpr attribute="Operator" context="q_QuotingForm" String="q(?=&quotingform_q;&quotingform_q_assert;)"/>
+        <keyword String="operator" context="#stay" attribute="Operator"/>
+        <keyword String="varStorage" context="#stay" attribute="Variable Storage"/>
+        <keyword String="type" context="#stay" attribute="Data Type"/>
+        <keyword String="controlFlow" context="#stay" attribute="Control Flow"/>
+        <WordDetect String="is" context="Is" attribute="Keyword"/>
+        <keyword String="keyword" context="#stay" attribute="Keyword"/>
+        <keyword String="declareRoutine" context="#stay" attribute="Declare Routine"/>
+        <keyword String="property" context="#stay" attribute="Property"/>
+        <keyword String="regexKeyword" context="RegexKeyword" attribute="Keyword"/>
+        <keyword String="value" context="#stay" attribute="Keyword Value"/>
+        <keyword String="Number" context="#stay" attribute="Float"/>
+        <RegExpr String="[A-Z](?:[a-z]+[a-zA-Z0-9]*)+" context="#stay" attribute="Data Type"/>
+        <RegExpr String="&ident;" context="#stay" attribute="Normal Text"/>
+      </context>
+
+      <context name="Is" attribute="Normal Text" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <keyword String="isProperty" context="#pop" attribute="Property"/>
+      </context>
+
+      <context name="Interpolation" attribute="Normal Text" lineEndContext="#stay">
+        <DetectChar char="}" context="#pop" attribute="Operator" endRegion="block"/>
+        <IncludeRules context="base"/>
+      </context>
+
+      <context name="SubExpression(" attribute="Normal Text" lineEndContext="#stay">
+        <IncludeRules context="base"/>
+        <DetectChar char=")" context="#pop" attribute="Operator" endRegion="block"/>
+      </context>
+
+      <context name="SubExpression[" attribute="Normal Text" lineEndContext="#stay">
+        <IncludeRules context="base"/>
+        <DetectChar char="]" context="#pop" attribute="Operator" endRegion="block"/>
+      </context>
+
+      <context name="find_Variable" attribute="Normal Text" lineEndContext="#stay">
+        <RegExpr String="[%&amp;](?=[?*]&alphabetic;)|(?:\$[&twigils;]|::\?)(?=&alphabetic;)" context="Twigil" attribute="Variable"/>
+        <RegExpr String="[$@]\(\)|[%@]?\$/|\$!|\$[0-9]+|[\\@%&amp;$]&ident;" context="#stay" attribute="Variable"/>
+      </context>
+
+      <context name="MaybeRegex" attribute="Normal Text" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <DetectChar char="/" context="#pop!Regex" attribute="Operator" lookAhead="1"/>
+      </context>
+
+      <context name="Twigil" attribute="Variable" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+        <AnyChar String="&twigils;" context="#stay" attribute="Twigil"/>
+        <RegExpr String="&ident;" context="#pop" attribute="Variable"/>
+      </context>
+
+      <context name="RegexKeyword" attribute="Normal Text" lineEndContext="#pop">
+        <DetectChar char="{" context="#pop!Pattern{" attribute="Operator" beginRegion="regex"/>
+      </context>
+
+      <!-- Regex -->
+
+      <context name="Regex" attribute="Pattern" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop">
+        <IncludeRules context="find_RegexClosure"/>
+        <RegExpr String="([^\w\s])" context="Pattern" attribute="Operator" beginRegion="regex"/>
+      </context>
+
+      <context name="find_RegexClosure" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char=":" context="RegexModifier" attribute="Pattern Modifier"/>
+        <DetectChar char="{" context="Pattern{" attribute="Operator" beginRegion="regex"/>
+        <DetectChar char="(" context="Pattern(" attribute="Operator" beginRegion="regex"/>
+        <DetectChar char="[" context="Pattern[" attribute="Operator" beginRegion="regex"/>
+        <DetectChar char="&lt;" context="Pattern&lt;" attribute="Operator" beginRegion="regex"/>
+        <DetectSpaces/>
+      </context>
+
+      <context name="RegexModifier" attribute="Pattern Modifier" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+        <StringDetect String="P5" context="RegexPerl5" attribute="Pattern Modifier"/>
+        <StringDetect String="Perl5" context="RegexPerl5" attribute="Pattern Modifier"/>
+        <DetectIdentifier context="#pop" attribute="Pattern Modifier"/>
+      </context>
+
+      <context name="RegexPerl5" attribute="Pattern Modifier" lineEndContext="#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop#pop!IsRegexPerl5">
+        <DetectSpaces/>
+      </context>
+
+      <context name="IsRegexPerl5" attribute="Pattern" lineEndContext="#stay">
+        <IncludeRules context="find_pattern##Perl"/>
+      </context>
+
+      <context name="Pattern{" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char="}" context="#pop#pop" attribute="Operator" endRegion="regex"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="Pattern[" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char="]" context="#pop#pop" attribute="Operator" endRegion="regex"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="Pattern(" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char=")" context="#pop#pop" attribute="Operator" endRegion="regex"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="Pattern&lt;" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char=">" context="#pop#pop" attribute="Operator" endRegion="regex"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="Pattern" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char="1" dynamic="1" context="#pop#pop" attribute="Operator" endRegion="regex"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="find_Pattern" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar attribute="Operator" context="SubPattern" char="("/>
+        <DetectChar char="\" context="PatternMetaChar" attribute="Pattern Character Class"/>
+        <DetectChar attribute="String Delimiter" context="qq_RawString" char="&quot;"/>
+        <DetectChar attribute="String Delimiter" context="q_RawString" char="'"/>
+        <DetectChar attribute="Pattern Modifier" context="PatternModifier" char=":" lookAhead="1"/>
+        <DetectChar char="{" context="Interpolation" attribute="Operator" beginRegion="block"/>
+        <Detect2Chars attribute="Operator" context="RecursivePattern" char="&lt;" char1="("/>
+        <Detect2Chars attribute="Operator" context="PatternAssertion" char="&lt;" char1="?"/>
+        <Detect2Chars attribute="Operator" context="PatternAssertion" char="&lt;" char1="!"/>
+        <Detect2Chars attribute="Operator" context="#stay" char="&lt;" char1="&lt;"/>
+        <Detect2Chars attribute="Operator" context="#stay" char=">" char1=">"/>
+        <DetectChar attribute="Pattern Meta Character" context="RegexClass" char="&lt;"/>
+        <AnyChar attribute="Pattern Quantifier" context="#stay" String="?*+%"/>
+        <Detect2Chars attribute="Pattern Quantifier" context="#stay" char="." char1="."/>
+        <AnyChar attribute="Operator" context="#stay" String="[]«»~"/>
+        <DetectChar attribute="Pattern Special Character" context="#stay" char="."/>
+        <Detect2Chars attribute="Variable" context="PatternVariable" char="$" char1="&lt;"/>
+        <AnyChar attribute="Pattern Control Flow" context="#stay" String="&amp;|^$"/>
+        <DetectChar attribute="Comment" context="StartComment" char="#"/>
+        <IncludeRules context="find_Variable"/>
+        <RegExpr    String="[&rangealphabetic;&rangenumeric;\s]+" context="#stay" attribute="Pattern"/>
+      </context>
+
+      <context name="SubPattern" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char=")" context="#pop" attribute="Operator"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="RecursivePattern" attribute="Variable" lineEndContext="#stay">
+        <Detect2Chars attribute="Operator" context="#pop" char=")" char1=">"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="PatternModifier" attribute="Pattern Modifier" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+        <RegExpr context="#pop" attribute="Pattern Modifier" String=":\w+"/>
+        <DetectChar attribute="Pattern Control Flow" context="#pop" char=":"/>
+      </context>
+
+      <context name="PatternVariable" attribute="Variable" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+        <RegExpr String="&ident;>?" context="#pop" attribute="Variable"/>
+      </context>
+
+      <context name="PatternAssertion" attribute="Normal Text" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!RegexClass">
+        <DetectChar attribute="Operator" context="#pop" char=">"/>
+        <DetectChar attribute="Operator" context="PatternAssertionCond" char="{"/>
+        <keyword attribute="Keyword" String="assertion" context="SubPatternAssertion"/>
+      </context>
+      <context name="SubPatternAssertion" attribute="Pattern" lineEndContext="#stay">
+        <DetectChar char=">" context="#pop#pop" attribute="Operator"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="PatternAssertionCond" attribute="Normal Text" lineEndContext="#stay">
+        <Detect2Chars attribute="Operator" context="#pop#pop" char="}" char1=">"/>
+        <IncludeRules context="base"/>
+      </context>
+
+      <context name="PatternMetaChar" attribute="Pattern Meta Character" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop!CharError">
+        <AnyChar attribute="Pattern Character Class" context="#pop" String="nthvsdwNTHVSDW"/>
+        <RegExpr String="[^&rangealphabetic;&rangenumeric;]" context="#pop" attribute="Pattern Meta Character"/>
+      </context>
+
+
+      <!-- Pattern Character Classes -->
+
+      <context name="RegexClass" attribute="Pattern Meta Character" lineEndContext="#stay">
+        <DetectSpaces/>
+        <AnyChar    attribute="Operator" context="#stay" String="-!+()"/>
+        <DetectChar attribute="Pattern Meta Character" context="RegexClassRange" char="["/>
+        <DetectChar attribute="Pattern Unicode Property" context="RegexClassName" char=":"/>
+        <DetectChar attribute="Pattern Meta Character" context="#pop" char=">"/>
+        <DetectChar attribute="String Delimiter" context="q_RawString" char="'"/>
+        <DetectChar attribute="String Delimiter" context="qq_RawString" char="&quot;"/>
+        <DetectChar attribute="String Delimiter" context="Q_String｢" char="｢"/>
+        <DetectChar attribute="String Delimiter" context="q_String&lt;" char="&lt;"/>
+        <DetectChar attribute="String Delimiter" context="qq_String«" char="«"/>
+        <RegExpr attribute="String" context="#stay" String="[^-!+()?:&lt;>'&quot;｢«]+"/>
+      </context>
+
+      <context name="RegexClassName" attribute="Pattern Unicode Property" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop">
+        <RegExpr String="\w+" context="#pop" attribute="Pattern Unicode Property"/>
+        <!-- auto-completion only -->
+        <keyword attribute="Pattern Unicode Property" context="#pop" String="unicodeGeneralCategories"/>
+      </context>
+
+      <context name="RegexClassRange" attribute="Pattern Character" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectChar char="\" context="RegexClassRangeMetaChar" attribute="Pattern Character Class"/>
+        <Detect2Chars char="." char1="." context="#stay" attribute="Pattern Quantifier"/>
+        <DetectChar attribute="Pattern Meta Character" context="#pop" char="]"/>
+      </context>
+
+      <context name="RegexClassRangeMetaChar" attribute="Pattern Meta Character" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <IncludeRules context="find_SpecialChar"/>
+        <IncludeRules context="PatternMetaChar"/>
+      </context>
+
+
+      <!-- Regex Substitution -->
+
+      <context name="RegexSubstitution" attribute="Operator" lineEndContext="#stay">
+        <IncludeRules context="find_RegexClosure"/>
+        <RegExpr String="([^\w\s])" context="RegexSubstitutionPattern" attribute="Operator" beginRegion="regex"/>
+      </context>
+
+      <context name="RegexSubstitutionPattern" attribute="Pattern" lineEndContext="#stay">
+        <RegExpr String="(%1)" dynamic="1" context="RegexSubstitutionString" attribute="Operator" endRegion="regex"/>
+        <IncludeRules context="find_Pattern"/>
+      </context>
+
+      <context name="RegexSubstitutionString" attribute="String" lineEndContext="#stay">
+        <DetectChar char="1" dynamic="1" context="#pop#pop#pop" attribute="Operator"/>
+      </context>
+
+
+      <!-- Number -->
+
+      <context name="Number" attribute="Decimal" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!CharErrorIfNoSep">
+        <RegExpr String="&int10;(?:\.&int10;(?:[eE][+-]?&int10;)?|[eE][+-]?&int10;)i?|\.&int10;(?:[eE][+-]?&int10;)?i?" context="CheckNumberError" attribute="Float"/>
+        <Detect2Chars char="0" char1="x" context="HexNumber" attribute="Hex"/>
+        <Detect2Chars char="0" char1="o" context="OctalNumber" attribute="Octal"/>
+        <RegExpr String="&int10;i?" context="CheckNumberError" attribute="Decimal"/>
+        <DetectChar char="." context="#pop" attribute="Operator"/>
+      </context>
+
+      <context name="HexNumber" attribute="Hex" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop!CharErrorIfNoSep">
+        <RegExpr String="[a-fA-F0-9]+(?:_[a-fA-F0-9]+)*i?" context="#pop!CheckNumberError" attribute="Hex"/>
+      </context>
+
+      <context name="OctalNumber" attribute="Octal" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop!CharErrorIfNoSep">
+        <RegExpr String="[0-7]+(?:_[0-7]+)*i?" context="#pop!CheckNumberError" attribute="Octal"/>
+      </context>
+
+      <context name="BaseNumber" attribute="Decimal" lineEndContext="#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop#pop!CharErrorIfNoSep">
+        <DetectChar char="&gt;" context="#pop#pop#pop" attribute="Error"/>
+        <RegExpr String="&intN;\.&intN;|\.&intN;" context="#pop#pop!BaseNumberClose" attribute="Float"/>
+        <RegExpr String="&intN;" context="#pop#pop!BaseNumberClose" attribute="Decimal"/>
+      </context>
+      <context name="BaseNumberClose" attribute="Decimal" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop!CharErrorIfNoSep">
+        <DetectChar char="&gt;" context="#pop#pop" attribute="Operator"/>
+        <IncludeRules context="CheckNumberError"/>
+      </context>
+
+      <context name="CheckNumberError" attribute="Octal" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+        <RegExpr String="&alnum;+" context="#pop#pop" attribute="Error"/>
+      </context>
+
+
+      <!-- Attribute or Key -->
+
+      <context name="MaybeAttribute" attribute="Normal Text" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+        <Int context="MaybeAttribute2" attribute="Decimal"/>
+        <DetectChar char="!" context="#pop" attribute="Operator"/>
+        <RegExpr String="&ident;" context="#pop" attribute="Attribute"/>
+      </context>
+
+      <context name="MaybeAttribute2" attribute="Decimal" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+        <DetectChar char="&lt;" context="BaseNumber" attribute="Operator"/>
+      </context>
+
+
+      <!-- Pod -->
+
+      <context name="StartPod" attribute="Pod Typename" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+        <WordDetect String="begin" context="PodBegin" attribute="Pod Block"/>
+        <WordDetect String="for"   context="PodFor" attribute="Pod Typename"/>
+        <keyword    String="pod"   context="PodTypenameValue" attribute="Pod Typename"/>
+        <RegExpr    String="[_A-Z][-_A-Z0-9]*\b" context="PodTypenameValue" attribute="Pod Typename"/>
+        <RegExpr    String="&ident;" context="PodTypenameValue" attribute="Pod Unknown"/>
+      </context>
+
+      <context name="PodTypenameValue" attribute="Pod Typename Value" lineEndContext="PodTypenameValueNextLine" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Typename Value" context="#stay" String="&allnopodfmt;"/>
+      </context>
+
+      <context name="PodTypenameValueNextLine" attribute="Pod Typename Value" lineEndContext="#stay" lineEmptyContext="#pop#pop#pop" fallthrough="1" fallthroughContext="#pop">
+        <DetectSpaces attribute="Normal Text" context="PodTypenameValueOrEmpty"/>
+        <DetectChar attribute="Pod" context="#pop#pop#pop" char="=" lookAhead="true"/>
+      </context>
+
+      <context name="PodTypenameValueOrEmpty" attribute="Pod Typename Value" lineEndContext="#pop#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+        <DetectChar attribute="Pod" context="#pop#pop#pop#pop" char="=" lookAhead="true"/>
+      </context>
+
+
+      <!-- Pod formatting -->
+
+      <context name="PodFormat" attribute="Pod Typename Value" lineEndContext="#stay">
+        <Detect2Chars char="B" char1="&lt;" attribute="Pod Bold" context="#pop!PodFormatB"/>
+        <Detect2Chars char="B" char1="«"    attribute="Pod Bold" context="#pop!PodFormatB2"/>
+        <Detect2Chars char="I" char1="&lt;" attribute="Pod Italic" context="#pop!PodFormatI"/>
+        <Detect2Chars char="I" char1="«"    attribute="Pod Italic" context="#pop!PodFormatI2"/>
+        <Detect2Chars char="L" char1="&lt;" attribute="Pod Link" context="#pop!PodFormatL"/>
+        <Detect2Chars char="L" char1="«"    attribute="Pod Link" context="#pop!PodFormatL2"/>
+        <Detect2Chars char="N" char1="&lt;" attribute="Pod Note" context="#pop!PodFormatN"/>
+        <Detect2Chars char="N" char1="«"    attribute="Pod Note" context="#pop!PodFormatN2"/>
+        <Detect2Chars char="P" char1="&lt;" attribute="Pod Link" context="#pop!PodFormatL"/>
+        <Detect2Chars char="P" char1="«"    attribute="Pod Link" context="#pop!PodFormatL2"/>
+        <Detect2Chars char="Z" char1="&lt;" attribute="Pod Comment" context="#pop!PodFormatZ"/>
+        <Detect2Chars char="Z" char1="«"    attribute="Pod Comment" context="#pop!PodFormatZ2"/>
+        <Detect2Chars char="U" char1="&lt;" attribute="Pod Underline" context="#pop!PodFormatU"/>
+        <Detect2Chars char="U" char1="«"    attribute="Pod Underline" context="#pop!PodFormatU2"/>
+        <Detect2Chars char="C" char1="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatVT"/>
+        <Detect2Chars char="C" char1="«"    attribute="Pod Verbatim" context="#pop!PodFormatVT2"/>
+        <Detect2Chars char="E" char1="&lt;" attribute="Pod Unicode" context="#pop!PodFormatE"/>
+        <Detect2Chars char="E" char1="«"    attribute="Pod Unicode" context="#pop!PodFormatE2"/>
+        <Detect2Chars char="K" char1="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatVT"/>
+        <Detect2Chars char="K" char1="«"    attribute="Pod Verbatim" context="#pop!PodFormatVT2"/>
+        <Detect2Chars char="R" char1="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatVT"/>
+        <Detect2Chars char="R" char1="«"    attribute="Pod Verbatim" context="#pop!PodFormatVT2"/>
+        <Detect2Chars char="T" char1="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatVT"/>
+        <Detect2Chars char="T" char1="«"    attribute="Pod Verbatim" context="#pop!PodFormatVT2"/>
+        <Detect2Chars char="V" char1="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatV"/>
+        <Detect2Chars char="V" char1="«"    attribute="Pod Verbatim" context="#pop!PodFormatV2"/>
+        <Detect2Chars char="X" char1="&lt;" attribute="Pod Indexed Terms" context="#pop!PodFormatX"/>
+        <Detect2Chars char="X" char1="«"    attribute="Pod Indexed Terms" context="#pop!PodFormatX2"/>
+        <Detect2Chars char="M" char1="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatVT"/>
+        <Detect2Chars char="M" char1="«"    attribute="Pod Verbatim" context="#pop!PodFormatVT2"/>
+      </context>
+
+      <context name="PodFormatB" attribute="Pod Bold" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatB1">
+        <DetectChar char="&lt;" attribute="Pod Bold" context="#pop!PodFormatB3"/>
+      </context>
+      <context name="PodFormatB1" attribute="Pod Bold" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Bold" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Bold" context="PodFormatB1"/>
+        <DetectChar char=">" attribute="Pod Bold" context="#pop"/>
+      </context>
+      <context name="PodFormatB2" attribute="Pod Bold" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Bold" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Bold" context="PodFormatB2"/>
+        <DetectChar char="»" attribute="Pod Bold" context="#pop"/>
+      </context>
+      <context name="PodFormatB3" attribute="Pod Bold" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Bold" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Bold" context="PodFormatB3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Bold" context="#pop"/>
+      </context>
+
+      <context name="PodFormatE" attribute="Pod Unicode" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatE1">
+        <DetectChar char="&lt;" attribute="Pod Unicode" context="#pop!PodFormatE3"/>
+      </context>
+      <context name="PodFormatE1" attribute="Pod Unicode" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Unicode" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Unicode" context="PodFormatE1"/>
+        <DetectChar char=">" attribute="Pod Unicode" context="#pop"/>
+      </context>
+      <context name="PodFormatE2" attribute="Pod Unicode" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Unicode" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Unicode" context="PodFormatE2"/>
+        <DetectChar char="»" attribute="Pod Unicode" context="#pop"/>
+      </context>
+      <context name="PodFormatE3" attribute="Pod Unicode" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Unicode" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Unicode" context="PodFormatE3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Unicode" context="#pop"/>
+      </context>
+
+      <context name="PodFormatI" attribute="Pod Italic" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatI1">
+        <DetectChar char="&lt;" attribute="Pod Italic" context="#pop!PodFormatI3"/>
+      </context>
+      <context name="PodFormatI1" attribute="Pod Italic" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Italic" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Italic" context="PodFormatI1"/>
+        <DetectChar char=">" attribute="Pod Italic" context="#pop"/>
+      </context>
+      <context name="PodFormatI2" attribute="Pod Italic" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Italic" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Italic" context="PodFormatI2"/>
+        <DetectChar char="»" attribute="Pod Italic" context="#pop"/>
+      </context>
+      <context name="PodFormatI3" attribute="Pod Italic" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Italic" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Italic" context="PodFormatI3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Italic" context="#pop"/>
+      </context>
+
+      <context name="PodFormatL" attribute="Pod Link" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatL1">
+        <DetectChar char="&lt;" attribute="Pod Link" context="#pop!PodFormatL3"/>
+      </context>
+      <context name="PodFormatL1" attribute="Pod Link" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Link" context="#stay" String="(?:[^&podfmt;&lt;>|]+|[&podfmt;](?![&lt;«]))+"/>
+        <DetectChar char="|" attribute="Pod Operator" context="#stay"/>
+        <DetectChar char=">" attribute="Pod Link" context="#pop"/>
+      </context>
+      <context name="PodFormatL2" attribute="Pod Link" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Link" context="#stay" String="(?:[^&podfmt;«»|]+|[&podfmt;](?![&lt;«]))+"/>
+        <DetectChar char="|" attribute="Pod Operator" context="#stay"/>
+        <DetectChar char="»" attribute="Pod Link" context="#pop"/>
+      </context>
+      <context name="PodFormatL3" attribute="Pod Link" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Link" context="#stay" String="(?:[^&podfmt;&lt;>|]+|[&podfmt;](?![&lt;«])|>(?!>)|&lt;(?!&lt;))+"/>
+        <DetectChar char="|" attribute="Pod Operator" context="#stay"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Link" context="#pop"/>
+      </context>
+
+      <context name="PodFormatN" attribute="Pod Note" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatN1">
+        <DetectChar char="&lt;" attribute="Pod Note" context="#pop!PodFormatN3"/>
+      </context>
+      <context name="PodFormatN1" attribute="Pod Note" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Note" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Note" context="PodFormatN1"/>
+        <DetectChar char=">" attribute="Pod Note" context="#pop"/>
+      </context>
+      <context name="PodFormatN2" attribute="Pod Note" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Note" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Note" context="PodFormatN2"/>
+        <DetectChar char="»" attribute="Pod Note" context="#pop"/>
+      </context>
+      <context name="PodFormatN3" attribute="Pod Note" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Note" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Note" context="PodFormatN3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Note" context="#pop"/>
+      </context>
+
+      <context name="PodFormatU" attribute="Pod Underline" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatU1">
+        <DetectChar char="&lt;" attribute="Pod Underline" context="#pop!PodFormatU3"/>
+      </context>
+      <context name="PodFormatU1" attribute="Pod Underline" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Underline" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Underline" context="PodFormatU1"/>
+        <DetectChar char=">" attribute="Pod Underline" context="#pop"/>
+      </context>
+      <context name="PodFormatU2" attribute="Pod Underline" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Underline" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Underline" context="PodFormatU2"/>
+        <DetectChar char="»" attribute="Pod Underline" context="#pop"/>
+      </context>
+      <context name="PodFormatU3" attribute="Pod Underline" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Underline" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Underline" context="PodFormatU3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Underline" context="#pop"/>
+      </context>
+
+      <context name="PodFormatV" attribute="Pod Verbatim" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatV1">
+        <DetectChar char="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatV3"/>
+      </context>
+      <context name="PodFormatV1" attribute="Pod Verbatim" lineEndContext="#stay">
+        <RegExpr attribute="Pod Verbatim" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Verbatim" context="PodFormatV1"/>
+        <DetectChar char=">" attribute="Pod Verbatim" context="#pop"/>
+      </context>
+      <context name="PodFormatV2" attribute="Pod Verbatim" lineEndContext="#stay">
+        <RegExpr attribute="Pod Verbatim" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Verbatim" context="PodFormatV2"/>
+        <DetectChar char="»" attribute="Pod Verbatim" context="#pop"/>
+      </context>
+      <context name="PodFormatV3" attribute="Pod Verbatim" lineEndContext="#stay">
+        <RegExpr attribute="Pod Verbatim" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Verbatim" context="PodFormatV3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Verbatim" context="#pop"/>
+      </context>
+
+      <context name="PodFormatVT" attribute="Pod Verbatim" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatVT1">
+        <DetectChar char="&lt;" attribute="Pod Verbatim" context="#pop!PodFormatVT3"/>
+      </context>
+      <context name="PodFormatVT1" attribute="Pod Verbatim" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Verbatim" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Verbatim" context="PodFormatVT1"/>
+        <DetectChar char=">" attribute="Pod Verbatim" context="#pop"/>
+      </context>
+      <context name="PodFormatVT2" attribute="Pod Verbatim" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Verbatim" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Verbatim" context="PodFormatVT2"/>
+        <DetectChar char="»" attribute="Pod Verbatim" context="#pop"/>
+      </context>
+      <context name="PodFormatVT3" attribute="Pod Verbatim" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Verbatim" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Verbatim" context="PodFormatVT3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Verbatim" context="#pop"/>
+      </context>
+
+      <context name="PodFormatZ" attribute="Pod Comment" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatZ1">
+        <DetectChar char="&lt;" attribute="Pod Comment" context="#pop!PodFormatZ3"/>
+      </context>
+      <context name="PodFormatZ1" attribute="Pod Comment" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Comment" context="#stay" String="&allnopodfmt1;"/>
+        <DetectChar char="&lt;" attribute="Pod Comment" context="PodFormatZ1"/>
+        <DetectChar char=">" attribute="Pod Comment" context="#pop"/>
+      </context>
+      <context name="PodFormatZ2" attribute="Pod Comment" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Comment" context="#stay" String="&allnopodfmt2;"/>
+        <DetectChar char="«" attribute="Pod Comment" context="PodFormatZ2"/>
+        <DetectChar char="»" attribute="Pod Comment" context="#pop"/>
+      </context>
+      <context name="PodFormatZ3" attribute="Pod Comment" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Comment" context="#stay" String="&allnopodfmt3;"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Comment" context="PodFormatZ3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Comment" context="#pop"/>
+      </context>
+
+      <context name="PodFormatX" attribute="Pod Indexed Terms" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!PodFormatX1">
+        <DetectChar char="&lt;" attribute="Pod Indexed Terms" context="#pop!PodFormatX3"/>
+      </context>
+      <context name="PodFormatX1" attribute="Pod Indexed Terms" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Link" context="#stay" String="(?:[^&podfmt;&lt;>|;,]+|[&podfmt;](?![&lt;«]))+"/>
+        <AnyChar String="|;," attribute="Pod Operator" context="#stay"/>
+        <DetectChar char=">" attribute="Pod Indexed Terms" context="#pop"/>
+      </context>
+      <context name="PodFormatX2" attribute="Pod Indexed Terms" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Link" context="#stay" String="(?:[^&podfmt;«»|;,]+|[&podfmt;](?![&lt;«]))+"/>
+        <AnyChar String="|;," attribute="Pod Operator" context="#stay"/>
+        <DetectChar char="«" attribute="Pod Indexed Terms" context="PodFormatX2"/>
+        <DetectChar char="»" attribute="Pod Indexed Terms" context="#pop"/>
+      </context>
+      <context name="PodFormatX3" attribute="Pod Indexed Terms" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodFormat">
+        <RegExpr attribute="Pod Link" context="#stay" String="(?:[^&podfmt;&lt;>|;,]+|[&podfmt;](?![&lt;«])|>(?!>)|&lt;(?!&lt;))+"/>
+        <AnyChar String="|;," attribute="Pod Operator" context="#stay"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Pod Indexed Terms" context="PodFormatX3"/>
+        <Detect2Chars char=">" char1=">" attribute="Pod Indexed Terms" context="#pop"/>
+      </context>
+
+      <!-- Pod =begin -->
+
+      <context name="PodBegin" attribute="Pod Typename Value" lineEndContext="#pop#pop!Error">
+        <DetectSpaces attribute="Normal Text"/>
+        <WordDetect String="code" context="PodBeginCode" attribute="Pod Typename Value" beginRegion="pod"/>
+        <WordDetect String="comment" context="PodBeginComment" attribute="Pod Typename Value" beginRegion="pod"/>
+        <RegExpr String="(&ident;)" context="PodBeginTypename" attribute="Pod Typename Value" beginRegion="pod"/>
+        <!-- auto-completion only -->
+        <keyword String="podblocktypename" context="#stay" attribute="Pod Typename Value"/>
+      </context>
+
+      <context name="PodBeginCode" attribute="Error" lineEndContext="PodInnerCode">
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar char=":" context="PodBlockConfigKey" attribute="Pod Operator"/>
+        <DetectChar char="=" context="PodEndCode" attribute="Pod" firstNonSpace="1"/>
+      </context>
+
+      <context name="PodInnerCode" attribute="Pod Verbatim" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodCode">
+        <RegExpr String="^\s*=end\s+code\s*$" context="#pop" attribute="Pod" column="0" lookAhead="1"/>
+      </context>
+      <context name="PodCode" attribute="Pod Verbatim" lineEndContext="#pop"/>
+
+      <context name="PodEndCode" attribute="Pod Paragraph" lineEndContext="#pop#pop#pop">
+        <StringDetect String="end" context="PodEndCodeName" attribute="Pod Block" endRegion="pod"/>
+      </context>
+      <context name="PodEndCodeName" attribute="Pod Paragraph" lineEndContext="#pop#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop#pop#pop!Error">
+        <DetectSpaces attribute="Normal Text"/>
+        <StringDetect String="code" context="#pop#pop#pop#pop!Error" attribute="Pod Typename Value"/>
+      </context>
+
+
+      <context name="PodBeginComment" attribute="Error" lineEndContext="PodInnerComment">
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar char="=" context="PodEndComment" attribute="Pod" firstNonSpace="1"/>
+      </context>
+
+      <context name="PodInnerComment" attribute="Comment" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodComment">
+        <RegExpr String="^\s*=end\s+comment\s*$" context="#pop" attribute="Pod" column="0" lookAhead="1"/>
+      </context>
+      <context name="PodComment" attribute="Comment" lineEndContext="#pop"/>
+
+      <context name="PodEndComment" attribute="Pod Paragraph" lineEndContext="#pop#pop#pop">
+        <StringDetect String="end" context="PodEndCommentName" attribute="Pod Block" endRegion="pod"/>
+      </context>
+      <context name="PodEndCommentName" attribute="Pod Paragraph" lineEndContext="#pop#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop#pop#pop!Error">
+        <DetectSpaces attribute="Normal Text"/>
+        <StringDetect String="comment" context="#pop#pop#pop#pop!Error" attribute="Pod Typename Value"/>
+      </context>
+
+
+      <context name="PodBeginTypename" attribute="Error" lineEndContext="PodInnerBlock">
+        <RegExpr String="^\s*=end\s+%1\b" dynamic="1" context="PodEnd" attribute="Pod" column="0" lookAhead="1"/>
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar char=":" context="PodBlockConfigKey" attribute="Pod Operator"/>
+        <DetectChar char="=" context="PodEndError" attribute="Pod" firstNonSpace="1"/>
+      </context>
+
+      <context name="PodInnerBlock" attribute="Pod Paragraph" lineEndContext="#stay" fallthrough="1" fallthroughContext="PodInnerBlockFormat">
+        <RegExpr String="^\s*=end\b" context="#pop" attribute="Pod" column="0" lookAhead="1"/>
+        <DetectSpaces/>
+        <DetectChar char="=" context="StartPod" attribute="Pod" firstNonSpace="1"/>
+        <RegExpr attribute="Pod Paragraph" context="#stay" String="&allnopodfmt;"/>
+      </context>
+
+      <context name="PodInnerBlockFormat" attribute="Pod Paragraph" lineEndContext="#stay">
+        <IncludeRules context="PodFormat"/>
+      </context>
+
+      <context name="PodEnd" attribute="Pod Paragraph" lineEndContext="#pop#pop#pop">
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar char="=" context="#stay" attribute="Pod"/>
+        <StringDetect String="end" context="PodEndName" attribute="Pod Block" endRegion="pod"/>
+      </context>
+      <context name="PodEndName" attribute="Pod Paragraph" lineEndContext="#pop#pop#pop#pop">
+        <DetectSpaces attribute="Normal Text"/>
+        <RegExpr String="&ident;" context="#pop#pop#pop#pop!Error" attribute="Pod Typename Value"/>
+      </context>
+
+      <context name="PodEndError" attribute="Pod Paragraph" lineEndContext="#pop#pop#pop">
+        <StringDetect String="end" attribute="Pod Block" context="#pop#pop#pop!Error" endRegion="pod"/>
+      </context>
+
+      <!-- Pod configuration for =begin -->
+
+      <context name="PodBlockConfigError" attribute="Error" lineEndContext="#pop#pop!PodInnerBlock"/>
+
+      <context name="PodBlockConfigKey" attribute="Pod Key" lineEndContext="#pop!PodInnerBlock" fallthrough="1" fallthroughContext="PodBlockConfigError">
+        <DetectChar char="!" context="#pop!PodBlockConfigKeyName" attribute="Pod Operator"/>
+        <Int context="PodBlockConfigKeyIntName" attribute="Decimal"/>
+        <DetectIdentifier context="PodBlockConfigParam" attribute="Pod Key"/>
+      </context>
+
+      <context name="PodBlockConfigKeyName" attribute="Pod Key" lineEndContext="#pop!PodTypenameValue" fallthrough="1" fallthroughContext="PodBlockConfigError">
+        <DetectIdentifier context="PodBlockConfigParam" attribute="Pod Key"/>
+      </context>
+
+      <context name="PodBlockConfigKeyIntName" attribute="Pod Key" lineEndContext="#pop#pop!PodBlockConfigError" fallthrough="1" fallthroughContext="#pop!PodBlockConfigError">
+        <DetectIdentifier context="#pop#pop" attribute="Pod Key"/>
+      </context>
+
+      <context name="PodBlockConfigParam" attribute="Pod Key" lineEndContext="#pop#pop#pop" fallthrough="1" fallthroughContext="#pop">
+        <AnyChar String="&lt;" context="PodParamSequence" attribute="Pod Operator"/>
+        <DetectChar char="{" context="PodParamHash" attribute="Pod Operator"/>
+        <AnyChar String="([" context="PodParamList" attribute="Pod Operator"/>
+      </context>
+
+
+      <!-- Pod =for -->
+
+      <context name="PodFor" attribute="Pod Typename" lineEndContext="#pop#pop!Error" fallthrough="1" fallthroughContext="#pop#pop!Error">
+        <DetectSpaces attribute="Normal Text"/>
+        <keyword String="podtypename" context="#pop!PodConfig" attribute="Pod Typename"/>
+      </context>
+
+      <!-- Pod configuration for =for -->
+
+      <context name="PodConfigError" attribute="Error" lineEndContext="#pop#pop!PodTypenameValue"/>
+
+      <context name="PodConfig" attribute="Normal Text" lineEndContext="#pop!PodTypenameValue" fallthrough="1" fallthroughContext="PodConfigError">
+        <DetectSpaces/>
+        <DetectChar char=":" context="PodConfigKey" attribute="Pod Operator"/>
+      </context>
+
+      <context name="PodConfigKey" attribute="Pod Key" lineEndContext="#pop#pop!PodTypenameValue" fallthrough="1" fallthroughContext="#pop!PodConfigError">
+        <DetectChar char="!" context="#pop!PodConfigKeyName" attribute="Pod Operator"/>
+        <Int context="PodConfigKeyIntName" attribute="Decimal"/>
+        <DetectIdentifier context="PodConfigParam" attribute="Pod Key"/>
+      </context>
+
+      <context name="PodConfigKeyName" attribute="Pod Key" lineEndContext="#pop#pop!PodTypenameValue" fallthrough="1" fallthroughContext="#pop!PodConfigError">
+        <DetectIdentifier context="PodConfigParam" attribute="Pod Key"/>
+      </context>
+
+      <context name="PodConfigKeyIntName" attribute="Pod Key" lineEndContext="#pop#pop#pop!PodConfigError" fallthrough="1" fallthroughContext="#pop#pop!PodConfigError">
+        <DetectIdentifier context="#pop#pop" attribute="Pod Key"/>
+      </context>
+
+      <context name="PodConfigParam" attribute="Pod Key" lineEndContext="#pop#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+        <AnyChar String="&lt;" context="PodParamSequence" attribute="Pod Operator"/>
+        <DetectChar char="{" context="PodParamHash" attribute="Pod Operator"/>
+        <AnyChar String="([" context="PodParamList" attribute="Pod Operator"/>
+      </context>
+
+      <context name="PodParamSequence" attribute="Pod Config" lineEndContext="#stay">
+        <DetectSpaces/>
+        <keyword String="podvalue" context="#stay" attribute="Data Type"/>
+        <DetectIdentifier/>
+        <AnyChar String="0123456789." context="Number" lookAhead="1"/>
+        <DetectChar char=">" context="#pop#pop#pop" attribute="Pod Operator"/>
+        <DetectChar char="'" context="PodSQString" attribute="String"/>
+        <DetectChar char="&quot;" context="PodQString" attribute="String"/>
+      </context>
+
+      <context name="PodParamHash" attribute="Pod Config" lineEndContext="#stay">
+        <DetectSpaces/>
+        <Detect2Chars char="=" char1=">" context="#stay" attribute="Pod Operator"/>
+        <DetectChar char="," context="#stay" attribute="Pod Operator"/>
+        <keyword String="podvalue" context="#stay" attribute="Data Type"/>
+        <DetectIdentifier/>
+        <DetectChar char="'" context="PodSQString" attribute="String"/>
+        <DetectChar char="&quot;" context="PodQString" attribute="String"/>
+        <AnyChar String="0123456789." context="Number" lookAhead="1"/>
+        <DetectChar char="}" context="#pop#pop#pop" attribute="Pod Operator"/>
+      </context>
+
+      <context name="PodParamList" attribute="Pod Config" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectChar char="," context="#stay" attribute="Pod Operator"/>
+        <keyword String="podvalue" context="#stay" attribute="Data Type"/>
+        <DetectIdentifier/>
+        <DetectChar char="'" context="PodSQString" attribute="String"/>
+        <DetectChar char="&quot;" context="PodQString" attribute="String"/>
+        <AnyChar String="0123456789." context="Number" lookAhead="1"/>
+        <AnyChar String="])" context="#pop#pop#pop" attribute="Pod Operator"/>
+      </context>
+
+
+      <!-- Pod String -->
+
+      <context name="PodSQString" attribute="String" lineEndContext="#stay">
+        <Detect2Chars char="\" char1="'" context="#stay" attribute="String Special Character"/>
+        <DetectChar char="'" context="#pop" attribute="String Delimiter"/>
+        <RegExpr String="(?:[^\\']*|\\[^']|\\$)*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="PodQString" attribute="String" lineEndContext="#stay">
+        <DetectChar char="&quot;" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="\" context="SpecialChar" attribute="String Special Character"/>
+        <RegExpr String="(?:[^&quot;\\]*|\\$)*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="find_SpecialChar" attribute="String Special Character" lineEndContext="#stay">
+        <Detect2Chars char="c" char1="[" context="UnicodeCodepoint" attribute="String Special Character"/>
+        <DetectChar char="c" context="UnicodeCodepointDecimal" attribute="String Special Character"/>
+        <DetectChar char="x" context="HexaString" attribute="String Special Character"/>
+        <DetectChar char="o" context="OctalString" attribute="String Special Character"/>
+      </context>
+
+      <context name="SpecialChar" attribute="String Special Character" lineEndContext="#pop">
+        <IncludeRules context="find_SpecialChar"/>
+        <RegExpr String="." context="#pop" attribute="String"/>
+      </context>
+
+      <context name="UnicodeCodepoint" attribute="String Special Character" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectIdentifier/>
+        <DetectChar char="]" context="#pop#pop" attribute="String Special Character"/>
+        <DetectChar char="," context="#stay" attribute="Separator Symbol"/>
+      </context>
+
+      <context name="UnicodeCodepointDecimal" attribute="String Special Character" lineEndContext="#pop#pop">
+        <!-- 0 to 1114111 -->
+        <RegExpr String="0*(?:1(?:0\d{5}|1(?:O\d{4}|(?:1[0-3]\d{3}|4(?:0\d\d|1(?:0\d|1[01]))))))|\d{1,6}|0+" context="UnicodeCodepointDecimalCheck" attribute="String Special Character"/>
+        <RegExpr String="[^&quot;]" context="#pop" attribute="Error"/>
+      </context>
+      <context name="UnicodeCodepointDecimalCheck" attribute="Error" lineEndContext="#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop#pop">
+        <AnyChar String="0123456789" context="#pop#pop#pop" attribute="Error"/>
+      </context>
+
+      <context name="HexaString" attribute="String Special Character" lineEndContext="#pop#pop">
+        <DetectChar char="[" context="HexaStringBracket" attribute="String Special Character"/>
+        <!-- 0 to 0x10FFFF -->
+        <RegExpr String="0*(?:10[0-9a-fA-F]{4}|[0-9a-fA-F]{1,5})|0+" context="HexaStringCheck" attribute="String Special Character"/>
+        <RegExpr String="[^&quot;]" context="#pop#pop" attribute="Error"/>
+      </context>
+      <context name="HexaStringCheck" attribute="Error" lineEndContext="#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop#pop">
+        <AnyChar String="0123456789abcdefABCDEF" context="#pop#pop#pop" attribute="Error"/>
+      </context>
+      <context name="HexaStringBracket" attribute="String Special Character" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectChar char="]" context="#pop#pop#pop" attribute="Error"/>
+        <!-- 0 to 0x10FFFF -->
+        <RegExpr String="0*(?:10[0-9a-fA-F]{4}|[0-9a-fA-F]{1,5})|0+" context="HexaStringBracketCheck" attribute="String Special Character"/>
+      </context>
+      <context name="HexaStringBracketCheck" attribute="String Special Character" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop#pop#pop#pop">
+        <DetectChar char="]" context="#pop#pop#pop#pop" attribute="String Special Character"/>
+        <DetectChar char="," context="#pop" attribute="Separator Symbol"/>
+        <RegExpr String="[^]&quot;]" context="#stay" attribute="Error"/>
+      </context>
+
+      <context name="OctalString" attribute="String Special Character" lineEndContext="#pop#pop">
+        <DetectChar char="[" context="OctalStringBracket" attribute="String Special Character"/>
+        <!-- 0 to 0o4177777 -->
+        <RegExpr String="0*(?:[0-3][0-7]{6}|4[01]|[0-7])[0-7]{0,5}|0+" context="OctalStringCheck" attribute="String Special Character"/>
+        <RegExpr String="[^&quot;]" context="#stay" attribute="Error"/>
+      </context>
+      <context name="OctalStringCheck" attribute="Error" lineEndContext="#pop#pop#pop" fallthrough="1" fallthroughContext="#pop#pop#pop">
+        <AnyChar String="01234567" context="#pop#pop#pop" attribute="Error"/>
+      </context>
+      <context name="OctalStringBracket" attribute="String Special Character" lineEndContext="#stay">
+        <DetectChar char="]" context="#pop#pop#pop" attribute="Error"/>
+        <!-- 0 to 0o4177777 -->
+        <RegExpr String="0*(?:[0-3][0-7]{6}|4[01]|[0-7])[0-7]{0,5}|0+" context="OctalStringBracketCheck" attribute="String Special Character"/>
+      </context>
+      <context name="OctalStringBracketCheck" attribute="String Special Character" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop#pop#pop#pop">
+        <DetectChar char="]" context="#pop#pop#pop#pop" attribute="String Special Character"/>
+        <DetectChar char="," context="#pop" attribute="Separator Symbol"/>
+        <RegExpr String="[^]&quot;]" context="#stay" attribute="Error"/>
+      </context>
+
+
+      <!-- Q String -->
+
+      <context name="Q_String" attribute="String" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop">
+        <RegExpr String="Q\s+(?=['(])|Q\s*(?=[^()>｣\]}'a-zA-Z0-9])" context="Q_StringOpen" attribute="String"/>
+        <RegExpr String="Q\s*$" context="Q_String2" attribute="String"/>
+      </context>
+
+      <context name="Q_String2" attribute="String" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!Q_StringOpen">
+        <DetectSpaces/>
+      </context>
+
+      <context name="Q_StringOpen" attribute="String" lineEndContext="#stay">
+        <DetectChar char=":" context="#pop#pop!Q_StringModifier" attribute="Operator"/>
+        <DetectChar char="(" context="#pop#pop!Q_String(" attribute="String Delimiter"/>
+        <DetectChar char="[" context="#pop#pop!Q_String[" attribute="String Delimiter"/>
+        <DetectChar char="{" context="#pop#pop!Q_String{" attribute="String Delimiter"/>
+        <DetectChar char="｢" context="#pop#pop!Q_String｢" attribute="String Delimiter"/>
+        <DetectChar char="&lt;" context="#pop#pop!Q_String&lt;" attribute="String Delimiter"/>
+        <RegExpr String="(.)" context="#pop#pop!Q_StringAny" attribute="String Delimiter"/>
+      </context>
+
+      <context name="Q_String(" attribute="String" lineEndContext="#stay">
+        <DetectChar char=")" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="(" context="Q_String(" attribute="String Delimiter"/>
+        <RegExpr String="[^()]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="Q_String[" attribute="String" lineEndContext="#stay">
+        <DetectChar char="]" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="[" context="Q_String[" attribute="String Delimiter"/>
+        <RegExpr String="[^\[\]]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="Q_String{" attribute="String" lineEndContext="#stay">
+        <DetectChar char="}" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="{" context="Q_String{" attribute="String Delimiter"/>
+        <RegExpr String="[^{}]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="Q_String｢" attribute="String" lineEndContext="#stay">
+        <DetectChar char="｣" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="｢" context="Q_String｢" attribute="String Delimiter"/>
+        <RegExpr String="[^｢｣]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="Q_String&lt;" attribute="String" lineEndContext="#stay">
+        <DetectChar char=">" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="&lt;" context="Q_String&lt;" attribute="String Delimiter"/>
+        <RegExpr String="[^&lt;>]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="Q_StringAny" attribute="String" lineEndContext="#stay">
+        <DetectChar char="1" dynamic="1" context="#pop" attribute="String Delimiter"/>
+        <RegExpr String="[^%1]*" dynamic="1" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="q_Q_StringModifier" attribute="Operator" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop#pop!q_String">
+        <DetectChar char=":" context="#pop#pop!q_QuotingForm2" attribute="Operator"/>
+      </context>
+
+      <context name="qq_Q_StringModifier" attribute="Operator" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop#pop!qq_String">
+        <DetectChar char=":" context="#pop!qq_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <context name="Q_StringModifier" attribute="Operator" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop!q_QuotingForm2">
+        <DetectChar char="q" context="#pop!q_QuotingForm" attribute="Operator"/>
+        <DetectChar char="'" context="q_Q_StringModifier" attribute="Operator"/>
+        <DetectChar char="&quot;" context="qq_Q_StringModifier" attribute="Operator"/>
+      </context>
+
+      <context name="q_QuotingForm" attribute="Operator" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop!q_QuotingForm2">
+        <DetectChar char="q" context="#pop!qq_QuotingForm" attribute="Operator"/>
+        <DetectChar char=":" context="#pop!q_QuotingForm2" attribute="Operator"/>
+      </context>
+      <context name="q_QuotingForm2" attribute="Operator" lineEndContext="#pop" fallthrough="1" fallthroughContext="q_String">
+        <AnyChar String="wvx:sahfb" context="#stay" attribute="Operator"/>
+        <!-- :closure as qq -->
+        <DetectChar char="c" context="#pop!qq_QuotingForm" attribute="Operator"/>
+        <Detect2Chars char="t" char1="o" context="q_Heredoc" attribute="Operator"/>
+        <WordDetect String="heredoc" context="q_Heredoc" attribute="Operator"/>
+        <keyword String="quoting" context="#stay" attribute="Operator"/>
+      </context>
+
+      <context name="qq_QuotingForm" attribute="Operator" lineEndContext="#pop" fallthrough="1" fallthroughContext="qq_String">
+        <AnyChar String="wvx:sahfcb" context="#stay" attribute="Operator"/>
+        <Detect2Chars char="t" char1="o" context="qq_Heredoc" attribute="Operator"/>
+        <WordDetect String="heredoc" context="qq_Heredoc" attribute="Operator"/>
+        <keyword String="quoting" context="#stay" attribute="Operator"/>
+      </context>
+
+
+      <!-- q and qq Heredoc -->
+
+      <context name="q_Heredoc" attribute="String" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+        <RegExpr String="/([^/]+)/" context="q_HeredocTerminator" attribute="String Delimiter"/>
+      </context>
+      <context name="q_HeredocTerminator" attribute="String" lineEndContext="#stay">
+        <DetectSpaces/>
+        <StringDetect String="%1" dynamic="1" context="#pop#pop#pop" attribute="String Delimiter" firstNonSpace="1"/>
+        <RegExpr String="(?:[^\\]*|\\(?![\\%1]|&quotingconstruct;|$))*" dynamic="1" context="#stay" attribute="String"/>
+        <Detect2Chars char="\" char1="q" context="q_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <context name="qq_Heredoc" attribute="String" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+        <RegExpr String="/([^/]+)/" context="qq_HeredocTerminator" attribute="String Delimiter"/>
+      </context>
+      <context name="qq_HeredocTerminator" attribute="String" lineEndContext="#stay">
+        <DetectSpaces/>
+        <StringDetect String="%1" dynamic="1" context="#pop#pop#pop" attribute="String Delimiter" firstNonSpace="1"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^\\${@&amp;]*" context="#stay" attribute="String"/>
+      </context>
+
+
+      <!-- q String -->
+
+      <context name="q_String" attribute="String" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop#pop">
+        <DetectSpaces/>
+        <DetectChar char="(" context="#pop#pop!q_String(" attribute="String Delimiter"/>
+        <DetectChar char="[" context="#pop#pop!q_String[" attribute="String Delimiter"/>
+        <DetectChar char="{" context="#pop#pop!q_String{" attribute="String Delimiter"/>
+        <DetectChar char="&lt;" context="#pop#pop!q_String&lt;" attribute="String Delimiter"/>
+        <RegExpr String="([^a-zA-Z0-9])" context="#pop#pop!q_StringAny" attribute="String Delimiter"/>
+      </context>
+
+      <context name="q_String(" attribute="String" lineEndContext="#stay">
+        <DetectChar char=")" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="(" context="q_String(" attribute="String Delimiter"/>
+        <Detect2Chars char="\" char1="(" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1=")" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="\" context="#stay" attribute="String Special Character"/>
+        <RegExpr String="(?:[^()\\]*|\\(?![()\\]|&quotingconstruct;|$))*" context="#stay" attribute="String"/>
+        <Detect2Chars char="\" char1="q" context="q_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <context name="q_String[" attribute="String" lineEndContext="#stay">
+        <DetectChar char="]" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="[" context="q_String[" attribute="String Delimiter"/>
+        <Detect2Chars char="\" char1="[" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="]" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="\" context="#stay" attribute="String Special Character"/>
+        <RegExpr String="(?:[^\[\]\\]*|\\(?![\[\]\\]|&quotingconstruct;|$))*" context="#stay" attribute="String"/>
+        <Detect2Chars char="\" char1="q" context="q_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <context name="q_String{" attribute="String" lineEndContext="#stay">
+        <DetectChar char="}" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="{" context="q_String{" attribute="String Delimiter"/>
+        <Detect2Chars char="\" char1="{" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="}" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="\" context="#stay" attribute="String Special Character"/>
+        <RegExpr String="(?:[^{}\\]*|\\(?![{}\\]|&quotingconstruct;|$))*" context="#stay" attribute="String"/>
+        <Detect2Chars char="\" char1="q" context="q_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <context name="q_String&lt;" attribute="String" lineEndContext="#stay">
+        <DetectChar char=">" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="&lt;" context="q_String&lt;" attribute="String Delimiter"/>
+        <Detect2Chars char="\" char1="&lt;" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1=">" context="#stay" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="\" context="#stay" attribute="String Special Character"/>
+        <RegExpr String="(?:[^&lt;>\\]*|\\(?![&lt;>\\]|&quotingconstruct;|$))*" context="#stay" attribute="String"/>
+        <Detect2Chars char="\" char1="q" context="q_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <context name="q_StringAny" attribute="String" lineEndContext="#stay">
+        <DetectChar char="1" dynamic="1" context="#pop" attribute="String Delimiter"/>
+        <StringDetect String="\%1" dynamic="1" context="#stay" attribute="String Special Character"/>
+        <RegExpr String="(?:[^\\%1]*|\\(?![\\%1]|&quotingconstruct;|$))*" dynamic="1" context="#stay" attribute="String"/>
+        <Detect2Chars char="\" char1="q" context="q_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <context name="q_RawString" attribute="String" lineEndContext="#stay">
+        <DetectChar char="'" context="#pop" attribute="String Delimiter"/>
+        <Detect2Chars char="\" char1="'" context="#stay" attribute="String Special Character"/>
+        <RegExpr String="(?:[^\\']*|\\(?![\\']|&quotingconstruct;|$))*" context="#stay" attribute="String"/>
+        <Detect2Chars char="\" char1="q" context="q_QuotingForm" attribute="Operator"/>
+      </context>
+
+      <!-- qq String -->
+
+      <context name="qq_String" attribute="String" lineEndContext="#stay" fallthrough="1" fallthroughContext="#pop#pop">
+        <DetectSpaces/>
+        <DetectChar char="(" context="#pop#pop!qq_String(" attribute="String Delimiter"/>
+        <DetectChar char="[" context="#pop#pop!qq_String[" attribute="String Delimiter"/>
+        <DetectChar char="{" context="#pop#pop!qq_String{" attribute="String Delimiter"/>
+        <DetectChar char="&lt;" context="#pop#pop!qq_String&lt;" attribute="String Delimiter"/>
+        <RegExpr String="([^a-zA-Z0-9])" context="#pop#pop!qq_StringAny" attribute="String Delimiter"/>
+      </context>
+
+      <context name="qq_String(" attribute="String" lineEndContext="#stay">
+        <DetectChar char=")" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="(" context="qq_String(" attribute="String Delimiter"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^()\\${@&amp;]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="qq_String[" attribute="String" lineEndContext="#stay">
+        <DetectChar char="]" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="[" context="qq_String[" attribute="String Delimiter"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^\[\]\\${@&amp;]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="qq_String{" attribute="String" lineEndContext="#stay">
+        <DetectChar char="}" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="{" context="qq_String{" attribute="String Delimiter"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^{}\\$@&amp;]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="qq_String&lt;" attribute="String" lineEndContext="#stay">
+        <DetectChar char=">" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="&lt;" context="qq_String&lt;" attribute="String Delimiter"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^&lt;>\\${@&amp;]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="qq_String«" attribute="String" lineEndContext="#stay">
+        <DetectChar char="»" context="#pop" attribute="String Delimiter"/>
+        <DetectChar char="«" context="qq_String«" attribute="String Delimiter"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^«»\\${@&amp;]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="qq_String&lt;&lt;" attribute="String" lineEndContext="#stay">
+        <Detect2Chars char=">" char1=">" context="#pop" attribute="String Delimiter"/>
+        <Detect2Chars char="&lt;" char1="&lt;" context="qq_String&lt;&lt;" attribute="String Delimiter"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="([^&lt;>\\${@&amp;]*|&lt;(?!&lt;)|>(?!>))" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="qq_StringAny" attribute="String" lineEndContext="#stay">
+        <DetectChar char="1" dynamic="1" context="#pop" attribute="String Delimiter"/>
+        <StringDetect String="\%1" dynamic="1" context="#stay" attribute="String Special Character"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^%1\\${@&amp;]*" dynamic="1" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="qq_RawString" attribute="String" lineEndContext="#stay">
+        <DetectChar char="&quot;" context="#pop" attribute="String Delimiter"/>
+        <IncludeRules context="find_qq_StringCommon"/>
+        <RegExpr String="[^\\&quot;${@&amp;]*" context="#stay" attribute="String"/>
+      </context>
+
+      <context name="find_qq_StringCommon" attribute="String" lineEndContext="#stay">
+        <DetectChar char="\" context="qq_StringEscape" attribute="Operator" lookAhead="1"/>
+        <DetectChar char="{" context="qq_Interpolation" attribute="String (interpolated)"/>
+        <DetectChar char="$" context="qq_StringMaybeVar$" attribute="String" lookAhead="1"/>
+        <AnyChar String="@%" context="qq_StringMaybeVar" attribute="String" lookAhead="1"/>
+        <DetectChar char="&amp;" context="qq_StringSigil" attribute="String" lookAhead="1"/>
+      </context>
+
+      <context name="qq_StringEscape" attribute="String Special Character" lineEndContext="#pop">
+        <Detect2Chars char="\" char1="q" context="#pop!q_QuotingForm" attribute="Operator"/>
+        <Detect2Chars char="\" char1="x" context="HexaString" attribute="String Special Character"/>
+        <StringDetect String="\c[" context="UnicodeCodepoint" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="c" context="UnicodeCodepointDecimal" attribute="String Special Character"/>
+        <Detect2Chars char="\" char1="o" context="OctalString" attribute="String Special Character"/>
+        <RegExpr String="\\.?" context="#pop" attribute="String Special Character"/>
+      </context>
+
+      <context name="qq_Interpolation" attribute="String (interpolated)" lineEndContext="#stay">
+        <DetectChar char="}" context="#pop" attribute="String (interpolated)"/>
+        <IncludeRules context="base"/>
+      </context>
+
+      <context name="qq_StringSigil" attribute="Function" lineEndContext="#stay">
+        <RegExpr String="&amp;&ident;\(" context="#pop!FunctionParameters" attribute="Function"/>
+        <DetectChar char="&amp;" context="#pop" attribute="String"/>
+      </context>
+
+      <context name="qq_StringMaybeVar$" attribute="String" lineEndContext="#stay">
+        <RegExpr String="\$(?=[&twigils;]?&prefixdollarvarname;)" context="qq_InterpolationVar" attribute="Variable"/>
+        <DetectChar char="$" context="#pop" attribute="String"/>
+      </context>
+
+      <context name="qq_StringMaybeVar" attribute="String" lineEndContext="#stay">
+        <RegExpr String="@\(\)|[%@]\$/|[@%]&ident;" context="qq_Interpolation1" attribute="Variable"/>
+        <AnyChar String="@%" context="#pop" attribute="String"/>
+      </context>
+
+      <context name="qq_InterpolationVar" attribute="String" lineEndContext="#stay">
+        <AnyChar String="&twigils;" context="#stay" attribute="Twigil"/>
+        <RegExpr String="&dollarvarname;" context="#pop!qq_Interpolation1" attribute="Variable"/>
+      </context>
+
+      <context name="qq_Interpolation1" attribute="String" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+        <DetectChar char="[" context="qq_InterpolationIndex" attribute="Function"/>
+        <DetectChar char="." context="qq_InterpolationFunction" attribute="Function" lookAhead="1"/>
+      </context>
+
+      <context name="qq_InterpolationIndex" attribute="String" lineEndContext="#stay">
+        <DetectChar char="]" context="#pop#pop#pop" attribute="Function"/>
+        <IncludeRules context="base"/>
+      </context>
+
+      <context name="qq_InterpolationFunction" attribute="String" lineEndContext="#stay">
+        <RegExpr String="(?:\.&ident;)*\.&ident;\(" context="#pop#pop#pop!FunctionParameters" attribute="Function"/>
+        <DetectChar char="." context="#pop#pop#pop" attribute="String"/>
+      </context>
+
+      <context name="FunctionParameters" attribute="String" lineEndContext="#stay">
+        <DetectChar char=")" context="#pop" attribute="Function"/>
+        <DetectChar char="(" context="FunctionParameters" attribute="Function"/>
+        <IncludeRules context="base"/>
+      </context>
+
+
+      <!-- Comment -->
+
+      <context name="StartComment" attribute="Comment" lineEndContext="#pop" fallthrough="1" fallthroughContext="SingleLineComment">
+        <DetectChar attribute="Comment" context="MultilineComment" char="`"/>
+        <AnyChar attribute="Pod Operator" context="MultilineComment" String="=|"/>
+      </context>
+
+      <context name="MultilineComment" attribute="Comment" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop!SingleLineComment">
+        <!-- TODO a new rule is needed to find the corresponding closures -->
+        <StringDetect attribute="Comment" context="#pop#pop!MultilineComment(((" String="(((" beginRegion="comment"/>
+        <StringDetect attribute="Comment" context="#pop#pop!MultilineComment[[[" String="[[[" beginRegion="comment"/>
+        <StringDetect attribute="Comment" context="#pop#pop!MultilineComment{{{" String="{{{" beginRegion="comment"/>
+        <StringDetect attribute="Comment" context="#pop#pop!MultilineComment«««" String="«««" beginRegion="comment"/>
+        <StringDetect attribute="Comment" context="#pop#pop!MultilineComment&lt;&lt;&lt;" String="&lt;&lt;&lt;" beginRegion="comment"/>
+        <Detect2Chars attribute="Comment" context="#pop#pop!MultilineComment((" char="(" char1="(" beginRegion="comment"/>
+        <Detect2Chars attribute="Comment" context="#pop#pop!MultilineComment[[" char="[" char1="[" beginRegion="comment"/>
+        <Detect2Chars attribute="Comment" context="#pop#pop!MultilineComment{{" char="{" char1="{" beginRegion="comment"/>
+        <Detect2Chars attribute="Comment" context="#pop#pop!MultilineComment««" char="«" char1="«" beginRegion="comment"/>
+        <Detect2Chars attribute="Comment" context="#pop#pop!MultilineComment&lt;&lt;" char="&lt;" char1="&lt;" beginRegion="comment"/>
+        <DetectChar attribute="Comment" context="#pop#pop!MultilineComment(" char="(" beginRegion="comment"/>
+        <DetectChar attribute="Comment" context="#pop#pop!MultilineComment[" char="[" beginRegion="comment"/>
+        <DetectChar attribute="Comment" context="#pop#pop!MultilineComment{" char="{" beginRegion="comment"/>
+        <DetectChar attribute="Comment" context="#pop#pop!MultilineComment«" char="«" beginRegion="comment"/>
+        <DetectChar attribute="Comment" context="#pop#pop!MultilineComment&lt;" char="&lt;" beginRegion="comment"/>
+        <!-- etc -->
+      </context>
+
+      <context name="MultilineComment(((" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <StringDetect String=")))" attribute="Comment" context="#pop" endRegion="comment"/>
+        <StringDetect String="(((" attribute="Comment" context="MultilineComment(((" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment[[[" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <StringDetect String="]]]" attribute="Comment" context="#pop" endRegion="comment"/>
+        <StringDetect String="[[[" attribute="Comment" context="MultilineComment[[[" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment{{{" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <StringDetect String="}}}" attribute="Comment" context="#pop" endRegion="comment"/>
+        <StringDetect String="{{{" attribute="Comment" context="MultilineComment{{{" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment«««" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <StringDetect String="»»»" attribute="Comment" context="#pop" endRegion="comment"/>
+        <StringDetect String="«««" attribute="Comment" context="MultilineComment«««" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment&lt;&lt;&lt;" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <StringDetect String=">>>" attribute="Comment" context="#pop" endRegion="comment"/>
+        <StringDetect String="&lt;&lt;&lt;" attribute="Comment" context="MultilineComment&lt;&lt;&lt;" beginRegion="comment"/>
+      </context>
+
+      <context name="MultilineComment((" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <Detect2Chars char=")" char1=")" attribute="Comment" context="#pop" endRegion="comment"/>
+        <Detect2Chars char="(" char1="(" attribute="Comment" context="MultilineComment((" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment[[" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <Detect2Chars char="]" char1="]" attribute="Comment" context="#pop" endRegion="comment"/>
+        <Detect2Chars char="[" char1="[" attribute="Comment" context="MultilineComment[[" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment{{" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <Detect2Chars char="}" char1="}" attribute="Comment" context="#pop" endRegion="comment"/>
+        <Detect2Chars char="{" char1="{" attribute="Comment" context="MultilineComment{{" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment««" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <Detect2Chars char="»" char1="»" attribute="Comment" context="#pop" endRegion="comment"/>
+        <Detect2Chars char="«" char1="«" attribute="Comment" context="MultilineComment««" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment&lt;&lt;" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <Detect2Chars char=">" char1=">" attribute="Comment" context="#pop" endRegion="comment"/>
+        <Detect2Chars char="&lt;" char1="&lt;" attribute="Comment" context="MultilineComment&lt;&lt;" beginRegion="comment"/>
+      </context>
+
+      <context name="MultilineComment(" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <DetectChar char=")" attribute="Comment" context="#pop" endRegion="comment"/>
+        <DetectChar char="(" attribute="Comment" context="MultilineComment(" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment[" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <DetectChar char="]" attribute="Comment" context="#pop" endRegion="comment"/>
+        <DetectChar char="[" attribute="Comment" context="MultilineComment[" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment{" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <DetectChar char="}" attribute="Comment" context="#pop" endRegion="comment"/>
+        <DetectChar char="{" attribute="Comment" context="MultilineComment{" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment«" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <DetectChar char="»" attribute="Comment" context="#pop" endRegion="comment"/>
+        <DetectChar char="«" attribute="Comment" context="MultilineComment«" beginRegion="comment"/>
+      </context>
+      <context name="MultilineComment&lt;" attribute="Comment" lineEndContext="#stay">
+        <IncludeRules context="SingleLineComment"/>
+        <DetectChar char=">" attribute="Comment" context="#pop" endRegion="comment"/>
+        <DetectChar char="&lt;" attribute="Comment" context="MultilineComment&lt;" beginRegion="comment"/>
+      </context>
+
+      <context name="SingleLineComment" attribute="Comment" lineEndContext="#pop#pop">
+        <DetectSpaces/>
+        <IncludeRules context="##Alerts"/>
+        <DetectIdentifier/>
+      </context>
+
+
+      <!-- Error -->
+
+      <context name="Error" attribute="Error" lineEndContext="#pop"/>
+
+      <context name="CharErrorIfNoSep" attribute="Error" lineEndContext="#pop">
+        <RegExpr String="[^;)]" context="#pop" attribute="Error"/>
+      </context>
+
+      <context name="CharError" attribute="Error" lineEndContext="#pop">
+        <RegExpr String="." context="#pop" attribute="Error"/>
+      </context>
+
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text"               defStyleNum="dsNormal"/>
+      <itemData name="Keyword"                   defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Keyword Value"             defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Variable"                  defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="Twigil"                    defStyleNum="dsAttribute" spellChecking="false"/>
+      <itemData name="Control Flow"              defStyleNum="dsControlFlow" spellChecking="false"/>
+      <itemData name="Variable Storage"          defStyleNum="dsKeyword" spellChecking="false" bold="1"/>
+      <itemData name="Property"                  defStyleNum="dsBuiltIn" spellChecking="false" italic="1"/>
+      <itemData name="Declare Routine"           defStyleNum="dsBuiltIn" spellChecking="false"/>
+      <itemData name="Function"                  defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Operator"                  defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Separator Symbol"          defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Data Type"                 defStyleNum="dsDataType" spellChecking="false"/>
+      <itemData name="Attribute"                 defStyleNum="dsAttribute" spellChecking="false"/>
+      <itemData name="Decimal"                   defStyleNum="dsDecVal" spellChecking="false"/>
+      <itemData name="Octal"                     defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Hex"                       defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Float"                     defStyleNum="dsFloat" spellChecking="false"/>
+      <itemData name="String"                    defStyleNum="dsString"/>
+      <itemData name="String Delimiter"          defStyleNum="dsChar" spellChecking="false"/>
+      <itemData name="String (interpolated)"     defStyleNum="dsString"/>
+      <itemData name="String Special Character"  defStyleNum="dsChar"/>
+      <itemData name="Pattern"                   defStyleNum="dsOthers" spellChecking="false"/>
+      <itemData name="Pattern Meta Character"    defStyleNum="dsChar" spellChecking="false"/>
+      <itemData name="Pattern Character Class"   defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Pattern Unicode Property"  defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Pattern Character"         defStyleNum="dsChar" spellChecking="false"/>
+      <itemData name="Pattern Modifier"          defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Pattern Quantifier"        defStyleNum="dsControlFlow" spellChecking="false"/>
+      <itemData name="Pattern Control Flow"      defStyleNum="dsControlFlow" spellChecking="false"/>
+      <itemData name="Pattern Special Character" defStyleNum="dsBuiltIn" spellChecking="false"/>
+      <itemData name="Comment"                   defStyleNum="dsComment"/>
+      <itemData name="Error"                     defStyleNum="dsError" spellChecking="false"/>
+      <itemData name="Pod"                       defStyleNum="dsDocumentation" spellChecking="false"/>
+      <itemData name="Pod Paragraph"             defStyleNum="dsDocumentation"/>
+      <itemData name="Pod Block"                 defStyleNum="dsRegionMarker" spellChecking="false"/>
+      <itemData name="Pod Typename"              defStyleNum="dsAnnotation" spellChecking="false"/>
+      <itemData name="Pod Typename Value"        defStyleNum="dsCommentVar" spellChecking="false"/>
+      <itemData name="Pod Unknown"               defStyleNum="dsError" spellChecking="false"/>
+      <itemData name="Pod Operator"              defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Pod Key"                   defStyleNum="dsAttribute" spellChecking="false"/>
+      <itemData name="Pod Config"                defStyleNum="dsCommentVar" spellChecking="false"/>
+      <itemData name="Pod Bold"                  defStyleNum="dsDocumentation" bold="1"/>
+      <itemData name="Pod Italic"                defStyleNum="dsDocumentation" italic="1"/>
+      <itemData name="Pod Underline"             defStyleNum="dsDocumentation" underline="1"/>
+      <itemData name="Pod Link"                  defStyleNum="dsOthers" underline="1"/>
+      <itemData name="Pod Note"                  defStyleNum="dsInformation"/>
+      <itemData name="Pod Comment"               defStyleNum="dsComment"/>
+      <itemData name="Pod Verbatim"              defStyleNum="dsInformation" spellChecking="false"/>
+      <itemData name="Pod Unicode"               defStyleNum="dsChar" spellChecking="false"/>
+      <itemData name="Pod Indexed Terms"         defStyleNum="dsOthers" spellChecking="false"/>
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="#"/>
+    </comments>
+    <keywords casesensitive="1" weakDeliminator="-'"/>
+  </general>
+</language>
+<!-- kate: space-indent on; indent-width 2; replace-tabs on; -->

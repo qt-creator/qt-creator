@@ -101,7 +101,7 @@ public:
     QVector<QPair<QChar, QString>> characterEncodings;
 
     QString fileName;
-    QString name = QStringLiteral(QT_TRANSLATE_NOOP("Syntax highlighting", "None"));
+    QString name = QStringLiteral(QT_TRANSLATE_NOOP("Language", "None"));
     QString section;
     QString style;
     QString indenter;

@@ -79,14 +79,14 @@ public:
         : BuildStepConfigWidget(buildStep), m_buildStep(buildStep)
     {
         auto buildArgumentsLabel = new QLabel(this);
-        buildArgumentsLabel->setText(tr("Base arguments:"));
+        buildArgumentsLabel->setText(IosBuildStep::tr("Base arguments:"));
 
         m_buildArgumentsTextEdit = new QPlainTextEdit(this);
         m_buildArgumentsTextEdit->setPlainText(QtcProcess::joinArgs(m_buildStep->baseArguments()));
 
         m_resetDefaultsButton = new QPushButton(this);
         m_resetDefaultsButton->setLayoutDirection(Qt::RightToLeft);
-        m_resetDefaultsButton->setText(tr("Reset Defaults"));
+        m_resetDefaultsButton->setText(IosBuildStep::tr("Reset Defaults"));
         m_resetDefaultsButton->setEnabled(!m_buildStep->m_useDefaultArguments);
 
         auto extraArgumentsLabel = new QLabel(this);
@@ -101,9 +101,9 @@ public:
         gridLayout->addWidget(extraArgumentsLabel, 2, 0, 1, 1);
         gridLayout->addWidget(m_extraArgumentsLineEdit, 2, 1, 1, 1);
 
-        extraArgumentsLabel->setText(tr("Extra arguments:"));
+        extraArgumentsLabel->setText(IosBuildStep::tr("Extra arguments:"));
 
-        setDisplayName(tr("iOS build", "iOS BuildStep display name."));
+        setDisplayName(IosBuildStep::tr("iOS build", "iOS BuildStep display name."));
 
         updateDetails();
 

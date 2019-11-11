@@ -377,7 +377,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         updateEditorToolBar(editor);
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
-            textEditor->editorWidget()->addHoverHandler(hoverHandler());
+            textEditor->editorWidget()->addHoverHandler(&m_hoverHandler);
     }
 }
 
@@ -387,6 +387,10 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     resetAssistProviders(document);
     if (TextEditor::SyntaxHighlighter *highlighter = document->syntaxHighlighter())
         highlighter->clearAllExtraFormats();
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
+        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
+            textEditor->editorWidget()->removeHoverHandler(&m_hoverHandler);
+    }
 }
 
 bool Client::documentOpen(TextEditor::TextDocument *document) const

@@ -101,9 +101,6 @@ Definition Rule::definition() const
 void Rule::setDefinition(const Definition &def)
 {
     m_def = def;
-
-    // cache for DefinitionData::wordDelimiters, is accessed VERY often
-    m_wordDelimiter = &DefinitionData::get(m_def.definition())->wordDelimiters;
 }
 
 bool Rule::load(QXmlStreamReader &reader)
@@ -140,6 +137,9 @@ bool Rule::load(QXmlStreamReader &reader)
 void Rule::resolveContext()
 {
     m_context.resolve(m_def.definition());
+
+    // cache for DefinitionData::wordDelimiters, is accessed VERY often
+    m_wordDelimiter = &DefinitionData::get(m_def.definition())->wordDelimiters;
 }
 
 void Rule::resolveAttributeFormat(Context *lookupContext)
@@ -612,8 +612,10 @@ MatchResult RegExpr::doMatch(const QString& text, int offset, const QStringList 
 
     /**
      * no match
+     * the pattern of a dynamic regex depends on the previous contexts
+     * so that skipOffset cannot be computed
      */
-    return MatchResult(offset, result.capturedStart());
+    return MatchResult(offset, m_dynamic ? 0 : result.capturedStart());
 }
 
 
@@ -650,13 +652,17 @@ MatchResult WordDetect::doMatch(const QString& text, int offset, const QStringLi
     if (text.size() - offset < m_word.size())
         return offset;
 
-    if (offset > 0 && !isWordDelimiter(text.at(offset - 1)))
+    /**
+     * detect delimiter characters on the inner and outer boundaries of the string
+     * NOTE: m_word isn't empty
+     */
+    if (offset > 0 && !isWordDelimiter(text.at(offset - 1)) && !isWordDelimiter(text.at(offset)))
         return offset;
 
     if (text.midRef(offset, m_word.size()).compare(m_word, m_caseSensitivity) != 0)
         return offset;
 
-    if (text.size() == offset + m_word.size() || isWordDelimiter(text.at(offset + m_word.size())))
+    if (text.size() == offset + m_word.size() || isWordDelimiter(text.at(offset + m_word.size())) || isWordDelimiter(text.at(offset + m_word.size() - 1)))
         return offset + m_word.size();
 
     return offset;

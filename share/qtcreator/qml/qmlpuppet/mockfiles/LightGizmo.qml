@@ -31,6 +31,7 @@ IconGizmo {
 
     iconSource: "qrc:///qtquickplugin/mockfiles/images/light-pick-icon.png"
     gizmoModel.source: "#Sphere"
+    gizmoModel.scale: Qt.vector3d(0.10, 0.10, 0.10)
     gizmoModel.materials: [
         DefaultMaterial {
             id: defaultMaterial

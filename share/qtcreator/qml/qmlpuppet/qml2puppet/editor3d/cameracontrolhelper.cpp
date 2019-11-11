@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "cameracontrolhelper.h"
 
+#include <QHash>
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -63,6 +65,13 @@ void CameraControlHelper::requestOverlayUpdate()
 {
     if (!m_overlayUpdateTimer.isActive())
         m_overlayUpdateTimer.start();
+}
+
+QString CameraControlHelper::generateUniqueName(const QString &nameRoot)
+{
+    static QHash<QString, int> counters;
+    int count = counters[nameRoot]++;
+    return QStringLiteral("%1_%2").arg(nameRoot).arg(count);
 }
 
 }

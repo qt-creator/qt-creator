@@ -42,7 +42,14 @@ if ($root == 1)
 }
 else
 {
-  $file =~ s/<language([^>]+)name="([^"]*)"/<language$1name="$2\/PHP" hidden="true"/s;
+  if ($file =~ /<language[^>]+hidden="[^"]*"/) {
+    $file =~ s/<language([^>]+)name="([^"]*)"/<language$1name="$2\/PHP"/s;
+    $file =~ s/<language([^>]+)hidden="[^"]*"/<language$1hidden="true"/s;
+  }
+  else
+  {
+    $file =~ s/<language([^>]+)name="([^"]*)"/<language$1name="$2\/PHP" hidden="true"/s;
+  }
   $file =~ s/<language([^>]+)section="[^"]*"/<language$1section="Other"/s;
   $file =~ s/<language([^>]+)extensions="[^"]*"/<language$1extensions=""/s;
   $file =~ s/<language([^>]+)mimetype="[^"]*"/<language$1mimetype=""/s;
@@ -51,7 +58,8 @@ else
 $findphp = "<context name=\"FindPHP\" attribute=\"Normal Text\" lineEndContext=\"#stay\">\n<RegExpr context=\"##PHP/PHP\" String=\"&lt;\\?(?:=|php)?\" lookAhead=\"true\" />\n</context>\n";
 
 $file =~ s/<IncludeRules\s([^>]*)context="([^"#]*)##(?!Alerts|Doxygen|Modelines)([^"]+)"/<IncludeRules $1context="$2##$3\/PHP"/g;
-$file =~ s/(<context\s[^>]*>)/$1\n<IncludeRules context="FindPHP" \/>/g;
+$file =~ s/(<context\s[^>]*[^>\/]>)/$1\n<IncludeRules context="FindPHP" \/>/g;
+$file =~ s/(<context\s[^>]*[^>\/])\s*\/>/$1>\n<IncludeRules context="FindPHP" \/>\n<\/context>/g;
 $file =~ s/(?=<\/contexts\s*>)/$findphp/;
 
 print $file;

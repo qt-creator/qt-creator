@@ -37,6 +37,14 @@ public:
     EmrunRunConfigurationFactory();
 };
 
+class FlashAndRunConfiguration : public ProjectExplorer::RunConfiguration
+{
+    Q_OBJECT
+
+public:
+    FlashAndRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+};
+
 ProjectExplorer::RunWorkerFactory::WorkerCreator makeFlashAndRunWorker();
 
 } // namespace Internal

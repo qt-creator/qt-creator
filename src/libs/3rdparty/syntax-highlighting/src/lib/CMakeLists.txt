@@ -69,6 +69,8 @@ if(BUILD_QCH)
         LINK_QCHS
             Qt5Core_QCH
             Qt5Gui_QCH
+        INCLUDE_DIRS
+            ${CMAKE_CURRENT_BINARY_DIR}
         BLANK_MACROS
             KSYNTAXHIGHLIGHTING_EXPORT
             KSYNTAXHIGHLIGHTING_DEPRECATED

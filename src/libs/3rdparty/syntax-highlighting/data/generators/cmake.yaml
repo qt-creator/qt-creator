@@ -7,6 +7,7 @@ global-properties:
     - AUTORCC_SOURCE_GROUP
     - CMAKE_C_KNOWN_FEATURES
     - CMAKE_CXX_KNOWN_FEATURES
+    - CMAKE_ROLE                                            # Since 3.14
     - DEBUG_CONFIGURATIONS
     - DISABLED_FEATURES
     - ENABLED_FEATURES
@@ -42,6 +43,7 @@ global-properties:
     - FeatureSummary_<TYPE>_DESCRIPTION
 
 directory-properties:
+    - ADDITIONAL_CLEAN_FILES                                # Since 3.15
     - ADDITIONAL_MAKE_CLEAN_FILES
     - BINARY_DIR
     - BUILDSYSTEM_TARGETS
@@ -78,6 +80,7 @@ directory-properties:
 
 # NOTE Copy-n-pasting this list from official docs may contain a redudant item `Example`! Check it!
 target-properties:
+    - ADDITIONAL_CLEAN_FILES                                # Since 3.15
     - ALIASED_TARGET
     - ANDROID_ANT_ADDITIONAL_OPTIONS
     - ANDROID_API
@@ -101,17 +104,24 @@ target-properties:
     - ARCHIVE_OUTPUT_NAME_<CONFIG>
     - ARCHIVE_OUTPUT_NAME
     - AUTOGEN_BUILD_DIR
+    - AUTOGEN_ORIGIN_DEPENDS                                # Since 3.14
     - AUTOGEN_TARGET_DEPENDS
+    - AUTOMOC_COMPILER_PREDEFINES                           # Since ???
     - AUTOMOC_DEPEND_FILTERS
-    - AUTOMOC_MOC_OPTIONS
+    - AUTOMOC_EXECUTABLE                                    # Since 3.14
+    - AUTOMOC_MACRO_NAMES
+    - AUTOMOC_MOC_OPTIONS                                   # Since ???
     - AUTOMOC
     - AUTOUIC
+    - AUTOUIC_EXECUTABLE                                    # Since 3.14
     - AUTOUIC_OPTIONS
     - AUTOUIC_SEARCH_PATHS
     - AUTORCC
+    - AUTORCC_EXECUTABLE                                    # Since 3.14
     - AUTORCC_OPTIONS
     - BINARY_DIR
     - BUILD_RPATH
+    - BUILD_RPATH_USE_ORIGIN                                # Since 3.14
     - BUILD_WITH_INSTALL_NAME_DIR
     - BUILD_WITH_INSTALL_RPATH
     - BUNDLE_EXTENSION
@@ -246,6 +256,7 @@ target-properties:
     - MACOSX_RPATH
     - MANUALLY_ADDED_DEPENDENCIES
     - MAP_IMPORTED_CONFIG_<CONFIG>
+    - MSVC_RUNTIME_LIBRARY                                  # Since 3.15
     - NAME
     - NO_SONAME
     - NO_SYSTEM_FROM_IMPORTED
@@ -278,6 +289,9 @@ target-properties:
     - STATIC_LIBRARY_FLAGS
     - STATIC_LIBRARY_OPTIONS                                # Since 3.13
     - SUFFIX
+    - Swift_DEPENDENCIES_FILE                               # Since 3.15
+    - Swift_MODULE_DIRECTORY                                # Since 3.15
+    - Swift_MODULE_NAME                                     # Since 3.15
     - TYPE
     - VERSION
     - VISIBILITY_INLINES_HIDDEN
@@ -298,8 +312,13 @@ target-properties:
     - VS_GLOBAL_<variable>
     - VS_IOT_EXTENSIONS_VERSION
     - VS_IOT_STARTUP_TASK
+    - VS_JUST_MY_CODE_DEBUGGING                             # Since 3.15
     - VS_KEYWORD
     - VS_MOBILE_EXTENSIONS_VERSION
+    - VS_NO_SOLUTION_DEPLOY                                 # Since 3.15
+    - VS_PACKAGE_REFERENCES                                 # Since 3.15
+    - VS_PROJECT_IMPORT                                     # Since 3.15
+    - VS_PACKAGE_REFERENCES
     - VS_SCC_AUXPATH
     - VS_SCC_LOCALPATH
     - VS_SCC_PROJECTNAME
@@ -314,9 +333,12 @@ target-properties:
     - WINDOWS_EXPORT_ALL_SYMBOLS
     - XCODE_ATTRIBUTE_<an-attribute>
     - XCODE_EXPLICIT_FILE_TYPE
+    - XCODE_GENERATE_SCHEME                                 # Since 3.15
     - XCODE_PRODUCT_TYPE
     - XCODE_SCHEME_ADDRESS_SANITIZER                        # Since 3.13
     - XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN       # Since 3.13
+    - XCODE_SCHEME_ARGUMENTS                                # Since 3.13
+    - XCODE_SCHEME_DEBUG_AS_ROOT                            # Since 3.15
     - XCODE_SCHEME_THREAD_SANITIZER                         # Since 3.13
     - XCODE_SCHEME_THREAD_SANITIZER_STOP                    # Since 3.13
     - XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER            # Since 3.13
@@ -331,7 +353,6 @@ target-properties:
     - XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE                 # Since 3.13
     - XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS                    # Since 3.13
     - XCODE_SCHEME_EXECUTABLE                               # Since 3.13
-    - XCODE_SCHEME_ARGUMENTS                                # Since 3.13
     - XCODE_SCHEME_ENVIRONMENT                              # Since 3.13
     - XCTEST
 
@@ -383,6 +404,8 @@ source-properties:
     - SKIP_AUTOMOC
     - SKIP_AUTORCC
     - SKIP_AUTOUIC
+    - Swift_DEPENDENCIES_FILE                               # Since 3.15
+    - Swift_DIAGNOSTICS_FILE                                # Since 3.15
     - SYMBOLIC
     - VS_COPY_TO_OUT_DIR
     - VS_CSHARP_<tagname>
@@ -423,69 +446,95 @@ install-properties:
     - CPACK_WIX_ACL
 
 generator-expressions:
+    # Boolean Generator Expressions
+    #   * Logical Operators
     - 0
     - 1
-    - AND
-    - ANGLE-R
     - BOOL
-    - BUILD_INTERFACE
-    - COMMA
-    - COMPILE_FEATURES
-    - COMPILE_LANGUAGE
-    - CONFIG
-    - CXX_COMPILER_ID
-    - CXX_COMPILER_VERSION
-    - C_COMPILER_ID
-    - C_COMPILER_VERSION
-    - EQUAL
-    - GENEX_EVAL                                            # Since 3.12
-    - IF
-    - INSTALL_INTERFACE
-    - INSTALL_PREFIX
-    - IN_LIST                                               # Since 3.12
-    - JOIN
-    - LINK_ONLY
-    - LOWER_CASE
-    - MAKE_C_IDENTIFIER
-    - NOT
+    - AND
     - OR
-    - PLATFORM_ID
-    - SEMICOLON
-    - SHELL_PATH
+    - NOT
+    #   * String Comparisons
     - STREQUAL
-    - TARGET_BUNDLE_CONTENT_DIR
-    - TARGET_BUNDLE_DIR
-    - TARGET_EXISTS                                         # Since 3.12
-    - TARGET_FILE
-    - TARGET_FILE_DIR
-    - TARGET_FILE_NAME
-    - TARGET_GENEX_EVAL                                     # Since 3.12
-    - TARGET_LINKER_FILE
-    - TARGET_LINKER_FILE_DIR
-    - TARGET_LINKER_FILE_NAME
-    - TARGET_NAME
-    - TARGET_NAME_IF_EXISTS                                 # Since 3.12
-    - TARGET_OBJECTS
-    - TARGET_PDB_FILE
-    - TARGET_PDB_FILE_DIR
-    - TARGET_PDB_FILE_NAME
-    - TARGET_POLICY
-    - TARGET_PROPERTY
-    - TARGET_SONAME_FILE
-    - TARGET_SONAME_FILE_DIR
-    - TARGET_SONAME_FILE_NAME
-    - UPPER_CASE
-    - VERSION_EQUAL
-    - VERSION_GREATER
-    - VERSION_GREATER_EQUAL
+    - EQUAL
+    - IN_LIST                                               # Since 3.12
     - VERSION_LESS
+    - VERSION_GREATER
+    - VERSION_EQUAL
     - VERSION_LESS_EQUAL
+    - VERSION_GREATER_EQUAL
+    #   * Variable Queries
+    - TARGET_EXISTS                                         # Since 3.12
+    - CONFIG
+    - PLATFORM_ID
+    - C_COMPILER_ID
+    - CXX_COMPILER_ID
+    - CUDA_COMPILER_ID                                      # Since 3.15
+    - Fortran_COMPILER_ID
+    - C_COMPILER_VERSION
+    - CXX_COMPILER_VERSION
+    - CUDA_COMPILER_VERSION                                 # Since 3.15
+    - Fortran_COMPILER_VERSION
+    - TARGET_POLICY
+    - COMPILE_FEATURES
+    - COMPILE_LANG_AND_ID                                   # Since 3.15
+    - COMPILE_LANGUAGE
+    # String-Valued Generator Expressions
+    #   * Escaped Characters
+    - ANGLE-R
+    - COMMA
+    - SEMICOLON
+    #   * Conditional Expressions
+    - IF
+    #   * String Transformations
+    - JOIN
+    - REMOVE_DUPLICATES                                     # Since 3.15
+    - FILTER                                                # Since 3.15
+    - LOWER_CASE
+    - UPPER_CASE
+    - GENEX_EVAL                                            # Since 3.12
+    - TARGET_GENEX_EVAL                                     # Since 3.12
+    #   * Variable Queries (NOTE Already included above)
+    #   * Target-Dependent Queries
+    - TARGET_NAME_IF_EXISTS                                 # Since 3.12
+    - TARGET_FILE
+    - TARGET_FILE_BASE_NAME                                 # Since 3.15
+    - TARGET_FILE_PREFIX                                    # Since 3.15
+    - TARGET_FILE_SUFFIX                                    # Since 3.15
+    - TARGET_FILE_NAME
+    - TARGET_FILE_DIR
+    - TARGET_LINKER_FILE
+    - TARGET_LINKER_FILE_BASE_NAME                          # Since 3.15
+    - TARGET_LINKER_FILE_PREFIX                             # Since 3.15
+    - TARGET_LINKER_FILE_SUFFIX                             # Since 3.15
+    - TARGET_LINKER_FILE_NAME
+    - TARGET_LINKER_FILE_DIR
+    - TARGET_SONAME_FILE
+    - TARGET_SONAME_FILE
+    - TARGET_SONAME_FILE_NAME
+    - TARGET_SONAME_FILE_DIR
+    - TARGET_PDB_FILE
+    - TARGET_PDB_FILE_BASE_NAME                             # Since 3.15
+    - TARGET_PDB_FILE_NAME
+    - TARGET_PDB_FILE_DIR
+    - TARGET_BUNDLE_DIR
+    - TARGET_BUNDLE_CONTENT_DIR
+    - TARGET_PROPERTY
+    - INSTALL_PREFIX
+    # Output-Related Expressions
+    - TARGET_NAME
+    - LINK_ONLY
+    - INSTALL_INTERFACE
+    - BUILD_INTERFACE
+    - MAKE_C_IDENTIFIER
+    - TARGET_OBJECTS
+    - SHELL_PATH
 
 variables:
    # Variables that Provide Information
     - CMAKE_AR
     - CMAKE_ARGC
-    - CMAKE_ARGV0
+    - CMAKE_ARGV<n>
     - CMAKE_BINARY_DIR
     - CMAKE_BUILD_TOOL
     - CMAKE_CACHEFILE_DIR
@@ -558,6 +607,7 @@ variables:
     - CMAKE_SOURCE_DIR
     - CMAKE_STATIC_LIBRARY_PREFIX
     - CMAKE_STATIC_LIBRARY_SUFFIX
+    - CMAKE_Swift_MODULE_DIRECTORY                          # Since 3.15
     - CMAKE_TOOLCHAIN_FILE
     - CMAKE_TWEAK_VERSION
     - CMAKE_VERBOSE_MAKEFILE
@@ -611,7 +661,9 @@ variables:
     - CMAKE_ECLIPSE_VERSION
     - CMAKE_ERROR_DEPRECATED
     - CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION
+    - CMAKE_EXECUTE_PROCESS_COMMAND_ECHO                    # Since 3.15
     - CMAKE_EXPORT_COMPILE_COMMANDS
+    - CMAKE_EXPORT_PACKAGE_REGISTRY                         # Since 3.15
     - CMAKE_EXPORT_NO_PACKAGE_REGISTRY
     - CMAKE_FIND_APPBUNDLE
     - CMAKE_FIND_FRAMEWORK
@@ -621,6 +673,8 @@ variables:
     - CMAKE_FIND_NO_INSTALL_PREFIX
     - CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY
     - CMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY
+    - CMAKE_FIND_PACKAGE_PREFER_CONFIG                      # Since 3.15
+    - CMAKE_FIND_PACKAGE_RESOLVE_SYMLINKS                   # Since 3.14
     - CMAKE_FIND_PACKAGE_WARN_NO_MODULE
     - CMAKE_FIND_ROOT_PATH
     - CMAKE_FIND_ROOT_PATH_MODE_INCLUDE
@@ -639,6 +693,7 @@ variables:
     - CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT
     - CMAKE_LIBRARY_PATH
     - CMAKE_LINK_DIRECTORIES_BEFORE                         # Since 3.13
+    - CMAKE_MAXIMUM_RECURSION_DEPTH                         # Since 3.14
     - CMAKE_MFC_FLAG
     - CMAKE_MODULE_PATH
     - CMAKE_NOT_USING_CONFIG_FLAGS
@@ -646,6 +701,8 @@ variables:
     - CMAKE_POLICY_WARNING_CMP<NNNN>
     - CMAKE_PREFIX_PATH
     - CMAKE_PROGRAM_PATH
+    - CMAKE_PROJECT_INCLUDE                                 # Since 3.15
+    - CMAKE_PROJECT_INCLUDE_BEFORE                          # Since 3.15
     - CMAKE_PROJECT_<PROJECT-NAME>_INCLUDE
     - CMAKE_SKIP_INSTALL_ALL_DEPENDENCY
     - CMAKE_STAGING_PREFIX
@@ -757,6 +814,7 @@ variables:
     - CMAKE_ANDROID_STL_TYPE
     - CMAKE_ARCHIVE_OUTPUT_DIRECTORY
     - CMAKE_ARCHIVE_OUTPUT_DIRECTORY_<CONFIG>
+    - CMAKE_AUTOGEN_ORIGIN_DEPENDS                          # Since 3.14
     - CMAKE_AUTOGEN_PARALLEL
     - CMAKE_AUTOGEN_VERBOSE                                 # Since 3.13
     - CMAKE_AUTOMOC
@@ -768,6 +826,7 @@ variables:
     - CMAKE_AUTOUIC_OPTIONS
     - CMAKE_AUTOUIC_SEARCH_PATHS
     - CMAKE_BUILD_RPATH
+    - CMAKE_BUILD_RPATH_USE_ORIGIN                          # Since 3.14
     - CMAKE_BUILD_WITH_INSTALL_NAME_DIR
     - CMAKE_BUILD_WITH_INSTALL_RPATH
     - CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY
@@ -781,8 +840,13 @@ variables:
     - CMAKE_EXE_LINKER_FLAGS_<CONFIG>_INIT
     - CMAKE_EXE_LINKER_FLAGS_INIT
     - CMAKE_FOLDER                                          # Since 3.12
+    - CMAKE_FRAMEWORK                                       # Since 3.15
     - CMAKE_Fortran_FORMAT
     - CMAKE_Fortran_MODULE_DIRECTORY
+    - CMAKE_GLOBAL_AUTOGEN_TARGET                           # Since 3.14
+    - CMAKE_GLOBAL_AUTOGEN_TARGET_NAME                      # Since 3.14
+    - CMAKE_GLOBAL_AUTORCC_TARGET                           # Since 3.14
+    - CMAKE_GLOBAL_AUTORCC_TARGET_NAME                      # Since 3.14
     - CMAKE_GNUtoMS
     - CMAKE_INCLUDE_CURRENT_DIR
     - CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE
@@ -814,6 +878,8 @@ variables:
     - CMAKE_MODULE_LINKER_FLAGS_<CONFIG>
     - CMAKE_MODULE_LINKER_FLAGS_<CONFIG>_INIT
     - CMAKE_MODULE_LINKER_FLAGS_INIT
+    - CMAKE_MSVCIDE_RUN_PATH                                # Since 3.15
+    - CMAKE_MSVC_RUNTIME_LIBRARY                            # Since 3.15
     - CMAKE_NINJA_OUTPUT_PATH_PREFIX
     - CMAKE_NO_BUILTIN_CHRPATH
     - CMAKE_NO_SYSTEM_FROM_IMPORTED
@@ -843,6 +909,7 @@ variables:
     - CMAKE_VS_GLOBALS                                      # Since 3.13
     - CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD
     - CMAKE_VS_INCLUDE_PACKAGE_TO_DEFAULT_BUILD
+    - CMAKE_VS_JUST_MY_CODE_DEBUGGING                       # Since 3.15
     - CMAKE_VS_SDK_EXCLUDE_DIRECTORIES                      # Since 3.12
     - CMAKE_VS_SDK_EXECUTABLE_DIRECTORIES                   # Since 3.12
     - CMAKE_VS_SDK_INCLUDE_DIRECTORIES                      # Since 3.12
@@ -986,6 +1053,7 @@ variables:
     - CTEST_P4_UPDATE_OPTIONS
     - CTEST_SCP_COMMAND
     - CTEST_SITE
+    - CTEST_SUBMIT_URL                                      # Since 3.14
     - CTEST_SOURCE_DIRECTORY
     - CTEST_SVN_COMMAND
     - CTEST_SVN_OPTIONS
@@ -996,6 +1064,7 @@ variables:
     - CTEST_UPDATE_COMMAND
     - CTEST_UPDATE_OPTIONS
     - CTEST_UPDATE_VERSION_ONLY
+    - CTEST_UPDATE_VERSION_OVERRIDE                         # Since 3.15
     - CTEST_USE_LAUNCHERS
     # Variables for CPack
     - CPACK_ABSOLUTE_DESTINATION_FILES
@@ -1064,6 +1133,7 @@ variables:
     - CMAKE_REQUIRED_DEFINITIONS
     - CMAKE_REQUIRED_FLAGS
     - CMAKE_REQUIRED_INCLUDES
+    - CMAKE_REQUIRED_LINK_OPTIONS                           # Since 3.14
     - CMAKE_REQUIRED_LIBRARIES
     - CMAKE_REQUIRED_QUIET
     # - CheckTypeSize
@@ -1198,6 +1268,7 @@ variables:
     - CPACK_IFW_PACKAGE_BANNER
     - CPACK_IFW_PACKAGE_BACKGROUND
     - CPACK_IFW_PACKAGE_WIZARD_STYLE
+    - CPACK_IFW_PACKAGE_STYLE_SHEET                         # Since 3.15
     - CPACK_IFW_PACKAGE_WIZARD_DEFAULT_WIDTH
     - CPACK_IFW_PACKAGE_WIZARD_DEFAULT_HEIGHT
     - CPACK_IFW_PACKAGE_TITLE_COLOR
@@ -1546,7 +1617,59 @@ variables:
     # - UseSWIG
     - CMAKE_SWIG_FLAGS
     - CMAKE_SWIG_OUTDIR
+    - SWIG_OUTFILE_DIR
     - SWIG_MODULE_<name>_EXTRA_DEPS
+    - SWIG_SOURCE_FILE_EXTENSIONS                           # Since 3.14
+
+# https://cmake.org/cmake/help/latest/manual/cmake-env-variables.7.html
+# NOTE Added to syntax file version 14 at 3.15.0 version of CMake
+environment-variables:
+    # Environment Variables that Control the Build
+    - CMAKE_BUILD_PARALLEL_LEVEL
+    - CMAKE_CONFIG_TYPE
+    - CMAKE_GENERATOR
+    - CMAKE_GENERATOR_INSTANCE
+    - CMAKE_GENERATOR_PLATFORM
+    - CMAKE_GENERATOR_TOOLSET
+    - CMAKE_MSVCIDE_RUN_PATH
+    - CMAKE_NO_VERBOSE
+    - CMAKE_OSX_ARCHITECTURES
+    - DESTDIR
+    - LDFLAGS
+    - MACOSX_DEPLOYMENT_TARGET
+    - <PackageName>_ROOT
+    - VERBOSE
+    # Environment Variables for Languages
+    - ASM<DIALECT>
+    - ASM<DIALECT>FLAGS
+    - CC
+    - CFLAGS
+    - CSFLAGS
+    - CUDACXX
+    - CUDAFLAGS
+    - CUDAHOSTCXX
+    - CXX
+    - CXXFLAGS
+    - FC
+    - FFLAGS
+    - RC
+    - RCFLAGS
+    - SWIFTC
+    # Environment Variables for CTest
+    - CMAKE_CONFIG_TYPE
+    - CTEST_INTERACTIVE_DEBUG_MODE
+    - CTEST_OUTPUT_ON_FAILURE
+    - CTEST_PARALLEL_LEVEL
+    - CTEST_PROGRESS_OUTPUT
+    - CTEST_USE_LAUNCHERS_DEFAULT
+    - DASHBOARD_TEST_FROM_CTEST
+    # Here are the `find_package` specific variables described at the
+    # https://cmake.org/cmake/help/latest/command/find_package.html
+    - <PackageName>_DIR
+    - CMAKE_PREFIX_PATH
+    - CMAKE_FRAMEWORK_PATH
+    - CMAKE_APPBUNDLE_PATH
+    - PATH
 
 scripting-commands:
     -
@@ -1670,11 +1793,21 @@ scripting-commands:
           , ERROR_FILE
           , OUTPUT_QUIET
           , ERROR_QUIET
+          , COMMAND_ECHO                                    # Since 3.15
           , OUTPUT_STRIP_TRAILING_WHITESPACE
           , ERROR_STRIP_TRAILING_WHITESPACE
           , ENCODING
           ]
-        special-args: [NONE, AUTO, ANSI, OEM, UTF8]
+        special-args: [
+            NONE
+          , AUTO
+          , ANSI
+          , OEM
+          , UTF8
+          , STDERR                                          # Since 3.15: the value for `COMMAND_ECHO`
+          , STDOUT                                          # Since 3.15: the value for `COMMAND_ECHO`
+          ]
+        nested-parentheses?: true
     -
         name: file
         named-args: [
@@ -1746,6 +1879,7 @@ scripting-commands:
           , DIRECTORY_PERMISSIONS
           , NO_SOURCE_PERMISSIONS
           , USE_SOURCE_PERMISSIONS
+          , FOLLOW_SYMLINK_CHAIN                            # Since 3.15
           , FILES_MATCHING
           , PATTERN
           , REGEX
@@ -1760,6 +1894,9 @@ scripting-commands:
             # Sub-options of UPLOAD/DOWNLOAD since 3.11
           , NETRC
           , NETRC_FILE
+            # New sub-options since 3.14
+          , READ_SYMLINK
+          , SIZE
           ]
         special-args: [
             UTF-8
@@ -1871,7 +2008,21 @@ scripting-commands:
         property-args: &get_directory_property [directory-properties]
     -
         name: get_filename_component
-        named-args: [DIRECTORY, NAME, EXT, NAME_WE, PATH, CACHE, BASE_DIR, ABSOLUTE, REALPATH, PROGRAM, PROGRAM_ARGS]
+        named-args: [
+            DIRECTORY
+          , NAME
+          , EXT
+          , NAME_WE
+          , PATH
+          , CACHE
+          , BASE_DIR
+          , ABSOLUTE
+          , REALPATH
+          , PROGRAM
+          , PROGRAM_ARGS
+          , LAST_EXT                                        # Since 3.14
+          , NAME_WLE                                        # Since 3.14
+          ]
     -
         name: get_property
         named-args: [GLOBAL, DIRECTORY, TARGET, SOURCE, INSTALL, TEST, CACHE, VARIABLE, PROPERTY, SET, DEFINED, BRIEF_DOCS, FULL_DOCS]
@@ -1933,6 +2084,10 @@ scripting-commands:
           , FOR
             # NOTE Another `REGEX` named arg has already added
           , OUTPUT_VARIABLE
+            # Since 3.15
+            # NOTE Another `PREPEND` named arg has already added
+          , POP_FRONT
+          , POP_BACK
           ]
         # Since 3.13
         special-args: [STRING, FILE_BASENAME, SENSITIVE, INSENSITIVE, ASCENDING, DESCENDING]
@@ -1951,7 +2106,19 @@ scripting-commands:
         special-args: [DECIMAL, HEXADECIMAL]
     -
         name: message
-        named-args: [STATUS, WARNING, AUTHOR_WARNING, SEND_ERROR, FATAL_ERROR, DEPRECATION]
+        named-args: [
+            STATUS
+          , WARNING
+          , AUTHOR_WARNING
+          , SEND_ERROR
+          , FATAL_ERROR
+          , DEPRECATION
+            # Since 3.15
+          , NOTICE
+          , VERBOSE
+          , DEBUG
+          , TRACE
+          ]
     -
         name: option
     -
@@ -1993,6 +2160,7 @@ scripting-commands:
           , SUBSTRING
           , STRIP
           , GENEX_STRIP
+          , REPEAT                                          # Since 3.15
           , COMPARE
           , LESS
           , GREATER
@@ -2055,6 +2223,7 @@ project-commands:
           , WORKING_DIRECTORY
           , COMMENT
           , DEPFILE
+          , JOB_POOL                                        # Since 3.15
           , VERBATIM
           , APPEND
           , USES_TERMINAL
@@ -2064,6 +2233,7 @@ project-commands:
           , PRE_LINK
           , POST_BUILD
           ]
+        nested-parentheses?: true
     -
         name: add_custom_target
         named-args: [
@@ -2075,12 +2245,14 @@ project-commands:
           , WORKING_DIRECTORY
           , COMMENT
           , DEPFILE
+          , JOB_POOL                                        # Since 3.15
           , VERBATIM
           , APPEND
           , USES_TERMINAL
           , COMMAND_EXPAND_LISTS
           , SOURCES
           ]
+        nested-parentheses?: true
     -
         name: add_definitions
     -
@@ -2099,6 +2271,7 @@ project-commands:
     -
         name: add_test
         named-args: [NAME, COMMAND, CONFIGURATIONS, WORKING_DIRECTORY]
+        nested-parentheses?: true
     -
         name: aux_source_directory
     -
@@ -2347,6 +2520,7 @@ project-commands:
           , SOURCES
           , COMPILE_DEFINITIONS
           , LINK_LIBRARIES
+          , LINK_OPTIONS                                    # Since 3.14
           , COPY_FILE
           , COPY_FILE_ERROR
           , <LANG>_STANDARD
@@ -2361,6 +2535,7 @@ project-commands:
           , CMAKE_FLAGS
           , COMPILE_DEFINITIONS
           , LINK_LIBRARIES
+          , LINK_OPTIONS                                    # Since 3.14
           , COMPILE_OUTPUT_VARIABLE
           , RUN_OUTPUT_VARIABLE
           , OUTPUT_VARIABLE
@@ -2414,7 +2589,19 @@ ctest-commands:
         named-args: [TRACK, APPEND, QUIET]
     -
         name: ctest_submit
-        named-args: [PARTS, FILES, HTTPHEADER, RETRY_COUNT, RETRY_DELAY, RETURN_VALUE, QUIET, CDASH_UPLOAD, CDASH_UPLOAD_TYPE]
+        named-args: [
+            PARTS
+          , FILES
+          , BUILD_ID                                        # Since 3.15
+          , SUBMIT_URL                                      # Since 3.14
+          , HTTPHEADER
+          , RETRY_COUNT
+          , RETRY_DELAY
+          , RETURN_VALUE
+          , QUIET
+          , CDASH_UPLOAD
+          , CDASH_UPLOAD_TYPE
+          ]
     -
         name: ctest_test
         named-args: [

@@ -30,6 +30,7 @@
 
 app_path="$1"
 resource_path="$app_path/Contents/Resources"
+libexec_path="$app_path/Contents/Resources/libexec"
 bin_src="$2"
 translation_src="$3"
 plugin_src="$4"
@@ -76,6 +77,7 @@ if [ -d "$quick1_src" ]; then
         echo "- Copying Qt Quick 1 imports"
         mkdir -p "$importsDir"
         cp -R "$quick1_src"/ "$importsDir"/
+        find "$importsDir" -path "*.dylib.dSYM*" -delete
     fi
 fi
 
@@ -86,6 +88,7 @@ if [ -d "$quick2_src" ]; then
         echo "- Copying Qt Quick 2 imports"
         mkdir -p "$imports2Dir"
         cp -R "$quick2_src"/ "$imports2Dir"/
+        find "$imports2Dir" -path "*.dylib.dSYM*" -delete
     fi
 fi
 
@@ -95,16 +98,22 @@ if [ ! -f "$resource_path/qt.conf" ]; then
     cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qt.conf" "$resource_path/qt.conf" || exit 1
 fi
 
+# copy libexec tools' qt.conf
+if [ ! -f "$libexec_path/qt.conf" ]; then
+    echo "- Copying libexec/qt.conf"
+    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/libexec_qt.conf" "$libexec_path/qt.conf" || exit 1
+fi
+
 # copy ios tools' qt.conf
-if [ ! -f "$resource_path/ios/qt.conf" ]; then
-    echo "- Copying ios/qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$resource_path/ios/qt.conf" || exit 1
+if [ ! -f "$libexec_path/ios/qt.conf" ]; then
+    echo "- Copying libexec/ios/qt.conf"
+    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$libexec_path/ios/qt.conf" || exit 1
 fi
 
 # copy qml2puppet's qt.conf
-if [ ! -f "$resource_path/qmldesigner/qt.conf" ]; then
-    echo "- Copying qmldesigner/qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmldesigner_qt.conf" "$resource_path/qmldesigner/qt.conf" || exit 1
+if [ ! -f "$libexec_path/qmldesigner/qt.conf" ]; then
+    echo "- Copying libexec/qmldesigner/qt.conf"
+    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmldesigner_qt.conf" "$libexec_path/qmldesigner/qt.conf" || exit 1
 fi
 
 # copy Qt translations
@@ -120,50 +129,40 @@ if [ $LLVM_INSTALL_DIR ]; then
         echo "- Copying libclang"
         mkdir -p "$app_path/Contents/Frameworks" || exit 1
         # use recursive copy to make it copy symlinks as symlinks
-        mkdir -p "$resource_path/clang/bin"
-        mkdir -p "$resource_path/clang/lib"
+        mkdir -p "$libexec_path/clang/bin"
+        mkdir -p "$libexec_path/clang/lib"
         cp -Rf "$LLVM_INSTALL_DIR"/lib/libclang.*dylib "$app_path/Contents/Frameworks/" || exit 1
-        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$resource_path/clang/lib/" || exit 1
+        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$libexec_path/clang/lib/" || exit 1
         clangsource="$LLVM_INSTALL_DIR"/bin/clang
         clanglinktarget="$(readlink "$clangsource")"
-        cp -Rf "$clangsource" "$resource_path/clang/bin/" || exit 1
+        cp -Rf "$clangsource" "$libexec_path/clang/bin/" || exit 1
         if [ $clanglinktarget ]; then
-            cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$resource_path/clang/bin/$clanglinktarget" || exit 1
+            cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$libexec_path/clang/bin/$clanglinktarget" || exit 1
         fi
         clangdsource="$LLVM_INSTALL_DIR"/bin/clangd
-        cp -Rf "$clangdsource" "$resource_path/clang/bin/" || exit 1
+        cp -Rf "$clangdsource" "$libexec_path/clang/bin/" || exit 1
         clangtidysource="$LLVM_INSTALL_DIR"/bin/clang-tidy
-        cp -Rf "$clangtidysource" "$resource_path/clang/bin/" || exit 1
+        cp -Rf "$clangtidysource" "$libexec_path/clang/bin/" || exit 1
         clazysource="$LLVM_INSTALL_DIR"/bin/clazy-standalone
-        cp -Rf "$clazysource" "$resource_path/clang/bin/" || exit 1
+        cp -Rf "$clazysource" "$libexec_path/clang/bin/" || exit 1
     fi
-    clangbackendArgument="-executable=$resource_path/clangbackend"
-    clangpchmanagerArgument="-executable=$resource_path/clangpchmanagerbackend"
-    clangrefactoringArgument="-executable=$resource_path/clangrefactoringbackend"
+    clangbackendArgument="-executable=$libexec_path/clangbackend"
+    clangpchmanagerArgument="-executable=$libexec_path/clangpchmanagerbackend"
+    clangrefactoringArgument="-executable=$libexec_path/clangrefactoringbackend"
 fi
 
 #### macdeployqt
 
 if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
 
-    qml2puppetapp="$resource_path/qmldesigner/qml2puppet"
+    qml2puppetapp="$libexec_path/qmldesigner/qml2puppet"
     if [ -f "$qml2puppetapp" ]; then
         qml2puppetArgument="-executable=$qml2puppetapp"
     fi
 
     qbsapp="$app_path/Contents/MacOS/qbs"
-
-    echo "- Running macdeployqt ($bin_src/macdeployqt)"
-
-    "$bin_src/macdeployqt" "$app_path" \
-        "-executable=$app_path/Contents/MacOS/qtdiag" \
-        "-executable=$resource_path/qtpromaker" \
-        "-executable=$resource_path/sdktool" \
-        "-executable=$resource_path/ios/iostool" \
-        "-executable=$resource_path/buildoutputparser" \
-        "-executable=$resource_path/cpaster" \
-        "-executable=$resource_path/qbs_processlauncher" \
-        "-executable=$qbsapp" \
+    if [ -f "$qbsapp" ]; then
+        qbsArguments=("-executable=$qbsapp" \
         "-executable=$qbsapp-config" \
         "-executable=$qbsapp-config-ui" \
         "-executable=$qbsapp-qmltypes" \
@@ -171,6 +170,19 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$qbsapp-setup-qt" \
         "-executable=$qbsapp-setup-toolchains" \
         "-executable=$qbsapp-create-project" \
+        "-executable=$libexec_path/qbs_processlauncher")
+    fi
+
+    echo "- Running macdeployqt ($bin_src/macdeployqt)"
+
+    "$bin_src/macdeployqt" "$app_path" \
+        "-executable=$app_path/Contents/MacOS/qtdiag" \
+        "-executable=$libexec_path/qtpromaker" \
+        "-executable=$libexec_path/sdktool" \
+        "-executable=$libexec_path/ios/iostool" \
+        "-executable=$libexec_path/buildoutputparser" \
+        "-executable=$libexec_path/cpaster" \
+        "${qbsArguments[@]}" \
         "$qml2puppetArgument" \
         "$clangbackendArgument" "$clangpchmanagerArgument" "$clangrefactoringArgument" || exit 1
 

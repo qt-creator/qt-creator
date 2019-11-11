@@ -5,7 +5,7 @@
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
 	<!ENTITY entref        "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="7" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="9" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -20,8 +20,19 @@
     <StringDetect attribute="CDATA" context="CDATA" String="&lt;![CDATA[" beginRegion="cdata" />
     <RegExpr attribute="Doctype" context="Doctype" String="&lt;!DOCTYPE\s+" insensitive="true" beginRegion="doctype"  />
     <RegExpr attribute="Processing Instruction" context="PI" String="&lt;\?[\w:-]*" beginRegion="pi" />
+    <IncludeRules context="FindSpecialHTMLTags" />
+    <IncludeRules context="FindHTMLTags" />
+    <!-- as long as kde gives DTDs the text/html mimetype--><IncludeRules context="FindDTDRules" />
+    <IncludeRules context="FindEntityRefs" />
+  </context>
+
+  <!-- This allows you to insert HTML tags in other syntax definitions -->
+  <context name="FindSpecialHTMLTags" attribute="Normal Text" lineEndContext="#stay">
     <RegExpr attribute="Element" context="CSS" String="&lt;style\b" insensitive="true" beginRegion="style" />
     <RegExpr attribute="Element" context="JS" String="&lt;script\b" insensitive="true" beginRegion="script" />
+  </context>
+
+  <context name="FindHTMLTags" attribute="Normal Text" lineEndContext="#stay">
     <RegExpr attribute="Element" context="El Open" String="&lt;pre\b" insensitive="true" beginRegion="pre" />
     <RegExpr attribute="Element" context="El Open" String="&lt;div\b" insensitive="true" beginRegion="div" />
     <RegExpr attribute="Element" context="El Open" String="&lt;table\b" insensitive="true" beginRegion="table" />
@@ -54,8 +65,6 @@
     <RegExpr attribute="Element" context="El Close" String="&lt;/nav\b" insensitive="true" endRegion="nav" />
     <RegExpr attribute="Element" context="El Close" String="&lt;/section\b" insensitive="true" endRegion="section" />
     <RegExpr attribute="Element" context="El Close" String="&lt;/&name;" />
-    <!-- as long as kde gives DTDs the text/html mimetype--><IncludeRules context="FindDTDRules" />
-    <IncludeRules context="FindEntityRefs" />
   </context>
 
   <context name="FindEntityRefs" attribute="Other Text" lineEndContext="#stay">
@@ -230,7 +239,7 @@
     <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;x-tmpl-mustache&quot;"/>
     <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;x-tmpl-mustache&apos;"/>
     <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;text/mustache&quot;"/>
-    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;text/mustache&apos;"/>    
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;text/mustache&apos;"/>
     <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;text/x-mustache-template&quot;"/>
     <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;text/x-mustache-template&apos;"/>
     <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;text/x-handlebars-template&quot;"/>

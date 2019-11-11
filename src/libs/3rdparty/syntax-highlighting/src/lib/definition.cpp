@@ -39,7 +39,6 @@
 #include "xml_p.h"
 
 #include <QCoreApplication>
-#include <QDebug>
 #include <QFile>
 #include <QHash>
 #include <QJsonObject>
@@ -232,6 +231,19 @@ QStringList Definition::keywordList(const QString& name) const
     d->load(DefinitionData::OnlyKeywords(true));
     const auto list = d->keywordList(name);
     return list ? list->keywords() : QStringList();
+}
+
+bool Definition::setKeywordList(const QString& name, const QStringList& content)
+{
+    d->load(DefinitionData::OnlyKeywords(true));
+    KeywordList* list = d->keywordList(name);
+    if (list)
+    {
+        list->setKeywordList(content);
+        return true;
+    }
+    else
+        return false;
 }
 
 QVector<Format> Definition::formats() const

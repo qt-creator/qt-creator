@@ -3,7 +3,7 @@
 #
 # Generate Kate syntax file for CMake
 #
-# Copyright (c) 2017, Alex Turbov <i.zaufi@gmail.com>
+# Copyright (c) 2017-2019 Alex Turbov <i.zaufi@gmail.com>
 #
 # To install prerequisites:
 #
@@ -33,6 +33,7 @@ _PROPERTY_KEYS = [
   , 'install-properties'
   ]
 _KW_RE_LIST = ['kw', 're']
+_VAR_KIND_LIST = ['variables', 'environment-variables']
 
 
 def try_transform_placeholder_string_to_regex(name):
@@ -43,6 +44,9 @@ def try_transform_placeholder_string_to_regex(name):
     m = _TEMPLATED_NAME.split(name)
     if 'CMAKE_MATCH_' in m:
         return '\\bCMAKE_MATCH_[0-9]+\\b'
+
+    if 'CMAKE_ARGV' in m:
+        return '\\bCMAKE_ARGV[0-9]+\\b'
 
     return '\\b{}\\b'.format('&id_re;'.join(list(m))) if 1 < len(m) else name
 
@@ -109,11 +113,20 @@ def cmd_is_nulary(cmd):
 def cli(input_yaml, template):
     data = yaml.load(input_yaml)
 
-    # Partition `variables` list into "pure" words and regexes to match
-    data['variables'] = {
-        k: sorted(set(v)) for k, v in zip(_KW_RE_LIST, [*partition_iterable(lambda x: _TEMPLATED_NAME.search(x) is None, data['variables'])])
-      }
-    data['variables']['re'] = [*map(lambda x: try_transform_placeholder_string_to_regex(x), data['variables']['re'])]
+    # Partition `variables` and `environment-variables` lists into "pure" (key)words and regexes to match
+    for var_key in _VAR_KIND_LIST:
+        data[var_key] = {
+            k: sorted(set(v)) for k, v in zip(
+                _KW_RE_LIST
+              , [*partition_iterable(lambda x: _TEMPLATED_NAME.search(x) is None, data[var_key])]
+              )
+        }
+        data[var_key]['re'] = [
+            *map(
+                lambda x: try_transform_placeholder_string_to_regex(x)
+              , data[var_key]['re']
+              )
+          ]
 
     # Transform properties and make all-properties list
     data['properties'] = {}
@@ -122,17 +135,27 @@ def cli(input_yaml, template):
         props, props_re = partition_iterable(lambda x: _TEMPLATED_NAME.search(x) is None, data[prop])
         del data[prop]
 
-        data['properties'][python_prop_list_name] = {k: sorted(set(v)) for k, v in zip(_KW_RE_LIST, [props, props_re])}
-        data['properties'][python_prop_list_name]['re'] = [*map(lambda x: try_transform_placeholder_string_to_regex(x), props_re)]
-
+        data['properties'][python_prop_list_name] = {
+            k: sorted(set(v)) for k, v in zip(_KW_RE_LIST, [props, props_re])
+          }
+        data['properties'][python_prop_list_name]['re'] = [
+            *map(lambda x: try_transform_placeholder_string_to_regex(x), props_re)
+          ]
 
     data['properties']['kinds'] = [*map(lambda name: name.replace('-', '_'), _PROPERTY_KEYS)]
 
     # Make all commands list
-    data['commands'] = [*map(lambda cmd: transform_command(cmd), data['scripting-commands'] + data['project-commands'] + data['ctest-commands'])]
+    data['commands'] = [
+        *map(
+            lambda cmd: transform_command(cmd)
+          , data['scripting-commands'] + data['project-commands'] + data['ctest-commands'])
+      ]
 
+    # Fix node names to be accessible from Jinja template
     data['generator_expressions'] = data['generator-expressions']
-
+    data['environment_variables'] = data['environment-variables']
+    del data['generator-expressions']
+    del data['environment-variables']
 
     env = jinja2.Environment(
         keep_trailing_newline=True

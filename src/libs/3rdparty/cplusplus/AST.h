@@ -2415,7 +2415,7 @@ class CPLUSPLUS_EXPORT AlignofExpressionAST: public ExpressionAST
 public:
     int alignof_token = 0;
     int lparen_token = 0;
-    TypeIdAST *typeId;
+    TypeIdAST *typeId = nullptr;
     int rparen_token = 0;
 
 public:

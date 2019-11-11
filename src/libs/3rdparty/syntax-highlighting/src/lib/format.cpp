@@ -30,7 +30,6 @@
 #include "xml_p.h"
 
 #include <QColor>
-#include <QDebug>
 #include <QMetaEnum>
 #include <QXmlStreamReader>
 
@@ -205,6 +204,46 @@ bool Format::isStrikeThrough(const Theme &theme) const
 bool Format::spellCheck() const
 {
     return d->spellCheck;
+}
+
+bool Format::hasBoldOverride() const
+{
+    return d->style.hasBold;
+}
+
+bool Format::hasItalicOverride() const
+{
+    return d->style.hasItalic;
+}
+
+bool Format::hasUnderlineOverride() const
+{
+    return d->style.hasUnderline;
+}
+
+bool Format::hasStrikeThroughOverride() const
+{
+    return d->style.hasStrikeThrough;
+}
+
+bool Format::hasTextColorOverride() const
+{
+    return d->style.textColor;
+}
+
+bool Format::hasBackgroundColorOverride() const
+{
+    return d->style.backgroundColor;
+}
+
+bool Format::hasSelectedTextColorOverride() const
+{
+    return d->style.selectedTextColor;
+}
+
+bool Format::hasSelectedBackgroundColorOverride() const
+{
+    return d->style.selectedBackgroundColor;
 }
 
 

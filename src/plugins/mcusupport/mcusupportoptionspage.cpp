@@ -108,14 +108,14 @@ void McuSupportOptionsWidget::updateStatus()
 {
     const QVector<BoardOptions*> validBoards = m_options->validBoards();
     m_statusLabel->setText(validBoards.isEmpty()
-                           ? McuSupportOptionsPage::tr("No devices and kits can currently be generated. "
-                                                       "Select a board and provide the package paths. "
-                                                       "Afterwards, press Apply to generate device and kit for "
+                           ? McuSupportOptionsPage::tr("No kits can currently be generated. "
+                                                       "Select a target and provide the package paths. "
+                                                       "Afterwards, press Apply to generate a kit for "
                                                        "your board.")
-                           : McuSupportOptionsPage::tr("Devices and kits for the following boards can be generated: "
+                           : McuSupportOptionsPage::tr("Kits for the following targets can be generated: "
                                                        "%1 "
-                                                       "Press Apply to generate device and kit for "
-                                                       "your board.").arg(ulOfBoardModels(validBoards)));
+                                                       "Press Apply to generate a kit for "
+                                                       "your target.").arg(ulOfBoardModels(validBoards)));
 }
 
 void McuSupportOptionsWidget::showBoardPackages(int boardIndex)

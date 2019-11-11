@@ -61,10 +61,8 @@ void Context::load(QXmlStreamReader& reader)
     m_attribute = reader.attributes().value(QStringLiteral("attribute")).toString();
     m_lineEndContext.parse(reader.attributes().value(QStringLiteral("lineEndContext")));
     m_lineEmptyContext.parse(reader.attributes().value(QStringLiteral("lineEmptyContext")));
-    m_fallthrough = Xml::attrToBool(reader.attributes().value(QStringLiteral("fallthrough")));
     m_fallthroughContext.parse(reader.attributes().value(QStringLiteral("fallthroughContext")));
-    if (m_fallthroughContext.isStay())
-        m_fallthrough = false;
+    m_fallthrough = !m_fallthroughContext.isStay();
     m_noIndentationBasedFolding = Xml::attrToBool(reader.attributes().value(QStringLiteral("noIndentationBasedFolding")));
 
     reader.readNext();

@@ -48,7 +48,7 @@ Module {
             ? ide_app_target + ".app/Contents/Resources"
             : "share/qtcreator"
     property string ide_libexec_path: qbs.targetOS.contains("macos")
-            ? ide_data_path : qbs.targetOS.contains("windows")
+            ? ide_data_path + "/libexec" : qbs.targetOS.contains("windows")
             ? ide_app_path
             : "libexec/qtcreator"
     property string ide_bin_path: qbs.targetOS.contains("macos")
