@@ -79,10 +79,12 @@ void tst_MapReduce::mapReduce()
 
     {
         // map without future interface
-        QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 initWithFutureInterface, returnxx,
-                                                 reduceWithFutureInterface, cleanupWithFutureInterface)
-                .results();
+        QList<double> results = Utils::mapReduce(QVector<int>({1, 2, 3, 4, 5}),
+                                                 initWithFutureInterface,
+                                                 returnxx,
+                                                 reduceWithFutureInterface,
+                                                 cleanupWithFutureInterface)
+                                    .results();
         Utils::sort(results); // mapping order is undefined
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
@@ -273,7 +275,7 @@ void tst_MapReduce::map()
         const QSet<int> sizes = Utils::mapped<QSet>(QStringList({QLatin1String("foo"),
                                                                       QLatin1String("bar"), QLatin1String("blah")}),
                                                          [](const QString &s) { return s.size(); });
-        QList<int> vals = sizes.toList();
+        QList<int> vals = sizes.values();
         Utils::sort(vals);
         QCOMPARE(vals, QList<int>({3, 4}));
     }
@@ -281,7 +283,7 @@ void tst_MapReduce::map()
         const QStringList list({QLatin1String("foo"), QLatin1String("bar"), QLatin1String("blah")});
         const QSet<int> sizes = Utils::mapped<QSet>(list.cbegin(), list.cend(),
                                                     [](const QString &s) { return s.size(); });
-        QList<int> vals = sizes.toList();
+        QList<int> vals = sizes.values();
         Utils::sort(vals);
         QCOMPARE(vals, QList<int>({3, 4}));
     }

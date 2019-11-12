@@ -31,6 +31,8 @@
 
 #include <QFutureWatcher>
 
+#include <iterator>
+
 namespace Utils {
 
 enum class MapReduceOption
@@ -52,7 +54,8 @@ class MapReduceBase : public MapReduceObject
 protected:
     static const int MAX_PROGRESS = 1000000;
     // either const or non-const reference wrapper for items from the iterator
-    using ItemReferenceWrapper = std::reference_wrapper<std::remove_reference_t<typename ForwardIterator::reference>>;
+    using ItemReferenceWrapper = std::reference_wrapper<
+        std::remove_reference_t<typename std::iterator_traits<ForwardIterator>::reference>>;
 
 public:
     MapReduceBase(QFutureInterface<ReduceResult> futureInterface, ForwardIterator begin, ForwardIterator end,
