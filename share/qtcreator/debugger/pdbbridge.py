@@ -743,12 +743,12 @@ class QtcInternalDumper:
                 # So we clear up the __main__ and set several special variables
                 # (this gets rid of pdb's globals and cleans old variables on restarts).
 
-                # import __main__
+                import __main__
                 # __main__.__dict__.clear()
-                # __main__.__dict__.update({'__name__'    : '__main__',
-                #                           '__file__'    : mainpyfile,
+                __main__.__dict__.update({'__name__'    : '__main__',
+                                          '__file__'    : mainpyfile,
                 #                           '__builtins__': __builtins__,
-                #                          })
+                                         })
 
                 # When bdb sets tracing, a number of call and line events happens
                 # BEFORE debugger even reaches user's code (and the exact sequence of
