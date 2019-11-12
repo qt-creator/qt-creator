@@ -40,6 +40,8 @@
 
 #include <stdio.h>
 
+using namespace Qt;
+
 CompilerOutputProcessor::CompilerOutputProcessor(CompilerType compilerType, QIODevice &source)
     : m_compilerType(compilerType)
     , m_source(source)
@@ -86,5 +88,5 @@ void CompilerOutputProcessor::handleTask(const ProjectExplorer::Task &task)
             *m_ostream << ':' << task.line;
         *m_ostream << ": ";
     }
-    *m_ostream << task.description << Qt::endl;
+    *m_ostream << task.description << endl;
 }

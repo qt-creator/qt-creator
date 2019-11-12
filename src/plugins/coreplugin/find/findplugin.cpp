@@ -65,6 +65,8 @@
 
 Q_DECLARE_METATYPE(Core::IFindFilter*)
 
+using namespace Qt;
+
 namespace {
     const int MAX_COMPLETIONS = 50;
 }
@@ -82,8 +84,8 @@ QDebug operator<<(QDebug d, const CompletionEntry &e)
     QDebugStateSaver saver(d);
     d.noquote();
     d.nospace();
-    d << "CompletionEntry(\"" << e.text << "\", flags=" << Qt::hex
-      << Qt::showbase << int(e.findFlags) << Qt::dec << Qt::noshowbase << ')';
+    d << "CompletionEntry(\"" << e.text << "\", flags=" << hex
+      << showbase << int(e.findFlags) << dec << noshowbase << ')';
     return d;
 }
 

@@ -39,6 +39,8 @@
 #include <QTextStream>
 #include <QTimer>
 
+using namespace Qt;
+
 namespace Gerrit {
 namespace Internal {
 
@@ -150,10 +152,10 @@ bool AuthenticationDialog::setupCredentials()
             replaceEntry(line, "login", user);
             replaceEntry(line, "password", password);
         }
-        out << line << Qt::endl;
+        out << line << endl;
     }
     if (!found)
-        out << "machine " << m_server->host << " login " << user << " password " << password << Qt::endl;
+        out << "machine " << m_server->host << " login " << user << " password " << password << endl;
     Utils::FileSaver saver(m_netrcFileName, QFile::WriteOnly | QFile::Truncate | QFile::Text);
     saver.write(netrcContents.toUtf8());
     return saver.finalize();

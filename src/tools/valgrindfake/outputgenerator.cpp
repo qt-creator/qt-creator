@@ -49,6 +49,7 @@ void doSleep(int msec)
 }
 #endif
 
+using namespace Qt;
 using namespace Valgrind::Fake;
 
 OutputGenerator::OutputGenerator(QAbstractSocket *output, QIODevice *input) :
@@ -115,7 +116,7 @@ void OutputGenerator::produceRuntimeError()
         blockingWrite(m_output, "<</GARBAGE = '\"''asdfaqre");
         m_output->flush();
     } else if (m_wait) {
-        qDebug() << "waiting in fake valgrind for " << m_wait << " seconds..." << Qt::endl;
+        qDebug() << "waiting in fake valgrind for " << m_wait << " seconds..." << endl;
         doSleep(1000 * m_wait);
     }
 }

@@ -33,6 +33,7 @@
 #endif
 
 using namespace GLSL;
+using namespace Qt;
 
 ASTDump::ASTDump(QTextStream &out)
     : out(out), _depth(0)
@@ -52,7 +53,7 @@ bool ASTDump::preVisit(AST *ast)
     char *cppId = abi::__cxa_demangle(id, nullptr, nullptr, nullptr);
     id = cppId;
 #endif
-    out << QByteArray(_depth, ' ') << id << Qt::endl;
+    out << QByteArray(_depth, ' ') << id << endl;
 #ifdef Q_CC_GNU
     free(cppId);
 #endif
