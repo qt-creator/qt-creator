@@ -216,4 +216,9 @@ QStringList StatesEditorModel::autoComplete(const QString &text, int pos, bool e
     return QStringList();
 }
 
+QVariant StatesEditorModel::stateModelNode()
+{
+    return QVariant::fromValue(m_statesEditorView->currentStateNode());
+}
+
 } // namespace QmlDesigner

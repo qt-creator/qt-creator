@@ -134,7 +134,7 @@ bool BindingEditorWidget::event(QEvent *event)
 TextEditor::AssistInterface *BindingEditorWidget::createAssistInterface(
         TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
 {
-    Q_UNUSED(assistKind);
+    Q_UNUSED(assistKind)
     return new QmlJSEditor::QmlJSCompletionAssistInterface(
                 document(), position(), QString(),
                 assistReason, qmljsdocument->semanticInfo());
@@ -489,44 +489,56 @@ void BindingEditor::setModelNodeBackend(const QVariant &modelNodeBackend)
     if (!modelNodeBackend.isNull() && modelNodeBackend.isValid()) {
         m_modelNodeBackend = modelNodeBackend;
 
+        const auto modelNodeBackendObject = m_modelNodeBackend.value<QObject*>();
+
+        const auto backendObjectCasted =
+                qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
+
+        if (backendObjectCasted) {
+            m_modelNode = backendObjectCasted->qmlObjectNode().modelNode();
+        }
+
         emit modelNodeBackendChanged();
+    }
+}
+
+void BindingEditor::setStateModelNode(const QVariant &stateModelNode)
+{
+    if (stateModelNode.isValid())
+    {
+        m_stateModelNode = stateModelNode;
+        m_modelNode = m_stateModelNode.value<QmlDesigner::ModelNode>();
+
+        if (m_modelNode.isValid())
+            m_backendValueTypeName = "bool";
+
+        emit stateModelNodeChanged();
     }
 }
 
 void BindingEditor::prepareBindings()
 {
-    if (m_backendValue.isNull() || m_modelNodeBackend.isNull())
+    if (!m_modelNode.isValid() || m_backendValueTypeName.isEmpty())
         return;
 
-    if (!(m_backendValue.isValid() && m_modelNodeBackend.isValid()))
-        return;
+    const QList<QmlDesigner::ModelNode> allNodes = m_modelNode.view()->allModelNodes();
 
-    const auto modelNodeBackendObject = m_modelNodeBackend.value<QObject*>();
+    QList<BindingEditorDialog::BindingOption> bindings;
 
-    const auto backendObjectCasted =
-            qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
+    for (auto objnode : allNodes) {
+        BindingEditorDialog::BindingOption binding;
+        for (auto propertyName : objnode.metaInfo().propertyNames())
+            if (m_backendValueTypeName == objnode.metaInfo().propertyTypeName(propertyName))
+                binding.properties.append(QString::fromUtf8(propertyName));
 
-    if (backendObjectCasted) {
-        const QmlDesigner::ModelNode a = backendObjectCasted->qmlObjectNode().modelNode();
-        const QList<QmlDesigner::ModelNode> allNodes = a.view()->allModelNodes();
-
-        QList<BindingEditorDialog::BindingOption> bindings;
-
-        for (auto objnode : allNodes) {
-            BindingEditorDialog::BindingOption binding;
-            for (auto propertyName : objnode.metaInfo().propertyNames())
-                if (m_backendValueTypeName == objnode.metaInfo().propertyTypeName(propertyName))
-                    binding.properties.append(QString::fromUtf8(propertyName));
-
-            if (!binding.properties.isEmpty() && objnode.hasId()) {
-                binding.item = objnode.displayName();
-                bindings.append(binding);
-            }
+        if (!binding.properties.isEmpty() && objnode.hasId()) {
+            binding.item = objnode.displayName();
+            bindings.append(binding);
         }
-
-        if (!bindings.isEmpty() && !m_dialog.isNull())
-            m_dialog->setAllBindings(bindings);
     }
+
+    if (!bindings.isEmpty() && !m_dialog.isNull())
+        m_dialog->setAllBindings(bindings);
 }
 
 QVariant BindingEditor::backendValue() const
@@ -537,6 +549,11 @@ QVariant BindingEditor::backendValue() const
 QVariant BindingEditor::modelNodeBackend() const
 {
     return m_modelNodeBackend;
+}
+
+QVariant BindingEditor::stateModelNode() const
+{
+    return m_stateModelNode;
 }
 
 
