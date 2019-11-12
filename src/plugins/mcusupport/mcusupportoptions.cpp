@@ -350,6 +350,7 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     PackageOptions* seggerJLinkPackage = createSeggerJLinkPackage();
 
     toolchainPackage = armGccPackage;
+    qulSdkPackage = qulPackage;
 
     auto stmEvalPackages = {
         armGccPackage, stm32CubeProgrammerPackage, qulPackage};
@@ -442,12 +443,12 @@ static bool isDesktop(const BoardOptions* board)
     return board->qulPlatform() == "Qt";
 }
 
-static void setKitProperties(const McuSupportOptions *options, ProjectExplorer::Kit *k,
+static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
                              const BoardOptions* board)
 {
     using namespace ProjectExplorer;
 
-    k->setUnexpandedDisplayName(options->kitName(board));
+    k->setUnexpandedDisplayName(kitName);
     k->setValue(Constants::KIT_BOARD_VENDOR_KEY, board->vendor());
     k->setValue(Constants::KIT_BOARD_MODEL_KEY, board->model());
     k->setAutoDetected(false);
@@ -523,15 +524,15 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const BoardOptions* board
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
 
-static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* board)
+static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* board,
+                               const QString &qulDir)
 {
     using namespace CMakeProjectManager;
 
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
     if (!board->toolChainFile().isEmpty())
         config.append(CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
-                                      ("%{CurrentBuild:Env:Qul_DIR}/" +
-                                       board->toolChainFile()).toUtf8()));
+                                      (qulDir + "/" + board->toolChainFile()).toUtf8()));
     if (!board->qulPlatform().isEmpty())
         config.append(CMakeConfigItem("QUL_PLATFORM",
                                       board->qulPlatform().toUtf8()));
@@ -560,17 +561,18 @@ ProjectExplorer::Kit *McuSupportOptions::kit(const BoardOptions* board)
     });
     if (!kit) {
         const QString armGccPath = toolchainPackage->path();
-        const auto init = [this, board, &armGccPath](Kit *k) {
+        const QString qulDir = qulSdkPackage->path();
+        const auto init = [this, board](Kit *k) {
             KitGuard kitGuard(k);
 
-            setKitProperties(this, k, board);
+            setKitProperties(kitName(board), k, board);
             if (!isDesktop(board)) {
-                setKitToolchains(k, armGccPath);
-                setKitDebugger(k, armGccPath);
+                setKitToolchains(k, toolchainPackage->path());
+                setKitDebugger(k, toolchainPackage->path());
                 setKitDevice(k);
             }
             setKitEnvironment(k, board);
-            setKitCMakeOptions(k, board);
+            setKitCMakeOptions(k, board, qulSdkPackage->path());
 
             k->setup();
             k->fix();

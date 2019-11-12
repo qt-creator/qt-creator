@@ -160,6 +160,7 @@ void McuSupportOptionsPage::apply()
         package->writeToSettings();
 
     QTC_ASSERT(m_options->toolchainPackage, return);
+    QTC_ASSERT(m_options->qulSdkPackage, return);
 
     const QVector<BoardOptions*> validBoards = m_options->validBoards();
 

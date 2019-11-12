@@ -131,6 +131,7 @@ public:
     QVector<PackageOptions*> packages;
     QVector<BoardOptions*> boards;
     PackageOptions *toolchainPackage = nullptr;
+    PackageOptions *qulSdkPackage = nullptr;
 
     QString kitName(const BoardOptions* board) const;
 
