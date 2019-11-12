@@ -32,8 +32,7 @@ Column {
     anchors.right: parent.right
 
     StandardTextSection {
-        useLineEdit: false
-        showIsWrapping: false
+        showVerticalAlignment: true
     }
 
     Section {
@@ -57,6 +56,18 @@ Column {
         ColorEditor {
             caption: qsTr("Selection Color")
             backendValue:  backendValues.selectionColor
+            supportGradient: false
+        }
+    }
+
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Selected Text Color")
+
+        ColorEditor {
+            caption: qsTr("Selected Text Color")
+            backendValue: backendValues.selectedTextColor
             supportGradient: false
         }
     }

@@ -40,6 +40,16 @@ Section {
         columns: 2
 
         Label {
+            text: qsTr("Mouse selection mode")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: backendValues.mouseSelectionMode
+            scope: "TextInput"
+            model: ["SelectCharacters", "SelectWords"]
+        }
+
+        Label {
             visible: textInputSection.isTextInput
             text: qsTr("Input mask")
         }
@@ -48,6 +58,7 @@ Section {
             visible: textInputSection.isTextInput
             backendValue: backendValues.inputMask
             Layout.fillWidth: true
+            showTranslateCheckBox: false
         }
 
         Label {
@@ -73,6 +84,33 @@ Section {
             visible: textInputSection.isTextInput
             backendValue: backendValues.passwordCharacter
             Layout.fillWidth: true
+            showTranslateCheckBox: false
+        }
+
+        Label {
+            visible: !textInputSection.isTextInput
+            text: qsTr("Tab stop distance")
+            tooltip: qsTr("Sets the default distance, in device units, between tab stops.")
+        }
+        SpinBox {
+            visible: !textInputSection.isTextInput
+            Layout.fillWidth: true
+            backendValue: backendValues.tabStopDistance
+            maximumValue: 200
+            minimumValue: 0
+        }
+
+        Label {
+            visible: !textInputSection.isTextInput
+            text: qsTr("Text margin")
+            tooltip: qsTr("Sets the margin, in pixels, around the text in the TextEdit..")
+        }
+        SpinBox {
+            visible: !textInputSection.isTextInput
+            Layout.fillWidth: true
+            backendValue: backendValues.textMargin
+            maximumValue: 200
+            minimumValue: -200
         }
 
         Label {
@@ -101,9 +139,35 @@ Section {
                 }
 
                 CheckBox {
+                    visible: textInputSection.isTextInput
                     Layout.fillWidth: true
                     text: qsTr("Auto scroll")
                     backendValue: backendValues.autoScroll
+                }
+
+                CheckBox {
+                    Layout.fillWidth: true
+                    text: qsTr("Overwrite mode")
+                    backendValue: backendValues.overwriteMode
+                }
+
+                CheckBox {
+                    Layout.fillWidth: true
+                    text: qsTr("Persistent selection")
+                    backendValue: backendValues.persistentSelection
+                }
+
+                CheckBox {
+                    Layout.fillWidth: true
+                    text: qsTr("Select by mouse")
+                    backendValue: backendValues.selectByMouse
+                }
+
+                CheckBox {
+                    visible: !textInputSection.isTextInput
+                    Layout.fillWidth: true
+                    text: qsTr("Select by keyboard")
+                    backendValue: backendValues.selectByKeyboard
                 }
             }
         }
