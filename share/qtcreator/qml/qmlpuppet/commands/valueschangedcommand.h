@@ -78,6 +78,9 @@ public:
     {}
 };
 
+QDataStream &operator<<(QDataStream &out, const ValuesModifiedCommand &command);
+QDataStream &operator>>(QDataStream &in, ValuesModifiedCommand &command);
+
 } // namespace QmlDesigner
 
 

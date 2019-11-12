@@ -183,4 +183,15 @@ QDebug operator <<(QDebug debug, const ValuesChangedCommand &command)
                     << command.valueChanges() << ")";
 }
 
+QDataStream &operator<<(QDataStream &out, const ValuesModifiedCommand &command)
+{
+    return out << static_cast<const ValuesChangedCommand &>(command);
+}
+
+QDataStream &operator>>(QDataStream &in, ValuesModifiedCommand &command)
+{
+    return in >> static_cast<ValuesChangedCommand &>(command);
+}
+
+
 } // namespace QmlDesigner
