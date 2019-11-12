@@ -56,6 +56,9 @@ bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick3D.Node"))
         return true;
 
+    if (modelNode.metaInfo().isGraphicalItem() && modelNode.isRootNode())
+        return true;
+
     return false;
 }
 
