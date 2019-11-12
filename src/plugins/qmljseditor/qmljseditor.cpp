@@ -101,6 +101,8 @@ using namespace QmlJS::AST;
 using namespace QmlJSTools;
 using namespace TextEditor;
 
+using namespace Qt;
+
 namespace QmlJSEditor {
 
 //

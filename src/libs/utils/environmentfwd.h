@@ -28,8 +28,6 @@
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
-template<typename Type>
-class QList;
 class QTreeView;
 QT_END_NAMESPACE
 

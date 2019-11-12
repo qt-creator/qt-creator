@@ -27,9 +27,7 @@
 
 #include "cpptools_global.h"
 
-QT_BEGIN_NAMESPACE
-template <class> class QList;
-QT_END_NAMESPACE
+#include <QList>
 
 namespace CPlusPlus {
 class Class;

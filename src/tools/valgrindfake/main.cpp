@@ -36,6 +36,8 @@
 
 using namespace Valgrind::Fake;
 
+using namespace Qt;
+
 QTextStream qerr(stderr);
 QTextStream qout(stdout);
 

@@ -52,7 +52,7 @@ bool ASTDump::preVisit(AST *ast)
     char *cppId = abi::__cxa_demangle(id, nullptr, nullptr, nullptr);
     id = cppId;
 #endif
-    out << QByteArray(_depth, ' ') << id << endl;
+    out << QByteArray(_depth, ' ') << id << Qt::endl;
 #ifdef Q_CC_GNU
     free(cppId);
 #endif

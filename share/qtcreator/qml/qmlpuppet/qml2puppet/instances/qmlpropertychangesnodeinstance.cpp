@@ -31,7 +31,6 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QQmlExpression>
-#include <QMutableListIterator>
 
 namespace QmlDesigner {
 namespace Internal {

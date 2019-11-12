@@ -86,5 +86,5 @@ void CompilerOutputProcessor::handleTask(const ProjectExplorer::Task &task)
             *m_ostream << ':' << task.line;
         *m_ostream << ": ";
     }
-    *m_ostream << task.description << endl;
+    *m_ostream << task.description << Qt::endl;
 }

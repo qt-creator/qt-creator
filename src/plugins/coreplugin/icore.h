@@ -28,6 +28,7 @@
 #include "core_global.h"
 #include "id.h"
 
+#include <QList>
 #include <QMainWindow>
 #include <QObject>
 #include <QRect>
@@ -39,7 +40,6 @@ QT_BEGIN_NAMESPACE
 class QPrinter;
 class QStatusBar;
 class QWidget;
-template <typename T> class QList;
 QT_END_NAMESPACE
 
 namespace Core {

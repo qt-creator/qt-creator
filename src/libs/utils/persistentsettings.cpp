@@ -46,7 +46,7 @@
 static QString rectangleToString(const QRect &r)
 {
     QString result;
-    QTextStream(&result) << r.width() << 'x' << r.height() << forcesign << r.x() << r.y();
+    QTextStream(&result) << r.width() << 'x' << r.height() << Qt::forcesign << r.x() << r.y();
     return result;
 }
 

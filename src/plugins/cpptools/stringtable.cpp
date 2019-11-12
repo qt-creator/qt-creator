@@ -92,8 +92,10 @@ QString StringTablePrivate::insert(const QString &string)
     if (string.isEmpty())
         return string;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifndef QT_NO_UNSHARABLE_CONTAINERS
     QTC_ASSERT(const_cast<QString&>(string).data_ptr()->ref.isSharable(), return string);
+#endif
 #endif
 
     m_stopGCRequested.fetchAndStoreAcquire(true);

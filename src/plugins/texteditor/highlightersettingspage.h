@@ -27,10 +27,6 @@
 
 #include "texteditoroptionspage.h"
 
-QT_BEGIN_NAMESPACE
-template <class> class QList;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 
 class HighlighterSettings;

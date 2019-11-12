@@ -41,12 +41,12 @@ bool Keyword::equals(const Keyword &other) const
         && (this->color == other.color);
 }
 
-bool operator ==(Keyword &k1, Keyword &k2)
+bool operator ==(const Keyword &k1, const Keyword &k2)
 {
     return k1.equals(k2);
 }
 
-bool operator !=(Keyword &k1, Keyword &k2)
+bool operator !=(const Keyword &k1, const Keyword &k2)
 {
     return !k1.equals(k2);
 }

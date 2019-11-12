@@ -52,8 +52,8 @@ public:
     bool equals(const Settings &other) const;
 };
 
-bool operator ==(Settings &s1, Settings &s2);
-bool operator !=(Settings &s1, Settings &s2);
+bool operator ==(const Settings &s1, const Settings &s2);
+bool operator !=(const Settings &s1, const Settings &s2);
 
 } // namespace Internal
 } // namespace Todo

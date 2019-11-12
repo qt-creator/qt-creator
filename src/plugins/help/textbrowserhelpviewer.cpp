@@ -458,9 +458,17 @@ void TextBrowserHelpWidget::resizeEvent(QResizeEvent *e)
     scrollToTextPosition(topTextPosition);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void TextBrowserHelpWidget::setSource(const QUrl &name)
+#else
+void TextBrowserHelpWidget::doSetSource(const QUrl &name, QTextDocument::ResourceType type)
+#endif
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QTextBrowser::setSource(name);
+#else
+    QTextBrowser::doSetSource(name, type);
+#endif
 
     QTextCursor cursor(document());
     while (!cursor.atEnd()) {

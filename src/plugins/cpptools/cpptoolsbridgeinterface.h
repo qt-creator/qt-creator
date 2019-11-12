@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QString;

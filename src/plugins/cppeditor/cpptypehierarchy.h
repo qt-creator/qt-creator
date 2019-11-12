@@ -27,6 +27,7 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <QList>
 #include <QString>
 #include <QWidget>
 #include <QStackedWidget>
@@ -37,7 +38,6 @@ class QLabel;
 class QModelIndex;
 class QStackedLayout;
 class QStandardItem;
-template <class> class QList;
 QT_END_NAMESPACE
 
 namespace TextEditor { class TextEditorLinkLabel; }

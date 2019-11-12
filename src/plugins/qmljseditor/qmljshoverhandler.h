@@ -32,10 +32,6 @@
 #include <QColor>
 #include <QCoreApplication>
 
-QT_BEGIN_NAMESPACE
-template <class> class QList;
-QT_END_NAMESPACE
-
 namespace QmlJS {
 class ScopeChain;
 class Context;

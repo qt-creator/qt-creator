@@ -140,13 +140,13 @@ void NimBuildSystem::updateProject()
 
     // Sync watched dirs
     const QSet<QString> fsDirs = Utils::transform<QSet>(nodes, &FileNode::directory);
-    const QSet<QString> projectDirs = m_directoryWatcher.directories().toSet();
+    const QSet<QString> projectDirs = Utils::toSet(m_directoryWatcher.directories());
     m_directoryWatcher.addDirectories(Utils::toList(fsDirs - projectDirs), FileSystemWatcher::WatchAllChanges);
     m_directoryWatcher.removeDirectories(Utils::toList(projectDirs - fsDirs));
 
     // Sync project files
     const QSet<FilePath> fsFiles = Utils::transform<QSet>(nodes, &FileNode::filePath);
-    const QSet<FilePath> projectFiles = project()->files([](const Node *n) { return Project::AllFiles(n); }).toSet();
+    const QSet<FilePath> projectFiles = Utils::toSet(project()->files([](const Node *n) { return Project::AllFiles(n); }));
 
     if (fsFiles != projectFiles) {
         auto projectNode = std::make_unique<ProjectNode>(project()->projectDirectory());

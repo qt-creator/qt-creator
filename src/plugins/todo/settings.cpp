@@ -138,12 +138,12 @@ bool Settings::equals(const Settings &other) const
             && (keywordsEdited == other.keywordsEdited);
 }
 
-bool operator ==(Settings &s1, Settings &s2)
+bool operator ==(const Settings &s1, const Settings &s2)
 {
     return s1.equals(s2);
 }
 
-bool operator !=(Settings &s1, Settings &s2)
+bool operator !=(const Settings &s1, const Settings &s2)
 {
     return !s1.equals(s2);
 }

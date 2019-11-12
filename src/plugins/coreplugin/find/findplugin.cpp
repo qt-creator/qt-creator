@@ -82,8 +82,8 @@ QDebug operator<<(QDebug d, const CompletionEntry &e)
     QDebugStateSaver saver(d);
     d.noquote();
     d.nospace();
-    d << "CompletionEntry(\"" << e.text << "\", flags=" << hex
-      << showbase << int(e.findFlags) << dec << noshowbase << ')';
+    d << "CompletionEntry(\"" << e.text << "\", flags=" << Qt::hex
+      << Qt::showbase << int(e.findFlags) << Qt::dec << Qt::noshowbase << ')';
     return d;
 }
 

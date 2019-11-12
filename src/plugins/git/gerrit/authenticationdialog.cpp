@@ -150,10 +150,10 @@ bool AuthenticationDialog::setupCredentials()
             replaceEntry(line, "login", user);
             replaceEntry(line, "password", password);
         }
-        out << line << endl;
+        out << line << Qt::endl;
     }
     if (!found)
-        out << "machine " << m_server->host << " login " << user << " password " << password << endl;
+        out << "machine " << m_server->host << " login " << user << " password " << password << Qt::endl;
     Utils::FileSaver saver(m_netrcFileName, QFile::WriteOnly | QFile::Truncate | QFile::Text);
     saver.write(netrcContents.toUtf8());
     return saver.finalize();

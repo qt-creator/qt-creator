@@ -49,8 +49,8 @@ public:
 
 using KeywordList = QList<Keyword>;
 
-bool operator ==(Keyword &k1, Keyword &k2);
-bool operator !=(Keyword &k1, Keyword &k2);
+bool operator ==(const Keyword &k1, const Keyword &k2);
+bool operator !=(const Keyword &k1, const Keyword &k2);
 
 } // namespace Internal
 } // namespace Todo

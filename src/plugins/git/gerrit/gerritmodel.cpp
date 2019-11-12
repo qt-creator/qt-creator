@@ -55,6 +55,8 @@ enum { debug = 0 };
 
 using namespace VcsBase;
 
+using namespace Qt;
+
 namespace Gerrit {
 namespace Internal {
 

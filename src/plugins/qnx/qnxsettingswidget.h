@@ -54,7 +54,7 @@ public:
             this->state = state;
         }
 
-        bool operator ==(const ConfigState& cs)
+        bool operator ==(const ConfigState &cs) const
         {
             return config == cs.config && state == cs.state;
         }
