@@ -44,13 +44,17 @@ def fix_value(value):
 
 def parse_file(file_path):
     root = ET.parse(file_path).getroot()
-    result = ''
+    result = '#include <QtGlobal>\n\n'
 
+    index = 0
     for e in root.findall('snippet'):
         if 'complement' in e.attrib:
-            result += 'QT_TRANSLATE_NOOP3("TextEditor::Internal::Snippets", "{}", "group:\'{}\' trigger:\'{}\'"); // {}\n' \
-                .format(fix_value(e.attrib['complement']), e.attrib['group'], e.attrib['trigger'], file_path)
+            text = fix_value(e.attrib['complement'])
+            if text:
+                result += 'const char *a{} = QT_TRANSLATE_NOOP3("TextEditor::Internal::Snippets", "{}", "group:\'{}\' trigger:\'{}\'"); // {}\n' \
+                    .format(index, text, e.attrib['group'], e.attrib['trigger'], file_path)
 
+            index += 1
     return result
 
 result = ''

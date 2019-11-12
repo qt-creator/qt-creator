@@ -44,15 +44,17 @@ def fix_value(value):
 
 def parse_file(file_path):
     root = ET.parse(file_path).getroot()
-    result = ''
+    result = '#include <QtGlobal>\n\n'
 
+    index = 0
     for i in ['.//description', './/displayname', './/displaycategory',
               './/fieldpagetitle', './/fielddescription',
               './/comboentrytext',
               './/message']:
         for e in root.findall(i):
-            result += 'QT_TRANSLATE_NOOP("ProjectExplorer::CustomWizard", "{}"); // {}\n'.format(fix_value(e.text), file_path)
+            result += 'const char *a{} = QT_TRANSLATE_NOOP("ProjectExplorer::CustomWizard", "{}"); // {}\n'.format(index, fix_value(e.text), file_path)
 
+            index += 1
     return result
 
 result = ''
