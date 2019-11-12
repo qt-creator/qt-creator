@@ -770,14 +770,20 @@ class QtcInternalDumper:
                 # In most cases SystemExit does not warrant a post-mortem session.
                 print('The program exited via sys.exit(). Exit status:')
                 print(sys.exc_info()[1])
+                t = sys.exc_info()[2]
+                self.interaction(None, t)
+
+                print('Post-mortem debugging is finished - ending debug session.')
+                sys.exit(0)
+
             except:
                 traceback.print_exc()
                 print('Uncaught exception. Entering post mortem debugging')
-                print('Running "cont" or "step" will restart the program')
                 t = sys.exc_info()[2]
+                self.curframe_locals['__execption__'] = sys.exc_info()[0:2]
                 self.interaction(None, t)
-                print('Post mortem debugger finished. The ' + mainpyfile +
-                      ' will be restarted')
+                print('Post mortem debugger finished - ending debug session.')
+                sys.exit(0)
 
     def sigint_handler(self, signum, frame):
         if self.allow_kbdint:
