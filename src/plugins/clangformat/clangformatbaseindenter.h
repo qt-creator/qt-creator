@@ -50,11 +50,10 @@ public:
                   const TextEditor::TabSettings &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
-    void formatOrIndent(const QTextCursor &cursor,
-                        const TextEditor::TabSettings &tabSettings,
-                        int cursorPositionInEditor = -1) override;
-    TextEditor::Replacements format(
-        const TextEditor::RangesInLines &rangesInLines = TextEditor::RangesInLines()) override;
+    void autoIndent(const QTextCursor &cursor,
+                    const TextEditor::TabSettings &tabSettings,
+                    int cursorPositionInEditor = -1) override;
+    TextEditor::Replacements format(const TextEditor::RangesInLines &rangesInLines) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,

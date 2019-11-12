@@ -92,15 +92,15 @@ public:
         return -1;
     }
 
-    virtual void formatOrIndent(const QTextCursor &cursor,
-                                const TabSettings &tabSettings,
-                                int cursorPositionInEditor = -1)
+    virtual void autoIndent(const QTextCursor &cursor,
+                            const TabSettings &tabSettings,
+                            int cursorPositionInEditor = -1)
     {
         indent(cursor, QChar::Null, tabSettings, cursorPositionInEditor);
     }
 
     // By default just calls indent with default settings.
-    virtual Replacements format(const RangesInLines & /*rangesInLines*/ = RangesInLines())
+    virtual Replacements format(const RangesInLines & /*rangesInLines*/)
     {
         return Replacements();
     }

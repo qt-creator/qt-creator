@@ -7058,7 +7058,7 @@ void TextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
         documentLayout->requestUpdate();
 }
 
-void TextEditorWidget::format()
+void TextEditorWidget::autoIndent()
 {
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();

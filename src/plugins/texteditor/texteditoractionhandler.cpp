@@ -324,7 +324,7 @@ void TextEditorActionHandlerPrivate::createActions()
     // register "Edit -> Advanced" Menu Actions
     Core::ActionContainer *advancedEditMenu = Core::ActionManager::actionContainer(M_EDIT_ADVANCED);
     m_formatAction = registerAction(AUTO_INDENT_SELECTION,
-            [] (TextEditorWidget *w) { w->format(); }, true, tr("Auto-&indent Selection"),
+            [] (TextEditorWidget *w) { w->autoIndent(); }, true, tr("Auto-&indent Selection"),
             QKeySequence(tr("Ctrl+I")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_rewrapParagraphAction = registerAction(REWRAP_PARAGRAPH,

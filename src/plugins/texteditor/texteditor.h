@@ -345,7 +345,7 @@ public:
     virtual void cut();
     virtual void selectAll();
 
-    virtual void format();
+    virtual void autoIndent();
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
 

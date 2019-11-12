@@ -697,9 +697,9 @@ bool ClangFormatBaseIndenter::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-void ClangFormatBaseIndenter::formatOrIndent(const QTextCursor &cursor,
-                                             const TextEditor::TabSettings & /*tabSettings*/,
-                                             int cursorPositionInEditor)
+void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
+                                         const TextEditor::TabSettings & /*tabSettings*/,
+                                         int cursorPositionInEditor)
 {
     if (formatCodeInsteadOfIndent()) {
         QTextBlock start;
