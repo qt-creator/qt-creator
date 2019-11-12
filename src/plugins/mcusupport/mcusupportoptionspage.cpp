@@ -96,26 +96,22 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     showBoardPackages(m_currentBoardIndex);
 }
 
-static QString ulOfBoardModels(const QVector<BoardOptions*> &validBoards)
-{
-    return "<ul><li>"
-        + Utils::transform<QStringList>(validBoards,[](BoardOptions* board)
-                                                    {return board->model();}).join("</li><li>")
-        + "</li></ul>";
-}
-
 void McuSupportOptionsWidget::updateStatus()
 {
     const QVector<BoardOptions*> validBoards = m_options->validBoards();
-    m_statusLabel->setText(validBoards.isEmpty()
-                           ? McuSupportOptionsPage::tr("No kits can currently be generated. "
-                                                       "Select a target and provide the package paths. "
-                                                       "Afterwards, press Apply to generate a kit for "
-                                                       "your board.")
-                           : McuSupportOptionsPage::tr("Kits for the following targets can be generated: "
-                                                       "%1 "
-                                                       "Press Apply to generate a kit for "
-                                                       "your target.").arg(ulOfBoardModels(validBoards)));
+
+    QString list("<ul>");
+    for (auto board : validBoards)
+        list.append("<li>" + m_options->kitName(board) + "</li>");
+    list.append("</ul>");
+
+    m_statusLabel->setText(
+                validBoards.isEmpty()
+                ? QString::fromLatin1("No kits can currently be generated. "
+                                      "Select a target and provide the package paths. "
+                                      "Afterwards, press Apply to generate a kit for your target.")
+                : QString::fromLatin1("The following Kits can be generated: %1 "
+                                      "Press Apply to generate a kit for your target.").arg(list));
 }
 
 void McuSupportOptionsWidget::showBoardPackages(int boardIndex)

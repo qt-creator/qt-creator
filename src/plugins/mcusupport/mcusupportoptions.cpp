@@ -425,11 +425,12 @@ static bool isDesktop(const BoardOptions* board)
     return board->qulPlatform() == "Qt";
 }
 
-static void setKitProperties(ProjectExplorer::Kit *k, const BoardOptions* board)
+static void setKitProperties(const McuSupportOptions *options, ProjectExplorer::Kit *k,
+                             const BoardOptions* board)
 {
     using namespace ProjectExplorer;
 
-    k->setUnexpandedDisplayName("QtMCU - " + board->model());
+    k->setUnexpandedDisplayName(options->kitName(board));
     k->setValue(Constants::KIT_BOARD_VENDOR_KEY, board->vendor());
     k->setValue(Constants::KIT_BOARD_MODEL_KEY, board->model());
     k->setAutoDetected(false);
@@ -527,6 +528,12 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* boar
         CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
 }
 
+QString McuSupportOptions::kitName(const BoardOptions *board) const
+{
+    // TODO: get version from qulSdkPackage and insert into name
+    return QString::fromLatin1("QtMCU - %1 %2").arg(board->vendor(), board->model());
+}
+
 ProjectExplorer::Kit *McuSupportOptions::kit(const BoardOptions* board)
 {
     using namespace ProjectExplorer;
@@ -536,10 +543,10 @@ ProjectExplorer::Kit *McuSupportOptions::kit(const BoardOptions* board)
     });
     if (!kit) {
         const QString armGccPath = toolchainPackage->path();
-        const auto init = [board, &armGccPath](Kit *k) {
+        const auto init = [this, board, &armGccPath](Kit *k) {
             KitGuard kitGuard(k);
 
-            setKitProperties(k, board);
+            setKitProperties(this, k, board);
             if (!isDesktop(board)) {
                 setKitToolchains(k, armGccPath);
                 setKitDebugger(k, armGccPath);

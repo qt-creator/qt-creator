@@ -132,6 +132,8 @@ public:
     QVector<BoardOptions*> boards;
     PackageOptions *toolchainPackage = nullptr;
 
+    QString kitName(const BoardOptions* board) const;
+
     ProjectExplorer::Kit *kit(const BoardOptions* board);
 
 signals:
