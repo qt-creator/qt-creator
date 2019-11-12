@@ -73,8 +73,10 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     auto boardComboBox = new QComboBox;
     boardChooserLabel->setBuddy(boardComboBox);
     boardChooserLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    boardComboBox->addItems(Utils::transform<QStringList>(m_options->boards, [](BoardOptions *b){
-                                 return b->model();}));
+    boardComboBox->addItems(
+                Utils::transform<QStringList>(m_options->boards, [this](BoardOptions *b){
+                    return m_options->kitName(b);
+                }));
     boardChooserlayout->addWidget(boardComboBox);
     mainLayout->addLayout(boardChooserlayout);
 
@@ -82,6 +84,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     mainLayout->addWidget(m_packagesGroupBox);
     m_packagesLayout = new QFormLayout;
     m_packagesGroupBox->setLayout(m_packagesLayout);
+
+    mainLayout->addStretch(1);
 
     m_statusLabel = new QLabel;
     mainLayout->addWidget(m_statusLabel);

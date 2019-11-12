@@ -351,26 +351,43 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
 
     toolchainPackage = armGccPackage;
 
-
-    auto stmPackages = {armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
-                        qulPackage};
-    auto nxpPackages = {armGccPackage, evkbImxrt1050SdkPackage, seggerJLinkPackage,
-                        qulPackage};
-    auto desktopPackages = {qulPackage};
-    packages = {armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
-                evkbImxrt1050SdkPackage, seggerJLinkPackage, qulPackage};
+    auto stmEvalPackages = {
+        armGccPackage, stm32CubeProgrammerPackage, qulPackage};
+    auto stmEngPackages = {
+        armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, qulPackage};
+    auto nxpEvalPackages = {
+        armGccPackage, seggerJLinkPackage, qulPackage};
+    auto nxpEngPackages = {
+        armGccPackage, evkbImxrt1050SdkPackage, seggerJLinkPackage, qulPackage};
+    auto desktopPackages = {
+        qulPackage};
+    packages = {
+        armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
+        seggerJLinkPackage, qulPackage};
 
     const QString vendorStm = "STM";
     const QString vendorNxp = "NXP";
     const QString vendorQt = "Qt";
+
     boards.append(new BoardOptions(vendorStm,
-                      "stm32f7508", "CMake/stm32f7508-discovery.cmake", "", stmPackages));
+                                   "stm32f7508",
+                                   "CMake/stm32f7508-discovery.cmake", "", stmEvalPackages));
     boards.append(new BoardOptions(vendorStm,
-                      "stm32f769i", "CMake/stm32f769i-discovery.cmake", "", stmPackages));
+                                   "stm32f769i",
+                                   "CMake/stm32f769i-discovery.cmake", "", stmEvalPackages));
+    boards.append(new BoardOptions(vendorStm,
+                                   "Engineering",
+                                   "CMake/<toolchain file>", "", stmEngPackages));
+
     boards.append(new BoardOptions(vendorNxp,
-                      "evkbimxrt1050", "CMake/evkbimxrt1050-toolchain.cmake", "", nxpPackages));
+                                   "evkbimxrt1050",
+                                   "CMake/evkbimxrt1050-toolchain.cmake", "", nxpEvalPackages));
+    boards.append(new BoardOptions(vendorNxp,
+                                   "Engineering",
+                                   "CMake/<toolchain file>", "", nxpEngPackages));
+
     boards.append(new BoardOptions(vendorQt,
-                      "Desktop", "", "Qt", desktopPackages));
+                                   "Desktop", "", "Qt", desktopPackages));
 
     for (auto package : packages)
         connect(package, &PackageOptions::changed, [this](){
