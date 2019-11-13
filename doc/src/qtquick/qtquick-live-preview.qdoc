@@ -35,16 +35,15 @@
 
     \title Previewing
 
-    You can use the QML live preview to preview a QML file or the entire
+    You can use the QML live preview to view a QML file or the entire
     UI on the desktop, as well as on Android and embedded Linux
     devices. The changes you make to the UI are instantly visible
     to you in the preview.
 
-    \if defined(qtcreator)
     \image qtcreator-live-preview.png
-    \else
-    \image studio-live-preview.png
-    \endif
+
+    If your application is localized to several languages, you can select them
+    from the list of languages (1) to test the translations.
 
     \list
         \li \l{Previewing on Desktop}
