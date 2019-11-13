@@ -455,7 +455,9 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->setValue(Constants::KIT_BOARD_MODEL_KEY, board->model());
     k->setAutoDetected(true);
     k->makeSticky();
-    if (!isDesktop(board)) {
+    if (isDesktop(board)) {
+        k->setDeviceTypeForIcon(Constants::DEVICE_TYPE);
+    } else {
         k->setIrrelevantAspects({SysRootKitAspect::id(),
                                  "QtSupport.QtInformation" // QtKitAspect::id()
                                 });
