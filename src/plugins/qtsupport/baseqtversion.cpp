@@ -1251,6 +1251,26 @@ void BaseQtVersionPrivate::updateVersionInfo()
     }
     m_qmakeIsExecutable = true;
 
+    m_data.prefix = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PREFIX"));
+
+    m_data.binPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_BINS"));
+    m_data.configurationPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_CONFIGURATION"));
+    m_data.dataPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DATA"));
+    m_data.demosPath = FilePath::fromString(
+        QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath());
+    m_data.docsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DOCS"));
+    m_data.examplesPath = FilePath::fromString(
+        QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath());
+    m_data.headerPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_HEADERS"));
+    m_data.importsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_IMPORTS"));
+    m_data.libraryPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBS"));
+    m_data.pluginPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PLUGINS"));
+    m_data.qmlPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_QML"));
+    m_data.translationsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_TRANSLATIONS"));
+
+    m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS"));
+    m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA"));
+
     const QString qtInstallBins = q->binPath().toString();
     const QString qtHeaderData = q->headerPath().toString();
 
@@ -1295,26 +1315,6 @@ void BaseQtVersionPrivate::updateVersionInfo()
 
     m_isUpdating = false;
     m_versionInfoUpToDate = true;
-
-    m_data.prefix = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PREFIX"));
-
-    m_data.binPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_BINS"));
-    m_data.configurationPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_CONFIGURATION"));
-    m_data.dataPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DATA"));
-    m_data.demosPath = FilePath::fromString(
-        QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath());
-    m_data.docsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_DOCS"));
-    m_data.examplesPath = FilePath::fromString(
-        QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath());
-    m_data.headerPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_HEADERS"));
-    m_data.importsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_IMPORTS"));
-    m_data.libraryPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_LIBS"));
-    m_data.pluginPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_PLUGINS"));
-    m_data.qmlPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_QML"));
-    m_data.translationsPath = FilePath::fromUserInput(qmakeProperty("QT_INSTALL_TRANSLATIONS"));
-
-    m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS"));
-    m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA"));
 }
 
 QHash<ProKey,ProString> BaseQtVersionPrivate::versionInfo()
