@@ -92,12 +92,6 @@ public:
     void scaleUp();
     void scaleDown();
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setSource(const QUrl &name) override;
-#else
-    void doSetSource(const QUrl &url, QTextDocument::ResourceType type) override;
-#endif
-
     void withFixedTopPosition(const std::function<void()> &action);
 
 protected:

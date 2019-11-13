@@ -457,27 +457,3 @@ void TextBrowserHelpWidget::resizeEvent(QResizeEvent *e)
     QTextBrowser::resizeEvent(e);
     scrollToTextPosition(topTextPosition);
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void TextBrowserHelpWidget::setSource(const QUrl &name)
-#else
-void TextBrowserHelpWidget::doSetSource(const QUrl &name, QTextDocument::ResourceType type)
-#endif
-{
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QTextBrowser::setSource(name);
-#else
-    QTextBrowser::doSetSource(name, type);
-#endif
-
-    QTextCursor cursor(document());
-    while (!cursor.atEnd()) {
-        QTextBlockFormat fmt = cursor.blockFormat();
-        if (fmt.hasProperty(QTextFormat::LineHeightType) && fmt.lineHeightType() == QTextBlockFormat::FixedHeight) {
-           fmt.setProperty(QTextFormat::LineHeightType, QTextBlockFormat::MinimumHeight);
-           cursor.setBlockFormat(fmt);
-        }
-        if (!cursor.movePosition(QTextCursor::NextBlock))
-            break;
-    }
-}
