@@ -15,6 +15,7 @@
         <file>mockfiles/LightGizmo.qml</file>
         <file>mockfiles/IconGizmo.qml</file>
         <file>mockfiles/Overlay2D.qml</file>
+        <file>mockfiles/HelperGrid.qml</file>
         <file>mockfiles/DirectionalDraggable.qml</file>
         <file>mockfiles/PlanarDraggable.qml</file>
         <file>mockfiles/PlanarMoveHandle.qml</file>

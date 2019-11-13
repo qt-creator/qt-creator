@@ -203,6 +203,8 @@ QtcTool {
             "editor3d/mousearea3d.h",
             "editor3d/camerageometry.cpp",
             "editor3d/camerageometry.h",
+            "editor3d/gridgeometry.cpp",
+            "editor3d/gridgeometry.h",
             "qml2puppetmain.cpp",
         ]
     }

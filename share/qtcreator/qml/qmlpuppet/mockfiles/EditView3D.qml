@@ -194,10 +194,10 @@ Window {
             Node {
                 id: mainSceneHelpers
 
-                AxisHelper {
-                    id: axisGrid
-                    enableXZGrid: true
-                    enableAxisLines: false
+                HelperGrid {
+                    id: helperGrid
+                    lines: 50
+                    step: 50
                 }
 
                 PointLight {
@@ -211,16 +211,18 @@ Window {
 
                 PerspectiveCamera {
                     id: editPerspectiveCamera
+                    z: -600
                     y: 200
-                    z: -300
+                    rotation.x: 30
                     clipFar: 100000
                     clipNear: 1
                 }
 
                 OrthographicCamera {
                     id: editOrthoCamera
+                    z: -600
                     y: 200
-                    z: -300
+                    rotation.x: 30
                     clipFar: 100000
                     clipNear: 1
                 }
@@ -301,7 +303,7 @@ Window {
 
             property var group: [btnSelectItem, btnSelectGroup, btnMove, btnRotate, btnScale]
 
-            ToolbarButton {
+            ToolBarButton {
                 id: btnSelectItem
                 selected: true
                 tooltip: qsTr("Select Item")
@@ -311,7 +313,7 @@ Window {
                 buttonsGroup: col.group
             }
 
-            ToolbarButton {
+            ToolBarButton {
                 id: btnSelectGroup
                 tooltip: qsTr("Select Group")
                 shortcut: "Q"
@@ -327,7 +329,7 @@ Window {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            ToolbarButton {
+            ToolBarButton {
                 id: btnMove
                 tooltip: qsTr("Move current selection")
                 shortcut: "M"
@@ -336,7 +338,7 @@ Window {
                 buttonsGroup: col.group
             }
 
-            ToolbarButton {
+            ToolBarButton {
                 id: btnRotate
                 tooltip: qsTr("Rotate current selection")
                 shortcut: "E"
@@ -345,7 +347,7 @@ Window {
                 buttonsGroup: col.group
             }
 
-            ToolbarButton {
+            ToolBarButton {
                 id: btnScale
                 tooltip: qsTr("Scale current selection")
                 shortcut: "T"
