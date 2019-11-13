@@ -90,11 +90,6 @@ QWidget *PackageOptions::widget()
 
     m_widget = new QWidget;
     m_fileChooser = new Utils::PathChooser;
-    QObject::connect(m_fileChooser, &Utils::PathChooser::pathChanged,
-                     [this](){
-        updateStatus();
-        emit changed();
-    });
 
     auto layout = new QGridLayout(m_widget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -119,7 +114,15 @@ QWidget *PackageOptions::widget()
     layout->addWidget(m_statusIcon, 1, 0);
     layout->addWidget(m_statusLabel, 1, 1, 1, -1);
 
-    m_fileChooser->setPath(m_path); // Triggers updateStatus() call
+    m_fileChooser->setPath(m_path);
+
+    QObject::connect(m_fileChooser, &Utils::PathChooser::pathChanged,
+                     [this](){
+        updateStatus();
+        emit changed();
+    });
+
+    updateStatus();
     return m_widget;
 }
 
@@ -227,6 +230,13 @@ QString BoardOptions::qulPlatform() const
 QVector<PackageOptions *> BoardOptions::packages() const
 {
     return m_packages;
+}
+
+bool BoardOptions::isValid() const
+{
+    return !Utils::anyOf(packages(), [](PackageOptions *package) {
+        return package->status() != PackageOptions::ValidPackage;
+    });
 }
 
 QString BoardOptions::vendor() const
@@ -404,14 +414,6 @@ McuSupportOptions::~McuSupportOptions()
     boards.clear();
 }
 
-QVector<BoardOptions *> McuSupportOptions::validBoards() const
-{
-    return Utils::filtered(boards, [](BoardOptions *board){
-        return !Utils::anyOf(board->packages(), [](PackageOptions *package){
-            return package->status() != PackageOptions::ValidPackage;});
-    });
-}
-
 static ProjectExplorer::ToolChain* armGccToolchain(const Utils::FilePath &path, Core::Id language)
 {
     using namespace ProjectExplorer;
@@ -451,7 +453,8 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->setUnexpandedDisplayName(kitName);
     k->setValue(Constants::KIT_BOARD_VENDOR_KEY, board->vendor());
     k->setValue(Constants::KIT_BOARD_MODEL_KEY, board->model());
-    k->setAutoDetected(false);
+    k->setAutoDetected(true);
+    k->makeSticky();
     if (!isDesktop(board)) {
         k->setIrrelevantAspects({SysRootKitAspect::id(),
                                  "QtSupport.QtInformation" // QtKitAspect::id()
@@ -552,34 +555,38 @@ QString McuSupportOptions::kitName(const BoardOptions *board) const
     return QString::fromLatin1("QtMCU - %1 %2").arg(board->vendor(), board->model());
 }
 
-ProjectExplorer::Kit *McuSupportOptions::kit(const BoardOptions* board)
+QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const BoardOptions *board)
+{
+    using namespace ProjectExplorer;
+    const QString boardKitName = kitName(board);
+    return Utils::filtered(KitManager::kits(), [&boardKitName](Kit *kit) {
+            return kit->isAutoDetected() && kit->unexpandedDisplayName() == boardKitName;
+    });
+}
+
+ProjectExplorer::Kit *McuSupportOptions::newKit(const BoardOptions* board)
 {
     using namespace ProjectExplorer;
 
-    Kit *kit = KitManager::kit([board](const Kit *k){
-        return board->model() == k->value(Constants::KIT_BOARD_MODEL_KEY).toString();
-    });
-    if (!kit) {
-        const QString armGccPath = toolchainPackage->path();
-        const QString qulDir = qulSdkPackage->path();
-        const auto init = [this, board](Kit *k) {
-            KitGuard kitGuard(k);
+    const QString armGccPath = toolchainPackage->path();
+    const QString qulDir = qulSdkPackage->path();
+    const auto init = [this, board](Kit *k) {
+        KitGuard kitGuard(k);
 
-            setKitProperties(kitName(board), k, board);
-            if (!isDesktop(board)) {
-                setKitToolchains(k, toolchainPackage->path());
-                setKitDebugger(k, toolchainPackage->path());
-                setKitDevice(k);
-            }
-            setKitEnvironment(k, board);
-            setKitCMakeOptions(k, board, qulSdkPackage->path());
+        setKitProperties(kitName(board), k, board);
+        if (!isDesktop(board)) {
+            setKitToolchains(k, toolchainPackage->path());
+            setKitDebugger(k, toolchainPackage->path());
+            setKitDevice(k);
+        }
+        setKitEnvironment(k, board);
+        setKitCMakeOptions(k, board, qulSdkPackage->path());
 
-            k->setup();
-            k->fix();
-        };
-        kit = KitManager::registerKit(init);
-    }
-    return kit;
+        k->setup();
+        k->fix();
+    };
+
+    return KitManager::registerKit(init);
 }
 
 } // Internal

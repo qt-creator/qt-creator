@@ -28,6 +28,7 @@
 #include "mcusupportoptions.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -49,16 +50,17 @@ public:
     McuSupportOptionsWidget(const McuSupportOptions *options, QWidget *parent = nullptr);
 
     void updateStatus();
-    void showBoardPackages(int boardIndex);
+    void showBoardPackages();
+    BoardOptions *currentBoard() const;
 
 private:
     QString m_armGccPath;
     const McuSupportOptions *m_options;
-    int m_currentBoardIndex = 0;
     QMap <PackageOptions*, QWidget*> m_packageWidgets;
     QMap <BoardOptions*, QWidget*> m_boardPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
     QLabel *m_statusLabel = nullptr;
+    QComboBox *m_boardComboBox = nullptr;
 };
 
 McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *options, QWidget *parent)
@@ -70,14 +72,14 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     auto boardChooserlayout = new QHBoxLayout;
     auto boardChooserLabel = new QLabel(McuSupportOptionsPage::tr("Target:"));
     boardChooserlayout->addWidget(boardChooserLabel);
-    auto boardComboBox = new QComboBox;
-    boardChooserLabel->setBuddy(boardComboBox);
+    m_boardComboBox = new QComboBox;
+    boardChooserLabel->setBuddy(m_boardComboBox);
     boardChooserLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    boardComboBox->addItems(
+    m_boardComboBox->addItems(
                 Utils::transform<QStringList>(m_options->boards, [this](BoardOptions *b){
                     return m_options->kitName(b);
                 }));
-    boardChooserlayout->addWidget(boardComboBox);
+    boardChooserlayout->addWidget(m_boardComboBox);
     mainLayout->addLayout(boardChooserlayout);
 
     auto m_packagesGroupBox = new QGroupBox(McuSupportOptionsPage::tr("Packages"));
@@ -85,56 +87,59 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     m_packagesLayout = new QFormLayout;
     m_packagesGroupBox->setLayout(m_packagesLayout);
 
-    mainLayout->addStretch(1);
-
     m_statusLabel = new QLabel;
-    mainLayout->addWidget(m_statusLabel);
-    m_statusLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    mainLayout->addWidget(m_statusLabel, 2);
     m_statusLabel->setWordWrap(true);
-    m_statusLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    m_statusLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
 
     connect(options, &McuSupportOptions::changed, this, &McuSupportOptionsWidget::updateStatus);
-    connect(boardComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_boardComboBox, &QComboBox::currentTextChanged,
             this, &McuSupportOptionsWidget::showBoardPackages);
 
-    showBoardPackages(m_currentBoardIndex);
+    showBoardPackages();
+    updateStatus();
 }
 
 void McuSupportOptionsWidget::updateStatus()
 {
-    const QVector<BoardOptions*> validBoards = m_options->validBoards();
+    const BoardOptions *board = currentBoard();
+    if (!board)
+        return;
 
-    QString list("<ul>");
-    for (auto board : validBoards)
-        list.append("<li>" + m_options->kitName(board) + "</li>");
-    list.append("</ul>");
-
-    m_statusLabel->setText(
-                validBoards.isEmpty()
-                ? QString::fromLatin1("No kits can currently be generated. "
-                                      "Select a target and provide the package paths. "
-                                      "Afterwards, press Apply to generate a kit for your target.")
-                : QString::fromLatin1("The following Kits can be generated: %1 "
-                                      "Press Apply to generate a kit for your target.").arg(list));
+    m_statusLabel->setText(board->isValid()
+                ? QString::fromLatin1("A kit <b>%1</b> for the selected target can be generated. "
+                                      "Press Apply to generate it.").arg(m_options->kitName(board))
+                : QString::fromLatin1("Provide the package paths in order to create a kit for "
+                                      "your target."));
 }
 
-void McuSupportOptionsWidget::showBoardPackages(int boardIndex)
+void McuSupportOptionsWidget::showBoardPackages()
 {
+    const BoardOptions *board = currentBoard();
+    if (!board)
+        return;
+
     while (m_packagesLayout->rowCount() > 0) {
         QFormLayout::TakeRowResult row = m_packagesLayout->takeRow(0);
         row.labelItem->widget()->hide();
         row.fieldItem->widget()->hide();
     }
 
-    const BoardOptions *currentBoard = m_options->boards.at(boardIndex);
-
     for (auto package : m_options->packages) {
         QWidget *packageWidget = package->widget();
-        if (!currentBoard->packages().contains(package))
+        if (!board->packages().contains(package))
             continue;
         m_packagesLayout->addRow(package->label(), packageWidget);
         packageWidget->show();
     }
+
+    updateStatus();
+}
+
+BoardOptions *McuSupportOptionsWidget::currentBoard() const
+{
+    const int boardIndex = m_boardComboBox->currentIndex();
+    return m_options->boards.isEmpty() ? nullptr : m_options->boards.at(boardIndex);
 }
 
 McuSupportOptionsPage::McuSupportOptionsPage(QObject* parent)
@@ -162,12 +167,15 @@ void McuSupportOptionsPage::apply()
     QTC_ASSERT(m_options->toolchainPackage, return);
     QTC_ASSERT(m_options->qulSdkPackage, return);
 
-    const QVector<BoardOptions*> validBoards = m_options->validBoards();
+    const BoardOptions *board = m_widget->currentBoard();
+    if (!board)
+        return;
 
     using namespace ProjectExplorer;
 
-    for (auto board : validBoards)
-        m_options->kit(board);
+    for (auto existingKit : m_options->existingKits(board))
+        ProjectExplorer::KitManager::deregisterKit(existingKit);
+    m_options->newKit(board);
 }
 
 void McuSupportOptionsPage::finish()

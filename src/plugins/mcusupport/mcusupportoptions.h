@@ -109,6 +109,7 @@ public:
     QString toolChainFile() const;
     QString qulPlatform() const;
     QVector<PackageOptions *> packages() const;
+    bool isValid() const;
 
 private:
     const QString m_vendor;
@@ -126,8 +127,6 @@ public:
     McuSupportOptions(QObject *parent = nullptr);
     ~McuSupportOptions() override;
 
-    QVector<BoardOptions*> validBoards() const;
-
     QVector<PackageOptions*> packages;
     QVector<BoardOptions*> boards;
     PackageOptions *toolchainPackage = nullptr;
@@ -135,7 +134,8 @@ public:
 
     QString kitName(const BoardOptions* board) const;
 
-    ProjectExplorer::Kit *kit(const BoardOptions* board);
+    QList<ProjectExplorer::Kit *> existingKits(const BoardOptions* board);
+    ProjectExplorer::Kit *newKit(const BoardOptions* board);
 
 signals:
     void changed();
