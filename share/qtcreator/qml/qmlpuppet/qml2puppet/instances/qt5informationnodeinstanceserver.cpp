@@ -40,6 +40,7 @@
 #include "changefileurlcommand.h"
 #include "clearscenecommand.h"
 #include "reparentinstancescommand.h"
+#include "change3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
@@ -129,6 +130,8 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
                      this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
     QObject::connect(window, SIGNAL(changeObjectProperty(QVariant, QVariant)),
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
+    QObject::connect(window, SIGNAL(activeChanged()),
+                     this, SLOT(handleActiveChanged()));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
 
@@ -219,6 +222,65 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
     }
 }
 
+void Qt5InformationNodeInstanceServer::showEditView(const QPoint &pos, const QSize &size)
+{
+    m_blockViewActivate = false;
+    auto window = qobject_cast<QWindow *>(m_editView3D);
+    if (window) {
+        activateEditView();
+        window->setPosition(pos);
+        window->resize(size);
+    }
+}
+
+void Qt5InformationNodeInstanceServer::hideEditView()
+{
+    m_blockViewActivate = true;
+    auto window = qobject_cast<QWindow *>(m_editView3D);
+    if (window)
+        window->hide();
+}
+
+void Qt5InformationNodeInstanceServer::activateEditView()
+{
+    auto window = qobject_cast<QWindow *>(m_editView3D);
+    if (window) {
+        Qt::WindowFlags flags = window->flags();
+
+#ifdef Q_OS_MACOS
+        window->setFlags(Qt::Popup);
+        window->show();
+        window->setFlags(flags);
+#else
+        window->raise();
+        window->setFlags(flags | Qt::WindowStaysOnTopHint);
+        window->show();
+
+        window->requestActivate();
+        window->raise();
+        window->setFlags(flags);
+#endif
+    }
+}
+
+void Qt5InformationNodeInstanceServer::moveEditView(const QPoint &pos)
+{
+    auto window = qobject_cast<QWindow*>(m_editView3D);
+    if (window) {
+        activateEditView();
+        window->setPosition(pos);
+    }
+}
+
+void Qt5InformationNodeInstanceServer::resizeEditView(const QSize &size)
+{
+    auto window = qobject_cast<QWindow *>(m_editView3D);
+    if (window) {
+        activateEditView();
+        window->resize(size);
+    }
+}
+
 void Qt5InformationNodeInstanceServer::handleObjectPropertyCommit(const QVariant &object,
                                                                   const QVariant &propName)
 {
@@ -251,6 +313,14 @@ void Qt5InformationNodeInstanceServer::updateViewPortRect()
                         m_viewPortInstance.internalObject()->property("height").toDouble());
     QQmlProperty viewPortProperty(m_editView3D, "viewPortRect", context());
     viewPortProperty.write(viewPortrect);
+}
+
+void Qt5InformationNodeInstanceServer::handleActiveChanged()
+{
+    if (m_blockViewActivate)
+        return;
+
+    activateEditView();
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -639,6 +709,20 @@ void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCo
         refreshBindings();
 
     startRenderTimer();
+}
+
+void Qt5InformationNodeInstanceServer::change3DView(const Change3DViewCommand &command)
+{
+    for (const InformationContainer &container : command.informationVector()) {
+        if (container.name() == InformationName::ShowView)
+            showEditView(container.information().toPoint(), container.secondInformation().toSize());
+        else if (container.name() == InformationName::HideView)
+            hideEditView();
+        else if (container.name() == InformationName::MoveView)
+            moveEditView(container.information().toPoint());
+        else if (container.name() == InformationName::ResizeView)
+            resizeEditView(container.secondInformation().toSize());
+    }
 }
 
 } // namespace QmlDesigner

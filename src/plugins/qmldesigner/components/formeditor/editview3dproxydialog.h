@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,38 +25,43 @@
 
 #pragma once
 
-#include <QMetaType>
-#include <QPair>
+#include "abstractcustomtool.h"
+
+#include <QObject>
+#include <QDialog>
 
 namespace QmlDesigner {
 
-enum InformationName
+class FormEditorView;
+class NodeInstanceView;
+
+class EditView3DProxyDialog : public QDialog
 {
-    NoName,
-    NoInformationChange = NoName,
-    Size,
-    BoundingRect,
-    Transform,
-    HasAnchor,
-    Anchor,
-    InstanceTypeForProperty,
-    PenWidth,
-    Position,
-    IsInLayoutable,
-    SceneTransform,
-    IsResizable,
-    IsMovable,
-    IsAnchoredByChildren,
-    IsAnchoredBySibling,
-    HasContent,
-    HasBindingForProperty,
-    ContentTransform,
-    ContentItemTransform,
-    ContentItemBoundingRect,
-    MoveView,
-    ShowView,
-    ResizeView,
-    HideView
+    Q_OBJECT
+
+public:
+    explicit EditView3DProxyDialog(FormEditorView *view);
+
+    void invalidate();
+
+protected:
+    void moveEvent(QMoveEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
+    void focusInEvent(QFocusEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    bool event(QEvent *event) override;
+
+private:
+    QRect adjustedRect() const;
+    NodeInstanceView *nodeInstanceView() const;
+    void showView();
+    void hideView();
+
+    QPointer<FormEditorView> m_formEditorView;
+
 };
 
-}
+} //QmlDesigner
+

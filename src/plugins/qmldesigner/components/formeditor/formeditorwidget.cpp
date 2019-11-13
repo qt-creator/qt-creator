@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "designeractionmanager.h"
+#include "editview3dproxydialog.h"
 #include "formeditorwidget.h"
 #include "formeditorscene.h"
 #include "qmldesignerplugin.h"
@@ -173,6 +174,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
 
     fillLayout->addWidget(m_graphicsView.data());
     m_graphicsView.data()->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+
+    m_editView3DProxyDialog = new EditView3DProxyDialog(view);
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)
@@ -392,6 +395,17 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
 FormEditorGraphicsView *FormEditorWidget::graphicsView() const
 {
     return m_graphicsView;
+}
+
+void FormEditorWidget::set3dEditorVisibility(bool b)
+{
+    m_editView3DProxyDialog->setVisible(b);
+}
+
+void FormEditorWidget::invalidate3DEditor()
+{
+    if (m_editView3DProxyDialog)
+        m_editView3DProxyDialog->invalidate();
 }
 
 DocumentWarningWidget *FormEditorWidget::errorWidget()

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,37 +26,32 @@
 #pragma once
 
 #include <QMetaType>
-#include <QPair>
+#include <QVector>
+
+#include "informationcontainer.h"
 
 namespace QmlDesigner {
 
-enum InformationName
+class Change3DViewCommand
 {
-    NoName,
-    NoInformationChange = NoName,
-    Size,
-    BoundingRect,
-    Transform,
-    HasAnchor,
-    Anchor,
-    InstanceTypeForProperty,
-    PenWidth,
-    Position,
-    IsInLayoutable,
-    SceneTransform,
-    IsResizable,
-    IsMovable,
-    IsAnchoredByChildren,
-    IsAnchoredBySibling,
-    HasContent,
-    HasBindingForProperty,
-    ContentTransform,
-    ContentItemTransform,
-    ContentItemBoundingRect,
-    MoveView,
-    ShowView,
-    ResizeView,
-    HideView
+    friend QDataStream &operator>>(QDataStream &in, Change3DViewCommand &command);
+    friend QDebug operator <<(QDebug debug, const Change3DViewCommand &command);
+
+public:
+    Change3DViewCommand();
+    explicit Change3DViewCommand(const QVector<InformationContainer> &auxiliaryChangeVector);
+
+    QVector<InformationContainer> informationVector() const;
+
+private:
+    QVector<InformationContainer> m_informationVector;
 };
 
-}
+QDataStream &operator<<(QDataStream &out, const Change3DViewCommand &command);
+QDataStream &operator>>(QDataStream &in, Change3DViewCommand &command);
+
+QDebug operator <<(QDebug debug, const Change3DViewCommand &command);
+
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::Change3DViewCommand)

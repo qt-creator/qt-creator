@@ -474,6 +474,8 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
                 itemNodeList.append(item);
             }
         }
+        if (node.isRootNode())
+            formEditorWidget()->invalidate3DEditor();
     }
     currentTool()->instancesCompleted(itemNodeList);
 }
@@ -594,6 +596,8 @@ void FormEditorView::toggle3DViewEnabled(bool enabled)
         rootModelNode().removeAuxiliaryData("3d-view");
     else
         rootModelNode().setAuxiliaryData("3d-view", false);
+
+    formEditorWidget()->set3dEditorVisibility(enabled);
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)

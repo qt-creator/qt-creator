@@ -42,6 +42,7 @@ public:
 
     void reparentInstances(const ReparentInstancesCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
+    void change3DView(const Change3DViewCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;
     void completeComponent(const CompleteComponentCommand &command) override;
     void token(const TokenCommand &command) override;
@@ -54,6 +55,7 @@ private slots:
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
     void updateViewPortRect();
+    void handleActiveChanged();
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -80,6 +82,12 @@ private:
                             const PropertyName &propertyName,
                             ValuesModifiedCommand::TransactionOption option);
 
+    void showEditView(const QPoint &pos, const QSize &size);
+    void hideEditView();
+    void activateEditView();
+    void moveEditView(const QPoint &pos);
+    void resizeEditView(const QSize &size);
+
     QObject *m_editView3D = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
@@ -88,6 +96,8 @@ private:
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ServerNodeInstance m_viewPortInstance;
+
+    bool m_blockViewActivate = false;
 };
 
 } // namespace QmlDesigner

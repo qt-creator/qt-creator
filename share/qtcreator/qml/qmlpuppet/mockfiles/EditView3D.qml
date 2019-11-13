@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.12
-import QtQuick.Window 2.0
+import QtQuick.Window 2.12
 import QtQuick3D 1.0
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
@@ -33,9 +33,14 @@ Window {
     id: viewWindow
     width: 1024
     height: 768
-    visible: true
+    visible: false
     title: "3D"
-    flags: Qt.WindowStaysOnTopHint | Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
+    flags: Qt.Widget | Qt.SplashScreen
+
+    onActiveChanged: {
+        if (viewWindow.active)
+            cameraControl.forceActiveFocus()
+    }
 
     property alias scene: editView.importScene
     property alias showEditLight: btnEditViewLight.toggled

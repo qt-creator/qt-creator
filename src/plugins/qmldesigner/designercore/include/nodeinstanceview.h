@@ -59,6 +59,7 @@ class CreateSceneCommand;
 class CreateInstancesCommand;
 class ClearSceneCommand;
 class ReparentInstancesCommand;
+class Change3DViewCommand;
 class ChangeFileUrlCommand;
 class ChangeValuesCommand;
 class ChangeBindingsCommand;
@@ -142,10 +143,15 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
+    void show3DView(const QRect &rect);
+    void move3DView(const QPoint &position);
+    void hide3DView();
+
 protected:
     void timerEvent(QTimerEvent *event) override;
 
 private: // functions
+    enum ViewAction { Show, Move, Hide };
     void activateState(const NodeInstance &instance);
     void activateBaseState();
 
@@ -170,6 +176,7 @@ private: // functions
 
 
     CreateSceneCommand createCreateSceneCommand();
+    Change3DViewCommand createChange3DViewCommand(ViewAction action, const QPoint &pos = {}, const QSize &size = {}) const;
     ClearSceneCommand createClearSceneCommand() const;
     CreateInstancesCommand createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const;
     CompleteComponentCommand createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const;

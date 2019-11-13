@@ -140,6 +140,7 @@ extend_qtc_plugin(QmlDesigner
     valueschangedcommand.cpp valueschangedcommand.h
     changeselectioncommand.cpp changeselectioncommand.h
     drop3dlibraryitemcommand.cpp drop3dlibraryitemcommand.h
+    change3dviewcommand.cpp change3dviewcommand.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -234,6 +235,7 @@ extend_qtc_plugin(QmlDesigner
     snappinglinecreator.cpp snappinglinecreator.h
     toolbox.cpp toolbox.h
     option3daction.cpp option3daction.h
+    editview3dproxydialog.cpp editview3dproxydialog.h
 )
 
 extend_qtc_plugin(QmlDesigner

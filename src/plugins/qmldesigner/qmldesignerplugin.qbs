@@ -171,6 +171,8 @@ Project {
                 "commands/changeselectioncommand.h",
                 "commands/drop3dlibraryitemcommand.cpp",
                 "commands/drop3dlibraryitemcommand.h",
+                "commands/change3dviewcommand.cpp",
+                "commands/change3dviewcommand.h",
                 "container/addimportcontainer.cpp",
                 "container/addimportcontainer.h",
                 "container/idcontainer.cpp",

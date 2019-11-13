@@ -32,6 +32,7 @@
 #include "instancecontainer.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
+#include "change3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeauxiliarycommand.h"
@@ -89,6 +90,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<CreateSceneCommand>("CreateSceneCommand");
     qRegisterMetaTypeStreamOperators<CreateSceneCommand>("CreateSceneCommand");
+
+    qRegisterMetaType<Change3DViewCommand>("Change3DViewCommand");
+    qRegisterMetaTypeStreamOperators<Change3DViewCommand>("Change3DViewCommand");
 
     qRegisterMetaType<ChangeBindingsCommand>("ChangeBindingsCommand");
     qRegisterMetaTypeStreamOperators<ChangeBindingsCommand>("ChangeBindingsCommand");

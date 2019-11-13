@@ -48,6 +48,7 @@
 #include "clearscenecommand.h"
 #include "changefileurlcommand.h"
 #include "reparentinstancescommand.h"
+#include "change3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
@@ -978,6 +979,20 @@ ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
     return {};
 }
 
+Change3DViewCommand NodeInstanceView::createChange3DViewCommand(ViewAction action, const QPoint &pos, const QSize &size) const
+{
+    InformationName informationName = InformationName::ShowView;
+
+    if (action == ViewAction::Move)
+        informationName = InformationName::MoveView;
+    else if (action == ViewAction::Hide)
+        informationName = InformationName::HideView;
+
+    const qint32 instanceId = 0;
+
+    return Change3DViewCommand({ InformationContainer(instanceId, informationName, pos, size) });
+}
+
 CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<qint32> containerList;
@@ -1456,6 +1471,23 @@ void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNode
                                             const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
     nodeInstanceServer()->changeSelection(createChangeSelectionCommand(selectedNodeList));
+}
+
+void NodeInstanceView::move3DView(const QPoint &position)
+{
+    nodeInstanceServer()->change3DView(createChange3DViewCommand(ViewAction::Move, position));
+}
+
+void NodeInstanceView::hide3DView()
+{
+    nodeInstanceServer()->change3DView(createChange3DViewCommand(ViewAction::Hide));
+}
+
+void NodeInstanceView::show3DView(const QRect &rect)
+{
+    nodeInstanceServer()->change3DView(createChange3DViewCommand(ViewAction::Show,
+                                                                 rect.topLeft(),
+                                                                 rect.size()));
 }
 
 void NodeInstanceView::timerEvent(QTimerEvent *event)
