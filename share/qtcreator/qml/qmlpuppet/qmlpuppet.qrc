@@ -21,7 +21,7 @@
         <file>mockfiles/PlanarScaleHandle.qml</file>
         <file>mockfiles/ScaleRod.qml</file>
         <file>mockfiles/ScaleGizmo.qml</file>
-        <file>mockfiles/ToolbarButton.qml</file>
+        <file>mockfiles/ToolBarButton.qml</file>
         <file>mockfiles/meshes/arrow.mesh</file>
         <file>mockfiles/meshes/scalerod.mesh</file>
         <file>mockfiles/images/camera-pick-icon.png</file>
