@@ -129,7 +129,7 @@ def testHovering():
                       {'text':'<table><tr><td valign=middle><p>Rectangle</p><hr/><p>\n<p>Paints a filled rectangle with an '
                        'optional border </p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
                       ]
-    alternativeValues = [{"text":"FocusScope"}, {"text":"Rectangle"}]
+    alternativeValues = [{"text":"<p>FocusScope</p>"}, {"text":"<p>Rectangle</p>"}]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
     test.log("Testing hovering properties")
     openDocument(focusDocumentPath % "focus\\.qml")
@@ -152,11 +152,12 @@ def testHovering():
                        'These define the transitions to be applied to the item whenever it changes its state.'
                        '</p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
                       ]
-    alternativeValues = [{"text":"boolean"}, {"text":"string"}, {"text":"State"}, {"text":"Transition"}]
+    alternativeValues = [{"text":"<p>boolean</p>"}, {"text":"<p>string</p>"},
+                         {"text":"<p>State</p>"}, {"text":"<p>Transition</p>"}]
     if JIRA.isBugStillOpen(20020):
         expectedValues[0] = {'text':'<table><tr><td valign=middle>Rectangle</td><td>&nbsp;&nbsp;'
                              '<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
-        alternativeValues[0] = {"text":"Rectangle"}
+        alternativeValues[0] = {"text":"<p>Rectangle</p>"}
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
     test.log("Testing hovering expressions")
     openDocument(focusDocumentPath % "focus\\.qml")
@@ -173,5 +174,5 @@ def testHovering():
     additionalKeyPresses = ["<Left>", "<Left>", "<Left>", "<Left>"]
     expectedTypes = ["ColorTip", "TextTip"]
     expectedValues = ["#D1DBBD", {"text":'<table><tr><td valign=middle>number</td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}]
-    alternativeValues = ["#D6DBBD", None]
+    alternativeValues = ["#D6DBBD", {"text":"<p>number</p>"}]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
