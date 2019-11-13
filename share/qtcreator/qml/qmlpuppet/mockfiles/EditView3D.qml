@@ -66,9 +66,11 @@ Window {
         var component = Qt.createComponent("LightGizmo.qml");
         if (component.status === Component.Ready) {
             var gizmo = component.createObject(overlayScene,
-                                               {"view3D": overlayView, "targetNode": obj});
+                                               {"view3D": overlayView, "targetNode": obj,
+                                                "selectedNode": selectedNode});
             lightGizmos[lightGizmos.length] = gizmo;
-            gizmo.selected.connect(emitObjectClicked);
+            gizmo.clicked.connect(emitObjectClicked);
+            gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
     }
 
@@ -80,10 +82,11 @@ Window {
             var gizmo = component.createObject(
                         overlayScene,
                         {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
-                         "viewPortRect": viewPortRect});
+                         "viewPortRect": viewPortRect, "selectedNode": selectedNode});
             cameraGizmos[cameraGizmos.length] = gizmo;
-            gizmo.selected.connect(emitObjectClicked);
+            gizmo.clicked.connect(emitObjectClicked);
             gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
+            gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
     }
 
