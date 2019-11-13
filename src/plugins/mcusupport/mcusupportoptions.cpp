@@ -533,6 +533,8 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* boar
     using namespace CMakeProjectManager;
 
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
+    config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
+    config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
     if (!board->toolChainFile().isEmpty())
         config.append(CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
                                       (qulDir + "/" + board->toolChainFile()).toUtf8()));
