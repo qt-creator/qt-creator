@@ -42,6 +42,7 @@ const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
 const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
 
 // Context
+const char C_PROJECTEXPLORER[]    = "Project Explorer";
 const char C_PROJECT_TREE[]       = "ProjectExplorer.ProjectTreeContext";
 
 // Menus

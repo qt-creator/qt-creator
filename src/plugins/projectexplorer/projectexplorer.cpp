@@ -234,9 +234,6 @@ const char SELECTTARGETQUICK[]    = "ProjectExplorer.SelectTargetQuick";
 const int  P_ACTION_RUN            = 100;
 const int  P_ACTION_BUILDPROJECT   = 80;
 
-// Context
-const char C_PROJECTEXPLORER[]    = "Project Explorer";
-
 // Menus
 const char M_RECENTPROJECTS[]     = "ProjectExplorer.Menu.Recent";
 const char M_UNLOADPROJECTS[]     = "ProjectExplorer.Menu.Unload";

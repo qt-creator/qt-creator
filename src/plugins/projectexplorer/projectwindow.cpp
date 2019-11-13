@@ -26,6 +26,7 @@
 #include "projectwindow.h"
 
 #include "buildinfo.h"
+#include "projectexplorerconstants.h"
 #include "kit.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
@@ -38,6 +39,9 @@
 #include "target.h"
 #include "targetsettingspanel.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -376,6 +380,14 @@ public:
         m_projectSelection->setModel(&m_comboBoxModel);
         connect(m_projectSelection, QOverload<int>::of(&QComboBox::activated),
                 this, &ProjectWindowPrivate::projectSelected, Qt::QueuedConnection);
+
+        const auto switchProjectAction = new QAction(this);
+        ActionManager::registerAction(switchProjectAction, Core::Constants::GOTOPREVINHISTORY,
+                                      Context(Constants::C_PROJECTEXPLORER));
+        connect(switchProjectAction, &QAction::triggered, this, [this] {
+            if (m_projectSelection->count() > 1)
+                m_projectSelection->showPopup();
+        });
 
         SessionManager *sessionManager = SessionManager::instance();
         connect(sessionManager, &SessionManager::projectAdded,
