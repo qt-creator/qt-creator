@@ -524,6 +524,8 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/bindingeditor
   SOURCES bindingeditor.cpp bindingeditor.h
+    bindingeditordialog.cpp bindingeditordialog.h
+    bindingeditorwidget.cpp bindingeditorwidget.h
 )
 
 extend_qtc_plugin(QmlDesigner

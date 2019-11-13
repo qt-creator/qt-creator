@@ -26,116 +26,15 @@
 #ifndef BINDINGEDITOR_H
 #define BINDINGEDITOR_H
 
-#include "texteditorview.h"
-#include <texteditor/texteditor.h>
-#include <QtQml>
+#include <bindingeditor/bindingeditordialog.h>
+#include <qmldesignercorelib_global.h>
+#include <modelnode.h>
 
-#include <QWidget>
-#include <QDialog>
+#include <QtQml>
+#include <QObject>
 #include <QPointer>
 
-#include <qmljseditor/qmljseditor.h>
-
-#include <memory>
-
-QT_BEGIN_NAMESPACE
-class QTextEdit;
-class QDialogButtonBox;
-class QVBoxLayout;
-class QHBoxLayout;
-class QComboBox;
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
-
-class BindingEditorContext : public Core::IContext
-{
-    Q_OBJECT
-
-public:
-    BindingEditorContext(QWidget *parent) : Core::IContext(parent)
-    {
-        setWidget(parent);
-    }
-};
-
-class BindingEditorWidget : public QmlJSEditor::QmlJSEditorWidget
-{
-    Q_OBJECT
-
-public:
-    BindingEditorWidget();
-    ~BindingEditorWidget() override;
-
-    void unregisterAutoCompletion();
-
-    bool event(QEvent *event) override;
-
-    TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
-            TextEditor::AssistReason assistReason) const override;
-
-signals:
-    void returnKeyClicked();
-
-public:
-    QmlJSEditor::QmlJSEditorDocument *qmljsdocument = nullptr;
-    BindingEditorContext *m_context = nullptr;
-    QAction *m_completionAction = nullptr;
-};
-
-class BindingEditorDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    struct BindingOption
-    {
-        BindingOption() {}
-        BindingOption(const QString &value) { item = value; }
-
-        bool operator==(const QString &value) const { return value == item; }
-        bool operator==(const BindingOption &value) const { return value.item == item; }
-
-        QString item;
-        QStringList properties;
-    };
-
-public:
-    BindingEditorDialog(QWidget *parent = nullptr);
-    ~BindingEditorDialog() override;
-
-    void showWidget(int x, int y);
-
-    QString editorValue() const;
-    void setEditorValue(const QString &text);
-
-    void setAllBindings(QList<BindingEditorDialog::BindingOption> bindings);
-    void adjustProperties();
-
-    void unregisterAutoCompletion();
-
-private:
-    void setupJSEditor();
-    void setupUIComponents();
-    void setupComboBoxes();
-
-public slots:
-    void itemIDChanged(int);
-    void propertyIDChanged(int);
-    void textChanged();
-
-private:
-    TextEditor::BaseTextEditor *m_editor = nullptr;
-    BindingEditorWidget *m_editorWidget = nullptr;
-    QVBoxLayout *m_verticalLayout = nullptr;
-    QDialogButtonBox *m_buttonBox = nullptr;
-    QHBoxLayout *m_comboBoxLayout = nullptr;
-    QComboBox *m_comboBoxItem = nullptr;
-    QComboBox *m_comboBoxProperty = nullptr;
-    QList<BindingEditorDialog::BindingOption> m_bindings;
-    bool m_lock = false;
-    const QString undefinedString = {"[Undefined]"};
-};
 
 class BindingEditor : public QObject
 {
