@@ -35,10 +35,12 @@ if (WITH_TESTS)
 endif()
 
 find_package(Qt5
-  COMPONENTS Concurrent Core Gui LinguistTools Network PrintSupport Qml Quick
+  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick
     QuickWidgets Sql Widgets Xml ${QT_TEST_COMPONENT}
   REQUIRED
 )
+
+find_package(Qt5 COMPONENTS LinguistTools)
 
 find_package(Threads)
 
