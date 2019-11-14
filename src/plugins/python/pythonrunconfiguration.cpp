@@ -334,7 +334,7 @@ QString PythonRunConfiguration::interpreter() const
 void PythonRunConfiguration::updateTargetInformation()
 {
     const BuildTargetInfo bti = buildTargetInfo();
-    const QString script = bti.targetFilePath.toString();
+    const QString script = bti.targetFilePath.toUserOutput();
     setDefaultDisplayName(tr("Run %1").arg(script));
     aspect<MainScriptAspect>()->setValue(script);
 }
