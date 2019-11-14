@@ -247,7 +247,7 @@ QString BoardOptions::vendor() const
 static PackageOptions *createQulPackage()
 {
     auto result = new PackageOptions(
-                PackageOptions::tr("Qt MCU SDK"),
+                PackageOptions::tr("Qt for MCUs SDK"),
                 QDir::homePath(),
                 Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
                 "QtMCUSdk");
@@ -556,7 +556,7 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const BoardOptions* boar
 QString McuSupportOptions::kitName(const BoardOptions *board) const
 {
     // TODO: get version from qulSdkPackage and insert into name
-    return QString::fromLatin1("QtMCU - %1 %2").arg(board->vendor(), board->model());
+    return QString::fromLatin1("Qt for MCUs - %1 %2").arg(board->vendor(), board->model());
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const BoardOptions *board)
