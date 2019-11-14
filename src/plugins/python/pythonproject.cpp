@@ -205,14 +205,20 @@ void PythonBuildSystem::refresh()
     auto newRoot = std::make_unique<PythonProjectNode>(projectDirectory());
     for (const QString &f : qAsConst(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
-        const FileType fileType = f.endsWith(".pyproject") || f.endsWith(".pyqtc") ? FileType::Project
-                                                                                   : FileType::Source;
-        newRoot->addNestedNode(std::make_unique<PythonFileNode>(FilePath::fromString(f),
-                                                                displayName, fileType));
+        const FilePath filePath = FilePath::fromString(f);
+        FileType fileType;
+        if (f.endsWith(".py"))
+            fileType = FileType::Source;
+        else if (f.endsWith(".pyproject") || f.endsWith(".pyqtc"))
+            fileType = FileType::Project;
+        else
+            fileType = Node::fileTypeForFileName(filePath);
+
+        newRoot->addNestedNode(std::make_unique<PythonFileNode>(filePath, displayName, fileType));
         if (fileType == FileType::Source) {
             BuildTargetInfo bti;
             bti.buildKey = f;
-            bti.targetFilePath = FilePath::fromString(f);
+            bti.targetFilePath = filePath;
             bti.projectFilePath = projectFilePath();
             appTargets.append(bti);
         }
