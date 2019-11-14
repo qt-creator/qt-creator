@@ -63,12 +63,12 @@ private:
     static QString defaultResetCommands();
 
     Utils::FilePath m_executableFile = Utils::FilePath::fromString("");
-    QString m_jlinkDevice = "";
-    QString m_jlinkHost = "USB";
-    QString m_jlinkHostAddr = "";
-    QString m_jlinkTargetIface = "SWD";
-    QString m_jlinkTargetIfaceSpeed = "12000";
-    QString m_additionalArguments = "";
+    QString m_jlinkDevice;
+    QString m_jlinkHost = {"USB"};
+    QString m_jlinkHostAddr;
+    QString m_jlinkTargetIface = {"SWD"};
+    QString m_jlinkTargetIfaceSpeed = {"12000"};
+    QString m_additionalArguments;
 
     friend class JLinkGdbServerProviderConfigWidget;
     friend class JLinkGdbServerProviderFactory;
