@@ -26,6 +26,7 @@
 #include "iversioncontrol.h"
 #include "vcsmanager.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -145,6 +146,14 @@ QString IVersionControl::vcsTopic(const QString &topLevel)
 IVersionControl::~IVersionControl()
 {
     delete m_topicCache;
+}
+
+QStringList IVersionControl::unmanagedFiles(const QString &workingDir,
+                                            const QStringList &filePaths) const
+{
+    return Utils::filtered(filePaths, [wd = QDir(workingDir), this](const QString &f) {
+        return !managesFile(wd.path(), wd.relativeFilePath(f));
+    });
 }
 
 IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const QString &fileName) const
