@@ -236,6 +236,8 @@ public:
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FilePath &file) const;
     QList<FolderNode *> folderNodes() const;
+    FolderNode *folderNode(const Utils::FilePath &directory) const;
+
     using FolderNodeFactory = std::function<std::unique_ptr<FolderNode>(const Utils::FilePath &)>;
     void addNestedNodes(std::vector<std::unique_ptr<FileNode>> &&files,
                         const Utils::FilePath &overrideBaseDir = Utils::FilePath(),

@@ -54,14 +54,6 @@
 
 namespace ProjectExplorer {
 
-static FolderNode *folderNode(const FolderNode *folder, const Utils::FilePath &directory)
-{
-    return static_cast<FolderNode *>(Utils::findOrDefault(folder->folderNodes(),
-                                                          [&directory](const FolderNode *fn) {
-        return fn && fn->filePath() == directory;
-    }));
-}
-
 static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
                                                    const Utils::FilePath &directory,
                                                    const Utils::FilePath &overrideBaseDir,
@@ -93,7 +85,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
     foreach (const QString &part, parts) {
         path = path.pathAppended(part);
         // Find folder in subFolders
-        FolderNode *next = folderNode(parent, path);
+        FolderNode *next = parent->folderNode(path);
         if (!next) {
             // No FolderNode yet, so create it
             auto tmp = factory(path);
@@ -624,6 +616,15 @@ QList<FolderNode*> FolderNode::folderNodes() const
             result.append(fn);
     }
     return result;
+}
+
+FolderNode *FolderNode::folderNode(const Utils::FilePath &directory) const
+{
+    Node *node = Utils::findOrDefault(m_nodes, [directory](const std::unique_ptr<Node> &n) {
+        FolderNode *fn = n->asFolderNode();
+        return fn && fn->filePath() == directory;
+    });
+    return static_cast<FolderNode *>(node);
 }
 
 void FolderNode::addNestedNode(std::unique_ptr<FileNode> &&fileNode,
