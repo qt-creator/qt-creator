@@ -639,8 +639,28 @@ void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
                                 const Utils::FilePath &overrideBaseDir,
                                 const FolderNode::FolderNodeFactory &factory)
 {
-    for (std::unique_ptr<FileNode> &f : files)
-        addNestedNode(std::move(f), overrideBaseDir, factory);
+    using DirWithNodes = std::pair<Utils::FilePath, std::vector<std::unique_ptr<FileNode>>>;
+    std::vector<DirWithNodes> fileNodesPerDir;
+    for (auto &f : files) {
+        const Utils::FilePath parentDir = f->filePath().parentDir();
+        const auto it = std::lower_bound(fileNodesPerDir.begin(), fileNodesPerDir.end(), parentDir,
+            [](const DirWithNodes &nad, const Utils::FilePath &dir) { return nad.first < dir; });
+        if (it == fileNodesPerDir.end() || it->first < parentDir) {
+            DirWithNodes dirWithNodes;
+            dirWithNodes.first = parentDir;
+            dirWithNodes.second.emplace_back(std::move(f));
+            fileNodesPerDir.insert(it, std::move(dirWithNodes));
+        } else {
+            it->second.emplace_back(std::move(f));
+        }
+    }
+
+    for (DirWithNodes &dirWithNodes : fileNodesPerDir) {
+        FolderNode * const folderNode = recursiveFindOrCreateFolderNode(this, dirWithNodes.first,
+                                                                        overrideBaseDir, factory);
+        for (auto &f : dirWithNodes.second)
+            folderNode->addNode(std::move(f));
+    }
 }
 
 // "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child

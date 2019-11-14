@@ -465,12 +465,14 @@ void GenericBuildSystem::refresh(RefreshOptions options)
         // find the common base directory of all source files
         FilePath baseDir = findCommonSourceRoot();
 
+        std::vector<std::unique_ptr<FileNode>> fileNodes;
         for (const QString &f : qAsConst(m_files)) {
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
-            newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(f), fileType), baseDir);
+            fileNodes.emplace_back(std::make_unique<FileNode>(FilePath::fromString(f), fileType));
         }
+        newRoot->addNestedNodes(std::move(fileNodes), baseDir);
 
         newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_filesFileName),
                                                           FileType::Project));
