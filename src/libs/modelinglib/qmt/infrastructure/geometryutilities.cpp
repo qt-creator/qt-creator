@@ -54,22 +54,38 @@ QLineF GeometryUtilities::stretch(const QLineF &line, double p1Extension, double
 }
 
 bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line,
-                                  QPointF *intersectionPoint, QLineF *intersectionLine)
+                                  QPointF *intersectionPoint, QLineF *intersectionLine,
+                                  int nearestPoint)
 {
+    bool found = false;
+    qreal mindist = 0;
+    QPointF ipoint;
+    QLineF iline;
     for (int i = 0; i <= polygon.size() - 2; ++i) {
         QLineF polygonLine(polygon.at(i), polygon.at(i+1));
+        QPointF point;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-        QLineF::IntersectType intersectionType = polygonLine.intersect(line, intersectionPoint);
+        QLineF::IntersectType intersectionType = polygonLine.intersect(line, &point);
 #else
-        QLineF::IntersectType intersectionType = polygonLine.intersects(line, intersectionPoint);
+        QLineF::IntersectType intersectionType = polygonLine.intersects(line, &point);
 #endif
         if (intersectionType == QLineF::BoundedIntersection) {
-            if (intersectionLine)
-                *intersectionLine = polygonLine;
-            return true;
+            qreal dist = QLineF(point, nearestPoint <= 0 ? line.p1() : line.p2()).length();
+            if (!found || dist < mindist) {
+                mindist = dist;
+                ipoint = point;
+                iline = polygonLine;
+                found = true;
+            }
         }
     }
-    return false;
+    if (found) {
+        if (intersectionPoint)
+            *intersectionPoint = ipoint;
+        if (intersectionLine)
+            *intersectionLine = iline;
+    }
+    return found;
 }
 
 namespace {
