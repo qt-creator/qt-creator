@@ -589,10 +589,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
     auto jdbPath = AndroidConfigurations::currentConfig().openJDKLocation().pathAppended("bin");
-    if (Utils::HostOsInfo::isWindowsHost())
-        jdbPath = jdbPath.pathAppended("jdb.exe");
-    else
-        jdbPath = jdbPath.pathAppended("jdb");
+    jdbPath = jdbPath.pathAppended(Utils::HostOsInfo::withExecutableSuffix("jdb"));
 
     QStringList jdbArgs("-connect");
     jdbArgs << QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")

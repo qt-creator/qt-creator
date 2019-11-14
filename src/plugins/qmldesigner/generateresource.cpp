@@ -99,11 +99,8 @@ void GenerateResource::generateMenuEntry()
         temp.close();
 
         auto rccBinary = QtSupport::QtKitAspect::qtVersion(currentProject->activeTarget()->kit())->hostBinPath();
-#ifdef Q_OS_WIN
-        rccBinary = rccBinary.pathAppended("rcc.exe");
-#else
-        rccBinary = rccBinary.pathAppended("rcc");
-#endif
+        rccBinary = rccBinary.pathAppended(Utils::HostOsInfo::withExecutableSuffix("rcc"));
+
         QProcess rccProcess;
         rccProcess.setProgram(rccBinary.toString());
         rccProcess.setWorkingDirectory(projectPath);

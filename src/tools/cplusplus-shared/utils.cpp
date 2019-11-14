@@ -34,15 +34,6 @@
 
 namespace CplusplusToolsUtils {
 
-QString portableExecutableName(const QString &executable)
-{
-#if defined(Q_OS_WIN)
-    return executable + QLatin1String(".exe");
-#else
-    return executable;
-#endif
-}
-
 void executeCommand(const QString &command, const QStringList &arguments, const QString &outputFile,
                     bool verbose)
 {
@@ -86,9 +77,9 @@ void executeCommand(const QString &command, const QStringList &arguments, const 
 SystemPreprocessor::SystemPreprocessor(bool verbose)
     : m_verbose(verbose)
 {
-    m_knownCompilers[portableExecutableName(QLatin1String("gcc"))]
+    m_knownCompilers[Utils::HostOsInfo::withExecutableSuffix("gcc")]
         = QLatin1String("-DCPLUSPLUS_WITHOUT_QT -U__BLOCKS__ -xc++ -E -include");
-    m_knownCompilers[portableExecutableName(QLatin1String("cl"))]
+    m_knownCompilers[Utils::HostOsInfo::withExecutableSuffix("cl")]
         = QLatin1String("/DCPLUSPLUS_WITHOUT_QT /U__BLOCKS__ /TP /E /I . /FI");
 
     QMapIterator<QString, QString> i(m_knownCompilers);

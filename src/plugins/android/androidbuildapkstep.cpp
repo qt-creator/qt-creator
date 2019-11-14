@@ -215,9 +215,7 @@ bool AndroidBuildApkStep::init()
     QString command = version->hostBinPath().toString();
     if (!command.endsWith('/'))
         command += '/';
-    command += "androiddeployqt";
-    if (Utils::HostOsInfo::isWindowsHost())
-        command += ".exe";
+    command += Utils::HostOsInfo::withExecutableSuffix("androiddeployqt");
 
     QString outputDir = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
