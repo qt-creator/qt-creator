@@ -126,10 +126,10 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
 
     {
         LayoutBuilder builder(detailsWidget);
-        builder.addItems(tr("Executable:"), m_executableChooser).startNewRow();
-        m_arguments.addToLayout(builder);
-        m_workingDirectory.addToLayout(builder);
-        m_terminal.addToLayout(builder);
+        builder.addItems(tr("Executable:"), m_executableChooser);
+        m_arguments.addToLayout(builder.startNewRow());
+        m_workingDirectory.addToLayout(builder.startNewRow());
+        m_terminal.addToLayout(builder.startNewRow());
     }
 
     auto enviromentAspect = rc->aspect<EnvironmentAspect>();
