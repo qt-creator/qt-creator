@@ -250,7 +250,7 @@ static PackageOptions *createQulPackage()
                 PackageOptions::tr("Qt MCU SDK"),
                 QDir::homePath(),
                 Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
-                "qulSdk");
+                "QtMCUSdk");
     result->setEnvironmentVariableName("Qul_DIR");
     return result;
 }
@@ -281,7 +281,7 @@ static PackageOptions *createArmGccPackage()
                 PackageOptions::tr("GNU Arm Embedded Toolchain"),
                 defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++"),
-                Constants::SETTINGS_KEY_PACKAGE_ARMGCC);
+                "GNUArmEmbeddedToolchain");
     result->setDownloadUrl(
                 "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads");
     result->setEnvironmentVariableName(envVar);
@@ -294,7 +294,7 @@ static PackageOptions *createStm32CubeFwF7SdkPackage()
                 PackageOptions::tr("STM32Cube SDK"),
                 "%{Env:STM32Cube_FW_F7_SDK_PATH}",
                 "Drivers/STM32F7xx_HAL_Driver",
-                "stm32CubeFwF7Sdk");
+                "Stm32CubeFwF7Sdk");
     result->setDownloadUrl(
                 "https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-mcu-packages/stm32cubef7.html");
     result->setEnvironmentVariableName("STM32Cube_FW_F7_SDK_PATH");
@@ -313,7 +313,7 @@ static PackageOptions *createStm32CubeProgrammerPackage()
                 defaultPath,
                 QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
                                                                  : "/bin/STM32_Programmer.sh"),
-                "stm32CubeProgrammer");
+                "Stm32CubeProgrammer");
     result->setRelativePathModifier("/bin");
     result->setDownloadUrl(
                 "https://www.st.com/en/development-tools/stm32cubeprog.html");
@@ -327,7 +327,7 @@ static PackageOptions *createEvkbImxrt1050SdkPackage()
                 PackageOptions::tr("NXP i.MXRT SDK"),
                 "%{Env:EVKB_IMXRT1050_SDK_PATH}", // TODO: Try to not use 1050 specifics
                 "EVKB-IMXRT1050_manifest_v3_5.xml",
-                "evkbImxrt1050Sdk");
+                "EvkbImxrt1050Sdk");
     result->setDownloadUrl("https://mcuxpresso.nxp.com/en/welcome");
     return result;
 }
@@ -343,7 +343,7 @@ static PackageOptions *createSeggerJLinkPackage()
                 PackageOptions::tr("SEGGER JLink"),
                 defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("JLink"),
-                "seggerJLink");
+                "SeggerJLink");
     result->setDownloadUrl("https://www.segger.com/downloads/jlink");
     result->setEnvironmentVariableName("SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH");
     return result;
