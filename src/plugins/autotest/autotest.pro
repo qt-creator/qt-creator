@@ -8,7 +8,6 @@ DEFINES += AUTOTEST_LIBRARY
 SOURCES += \
     autotestplugin.cpp \
     itestparser.cpp \
-    outputhighlighter.cpp \
     projectsettingswidget.cpp \
     testcodeparser.cpp \
     testconfiguration.cpp \
@@ -73,7 +72,6 @@ HEADERS += \
     itestframework.h \
     itestparser.h \
     itestsettingspage.h \
-    outputhighlighter.h \
     projectsettingswidget.h \
     testcodeparser.h \
     testconfiguration.h \

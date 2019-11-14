@@ -573,7 +573,7 @@ QList<int> StyleHelper::availableImageResolutions(const QString &fileName)
     return result;
 }
 
-static double luminance(const QColor &color)
+double StyleHelper::luminance(const QColor &color)
 {
     // calculate the luminance based on
     // https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
@@ -595,7 +595,7 @@ static double contrastRatio(const QColor &color1, const QColor &color2)
 {
     // calculate the contrast ratio based on
     // https://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef
-    auto contrast = (luminance(color1) + 0.05) / (luminance(color2) + 0.05);
+    auto contrast = (StyleHelper::luminance(color1) + .05) / (StyleHelper::luminance(color2) + .05);
     if (contrast < 1)
         return 1 / contrast;
     return contrast;

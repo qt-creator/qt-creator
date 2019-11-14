@@ -97,6 +97,7 @@ public:
     static QString imageFileWithResolution(const QString &fileName, int dpr);
     static QList<int> availableImageResolutions(const QString &fileName);
 
+    static double luminance(const QColor &color);
     static bool isReadableOn(const QColor &background, const QColor &foreground);
 
 private:

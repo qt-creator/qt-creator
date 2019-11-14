@@ -37,8 +37,6 @@ QtcPlugin {
         "autotestconstants.h",
         "autotestplugin.cpp",
         "autotestplugin.h",
-        "outputhighlighter.cpp",
-        "outputhighlighter.h",
         "projectsettingswidget.cpp",
         "projectsettingswidget.h",
         "testcodeparser.cpp",

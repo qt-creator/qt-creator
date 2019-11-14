@@ -34,7 +34,6 @@
 #include "testcodeparser.h"
 #include "testeditormark.h"
 #include "testoutputreader.h"
-#include "outputhighlighter.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -50,6 +49,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -136,7 +136,6 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_textOutput->setFont(TextEditor::TextEditorSettings::fontSettings().font());
     m_textOutput->setWordWrapMode(QTextOption::WordWrap);
     m_textOutput->setReadOnly(true);
-    new OutputHighlighter(m_textOutput->document());
     m_outputWidget->addWidget(m_textOutput);
 
     auto agg = new Aggregation::Aggregate;
@@ -241,6 +240,34 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     navigateStateChanged();
 }
 
+static void checkAndFineTuneColors(QTextCharFormat *format)
+{
+    QTC_ASSERT(format, return);
+    const QColor bgColor = format->background().color();
+    QColor fgColor = format->foreground().color();
+
+    if (Utils::StyleHelper::isReadableOn(bgColor, fgColor))
+        return;
+
+    int h, s, v;
+    fgColor.getHsv(&h, &s, &v);
+    // adjust the color value to ensure better readability
+    if (Utils::StyleHelper::luminance(bgColor) < .5)
+        v = v + 64;
+    else
+        v = v - 64;
+
+    fgColor.setHsv(h, s, v);
+    if (!Utils::StyleHelper::isReadableOn(bgColor, fgColor)) {
+        s = (s + 128) % 255;    // adjust the saturation to ensure better readability
+        fgColor.setHsv(h, s, v);
+        if (!Utils::StyleHelper::isReadableOn(bgColor, fgColor))
+            return;
+    }
+
+    format->setForeground(fgColor);
+}
+
 void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel channel)
 {
     if (!QTC_GUARD(!outputLine.contains('\n'))) {
@@ -248,8 +275,21 @@ void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel 
             addOutputLine(line, channel);
         return;
     }
-    m_outputChannels.append(channel);
-    m_textOutput->appendPlainText(QString::fromUtf8(outputLine));
+
+    const Utils::FormattedText formattedText
+            = Utils::FormattedText{QString::fromUtf8(outputLine), m_defaultFormat};
+    QList<Utils::FormattedText> formatted = channel == OutputChannel::StdOut
+            ? m_stdOutHandler.parseText(formattedText)
+            : m_stdErrHandler.parseText(formattedText);
+
+    QTextCursor cursor = m_textOutput->textCursor();
+    cursor.beginEditBlock();
+    for (auto formattedText : formatted) {
+        checkAndFineTuneColors(&formattedText.format);
+        cursor.insertText(formattedText.text, formattedText.format);
+    }
+    cursor.insertText("\n");
+    cursor.endEditBlock();
 }
 
 QWidget *TestResultsPane::outputWidget(QWidget *parent)
@@ -289,8 +329,15 @@ void TestResultsPane::clearContents()
     m_autoScroll = AutotestPlugin::settings()->autoScroll;
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
-    m_outputChannels.clear();
     m_textOutput->clear();
+    m_defaultFormat.setBackground(Utils::creatorTheme()->palette().color(
+                                      m_textOutput->backgroundRole()));
+    m_defaultFormat.setForeground(Utils::creatorTheme()->palette().color(
+                                      m_textOutput->foregroundRole()));
+
+    // in case they had been forgotten to reset
+    m_stdErrHandler.endFormatScope();
+    m_stdOutHandler.endFormatScope();
     clearMarks();
 }
 
@@ -707,13 +754,6 @@ void TestResultsPane::showTestResult(const QModelIndex &index)
         popup(IOutputPane::NoModeSwitch);
         m_treeView->setCurrentIndex(mapped);
     }
-}
-
-OutputChannel TestResultsPane::channelForBlockNumber(int blockNumber) const
-{
-    QTC_ASSERT(blockNumber > -1 && blockNumber < m_outputChannels.size(),
-               return OutputChannel::StdOut);
-    return m_outputChannels.at(blockNumber);
 }
 
 } // namespace Internal
