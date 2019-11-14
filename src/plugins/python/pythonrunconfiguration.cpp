@@ -274,6 +274,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
 
     auto argumentsAspect = addAspect<ArgumentsAspect>();
 
+    addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
     setCommandLineGetter([this, interpreterAspect, argumentsAspect] {
@@ -305,6 +306,9 @@ void PythonRunConfiguration::updateLanguageServer()
                 PyLSConfigureAssistant::instance()->openDocumentWithPython(python, document);
         }
     }
+
+    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
+        Utils::FilePath::fromString(mainScript()).parentDir());
 }
 
 bool PythonRunConfiguration::supportsDebugger() const
