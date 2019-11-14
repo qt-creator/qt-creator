@@ -69,6 +69,7 @@ class QnxUtils
 {
 public:
     static QString addQuotes(const QString &string);
+    static QString cpuDirFromAbi(const ProjectExplorer::Abi &abi);
     static QString cpuDirShortDescription(const QString &cpuDir);
     static Utils::EnvironmentItems qnxEnvironmentFromEnvFile(const QString &fileName);
     static QString envFilePath(const QString &sdpPath);

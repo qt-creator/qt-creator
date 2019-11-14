@@ -95,14 +95,10 @@ Utils::FilePath QnxQtVersion::qnxTarget() const
 
 QString QnxQtVersion::cpuDir() const
 {
-    ensureMkSpecParsed();
-    return m_cpuDir;
-}
-
-void QnxQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
-{
-    m_cpuDir = evaluator->value(QLatin1String("QNX_CPUDIR"));
-    BaseQtVersion::parseMkSpec(evaluator);
+    const Abis abis = qtAbis();
+    if (abis.empty())
+        return QString();
+    return QnxUtils::cpuDirFromAbi(abis.at(0));
 }
 
 QVariantMap QnxQtVersion::toMap() const

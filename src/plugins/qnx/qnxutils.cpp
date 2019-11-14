@@ -56,6 +56,17 @@ QString QnxUtils::addQuotes(const QString &string)
     return QLatin1Char('"') + string + QLatin1Char('"');
 }
 
+QString QnxUtils::cpuDirFromAbi(const Abi &abi)
+{
+    if (abi.os() != Abi::OS::QnxOS)
+        return QString();
+    if (abi.architecture() == Abi::Architecture::ArmArchitecture)
+        return QString::fromLatin1(abi.wordWidth() == 32 ? "armle-v7" : "aarch64le");
+    if (abi.architecture() == Abi::Architecture::X86Architecture)
+        return QString::fromLatin1(abi.wordWidth() == 32 ? "x86" : "x86_64");
+    return QString();
+}
+
 QString QnxUtils::cpuDirShortDescription(const QString &cpuDir)
 {
     if (cpuDir == "armle-v7")

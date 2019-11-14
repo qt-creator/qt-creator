@@ -67,9 +67,6 @@ public:
     QString sdpPath() const;
     void setSdpPath(const QString &sdpPath);
 
-protected:
-   void parseMkSpec(ProFileEvaluator *) const override;
-
 private:
     void updateEnvironment() const;
 
