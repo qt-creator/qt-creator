@@ -51,11 +51,6 @@ const char *EVAL_ENV_VARS[] = {
 };
 }
 
-QString QnxUtils::addQuotes(const QString &string)
-{
-    return QLatin1Char('"') + string + QLatin1Char('"');
-}
-
 QString QnxUtils::cpuDirFromAbi(const Abi &abi)
 {
     if (abi.os() != Abi::OS::QnxOS)
