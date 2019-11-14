@@ -46,6 +46,7 @@ public:
 
     bool managesDirectory(const QString &directory, QString *topLevel) const final;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    QStringList unmanagedFiles(const QString &workingDir, const QStringList &filePaths) const final;
 
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;

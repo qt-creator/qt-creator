@@ -190,6 +190,12 @@ bool GitVersionControl::managesFile(const QString &workingDirectory, const QStri
     return m_client->managesFile(workingDirectory, fileName);
 }
 
+QStringList GitVersionControl::unmanagedFiles(const QString &workingDir,
+                                              const QStringList &filePaths) const
+{
+    return m_client->unmanagedFiles(workingDir, filePaths);
+}
+
 bool GitVersionControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);

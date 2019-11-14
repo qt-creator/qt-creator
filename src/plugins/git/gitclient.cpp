@@ -823,6 +823,24 @@ bool GitClient::managesFile(const QString &workingDirectory, const QString &file
             == SynchronousProcessResponse::Finished;
 }
 
+QStringList GitClient::unmanagedFiles(const QString &workingDirectory,
+                                      const QStringList &filePaths) const
+{
+    QStringList args({"ls-files", "-z"});
+    QDir wd(workingDirectory);
+    args << transform(filePaths, [&wd](const QString &fp) { return wd.relativeFilePath(fp); });
+    const SynchronousProcessResponse response
+            = vcsFullySynchronousExec(workingDirectory, args, Core::ShellCommand::NoOutput);
+    if (response.result != SynchronousProcessResponse::Finished)
+        return filePaths;
+    const QStringList managedFilePaths
+            = transform(response.stdOut().split('\0', QString::SkipEmptyParts),
+                        [&wd](const QString &fp) { return wd.absoluteFilePath(fp); });
+    return filtered(filePaths, [&managedFilePaths](const QString &fp) {
+        return !managedFilePaths.contains(fp);
+    });
+}
+
 QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const QString &source) const
 {
     if (codecType == CodecSource) {
