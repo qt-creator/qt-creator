@@ -305,20 +305,27 @@ bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &
 
 static void insertSorted(QStringList *list, const QString &value)
 {
-    int pos = Utils::indexOf(*list, [value](const QString &s) { return s > value; });
-    if (pos == -1)
+    const auto it = std::lower_bound(list->begin(), list->end(), value);
+    if (it == list->end())
         list->append(value);
-    else
-        list->insert(pos, value);
+    else if (*it > value)
+        list->insert(it, value);
 }
 
 bool GenericBuildSystem::addFiles(Node *, const QStringList &filePaths, QStringList *)
 {
-    QStringList newList = m_rawFileList;
-
     const QDir baseDir(projectDirectory().toString());
-    for (const QString &filePath : filePaths)
-        insertSorted(&newList, baseDir.relativeFilePath(filePath));
+    QStringList newList = m_rawFileList;
+    if (filePaths.size() > m_rawFileList.size()) {
+        newList += transform(filePaths, [&baseDir](const QString &p) {
+            return baseDir.relativeFilePath(p);
+        });
+        sort(newList);
+        newList.erase(std::unique(newList.begin(), newList.end()), newList.end());
+    } else {
+        for (const QString &filePath : filePaths)
+            insertSorted(&newList, baseDir.relativeFilePath(filePath));
+    }
 
     const auto includes = transform<QSet<QString>>(m_projectIncludePaths,
                                                    [](const HeaderPath &hp) { return hp.path; });
