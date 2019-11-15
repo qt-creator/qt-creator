@@ -179,16 +179,15 @@ void QmakeBuildConfiguration::initialize()
     QString additionalArguments = qmakeExtra.additionalArguments;
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
-    if (qmakeExtra.config.separateDebugInfo == SeparateDebugInfoAspect::Value::Enabled)
+
+    if (qmakeExtra.config.separateDebugInfo == TriState::Enabled)
         forceSeparateDebugInfo(true);
-    if (qmakeExtra.config.linkQmlDebuggingQQ2 != QmlDebuggingAspect::Value::Default) {
-        forceQmlDebugging(qmakeExtra.config.linkQmlDebuggingQQ2
-                          == QmlDebuggingAspect::Value::Enabled);
-    }
-    if (qmakeExtra.config.useQtQuickCompiler != QtQuickCompilerAspect::Value::Default) {
-        forceQtQuickCompiler(qmakeExtra.config.useQtQuickCompiler
-                             == QtQuickCompilerAspect::Value::Enabled);
-    }
+
+    if (qmakeExtra.config.linkQmlDebuggingQQ2 != TriState::Default)
+        forceQmlDebugging(qmakeExtra.config.linkQmlDebuggingQQ2 == TriState::Enabled);
+
+    if (qmakeExtra.config.useQtQuickCompiler != TriState::Default)
+        forceQtQuickCompiler(qmakeExtra.config.useQtQuickCompiler == TriState::Enabled);
 
     setQMakeBuildConfiguration(config);
 
@@ -418,7 +417,7 @@ bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
                                     buildDirectory().toString());
 }
 
-SeparateDebugInfoAspect::Value QmakeBuildConfiguration::separateDebugInfo() const
+TriState QmakeBuildConfiguration::separateDebugInfo() const
 {
     return aspect<SeparateDebugInfoAspect>()->setting();
 }
@@ -426,37 +425,33 @@ SeparateDebugInfoAspect::Value QmakeBuildConfiguration::separateDebugInfo() cons
 void QmakeBuildConfiguration::forceSeparateDebugInfo(bool sepDebugInfo)
 {
     aspect<SeparateDebugInfoAspect>()->setSetting(sepDebugInfo
-                                                  ? SeparateDebugInfoAspect::Value::Enabled
-                                                  : SeparateDebugInfoAspect::Value::Disabled);
+                                                  ? TriState::Enabled
+                                                  : TriState::Disabled);
 }
 
-BaseTriStateAspect::Value QmakeBuildConfiguration::qmlDebugging() const
+TriState QmakeBuildConfiguration::qmlDebugging() const
 {
     return aspect<QmlDebuggingAspect>()->setting();
 }
 
 bool QmakeBuildConfiguration::linkQmlDebuggingLibrary() const
 {
-    return qmlDebugging() == QmlDebuggingAspect::Value::Enabled;
+    return qmlDebugging() == TriState::Enabled;
 }
 
 void QmakeBuildConfiguration::forceQmlDebugging(bool enable)
 {
-    aspect<QmlDebuggingAspect>()->setSetting(enable
-                                             ? QmlDebuggingAspect::Value::Enabled
-                                             : QmlDebuggingAspect::Value::Disabled);
+    aspect<QmlDebuggingAspect>()->setSetting(enable ? TriState::Enabled : TriState::Disabled);
 }
 
-BaseTriStateAspect::Value QmakeBuildConfiguration::useQtQuickCompiler() const
+TriState QmakeBuildConfiguration::useQtQuickCompiler() const
 {
     return aspect<QtQuickCompilerAspect>()->setting();
 }
 
 void QmakeBuildConfiguration::forceQtQuickCompiler(bool enable)
 {
-    aspect<QtQuickCompilerAspect>()->setSetting(enable
-                                                ? QtQuickCompilerAspect::Value::Enabled
-                                                : QtQuickCompilerAspect::Value::Disabled);
+    aspect<QtQuickCompilerAspect>()->setSetting(enable ? TriState::Enabled : TriState::Disabled);
 }
 
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
@@ -743,7 +738,7 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Release", "Shadow build directory suffix");
         if (version && version->isQtQuickCompilerSupported())
-            extraInfo.config.useQtQuickCompiler = QtQuickCompilerAspect::Value::Enabled;
+            extraInfo.config.useQtQuickCompiler = TriState::Enabled;
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
@@ -755,12 +750,12 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
             info.displayName = tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = tr("Profile", "Shadow build directory suffix");
-            extraInfo.config.separateDebugInfo = SeparateDebugInfoAspect::Value::Enabled;
+            extraInfo.config.separateDebugInfo = TriState::Enabled;
             if (version && version->isQtQuickCompilerSupported())
-                extraInfo.config.useQtQuickCompiler = QtQuickCompilerAspect::Value::Enabled;
+                extraInfo.config.useQtQuickCompiler = TriState::Enabled;
         }
         if (version && version->isQmlDebuggingSupported())
-            extraInfo.config.linkQmlDebuggingQQ2 = QmlDebuggingAspect::Value::Enabled;
+            extraInfo.config.linkQmlDebuggingQQ2 = TriState::Enabled;
     }
     info.typeName = info.displayName;
     // Leave info.buildDirectory unset;
@@ -820,7 +815,7 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 {
     if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         return Debug;
-    if (separateDebugInfo() == SeparateDebugInfoAspect::Value::Enabled)
+    if (separateDebugInfo() == TriState::Enabled)
         return Profile;
     return Release;
 }

@@ -688,18 +688,25 @@ BaseTriStateAspect::BaseTriStateAspect()
     addOption(tr("Leave at Default"));
 }
 
-BaseTriStateAspect::Value BaseTriStateAspect::setting() const
+TriState BaseTriStateAspect::setting() const
 {
-    if (value() == 0)
-        return Value::Enabled;
-    if (value() == 1)
-        return Value::Disabled;
-    return Value::Default;
+    return TriState::fromVariant(value());
 }
 
-void BaseTriStateAspect::setSetting(BaseTriStateAspect::Value setting)
+void BaseTriStateAspect::setSetting(TriState setting)
 {
-    setValue(setting == Value::Enabled ? 0 : setting == Value::Disabled ? 1 : 2);
+    setValue(setting.toVariant().toInt());
+}
+
+const TriState TriState::Enabled{TriState::EnabledValue};
+const TriState TriState::Disabled{TriState::DisabledValue};
+const TriState TriState::Default{TriState::DefaultValue};
+
+TriState TriState::fromVariant(const QVariant &variant)
+{
+    int v = variant.toInt();
+    QTC_ASSERT(v == EnabledValue || v == DisabledValue || v == DefaultValue, v = DefaultValue);
+    return TriState(Value(v));
 }
 
 } // namespace ProjectExplorer

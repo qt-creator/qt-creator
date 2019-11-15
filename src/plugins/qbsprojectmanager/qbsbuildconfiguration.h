@@ -77,9 +77,9 @@ public:
     QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
 
     bool isQmlDebuggingEnabled() const;
-    QtSupport::QmlDebuggingAspect::Value qmlDebuggingSetting() const;
-    QtSupport::QtQuickCompilerAspect::Value qtQuickCompilerSetting() const;
-    ProjectExplorer::SeparateDebugInfoAspect::Value separateDebugInfoSetting() const;
+    ProjectExplorer::TriState qmlDebuggingSetting() const;
+    ProjectExplorer::TriState qtQuickCompilerSetting() const;
+    ProjectExplorer::TriState separateDebugInfoSetting() const;
 
 signals:
     void qbsConfigurationChanged();

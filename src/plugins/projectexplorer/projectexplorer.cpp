@@ -1426,8 +1426,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         dd->m_projectExplorerSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
 
     const auto loadTriStateValue = [&s](const QString &key) {
-      return static_cast<BaseTriStateAspect::Value>(
-                  s->value(key, int(BaseTriStateAspect::Value::Default)).toInt());
+      return TriState::fromVariant(s->value(key, TriState::Default.toVariant()));
     };
     dd->m_buildPropertiesSettings.separateDebugInfo
             = loadTriStateValue(Constants::SEPARATE_DEBUG_INFO_SETTINGS_KEY);
@@ -2049,11 +2048,11 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY, dd->m_projectExplorerSettings.buildDirectoryTemplate);
 
     s->setValue(Constants::SEPARATE_DEBUG_INFO_SETTINGS_KEY,
-                int(dd->m_buildPropertiesSettings.separateDebugInfo));
+                dd->m_buildPropertiesSettings.separateDebugInfo.toVariant());
     s->setValue(Constants::QML_DEBUGGING_SETTINGS_KEY,
-                int(dd->m_buildPropertiesSettings.qmlDebugging));
+                dd->m_buildPropertiesSettings.qmlDebugging.toVariant());
     s->setValue(Constants::QT_QUICK_COMPILER_SETTINGS_KEY,
-                int(dd->m_buildPropertiesSettings.qtQuickCompiler));
+                dd->m_buildPropertiesSettings.qtQuickCompiler.toVariant());
 }
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)

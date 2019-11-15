@@ -60,8 +60,8 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         QString warningText;
         const bool supported = m_kit && BaseQtVersion::isQmlDebuggingSupported(m_kit, &warningText);
         if (!supported) {
-            setSetting(Value::Default);
-        } else if (setting() == Value::Enabled) {
+            setSetting(TriState::Default);
+        } else if (setting() == TriState::Enabled) {
             warningText = tr("Might make your application vulnerable.<br/>"
                              "Only use in a safe environment.");
         }
@@ -97,9 +97,9 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
         const bool supported = m_kit
                 && BaseQtVersion::isQtQuickCompilerSupported(m_kit, &warningText);
         if (!supported)
-            setSetting(Value::Default);
-        if (setting() == Value::Enabled
-                && m_qmlDebuggingAspect && m_qmlDebuggingAspect->setting() == Value::Enabled) {
+            setSetting(TriState::Default);
+        if (setting() == TriState::Enabled
+                && m_qmlDebuggingAspect && m_qmlDebuggingAspect->setting() == TriState::Enabled) {
             warningText = tr("Disables QML debugging. QML profiling will still work.");
         }
         warningTextLabel->setText(warningText);

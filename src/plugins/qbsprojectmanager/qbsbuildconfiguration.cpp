@@ -383,20 +383,20 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
 
 bool QbsBuildConfiguration::isQmlDebuggingEnabled() const
 {
-    return qmlDebuggingSetting() == QtSupport::QmlDebuggingAspect::Value::Enabled;
+    return qmlDebuggingSetting() == TriState::Enabled;
 }
 
-BaseTriStateAspect::Value QbsBuildConfiguration::qmlDebuggingSetting() const
+TriState QbsBuildConfiguration::qmlDebuggingSetting() const
 {
     return aspect<QtSupport::QmlDebuggingAspect>()->setting();
 }
 
-BaseTriStateAspect::Value QbsBuildConfiguration::qtQuickCompilerSetting() const
+TriState QbsBuildConfiguration::qtQuickCompilerSetting() const
 {
     return aspect<QtSupport::QtQuickCompilerAspect>()->setting();
 }
 
-BaseTriStateAspect::Value QbsBuildConfiguration::separateDebugInfoSetting() const
+TriState QbsBuildConfiguration::separateDebugInfoSetting() const
 {
     return aspect<SeparateDebugInfoAspect>()->setting();
 }

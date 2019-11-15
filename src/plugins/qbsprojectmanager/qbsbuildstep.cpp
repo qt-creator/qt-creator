@@ -214,39 +214,25 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
     QVariantMap config = m_qbsConfiguration;
     const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(buildConfiguration());
     config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
-    switch (qbsBuildConfig->separateDebugInfoSetting()) {
-    case SeparateDebugInfoAspect::Value::Enabled:
-        config.insert(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY, true);
-        break;
-    case SeparateDebugInfoAspect::Value::Disabled:
-        config.insert(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY, false);
-        break;
-    default:
-        config.remove(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY);
-        break;
-    }
-    switch (qbsBuildConfig->qmlDebuggingSetting()) {
-    case QtSupport::QmlDebuggingAspect::Value::Enabled:
-        config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, true);
-        break;
-    case QtSupport::QmlDebuggingAspect::Value::Disabled:
-        config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, false);
-        break;
-    default:
-        config.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
-        break;
-    }
-    switch (qbsBuildConfig->qtQuickCompilerSetting()) {
-    case QtSupport::QtQuickCompilerAspect::Value::Enabled:
-        config.insert(Constants::QBS_CONFIG_QUICK_COMPILER_KEY, true);
-        break;
-    case QtSupport::QtQuickCompilerAspect::Value::Disabled:
-        config.insert(Constants::QBS_CONFIG_QUICK_COMPILER_KEY, false);
-        break;
-    default:
-        config.remove(Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
-        break;
-    }
+
+    const auto store = [&config](TriState ts, const QString &key) {
+        if (ts == TriState::Enabled)
+            config.insert(key, true);
+        else if (ts == TriState::Disabled)
+            config.insert(key, false);
+        else
+            config.remove(key);
+    };
+
+    store(qbsBuildConfig->separateDebugInfoSetting(),
+          Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY);
+
+    store(qbsBuildConfig->qmlDebuggingSetting(),
+          Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
+
+    store(qbsBuildConfig->qtQuickCompilerSetting(),
+          Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
+
     if (variableHandling == ExpandVariables) {
         const MacroExpander * const expander = buildConfiguration()->macroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
@@ -697,36 +683,23 @@ void QbsBuildStepConfigWidget::updateState()
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
     }
 
-    switch (qbsBuildConfig->separateDebugInfoSetting()) {
-    case SeparateDebugInfoAspect::Value::Enabled:
-        command.append(' ').append(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY).append(":true");
-        break;
-    case SeparateDebugInfoAspect::Value::Disabled:
-        command.append(' ').append(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY).append(":false");
-        break;
-    default:
-        break;
-    }
-    switch (qbsBuildConfig->qmlDebuggingSetting()) {
-    case QtSupport::QmlDebuggingAspect::Value::Enabled:
-        command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
-        break;
-    case QtSupport::QmlDebuggingAspect::Value::Disabled:
-        command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":false");
-        break;
-    default:
-        break;
-    }
-    switch (qbsBuildConfig->qtQuickCompilerSetting()) {
-    case QtSupport::QtQuickCompilerAspect::Value::Enabled:
-        command.append(' ').append(Constants::QBS_CONFIG_QUICK_COMPILER_KEY).append(":true");
-        break;
-    case QtSupport::QtQuickCompilerAspect::Value::Disabled:
-        command.append(' ').append(Constants::QBS_CONFIG_QUICK_COMPILER_KEY).append(":false");
-        break;
-    default:
-        break;
-    }
+    const auto addToCommand = [&command](TriState ts, const QString &key) {
+        if (ts == TriState::Enabled)
+            command.append(' ').append(key).append(":true");
+        else if (ts == TriState::Disabled)
+            command.append(' ').append(key).append(":false");
+        // Do nothing for TriState::Default
+    };
+
+    addToCommand(qbsBuildConfig->separateDebugInfoSetting(),
+                 Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY);
+
+    addToCommand(qbsBuildConfig->qmlDebuggingSetting(),
+                 Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
+
+    addToCommand(qbsBuildConfig->qtQuickCompilerSetting(),
+                 Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
+
     commandLineTextEdit->setPlainText(command);
 
     setSummaryText(tr("<b>Qbs:</b> %1").arg(command));

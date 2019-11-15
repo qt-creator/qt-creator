@@ -837,19 +837,19 @@ QStringList QMakeStepConfig::toArguments() const
     else if (osType == IphoneOS)
         arguments << "CONFIG+=iphoneos" << "CONFIG+=device" /*since Qt 5.7*/;
 
-    if (linkQmlDebuggingQQ2 == BaseTriStateAspect::Value::Enabled)
+    if (linkQmlDebuggingQQ2 == TriState::Enabled)
         arguments << "CONFIG+=qml_debug";
-    else if (linkQmlDebuggingQQ2 == BaseTriStateAspect::Value::Disabled)
+    else if (linkQmlDebuggingQQ2 == TriState::Disabled)
         arguments << "CONFIG-=qml_debug";
 
-    if (useQtQuickCompiler == BaseTriStateAspect::Value::Enabled)
+    if (useQtQuickCompiler == TriState::Enabled)
         arguments << "CONFIG+=qtquickcompiler";
-    else if (useQtQuickCompiler == BaseTriStateAspect::Value::Disabled)
+    else if (useQtQuickCompiler == TriState::Disabled)
         arguments << "CONFIG-=qtquickcompiler";
 
-    if (separateDebugInfo == BaseTriStateAspect::Value::Enabled)
+    if (separateDebugInfo == TriState::Enabled)
         arguments << "CONFIG+=force_debug_info" << "CONFIG+=separate_debug_info";
-    else if (separateDebugInfo == BaseTriStateAspect::Value::Disabled)
+    else if (separateDebugInfo == TriState::Disabled)
         arguments << "CONFIG-=separate_debug_info";
 
     if (!sysRoot.isEmpty()) {

@@ -99,14 +99,14 @@ public:
     static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);
     bool isBuildDirAtSafeLocation() const;
 
-    ProjectExplorer::BaseTriStateAspect::Value separateDebugInfo() const;
+    ProjectExplorer::TriState separateDebugInfo() const;
     void forceSeparateDebugInfo(bool sepDebugInfo);
 
-    ProjectExplorer::BaseTriStateAspect::Value qmlDebugging() const;
+    ProjectExplorer::TriState qmlDebugging() const;
     bool linkQmlDebuggingLibrary() const;
     void forceQmlDebugging(bool enable);
 
-    ProjectExplorer::BaseTriStateAspect::Value useQtQuickCompiler() const;
+    ProjectExplorer::TriState useQtQuickCompiler() const;
     void forceQtQuickCompiler(bool enable);
 
 signals:

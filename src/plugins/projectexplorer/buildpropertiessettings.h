@@ -33,9 +33,9 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT BuildPropertiesSettings
 {
 public:
-    BaseTriStateAspect::Value separateDebugInfo = BaseTriStateAspect::Value::Default;
-    BaseTriStateAspect::Value qmlDebugging = BaseTriStateAspect::Value::Default;
-    BaseTriStateAspect::Value qtQuickCompiler = BaseTriStateAspect::Value::Default;
+    TriState separateDebugInfo;
+    TriState qmlDebugging;
+    TriState qtQuickCompiler;
     bool showQtSettings = false;
 };
 

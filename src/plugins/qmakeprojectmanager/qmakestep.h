@@ -84,12 +84,9 @@ public:
     QString targetTriple;
     TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
-    ProjectExplorer::BaseTriStateAspect::Value separateDebugInfo
-        = ProjectExplorer::BaseTriStateAspect::Value::Default;
-    ProjectExplorer::BaseTriStateAspect::Value linkQmlDebuggingQQ2
-        = ProjectExplorer::BaseTriStateAspect::Value::Default;
-    ProjectExplorer::BaseTriStateAspect::Value useQtQuickCompiler
-        = ProjectExplorer::BaseTriStateAspect::Value::Default;
+    ProjectExplorer::TriState separateDebugInfo;
+    ProjectExplorer::TriState linkQmlDebuggingQQ2;
+    ProjectExplorer::TriState useQtQuickCompiler;
 };
 
 
@@ -107,9 +104,9 @@ inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {
 inline QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
 {
    dbg << c.archConfig << c.osType
-       << (c.linkQmlDebuggingQQ2 == ProjectExplorer::BaseTriStateAspect::Value::Enabled)
-       << (c.useQtQuickCompiler == ProjectExplorer::BaseTriStateAspect::Value::Enabled)
-       << (c.separateDebugInfo == ProjectExplorer::BaseTriStateAspect::Value::Enabled);
+       << (c.linkQmlDebuggingQQ2 == ProjectExplorer::TriState::Enabled)
+       << (c.useQtQuickCompiler == ProjectExplorer::TriState::Enabled)
+       << (c.separateDebugInfo == ProjectExplorer::TriState::Enabled);
    return dbg;
 }
 

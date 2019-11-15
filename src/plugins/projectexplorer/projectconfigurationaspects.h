@@ -190,15 +190,36 @@ private:
     std::unique_ptr<Internal::BaseIntegerAspectPrivate> d;
 };
 
+class PROJECTEXPLORER_EXPORT TriState
+{
+    enum Value { EnabledValue, DisabledValue, DefaultValue };
+    explicit TriState(Value v) : m_value(v) {}
+
+public:
+    TriState() = default;
+
+    QVariant toVariant() const { return int(m_value); }
+    static TriState fromVariant(const QVariant &variant);
+
+    static const TriState Enabled;
+    static const TriState Disabled;
+    static const TriState Default;
+
+    friend bool operator==(TriState a, TriState b) { return a.m_value == b.m_value; }
+    friend bool operator!=(TriState a, TriState b) { return a.m_value != b.m_value; }
+
+private:
+    Value m_value = DefaultValue;
+};
+
 class PROJECTEXPLORER_EXPORT BaseTriStateAspect : public BaseSelectionAspect
 {
     Q_OBJECT
 public:
     BaseTriStateAspect();
 
-    enum class Value { Enabled, Disabled, Default };
-    Value setting() const;
-    void setSetting(Value setting);
+    TriState setting() const;
+    void setSetting(TriState setting);
 };
 
 } // namespace ProjectExplorer

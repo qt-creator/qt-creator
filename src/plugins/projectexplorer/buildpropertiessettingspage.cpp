@@ -43,16 +43,16 @@ public:
         const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
         for (QComboBox * const comboBox : {&m_separateDebugInfoComboBox, &m_qmlDebuggingComboBox,
                                            &m_qtQuickCompilerComboBox}) {
-            comboBox->addItem(tr("Enable"), int(BaseTriStateAspect::Value::Enabled));
-            comboBox->addItem(tr("Disable"), int(BaseTriStateAspect::Value::Disabled));
-            comboBox->addItem(tr("Use Project Default"), int(BaseTriStateAspect::Value::Default));
+            comboBox->addItem(tr("Enable"), TriState::Enabled.toVariant());
+            comboBox->addItem(tr("Disable"),TriState::Disabled.toVariant());
+            comboBox->addItem(tr("Use Project Default"), TriState::Default.toVariant());
         }
         m_separateDebugInfoComboBox.setCurrentIndex(m_separateDebugInfoComboBox
-                                                .findData(int(settings.separateDebugInfo)));
+                                                .findData(settings.separateDebugInfo.toVariant()));
         m_qmlDebuggingComboBox.setCurrentIndex(m_qmlDebuggingComboBox
-                                                .findData(int(settings.qmlDebugging)));
+                                                .findData(settings.qmlDebugging.toVariant()));
         m_qtQuickCompilerComboBox.setCurrentIndex(m_qtQuickCompilerComboBox
-                                                .findData(int(settings.qtQuickCompiler)));
+                                                .findData(settings.qtQuickCompiler.toVariant()));
         const auto layout = new QFormLayout(this);
         layout->addRow(tr("Separate debug info:"), &m_separateDebugInfoComboBox);
         if (settings.showQtSettings) {
@@ -67,12 +67,9 @@ public:
     BuildPropertiesSettings settings() const
     {
         BuildPropertiesSettings s;
-        s.separateDebugInfo = static_cast<BaseTriStateAspect::Value>(
-                    m_separateDebugInfoComboBox.currentData().toInt());
-        s.qmlDebugging = static_cast<BaseTriStateAspect::Value>(
-                    m_qmlDebuggingComboBox.currentData().toInt());
-        s.qtQuickCompiler = static_cast<BaseTriStateAspect::Value>(
-                    m_qtQuickCompilerComboBox.currentData().toInt());
+        s.separateDebugInfo = TriState::fromVariant(m_separateDebugInfoComboBox.currentData());
+        s.qmlDebugging = TriState::fromVariant(m_qmlDebuggingComboBox.currentData());
+        s.qtQuickCompiler = TriState::fromVariant(m_qtQuickCompilerComboBox.currentData());
         return s;
     }
 
