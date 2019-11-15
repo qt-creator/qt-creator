@@ -56,8 +56,6 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
         emit enabledChanged();
     });
 
-    // Handles device changes, etc.
-    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
