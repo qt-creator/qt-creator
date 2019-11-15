@@ -321,15 +321,13 @@ def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_6_1_DEFAULT]):
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    __chooseTargets__(targets, available)
+    nameLineEd = waitForObject("{name='ObjectName' type='Utils::FancyLineEdit' visible='1'}")
+    replaceEditorContent(nameLineEd, "TestItem")
+    uriLineEd = waitForObject("{name='Uri' type='Utils::FancyLineEdit' visible='1'}")
+    replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
-    nameLineEd = waitForObject("{buddy={type='QLabel' text='Object class-name:' unnamed='1' visible='1'} "
-                               "type='QLineEdit' unnamed='1' visible='1'}")
-    replaceEditorContent(nameLineEd, "TestItem")
-    uriLineEd = waitForObject("{buddy={type='QLabel' text='URI:' unnamed='1' visible='1'} "
-                              "type='QLineEdit' unnamed='1' visible='1'}")
-    replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
+    __chooseTargets__(targets, available)
     clickButton(nextButton)
     __createProjectHandleLastPage__()
 
