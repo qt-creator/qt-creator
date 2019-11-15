@@ -513,7 +513,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = set()
         if 'Desktop' in supports:
-            if (version == None or version < "5.0"):
+            if (version == None or version < "5.0") and not templateName.startswith("Qt Quick 2"):
                 result.add(Targets.DESKTOP_4_8_7_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.add(Targets.EMBEDDED_LINUX)

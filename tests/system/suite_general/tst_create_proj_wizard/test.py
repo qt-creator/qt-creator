@@ -62,8 +62,7 @@ def main():
             template = template.replace(".", "\\.")
             # skip non-configurable
             if template not in ["Qt Quick UI Prototype", "Auto Test Project",  # FIXME
-                                "Qt for Python - Empty", "Qt for Python - Window",
-                                "Qt Quick 2 Extension Plugin"]:
+                                "Qt for Python - Empty", "Qt for Python - Window"]:
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:
@@ -82,7 +81,7 @@ def main():
                     # are there more Quick combinations - then recreate this project
                     if counter < len(qtVersionsForQuick) - 1:
                         displayedPlatforms = __createProject__(category, template)
-            elif template in ("Qt Widgets Application", "C++ Library"):
+            elif template in ("Qt Widgets Application", "Qt Quick 2 Extension Plugin", "C++ Library"):
                 def skipDetails(_):
                     clickButton(waitForObject(":Next_QPushButton"))
                 handleBuildSystemVerifyKits(category, template, kits,
