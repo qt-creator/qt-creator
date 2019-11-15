@@ -51,7 +51,7 @@ static CommandLine flashAndRunCommand(Target *target)
 
     // TODO: Hack! Implement flash target name handling, properly
     const QString targetName =
-            target->kit()->value(Constants::KIT_BOARD_VENDOR_KEY).toString() == "NXP"
+            target->kit()->value(Constants::KIT_MCUTARGET_VENDOR_KEY).toString() == "NXP"
             ? QString("flash_%1").arg(projectName)
             : QString("flash_%1_and_bootloader").arg(projectName);
 

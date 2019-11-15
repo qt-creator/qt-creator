@@ -50,17 +50,17 @@ public:
     McuSupportOptionsWidget(const McuSupportOptions *options, QWidget *parent = nullptr);
 
     void updateStatus();
-    void showBoardPackages();
-    BoardOptions *currentBoard() const;
+    void showMcuTargetPackages();
+    McuTarget *currentMcuTarget() const;
 
 private:
     QString m_armGccPath;
     const McuSupportOptions *m_options;
-    QMap <PackageOptions*, QWidget*> m_packageWidgets;
-    QMap <BoardOptions*, QWidget*> m_boardPacketWidgets;
+    QMap <McuPackage*, QWidget*> m_packageWidgets;
+    QMap <McuTarget*, QWidget*> m_mcuTargetPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
     QLabel *m_statusLabel = nullptr;
-    QComboBox *m_boardComboBox = nullptr;
+    QComboBox *m_mcuTargetComboBox = nullptr;
 };
 
 McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *options, QWidget *parent)
@@ -69,18 +69,18 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
 {
     auto mainLayout = new QVBoxLayout(this);
 
-    auto boardChooserlayout = new QHBoxLayout;
-    auto boardChooserLabel = new QLabel(McuSupportOptionsPage::tr("Target:"));
-    boardChooserlayout->addWidget(boardChooserLabel);
-    m_boardComboBox = new QComboBox;
-    boardChooserLabel->setBuddy(m_boardComboBox);
-    boardChooserLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    m_boardComboBox->addItems(
-                Utils::transform<QStringList>(m_options->boards, [this](BoardOptions *b){
-                    return m_options->kitName(b);
+    auto mcuTargetChooserlayout = new QHBoxLayout;
+    auto mcuTargetChooserLabel = new QLabel(McuSupportOptionsPage::tr("Target:"));
+    mcuTargetChooserlayout->addWidget(mcuTargetChooserLabel);
+    m_mcuTargetComboBox = new QComboBox;
+    mcuTargetChooserLabel->setBuddy(m_mcuTargetComboBox);
+    mcuTargetChooserLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    m_mcuTargetComboBox->addItems(
+                Utils::transform<QStringList>(m_options->mcuTargets, [this](McuTarget *t){
+                    return m_options->kitName(t);
                 }));
-    boardChooserlayout->addWidget(m_boardComboBox);
-    mainLayout->addLayout(boardChooserlayout);
+    mcuTargetChooserlayout->addWidget(m_mcuTargetComboBox);
+    mainLayout->addLayout(mcuTargetChooserlayout);
 
     auto m_packagesGroupBox = new QGroupBox(McuSupportOptionsPage::tr("Packages"));
     mainLayout->addWidget(m_packagesGroupBox);
@@ -93,30 +93,31 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     m_statusLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
 
     connect(options, &McuSupportOptions::changed, this, &McuSupportOptionsWidget::updateStatus);
-    connect(m_boardComboBox, &QComboBox::currentTextChanged,
-            this, &McuSupportOptionsWidget::showBoardPackages);
+    connect(m_mcuTargetComboBox, &QComboBox::currentTextChanged,
+            this, &McuSupportOptionsWidget::showMcuTargetPackages);
 
-    showBoardPackages();
+    showMcuTargetPackages();
     updateStatus();
 }
 
 void McuSupportOptionsWidget::updateStatus()
 {
-    const BoardOptions *board = currentBoard();
-    if (!board)
+    const McuTarget *mcuTarget = currentMcuTarget();
+    if (!mcuTarget)
         return;
 
-    m_statusLabel->setText(board->isValid()
+    m_statusLabel->setText(mcuTarget->isValid()
                 ? QString::fromLatin1("A kit <b>%1</b> for the selected target can be generated. "
-                                      "Press Apply to generate it.").arg(m_options->kitName(board))
+                                      "Press Apply to generate it.").arg(m_options->kitName(
+                                                                             mcuTarget))
                 : QString::fromLatin1("Provide the package paths in order to create a kit for "
                                       "your target."));
 }
 
-void McuSupportOptionsWidget::showBoardPackages()
+void McuSupportOptionsWidget::showMcuTargetPackages()
 {
-    const BoardOptions *board = currentBoard();
-    if (!board)
+    const McuTarget *mcuTarget = currentMcuTarget();
+    if (!mcuTarget)
         return;
 
     while (m_packagesLayout->rowCount() > 0) {
@@ -127,7 +128,7 @@ void McuSupportOptionsWidget::showBoardPackages()
 
     for (auto package : m_options->packages) {
         QWidget *packageWidget = package->widget();
-        if (!board->packages().contains(package))
+        if (!mcuTarget->packages().contains(package))
             continue;
         m_packagesLayout->addRow(package->label(), packageWidget);
         packageWidget->show();
@@ -136,10 +137,10 @@ void McuSupportOptionsWidget::showBoardPackages()
     updateStatus();
 }
 
-BoardOptions *McuSupportOptionsWidget::currentBoard() const
+McuTarget *McuSupportOptionsWidget::currentMcuTarget() const
 {
-    const int boardIndex = m_boardComboBox->currentIndex();
-    return m_options->boards.isEmpty() ? nullptr : m_options->boards.at(boardIndex);
+    const int mcuTargetIndex = m_mcuTargetComboBox->currentIndex();
+    return m_options->mcuTargets.isEmpty() ? nullptr : m_options->mcuTargets.at(mcuTargetIndex);
 }
 
 McuSupportOptionsPage::McuSupportOptionsPage(QObject* parent)
@@ -164,18 +165,18 @@ void McuSupportOptionsPage::apply()
     for (auto package : m_options->packages)
         package->writeToSettings();
 
-    QTC_ASSERT(m_options->toolchainPackage, return);
-    QTC_ASSERT(m_options->qulSdkPackage, return);
+    QTC_ASSERT(m_options->armGccPackage, return);
+    QTC_ASSERT(m_options->qtForMCUsSdkPackage, return);
 
-    const BoardOptions *board = m_widget->currentBoard();
-    if (!board)
+    const McuTarget *mcuTarget = m_widget->currentMcuTarget();
+    if (!mcuTarget)
         return;
 
     using namespace ProjectExplorer;
 
-    for (auto existingKit : m_options->existingKits(board))
+    for (auto existingKit : m_options->existingKits(mcuTarget))
         ProjectExplorer::KitManager::deregisterKit(existingKit);
-    m_options->newKit(board);
+    m_options->newKit(mcuTarget);
 }
 
 void McuSupportOptionsPage::finish()

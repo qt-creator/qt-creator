@@ -42,7 +42,7 @@ class Kit;
 namespace McuSupport {
 namespace Internal {
 
-class PackageOptions : public QObject
+class McuPackage : public QObject
 {
     Q_OBJECT
 
@@ -53,8 +53,8 @@ public:
         ValidPackage
     };
 
-    PackageOptions(const QString &label, const QString &defaultPath, const QString &detectionPath,
-                   const QString &settingsKey);
+    McuPackage(const QString &label, const QString &defaultPath, const QString &detectionPath,
+               const QString &settingsKey);
 
     QString path() const;
     QString label() const;
@@ -96,19 +96,19 @@ private:
     Status m_status = InvalidPath;
 };
 
-class BoardOptions : public QObject
+class McuTarget : public QObject
 {
     Q_OBJECT
 
 public:
-    BoardOptions(const QString &vendor, const QString &model, const QString &toolChainFile,
-                 const QString &qulPlatform, const QVector<PackageOptions *> &packages);
+    McuTarget(const QString &vendor, const QString &model, const QString &toolChainFile,
+              const QString &qulPlatform, const QVector<McuPackage *> &packages);
 
     QString vendor() const;
     QString model() const;
     QString toolChainFile() const;
     QString qulPlatform() const;
-    QVector<PackageOptions *> packages() const;
+    QVector<McuPackage *> packages() const;
     bool isValid() const;
 
 private:
@@ -116,7 +116,7 @@ private:
     const QString m_model;
     const QString m_toolChainFile;
     const QString m_qulPlatform;
-    const QVector<PackageOptions*> m_packages;
+    const QVector<McuPackage*> m_packages;
 };
 
 class McuSupportOptions : public QObject
@@ -127,15 +127,15 @@ public:
     McuSupportOptions(QObject *parent = nullptr);
     ~McuSupportOptions() override;
 
-    QVector<PackageOptions*> packages;
-    QVector<BoardOptions*> boards;
-    PackageOptions *toolchainPackage = nullptr;
-    PackageOptions *qulSdkPackage = nullptr;
+    QVector<McuPackage*> packages;
+    QVector<McuTarget*> mcuTargets;
+    McuPackage *armGccPackage = nullptr;
+    McuPackage *qtForMCUsSdkPackage = nullptr;
 
-    QString kitName(const BoardOptions* board) const;
+    QString kitName(const McuTarget* mcuTarget) const;
 
-    QList<ProjectExplorer::Kit *> existingKits(const BoardOptions* board);
-    ProjectExplorer::Kit *newKit(const BoardOptions* board);
+    QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTargt);
+    ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
 
 signals:
     void changed();
