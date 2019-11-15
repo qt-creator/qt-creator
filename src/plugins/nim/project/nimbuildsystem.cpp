@@ -160,6 +160,8 @@ void NimBuildSystem::updateProject()
     // Complete scan
     m_guard.markAsSuccess();
     m_guard = {}; // Trigger destructor of previous object, emitting parsingFinished()
+
+    emitBuildSystemUpdated();
 }
 
 bool NimBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const

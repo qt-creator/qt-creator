@@ -498,6 +498,8 @@ void GenericBuildSystem::refresh(RefreshOptions options)
     refreshCppCodeModel();
     updateDeploymentData();
     guard.markAsSuccess();
+
+    emitBuildSystemUpdated();
 }
 
 /**

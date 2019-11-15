@@ -49,9 +49,7 @@ NimbleRunConfiguration::NimbleRunConfiguration(ProjectExplorer::Target *target, 
     addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
-    connect(target, &Target::parsingFinished,
-            this, &NimbleRunConfiguration::updateTargetInformation);
-    connect(target, &Target::targetPropertiesChanged,
+    connect(target, &Target::buildSystemUpdated,
             this, &NimbleRunConfiguration::updateTargetInformation);
 
     updateTargetInformation();

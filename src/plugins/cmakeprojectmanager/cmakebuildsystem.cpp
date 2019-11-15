@@ -362,6 +362,8 @@ void CMakeBuildSystem::combineScanAndParse()
     }
 
     m_currentGuard = {};
+
+    emitBuildSystemUpdated();
 }
 
 void CMakeBuildSystem::checkAndReportError(QString &errorMessage)

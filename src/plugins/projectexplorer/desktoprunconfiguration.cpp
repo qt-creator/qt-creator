@@ -25,6 +25,7 @@
 
 #include "desktoprunconfiguration.h"
 
+#include "buildsystem.h"
 #include "localenvironmentaspect.h"
 #include "project.h"
 #include "runconfigurationaspects.h"
@@ -78,13 +79,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     if (kind == Qbs) {
 
-        connect(target, &Target::parsingFinished,
-                envAspect, &EnvironmentAspect::environmentChanged);
-
-        connect(target, &Target::deploymentDataChanged,
-                this, &DesktopRunConfiguration::updateTargetInformation);
-        connect(target, &Target::applicationTargetsChanged,
-                this, &DesktopRunConfiguration::updateTargetInformation);
         // Handles device changes, etc.
         connect(target, &Target::kitChanged,
                 this, &DesktopRunConfiguration::updateTargetInformation);
@@ -95,7 +89,7 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     }
 
-    connect(target, &Target::parsingFinished,
+    connect(target, &Target::buildSystemUpdated,
             this, &DesktopRunConfiguration::updateTargetInformation);
 }
 

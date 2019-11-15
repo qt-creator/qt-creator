@@ -179,7 +179,8 @@ void NimbleBuildSystem::setTasks(std::vector<NimbleTask> tasks)
         return;
     m_tasks = std::move(tasks);
     emit tasksChanged();
-    emit target()->targetPropertiesChanged();
+
+    emitBuildSystemUpdated();
 }
 
 void NimbleBuildSystem::setMetadata(NimbleMetadata metadata)

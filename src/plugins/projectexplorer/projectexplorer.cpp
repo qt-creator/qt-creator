@@ -27,6 +27,7 @@
 
 #include "appoutputpane.h"
 #include "buildsteplist.h"
+#include "buildsystem.h"
 #include "compileoutputwindow.h"
 #include "configtaskhandler.h"
 #include "customexecutablerunconfiguration.h"
@@ -653,6 +654,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     dd = new ProjectExplorerPluginPrivate;
 
+    qRegisterMetaType<ProjectExplorer::BuildSystem *>();
     qRegisterMetaType<ProjectExplorer::RunControl *>();
     qRegisterMetaType<ProjectExplorer::DeployableFile>("ProjectExplorer::DeployableFile");
 

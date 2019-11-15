@@ -35,6 +35,7 @@
 
 #include <languageclient/languageclientmanager.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -277,9 +278,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
         return cmd;
     });
 
-    connect(target, &Target::applicationTargetsChanged,
-            this, &PythonRunConfiguration::updateTargetInformation);
-    connect(target, &Target::parsingFinished,
+    connect(target, &Target::buildSystemUpdated,
             this, &PythonRunConfiguration::updateTargetInformation);
 }
 

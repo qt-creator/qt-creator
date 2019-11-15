@@ -29,6 +29,7 @@
 #include "remotelinuxx11forwardingaspect.h"
 #include "remotelinuxenvironmentaspect.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/kitinformation.h>
@@ -68,11 +69,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();
 
-    connect(target, &Target::deploymentDataChanged,
-            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
-    connect(target, &Target::applicationTargetsChanged,
-            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
-    connect(target, &Target::parsingFinished,
+    connect(target, &Target::buildSystemUpdated,
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);

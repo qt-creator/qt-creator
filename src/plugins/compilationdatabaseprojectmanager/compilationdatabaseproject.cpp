@@ -502,6 +502,8 @@ void CompilationDatabaseBuildSystem::updateDeploymentData()
         m_deployFileWatcher->addFile(deploymentFilePath.toString(),
                                      FileSystemWatcher::WatchModifiedDate);
     }
+
+    emitBuildSystemUpdated();
 }
 
 static TextEditor::TextDocument *createCompilationDatabaseDocument()

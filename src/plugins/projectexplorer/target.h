@@ -124,8 +124,10 @@ signals:
     void overlayIconChanged();
 
     void kitChanged();
+
     void parsingStarted();
     void parsingFinished(bool);
+    void buildSystemUpdated(ProjectExplorer::BuildSystem *bs);
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
@@ -143,8 +145,6 @@ signals:
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
 
     void deploymentDataChanged();
-    void applicationTargetsChanged();
-    void targetPropertiesChanged();
 
 private:
     bool fromMap(const QVariantMap &map);

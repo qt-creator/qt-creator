@@ -227,6 +227,8 @@ void PythonBuildSystem::triggerParsing()
     setApplicationTargets(appTargets);
 
     guard.markAsSuccess();
+
+    emitBuildSystemUpdated();
 }
 
 bool PythonBuildSystem::saveRawFileList(const QStringList &rawFileList)

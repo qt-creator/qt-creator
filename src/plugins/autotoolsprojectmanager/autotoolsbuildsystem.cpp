@@ -153,6 +153,8 @@ void AutotoolsBuildSystem::makefileParsingFinished()
 
     m_makefileParserThread->deleteLater();
     m_makefileParserThread = nullptr;
+
+    emitBuildSystemUpdated();
 }
 
 static QStringList filterIncludes(const QString &absSrc, const QString &absBuild,

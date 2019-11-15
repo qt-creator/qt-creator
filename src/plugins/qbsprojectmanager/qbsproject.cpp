@@ -620,6 +620,7 @@ void QbsBuildSystem::updateAfterParse()
     updateQmlJsCodeModel();
     emit project()->fileListChanged();
     m_envCache.clear();
+    emitBuildSystemUpdated();
 }
 
 void QbsBuildSystem::delayedUpdateAfterParse()
@@ -688,6 +689,11 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
         updateCppCodeModel();
     m_guard.markAsSuccess();
     m_guard = {};
+
+    // This one used to change the executable path of a Qbs desktop run configuration
+    // in case the "install" check box in the build step is unchecked and then build
+    // is triggered (which is otherwise a no-op).
+    emitBuildSystemUpdated();
 }
 
 void QbsBuildSystem::rebuildProjectTree()
@@ -800,6 +806,7 @@ void QbsBuildSystem::updateAfterBuild()
         DeploymentData deploymentDataTmp = deploymentData();
         deploymentDataTmp.setLocalInstallRoot(installRoot());
         setDeploymentData(deploymentDataTmp);
+        emitBuildSystemUpdated();
         return;
     }
     qCDebug(qbsPmLog) << "Updating data after build";
@@ -1274,6 +1281,9 @@ void QbsBuildSystem::updateBuildTargetData()
     OpTimer optimer("updateBuildTargetData");
     updateApplicationTargets();
     updateDeploymentInfo();
+
+    // This one used after a normal build.
+    emitBuildSystemUpdated();
 }
 
 } // namespace Internal

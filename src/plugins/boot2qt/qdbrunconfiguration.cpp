@@ -27,6 +27,7 @@
 
 #include "qdbconstants.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
@@ -85,13 +86,9 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
     addAspect<WorkingDirectoryAspect>();
     addAspect<FullCommandLineAspect>(this);
 
-    connect(target, &Target::deploymentDataChanged,
-            this, &QdbRunConfiguration::updateTargetInformation);
-    connect(target, &Target::applicationTargetsChanged,
-            this, &QdbRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
             this, &QdbRunConfiguration::updateTargetInformation);
-    connect(target, &Target::parsingFinished,
+    connect(target, &Target::buildSystemUpdated,
             this, &QdbRunConfiguration::updateTargetInformation);
 
     setDefaultDisplayName(tr("Run on Boot2Qt Device"));

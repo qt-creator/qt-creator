@@ -26,6 +26,7 @@
 #include "baremetalconstants.h"
 #include "baremetalrunconfiguration.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -49,13 +50,9 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
 
-    connect(target, &Target::deploymentDataChanged,
-            this, &BareMetalRunConfiguration::updateTargetInformation);
-    connect(target, &Target::applicationTargetsChanged,
-            this, &BareMetalRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
             this, &BareMetalRunConfiguration::updateTargetInformation); // Handles device changes, etc.
-    connect(target, &Target::parsingFinished,
+    connect(target, &Target::buildSystemUpdated,
             this, &BareMetalRunConfiguration::updateTargetInformation);
 }
 

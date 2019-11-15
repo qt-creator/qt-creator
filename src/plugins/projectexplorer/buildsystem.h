@@ -114,6 +114,8 @@ public:
         mutable bool m_success = false;
     };
 
+    void emitBuildSystemUpdated();
+
 public:
     // FIXME: Make this private and the BuildSystem a friend
     ParseGuard guardParsingRun() { return ParseGuard(this); }

@@ -31,6 +31,7 @@
 #include "androidmanager.h"
 #include "adbcommandswidget.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -132,7 +133,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
     postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
 
-    connect(target, &Target::parsingFinished, this, [this] {
+    connect(target, &Target::buildSystemUpdated, this, [this] {
         updateTargetInformation();
         AndroidManager::updateGradleProperties(this->target(), buildKey());
     });

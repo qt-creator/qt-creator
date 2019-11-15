@@ -274,7 +274,6 @@ void BuildSystem::setDeploymentData(const DeploymentData &deploymentData)
         emit deploymentDataChanged();
         emit applicationTargetsChanged();
         emit target()->deploymentDataChanged();
-        emit target()->applicationTargetsChanged();
     }
 }
 
@@ -288,7 +287,6 @@ void BuildSystem::setApplicationTargets(const QList<BuildTargetInfo> &appTargets
     if (Utils::toSet(appTargets) != Utils::toSet(d->m_appTargets)) {
         d->m_appTargets = appTargets;
         emit applicationTargetsChanged();
-        emit target()->applicationTargetsChanged();
     }
 }
 
@@ -307,6 +305,11 @@ BuildTargetInfo BuildSystem::buildTarget(const QString &buildKey) const
 void BuildSystem::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 {
     d->m_target->project()->setRootProjectNode(std::move(root));
+}
+
+void BuildSystem::emitBuildSystemUpdated()
+{
+    target()->buildSystemUpdated(this);
 }
 
 QString BuildSystem::disabledReason(const QString &buildKey) const

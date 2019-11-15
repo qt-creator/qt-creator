@@ -27,6 +27,7 @@
 
 #include "qnxconstants.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runcontrol.h>
@@ -80,9 +81,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
         emit enabledChanged();
     };
 
-    connect(target, &Target::deploymentDataChanged, this, updateTargetInformation);
-    connect(target, &Target::applicationTargetsChanged, this, updateTargetInformation);
-    connect(target, &Target::parsingFinished, this, updateTargetInformation);
+    connect(target, &Target::buildSystemUpdated, this, updateTargetInformation);
     connect(target, &Target::kitChanged, this, updateTargetInformation);
 }
 
