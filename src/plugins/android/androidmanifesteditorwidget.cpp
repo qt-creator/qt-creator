@@ -86,15 +86,15 @@ bool checkPackageName(const QString &packageName)
     return QRegExp(packageNameRegExp).exactMatch(packageName);
 }
 
-Project *androidProject(const Utils::FilePath &fileName)
+Target *androidTarget(const Utils::FilePath &fileName)
 {
     for (Project *project : SessionManager::projects()) {
-        if (!project->activeTarget())
-            continue;
-        Kit *kit = project->activeTarget()->kit();
-        if (DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
-                && fileName.isChildOf(project->projectDirectory()))
-            return project;
+        if (Target *target = project->activeTarget()) {
+            Kit *kit = target->kit();
+            if (DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
+                    && fileName.isChildOf(project->projectDirectory()))
+                return target;
+        }
     }
     return nullptr;
 }
@@ -489,17 +489,13 @@ void AndroidManifestEditorWidget::focusInEvent(QFocusEvent *event)
 
 void AndroidManifestEditorWidget::updateTargetComboBox()
 {
-    Project *project = androidProject(m_textEditorWidget->textDocument()->filePath());
     QStringList items;
-    if (project) {
-        Kit *kit = project->activeTarget()->kit();
-        if (DeviceTypeKitAspect::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE) {
-            ProjectNode *root = project->rootProjectNode();
-            root->forEachProjectNode([&items](const ProjectNode *projectNode) {
-                items << projectNode->targetApplications();
-            });
-            items.sort();
-        }
+    if (Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath())) {
+        ProjectNode *root = target->project()->rootProjectNode();
+        root->forEachProjectNode([&items](const ProjectNode *projectNode) {
+            items << projectNode->targetApplications();
+        });
+        items.sort();
     }
 
     // QComboBox randomly resets what the user has entered
@@ -606,17 +602,14 @@ void AndroidManifestEditorWidget::preSave()
 void AndroidManifestEditorWidget::postSave()
 {
     const Utils::FilePath docPath = m_textEditorWidget->textDocument()->filePath();
-    ProjectExplorer::Project *project = androidProject(docPath);
-    if (project) {
-        if (Target *target = project->activeTarget()) {
-            if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-                QString androidNdkPlatform = AndroidConfigurations::currentConfig()
-                        .bestNdkPlatformMatch(AndroidManager::minimumSDK(target));
-                if (m_androidNdkPlatform != androidNdkPlatform) {
-                    m_androidNdkPlatform = androidNdkPlatform;
-                    bc->updateCacheAndEmitEnvironmentChanged();
-                    bc->regenerateBuildFiles(nullptr);
-                }
+    if (Target *target = androidTarget(docPath)) {
+        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+            QString androidNdkPlatform = AndroidConfigurations::currentConfig()
+                            .bestNdkPlatformMatch(AndroidManager::minimumSDK(target));
+            if (m_androidNdkPlatform != androidNdkPlatform) {
+                m_androidNdkPlatform = androidNdkPlatform;
+                bc->updateCacheAndEmitEnvironmentChanged();
+                bc->regenerateBuildFiles(nullptr);
             }
         }
     }
