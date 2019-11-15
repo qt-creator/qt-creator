@@ -296,14 +296,14 @@ void CppEditorPlugin::extensionsInitialized()
 
     if (!HostOsInfo::isMacHost() && !HostOsInfo::isWindowsHost()) {
         FileIconProvider::registerIconOverlayForMimeType(
-                    QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppSource, QLatin1String(":/cppeditor/images/qt_cpp.png"))),
-                    CppTools::Constants::CPP_SOURCE_MIMETYPE);
+            creatorTheme()->imageFile(Theme::IconOverlayCppSource, ":/cppeditor/images/qt_cpp.png"),
+            CppTools::Constants::CPP_SOURCE_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(
-                    QIcon(creatorTheme()->imageFile(Theme::IconOverlayCSource, QLatin1String(":/cppeditor/images/qt_c.png"))),
-                    CppTools::Constants::C_SOURCE_MIMETYPE);
+            creatorTheme()->imageFile(Theme::IconOverlayCSource, ":/cppeditor/images/qt_c.png"),
+            CppTools::Constants::C_SOURCE_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(
-                    QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppHeader, QLatin1String(":/cppeditor/images/qt_h.png"))),
-                    CppTools::Constants::CPP_HEADER_MIMETYPE);
+            creatorTheme()->imageFile(Theme::IconOverlayCppHeader, ":/cppeditor/images/qt_h.png"),
+            CppTools::Constants::CPP_HEADER_MIMETYPE);
     }
 }
 
