@@ -47,7 +47,7 @@ private:
     bool isEnabled() const final;
 
     QString mainScript() const;
-    QString theExecutable() const;
+    Utils::FilePath qmlScenePath() const;
     QString commandLineArguments() const;
 
     ProjectExplorer::BaseStringAspect *m_qmlViewerAspect;

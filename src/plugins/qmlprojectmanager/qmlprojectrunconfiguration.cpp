@@ -176,7 +176,7 @@ void MainQmlFileAspect::updateFileComboBox()
     QModelIndex currentIndex;
 
     QStringList sortedFiles = Utils::transform(m_target->project()->files(Project::SourceFiles),
-                                               &Utils::FilePath::toString);
+                                               &FilePath::toString);
 
     // make paths relative to project directory
     QStringList relativeFiles;
@@ -311,9 +311,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
     setCommandLineGetter([this] {
-        return CommandLine(FilePath::fromString(theExecutable()),
-                           commandLineArguments(),
-                           CommandLine::Raw);
+        return CommandLine(qmlScenePath(), commandLineArguments(), CommandLine::Raw);
     });
 
     m_mainQmlFileAspect = addAspect<MainQmlFileAspect>(target);
@@ -341,40 +339,43 @@ QString QmlProjectRunConfiguration::disabledReason() const
 {
     if (mainScript().isEmpty())
         return tr("No script file to execute.");
+
+    const FilePath viewer = qmlScenePath();
     if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-            && !commandLine().executable().exists()) {
+            && !viewer.exists()) {
         return tr("No qmlscene found.");
     }
-    if (commandLine().executable().isEmpty())
+    if (viewer.isEmpty())
         return tr("No qmlscene binary specified for target device.");
     return RunConfiguration::disabledReason();
 }
 
-QString QmlProjectRunConfiguration::theExecutable() const
+FilePath QmlProjectRunConfiguration::qmlScenePath() const
 {
     const QString qmlViewer = m_qmlViewerAspect->value();
     if (!qmlViewer.isEmpty())
-        return qmlViewer;
+        return FilePath::fromString(qmlViewer);
 
-    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
+    Kit *kit = target()->kit();
+    BaseQtVersion *version = QtKitAspect::qtVersion(kit);
     if (!version) // No Qt version in Kit. Don't try to run qmlscene.
-        return QString();
+        return {};
 
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(kit);
     if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // If not given explicitly by Qt Version, try to pick it from $PATH.
-        return version->type() == QtSupport::Constants::DESKTOPQT
-                ? version->qmlsceneCommand() : QString("qmlscene");
+        const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
+        return FilePath::fromString(isDesktop ? version->qmlsceneCommand() : QString("qmlscene"));
     }
 
-    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
     if (dev.isNull()) // No device set. We don't know where to run qmlscene.
-        return QString();
+        return {};
 
     const QString qmlscene = dev->qmlsceneCommand();
     // If not given explicitly by device, try to pick it from $PATH.
-    return qmlscene.isEmpty() ? QString("qmlscene") : qmlscene;
+    return FilePath::fromString(qmlscene.isEmpty() ? QString("qmlscene") : qmlscene);
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const
@@ -382,24 +383,24 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     // arguments in .user file
     QString args = aspect<ArgumentsAspect>()->arguments(macroExpander());
     const IDevice::ConstPtr device = DeviceKitAspect::device(target()->kit());
-    const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();
+    const OsType osType = device ? device->osType() : HostOsInfo::hostOs();
 
     // arguments from .qmlproject file
     const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(target()->buildSystem());
     foreach (const QString &importPath,
              QmlBuildSystem::makeAbsolute(bs->targetDirectory(), bs->customImportPaths())) {
-        Utils::QtcProcess::addArg(&args, QLatin1String("-I"), osType);
-        Utils::QtcProcess::addArg(&args, importPath, osType);
+        QtcProcess::addArg(&args, "-I", osType);
+        QtcProcess::addArg(&args, importPath, osType);
     }
 
     for (const QString &fileSelector : bs->customFileSelectors()) {
-        Utils::QtcProcess::addArg(&args, QLatin1String("-S"), osType);
-        Utils::QtcProcess::addArg(&args, fileSelector, osType);
+        QtcProcess::addArg(&args, "-S", osType);
+        QtcProcess::addArg(&args, fileSelector, osType);
     }
 
     const QString main = bs->targetFile(FilePath::fromString(mainScript())).toString();
     if (!main.isEmpty())
-        Utils::QtcProcess::addArg(&args, main, osType);
+        QtcProcess::addArg(&args, main, osType);
     return args;
 }
 
@@ -417,29 +418,26 @@ bool MainQmlFileAspect::isQmlFilePresent()
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
         IDocument *document = EditorManager::currentDocument();
-        Utils::MimeType mainScriptMimeType = Utils::mimeTypeForFile(mainScript());
+        MimeType mainScriptMimeType = Utils::mimeTypeForFile(mainScript());
         if (document) {
             m_currentFileFilename = document->filePath().toString();
-            if (mainScriptMimeType.matchesName(
-                        QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
-                    || mainScriptMimeType.matchesName(
-                        QLatin1String(ProjectExplorer::Constants::QMLUI_MIMETYPE))) {
+            if (mainScriptMimeType.matchesName(ProjectExplorer::Constants::QML_MIMETYPE)
+                    || mainScriptMimeType.matchesName(ProjectExplorer::Constants::QMLUI_MIMETYPE)) {
                 qmlFileFound = true;
             }
         }
         if (!document
-                || mainScriptMimeType.matchesName(QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE))) {
+                || mainScriptMimeType.matchesName(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
             const auto files = m_target->project()->files(Project::SourceFiles);
-            for (const Utils::FilePath &filename : files) {
+            for (const FilePath &filename : files) {
                 const QFileInfo fi = filename.toFileInfo();
 
                 if (!filename.isEmpty() && fi.baseName().at(0).isLower()) {
                     Utils::MimeType type = Utils::mimeTypeForFile(fi);
-                    if (type.matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
-                            || type.matchesName(
-                                QLatin1String(ProjectExplorer::Constants::QMLUI_MIMETYPE))) {
+                    if (type.matchesName(ProjectExplorer::Constants::QML_MIMETYPE)
+                            || type.matchesName(ProjectExplorer::Constants::QMLUI_MIMETYPE)) {
                         m_currentFileFilename = filename.toString();
                         qmlFileFound = true;
                         break;
