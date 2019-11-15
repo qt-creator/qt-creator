@@ -82,7 +82,6 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 }
 
 Runnable QnxRunConfiguration::runnable() const

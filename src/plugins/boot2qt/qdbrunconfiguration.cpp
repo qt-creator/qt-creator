@@ -95,7 +95,6 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
         symbolsAspect->setFilePath(localExecutable);
     });
 
-    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 
     setDefaultDisplayName(tr("Run on Boot2Qt Device"));

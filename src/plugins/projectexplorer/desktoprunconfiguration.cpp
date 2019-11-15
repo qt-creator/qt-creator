@@ -80,16 +80,8 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     setUpdater([this] { updateTargetInformation(); });
 
-    if (kind == Qbs) {
-
-        // Handles device changes, etc.
-        connect(target, &Target::kitChanged, this, &RunConfiguration::update);
-
-    } else if (m_kind == CMake) {
-
+    if (m_kind == CMake)
         libAspect->setVisible(false);
-
-    }
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
