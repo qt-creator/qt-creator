@@ -26,7 +26,6 @@
 import QtQuick 2.12
 import QtQuick.Window 2.0
 import QtQuick3D 1.0
-import QtQuick3D.Helpers 1.0
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
 
@@ -78,7 +77,7 @@ Window {
     {
         var component = Qt.createComponent("CameraGizmo.qml");
         if (component.status === Component.Ready) {
-            var geometryName = designStudioNativeCameraControlHelper.generateUniqueName("CameraGeometry");
+            var geometryName = _generalHelper.generateUniqueName("CameraGeometry");
             var gizmo = component.createObject(
                         overlayScene,
                         {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
@@ -92,10 +91,10 @@ Window {
 
     // Work-around the fact that the projection matrix for the camera is not calculated until
     // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
-    Component.onCompleted: designStudioNativeCameraControlHelper.requestOverlayUpdate();
+    Component.onCompleted: _generalHelper.requestOverlayUpdate();
 
-    onWidthChanged: designStudioNativeCameraControlHelper.requestOverlayUpdate();
-    onHeightChanged: designStudioNativeCameraControlHelper.requestOverlayUpdate();
+    onWidthChanged: _generalHelper.requestOverlayUpdate();
+    onHeightChanged: _generalHelper.requestOverlayUpdate();
 
     Node {
         id: overlayScene
@@ -114,6 +113,7 @@ Window {
             clipNear: editOrthoCamera.clipNear
             position: editOrthoCamera.position
             rotation: editOrthoCamera.rotation
+            scale: editOrthoCamera.scale
         }
 
         MoveGizmo {
@@ -209,11 +209,14 @@ Window {
                     linearFade: 0
                 }
 
+                // Initial camera position and rotation should be such that they look at origin.
+                // Otherwise EditCameraController._lookAtPoint needs to be initialized to correct
+                // point.
                 PerspectiveCamera {
                     id: editPerspectiveCamera
                     z: -600
-                    y: 200
-                    rotation.x: 30
+                    y: 600
+                    rotation.x: 45
                     clipFar: 100000
                     clipNear: 1
                 }
@@ -221,8 +224,8 @@ Window {
                 OrthographicCamera {
                     id: editOrthoCamera
                     z: -600
-                    y: 200
-                    rotation.x: 30
+                    y: 600
+                    rotation.x: 45
                     clipFar: 100000
                     clipNear: 1
                 }
@@ -273,19 +276,10 @@ Window {
             }
         }
 
-        WasdController {
+        EditCameraController {
             id: cameraControl
-            controlledObject: editView.camera
-            acceptedButtons: Qt.RightButton
-
-            onInputsNeedProcessingChanged: designStudioNativeCameraControlHelper.enabled
-                                           = cameraControl.inputsNeedProcessing
-
-            // Use separate native timer as QML timers don't work inside Qt Design Studio
-            Connections {
-                target: designStudioNativeCameraControlHelper
-                onUpdateInputs: cameraControl.processInputs()
-            }
+            camera: editView.camera
+            anchors.fill: parent
         }
     }
 
@@ -365,39 +359,25 @@ Window {
             id: editLightCheckbox
             checked: false
             text: qsTr("Use Edit View Light")
-            onCheckedChanged: cameraControl.forceActiveFocus()
         }
 
         CheckBox {
             id: usePerspectiveCheckbox
             checked: true
             text: qsTr("Use Perspective Projection")
-            onCheckedChanged: {
-                // Since WasdController always acts on active camera, we need to update pos/rot
-                // to the other camera when we change
-                if (checked) {
-                    editPerspectiveCamera.position = editOrthoCamera.position;
-                    editPerspectiveCamera.rotation = editOrthoCamera.rotation;
-                } else {
-                    editOrthoCamera.position = editPerspectiveCamera.position;
-                    editOrthoCamera.rotation = editPerspectiveCamera.rotation;
-                }
-                designStudioNativeCameraControlHelper.requestOverlayUpdate();
-                cameraControl.forceActiveFocus();
-            }
+            onCheckedChanged: _generalHelper.requestOverlayUpdate()
         }
 
         CheckBox {
             id: globalControl
             checked: true
             text: qsTr("Use Global Orientation")
-            onCheckedChanged: cameraControl.forceActiveFocus()
         }
     }
 
     Text {
         id: helpText
-        text: qsTr("Camera: W,A,S,D,R,F,right mouse drag")
+        text: qsTr("Camera controls: ALT + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
         anchors.bottom: parent.bottom
     }
 }

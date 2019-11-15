@@ -62,7 +62,7 @@
 #include <drop3dlibraryitemcommand.h>
 
 #include "dummycontextobject.h"
-#include "../editor3d/cameracontrolhelper.h"
+#include "../editor3d/generalhelper.h"
 #include "../editor3d/mousearea3d.h"
 #include "../editor3d/camerageometry.h"
 #include "../editor3d/gridgeometry.h"
@@ -104,10 +104,9 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
 
 QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 {
-    auto helper = new QmlDesigner::Internal::CameraControlHelper();
-    engine->rootContext()->setContextProperty("designStudioNativeCameraControlHelper", helper);
-
 #ifdef QUICK3D_MODULE
+    auto helper = new QmlDesigner::Internal::GeneralHelper();
+    engine->rootContext()->setContextProperty("_generalHelper", helper);
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");

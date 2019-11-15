@@ -22,57 +22,46 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#include "cameracontrolhelper.h"
 
-#include <QHash>
+#pragma once
+
+#ifdef QUICK3D_MODULE
+
+#include <QtQuick3D/private/qquick3dcamera_p.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qtimer.h>
 
 namespace QmlDesigner {
 namespace Internal {
-
-CameraControlHelper::CameraControlHelper()
-    : QObject()
+class GeneralHelper : public QObject
 {
-    m_inputUpdateTimer.setInterval(16);
-    QObject::connect(&m_inputUpdateTimer, &QTimer::timeout,
-                     this, &CameraControlHelper::handleUpdateTimer);
+    Q_OBJECT
 
-    m_overlayUpdateTimer.setInterval(16);
-    m_overlayUpdateTimer.setSingleShot(true);
-    QObject::connect(&m_overlayUpdateTimer, &QTimer::timeout,
-                     this, &CameraControlHelper::overlayUpdateNeeded);
-}
+public:
+    GeneralHelper();
 
-bool CameraControlHelper::enabled()
-{
-    return m_enabled;
-}
+    Q_INVOKABLE void requestOverlayUpdate();
+    Q_INVOKABLE QString generateUniqueName(const QString &nameRoot);
 
-void CameraControlHelper::handleUpdateTimer()
-{
-    emit updateInputs();
-}
+    Q_INVOKABLE void orbitCamera(QQuick3DCamera *camera, const QVector3D &startRotation,
+                                 const QVector3D &lookAtPoint, const QVector3D &pressPos,
+                                 const QVector3D &currentPos);
+    Q_INVOKABLE QVector3D panCamera(QQuick3DCamera *camera, const QMatrix4x4 startTransform,
+                                    const QVector3D &startPosition, const QVector3D &startLookAt,
+                                    const QVector3D &pressPos, const QVector3D &currentPos,
+                                    float zoomFactor);
+    Q_INVOKABLE float zoomCamera(QQuick3DCamera *camera, float distance,
+                                 float defaultLookAtDistance, const QVector3D &lookAt,
+                                 float zoomFactor, bool relative);
 
-void CameraControlHelper::setEnabled(bool enabled)
-{
-    if (enabled)
-        m_inputUpdateTimer.start();
-    else
-        m_inputUpdateTimer.stop();
-    m_enabled = enabled;
-}
+signals:
+    void overlayUpdateNeeded();
 
-void CameraControlHelper::requestOverlayUpdate()
-{
-    if (!m_overlayUpdateTimer.isActive())
-        m_overlayUpdateTimer.start();
-}
-
-QString CameraControlHelper::generateUniqueName(const QString &nameRoot)
-{
-    static QHash<QString, int> counters;
-    int count = counters[nameRoot]++;
-    return QStringLiteral("%1_%2").arg(nameRoot).arg(count);
-}
+private:
+    QTimer m_overlayUpdateTimer;
+};
 
 }
 }
+
+#endif // QUICK3D_MODULE

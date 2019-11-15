@@ -49,7 +49,7 @@ Item {
     }
 
     Connections {
-        target: designStudioNativeCameraControlHelper
+        target: _generalHelper
         onOverlayUpdateNeeded: updateOverlay()
     }
 

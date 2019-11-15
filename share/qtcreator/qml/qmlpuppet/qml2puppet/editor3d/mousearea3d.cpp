@@ -37,7 +37,6 @@ namespace QmlDesigner {
 namespace Internal {
 
 MouseArea3D *MouseArea3D::s_mouseGrab = nullptr;
-static const qreal s_mouseDragMultiplier = .02;
 
 MouseArea3D::MouseArea3D(QQuick3DNode *parent)
     : QQuick3DNode(parent)
@@ -340,7 +339,7 @@ qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
         dragDir = (screenDragDir - nodePos).normalized();
         const QVector3D pressToCurrent = (currentPos - pressPos);
         float magnitude = QVector3D::dotProduct(pressToCurrent, dragDir);
-        qreal angle = -s_mouseDragMultiplier * qreal(magnitude);
+        qreal angle = -mouseDragMultiplier() * qreal(magnitude);
         return angle;
     } else {
         const QVector3D nodeToPress = (pressPos - nodePos).normalized();
@@ -397,7 +396,7 @@ void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRo
 
     QVector3D finalAxis = (dragVector.x() * yAxis + dragVector.y() * xAxis);
 
-    qreal degrees = qRadiansToDegrees(qreal(finalAxis.length()) * s_mouseDragMultiplier);
+    qreal degrees = qRadiansToDegrees(qreal(finalAxis.length()) * mouseDragMultiplier());
 
     finalAxis.normalize();
 

@@ -46,7 +46,7 @@ Node {
     }
 
     Connections {
-        target: designStudioNativeCameraControlHelper
+        target: _generalHelper
         onOverlayUpdateNeeded: updateScale()
     }
 
