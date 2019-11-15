@@ -45,7 +45,9 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -129,9 +131,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
     m_textOutput = new QPlainTextEdit;
     m_textOutput->setPalette(pal);
-    QFont font("monospace");
-    font.setStyleHint(QFont::TypeWriter);
-    m_textOutput->setFont(font);
+    m_textOutput->setFont(TextEditor::TextEditorSettings::fontSettings().font());
     m_textOutput->setWordWrapMode(QTextOption::WordWrap);
     m_textOutput->setReadOnly(true);
     m_outputWidget->addWidget(m_textOutput);
