@@ -34,18 +34,14 @@ namespace CPlusPlus {
 
 class Symbol;
 
-class CPLUSPLUS_EXPORT Icons
-{
-public:
-    static QIcon iconForSymbol(const Symbol *symbol);
+namespace Icons {
 
-    static QIcon keywordIcon();
-    static QIcon macroIcon();
+CPLUSPLUS_EXPORT QIcon iconForSymbol(const Symbol *symbol);
 
-    static Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol);
+CPLUSPLUS_EXPORT QIcon keywordIcon();
+CPLUSPLUS_EXPORT QIcon macroIcon();
 
-private:
-    Icons() {}
-};
+CPLUSPLUS_EXPORT Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol);
 
+} // namespace Icons
 } // namespace CPlusPlus

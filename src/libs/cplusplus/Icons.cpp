@@ -30,25 +30,25 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/Type.h>
 
-using namespace CPlusPlus;
-using CPlusPlus::Icons;
+namespace CPlusPlus {
+namespace Icons {
 
-QIcon Icons::iconForSymbol(const Symbol *symbol)
+QIcon iconForSymbol(const Symbol *symbol)
 {
     return iconForType(iconTypeForSymbol(symbol));
 }
 
-QIcon Icons::keywordIcon()
+QIcon keywordIcon()
 {
     return iconForType(Utils::CodeModelIcon::Keyword);
 }
 
-QIcon Icons::macroIcon()
+QIcon macroIcon()
 {
     return iconForType(Utils::CodeModelIcon::Macro);
 }
 
-Utils::CodeModelIcon::Type Icons::iconTypeForSymbol(const Symbol *symbol)
+Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol)
 {
     using namespace Utils::CodeModelIcon;
     if (const Template *templ = symbol->asTemplate()) {
@@ -116,3 +116,6 @@ Utils::CodeModelIcon::Type Icons::iconTypeForSymbol(const Symbol *symbol)
 
     return Unknown;
 }
+
+} // Icons
+} // CPlusPlus

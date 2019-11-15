@@ -423,7 +423,7 @@ int ClangAssistProposalItem::fixItsShift(const TextDocumentManipulatorInterface 
 
 QIcon ClangAssistProposalItem::icon() const
 {
-    using CPlusPlus::Icons;
+    using namespace CPlusPlus::Icons;
     static const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
     static const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
 
