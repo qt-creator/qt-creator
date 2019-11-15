@@ -24,7 +24,11 @@
 ****************************************************************************/
 
 #include "classviewsymbolinformation.h"
+
+#include "classviewconstants.h"
 #include "classviewutils.h"
+
+#include <utils/utilsicons.h>
 
 #include <QPair>
 #include <QHash>
@@ -61,7 +65,46 @@ SymbolInformation::SymbolInformation(const QString &valueName, const QString &va
 
 int SymbolInformation::iconTypeSortOrder() const
 {
-    return Utils::iconTypeSortOrder(m_iconType);
+    namespace Icons = Utils::CodeModelIcon;
+    constexpr int IconSortOrder[] = {
+            Icons::Namespace,
+            Icons::Enum,
+            Icons::Class,
+            Icons::FuncPublic,
+            Icons::FuncProtected,
+            Icons::FuncPrivate,
+            Icons::FuncPublicStatic,
+            Icons::FuncProtectedStatic,
+            Icons::FuncPrivateStatic,
+            Icons::Signal,
+            Icons::SlotPublic,
+            Icons::SlotProtected,
+            Icons::SlotPrivate,
+            Icons::VarPublic,
+            Icons::VarProtected,
+            Icons::VarPrivate,
+            Icons::VarPublicStatic,
+            Icons::VarProtectedStatic,
+            Icons::VarPrivateStatic,
+            Icons::Enumerator,
+            Icons::Keyword,
+            Icons::Macro,
+            Icons::Unknown
+    };
+
+    static QHash<int, int> sortOrder;
+
+    // initialization
+    if (sortOrder.isEmpty()) {
+        for (int i : IconSortOrder)
+            sortOrder.insert(i, sortOrder.count());
+    }
+
+    // if it is missing - return the same value
+    if (!sortOrder.contains(m_iconType))
+        return m_iconType;
+
+    return sortOrder[m_iconType];
 }
 
 bool SymbolInformation::operator<(const SymbolInformation &other) const

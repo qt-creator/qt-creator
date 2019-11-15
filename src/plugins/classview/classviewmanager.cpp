@@ -437,7 +437,7 @@ void Manager::gotoLocation(const QString &fileName, int line, int column)
 
 void Manager::gotoLocations(const QList<QVariant> &list)
 {
-    QSet<SymbolLocation> locations = Utils::roleToLocations(list);
+    QSet<SymbolLocation> locations = Internal::roleToLocations(list);
     if (locations.size() == 0)
         return;
 

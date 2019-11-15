@@ -27,6 +27,7 @@
 
 #include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
+
 #include <QVariant>
 #include <QList>
 #include <QSet>
@@ -36,27 +37,8 @@ QT_FORWARD_DECLARE_CLASS(QStandardItem)
 namespace ClassView {
 namespace Internal {
 
-class Utils
-{
-    //! Private constructor
-    Utils();
-public:
-
-    static QList<QVariant> locationsToRole(const QSet<SymbolLocation> &locations);
-
-    static QSet<SymbolLocation> roleToLocations(const QList<QVariant> &locations);
-
-    static int iconTypeSortOrder(int iconType);
-
-    static SymbolInformation symbolInformationFromItem(const QStandardItem *item);
-
-    static QStandardItem *setSymbolInformationToItem(const SymbolInformation &information,
-                                                     QStandardItem *item);
-
-    static void fetchItemToTarget(QStandardItem *item, const QStandardItem *target);
-
-    static void moveItemToTarget(QStandardItem *item, const QStandardItem *target);
-};
+QSet<SymbolLocation> roleToLocations(const QList<QVariant> &locations);
+SymbolInformation symbolInformationFromItem(const QStandardItem *item);
 
 } // namespace Internal
 } // namespace ClassView

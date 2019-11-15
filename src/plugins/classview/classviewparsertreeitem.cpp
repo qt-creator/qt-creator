@@ -29,6 +29,8 @@
 #include "classviewconstants.h"
 #include "classviewutils.h"
 
+#include <utils/algorithm.h>
+
 #include <QHash>
 #include <QPair>
 #include <QIcon>
@@ -277,6 +279,22 @@ void ParserTreeItem::add(const ParserTreeItem::ConstPtr &target)
 }
 
 /*!
+    Converts internal location container to QVariant compatible.
+    \a locations specifies a set of symbol locations.
+    Returns a list of variant locations that can be added to the data of an
+    item.
+*/
+
+static QList<QVariant> locationsToRole(const QSet<SymbolLocation> &locations)
+{
+    QList<QVariant> locationsVar;
+    for (const SymbolLocation &loc : locations)
+        locationsVar.append(QVariant::fromValue(loc));
+
+    return locationsVar;
+}
+
+/*!
     Appends this item to the QStandardIten item \a item.
 */
 
@@ -304,7 +322,10 @@ void ParserTreeItem::convertTo(QStandardItem *item) const
         ParserTreeItem::Ptr ptr = cur.value();
 
         auto add = new QStandardItem;
-        Utils::setSymbolInformationToItem(inf, add);
+        add->setData(inf.name(), Constants::SymbolNameRole);
+        add->setData(inf.type(), Constants::SymbolTypeRole);
+        add->setData(inf.iconType(), Constants::IconTypeRole);
+
         if (!ptr.isNull()) {
             // icon
             add->setIcon(ptr->icon());
@@ -314,8 +335,7 @@ void ParserTreeItem::convertTo(QStandardItem *item) const
                 add->setFlags(add->flags() | Qt::ItemIsDragEnabled);
 
             // locations
-            add->setData(Utils::locationsToRole(ptr->symbolLocations()),
-                         Constants::SymbolLocationsRole);
+            add->setData(locationsToRole(ptr->symbolLocations()), Constants::SymbolLocationsRole);
         }
         item->appendRow(add);
         ++cur;

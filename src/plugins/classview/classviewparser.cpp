@@ -58,6 +58,7 @@
 enum { debug = false };
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace ClassView {
 namespace Internal {
@@ -258,7 +259,7 @@ ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool 
     while (uiList.count() > 0) {
         cur = uiList.last();
         uiList.removeLast();
-        const SymbolInformation &inf = Utils::symbolInformationFromItem(cur);
+        const SymbolInformation &inf = Internal::symbolInformationFromItem(cur);
         internal = internal->child(inf);
         if (internal.isNull())
             break;
@@ -586,7 +587,7 @@ void Parser::clearCache()
 
 void Parser::setFileList(const QStringList &fileList)
 {
-    d->fileList = ::Utils::toSet(fileList);
+    d->fileList = Utils::toSet(fileList);
 }
 
 /*!
@@ -632,12 +633,12 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     d->docLocker.unlock();
 
     // recalculate file list
-    ::Utils::FilePathList fileList;
+    FilePathList fileList;
 
     // check all projects
     for (const Project *prj : SessionManager::projects())
         fileList += prj->files(Project::SourceFiles);
-    setFileList(::Utils::transform(fileList, &::Utils::FilePath::toString));
+    setFileList(Utils::transform(fileList, &FilePath::toString));
 
     emit resetDataDone();
 }
@@ -719,7 +720,7 @@ QStringList Parser::addProjectTree(const ParserTreeItem::Ptr &item, const Projec
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FilePath::toString);
+        fileList = Utils::transform(project->files(Project::SourceFiles), &FilePath::toString);
         d->cachedPrjFileLists[projectPath] = fileList;
     }
     if (fileList.count() > 0) {
@@ -744,7 +745,7 @@ QStringList Parser::getAllFiles(const Project *project)
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FilePath::toString);
+        fileList = Utils::transform(project->files(Project::SourceFiles), &FilePath::toString);
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     return fileList;

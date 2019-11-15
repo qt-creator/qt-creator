@@ -34,6 +34,59 @@
 namespace ClassView {
 namespace Internal {
 
+/*!
+   Moves \a item to \a target (sorted).
+*/
+
+static void moveItemToTarget(QStandardItem *item, const QStandardItem *target)
+{
+    if (!item || !target)
+        return;
+
+    int itemIndex = 0;
+    int targetIndex = 0;
+    int itemRows = item->rowCount();
+    int targetRows = target->rowCount();
+
+    while (itemIndex < itemRows && targetIndex < targetRows) {
+        QStandardItem *itemChild = item->child(itemIndex);
+        const QStandardItem *targetChild = target->child(targetIndex);
+
+        const SymbolInformation &itemInf = Internal::symbolInformationFromItem(itemChild);
+        const SymbolInformation &targetInf = Internal::symbolInformationFromItem(targetChild);
+
+        if (itemInf < targetInf) {
+            item->removeRow(itemIndex);
+            --itemRows;
+        } else if (itemInf == targetInf) {
+            moveItemToTarget(itemChild, targetChild);
+            ++itemIndex;
+            ++targetIndex;
+        } else {
+            item->insertRow(itemIndex, targetChild->clone());
+            moveItemToTarget(item->child(itemIndex), targetChild);
+            ++itemIndex;
+            ++itemRows;
+            ++targetIndex;
+        }
+    }
+
+    // append
+    while (targetIndex < targetRows) {
+        item->appendRow(target->child(targetIndex)->clone());
+        moveItemToTarget(item->child(itemIndex), target->child(targetIndex));
+        ++itemIndex;
+        ++itemRows;
+        ++targetIndex;
+    }
+
+    // remove end of item
+    while (itemIndex < itemRows) {
+        item->removeRow(itemIndex);
+        --itemRows;
+    }
+}
+
 ///////////////////////////////// TreeItemModel //////////////////////////////////
 
 /*!
@@ -66,7 +119,7 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::ToolTipRole:
     case Qt::DisplayRole: {
-            const SymbolInformation &inf = Utils::symbolInformationFromItem(itemFromIndex(index));
+            const SymbolInformation &inf = Internal::symbolInformationFromItem(itemFromIndex(index));
 
             if (inf.name() == inf.type() || inf.iconType() < 0)
                 return inf.name();
@@ -125,7 +178,7 @@ QMimeData *TreeItemModel::mimeData(const QModelIndexList &indexes) const
     auto mimeData = new ::Utils::DropMimeData;
     mimeData->setOverrideFileDropAction(Qt::CopyAction);
     foreach (const QModelIndex &index, indexes) {
-        const QSet<SymbolLocation> locations = Utils::roleToLocations(
+        const QSet<SymbolLocation> locations = Internal::roleToLocations(
                     data(index, Constants::SymbolLocationsRole).toList());
         if (locations.isEmpty())
             continue;
@@ -147,7 +200,7 @@ void TreeItemModel::moveRootToTarget(const QStandardItem *target)
 {
     emit layoutAboutToBeChanged();
 
-    Utils::moveItemToTarget(invisibleRootItem(), target);
+    moveItemToTarget(invisibleRootItem(), target);
 
     emit layoutChanged();
 }
