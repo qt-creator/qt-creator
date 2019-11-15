@@ -34,7 +34,8 @@ namespace GTestUtils {
 
 static const QStringList valid = {
     QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P"),
-    QStringLiteral("TYPED_TEST"), QStringLiteral("TYPED_TEST_P")
+    QStringLiteral("TYPED_TEST"), QStringLiteral("TYPED_TEST_P"),
+    QStringLiteral("GTEST_TEST")
 };
 
 bool isGTestMacro(const QString &macro)
