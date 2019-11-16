@@ -164,6 +164,18 @@ bool ComponentItem::intersectShapeWithLine(const QLineF &line, QPointF *intersec
         QList<QPolygonF> polygons = m_customIcon->outline();
         for (int i = 0; i < polygons.size(); ++i)
             polygons[i].translate(object()->pos() + object()->rect().topLeft());
+        if (shapeIcon().textAlignment() == qmt::StereotypeIcon::TextalignBelow) {
+            if (nameItem()) {
+                QPolygonF polygon(nameItem()->boundingRect());
+                polygon.translate(object()->pos() + nameItem()->pos());
+                polygons.append(polygon);
+            }
+            if (m_contextLabel) {
+                QPolygonF polygon(m_contextLabel->boundingRect());
+                polygon.translate(object()->pos() + m_contextLabel->pos());
+                polygons.append(polygon);
+            }
+        }
         return GeometryUtilities::intersect(polygons, line, nullptr, intersectionPoint, intersectionLine);
     }
     QPolygonF polygon;
