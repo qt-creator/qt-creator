@@ -109,4 +109,9 @@ void StereotypeIcon::setIconShape(const IconShape &iconShape)
     m_iconShape = iconShape;
 }
 
+void StereotypeIcon::setOutlineShape(const IconShape &outlineShape)
+{
+    m_outlineShape = outlineShape;
+}
+
 } // namespace qmt

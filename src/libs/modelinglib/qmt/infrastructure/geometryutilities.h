@@ -54,6 +54,9 @@ public:
     static bool intersect(const QPolygonF &polygon, const QLineF &line,
                           QPointF *intersectionPoint = nullptr, QLineF *intersectionLine = nullptr,
                           int nearestPoint = 1);
+    static bool intersect(const QList<QPolygonF> &polygons, const QLineF &line,
+                          int *intersectionPolygon, QPointF *intersectionPoint = nullptr, QLineF *intersectionLine = nullptr,
+                          int nearestPoint = 1);
     static bool placeRectAtLine(const QRectF &rect, const QLineF &line, double lineOffset,
                                 double distance, const QLineF &intersectionLine, QPointF *placement,
                                 Side *horizontalAlignedSide);

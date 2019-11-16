@@ -88,6 +88,49 @@ bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line,
     return found;
 }
 
+bool GeometryUtilities::intersect(const QList<QPolygonF> &polygons, const QLineF &line,
+                                  int *intersectionPolygon, QPointF *intersectionPoint,
+                                  QLineF *intersectionLine, int nearestPoint)
+{
+    bool found = false;
+    qreal mindist = 0;
+    int ipolygon = -1;
+    QPointF ipoint;
+    QLineF iline;
+    for (int p = 0; p < polygons.size(); ++p) {
+        const QPolygonF polygon = polygons.at(p);
+        for (int i = 0; i <= polygon.size() - 2; ++i) {
+            const QLineF polygonLine(polygon.at(i), polygon.at(i + 1));
+            QPointF point;
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+            QLineF::IntersectType intersectionType = polygonLine.intersect(line, &point);
+#else
+            QLineF::IntersectType intersectionType = polygonLine.intersects(line, &point);
+#endif
+            if (intersectionType == QLineF::BoundedIntersection) {
+                qreal dist = QLineF(point, nearestPoint <= 0 ? line.p1() : line.p2()).length();
+                if (!found || dist < mindist) {
+                    mindist = dist;
+                    ipolygon = p;
+                    ipoint = point;
+                    iline = polygonLine;
+                    found = true;
+                }
+            }
+        }
+    }
+    if (found) {
+        if (intersectionPolygon)
+            *intersectionPolygon = ipolygon;
+        if (intersectionPoint)
+            *intersectionPoint = ipoint;
+        if (intersectionLine)
+            *intersectionLine = iline;
+    }
+    return found;
+}
+
+
 namespace {
 
 class Candidate

@@ -141,21 +141,20 @@ void PackageItem::update()
 
 bool PackageItem::intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const
 {
-    QPolygonF polygon;
     if (m_customIcon) {
-        // TODO use customIcon path as shape
-        QRectF rect = object()->rect();
-        rect.translate(object()->pos());
-        polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
-    } else {
-        QRectF rect = object()->rect();
-        rect.translate(object()->pos());
-        ShapeGeometry shape = calcMinimumGeometry();
-        polygon << rect.topLeft() << (rect.topLeft() + QPointF(shape.m_minimumTabSize.width(), 0.0))
-                << (rect.topLeft() + QPointF(shape.m_minimumTabSize.width(), shape.m_minimumTabSize.height()))
-                << rect.topRight() + QPointF(0.0, shape.m_minimumTabSize.height())
-                << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
+        QList<QPolygonF> polygons = m_customIcon->outline();
+        for (int i = 0; i < polygons.size(); ++i)
+            polygons[i].translate(object()->pos() + object()->rect().topLeft());
+        return GeometryUtilities::intersect(polygons, line, nullptr, intersectionPoint, intersectionLine);
     }
+    QPolygonF polygon;
+    QRectF rect = object()->rect();
+    rect.translate(object()->pos());
+    ShapeGeometry shape = calcMinimumGeometry();
+    polygon << rect.topLeft() << (rect.topLeft() + QPointF(shape.m_minimumTabSize.width(), 0.0))
+            << (rect.topLeft() + QPointF(shape.m_minimumTabSize.width(), shape.m_minimumTabSize.height()))
+            << rect.topRight() + QPointF(0.0, shape.m_minimumTabSize.height())
+            << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
     return GeometryUtilities::intersect(polygon, line, intersectionPoint, intersectionLine);
 }
 

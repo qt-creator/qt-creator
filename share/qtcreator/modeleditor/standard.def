@@ -42,6 +42,10 @@
 //         ArcTo { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y>; start: <start_angle>; span: <span_angle> }
 //         Close
 //     }
+//     Outline {
+//         // same as in Shape to define the geometrical ouline of the icon
+//         // if the outline is not defined it defaults to the shape
+//     }
 // }
 //
 //
@@ -165,6 +169,10 @@ Icon {
         Line { x0: 0.0; y0: 0.0; x1: 0.0; y1: 20.0 }
         Line { x0: 0.0; y0: 10.0; x1: 4.0; y1: 10.0 }
     }
+    Outline {
+        Circle { x: 14.0; y: 10.0; radius: 10.0 }
+        Rect { x: 0; y: 0; width: 14; height: 20 }
+    }
 }
 
 Icon {
@@ -178,6 +186,9 @@ Icon {
         Line { x0: 10.0; y0: 0.0; x1: 14.0; y1: -2.0 }
         Line { x0: 10.0; y0: 0.0; x1: 14.0; y1: 4.0 }
     }
+    Outline {
+        Circle { x: 10.0; y: 10.0; radius: 10.0 }
+    }
 }
 
 Icon {
@@ -189,6 +200,10 @@ Icon {
     Shape {
         Circle { x: 10.0; y: 10.0; radius: 10.0 }
         Line { x0: 0.0; y0: 20.0; x1: 20.0; y1: 20.0 }
+    }
+    Outline {
+        Circle { x: 10.0; y: 10.0; radius: 10.0 }
+        Rect { x: 0; y: 10; width: 20; height: 10 }
     }
 }
 
@@ -312,6 +327,10 @@ Icon {
         Line { x0: 10; y0: 10; x1: 10; y1: 25 }
         Line { x0: 10; y0: 25; x1: 3; y1: 40 }
         Line { x0: 10; y0: 25; x1: 17; y1: 40 }
+    }
+    Outline {
+        Circle { x: 10; y: 5; radius: 5 }
+        Rect { x: 3; y: 5; width: 14; height: 35 }
     }
 }
 
@@ -521,6 +540,9 @@ Icon {
     Shape {
         Line { x0: 0; y0: 0; x1: 10; y1: 10 }
         Line { x0: 0; y0: 10; x1: 10; y1: 0 }
+    }
+    Outline {
+        Circle { x: 5; y: 5; radius: 2 }
     }
 }
 

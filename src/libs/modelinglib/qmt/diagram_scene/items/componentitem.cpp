@@ -160,13 +160,14 @@ void ComponentItem::update()
 
 bool ComponentItem::intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const
 {
-    QPolygonF polygon;
     if (m_customIcon) {
-        // TODO use customIcon path as shape
-        QRectF rect = object()->rect();
-        rect.translate(object()->pos());
-        polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();
-    } else if (hasPlainShape()) {
+        QList<QPolygonF> polygons = m_customIcon->outline();
+        for (int i = 0; i < polygons.size(); ++i)
+            polygons[i].translate(object()->pos() + object()->rect().topLeft());
+        return GeometryUtilities::intersect(polygons, line, nullptr, intersectionPoint, intersectionLine);
+    }
+    QPolygonF polygon;
+    if (hasPlainShape()) {
         QRectF rect = object()->rect();
         rect.translate(object()->pos());
         polygon << rect.topLeft() << rect.topRight() << rect.bottomRight() << rect.bottomLeft() << rect.topLeft();

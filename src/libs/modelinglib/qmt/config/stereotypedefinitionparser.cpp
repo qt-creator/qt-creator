@@ -55,6 +55,7 @@ static const int KEYWORD_DISPLAY       = 11;
 static const int KEYWORD_TEXTALIGN     = 12;
 static const int KEYWORD_BASECOLOR     = 13;
 static const int KEYWORD_SHAPE         = 14;
+static const int KEYWORD_OUTLINE       = 15;
 
 // Shape items
 static const int KEYWORD_CIRCLE        = 30;
@@ -245,6 +246,7 @@ void StereotypeDefinitionParser::parse(ITextSource *source)
                 << qMakePair(QString("textalignment"), KEYWORD_TEXTALIGN)
                 << qMakePair(QString("basecolor"), KEYWORD_BASECOLOR)
                 << qMakePair(QString("shape"), KEYWORD_SHAPE)
+                << qMakePair(QString("outline"), KEYWORD_OUTLINE)
                 << qMakePair(QString("circle"), KEYWORD_CIRCLE)
                 << qMakePair(QString("ellipse"), KEYWORD_ELLIPSE)
                 << qMakePair(QString("line"), KEYWORD_LINE)
@@ -435,6 +437,9 @@ void StereotypeDefinitionParser::parseIcon()
             break;
         case KEYWORD_SHAPE:
             stereotypeIcon.setIconShape(parseIconShape());
+            break;
+        case KEYWORD_OUTLINE:
+            stereotypeIcon.setOutlineShape(parseIconShape());
             break;
         case KEYWORD_NAME:
             stereotypeIcon.setName(parseStringProperty());
