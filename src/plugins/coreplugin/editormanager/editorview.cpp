@@ -713,7 +713,7 @@ EditorView *SplitterOrView::takeView()
     return oldView;
 }
 
-void SplitterOrView::split(Qt::Orientation orientation)
+void SplitterOrView::split(Qt::Orientation orientation, bool activateView)
 {
     Q_ASSERT(m_view && m_splitter == nullptr);
     m_splitter = new MiniSplitter(this);
@@ -744,7 +744,8 @@ void SplitterOrView::split(Qt::Orientation orientation)
         otherView->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
     }
 
-    EditorManagerPrivate::activateView(otherView->view());
+    if (activateView)
+        EditorManagerPrivate::activateView(otherView->view());
     emit splitStateChanged();
 }
 
@@ -911,7 +912,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
         qint32 orientation;
         QByteArray splitter, first, second;
         stream >> orientation >> splitter >> first >> second;
-        split((Qt::Orientation)orientation);
+        split((Qt::Orientation) orientation, false);
         m_splitter->restoreState(splitter);
         static_cast<SplitterOrView*>(m_splitter->widget(0))->restoreState(first);
         static_cast<SplitterOrView*>(m_splitter->widget(1))->restoreState(second);

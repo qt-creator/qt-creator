@@ -171,7 +171,7 @@ public:
     explicit SplitterOrView(EditorView *view);
     ~SplitterOrView() override;
 
-    void split(Qt::Orientation orientation);
+    void split(Qt::Orientation orientation, bool activateView = true);
     void unsplit();
 
     inline bool isView() const { return m_view != nullptr; }
