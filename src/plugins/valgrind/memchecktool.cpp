@@ -85,6 +85,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHostAddress>
+#include <QInputDialog>
 #include <QLabel>
 #include <QMenu>
 #include <QToolButton>
@@ -460,10 +461,18 @@ public:
     void keyPressEvent(QKeyEvent *e) override;
 
 private:
+    void updateProfile();
     void updateEnabled();
     void saveOptions();
+    void newProfileDialog();
+    void newProfile(const QString &name);
+    void deleteProfileDialog();
+    void deleteProfile();
 
 private:
+    QStringList m_profiles;
+    QComboBox *m_profilesCombo = nullptr;
+    QPushButton *m_profileDeleteButton = nullptr;
     QLineEdit *m_xmlEdit = nullptr;
     QComboBox *m_handleExceptionCombo = nullptr;
     QComboBox *m_pageProtectionCombo = nullptr;
@@ -1161,49 +1170,59 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
 }
 
 
-const char heobXmlC[] = "heob/Xml";
-const char heobHandleExceptionC[] = "heob/HandleException";
-const char heobPageProtectionC[] = "heob/PageProtection";
-const char heobFreedProtectionC[] = "heob/FreedProtection";
-const char heobBreakpointC[] = "heob/Breakpoint";
-const char heobLeakDetailC[] = "heob/LeakDetail";
-const char heobLeakSizeC[] = "heob/LeakSize";
-const char heobLeakRecordingC[] = "heob/LeakRecording";
-const char heobAttachC[] = "heob/Attach";
-const char heobExtraArgsC[] = "heob/ExtraArgs";
-const char heobPathC[] = "heob/Path";
+const char heobProfileC[] = "Heob/Profile";
+const char heobProfileNameC[] = "Name";
+const char heobXmlC[] = "Xml";
+const char heobHandleExceptionC[] = "HandleException";
+const char heobPageProtectionC[] = "PageProtection";
+const char heobFreedProtectionC[] = "FreedProtection";
+const char heobBreakpointC[] = "Breakpoint";
+const char heobLeakDetailC[] = "LeakDetail";
+const char heobLeakSizeC[] = "LeakSize";
+const char heobLeakRecordingC[] = "LeakRecording";
+const char heobAttachC[] = "Attach";
+const char heobExtraArgsC[] = "ExtraArgs";
+const char heobPathC[] = "Path";
 
 HeobDialog::HeobDialog(QWidget *parent) :
     QDialog(parent)
 {
     QSettings *settings = Core::ICore::settings();
-    const QString xml = settings->value(heobXmlC, "leaks.xml").toString();
-    int handleException = settings->value(heobHandleExceptionC, 1).toInt();
-    int pageProtection = settings->value(heobPageProtectionC, 0).toInt();
-    bool freedProtection = settings->value(heobFreedProtectionC, false).toBool();
-    bool breakpoint = settings->value(heobBreakpointC, false).toBool();
-    int leakDetail = settings->value(heobLeakDetailC, 1).toInt();
-    int leakSize = settings->value(heobLeakSizeC, 0).toInt();
-    int leakRecording = settings->value(heobLeakRecordingC, 2).toInt();
-    bool attach = settings->value(heobAttachC, false).toBool();
-    const QString extraArgs = settings->value(heobExtraArgsC).toString();
-
-    QString path = settings->value(heobPathC).toString();
-    if (path.isEmpty()) {
-        const QString heobPath = QStandardPaths::findExecutable("heob32.exe");
-        if (!heobPath.isEmpty())
-            path = QFileInfo(heobPath).path();
-    }
+    bool hasSelProfile = settings->contains(heobProfileC);
+    const QString selProfile = hasSelProfile ? settings->value(heobProfileC).toString() : "Heob";
+    m_profiles = settings->childGroups().filter(QRegularExpression("^Heob\\.Profile\\."));
 
     auto layout = new QVBoxLayout;
     // disable resizing
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
+    auto profilesLayout = new QHBoxLayout;
+    m_profilesCombo = new QComboBox;
+    for (auto profile : m_profiles)
+        m_profilesCombo->addItem(settings->value(profile + "/" + heobProfileNameC).toString());
+    if (hasSelProfile) {
+        int selIdx = m_profiles.indexOf(selProfile);
+        if (selIdx >= 0)
+            m_profilesCombo->setCurrentIndex(selIdx);
+    }
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(1);
+    m_profilesCombo->setSizePolicy(sizePolicy);
+    connect(m_profilesCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &HeobDialog::updateProfile);
+    profilesLayout->addWidget(m_profilesCombo);
+    auto profileNewButton = new QPushButton(tr("New"));
+    connect(profileNewButton, &QAbstractButton::clicked, this, &HeobDialog::newProfileDialog);
+    profilesLayout->addWidget(profileNewButton);
+    m_profileDeleteButton = new QPushButton(tr("Delete"));
+    connect(m_profileDeleteButton, &QAbstractButton::clicked, this, &HeobDialog::deleteProfileDialog);
+    profilesLayout->addWidget(m_profileDeleteButton);
+    layout->addLayout(profilesLayout);
+
     auto xmlLayout = new QHBoxLayout;
     auto xmlLabel = new QLabel(tr("XML output file:"));
     xmlLayout->addWidget(xmlLabel);
     m_xmlEdit = new QLineEdit;
-    m_xmlEdit->setText(xml);
     xmlLayout->addWidget(m_xmlEdit);
     layout->addLayout(xmlLayout);
 
@@ -1214,7 +1233,6 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_handleExceptionCombo->addItem(tr("Off"));
     m_handleExceptionCombo->addItem(tr("On"));
     m_handleExceptionCombo->addItem(tr("Only"));
-    m_handleExceptionCombo->setCurrentIndex(handleException);
     connect(m_handleExceptionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     handleExceptionLayout->addWidget(m_handleExceptionCombo);
@@ -1227,18 +1245,15 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_pageProtectionCombo->addItem(tr("Off"));
     m_pageProtectionCombo->addItem(tr("After"));
     m_pageProtectionCombo->addItem(tr("Before"));
-    m_pageProtectionCombo->setCurrentIndex(pageProtection);
     connect(m_pageProtectionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     pageProtectionLayout->addWidget(m_pageProtectionCombo);
     layout->addLayout(pageProtectionLayout);
 
     m_freedProtectionCheck = new QCheckBox(tr("Freed memory protection"));
-    m_freedProtectionCheck->setChecked(freedProtection);
     layout->addWidget(m_freedProtectionCheck);
 
     m_breakpointCheck = new QCheckBox(tr("Raise breakpoint exception on error"));
-    m_breakpointCheck->setChecked(breakpoint);
     layout->addWidget(m_breakpointCheck);
 
     auto leakDetailLayout = new QHBoxLayout;
@@ -1251,7 +1266,6 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakDetailCombo->addItem(tr("Detect Leak Types (Show Reachable)"));
     m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types"));
     m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types (Show Reachable)"));
-    m_leakDetailCombo->setCurrentIndex(leakDetail);
     connect(m_leakDetailCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &HeobDialog::updateEnabled);
     leakDetailLayout->addWidget(m_leakDetailCombo);
@@ -1264,7 +1278,6 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakSizeSpin->setMinimum(0);
     m_leakSizeSpin->setMaximum(INT_MAX);
     m_leakSizeSpin->setSingleStep(1000);
-    m_leakSizeSpin->setValue(leakSize);
     leakSizeLayout->addWidget(m_leakSizeSpin);
     layout->addLayout(leakSizeLayout);
 
@@ -1275,19 +1288,16 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakRecordingCombo->addItem(tr("Off"));
     m_leakRecordingCombo->addItem(tr("On (Start Disabled)"));
     m_leakRecordingCombo->addItem(tr("On (Start Enabled)"));
-    m_leakRecordingCombo->setCurrentIndex(leakRecording);
     leakRecordingLayout->addWidget(m_leakRecordingCombo);
     layout->addLayout(leakRecordingLayout);
 
     m_attachCheck = new QCheckBox(tr("Run with debugger"));
-    m_attachCheck->setChecked(attach);
     layout->addWidget(m_attachCheck);
 
     auto extraArgsLayout = new QHBoxLayout;
     auto extraArgsLabel = new QLabel(tr("Extra arguments:"));
     extraArgsLayout->addWidget(extraArgsLabel);
     m_extraArgsEdit = new QLineEdit;
-    m_extraArgsEdit->setText(extraArgs);
     extraArgsLayout->addWidget(m_extraArgsEdit);
     layout->addLayout(extraArgsLayout);
 
@@ -1296,7 +1306,6 @@ HeobDialog::HeobDialog(QWidget *parent) :
     pathLabel->setToolTip(tr("The location of heob32.exe and heob64.exe."));
     pathLayout->addWidget(pathLabel);
     m_pathChooser = new PathChooser;
-    m_pathChooser->setPath(path);
     pathLayout->addWidget(m_pathChooser);
     layout->addLayout(pathLayout);
 
@@ -1320,7 +1329,13 @@ HeobDialog::HeobDialog(QWidget *parent) :
 
     setLayout(layout);
 
-    updateEnabled();
+    updateProfile();
+
+    if (!hasSelProfile) {
+        settings->remove("heob");
+        newProfile(tr("Default"));
+    }
+    m_profileDeleteButton->setEnabled(m_profilesCombo->count() > 1);
 
     setWindowTitle(tr("Heob"));
 
@@ -1390,6 +1405,44 @@ void HeobDialog::keyPressEvent(QKeyEvent *e)
     Core::HelpManager::showHelpUrl("qthelp://org.qt-project.qtcreator/doc/creator-heob.html");
 }
 
+void HeobDialog::updateProfile()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString selProfile = m_profiles.empty() ? "heob" : m_profiles[m_profilesCombo->currentIndex()];
+
+    settings->beginGroup(selProfile);
+    const QString xml = settings->value(heobXmlC, "leaks.xml").toString();
+    int handleException = settings->value(heobHandleExceptionC, 1).toInt();
+    int pageProtection = settings->value(heobPageProtectionC, 0).toInt();
+    bool freedProtection = settings->value(heobFreedProtectionC, false).toBool();
+    bool breakpoint = settings->value(heobBreakpointC, false).toBool();
+    int leakDetail = settings->value(heobLeakDetailC, 1).toInt();
+    int leakSize = settings->value(heobLeakSizeC, 0).toInt();
+    int leakRecording = settings->value(heobLeakRecordingC, 2).toInt();
+    bool attach = settings->value(heobAttachC, false).toBool();
+    const QString extraArgs = settings->value(heobExtraArgsC).toString();
+    QString path = settings->value(heobPathC).toString();
+    settings->endGroup();
+
+    if (path.isEmpty()) {
+        const QString heobPath = QStandardPaths::findExecutable("heob32.exe");
+        if (!heobPath.isEmpty())
+            path = QFileInfo(heobPath).path();
+    }
+
+    m_xmlEdit->setText(xml);
+    m_handleExceptionCombo->setCurrentIndex(handleException);
+    m_pageProtectionCombo->setCurrentIndex(pageProtection);
+    m_freedProtectionCheck->setChecked(freedProtection);
+    m_breakpointCheck->setChecked(breakpoint);
+    m_leakDetailCombo->setCurrentIndex(leakDetail);
+    m_leakSizeSpin->setValue(leakSize);
+    m_leakRecordingCombo->setCurrentIndex(leakRecording);
+    m_attachCheck->setChecked(attach);
+    m_extraArgsEdit->setText(extraArgs);
+    m_pathChooser->setPath(path);
+}
+
 void HeobDialog::updateEnabled()
 {
     bool enableHeob = m_handleExceptionCombo->currentIndex() < 2;
@@ -1409,6 +1462,12 @@ void HeobDialog::updateEnabled()
 void HeobDialog::saveOptions()
 {
     QSettings *settings = Core::ICore::settings();
+    const QString selProfile = m_profiles.at(m_profilesCombo->currentIndex());
+
+    settings->setValue(heobProfileC, selProfile);
+
+    settings->beginGroup(selProfile);
+    settings->setValue(heobProfileNameC, m_profilesCombo->currentText());
     settings->setValue(heobXmlC, m_xmlEdit->text());
     settings->setValue(heobHandleExceptionC, m_handleExceptionCombo->currentIndex());
     settings->setValue(heobPageProtectionC, m_pageProtectionCombo->currentIndex());
@@ -1420,6 +1479,70 @@ void HeobDialog::saveOptions()
     settings->setValue(heobAttachC, m_attachCheck->isChecked());
     settings->setValue(heobExtraArgsC, m_extraArgsEdit->text());
     settings->setValue(heobPathC, m_pathChooser->path());
+    settings->endGroup();
+}
+
+void HeobDialog::newProfileDialog()
+{
+    QInputDialog *dialog = new QInputDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setInputMode(QInputDialog::TextInput);
+    dialog->setWindowTitle(tr("New Heob Profile"));
+    dialog->setLabelText(tr("Heob profile name:"));
+    dialog->setTextValue(tr("%1 (copy)").arg(m_profilesCombo->currentText()));
+
+    connect(dialog, &QInputDialog::textValueSelected, this, &HeobDialog::newProfile);
+    dialog->open();
+}
+
+void HeobDialog::newProfile(const QString &name)
+{
+    int num = 1;
+    while (m_profiles.indexOf(QString("Heob.Profile.%1").arg(num)) >= 0)
+        num++;
+    m_profiles.append(QString("Heob.Profile.%1").arg(num));
+    m_profilesCombo->blockSignals(true);
+    m_profilesCombo->addItem(name);
+    m_profilesCombo->setCurrentIndex(m_profilesCombo->count() - 1);
+    m_profilesCombo->blockSignals(false);
+    saveOptions();
+    m_profileDeleteButton->setEnabled(m_profilesCombo->count() > 1);
+}
+
+void HeobDialog::deleteProfileDialog()
+{
+    if (m_profilesCombo->count() < 2)
+        return;
+
+    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
+                                              tr("Delete Heob Profile"),
+                                              tr("Are you sure you want to delete this profile permanently?"),
+                                              QMessageBox::Discard | QMessageBox::Cancel,
+                                              this);
+
+    // Change the text and role of the discard button
+    auto deleteButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
+    deleteButton->setText(tr("Delete"));
+    messageBox->addButton(deleteButton, QMessageBox::AcceptRole);
+    messageBox->setDefaultButton(deleteButton);
+
+    connect(messageBox, &QDialog::accepted, this, &HeobDialog::deleteProfile);
+    messageBox->setAttribute(Qt::WA_DeleteOnClose);
+    messageBox->open();
+}
+
+void HeobDialog::deleteProfile()
+{
+    QSettings *settings = Core::ICore::settings();
+    int index = m_profilesCombo->currentIndex();
+    const QString profile = m_profiles.at(index);
+    bool isDefault = settings->value(heobProfileC).toString() == profile;
+    settings->remove(profile);
+    m_profiles.removeAt(index);
+    m_profilesCombo->removeItem(index);
+    if (isDefault)
+        settings->setValue(heobProfileC, m_profiles.at(m_profilesCombo->currentIndex()));
+    m_profileDeleteButton->setEnabled(m_profilesCombo->count() > 1);
 }
 
 #ifdef Q_OS_WIN
