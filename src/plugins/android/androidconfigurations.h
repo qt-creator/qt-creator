@@ -209,6 +209,7 @@ public:
     static QProcessEnvironment toolsEnvironment(const AndroidConfig &config);
 
 signals:
+    void aboutToUpdate();
     void updated();
 
 private:
