@@ -61,13 +61,13 @@ Node {
             width: iconImage.width
             height: iconImage.height
             x: -width / 2
-            y: -height
+            y: -height / 2
             color: "transparent"
             border.color: "#7777ff"
-            border.width: iconGizmo.selectedNode === iconGizmo.targetNode
-                          || (iconGizmo.highlightOnHover && iconMouseArea.containsMouse) ? 2 : 0
+            border.width: iconGizmo.selectedNode !== iconGizmo.targetNode
+                          && iconGizmo.highlightOnHover && iconMouseArea.containsMouse ? 2 : 0
             radius: 5
-            opacity: iconGizmo.selectedNode === iconGizmo.targetNode ? 0.3 : 1
+            opacity: iconGizmo.selectedNode === iconGizmo.targetNode ? 0.2 : 1
             Image {
                 id: iconImage
                 fillMode: Image.Pad

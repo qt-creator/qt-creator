@@ -134,8 +134,7 @@ Node {
         targetNode: rotateGizmo.targetNode
         color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0.5, 0.5, 0.5, 1))
                                                           : Qt.rgba(0.5, 0.5, 0.5, 1)
-        // Just a smidge smaller than higher priority rings so that it doesn't obscure them
-        scale: Qt.vector3d(0.994, 0.994, 0.994)
+        scale: Qt.vector3d(1.1, 1.1, 1.1)
         priority: 10
         view3D: rotateGizmo.view3D
         active: rotateGizmo.visible

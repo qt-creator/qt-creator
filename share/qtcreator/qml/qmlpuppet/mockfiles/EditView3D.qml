@@ -138,7 +138,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
-            globalOrientation: globalControl.checked
+            globalOrientation: false
             visible: selectedNode && btnScale.selected
             view3D: overlayView
 
