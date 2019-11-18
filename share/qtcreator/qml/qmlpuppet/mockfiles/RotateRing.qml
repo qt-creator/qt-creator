@@ -33,7 +33,7 @@ Model {
     property View3D view3D
     property alias color: material.emissiveColor
     property Node targetNode: null
-    property bool dragging: false
+    property bool dragging: mouseAreaMain.dragging
     property bool active: false
     property alias hovering: mouseAreaMain.hovering
     property alias priority: mouseAreaMain.priority
@@ -80,7 +80,6 @@ Model {
         _targetPosOnScreen = view3D.mapFrom3DScene(targetNode.scenePosition);
         _targetPosOnScreen.z = 0;
         _pointerPosPressed = Qt.vector3d(screenPos.x, screenPos.y, 0);
-        dragging = true;
         _trackBall = angle < 0.1;
 
         // Recreate vector so we don't follow the changes in targetNode.rotation
@@ -108,7 +107,6 @@ Model {
 
         applyLocalRotation(screenPos);
         rotateCommit();
-        dragging = false;
         currentAngle = 0;
         currentMousePos = screenPos;
     }

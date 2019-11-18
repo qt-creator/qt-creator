@@ -123,6 +123,13 @@ void MouseArea3D::setGrabsMouse(bool grabsMouse)
         return;
 
     m_grabsMouse = grabsMouse;
+
+    if (!m_grabsMouse && s_mouseGrab == this) {
+        setDragging(false);
+        setHovering(false);
+        s_mouseGrab = nullptr;
+    }
+
     emit grabsMouseChanged();
 }
 
@@ -132,6 +139,13 @@ void MouseArea3D::setActive(bool active)
         return;
 
     m_active = active;
+
+    if (!m_active && s_mouseGrab == this) {
+        setDragging(false);
+        setHovering(false);
+        s_mouseGrab = nullptr;
+    }
+
     emit activeChanged();
 }
 

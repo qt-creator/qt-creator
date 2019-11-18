@@ -34,7 +34,7 @@ Model {
     property alias color: gizmoMaterial.emissiveColor
     property alias priority: mouseArea.priority
     property Node targetNode: null
-    property bool dragging: false
+    property bool dragging: mouseArea.dragging
     property bool active: false
 
     readonly property bool hovering: mouseArea.hovering
@@ -65,7 +65,6 @@ Model {
         _pointerPosPressed = mouseArea.mapPositionToScene(scenePos);
         var sp = targetNode.scenePosition;
         _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
-        dragging = true;
         pressed(mouseArea);
     }
 
@@ -91,7 +90,6 @@ Model {
             return;
 
         released(mouseArea, calcRelativeDistance(mouseArea, scenePos));
-        dragging = false;
     }
 
     MouseArea3D {
