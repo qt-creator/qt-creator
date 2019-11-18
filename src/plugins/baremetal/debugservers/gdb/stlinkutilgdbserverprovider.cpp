@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "gdbserverproviderprocess.h"
 #include "stlinkutilgdbserverprovider.h"
 
 #include <baremetal/baremetalconstants.h>
@@ -140,6 +141,13 @@ bool StLinkUtilGdbServerProvider::isValid() const
     }
 
     return true;
+}
+
+ProjectExplorer::DeviceProcess *StLinkUtilGdbServerProvider::createProcess(
+        const QSharedPointer<const ProjectExplorer::IDevice> &device,
+        QObject *parent) const
+{
+    return new GdbServerProviderProcess(device, parent);
 }
 
 GdbServerProvider *StLinkUtilGdbServerProvider::clone() const

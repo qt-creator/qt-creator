@@ -40,6 +40,17 @@ class QLabel;
 class QLineEdit;
 QT_END_NAMESPACE
 
+namespace Debugger {
+class DebuggerRunTool;
+}
+
+namespace ProjectExplorer {
+class IDevice;
+class RunControl;
+class DeviceProcess;
+}
+
+
 namespace BareMetal {
 namespace Internal {
 
@@ -68,8 +79,18 @@ public:
 
     virtual QVariantMap toMap() const;
 
+    virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
+                            QString &errorMessage) const = 0;
+    virtual void addTargetRunner(Debugger::DebuggerRunTool *runTool,
+                                 ProjectExplorer::RunControl *runControl) const = 0;
+    virtual void updateDevice(ProjectExplorer::IDevice *dev) const = 0;
+
     virtual bool isValid() const = 0;
-    virtual bool hasProcess() const { return false; }
+
+    virtual bool canCreateProcess() const { return false; }
+    virtual ProjectExplorer::DeviceProcess *createProcess(
+            const QSharedPointer<const ProjectExplorer::IDevice> &,
+            QObject *) const { return nullptr; }
 
     void registerDevice(BareMetalDevice *device);
     void unregisterDevice(BareMetalDevice *device);

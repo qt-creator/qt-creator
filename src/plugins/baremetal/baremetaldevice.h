@@ -64,10 +64,6 @@ public:
 
 private:
     BareMetalDevice();
-
-    // Only for GDB servers!
-    void setChannelByServerProvider(IDebugServerProvider *provider);
-
     QString m_debugServerProviderId;
 };
 

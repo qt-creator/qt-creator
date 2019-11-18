@@ -57,7 +57,11 @@ public:
 
     bool canStartupMode(StartupMode mode) const final;
     bool isValid() const final;
-    bool hasProcess() const final { return true; }
+
+    bool canCreateProcess() const final { return true; }
+    ProjectExplorer::DeviceProcess *createProcess(
+            const QSharedPointer<const ProjectExplorer::IDevice> &device,
+            QObject *parent = nullptr) const final;
 
 private:
     explicit StLinkUtilGdbServerProvider();

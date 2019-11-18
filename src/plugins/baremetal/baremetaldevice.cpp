@@ -30,9 +30,8 @@
 #include "baremetaldeviceconfigurationwizard.h"
 #include "debugserverprovidermanager.h"
 
-// GDB server providers.
+// TODO: Remove mention about GDB server providers from this file!
 #include "debugservers/gdb/defaultgdbserverprovider.h"
-#include "debugservers/gdb/gdbserverproviderprocess.h"
 
 #include <coreplugin/id.h>
 
@@ -85,7 +84,7 @@ void BareMetalDevice::setDebugServerProviderId(const QString &id)
         currentProvider->unregisterDevice(this);
     m_debugServerProviderId = id;
     if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(id)) {
-        setChannelByServerProvider(provider);
+        provider->updateDevice(this);
         provider->registerDevice(this);
     }
 }
@@ -101,24 +100,7 @@ void BareMetalDevice::debugServerProviderUpdated(IDebugServerProvider *provider)
     IDebugServerProvider *myProvider = DebugServerProviderManager::findProvider(
                 m_debugServerProviderId);
     if (provider == myProvider)
-        setChannelByServerProvider(provider);
-}
-
-void BareMetalDevice::setChannelByServerProvider(IDebugServerProvider *provider)
-{
-    QTC_ASSERT(provider, return);
-    if (provider->engineType() != Debugger::GdbEngineType)
-        return;
-
-    const auto gdbProvider = static_cast<GdbServerProvider *>(provider);
-    const QString channel = gdbProvider->channelString();
-    const int colon = channel.indexOf(':');
-    if (colon < 0)
-        return;
-    QSsh::SshConnectionParameters sshParams = sshParameters();
-    sshParams.setHost(channel.left(colon));
-    sshParams.setPort(channel.midRef(colon + 1).toUShort());
-    setSshParameters(sshParams);
+        provider->updateDevice(this);
 }
 
 void BareMetalDevice::fromMap(const QVariantMap &map)
@@ -165,8 +147,7 @@ bool BareMetalDevice::canCreateProcess() const
 {
     if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(
                 m_debugServerProviderId)) {
-        if (provider->engineType() == Debugger::GdbEngineType)
-            return true;
+        return provider->canCreateProcess();
     }
 
     return false;
@@ -176,8 +157,7 @@ DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
 {
     if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(
                 m_debugServerProviderId)) {
-        if (provider->engineType() == Debugger::GdbEngineType)
-            return new GdbServerProviderProcess(sharedFromThis(), parent);
+        return provider->createProcess(sharedFromThis(), parent);
     }
 
     return nullptr;

@@ -25,16 +25,25 @@
 
 #include "gdbserverprovider.h"
 
+#include <baremetal/baremetaldebugsupport.h>
 #include <baremetal/baremetaldevice.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <projectexplorer/runconfigurationaspects.h>
+
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+
+#include <ssh/sshconnection.h>
 
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QSpinBox>
+
+using namespace Debugger;
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace BareMetal {
 namespace Internal {
@@ -162,6 +171,69 @@ QVariantMap GdbServerProvider::toMap() const
 bool GdbServerProvider::isValid() const
 {
     return !channelString().isEmpty();
+}
+
+bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
+                                   QString &errorMessage) const
+{
+    QTC_ASSERT(runTool, return false);
+    const RunControl *runControl = runTool->runControl();
+    const auto exeAspect = runControl->aspect<ExecutableAspect>();
+    QTC_ASSERT(exeAspect, return false);
+
+    const FilePath bin = exeAspect->executable();
+    if (bin.isEmpty()) {
+        errorMessage = BareMetalDebugSupport::tr(
+                    "Cannot debug: Local executable is not set.");
+        return false;
+    }
+    if (!bin.exists()) {
+        errorMessage = BareMetalDebugSupport::tr(
+                    "Cannot debug: Could not find executable for \"%1\".")
+                .arg(bin.toString());
+        return false;
+    }
+
+    Runnable inferior;
+    inferior.executable = bin;
+    if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
+        inferior.commandLineArguments = argAspect->arguments(runControl->macroExpander());
+    runTool->setInferior(inferior);
+    runTool->setSymbolFile(bin);
+    runTool->setStartMode(AttachToRemoteServer);
+    runTool->setCommandsAfterConnect(initCommands()); // .. and here?
+    runTool->setCommandsForReset(resetCommands());
+    runTool->setRemoteChannel(channelString());
+    runTool->setUseContinueInsteadOfRun(true);
+    runTool->setUseExtendedRemote(useExtendedRemote());
+    return true;
+}
+
+void GdbServerProvider::addTargetRunner(Debugger::DebuggerRunTool *runTool,
+                                        ProjectExplorer::RunControl *runControl) const
+{
+    if (m_startupMode != GdbServerProvider::StartupOnNetwork)
+        return;
+
+    Runnable r;
+    r.setCommandLine(command());
+    // Command arguments are in host OS style as the bare metal's GDB servers are launched
+    // on the host, not on that target.
+    const auto runner = new GdbServerProviderRunner(runControl, r);
+    runTool->addStartDependency(runner);
+}
+
+void GdbServerProvider::updateDevice(ProjectExplorer::IDevice *dev) const
+{
+    QTC_ASSERT(dev, return);
+    const QString channel = channelString();
+    const int colon = channel.indexOf(':');
+    if (colon < 0)
+        return;
+    QSsh::SshConnectionParameters sshParams = dev->sshParameters();
+    sshParams.setHost(channel.left(colon));
+    sshParams.setPort(channel.midRef(colon + 1).toUShort());
+    dev->setSshParameters(sshParams);
 }
 
 bool GdbServerProvider::canStartupMode(StartupMode m) const
