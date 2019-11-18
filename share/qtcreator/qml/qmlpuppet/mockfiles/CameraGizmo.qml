@@ -31,21 +31,26 @@ IconGizmo {
     id: cameraGizmo
 
     iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
-    gizmoModel.geometry: cameraGeometry
     property alias geometryName: cameraGeometry.name // Name must be unique for each geometry
     property alias viewPortRect: cameraGeometry.viewPortRect
+
+    Model {
+        id: gizmoModel
+        geometry: cameraGeometry
+        visible: cameraGizmo.visible
+        materials: [
+            DefaultMaterial {
+                id: defaultMaterial
+                emissiveColor: cameraGizmo.targetNode === cameraGizmo.selectedNode ? "#FF0000"
+                                                                                   : "#555555"
+                lighting: DefaultMaterial.NoLighting
+                cullingMode: Material.DisableCulling
+            }
+        ]
+    }
 
     CameraGeometry {
         id: cameraGeometry
         camera: cameraGizmo.targetNode
     }
-
-    gizmoModel.materials: [
-        DefaultMaterial {
-            id: defaultMaterial
-            emissiveColor: cameraGizmo.targetNode === cameraGizmo.selectedNode ? "#FF0000" : "#555555"
-            lighting: DefaultMaterial.NoLighting
-            cullingMode: Material.DisableCulling
-        }
-    ]
 }

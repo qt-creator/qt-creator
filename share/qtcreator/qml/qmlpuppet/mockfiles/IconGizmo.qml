@@ -25,6 +25,7 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.0
+import QtGraphicalEffects 1.12
 
 Node {
     id: iconGizmo
@@ -34,8 +35,8 @@ Node {
     property Node targetNode: null
     property Node selectedNode: null
 
-    property alias gizmoModel: gizmoModel
     property alias iconSource: iconImage.source
+    property alias overlayColor: colorOverlay.color
 
     signal positionCommit()
     signal clicked(Node node)
@@ -44,13 +45,9 @@ Node {
     rotation: targetNode ? targetNode.sceneRotation : Qt.vector3d(0, 0, 0)
     visible: targetNode ? targetNode.visible : false
 
-    Model {
-        id: gizmoModel
-        visible: iconGizmo.visible
-    }
     Overlay2D {
-        id: gizmoLabel
-        targetNode: gizmoModel
+        id: iconOverlay
+        targetNode: iconGizmo
         targetView: view3D
         offsetX: 0
         offsetY: 0
@@ -58,6 +55,7 @@ Node {
         parent: view3D
 
         Rectangle {
+            id: iconRect
             width: iconImage.width
             height: iconImage.height
             x: -width / 2
@@ -81,6 +79,15 @@ Node {
                                      ? Qt.LeftButton : Qt.NoButton
                 }
             }
+            ColorOverlay {
+                id: colorOverlay
+                anchors.fill: parent
+                cached: true
+                source: iconImage
+                color: transparent
+                opacity: 0.6
+            }
+
         }
     }
 }

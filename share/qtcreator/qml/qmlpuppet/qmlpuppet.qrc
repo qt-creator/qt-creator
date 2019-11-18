@@ -54,5 +54,11 @@
         <file>mockfiles/images/scale_active@2x.png</file>
         <file>mockfiles/images/scale_selected.png</file>
         <file>mockfiles/images/scale_selected@2x.png</file>
+        <file>mockfiles/images/directional_light_gradient.png</file>
+        <file>mockfiles/images/directional_light_gradient@2x.png</file>
+        <file>mockfiles/images/point_light_gradient.png</file>
+        <file>mockfiles/images/point_light_gradient@2x.png</file>
+        <file>mockfiles/images/area_light_gradient.png</file>
+        <file>mockfiles/images/area_light_gradient@2x.png</file>
     </qresource>
 </RCC>
