@@ -185,7 +185,9 @@ T.ComboBox {
                          StudioTheme.Values.maxComboBoxPopupHeight)
         padding: StudioTheme.Values.border
         margins: 0 // If not defined margin will be -1
-        closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent
+        closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
+                     | T.Popup.CloseOnEscape | T.Popup.CloseOnReleaseOutside
+                     | T.Popup.CloseOnReleaseOutsideParent
 
         contentItem: ListView {
             clip: true

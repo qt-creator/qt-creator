@@ -33,7 +33,9 @@ T.Popup {
     property T.Control myControl
 
     dim: false
-    closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent
+    closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
+                 | T.Popup.CloseOnEscape | T.Popup.CloseOnReleaseOutside
+                 | T.Popup.CloseOnReleaseOutsideParent
 
     background: Rectangle {
         color: StudioTheme.Values.themeControlBackground
