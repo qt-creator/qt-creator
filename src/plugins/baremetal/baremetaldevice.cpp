@@ -29,13 +29,10 @@
 #include "baremetaldeviceconfigurationwidget.h"
 #include "baremetaldeviceconfigurationwizard.h"
 #include "debugserverprovidermanager.h"
-
-// TODO: Remove mention about GDB server providers from this file!
-#include "debugservers/gdb/defaultgdbserverprovider.h"
+#include "idebugserverprovider.h"
 
 #include <coreplugin/id.h>
 
-#include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -112,18 +109,11 @@ void BareMetalDevice::fromMap(const QVariantMap &map)
         if (IDebugServerProvider *provider =
                 DebugServerProviderManager::findByDisplayName(name)) {
             providerId = provider->id();
-        } else {
-            const QSsh::SshConnectionParameters sshParams = sshParameters();
-            const auto newProvider = new DefaultGdbServerProvider;
-            newProvider->setChannel(sshParams.url);
-            newProvider->setDisplayName(name);
-            if (DebugServerProviderManager::registerProvider(newProvider))
-                providerId = newProvider->id();
-            else
-                delete newProvider;
+            setDebugServerProviderId(providerId);
         }
+    } else {
+        setDebugServerProviderId(providerId);
     }
-    setDebugServerProviderId(providerId);
 }
 
 QVariantMap BareMetalDevice::toMap() const
