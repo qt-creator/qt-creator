@@ -84,6 +84,7 @@ Project {
             "fontsettingspage.cpp",
             "fontsettingspage.h",
             "fontsettingspage.ui",
+            "formatter.h",
             "formattexteditor.cpp",
             "formattexteditor.h",
             "highlighter.cpp",

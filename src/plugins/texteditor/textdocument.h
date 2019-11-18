@@ -26,6 +26,7 @@
 #pragma once
 
 #include "texteditor_global.h"
+#include "formatter.h"
 #include "indenter.h"
 
 #include <coreplugin/id.h>
@@ -93,10 +94,12 @@ public:
                     int currentCursorPosition = -1);
     void autoReindent(const QTextCursor &cursor, int currentCursorPosition = -1);
     void autoFormatOrIndent(const QTextCursor &cursor);
-    QTextCursor indent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
-                       int *offset = nullptr);
+    QTextCursor indent(const QTextCursor &cursor, bool blockSelection, int column, int *offset);
     QTextCursor unindent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
                          int *offset = nullptr);
+
+    void setFormatter(Formatter *indenter); // transfers ownership
+    void autoFormat(const QTextCursor &cursor);
 
     TextMarks marks() const;
     bool addMark(TextMark *mark);

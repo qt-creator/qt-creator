@@ -103,6 +103,7 @@ public:
     CompletionAssistProvider *m_functionHintAssistProvider = nullptr;
     IAssistProvider *m_quickFixProvider = nullptr;
     QScopedPointer<Indenter> m_indenter;
+    QScopedPointer<Formatter> m_formatter;
 
     bool m_fileIsReadOnly = false;
     int m_autoSaveRevision = -1;
@@ -506,6 +507,25 @@ QTextCursor TextDocument::unindent(const QTextCursor &cursor, bool blockSelectio
                                    int *offset)
 {
     return d->indentOrUnindent(cursor, false, tabSettings(), blockSelection, column, offset);
+}
+
+void TextDocument::setFormatter(Formatter *formatter)
+{
+    d->m_formatter.reset(formatter);
+}
+
+void TextDocument::autoFormat(const QTextCursor &cursor)
+{
+    using namespace Utils::Text;
+    if (!d->m_formatter)
+        return;
+    if (QFutureWatcher<Replacements> *watcher = d->m_formatter->format(cursor, tabSettings())) {
+        connect(watcher, &QFutureWatcher<Replacements>::finished, this, [this, watcher]() {
+            if (!watcher->isCanceled())
+                Utils::Text::applyReplacements(document(), watcher->result());
+            delete watcher;
+        });
+    }
 }
 
 const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const

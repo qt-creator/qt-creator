@@ -133,7 +133,8 @@ public:
     QAction *m_selectAllAction = nullptr;
     QAction *m_gotoAction = nullptr;
     QAction *m_printAction = nullptr;
-    QAction *m_formatAction = nullptr;
+    QAction *m_autoIndentAction = nullptr;
+    QAction *m_autoFormatAction = nullptr;
     QAction *m_rewrapParagraphAction = nullptr;
     QAction *m_visualizeWhitespaceAction = nullptr;
     QAction *m_cleanWhitespaceAction = nullptr;
@@ -323,9 +324,13 @@ void TextEditorActionHandlerPrivate::createActions()
 
     // register "Edit -> Advanced" Menu Actions
     Core::ActionContainer *advancedEditMenu = Core::ActionManager::actionContainer(M_EDIT_ADVANCED);
-    m_formatAction = registerAction(AUTO_INDENT_SELECTION,
+    m_autoIndentAction = registerAction(AUTO_INDENT_SELECTION,
             [] (TextEditorWidget *w) { w->autoIndent(); }, true, tr("Auto-&indent Selection"),
             QKeySequence(tr("Ctrl+I")),
+            G_EDIT_FORMAT, advancedEditMenu);
+    m_autoFormatAction = registerAction(AUTO_FORMAT_SELECTION,
+            [] (TextEditorWidget *w) { w->autoFormat(); }, true, tr("Auto-&format Selection"),
+            QKeySequence(tr("Ctrl+;")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_rewrapParagraphAction = registerAction(REWRAP_PARAGRAPH,
             [] (TextEditorWidget *w) { w->rewrapParagraph(); }, true, tr("&Rewrap Paragraph"),
@@ -499,7 +504,8 @@ void TextEditorActionHandlerPrivate::createActions()
     m_modifyingActions << m_deleteStartOfWordCamelCaseAction;
     m_modifyingActions << m_duplicateSelectionAction;
     m_modifyingActions << m_duplicateSelectionAndCommentAction;
-    m_modifyingActions << m_formatAction;
+    m_modifyingActions << m_autoIndentAction;
+    m_modifyingActions << m_autoFormatAction;
     m_modifyingActions << m_indentAction;
     m_modifyingActions << m_insertLineAboveAction;
     m_modifyingActions << m_insertLineBelowAction;
@@ -528,7 +534,8 @@ void TextEditorActionHandlerPrivate::updateActions()
     bool isWritable = m_currentEditorWidget && !m_currentEditorWidget->isReadOnly();
     foreach (QAction *a, m_modifyingActions)
         a->setEnabled(isWritable);
-    m_formatAction->setEnabled((m_optionalActions & TextEditorActionHandler::Format) && isWritable);
+    m_autoIndentAction->setEnabled((m_optionalActions & TextEditorActionHandler::Format) && isWritable);
+    m_autoFormatAction->setEnabled((m_optionalActions & TextEditorActionHandler::Format) && isWritable);
     m_unCommentSelectionAction->setEnabled((m_optionalActions & TextEditorActionHandler::UnCommentSelection) && isWritable);
     m_visualizeWhitespaceAction->setEnabled(m_currentEditorWidget);
     m_textWrappingAction->setEnabled(m_currentEditorWidget);

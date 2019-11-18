@@ -287,7 +287,7 @@ void ClangFormatConfigWidget::updatePreview()
     QTextCursor cursor(m_preview->document());
     cursor.setPosition(0);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    m_preview->textDocument()->autoFormatOrIndent(cursor);
+    m_preview->textDocument()->autoIndent(cursor);
 }
 
 static inline void ltrim(std::string &s)

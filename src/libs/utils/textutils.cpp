@@ -215,5 +215,25 @@ bool utf8AdvanceCodePoint(const char *&current)
     return true;
 }
 
+void applyReplacements(QTextDocument *doc, const Replacements &replacements)
+{
+    if (replacements.empty())
+        return;
+
+    int fullOffsetShift = 0;
+    QTextCursor editCursor(doc);
+    editCursor.beginEditBlock();
+    for (const Utils::Text::Replacement &replacement : replacements) {
+        editCursor.setPosition(replacement.offset + fullOffsetShift);
+        editCursor.movePosition(QTextCursor::NextCharacter,
+                                QTextCursor::KeepAnchor,
+                                replacement.length);
+        editCursor.removeSelectedText();
+        editCursor.insertText(replacement.text);
+        fullOffsetShift += replacement.text.length() - replacement.length;
+    }
+    editCursor.endEditBlock();
+}
+
 } // Text
 } // Utils

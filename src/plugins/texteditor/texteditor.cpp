@@ -70,21 +70,22 @@
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <utils/algorithm.h>
-#include <utils/textutils.h>
 #include <utils/camelcasecursor.h>
-#include <utils/fixedsizeclicklabel.h>
-#include <utils/fileutils.h>
 #include <utils/dropsupport.h>
+#include <utils/executeondestruction.h>
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
+#include <utils/fileutils.h>
+#include <utils/fixedsizeclicklabel.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
+#include <utils/textutils.h>
+#include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/uncommentselection.h>
-#include <utils/theme/theme.h>
 
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
@@ -1161,6 +1162,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
         return;
 
     doc = doc->clone(doc);
+    Utils::ExecuteOnDestruction docDeleter([doc]() { delete doc; });
 
     QTextOption opt = doc->defaultTextOption();
     opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -1256,7 +1258,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
             for (int j = 0; j < pageCopies; ++j) {
                 if (printer->printerState() == QPrinter::Aborted
                     || printer->printerState() == QPrinter::Error)
-                    goto UserCanceled;
+                    return;
                 printPage(page, &p, doc, body, titleBox, title);
                 if (j < pageCopies - 1)
                     printer->newPage();
@@ -1276,9 +1278,6 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
         if ( i < docCopies - 1)
             printer->newPage();
     }
-
-UserCanceled:
-    delete doc;
 }
 
 
@@ -7192,6 +7191,14 @@ void TextEditorWidget::rewrapParagraph()
 void TextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this, d->m_commentDefinition);
+}
+
+void TextEditorWidget::autoFormat()
+{
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    d->m_document->autoFormat(cursor);
+    cursor.endEditBlock();
 }
 
 void TextEditorWidget::encourageApply()

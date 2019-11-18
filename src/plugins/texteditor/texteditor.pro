@@ -195,7 +195,8 @@ HEADERS += texteditorplugin.h \
     textstyles.h \
     formattexteditor.h \
     command.h \
-    indenter.h
+    indenter.h \
+    formatter.h
 
 FORMS += \
     displaysettingspage.ui \

@@ -349,6 +349,8 @@ public:
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
 
+    virtual void autoFormat();
+
     virtual void encourageApply();
 
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);

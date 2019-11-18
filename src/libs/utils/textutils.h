@@ -53,6 +53,8 @@ struct Replacement
 };
 using Replacements = std::vector<Replacement>;
 
+QTCREATOR_UTILS_EXPORT void applyReplacements(QTextDocument *doc, const Replacements &replacements);
+
 // line is 1-based, column is 1-based
 QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
                                             int pos,

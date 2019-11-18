@@ -349,24 +349,6 @@ Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
     return convertedReplacements;
 }
 
-void applyReplacements(QTextDocument *doc, const Utils::Text::Replacements &replacements)
-{
-    if (replacements.empty())
-        return;
-
-    int fullOffsetShift = 0;
-    QTextCursor editCursor(doc);
-    for (const Utils::Text::Replacement &replacement : replacements) {
-        editCursor.setPosition(replacement.offset + fullOffsetShift);
-        editCursor.movePosition(QTextCursor::NextCharacter,
-                                QTextCursor::KeepAnchor,
-                                replacement.length);
-        editCursor.removeSelectedText();
-        editCursor.insertText(replacement.text);
-        fullOffsetShift += replacement.text.length() - replacement.length;
-    }
-}
-
 QString selectedLines(QTextDocument *doc, const QTextBlock &startBlock, const QTextBlock &endBlock)
 {
     return Utils::Text::textAt(QTextCursor(doc),
@@ -554,7 +536,7 @@ Utils::Text::Replacements ClangFormatBaseIndenter::format(
     clangReplacements = clangReplacements.merge(formatReplacements);
 
     const Utils::Text::Replacements toReplace = utf16Replacements(m_doc, buffer, clangReplacements);
-    applyReplacements(m_doc, toReplace);
+    Utils::Text::applyReplacements(m_doc, toReplace);
 
     return toReplace;
 }

@@ -130,6 +130,7 @@ const char FOLD[]                  = "TextEditor.Fold";
 const char UNFOLD[]                = "TextEditor.Unfold";
 const char UNFOLD_ALL[]            = "TextEditor.UnFoldAll";
 const char AUTO_INDENT_SELECTION[] = "TextEditor.AutoIndentSelection";
+const char AUTO_FORMAT_SELECTION[] = "TextEditor.AutoFormatSelection";
 const char INCREASE_FONT_SIZE[]    = "TextEditor.IncreaseFontSize";
 const char DECREASE_FONT_SIZE[]    = "TextEditor.DecreaseFontSize";
 const char RESET_FONT_SIZE[]       = "TextEditor.ResetFontSize";
