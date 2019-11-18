@@ -102,6 +102,7 @@ protected:
     void setupFilterUi(const QString &historyKey);
     QString filterText() const;
     bool filterUsesRegexp() const { return m_filterRegexp; }
+    bool filterIsInverted() const { return m_invertFilter; }
     Qt::CaseSensitivity filterCaseSensitivity() const { return m_filterCaseSensitivity; }
     void setFilteringEnabled(bool enable);
     QWidget *filterWidget() const { return m_filterOutputLineEdit; }
@@ -116,14 +117,17 @@ private:
     void setRegularExpressions(bool regularExpressions);
     Id filterRegexpActionId() const;
     Id filterCaseSensitivityActionId() const;
+    Id filterInvertedActionId() const;
 
     Core::CommandButton * const m_zoomInButton;
     Core::CommandButton * const m_zoomOutButton;
     QAction *m_filterActionRegexp = nullptr;
     QAction *m_filterActionCaseSensitive = nullptr;
+    QAction *m_invertFilterAction = nullptr;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     IContext *m_context = nullptr;
     bool m_filterRegexp = false;
+    bool m_invertFilter = false;
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
 };
 

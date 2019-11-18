@@ -378,7 +378,7 @@ void AppOutputPane::updateFilter()
     const int index = currentIndex();
     if (index != -1) {
         m_runControlTabs.at(index).window->updateFilterProperties(
-                    filterText(), filterCaseSensitivity(), filterUsesRegexp());
+                    filterText(), filterCaseSensitivity(), filterUsesRegexp(), filterIsInverted());
     }
 }
 
@@ -724,7 +724,7 @@ void AppOutputPane::tabChanged(int i)
     if (i != -1 && index != -1) {
         const RunControlTab &controlTab = m_runControlTabs[index];
         controlTab.window->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                                  filterUsesRegexp());
+                                                  filterUsesRegexp(), filterIsInverted());
         enableButtons(controlTab.runControl);
     } else {
         enableDefaultButtons();

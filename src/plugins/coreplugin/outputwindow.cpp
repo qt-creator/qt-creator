@@ -280,12 +280,17 @@ void OutputWindow::setWheelZoomEnabled(bool enabled)
     d->zoomEnabled = enabled;
 }
 
-void OutputWindow::updateFilterProperties(const QString &filterText,
-                                          Qt::CaseSensitivity caseSensitivity, bool isRegexp)
+void OutputWindow::updateFilterProperties(
+        const QString &filterText,
+        Qt::CaseSensitivity caseSensitivity,
+        bool isRegexp,
+        bool isInverted
+        )
 {
     FilterModeFlags flags;
     flags.setFlag(FilterModeFlag::CaseSensitive, caseSensitivity == Qt::CaseSensitive)
-            .setFlag(FilterModeFlag::RegExp, isRegexp);
+            .setFlag(FilterModeFlag::RegExp, isRegexp)
+            .setFlag(FilterModeFlag::Inverted, isInverted);
     if (d->filterMode == flags && d->filterText == filterText)
         return;
     d->lastFilteredBlockNumber = -1;
@@ -324,6 +329,7 @@ void OutputWindow::filterNewContent()
     if (!lastBlock.isValid())
         lastBlock = document()->begin();
 
+    const bool invert = d->filterMode.testFlag(FilterModeFlag::Inverted);
     if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
         QRegularExpression regExp(d->filterText);
         if (!d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive))
@@ -331,16 +337,17 @@ void OutputWindow::filterNewContent()
 
         for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
             lastBlock.setVisible(d->filterText.isEmpty()
-                                 || regExp.match(lastBlock.text()).hasMatch());
+                                 || regExp.match(lastBlock.text()).hasMatch() != invert);
     } else {
         if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)) {
             for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
                 lastBlock.setVisible(d->filterText.isEmpty()
-                                     || lastBlock.text().contains(d->filterText));
+                                     || lastBlock.text().contains(d->filterText) != invert);
         } else {
-            for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-                lastBlock.setVisible(d->filterText.isEmpty()
-                                     || lastBlock.text().toLower().contains(d->filterText.toLower()));
+            for (; lastBlock != document()->end(); lastBlock = lastBlock.next()) {
+                lastBlock.setVisible(d->filterText.isEmpty() || lastBlock.text().toLower()
+                                     .contains(d->filterText.toLower()) != invert);
+            }
         }
     }
 

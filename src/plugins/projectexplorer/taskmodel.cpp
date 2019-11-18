@@ -351,16 +351,20 @@ int TaskFilterModel::issuesCount(int startRow, int endRow) const
     return count;
 }
 
-void TaskFilterModel::updateFilterProperties(const QString &filterText,
-                                             Qt::CaseSensitivity caseSensitivity, bool isRegexp)
+void TaskFilterModel::updateFilterProperties(
+        const QString &filterText,
+        Qt::CaseSensitivity caseSensitivity,
+        bool isRegexp,
+        bool isInverted)
 {
     if (filterText == m_filterText && m_filterCaseSensitivity == caseSensitivity
-            && m_filterStringIsRegexp == isRegexp) {
+            && m_filterStringIsRegexp == isRegexp && m_filterIsInverted == isInverted) {
         return;
     }
     m_filterText = filterText;
     m_filterCaseSensitivity = caseSensitivity;
     m_filterStringIsRegexp = isRegexp;
+    m_filterIsInverted = isInverted;
     if (m_filterStringIsRegexp) {
         m_filterRegexp.setPattern(m_filterText);
         m_filterRegexp.setPatternOptions(m_filterCaseSensitivity == Qt::CaseInsensitive
@@ -399,7 +403,7 @@ bool TaskFilterModel::filterAcceptsTask(const Task &task) const
             return m_filterStringIsRegexp ? m_filterRegexp.isValid() && s.contains(m_filterRegexp)
                                           : s.contains(m_filterText, m_filterCaseSensitivity);
         };
-        if (!accepts(task.file.toString()) && !accepts(task.description))
+        if ((accepts(task.file.toString()) || accepts(task.description)) == m_filterIsInverted)
             accept = false;
     }
 

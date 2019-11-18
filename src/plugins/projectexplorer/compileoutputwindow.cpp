@@ -354,7 +354,7 @@ void CompileOutputWindow::setSettings(const CompileOutputSettings &settings)
 void CompileOutputWindow::updateFilter()
 {
     m_outputWindow->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                           filterUsesRegexp());
+                                           filterUsesRegexp(), filterIsInverted());
 }
 
 void CompileOutputWindow::loadSettings()

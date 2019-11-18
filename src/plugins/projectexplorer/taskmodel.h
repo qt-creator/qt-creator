@@ -145,8 +145,11 @@ public:
     bool hasFile(const QModelIndex &index) const
     { return taskModel()->hasFile(mapToSource(index)); }
 
-    void updateFilterProperties(const QString &filterText, Qt::CaseSensitivity caseSensitivity,
-                                bool isRegex);
+    void updateFilterProperties(
+            const QString &filterText,
+            Qt::CaseSensitivity caseSensitivity,
+            bool isRegex,
+            bool isInverted);
 
 private:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
@@ -157,6 +160,7 @@ private:
     bool m_includeWarnings;
     bool m_includeErrors;
     bool m_filterStringIsRegexp = false;
+    bool m_filterIsInverted = false;
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
     QList<Core::Id> m_categoryIds;
     QString m_filterText;

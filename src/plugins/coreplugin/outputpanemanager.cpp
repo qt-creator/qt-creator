@@ -155,6 +155,15 @@ void IOutputPane::setupFilterUi(const QString &historyKey)
     Core::ActionManager::registerAction(m_filterActionCaseSensitive,
                                         filterCaseSensitivityActionId());
 
+    m_invertFilterAction = new QAction(this);
+    m_invertFilterAction->setCheckable(true);
+    m_invertFilterAction->setText(tr("Show Non-matching Lines"));
+    connect(m_invertFilterAction, &QAction::toggled, this, [this] {
+        m_invertFilter = m_invertFilterAction->isChecked();
+        updateFilter();
+    });
+    Core::ActionManager::registerAction(m_invertFilterAction, filterInvertedActionId());
+
     m_filterOutputLineEdit->setPlaceholderText(tr("Filter output..."));
     m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, true);
     m_filterOutputLineEdit->setButtonIcon(FancyLineEdit::Left, Icons::MAGNIFIER.icon());
@@ -213,7 +222,7 @@ void IOutputPane::updateFilter()
 void IOutputPane::filterOutputButtonClicked()
 {
     auto popup = new Core::OptionsPopup(m_filterOutputLineEdit,
-    {filterRegexpActionId(), filterCaseSensitivityActionId()});
+    {filterRegexpActionId(), filterCaseSensitivityActionId(), filterInvertedActionId()});
     popup->show();
 }
 
@@ -231,6 +240,11 @@ Id IOutputPane::filterRegexpActionId() const
 Id IOutputPane::filterCaseSensitivityActionId() const
 {
     return Id("OutputFilter.CaseSensitive").withSuffix(metaObject()->className());
+}
+
+Id IOutputPane::filterInvertedActionId() const
+{
+    return Id("OutputFilter.Invert").withSuffix(metaObject()->className());
 }
 
 void IOutputPane::setCaseSensitive(bool caseSensitive)
