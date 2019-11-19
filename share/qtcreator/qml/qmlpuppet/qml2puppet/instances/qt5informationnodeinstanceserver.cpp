@@ -66,6 +66,7 @@
 #include "../editor3d/mousearea3d.h"
 #include "../editor3d/camerageometry.h"
 #include "../editor3d/gridgeometry.h"
+#include "../editor3d/selectionboxgeometry.h"
 
 #include <designersupportdelegate.h>
 
@@ -110,6 +111,7 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");
+    qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
 #endif
 
     QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));

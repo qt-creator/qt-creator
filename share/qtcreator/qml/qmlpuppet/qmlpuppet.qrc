@@ -26,6 +26,7 @@
         <file>mockfiles/ToolBarButton.qml</file>
         <file>mockfiles/RotateGizmo.qml</file>
         <file>mockfiles/RotateRing.qml</file>
+        <file>mockfiles/SelectionBox.qml</file>
         <file>mockfiles/meshes/arrow.mesh</file>
         <file>mockfiles/meshes/scalerod.mesh</file>
         <file>mockfiles/meshes/ring.mesh</file>

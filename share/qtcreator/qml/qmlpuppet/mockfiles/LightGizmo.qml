@@ -29,11 +29,13 @@ import QtQuick3D 1.0
 IconGizmo {
     id: lightGizmo
 
-    iconSource: targetNode instanceof DirectionalLight
-                ? "qrc:///qtquickplugin/mockfiles/images/directional_light_gradient.png"
-                : targetNode instanceof AreaLight
-                  ? "qrc:///qtquickplugin/mockfiles/images/area_light_gradient.png"
-                  : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+    iconSource: targetNode
+                ? targetNode instanceof DirectionalLight
+                  ? "qrc:///qtquickplugin/mockfiles/images/directional_light_gradient.png"
+                  : targetNode instanceof AreaLight
+                    ? "qrc:///qtquickplugin/mockfiles/images/area_light_gradient.png"
+                    : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+                : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
 
-    overlayColor: targetNode.color
+    overlayColor: targetNode ? targetNode.color : "transparent"
 }

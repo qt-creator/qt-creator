@@ -84,7 +84,7 @@ Node {
                 anchors.fill: parent
                 cached: true
                 source: iconImage
-                color: transparent
+                color: "transparent"
                 opacity: 0.6
             }
 

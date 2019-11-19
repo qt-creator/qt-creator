@@ -200,6 +200,11 @@ Window {
                     step: 50
                 }
 
+                SelectionBox {
+                    view3D: editView
+                    targetNode: viewWindow.selectedNode
+                }
+
                 PointLight {
                     id: editLight
                     visible: showEditLight
