@@ -168,6 +168,9 @@ void McuSupportOptionsPage::apply()
     QTC_ASSERT(m_options->armGccPackage, return);
     QTC_ASSERT(m_options->qtForMCUsSdkPackage, return);
 
+    if (!widget()->isVisible())
+        return; // Only create/overwrite kits when this option page is shown
+
     const McuTarget *mcuTarget = m_widget->currentMcuTarget();
     if (!mcuTarget)
         return;
