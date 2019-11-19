@@ -41,6 +41,7 @@
 #include "qmlstate.h"
 #include "qmltimeline.h"
 #include "qmltimelinekeyframegroup.h"
+#include "qmlvisualnode.h"
 
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
@@ -52,6 +53,7 @@
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
 #include "changeselectioncommand.h"
+#include "drop3dlibraryitemcommand.h"
 #include "changenodesourcecommand.h"
 #include "removeinstancescommand.h"
 #include "removepropertiescommand.h"
@@ -66,7 +68,6 @@
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
 #include "debugoutputcommand.h"
-
 #include "nodeinstanceserverproxy.h"
 
 #include <utils/algorithm.h>
@@ -1430,6 +1431,17 @@ void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
         if (hasModelNodeForInternalId(instanceId))
             selectModelNode(modelNodeForInternalId(instanceId));
     }
+}
+void NodeInstanceView::library3DItemDropped(const Drop3DLibraryItemCommand &command)
+{
+    QDataStream stream(command.itemData());
+    ItemLibraryEntry itemLibraryEntry;
+    stream >> itemLibraryEntry;
+
+    if (itemLibraryEntry.category() != "Qt Quick 3D")
+        return;
+
+    QmlVisualNode::createQmlVisualNode(this, itemLibraryEntry, {});
 }
 
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

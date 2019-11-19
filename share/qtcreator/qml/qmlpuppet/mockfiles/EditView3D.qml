@@ -66,9 +66,11 @@ Window {
         var component = Qt.createComponent("LightGizmo.qml");
         if (component.status === Component.Ready) {
             var gizmo = component.createObject(overlayScene,
-                                               {"view3D": overlayView, "targetNode": obj});
+                                               {"view3D": overlayView, "targetNode": obj,
+                                                "selectedNode": selectedNode});
             lightGizmos[lightGizmos.length] = gizmo;
-            gizmo.selected.connect(emitObjectClicked);
+            gizmo.clicked.connect(emitObjectClicked);
+            gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
     }
 
@@ -80,10 +82,11 @@ Window {
             var gizmo = component.createObject(
                         overlayScene,
                         {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
-                         "viewPortRect": viewPortRect});
+                         "viewPortRect": viewPortRect, "selectedNode": selectedNode});
             cameraGizmos[cameraGizmos.length] = gizmo;
-            gizmo.selected.connect(emitObjectClicked);
+            gizmo.clicked.connect(emitObjectClicked);
             gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
+            gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
     }
 
@@ -100,12 +103,15 @@ Window {
         PerspectiveCamera {
             id: overlayPerspectiveCamera
             clipFar: editPerspectiveCamera.clipFar
+            clipNear: editPerspectiveCamera.clipNear
             position: editPerspectiveCamera.position
             rotation: editPerspectiveCamera.rotation
         }
 
         OrthographicCamera {
             id: overlayOrthoCamera
+            clipFar: editOrthoCamera.clipFar
+            clipNear: editOrthoCamera.clipNear
             position: editOrthoCamera.position
             rotation: editOrthoCamera.rotation
         }
@@ -118,7 +124,7 @@ Window {
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
             globalOrientation: globalControl.checked
-            visible: selectedNode && moveToolControl.checked
+            visible: selectedNode && btnMove.selected
             view3D: overlayView
 
             onPositionCommit: viewWindow.commitObjectProperty(selectedNode, "position")
@@ -133,11 +139,26 @@ Window {
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
             globalOrientation: globalControl.checked
-            visible: selectedNode && scaleToolControl.checked
+            visible: selectedNode && btnScale.selected
             view3D: overlayView
 
             onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
             onScaleChange: viewWindow.changeObjectProperty(selectedNode, "scale")
+        }
+
+        RotateGizmo {
+            id: rotateGizmo
+            scale: autoScale.getScale(Qt.vector3d(7, 7, 7))
+            highlightOnHover: true
+            targetNode: viewWindow.selectedNode
+            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
+                                              : Qt.vector3d(0, 0, 0)
+            globalOrientation: globalControl.checked
+            visible: selectedNode && btnRotate.selected
+            view3D: overlayView
+
+            onRotateCommit: viewWindow.commitObjectProperty(selectedNode, "rotation")
+            onRotateChange: viewWindow.changeObjectProperty(selectedNode, "rotation")
         }
 
         AutoScaleHelper {
@@ -161,6 +182,10 @@ Window {
             }
         }
 
+        DropArea {
+            anchors.fill: parent
+        }
+
         View3D {
             id: editView
             anchors.fill: parent
@@ -169,10 +194,10 @@ Window {
             Node {
                 id: mainSceneHelpers
 
-                AxisHelper {
-                    id: axisGrid
-                    enableXZGrid: true
-                    enableAxisLines: false
+                HelperGrid {
+                    id: helperGrid
+                    lines: 50
+                    step: 50
                 }
 
                 PointLight {
@@ -186,15 +211,20 @@ Window {
 
                 PerspectiveCamera {
                     id: editPerspectiveCamera
+                    z: -600
                     y: 200
-                    z: -300
+                    rotation.x: 30
                     clipFar: 100000
+                    clipNear: 1
                 }
 
                 OrthographicCamera {
                     id: editOrthoCamera
+                    z: -600
                     y: 200
-                    z: -300
+                    rotation.x: 30
+                    clipFar: 100000
+                    clipNear: 1
                 }
             }
         }
@@ -259,8 +289,78 @@ Window {
         }
     }
 
+    Rectangle { // toolbar
+        id: toolbar
+        color: "#9F000000"
+        width: 35
+        height: col.height
+
+        Column {
+            id: col
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 5
+            padding: 5
+
+            property var group: [btnSelectItem, btnSelectGroup, btnMove, btnRotate, btnScale]
+
+            ToolBarButton {
+                id: btnSelectItem
+                selected: true
+                tooltip: qsTr("Select Item")
+                shortcut: "Q"
+                currentShortcut: selected ? "" : shortcut
+                tool: "item_selection"
+                buttonsGroup: col.group
+            }
+
+            ToolBarButton {
+                id: btnSelectGroup
+                tooltip: qsTr("Select Group")
+                shortcut: "Q"
+                currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
+                tool: "group_selection"
+                buttonsGroup: col.group
+            }
+
+            Rectangle { // separator
+                width: 25
+                height: 1
+                color: "#f1f1f1"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ToolBarButton {
+                id: btnMove
+                tooltip: qsTr("Move current selection")
+                shortcut: "M"
+                currentShortcut: shortcut
+                tool: "move"
+                buttonsGroup: col.group
+            }
+
+            ToolBarButton {
+                id: btnRotate
+                tooltip: qsTr("Rotate current selection")
+                shortcut: "E"
+                currentShortcut: shortcut
+                tool: "rotate"
+                buttonsGroup: col.group
+            }
+
+            ToolBarButton {
+                id: btnScale
+                tooltip: qsTr("Scale current selection")
+                shortcut: "T"
+                currentShortcut: shortcut
+                tool: "scale"
+                buttonsGroup: col.group
+            }
+        }
+    }
+
     Column {
         y: 8
+        anchors.right: parent.right
         CheckBox {
             id: editLightCheckbox
             checked: false
@@ -272,7 +372,19 @@ Window {
             id: usePerspectiveCheckbox
             checked: true
             text: qsTr("Use Perspective Projection")
-            onCheckedChanged: cameraControl.forceActiveFocus()
+            onCheckedChanged: {
+                // Since WasdController always acts on active camera, we need to update pos/rot
+                // to the other camera when we change
+                if (checked) {
+                    editPerspectiveCamera.position = editOrthoCamera.position;
+                    editPerspectiveCamera.rotation = editOrthoCamera.rotation;
+                } else {
+                    editOrthoCamera.position = editPerspectiveCamera.position;
+                    editOrthoCamera.rotation = editPerspectiveCamera.rotation;
+                }
+                designStudioNativeCameraControlHelper.requestOverlayUpdate();
+                cameraControl.forceActiveFocus();
+            }
         }
 
         CheckBox {
@@ -280,19 +392,6 @@ Window {
             checked: true
             text: qsTr("Use Global Orientation")
             onCheckedChanged: cameraControl.forceActiveFocus()
-        }
-        Column {
-            x: 8
-            RadioButton {
-                id: moveToolControl
-                checked: true
-                text: qsTr("Move Tool")
-            }
-            RadioButton {
-                id: scaleToolControl
-                checked: false
-                text: qsTr("Scale Tool")
-            }
         }
     }
 

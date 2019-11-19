@@ -35,9 +35,10 @@ Section {
     property bool showIsWrapping: false
     property bool showElide: false
     property bool showVerticalAlignment: false
-    property bool useLineEdit: true
     property bool showFormatProperty: false
     property bool showFontSizeMode: false
+    property bool showLineHeight: false
+
 
     SectionLayout {
         columns: 2
@@ -46,7 +47,6 @@ Section {
             text: qsTr("Text")
         }
         LineEdit {
-            //visible: useLineEdit
             backendValue: backendValues.text
             Layout.fillWidth: true
         }
@@ -119,10 +119,12 @@ Section {
         }
 
         Label {
+            visible: showFontSizeMode
             text: qsTr("Font size mode")
             toolTip: qsTr("Specifies how the font size of the displayed text is determined.")
         }
         ComboBox {
+            visible: showFontSizeMode
             scope: "Text"
             model:  ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
             backendValue: backendValues.fontSizeMode
@@ -131,11 +133,13 @@ Section {
 
 
         Label {
+            visible: showLineHeight
             text: qsTr("Line height")
             tooltip: qsTr("Sets the line height for the text.")
         }
 
         SpinBox {
+            visible: showLineHeight
             Layout.fillWidth: true
             backendValue: (backendValues.lineHeight === undefined) ? dummyBackendValue : backendValues.lineHeight
             maximumValue: 500

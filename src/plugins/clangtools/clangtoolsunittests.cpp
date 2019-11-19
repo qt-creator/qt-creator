@@ -159,7 +159,7 @@ void ClangToolsUnitTests::testProject_data()
     // Test that tidy and clazy diagnostics are emitted for the same project.
     addTestRow("clangtidy_clazy/clangtidy_clazy.pro",
                1 /*tidy*/ + 1 /*clazy*/,
-               configFor("misc-unconventional-assign-operator", "base-class-event"));
+               configFor("misc-unconventional-assign-operator", "qgetenv"));
 }
 
 void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,

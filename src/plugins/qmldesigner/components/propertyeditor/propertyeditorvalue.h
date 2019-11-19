@@ -77,8 +77,8 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(QVariant enumeration READ enumeration NOTIFY valueChangedQml)
     Q_PROPERTY(QString expression READ expression WRITE setExpressionWithEmit NOTIFY expressionChanged FINAL)
     Q_PROPERTY(QString valueToString READ valueToString NOTIFY valueChangedQml FINAL)
-    Q_PROPERTY(bool isInModel READ isInModel NOTIFY valueChangedQml FINAL)
-    Q_PROPERTY(bool isInSubState READ isInSubState NOTIFY valueChangedQml FINAL)
+    Q_PROPERTY(bool isInModel READ isInModel NOTIFY isExplicitChanged FINAL)
+    Q_PROPERTY(bool isInSubState READ isInSubState NOTIFY isExplicitChanged FINAL)
     Q_PROPERTY(bool isBound READ isBound NOTIFY isBoundChanged FINAL)
     Q_PROPERTY(bool isValid READ isValid NOTIFY isValidChanged FINAL)
     Q_PROPERTY(bool isTranslated READ isTranslated NOTIFY expressionChanged FINAL)
@@ -147,6 +147,7 @@ signals:
     void complexNodeChanged();
     void isBoundChanged();
     void isValidChanged();
+    void isExplicitChanged();
 
 private: //variables
     QmlDesigner::ModelNode m_modelNode;

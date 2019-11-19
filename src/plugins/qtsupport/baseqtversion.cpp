@@ -2230,6 +2230,11 @@ Abis BaseQtVersion::qtAbisFromLibrary(const FilePathList &coreLibraries)
     return res;
 }
 
+void BaseQtVersion::resetCache() const
+{
+    d->m_data.hasQtAbis = false;
+    d->m_mkspecReadUpToDate = false;
+}
 
 // QtVersionFactory
 

@@ -126,7 +126,7 @@ private:
     };
     void readInformation(QueryType type) const;
 
-    Utils::SynchronousProcessResponse run(const QStringList &args, bool mayFail = false) const;
+    Utils::SynchronousProcessResponse run(const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
 

@@ -62,6 +62,16 @@
             ]
         },
         {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": {
+                 "projectFilePath": "%{ProjectFile}",
+                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQt.5"]
+            }
+        },
+        {
             "trDisplayName": "Project Management",
             "trShortTitle": "Summary",
             "typeId": "Summary"
@@ -84,7 +94,8 @@
                 },
                 {
                     "source": "plugin.cpp",
-                    "target": "%{PluginSrc}"
+                    "target": "%{PluginSrc}",
+                    "openInEditor": true
                 },
                 {
                     "source": "plugin.h",

@@ -92,7 +92,7 @@ def main():
 
     # select Projects and roughly check this
     switchToSubMode('Projects')
-    for button in ['New Project', 'Open Project']:
+    for button in ['New', 'Open']:
         wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton(button)
         if test.verify(all((wsButtonFrame, wsButtonLabel)),
                        "Verified whether '%s' button is shown." % button):

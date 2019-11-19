@@ -32,12 +32,13 @@ Node {
     property View3D view3D
     property bool highlightOnHover: true
     property Node targetNode: null
+    property Node selectedNode: null
 
     property alias gizmoModel: gizmoModel
     property alias iconSource: iconImage.source
 
     signal positionCommit()
-    signal selected(Node node)
+    signal clicked(Node node)
 
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     rotation: targetNode ? targetNode.sceneRotation : Qt.vector3d(0, 0, 0)
@@ -57,22 +58,27 @@ Node {
         parent: view3D
 
         Rectangle {
-            width: 24
-            height: 24
+            width: iconImage.width
+            height: iconImage.height
             x: -width / 2
             y: -height
             color: "transparent"
             border.color: "#7777ff"
-            border.width: highlightOnHover && iconMouseArea.containsMouse ? 2 : 0
+            border.width: iconGizmo.selectedNode === iconGizmo.targetNode
+                          || (iconGizmo.highlightOnHover && iconMouseArea.containsMouse) ? 2 : 0
             radius: 5
+            opacity: iconGizmo.selectedNode === iconGizmo.targetNode ? 0.3 : 1
             Image {
                 id: iconImage
-                anchors.fill: parent
+                fillMode: Image.Pad
                 MouseArea {
                     id: iconMouseArea
                     anchors.fill: parent
-                    onClicked: selected(targetNode)
-                    hoverEnabled: highlightOnHover
+                    onClicked: iconGizmo.clicked(iconGizmo.targetNode)
+                    hoverEnabled: iconGizmo.highlightOnHover
+                                  && iconGizmo.selectedNode !== iconGizmo.targetNode
+                    acceptedButtons: iconGizmo.selectedNode !== iconGizmo.targetNode
+                                     ? Qt.LeftButton : Qt.NoButton
                 }
             }
         }

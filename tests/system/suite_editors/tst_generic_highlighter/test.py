@@ -123,10 +123,10 @@ def addHighlighterDefinition(*languages):
                   "text='Generic Highlighter'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Generic Highlighter")
 
-    clickButton("{text='Update Definitions' type='QPushButton' name='updateDefinitions' visible='1'}")
+    clickButton("{text='Download Definitions' type='QPushButton' name='downloadDefinitions' visible='1'}")
     updateStatus = "{name='updateStatus' type='QLabel' visible='1'}"
     waitFor("object.exists(updateStatus)", 5000)
-    if waitFor('str(findObject(updateStatus).text) == "Update finished"', 5000):
+    if waitFor('str(findObject(updateStatus).text) == "Download finished"', 5000):
         test.verify(os.path.exists(syntaxDirectory),
                     "Directory for syntax highlighter files exists.")
         xmlFiles = glob.glob(os.path.join(syntaxDirectory, "*.xml"))
@@ -157,8 +157,8 @@ def displayHintForHighlighterDefinition(fileName, patterns, lPatterns, added, ad
     return False
 
 def main():
-    miss = ("A highlight definition was not found for this file. Would you like to update "
-            "highlight definition files?")
+    miss = ("A highlight definition was not found for this file. Would you like to download "
+            "additional highlight definition files?")
     startQC()
     if not startedWithoutPluginError():
         return

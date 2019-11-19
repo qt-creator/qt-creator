@@ -35,10 +35,10 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/helpitem.h>
 
+#include <utils/elidinglabel.h>
 #include <utils/link.h>
 #include <utils/uncommentselection.h>
 
-#include <QLabel>
 #include <QPlainTextEdit>
 #include <QSharedPointer>
 #include <functional>
@@ -611,7 +611,7 @@ private:
     friend class RefactorOverlay;
 };
 
-class TEXTEDITOR_EXPORT TextEditorLinkLabel : public QLabel
+class TEXTEDITOR_EXPORT TextEditorLinkLabel : public Utils::ElidingLabel
 {
 public:
     TextEditorLinkLabel(QWidget *parent = nullptr);

@@ -116,7 +116,7 @@ QString clangIncludeDirectory(const QString &clangVersion, const QString &clangR
 #else
     Q_UNUSED(clangVersion)
     Q_UNUSED(clangResourceDirectory)
-    return CLANG_RESOURCE_DIR;
+    return {CLANG_RESOURCE_DIR};
 #endif
 }
 

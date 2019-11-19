@@ -244,6 +244,8 @@ protected:
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
     static ProjectExplorer::Abis qtAbisFromLibrary(const Utils::FilePathList &coreLibraries);
 
+    void resetCache() const;
+
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;
 

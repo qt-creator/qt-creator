@@ -288,8 +288,8 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
 
 Utils::FilePath AndroidManager::dirPath(const ProjectExplorer::Target *target)
 {
-    if (target->activeBuildConfiguration())
-        return target->activeBuildConfiguration()->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
+    if (auto *bc = target->activeBuildConfiguration())
+        return bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
     return Utils::FilePath();
 }
 

@@ -27,6 +27,8 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
+#include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
 
 #include <projectexplorer/kit.h>
@@ -60,6 +62,10 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     // Unfortunately distcc does not have a simple environment flag to turn it off:-/
     if (Utils::HostOsInfo::isAnyUnixHost())
         environment.set("ICECC", "no");
+
+    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    if (!settings->ninjaPath().isEmpty())
+        environment.appendOrSetPath(settings->ninjaPath().toString());
 
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
 

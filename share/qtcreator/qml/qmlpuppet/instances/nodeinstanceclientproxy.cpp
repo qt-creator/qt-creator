@@ -68,6 +68,7 @@
 #include "debugoutputcommand.h"
 #include "puppetalivecommand.h"
 #include "changeselectioncommand.h"
+#include "drop3dlibraryitemcommand.h"
 
 namespace QmlDesigner {
 
@@ -139,6 +140,7 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
+    static const int drop3DLibraryItemCommandType = QMetaType::type("Drop3DLibraryItemCommand");
 
     if (command.userType() == controlCommand.userType()) {
         if (command.userType() == informationChangedCommandType)
@@ -163,6 +165,8 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
             return command.value<DebugOutputCommand>() == controlCommand.value<DebugOutputCommand>();
         else if (command.userType() == changeSelectionCommandType)
             return command.value<ChangeSelectionCommand>() == controlCommand.value<ChangeSelectionCommand>();
+        else if (command.userType() == drop3DLibraryItemCommandType)
+            return command.value<Drop3DLibraryItemCommand>() == controlCommand.value<Drop3DLibraryItemCommand>();
     }
 
     return false;
@@ -248,6 +252,11 @@ void NodeInstanceClientProxy::puppetAlive(const PuppetAliveCommand &command)
 void NodeInstanceClientProxy::selectionChanged(const ChangeSelectionCommand &command)
 {
      writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::library3DItemDropped(const Drop3DLibraryItemCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceClientProxy::flush()

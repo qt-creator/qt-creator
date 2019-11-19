@@ -42,7 +42,7 @@ class Kit;
 namespace McuSupport {
 namespace Internal {
 
-class PackageOptions : public QObject
+class McuPackage : public QObject
 {
     Q_OBJECT
 
@@ -53,8 +53,8 @@ public:
         ValidPackage
     };
 
-    PackageOptions(const QString &label, const QString &defaultPath, const QString &detectionPath,
-                   const QString &settingsKey);
+    McuPackage(const QString &label, const QString &defaultPath, const QString &detectionPath,
+               const QString &settingsKey);
 
     QString path() const;
     QString label() const;
@@ -96,26 +96,31 @@ private:
     Status m_status = InvalidPath;
 };
 
-class BoardOptions : public QObject
+class McuTarget : public QObject
 {
     Q_OBJECT
 
 public:
-    BoardOptions(const QString &vendor, const QString &model, const QString &toolChainFile,
-                 const QString &qulPlatform, const QVector<PackageOptions *> &packages);
+    McuTarget(const QString &vendor, const QString &model, const QVector<McuPackage *> &packages);
 
     QString vendor() const;
     QString model() const;
+    QVector<McuPackage *> packages() const;
+    void setToolChainFile(const QString &toolChainFile);
     QString toolChainFile() const;
+    void setQulPlatform(const QString &qulPlatform);
     QString qulPlatform() const;
-    QVector<PackageOptions *> packages() const;
+    void setColorDepth(int colorDepth);
+    int colorDepth() const;
+    bool isValid() const;
 
 private:
     const QString m_vendor;
     const QString m_model;
-    const QString m_toolChainFile;
-    const QString m_qulPlatform;
-    const QVector<PackageOptions*> m_packages;
+    const QVector<McuPackage*> m_packages;
+    QString m_toolChainFile;
+    QString m_qulPlatform;
+    int m_colorDepth = -1;
 };
 
 class McuSupportOptions : public QObject
@@ -126,13 +131,15 @@ public:
     McuSupportOptions(QObject *parent = nullptr);
     ~McuSupportOptions() override;
 
-    QVector<BoardOptions*> validBoards() const;
+    QVector<McuPackage*> packages;
+    QVector<McuTarget*> mcuTargets;
+    McuPackage *armGccPackage = nullptr;
+    McuPackage *qtForMCUsSdkPackage = nullptr;
 
-    QVector<PackageOptions*> packages;
-    QVector<BoardOptions*> boards;
-    PackageOptions *toolchainPackage = nullptr;
+    QString kitName(const McuTarget* mcuTarget) const;
 
-    ProjectExplorer::Kit *kit(const BoardOptions* board);
+    QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTargt);
+    ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
 
 signals:
     void changed();

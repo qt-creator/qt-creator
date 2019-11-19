@@ -457,33 +457,31 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 
 void StackHandler::copyContentsToClipboard()
 {
-    QString str;
-    int n = rowCount();
-    int m = columnCount(QModelIndex());
+    const int m = columnCount(QModelIndex());
     QVector<int> largestColumnWidths(m, 0);
 
     // First, find the widths of the largest columns,
     // so that we can print them out nicely aligned.
-    for (int i = 0; i != n; ++i) {
+    forItemsAtLevel<2>([m, &largestColumnWidths](StackFrameItem *item) {
         for (int j = 0; j < m; ++j) {
-            const QModelIndex idx = index(i, j);
-            const int columnWidth = data(idx, Qt::DisplayRole).toString().size();
+            const int columnWidth = item->data(j, Qt::DisplayRole).toString().size();
             if (columnWidth > largestColumnWidths.at(j))
                 largestColumnWidths[j] = columnWidth;
         }
-    }
+    });
 
-    for (int i = 0; i != n; ++i) {
+    QString str;
+    forItemsAtLevel<2>([m, largestColumnWidths, &str](StackFrameItem *item) {
         for (int j = 0; j != m; ++j) {
-            QModelIndex idx = index(i, j);
-            const QString columnEntry = data(idx, Qt::DisplayRole).toString();
+            const QString columnEntry = item->data(j, Qt::DisplayRole).toString();
             str += columnEntry;
             const int difference = largestColumnWidths.at(j) - columnEntry.size();
             // Add one extra space between columns.
-            str += QString().fill(' ', difference > 0 ? difference + 1 : 1);
+            str += QString(qMax(difference, 0) + 1, QChar(' '));
         }
         str += '\n';
-    }
+    });
+
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #pragma once
+#include <utils/fileutils.h>
 #include <QSettings>
 
 namespace CMakeProjectManager {
@@ -42,11 +43,14 @@ public:
     void fromSettings(QSettings *settings);
     void toSettings(QSettings *settings) const;
 
-    void setAfterAddFileSetting(AfterAddFileAction settings) { afterAddFileToProjectSetting = settings; }
-    AfterAddFileAction afterAddFileSetting() const { return afterAddFileToProjectSetting; }
+    void setAfterAddFileSetting(AfterAddFileAction settings) { m_afterAddFileToProjectSetting = settings; }
+    AfterAddFileAction afterAddFileSetting() const { return m_afterAddFileToProjectSetting; }
+
+    Utils::FilePath ninjaPath() const { return m_ninjaPath; }
 
 private:
-    AfterAddFileAction afterAddFileToProjectSetting;
+    AfterAddFileAction m_afterAddFileToProjectSetting;
+    Utils::FilePath m_ninjaPath;
 };
 
 }

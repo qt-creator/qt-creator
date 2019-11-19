@@ -58,6 +58,7 @@ public:
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;
 private:
+    std::unique_ptr<QObject> m_guard;
     mutable QStringList m_androidAbis;
     mutable int m_minNdk = -1;
 };

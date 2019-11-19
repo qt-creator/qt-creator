@@ -114,6 +114,7 @@ Rectangle {
                     var y = root.mapToGlobal(0,0).y - 32
                     bindingEditor.showWidget(x, y)
                     bindingEditor.text = delegateWhenConditionString
+                    bindingEditor.prepareBindings()
                 }
 
             }
@@ -204,6 +205,8 @@ Rectangle {
         }
 
         id: bindingEditor
+
+        stateModelNodeProperty: statesEditorModel.stateModelNode()
 
         onRejected: {
             hideWidget()

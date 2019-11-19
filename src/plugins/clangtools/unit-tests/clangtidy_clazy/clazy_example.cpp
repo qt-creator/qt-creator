@@ -23,19 +23,11 @@
 **
 ****************************************************************************/
 
-#include <QCoreApplication>
+#include <QByteArray>
+#include <QtGlobal>
 
-// -Wclazy-ctor-missing-parent-argument
-class TestObject : public QObject
+void test()
 {
-    Q_OBJECT
-
-public:
-    TestObject();
-
-    bool event(QEvent *) override
-    {
-        // -Wclazy-base-class-event
-        return false;
-    }
-};
+    // -Wclazy-qgetenv
+    qgetenv("Foo").isEmpty();
+}
