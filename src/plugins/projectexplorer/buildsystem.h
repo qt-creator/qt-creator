@@ -86,7 +86,7 @@ public:
     const QList<BuildTargetInfo> applicationTargets() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;
 
-    class ParseGuard
+    class PROJECTEXPLORER_EXPORT ParseGuard
     {
         friend class BuildSystem;
         explicit ParseGuard(BuildSystem *p);

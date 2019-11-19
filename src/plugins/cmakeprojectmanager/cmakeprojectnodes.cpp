@@ -51,8 +51,8 @@
 
 using namespace ProjectExplorer;
 
-using namespace CMakeProjectManager;
-using namespace CMakeProjectManager::Internal;
+namespace CMakeProjectManager {
+namespace Internal {
 
 namespace {
 void copySourcePathToClipboard(Utils::optional<QString> srcPath,
@@ -283,3 +283,6 @@ void CMakeTargetNode::setTargetInformation(const QList<Utils::FilePath> &artifac
                 + tmp.join("<br>");
     }
 }
+
+} // Internal
+} // CMakeBuildSystem
