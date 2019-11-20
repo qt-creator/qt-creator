@@ -84,6 +84,11 @@ QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
     return qobject_cast<QmakeBuildConfiguration *>(buildConfiguration());
 }
 
+QmakeBuildSystem *QMakeStep::qmakeBuildSystem() const
+{
+    return qmakeBuildConfiguration()->qmakeBuildSystem();
+}
+
 ///
 /// Returns all arguments
 /// That is: possbile subpath
@@ -359,7 +364,7 @@ void QMakeStep::setUserArguments(const QString &arguments)
     emit userArgumentsChanged();
 
     emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
-    qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
+    qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
 }
 
 QStringList QMakeStep::extraArguments() const
@@ -373,7 +378,7 @@ void QMakeStep::setExtraArguments(const QStringList &args)
         m_extraArgs = args;
         emit extraArgumentsChanged();
         emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
-        qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
+        qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     }
 }
 
@@ -402,7 +407,7 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
     emit linkQmlDebuggingLibraryChanged();
 
     emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
-    qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
+    qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
 }
 
 bool QMakeStep::useQtQuickCompiler() const
@@ -420,7 +425,7 @@ void QMakeStep::setUseQtQuickCompiler(bool enable)
     emit useQtQuickCompilerChanged();
 
     emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
-    qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
+    qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
 }
 
 bool QMakeStep::separateDebugInfo() const
@@ -437,7 +442,7 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
     emit separateDebugInfoChanged();
 
     emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
-    qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
+    qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
 }
 
 FilePath QMakeStep::makeCommand() const

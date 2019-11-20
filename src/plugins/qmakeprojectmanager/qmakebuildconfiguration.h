@@ -92,8 +92,6 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
     static void setupBuildEnvironment(ProjectExplorer::Kit *k, Utils::Environment &env);
 
-    void emitProFileEvaluateNeeded();
-
     static QString unalignedBuildDirWarning();
     static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);
     bool isBuildDirAtSafeLocation() const;

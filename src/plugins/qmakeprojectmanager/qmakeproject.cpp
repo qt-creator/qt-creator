@@ -38,13 +38,11 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectupdater.h>
+#include <cpptools/generatedcodemodelsupport.h>
 #include <cpptools/projectinfo.h>
-#include <projectexplorer/headerpath.h>
-#include <projectexplorer/rawprojectpart.h>
-#include <utils/algorithm.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
@@ -53,28 +51,31 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
+
 #include <proparser/qmakevfs.h>
 #include <proparser/qmakeglobals.h>
+
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
-#include <cpptools/generatedcodemodelsupport.h>
-#include <resourceeditor/resourcenode.h>
-#include <extensionsystem/pluginmanager.h>
+
+#include <utils/algorithm.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
-#include <QMessageBox>
 
-using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
+using namespace QtSupport;
 using namespace Utils;
 
 namespace QmakeProjectManager {
@@ -211,6 +212,23 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
 
     connect(bc->project(), &Project::projectFileIsDirty,
             this, &QmakeBuildSystem::scheduleUpdateAllLater);
+
+    connect(bc, &BuildConfiguration::buildDirectoryChanged,
+            this, &QmakeBuildSystem::scheduleUpdateAllNowOrLater);
+    connect(bc, &BuildConfiguration::environmentChanged,
+            this, &QmakeBuildSystem::scheduleUpdateAllNowOrLater);
+
+    connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
+            this, [this](ToolChain *tc) {
+        if (ToolChainKitAspect::toolChain(kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID) == tc)
+            scheduleUpdateAllNowOrLater();
+    });
+
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, [this](const QList<int> &,const QList<int> &, const QList<int> &changed) {
+        if (changed.contains(QtKitAspect::qtVersionId(kit())))
+            scheduleUpdateAllNowOrLater();
+    });
 }
 
 QmakeBuildSystem::~QmakeBuildSystem()

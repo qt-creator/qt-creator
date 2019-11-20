@@ -35,15 +35,13 @@
 
 namespace ProjectExplorer {
 class Abi;
-class BuildStep;
-class BuildStepFactory;
-class Project;
 } // namespace ProjectExplorer
 
 namespace QtSupport { class BaseQtVersion; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
+class QmakeBuildSystem;
 
 namespace Internal {
 
@@ -113,6 +111,7 @@ public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
+    QmakeBuildSystem *qmakeBuildSystem() const;
     bool init() override;
     void doRun() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;

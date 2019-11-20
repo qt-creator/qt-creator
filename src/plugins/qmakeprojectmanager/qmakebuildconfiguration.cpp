@@ -50,8 +50,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
@@ -110,10 +108,6 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
 {
     m_buildSystem = new QmakeBuildSystem(this);
 
-    connect(this, &BuildConfiguration::buildDirectoryChanged,
-            this, &QmakeBuildConfiguration::emitProFileEvaluateNeeded);
-    connect(this, &BuildConfiguration::environmentChanged,
-            this, &QmakeBuildConfiguration::emitProFileEvaluateNeeded);
     connect(target, &Target::kitChanged,
             this, &QmakeBuildConfiguration::kitChanged);
     MacroExpander *expander = macroExpander();
@@ -123,10 +117,6 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
             return file;
         return QLatin1String("Makefile");
     });
-    connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
-            this, &QmakeBuildConfiguration::toolChainUpdated);
-    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            this, &QmakeBuildConfiguration::qtVersionsChanged);
 }
 
 void QmakeBuildConfiguration::initialize()
@@ -207,21 +197,9 @@ void QmakeBuildConfiguration::kitChanged()
         // This only checks if the ids have changed!
         // For that reason the QmakeBuildConfiguration is also connected
         // to the toolchain and qtversion managers
-        emitProFileEvaluateNeeded();
+        m_buildSystem->scheduleUpdateAllNowOrLater();
         m_lastKitState = newState;
     }
-}
-
-void QmakeBuildConfiguration::toolChainUpdated(ToolChain *tc)
-{
-    if (ToolChainKitAspect::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID) == tc)
-        emitProFileEvaluateNeeded();
-}
-
-void QmakeBuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<int> &, const QList<int> &changed)
-{
-    if (changed.contains(QtKitAspect::qtVersionId(target()->kit())))
-        emitProFileEvaluateNeeded();
 }
 
 BuildSystem *QmakeBuildConfiguration::buildSystem() const
@@ -280,13 +258,8 @@ void QmakeBuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBui
     m_qmakeBuildConfiguration = config;
 
     emit qmakeBuildConfigurationChanged();
-    emitProFileEvaluateNeeded();
-    emit buildTypeChanged();
-}
-
-void QmakeBuildConfiguration::emitProFileEvaluateNeeded()
-{
     m_buildSystem->scheduleUpdateAllNowOrLater();
+    emit buildTypeChanged();
 }
 
 QString QmakeBuildConfiguration::unalignedBuildDirWarning()
