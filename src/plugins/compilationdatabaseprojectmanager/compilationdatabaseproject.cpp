@@ -427,7 +427,7 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
         root->addNode(std::make_unique<FileNode>(Utils::FilePath::fromString(dbContents.extraFileName),
                                                  FileType::Project));
 
-    project()->setRootProjectNode(std::move(root));
+    setRootProjectNode(std::move(root));
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps});
     updateDeploymentData();

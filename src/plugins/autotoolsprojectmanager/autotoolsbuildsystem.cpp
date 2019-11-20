@@ -146,7 +146,7 @@ void AutotoolsBuildSystem::makefileParsingFinished()
         newRoot->addNestedNode(std::make_unique<FileNode>(path,
                                                           FileNode::fileTypeForFileName(path)));
     }
-    project()->setRootProjectNode(std::move(newRoot));
+    setRootProjectNode(std::move(newRoot));
     project()->setExtraProjectFiles(filesToWatch);
 
     updateCppCodeModel();

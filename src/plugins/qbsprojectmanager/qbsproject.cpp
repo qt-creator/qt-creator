@@ -694,7 +694,7 @@ void QbsBuildSystem::rebuildProjectTree()
 {
     std::unique_ptr<QbsRootProjectNode> newRoot = Internal::QbsNodeTreeBuilder::buildTree(this);
     project()->setDisplayName(newRoot ? newRoot->displayName() : projectFilePath().toFileInfo().completeBaseName());
-    project()->setRootProjectNode(std::move(newRoot));
+    setRootProjectNode(std::move(newRoot));
 }
 
 void QbsBuildSystem::handleRuleExecutionDone()

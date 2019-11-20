@@ -154,7 +154,7 @@ void NimBuildSystem::updateProject()
         auto projectNode = std::make_unique<ProjectNode>(project()->projectDirectory());
         projectNode->setDisplayName(project()->displayName());
         projectNode->addNestedNodes(std::move(nodes));
-        project()->setRootProjectNode(std::move(projectNode));
+        setRootProjectNode(std::move(projectNode));
     }
 
     // Complete scan

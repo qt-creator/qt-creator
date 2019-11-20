@@ -492,7 +492,7 @@ void GenericBuildSystem::refresh(RefreshOptions options)
                                                           FileType::Project));
 
         newRoot->compress();
-        project()->setRootProjectNode(std::move(newRoot));
+        setRootProjectNode(std::move(newRoot));
     }
 
     refreshCppCodeModel();

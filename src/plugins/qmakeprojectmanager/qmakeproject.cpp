@@ -490,7 +490,7 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
     m_asyncUpdateFutureInterface.setProgressValue(m_asyncUpdateFutureInterface.progressValue() + 1);
     if (m_pendingEvaluateFuturesCount == 0) {
         // We are done!
-        project()->setRootProjectNode(QmakeNodeTreeBuilder::buildTree(this));
+        setRootProjectNode(QmakeNodeTreeBuilder::buildTree(this));
 
         if (!m_rootProFile->validParse())
             m_asyncUpdateFutureInterface.reportCanceled();

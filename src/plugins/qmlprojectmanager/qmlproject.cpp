@@ -363,7 +363,7 @@ void QmlBuildSystem::generateProjectTree()
     }
     newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
-    project()->setRootProjectNode(std::move(newRoot));
+    setRootProjectNode(std::move(newRoot));
     refreshTargetDirectory();
 }
 

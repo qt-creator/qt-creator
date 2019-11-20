@@ -87,6 +87,8 @@ public:
     const QList<BuildTargetInfo> applicationTargets() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;
 
+    void setRootProjectNode(std::unique_ptr<ProjectNode> &&root);
+
     class PROJECTEXPLORER_EXPORT ParseGuard
     {
         friend class BuildSystem;

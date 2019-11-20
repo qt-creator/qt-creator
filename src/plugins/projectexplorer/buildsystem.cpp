@@ -304,6 +304,11 @@ BuildTargetInfo BuildSystem::buildTarget(const QString &buildKey) const
     });
 }
 
+void BuildSystem::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
+{
+    d->m_target->project()->setRootProjectNode(std::move(root));
+}
+
 QString BuildSystem::disabledReason(const QString &buildKey) const
 {
     if (hasParsingData()) {

@@ -222,7 +222,7 @@ void PythonBuildSystem::triggerParsing()
             appTargets.append(bti);
         }
     }
-    project()->setRootProjectNode(std::move(newRoot));
+    setRootProjectNode(std::move(newRoot));
 
     setApplicationTargets(appTargets);
 
