@@ -202,14 +202,16 @@ void McuPackage::updateStatus()
 }
 
 McuTarget::McuTarget(const QString &vendor, const QString &model,
-                     const QString &toolChainFileName, const QString &qulPlatform,
                      const QVector<McuPackage*> &packages)
     : m_vendor(vendor)
     , m_model(model)
-    , m_toolChainFile(toolChainFileName)
-    , m_qulPlatform(qulPlatform)
     , m_packages(packages)
 {
+}
+
+QString McuTarget::vendor() const
+{
+    return m_vendor;
 }
 
 QString McuTarget::model() const
@@ -217,9 +219,24 @@ QString McuTarget::model() const
     return m_model;
 }
 
+QVector<McuPackage *> McuTarget::packages() const
+{
+    return m_packages;
+}
+
+void McuTarget::setToolChainFile(const QString &toolChainFile)
+{
+    m_toolChainFile = toolChainFile;
+}
+
 QString McuTarget::toolChainFile() const
 {
     return m_toolChainFile;
+}
+
+void McuTarget::setQulPlatform(const QString &qulPlatform)
+{
+    m_qulPlatform = qulPlatform;
 }
 
 QString McuTarget::qulPlatform() const
@@ -227,21 +244,11 @@ QString McuTarget::qulPlatform() const
     return m_qulPlatform;
 }
 
-QVector<McuPackage *> McuTarget::packages() const
-{
-    return m_packages;
-}
-
 bool McuTarget::isValid() const
 {
     return !Utils::anyOf(packages(), [](McuPackage *package) {
         return package->status() != McuPackage::ValidPackage;
     });
-}
-
-QString McuTarget::vendor() const
-{
-    return m_vendor;
 }
 
 static McuPackage *createQtForMCUsPackage()
@@ -377,38 +384,30 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     const QString vendorNxp = "NXP";
     const QString vendorQt = "Qt";
 
-    mcuTargets.append(new McuTarget(vendorStm,
-                                    "stm32f7508",
-                                    "CMake/stm32f7508-discovery.cmake",
-                                    "",
-                                    stmEvalPackages));
-    mcuTargets.append(new McuTarget(vendorStm,
-                                    "stm32f769i",
-                                    "CMake/stm32f769i-discovery.cmake",
-                                    "",
-                                    stmEvalPackages));
-    mcuTargets.append(new McuTarget(vendorStm,
-                                    "Engineering",
-                                    "CMake/<toolchain file>",
-                                    "",
-                                    stmEngPackages));
+    // STM
+    auto mcuTarget = new McuTarget(vendorStm, "stm32f7508", stmEvalPackages);
+    mcuTarget->setToolChainFile("CMake/stm32f7508-discovery.cmake");
+    mcuTargets.append(mcuTarget);
 
-    mcuTargets.append(new McuTarget(vendorNxp,
-                                    "evkbimxrt1050",
-                                    "CMake/evkbimxrt1050-toolchain.cmake",
-                                    "",
-                                    nxpEvalPackages));
-    mcuTargets.append(new McuTarget(vendorNxp,
-                                    "Engineering",
-                                    "CMake/<toolchain file>",
-                                    "",
-                                    nxpEngPackages));
+    mcuTarget = new McuTarget(vendorStm, "stm32f769i", stmEvalPackages);
+    mcuTarget->setToolChainFile("CMake/stm32f769i-discovery.cmake");
+    mcuTargets.append(mcuTarget);
 
-    mcuTargets.append(new McuTarget(vendorQt,
-                                    "Desktop",
-                                    "",
-                                    "Qt",
-                                    desktopPackages));
+    mcuTarget = new McuTarget(vendorStm, "Engineering", stmEngPackages);
+    mcuTargets.append(mcuTarget);
+
+    // NXP
+    mcuTarget = new McuTarget(vendorNxp, "evkbimxrt1050", nxpEvalPackages);
+    mcuTarget->setToolChainFile("CMake/evkbimxrt1050-toolchain.cmake");
+    mcuTargets.append(mcuTarget);
+
+    mcuTarget = new McuTarget(vendorNxp, "Engineering",  nxpEngPackages);
+    mcuTargets.append(mcuTarget);
+
+    // Desktop
+    mcuTarget = new McuTarget(vendorQt, "Desktop", desktopPackages);
+    mcuTarget->setQulPlatform("Qt");
+    mcuTargets.append(mcuTarget);
 
     for (auto package : packages)
         connect(package, &McuPackage::changed, [this](){
