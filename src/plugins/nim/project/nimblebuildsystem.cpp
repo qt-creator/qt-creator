@@ -118,7 +118,7 @@ NimbleBuildSystem::NimbleBuildSystem(Target *target)
     m_directoryWatcher.addFile(projectFilePath().toString(), FileSystemWatcher::WatchModifiedDate);
 
     connect(&m_directoryWatcher, &FileSystemWatcher::fileChanged, this, [this](const QString &path) {
-        if (path == project()->projectFilePath().toString()) {
+        if (path == projectFilePath().toString()) {
             updateProject();
         }
     });
