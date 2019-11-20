@@ -288,8 +288,8 @@ bool AndroidRunnerWorker::uploadGdbServer()
         qCDebug(androidRunWorkerLog) << "Gdbserver copy from temp directory failed";
         return false;
     }
-    QTC_ASSERT(runAdb({"shell", "run-as", m_packageName, "chmod", "+x", "./gdbserver"}),
-                   qCDebug(androidRunWorkerLog) << "Gdbserver chmod +x failed.");
+    QTC_ASSERT(runAdb({"shell", "run-as", m_packageName, "chmod", "777", "./gdbserver"}),
+                   qCDebug(androidRunWorkerLog) << "Gdbserver chmod 777 failed.");
     return true;
 }
 
