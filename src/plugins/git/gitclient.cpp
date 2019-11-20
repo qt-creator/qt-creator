@@ -875,7 +875,7 @@ void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex
         stageChunk(diffController, fileIndex, chunkIndex,
                    DiffEditorController::NoOption, DiffEditor::ChunkSelection());
     });
-    QAction *stageLinesAction = menu->addAction(tr("Stage %n Line(s)", "", selection.selectedRowsCount));
+    QAction *stageLinesAction = menu->addAction(tr("Stage Selection (%n Lines)", "", selection.selectedRowsCount()));
     connect(stageLinesAction, &QAction::triggered, this,
             [stageChunk, diffController, fileIndex, chunkIndex, selection]() {
         stageChunk(diffController, fileIndex, chunkIndex,
@@ -887,7 +887,7 @@ void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex
         stageChunk(diffController, fileIndex, chunkIndex,
                    DiffEditorController::Revert, DiffEditor::ChunkSelection());
     });
-    QAction *unstageLinesAction = menu->addAction(tr("Unstage %n Line(s)", "", selection.selectedRowsCount));
+    QAction *unstageLinesAction = menu->addAction(tr("Unstage Selection (%n Lines)", "", selection.selectedRowsCount()));
     connect(unstageLinesAction, &QAction::triggered, this,
             [stageChunk, diffController, fileIndex, chunkIndex, selection]() {
         stageChunk(diffController, fileIndex, chunkIndex,

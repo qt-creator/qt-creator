@@ -76,6 +76,14 @@ DiffEditorController *DiffEditorDocument::controller() const
     return m_controller;
 }
 
+static void appendRow(ChunkData *chunk, const RowData &row)
+{
+    const bool isSeparator = row.leftLine.textLineType == TextLineData::Separator
+            && row.rightLine.textLineType == TextLineData::Separator;
+    if (!isSeparator)
+        chunk->rows.append(row);
+}
+
 ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
                                           const ChunkSelection &selection, bool revert)
 {
@@ -83,25 +91,45 @@ ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
         return data;
 
     ChunkData chunk(data);
-    for (int i = 0; i < chunk.rows.count(); ++i) {
-        RowData &row = chunk.rows[i];
-        if (i < selection.startRow || i >= selection.startRow + selection.selectedRowsCount) {
+    chunk.rows.clear();
+    for (int i = 0; i < data.rows.count(); ++i) {
+        RowData row = data.rows[i];
+        const bool isLeftSelected = selection.leftSelection.contains(i);
+        const bool isRightSelected = selection.rightSelection.contains(i);
+
+        if (isLeftSelected || isRightSelected) {
+            if (row.equal || (isLeftSelected && isRightSelected)) {
+                appendRow(&chunk, row);
+            } else if (isLeftSelected) {
+                RowData newRow = row;
+
+                row.rightLine = TextLineData(TextLineData::Separator);
+                appendRow(&chunk, row);
+
+                if (revert) {
+                    newRow.leftLine = newRow.rightLine;
+                    newRow.equal = true;
+                    appendRow(&chunk, newRow);
+                }
+            } else { // isRightSelected
+                if (!revert) {
+                    RowData newRow = row;
+                    newRow.rightLine = newRow.leftLine;
+                    newRow.equal = true;
+                    appendRow(&chunk, newRow);
+                }
+
+                row.leftLine = TextLineData(TextLineData::Separator);
+                appendRow(&chunk, row);
+            }
+        } else {
             if (revert)
                 row.leftLine = row.rightLine;
             else
                 row.rightLine = row.leftLine;
             row.equal = true;
+            appendRow(&chunk, row);
         }
-    }
-
-    for (int i = 0; i < chunk.rows.count(); ) {
-        const RowData &row = chunk.rows[i];
-        const bool isSeparator = row.leftLine.textLineType == TextLineData::Separator
-                && row.rightLine.textLineType == TextLineData::Separator;
-        if (isSeparator)
-            chunk.rows.removeAt(i);
-        else
-            ++i;
     }
 
     return chunk;

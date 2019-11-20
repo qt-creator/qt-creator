@@ -26,6 +26,7 @@
 #include "diffutils.h"
 
 #include <texteditor/fontsettings.h>
+#include <utils/algorithm.h>
 #include <utils/differ.h>
 
 #include <QFutureInterfaceBase>
@@ -36,6 +37,11 @@
 using namespace Utils;
 
 namespace DiffEditor {
+
+int ChunkSelection::selectedRowsCount() const
+{
+    return Utils::toSet(leftSelection).unite(Utils::toSet(rightSelection)).count();
+}
 
 static QList<TextLineData> assemblyRows(const QList<TextLineData> &lines,
                                         const QMap<int, int> &lineSpans)

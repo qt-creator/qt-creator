@@ -194,8 +194,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     const ChunkData chunkData = m_controller.chunkData(fileIndex, chunkIndex);
 
-    int selectionStart = -1;
-    int selectionEnd = -1;
+    QList<int> leftSelection, rightSelection;
 
     for (int i = startBlockNumber; i <= endBlockNumber; ++i) {
         const int currentFileIndex = fileIndexForBlockNumber(i);
@@ -214,18 +213,14 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
         const int leftRow = m_leftLineNumbers.value(i, qMakePair(-1, -1)).second;
         const int rightRow = m_rightLineNumbers.value(i, qMakePair(-1, -1)).second;
-        const int row = leftRow >= 0 ? leftRow : rightRow;
 
-        if (row < 0)
-            continue;
-
-        if (selectionStart < 0 || selectionStart > row)
-            selectionStart = row;
-        if (selectionEnd < 0 || selectionEnd < row)
-            selectionEnd = row;
+        if (leftRow >= 0)
+            leftSelection.append(leftRow);
+        if (rightRow >= 0)
+            rightSelection.append(rightRow);
     }
 
-    const ChunkSelection selection(selectionStart, selectionEnd - selectionStart + 1);
+    const ChunkSelection selection(leftSelection, rightSelection);
 
     addContextMenuActions(menu, fileIndexForBlockNumber(blockNumber),
                           chunkIndexForBlockNumber(blockNumber), selection);

@@ -102,10 +102,12 @@ public:
 class DIFFEDITOR_EXPORT ChunkSelection {
 public:
     ChunkSelection() {}
-    ChunkSelection(int s, int c) : startRow(s), selectedRowsCount(c) {}
-    bool isNull() const { return selectedRowsCount <= 0; }
-    int startRow = -1;
-    int selectedRowsCount = 0;
+    ChunkSelection(const QList<int> &left, const QList<int> &right)
+        : leftSelection(left), rightSelection(right) {}
+    bool isNull() const { return leftSelection.isEmpty() && rightSelection.isEmpty(); }
+    int selectedRowsCount() const;
+    QList<int> leftSelection;
+    QList<int> rightSelection;
 };
 
 class DIFFEDITOR_EXPORT FileData {

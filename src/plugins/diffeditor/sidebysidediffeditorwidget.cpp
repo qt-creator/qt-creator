@@ -512,7 +512,11 @@ void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
             ? chunkRowForBlockNumber(endBlockNumber)
             : chunkRowsCountForBlockNumber(blockNumber);
 
-    const ChunkSelection selection(selectionStart, selectionEnd - selectionStart + 1);
+    QList<int> rows;
+    for (int i = selectionStart; i <= selectionEnd; ++i)
+        rows.append(i);
+
+    const ChunkSelection selection(rows, rows);
 
     emit contextMenuRequested(menu, fileIndexForBlockNumber(blockNumber),
                               chunkIndexForBlockNumber(blockNumber),
