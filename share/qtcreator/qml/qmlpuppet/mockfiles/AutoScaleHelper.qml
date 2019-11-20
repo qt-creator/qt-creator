@@ -81,6 +81,7 @@ Node {
 
     MouseArea3D {
         id: helper
+        active: false
         view3D: overlayNode.view3D
     }
 }

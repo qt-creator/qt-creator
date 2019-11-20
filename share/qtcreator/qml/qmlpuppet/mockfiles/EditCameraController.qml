@@ -30,6 +30,7 @@ Item {
     id: cameraCtrl
 
     property Camera camera: null
+    property View3D view3d: null
 
     property vector3d _lookAtPoint
     property vector3d _pressPoint
@@ -43,6 +44,15 @@ Item {
     property real _zoomFactor: 1
     property real _defaultCameraLookAtDistance: 0
     property Camera _prevCamera: null
+
+    function fitObject(targetObject, rotation)
+    {
+        camera.rotation = rotation;
+        var newLookAtAndZoom = _generalHelper.fitObjectToCamera(
+                    camera, _defaultCameraLookAtDistance, targetObject, view3d);
+        _lookAtPoint = newLookAtAndZoom.toVector3d();
+        _zoomFactor = newLookAtAndZoom.w;
+    }
 
     function zoomRelative(distance)
     {

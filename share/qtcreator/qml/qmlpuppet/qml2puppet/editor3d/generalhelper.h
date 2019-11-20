@@ -28,6 +28,8 @@
 #ifdef QUICK3D_MODULE
 
 #include <QtQuick3D/private/qquick3dcamera_p.h>
+#include <QtQuick3D/private/qquick3dnode_p.h>
+#include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qtimer.h>
 
@@ -53,6 +55,8 @@ public:
     Q_INVOKABLE float zoomCamera(QQuick3DCamera *camera, float distance,
                                  float defaultLookAtDistance, const QVector3D &lookAt,
                                  float zoomFactor, bool relative);
+    Q_INVOKABLE QVector4D fitObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                            QQuick3DNode *targetObject, QQuick3DViewport *viewPort);
 
 signals:
     void overlayUpdateNeeded();

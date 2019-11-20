@@ -28,7 +28,15 @@
 
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
+#include <QtQuick3D/private/qquick3dobject_p_p.h>
+#include <QtQuick3D/private/qquick3dmodel_p.h>
+#include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
+#include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
+#include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
+#include <QtQuick3DUtils/private/qssgbounds3_p.h>
+#include <QtQuick/qquickwindow.h>
 #include <QtCore/qhash.h>
+#include <QtCore/qmath.h>
 #include <QtGui/qmatrix4x4.h>
 
 namespace QmlDesigner {
@@ -124,6 +132,57 @@ float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float de
     }
 
     return newZoomFactor;
+}
+
+// Return value contains new lookAt point (xyz) and zoom factor (w)
+QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                           QQuick3DNode *targetObject, QQuick3DViewport *viewPort)
+{
+    if (!camera)
+        return QVector4D(0.f, 0.f, 0.f, 1.f);
+
+    QVector3D lookAt = targetObject ? targetObject->scenePosition() : QVector3D();
+
+    // Get object bounds
+    qreal maxExtent = 200.;
+    if (auto modelNode = qobject_cast<QQuick3DModel *>(targetObject)) {
+        auto targetPriv = QQuick3DObjectPrivate::get(targetObject);
+        if (auto renderModel = static_cast<QSSGRenderModel *>(targetPriv->spatialNode)) {
+            QWindow *window = static_cast<QWindow *>(viewPort->window());
+            if (window) {
+                auto context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
+                if (!context.isNull()) {
+                    auto bufferManager = context->bufferManager();
+                    QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
+                    QVector3D center = bounds.center();
+                    const QVector3D e = bounds.extents();
+                    const QVector3D s = targetObject->sceneScale();
+                    qreal maxScale = qSqrt(qreal(s.x() * s.x() + s.y() * s.y() + s.z() * s.z()));
+                    maxExtent = qSqrt(qreal(e.x() * e.x() + e.y() * e.y() + e.z() * e.z()));
+                    maxExtent *= maxScale;
+
+                    // Adjust lookAt to look directly at the center of the object bounds
+                    QMatrix4x4 m = targetObject->sceneTransform();
+                    lookAt = m.map(center);
+                }
+            }
+        }
+    }
+
+    // Reset camera position to default zoom
+    QMatrix4x4 m = camera->sceneTransform();
+    const float *dataPtr(m.data());
+    QVector3D newLookVector(-dataPtr[8], -dataPtr[9], -dataPtr[10]);
+    newLookVector.normalize();
+    newLookVector *= defaultLookAtDistance;
+
+    camera->setPosition(lookAt + newLookVector);
+
+    // Emprically determined algorithm for nice zoom
+    float newZoomFactor = qBound(.0001f, float(maxExtent / 700.), 10000.f);
+
+    return QVector4D(lookAt,
+                     zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false));
 }
 
 }

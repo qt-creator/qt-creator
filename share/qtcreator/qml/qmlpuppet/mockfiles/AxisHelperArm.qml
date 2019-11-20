@@ -26,43 +26,45 @@
 import QtQuick 2.0
 import QtQuick3D 1.0
 
-Item {
-    id: root
-    property Node targetNode
-    property View3D targetView
+Node {
+    id: armRoot
+    property alias posModel: posModel
+    property alias negModel: negModel
+    property View3D view3D
+    property color hoverColor
+    property color color
+    property vector3d camRotPos
+    property vector3d camRotNeg
 
-    property vector3d offset: Qt.vector3d(0, 0, 0)
+    Model {
+        id: posModel
 
-    property bool isBehindCamera
+        property bool hovering: false
+        property vector3d cameraRotation: armRoot.camRotPos
 
-    onTargetNodeChanged: updateOverlay()
-
-    Connections {
-        target: targetNode
-        onSceneTransformChanged: updateOverlay()
+        source: "meshes/axishelper.mesh"
+        materials: DefaultMaterial {
+            id: posMat
+            emissiveColor: posModel.hovering ? armRoot.hoverColor : armRoot.color
+            lighting: DefaultMaterial.NoLighting
+        }
+        pickable: true
     }
 
-    Connections {
-        target: targetView.camera
-        onSceneTransformChanged: updateOverlay()
-    }
+    Model {
+        id: negModel
 
-    Connections {
-        target: _generalHelper
-        onOverlayUpdateNeeded: updateOverlay()
-    }
+        property bool hovering: false
+        property vector3d cameraRotation: armRoot.camRotNeg
 
-    function updateOverlay()
-    {
-        var scenePos = targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0);
-        var scenePosWithOffset = Qt.vector3d(scenePos.x + offset.x,
-                                             scenePos.y + offset.y,
-                                             scenePos.z + offset.z);
-        var viewPos = targetView ? targetView.mapFrom3DScene(scenePosWithOffset)
-                                 : Qt.vector3d(0, 0, 0);
-        root.x = viewPos.x;
-        root.y = viewPos.y;
-
-        isBehindCamera = viewPos.z <= 0;
+        source: "#Sphere"
+        y: -6
+        scale: Qt.vector3d(0.025, 0.025, 0.025)
+        materials: DefaultMaterial {
+            id: negMat
+            emissiveColor: negModel.hovering ? armRoot.hoverColor : armRoot.color
+            lighting: DefaultMaterial.NoLighting
+        }
+        pickable: true
     }
 }

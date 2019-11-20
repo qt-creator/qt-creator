@@ -248,8 +248,7 @@ Window {
             id: gizmoLabel
             targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
             targetView: overlayView
-            offsetX: 0
-            offsetY: 45
+            offset: Qt.vector3d(0, 45, 0)
             visible: targetNode.dragging
 
             Rectangle {
@@ -285,6 +284,7 @@ Window {
             id: cameraControl
             camera: editView.camera
             anchors.fill: parent
+            view3d: editView
         }
     }
 
@@ -357,9 +357,18 @@ Window {
         }
     }
 
-    Column {
-        y: 8
+    AxisHelper {
         anchors.right: parent.right
+        anchors.top: parent.top
+        width: 100
+        height: width
+        editCameraCtrl: cameraControl
+        selectedNode : viewWindow.selectedNode
+    }
+
+    Column {
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
         CheckBox {
             id: editLightCheckbox
             checked: false

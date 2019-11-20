@@ -49,8 +49,6 @@ Node {
         id: iconOverlay
         targetNode: iconGizmo
         targetView: view3D
-        offsetX: 0
-        offsetY: 0
         visible: iconGizmo.visible && !isBehindCamera
         parent: view3D
 
