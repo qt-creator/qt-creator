@@ -36,7 +36,7 @@ class BaseQtVersion;
 class QTSUPPORT_EXPORT CppKitInfo : public ProjectExplorer::KitInfo
 {
 public:
-    CppKitInfo(ProjectExplorer::Project *project);
+    CppKitInfo(ProjectExplorer::Kit *kit);
 
     BaseQtVersion *qtVersion = nullptr;
 };

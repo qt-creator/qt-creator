@@ -1012,7 +1012,7 @@ void QbsBuildSystem::updateCppCodeModel()
     qDeleteAll(m_extraCompilers);
     m_extraCompilers.clear();
 
-    QtSupport::CppKitInfo kitInfo(project());
+    QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
 
     RawProjectParts rpps;

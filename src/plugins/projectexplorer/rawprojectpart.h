@@ -125,7 +125,7 @@ using RawProjectParts = QVector<RawProjectPart>;
 class PROJECTEXPLORER_EXPORT KitInfo
 {
 public:
-    explicit KitInfo(Project *project);
+    explicit KitInfo(Kit *kit);
 
     bool isValid() const;
 

@@ -175,7 +175,7 @@ static QStringList filterIncludes(const QString &absSrc, const QString &absBuild
 
 void AutotoolsBuildSystem::updateCppCodeModel()
 {
-    QtSupport::CppKitInfo kitInfo(project());
+    QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return );
 
     const Utils::FilePath projectFilePath = project()->projectFilePath();

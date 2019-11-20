@@ -90,6 +90,11 @@ Target *BuildSystem::target() const
     return d->m_target;
 }
 
+Kit *BuildSystem::kit() const
+{
+    return d->m_target->kit();
+}
+
 void BuildSystem::emitParsingStarted()
 {
     QTC_ASSERT(!d->m_isParsing, return);

@@ -150,14 +150,9 @@ void RawProjectPart::setBuildTargetType(BuildTargetType type)
     buildTargetType = type;
 }
 
-KitInfo::KitInfo(Project *project)
+KitInfo::KitInfo(Kit *kit)
+    : kit(kit)
 {
-    // Kit
-    if (Target *target = project->activeTarget())
-        kit = target->kit();
-    else
-        kit = KitManager::defaultKit();
-
     // Toolchains
     if (kit) {
         cToolChain = ToolChainKitAspect::toolChain(kit, Constants::C_LANGUAGE_ID);

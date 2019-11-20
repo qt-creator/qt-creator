@@ -441,7 +441,7 @@ void CMakeBuildSystem::updateProjectData()
         qCDebug(cmakeBuildSystemLog) << "Extra compilers updated.";
     }
 
-    QtSupport::CppKitInfo kitInfo(p);
+    QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return );
 
     {

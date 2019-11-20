@@ -244,7 +244,7 @@ void QmakeBuildSystem::updateCppCodeModel()
 {
     m_toolChainWarnings.clear();
 
-    QtSupport::CppKitInfo kitInfo(project());
+    QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
 
     QList<ProjectExplorer::ExtraCompiler *> generators;

@@ -53,6 +53,7 @@ public:
 
     Project *project() const;
     Target *target() const;
+    Kit *kit() const;
 
     Utils::FilePath projectFilePath() const;
     Utils::FilePath projectDirectory() const;

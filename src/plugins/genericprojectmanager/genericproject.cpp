@@ -551,7 +551,7 @@ void GenericBuildSystem::refreshCppCodeModel()
 {
     if (!m_cppCodeModelUpdater)
         return;
-    QtSupport::CppKitInfo kitInfo(project());
+    QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
 
     RawProjectPart rpp;

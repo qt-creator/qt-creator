@@ -376,7 +376,7 @@ void CompilationDatabaseBuildSystem::triggerParsing()
 
 void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
 {
-    ProjectExplorer::KitInfo kitInfo(project());
+    ProjectExplorer::KitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
     // Reset toolchains to pick them based on the database entries.
     kitInfo.cToolChain = nullptr;
