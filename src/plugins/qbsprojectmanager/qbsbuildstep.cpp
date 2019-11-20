@@ -534,11 +534,6 @@ void QbsBuildStep::finish()
     }
 }
 
-QbsProject *QbsBuildStep::qbsProject() const
-{
-    return static_cast<QbsProject *>(project());
-}
-
 // --------------------------------------------------------------------
 // QbsBuildStepConfigWidget:
 // --------------------------------------------------------------------

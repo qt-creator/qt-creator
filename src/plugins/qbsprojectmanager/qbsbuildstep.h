@@ -116,8 +116,6 @@ private:
     void build();
     void finish();
 
-    QbsProject *qbsProject() const;
-
     QVariantMap m_qbsConfiguration;
     qbs::BuildOptions m_qbsBuildOptions;
     bool m_forceProbes = false;
