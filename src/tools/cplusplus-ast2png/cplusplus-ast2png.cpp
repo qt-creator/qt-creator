@@ -38,6 +38,8 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <utils/hostosinfo.h>
+
 #include "utils.h"
 
 #include <QDir>
@@ -361,7 +363,7 @@ private:
 
 static void createImageFromDot(const QString &inputFile, const QString &outputFile, bool verbose)
 {
-    const QString command = CplusplusToolsUtils::portableExecutableName(QLatin1String("dot"));
+    const QString command = Utils::HostOsInfo::withExecutableSuffix("dot");
     const QStringList arguments = QStringList({"-Tpng", "-o", outputFile, inputFile});
     CplusplusToolsUtils::executeCommand(command, arguments, QString(), verbose);
 }

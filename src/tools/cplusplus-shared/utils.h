@@ -31,7 +31,6 @@
 
 namespace CplusplusToolsUtils {
 
-QString portableExecutableName(const QString &executable);
 void executeCommand(const QString &command, const QStringList &arguments, const QString &outputFile,
                     bool verbose = false);
 
