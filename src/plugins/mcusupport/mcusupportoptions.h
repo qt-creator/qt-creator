@@ -110,6 +110,8 @@ public:
     QString toolChainFile() const;
     void setQulPlatform(const QString &qulPlatform);
     QString qulPlatform() const;
+    void setColorDepth(int colorDepth);
+    int colorDepth() const;
     bool isValid() const;
 
 private:
@@ -118,6 +120,7 @@ private:
     const QVector<McuPackage*> m_packages;
     QString m_toolChainFile;
     QString m_qulPlatform;
+    int m_colorDepth = -1;
 };
 
 class McuSupportOptions : public QObject

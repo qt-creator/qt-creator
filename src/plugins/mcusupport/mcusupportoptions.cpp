@@ -251,6 +251,16 @@ bool McuTarget::isValid() const
     });
 }
 
+int McuTarget::colorDepth() const
+{
+    return m_colorDepth;
+}
+
+void McuTarget::setColorDepth(int colorDepth)
+{
+    m_colorDepth = colorDepth;
+}
+
 static McuPackage *createQtForMCUsPackage()
 {
     auto result = new McuPackage(
@@ -387,6 +397,12 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     // STM
     auto mcuTarget = new McuTarget(vendorStm, "stm32f7508", stmEvalPackages);
     mcuTarget->setToolChainFile("CMake/stm32f7508-discovery.cmake");
+    mcuTarget->setColorDepth(32);
+    mcuTargets.append(mcuTarget);
+
+    mcuTarget = new McuTarget(vendorStm, "stm32f7508", stmEvalPackages);
+    mcuTarget->setToolChainFile("CMake/stm32f7508-discovery.cmake");
+    mcuTarget->setColorDepth(16);
     mcuTargets.append(mcuTarget);
 
     mcuTarget = new McuTarget(vendorStm, "stm32f769i", stmEvalPackages);
@@ -407,6 +423,7 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     // Desktop
     mcuTarget = new McuTarget(vendorQt, "Desktop", desktopPackages);
     mcuTarget->setQulPlatform("Qt");
+    mcuTarget->setColorDepth(32);
     mcuTargets.append(mcuTarget);
 
     for (auto package : packages)
@@ -552,11 +569,11 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
     if (!mcuTarget->qulPlatform().isEmpty())
         config.append(CMakeConfigItem("QUL_PLATFORM",
                                       mcuTarget->qulPlatform().toUtf8()));
-    if (mcuTargetIsDesktop(mcuTarget)) {
+    if (mcuTargetIsDesktop(mcuTarget))
         config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
-        // TODO: Hack! Implement color depth variants of all targets
-        config.append(CMakeConfigItem("QUL_COLOR_DEPTH", "32"));
-    }
+    if (mcuTarget->colorDepth() >= 0)
+        config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
+                                      QString::number(mcuTarget->colorDepth()).toLatin1()));
     CMakeConfigurationKitAspect::setConfiguration(k, config);
     if (Utils::HostOsInfo::isWindowsHost())
         CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
@@ -565,7 +582,11 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
 QString McuSupportOptions::kitName(const McuTarget *mcuTarget) const
 {
     // TODO: get version from qulSdkPackage and insert into name
-    return QString::fromLatin1("Qt for MCUs - %1 %2").arg(mcuTarget->vendor(), mcuTarget->model());
+    const QString colorDepth = mcuTarget->colorDepth() > 0
+            ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
+            : "";
+    return QString::fromLatin1("Qt for MCUs - %1 %2%3")
+            .arg(mcuTarget->vendor(), mcuTarget->model(), colorDepth);
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTargt)
