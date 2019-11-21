@@ -92,9 +92,8 @@ public:
     static bool waitForProcessedEditorDocument(const QString &filePath, int timeOutInMs = 5000);
 
     enum { defaultTimeOutInMs = 30 * 1000 /*= 30 secs*/ };
-    static bool waitUntilCppModelManagerIsAwareOf(
-            ProjectExplorer::Project *project,
-            int timeOutInMs = defaultTimeOutInMs);
+    static bool waitUntilProjectIsFullyOpened(ProjectExplorer::Project *project,
+                                              int timeOutInMs = defaultTimeOutInMs);
     static CPlusPlus::Document::Ptr waitForFileInGlobalSnapshot(
             const QString &filePath,
             int timeOutInMs = defaultTimeOutInMs);

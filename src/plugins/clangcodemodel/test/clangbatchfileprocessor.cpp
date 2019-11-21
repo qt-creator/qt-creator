@@ -237,7 +237,7 @@ bool OpenProjectCommand::run()
     Project *project = openProjectSucceeded.project();
     project->configureAsExampleProject();
 
-    return CppTools::Tests::TestCase::waitUntilCppModelManagerIsAwareOf(project, timeOutInMs());
+    return CppTools::Tests::TestCase::waitUntilProjectIsFullyOpened(project, timeOutInMs());
 }
 
 Command::Ptr OpenProjectCommand::parse(BatchFileLineTokenizer &arguments,
