@@ -39,6 +39,7 @@
 #include <coreplugin/variablechooser.h>
 #include <ssh/sshconnection.h>
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/macroexpander.h>
@@ -1129,7 +1130,7 @@ class EnvironmentKitAspectWidget : public KitAspectWidget
 public:
     EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki),
-          m_summaryLabel(new QLabel),
+          m_summaryLabel(new Utils::ElidingLabel),
           m_manageButton(new QPushButton),
           m_mainWidget(new QWidget)
     {
@@ -1153,9 +1154,7 @@ private:
     void refresh() override
     {
         const Utils::EnvironmentItems changes = currentEnvironment();
-        QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join(QLatin1String("; "));
-        QFontMetrics fm(m_summaryLabel->font());
-        shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_summaryLabel->width());
+        const QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join("; ");
         m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
     }
 
@@ -1216,7 +1215,7 @@ private:
         });
     }
 
-    QLabel *m_summaryLabel;
+    Utils::ElidingLabel *m_summaryLabel;
     QPushButton *m_manageButton;
     QCheckBox *m_vslangCheckbox;
     QWidget *m_mainWidget;
