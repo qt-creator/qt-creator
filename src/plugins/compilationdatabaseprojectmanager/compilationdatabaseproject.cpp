@@ -376,7 +376,8 @@ void CompilationDatabaseBuildSystem::triggerParsing()
 
 void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
 {
-    ProjectExplorer::KitInfo kitInfo(kit());
+    Kit *kit = target()->kit();
+    ProjectExplorer::KitInfo kitInfo(kit);
     QTC_ASSERT(kitInfo.isValid(), return);
     // Reset toolchains to pick them based on the database entries.
     kitInfo.cToolChain = nullptr;
@@ -386,7 +387,6 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
     QTC_ASSERT(m_parser, return);
     const DbContents dbContents = m_parser->dbContents();
     const DbEntry *prevEntry = nullptr;
-    Kit *kit = static_cast<CompilationDatabaseProject *>(project())->kit();
     for (const DbEntry &entry : dbContents.entries) {
         if (prevEntry && prevEntry->flags == entry.flags) {
             rpps.back().files.append(entry.fileName.toString());
