@@ -31,6 +31,7 @@ Prerequisites:
     * ActiveState Active Perl
     * MinGW with g++ 5.3 or Visual Studio 2017 or later
     * jom
+    * Ninja (optional, needed for CMake)
     * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
 * On Linux: g++ 5.3 or later
@@ -38,7 +39,7 @@ Prerequisites:
   Clang PCH Manager and Clang Refactoring plugins, see the section
   "Get LLVM/Clang for the Clang Code Model". The LLVM C++ API provides no compatibility garantee,
   so if later versions don't compile we don't support that version.)
-* CMake (only for manual builds of LLVM/Clang)
+* CMake (for manual builds of LLVM/Clang, and Qt Creator itself)
 * Qbs 1.7.x (optional, sources also contain Qbs itself)
 
 The installed toolchains have to match the one Qt was compiled with.
@@ -264,13 +265,24 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
       For Linux/macOS:
 
-          cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_INSTALL_PREFIX=<installation location> ../llvm-project/llvm
-          make install
+          cmake \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D LLVM_ENABLE_RTTI=ON \
+            -D LLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
+            -D CMAKE_INSTALL_PREFIX=<installation location> \
+            ../llvm-project/llvm
+          cmake --build . --target install
 
       For Windows:
 
-          cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_INSTALL_PREFIX=<installation location> ..\llvm-project\llvm
-          jom install
+          cmake ^
+            -G "NMake Makefiles JOM" ^
+            -D CMAKE_BUILD_TYPE=Release ^
+            -D LLVM_ENABLE_RTTI=ON ^
+            -D LLVM_ENABLE_PROJECTS="clang;clang-tools-extra" ^
+            -D CMAKE_INSTALL_PREFIX=<installation location> ^
+            ..\llvm-project\llvm
+          cmake --build . --target install
 
 ### Clang-Format
 
@@ -281,6 +293,34 @@ The ClangFormat plugin depends on the additional patch
 While the plugin builds without it, it will be disabled on start with an error message.
 
 Note that the plugin is disabled by default.
+
+### Building Qt Creator with CMake
+
+Qt Creator can also be built with CMake. The main Qt Creator dependencies, Qt and LLVM/Clang, both
+offer CMake find packages, which reduce the steps of configuring Qt Creator to a minimum.
+
+   Configure and build Qt Creator:
+
+      mkdir build
+      cd build
+
+    For Linux/macOS:
+
+      cmake \
+        -G Ninja \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_PREFIX_PATH=~/Qt/5.12.5/gcc_64;~/llvm \
+        ../qt-creator
+      cmake --build .
+
+    For Windows:
+
+      cmake ^
+        -G Ninja ^
+        -D CMAKE_BUILD_TYPE=Release ^
+        -D CMAKE_PREFIX_PATH=c:\Qt\5.12.5\msvc2017_64;c:\llvm ^
+        ..\qt-creator
+      cmake --build .
 
 ## Third-party Components
 
