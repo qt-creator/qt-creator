@@ -709,20 +709,18 @@ void MemcheckToolPrivate::heobAction()
     Abi abi;
     bool hasLocalRc = false;
     Kit *kit = nullptr;
-    if (Project *project = SessionManager::startupProject()) {
-        if (Target *target = project->activeTarget()) {
-            if (RunConfiguration *rc = target->activeRunConfiguration()) {
-                kit = target->kit();
-                if (kit) {
-                    abi = ToolChainKitAspect::targetAbi(kit);
+    if (Target *target = SessionManager::startupTarget()) {
+        if (RunConfiguration *rc = target->activeRunConfiguration()) {
+            kit = target->kit();
+            if (kit) {
+                abi = ToolChainKitAspect::targetAbi(kit);
 
-                    const Runnable runnable = rc->runnable();
-                    sr = runnable;
-                    const IDevice::ConstPtr device = sr.device;
-                    hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-                    if (!hasLocalRc)
-                        hasLocalRc = DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-                }
+                const Runnable runnable = rc->runnable();
+                sr = runnable;
+                const IDevice::ConstPtr device = sr.device;
+                hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+                if (!hasLocalRc)
+                    hasLocalRc = DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
             }
         }
     }
