@@ -52,7 +52,7 @@ Node {
         orientation: selectionBox.targetNode ? selectionBox.targetNode.orientation : Node.LeftHanded
         rotationOrder: selectionBox.targetNode ? selectionBox.targetNode.rotationOrder : Node.YXZ
 
-        visible: selectionBox.targetNode && selectionBox.targetNode instanceof Model
+        visible: selectionBox.targetNode && !selectionBoxGeometry.isEmpty
 
         materials: [
             DefaultMaterial {

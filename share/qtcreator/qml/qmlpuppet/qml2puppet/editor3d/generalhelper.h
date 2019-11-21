@@ -27,14 +27,21 @@
 
 #ifdef QUICK3D_MODULE
 
-#include <QtQuick3D/private/qquick3dcamera_p.h>
-#include <QtQuick3D/private/qquick3dnode_p.h>
-#include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qtimer.h>
+#include <QtCore/qhash.h>
+#include <QtGui/qvector3d.h>
+#include <QtGui/qmatrix4x4.h>
+
+QT_BEGIN_NAMESPACE
+class QQuick3DCamera;
+class QQuick3DNode;
+class QQuick3DViewport;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 namespace Internal {
+
 class GeneralHelper : public QObject
 {
     Q_OBJECT

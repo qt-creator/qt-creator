@@ -340,12 +340,24 @@ QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
 {
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DViewport")) {
+            QObject *rootObj = nullptr;
+            int viewChildCount = 0;
             for (const ServerNodeInstance &child : instanceList) { /* Look for scene node */
                 /* The QQuick3DViewport always creates a root node.
                  * This root node contains the complete scene. */
-                if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance)
-                    return child.internalObject()->property("parent").value<QObject *>();
+                if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance) {
+                    // Implicit root node is not visible in editor, so there is often another node
+                    // added below it that serves as the actual scene root node.
+                    // If the found root is the only node child of the view, assume that is the case.
+                    ++viewChildCount;
+                    if (!rootObj)
+                        rootObj = child.internalObject();
+                }
             }
+            if (viewChildCount == 1)
+                return rootObj;
+            else if (rootObj)
+                return rootObj->property("parent").value<QObject *>();
         }
     }
     return nullptr;
@@ -603,10 +615,8 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
         if (hasInstanceForId(id)) {
             ServerNodeInstance instance = instanceForId(id);
             QObject *object = nullptr;
-            if (instance.isSubclassOf("QQuick3DModel") || instance.isSubclassOf("QQuick3DCamera")
-                || instance.isSubclassOf("QQuick3DAbstractLight")) {
+            if (instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
-            }
             QMetaObject::invokeMethod(m_editView3D, "selectObject", Q_ARG(QVariant,
                                                                           objectToVariant(object)));
             return; // TODO: support multi-selection

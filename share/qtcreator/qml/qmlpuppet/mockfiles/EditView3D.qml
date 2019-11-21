@@ -55,9 +55,14 @@ Window {
         selectedNode = object;
     }
 
-    function emitObjectClicked(object) {
-        selectObject(object);
-        objectClicked(object);
+    function handleObjectClicked(object) {
+        var theObject = object;
+        if (btnSelectGroup.selected) {
+            while (theObject && theObject.parent !== scene)
+                theObject = theObject.parent;
+        }
+        selectObject(theObject);
+        objectClicked(theObject);
     }
 
     function addLightGizmo(obj)
@@ -68,7 +73,7 @@ Window {
                                                {"view3D": overlayView, "targetNode": obj,
                                                 "selectedNode": selectedNode});
             lightGizmos[lightGizmos.length] = gizmo;
-            gizmo.clicked.connect(emitObjectClicked);
+            gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
     }
@@ -83,7 +88,7 @@ Window {
                         {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
                          "viewPortRect": viewPortRect, "selectedNode": selectedNode});
             cameraGizmos[cameraGizmos.length] = gizmo;
-            gizmo.clicked.connect(emitObjectClicked);
+            gizmo.clicked.connect(handleObjectClicked);
             gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
             gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
@@ -178,7 +183,7 @@ Window {
             onTapped: {
                 var pickResult = editView.pick(eventPoint.scenePosition.x,
                                                eventPoint.scenePosition.y);
-                emitObjectClicked(pickResult.objectHit);
+                handleObjectClicked(pickResult.objectHit);
             }
         }
 

@@ -29,15 +29,17 @@
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
 #include <QtQuick3D/private/qquick3dobject_p_p.h>
+#include <QtQuick3D/private/qquick3dcamera_p.h>
+#include <QtQuick3D/private/qquick3dnode_p.h>
 #include <QtQuick3D/private/qquick3dmodel_p.h>
+#include <QtQuick3D/private/qquick3dviewport_p.h>
+#include <QtQuick3D/private/qquick3ddefaultmaterial_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
 #include <QtQuick/qquickwindow.h>
-#include <QtCore/qhash.h>
 #include <QtCore/qmath.h>
-#include <QtGui/qmatrix4x4.h>
 
 namespace QmlDesigner {
 namespace Internal {
