@@ -46,6 +46,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -238,7 +239,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
         return;
 
     // FIXME: That should be somehow related to the selected kit.
-    auto startRunConfig = RunConfiguration::startupRunConfiguration();
+    auto startRunConfig = SessionManager::startupRunConfiguration();
     auto runConfig = qobject_cast<QnxRunConfiguration *>(startRunConfig);
     if (!runConfig)
         return;

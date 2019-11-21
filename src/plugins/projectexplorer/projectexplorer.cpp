@@ -2962,12 +2962,13 @@ void ProjectExplorerPluginPrivate::activeRunConfigurationChanged()
 void ProjectExplorerPluginPrivate::activeBuildConfigurationChanged()
 {
     static QPointer<BuildConfiguration> previousBuildConfiguration = nullptr;
+
     BuildConfiguration *bc = nullptr;
-    Project *startupProject = SessionManager::startupProject();
-    if (startupProject && startupProject->activeTarget())
-        bc = startupProject->activeTarget()->activeBuildConfiguration();
+    if (Target *target = SessionManager::startupTarget())
+        bc = target->activeBuildConfiguration();
     if (bc == previousBuildConfiguration)
         return;
+
     updateActions();
     emit m_instance->updateRunActions();
 }

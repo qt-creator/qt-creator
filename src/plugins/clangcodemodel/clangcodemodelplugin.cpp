@@ -65,16 +65,17 @@ static void addProjectPanelWidget()
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 }
 
-void ClangCodeModelPlugin::generateCompilationDB() {
+void ClangCodeModelPlugin::generateCompilationDB()
+{
     using namespace CppTools;
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    if (!project || !project->activeTarget())
+    ProjectExplorer::Target *target = ProjectExplorer::SessionManager::startupTarget();
+    if (!target)
         return;
 
     QFuture<Utils::GenerateCompilationDbResult> task
             = QtConcurrent::run(&Utils::generateCompilationDB,
-                                CppModelManager::instance()->projectInfo(project));
+                                CppModelManager::instance()->projectInfo(target->project()));
     Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
     m_generatorWatcher.setFuture(task);
 }

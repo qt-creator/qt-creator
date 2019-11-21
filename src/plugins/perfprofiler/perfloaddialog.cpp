@@ -96,11 +96,7 @@ void PerfLoadDialog::on_browseExecutableDirButton_pressed()
 
 void PerfLoadDialog::chooseDefaults()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    if (!project)
-        return;
-
-    ProjectExplorer::Target *target = project->activeTarget();
+    ProjectExplorer::Target *target = ProjectExplorer::SessionManager::startupTarget();
     if (!target)
         return;
 

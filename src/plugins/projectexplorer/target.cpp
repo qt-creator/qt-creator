@@ -139,10 +139,8 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     });
 
     connect(this, &Target::parsingFinished, this, [this, project](bool success) {
-        if (success && project == SessionManager::startupProject()
-                && this == project->activeTarget()) {
+        if (success && this == SessionManager::startupTarget())
             updateDefaultRunConfigurations();
-        }
         // For testing.
         emit SessionManager::instance()->projectFinishedParsing(project);
         project->anyParsingFinished(this, success);

@@ -231,12 +231,10 @@ void PerfProfilerTool::createViews()
     connect(recordMenu, &QMenu::aboutToShow, recordMenu, [recordMenu] {
         recordMenu->hide();
         PerfSettings *settings = nullptr;
-        Target *target = nullptr;
-        if (auto project = ProjectExplorer::SessionManager::startupProject()) {
-            if ((target = project->activeTarget())) {
-                if (auto runConfig = target->activeRunConfiguration())
-                    settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
-            }
+        Target *target = SessionManager::startupTarget();
+        if (target) {
+            if (auto runConfig = target->activeRunConfiguration())
+                settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
         }
 
         PerfConfigWidget *widget = new PerfConfigWidget(

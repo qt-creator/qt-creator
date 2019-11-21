@@ -112,20 +112,18 @@ void KitChooser::populate()
     const Id lastKit = Id::fromSetting(ICore::settings()->value(lastKitKey));
     bool didActivate = false;
 
-    if (Project *project = SessionManager::startupProject()) {
-        if (Target *target = project->activeTarget()) {
-            Kit *kit = target->kit();
-            if (m_kitPredicate(kit)) {
-                QString display = tr("Kit of Active Project: %1").arg(kitText(kit));
-                m_chooser->addItem(display, kit->id().toSetting());
-                m_chooser->setItemData(0, kitToolTip(kit), Qt::ToolTipRole);
-                if (!lastKit.isValid()) {
-                    m_chooser->setCurrentIndex(0);
-                    didActivate = true;
-                }
-                m_chooser->insertSeparator(1);
-                m_hasStartupKit = true;
+    if (Target *target = SessionManager::startupTarget()) {
+        Kit *kit = target->kit();
+        if (m_kitPredicate(kit)) {
+            QString display = tr("Kit of Active Project: %1").arg(kitText(kit));
+            m_chooser->addItem(display, kit->id().toSetting());
+            m_chooser->setItemData(0, kitToolTip(kit), Qt::ToolTipRole);
+            if (!lastKit.isValid()) {
+                m_chooser->setCurrentIndex(0);
+                didActivate = true;
             }
+            m_chooser->insertSeparator(1);
+            m_hasStartupKit = true;
         }
     }
 

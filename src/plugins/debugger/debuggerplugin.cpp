@@ -1433,7 +1433,7 @@ void DebuggerPluginPrivate::updatePresetState()
         return;
 
     Project *startupProject = SessionManager::startupProject();
-    RunConfiguration *startupRunConfig = RunConfiguration::startupRunConfiguration();
+    RunConfiguration *startupRunConfig = SessionManager::startupRunConfiguration();
     DebuggerEngine *currentEngine = EngineManager::currentEngine();
 
     QString whyNot;
@@ -2199,7 +2199,7 @@ static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::Bui
 static BuildConfiguration::BuildType startupBuildType()
 {
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-    if (RunConfiguration *runConfig = RunConfiguration::startupRunConfiguration()) {
+    if (RunConfiguration *runConfig = SessionManager::startupRunConfiguration()) {
         if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             buildType = buildConfig->buildType();
     }
@@ -2375,9 +2375,7 @@ void DebuggerUnitTests::testStateMachine()
 
     ExecuteOnDestruction guard([] { EditorManager::closeAllEditors(false); });
 
-    Target *t = SessionManager::startupProject()->activeTarget();
-    QVERIFY(t);
-    RunConfiguration *rc = t->activeRunConfiguration();
+    RunConfiguration *rc = SessionManager::startupRunConfiguration();
     QVERIFY(rc);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

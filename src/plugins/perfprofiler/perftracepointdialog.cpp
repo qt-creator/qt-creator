@@ -51,16 +51,14 @@ PerfTracePointDialog::PerfTracePointDialog() :
 {
     m_ui->setupUi(this);
 
-    if (Project *currentProject = SessionManager::startupProject()) {
-        if (const Target *target = currentProject->activeTarget()) {
-            const Kit *kit = target->kit();
-            QTC_ASSERT(kit, return);
+    if (const Target *target = SessionManager::startupTarget()) {
+        const Kit *kit = target->kit();
+        QTC_ASSERT(kit, return);
 
-            m_device = DeviceKitAspect::device(kit);
-            if (!m_device) {
-                m_ui->textEdit->setPlainText(tr("Error: No device available for active target."));
-                return;
-            }
+        m_device = DeviceKitAspect::device(kit);
+        if (!m_device) {
+            m_ui->textEdit->setPlainText(tr("Error: No device available for active target."));
+            return;
         }
     }
 

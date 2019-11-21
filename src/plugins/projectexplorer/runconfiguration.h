@@ -155,8 +155,6 @@ public:
     // The BuildTargetInfo corresponding to the buildKey.
     BuildTargetInfo buildTargetInfo() const;
 
-    static RunConfiguration *startupRunConfiguration();
-
     template <class T = ISettingsAspect> T *currentSettings(Core::Id id) const
     {
         if (auto a = qobject_cast<GlobalOrProjectAspect *>(aspect(id)))

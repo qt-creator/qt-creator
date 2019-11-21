@@ -265,20 +265,6 @@ void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
     theAspectFactories.push_back(aspectFactory);
 }
 
-/*!
- * Returns the RunConfiguration of the currently active target
- * of the startup project, if such exists, or \c nullptr otherwise.
- */
-
-RunConfiguration *RunConfiguration::startupRunConfiguration()
-{
-    if (Project *pro = SessionManager::startupProject()) {
-        if (const Target *target = pro->activeTarget())
-            return target->activeRunConfiguration();
-    }
-    return nullptr;
-}
-
 QMap<Core::Id, QVariantMap> RunConfiguration::aspectData() const
 {
     QMap<Core::Id, QVariantMap> data;

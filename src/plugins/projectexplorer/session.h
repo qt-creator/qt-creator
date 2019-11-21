@@ -44,6 +44,7 @@ class Target;
 class BuildConfiguration;
 class BuildSystem;
 class DeployConfiguration;
+class RunConfiguration;
 
 enum class SetActive { Cascade, NoCascade };
 
@@ -100,6 +101,7 @@ public:
     static Project *startupProject();
     static Target *startupTarget();
     static BuildSystem *startupBuildSystem();
+    static RunConfiguration *startupRunConfiguration();
 
     static const QList<Project *> projects();
     static bool hasProjects();
