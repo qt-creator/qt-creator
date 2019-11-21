@@ -94,6 +94,9 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
     connect(this, &QbsBuildConfiguration::qbsConfigurationChanged,
             this, &QbsBuildConfiguration::triggerReparseIfActive);
 
+    macroExpander()->registerVariable("CurrentBuild:QbsBuildRoot", tr("The qbs project build root"),
+        [this] { return buildDirectory().pathAppended(configurationName()).toUserOutput(); });
+
     m_buildSystem = new QbsBuildSystem(this);
 }
 
@@ -304,7 +307,7 @@ public:
             bs = static_cast<QbsBuildConfiguration *>(m_qbsInstallStep->deployConfiguration()
                     ->target()->activeBuildConfiguration())->qbsStep();
         }
-        if (bs && bs->hasCustomInstallRoot())
+        if (bs)
             return bs->installRoot();
         return Utils::FilePath();
     }

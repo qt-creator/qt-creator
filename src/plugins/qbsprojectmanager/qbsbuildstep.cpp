@@ -227,7 +227,7 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
     else
         config.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
     if (variableHandling == ExpandVariables) {
-        const Utils::MacroExpander *expander = Utils::globalMacroExpander();
+        const MacroExpander * const expander = buildConfiguration()->macroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
             const QString rawString = it.value().toString();
             const QString expandedString = expander->expand(rawString);
@@ -264,10 +264,10 @@ Utils::FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) con
             qbsConfiguration(variableHandling).value(Constants::QBS_INSTALL_ROOT_KEY).toString();
     if (!root.isNull())
         return Utils::FilePath::fromString(root);
-
-    const QbsBuildConfiguration * const bc
-            = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-    return bc->buildDirectory().pathAppended(bc->configurationName()).pathAppended("install-root");
+    QString defaultInstallDir = QbsSettings::defaultInstallDirTemplate();
+    if (variableHandling == VariableHandling::ExpandVariables)
+        defaultInstallDir = buildConfiguration()->macroExpander()->expand(defaultInstallDir);
+    return FilePath::fromString(defaultInstallDir);
 }
 
 int QbsBuildStep::maxJobs() const
@@ -640,6 +640,9 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(propertyEdit);
     chooser->addSupportedWidget(installDirChooser->lineEdit());
+    chooser->addMacroExpanderProvider([step] {
+        return step->buildConfiguration()->macroExpander();
+    });
     propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
         return validateProperties(edit, errorMessage);
     });
@@ -868,7 +871,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     }
 
     QList<Property> properties;
-    const Utils::MacroExpander *expander = Utils::globalMacroExpander();
+    const MacroExpander * const expander = step()->buildConfiguration()->macroExpander();
     foreach (const QString &rawArg, argList) {
         int pos = rawArg.indexOf(':');
         if (pos > 0) {

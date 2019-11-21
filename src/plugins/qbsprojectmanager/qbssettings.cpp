@@ -46,11 +46,13 @@ namespace QbsProjectManager {
 namespace Internal {
 
 const char QBS_EXE_KEY[] = "QbsProjectManager/QbsExecutable";
+const char QBS_DEFAULT_INSTALL_DIR_KEY[] = "QbsProjectManager/DefaultInstallDir";
 const char USE_CREATOR_SETTINGS_KEY[] = "QbsProjectManager/useCreatorDir";
 
 static bool operator==(const QbsSettingsData &s1, const QbsSettingsData &s2)
 {
     return s1.qbsExecutableFilePath == s2.qbsExecutableFilePath
+            && s1.defaultInstallDirTemplate == s2.defaultInstallDirTemplate
             && s1.useCreatorSettings == s2.useCreatorSettings;
 }
 static bool operator!=(const QbsSettingsData &s1, const QbsSettingsData &s2)
@@ -69,6 +71,11 @@ FilePath QbsSettings::qbsExecutableFilePath()
     if (!candidate.exists())
         candidate = Environment::systemEnvironment().searchInPath(fileName);
     return candidate;
+}
+
+QString QbsSettings::defaultInstallDirTemplate()
+{
+    return instance().m_settings.defaultInstallDirTemplate;
 }
 
 bool QbsSettings::useCreatorSettingsDirForQbs()
@@ -105,6 +112,8 @@ void QbsSettings::loadSettings()
 {
     QSettings * const s = Core::ICore::settings();
     m_settings.qbsExecutableFilePath = FilePath::fromString(s->value(QBS_EXE_KEY).toString());
+    m_settings.defaultInstallDirTemplate = s->value(QBS_DEFAULT_INSTALL_DIR_KEY,
+                                                    "%{CurrentBuild:QbsBuildRoot}").toString();
     m_settings.useCreatorSettings = s->value(USE_CREATOR_SETTINGS_KEY, true).toBool();
 }
 
@@ -112,6 +121,7 @@ void QbsSettings::storeSettings() const
 {
     QSettings * const s = Core::ICore::settings();
     s->setValue(QBS_EXE_KEY, m_settings.qbsExecutableFilePath.toString());
+    s->setValue(QBS_DEFAULT_INSTALL_DIR_KEY, m_settings.defaultInstallDirTemplate);
     s->setValue(USE_CREATOR_SETTINGS_KEY, m_settings.useCreatorSettings);
 }
 
@@ -123,6 +133,7 @@ public:
     {
         m_qbsExePathChooser.setExpectedKind(PathChooser::ExistingCommand);
         m_qbsExePathChooser.setFileName(QbsSettings::qbsExecutableFilePath());
+        m_defaultInstallDirLineEdit.setText(QbsSettings::defaultInstallDirTemplate());
         m_versionLabel.setText(getQbsVersion());
         m_settingsDirCheckBox.setText(tr("Use %1 settings directory for Qbs")
                                       .arg(Core::Constants::IDE_DISPLAY_NAME));
@@ -131,6 +142,7 @@ public:
         const auto layout = new QFormLayout(this);
         layout->addRow(&m_settingsDirCheckBox);
         layout->addRow(tr("Path to qbs executable:"), &m_qbsExePathChooser);
+        layout->addRow(tr("Default installation directory:"), &m_defaultInstallDirLineEdit);
         layout->addRow(tr("Qbs version:"), &m_versionLabel);
     }
 
@@ -139,6 +151,7 @@ public:
         QbsSettingsData settings;
         if (m_qbsExePathChooser.isValid())
             settings.qbsExecutableFilePath = m_qbsExePathChooser.fileName();
+        settings.defaultInstallDirTemplate = m_defaultInstallDirLineEdit.text();
         settings.useCreatorSettings = m_settingsDirCheckBox.isChecked();
         QbsSettings::setSettingsData(settings);
     }
@@ -158,6 +171,7 @@ private:
     PathChooser m_qbsExePathChooser;
     QLabel m_versionLabel;
     QCheckBox m_settingsDirCheckBox;
+    FancyLineEdit m_defaultInstallDirLineEdit;
 };
 
 QbsSettingsPage::QbsSettingsPage()

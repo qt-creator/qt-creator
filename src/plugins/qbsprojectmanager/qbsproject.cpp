@@ -35,6 +35,7 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodetreebuilder.h"
 #include "qbssession.h"
+#include "qbssettings.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
@@ -592,6 +593,10 @@ void QbsBuildSystem::parseCurrentBuildConfiguration()
     }
 
     QVariantMap config = m_buildConfiguration->qbsConfiguration();
+    if (!config.contains(Constants::QBS_INSTALL_ROOT_KEY)) {
+        config.insert(Constants::QBS_INSTALL_ROOT_KEY, m_buildConfiguration->macroExpander()
+                      ->expand(QbsSettings::defaultInstallDirTemplate()));
+    }
     Environment env = m_buildConfiguration->environment();
     QString dir = m_buildConfiguration->buildDirectory().toString();
 

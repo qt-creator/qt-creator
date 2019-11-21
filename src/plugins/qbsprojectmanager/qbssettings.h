@@ -37,6 +37,7 @@ namespace Internal {
 class QbsSettingsData {
 public:
     Utils::FilePath qbsExecutableFilePath;
+    QString defaultInstallDirTemplate;
     bool useCreatorSettings = true;
 };
 
@@ -47,6 +48,7 @@ public:
     static QbsSettings &instance();
 
     static Utils::FilePath qbsExecutableFilePath();
+    static QString defaultInstallDirTemplate();
     static bool useCreatorSettingsDirForQbs();
     static QString qbsSettingsBaseDir();
 
