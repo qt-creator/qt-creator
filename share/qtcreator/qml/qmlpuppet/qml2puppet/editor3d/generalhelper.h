@@ -57,6 +57,8 @@ public:
                                  float zoomFactor, bool relative);
     Q_INVOKABLE QVector4D fitObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
                                             QQuick3DNode *targetObject, QQuick3DViewport *viewPort);
+    Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
+                                        const QVariant& value);
 
 signals:
     void overlayUpdateNeeded();

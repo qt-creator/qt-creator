@@ -185,6 +185,14 @@ QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float default
                      zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false));
 }
 
+void GeneralHelper::delayedPropertySet(QObject *obj, int delay, const QString &property,
+                                       const QVariant &value)
+{
+    QTimer::singleShot(delay, [obj, property, value]() {
+        obj->setProperty(property.toLatin1().constData(), value);
+    });
+}
+
 }
 }
 

@@ -64,5 +64,9 @@
         <file>mockfiles/images/point_light_gradient@2x.png</file>
         <file>mockfiles/images/area_light_gradient.png</file>
         <file>mockfiles/images/area_light_gradient@2x.png</file>
+        <file>mockfiles/images/fit_active.png</file>
+        <file>mockfiles/images/fit_active@2x.png</file>
+        <file>mockfiles/images/fit_selected.png</file>
+        <file>mockfiles/images/fit_selected@2x.png</file>
     </qresource>
 </RCC>

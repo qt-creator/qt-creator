@@ -300,7 +300,8 @@ Window {
             spacing: 5
             padding: 5
 
-            property var group: [btnSelectItem, btnSelectGroup, btnMove, btnRotate, btnScale]
+            property var groupSelect: [btnSelectGroup, btnSelectItem]
+            property var groupTransform: [btnMove, btnRotate, btnScale]
 
             ToolBarButton {
                 id: btnSelectItem
@@ -309,7 +310,7 @@ Window {
                 shortcut: "Q"
                 currentShortcut: selected ? "" : shortcut
                 tool: "item_selection"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupSelect
             }
 
             ToolBarButton {
@@ -318,7 +319,7 @@ Window {
                 shortcut: "Q"
                 currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
                 tool: "group_selection"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupSelect
             }
 
             Rectangle { // separator
@@ -330,11 +331,12 @@ Window {
 
             ToolBarButton {
                 id: btnMove
+                selected: true
                 tooltip: qsTr("Move current selection")
-                shortcut: "M"
+                shortcut: "W"
                 currentShortcut: shortcut
                 tool: "move"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupTransform
             }
 
             ToolBarButton {
@@ -343,16 +345,37 @@ Window {
                 shortcut: "E"
                 currentShortcut: shortcut
                 tool: "rotate"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupTransform
             }
 
             ToolBarButton {
                 id: btnScale
                 tooltip: qsTr("Scale current selection")
-                shortcut: "T"
+                shortcut: "R"
                 currentShortcut: shortcut
                 tool: "scale"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupTransform
+            }
+
+            Rectangle { // separator
+                width: 25
+                height: 1
+                color: "#f1f1f1"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ToolBarButton {
+                id: btnFit
+                tooltip: qsTr("Fit camera to current selection")
+                shortcut: "F"
+                currentShortcut: shortcut
+                tool: "fit"
+                togglable: false
+
+                onSelectedChanged: {
+                    if (selected)
+                        cameraControl.fitObject(viewWindow.selectedNode, editView.camera.rotation);
+                }
             }
         }
     }

@@ -34,6 +34,7 @@ Rectangle {
     property string currentShortcut
     property string tool
     property variant buttonsGroup: []
+    property bool togglable: true
 
     id: root
     width: img.width + 5
@@ -71,6 +72,11 @@ Rectangle {
                     root.buttonsGroup[i].selected = false;
 
                 root.selected = true;
+
+                if (!root.togglable) {
+                    // Deselect button after a short while (selection acts as simple click indicator)
+                    _generalHelper.delayedPropertySet(root, 200, "selected", false);
+                }
             }
         }
     }
