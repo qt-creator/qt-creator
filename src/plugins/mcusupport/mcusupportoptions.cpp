@@ -267,7 +267,7 @@ static McuPackage *createQtForMCUsPackage()
                 McuPackage::tr("Qt for MCUs SDK"),
                 QDir::homePath(),
                 Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
-                "QtMCUSdk");
+                "QtForMCUsSdk");
     result->setEnvironmentVariableName("Qul_DIR");
     return result;
 }
