@@ -318,7 +318,7 @@ class CMakeGeneratorKitAspectWidget : public KitAspectWidget
 public:
     CMakeGeneratorKitAspectWidget(Kit *kit, const ::KitAspect *ki)
         : KitAspectWidget(kit, ki),
-          m_label(new QLabel),
+          m_label(new Utils::ElidingLabel),
           m_changeButton(new QPushButton)
     {
         m_label->setToolTip(ki->description());
@@ -459,7 +459,7 @@ private:
     }
 
     bool m_ignoreChange = false;
-    QLabel *m_label;
+    Utils::ElidingLabel *m_label;
     QPushButton *m_changeButton;
     CMakeTool *m_currentTool = nullptr;
 };
