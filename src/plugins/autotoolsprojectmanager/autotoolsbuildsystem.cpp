@@ -192,8 +192,7 @@ void AutotoolsBuildSystem::updateCppCodeModel()
     rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags});
 
     const QString absSrc = project()->projectDirectory().toString();
-    const Target *target = project()->activeTarget();
-    BuildConfiguration *bc = target ? target->activeBuildConfiguration() : nullptr;
+    BuildConfiguration *bc = target()->activeBuildConfiguration();
 
     const QString absBuild = bc ? bc->buildDirectory().toString() : QString();
 
