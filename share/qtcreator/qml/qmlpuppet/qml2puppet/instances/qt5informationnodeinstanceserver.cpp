@@ -137,7 +137,10 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     window->setFormat(surfaceFormat);
+
+#ifdef QUICK3D_MODULE
     helper->setParent(window);
+#endif
 
     return window;
 }
