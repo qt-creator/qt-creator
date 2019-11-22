@@ -43,7 +43,6 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/utilsicons.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -82,7 +81,6 @@ public:
 
 private:
     void updateState();
-    void updateQmlDebuggingOption();
     void updatePropertyEdit(const QVariantMap &data);
 
     void changeBuildVariant(int);
@@ -97,9 +95,6 @@ private:
     void applyCachedProperties();
 
     QbsBuildStep *qbsStep() const;
-
-    // QML debugging:
-    void linkQmlDebuggingLibraryChecked(bool checked);
 
     bool validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage);
 
@@ -127,11 +122,8 @@ private:
 
     QComboBox *buildVariantComboBox;
     QSpinBox *jobSpinBox;
-    QCheckBox *qmlDebuggingLibraryCheckBox;
     FancyLineEdit *propertyEdit;
     PathChooser *installDirChooser;
-    QLabel *qmlDebuggingWarningIcon;
-    QLabel *qmlDebuggingWarningText;
     QCheckBox *keepGoingCheckBox;
     QCheckBox *showCommandLinesCheckBox;
     QCheckBox *forceProbesCheckBox;
@@ -146,8 +138,7 @@ private:
 // --------------------------------------------------------------------
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
-    ProjectExplorer::BuildStep(bsl, Constants::QBS_BUILDSTEP_ID),
-    m_enableQmlDebugging(QtSupport::BaseQtVersion::isQmlDebuggingSupported(target()->kit()))
+    ProjectExplorer::BuildStep(bsl, Constants::QBS_BUILDSTEP_ID)
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
@@ -222,7 +213,7 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
 {
     QVariantMap config = m_qbsConfiguration;
     config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
-    if (m_enableQmlDebugging)
+    if (static_cast<QbsBuildConfiguration *>(buildConfiguration())->isQmlDebuggingEnabled())
         config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, true);
     else
         config.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
@@ -278,7 +269,6 @@ int QbsBuildStep::maxJobs() const
 }
 
 static QString forceProbesKey() { return QLatin1String("Qbs.forceProbesKey"); }
-static QString enableQmlDebuggingKey() { return QLatin1String("Qbs.enableQmlDebuggingKey"); }
 
 bool QbsBuildStep::fromMap(const QVariantMap &map)
 {
@@ -292,7 +282,6 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     m_install = map.value(QBS_INSTALL, true).toBool();
     m_cleanInstallDir = map.value(QBS_CLEAN_INSTALL_ROOT).toBool();
     m_forceProbes = map.value(forceProbesKey()).toBool();
-    m_enableQmlDebugging = map.value(enableQmlDebuggingKey()).toBool();
     return true;
 }
 
@@ -306,7 +295,6 @@ QVariantMap QbsBuildStep::toMap() const
     map.insert(QBS_INSTALL, m_install);
     map.insert(QBS_CLEAN_INSTALL_ROOT, m_cleanInstallDir);
     map.insert(forceProbesKey(), m_forceProbes);
-    map.insert(enableQmlDebuggingKey(), m_enableQmlDebugging);
     return map;
 }
 
@@ -532,7 +520,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 {
     connect(step, &ProjectConfiguration::displayNameChanged,
             this, &QbsBuildStepConfigWidget::updateState);
-    connect(step, &QbsBuildStep::qbsConfigurationChanged,
+    connect(static_cast<QbsBuildConfiguration *>(step->buildConfiguration()),
+            &QbsBuildConfiguration::qbsConfigurationChanged,
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step, &QbsBuildStep::qbsBuildOptionsChanged,
             this, &QbsBuildStepConfigWidget::updateState);
@@ -563,22 +552,9 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     horizontalLayout_6->addWidget(jobSpinBox);
     horizontalLayout_6->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-    qmlDebuggingLibraryCheckBox = new QCheckBox(this);
-    qmlDebuggingWarningIcon = new QLabel(this);
-    qmlDebuggingWarningText = new QLabel(this);
-
-    auto qmlDebuggingLayout = new QHBoxLayout();
-    qmlDebuggingLayout->addWidget(qmlDebuggingLibraryCheckBox);
-    qmlDebuggingLayout->addWidget(qmlDebuggingWarningIcon);
-    qmlDebuggingLayout->addWidget(qmlDebuggingWarningText);
-    qmlDebuggingLayout->addItem(new QSpacerItem(40, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
     propertyEdit = new FancyLineEdit(this);
-
     keepGoingCheckBox = new QCheckBox(this);
-
     showCommandLinesCheckBox = new QCheckBox(this);
-
     forceProbesCheckBox = new QCheckBox(this);
 
     auto flagsLayout = new QHBoxLayout();
@@ -610,7 +586,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     auto formLayout = new QFormLayout(this);
     formLayout->addRow(tr("Build variant:"), horizontalLayout_5);
     formLayout->addRow(tr("Parallel jobs:"), horizontalLayout_6);
-    formLayout->addRow(tr("Enable QML debugging:"), qmlDebuggingLayout);
     formLayout->addRow(tr("Properties:"), propertyEdit);
     formLayout->addRow(tr("Flags:"), flagsLayout);
     formLayout->addRow(tr("Installation flags:"), installLayout);
@@ -618,8 +593,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     formLayout->addRow(tr("Equivalent command line:"), commandLineTextEdit);
 
     QWidget::setTabOrder(buildVariantComboBox, jobSpinBox);
-    QWidget::setTabOrder(jobSpinBox, qmlDebuggingLibraryCheckBox);
-    QWidget::setTabOrder(qmlDebuggingLibraryCheckBox, propertyEdit);
+    QWidget::setTabOrder(jobSpinBox, propertyEdit);
     QWidget::setTabOrder(propertyEdit, keepGoingCheckBox);
     QWidget::setTabOrder(keepGoingCheckBox, showCommandLinesCheckBox);
     QWidget::setTabOrder(showCommandLinesCheckBox, forceProbesCheckBox);
@@ -647,8 +621,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
         return validateProperties(edit, errorMessage);
     });
 
-    qmlDebuggingWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
-
     connect(buildVariantComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QbsBuildStepConfigWidget::changeBuildVariant);
@@ -668,8 +640,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             &QbsBuildStepConfigWidget::changeInstallDir);
     connect(forceProbesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeForceProbes);
-    connect(qmlDebuggingLibraryCheckBox, &QAbstractButton::toggled,
-            this, &QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked);
     updateState();
 }
 
@@ -683,43 +653,27 @@ void QbsBuildStepConfigWidget::updateState()
         cleanInstallRootCheckBox->setChecked(qbsStep()->cleanInstallRoot());
         forceProbesCheckBox->setChecked(qbsStep()->forceProbes());
         updatePropertyEdit(qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables));
-        qmlDebuggingLibraryCheckBox->setChecked(qbsStep()->isQmlDebuggingEnabled());
         installDirChooser->setFileName(qbsStep()->installRoot(QbsBuildStep::PreserveVariables));
         defaultInstallDirCheckBox->setChecked(!qbsStep()->hasCustomInstallRoot());
     }
 
-    updateQmlDebuggingOption();
-
     const QString buildVariant = qbsStep()->buildVariant();
     const int idx = (buildVariant == Constants::QBS_VARIANT_DEBUG) ? 0 : 1;
     buildVariantComboBox->setCurrentIndex(idx);
-    QString command = static_cast<QbsBuildConfiguration *>(step()->buildConfiguration())
-            ->equivalentCommandLine(qbsStep());
+    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(step()->buildConfiguration());
+    QString command = qbsBuildConfig->equivalentCommandLine(qbsStep());
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
     }
 
-    if (qbsStep()->isQmlDebuggingEnabled())
+    if (qbsBuildConfig->isQmlDebuggingEnabled())
         command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
     commandLineTextEdit->setPlainText(command);
 
     setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
 }
 
-void QbsBuildStepConfigWidget::updateQmlDebuggingOption()
-{
-    QString warningText;
-    bool supported = QtSupport::BaseQtVersion::isQmlDebuggingSupported(step()->target()->kit(),
-                                                                       &warningText);
-    qmlDebuggingLibraryCheckBox->setEnabled(supported);
-
-    if (supported && qbsStep()->isQmlDebuggingEnabled())
-        warningText = tr("Might make your application vulnerable. Only use in a safe environment.");
-
-    qmlDebuggingWarningText->setText(warningText);
-    qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
-}
 
 void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
 {
@@ -850,13 +804,6 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
 QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
 {
     return static_cast<QbsBuildStep *>(step());
-}
-
-void QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
-{
-    m_ignoreChange = true;
-    qbsStep()->setQmlDebuggingEnabled(checked);
-    m_ignoreChange = false;
 }
 
 bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage)

@@ -33,6 +33,10 @@
 
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 
 namespace Internal {
@@ -63,6 +67,9 @@ public:
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
+
+protected:
+    QCheckBox *checkBox() const;
 
 private:
     std::unique_ptr<Internal::BaseBoolAspectPrivate> d;

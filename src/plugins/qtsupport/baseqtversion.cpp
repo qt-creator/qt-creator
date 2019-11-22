@@ -1937,7 +1937,7 @@ bool BaseQtVersion::isSubProject(const FilePath &filePath) const
     return false;
 }
 
-bool BaseQtVersion::isQmlDebuggingSupported(Kit *k, QString *reason)
+bool BaseQtVersion::isQmlDebuggingSupported(const Kit *k, QString *reason)
 {
     QTC_ASSERT(k, return false);
     BaseQtVersion *version = QtKitAspect::qtVersion(k);

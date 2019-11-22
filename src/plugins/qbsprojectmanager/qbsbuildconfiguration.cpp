@@ -45,6 +45,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
+#include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/mimetypes/mimedatabase.h>
@@ -86,6 +87,11 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
     m_configurationName->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     connect(m_configurationName, &BaseStringAspect::changed,
             this, &BuildConfiguration::buildDirectoryChanged);
+
+    const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
+    qmlDebuggingAspect->setKit(target->kit());
+    connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
+            this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
     connect(this, &BuildConfiguration::environmentChanged,
             this, &QbsBuildConfiguration::triggerReparseIfActive);
@@ -144,11 +150,11 @@ void QbsBuildConfiguration::initialize()
             + '_' + kitHash.toHex().left(16);
 
     m_configurationName->setValue(uniqueConfigName);
+    if (initialBuildType() == Release)
+        aspect<QtSupport::QmlDebuggingAspect>()->setDefaultValue(false);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto bs = new QbsBuildStep(buildSteps);
-    if (initialBuildType() == Release)
-        bs->setQmlDebuggingEnabled(false);
     bs->setQbsConfiguration(bd);
     buildSteps->appendStep(bs);
 
@@ -367,6 +373,11 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     commandLine.addArg("profile:" + profileName);
 
     return commandLine.arguments();
+}
+
+bool QbsBuildConfiguration::isQmlDebuggingEnabled() const
+{
+    return aspect<QtSupport::QmlDebuggingAspect>()->value();
 }
 
 // ---------------------------------------------------------------------------

@@ -44,6 +44,11 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
+    // used in DebuggerRunConfigurationAspect
+    Q_PROPERTY(bool linkQmlDebuggingLibrary
+               READ isQmlDebuggingEnabled
+               NOTIFY qbsConfigurationChanged)
+
     friend class ProjectExplorer::BuildConfigurationFactory;
     QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     ~QbsBuildConfiguration() final;
@@ -68,6 +73,8 @@ public:
 
     QString configurationName() const;
     QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
+
+    bool isQmlDebuggingEnabled() const;
 
 signals:
     void qbsConfigurationChanged();

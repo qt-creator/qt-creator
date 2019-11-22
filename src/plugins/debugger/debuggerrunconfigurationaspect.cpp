@@ -244,6 +244,9 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
         // (Using the Qt metatype system to avoid a hard qt4projectmanager dependency)
         //
         if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
+            QVariant linkProperty = bc->property("linkQmlDebuggingLibrary");
+            if (linkProperty.isValid() && linkProperty.canConvert(QVariant::Bool))
+                return linkProperty.toBool();
             if (BuildStepList *bsl = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)) {
                 foreach (BuildStep *step, bsl->steps()) {
                     QVariant linkProperty = step->property("linkQmlDebuggingLibrary");

@@ -174,7 +174,7 @@ public:
     ///         warnings and finally info items.
     ProjectExplorer::Tasks reportIssues(const QString &proFile, const QString &buildDir) const;
 
-    static bool isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason = nullptr);
+    static bool isQmlDebuggingSupported(const ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQmlDebuggingSupported(QString *reason = nullptr) const;
     static bool isQtQuickCompilerSupported(ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQtQuickCompilerSupported(QString *reason = nullptr) const;

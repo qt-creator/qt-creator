@@ -394,6 +394,11 @@ void BaseBoolAspect::toMap(QVariantMap &data) const
     data.insert(settingsKey(), d->m_value);
 }
 
+QCheckBox *BaseBoolAspect::checkBox() const
+{
+    return d->m_checkBox;
+}
+
 bool BaseBoolAspect::defaultValue() const
 {
     return d->m_defaultValue;
