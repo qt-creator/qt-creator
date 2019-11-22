@@ -68,8 +68,6 @@ static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticCo
                                  "-plugin-arg-clazy",
                                  "enable-all-fixits",
                                  "-plugin-arg-clazy",
-                                 "no-autowrite-fixits",
-                                 "-plugin-arg-clazy",
                                  diagnosticConfig.clazyChecks()});
     }
 
