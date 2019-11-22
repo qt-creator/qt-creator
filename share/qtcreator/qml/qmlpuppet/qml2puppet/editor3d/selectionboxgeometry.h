@@ -30,6 +30,7 @@
 #include <QtQuick3D/private/qquick3dnode_p.h>
 #include <QtQuick3D/private/qquick3dgeometry_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>
+#include <QtQuick3DUtils/private/qssgbounds3_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -50,6 +51,8 @@ public:
     QQuick3DNode *rootNode() const;
     QQuick3DViewport *view3D() const;
     bool isEmpty() const;
+
+    QSSGBounds3 bounds() const;
 
 public Q_SLOTS:
     void setTargetNode(QQuick3DNode *targetNode);
@@ -76,6 +79,7 @@ private:
     QQuick3DNode *m_rootNode = nullptr;
     bool m_isEmpty = true;
     QVector<QMetaObject::Connection> m_connections;
+    QSSGBounds3 m_bounds;
 };
 
 }

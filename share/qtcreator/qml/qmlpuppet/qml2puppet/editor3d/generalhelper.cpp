@@ -26,6 +26,8 @@
 
 #ifdef QUICK3D_MODULE
 
+#include "selectionboxgeometry.h"
+
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
 #include <QtQuick3D/private/qquick3dobject_p_p.h>
@@ -154,8 +156,15 @@ QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float default
             if (window) {
                 auto context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
                 if (!context.isNull()) {
-                    auto bufferManager = context->bufferManager();
-                    QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
+                    QSSGBounds3 bounds;
+                    auto geometry = qobject_cast<SelectionBoxGeometry *>(modelNode->geometry());
+                    if (geometry) {
+                        bounds = geometry->bounds();
+                    } else {
+                        auto bufferManager = context->bufferManager();
+                        bounds = renderModel->getModelBounds(bufferManager);
+                    }
+
                     QVector3D center = bounds.center();
                     const QVector3D e = bounds.extents();
                     const QVector3D s = targetObject->sceneScale();
@@ -164,8 +173,8 @@ QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float default
                     maxExtent *= maxScale;
 
                     // Adjust lookAt to look directly at the center of the object bounds
-                    QMatrix4x4 m = targetObject->sceneTransform();
-                    lookAt = m.map(center);
+                    lookAt = renderModel->globalTransform.map(center);
+                    lookAt.setZ(-lookAt.z()); // Render node transforms have inverted z
                 }
             }
         }

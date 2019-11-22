@@ -31,7 +31,6 @@
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
-#include <QtQuick3DUtils/private/qssgbounds3_p.h>
 #include <QtQuick3D/private/qquick3dmodel_p.h>
 #include <QtQuick3D/private/qquick3dobject_p_p.h>
 #include <QtQuick/qquickwindow.h>
@@ -72,6 +71,11 @@ QQuick3DViewport *SelectionBoxGeometry::view3D() const
 bool QmlDesigner::Internal::SelectionBoxGeometry::isEmpty() const
 {
     return m_isEmpty;
+}
+
+QSSGBounds3 SelectionBoxGeometry::bounds() const
+{
+    return m_bounds;
 }
 
 void SelectionBoxGeometry::setTargetNode(QQuick3DNode *targetNode)
@@ -165,6 +169,8 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
     geometry->setIndexData(indexData);
     geometry->setPrimitiveType(QSSGRenderGeometry::Lines);
     geometry->setBounds(minBounds, maxBounds);
+
+    m_bounds = QSSGBounds3(minBounds, maxBounds);
 
     bool empty = minBounds.isNull() && maxBounds.isNull();
     if (m_isEmpty != empty) {

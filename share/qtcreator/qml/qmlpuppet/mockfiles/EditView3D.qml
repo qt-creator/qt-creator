@@ -206,6 +206,7 @@ Window {
                 }
 
                 SelectionBox {
+                    id: selectionBox
                     view3D: editView
                     targetNode: viewWindow.selectedNode
                 }
@@ -378,8 +379,10 @@ Window {
                 togglable: false
 
                 onSelectedChanged: {
-                    if (selected)
-                        cameraControl.fitObject(viewWindow.selectedNode, editView.camera.rotation);
+                    if (selected) {
+                        var targetNode = viewWindow.selectedNode ? selectionBox.model : null;
+                        cameraControl.fitObject(targetNode, editView.camera.rotation);
+                    }
                 }
             }
         }
@@ -391,7 +394,7 @@ Window {
         width: 100
         height: width
         editCameraCtrl: cameraControl
-        selectedNode : viewWindow.selectedNode
+        selectedNode : viewWindow.selectedNode ? selectionBox.model : null
     }
 
     Column {
