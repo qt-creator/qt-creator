@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "nimbuildconfiguration.h"
-#include "nimbuildsystem.h"
 #include "nimcompilerbuildstep.h"
 #include "nimproject.h"
 
@@ -78,9 +77,6 @@ void NimBuildConfiguration::initialize()
 {
     BuildConfiguration::initialize();
 
-    auto bs = qobject_cast<NimBuildSystem *>(buildSystem());
-    QTC_ASSERT(bs, return );
-
     // Create the build configuration and initialize it from build info
     setBuildDirectory(defaultBuildDirectory(target()->kit(),
                                             project()->projectFilePath(),
@@ -104,7 +100,11 @@ void NimBuildConfiguration::initialize()
             break;
         }
         nimCompilerBuildStep->setDefaultCompilerOptions(defaultOption);
-        Utils::FilePathList nimFiles = bs->nimFiles();
+
+        const Utils::FilePathList nimFiles = project()->files([](const Node *n) {
+            return Project::AllFiles(n) && n->path().endsWith(".nim");
+        });
+
         if (!nimFiles.isEmpty())
             nimCompilerBuildStep->setTargetNimFile(nimFiles.first());
         buildSteps->appendStep(nimCompilerBuildStep);

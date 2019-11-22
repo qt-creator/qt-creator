@@ -36,6 +36,18 @@ class NimbleProject : public ProjectExplorer::Project
 
 public:
     NimbleProject(const Utils::FilePath &filename);
+
+    // Keep for compatibility with Qt Creator 4.10
+    QVariantMap toMap() const final;
+
+    QStringList excludedFiles() const;
+    void setExcludedFiles(const QStringList &excludedFiles);
+
+protected:
+    // Keep for compatibility with Qt Creator 4.10
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
+
+    QStringList m_excludedFiles;
 };
 
 }

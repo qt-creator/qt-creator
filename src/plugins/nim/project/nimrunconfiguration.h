@@ -29,8 +29,6 @@
 
 namespace Nim {
 
-class NimBuildConfiguration;
-
 class NimRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
@@ -40,9 +38,6 @@ public:
 
 private:
     void updateConfiguration();
-    void setActiveBuildConfiguration(NimBuildConfiguration *activeBuildConfiguration);
-
-    NimBuildConfiguration *m_buildConfiguration = nullptr;
 };
 
 class NimRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory

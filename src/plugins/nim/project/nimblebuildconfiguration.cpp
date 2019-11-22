@@ -71,12 +71,16 @@ void NimbleBuildConfiguration::initialize()
 
     setBuildDirectory(project()->projectDirectory());
 
-    // Don't add a nimble build step when the package has no binaries (i.e a library package)
-    if (!m_nimbleBuildSystem->metadata().bin.empty())
-    {
+    // FIXME: This is the wrong place for this decision, as it depends on
+    // information that's typically only available after parsing which takes
+    // the build configuration that is initialized here into account.
+
+//    // Don't add a nimble build step when the package has no binaries (i.e a library package)
+//    if (!m_nimbleBuildSystem->metadata().bin.empty())
+//    {
         BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         buildSteps->appendStep(new NimbleBuildStep(buildSteps));
-    }
+//    }
 }
 
 bool NimbleBuildConfiguration::fromMap(const QVariantMap &map)

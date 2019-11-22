@@ -28,11 +28,10 @@
 
 #include "../nimconstants.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
-
-#include <utils/environment.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -55,8 +54,7 @@ NimRunConfiguration::NimRunConfiguration(Target *target, Core::Id id)
     setDefaultDisplayName(tr("Current Build Target"));
 
     // Connect target signals
-    connect(target, &Target::activeBuildConfigurationChanged,
-            this, &NimRunConfiguration::updateConfiguration);
+    connect(target, &Target::buildSystemUpdated, this, &NimRunConfiguration::updateConfiguration);
     updateConfiguration();
 }
 
@@ -65,33 +63,10 @@ void NimRunConfiguration::updateConfiguration()
     auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(activeBuildConfiguration());
     if (!buildConfiguration)
         return;
-    setActiveBuildConfiguration(buildConfiguration);
     const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
     aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
     const QString workingDirectory = outFileInfo.absoluteDir().absolutePath();
     aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(FilePath::fromString(workingDirectory));
-}
-
-void NimRunConfiguration::setActiveBuildConfiguration(NimBuildConfiguration *activeBuildConfiguration)
-{
-    if (m_buildConfiguration == activeBuildConfiguration)
-        return;
-
-    if (m_buildConfiguration) {
-        disconnect(m_buildConfiguration, &NimBuildConfiguration::buildDirectoryChanged,
-                   this, &NimRunConfiguration::updateConfiguration);
-        disconnect(m_buildConfiguration, &NimBuildConfiguration::outFilePathChanged,
-                   this, &NimRunConfiguration::updateConfiguration);
-    }
-
-    m_buildConfiguration = activeBuildConfiguration;
-
-    if (m_buildConfiguration) {
-        connect(m_buildConfiguration, &NimBuildConfiguration::buildDirectoryChanged,
-                this, &NimRunConfiguration::updateConfiguration);
-        connect(m_buildConfiguration, &NimBuildConfiguration::outFilePathChanged,
-                this, &NimRunConfiguration::updateConfiguration);
-    }
 }
 
 // NimRunConfigurationFactory

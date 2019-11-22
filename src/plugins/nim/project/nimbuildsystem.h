@@ -32,6 +32,39 @@
 
 namespace Nim {
 
+class NimProjectScanner : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit NimProjectScanner(ProjectExplorer::Project *project);
+
+    void setFilter(const ProjectExplorer::TreeScanner::FileFilter &filter);
+    void startScan();
+    void watchProjectFilePath();
+
+    void setExcludedFiles(const QStringList &list);
+    QStringList excludedFiles() const;
+
+    bool addFiles(const QStringList &filePaths);
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths);
+    bool renameFile(const QString &from, const QString &to);
+
+signals:
+    void finished();
+    void requestReparse();
+    void directoryChanged();
+    void fileChanged(const QString &path);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project *m_project = nullptr;
+    ProjectExplorer::TreeScanner m_scanner;
+    Utils::FileSystemWatcher m_directoryWatcher;
+};
+
 class NimBuildSystem : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
@@ -39,41 +72,28 @@ class NimBuildSystem : public ProjectExplorer::BuildSystem
 public:
     explicit NimBuildSystem(ProjectExplorer::Target *target);
 
-    bool addFiles(const QStringList &filePaths);
-    bool removeFiles(const QStringList &filePaths);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
-
     bool supportsAction(ProjectExplorer::Node *,
                         ProjectExplorer::ProjectAction action,
-                        const ProjectExplorer::Node *node) const override;
+                        const ProjectExplorer::Node *node) const final;
     bool addFiles(ProjectExplorer::Node *node,
-                  const QStringList &filePaths, QStringList *) override;
+                  const QStringList &filePaths, QStringList *) final;
     ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *node,
                                                          const QStringList &filePaths,
                                                          QStringList *) override;
-    bool deleteFiles(ProjectExplorer::Node *, const QStringList &) override;
+    bool deleteFiles(ProjectExplorer::Node *, const QStringList &) final;
     bool renameFile(ProjectExplorer::Node *,
-                    const QString &filePath, const QString &newFilePath) override;
-
-    void setExcludedFiles(const QStringList &list); // Keep for compatibility with Qt Creator 4.10
-    QStringList excludedFiles(); // Make private when no longer supporting Qt Creator 4.10
+                    const QString &filePath, const QString &newFilePath) final;
 
     void triggerParsing() override;
 
-    const Utils::FilePathList nimFiles() const;
-
 protected:
-    virtual void loadSettings();
-    virtual void saveSettings();
+    void loadSettings();
+    void saveSettings();
 
     void collectProjectFiles();
-    void updateProject();
-
-    ProjectExplorer::TreeScanner m_scanner;
 
     ParseGuard m_guard;
-
-    Utils::FileSystemWatcher m_directoryWatcher;
+    NimProjectScanner m_projectScanner;
 };
 
 } // namespace Nim

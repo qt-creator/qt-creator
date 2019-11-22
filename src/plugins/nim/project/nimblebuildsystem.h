@@ -48,9 +48,12 @@ struct NimbleMetadata
     bool operator==(const NimbleMetadata &o) const {
         return bin == o.bin && binDir == o.binDir && srcDir == o.srcDir;
     }
+    bool operator!=(const NimbleMetadata &o) const {
+        return  !operator==(o);
+    }
 };
 
-class NimbleBuildSystem : public NimBuildSystem
+class NimbleBuildSystem : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
@@ -58,26 +61,36 @@ public:
     NimbleBuildSystem(ProjectExplorer::Target *target);
 
     std::vector<NimbleTask> tasks() const;
-
     NimbleMetadata metadata() const;
-
-    void setTasks(std::vector<NimbleTask> tasks);
-    void setMetadata(NimbleMetadata metadata);
 
 signals:
     void tasksChanged();
 
 private:
-    void loadSettings() override;
-    void saveSettings() override;
+    void loadSettings();
+    void saveSettings();
 
     void updateProject();
-    void updateProjectTasks();
-    void updateProjectMetaData();
-    void updateApplicationTargets();
+
+    bool supportsAction(ProjectExplorer::Node *,
+                        ProjectExplorer::ProjectAction action,
+                        const ProjectExplorer::Node *node) const override;
+    bool addFiles(ProjectExplorer::Node *node,
+                  const QStringList &filePaths, QStringList *) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *node,
+                                                         const QStringList &filePaths,
+                                                         QStringList *) override;
+    bool deleteFiles(ProjectExplorer::Node *, const QStringList &) override;
+    bool renameFile(ProjectExplorer::Node *,
+                    const QString &filePath, const QString &newFilePath) override;
+
+    void triggerParsing() final;
 
     NimbleMetadata m_metadata;
     std::vector<NimbleTask> m_tasks;
+
+    NimProjectScanner m_projectScanner;
+    ParseGuard m_guard;
 };
 
-}
+} // Nim

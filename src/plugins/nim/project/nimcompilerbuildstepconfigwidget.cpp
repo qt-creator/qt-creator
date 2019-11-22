@@ -116,12 +116,14 @@ void NimCompilerBuildStepConfigWidget::updateTargetComboBox()
 {
     QTC_ASSERT(m_buildStep, return );
 
-    const auto bs = qobject_cast<NimBuildSystem *>(m_buildStep->buildConfiguration()->buildSystem());
-    QTC_ASSERT(bs, return );
-
     // Re enter the files
     m_ui->targetComboBox->clear();
-    for (const FilePath &file : bs->nimFiles())
+
+    const FilePathList nimFiles = m_buildStep->project()->files([](const Node *n) {
+        return Project::AllFiles(n) && n->path().endsWith(".nim");
+    });
+
+    for (const FilePath &file : nimFiles)
         m_ui->targetComboBox->addItem(file.fileName(), file.toString());
 
     const int index = m_ui->targetComboBox->findData(m_buildStep->targetNimFile().toString());
