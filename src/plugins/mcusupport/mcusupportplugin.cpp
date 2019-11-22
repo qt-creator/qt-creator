@@ -45,8 +45,8 @@ class McuSupportPluginPrivate
 {
 public:
     McuSupportDeviceFactory deviceFactory;
-    EmrunRunConfigurationFactory emrunRunConfigurationFactory;
-    RunWorkerFactory emrunRunWorkerFactory{
+    McuSupportRunConfigurationFactory runConfigurationFactory;
+    RunWorkerFactory runWorkerFactory{
         makeFlashAndRunWorker(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
         {Constants::RUNCONFIGURATION}

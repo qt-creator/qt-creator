@@ -107,7 +107,7 @@ RunWorkerFactory::WorkerCreator makeFlashAndRunWorker()
     return RunWorkerFactory::make<FlashAndRunWorker>();
 }
 
-EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
+McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
     : FixedRunConfigurationFactory(FlashAndRunConfiguration::tr("Flash and run"))
 {
     registerRunConfiguration<FlashAndRunConfiguration>(Constants::RUNCONFIGURATION);
