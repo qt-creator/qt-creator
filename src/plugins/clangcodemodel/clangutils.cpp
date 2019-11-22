@@ -315,15 +315,11 @@ static ::Utils::FilePath compilerPath(const CppTools::ProjectPart &projectPart)
 
 static ::Utils::FilePath buildDirectory(const ProjectExplorer::Project &project)
 {
-    ProjectExplorer::Target *target = project.activeTarget();
-    if (!target)
-        return ::Utils::FilePath();
-
-    ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
-    if (!buildConfig)
-        return ::Utils::FilePath();
-
-    return buildConfig->buildDirectory();
+    if (auto *target = project.activeTarget()) {
+        if (auto *bc = target->activeBuildConfiguration())
+            return bc->buildDirectory();
+    }
+    return {};
 }
 
 static QStringList projectPartArguments(const ProjectPart &projectPart)

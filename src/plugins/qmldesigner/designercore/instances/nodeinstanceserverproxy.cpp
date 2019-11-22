@@ -42,6 +42,7 @@
 #include <completecomponentcommand.h>
 #include <changenodesourcecommand.h>
 #include <changeselectioncommand.h>
+#include <drop3dlibraryitemcommand.h>
 
 #include <informationchangedcommand.h>
 #include <pixmapchangedcommand.h>
@@ -280,6 +281,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
+    static const int drop3DLibraryItemCommandType = QMetaType::type("Drop3DLibraryItemCommand");
 
     if (m_destructing)
         return;
@@ -305,6 +307,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
     } else if (command.userType() == changeSelectionCommandType) {
         nodeInstanceClient()->selectionChanged(command.value<ChangeSelectionCommand>());
+    } else if (command.userType() == drop3DLibraryItemCommandType) {
+        nodeInstanceClient()->library3DItemDropped(command.value<Drop3DLibraryItemCommand>());
     } else if (command.userType() == puppetAliveCommandType) {
         puppetAlive(puppetStreamType);
     } else if (command.userType() == synchronizeCommandType) {

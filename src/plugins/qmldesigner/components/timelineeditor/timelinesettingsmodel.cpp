@@ -149,7 +149,7 @@ void TimelineSettingsModel::resetModel()
     setHorizontalHeaderLabels(
         QStringList({tr("State"), tr("Timeline"), tr("Animation"), tr("Fixed Frame")}));
 
-    if (timelineView()->isAttached() && timelineView()->rootModelNode().hasId()) {
+    if (timelineView()->isAttached()) {
         addState(ModelNode());
         for (const QmlModelState &state :
              QmlVisualNode(timelineView()->rootModelNode()).states().allStates())

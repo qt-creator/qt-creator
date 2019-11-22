@@ -30,7 +30,7 @@ import CameraGeometry 1.0
 IconGizmo {
     id: cameraGizmo
 
-    iconSource: "qrc:///qtquickplugin/mockfiles/images/camera-pick-icon.png"
+    iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
     gizmoModel.geometry: cameraGeometry
     property alias geometryName: cameraGeometry.name // Name must be unique for each geometry
     property alias viewPortRect: cameraGeometry.viewPortRect
@@ -43,7 +43,7 @@ IconGizmo {
     gizmoModel.materials: [
         DefaultMaterial {
             id: defaultMaterial
-            emissiveColor: "blue"
+            emissiveColor: cameraGizmo.targetNode === cameraGizmo.selectedNode ? "#FF0000" : "#555555"
             lighting: DefaultMaterial.NoLighting
             cullingMode: Material.DisableCulling
         }

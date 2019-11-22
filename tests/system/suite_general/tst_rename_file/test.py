@@ -110,6 +110,10 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
                  "Only the filename without the extension is selected?")
     replaceEditorContent(replaceEdit, newname)
     type(replaceEdit, "<Return>")
+    if oldname == "adding.qrc":
+        clickButton(waitForObject("{text='No' type='QPushButton' unnamed='1' visible='1' "
+                                  "window={type='QMessageBox' unnamed='1' visible='1' "
+                                  "        windowTitle='Rename More Files?'}}"))
     test.verify(waitFor("os.path.exists(newFilePath)", 1000),
                 "Verify that file with new name exists: %s" % newFilePath)
     test.compare(readFile(newFilePath), oldFileText,

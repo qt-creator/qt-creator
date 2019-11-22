@@ -503,9 +503,9 @@ void LanguageClientManager::findLinkAt(TextEditor::TextDocument *document,
             }
         }
     });
-    for (Client *interface : reachableClients()) {
-        if (interface->findLinkAt(request))
-            m_exclusiveRequests[request.id()] << interface;
+    if (Client *client = clientForUri(uri)) {
+        if (client->reachable())
+            client->findLinkAt(request);
     }
 }
 

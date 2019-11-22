@@ -95,6 +95,8 @@ QtcTool {
             "commands/valueschangedcommand.h",
             "commands/changeselectioncommand.cpp",
             "commands/changeselectioncommand.h",
+            "commands/drop3dlibraryitemcommand.cpp",
+            "commands/drop3dlibraryitemcommand.h",
             "container/addimportcontainer.cpp",
             "container/addimportcontainer.h",
             "container/idcontainer.cpp",
@@ -201,6 +203,8 @@ QtcTool {
             "editor3d/mousearea3d.h",
             "editor3d/camerageometry.cpp",
             "editor3d/camerageometry.h",
+            "editor3d/gridgeometry.cpp",
+            "editor3d/gridgeometry.h",
             "qml2puppetmain.cpp",
         ]
     }

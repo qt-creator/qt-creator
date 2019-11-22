@@ -106,11 +106,8 @@ void PerfLoadDialog::chooseDefaults()
 
     ui->kitChooser->setCurrentKitId(target->kit()->id());
 
-    ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
-    if (!buildConfig)
-        return;
-
-    ui->executableDirLineEdit->setText(buildConfig->buildDirectory().toString());
+    if (auto *bc = target->activeBuildConfiguration())
+        ui->executableDirLineEdit->setText(bc->buildDirectory().toString());
 }
 
 } // namespace Internal

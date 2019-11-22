@@ -321,15 +321,13 @@ def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_6_1_DEFAULT]):
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    __chooseTargets__(targets, available)
+    nameLineEd = waitForObject("{name='ObjectName' type='Utils::FancyLineEdit' visible='1'}")
+    replaceEditorContent(nameLineEd, "TestItem")
+    uriLineEd = waitForObject("{name='Uri' type='Utils::FancyLineEdit' visible='1'}")
+    replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
-    nameLineEd = waitForObject("{buddy={type='QLabel' text='Object class-name:' unnamed='1' visible='1'} "
-                               "type='QLineEdit' unnamed='1' visible='1'}")
-    replaceEditorContent(nameLineEd, "TestItem")
-    uriLineEd = waitForObject("{buddy={type='QLabel' text='URI:' unnamed='1' visible='1'} "
-                              "type='QLineEdit' unnamed='1' visible='1'}")
-    replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
+    __chooseTargets__(targets, available)
     clickButton(nextButton)
     __createProjectHandleLastPage__()
 
@@ -515,7 +513,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = set()
         if 'Desktop' in supports:
-            if (version == None or version < "5.0"):
+            if (version == None or version < "5.0") and not templateName.startswith("Qt Quick 2"):
                 result.add(Targets.DESKTOP_4_8_7_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.add(Targets.EMBEDDED_LINUX)
@@ -673,11 +671,15 @@ def addCPlusPlusFile(name, template, projectName, forceOverwrite=False, addToVCS
         clickButton("{text='%s' type='QPushButton' unnamed='1' visible='1' window=%s}"
                     % (buttonToClick, overwriteDialog))
 
-# if one of the parameters is set to 0 or below the respective parsing won't be waited for
-def waitForProjectParsing(projectParsingTimeout=10000, codemodelParsingTimeout=10000):
-    if projectParsingTimeout > 0:
-        runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
-        # Wait for parsing to complete
-        waitFor("runButton.enabled", projectParsingTimeout)
+# if one of the parameters is set to 0 the function will not wait in this step
+# beginParsingTimeout      milliseconds to wait for parsing to begin
+# projectParsingTimeout    milliseconds to wait for project parsing
+# codemodelParsingTimeout  milliseconds to wait for C++ parsing
+def waitForProjectParsing(beginParsingTimeout=0, projectParsingTimeout=10000,
+                          codemodelParsingTimeout=10000):
+    runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
+    waitFor("not runButton.enabled", beginParsingTimeout)
+    # Wait for parsing to complete
+    waitFor("runButton.enabled", projectParsingTimeout)
     if codemodelParsingTimeout > 0:
         progressBarWait(codemodelParsingTimeout)

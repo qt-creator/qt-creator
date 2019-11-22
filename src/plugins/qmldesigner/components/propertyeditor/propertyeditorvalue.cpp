@@ -145,6 +145,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
         emit valueChanged(nameAsQString(), value);
         emit valueChangedQml();
         emit isBoundChanged();
+        emit isExplicitChanged();
     }
 }
 
@@ -160,6 +161,8 @@ void PropertyEditorValue::setValue(const QVariant &value)
 
     if (m_value.isValid())
         emit valueChangedQml();
+
+    emit isExplicitChanged();
     emit isBoundChanged();
 }
 

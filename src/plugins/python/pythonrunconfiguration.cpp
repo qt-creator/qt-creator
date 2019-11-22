@@ -270,6 +270,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
 
     auto argumentsAspect = addAspect<ArgumentsAspect>();
 
+    addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
     setCommandLineGetter([this, interpreterAspect, argumentsAspect] {
@@ -299,6 +300,9 @@ void PythonRunConfiguration::updateLanguageServer()
                 PyLSConfigureAssistant::instance()->openDocumentWithPython(python, document);
         }
     }
+
+    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
+        Utils::FilePath::fromString(mainScript()).parentDir());
 }
 
 bool PythonRunConfiguration::supportsDebugger() const
@@ -324,7 +328,7 @@ QString PythonRunConfiguration::interpreter() const
 void PythonRunConfiguration::updateTargetInformation()
 {
     const BuildTargetInfo bti = buildTargetInfo();
-    const QString script = bti.targetFilePath.toString();
+    const QString script = bti.targetFilePath.toUserOutput();
     setDefaultDisplayName(tr("Run %1").arg(script));
     aspect<MainScriptAspect>()->setValue(script);
 }

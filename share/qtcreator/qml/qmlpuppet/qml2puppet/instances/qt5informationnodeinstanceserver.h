@@ -57,6 +57,7 @@ private slots:
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
     void sendTokenBack();
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;

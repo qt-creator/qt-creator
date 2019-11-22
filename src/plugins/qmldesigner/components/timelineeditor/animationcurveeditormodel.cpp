@@ -113,7 +113,9 @@ void AnimationCurveEditorModel::setMaximumTime(double time)
 
 DesignTools::ValueType typeFrom(const QmlTimelineKeyframeGroup &group)
 {
-    if (group.valueType() == TypeName("double") || group.valueType() == TypeName("real"))
+    if (group.valueType() == TypeName("double")
+        || group.valueType() == TypeName("real")
+        || group.valueType() == TypeName("float"))
         return DesignTools::ValueType::Double;
 
     if (group.valueType() == TypeName("boolean") || group.valueType() == TypeName("bool"))

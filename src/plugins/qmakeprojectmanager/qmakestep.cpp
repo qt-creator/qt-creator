@@ -599,7 +599,17 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             this, &QMakeStepConfigWidget::qmakeBuildConfigChanged);
     connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
-    connect(m_ui->abisListWidget, &QListWidget::itemChanged, this, &QMakeStepConfigWidget::abisChanged);
+    connect(m_ui->abisListWidget, &QListWidget::itemChanged, this, [this]{
+        abisChanged();
+        QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
+        if (!bc)
+            return;
+
+        QList<ProjectExplorer::BuildStepList *> stepLists;
+        const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
+        stepLists << bc->stepList(clean);
+        BuildManager::buildLists(stepLists, {ProjectExplorerPlugin::displayNameForStepId(clean)});
+    });
     auto chooser = new Core::VariableChooser(m_ui->qmakeAdditonalArgumentsLineEdit);
     chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
     chooser->addSupportedWidget(m_ui->qmakeAdditonalArgumentsLineEdit);

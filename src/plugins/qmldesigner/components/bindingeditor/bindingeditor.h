@@ -144,6 +144,7 @@ class BindingEditor : public QObject
     Q_PROPERTY(QString text READ bindingValue WRITE setBindingValue)
     Q_PROPERTY(QVariant backendValueProperty READ backendValue WRITE setBackendValue NOTIFY backendValueChanged)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
+    Q_PROPERTY(QVariant stateModelNodeProperty READ stateModelNode WRITE setStateModelNode NOTIFY stateModelNodeChanged)
 
 public:
     BindingEditor(QObject *parent = nullptr);
@@ -159,6 +160,7 @@ public:
 
     void setBackendValue(const QVariant &backendValue);
     void setModelNodeBackend(const QVariant &modelNodeBackend);
+    void setStateModelNode(const QVariant &stateModelNode);
 
     Q_INVOKABLE void prepareBindings();
 
@@ -167,15 +169,19 @@ signals:
     void rejected();
     void backendValueChanged();
     void modelNodeBackendChanged();
+    void stateModelNodeChanged();
 
 private:
     QVariant backendValue() const;
     QVariant modelNodeBackend() const;
+    QVariant stateModelNode() const;
 
 private:
     QPointer<BindingEditorDialog> m_dialog;
     QVariant m_backendValue;
     QVariant m_modelNodeBackend;
+    QVariant m_stateModelNode;
+    QmlDesigner::ModelNode m_modelNode;
     TypeName m_backendValueTypeName;
 };
 

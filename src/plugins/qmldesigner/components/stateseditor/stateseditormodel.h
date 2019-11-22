@@ -61,6 +61,7 @@ public:
     Q_INVOKABLE void setWhenCondition(int internalNodeId, const QString &condition);
     Q_INVOKABLE void resetWhenCondition(int internalNodeId);
     Q_INVOKABLE QStringList autoComplete(const QString &text, int pos, bool explicitComplete);
+    Q_INVOKABLE QVariant stateModelNode();
 
     void reset();
 

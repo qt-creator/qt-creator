@@ -32,12 +32,11 @@ Column {
     anchors.right: parent.right
 
     StandardTextSection {
-        useLineEdit: true
-        showIsWrapping: true
         showVerticalAlignment: true
         showFormatProperty: true
         showElide: true
         showFontSizeMode: true
+        showLineHeight: true
     }
 
     Section {

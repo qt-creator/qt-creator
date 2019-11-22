@@ -28,9 +28,11 @@
 #ifdef QUICK3D_MODULE
 
 #include <QtGui/qvector3d.h>
+#include <QtCore/qpoint.h>
 #include <QtCore/qpointer.h>
 
 #include <QtQuick3D/private/qquick3dnode_p.h>
+#include <QtQuick3D/private/qquick3dmodel_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3D/private/qtquick3dglobal_p.h>
 
@@ -50,6 +52,9 @@ class MouseArea3D : public QQuick3DNode
     Q_PROPERTY(bool dragging READ dragging NOTIFY draggingChanged)
     Q_PROPERTY(int priority READ priority WRITE setPriority NOTIFY priorityChanged)
     Q_PROPERTY(int active READ active WRITE setActive NOTIFY activeChanged)
+    Q_PROPERTY(QPointF circlePickArea READ circlePickArea WRITE setCirclePickArea NOTIFY circlePickAreaChanged)
+    Q_PROPERTY(qreal minAngle READ minAngle WRITE setMinAngle NOTIFY minAngleChanged)
+    Q_PROPERTY(QQuick3DNode *pickNode READ pickNode WRITE setPickNode NOTIFY pickNodeChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -68,11 +73,17 @@ public:
     bool dragging() const;
     bool grabsMouse() const;
     bool active() const;
+    QPointF circlePickArea() const;
+    qreal minAngle() const;
+    QQuick3DNode *pickNode() const;
 
 public slots:
     void setView3D(QQuick3DViewport *view3D);
     void setGrabsMouse(bool grabsMouse);
     void setActive(bool active);
+    void setCirclePickArea(const QPointF &pickArea);
+    void setMinAngle(qreal angle);
+    void setPickNode(QQuick3DNode *node);
 
     void setX(qreal x);
     void setY(qreal y);
@@ -89,22 +100,35 @@ public slots:
                                       const QVector3D &pressPos,
                                       const QVector3D &sceneRelativeDistance, bool global);
 
+    Q_INVOKABLE qreal getNewRotationAngle(QQuick3DNode *node, const QVector3D &pressPos,
+                                          const QVector3D &currentPos, const QVector3D &nodePos,
+                                          qreal prevAngle, bool trackBall);
+    Q_INVOKABLE void applyRotationAngleToNode(QQuick3DNode *node, const QVector3D &startRotation,
+                                              qreal angle);
+    Q_INVOKABLE void applyFreeRotation(QQuick3DNode *node, const QVector3D &startRotation,
+                                       const QVector3D &pressPos, const QVector3D &currentPos);
+
 signals:
     void view3DChanged();
 
-    void xChanged(qreal x);
-    void yChanged(qreal y);
-    void widthChanged(qreal width);
-    void heightChanged(qreal height);
-    void priorityChanged(int level);
+    void xChanged();
+    void yChanged();
+    void widthChanged();
+    void heightChanged();
+    void priorityChanged();
 
     void hoveringChanged();
     void draggingChanged();
-    void activeChanged(bool active);
-    void pressed(const QVector3D &scenePos, const QPoint &screenPos);
+    void activeChanged();
+    void grabsMouseChanged();
+    void circlePickAreaChanged();
+    void minAngleChanged();
+    void pickNodeChanged();
+
+    // angle parameter is only set if circlePickArea is specified
+    void pressed(const QVector3D &scenePos, const QPoint &screenPos, qreal angle);
     void released(const QVector3D &scenePos, const QPoint &screenPos);
     void dragged(const QVector3D &scenePos, const QPoint &screenPos);
-    void grabsMouseChanged(bool grabsMouse);
 
 protected:
     void classBegin() override {}
@@ -114,6 +138,8 @@ protected:
 private:
     void setDragging(bool enable);
     void setHovering(bool enable);
+    QVector3D getNormal() const;
+    QVector3D getCameraToNodeDir(QQuick3DNode *node) const;
 
     Q_DISABLE_COPY(MouseArea3D)
     QQuick3DViewport *m_view3D = nullptr;
@@ -133,6 +159,9 @@ private:
     static MouseArea3D *s_mouseGrab;
     bool m_grabsMouse;
     QVector3D m_mousePosInPlane;
+    QPointF m_circlePickArea;
+    qreal m_minAngle = 0.;
+    QQuick3DNode *m_pickNode = nullptr;
 };
 
 }

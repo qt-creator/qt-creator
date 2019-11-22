@@ -107,7 +107,7 @@ class IntrospectionData
 {
 public:
     bool m_didAttemptToRun = false;
-    bool m_didRun = false;
+    bool m_didRun = true;
     bool m_hasServerMode = false;
 
     bool m_queriedServerMode = false;
@@ -207,26 +207,17 @@ bool CMakeTool::isValid() const
     return m_introspection->m_didRun;
 }
 
-Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, bool mayFail) const
+Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, int timeoutS) const
 {
-    if (m_introspection->m_didAttemptToRun && !m_introspection->m_didRun) {
-        Utils::SynchronousProcessResponse response;
-        response.result = Utils::SynchronousProcessResponse::StartFailed;
-        return response;
-    }
-
     Utils::SynchronousProcess cmake;
-    cmake.setTimeoutS(1);
+    cmake.setTimeoutS(timeoutS);
     cmake.setFlags(Utils::SynchronousProcess::UnixTerminalDisabled);
     Utils::Environment env = Utils::Environment::systemEnvironment();
     Utils::Environment::setupEnglishOutput(&env);
     cmake.setProcessEnvironment(env.toProcessEnvironment());
     cmake.setTimeOutMessageBoxEnabled(false);
 
-    Utils::SynchronousProcessResponse response = cmake.runBlocking({cmakeExecutable(), args});
-    m_introspection->m_didAttemptToRun = true;
-    m_introspection->m_didRun = mayFail ? true : (response.result == Utils::SynchronousProcessResponse::Finished);
-    return response;
+    return cmake.runBlocking({cmakeExecutable(), args});
 }
 
 QVariantMap CMakeTool::toMap() const
@@ -298,21 +289,21 @@ QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
 
 TextEditor::Keywords CMakeTool::keywords()
 {
-    if (m_introspection->m_functions.isEmpty()) {
+    if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
         Utils::SynchronousProcessResponse response;
-        response = run({"--help-command-list"});
+        response = run({"--help-command-list"}, 5);
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             m_introspection->m_functions = response.stdOut().split('\n');
 
-        response = run({"--help-commands"});
+        response = run({"--help-commands"}, 5);
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             parseFunctionDetailsOutput(response.stdOut());
 
-        response = run({"--help-property-list"});
+        response = run({"--help-property-list"}, 5);
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             m_introspection->m_variables = parseVariableOutput(response.stdOut());
 
-        response = run({"--help-variable-list"});
+        response = run({"--help-variable-list"}, 5);
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             m_introspection->m_variables.append(parseVariableOutput(response.stdOut()));
             m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
@@ -417,25 +408,30 @@ Utils::FilePath CMakeTool::searchQchFile(const Utils::FilePath &executable)
 
 void CMakeTool::readInformation(CMakeTool::QueryType type) const
 {
+    if (!m_introspection->m_didRun && m_introspection->m_didAttemptToRun)
+        return;
+
+    m_introspection->m_didAttemptToRun = true;
+
     if (!m_introspection->m_triedCapabilities) {
         fetchFromCapabilities();
         m_introspection->m_triedCapabilities = true;
         m_introspection->m_queriedServerMode = true; // Got added after "-E capabilities" support!
-    }
-
-    if ((type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
-        || (type == QueryType::SERVER_MODE && m_introspection->m_queriedServerMode)
-        || (type == QueryType::VERSION && !m_introspection->m_version.fullVersion.isEmpty()))
-        return;
-
-    if (type == QueryType::GENERATORS) {
-        fetchGeneratorsFromHelp();
-    } else if (type == QueryType::SERVER_MODE) {
-        // Nothing to do...
-    } else if (type == QueryType::VERSION) {
-        fetchVersionFromVersionOutput();
     } else {
-        QTC_ASSERT(false, return );
+        if ((type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
+            || (type == QueryType::SERVER_MODE && m_introspection->m_queriedServerMode)
+            || (type == QueryType::VERSION && !m_introspection->m_version.fullVersion.isEmpty()))
+            return;
+
+        if (type == QueryType::GENERATORS) {
+            fetchGeneratorsFromHelp();
+        } else if (type == QueryType::SERVER_MODE) {
+            // Nothing to do...
+        } else if (type == QueryType::VERSION) {
+            fetchVersionFromVersionOutput();
+        } else {
+            QTC_ASSERT(false, return );
+        }
     }
 }
 
@@ -533,9 +529,11 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
 void CMakeTool::fetchGeneratorsFromHelp() const
 {
     Utils::SynchronousProcessResponse response = run({"--help"});
-    if (response.result != Utils::SynchronousProcessResponse::Finished)
-        return;
-    parseGeneratorsFromHelp(response.stdOut().split('\n'));
+    m_introspection->m_didRun = m_introspection->m_didRun
+                                && response.result == Utils::SynchronousProcessResponse::Finished;
+
+    if (response.result == Utils::SynchronousProcessResponse::Finished)
+        parseGeneratorsFromHelp(response.stdOut().split('\n'));
 }
 
 void CMakeTool::parseGeneratorsFromHelp(const QStringList &lines) const
@@ -588,10 +586,12 @@ void CMakeTool::parseGeneratorsFromHelp(const QStringList &lines) const
 void CMakeTool::fetchVersionFromVersionOutput() const
 {
     Utils::SynchronousProcessResponse response = run({"--version"});
-    if (response.result != Utils::SynchronousProcessResponse::Finished)
-        return;
 
-    parseVersionFormVersionOutput(response.stdOut().split('\n'));
+    m_introspection->m_didRun = m_introspection->m_didRun
+                                && response.result == Utils::SynchronousProcessResponse::Finished;
+
+    if (response.result == Utils::SynchronousProcessResponse::Finished)
+        parseVersionFormVersionOutput(response.stdOut().split('\n'));
 }
 
 void CMakeTool::parseVersionFormVersionOutput(const QStringList &lines) const
@@ -612,11 +612,10 @@ void CMakeTool::parseVersionFormVersionOutput(const QStringList &lines) const
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    Utils::SynchronousProcessResponse response = run({"-E", "capabilities"}, true);
-    if (response.result != Utils::SynchronousProcessResponse::Finished)
-        return;
+    Utils::SynchronousProcessResponse response = run({"-E", "capabilities"});
 
-    parseFromCapabilities(response.stdOut());
+    if (response.result == Utils::SynchronousProcessResponse::Finished)
+        parseFromCapabilities(response.stdOut());
 }
 
 static int getVersion(const QVariantMap &obj, const QString value)

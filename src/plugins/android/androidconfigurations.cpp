@@ -870,6 +870,7 @@ FilePath AndroidConfig::qtLiveApkPath() const
 ///////////////////////////////////
 void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 {
+    emit m_instance->aboutToUpdate();
     m_instance->m_config = devConfigs;
 
     m_instance->save();

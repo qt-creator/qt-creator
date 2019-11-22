@@ -495,7 +495,7 @@ void ClangToolRunWorker::finalize()
         QString msg = tr("%1: Not all files could be analyzed.").arg(toolName);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         Target *target = runControl()->target();
-        if (target && !target->activeBuildConfiguration()->buildDirectory().exists()
+        if (target && target->activeBuildConfiguration() && !target->activeBuildConfiguration()->buildDirectory().exists()
             && !m_runSettings.buildBeforeAnalysis()) {
             msg = tr("%1: You might need to build the project to generate or update source "
                      "files. To build automatically, enable \"Build the project before starting "

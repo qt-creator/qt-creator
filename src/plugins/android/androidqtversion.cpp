@@ -49,7 +49,12 @@ namespace Internal {
 
 AndroidQtVersion::AndroidQtVersion()
     : QtSupport::BaseQtVersion()
+    , m_guard(std::make_unique<QObject>())
 {
+    QObject::connect(AndroidConfigurations::instance(),
+                     &AndroidConfigurations::aboutToUpdate,
+                     m_guard.get(),
+                     [this] { resetCache(); });
 }
 
 bool AndroidQtVersion::isValid() const
