@@ -51,11 +51,11 @@ public:
     explicit VcsBaseEditorConfig(QToolBar *toolBar);
     ~VcsBaseEditorConfig() override;
 
-    class VCSBASE_EXPORT ComboBoxItem
+    class VCSBASE_EXPORT ChoiceItem
     {
     public:
-        ComboBoxItem() = default;
-        ComboBoxItem(const QString &text, const QVariant &val);
+        ChoiceItem() = default;
+        ChoiceItem(const QString &text, const QVariant &val);
         QString displayText;
         QVariant value;
     };
@@ -68,7 +68,9 @@ public:
                              const QString &tooltip = QString());
     QAction *addToggleButton(const QStringList &options, const QString &label,
                              const QString &tooltip = QString());
-    QComboBox *addComboBox(const QStringList &options, const QList<ComboBoxItem> &items);
+    QComboBox *addChoices(const QString &title,
+                          const QStringList &options,
+                          const QList<ChoiceItem> &items);
 
     void mapSetting(QAction *button, bool *setting);
     void mapSetting(QComboBox *comboBox, QString *setting);

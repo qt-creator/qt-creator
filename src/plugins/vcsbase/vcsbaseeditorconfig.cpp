@@ -106,7 +106,7 @@ public:
     that should trigger the rerun of the VCS operation.
 */
 
-VcsBaseEditorConfig::ComboBoxItem::ComboBoxItem(const QString &text, const QVariant &val) :
+VcsBaseEditorConfig::ChoiceItem::ChoiceItem(const QString &text, const QVariant &val) :
     displayText(text),
     value(val)
 {
@@ -171,11 +171,13 @@ QAction *VcsBaseEditorConfig::addToggleButton(const QStringList &options,
     return action;
 }
 
-QComboBox *VcsBaseEditorConfig::addComboBox(const QStringList &options,
-                                            const QList<ComboBoxItem> &items)
+QComboBox *VcsBaseEditorConfig::addChoices(const QString &title,
+                                           const QStringList &options,
+                                           const QList<ChoiceItem> &items)
 {
     auto cb = new QComboBox;
-    foreach (const ComboBoxItem &item, items)
+    cb->setToolTip(title);
+    for (const ChoiceItem &item : items)
         cb->addItem(item.displayText, item.value);
     connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &VcsBaseEditorConfig::argumentsChanged);

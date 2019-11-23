@@ -91,12 +91,13 @@ public:
                                    tr("Show merged revisions.")),
                    settings.boolPointer(BazaarSettings::logIncludeMergesKey));
 
-        QList<ComboBoxItem> logChoices;
-        logChoices << ComboBoxItem(tr("Detailed"), QLatin1String("long"))
-                   << ComboBoxItem(tr("Moderately Short"), QLatin1String("short"))
-                   << ComboBoxItem(tr("One Line"), QLatin1String("line"))
-                   << ComboBoxItem(tr("GNU Change Log"), QLatin1String("gnu-changelog"));
-        mapSetting(addComboBox(QStringList(QLatin1String("--log-format=%1")), logChoices),
+        const QList<ChoiceItem> logChoices = {
+            ChoiceItem(tr("Detailed"), QLatin1String("long")),
+            ChoiceItem(tr("Moderately Short"), QLatin1String("short")),
+            ChoiceItem(tr("One Line"), QLatin1String("line")),
+            ChoiceItem(tr("GNU Change Log"), QLatin1String("gnu-changelog"))
+        };
+        mapSetting(addChoices(tr("Format"), { "--log-format=%1" }, logChoices),
                    settings.stringPointer(BazaarSettings::logFormatKey));
     }
 };
