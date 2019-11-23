@@ -63,7 +63,7 @@ public:
     QStringList baseArguments() const;
     void setBaseArguments(const QStringList &);
 
-    QAction *addButton(const QString &label, const QIcon &icon);
+    QAction *addReloadButton();
     QAction *addToggleButton(const QString &option, const QString &label,
                              const QString &tooltip = QString());
     QAction *addToggleButton(const QStringList &options, const QString &label,

@@ -25,6 +25,8 @@
 
 #include "vcsbaseeditorconfig.h"
 
+#include <utils/utilsicons.h>
+
 #include <QComboBox>
 #include <QAction>
 #include <QHBoxLayout>
@@ -132,9 +134,9 @@ void VcsBaseEditorConfig::setBaseArguments(const QStringList &b)
     d->m_baseArguments = b;
 }
 
-QAction *VcsBaseEditorConfig::addButton(const QString &label, const QIcon &icon)
+QAction *VcsBaseEditorConfig::addReloadButton()
 {
-    auto action = new QAction(icon, label, d->m_toolBar);
+    auto action = new QAction(Utils::Icons::RELOAD.icon(), tr("Reload"), d->m_toolBar);
     connect(action, &QAction::triggered, this, &VcsBaseEditorConfig::argumentsChanged);
     addAction(action);
     return action;

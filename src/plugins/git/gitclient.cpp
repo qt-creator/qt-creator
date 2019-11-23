@@ -52,6 +52,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
+#include <utils/theme/theme.h>
 
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbasediffeditorcontroller.h>
@@ -68,8 +69,6 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
-
-#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QCoreApplication>
@@ -603,7 +602,7 @@ public:
         mapSetting(addComboBox({}, logChoices),
                    settings.intPointer(GitSettings::blameMoveDetection));
 
-        addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
+        addReloadButton();
     }
 };
 
@@ -642,7 +641,7 @@ public:
             mapSetting(followButton, settings.boolPointer(GitSettings::followRenamesKey));
         }
 
-        addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
+        addReloadButton();
     }
 };
 
