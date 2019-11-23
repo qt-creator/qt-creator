@@ -613,7 +613,7 @@ public:
     GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, QToolBar *toolBar) :
         BaseGitDiffArgumentsWidget(settings, toolBar)
     {
-        QAction *diffButton = addToggleButton("--patch", tr("Show Diff"),
+        QAction *diffButton = addToggleButton("--patch", tr("Diff"),
                                               tr("Show difference."));
         mapSetting(diffButton, settings.boolPointer(GitSettings::logDiffKey));
         connect(diffButton, &QAction::toggled, m_patienceButton, &QAction::setVisible);
