@@ -209,18 +209,16 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
     return true;
 }
 
-void GdbServerProvider::addTargetRunner(Debugger::DebuggerRunTool *runTool,
-                                        ProjectExplorer::RunControl *runControl) const
+RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
 {
     if (m_startupMode != GdbServerProvider::StartupOnNetwork)
-        return;
+        return nullptr;
 
     Runnable r;
     r.setCommandLine(command());
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    const auto runner = new GdbServerProviderRunner(runControl, r);
-    runTool->addStartDependency(runner);
+    return new GdbServerProviderRunner(runControl, r);
 }
 
 void GdbServerProvider::updateDevice(ProjectExplorer::IDevice *dev) const

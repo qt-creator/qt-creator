@@ -72,7 +72,8 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
         return;
     }
 
-    p->addTargetRunner(this, runControl);
+    if (RunWorker *runner = p->targetRunner(runControl))
+        addStartDependency(runner);
 }
 
 void BareMetalDebugSupport::start()

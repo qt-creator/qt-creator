@@ -45,11 +45,11 @@ class DebuggerRunTool;
 }
 
 namespace ProjectExplorer {
+class DeviceProcess;
 class IDevice;
 class RunControl;
-class DeviceProcess;
+class RunWorker;
 }
-
 
 namespace BareMetal {
 namespace Internal {
@@ -81,8 +81,8 @@ public:
 
     virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
                             QString &errorMessage) const = 0;
-    virtual void addTargetRunner(Debugger::DebuggerRunTool *runTool,
-                                 ProjectExplorer::RunControl *runControl) const = 0;
+    virtual ProjectExplorer::RunWorker *targetRunner(
+            ProjectExplorer::RunControl *runControl) const = 0;
     virtual void updateDevice(ProjectExplorer::IDevice *dev) const = 0;
 
     virtual bool isValid() const = 0;
