@@ -174,10 +174,13 @@ Window {
     }
 
     Rectangle {
-        id: sceneBg
-        color: "#FFFFFF"
         anchors.fill: parent
         focus: true
+
+        gradient: Gradient {
+            GradientStop { position: 1.0; color: "#222222" }
+            GradientStop { position: 0.0; color: "#999999" }
+        }
 
         TapHandler { // check tapping/clicking an object in the scene
             onTapped: {
@@ -397,31 +400,45 @@ Window {
         selectedNode : viewWindow.selectedNode ? selectionBox.model : null
     }
 
-    Column {
+    Item {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        CheckBox {
-            id: editLightCheckbox
-            checked: false
-            text: qsTr("Use Edit View Light")
+        width: 200
+        height: 120
+
+        Rectangle {
+            anchors.fill: parent
+            color: "white"
+            opacity: 0.3
         }
 
-        CheckBox {
-            id: usePerspectiveCheckbox
-            checked: true
-            text: qsTr("Use Perspective Projection")
-            onCheckedChanged: _generalHelper.requestOverlayUpdate()
-        }
+        Column {
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            CheckBox {
+                id: editLightCheckbox
+                checked: false
+                text: qsTr("Use Edit View Light")
+            }
 
-        CheckBox {
-            id: globalControl
-            checked: true
-            text: qsTr("Use Global Orientation")
+            CheckBox {
+                id: usePerspectiveCheckbox
+                checked: true
+                text: qsTr("Use Perspective Projection")
+                onCheckedChanged: _generalHelper.requestOverlayUpdate()
+            }
+
+            CheckBox {
+                id: globalControl
+                checked: true
+                text: qsTr("Use Global Orientation")
+            }
         }
     }
 
     Text {
         id: helpText
+        color: "white"
         text: qsTr("Camera controls: ALT + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
         anchors.bottom: parent.bottom
     }
