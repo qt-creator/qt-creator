@@ -72,20 +72,23 @@ public:
         effectiveEmrunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
         effectiveEmrunCall->setReadOnly(true);
 
-        auto updateConfiguration = [target, effectiveEmrunCall, webBrowserAspect] {
+        setUpdater([target, effectiveEmrunCall, webBrowserAspect] {
             effectiveEmrunCall->setValue(emrunCommand(target,
                                                       webBrowserAspect->currentBrowser(),
                                                       "<port>").toUserOutput());
-        };
+        });
 
-        updateConfiguration();
+        update(); // FIXME: Looks spurious
 
+        // FIXME: A case for acquaintSiblings?
         connect(webBrowserAspect, &WebBrowserSelectionAspect::changed,
-                this, updateConfiguration);
+                this, &RunConfiguration::update);
+        // FIXME: Is wrong after active build config changes, but probably
+        // not needed anyway.
         connect(target->activeBuildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-                this, updateConfiguration);
+                this, &RunConfiguration::update);
         connect(target->project(), &Project::displayNameChanged,
-                this, updateConfiguration);
+                this, &RunConfiguration::update);
     }
 };
 
