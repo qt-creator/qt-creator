@@ -50,17 +50,15 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
 
-    connect(target, &Target::kitChanged,
-            this, &BareMetalRunConfiguration::updateTargetInformation); // Handles device changes, etc.
-    connect(target, &Target::buildSystemUpdated,
-            this, &BareMetalRunConfiguration::updateTargetInformation);
-}
+    setUpdater([this, exeAspect] {
+        const BuildTargetInfo bti = buildTargetInfo();
+        exeAspect->setExecutable(bti.targetFilePath);
+        emit enabledChanged();
+    });
 
-void BareMetalRunConfiguration::updateTargetInformation()
-{
-    const BuildTargetInfo bti = buildTargetInfo();
-    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-    emit enabledChanged();
+    // Handles device changes, etc.
+    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
 const char *BareMetalRunConfiguration::IdPrefix = "BareMetalCustom";

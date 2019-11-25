@@ -40,9 +40,6 @@ public:
     explicit BareMetalRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     static const char *IdPrefix;
-
-private:
-    void updateTargetInformation();
 };
 
 // BareMetalRunConfigurationFactory
