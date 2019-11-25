@@ -29,6 +29,7 @@
 #include "environmentaspect.h"
 
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 
 #include <memory>
@@ -128,8 +129,12 @@ public:
     void setEnvironment(const Utils::Environment &env);
     void setBaseFileName(const Utils::FilePath &baseFileName);
     void setReadOnly(bool readOnly);
+    void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
 
+    enum class UncheckedSemantics { Disabled, ReadOnly };
+    void setUncheckedSemantics(UncheckedSemantics semantics);
     bool isChecked() const;
+    void setChecked(bool checked);
     void makeCheckable(const QString &optionalLabel, const QString &optionalBaseKey);
 
     enum DisplayStyle {
@@ -145,6 +150,9 @@ public:
 
     Utils::FilePath filePath() const;
     void setFilePath(const Utils::FilePath &val);
+
+signals:
+    void checkedChanged();
 
 private:
     void update();

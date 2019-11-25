@@ -32,6 +32,7 @@
 #include "runconfiguration.h"
 #include "target.h"
 
+#include <coreplugin/variablechooser.h>
 #include <utils/utilsicons.h>
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
@@ -84,6 +85,8 @@ class BaseStringAspectPrivate
 {
 public:
     BaseStringAspect::DisplayStyle m_displayStyle = BaseStringAspect::LabelDisplay;
+    BaseStringAspect::UncheckedSemantics m_uncheckedSemantics
+        = BaseStringAspect::UncheckedSemantics::ReadOnly;
     QString m_labelText;
     std::function<QString(const QString &)> m_displayFilter;
     std::unique_ptr<BaseBoolAspect> m_checker;
@@ -98,10 +101,20 @@ public:
     QPointer<FancyLineEdit> m_lineEditDisplay;
     QPointer<PathChooser> m_pathChooserDisplay;
     QPointer<QTextEdit> m_textEditDisplay;
+    Utils::MacroExpanderProvider m_expanderProvider;
     QPixmap m_labelPixmap;
     Utils::FilePath m_baseFileName;
     bool m_readOnly = false;
     bool m_showToolTipOnLabel = false;
+
+    template<class Widget> void updateWidgetFromCheckStatus(Widget *w)
+    {
+        const bool enabled = !m_checker || m_checker->value();
+        if (m_uncheckedSemantics == BaseStringAspect::UncheckedSemantics::Disabled)
+            w->setEnabled(enabled);
+        else
+            w->setReadOnly(!enabled);
+    }
 };
 
 class BaseIntegerAspectPrivate
@@ -205,6 +218,12 @@ bool BaseStringAspect::isChecked() const
     return !d->m_checker || d->m_checker->value();
 }
 
+void BaseStringAspect::setChecked(bool checked)
+{
+    QTC_ASSERT(d->m_checker, return);
+    d->m_checker->setValue(checked);
+}
+
 void BaseStringAspect::setDisplayStyle(DisplayStyle displayStyle)
 {
     d->m_displayStyle = displayStyle;
@@ -260,6 +279,16 @@ void BaseStringAspect::setReadOnly(bool readOnly)
         d->m_textEditDisplay->setReadOnly(readOnly);
 }
 
+void BaseStringAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
+{
+    d->m_expanderProvider = expanderProvider;
+}
+
+void BaseStringAspect::setUncheckedSemantics(BaseStringAspect::UncheckedSemantics semantics)
+{
+    d->m_uncheckedSemantics = semantics;
+}
+
 void BaseStringAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_label);
@@ -270,6 +299,14 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         d->m_label->setPixmap(d->m_labelPixmap);
     builder.addItem(d->m_label.data());
 
+    const auto useMacroExpander = [this, &builder](QWidget *w) {
+        if (!d->m_expanderProvider)
+            return;
+        const auto chooser = new Core::VariableChooser(builder.layout()->parentWidget());
+        chooser->addSupportedWidget(w);
+        chooser->addMacroExpanderProvider(d->m_expanderProvider);
+    };
+
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         d->m_pathChooserDisplay = new PathChooser;
@@ -279,6 +316,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseFileName(d->m_baseFileName);
         d->m_pathChooserDisplay->setReadOnly(d->m_readOnly);
+        useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &BaseStringAspect::setValue);
         builder.addItem(d->m_pathChooserDisplay.data());
@@ -289,6 +327,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_lineEditDisplay->setReadOnly(d->m_readOnly);
+        useMacroExpander(d->m_lineEditDisplay);
         connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
                 this, &BaseStringAspect::setValue);
         builder.addItem(d->m_lineEditDisplay.data());
@@ -297,6 +336,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         d->m_textEditDisplay = new QTextEdit;
         d->m_textEditDisplay->setPlaceholderText(d->m_placeHolderText);
         d->m_textEditDisplay->setReadOnly(d->m_readOnly);
+        useMacroExpander(d->m_textEditDisplay);
         connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
             const QString value = d->m_textEditDisplay->document()->toPlainText();
             if (value != d->m_value) {
@@ -324,21 +364,19 @@ void BaseStringAspect::update()
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(d->m_value)
                                                        : d->m_value;
 
-    const bool enabled = !d->m_checker || d->m_checker->value();
-
     if (d->m_pathChooserDisplay) {
         d->m_pathChooserDisplay->setFileName(FilePath::fromString(displayedString));
-        d->m_pathChooserDisplay->setEnabled(enabled);
+        d->updateWidgetFromCheckStatus(d->m_pathChooserDisplay.data());
     }
 
     if (d->m_lineEditDisplay) {
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
-        d->m_lineEditDisplay->setEnabled(enabled);
+        d->updateWidgetFromCheckStatus(d->m_lineEditDisplay.data());
     }
 
     if (d->m_textEditDisplay) {
         d->m_textEditDisplay->setText(displayedString);
-        d->m_textEditDisplay->setEnabled(enabled);
+        d->updateWidgetFromCheckStatus(d->m_textEditDisplay.data());
     }
 
     if (d->m_labelDisplay) {
@@ -362,6 +400,7 @@ void BaseStringAspect::makeCheckable(const QString &checkerLabel, const QString 
 
     connect(d->m_checker.get(), &BaseBoolAspect::changed, this, &BaseStringAspect::update);
     connect(d->m_checker.get(), &BaseBoolAspect::changed, this, &BaseStringAspect::changed);
+    connect(d->m_checker.get(), &BaseBoolAspect::changed, this, &BaseStringAspect::checkedChanged);
 
     update();
 }

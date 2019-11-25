@@ -36,7 +36,7 @@ namespace ProjectExplorer {
 
 namespace Internal { class BuildConfigurationPrivate; }
 
-class BaseStringAspect;
+class BuildDirectoryAspect;
 class BuildInfo;
 class BuildSystem;
 class BuildStepList;
@@ -107,7 +107,7 @@ public:
     static void prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env);
     void updateCacheAndEmitEnvironmentChanged();
 
-    ProjectExplorer::BaseStringAspect *buildDirectoryAspect() const;
+    ProjectExplorer::BuildDirectoryAspect *buildDirectoryAspect() const;
     void setConfigWidgetDisplayName(const QString &display);
     void setBuildDirectoryHistoryCompleter(const QString &history);
     void setConfigWidgetHasFrame(bool configWidgetHasFrame);

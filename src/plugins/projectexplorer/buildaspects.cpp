@@ -25,7 +25,107 @@
 
 #include "buildaspects.h"
 
+#include <utils/fileutils.h>
+#include <utils/utilsicons.h>
+
+#include <QLabel>
+#include <QLayout>
+
+using namespace Utils;
+
 namespace ProjectExplorer {
+
+class BuildDirectoryAspect::Private
+{
+public:
+    FilePath sourceDir;
+    FilePath savedShadowBuildDir;
+    QString problem;
+    QPointer<QLabel> warningLabel;
+    QPointer<QLabel> problemLabel;
+};
+
+BuildDirectoryAspect::BuildDirectoryAspect() : d(new Private)
+{
+    setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
+    setLabelText(tr("Build directory:"));
+    setDisplayStyle(PathChooserDisplay);
+    setExpectedKind(Utils::PathChooser::Directory);
+    setUncheckedSemantics(UncheckedSemantics::ReadOnly);
+}
+
+BuildDirectoryAspect::~BuildDirectoryAspect()
+{
+    delete d;
+}
+
+void BuildDirectoryAspect::allowInSourceBuilds(const FilePath &sourceDir)
+{
+    d->sourceDir = sourceDir;
+    makeCheckable(tr("Shadow Build"), QString());
+}
+
+bool BuildDirectoryAspect::isShadowBuild() const
+{
+    return !d->sourceDir.isEmpty() && d->sourceDir != filePath();
+}
+
+void BuildDirectoryAspect::setProblem(const QString &description)
+{
+    d->problem = description;
+    updateProblemLabel();
+}
+
+void BuildDirectoryAspect::toMap(QVariantMap &map) const
+{
+    BaseStringAspect::toMap(map);
+    if (!d->sourceDir.isEmpty()) {
+        const FilePath shadowDir = isChecked() ? filePath() : d->savedShadowBuildDir;
+        map.insert(settingsKey() + ".shadowDir", shadowDir.toString());
+    }
+}
+
+void BuildDirectoryAspect::fromMap(const QVariantMap &map)
+{
+    BaseStringAspect::fromMap(map);
+    if (!d->sourceDir.isEmpty()) {
+        d->savedShadowBuildDir = FilePath::fromString(map.value(settingsKey() + ".shadowDir")
+                                                      .toString());
+        setChecked(d->sourceDir != filePath());
+    }
+}
+
+void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
+{
+    BaseStringAspect::addToLayout(builder);
+    d->warningLabel = new QLabel;
+    d->warningLabel->setAlignment(Qt::AlignTop);
+    d->warningLabel->setPixmap(Icons::WARNING.pixmap());
+    d->problemLabel = new QLabel;
+    d->problemLabel->setAlignment(Qt::AlignTop);
+    builder.startNewRow().addItems(QString(), d->warningLabel.data(), d->problemLabel.data());
+    updateProblemLabel();
+    if (!d->sourceDir.isEmpty()) {
+        connect(this, &BaseStringAspect::checkedChanged, builder.layout(), [this] {
+            if (isChecked()) {
+                setFilePath(d->savedShadowBuildDir);
+            } else {
+                d->savedShadowBuildDir = filePath();
+                setFilePath(d->sourceDir);
+            }
+        });
+    }
+}
+
+void BuildDirectoryAspect::updateProblemLabel()
+{
+    if (!d->warningLabel)
+        return;
+    QTC_ASSERT(d->problemLabel, return);
+    d->problemLabel->setText(d->problem);
+    d->problemLabel->setVisible(!d->problem.isEmpty());
+    d->warningLabel->setVisible(!d->problem.isEmpty());
+}
 
 SeparateDebugInfoAspect::SeparateDebugInfoAspect()
 {

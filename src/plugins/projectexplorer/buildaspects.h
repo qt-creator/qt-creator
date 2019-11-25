@@ -28,7 +28,31 @@
 #include "projectexplorer_export.h"
 #include "projectconfigurationaspects.h"
 
+namespace Utils { class FilePath; }
+
 namespace ProjectExplorer {
+
+class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public BaseStringAspect
+{
+    Q_OBJECT
+public:
+    BuildDirectoryAspect();
+    ~BuildDirectoryAspect() override;
+
+    void allowInSourceBuilds(const Utils::FilePath &sourceDir);
+    bool isShadowBuild() const;
+    void setProblem(const QString &description);
+
+private:
+    void toMap(QVariantMap &map) const override;
+    void fromMap(const QVariantMap &map) override;
+    void addToLayout(LayoutBuilder &builder) override;
+
+    void updateProblemLabel();
+
+    class Private;
+    Private * const d;
+};
 
 class PROJECTEXPLORER_EXPORT SeparateDebugInfoAspect : public BaseTriStateAspect
 {

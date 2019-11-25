@@ -25,6 +25,7 @@
 
 #include "buildconfiguration.h"
 
+#include "buildaspects.h"
 #include "buildenvironmentwidget.h"
 #include "buildinfo.h"
 #include "buildsteplist.h"
@@ -35,7 +36,6 @@
 #include "kitinformation.h"
 #include "kitmanager.h"
 #include "project.h"
-#include "projectconfigurationaspects.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectmacroexpander.h"
@@ -44,6 +44,7 @@
 #include "session.h"
 
 #include <coreplugin/idocument.h>
+#include <coreplugin/variablechooser.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
@@ -61,7 +62,6 @@ static const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.
 static const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 static const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
 static const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
-static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.BuildDirectory";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -72,7 +72,7 @@ public:
     bool m_clearSystemEnvironment = false;
     Utils::EnvironmentItems m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
-    ProjectExplorer::BaseStringAspect *m_buildDirectoryAspect = nullptr;
+    BuildDirectoryAspect *m_buildDirectoryAspect = nullptr;
     Utils::FilePath m_lastEmittedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
@@ -116,16 +116,12 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
 
-    d->m_buildDirectoryAspect = addAspect<BaseStringAspect>();
-    d->m_buildDirectoryAspect->setSettingsKey(BUILDDIRECTORY_KEY);
-    d->m_buildDirectoryAspect->setLabelText(tr("Build directory:"));
-    d->m_buildDirectoryAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
-    d->m_buildDirectoryAspect->setExpectedKind(Utils::PathChooser::Directory);
+    d->m_buildDirectoryAspect = addAspect<BuildDirectoryAspect>();
     d->m_buildDirectoryAspect->setBaseFileName(target->project()->projectDirectory());
     d->m_buildDirectoryAspect->setEnvironment(environment());
+    d->m_buildDirectoryAspect->setMacroExpanderProvider([this] { return macroExpander(); });
     connect(d->m_buildDirectoryAspect, &BaseStringAspect::changed,
             this, &BuildConfiguration::buildDirectoryChanged);
-
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         d->m_buildDirectoryAspect->setEnvironment(environment());
         this->target()->buildEnvironmentChanged(this);
@@ -133,7 +129,6 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
 
     connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
     connect(target, &Target::parsingFinished, this, &BuildConfiguration::enabledChanged);
-
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
         if (isActive() && project() == SessionManager::startupProject()) {
             ProjectExplorerPlugin::updateActions();
@@ -309,7 +304,7 @@ QVariant BuildConfiguration::extraInfo() const
     return d->m_extraInfo;
 }
 
-ProjectExplorer::BaseStringAspect *BuildConfiguration::buildDirectoryAspect() const
+ProjectExplorer::BuildDirectoryAspect *BuildConfiguration::buildDirectoryAspect() const
 {
     return d->m_buildDirectoryAspect;
 }
