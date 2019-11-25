@@ -38,15 +38,15 @@ using namespace ProjectExplorer;
 
 namespace QtSupport {
 
-QmlDebuggingAspect::QmlDebuggingAspect() : BaseBoolAspect("EnableQmlDebugging")
+QmlDebuggingAspect::QmlDebuggingAspect()
 {
-    setDefaultValue(true);
-    setLabel(tr("Enable QML debugging and profiling"));
+    setSettingsKey("EnableQmlDebugging");
+    setDisplayName(tr("QML debugging and profiling"));
 }
 
 void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
 {
-    BaseBoolAspect::addToLayout(builder);
+    BaseSelectionAspect::addToLayout(builder);
     const auto warningIconLabel = new QLabel;
     warningIconLabel->setAlignment(Qt::AlignTop);
     warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
@@ -57,13 +57,13 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         QString warningText;
         const bool supported = m_kit && BaseQtVersion::isQmlDebuggingSupported(m_kit, &warningText);
         if (!supported) {
-            setValue(false);
-        } else if (value()) {
+            setSetting(Value::Default);
+        } else if (setting() == Value::Enabled) {
             warningText = tr("Might make your application vulnerable.<br/>"
                              "Only use in a safe environment.");
         }
         warningTextLabel->setText(warningText);
-        checkBox()->setVisible(supported);
+        setVisibleDynamic(supported);
         warningIconLabel->setVisible(supported  && !warningText.isEmpty());
         warningTextLabel->setVisible(supported);
     };

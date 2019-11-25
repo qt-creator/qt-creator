@@ -76,6 +76,7 @@ public:
     // These are all owned by the configuration widget.
     QList<QPointer<QRadioButton>> m_buttons;
     QPointer<QComboBox> m_comboBox;
+    QPointer<QLabel> m_label;
     QPointer<QButtonGroup> m_buttonGroup;
 };
 
@@ -400,11 +401,6 @@ void BaseBoolAspect::toMap(QVariantMap &data) const
     data.insert(settingsKey(), d->m_value);
 }
 
-QCheckBox *BaseBoolAspect::checkBox() const
-{
-    return d->m_checkBox;
-}
-
 bool BaseBoolAspect::defaultValue() const
 {
     return d->m_defaultValue;
@@ -473,13 +469,14 @@ void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
         }
         break;
     case DisplayStyle::ComboBox:
+        d->m_label = new QLabel(displayName());
         d->m_comboBox = new QComboBox;
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
         connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated), this,
                 [this](int index) { d->m_value = index; emit changed(); });
         d->m_comboBox->setCurrentIndex(d->m_value);
-        builder.addItems(new QLabel(displayName()), d->m_comboBox.data());
+        builder.addItems(d->m_label.data(), d->m_comboBox.data());
         break;
     }
 }
@@ -492,6 +489,16 @@ void BaseSelectionAspect::fromMap(const QVariantMap &map)
 void BaseSelectionAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), d->m_value);
+}
+
+void BaseSelectionAspect::setVisibleDynamic(bool visible)
+{
+    if (d->m_label)
+        d->m_label->setVisible(visible);
+    if (d->m_comboBox)
+        d->m_comboBox->setVisible(visible);
+    for (QRadioButton * const button : qAsConst(d->m_buttons))
+        button->setVisible(visible);
 }
 
 int BaseSelectionAspect::defaultValue() const
@@ -611,6 +618,29 @@ void BaseIntegerAspect::setDisplayIntegerBase(int base)
 void BaseIntegerAspect::setDisplayScaleFactor(qint64 factor)
 {
     d->m_displayScaleFactor = factor;
+}
+
+BaseTriStateAspect::BaseTriStateAspect()
+{
+    setDisplayStyle(DisplayStyle::ComboBox);
+    setDefaultValue(2);
+    addOption(tr("Enable"));
+    addOption(tr("Disable"));
+    addOption(tr("Leave at Default"));
+}
+
+BaseTriStateAspect::Value BaseTriStateAspect::setting() const
+{
+    if (value() == 0)
+        return Value::Enabled;
+    if (value() == 1)
+        return Value::Disabled;
+    return Value::Default;
+}
+
+void BaseTriStateAspect::setSetting(BaseTriStateAspect::Value setting)
+{
+    setValue(setting == Value::Enabled ? 0 : setting == Value::Disabled ? 1 : 2);
 }
 
 } // namespace ProjectExplorer

@@ -213,10 +213,17 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
 {
     QVariantMap config = m_qbsConfiguration;
     config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
-    if (static_cast<QbsBuildConfiguration *>(buildConfiguration())->isQmlDebuggingEnabled())
+    switch (static_cast<QbsBuildConfiguration *>(buildConfiguration())->qmlDebuggingSetting()) {
+    case QtSupport::QmlDebuggingAspect::Value::Enabled:
         config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, true);
-    else
+        break;
+    case QtSupport::QmlDebuggingAspect::Value::Disabled:
+        config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, false);
+        break;
+    default:
         config.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
+        break;
+    }
     if (variableHandling == ExpandVariables) {
         const MacroExpander * const expander = buildConfiguration()->macroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
@@ -667,8 +674,16 @@ void QbsBuildStepConfigWidget::updateState()
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
     }
 
-    if (qbsBuildConfig->isQmlDebuggingEnabled())
+    switch (qbsBuildConfig->qmlDebuggingSetting()) {
+    case QtSupport::QmlDebuggingAspect::Value::Enabled:
         command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
+        break;
+    case QtSupport::QmlDebuggingAspect::Value::Disabled:
+        command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":false");
+        break;
+    default:
+        break;
+    }
     commandLineTextEdit->setPlainText(command);
 
     setSummaryText(tr("<b>Qbs:</b> %1").arg(command));

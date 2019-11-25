@@ -31,6 +31,7 @@ Project {
                 "applicationlauncher.cpp", "applicationlauncher.h",
                 "appoutputpane.cpp", "appoutputpane.h",
                 "baseprojectwizarddialog.cpp", "baseprojectwizarddialog.h",
+                "buildaspects.cpp", "buildaspects.h",
                 "buildconfiguration.cpp", "buildconfiguration.h",
                 "buildenvironmentwidget.cpp", "buildenvironmentwidget.h",
                 "buildinfo.cpp", "buildinfo.h",

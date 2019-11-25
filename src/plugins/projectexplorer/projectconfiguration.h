@@ -112,6 +112,8 @@ signals:
     void changed();
 
 protected:
+    virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
+
     Core::Id m_id;
     QString m_displayName;
     QString m_settingsKey; // Name of data in settings.

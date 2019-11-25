@@ -45,7 +45,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/mimetypes/mimedatabase.h>
@@ -150,8 +149,6 @@ void QbsBuildConfiguration::initialize()
             + '_' + kitHash.toHex().left(16);
 
     m_configurationName->setValue(uniqueConfigName);
-    if (initialBuildType() == Release)
-        aspect<QtSupport::QmlDebuggingAspect>()->setDefaultValue(false);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto bs = new QbsBuildStep(buildSteps);
@@ -377,7 +374,12 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
 
 bool QbsBuildConfiguration::isQmlDebuggingEnabled() const
 {
-    return aspect<QtSupport::QmlDebuggingAspect>()->value();
+    return qmlDebuggingSetting() == QtSupport::QmlDebuggingAspect::Value::Enabled;
+}
+
+BaseTriStateAspect::Value QbsBuildConfiguration::qmlDebuggingSetting() const
+{
+    return aspect<QtSupport::QmlDebuggingAspect>()->setting();
 }
 
 // ---------------------------------------------------------------------------

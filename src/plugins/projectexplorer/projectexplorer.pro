@@ -12,6 +12,7 @@ HEADERS += projectexplorer.h \
     abiwidget.h \
     addrunconfigdialog.h \
     ansifilterparser.h \
+    buildaspects.h \
     buildinfo.h \
     buildsystem.h \
     buildtargettype.h \
@@ -171,6 +172,7 @@ SOURCES += projectexplorer.cpp \
     abiwidget.cpp \
     addrunconfigdialog.cpp \
     ansifilterparser.cpp \
+    buildaspects.cpp \
     buildinfo.cpp \
     buildsystem.cpp \
     clangparser.cpp \

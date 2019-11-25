@@ -68,9 +68,6 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-protected:
-    QCheckBox *checkBox() const;
-
 private:
     std::unique_ptr<Internal::BaseBoolAspectPrivate> d;
 };
@@ -98,6 +95,9 @@ public:
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
+
+protected:
+    void setVisibleDynamic(bool visible) override;
 
 private:
     std::unique_ptr<Internal::BaseSelectionAspectPrivate> d;
@@ -177,6 +177,17 @@ public:
 
 private:
     std::unique_ptr<Internal::BaseIntegerAspectPrivate> d;
+};
+
+class PROJECTEXPLORER_EXPORT BaseTriStateAspect : public BaseSelectionAspect
+{
+    Q_OBJECT
+public:
+    BaseTriStateAspect();
+
+    enum class Value { Enabled, Disabled, Default };
+    Value setting() const;
+    void setSetting(Value setting);
 };
 
 } // namespace ProjectExplorer

@@ -31,6 +31,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtbuildaspects.h>
 
 namespace ProjectExplorer { class BuildStep; }
 
@@ -75,6 +76,7 @@ public:
     QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
 
     bool isQmlDebuggingEnabled() const;
+    QtSupport::QmlDebuggingAspect::Value qmlDebuggingSetting() const;
 
 signals:
     void qbsConfigurationChanged();

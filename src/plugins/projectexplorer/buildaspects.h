@@ -25,24 +25,9 @@
 
 #pragma once
 
-#include "qtsupport_global.h"
+#include "projectexplorer_export.h"
+#include "projectconfigurationaspects.h"
 
-#include <projectexplorer/projectconfigurationaspects.h>
+namespace ProjectExplorer {
 
-namespace QtSupport {
-
-class QTSUPPORT_EXPORT QmlDebuggingAspect : public ProjectExplorer::BaseTriStateAspect
-{
-    Q_OBJECT
-public:
-    QmlDebuggingAspect();
-
-    void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
-
-private:
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
-
-    const ProjectExplorer::Kit *m_kit = nullptr;
-};
-
-} // namespace QtSupport
+} // namespace ProjectExplorer
