@@ -133,10 +133,14 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
     postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
 
-    connect(target, &Target::buildSystemUpdated, this, [this] {
-        updateTargetInformation();
-        AndroidManager::updateGradleProperties(this->target(), buildKey());
+    setUpdater([this, target] {
+        const BuildTargetInfo bti = buildTargetInfo();
+        setDisplayName(bti.displayName);
+        setDefaultDisplayName(bti.displayName);
+        AndroidManager::updateGradleProperties(target, buildKey());
     });
+
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
 QWidget *AndroidRunConfiguration::createConfigurationWidget()
@@ -147,13 +151,6 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
     detailsWidget->setState(DetailsWidget::Expanded);
     detailsWidget->setSummaryText(tr("Android run settings"));
     return detailsWidget;
-}
-
-void AndroidRunConfiguration::updateTargetInformation()
-{
-    const BuildTargetInfo bti = buildTargetInfo();
-    setDisplayName(bti.displayName);
-    setDefaultDisplayName(bti.displayName);
 }
 
 } // namespace Android

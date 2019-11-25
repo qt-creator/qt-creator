@@ -69,9 +69,6 @@ public:
     explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
-
-private:
-    void updateTargetInformation();
 };
 
 } // namespace Android
