@@ -279,13 +279,19 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
         return cmd;
     });
 
-    connect(target, &Target::buildSystemUpdated,
-            this, &PythonRunConfiguration::updateTargetInformation);
+    setUpdater([this, scriptAspect] {
+        const BuildTargetInfo bti = buildTargetInfo();
+        const QString script = bti.targetFilePath.toUserOutput();
+        setDefaultDisplayName(tr("Run %1").arg(script));
+        scriptAspect->setValue(script);
+    });
+
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
 void PythonRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
-    updateTargetInformation();
+    update();
 }
 
 void PythonRunConfiguration::updateLanguageServer()
@@ -323,14 +329,6 @@ QString PythonRunConfiguration::arguments() const
 QString PythonRunConfiguration::interpreter() const
 {
     return aspect<InterpreterAspect>()->currentInterpreter().command.toString();
-}
-
-void PythonRunConfiguration::updateTargetInformation()
-{
-    const BuildTargetInfo bti = buildTargetInfo();
-    const QString script = bti.targetFilePath.toUserOutput();
-    setDefaultDisplayName(tr("Run %1").arg(script));
-    aspect<MainScriptAspect>()->setValue(script);
 }
 
 PythonRunConfigurationFactory::PythonRunConfigurationFactory()

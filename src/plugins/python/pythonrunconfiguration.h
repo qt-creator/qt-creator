@@ -51,8 +51,6 @@ private:
     bool supportsDebugger() const;
     QString mainScript() const;
     QString arguments() const;
-
-    void updateTargetInformation();
 };
 
 class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
