@@ -30,6 +30,8 @@
 #include "panelswidget.h"
 #include "projectwindow.h"
 
+#include <coreplugin/id.h>
+
 #include <utils/treemodel.h>
 
 #include <functional>
@@ -43,6 +45,9 @@ class PROJECTEXPLORER_EXPORT ProjectPanelFactory
 {
 public:
     ProjectPanelFactory();
+
+    Core::Id id() const;
+    void setId(Core::Id id);
 
     // simple properties
     QString displayName() const;
@@ -78,6 +83,7 @@ private:
     friend class ProjectExplorerPlugin;
     static void destroyFactories();
 
+    Core::Id m_id;
     int m_priority = 0;
     QString m_displayName;
     SupportsFunction m_supportsFunction;

@@ -67,6 +67,13 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
+static ProjectPanelFactory *m_projectPanelFactoryInstance = nullptr;
+
+ProjectPanelFactory *projectPanelFactory()
+{
+    return m_projectPanelFactoryInstance;
+}
+
 class ClangToolsOptionsPage : public IOptionsPage
 {
 public:
@@ -123,8 +130,9 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     ActionManager::registerAction(d->clangTool.startOnCurrentFileAction(),
                                   Constants::RUN_ON_CURRENT_FILE);
 
-    auto panelFactory = new ProjectPanelFactory();
+    auto panelFactory = m_projectPanelFactoryInstance = new ProjectPanelFactory;
     panelFactory->setPriority(100);
+    panelFactory->setId(Constants::PROJECT_PANEL_ID);
     panelFactory->setDisplayName(tr("Clang Tools"));
     panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);

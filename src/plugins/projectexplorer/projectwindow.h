@@ -31,6 +31,8 @@
 
 #include <memory>
 
+namespace Core { class Id; }
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -59,6 +61,8 @@ class ProjectWindow : public Utils::FancyMainWindow
 public:
     ProjectWindow();
     ~ProjectWindow() override;
+
+    void activateProjectPanel(Core::Id panelId);
 
 private:
     const std::unique_ptr<ProjectWindowPrivate> d;

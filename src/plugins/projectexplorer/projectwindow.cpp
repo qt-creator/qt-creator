@@ -84,6 +84,8 @@ public:
     Qt::ItemFlags flags(int column) const override;
     bool setData(int column, const QVariant &, int role) override;
 
+    ProjectPanelFactory *factory() const { return m_factory; }
+
 protected:
     ProjectPanelFactory *m_factory = nullptr;
     QPointer<Project> m_project;
@@ -279,6 +281,13 @@ public:
     {
         auto *activeItem = data(0, ActiveItemRole).value<TreeItem *>();
         return activeItem ? activeItem->index() : QModelIndex();
+    }
+
+    TreeItem *itemForProjectPanel(Core::Id panelId)
+    {
+        return m_miscItem->findChildAtLevel(1, [panelId](const TreeItem *item){
+            return static_cast<const MiscSettingsPanelItem *>(item)->factory()->id() == panelId;
+        });
     }
 
 private:
@@ -497,6 +506,14 @@ public:
             item->setData(0, QVariant(), ItemActivatedDirectlyRole);
     }
 
+    void activateProjectPanel(Core::Id panelId)
+    {
+        if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
+            if (TreeItem *item = projectItem->itemForProjectPanel(panelId))
+                itemActivated(item->index());
+        }
+    }
+
     void openContextMenu(const QPoint &pos)
     {
         QMenu menu;
@@ -604,6 +621,11 @@ ProjectWindow::ProjectWindow()
     // Request custom context menu but do not provide any to avoid
     // the creation of the dock window selection menu.
     setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void ProjectWindow::activateProjectPanel(Core::Id panelId)
+{
+    d->activateProjectPanel(panelId);
 }
 
 ProjectWindow::~ProjectWindow() = default;

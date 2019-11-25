@@ -28,6 +28,8 @@
 namespace ClangTools {
 namespace Constants {
 
+const char PROJECT_PANEL_ID[] = "ClangTools";
+
 const char RUN_ON_PROJECT[] = "ClangTools.RunOnProject";
 const char RUN_ON_CURRENT_FILE[] = "ClangTools.RunOnCurrentFile";
 

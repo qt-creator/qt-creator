@@ -27,8 +27,12 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace ProjectExplorer { class ProjectPanelFactory; }
+
 namespace ClangTools {
 namespace Internal {
+
+ProjectExplorer::ProjectPanelFactory *projectPanelFactory();
 
 class ClangToolsPlugin : public ExtensionSystem::IPlugin
 {

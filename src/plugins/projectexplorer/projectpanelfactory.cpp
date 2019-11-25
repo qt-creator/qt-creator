@@ -80,6 +80,16 @@ void ProjectPanelFactory::destroyFactories()
     s_factories.clear();
 }
 
+Core::Id ProjectPanelFactory::id() const
+{
+    return m_id;
+}
+
+void ProjectPanelFactory::setId(Core::Id id)
+{
+    m_id = id;
+}
+
 QString ProjectPanelFactory::icon() const
 {
     return m_icon;

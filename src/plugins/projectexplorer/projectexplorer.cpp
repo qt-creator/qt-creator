@@ -3903,6 +3903,12 @@ void ProjectExplorerPlugin::updateActions()
     dd->updateActions();
 }
 
+void ProjectExplorerPlugin::activateProjectPanel(Core::Id panelId)
+{
+    Core::ModeManager::activateMode(Constants::MODE_SESSION);
+    dd->m_proWindow->activateProjectPanel(panelId);
+}
+
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
 {
     return dd->recentProjects();
