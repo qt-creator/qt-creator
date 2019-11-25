@@ -581,6 +581,7 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
     bc->d->m_initialBuildDirectory = info.buildDirectory;
     bc->d->m_extraInfo = info.extraInfo;
 
+    bc->acquaintAspects();
     bc->initialize();
 
     return bc;
@@ -596,6 +597,7 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVa
         if (!id.name().startsWith(factory->m_buildConfigId.name()))
             continue;
         BuildConfiguration *bc = factory->m_creator(parent);
+        bc->acquaintAspects();
         QTC_ASSERT(bc, return nullptr);
         if (!bc->fromMap(map)) {
             delete bc;

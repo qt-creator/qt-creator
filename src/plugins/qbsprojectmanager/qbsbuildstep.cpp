@@ -236,6 +236,17 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
         config.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
         break;
     }
+    switch (qbsBuildConfig->qtQuickCompilerSetting()) {
+    case QtSupport::QtQuickCompilerAspect::Value::Enabled:
+        config.insert(Constants::QBS_CONFIG_QUICK_COMPILER_KEY, true);
+        break;
+    case QtSupport::QtQuickCompilerAspect::Value::Disabled:
+        config.insert(Constants::QBS_CONFIG_QUICK_COMPILER_KEY, false);
+        break;
+    default:
+        config.remove(Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
+        break;
+    }
     if (variableHandling == ExpandVariables) {
         const MacroExpander * const expander = buildConfiguration()->macroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
@@ -706,6 +717,16 @@ void QbsBuildStepConfigWidget::updateState()
     default:
         break;
     }
+    switch (qbsBuildConfig->qtQuickCompilerSetting()) {
+    case QtSupport::QtQuickCompilerAspect::Value::Enabled:
+        command.append(' ').append(Constants::QBS_CONFIG_QUICK_COMPILER_KEY).append(":true");
+        break;
+    case QtSupport::QtQuickCompilerAspect::Value::Disabled:
+        command.append(' ').append(Constants::QBS_CONFIG_QUICK_COMPILER_KEY).append(":false");
+        break;
+    default:
+        break;
+    }
     commandLineTextEdit->setPlainText(command);
 
     setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
@@ -722,6 +743,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     editable.remove(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY); // For existing .user files
     editable.remove(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY);
     editable.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
+    editable.remove(Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
     editable.remove(Constants::QBS_FORCE_PROBES_KEY);
     editable.remove(Constants::QBS_INSTALL_ROOT_KEY);
 
@@ -822,6 +844,7 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
                 tmp.value(Constants::QBS_CONFIG_VARIANT_KEY));
     const QStringList additionalSpecialKeys({Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY,
                                              Constants::QBS_CONFIG_QUICK_DEBUG_KEY,
+                                             Constants::QBS_CONFIG_QUICK_COMPILER_KEY,
                                              Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
                                              Constants::QBS_INSTALL_ROOT_KEY});
     for (const QString &key : additionalSpecialKeys) {
@@ -864,8 +887,8 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
             const QString propertyName = rawArg.left(pos);
             static const QStringList specialProperties{
                 Constants::QBS_CONFIG_PROFILE_KEY, Constants::QBS_CONFIG_VARIANT_KEY,
-                Constants::QBS_CONFIG_QUICK_DEBUG_KEY, Constants::QBS_INSTALL_ROOT_KEY,
-                Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
+                Constants::QBS_CONFIG_QUICK_DEBUG_KEY, Constants::QBS_CONFIG_QUICK_COMPILER_KEY,
+                Constants::QBS_INSTALL_ROOT_KEY, Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
             };
             if (specialProperties.contains(propertyName)) {
                 if (errorMessage) {

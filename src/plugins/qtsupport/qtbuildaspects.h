@@ -45,4 +45,20 @@ private:
     const ProjectExplorer::Kit *m_kit = nullptr;
 };
 
+class QTSUPPORT_EXPORT QtQuickCompilerAspect : public ProjectExplorer::BaseTriStateAspect
+{
+    Q_OBJECT
+public:
+    QtQuickCompilerAspect();
+
+    void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
+
+private:
+    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
+    void acquaintSiblings(const ProjectExplorer::ProjectConfigurationAspects &siblings) override;
+
+    const ProjectExplorer::Kit *m_kit = nullptr;
+    const QmlDebuggingAspect *m_qmlDebuggingAspect = nullptr;
+};
+
 } // namespace QtSupport

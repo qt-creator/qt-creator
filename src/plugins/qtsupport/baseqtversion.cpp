@@ -1966,7 +1966,7 @@ bool BaseQtVersion::isQmlDebuggingSupported(QString *reason) const
     return true;
 }
 
-bool BaseQtVersion::isQtQuickCompilerSupported(Kit *k, QString *reason)
+bool BaseQtVersion::isQtQuickCompilerSupported(const Kit *k, QString *reason)
 {
     QTC_ASSERT(k, return false);
     BaseQtVersion *version = QtKitAspect::qtVersion(k);

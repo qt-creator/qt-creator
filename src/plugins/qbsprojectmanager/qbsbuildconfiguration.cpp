@@ -96,6 +96,11 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
     connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
+    const auto qtQuickCompilerAspect = addAspect<QtSupport::QtQuickCompilerAspect>();
+    qtQuickCompilerAspect->setKit(target->kit());
+    connect(qtQuickCompilerAspect, &QtSupport::QtQuickCompilerAspect::changed,
+            this, &QbsBuildConfiguration::qbsConfigurationChanged);
+
     connect(this, &BuildConfiguration::environmentChanged,
             this, &QbsBuildConfiguration::triggerReparseIfActive);
     connect(this, &BuildConfiguration::buildDirectoryChanged,
@@ -384,6 +389,11 @@ bool QbsBuildConfiguration::isQmlDebuggingEnabled() const
 BaseTriStateAspect::Value QbsBuildConfiguration::qmlDebuggingSetting() const
 {
     return aspect<QtSupport::QmlDebuggingAspect>()->setting();
+}
+
+BaseTriStateAspect::Value QbsBuildConfiguration::qtQuickCompilerSetting() const
+{
+    return aspect<QtSupport::QtQuickCompilerAspect>()->setting();
 }
 
 BaseTriStateAspect::Value QbsBuildConfiguration::separateDebugInfoSetting() const

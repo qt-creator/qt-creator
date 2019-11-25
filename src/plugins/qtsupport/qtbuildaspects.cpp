@@ -64,12 +64,57 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         }
         warningTextLabel->setText(warningText);
         setVisibleDynamic(supported);
-        warningIconLabel->setVisible(supported  && !warningText.isEmpty());
+        warningIconLabel->setVisible(supported && !warningText.isEmpty());
         warningTextLabel->setVisible(supported);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
     connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
     changeHandler();
+}
+
+QtQuickCompilerAspect::QtQuickCompilerAspect()
+{
+    setSettingsKey("QtQuickCompiler");
+    setDisplayName(tr("Qt Quick Compiler"));
+}
+
+void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
+{
+    BaseSelectionAspect::addToLayout(builder);
+    const auto warningIconLabel = new QLabel;
+    warningIconLabel->setAlignment(Qt::AlignTop);
+    warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
+    const auto warningTextLabel = new QLabel;
+    warningTextLabel->setAlignment(Qt::AlignTop);
+    builder.startNewRow().addItems(QString(), warningIconLabel, warningTextLabel);
+    const auto changeHandler = [this, warningIconLabel, warningTextLabel] {
+        QString warningText;
+        const bool supported = m_kit
+                && BaseQtVersion::isQtQuickCompilerSupported(m_kit, &warningText);
+        if (!supported)
+            setSetting(Value::Default);
+        if (setting() == Value::Enabled
+                && m_qmlDebuggingAspect && m_qmlDebuggingAspect->setting() == Value::Enabled) {
+            warningText = tr("Disables QML debugging. QML profiling will still work.");
+        }
+        warningTextLabel->setText(warningText);
+        setVisibleDynamic(supported);
+        warningIconLabel->setVisible(supported && !warningText.isEmpty());
+        warningTextLabel->setVisible(supported);
+    };
+    connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
+    connect(this, &QtQuickCompilerAspect::changed, builder.layout(), changeHandler);
+    if (m_qmlDebuggingAspect) {
+        connect(m_qmlDebuggingAspect, &QmlDebuggingAspect::changed, builder.layout(),
+                changeHandler);
+    }
+    changeHandler();
+}
+
+void QtQuickCompilerAspect::acquaintSiblings(const ProjectConfigurationAspects &siblings)
+{
+    m_qmlDebuggingAspect = siblings.aspect<QmlDebuggingAspect>();
 }
 
 } // namespace QtSupport

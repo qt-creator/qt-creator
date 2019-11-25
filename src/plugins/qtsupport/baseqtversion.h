@@ -176,7 +176,7 @@ public:
 
     static bool isQmlDebuggingSupported(const ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQmlDebuggingSupported(QString *reason = nullptr) const;
-    static bool isQtQuickCompilerSupported(ProjectExplorer::Kit *k, QString *reason = nullptr);
+    static bool isQtQuickCompilerSupported(const ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQtQuickCompilerSupported(QString *reason = nullptr) const;
 
     QString qmlDumpTool(bool debugVersion) const;

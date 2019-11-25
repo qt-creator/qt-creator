@@ -78,7 +78,7 @@ public:
 
     bool isQmlDebuggingEnabled() const;
     QtSupport::QmlDebuggingAspect::Value qmlDebuggingSetting() const;
-
+    QtSupport::QtQuickCompilerAspect::Value qtQuickCompilerSetting() const;
     ProjectExplorer::SeparateDebugInfoAspect::Value separateDebugInfoSetting() const;
 
 signals:
