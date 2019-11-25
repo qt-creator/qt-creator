@@ -115,7 +115,7 @@ namespace Internal {
 class DesignerXmlEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
-    DesignerXmlEditorWidget() {}
+    using TextEditorWidget::TextEditorWidget;
 
     void finalizeInitialization() override
     {
@@ -196,7 +196,7 @@ public:
     QDesignerFormEditorInterface *m_formeditor = nullptr;
     QtCreatorIntegration *m_integration = nullptr;
     QDesignerFormWindowManagerInterface *m_fwm = nullptr;
-    FormEditorW::InitializationStage m_initStage;
+    FormEditorW::InitializationStage m_initStage = FormEditorW::RegisterPlugins;
 
     QWidget *m_designerSubWindows[DesignerSubWindowCount];
 
@@ -229,8 +229,7 @@ static FormEditorData *d = nullptr;
 static FormEditorW *m_instance = nullptr;
 
 FormEditorData::FormEditorData() :
-    m_formeditor(QDesignerComponents::createFormEditor(nullptr)),
-    m_initStage(FormEditorW::RegisterPlugins)
+    m_formeditor(QDesignerComponents::createFormEditor(nullptr))
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
@@ -409,19 +408,18 @@ void FormEditorData::fullInit()
 
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName("DesignerModeWidget");
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout(m_modeWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_toolBar);
     // Avoid mode switch to 'Edit' mode when the application started by
     // 'Run' in 'Design' mode emits output.
-    MiniSplitter *splitter = new MiniSplitter(Qt::Vertical);
+    auto splitter = new MiniSplitter(Qt::Vertical);
     splitter->addWidget(m_editorWidget);
     QWidget *outputPane = new OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, splitter);
     outputPane->setObjectName("DesignerOutputPanePlaceHolder");
     splitter->addWidget(outputPane);
     layout->addWidget(splitter);
-    m_modeWidget->setLayout(layout);
 
     Context designerContexts = m_contexts;
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
@@ -648,9 +646,8 @@ void FormEditorData::setupActions()
 QToolBar *FormEditorData::createEditorToolBar() const
 {
     QToolBar *editorToolBar = new QToolBar;
-    const QList<Id>::const_iterator cend = m_toolActionIds.constEnd();
-    for (QList<Id>::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
-        Command *cmd = ActionManager::command(*it);
+    for (const auto &id : m_toolActionIds) {
+        Command *cmd = ActionManager::command(id);
         QTC_ASSERT(cmd, continue);
         QAction *action = cmd->action();
         if (!action->icon().isNull()) // Simplify grid has no action yet
@@ -735,7 +732,7 @@ QAction *FormEditorData::createEditModeAction(QActionGroup *ag,
                                      const QString &iconName,
                                      const QString &keySequence)
 {
-    QAction *rc = new QAction(actionName, ag);
+    auto rc = new QAction(actionName, ag);
     rc->setCheckable(true);
     if (!iconName.isEmpty())
          rc->setIcon(designerIcon(iconName));
@@ -774,7 +771,7 @@ IEditor *FormEditorData::createEditor()
     QTC_ASSERT(form, return nullptr);
     QObject::connect(form, &QDesignerFormWindowInterface::toolChanged, [this] (int i) { toolChanged(i); });
 
-    SharedTools::WidgetHost *widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
+    auto widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
 
     m_editorWidget->add(widgetHost, formWindowEditor);

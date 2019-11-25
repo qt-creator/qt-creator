@@ -84,7 +84,7 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString, const QSt
     Utils::TextFileFormat::ReadResult readResult = read(absfileName, &contents, errorString);
     if (readResult == Utils::TextFileFormat::ReadEncodingError)
         return OpenResult::CannotHandle;
-    else if (readResult != Utils::TextFileFormat::ReadSuccess)
+    if (readResult != Utils::TextFileFormat::ReadSuccess)
         return OpenResult::ReadError;
 
     form->setFileName(absfileName);

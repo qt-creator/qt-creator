@@ -41,7 +41,6 @@ using namespace SharedTools;
 // ---------- WidgetHost
 WidgetHost::WidgetHost(QWidget *parent, QDesignerFormWindowInterface *formWindow) :
     QScrollArea(parent),
-    m_formWindow(0),
     m_formResizer(new Internal::FormResizer)
 {
     setWidget(m_formResizer);
@@ -52,8 +51,7 @@ WidgetHost::WidgetHost(QWidget *parent, QDesignerFormWindowInterface *formWindow
 
 WidgetHost::~WidgetHost()
 {
-    if (m_formWindow)
-        delete m_formWindow;
+    delete m_formWindow;
 }
 
 void WidgetHost::setFormWindow(QDesignerFormWindowInterface *fw)
@@ -75,7 +73,7 @@ void WidgetHost::setFormWindow(QDesignerFormWindowInterface *fw)
 QSize WidgetHost::formWindowSize() const
 {
     if (!m_formWindow || !m_formWindow->mainContainer())
-        return QSize();
+        return {};
     return m_formWindow->mainContainer()->size();
 }
 

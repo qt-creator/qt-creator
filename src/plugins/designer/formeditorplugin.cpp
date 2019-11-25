@@ -105,7 +105,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     // Ensure that loading designer translations is done before FormEditorW is instantiated
     const QString locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
-        QTranslator *qtr = new QTranslator(this);
+        auto qtr = new QTranslator(this);
         const QString &creatorTrPath = ICore::resourcePath() + "/translations";
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = "designer_" + locale;

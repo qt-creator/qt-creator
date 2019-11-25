@@ -58,14 +58,14 @@ QString FormClassWizard::formSuffix() const
 
 Core::BaseFileWizard *FormClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    FormClassWizardDialog *wizardDialog = new FormClassWizardDialog(this, parent);
+    auto wizardDialog = new FormClassWizardDialog(this, parent);
     wizardDialog->setPath(parameters.defaultPath());
     return wizardDialog;
 }
 
 Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *errorMessage) const
 {
-    const FormClassWizardDialog *wizardDialog = qobject_cast<const FormClassWizardDialog *>(w);
+    auto wizardDialog = qobject_cast<const FormClassWizardDialog *>(w);
     const Designer::FormClassWizardParameters params = wizardDialog->parameters();
 
     if (params.uiTemplate.isEmpty()) {
@@ -90,7 +90,8 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     uiFile.setContents(params.uiTemplate);
     uiFile.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
 
-    QString source, header;
+    QString source;
+    QString header;
 
     QtDesignerFormClassCodeGenerator::generateCpp(params, &header, &source);
     sourceFile.setContents(source);

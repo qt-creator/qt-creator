@@ -60,7 +60,7 @@ private slots:
 private:
     QSize formWindowSize() const;
 
-    QDesignerFormWindowInterface *m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow = nullptr;
     Internal::FormResizer *m_formResizer;
     QSize m_oldFakeWidgetSize;
 };
