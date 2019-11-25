@@ -77,11 +77,13 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
             bti.runEnvModifier(env, libAspect->value());
     });
 
+
+    setUpdater([this] { updateTargetInformation(); });
+
     if (kind == Qbs) {
 
         // Handles device changes, etc.
-        connect(target, &Target::kitChanged,
-                this, &DesktopRunConfiguration::updateTargetInformation);
+        connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
     } else if (m_kind == CMake) {
 
@@ -89,8 +91,7 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     }
 
-    connect(target, &Target::buildSystemUpdated,
-            this, &DesktopRunConfiguration::updateTargetInformation);
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
 void DesktopRunConfiguration::updateTargetInformation()
