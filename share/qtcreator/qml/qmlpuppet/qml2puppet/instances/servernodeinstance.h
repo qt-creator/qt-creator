@@ -60,6 +60,7 @@ namespace Internal {
     class GraphicsObjectNodeInstance;
     class QmlStateNodeInstance;
     class QuickItemNodeInstance;
+    class Quick3DNodeInstance;
 }
 
 class ServerNodeInstance
@@ -82,6 +83,7 @@ class ServerNodeInstance
     friend class QmlDesigner::Internal::ObjectNodeInstance;
     friend class QmlDesigner::Internal::QmlPropertyChangesNodeInstance;
     friend class QmlDesigner::Internal::QmlStateNodeInstance;
+    friend class QmlDesigner::Internal::Quick3DNodeInstance;
 
 public:
     enum ComponentWrap {

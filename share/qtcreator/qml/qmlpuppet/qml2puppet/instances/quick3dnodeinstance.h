@@ -53,6 +53,7 @@ protected:
 private:
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
     QQuick3DNode *quick3DNode() const;
+    void setPickable(bool enable, bool checkParent, bool applyToChildren);
 };
 
 } // namespace Internal
