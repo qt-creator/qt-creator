@@ -30,4 +30,11 @@
 
 namespace ProjectExplorer {
 
+class PROJECTEXPLORER_EXPORT SeparateDebugInfoAspect : public BaseTriStateAspect
+{
+    Q_OBJECT
+public:
+    SeparateDebugInfoAspect();
+};
+
 } // namespace ProjectExplorer

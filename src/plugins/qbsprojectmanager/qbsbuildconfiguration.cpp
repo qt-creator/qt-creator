@@ -87,6 +87,10 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
     connect(m_configurationName, &BaseStringAspect::changed,
             this, &BuildConfiguration::buildDirectoryChanged);
 
+    const auto separateDebugInfoAspect = addAspect<SeparateDebugInfoAspect>();
+    connect(separateDebugInfoAspect, &SeparateDebugInfoAspect::changed,
+            this, &QbsBuildConfiguration::qbsConfigurationChanged);
+
     const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
     qmlDebuggingAspect->setKit(target->kit());
     connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
@@ -380,6 +384,11 @@ bool QbsBuildConfiguration::isQmlDebuggingEnabled() const
 BaseTriStateAspect::Value QbsBuildConfiguration::qmlDebuggingSetting() const
 {
     return aspect<QtSupport::QmlDebuggingAspect>()->setting();
+}
+
+BaseTriStateAspect::Value QbsBuildConfiguration::separateDebugInfoSetting() const
+{
+    return aspect<SeparateDebugInfoAspect>()->setting();
 }
 
 // ---------------------------------------------------------------------------

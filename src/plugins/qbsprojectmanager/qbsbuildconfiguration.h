@@ -29,6 +29,7 @@
 
 #include "qbsproject.h"
 
+#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>
@@ -77,6 +78,8 @@ public:
 
     bool isQmlDebuggingEnabled() const;
     QtSupport::QmlDebuggingAspect::Value qmlDebuggingSetting() const;
+
+    ProjectExplorer::SeparateDebugInfoAspect::Value separateDebugInfoSetting() const;
 
 signals:
     void qbsConfigurationChanged();

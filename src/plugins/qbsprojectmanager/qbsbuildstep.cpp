@@ -212,8 +212,20 @@ void QbsBuildStep::doCancel()
 QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) const
 {
     QVariantMap config = m_qbsConfiguration;
+    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(buildConfiguration());
     config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
-    switch (static_cast<QbsBuildConfiguration *>(buildConfiguration())->qmlDebuggingSetting()) {
+    switch (qbsBuildConfig->separateDebugInfoSetting()) {
+    case SeparateDebugInfoAspect::Value::Enabled:
+        config.insert(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY, true);
+        break;
+    case SeparateDebugInfoAspect::Value::Disabled:
+        config.insert(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY, false);
+        break;
+    default:
+        config.remove(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY);
+        break;
+    }
+    switch (qbsBuildConfig->qmlDebuggingSetting()) {
     case QtSupport::QmlDebuggingAspect::Value::Enabled:
         config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, true);
         break;
@@ -674,6 +686,16 @@ void QbsBuildStepConfigWidget::updateState()
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
     }
 
+    switch (qbsBuildConfig->separateDebugInfoSetting()) {
+    case SeparateDebugInfoAspect::Value::Enabled:
+        command.append(' ').append(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY).append(":true");
+        break;
+    case SeparateDebugInfoAspect::Value::Disabled:
+        command.append(' ').append(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY).append(":false");
+        break;
+    default:
+        break;
+    }
     switch (qbsBuildConfig->qmlDebuggingSetting()) {
     case QtSupport::QmlDebuggingAspect::Value::Enabled:
         command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
@@ -698,6 +720,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     editable.remove(Constants::QBS_CONFIG_PROFILE_KEY);
     editable.remove(Constants::QBS_CONFIG_VARIANT_KEY);
     editable.remove(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY); // For existing .user files
+    editable.remove(Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY);
     editable.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
     editable.remove(Constants::QBS_FORCE_PROBES_KEY);
     editable.remove(Constants::QBS_INSTALL_ROOT_KEY);
@@ -799,6 +822,7 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
                 tmp.value(Constants::QBS_CONFIG_VARIANT_KEY));
     const QStringList additionalSpecialKeys({Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY,
                                              Constants::QBS_CONFIG_QUICK_DEBUG_KEY,
+                                             Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
                                              Constants::QBS_INSTALL_ROOT_KEY});
     for (const QString &key : additionalSpecialKeys) {
         const auto it = tmp.constFind(key);
@@ -840,7 +864,9 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
             const QString propertyName = rawArg.left(pos);
             static const QStringList specialProperties{
                 Constants::QBS_CONFIG_PROFILE_KEY, Constants::QBS_CONFIG_VARIANT_KEY,
-                Constants::QBS_CONFIG_QUICK_DEBUG_KEY, Constants::QBS_INSTALL_ROOT_KEY};
+                Constants::QBS_CONFIG_QUICK_DEBUG_KEY, Constants::QBS_INSTALL_ROOT_KEY,
+                Constants::QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY,
+            };
             if (specialProperties.contains(propertyName)) {
                 if (errorMessage) {
                     *errorMessage = tr("Property \"%1\" cannot be set here. "

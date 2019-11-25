@@ -69,6 +69,7 @@ const char QBS_CONFIG_PROFILE_KEY[] = "qbs.profile";
 const char QBS_INSTALL_ROOT_KEY[] = "qbs.installRoot";
 const char QBS_CONFIG_DECLARATIVE_DEBUG_KEY[] = "modules.Qt.declarative.qmlDebugging";
 const char QBS_CONFIG_QUICK_DEBUG_KEY[] = "modules.Qt.quick.qmlDebugging";
+const char QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY[] = "modules.cpp.separateDebugInformation";
 const char QBS_FORCE_PROBES_KEY[] = "qbspm.forceProbes";
 
 // Icons:

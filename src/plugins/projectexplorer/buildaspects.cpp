@@ -27,4 +27,10 @@
 
 namespace ProjectExplorer {
 
+SeparateDebugInfoAspect::SeparateDebugInfoAspect()
+{
+    setDisplayName(tr("Separate Debug Info"));
+    setSettingsKey("SeparateDebugInfo");
+}
+
 } // namespace ProjectExplorer
