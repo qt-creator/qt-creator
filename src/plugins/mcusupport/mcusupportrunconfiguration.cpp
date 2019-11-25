@@ -70,17 +70,13 @@ FlashAndRunConfiguration::FlashAndRunConfiguration(Target *target, Core::Id id)
     effectiveFlashAndRunCall->setLabelText(tr("Effective flash and run call:"));
     effectiveFlashAndRunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
 
-    auto updateConfiguration = [target, effectiveFlashAndRunCall] {
+    setUpdater([target, effectiveFlashAndRunCall] {
         effectiveFlashAndRunCall->setValue(flashAndRunCommand(target).toUserOutput());
-    };
+    });
 
-    updateConfiguration();
+    update();
 
-    connect(target->activeBuildConfiguration(),
-            &BuildConfiguration::buildDirectoryChanged,
-            this,
-            updateConfiguration);
-    connect(target->project(), &Project::displayNameChanged, this, updateConfiguration);
+    connect(target->project(), &Project::displayNameChanged, this, &RunConfiguration::update);
 }
 
 class FlashAndRunWorker : public SimpleTargetRunner
