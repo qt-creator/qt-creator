@@ -91,6 +91,9 @@ public:
     int defaultValue() const;
     void setDefaultValue(int defaultValue);
 
+    enum class DisplayStyle { RadioButtons, ComboBox };
+    void setDisplayStyle(DisplayStyle style);
+
     void addOption(const QString &displayName, const QString &toolTip = {});
 
     void fromMap(const QVariantMap &map) override;

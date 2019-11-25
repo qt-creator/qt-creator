@@ -38,6 +38,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QFormLayout>
@@ -67,9 +68,14 @@ class BaseSelectionAspectPrivate
 public:
     int m_value = 0;
     int m_defaultValue = 0;
+    BaseSelectionAspect::DisplayStyle m_displayStyle
+            = BaseSelectionAspect::DisplayStyle::RadioButtons;
     struct Option { QString displayName; QString tooltip; };
     QVector<Option> m_options;
-    QList<QPointer<QRadioButton>> m_buttons; // Owned by configuration widget
+
+    // These are all owned by the configuration widget.
+    QList<QPointer<QRadioButton>> m_buttons;
+    QPointer<QComboBox> m_comboBox;
     QPointer<QButtonGroup> m_buttonGroup;
 };
 
@@ -445,22 +451,36 @@ BaseSelectionAspect::~BaseSelectionAspect() = default;
 void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
-    d->m_buttonGroup = new QButtonGroup;
-    d->m_buttonGroup->setExclusive(true);
-
+    QTC_CHECK(!d->m_comboBox);
     QTC_ASSERT(d->m_buttons.isEmpty(), d->m_buttons.clear());
-    for (int i = 0, n = d->m_options.size(); i < n; ++i) {
-        const Internal::BaseSelectionAspectPrivate::Option &option = d->m_options.at(i);
-        auto button = new QRadioButton(option.displayName);
-        button->setChecked(i == d->m_value);
-        button->setToolTip(option.tooltip);
-        builder.addItems(QString(), button);
-        d->m_buttons.append(button);
-        d->m_buttonGroup->addButton(button);
-        connect(button, &QAbstractButton::clicked, this, [this, i] {
-            d->m_value = i;
-            emit changed();
-        });
+
+    switch (d->m_displayStyle) {
+    case DisplayStyle::RadioButtons:
+        d->m_buttonGroup = new QButtonGroup;
+        d->m_buttonGroup->setExclusive(true);
+        for (int i = 0, n = d->m_options.size(); i < n; ++i) {
+            const Internal::BaseSelectionAspectPrivate::Option &option = d->m_options.at(i);
+            auto button = new QRadioButton(option.displayName);
+            button->setChecked(i == d->m_value);
+            button->setToolTip(option.tooltip);
+            builder.addItems(QString(), button);
+            d->m_buttons.append(button);
+            d->m_buttonGroup->addButton(button);
+            connect(button, &QAbstractButton::clicked, this, [this, i] {
+                d->m_value = i;
+                emit changed();
+            });
+        }
+        break;
+    case DisplayStyle::ComboBox:
+        d->m_comboBox = new QComboBox;
+        for (int i = 0, n = d->m_options.size(); i < n; ++i)
+            d->m_comboBox->addItem(d->m_options.at(i).displayName);
+        connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated), this,
+                [this](int index) { d->m_value = index; emit changed(); });
+        d->m_comboBox->setCurrentIndex(d->m_value);
+        builder.addItems(new QLabel(displayName()), d->m_comboBox.data());
+        break;
     }
 }
 
@@ -484,6 +504,11 @@ void BaseSelectionAspect::setDefaultValue(int defaultValue)
     d->m_defaultValue = defaultValue;
 }
 
+void BaseSelectionAspect::setDisplayStyle(BaseSelectionAspect::DisplayStyle style)
+{
+    d->m_displayStyle = style;
+}
+
 int BaseSelectionAspect::value() const
 {
     return d->m_value;
@@ -494,6 +519,9 @@ void BaseSelectionAspect::setValue(int value)
     d->m_value = value;
     if (d->m_buttonGroup && 0 <= value && value < d->m_buttons.size())
         d->m_buttons.at(value)->setChecked(true);
+    else if (d->m_comboBox) {
+        d->m_comboBox->setCurrentIndex(value);
+    }
 }
 
 void BaseSelectionAspect::addOption(const QString &displayName, const QString &toolTip)
