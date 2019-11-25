@@ -69,10 +69,19 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();
 
-    connect(target, &Target::buildSystemUpdated,
-            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
-    connect(target, &Target::kitChanged,
-            this, &RemoteLinuxRunConfiguration::updateTargetInformation);
+    setUpdater([this, target, exeAspect, symbolsAspect] {
+        BuildTargetInfo bti = buildTargetInfo();
+        const FilePath localExecutable = bti.targetFilePath;
+        DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
+
+        exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+        symbolsAspect->setFilePath(localExecutable);
+
+        emit enabledChanged();
+    });
+
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 }
 
 Runnable RemoteLinuxRunConfiguration::runnable() const
@@ -82,18 +91,6 @@ Runnable RemoteLinuxRunConfiguration::runnable() const
     if (forwardingAspect)
         r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
     return r;
-}
-
-void RemoteLinuxRunConfiguration::updateTargetInformation()
-{
-    BuildTargetInfo bti = buildTargetInfo();
-    const FilePath localExecutable = bti.targetFilePath;
-    DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
-
-    aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-    aspect<SymbolFileAspect>()->setFilePath(localExecutable);
-
-    emit enabledChanged();
 }
 
 const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration:";
