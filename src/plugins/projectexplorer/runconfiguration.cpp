@@ -311,6 +311,11 @@ BuildSystem *RunConfiguration::activeBuildSystem() const
     return target()->buildSystem();
 }
 
+void RunConfiguration::setUpdater(const Updater &updater)
+{
+    m_updater = updater;
+}
+
 QVariantMap RunConfiguration::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
@@ -334,6 +339,12 @@ void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
 CommandLine RunConfiguration::commandLine() const
 {
     return m_commandLineGetter();
+}
+
+void RunConfiguration::update()
+{
+    QTC_ASSERT(m_updater, return);
+    m_updater();
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const

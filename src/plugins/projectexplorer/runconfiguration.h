@@ -172,6 +172,8 @@ public:
 
     QMap<Core::Id, QVariantMap> aspectData() const;
 
+    void update();
+
 signals:
     void configurationFinished();
     void enabledChanged();
@@ -182,6 +184,9 @@ protected:
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
     BuildSystem *activeBuildSystem() const;
+
+    using Updater = std::function<void()>;
+    void setUpdater(const Updater &updater);
 
     virtual void updateEnabledState();
     virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
@@ -194,6 +199,7 @@ private:
 
     QString m_buildKey;
     CommandLineGetter m_commandLineGetter;
+    Updater m_updater;
 };
 
 class RunConfigurationCreationInfo
