@@ -69,7 +69,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
     libAspect->setLabelText(tr("Path to Qt libraries on device"));
     libAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
 
-    auto updateTargetInformation = [this, target, exeAspect, symbolsAspect] {
+    setUpdater([this, target, exeAspect, symbolsAspect] {
 
         const BuildTargetInfo bti = buildTargetInfo();
         const FilePath localExecutable = bti.targetFilePath;
@@ -79,10 +79,10 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
         symbolsAspect->setFilePath(localExecutable);
 
         emit enabledChanged();
-    };
+    });
 
-    connect(target, &Target::buildSystemUpdated, this, updateTargetInformation);
-    connect(target, &Target::kitChanged, this, updateTargetInformation);
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 }
 
 Runnable QnxRunConfiguration::runnable() const
