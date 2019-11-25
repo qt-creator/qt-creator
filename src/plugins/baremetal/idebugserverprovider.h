@@ -45,7 +45,6 @@ class DebuggerRunTool;
 }
 
 namespace ProjectExplorer {
-class DeviceProcess;
 class IDevice;
 class RunControl;
 class RunWorker;
@@ -86,11 +85,6 @@ public:
     virtual void updateDevice(ProjectExplorer::IDevice *dev) const = 0;
 
     virtual bool isValid() const = 0;
-
-    virtual bool canCreateProcess() const { return false; }
-    virtual ProjectExplorer::DeviceProcess *createProcess(
-            const QSharedPointer<const ProjectExplorer::IDevice> &,
-            QObject *) const { return nullptr; }
 
     void registerDevice(BareMetalDevice *device);
     void unregisterDevice(BareMetalDevice *device);

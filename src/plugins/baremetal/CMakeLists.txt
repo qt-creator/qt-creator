@@ -17,7 +17,6 @@ add_qtc_plugin(BareMetal
     debugserverproviderssettingspage.cpp debugserverproviderssettingspage.h
     debugservers/gdb/defaultgdbserverprovider.cpp debugservers/gdb/defaultgdbserverprovider.h
     debugservers/gdb/gdbserverprovider.cpp debugservers/gdb/gdbserverprovider.h
-    debugservers/gdb/gdbserverproviderprocess.cpp debugservers/gdb/gdbserverproviderprocess.h
     debugservers/gdb/openocdgdbserverprovider.cpp debugservers/gdb/openocdgdbserverprovider.h
     debugservers/gdb/stlinkutilgdbserverprovider.cpp debugservers/gdb/stlinkutilgdbserverprovider.h
     debugservers/gdb/jlinkgdbserverprovider.cpp debugservers/gdb/jlinkgdbserverprovider.h

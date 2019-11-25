@@ -44,7 +44,6 @@ QtcPlugin {
         files: [
             "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
             "gdbserverprovider.cpp", "gdbserverprovider.h",
-            "gdbserverproviderprocess.cpp", "gdbserverproviderprocess.h",
             "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
             "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
             "jlinkgdbserverprovider.cpp", "jlinkgdbserverprovider.h",

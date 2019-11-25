@@ -51,9 +51,6 @@ public:
 
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const final;
 
-    bool canCreateProcess() const final;
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const final;
-
     QString debugServerProviderId() const;
     void setDebugServerProviderId(const QString &id);
     void unregisterDebugServerProvider(IDebugServerProvider *provider);

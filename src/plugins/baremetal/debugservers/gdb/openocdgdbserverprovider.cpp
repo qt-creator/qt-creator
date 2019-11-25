@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "gdbserverproviderprocess.h"
 #include "openocdgdbserverprovider.h"
 
 #include <baremetal/baremetalconstants.h>
@@ -148,13 +147,6 @@ bool OpenOcdGdbServerProvider::isValid() const
     }
 
     return true;
-}
-
-ProjectExplorer::DeviceProcess *OpenOcdGdbServerProvider::createProcess(
-        const QSharedPointer<const ProjectExplorer::IDevice> &device,
-        QObject *parent) const
-{
-    return new GdbServerProviderProcess(device, parent);
 }
 
 GdbServerProvider *OpenOcdGdbServerProvider::clone() const

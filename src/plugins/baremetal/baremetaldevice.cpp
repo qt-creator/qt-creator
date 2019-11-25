@@ -133,26 +133,6 @@ IDeviceWidget *BareMetalDevice::createWidget()
     return new BareMetalDeviceConfigurationWidget(sharedFromThis());
 }
 
-bool BareMetalDevice::canCreateProcess() const
-{
-    if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(
-                m_debugServerProviderId)) {
-        return provider->canCreateProcess();
-    }
-
-    return false;
-}
-
-DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
-{
-    if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(
-                m_debugServerProviderId)) {
-        return provider->createProcess(sharedFromThis(), parent);
-    }
-
-    return nullptr;
-}
-
 // Factory
 
 BareMetalDeviceFactory::BareMetalDeviceFactory()
