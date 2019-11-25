@@ -257,13 +257,12 @@ Window {
             id: gizmoLabel
             targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
             targetView: overlayView
-            offset: Qt.vector3d(0, 45, 0)
             visible: targetNode.dragging
 
             Rectangle {
                 color: "white"
                 x: -width / 2
-                y: -height
+                y: -height - 8
                 width: gizmoLabelText.width + 4
                 height: gizmoLabelText.height + 4
                 border.width: 1
