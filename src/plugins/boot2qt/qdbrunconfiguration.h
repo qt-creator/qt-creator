@@ -48,7 +48,6 @@ public:
     ConfigurationState ensureConfigured(QString *errorMessage) override;
 
 private:
-    void updateTargetInformation();
     QString defaultDisplayName() const;
 };
 
