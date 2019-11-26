@@ -102,6 +102,9 @@ public:
     void updateAdditionalContexts(const Context &remove, const Context &add,
                                   ICore::ContextPriority priority);
 
+    bool askConfirmationBeforeExit() const;
+    void setAskConfirmationBeforeExit(bool ask);
+
     void setOverrideColor(const QColor &color);
 
     QStringList additionalAboutInformation() const;
@@ -194,6 +197,7 @@ private:
 
     QToolButton *m_toggleLeftSideBarButton = nullptr;
     QToolButton *m_toggleRightSideBarButton = nullptr;
+    bool m_askConfirmationBeforeExit = false;
     QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
 };

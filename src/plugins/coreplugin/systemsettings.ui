@@ -390,6 +390,17 @@
         </item>
        </layout>
       </item>
+      <item row="9" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+          <widget class="QCheckBox" name="askBeforeExitCheckBox">
+           <property name="text">
+            <string>Ask for confirmation before exiting</string>
+           </property>
+          </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
