@@ -33,6 +33,15 @@
 
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QLabel;
+class QLineEdit;
+class QPlainTextEdit;
+class QListWidget;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 class Abi;
 } // namespace ProjectExplorer
@@ -44,8 +53,6 @@ class QmakeBuildConfiguration;
 class QmakeBuildSystem;
 
 namespace Internal {
-
-namespace Ui { class QMakeStep; }
 
 class QMakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -227,11 +234,25 @@ private:
     void updateQtQuickCompilerOption();
     void updateEffectiveQMakeCall();
 
-    Internal::Ui::QMakeStep *m_ui = nullptr;
     QMakeStep *m_step = nullptr;
     bool m_ignoreChange = false;
     int m_preferredAbiIndex = -1;
     QString m_abisParam;
+
+    QLabel *abisLabel = nullptr;
+    QComboBox *buildConfigurationComboBox = nullptr;
+    QLineEdit *qmakeAdditonalArgumentsLineEdit = nullptr;
+    QCheckBox *separateDebugInfoCheckBox = nullptr;
+    QLabel *debuggingLibraryLabel = nullptr;
+    QCheckBox *qmlDebuggingLibraryCheckBox = nullptr;
+    QCheckBox *qtQuickCompilerCheckBox = nullptr;
+    QPlainTextEdit *qmakeArgumentsEdit = nullptr;
+    QListWidget *abisListWidget = nullptr;
+    QLabel *qmlDebuggingWarningIcon = nullptr;
+    QLabel *qmlDebuggingWarningText = nullptr;
+    QLabel *qtQuickCompilerLabel = nullptr;
+    QLabel *qtQuickCompilerWarningIcon = nullptr;
+    QLabel *qtQuickCompilerWarningText = nullptr;
 };
 
 } // namespace QmakeProjectManager

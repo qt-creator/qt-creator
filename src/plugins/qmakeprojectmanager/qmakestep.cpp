@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "qmakestep.h"
-#include "ui_qmakestep.h"
 
 #include "qmakemakestep.h"
 #include "qmakebuildconfiguration.h"
@@ -54,8 +53,15 @@
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDir>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
 #include <QMessageBox>
+#include <QPlainTextEdit>
 
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
@@ -553,17 +559,114 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 ////
 
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
-    : BuildStepConfigWidget(step), m_ui(new Internal::Ui::QMakeStep), m_step(step)
+    : BuildStepConfigWidget(step), m_step(step)
 {
-    m_ui->setupUi(this);
+    auto label_0 = new QLabel(tr("qmake build configuration:"), this);
 
-    m_ui->qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
-    m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
-    m_ui->qtQuickCompilerCheckBox->setChecked(m_step->useQtQuickCompiler());
-    m_ui->separateDebugInfoCheckBox->setChecked(m_step->separateDebugInfo());
+    auto buildConfigurationWidget = new QWidget(this);
+
+    buildConfigurationComboBox = new QComboBox(buildConfigurationWidget);
+    buildConfigurationComboBox->addItem(tr("Debug"));
+    buildConfigurationComboBox->addItem(tr("Release"));
+
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(buildConfigurationComboBox->sizePolicy().hasHeightForWidth());
+    buildConfigurationComboBox->setSizePolicy(sizePolicy);
+
+    auto horizontalLayout_0 = new QHBoxLayout(buildConfigurationWidget);
+    horizontalLayout_0->setContentsMargins(0, 0, 0, 0);
+    horizontalLayout_0->addWidget(buildConfigurationComboBox);
+    horizontalLayout_0->addItem(new QSpacerItem(71, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    auto qmakeArgsLabel = new QLabel(tr("Additional arguments:"), this);
+
+    qmakeAdditonalArgumentsLineEdit = new QLineEdit(this);
+
+    auto separateDebugInfoLabel = new QLabel(tr("Generate separate debug info:"), this);
+
+    auto widget_2 = new QWidget(this);
+
+    auto separateDebugInfoCheckBox = new QCheckBox(widget_2);
+
+    debuggingLibraryLabel = new QLabel("Link QML debugging library:", this);
+
+    auto widget_3 = new QWidget(this);
+    qmlDebuggingLibraryCheckBox = new QCheckBox(widget_3);
+
+    qmlDebuggingWarningIcon = new QLabel(widget_3);
+
+    auto horizontalLayout_3 = new QHBoxLayout(widget_3);
+    horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
+    horizontalLayout_3->addWidget(qmlDebuggingLibraryCheckBox);
+    horizontalLayout_3->addWidget(qmlDebuggingWarningIcon);
+
+    qmlDebuggingWarningText = new QLabel(widget_3);
+
+    horizontalLayout_3->addWidget(qmlDebuggingWarningText);
+
+    horizontalLayout_3->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    qtQuickCompilerLabel = new QLabel(tr("Use QML compiler:"), this);
+
+    auto widget_4 = new QWidget(this);
+    auto horizontalLayout_4 = new QHBoxLayout(widget_4);
+    horizontalLayout_4->setContentsMargins(0, 0, 0, 0);
+    qtQuickCompilerCheckBox = new QCheckBox(widget_4);
+
+    horizontalLayout_4->addWidget(qtQuickCompilerCheckBox);
+
+    qtQuickCompilerWarningIcon = new QLabel(widget_4);
+
+    horizontalLayout_4->addWidget(qtQuickCompilerWarningIcon);
+
+    qtQuickCompilerWarningText = new QLabel(widget_4);
+
+    horizontalLayout_4->addWidget(qtQuickCompilerWarningText);
+
+    horizontalLayout_4->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    auto label = new QLabel(tr("Effective qmake call:"), this);
+    label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+
+    qmakeArgumentsEdit = new QPlainTextEdit(this);
+    qmakeArgumentsEdit->setEnabled(true);
+    qmakeArgumentsEdit->setMaximumSize(QSize(16777215, 120));
+    qmakeArgumentsEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+
+    abisLabel = new QLabel(tr("ABIs:"), this);
+    abisLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+
+    abisListWidget = new QListWidget(this);
+
+    separateDebugInfoCheckBox->setText(QString());
+    qmlDebuggingLibraryCheckBox->setText(QString());
+    qmlDebuggingWarningText->setText(QString());
+    qtQuickCompilerCheckBox->setText(QString());
+    qtQuickCompilerWarningText->setText(QString());
+
+    qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
+    qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+    qtQuickCompilerCheckBox->setChecked(m_step->useQtQuickCompiler());
+    separateDebugInfoCheckBox->setChecked(m_step->separateDebugInfo());
     const QPixmap warning = Utils::Icons::WARNING.pixmap();
-    m_ui->qmlDebuggingWarningIcon->setPixmap(warning);
-    m_ui->qtQuickCompilerWarningIcon->setPixmap(warning);
+    qmlDebuggingWarningIcon->setPixmap(warning);
+    qtQuickCompilerWarningIcon->setPixmap(warning);
+
+    auto horizontalLayout_2 = new QHBoxLayout(widget_2);
+    horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+    horizontalLayout_2->addWidget(separateDebugInfoCheckBox);
+    horizontalLayout_2->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    auto formLayout = new QFormLayout(this);
+    formLayout->addRow(label_0, buildConfigurationWidget);
+    formLayout->addRow(qmakeArgsLabel, qmakeAdditonalArgumentsLineEdit);
+    formLayout->addRow(separateDebugInfoLabel, widget_2);
+    formLayout->addRow(debuggingLibraryLabel, widget_3);
+    formLayout->addRow(qtQuickCompilerLabel, widget_4);
+    formLayout->addRow(label, qmakeArgumentsEdit);
+    formLayout->addRow(abisLabel, abisListWidget);
 
     qmakeBuildConfigChanged();
 
@@ -572,22 +675,22 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     updateQmlDebuggingOption();
     updateQtQuickCompilerOption();
 
-    connect(m_ui->qmakeAdditonalArgumentsLineEdit, &QLineEdit::textEdited,
+    connect(qmakeAdditonalArgumentsLineEdit, &QLineEdit::textEdited,
             this, &QMakeStepConfigWidget::qmakeArgumentsLineEdited);
-    connect(m_ui->buildConfigurationComboBox,
+    connect(buildConfigurationComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QMakeStepConfigWidget::buildConfigurationSelected);
-    connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::toggled,
+    connect(qmlDebuggingLibraryCheckBox, &QCheckBox::toggled,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked);
-    connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::clicked,
+    connect(qmlDebuggingLibraryCheckBox, &QCheckBox::clicked,
             this, [this] { askForRebuild(tr("QML Debugging")); });
-    connect(m_ui->qtQuickCompilerCheckBox, &QAbstractButton::toggled,
+    connect(qtQuickCompilerCheckBox, &QAbstractButton::toggled,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChecked);
-    connect(m_ui->qtQuickCompilerCheckBox, &QCheckBox::clicked,
+    connect(qtQuickCompilerCheckBox, &QCheckBox::clicked,
             this, [this] { askForRebuild(tr("QML Debugging")); });
-    connect(m_ui->separateDebugInfoCheckBox, &QAbstractButton::toggled,
+    connect(separateDebugInfoCheckBox, &QAbstractButton::toggled,
             this, &QMakeStepConfigWidget::separateDebugInfoChecked);
-    connect(m_ui->separateDebugInfoCheckBox, &QCheckBox::clicked,
+    connect(separateDebugInfoCheckBox, &QCheckBox::clicked,
             this, [this] { askForRebuild(tr("QMake Configuration")); });
     connect(step, &QMakeStep::userArgumentsChanged,
             this, &QMakeStepConfigWidget::userArgumentsChanged);
@@ -604,7 +707,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             this, &QMakeStepConfigWidget::qmakeBuildConfigChanged);
     connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
-    connect(m_ui->abisListWidget, &QListWidget::itemChanged, this, [this]{
+    connect(abisListWidget, &QListWidget::itemChanged, this, [this]{
         abisChanged();
         QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
         if (!bc)
@@ -615,14 +718,13 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
         stepLists << bc->stepList(clean);
         BuildManager::buildLists(stepLists, {ProjectExplorerPlugin::displayNameForStepId(clean)});
     });
-    auto chooser = new Core::VariableChooser(m_ui->qmakeAdditonalArgumentsLineEdit);
+    auto chooser = new Core::VariableChooser(qmakeAdditonalArgumentsLineEdit);
     chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
-    chooser->addSupportedWidget(m_ui->qmakeAdditonalArgumentsLineEdit);
+    chooser->addSupportedWidget(qmakeAdditonalArgumentsLineEdit);
 }
 
 QMakeStepConfigWidget::~QMakeStepConfigWidget()
 {
-    delete m_ui;
 }
 
 void QMakeStepConfigWidget::qtVersionChanged()
@@ -638,7 +740,7 @@ void QMakeStepConfigWidget::qmakeBuildConfigChanged()
     QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
     bool debug = bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
     m_ignoreChange = true;
-    m_ui->buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
+    buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
     m_ignoreChange = false;
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -648,7 +750,7 @@ void QMakeStepConfigWidget::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    m_ui->qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
+    qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
     updateSummaryLabel();
     updateEffectiveQMakeCall();
 }
@@ -657,7 +759,7 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged()
 {
     if (m_ignoreChange)
         return;
-    m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+    qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
 
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -698,13 +800,13 @@ void QMakeStepConfigWidget::abisChanged()
     }
 
     QStringList abis;
-    for (int i = 0; i < m_ui->abisListWidget->count(); ++i) {
-        auto item = m_ui->abisListWidget->item(i);
+    for (int i = 0; i < abisListWidget->count(); ++i) {
+        auto item = abisListWidget->item(i);
         if (item->checkState() == Qt::CheckState::Checked)
             abis << item->text();
     }
     if (abis.isEmpty()) {
-        m_ui->abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::CheckState::Checked);
+        abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::CheckState::Checked);
         return;
     }
     args << QStringLiteral("%1\"%2\"").arg(m_abisParam, abis.join(' '));
@@ -717,7 +819,7 @@ void QMakeStepConfigWidget::abisChanged()
 void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
 {
     m_ignoreChange = true;
-    m_step->setUserArguments(m_ui->qmakeAdditonalArgumentsLineEdit->text());
+    m_step->setUserArguments(qmakeAdditonalArgumentsLineEdit->text());
     m_ignoreChange = false;
 
     updateSummaryLabel();
@@ -730,7 +832,7 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
         return;
     QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
     BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
-    if (m_ui->buildConfigurationComboBox->currentIndex() == 0) { // debug
+    if (buildConfigurationComboBox->currentIndex() == 0) { // debug
         buildConfiguration = buildConfiguration | BaseQtVersion::DebugBuild;
     } else {
         buildConfiguration = buildConfiguration & ~BaseQtVersion::DebugBuild;
@@ -804,20 +906,20 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         return;
     }
     bool enableAbisSelect = qtVersion->qtAbis().size() > 1;
-    m_ui->abisLabel->setVisible(enableAbisSelect);
-    m_ui->abisListWidget->setVisible(enableAbisSelect);
-    if (enableAbisSelect && m_ui->abisListWidget->count() != qtVersion->qtAbis().size()) {
-        m_ui->abisListWidget->clear();
+    abisLabel->setVisible(enableAbisSelect);
+    abisListWidget->setVisible(enableAbisSelect);
+    if (enableAbisSelect && abisListWidget->count() != qtVersion->qtAbis().size()) {
+        abisListWidget->clear();
         bool isAndroid = true;
         m_preferredAbiIndex = -1;
         for (const auto &abi : qtVersion->qtAbis()) {
-            auto item = new QListWidgetItem{abi.param(), m_ui->abisListWidget};
+            auto item = new QListWidgetItem{abi.param(), abisListWidget};
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             item->setCheckState(Qt::Unchecked);
             isAndroid = isAndroid && abi.osFlavor() == Abi::OSFlavor::AndroidLinuxFlavor;
             if (isAndroid && (item->text() == "arm64-v8a" ||
                               (m_preferredAbiIndex == -1 && item->text() == "armeabi-v7a"))) {
-                    m_preferredAbiIndex = m_ui->abisListWidget->count() - 1;
+                    m_preferredAbiIndex = abisListWidget->count() - 1;
             }
         }
         if (isAndroid)
@@ -825,7 +927,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 
         if (m_preferredAbiIndex == -1)
             m_preferredAbiIndex = 0;
-        m_ui->abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::Checked);
+        abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::Checked);
         abisChanged();
     }
 
@@ -845,14 +947,14 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
     bool supported = BaseQtVersion::isQmlDebuggingSupported(m_step->target()->kit(),
                                                                        &warningText);
 
-    m_ui->qmlDebuggingLibraryCheckBox->setEnabled(supported);
-    m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging and profiling:"));
+    qmlDebuggingLibraryCheckBox->setEnabled(supported);
+    debuggingLibraryLabel->setText(tr("Enable QML debugging and profiling:"));
 
     if (supported && m_step->linkQmlDebuggingLibrary())
         warningText = tr("Might make your application vulnerable. Only use in a safe environment.");
 
-    m_ui->qmlDebuggingWarningText->setText(warningText);
-    m_ui->qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
+    qmlDebuggingWarningText->setText(warningText);
+    qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
 
     updateQtQuickCompilerOption(); // show or clear compiler warning text
 }
@@ -862,19 +964,19 @@ void QMakeStepConfigWidget::updateQtQuickCompilerOption()
     QString warningText;
     bool supported = BaseQtVersion::isQtQuickCompilerSupported(m_step->target()->kit(),
                                                                           &warningText);
-    m_ui->qtQuickCompilerCheckBox->setEnabled(supported);
-    m_ui->qtQuickCompilerLabel->setText(tr("Enable Qt Quick Compiler:"));
+    qtQuickCompilerCheckBox->setEnabled(supported);
+    qtQuickCompilerLabel->setText(tr("Enable Qt Quick Compiler:"));
 
     if (supported && m_step->useQtQuickCompiler() && m_step->linkQmlDebuggingLibrary())
         warningText = tr("Disables QML debugging. QML profiling will still work.");
 
-    m_ui->qtQuickCompilerWarningText->setText(warningText);
-    m_ui->qtQuickCompilerWarningIcon->setVisible(!warningText.isEmpty());
+    qtQuickCompilerWarningText->setText(warningText);
+    qtQuickCompilerWarningIcon->setVisible(!warningText.isEmpty());
 }
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
-    m_ui->qmakeArgumentsEdit->setPlainText(m_step->effectiveQMakeCall());
+    qmakeArgumentsEdit->setPlainText(m_step->effectiveQMakeCall());
 }
 
 void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)

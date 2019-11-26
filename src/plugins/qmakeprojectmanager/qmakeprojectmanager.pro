@@ -68,7 +68,6 @@ SOURCES += \
     qmakemakestep.cpp
 
 FORMS += \
-    qmakestep.ui \
     librarydetailswidget.ui
 
 RESOURCES += qmakeprojectmanager.qrc \
