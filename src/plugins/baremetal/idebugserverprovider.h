@@ -82,7 +82,6 @@ public:
                             QString &errorMessage) const = 0;
     virtual ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const = 0;
-    virtual void updateDevice(ProjectExplorer::IDevice *dev) const = 0;
 
     virtual bool isValid() const = 0;
 

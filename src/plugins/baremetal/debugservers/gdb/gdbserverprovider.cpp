@@ -221,19 +221,6 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
     return new GdbServerProviderRunner(runControl, r);
 }
 
-void GdbServerProvider::updateDevice(ProjectExplorer::IDevice *dev) const
-{
-    QTC_ASSERT(dev, return);
-    const QString channel = channelString();
-    const int colon = channel.indexOf(':');
-    if (colon < 0)
-        return;
-    QSsh::SshConnectionParameters sshParams = dev->sshParameters();
-    sshParams.setHost(channel.left(colon));
-    sshParams.setPort(channel.midRef(colon + 1).toUShort());
-    dev->setSshParameters(sshParams);
-}
-
 bool GdbServerProvider::canStartupMode(StartupMode m) const
 {
     return m == NoStartup;

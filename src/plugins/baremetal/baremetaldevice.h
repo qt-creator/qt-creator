@@ -54,7 +54,6 @@ public:
     QString debugServerProviderId() const;
     void setDebugServerProviderId(const QString &id);
     void unregisterDebugServerProvider(IDebugServerProvider *provider);
-    void debugServerProviderUpdated(IDebugServerProvider *provider);
 
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;

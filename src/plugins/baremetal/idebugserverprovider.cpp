@@ -151,8 +151,6 @@ void IDebugServerProvider::unregisterDevice(BareMetalDevice *device)
 void IDebugServerProvider::providerUpdated()
 {
     DebugServerProviderManager::notifyAboutUpdate(this);
-    for (BareMetalDevice *device : qAsConst(m_devices))
-        device->debugServerProviderUpdated(this);
 }
 
 bool IDebugServerProvider::fromMap(const QVariantMap &data)

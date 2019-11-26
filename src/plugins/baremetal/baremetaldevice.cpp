@@ -80,24 +80,14 @@ void BareMetalDevice::setDebugServerProviderId(const QString &id)
             DebugServerProviderManager::findProvider(m_debugServerProviderId))
         currentProvider->unregisterDevice(this);
     m_debugServerProviderId = id;
-    if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(id)) {
-        provider->updateDevice(this);
+    if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(id))
         provider->registerDevice(this);
-    }
 }
 
 void BareMetalDevice::unregisterDebugServerProvider(IDebugServerProvider *provider)
 {
     if (provider->id() == m_debugServerProviderId)
         m_debugServerProviderId.clear();
-}
-
-void BareMetalDevice::debugServerProviderUpdated(IDebugServerProvider *provider)
-{
-    IDebugServerProvider *myProvider = DebugServerProviderManager::findProvider(
-                m_debugServerProviderId);
-    if (provider == myProvider)
-        provider->updateDevice(this);
 }
 
 void BareMetalDevice::fromMap(const QVariantMap &map)

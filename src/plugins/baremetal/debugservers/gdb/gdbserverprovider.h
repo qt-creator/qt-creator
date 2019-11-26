@@ -68,7 +68,6 @@ public:
                     QString &errorMessage) const final;
     ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const final;
-    void updateDevice(ProjectExplorer::IDevice *dev) const final;
 
     bool isValid() const override;
     virtual bool canStartupMode(StartupMode) const;
