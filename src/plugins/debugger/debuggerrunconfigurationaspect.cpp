@@ -203,7 +203,8 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
 
     m_multiProcessAspect = new BaseBoolAspect;
     m_multiProcessAspect->setSettingsKey("RunConfiguration.UseMultiProcess");
-    m_multiProcessAspect->setLabel(tr("Enable Debugging of Subprocesses"));
+    m_multiProcessAspect->setLabel(tr("Enable Debugging of Subprocesses"),
+                                   BaseBoolAspect::LabelPlacement::AtCheckBox);
 
     m_overrideStartupAspect = new BaseStringAspect;
     m_overrideStartupAspect->setSettingsKey("RunConfiguration.OverrideDebuggerStartup");

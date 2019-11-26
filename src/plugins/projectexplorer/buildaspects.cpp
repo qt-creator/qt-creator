@@ -51,7 +51,6 @@ BuildDirectoryAspect::BuildDirectoryAspect() : d(new Private)
     setLabelText(tr("Build directory:"));
     setDisplayStyle(PathChooserDisplay);
     setExpectedKind(Utils::PathChooser::Directory);
-    setUncheckedSemantics(UncheckedSemantics::ReadOnly);
 }
 
 BuildDirectoryAspect::~BuildDirectoryAspect()
@@ -62,7 +61,7 @@ BuildDirectoryAspect::~BuildDirectoryAspect()
 void BuildDirectoryAspect::allowInSourceBuilds(const FilePath &sourceDir)
 {
     d->sourceDir = sourceDir;
-    makeCheckable(tr("Shadow Build"), QString());
+    makeCheckable(CheckBoxPlacement::Top, tr("Shadow build:"), QString());
 }
 
 bool BuildDirectoryAspect::isShadowBuild() const
@@ -108,7 +107,8 @@ void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
     if (!d->sourceDir.isEmpty()) {
         connect(this, &BaseStringAspect::checkedChanged, builder.layout(), [this] {
             if (isChecked()) {
-                setFilePath(d->savedShadowBuildDir);
+                setFilePath(d->savedShadowBuildDir.isEmpty()
+                            ? d->sourceDir : d->savedShadowBuildDir);
             } else {
                 d->savedShadowBuildDir = filePath();
                 setFilePath(d->sourceDir);

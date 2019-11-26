@@ -40,7 +40,8 @@ X11ForwardingAspect::X11ForwardingAspect()
     setDisplayStyle(LineEditDisplay);
     setId("X11ForwardingAspect");
     setSettingsKey("RunConfiguration.X11Forwarding");
-    makeCheckable(tr("Forward to local display"), "RunConfiguration.UseX11Forwarding");
+    makeCheckable(CheckBoxPlacement::Right, tr("Forward to local display"),
+                  "RunConfiguration.UseX11Forwarding");
     setValue(defaultDisplay());
 }
 

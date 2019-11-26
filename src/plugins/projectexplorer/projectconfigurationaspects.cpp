@@ -57,6 +57,7 @@ namespace Internal {
 class BaseBoolAspectPrivate
 {
 public:
+    BaseBoolAspect::LabelPlacement m_labelPlacement = BaseBoolAspect::LabelPlacement::AtCheckBox;
     bool m_value = false;
     bool m_defaultValue = false;
     QString m_label;
@@ -85,8 +86,10 @@ class BaseStringAspectPrivate
 {
 public:
     BaseStringAspect::DisplayStyle m_displayStyle = BaseStringAspect::LabelDisplay;
+    BaseStringAspect::CheckBoxPlacement m_checkBoxPlacement
+        = BaseStringAspect::CheckBoxPlacement::Right;
     BaseStringAspect::UncheckedSemantics m_uncheckedSemantics
-        = BaseStringAspect::UncheckedSemantics::ReadOnly;
+        = BaseStringAspect::UncheckedSemantics::Disabled;
     QString m_labelText;
     std::function<QString(const QString &)> m_displayFilter;
     std::unique_ptr<BaseBoolAspect> m_checker;
@@ -292,6 +295,12 @@ void BaseStringAspect::setUncheckedSemantics(BaseStringAspect::UncheckedSemantic
 void BaseStringAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_label);
+
+    if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
+        d->m_checker->addToLayout(builder);
+        builder.startNewRow();
+    }
+
     d->m_label = new QLabel;
     d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
     d->m_label->setText(d->m_labelText);
@@ -353,7 +362,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         break;
     }
 
-    if (d->m_checker)
+    if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Right)
         d->m_checker->addToLayout(builder);
 
     update();
@@ -391,11 +400,15 @@ void BaseStringAspect::update()
     }
 }
 
-void BaseStringAspect::makeCheckable(const QString &checkerLabel, const QString &checkerKey)
+void BaseStringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
+                                     const QString &checkerLabel, const QString &checkerKey)
 {
     QTC_ASSERT(!d->m_checker, return);
+    d->m_checkBoxPlacement = checkBoxPlacement;
     d->m_checker.reset(new BaseBoolAspect);
-    d->m_checker->setLabel(checkerLabel);
+    d->m_checker->setLabel(checkerLabel, checkBoxPlacement == CheckBoxPlacement::Top
+                           ? BaseBoolAspect::LabelPlacement::InExtraLabel
+                           : BaseBoolAspect::LabelPlacement::AtCheckBox);
     d->m_checker->setSettingsKey(checkerKey);
 
     connect(d->m_checker.get(), &BaseBoolAspect::changed, this, &BaseStringAspect::update);
@@ -420,10 +433,16 @@ BaseBoolAspect::~BaseBoolAspect() = default;
 void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
-    d->m_checkBox = new QCheckBox(d->m_label);
+    d->m_checkBox = new QCheckBox();
+    if (d->m_labelPlacement == LabelPlacement::AtCheckBox) {
+        d->m_checkBox->setText(d->m_label);
+        builder.addItem(QString());
+    } else {
+        builder.addItem(d->m_label);
+    }
     d->m_checkBox->setChecked(d->m_value);
     d->m_checkBox->setToolTip(d->m_tooltip);
-    builder.addItems(QString(), d->m_checkBox.data());
+    builder.addItem(d->m_checkBox.data());
     connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         d->m_value = d->m_checkBox->isChecked();
         emit changed();
@@ -463,9 +482,10 @@ void BaseBoolAspect::setValue(bool value)
         d->m_checkBox->setChecked(d->m_value);
 }
 
-void BaseBoolAspect::setLabel(const QString &label)
+void BaseBoolAspect::setLabel(const QString &label, LabelPlacement labelPlacement)
 {
     d->m_label = label;
+    d->m_labelPlacement = labelPlacement;
 }
 
 void BaseBoolAspect::setToolTip(const QString &tooltip)

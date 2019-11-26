@@ -50,7 +50,6 @@ public:
     ProjectExplorer::BuildSystem *buildSystem() const final;
 
     void initialize() override;
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     void setSubNodeBuild(QmakeProFileNode *node);
     QmakeProFileNode *subNodeBuild() const;
@@ -109,6 +108,7 @@ private:
     void kitChanged();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void qtVersionsChanged(const QList<int> &, const QList<int> &, const QList<int> &changed);
+    void updateProblemLabel();
 
     class LastKitState
     {

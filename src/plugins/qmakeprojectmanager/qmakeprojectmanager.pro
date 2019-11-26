@@ -26,7 +26,6 @@ HEADERS += \
     wizards/simpleprojectwizard.h \
     qmakeprojectmanagerconstants.h \
     qmakestep.h \
-    qmakeprojectconfigwidget.h \
     externaleditors.h \
     qmakebuildconfiguration.h \
     qmakeparser.h \
@@ -57,7 +56,6 @@ SOURCES += \
     wizards/subdirsprojectwizarddialog.cpp \
     wizards/simpleprojectwizard.cpp \
     qmakestep.cpp \
-    qmakeprojectconfigwidget.cpp \
     externaleditors.cpp \
     qmakebuildconfiguration.cpp \
     qmakeparser.cpp \

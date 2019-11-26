@@ -28,7 +28,6 @@
 #include "qmakebuildinfo.h"
 #include "qmakekitinformation.h"
 #include "qmakeproject.h"
-#include "qmakeprojectconfigwidget.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakenodes.h"
 #include "qmakesettings.h"
@@ -42,6 +41,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -106,6 +106,8 @@ enum { debug = 0 };
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
     : BuildConfiguration(target, id)
 {
+    setConfigWidgetDisplayName(tr("General"));
+    setConfigWidgetHasFrame(true);
     m_buildSystem = new QmakeBuildSystem(this);
 
     connect(target, &Target::kitChanged,
@@ -117,6 +119,17 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
             return file;
         return QLatin1String("Makefile");
     });
+
+    buildDirectoryAspect()->allowInSourceBuilds(target->project()->projectDirectory());
+    connect(this, &BuildConfiguration::buildDirectoryChanged,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(this, &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(&QmakeSettings::instance(), &QmakeSettings::settingsChanged,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(target, &Target::parsingFinished, this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(target, &Target::kitChanged, this, &QmakeBuildConfiguration::updateProblemLabel);
+
 }
 
 void QmakeBuildConfiguration::initialize()
@@ -202,14 +215,110 @@ void QmakeBuildConfiguration::kitChanged()
     }
 }
 
+void QmakeBuildConfiguration::updateProblemLabel()
+{
+    ProjectExplorer::Kit * const k = target()->kit();
+    const QString proFileName = target()->project()->projectFilePath().toString();
+
+    // Check for Qt version:
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+    if (!version) {
+        buildDirectoryAspect()->setProblem(tr("This kit cannot build this project since it "
+                                              "does not define a Qt version."));
+        return;
+    }
+
+    const auto bs = qmakeBuildSystem();
+    if (bs->rootProFile()->parseInProgress() || !bs->rootProFile()->validParse()) {
+        buildDirectoryAspect()->setProblem({});
+        return;
+    }
+
+    bool targetMismatch = false;
+    bool incompatibleBuild = false;
+    bool allGood = false;
+    // we only show if we actually have a qmake and makestep
+    QString errorString;
+    if (qmakeStep() && makeStep()) {
+        QString makefile = buildDirectory().toString() + QLatin1Char('/');
+        if (this->makefile().isEmpty())
+            makefile.append(QLatin1String("Makefile"));
+        else
+            makefile.append(this->makefile());
+
+        switch (compareToImportFrom(makefile, &errorString)) {
+        case QmakeBuildConfiguration::MakefileMatches:
+            allGood = true;
+            break;
+        case QmakeBuildConfiguration::MakefileMissing:
+            allGood = true;
+            break;
+        case QmakeBuildConfiguration::MakefileIncompatible:
+            incompatibleBuild = true;
+            break;
+        case QmakeBuildConfiguration::MakefileForWrongProject:
+            targetMismatch = true;
+            break;
+        }
+    }
+
+    const bool unalignedBuildDir = QmakeSettings::warnAgainstUnalignedBuildDir()
+            && !isBuildDirAtSafeLocation();
+    if (unalignedBuildDir)
+        allGood = false;
+
+    if (allGood) {
+        Tasks issues;
+        issues = version->reportIssues(proFileName, buildDirectory().toString());
+        Utils::sort(issues);
+
+        if (!issues.isEmpty()) {
+            QString text = QLatin1String("<nobr>");
+            foreach (const ProjectExplorer::Task &task, issues) {
+                QString type;
+                switch (task.type) {
+                case ProjectExplorer::Task::Error:
+                    type = tr("Error:");
+                    type += QLatin1Char(' ');
+                    break;
+                case ProjectExplorer::Task::Warning:
+                    type = tr("Warning:");
+                    type += QLatin1Char(' ');
+                    break;
+                case ProjectExplorer::Task::Unknown:
+                default:
+                    break;
+                }
+                if (!text.endsWith(QLatin1String("br>")))
+                    text.append(QLatin1String("<br>"));
+                text.append(type + task.description);
+            }
+            buildDirectoryAspect()->setProblem(text);
+            return;
+        }
+    } else if (targetMismatch) {
+        buildDirectoryAspect()->setProblem(tr("A build for a different project exists in %1, "
+                                              "which will be overwritten.",
+                                              "%1 build directory")
+                                           .arg(buildDirectory().toUserOutput()));
+        return;
+    } else if (incompatibleBuild) {
+        buildDirectoryAspect()->setProblem(tr("%1 The build in %2 will be overwritten.",
+                                              "%1 error message, %2 build directory")
+                                           .arg(errorString)
+                                           .arg(buildDirectory().toUserOutput()));
+        return;
+    } else if (unalignedBuildDir) {
+        buildDirectoryAspect()->setProblem(unalignedBuildDirWarning());
+        return;
+    }
+
+    buildDirectoryAspect()->setProblem({});
+}
+
 BuildSystem *QmakeBuildConfiguration::buildSystem() const
 {
     return m_buildSystem;
-}
-
-NamedWidget *QmakeBuildConfiguration::createConfigWidget()
-{
-    return new QmakeProjectConfigWidget(this);
 }
 
 /// If only a sub tree should be build this function returns which sub node

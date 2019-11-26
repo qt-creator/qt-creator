@@ -190,7 +190,8 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl)
 
     auto ignoreMissingFiles = addAspect<BaseBoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
-    ignoreMissingFiles->setLabel(tr("Ignore missing files"));
+    ignoreMissingFiles->setLabel(tr("Ignore missing files:"),
+                                 BaseBoolAspect::LabelPlacement::InExtraLabel);
     ignoreMissingFiles->setValue(false);
 
     setDefaultDisplayName(displayName());

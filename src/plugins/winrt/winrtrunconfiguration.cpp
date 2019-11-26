@@ -40,7 +40,8 @@ namespace Internal {
 UninstallAfterStopAspect::UninstallAfterStopAspect()
     : BaseBoolAspect("WinRtRunConfigurationUninstallAfterStopId")
 {
-    setLabel(WinRtRunConfiguration::tr("Uninstall package after application stops"));
+    setLabel(WinRtRunConfiguration::tr("Uninstall package after application stops"),
+             LabelPlacement::AtCheckBox);
 }
 
 // LoopbackExemptClientAspect
@@ -48,8 +49,8 @@ UninstallAfterStopAspect::UninstallAfterStopAspect()
 LoopbackExemptClientAspect::LoopbackExemptClientAspect()
     : BaseBoolAspect("WinRtRunConfigurationLoopbackExemptClient")
 {
-    setLabel(WinRtRunConfiguration::tr("Enable localhost communication for "
-                                       "clients"));
+    setLabel(WinRtRunConfiguration::tr("Enable localhost communication for clients"),
+             LabelPlacement::AtCheckBox);
 }
 
 // LoopbackExemptServerAspect
@@ -58,7 +59,8 @@ LoopbackExemptServerAspect::LoopbackExemptServerAspect()
     : BaseBoolAspect("WinRtRunConfigurationLoopbackExemptServer")
 {
     setLabel(WinRtRunConfiguration::tr("Enable localhost communication for "
-                                       "servers (requires elevated rights)"));
+                                       "servers (requires elevated rights)"),
+             LabelPlacement::AtCheckBox);
 }
 
 // WinRtRunConfiguration

@@ -436,7 +436,8 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
     m_alternativeExecutable->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     m_alternativeExecutable->setLabelText(tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
-    m_alternativeExecutable->makeCheckable(tr("Use this command instead"), useOverridableKey);
+    m_alternativeExecutable->makeCheckable(BaseStringAspect::CheckBoxPlacement::Right,
+                                           tr("Use this command instead"), useOverridableKey);
     connect(m_alternativeExecutable, &BaseStringAspect::changed,
             this, &ExecutableAspect::changed);
 }
@@ -501,12 +502,15 @@ UseLibraryPathsAspect::UseLibraryPathsAspect()
 {
     setId("UseLibraryPath");
     setSettingsKey("RunConfiguration.UseLibrarySearchPath");
-    if (HostOsInfo::isMacHost())
-        setLabel(tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH"));
-    else if (HostOsInfo::isWindowsHost())
-        setLabel(tr("Add build library search path to PATH"));
-    else
-        setLabel(tr("Add build library search path to LD_LIBRARY_PATH"));
+    if (HostOsInfo::isMacHost()) {
+        setLabel(tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH:"),
+                 LabelPlacement::InExtraLabel);
+    } else if (HostOsInfo::isWindowsHost()) {
+        setLabel(tr("Add build library search path to PATH"), LabelPlacement::InExtraLabel);
+    } else {
+        setLabel(tr("Add build library search path to LD_LIBRARY_PATH:"),
+                 LabelPlacement::InExtraLabel);
+    }
     setValue(ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv);
 }
 
@@ -518,7 +522,8 @@ UseDyldSuffixAspect::UseDyldSuffixAspect()
 {
     setId("UseDyldSuffix");
     setSettingsKey("RunConfiguration.UseDyldImageSuffix");
-    setLabel(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"));
+    setLabel(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug):"),
+             LabelPlacement::InExtraLabel);
 }
 
 } // namespace ProjectExplorer

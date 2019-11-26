@@ -76,7 +76,8 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent) : MakeStep(parent, stepI
     const auto cleanInstallRootAspect = addAspect<BaseBoolAspect>();
     cleanInstallRootAspect->setId(CleanInstallRootAspectId);
     cleanInstallRootAspect->setSettingsKey(CleanInstallRootAspectId);
-    cleanInstallRootAspect->setLabel(tr("Clean install root first"));
+    cleanInstallRootAspect->setLabel(tr("Clean install root first"),
+                                     BaseBoolAspect::LabelPlacement::AtCheckBox);
     cleanInstallRootAspect->setValue(false);
 
     const auto commandLineAspect = addAspect<BaseStringAspect>();

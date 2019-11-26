@@ -56,11 +56,11 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
 
     m_dryRunAspect = addAspect<BaseBoolAspect>();
     m_dryRunAspect->setSettingsKey("Qbs.DryRun");
-    m_dryRunAspect->setLabel(tr("Dry run"));
+    m_dryRunAspect->setLabel(tr("Dry run:"), BaseBoolAspect::LabelPlacement::InExtraLabel);
 
     m_keepGoingAspect = addAspect<BaseBoolAspect>();
     m_keepGoingAspect->setSettingsKey("Qbs.DryKeepGoing");
-    m_keepGoingAspect->setLabel(tr("Keep going"));
+    m_keepGoingAspect->setLabel(tr("Keep going:"), BaseBoolAspect::LabelPlacement::InExtraLabel);
 
     auto effectiveCommandAspect = addAspect<BaseStringAspect>();
     effectiveCommandAspect->setDisplayStyle(BaseStringAspect::TextEditDisplay);

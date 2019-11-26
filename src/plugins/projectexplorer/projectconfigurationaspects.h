@@ -63,7 +63,8 @@ public:
     bool defaultValue() const;
     void setDefaultValue(bool defaultValue);
 
-    void setLabel(const QString &label);
+    enum class LabelPlacement { AtCheckBox, InExtraLabel };
+    void setLabel(const QString &label, LabelPlacement labelPlacement);
     void setToolTip(const QString &tooltip);
 
     void fromMap(const QVariantMap &map) override;
@@ -132,10 +133,12 @@ public:
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
 
     enum class UncheckedSemantics { Disabled, ReadOnly };
+    enum class CheckBoxPlacement { Top, Right };
     void setUncheckedSemantics(UncheckedSemantics semantics);
     bool isChecked() const;
     void setChecked(bool checked);
-    void makeCheckable(const QString &optionalLabel, const QString &optionalBaseKey);
+    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel,
+                       const QString &optionalBaseKey);
 
     enum DisplayStyle {
         LabelDisplay,
