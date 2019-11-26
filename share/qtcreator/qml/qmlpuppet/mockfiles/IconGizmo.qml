@@ -33,13 +33,20 @@ Node {
     property View3D view3D
     property bool highlightOnHover: true
     property Node targetNode: null
-    property Node selectedNode: null
+    property var selectedNodes: null
+    readonly property bool selected: {
+        for (var i = 0; i < selectedNodes.length; ++i) {
+            if (selectedNodes[i] === targetNode)
+                return true;
+        }
+        return false;
+    }
 
     property alias iconSource: iconImage.source
     property alias overlayColor: colorOverlay.color
 
     signal positionCommit()
-    signal clicked(Node node)
+    signal clicked(Node node, bool multi)
 
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     rotation: targetNode ? targetNode.sceneRotation : Qt.vector3d(0, 0, 0)
@@ -60,21 +67,26 @@ Node {
             y: -height / 2
             color: "transparent"
             border.color: "#7777ff"
-            border.width: iconGizmo.selectedNode !== iconGizmo.targetNode
+            border.width: !iconGizmo.selected
                           && iconGizmo.highlightOnHover && iconMouseArea.containsMouse ? 2 : 0
             radius: 5
-            opacity: iconGizmo.selectedNode === iconGizmo.targetNode ? 0.2 : 1
+            opacity: iconGizmo.selected ? 0.2 : 1
             Image {
                 id: iconImage
                 fillMode: Image.Pad
                 MouseArea {
                     id: iconMouseArea
                     anchors.fill: parent
-                    onClicked: iconGizmo.clicked(iconGizmo.targetNode)
-                    hoverEnabled: iconGizmo.highlightOnHover
-                                  && iconGizmo.selectedNode !== iconGizmo.targetNode
-                    acceptedButtons: iconGizmo.selectedNode !== iconGizmo.targetNode
-                                     ? Qt.LeftButton : Qt.NoButton
+                    onPressed: {
+                        if (iconGizmo.selected && !(mouse.modifiers & Qt.ControlModifier)) {
+                            mouse.accepted = false;
+                        }
+                    }
+
+                    onClicked: iconGizmo.clicked(iconGizmo.targetNode,
+                                                 mouse.modifiers & Qt.ControlModifier)
+                    hoverEnabled: iconGizmo.highlightOnHover && !iconGizmo.selected
+                    acceptedButtons: Qt.LeftButton
                 }
             }
             ColorOverlay {

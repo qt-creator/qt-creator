@@ -28,6 +28,7 @@
 #include "qt5nodeinstanceserver.h"
 #include "tokencommand.h"
 #include "valueschangedcommand.h"
+#include "changeselectioncommand.h"
 
 #include <QTimer>
 #include <QVariant>
@@ -51,7 +52,7 @@ public:
     void changePropertyValues(const ChangeValuesCommand &command) override;
 
 private slots:
-    void objectClicked(const QVariant &object);
+    void handleSelectionChanged(const QVariant &objs);
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
     void updateViewPortRect();
@@ -64,11 +65,12 @@ protected:
     void sendTokenBack();
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
-    void selectInstance(const ServerNodeInstance &instance);
+    void selectInstances(const QList<ServerNodeInstance> &instanceList);
     void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
 
 private:
     void handleObjectPropertyChangeTimeout();
+    void handleSelectionChangeTimeout();
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
@@ -93,11 +95,13 @@ private:
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;
     QTimer m_propertyChangeTimer;
+    QTimer m_selectionChangeTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ServerNodeInstance m_viewPortInstance;
-
     bool m_blockViewActivate = false;
+    QObject *m_rootNode = nullptr;
+    ChangeSelectionCommand m_pendingSelectionChangeCommand;
 };
 
 } // namespace QmlDesigner

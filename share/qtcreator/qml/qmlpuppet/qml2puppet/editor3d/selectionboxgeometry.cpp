@@ -41,6 +41,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
+static const float floatMin = std::numeric_limits<float>::lowest();
+static const float floatMax = std::numeric_limits<float>::max();
+
 SelectionBoxGeometry::SelectionBoxGeometry()
     : QQuick3DGeometry()
 {
@@ -133,9 +136,6 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
     QByteArray vertexData;
     QByteArray indexData;
 
-    static const float floatMin = std::numeric_limits<float>::lowest();
-    static const float floatMax = std::numeric_limits<float>::max();
-
     QVector3D minBounds = QVector3D(floatMax, floatMax, floatMax);
     QVector3D maxBounds = QVector3D(floatMin, floatMin, floatMin);
 
@@ -154,10 +154,18 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
             rootRN->markDirty(QSSGRenderNode::TransformDirtyFlag::TransformNotDirty);
             rootRN->calculateGlobalVariables();
         }
-        getBounds(m_targetNode, vertexData, indexData, minBounds, maxBounds, QMatrix4x4());
+        getBounds(m_targetNode, vertexData, indexData, minBounds, maxBounds);
+        appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);
+
+        // Track changes in ancestors, as they can move node without affecting node properties
+        auto parentNode = m_targetNode->parentNode();
+        while (parentNode) {
+            trackNodeChanges(parentNode);
+            parentNode = parentNode->parentNode();
+        }
     } else {
         // Fill some dummy data so geometry won't get rejected
-        appendVertexData(vertexData, indexData, minBounds, maxBounds);
+        appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);
     }
 
     geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
@@ -182,62 +190,73 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
     return node;
 }
 
-void SelectionBoxGeometry::getBounds(QQuick3DNode *node, QByteArray &vertexData,
-                                     QByteArray &indexData, QVector3D &minBounds,
-                                     QVector3D &maxBounds, const QMatrix4x4 &transform)
+void SelectionBoxGeometry::getBounds(
+        QQuick3DNode *node, QByteArray &vertexData, QByteArray &indexData,
+        QVector3D &minBounds, QVector3D &maxBounds)
 {
-    QMatrix4x4 fullTransform;
+    QMatrix4x4 localTransform;
     auto nodePriv = QQuick3DObjectPrivate::get(node);
     auto renderNode = static_cast<QSSGRenderNode *>(nodePriv->spatialNode);
 
-    // All transforms are relative to targetNode transform, so its local transform is ignored
     if (node != m_targetNode) {
         if (renderNode) {
             if (renderNode->flags.testFlag(QSSGRenderNode::Flag::TransformDirty))
                 renderNode->calculateLocalTransform();
-            fullTransform = transform * renderNode->localTransform;
+            localTransform = renderNode->localTransform;
         }
-
-        m_connections << QObject::connect(node, &QQuick3DNode::scaleChanged,
-                                          this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
-        m_connections << QObject::connect(node, &QQuick3DNode::rotationChanged,
-                                          this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
-        m_connections << QObject::connect(node, &QQuick3DNode::positionChanged,
-                                          this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
-        m_connections << QObject::connect(node, &QQuick3DNode::pivotChanged,
-                                          this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
-        m_connections << QObject::connect(node, &QQuick3DNode::orientationChanged,
-                                          this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
-        m_connections << QObject::connect(node, &QQuick3DNode::rotationOrderChanged,
-                                          this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+        trackNodeChanges(node);
     }
 
+    QVector3D localMinBounds = QVector3D(floatMax, floatMax, floatMax);
+    QVector3D localMaxBounds = QVector3D(floatMin, floatMin, floatMin);
+
+    // Find bounds for children
     QVector<QVector3D> minBoundsVec;
     QVector<QVector3D> maxBoundsVec;
-
-    // Check for children
     const auto children = node->childItems();
     for (const auto child : children) {
         if (auto childNode = qobject_cast<QQuick3DNode *>(child)) {
             QVector3D newMinBounds = minBounds;
             QVector3D newMaxBounds = maxBounds;
-            getBounds(childNode, vertexData, indexData, newMinBounds, newMaxBounds, fullTransform);
+            getBounds(childNode, vertexData, indexData, newMinBounds, newMaxBounds);
             minBoundsVec << newMinBounds;
             maxBoundsVec << newMaxBounds;
         }
     }
 
+    auto combineMinBounds = [](QVector3D &target, const QVector3D &source) {
+        target.setX(qMin(source.x(), target.x()));
+        target.setY(qMin(source.y(), target.y()));
+        target.setZ(qMin(source.z(), target.z()));
+    };
+    auto combineMaxBounds = [](QVector3D &target, const QVector3D &source) {
+        target.setX(qMax(source.x(), target.x()));
+        target.setY(qMax(source.y(), target.y()));
+        target.setZ(qMax(source.z(), target.z()));
+    };
+    auto transformCorner = [&](const QMatrix4x4 &m, QVector3D &minTarget, QVector3D &maxTarget,
+            const QVector3D &corner) {
+        QVector3D mappedCorner = m.map(corner);
+        combineMinBounds(minTarget, mappedCorner);
+        combineMaxBounds(maxTarget, mappedCorner);
+    };
+    auto transformCorners = [&](const QMatrix4x4 &m, QVector3D &minTarget, QVector3D &maxTarget,
+            const QVector3D &minCorner, const QVector3D &maxCorner) {
+        transformCorner(m, minTarget, maxTarget, minCorner);
+        transformCorner(m, minTarget, maxTarget, maxCorner);
+        transformCorner(m, minTarget, maxTarget, QVector3D(minCorner.x(), minCorner.y(), maxCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(minCorner.x(), maxCorner.y(), minCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(maxCorner.x(), minCorner.y(), minCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(minCorner.x(), maxCorner.y(), maxCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(maxCorner.x(), maxCorner.y(), minCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(maxCorner.x(), minCorner.y(), maxCorner.z()));
+    };
+
     // Combine all child bounds
-    for (const auto &newBounds : qAsConst(minBoundsVec)) {
-        minBounds.setX(qMin(newBounds.x(), minBounds.x()));
-        minBounds.setY(qMin(newBounds.y(), minBounds.y()));
-        minBounds.setZ(qMin(newBounds.z(), minBounds.z()));
-    }
-    for (const auto &newBounds : qAsConst(maxBoundsVec)) {
-        maxBounds.setX(qMax(newBounds.x(), maxBounds.x()));
-        maxBounds.setY(qMax(newBounds.y(), maxBounds.y()));
-        maxBounds.setZ(qMax(newBounds.z(), maxBounds.z()));
-    }
+    for (const auto &newBounds : qAsConst(minBoundsVec))
+        combineMinBounds(localMinBounds, newBounds);
+    for (const auto &newBounds : qAsConst(maxBoundsVec))
+        combineMaxBounds(localMaxBounds, newBounds);
 
     if (auto modelNode = qobject_cast<QQuick3DModel *>(node)) {
         if (auto renderModel = static_cast<QSSGRenderModel *>(renderNode)) {
@@ -253,47 +272,30 @@ void SelectionBoxGeometry::getBounds(QQuick3DNode *node, QByteArray &vertexData,
                     QVector3D localMin = center - extents;
                     QVector3D localMax = center + extents;
 
-                    // Transform all corners of the local bounding box to find final extent in
-                    // in parent space
-
-                    auto checkCorner = [&minBounds, &maxBounds, &fullTransform]
-                            (const QVector3D &corner) {
-                        QVector3D mappedCorner = fullTransform.map(corner);
-                        minBounds.setX(qMin(mappedCorner.x(), minBounds.x()));
-                        minBounds.setY(qMin(mappedCorner.y(), minBounds.y()));
-                        minBounds.setZ(qMin(mappedCorner.z(), minBounds.z()));
-                        maxBounds.setX(qMax(mappedCorner.x(), maxBounds.x()));
-                        maxBounds.setY(qMax(mappedCorner.y(), maxBounds.y()));
-                        maxBounds.setZ(qMax(mappedCorner.z(), maxBounds.z()));
-                    };
-
-                    checkCorner(localMin);
-                    checkCorner(localMax);
-                    checkCorner(QVector3D(localMin.x(), localMin.y(), localMax.z()));
-                    checkCorner(QVector3D(localMin.x(), localMax.y(), localMin.z()));
-                    checkCorner(QVector3D(localMax.x(), localMin.y(), localMin.z()));
-                    checkCorner(QVector3D(localMin.x(), localMax.y(), localMax.z()));
-                    checkCorner(QVector3D(localMax.x(), localMax.y(), localMin.z()));
-                    checkCorner(QVector3D(localMax.x(), localMin.y(), localMax.z()));
+                    combineMinBounds(localMinBounds, localMin);
+                    combineMaxBounds(localMaxBounds, localMax);
                 }
             }
         }
     }
 
-    // Target node and immediate children get selection boxes
-    if (transform.isIdentity()) {
-        // Adjust bounds to reduce targetNode pixels obscuring the selection box
-        QVector3D extents = (maxBounds - minBounds) / 1000.f;
-        QVector3D minAdjBounds = minBounds - extents;
-        QVector3D maxAdjBounds = maxBounds + extents;
+    // Transform local space bounding box to parent space
+    transformCorners(localTransform, minBounds, maxBounds, localMinBounds, localMaxBounds);
 
-        appendVertexData(vertexData, indexData, minAdjBounds, maxAdjBounds);
-    }
+    // Immediate child boxes
+    if (node->parentNode() == m_targetNode)
+        appendVertexData(localTransform, vertexData, indexData, localMinBounds, localMaxBounds);
 }
 
-void SelectionBoxGeometry::appendVertexData(QByteArray &vertexData, QByteArray &indexData,
-                                            const QVector3D &minBounds, const QVector3D &maxBounds)
+void SelectionBoxGeometry::appendVertexData(const QMatrix4x4 &m, QByteArray &vertexData,
+                                            QByteArray &indexData, const QVector3D &minBounds,
+                                            const QVector3D &maxBounds)
 {
+    // Adjust bounds to reduce targetNode pixels obscuring the selection box
+    QVector3D extents = (maxBounds - minBounds) / 1000.f;
+    QVector3D minAdjBounds = minBounds - extents;
+    QVector3D maxAdjBounds = maxBounds + extents;
+
     int initialVertexSize = vertexData.size();
     int initialIndexSize = indexData.size();
     const int vertexSize = int(sizeof(float)) * 8 * 3; // 8 vertices, 3 floats/vert
@@ -305,14 +307,20 @@ void SelectionBoxGeometry::appendVertexData(QByteArray &vertexData, QByteArray &
     auto dataPtr = reinterpret_cast<float *>(vertexData.data() + initialVertexSize);
     auto indexPtr = reinterpret_cast<quint16 *>(indexData.data() + initialIndexSize);
 
-    *dataPtr++ = maxBounds.x(); *dataPtr++ = maxBounds.y(); *dataPtr++ = maxBounds.z();
-    *dataPtr++ = minBounds.x(); *dataPtr++ = maxBounds.y(); *dataPtr++ = maxBounds.z();
-    *dataPtr++ = minBounds.x(); *dataPtr++ = minBounds.y(); *dataPtr++ = maxBounds.z();
-    *dataPtr++ = maxBounds.x(); *dataPtr++ = minBounds.y(); *dataPtr++ = maxBounds.z();
-    *dataPtr++ = maxBounds.x(); *dataPtr++ = maxBounds.y(); *dataPtr++ = minBounds.z();
-    *dataPtr++ = minBounds.x(); *dataPtr++ = maxBounds.y(); *dataPtr++ = minBounds.z();
-    *dataPtr++ = minBounds.x(); *dataPtr++ = minBounds.y(); *dataPtr++ = minBounds.z();
-    *dataPtr++ = maxBounds.x(); *dataPtr++ = minBounds.y(); *dataPtr++ = minBounds.z();
+    QVector3D corners[8];
+    corners[0] = QVector3D(maxAdjBounds.x(), maxAdjBounds.y(), maxAdjBounds.z());
+    corners[1] = QVector3D(minAdjBounds.x(), maxAdjBounds.y(), maxAdjBounds.z());
+    corners[2] = QVector3D(minAdjBounds.x(), minAdjBounds.y(), maxAdjBounds.z());
+    corners[3] = QVector3D(maxAdjBounds.x(), minAdjBounds.y(), maxAdjBounds.z());
+    corners[4] = QVector3D(maxAdjBounds.x(), maxAdjBounds.y(), minAdjBounds.z());
+    corners[5] = QVector3D(minAdjBounds.x(), maxAdjBounds.y(), minAdjBounds.z());
+    corners[6] = QVector3D(minAdjBounds.x(), minAdjBounds.y(), minAdjBounds.z());
+    corners[7] = QVector3D(maxAdjBounds.x(), minAdjBounds.y(), minAdjBounds.z());
+
+    for (int i = 0; i < 8; ++i) {
+        corners[i] = m.map(corners[i]);
+        *dataPtr++ = corners[i].x(); *dataPtr++ = corners[i].y(); *dataPtr++ = corners[i].z();
+    }
 
     *indexPtr++ = 0 + indexAdd; *indexPtr++ = 1 + indexAdd;
     *indexPtr++ = 1 + indexAdd; *indexPtr++ = 2 + indexAdd;
@@ -328,6 +336,22 @@ void SelectionBoxGeometry::appendVertexData(QByteArray &vertexData, QByteArray &
     *indexPtr++ = 5 + indexAdd; *indexPtr++ = 6 + indexAdd;
     *indexPtr++ = 6 + indexAdd; *indexPtr++ = 7 + indexAdd;
     *indexPtr++ = 7 + indexAdd; *indexPtr++ = 4 + indexAdd;
+}
+
+void SelectionBoxGeometry::trackNodeChanges(QQuick3DNode *node)
+{
+    m_connections << QObject::connect(node, &QQuick3DNode::sceneScaleChanged,
+                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+    m_connections << QObject::connect(node, &QQuick3DNode::sceneRotationChanged,
+                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+    m_connections << QObject::connect(node, &QQuick3DNode::scenePositionChanged,
+                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+    m_connections << QObject::connect(node, &QQuick3DNode::pivotChanged,
+                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+    m_connections << QObject::connect(node, &QQuick3DNode::orientationChanged,
+                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+    m_connections << QObject::connect(node, &QQuick3DNode::rotationOrderChanged,
+                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
 }
 
 }

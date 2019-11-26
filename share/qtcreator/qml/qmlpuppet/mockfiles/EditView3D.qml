@@ -46,28 +46,82 @@ Window {
     property alias showEditLight: btnEditViewLight.toggled
     property alias usePerspective: btnPerspective.toggled
 
-    property Node selectedNode: null
+    property Node selectedNode: null // This is non-null only in single selection case
+    property var selectedNodes: [] // All selected nodes
 
     property var lightGizmos: []
     property var cameraGizmos: []
+    property var selectionBoxes: []
     property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
 
-    signal objectClicked(var object)
+    signal selectionChanged(var selectedNodes)
     signal commitObjectProperty(var object, var propName)
     signal changeObjectProperty(var object, var propName)
 
-    function selectObject(object) {
-        selectedNode = object;
+    function ensureSelectionBoxes(count) {
+        var needMore = count - selectionBoxes.length
+        if (needMore > 0) {
+            var component = Qt.createComponent("SelectionBox.qml");
+            if (component.status === Component.Ready) {
+                for (var i = 0; i < needMore; ++i) {
+                    var geometryName = _generalHelper.generateUniqueName("SelectionBoxGeometry");
+                    var box = component.createObject(mainSceneHelpers, {"view3D": editView,
+                                                     "geometryName": geometryName});
+                    selectionBoxes[selectionBoxes.length] = box;
+                }
+            }
+        }
     }
 
-    function handleObjectClicked(object) {
+    function selectObjects(objects) {
+        // Create selection boxes as necessary. One more box than is actually needed is created, so
+        // that we always have a previously created box to use for new selection.
+        // This fixes an occasional visual glitch when creating a new box.
+        ensureSelectionBoxes(objects.length + 1)
+
+        var i;
+        for (i = 0; i < objects.length; ++i)
+            selectionBoxes[i].targetNode = objects[i];
+        for (i = objects.length; i < selectionBoxes.length; ++i)
+            selectionBoxes[i].targetNode = null;
+
+        selectedNodes = objects;
+        if (objects.length === 0 || objects.length > 1)
+            selectedNode = null;
+        else
+            selectedNode = objects[0];
+    }
+
+    function handleObjectClicked(object, multi) {
         var theObject = object;
         if (btnSelectGroup.selected) {
             while (theObject && theObject.parent !== scene)
                 theObject = theObject.parent;
         }
-        selectObject(theObject);
-        objectClicked(theObject);
+        // Object selection logic:
+        // Regular click: Clear any multiselection, single-selects the clicked object
+        // Ctrl-click: No objects selected: Act as single select
+        //             One or more objects selected: Multiselect
+        // Null object always clears entire selection
+        var newSelection = [];
+        if (object !== null) {
+            if (multi && selectedNodes.length > 0) {
+                var deselect = false;
+                for (var i = 0; i < selectedNodes.length; ++i) {
+                    // Multiselecting already selected object clears that object from selection
+                    if (selectedNodes[i] !== object)
+                        newSelection[newSelection.length] = selectedNodes[i];
+                    else
+                        deselect = true;
+                }
+                if (!deselect)
+                    newSelection[newSelection.length] = object;
+            } else {
+                newSelection[0] = theObject;
+            }
+        }
+        selectObjects(newSelection);
+        selectionChanged(newSelection);
     }
 
     function addLightGizmo(obj)
@@ -76,10 +130,10 @@ Window {
         if (component.status === Component.Ready) {
             var gizmo = component.createObject(overlayScene,
                                                {"view3D": overlayView, "targetNode": obj,
-                                                "selectedNode": selectedNode});
+                                                "selectedNodes": selectedNodes});
             lightGizmos[lightGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
-            gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
+            gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
         }
     }
 
@@ -91,17 +145,20 @@ Window {
             var gizmo = component.createObject(
                         overlayScene,
                         {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
-                         "viewPortRect": viewPortRect, "selectedNode": selectedNode});
+                         "viewPortRect": viewPortRect, "selectedNodes": selectedNodes});
             cameraGizmos[cameraGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
-            gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
+            gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
         }
     }
 
     // Work-around the fact that the projection matrix for the camera is not calculated until
     // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
-    Component.onCompleted: _generalHelper.requestOverlayUpdate();
+    Component.onCompleted: {
+        selectObjects([]);
+        _generalHelper.requestOverlayUpdate();
+    }
 
     onWidthChanged: _generalHelper.requestOverlayUpdate();
     onHeightChanged: _generalHelper.requestOverlayUpdate();
@@ -187,11 +244,14 @@ Window {
             GradientStop { position: 0.0; color: "#999999" }
         }
 
-        TapHandler { // check tapping/clicking an object in the scene
-            onTapped: {
-                var pickResult = editView.pick(eventPoint.scenePosition.x,
-                                               eventPoint.scenePosition.y);
-                handleObjectClicked(pickResult.objectHit);
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton
+            onClicked: {
+                var pickResult = editView.pick(mouse.x, mouse.y);
+                handleObjectClicked(pickResult.objectHit, mouse.modifiers & Qt.ControlModifier);
+                if (!pickResult.objectHit)
+                    mouse.accepted = false;
             }
         }
 
@@ -211,12 +271,6 @@ Window {
                     id: helperGrid
                     lines: 50
                     step: 50
-                }
-
-                SelectionBox {
-                    id: selectionBox
-                    view3D: editView
-                    targetNode: viewWindow.selectedNode
                 }
 
                 PointLight {
@@ -387,7 +441,8 @@ Window {
 
                 onSelectedChanged: {
                     if (selected) {
-                        var targetNode = viewWindow.selectedNode ? selectionBox.model : null;
+                        var targetNode = viewWindow.selectedNodes.length > 0
+                                ? selectionBoxes[0].model : null;
                         cameraControl.fitObject(targetNode, editView.camera.rotation);
                     }
                 }
@@ -401,7 +456,7 @@ Window {
         width: 100
         height: width
         editCameraCtrl: cameraControl
-        selectedNode : viewWindow.selectedNode ? selectionBox.model : null
+        selectedNode : viewWindow.selectedNodes.length ? selectionBoxes[0].model : null
     }
 
     Rectangle { // top controls bar
