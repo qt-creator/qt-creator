@@ -1972,16 +1972,14 @@ QMenu *WatchModel::createFormatMenuForManySelected(const WatchItemSet &items, QW
                        });
 
     int countOfSelectItems = items.size();
-    QHashIterator<DisplayFormat, int> iter(allItemsFormats);
-    while (iter.hasNext()) {
-        iter.next();
-        DisplayFormat format = iter.key();
+    for (auto it = allItemsFormats.begin(), end = allItemsFormats.end(); it != end; ++it) {
+        DisplayFormat format = it.key();
         QString formatName = nameForFormat(format);
         if (formatName.isEmpty())
             continue;
 
         addCheckableAction(menu, spacer + formatName,
-                           iter.value() == countOfSelectItems,
+                           it.value() == countOfSelectItems,
                            false,
                            [this, format, items] {
                                 setItemsFormat(items, format);
