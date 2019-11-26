@@ -54,6 +54,7 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
     setScene(&m_scene);
     setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     setResizeAnchor(QGraphicsView::NoAnchor);
+    setRenderHint(QPainter::Antialiasing, true);
     setTransformationAnchor(QGraphicsView::NoAnchor);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);

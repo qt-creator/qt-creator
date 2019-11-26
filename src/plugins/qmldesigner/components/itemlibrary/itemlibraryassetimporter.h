@@ -24,6 +24,7 @@
 ****************************************************************************/
 #pragma once
 
+#include <QSet>
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qhash.h>
