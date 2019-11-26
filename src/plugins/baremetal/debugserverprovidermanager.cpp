@@ -27,7 +27,6 @@
 #include "idebugserverprovider.h"
 
 // GDB debug servers.
-#include "debugservers/gdb/defaultgdbserverprovider.h"
 #include "debugservers/gdb/openocdgdbserverprovider.h"
 #include "debugservers/gdb/stlinkutilgdbserverprovider.h"
 #include "debugservers/gdb/jlinkgdbserverprovider.h"
@@ -56,8 +55,7 @@ static DebugServerProviderManager *m_instance = nullptr;
 
 DebugServerProviderManager::DebugServerProviderManager()
     : m_configFile(Utils::FilePath::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
-    , m_factories({new DefaultGdbServerProviderFactory,
-                   new JLinkGdbServerProviderFactory,
+    , m_factories({new JLinkGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
                    new StLinkUtilGdbServerProviderFactory})
 {

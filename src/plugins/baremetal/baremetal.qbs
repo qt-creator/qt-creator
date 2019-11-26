@@ -42,7 +42,6 @@ QtcPlugin {
         name: "GDB Servers"
         prefix: "debugservers/gdb/"
         files: [
-            "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
             "gdbserverprovider.cpp", "gdbserverprovider.h",
             "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
             "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
