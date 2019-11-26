@@ -244,7 +244,7 @@ T.ComboBox {
         },
         State {
             name: "edit"
-            when: myComboBox.edit && myComboBox.editable
+            when: myComboBox.edit && myComboBox.editable && !comboBoxPopup.opened
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true
@@ -252,11 +252,28 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxInput
                 selectByMouse: true
+                readOnly: false
             }
             PropertyChanges {
                 target: comboBoxBackground
                 color: StudioTheme.Values.themeInteraction
                 border.color: StudioTheme.Values.themeInteraction
+            }
+            StateChangeScript {
+                script: comboBoxPopup.close()
+            }
+        },
+        State {
+            name: "popup"
+            when: myComboBox.edit && comboBoxPopup.opened
+            PropertyChanges {
+                target: myComboBox
+                wheelEnabled: true
+            }
+            PropertyChanges {
+                target: comboBoxInput
+                selectByMouse: false
+                readOnly: true
             }
         }
     ]
