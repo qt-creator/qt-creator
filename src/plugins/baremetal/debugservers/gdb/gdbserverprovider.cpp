@@ -221,11 +221,6 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
     return new GdbServerProviderRunner(runControl, r);
 }
 
-bool GdbServerProvider::canStartupMode(StartupMode m) const
-{
-    return m == NoStartup;
-}
-
 bool GdbServerProvider::fromMap(const QVariantMap &data)
 {
     if (!IDebugServerProvider::fromMap(data))
@@ -299,23 +294,24 @@ void GdbServerProviderConfigWidget::setStartupMode(GdbServerProvider::StartupMod
     }
 }
 
+static QString startupModeName(GdbServerProvider::StartupMode m)
+{
+    switch (m) {
+    case GdbServerProvider::StartupOnNetwork:
+        return GdbServerProviderConfigWidget::tr("Startup in TCP/IP Mode");
+    case GdbServerProvider::StartupOnPipe:
+        return GdbServerProviderConfigWidget::tr("Startup in Pipe Mode");
+    default:
+        return {};
+    }
+}
+
 void GdbServerProviderConfigWidget::populateStartupModes()
 {
-    for (int i = 0; i < GdbServerProvider::StartupModesCount; ++i) {
-        const auto m = static_cast<GdbServerProvider::StartupMode>(i);
-        if (!static_cast<GdbServerProvider *>(m_provider)->canStartupMode(m))
-            continue;
-
-        const int idx = m_startupModeComboBox->count();
-        m_startupModeComboBox->insertItem(
-                    idx,
-                    (m == GdbServerProvider::NoStartup)
-                    ? tr("No Startup")
-                    : ((m == GdbServerProvider::StartupOnNetwork)
-                       ? tr("Startup in TCP/IP Mode")
-                       : tr("Startup in Pipe Mode")),
-                    m);
-    }
+    const QSet<GdbServerProvider::StartupMode> modes = static_cast<GdbServerProvider *>(
+                m_provider)->supportedStartupModes();
+    for (const auto mode : modes)
+        m_startupModeComboBox->addItem(startupModeName(mode), mode);
 }
 
 void GdbServerProviderConfigWidget::setFromProvider()

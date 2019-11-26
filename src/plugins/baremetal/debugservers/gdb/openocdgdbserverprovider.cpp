@@ -79,8 +79,6 @@ QString OpenOcdGdbServerProvider::defaultResetCommands()
 QString OpenOcdGdbServerProvider::channelString() const
 {
     switch (startupMode()) {
-    case NoStartup:
-        // fallback
     case StartupOnNetwork:
         // Just return as "host:port" form.
         return GdbServerProvider::channelString();
@@ -124,9 +122,10 @@ CommandLine OpenOcdGdbServerProvider::command() const
     return cmd;
 }
 
-bool OpenOcdGdbServerProvider::canStartupMode(StartupMode m) const
+QSet<GdbServerProvider::StartupMode>
+OpenOcdGdbServerProvider::supportedStartupModes() const
 {
-    return m == NoStartup || m == StartupOnNetwork || m == StartupOnPipe;
+    return {StartupOnNetwork, StartupOnPipe};
 }
 
 bool OpenOcdGdbServerProvider::isValid() const
@@ -136,7 +135,7 @@ bool OpenOcdGdbServerProvider::isValid() const
 
     const StartupMode m = startupMode();
 
-    if (m == NoStartup || m == StartupOnNetwork) {
+    if (m == StartupOnNetwork) {
         if (channel().host().isEmpty())
             return false;
     }
@@ -307,15 +306,6 @@ void OpenOcdGdbServerProviderConfigWidget::discard()
 void OpenOcdGdbServerProviderConfigWidget::startupModeChanged()
 {
     const GdbServerProvider::StartupMode m = startupMode();
-    const bool isStartup = m != GdbServerProvider::NoStartup;
-    m_executableFileChooser->setVisible(isStartup);
-    m_mainLayout->labelForField(m_executableFileChooser)->setVisible(isStartup);
-    m_rootScriptsDirChooser->setVisible(isStartup);
-    m_mainLayout->labelForField(m_rootScriptsDirChooser)->setVisible(isStartup);
-    m_configurationFileChooser->setVisible(isStartup);
-    m_mainLayout->labelForField(m_configurationFileChooser)->setVisible(isStartup);
-    m_additionalArgumentsLineEdit->setVisible(isStartup);
-    m_mainLayout->labelForField(m_additionalArgumentsLineEdit)->setVisible(isStartup);
     const bool isNetwork = m != GdbServerProvider::StartupOnPipe;
     m_hostWidget->setVisible(isNetwork);
     m_mainLayout->labelForField(m_hostWidget)->setVisible(isNetwork);

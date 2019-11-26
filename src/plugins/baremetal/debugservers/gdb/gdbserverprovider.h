@@ -45,10 +45,8 @@ class GdbServerProvider : public IDebugServerProvider
 {
 public:
     enum StartupMode {
-        NoStartup = 0,
         StartupOnNetwork,
-        StartupOnPipe,
-        StartupModesCount
+        StartupOnPipe
     };
 
     StartupMode startupMode() const;
@@ -70,7 +68,7 @@ public:
             ProjectExplorer::RunControl *runControl) const final;
 
     bool isValid() const override;
-    virtual bool canStartupMode(StartupMode) const;
+    virtual QSet<StartupMode> supportedStartupModes() const = 0;
 
     QUrl channel() const;
     void setChannel(const QUrl &channelString);
@@ -90,7 +88,7 @@ protected:
 
     QString m_settingsBase;
     QUrl m_channel;
-    StartupMode m_startupMode = NoStartup;
+    StartupMode m_startupMode = StartupOnNetwork;
     QString m_initCommands;
     QString m_resetCommands;
     bool m_useExtendedRemote = false;

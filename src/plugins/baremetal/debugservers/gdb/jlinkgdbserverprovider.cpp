@@ -84,8 +84,6 @@ QString JLinkGdbServerProvider::defaultResetCommands()
 QString JLinkGdbServerProvider::channelString() const
 {
     switch (startupMode()) {
-    case NoStartup:
-        // fallback
     case StartupOnNetwork:
         // Just return as "host:port" form.
         return GdbServerProvider::channelString();
@@ -122,9 +120,10 @@ CommandLine JLinkGdbServerProvider::command() const
     return cmd;
 }
 
-bool JLinkGdbServerProvider::canStartupMode(StartupMode m) const
+QSet<GdbServerProvider::StartupMode>
+JLinkGdbServerProvider::supportedStartupModes() const
 {
-    return m == NoStartup || m == StartupOnNetwork;
+    return {StartupOnNetwork};
 }
 
 bool JLinkGdbServerProvider::isValid() const
@@ -134,7 +133,7 @@ bool JLinkGdbServerProvider::isValid() const
 
     const StartupMode m = startupMode();
 
-    if (m == NoStartup || m == StartupOnNetwork) {
+    if (m == StartupOnNetwork) {
         if (channel().host().isEmpty())
             return false;
     }
@@ -331,9 +330,6 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
     connect(m_targetInterfaceSpeedComboBox, &QComboBox::currentTextChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-
-    connect(m_startupModeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &JLinkGdbServerProviderConfigWidget::startupModeChanged);
     connect(m_hostInterfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &JLinkGdbServerProviderConfigWidget::hostInterfaceChanged);
     connect(m_targetInterfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -364,22 +360,6 @@ void JLinkGdbServerProviderConfigWidget::discard()
     GdbServerProviderConfigWidget::discard();
 }
 
-void JLinkGdbServerProviderConfigWidget::startupModeChanged()
-{
-    const GdbServerProvider::StartupMode m = startupMode();
-    const bool isStartup = m != GdbServerProvider::NoStartup;
-    m_executableFileChooser->setVisible(isStartup);
-    m_mainLayout->labelForField(m_executableFileChooser)->setVisible(isStartup);
-    m_hostInterfaceWidget->setVisible(isStartup);
-    m_mainLayout->labelForField(m_hostInterfaceWidget)->setVisible(isStartup);
-    m_targetInterfaceWidget->setVisible(isStartup);
-    m_mainLayout->labelForField(m_targetInterfaceWidget)->setVisible(isStartup);
-    m_jlinkDeviceLineEdit->setVisible(isStartup);
-    m_mainLayout->labelForField(m_jlinkDeviceLineEdit)->setVisible(isStartup);
-    m_additionalArgumentsTextEdit->setVisible(isStartup);
-    m_mainLayout->labelForField(m_additionalArgumentsTextEdit)->setVisible(isStartup);
-}
-
 void JLinkGdbServerProviderConfigWidget::hostInterfaceChanged()
 {
     const HostInterface selectedInterface = static_cast<HostInterface>(
@@ -405,7 +385,6 @@ void JLinkGdbServerProviderConfigWidget::setFromProvider()
     Q_ASSERT(p);
 
     const QSignalBlocker blocker(this);
-    startupModeChanged();
     m_hostWidget->setChannel(p->channel());
     m_executableFileChooser->setFileName(p->m_executableFile);
     m_jlinkDeviceLineEdit->setText(p->m_jlinkDevice);
@@ -422,4 +401,4 @@ void JLinkGdbServerProviderConfigWidget::setFromProvider()
 }
 
 } // namespace Internal
-} // namespace ProjectExplorer
+} // namespace BareMetal

@@ -52,7 +52,7 @@ public:
     QString channelString() const final;
     Utils::CommandLine command() const final;
 
-    bool canStartupMode(StartupMode mode) const final;
+    QSet<StartupMode> supportedStartupModes() const final;
     bool isValid() const final;
 
 private:
@@ -118,7 +118,6 @@ private:
     void apply() final;
     void discard() final;
 
-    void startupModeChanged();
     void hostInterfaceChanged();
     void targetInterfaceChanged();
     void setFromProvider();

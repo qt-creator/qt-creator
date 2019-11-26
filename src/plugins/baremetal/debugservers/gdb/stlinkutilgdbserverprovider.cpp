@@ -87,8 +87,6 @@ QString StLinkUtilGdbServerProvider::defaultResetCommands()
 QString StLinkUtilGdbServerProvider::channelString() const
 {
     switch (startupMode()) {
-    case NoStartup:
-        // fallback
     case StartupOnNetwork:
         // Just return as "host:port" form.
         return GdbServerProvider::channelString();
@@ -117,9 +115,10 @@ CommandLine StLinkUtilGdbServerProvider::command() const
     return cmd;
 }
 
-bool StLinkUtilGdbServerProvider::canStartupMode(StartupMode m) const
+QSet<GdbServerProvider::StartupMode>
+StLinkUtilGdbServerProvider::supportedStartupModes() const
 {
-    return m == NoStartup || m == StartupOnNetwork;
+    return {StartupOnNetwork};
 }
 
 bool StLinkUtilGdbServerProvider::isValid() const
@@ -129,7 +128,7 @@ bool StLinkUtilGdbServerProvider::isValid() const
 
     const StartupMode m = startupMode();
 
-    if (m == NoStartup || m == StartupOnNetwork) {
+    if (m == StartupOnNetwork) {
         if (channel().host().isEmpty())
             return false;
     }
@@ -287,10 +286,6 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-
-    connect(m_startupModeComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &StLinkUtilGdbServerProviderConfigWidget::startupModeChanged);
 }
 
 void StLinkUtilGdbServerProviderConfigWidget::apply()
@@ -340,22 +335,6 @@ void StLinkUtilGdbServerProviderConfigWidget::setTransportLayer(
     }
 }
 
-void StLinkUtilGdbServerProviderConfigWidget::startupModeChanged()
-{
-    const GdbServerProvider::StartupMode m = startupMode();
-    const bool isStartup = m != GdbServerProvider::NoStartup;
-    m_executableFileChooser->setVisible(isStartup);
-    m_mainLayout->labelForField(m_executableFileChooser)->setVisible(isStartup);
-    m_verboseLevelSpinBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_verboseLevelSpinBox)->setVisible(isStartup);
-    m_extendedModeCheckBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_extendedModeCheckBox)->setVisible(isStartup);
-    m_resetBoardCheckBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_resetBoardCheckBox)->setVisible(isStartup);
-    m_transportLayerComboBox->setVisible(isStartup);
-    m_mainLayout->labelForField(m_transportLayerComboBox)->setVisible(isStartup);
-}
-
 void StLinkUtilGdbServerProviderConfigWidget::populateTransportLayers()
 {
     m_transportLayerComboBox->insertItem(
@@ -372,7 +351,6 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     Q_ASSERT(p);
 
     const QSignalBlocker blocker(this);
-    startupModeChanged();
     m_hostWidget->setChannel(p->channel());
     m_executableFileChooser->setFileName(p->m_executableFile);
     m_verboseLevelSpinBox->setValue(p->m_verboseLevel);
