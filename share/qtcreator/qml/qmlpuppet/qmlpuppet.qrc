@@ -24,6 +24,7 @@
         <file>mockfiles/ScaleRod.qml</file>
         <file>mockfiles/ScaleGizmo.qml</file>
         <file>mockfiles/ToolBarButton.qml</file>
+        <file>mockfiles/ToggleButton.qml</file>
         <file>mockfiles/RotateGizmo.qml</file>
         <file>mockfiles/RotateRing.qml</file>
         <file>mockfiles/SelectionBox.qml</file>
@@ -68,5 +69,17 @@
         <file>mockfiles/images/fit_active@2x.png</file>
         <file>mockfiles/images/fit_selected.png</file>
         <file>mockfiles/images/fit_selected@2x.png</file>
+        <file>mockfiles/images/local.png</file>
+        <file>mockfiles/images/local@2x.png</file>
+        <file>mockfiles/images/global.png</file>
+        <file>mockfiles/images/global@2x.png</file>
+        <file>mockfiles/images/ortho.png</file>
+        <file>mockfiles/images/ortho@2x.png</file>
+        <file>mockfiles/images/persp.png</file>
+        <file>mockfiles/images/persp@2x.png</file>
+        <file>mockfiles/images/edit_light_off.png</file>
+        <file>mockfiles/images/edit_light_off@2x.png</file>
+        <file>mockfiles/images/edit_light_on.png</file>
+        <file>mockfiles/images/edit_light_on@2x.png</file>
     </qresource>
 </RCC>

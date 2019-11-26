@@ -38,8 +38,8 @@ Window {
     flags: Qt.WindowStaysOnTopHint | Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
 
     property alias scene: editView.importScene
-    property alias showEditLight: editLightCheckbox.checked
-    property alias usePerspective: usePerspectiveCheckbox.checked
+    property alias showEditLight: btnEditViewLight.toggled
+    property alias usePerspective: btnPerspective.toggled
 
     property Node selectedNode: null
 
@@ -128,7 +128,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
-            globalOrientation: globalControl.checked
+            globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnMove.selected
             view3D: overlayView
 
@@ -158,7 +158,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
-            globalOrientation: globalControl.checked
+            globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnRotate.selected
             view3D: overlayView
 
@@ -241,7 +241,7 @@ Window {
                     y: 600
                     rotation.x: 45
                     clipFar: 100000
-                    clipNear: 1
+                    clipNear: -10000
                 }
             }
         }
@@ -399,39 +399,43 @@ Window {
         selectedNode : viewWindow.selectedNode ? selectionBox.model : null
     }
 
-    Item {
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        width: 200
-        height: 120
+    Rectangle { // top controls bar
+        color: "#aa000000"
+        width: 265
+        height: btnPerspective.height + 10
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: 100
 
-        Rectangle {
-            anchors.fill: parent
-            color: "white"
-            opacity: 0.3
+        ToggleButton {
+            id: btnPerspective
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            anchors.left: parent.left
+            anchors.leftMargin: 5
+            tooltip: qsTr("Toggle Perspective / Orthographic Projection")
+            states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
         }
 
-        Column {
+        ToggleButton {
+            id: btnLocalGlobal
+            anchors.top: parent.top
+            anchors.topMargin: 5
             anchors.left: parent.left
-            anchors.bottom: parent.bottom
-            CheckBox {
-                id: editLightCheckbox
-                checked: false
-                text: qsTr("Use Edit View Light")
-            }
+            anchors.leftMargin: 100
+            tooltip: qsTr("Toggle Global / Local Orientation")
+            states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
+        }
 
-            CheckBox {
-                id: usePerspectiveCheckbox
-                checked: true
-                text: qsTr("Use Perspective Projection")
-                onCheckedChanged: _generalHelper.requestOverlayUpdate()
-            }
-
-            CheckBox {
-                id: globalControl
-                checked: true
-                text: qsTr("Use Global Orientation")
-            }
+        ToggleButton {
+            id: btnEditViewLight
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            anchors.left: parent.left
+            anchors.leftMargin: 165
+            toggleBackground: true
+            tooltip: qsTr("Toggle Edit Light")
+            states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
         }
     }
 
