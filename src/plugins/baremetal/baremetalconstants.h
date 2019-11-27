@@ -37,10 +37,10 @@ const char MENU_ID[] = "BareMetal.Menu";
 const char DEBUG_SERVER_PROVIDERS_SETTINGS_ID[] = "EE.BareMetal.DebugServerProvidersOptions";
 
 // Debugger Server Provider Ids
-const char OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";
-const char JLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.JLink";
-const char DEFAULT_PROVIDER_ID[] = "BareMetal.GdbServerProvider.Default";
-const char STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
+const char GDBSERVER_OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";
+const char GDBSERVER_JLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.JLink";
+const char GDBSERVER_DEFAULT_PROVIDER_ID[] = "BareMetal.GdbServerProvider.Default";
+const char GDBSERVER_STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
 
 // Toolchain types.
 const char IAREW_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Iar";

@@ -54,7 +54,7 @@ const char transportLayerKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.Transpo
 // StLinkUtilGdbServerProvider
 
 StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
-    : GdbServerProvider(Constants::STLINK_UTIL_PROVIDER_ID)
+    : GdbServerProvider(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID)
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
@@ -193,7 +193,7 @@ GdbServerProviderConfigWidget *StLinkUtilGdbServerProvider::configurationWidget(
 
 StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
 {
-    setId(Constants::STLINK_UTIL_PROVIDER_ID);
+    setId(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID);
     setDisplayName(tr("ST-LINK Utility"));
 }
 
@@ -205,7 +205,7 @@ GdbServerProvider *StLinkUtilGdbServerProviderFactory::create()
 bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
-    return id.startsWith(Constants::STLINK_UTIL_PROVIDER_ID + QLatin1Char(':'));
+    return id.startsWith(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID + QLatin1Char(':'));
 }
 
 GdbServerProvider *StLinkUtilGdbServerProviderFactory::restore(const QVariantMap &data)

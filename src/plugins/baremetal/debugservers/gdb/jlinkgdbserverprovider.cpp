@@ -58,7 +58,7 @@ const char additionalArgumentsKeyC[] = "BareMetal.JLinkGdbServerProvider.Additio
 // JLinkGdbServerProvider
 
 JLinkGdbServerProvider::JLinkGdbServerProvider()
-    : GdbServerProvider(Constants::JLINK_PROVIDER_ID)
+    : GdbServerProvider(Constants::GDBSERVER_JLINK_PROVIDER_ID)
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
@@ -193,7 +193,7 @@ GdbServerProviderConfigWidget *JLinkGdbServerProvider::configurationWidget()
 
 JLinkGdbServerProviderFactory::JLinkGdbServerProviderFactory()
 {
-    setId(Constants::JLINK_PROVIDER_ID);
+    setId(Constants::GDBSERVER_JLINK_PROVIDER_ID);
     setDisplayName(tr("JLink"));
 }
 
@@ -205,7 +205,7 @@ GdbServerProvider *JLinkGdbServerProviderFactory::create()
 bool JLinkGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
-    return id.startsWith(Constants::JLINK_PROVIDER_ID + QLatin1Char(':'));
+    return id.startsWith(Constants::GDBSERVER_JLINK_PROVIDER_ID + QLatin1Char(':'));
 }
 
 GdbServerProvider *JLinkGdbServerProviderFactory::restore(const QVariantMap &data)

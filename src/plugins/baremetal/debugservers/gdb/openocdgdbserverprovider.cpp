@@ -53,7 +53,7 @@ const char additionalArgumentsKeyC[] = "BareMetal.OpenOcdGdbServerProvider.Addit
 // OpenOcdGdbServerProvider
 
 OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
-    : GdbServerProvider(Constants::OPENOCD_PROVIDER_ID)
+    : GdbServerProvider(Constants::GDBSERVER_OPENOCD_PROVIDER_ID)
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
@@ -196,7 +196,7 @@ GdbServerProviderConfigWidget *OpenOcdGdbServerProvider::configurationWidget()
 
 OpenOcdGdbServerProviderFactory::OpenOcdGdbServerProviderFactory()
 {
-    setId(Constants::OPENOCD_PROVIDER_ID);
+    setId(Constants::GDBSERVER_OPENOCD_PROVIDER_ID);
     setDisplayName(tr("OpenOCD"));
 }
 
@@ -208,7 +208,7 @@ GdbServerProvider *OpenOcdGdbServerProviderFactory::create()
 bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
-    return id.startsWith(Constants::OPENOCD_PROVIDER_ID + QLatin1Char(':'));
+    return id.startsWith(Constants::GDBSERVER_OPENOCD_PROVIDER_ID + QLatin1Char(':'));
 }
 
 GdbServerProvider *OpenOcdGdbServerProviderFactory::restore(const QVariantMap &data)
