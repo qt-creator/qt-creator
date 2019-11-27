@@ -71,6 +71,8 @@ public:
 
     void unregisterAutoCompletion();
 
+    QString defaultTitle() const;
+
 private:
     void setupJSEditor();
     void setupUIComponents();
@@ -92,6 +94,7 @@ private:
     QList<BindingEditorDialog::BindingOption> m_bindings;
     bool m_lock = false;
     const QString undefinedString = {"[Undefined]"};
+    const QString titleString = {tr("Binding Editor")};
 };
 
 }

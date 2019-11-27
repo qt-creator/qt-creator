@@ -102,9 +102,16 @@ void BindingEditor::setBackendValue(const QVariant &backendValue)
         m_backendValue = backendValue;
         const QObject *backendValueObj = backendValue.value<QObject*>();
         const PropertyEditorValue *propertyEditorValue = qobject_cast<const PropertyEditorValue *>(backendValueObj);
+        const ModelNode node = propertyEditorValue->modelNode();
 
-        m_backendValueTypeName = propertyEditorValue->modelNode().metaInfo().propertyTypeName(
-                    propertyEditorValue->name());
+        if (node.isValid())
+        {
+            m_backendValueTypeName = node.metaInfo().propertyTypeName(propertyEditorValue->name());
+
+            if (m_backendValueTypeName == "alias" || m_backendValueTypeName == "unknown")
+                if (QmlObjectNode::isValidQmlObjectNode(node))
+                    m_backendValueTypeName = QmlObjectNode(node).instanceType(propertyEditorValue->name());
+        }
 
         emit backendValueChanged();
     }
@@ -154,8 +161,16 @@ void BindingEditor::prepareBindings()
     for (auto objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
         for (auto propertyName : objnode.metaInfo().propertyNames())
-            if (m_backendValueTypeName == objnode.metaInfo().propertyTypeName(propertyName))
+        {
+            TypeName propertyTypeName = objnode.metaInfo().propertyTypeName(propertyName);
+
+            if ((propertyTypeName == "alias" || propertyTypeName == "unknown"))
+                if (QmlObjectNode::isValidQmlObjectNode(objnode))
+                    propertyTypeName = QmlObjectNode(objnode).instanceType(propertyName);
+
+            if (m_backendValueTypeName == propertyTypeName)
                 binding.properties.append(QString::fromUtf8(propertyName));
+        }
 
         if (!binding.properties.isEmpty() && objnode.hasId()) {
             binding.item = objnode.displayName();
@@ -165,6 +180,16 @@ void BindingEditor::prepareBindings()
 
     if (!bindings.isEmpty() && !m_dialog.isNull())
         m_dialog->setAllBindings(bindings);
+
+    updateWindowName();
+}
+
+void BindingEditor::updateWindowName()
+{
+    if (!m_dialog.isNull() && !m_backendValueTypeName.isEmpty())
+    {
+        m_dialog->setWindowTitle(m_dialog->defaultTitle() + " [" + m_backendValueTypeName + "]");
+    }
 }
 
 QVariant BindingEditor::backendValue() const

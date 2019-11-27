@@ -45,7 +45,7 @@ BindingEditorDialog::BindingEditorDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setWindowTitle(tr("Binding Editor"));
+    setWindowTitle(defaultTitle());
     setModal(false);
 
     setupJSEditor();
@@ -151,6 +151,11 @@ void BindingEditorDialog::unregisterAutoCompletion()
 {
     if (m_editorWidget)
         m_editorWidget->unregisterAutoCompletion();
+}
+
+QString BindingEditorDialog::defaultTitle() const
+{
+    return titleString;
 }
 
 void BindingEditorDialog::setupJSEditor()

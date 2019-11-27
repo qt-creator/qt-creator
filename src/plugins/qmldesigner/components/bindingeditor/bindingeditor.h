@@ -62,6 +62,7 @@ public:
     void setStateModelNode(const QVariant &stateModelNode);
 
     Q_INVOKABLE void prepareBindings();
+    Q_INVOKABLE void updateWindowName();
 
 signals:
     void accepted();
