@@ -209,7 +209,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_buildFileContextMenu, &QAction::triggered,
             &d->qmakeProjectManager, &QmakeManager::buildFileContextMenu);
 
-    d->m_buildSubProjectAction = new Utils::ParameterAction(tr("Build Subproject"), tr("Build Subproject \"%1\""),
+    d->m_buildSubProjectAction = new Utils::ParameterAction(tr("Build &Subproject"), tr("Build &Subproject \"%1\""),
                                                          Utils::ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(d->m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
