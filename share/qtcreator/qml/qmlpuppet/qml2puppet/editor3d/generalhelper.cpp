@@ -139,8 +139,9 @@ float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float de
 }
 
 // Return value contains new lookAt point (xyz) and zoom factor (w)
-QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
-                                           QQuick3DNode *targetObject, QQuick3DViewport *viewPort)
+QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                             QQuick3DNode *targetObject, QQuick3DViewport *viewPort,
+                                             float oldZoom, bool updateZoom)
 {
     if (!camera)
         return QVector4D(0.f, 0.f, 0.f, 1.f);
@@ -189,11 +190,10 @@ QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float default
 
     camera->setPosition(lookAt + newLookVector);
 
-    // Emprically determined algorithm for nice zoom
-    float newZoomFactor = qBound(.0001f, float(maxExtent / 700.), 10000.f);
+    float newZoomFactor = updateZoom ? qBound(.0001f, float(maxExtent / 700.), 10000.f) : oldZoom;
+    float cameraZoomFactor = zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
 
-    return QVector4D(lookAt,
-                     zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false));
+    return QVector4D(lookAt, cameraZoomFactor);
 }
 
 void GeneralHelper::delayedPropertySet(QObject *obj, int delay, const QString &property,

@@ -443,7 +443,7 @@ Window {
                     if (selected) {
                         var targetNode = viewWindow.selectedNodes.length > 0
                                 ? selectionBoxes[0].model : null;
-                        cameraControl.fitObject(targetNode, editView.camera.rotation);
+                        cameraControl.focusObject(targetNode, editView.camera.rotation, true);
                     }
                 }
             }

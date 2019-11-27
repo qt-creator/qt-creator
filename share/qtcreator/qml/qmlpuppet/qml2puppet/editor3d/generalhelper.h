@@ -62,8 +62,9 @@ public:
     Q_INVOKABLE float zoomCamera(QQuick3DCamera *camera, float distance,
                                  float defaultLookAtDistance, const QVector3D &lookAt,
                                  float zoomFactor, bool relative);
-    Q_INVOKABLE QVector4D fitObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
-                                            QQuick3DNode *targetObject, QQuick3DViewport *viewPort);
+    Q_INVOKABLE QVector4D focusObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                            QQuick3DNode *targetObject, QQuick3DViewport *viewPort,
+                                            float oldZoom, bool updateZoom = true);
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
 
