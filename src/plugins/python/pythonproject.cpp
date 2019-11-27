@@ -168,6 +168,21 @@ PythonProject::PythonProject(const FilePath &fileName)
     connect(this, &PythonProject::projectFileIsDirty, this, [this]() { refresh(); });
 }
 
+static FileType getFileType(const QString &f)
+{
+    const auto cs = HostOsInfo::isWindowsHost()
+        ? Qt::CaseInsensitive : Qt::CaseSensitive;
+    if (f.endsWith(".pyproject", cs) || f.endsWith(".pyqtc", cs))
+        return FileType::Project;
+    if (f.endsWith(".qrc", cs))
+        return FileType::Resource;
+    if (f.endsWith(".ui", cs))
+        return FileType::Form;
+    if (f.endsWith(".qml", cs) || f.endsWith(".js", cs))
+        return FileType::QML;
+    return FileType::Source;
+}
+
 void PythonProject::refresh(Target *target)
 {
     ParseGuard guard = guardParsingRun();
@@ -178,8 +193,7 @@ void PythonProject::refresh(Target *target)
     auto newRoot = std::make_unique<PythonProjectNode>(this);
     for (const QString &f : qAsConst(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
-        const FileType fileType = f.endsWith(".pyproject") || f.endsWith(".pyqtc") ? FileType::Project
-                                                                                   : FileType::Source;
+        const FileType fileType = getFileType(f);
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(FilePath::fromString(f),
                                                                 displayName, fileType));
         if (fileType == FileType::Source) {
