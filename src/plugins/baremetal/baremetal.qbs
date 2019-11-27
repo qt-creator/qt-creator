@@ -4,7 +4,6 @@ QtcPlugin {
     name: "BareMetal"
 
     Depends { name: "Qt"; submodules: ["network", "widgets"]; }
-    Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }

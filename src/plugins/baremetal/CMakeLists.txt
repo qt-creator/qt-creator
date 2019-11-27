@@ -1,5 +1,4 @@
 add_qtc_plugin(BareMetal
-  DEPENDS QtcSsh
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
     baremetal.qrc
