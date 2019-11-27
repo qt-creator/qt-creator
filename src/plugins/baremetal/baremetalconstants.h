@@ -34,7 +34,7 @@ const char BareMetalOsType[] = "BareMetalOsType";
 const char ACTION_ID[] = "BareMetal.Action";
 const char MENU_ID[] = "BareMetal.Menu";
 
-const char GDB_PROVIDERS_SETTINGS_ID[] = "EE.BareMetal.GdbServerProvidersOptions";
+const char DEBUG_SERVER_PROVIDERS_SETTINGS_ID[] = "EE.BareMetal.DebugServerProvidersOptions";
 
 // Debugger Server Provider Ids
 const char OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";

@@ -447,7 +447,7 @@ QModelIndex DebugServerProvidersSettingsWidget::currentIndex() const
 
 DebugServerProvidersSettingsPage::DebugServerProvidersSettingsPage()
 {
-    setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
+    setId(Constants::DEBUG_SERVER_PROVIDERS_SETTINGS_ID);
     setDisplayName(tr("Bare Metal"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
 }
