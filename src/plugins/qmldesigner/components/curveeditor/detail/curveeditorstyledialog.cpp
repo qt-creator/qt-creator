@@ -81,6 +81,8 @@ CurveEditorStyleDialog::CurveEditorStyleDialog(CurveEditorStyle &style, QWidget 
     , m_playheadColor(new ColorControl(style.playhead.color))
 
 {
+    setWindowFlag(Qt::Tool, true);
+
     m_canvasMargin->setValue(style.canvasMargin);
     m_zoomInWidth->setValue(style.zoomInWidth);
     m_zoomInHeight->setValue(style.zoomInHeight);
