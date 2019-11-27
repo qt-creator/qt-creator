@@ -284,8 +284,14 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
             (const QStringList &flags) {
         Q_UNUSED(flags)
 
-        const Macros macros = dumpPredefinedMacros(compilerCommand, languageId,
-                                                   env.toStringList());
+        Macros macros = dumpPredefinedMacros(compilerCommand, languageId, env.toStringList());
+        macros.append({"__intrinsic", "", MacroType::Define});
+        macros.append({"__nounwind", "", MacroType::Define});
+        macros.append({"__noreturn", "", MacroType::Define});
+        macros.append({"__packed", "", MacroType::Define});
+        macros.append({"__spec_string", "", MacroType::Define});
+        macros.append({"__constrange(__a,__b)", "", MacroType::Define});
+
         const auto languageVersion = ToolChain::languageVersion(languageId, macros);
         const auto report = MacroInspectionReport{macros, languageVersion};
         macrosCache->insert({}, report);
