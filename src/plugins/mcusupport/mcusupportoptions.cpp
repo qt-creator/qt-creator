@@ -261,6 +261,19 @@ void McuTarget::setColorDepth(int colorDepth)
     m_colorDepth = colorDepth;
 }
 
+static QString findInProgramFiles(const QString &folder)
+{
+    for (auto envVar : {"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
+        if (!qEnvironmentVariableIsSet(envVar))
+            continue;
+        const Utils::FilePath dir =
+                Utils::FilePath::fromUserInput(qEnvironmentVariable(envVar) + "/" + folder);
+        if (dir.exists())
+            return dir.toString();
+    }
+    return {};
+}
+
 static McuPackage *createQtForMCUsPackage()
 {
     auto result = new McuPackage(
@@ -280,8 +293,7 @@ static McuPackage *createArmGccPackage()
     if (qEnvironmentVariableIsSet(envVar))
         defaultPath = qEnvironmentVariable(envVar);
     if (defaultPath.isEmpty() && Utils::HostOsInfo::isWindowsHost()) {
-        const QDir installDir(
-                qEnvironmentVariable("ProgramFiles(x86)") + "/GNU Tools ARM Embedded/");
+        const QDir installDir(findInProgramFiles("/GNU Tools ARM Embedded/"));
         if (installDir.exists()) {
             // If GNU Tools installation dir has only one sub dir,
             // select the sub dir, otherwise the installation dir.
@@ -320,11 +332,14 @@ static McuPackage *createStm32CubeFwF7SdkPackage()
 
 static McuPackage *createStm32CubeProgrammerPackage()
 {
-    const QString defaultPath =
-            Utils::HostOsInfo::isWindowsHost() ?
-                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles"))
-                + "/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
-              : QDir::homePath();
+
+    QString defaultPath = QDir::homePath();
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const QString programPath =
+                findInProgramFiles("/STMicroelectronics/STM32Cube/STM32CubeProgrammer/");
+        if (!programPath.isEmpty())
+            defaultPath = programPath;
+    }
     auto result = new McuPackage(
                 McuPackage::tr("STM32CubeProgrammer"),
                 defaultPath,
@@ -351,11 +366,12 @@ static McuPackage *createEvkbImxrt1050SdkPackage()
 
 static McuPackage *createSeggerJLinkPackage()
 {
-    const QString defaultPath =
-            Utils::HostOsInfo::isWindowsHost() ?
-                QDir::fromNativeSeparators(qEnvironmentVariable("ProgramFiles(x86)"))
-                + "/SEGGER/JLink"
-              : QString("%{Env:SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH}");
+    QString defaultPath = QString("%{Env:SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH}");
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const QString programPath = findInProgramFiles("/SEGGER/JLink");
+        if (!programPath.isEmpty())
+            defaultPath = programPath;
+    }
     auto result = new McuPackage(
                 McuPackage::tr("SEGGER JLink"),
                 defaultPath,
