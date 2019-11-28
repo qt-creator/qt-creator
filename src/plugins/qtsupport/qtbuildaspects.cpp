@@ -41,7 +41,7 @@ namespace QtSupport {
 QmlDebuggingAspect::QmlDebuggingAspect()
 {
     setSettingsKey("EnableQmlDebugging");
-    setDisplayName(tr("QML debugging and profiling"));
+    setDisplayName(tr("QML debugging and profiling:"));
 }
 
 void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
@@ -64,8 +64,9 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         }
         warningTextLabel->setText(warningText);
         setVisibleDynamic(supported);
-        warningIconLabel->setVisible(supported && !warningText.isEmpty());
-        warningTextLabel->setVisible(supported);
+        const bool warningLabelsVisible = supported && !warningText.isEmpty();
+        warningIconLabel->setVisible(warningLabelsVisible);
+        warningTextLabel->setVisible(warningLabelsVisible);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
     connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
@@ -75,7 +76,7 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
 QtQuickCompilerAspect::QtQuickCompilerAspect()
 {
     setSettingsKey("QtQuickCompiler");
-    setDisplayName(tr("Qt Quick Compiler"));
+    setDisplayName(tr("Qt Quick Compiler:"));
 }
 
 void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
@@ -99,8 +100,9 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
         }
         warningTextLabel->setText(warningText);
         setVisibleDynamic(supported);
-        warningIconLabel->setVisible(supported && !warningText.isEmpty());
-        warningTextLabel->setVisible(supported);
+        const bool warningLabelsVisible = supported && !warningText.isEmpty();
+        warningIconLabel->setVisible(warningLabelsVisible);
+        warningTextLabel->setVisible(warningLabelsVisible);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
     connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
