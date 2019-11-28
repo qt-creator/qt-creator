@@ -109,7 +109,7 @@ public:
     QAction *startOnCurrentFileAction() const { return m_startOnCurrentFileAction; }
 
 signals:
-    void finished(bool success); // For testing.
+    void finished(const QString &errorText); // For testing.
 
 private:
     enum class State {

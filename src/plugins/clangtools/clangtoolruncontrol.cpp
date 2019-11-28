@@ -319,7 +319,6 @@ void ClangToolRunWorker::start()
     m_runners.clear();
     const int parallelRuns = m_runSettings.parallelJobs();
     QTC_ASSERT(parallelRuns >= 1, reportFailure(); return);
-    m_success = true;
 
     if (m_queue.isEmpty()) {
         finalize();
@@ -420,7 +419,6 @@ void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage
 
     m_filesAnalyzed.remove(fileToAnalyze);
     m_filesNotAnalyzed.insert(fileToAnalyze);
-    m_success = false;
 
     const QString message = tr("Failed to analyze \"%1\": %2").arg(fileToAnalyze, errorMessage);
     appendMessage(message, Utils::StdErrFormat);

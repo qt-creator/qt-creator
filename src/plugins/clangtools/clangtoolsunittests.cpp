@@ -107,19 +107,26 @@ void ClangToolsUnitTests::testProject()
             QSKIP("This test is mingw specific, does not run for other toolchains");
     }
 
+    // Open project
     Tests::ProjectOpenerAndCloser projectManager;
     const ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
-    QVERIFY(projectInfo.isValid());
+    const bool isProjectOpen = projectInfo.isValid();
+    QVERIFY(isProjectOpen);
 
+    // Run tool
     ClangTool *tool = ClangTool::instance();
     tool->startTool(ClangTool::FileSelection::AllFiles,
                     ClangToolsSettings::instance()->runSettings(),
                     diagnosticConfig);
-    QSignalSpy waiter(tool, SIGNAL(finished(bool)));
-    QVERIFY(waiter.wait(30000));
+    QSignalSpy waitForFinishedTool(tool, &ClangTool::finished);
+    QVERIFY(waitForFinishedTool.wait(30000));
 
-    const QList<QVariant> arguments = waiter.takeFirst();
-    QVERIFY(arguments.first().toBool());
+    // Check for errors
+    const QString errorText = waitForFinishedTool.takeFirst().first().toString();
+    const bool finishedSuccessfully = errorText.isEmpty();
+    if (!finishedSuccessfully)
+        qWarning("Error: %s", qPrintable(errorText));
+    QVERIFY(finishedSuccessfully);
     QCOMPARE(tool->diagnostics().count(), expectedDiagCount);
 }
 

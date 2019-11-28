@@ -1063,7 +1063,7 @@ void ClangTool::onRunControlStopped()
 {
     if (m_state != State::StoppedByUser && m_state != State::PreparationFailed)
         setState(State::AnalyzerFinished);
-    emit finished(m_runWorker->success());
+    emit finished(m_infoBarWidget->errorText());
 }
 
 void ClangTool::update()

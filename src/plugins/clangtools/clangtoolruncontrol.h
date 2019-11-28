@@ -72,8 +72,6 @@ public:
                        const FileInfos &fileInfos,
                        bool buildBeforeAnalysis);
 
-    bool success() const { return m_success; } // For testing.
-
     int filesAnalyzed() const { return m_filesAnalyzed.size(); }
     int filesNotAnalyzed() const { return m_filesNotAnalyzed.size(); }
     int totalFilesToAnalyze() const { return m_fileInfos.size(); }
@@ -125,7 +123,6 @@ private:
     int m_initialQueueSize = 0;
     QSet<QString> m_filesAnalyzed;
     QSet<QString> m_filesNotAnalyzed;
-    bool m_success = false;
 };
 
 } // namespace Internal
