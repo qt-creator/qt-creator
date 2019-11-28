@@ -55,8 +55,6 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const override;
 
-    virtual QString channelString() const;
-
     QVariantMap toMap() const override;
 
     virtual Utils::CommandLine command() const;
@@ -69,10 +67,6 @@ public:
     bool isValid() const override;
     virtual QSet<StartupMode> supportedStartupModes() const = 0;
 
-    QUrl channel() const;
-    void setChannel(const QUrl &channelString);
-    void setDefaultChannel(const QString &host, int port);
-
 protected:
     explicit GdbServerProvider(const QString &id);
     explicit GdbServerProvider(const GdbServerProvider &other);
@@ -81,12 +75,9 @@ protected:
     void setInitCommands(const QString &);
     void setResetCommands(const QString &);
     void setUseExtendedRemote(bool);
-    void setSettingsKeyBase(const QString &settingsBase);
 
     bool fromMap(const QVariantMap &data) override;
 
-    QString m_settingsBase;
-    QUrl m_channel;
     StartupMode m_startupMode = StartupOnNetwork;
     QString m_initCommands;
     QString m_resetCommands;

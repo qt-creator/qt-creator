@@ -67,6 +67,12 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
+    QUrl channel() const;
+    void setChannel(const QUrl &channel);
+    void setChannel(const QString &host, int port);
+
+    virtual QString channelString() const;
+
     QString id() const;
     QString typeDisplayName() const;
     Debugger::DebuggerEngineType engineType() const;
@@ -95,6 +101,7 @@ protected:
 
     void setTypeDisplayName(const QString &typeDisplayName);
     void setEngineType(Debugger::DebuggerEngineType engineType);
+    void setSettingsKeyBase(const QString &settingsBase);
 
     void providerUpdated();
 
@@ -103,6 +110,8 @@ protected:
     QString m_id;
     mutable QString m_displayName;
     QString m_typeDisplayName;
+    QString m_settingsBase;
+    QUrl m_channel;
     Debugger::DebuggerEngineType m_engineType = Debugger::NoEngineType;
     QSet<BareMetalDevice *> m_devices;
 

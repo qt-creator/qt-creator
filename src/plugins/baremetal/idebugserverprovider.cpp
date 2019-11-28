@@ -44,6 +44,9 @@ const char idKeyC[] = "BareMetal.IDebugServerProvider.Id";
 const char displayNameKeyC[] = "BareMetal.IDebugServerProvider.DisplayName";
 const char engineTypeKeyC[] = "BareMetal.IDebugServerProvider.EngineType";
 
+const char hostKeySuffixC[] = ".Host";
+const char portKeySuffixC[] = ".Port";
+
 static QString createId(const QString &id)
 {
     QString newId = id.left(id.indexOf(':'));
@@ -89,6 +92,30 @@ void IDebugServerProvider::setDisplayName(const QString &name)
     providerUpdated();
 }
 
+void IDebugServerProvider::setChannel(const QUrl &channel)
+{
+    m_channel = channel;
+}
+
+void IDebugServerProvider::setChannel(const QString &host, int port)
+{
+    m_channel.setHost(host);
+    m_channel.setPort(port);
+}
+
+QUrl IDebugServerProvider::channel() const
+{
+    return m_channel;
+}
+
+QString IDebugServerProvider::channelString() const
+{
+    // Just return as "host:port" form.
+    if (m_channel.port() <= 0)
+        return m_channel.host();
+    return m_channel.host() + ':' + QString::number(m_channel.port());
+}
+
 QString IDebugServerProvider::id() const
 {
     return m_id;
@@ -117,6 +144,11 @@ void IDebugServerProvider::setEngineType(Debugger::DebuggerEngineType engineType
     providerUpdated();
 }
 
+void IDebugServerProvider::setSettingsKeyBase(const QString &settingsBase)
+{
+    m_settingsBase = settingsBase;
+}
+
 bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
 {
     if (this == &other)
@@ -127,7 +159,8 @@ bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
 
     // We ignore displayname
     return thisId == otherId
-            && m_engineType == other.m_engineType;
+            && m_engineType == other.m_engineType
+            && m_channel == other.m_channel;
 }
 
 QVariantMap IDebugServerProvider::toMap() const
@@ -135,7 +168,9 @@ QVariantMap IDebugServerProvider::toMap() const
     return {
         {idKeyC, m_id},
         {displayNameKeyC, m_displayName},
-        {engineTypeKeyC, m_engineType}
+        {engineTypeKeyC, m_engineType},
+        {m_settingsBase + hostKeySuffixC, m_channel.host()},
+        {m_settingsBase + portKeySuffixC, m_channel.port()},
     };
 }
 
@@ -160,6 +195,8 @@ bool IDebugServerProvider::fromMap(const QVariantMap &data)
     m_displayName = data.value(displayNameKeyC).toString();
     m_engineType = static_cast<Debugger::DebuggerEngineType>(
                 data.value(engineTypeKeyC, Debugger::NoEngineType).toInt());
+    m_channel.setHost(data.value(m_settingsBase + hostKeySuffixC).toString());
+    m_channel.setPort(data.value(m_settingsBase + portKeySuffixC).toInt());
     return true;
 }
 

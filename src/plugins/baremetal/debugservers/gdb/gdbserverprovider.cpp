@@ -53,9 +53,6 @@ const char initCommandsKeyC[] = "BareMetal.GdbServerProvider.InitCommands";
 const char resetCommandsKeyC[] = "BareMetal.GdbServerProvider.ResetCommands";
 const char useExtendedRemoteKeyC[] = "BareMetal.GdbServerProvider.UseExtendedRemote";
 
-const char hostKeySuffixC[] = ".Host";
-const char portKeySuffixC[] = ".Port";
-
 // GdbServerProvider
 
 GdbServerProvider::GdbServerProvider(const QString &id)
@@ -114,22 +111,6 @@ void GdbServerProvider::setResetCommands(const QString &cmds)
     m_resetCommands = cmds;
 }
 
-void GdbServerProvider::setChannel(const QUrl &channel)
-{
-    m_channel = channel;
-}
-
-void GdbServerProvider::setDefaultChannel(const QString &host, int port)
-{
-    m_channel.setHost(host);
-    m_channel.setPort(port);
-}
-
-QUrl GdbServerProvider::channel() const
-{
-    return m_channel;
-}
-
 Utils::CommandLine GdbServerProvider::command() const
 {
     return {};
@@ -141,19 +122,10 @@ bool GdbServerProvider::operator==(const IDebugServerProvider &other) const
         return false;
 
     const auto p = static_cast<const GdbServerProvider *>(&other);
-    return m_channel == p->m_channel
-            && m_startupMode == p->m_startupMode
+    return m_startupMode == p->m_startupMode
             && m_initCommands == p->m_initCommands
             && m_resetCommands == p->m_resetCommands
             && m_useExtendedRemote == p->m_useExtendedRemote;
-}
-
-QString GdbServerProvider::channelString() const
-{
-    // Just return as "host:port" form.
-    if (m_channel.port() <= 0)
-        return m_channel.host();
-    return m_channel.host() + ':' + QString::number(m_channel.port());
 }
 
 QVariantMap GdbServerProvider::toMap() const
@@ -163,8 +135,6 @@ QVariantMap GdbServerProvider::toMap() const
     data.insert(initCommandsKeyC, m_initCommands);
     data.insert(resetCommandsKeyC, m_resetCommands);
     data.insert(useExtendedRemoteKeyC, m_useExtendedRemote);
-    data.insert(m_settingsBase + hostKeySuffixC, m_channel.host());
-    data.insert(m_settingsBase + portKeySuffixC, m_channel.port());
     return data;
 }
 
@@ -230,14 +200,7 @@ bool GdbServerProvider::fromMap(const QVariantMap &data)
     m_initCommands = data.value(initCommandsKeyC).toString();
     m_resetCommands = data.value(resetCommandsKeyC).toString();
     m_useExtendedRemote = data.value(useExtendedRemoteKeyC).toBool();
-    m_channel.setHost(data.value(m_settingsBase + hostKeySuffixC).toString());
-    m_channel.setPort(data.value(m_settingsBase + portKeySuffixC).toInt());
     return true;
-}
-
-void GdbServerProvider::setSettingsKeyBase(const QString &settingsBase)
-{
-    m_settingsBase = settingsBase;
 }
 
 // GdbServerProviderConfigWidget

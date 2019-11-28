@@ -57,7 +57,7 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
-    setDefaultChannel("localhost", 3333);
+    setChannel("localhost", 3333);
     setSettingsKeyBase("BareMetal.OpenOcdGdbServerProvider");
     setTypeDisplayName(OpenOcdGdbServerProviderFactory::tr("OpenOCD"));
 }

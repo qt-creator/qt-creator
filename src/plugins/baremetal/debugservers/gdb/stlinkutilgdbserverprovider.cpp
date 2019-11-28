@@ -58,7 +58,7 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
-    setDefaultChannel("localhost", 4242);
+    setChannel("localhost", 4242);
     setSettingsKeyBase("BareMetal.StLinkUtilGdbServerProvider");
     setTypeDisplayName(StLinkUtilGdbServerProviderFactory::tr("ST-LINK Utility"));
 }
