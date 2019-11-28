@@ -41,7 +41,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -130,6 +129,13 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
     connect(target, &Target::parsingFinished, this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(target, &Target::kitChanged, this, &QmakeBuildConfiguration::updateProblemLabel);
 
+    const auto separateDebugInfoAspect = addAspect<SeparateDebugInfoAspect>();
+    connect(separateDebugInfoAspect, &SeparateDebugInfoAspect::changed, this, [this] {
+        emit separateDebugInfoChanged();
+        emit qmakeBuildConfigurationChanged();
+        qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
+    });
+
 }
 
 void QmakeBuildConfiguration::initialize()
@@ -157,7 +163,8 @@ void QmakeBuildConfiguration::initialize()
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
     qmakeStep->setLinkQmlDebuggingLibrary(qmakeExtra.config.linkQmlDebuggingQQ2);
-    qmakeStep->setSeparateDebugInfo(qmakeExtra.config.separateDebugInfo);
+    if (qmakeExtra.config.separateDebugInfo == SeparateDebugInfoAspect::Value::Enabled)
+        forceSeparateDebugInfo(true);
     qmakeStep->setUseQtQuickCompiler(qmakeExtra.config.useQtQuickCompiler);
 
     setQMakeBuildConfiguration(config);
@@ -386,6 +393,18 @@ bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
 {
     return isBuildDirAtSafeLocation(project()->projectDirectory().toString(),
                                     buildDirectory().toString());
+}
+
+SeparateDebugInfoAspect::Value QmakeBuildConfiguration::separateDebugInfo() const
+{
+    return aspect<SeparateDebugInfoAspect>()->setting();
+}
+
+void QmakeBuildConfiguration::forceSeparateDebugInfo(bool sepDebugInfo)
+{
+    aspect<SeparateDebugInfoAspect>()->setSetting(sepDebugInfo
+                                                  ? SeparateDebugInfoAspect::Value::Enabled
+                                                  : SeparateDebugInfoAspect::Value::Disabled);
 }
 
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
@@ -684,7 +703,7 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
             info.displayName = tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = tr("Profile", "Shadow build directory suffix");
-            extraInfo.config.separateDebugInfo = true;
+            extraInfo.config.separateDebugInfo = SeparateDebugInfoAspect::Value::Enabled;
             if (version && version->isQtQuickCompilerSupported())
                 extraInfo.config.useQtQuickCompiler = true;
         }
@@ -747,13 +766,11 @@ QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Kit *k, c
 
 BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 {
-    QMakeStep *qs = qmakeStep();
     if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         return Debug;
-    else if (qs && qs->separateDebugInfo())
+    if (separateDebugInfo() == SeparateDebugInfoAspect::Value::Enabled)
         return Profile;
-    else
-        return Release;
+    return Release;
 }
 
 void QmakeBuildConfiguration::addToEnvironment(Environment &env) const

@@ -28,6 +28,7 @@
 #include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/buildaspects.h>
 
 #include <utils/fileutils.h>
 
@@ -83,9 +84,10 @@ public:
     QString targetTriple;
     TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
+    ProjectExplorer::SeparateDebugInfoAspect::Value separateDebugInfo
+        = ProjectExplorer::SeparateDebugInfoAspect::Value::Default;
     bool linkQmlDebuggingQQ2 = false;
     bool useQtQuickCompiler = false;
-    bool separateDebugInfo = false;
 };
 
 
@@ -102,7 +104,8 @@ inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {
 
 inline QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
 {
-   dbg << c.archConfig << c.osType << c.linkQmlDebuggingQQ2 << c.useQtQuickCompiler << c.separateDebugInfo;
+   dbg << c.archConfig << c.osType << c.linkQmlDebuggingQQ2 << c.useQtQuickCompiler
+       << (c.separateDebugInfo == ProjectExplorer::SeparateDebugInfoAspect::Value::Enabled);
    return dbg;
 }
 
@@ -151,8 +154,6 @@ public:
     void setLinkQmlDebuggingLibrary(bool enable);
     bool useQtQuickCompiler() const;
     void setUseQtQuickCompiler(bool enable);
-    bool separateDebugInfo() const;
-    void setSeparateDebugInfo(bool enable);
 
     Utils::FilePath makeCommand() const;
     QString makeArguments(const QString &makefile) const;
@@ -165,7 +166,6 @@ signals:
     void extraArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
     void useQtQuickCompilerChanged();
-    void separateDebugInfoChanged();
 
 protected:
     bool fromMap(const QVariantMap &map) override;
@@ -198,7 +198,6 @@ private:
     bool m_linkQmlDebuggingLibrary = false;
     bool m_useQtQuickCompiler = false;
     bool m_scriptTemplate = false;
-    bool m_separateDebugInfo = false;
 };
 
 
@@ -224,7 +223,6 @@ private:
     void buildConfigurationSelected();
     void linkQmlDebuggingLibraryChecked(bool checked);
     void useQtQuickCompilerChecked(bool checked);
-    void separateDebugInfoChecked(bool checked);
     void askForRebuild(const QString &title);
 
     void recompileMessageBoxFinished(int button);
@@ -242,7 +240,6 @@ private:
     QLabel *abisLabel = nullptr;
     QComboBox *buildConfigurationComboBox = nullptr;
     QLineEdit *qmakeAdditonalArgumentsLineEdit = nullptr;
-    QCheckBox *separateDebugInfoCheckBox = nullptr;
     QLabel *debuggingLibraryLabel = nullptr;
     QCheckBox *qmlDebuggingLibraryCheckBox = nullptr;
     QCheckBox *qtQuickCompilerCheckBox = nullptr;

@@ -224,7 +224,7 @@ void MakeFileParse::parseAssignments(QList<QMakeAssignment> *assignments)
     }
 
     if (foundForceDebugInfo && foundSeparateDebugInfo) {
-        m_config.separateDebugInfo = true;
+        m_config.separateDebugInfo = ProjectExplorer::SeparateDebugInfoAspect::Value::Enabled;
     } else if (foundForceDebugInfo) {
         // Found only force_debug_info, so readd it
         QMakeAssignment newQA;
@@ -376,7 +376,8 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
     qCDebug(logging()) << "  OsType" << m_config.osType;
     qCDebug(logging()) << "  LinkQmlDebuggingQQ2" << m_config.linkQmlDebuggingQQ2;
     qCDebug(logging()) << "  Qt Quick Compiler" << m_config.useQtQuickCompiler;
-    qCDebug(logging()) << "  Separate Debug Info" << m_config.separateDebugInfo;
+    qCDebug(logging()) << "  Separate Debug Info"
+                       << (m_config.separateDebugInfo == ProjectExplorer::SeparateDebugInfoAspect::Value::Enabled);
 
     // Create command line of all unfiltered arguments
     foreach (const QMakeAssignment &qa, assignments)
@@ -523,6 +524,7 @@ void QmakeProjectManagerPlugin::testMakefileParser()
     QCOMPARE(qmsc.osType, static_cast<QMakeStepConfig::OsType>(osType));
     QCOMPARE(qmsc.linkQmlDebuggingQQ2, linkQmlDebuggingQQ2);
     QCOMPARE(qmsc.useQtQuickCompiler, useQtQuickCompiler);
-    QCOMPARE(qmsc.separateDebugInfo, separateDebugInfo);
+    QCOMPARE(qmsc.separateDebugInfo == ProjectExplorer::SeparateDebugInfoAspect::Value::Enabled,
+             separateDebugInfo);
 }
 #endif

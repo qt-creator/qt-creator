@@ -27,6 +27,7 @@
 
 #include "qmakeprojectmanager_global.h"
 
+#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
@@ -95,10 +96,15 @@ public:
     static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);
     bool isBuildDirAtSafeLocation() const;
 
+    ProjectExplorer::SeparateDebugInfoAspect::Value separateDebugInfo() const;
+    void forceSeparateDebugInfo(bool sepDebugInfo);
+
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
+
+    void separateDebugInfoChanged(); // TODO: Check whether really needed.
 
 protected:
     bool fromMap(const QVariantMap &map) override;
