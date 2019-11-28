@@ -27,7 +27,7 @@
 
 #include "qmakeprojectmanager_global.h"
 
-#include <projectexplorer/buildaspects.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
@@ -43,6 +43,9 @@ class QmakeProFileNode;
 class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
+
+    // used in DebuggerRunConfigurationAspect
+    Q_PROPERTY(bool linkQmlDebuggingLibrary READ linkQmlDebuggingLibrary NOTIFY qmlDebuggingChanged)
 
 public:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
@@ -96,15 +99,24 @@ public:
     static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);
     bool isBuildDirAtSafeLocation() const;
 
-    ProjectExplorer::SeparateDebugInfoAspect::Value separateDebugInfo() const;
+    ProjectExplorer::BaseTriStateAspect::Value separateDebugInfo() const;
     void forceSeparateDebugInfo(bool sepDebugInfo);
+
+    ProjectExplorer::BaseTriStateAspect::Value qmlDebugging() const;
+    bool linkQmlDebuggingLibrary() const;
+    void forceQmlDebugging(bool enable);
+
+    ProjectExplorer::BaseTriStateAspect::Value useQtQuickCompiler() const;
+    void forceQtQuickCompiler(bool enable);
 
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
 
-    void separateDebugInfoChanged(); // TODO: Check whether really needed.
+    void separateDebugInfoChanged();
+    void qmlDebuggingChanged();
+    void useQtQuickCompilerChanged();
 
 protected:
     bool fromMap(const QVariantMap &map) override;

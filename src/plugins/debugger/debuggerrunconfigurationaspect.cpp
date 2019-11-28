@@ -241,20 +241,13 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
             return false;
 
         //
-        // Try to find a build step (qmake) to check whether qml debugging is enabled there
-        // (Using the Qt metatype system to avoid a hard qt4projectmanager dependency)
+        // Try to find a build configuration to check whether qml debugging is enabled there
+        // (Using the Qt metatype system to avoid a hard build system dependency)
         //
         if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
-            QVariant linkProperty = bc->property("linkQmlDebuggingLibrary");
+            const QVariant linkProperty = bc->property("linkQmlDebuggingLibrary");
             if (linkProperty.isValid() && linkProperty.canConvert(QVariant::Bool))
                 return linkProperty.toBool();
-            if (BuildStepList *bsl = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)) {
-                foreach (BuildStep *step, bsl->steps()) {
-                    QVariant linkProperty = step->property("linkQmlDebuggingLibrary");
-                    if (linkProperty.isValid() && linkProperty.canConvert(QVariant::Bool))
-                        return linkProperty.toBool();
-                }
-            }
         }
 
         return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);

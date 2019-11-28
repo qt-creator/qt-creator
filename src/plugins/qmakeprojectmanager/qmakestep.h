@@ -28,7 +28,7 @@
 #include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/buildaspects.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 
 #include <utils/fileutils.h>
 
@@ -84,10 +84,12 @@ public:
     QString targetTriple;
     TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
-    ProjectExplorer::SeparateDebugInfoAspect::Value separateDebugInfo
-        = ProjectExplorer::SeparateDebugInfoAspect::Value::Default;
-    bool linkQmlDebuggingQQ2 = false;
-    bool useQtQuickCompiler = false;
+    ProjectExplorer::BaseTriStateAspect::Value separateDebugInfo
+        = ProjectExplorer::BaseTriStateAspect::Value::Default;
+    ProjectExplorer::BaseTriStateAspect::Value linkQmlDebuggingQQ2
+        = ProjectExplorer::BaseTriStateAspect::Value::Default;
+    ProjectExplorer::BaseTriStateAspect::Value useQtQuickCompiler
+        = ProjectExplorer::BaseTriStateAspect::Value::Default;
 };
 
 
@@ -104,8 +106,10 @@ inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {
 
 inline QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
 {
-   dbg << c.archConfig << c.osType << c.linkQmlDebuggingQQ2 << c.useQtQuickCompiler
-       << (c.separateDebugInfo == ProjectExplorer::SeparateDebugInfoAspect::Value::Enabled);
+   dbg << c.archConfig << c.osType
+       << (c.linkQmlDebuggingQQ2 == ProjectExplorer::BaseTriStateAspect::Value::Enabled)
+       << (c.useQtQuickCompiler == ProjectExplorer::BaseTriStateAspect::Value::Enabled)
+       << (c.separateDebugInfo == ProjectExplorer::BaseTriStateAspect::Value::Enabled);
    return dbg;
 }
 
@@ -113,9 +117,6 @@ class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractPro
 {
     Q_OBJECT
     friend class Internal::QMakeStepFactory;
-
-    // used in DebuggerRunConfigurationAspect
-    Q_PROPERTY(bool linkQmlDebuggingLibrary READ linkQmlDebuggingLibrary WRITE setLinkQmlDebuggingLibrary NOTIFY linkQmlDebuggingLibraryChanged)
 
 public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
@@ -150,10 +151,6 @@ public:
     QStringList extraParserArguments() const;
     void setExtraParserArguments(const QStringList &args);
     QString mkspec() const;
-    bool linkQmlDebuggingLibrary() const;
-    void setLinkQmlDebuggingLibrary(bool enable);
-    bool useQtQuickCompiler() const;
-    void setUseQtQuickCompiler(bool enable);
 
     Utils::FilePath makeCommand() const;
     QString makeArguments(const QString &makefile) const;
@@ -164,8 +161,6 @@ public:
 signals:
     void userArgumentsChanged();
     void extraArgumentsChanged();
-    void linkQmlDebuggingLibraryChanged();
-    void useQtQuickCompilerChanged();
 
 protected:
     bool fromMap(const QVariantMap &map) override;
@@ -195,8 +190,6 @@ private:
     bool m_needToRunQMake = false; // set in init(), read in run()
 
     bool m_runMakeQmake = false;
-    bool m_linkQmlDebuggingLibrary = false;
-    bool m_useQtQuickCompiler = false;
     bool m_scriptTemplate = false;
 };
 
@@ -221,15 +214,11 @@ private:
     // slots for dealing with user changes in our UI
     void qmakeArgumentsLineEdited();
     void buildConfigurationSelected();
-    void linkQmlDebuggingLibraryChecked(bool checked);
-    void useQtQuickCompilerChecked(bool checked);
     void askForRebuild(const QString &title);
 
     void recompileMessageBoxFinished(int button);
 
     void updateSummaryLabel();
-    void updateQmlDebuggingOption();
-    void updateQtQuickCompilerOption();
     void updateEffectiveQMakeCall();
 
     QMakeStep *m_step = nullptr;
@@ -240,16 +229,8 @@ private:
     QLabel *abisLabel = nullptr;
     QComboBox *buildConfigurationComboBox = nullptr;
     QLineEdit *qmakeAdditonalArgumentsLineEdit = nullptr;
-    QLabel *debuggingLibraryLabel = nullptr;
-    QCheckBox *qmlDebuggingLibraryCheckBox = nullptr;
-    QCheckBox *qtQuickCompilerCheckBox = nullptr;
     QPlainTextEdit *qmakeArgumentsEdit = nullptr;
     QListWidget *abisListWidget = nullptr;
-    QLabel *qmlDebuggingWarningIcon = nullptr;
-    QLabel *qmlDebuggingWarningText = nullptr;
-    QLabel *qtQuickCompilerLabel = nullptr;
-    QLabel *qtQuickCompilerWarningIcon = nullptr;
-    QLabel *qtQuickCompilerWarningText = nullptr;
 };
 
 } // namespace QmakeProjectManager

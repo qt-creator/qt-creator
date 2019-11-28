@@ -41,6 +41,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -50,6 +51,7 @@
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 
+#include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -136,6 +138,21 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
+    const auto qmlDebuggingAspect = addAspect<QmlDebuggingAspect>();
+    qmlDebuggingAspect->setKit(target->kit());
+    connect(qmlDebuggingAspect, &QmlDebuggingAspect::changed, this, [this] {
+        emit qmlDebuggingChanged();
+        emit qmakeBuildConfigurationChanged();
+        qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
+    });
+
+    const auto qtQuickCompilerAspect = addAspect<QtQuickCompilerAspect>();
+    qtQuickCompilerAspect->setKit(target->kit());
+    connect(qtQuickCompilerAspect, &QtQuickCompilerAspect::changed, this, [this] {
+        emit useQtQuickCompilerChanged();
+        emit qmakeBuildConfigurationChanged();
+        qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
+    });
 }
 
 void QmakeBuildConfiguration::initialize()
@@ -162,10 +179,16 @@ void QmakeBuildConfiguration::initialize()
     QString additionalArguments = qmakeExtra.additionalArguments;
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
-    qmakeStep->setLinkQmlDebuggingLibrary(qmakeExtra.config.linkQmlDebuggingQQ2);
     if (qmakeExtra.config.separateDebugInfo == SeparateDebugInfoAspect::Value::Enabled)
         forceSeparateDebugInfo(true);
-    qmakeStep->setUseQtQuickCompiler(qmakeExtra.config.useQtQuickCompiler);
+    if (qmakeExtra.config.linkQmlDebuggingQQ2 != QmlDebuggingAspect::Value::Default) {
+        forceQmlDebugging(qmakeExtra.config.linkQmlDebuggingQQ2
+                          == QmlDebuggingAspect::Value::Enabled);
+    }
+    if (qmakeExtra.config.useQtQuickCompiler != QtQuickCompilerAspect::Value::Default) {
+        forceQtQuickCompiler(qmakeExtra.config.useQtQuickCompiler
+                             == QtQuickCompilerAspect::Value::Enabled);
+    }
 
     setQMakeBuildConfiguration(config);
 
@@ -405,6 +428,35 @@ void QmakeBuildConfiguration::forceSeparateDebugInfo(bool sepDebugInfo)
     aspect<SeparateDebugInfoAspect>()->setSetting(sepDebugInfo
                                                   ? SeparateDebugInfoAspect::Value::Enabled
                                                   : SeparateDebugInfoAspect::Value::Disabled);
+}
+
+BaseTriStateAspect::Value QmakeBuildConfiguration::qmlDebugging() const
+{
+    return aspect<QmlDebuggingAspect>()->setting();
+}
+
+bool QmakeBuildConfiguration::linkQmlDebuggingLibrary() const
+{
+    return qmlDebugging() == QmlDebuggingAspect::Value::Enabled;
+}
+
+void QmakeBuildConfiguration::forceQmlDebugging(bool enable)
+{
+    aspect<QmlDebuggingAspect>()->setSetting(enable
+                                             ? QmlDebuggingAspect::Value::Enabled
+                                             : QmlDebuggingAspect::Value::Disabled);
+}
+
+BaseTriStateAspect::Value QmakeBuildConfiguration::useQtQuickCompiler() const
+{
+    return aspect<QtQuickCompilerAspect>()->setting();
+}
+
+void QmakeBuildConfiguration::forceQtQuickCompiler(bool enable)
+{
+    aspect<QtQuickCompilerAspect>()->setSetting(enable
+                                                ? QtQuickCompilerAspect::Value::Enabled
+                                                : QtQuickCompilerAspect::Value::Disabled);
 }
 
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
@@ -691,7 +743,7 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Release", "Shadow build directory suffix");
         if (version && version->isQtQuickCompilerSupported())
-            extraInfo.config.useQtQuickCompiler = true;
+            extraInfo.config.useQtQuickCompiler = QtQuickCompilerAspect::Value::Enabled;
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
@@ -705,10 +757,10 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
             suffix = tr("Profile", "Shadow build directory suffix");
             extraInfo.config.separateDebugInfo = SeparateDebugInfoAspect::Value::Enabled;
             if (version && version->isQtQuickCompilerSupported())
-                extraInfo.config.useQtQuickCompiler = true;
+                extraInfo.config.useQtQuickCompiler = QtQuickCompilerAspect::Value::Enabled;
         }
         if (version && version->isQmlDebuggingSupported())
-            extraInfo.config.linkQmlDebuggingQQ2 = true;
+            extraInfo.config.linkQmlDebuggingQQ2 = QmlDebuggingAspect::Value::Enabled;
     }
     info.typeName = info.displayName;
     // Leave info.buildDirectory unset;
