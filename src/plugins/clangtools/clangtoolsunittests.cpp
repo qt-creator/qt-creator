@@ -70,7 +70,7 @@ void ClangToolsUnitTests::initTestCase()
     if (Core::ICore::clangExecutable(CLANG_BINDIR).isEmpty())
         QSKIP("No clang suitable for analyzing found");
 
-    m_tmpDir = new Tests::TemporaryCopiedDir(QLatin1String(":/unit-tests"));
+    m_tmpDir = new Tests::TemporaryCopiedDir(":/clangtools/unit-tests");
     QVERIFY(m_tmpDir->isValid());
 }
 

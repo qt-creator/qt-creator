@@ -2350,7 +2350,7 @@ void DebuggerUnitTests::initTestCase()
 //        QSKIP("No clang suitable for analyzing found");
 
     s_testRun = true;
-    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/unit-tests");
+    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/debugger/unit-tests");
     QVERIFY(m_tmpDir->isValid());
 }
 

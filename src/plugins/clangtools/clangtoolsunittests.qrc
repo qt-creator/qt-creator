@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/clangtools">
         <file>unit-tests/simple/main.cpp</file>
         <file>unit-tests/simple/simple.qbs</file>
         <file>unit-tests/simple/simple.pro</file>
