@@ -78,13 +78,13 @@ public:
     bool noAutomaticHighlighting = false;
 };
 
-static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemoved, int charsAdded) {
-
+static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsDelta)
+{
     if (range.start >= from) {
-        range.start += charsAdded - charsRemoved;
+        range.start += charsDelta;
         return true;
     } else if (range.start + range.length > from) {
-        range.length += charsAdded - charsRemoved;
+        range.length += charsDelta;
         return true;
     }
     return false;
@@ -105,32 +105,24 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
 
     QTextLayout *layout = currentBlock.layout();
 
-    QVector<QTextLayout::FormatRange> ranges = layout->formats();
+    QVector<QTextLayout::FormatRange> ranges;
+    QVector<QTextLayout::FormatRange> oldRanges;
+    std::tie(ranges, oldRanges)
+        = Utils::partition(layout->formats(), [](const QTextLayout::FormatRange &range) {
+              return range.format.property(QTextFormat::UserProperty).toBool();
+          });
 
-    bool doAdjustRange = currentBlock.contains(from);
-
-    QVector<QTextLayout::FormatRange> old_ranges;
-
-    if (!ranges.isEmpty()) {
-        auto it = ranges.begin();
-        while (it != ranges.end()) {
-            if (it->format.property(QTextFormat::UserProperty).toBool()) {
-                if (doAdjustRange)
-                    formatsChanged = adjustRange(*it, from - currentBlock.position(), charsRemoved, charsAdded)
-                            || formatsChanged;
-                ++it;
-            } else {
-                old_ranges.append(*it);
-                it = ranges.erase(it);
-            }
-        }
+    if (currentBlock.contains(from)) {
+        const int charsDelta = charsAdded - charsRemoved;
+        for (QTextLayout::FormatRange &range : ranges)
+            formatsChanged |= adjustRange(range, from - currentBlock.position(), charsDelta);
     }
 
     QTextCharFormat emptyFormat;
 
     QTextLayout::FormatRange r;
 
-    QVector<QTextLayout::FormatRange> new_ranges;
+    QVector<QTextLayout::FormatRange> newRanges;
     int i = 0;
     while (i < formatChanges.count()) {
 
@@ -148,19 +140,19 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
 
         r.length = i - r.start;
 
-        new_ranges << r;
+        newRanges << r;
     }
 
-    formatsChanged = formatsChanged || (new_ranges.size() != old_ranges.size());
+    formatsChanged = formatsChanged || (newRanges.size() != oldRanges.size());
 
-    for (int i = 0; !formatsChanged && i < new_ranges.size(); ++i) {
-        const QTextLayout::FormatRange &o = old_ranges.at(i);
-        const QTextLayout::FormatRange &n = new_ranges.at(i);
+    for (int i = 0; !formatsChanged && i < newRanges.size(); ++i) {
+        const QTextLayout::FormatRange &o = oldRanges.at(i);
+        const QTextLayout::FormatRange &n = newRanges.at(i);
         formatsChanged = (o.start != n.start || o.length != n.length || o.format != n.format);
     }
 
     if (formatsChanged) {
-        ranges.append(new_ranges);
+        ranges.append(newRanges);
         layout->setFormats(ranges);
         doc->markContentsDirty(currentBlock.position(), currentBlock.length());
     }
