@@ -567,7 +567,8 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarge
     if (Utils::HostOsInfo::isWindowsHost())
         pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath())); // for jom
     pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
-    changes.append({"Path", pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
+    const QString path = Utils::HostOsInfo().isWindowsHost() ? "Path" : "PATH";
+    changes.append({path, pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
 
