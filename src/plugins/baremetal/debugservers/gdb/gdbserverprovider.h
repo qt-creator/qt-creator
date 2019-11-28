@@ -33,7 +33,6 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QSpinBox;
 QT_END_NAMESPACE
 
 namespace BareMetal {
@@ -127,26 +126,6 @@ class GdbServerProviderRunner final : public ProjectExplorer::SimpleTargetRunner
 public:
     explicit GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
                                      const ProjectExplorer::Runnable &runnable);
-};
-
-// HostWidget
-
-class HostWidget final : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit HostWidget(QWidget *parent = nullptr);
-
-    void setChannel(const QUrl &host);
-    QUrl channel() const;
-
-signals:
-    void dataChanged();
-
-protected:
-    QLineEdit *m_hostLineEdit = nullptr;
-    QSpinBox *m_portSpinBox = nullptr;
 };
 
 } // namespace Internal

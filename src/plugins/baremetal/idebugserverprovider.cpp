@@ -34,6 +34,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSpinBox>
 #include <QUuid>
 
 namespace BareMetal {
@@ -258,6 +259,44 @@ void IDebugServerProviderConfigWidget::setFromProvider()
 {
     const QSignalBlocker blocker(this);
     m_nameLineEdit->setText(m_provider->displayName());
+}
+
+// HostWidget
+
+HostWidget::HostWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    m_hostLineEdit = new QLineEdit(this);
+    m_hostLineEdit->setToolTip(tr("Enter TCP/IP hostname of the GDB server provider, "
+                                  "like \"localhost\" or \"192.0.2.1\"."));
+    m_portSpinBox = new QSpinBox(this);
+    m_portSpinBox->setRange(0, 65535);
+    m_portSpinBox->setToolTip(tr("Enter TCP/IP port which will be listened by "
+                                 "the GDB server provider."));
+    const auto layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(m_hostLineEdit);
+    layout->addWidget(m_portSpinBox);
+
+    connect(m_hostLineEdit, &QLineEdit::textChanged,
+            this, &HostWidget::dataChanged);
+    connect(m_portSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+            this, &HostWidget::dataChanged);
+}
+
+void HostWidget::setChannel(const QUrl &channel)
+{
+    const QSignalBlocker blocker(this);
+    m_hostLineEdit->setText(channel.host());
+    m_portSpinBox->setValue(channel.port());
+}
+
+QUrl HostWidget::channel() const
+{
+    QUrl url;
+    url.setHost(m_hostLineEdit->text());
+    url.setPort(m_portSpinBox->value());
+    return url;
 }
 
 } // namespace Internal

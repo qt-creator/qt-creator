@@ -38,6 +38,7 @@ QT_BEGIN_NAMESPACE
 class QFormLayout;
 class QLabel;
 class QLineEdit;
+class QSpinBox;
 QT_END_NAMESPACE
 
 namespace Debugger {
@@ -160,6 +161,26 @@ protected:
     QFormLayout *m_mainLayout = nullptr;
     QLineEdit *m_nameLineEdit = nullptr;
     QLabel *m_errorLabel = nullptr;
+};
+
+// HostWidget
+
+class HostWidget final : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit HostWidget(QWidget *parent = nullptr);
+
+    void setChannel(const QUrl &host);
+    QUrl channel() const;
+
+signals:
+    void dataChanged();
+
+protected:
+    QLineEdit *m_hostLineEdit = nullptr;
+    QSpinBox *m_portSpinBox = nullptr;
 };
 
 } // namespace Internal
