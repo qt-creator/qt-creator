@@ -267,12 +267,12 @@ HostWidget::HostWidget(QWidget *parent)
     : QWidget(parent)
 {
     m_hostLineEdit = new QLineEdit(this);
-    m_hostLineEdit->setToolTip(tr("Enter TCP/IP hostname of the GDB server provider, "
+    m_hostLineEdit->setToolTip(tr("Enter TCP/IP hostname of the debug server, "
                                   "like \"localhost\" or \"192.0.2.1\"."));
     m_portSpinBox = new QSpinBox(this);
     m_portSpinBox->setRange(0, 65535);
     m_portSpinBox->setToolTip(tr("Enter TCP/IP port which will be listened by "
-                                 "the GDB server provider."));
+                                 "the debug server."));
     const auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_hostLineEdit);
