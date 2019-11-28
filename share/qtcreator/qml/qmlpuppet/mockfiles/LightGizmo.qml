@@ -29,14 +29,13 @@ import QtQuick3D 1.0
 IconGizmo {
     id: lightGizmo
 
-    iconSource: "qrc:///qtquickplugin/mockfiles/images/light-pick-icon.png"
-    gizmoModel.source: "#Sphere"
-    gizmoModel.scale: Qt.vector3d(0.10, 0.10, 0.10)
-    gizmoModel.materials: [
-        DefaultMaterial {
-            id: defaultMaterial
-            emissiveColor: "yellow"
-            lighting: DefaultMaterial.NoLighting
-        }
-    ]
+    iconSource: targetNode
+                ? targetNode instanceof DirectionalLight
+                  ? "qrc:///qtquickplugin/mockfiles/images/directional_light_gradient.png"
+                  : targetNode instanceof AreaLight
+                    ? "qrc:///qtquickplugin/mockfiles/images/area_light_gradient.png"
+                    : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+                : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+
+    overlayColor: targetNode ? targetNode.color : "transparent"
 }

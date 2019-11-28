@@ -45,7 +45,7 @@ Node {
         materials: [
             DefaultMaterial {
                 id: mainGridMaterial
-                emissiveColor: "#e6e6e6"
+                emissiveColor: "#cccccc"
                 lighting: DefaultMaterial.NoLighting
                 cullingMode: Material.DisableCulling
             }

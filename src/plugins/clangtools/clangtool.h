@@ -129,6 +129,7 @@ private:
     Utils::FancyLineEdit *m_filterLineEdit = nullptr;
     QToolButton *m_applyFixitsButton = nullptr;
 
+    QAction *m_openProjectSettings = nullptr;
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;
     QAction *m_loadExported = nullptr;

@@ -197,14 +197,16 @@ QtcTool {
             "instances/qt5testnodeinstanceserver.h",
             "instances/servernodeinstance.cpp",
             "instances/servernodeinstance.h",
-            "editor3d/cameracontrolhelper.cpp",
-            "editor3d/cameracontrolhelper.h",
+            "editor3d/generalhelper.cpp",
+            "editor3d/generalhelper.h",
             "editor3d/mousearea3d.cpp",
             "editor3d/mousearea3d.h",
             "editor3d/camerageometry.cpp",
             "editor3d/camerageometry.h",
             "editor3d/gridgeometry.cpp",
             "editor3d/gridgeometry.h",
+            "editor3d/selectionboxgeometry.cpp",
+            "editor3d/selectionboxgeometry.h",
             "qml2puppetmain.cpp",
         ]
     }

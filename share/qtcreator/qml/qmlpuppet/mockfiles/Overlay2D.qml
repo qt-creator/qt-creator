@@ -31,8 +31,7 @@ Item {
     property Node targetNode
     property View3D targetView
 
-    property real offsetX: 0
-    property real offsetY: 0
+    property vector3d offset: Qt.vector3d(0, 0, 0)
 
     property bool isBehindCamera
 
@@ -49,14 +48,16 @@ Item {
     }
 
     Connections {
-        target: designStudioNativeCameraControlHelper
+        target: _generalHelper
         onOverlayUpdateNeeded: updateOverlay()
     }
 
     function updateOverlay()
     {
         var scenePos = targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0);
-        var scenePosWithOffset = Qt.vector3d(scenePos.x + offsetX, scenePos.y + offsetY, scenePos.z);
+        var scenePosWithOffset = Qt.vector3d(scenePos.x + offset.x,
+                                             scenePos.y + offset.y,
+                                             scenePos.z + offset.z);
         var viewPos = targetView ? targetView.mapFrom3DScene(scenePosWithOffset)
                                  : Qt.vector3d(0, 0, 0);
         root.x = viewPos.x;

@@ -51,7 +51,7 @@ class MouseArea3D : public QQuick3DNode
     Q_PROPERTY(bool hovering READ hovering NOTIFY hoveringChanged)
     Q_PROPERTY(bool dragging READ dragging NOTIFY draggingChanged)
     Q_PROPERTY(int priority READ priority WRITE setPriority NOTIFY priorityChanged)
-    Q_PROPERTY(int active READ active WRITE setActive NOTIFY activeChanged)
+    Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     Q_PROPERTY(QPointF circlePickArea READ circlePickArea WRITE setCirclePickArea NOTIFY circlePickAreaChanged)
     Q_PROPERTY(qreal minAngle READ minAngle WRITE setMinAngle NOTIFY minAngleChanged)
     Q_PROPERTY(QQuick3DNode *pickNode READ pickNode WRITE setPickNode NOTIFY pickNodeChanged)
@@ -76,6 +76,8 @@ public:
     QPointF circlePickArea() const;
     qreal minAngle() const;
     QQuick3DNode *pickNode() const;
+
+    static qreal mouseDragMultiplier() { return .02; }
 
 public slots:
     void setView3D(QQuick3DViewport *view3D);
@@ -157,7 +159,7 @@ private:
     QVector3D getMousePosInPlane(const QPointF &mousePosInView) const;
 
     static MouseArea3D *s_mouseGrab;
-    bool m_grabsMouse;
+    bool m_grabsMouse = false;
     QVector3D m_mousePosInPlane;
     QPointF m_circlePickArea;
     qreal m_minAngle = 0.;

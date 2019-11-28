@@ -56,17 +56,7 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
                                      InstanceContainer::NodeFlags flags)
 {
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
-
-#ifdef QUICK3D_MODULE
-    if (quick3DNode()) {
-        QQuick3DObject::Type nodeType = quick3DNode()->type();
-        if (nodeType == QQuick3DObject::Camera || nodeType == QQuick3DObject::Light
-            || nodeType == QQuick3DObject::Model || nodeType == QQuick3DObject::Image
-            || nodeType == QQuick3DObject::Text) {
-            setPropertyVariant("pickable", true); // allow 3D objects to receive mouse clicks
-        }
-    }
-#endif
+    setPickable(true, true, false);
 }
 
 Qt5NodeInstanceServer *Quick3DNodeInstance::qt5NodeInstanceServer() const
@@ -83,6 +73,48 @@ QQuick3DNode *Quick3DNodeInstance::quick3DNode() const
 #endif
 }
 
+void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyToChildren)
+{
+#ifdef QUICK3D_MODULE
+    auto node = quick3DNode();
+    if (node) {
+        QQuick3DObject::Type nodeType = node->type();
+        bool parentHidden = false;
+        if (checkParent) {
+            // First check if any parent node is already hidden. Never set pickable on that case.
+            auto parentNode = node->parentNode();
+            while (parentNode && !parentHidden) {
+                parentHidden = QQuick3DNodePrivate::get(parentNode)->m_isHiddenInEditor;
+                parentNode = parentNode->parentNode();
+            }
+
+        }
+        if (!parentHidden) {
+            if (applyToChildren) {
+                auto getQuick3DInstance = [this](QQuick3DObject *obj) -> Quick3DNodeInstance * {
+                    if (nodeInstanceServer()->hasInstanceForObject(obj)) {
+                        ServerNodeInstance instance = nodeInstanceServer()->instanceForObject(obj);
+                        if (instance.isValid() && qobject_cast<QQuick3DNode *>(instance.internalObject()))
+                            return static_cast<Quick3DNodeInstance *>(instance.internalInstance().data());
+                    }
+                    return nullptr;
+                };
+                const auto childItems = node->childItems();
+                for (auto childItem : childItems) {
+                    if (auto quick3dInstance = getQuick3DInstance(childItem)) {
+                        // Don't override explicit block in children
+                        if (!QQuick3DNodePrivate::get(quick3dInstance->quick3DNode())->m_isHiddenInEditor)
+                            quick3dInstance->setPickable(enable, false, true);
+                    }
+                }
+            }
+            if (nodeType == QQuick3DObject::Model)
+                setPropertyVariant("pickable", enable); // allow 3D objects to receive mouse clicks
+        }
+    }
+#endif
+}
+
 Quick3DNodeInstance::Pointer Quick3DNodeInstance::create(QObject *object)
 {
     Pointer instance(new Quick3DNodeInstance(object));
@@ -94,8 +126,12 @@ void Quick3DNodeInstance::setHideInEditor(bool b)
 {
 #ifdef QUICK3D_MODULE
     QQuick3DNodePrivate *privateNode = QQuick3DNodePrivate::get(quick3DNode());
-    if (privateNode)
+    if (privateNode) {
         privateNode->setIsHiddenInEditor(b);
+
+        // Hidden objects should not be pickable
+        setPickable(!b, true, true);
+    }
 #else
     Q_UNUSED(b)
 #endif

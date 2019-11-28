@@ -31,7 +31,6 @@ Prerequisites:
     * ActiveState Active Perl
     * MinGW with g++ 5.3 or Visual Studio 2017 or later
     * jom
-    * Ninja (optional, needed for CMake)
     * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
 * On Linux: g++ 5.3 or later
@@ -40,6 +39,7 @@ Prerequisites:
   "Get LLVM/Clang for the Clang Code Model". The LLVM C++ API provides no compatibility garantee,
   so if later versions don't compile we don't support that version.)
 * CMake (for manual builds of LLVM/Clang, and Qt Creator itself)
+* Ninja (optional, recommended for building with CMake)
 * Qbs 1.7.x (optional, sources also contain Qbs itself)
 
 The installed toolchains have to match the one Qt was compiled with.

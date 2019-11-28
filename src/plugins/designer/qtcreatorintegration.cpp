@@ -218,18 +218,18 @@ static const Class *findClass(const Namespace *parentNameSpace, const LookupCont
 static Function *findDeclaration(const Class *cl, const QString &functionName)
 {
     const QString funName = QString::fromUtf8(QMetaObject::normalizedSignature(functionName.toUtf8()));
-    const unsigned mCount = cl->memberCount();
+    const int mCount = cl->memberCount();
     // we are interested only in declarations (can be decl of function or of a field)
     // we are only interested in declarations of functions
     const Overview overview;
-    for (unsigned j = 0; j < mCount; ++j) { // go through all members
+    for (int j = 0; j < mCount; ++j) { // go through all members
         if (Declaration *decl = cl->memberAt(j)->asDeclaration())
             if (Function *fun = decl->type()->asFunctionType()) {
                 // Format signature
                 QString memberFunction = overview.prettyName(fun->name());
                 memberFunction += '(';
-                const uint aCount = fun->argumentCount();
-                for (uint i = 0; i < aCount; i++) { // we build argument types string
+                const int aCount = fun->argumentCount();
+                for (int i = 0; i < aCount; i++) { // we build argument types string
                     const Argument *arg = fun->argumentAt(i)->asArgument();
                     if (i > 0)
                         memberFunction += ',';
@@ -350,7 +350,7 @@ static QString addConstRefIfNeeded(const QString &argument)
                                                          "unsigned", "qint64", "quint64"});
 
     for (int i = 0; i < nonConstRefs.count(); i++) {
-        const QString nonConstRef = nonConstRefs.at(i);
+        const QString &nonConstRef = nonConstRefs.at(i);
         if (argument == nonConstRef || argument.startsWith(nonConstRef + ' '))
             return argument;
     }
@@ -411,7 +411,7 @@ static QString addParameterNames(const QString &functionSignature, const QString
 // included files (going down [maxIncludeDepth] includes) and return a pair
 // of <Class*, Document>.
 
-typedef QPair<const Class *, Document::Ptr> ClassDocumentPtrPair;
+using ClassDocumentPtrPair = QPair<const Class *, Document::Ptr>;
 
 static ClassDocumentPtrPair
         findClassRecursively(const LookupContext &context, const QString &className,
@@ -431,7 +431,7 @@ static ClassDocumentPtrPair
         for (const QString &include : includedFiles) {
             const Snapshot::const_iterator it = docTable.find(include);
             if (it != docTable.end()) {
-                const Document::Ptr includeDoc = it.value();
+                const Document::Ptr &includeDoc = it.value();
                 LookupContext context(includeDoc, docTable);
                 const ClassDocumentPtrPair irc = findClassRecursively(context, className,
                     recursionMaxIncludeDepth, namespaceName);
@@ -489,7 +489,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                           const QStringList &parameterNames,
                                           QString *errorMessage)
 {
-    typedef QMap<int, Document::Ptr> DocumentMap;
+    using DocumentMap = QMap<int, Document::Ptr>;
 
     const Utils::FilePath currentUiFile = FormEditorW::activeEditor()->document()->filePath();
 #if 0

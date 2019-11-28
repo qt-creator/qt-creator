@@ -172,6 +172,8 @@ public:
 
     static void updateActions();
 
+    static void activateProjectPanel(Core::Id panelId);
+
 signals:
     void finishedInitialization();
 

@@ -34,7 +34,7 @@
 namespace ClangTools {
 namespace Internal {
 
-const char diagnosticConfigIdKey[] = "DiagnosticConfigId";
+const char diagnosticConfigIdKey[] = "DiagnosticConfig";
 
 class RunSettings
 {

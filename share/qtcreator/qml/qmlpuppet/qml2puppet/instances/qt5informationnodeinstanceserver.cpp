@@ -62,10 +62,11 @@
 #include <drop3dlibraryitemcommand.h>
 
 #include "dummycontextobject.h"
-#include "../editor3d/cameracontrolhelper.h"
+#include "../editor3d/generalhelper.h"
 #include "../editor3d/mousearea3d.h"
 #include "../editor3d/camerageometry.h"
 #include "../editor3d/gridgeometry.h"
+#include "../editor3d/selectionboxgeometry.h"
 
 #include <designersupportdelegate.h>
 
@@ -104,13 +105,13 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
 
 QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 {
-    auto helper = new QmlDesigner::Internal::CameraControlHelper();
-    engine->rootContext()->setContextProperty("designStudioNativeCameraControlHelper", helper);
-
 #ifdef QUICK3D_MODULE
+    auto helper = new QmlDesigner::Internal::GeneralHelper();
+    engine->rootContext()->setContextProperty("_generalHelper", helper);
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");
+    qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
 #endif
 
     QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
@@ -136,7 +137,10 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     window->setFormat(surfaceFormat);
+
+#ifdef QUICK3D_MODULE
     helper->setParent(window);
+#endif
 
     return window;
 }
@@ -336,12 +340,24 @@ QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
 {
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DViewport")) {
+            QObject *rootObj = nullptr;
+            int viewChildCount = 0;
             for (const ServerNodeInstance &child : instanceList) { /* Look for scene node */
                 /* The QQuick3DViewport always creates a root node.
                  * This root node contains the complete scene. */
-                if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance)
-                    return child.internalObject()->property("parent").value<QObject *>();
+                if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance) {
+                    // Implicit root node is not visible in editor, so there is often another node
+                    // added below it that serves as the actual scene root node.
+                    // If the found root is the only node child of the view, assume that is the case.
+                    ++viewChildCount;
+                    if (!rootObj)
+                        rootObj = child.internalObject();
+                }
             }
+            if (viewChildCount == 1)
+                return rootObj;
+            else if (rootObj)
+                return rootObj->property("parent").value<QObject *>();
         }
     }
     return nullptr;
@@ -599,10 +615,8 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
         if (hasInstanceForId(id)) {
             ServerNodeInstance instance = instanceForId(id);
             QObject *object = nullptr;
-            if (instance.isSubclassOf("QQuick3DModel") || instance.isSubclassOf("QQuick3DCamera")
-                || instance.isSubclassOf("QQuick3DAbstractLight")) {
+            if (instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
-            }
             QMetaObject::invokeMethod(m_editView3D, "selectObject", Q_ARG(QVariant,
                                                                           objectToVariant(object)));
             return; // TODO: support multi-selection

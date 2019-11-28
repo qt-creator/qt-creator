@@ -33,6 +33,7 @@
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolsdiagnosticview.h"
 #include "clangtoolslogfilereader.h"
+#include "clangtoolsplugin.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
@@ -399,6 +400,15 @@ ClangTool::ClangTool()
         ApplyFixIts(diagnosticItems).apply(m_diagnosticModel);
     });
 
+    // Open Project Settings
+    action = new QAction(this);
+    action->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+    //action->setToolTip(tr("Open Project Settings")); // TODO: Uncomment in master.
+    connect(action, &QAction::triggered, []() {
+        ProjectExplorerPlugin::activateProjectPanel(Constants::PROJECT_PANEL_ID);
+    });
+    m_openProjectSettings = action;
+
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                "Clang project to search for diagnostics.");
@@ -424,6 +434,7 @@ ClangTool::ClangTool()
     m_perspective.addToolBarAction(m_startAction);
     m_perspective.addToolBarAction(m_startOnCurrentFileAction);
     m_perspective.addToolBarAction(m_stopAction);
+    m_perspective.addToolBarAction(m_openProjectSettings);
     m_perspective.addToolBarAction(m_loadExported);
     m_perspective.addToolBarAction(m_clear);
     m_perspective.addToolBarAction(m_goBack);

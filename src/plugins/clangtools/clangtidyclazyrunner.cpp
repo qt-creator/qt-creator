@@ -66,10 +66,6 @@ static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticCo
         arguments << XclangArgs({"-add-plugin",
                                  "clazy",
                                  "-plugin-arg-clazy",
-                                 "enable-all-fixits",
-                                 "-plugin-arg-clazy",
-                                 "no-autowrite-fixits",
-                                 "-plugin-arg-clazy",
                                  diagnosticConfig.clazyChecks()});
     }
 

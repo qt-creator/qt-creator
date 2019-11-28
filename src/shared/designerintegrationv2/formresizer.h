@@ -60,7 +60,7 @@ class FormResizer : public QWidget
     Q_OBJECT
 public:
 
-    FormResizer(QWidget *parent = 0);
+    FormResizer(QWidget *parent = nullptr);
 
     void updateGeometry();
     void setState(SelectionHandleState st);
@@ -84,7 +84,7 @@ private:
     QFrame *m_frame;
     typedef QVector<SizeHandleRect*> Handles;
     Handles m_handles;
-    QDesignerFormWindowInterface * m_formWindow;
+    QDesignerFormWindowInterface *m_formWindow = nullptr;
 };
 
 }

@@ -226,22 +226,17 @@ QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const QSt
     return result;
 }
 
-bool TestCase::waitUntilCppModelManagerIsAwareOf(Project *project, int timeOutInMs)
+bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
 {
     if (!project)
         return false;
 
-    QElapsedTimer t;
-    t.start();
-
-    CppModelManager *modelManager = CppModelManager::instance();
-    forever {
-        if (modelManager->projectInfo(project).isValid())
-            return true;
-        if (t.elapsed() > timeOutInMs)
-            return false;
-        QCoreApplication::processEvents();
-    }
+    return QTest::qWaitFor(
+        [project]() {
+            return !project->isParsing()
+                   && CppModelManager::instance()->projectInfo(project).isValid();
+        },
+        timeOutInMs);
 }
 
 bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
@@ -293,7 +288,7 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
     if (configureAsExampleProject)
         project->configureAsExampleProject();
 
-    if (TestCase::waitUntilCppModelManagerIsAwareOf(project)) {
+    if (TestCase::waitUntilProjectIsFullyOpened(project)) {
         m_openProjects.append(project);
         return CppModelManager::instance()->projectInfo(project);
     }

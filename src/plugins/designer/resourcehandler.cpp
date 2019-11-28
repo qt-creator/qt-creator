@@ -73,10 +73,7 @@ void ResourceHandler::ensureInitialized()
         qDebug() << "ResourceHandler::ensureInitialized() origPaths=" << m_originalUiQrcPaths;
 }
 
-ResourceHandler::~ResourceHandler()
-{
-
-}
+ResourceHandler::~ResourceHandler() = default;
 
 void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
 {

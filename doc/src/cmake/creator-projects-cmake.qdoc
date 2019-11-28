@@ -61,6 +61,10 @@
     provide less information to the code model, which will then fail to resolve
     includes and defines.
 
+    For CMake version 3.14, or later, \QC supports the
+    \l {https://cmake.org/cmake/help/latest/manual/cmake-file-api.7.html}
+    {file-based API}.
+
     To specify paths to CMake executables:
 
     \list 1
@@ -99,8 +103,13 @@
     \section1 Editing CMake Configuration Files
 
     To open a CMakeLists.txt file for editing, right-click it in the
-    \uicontrol Projects view and select \uicontrol {Open with} >
+    \uicontrol Projects view and select \uicontrol {Open With} >
     \uicontrol {CMake Editor}.
+
+    You can also use the \c cmo filter in the \l {Searching with the Locator}
+    {locator} to open the CMakeLists.txt file for the current run configuration
+    in the editor. This is the same build target as when you select
+    \uicontrol Build > \uicontrol {Build for Run Configuration}.
 
     The following features are supported:
 

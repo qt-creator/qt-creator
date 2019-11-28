@@ -185,7 +185,9 @@ T.ComboBox {
                          StudioTheme.Values.maxComboBoxPopupHeight)
         padding: StudioTheme.Values.border
         margins: 0 // If not defined margin will be -1
-        closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent
+        closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
+                     | T.Popup.CloseOnEscape | T.Popup.CloseOnReleaseOutside
+                     | T.Popup.CloseOnReleaseOutsideParent
 
         contentItem: ListView {
             clip: true
@@ -242,7 +244,7 @@ T.ComboBox {
         },
         State {
             name: "edit"
-            when: myComboBox.edit && myComboBox.editable
+            when: myComboBox.edit && myComboBox.editable && !comboBoxPopup.opened
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true
@@ -250,11 +252,28 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxInput
                 selectByMouse: true
+                readOnly: false
             }
             PropertyChanges {
                 target: comboBoxBackground
                 color: StudioTheme.Values.themeInteraction
                 border.color: StudioTheme.Values.themeInteraction
+            }
+            StateChangeScript {
+                script: comboBoxPopup.close()
+            }
+        },
+        State {
+            name: "popup"
+            when: myComboBox.edit && comboBoxPopup.opened
+            PropertyChanges {
+                target: myComboBox
+                wheelEnabled: true
+            }
+            PropertyChanges {
+                target: comboBoxInput
+                selectByMouse: false
+                readOnly: true
             }
         }
     ]

@@ -26,7 +26,6 @@
 import QtQuick 2.12
 import QtQuick.Window 2.0
 import QtQuick3D 1.0
-import QtQuick3D.Helpers 1.0
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
 
@@ -39,8 +38,8 @@ Window {
     flags: Qt.WindowStaysOnTopHint | Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
 
     property alias scene: editView.importScene
-    property alias showEditLight: editLightCheckbox.checked
-    property alias usePerspective: usePerspectiveCheckbox.checked
+    property alias showEditLight: btnEditViewLight.toggled
+    property alias usePerspective: btnPerspective.toggled
 
     property Node selectedNode: null
 
@@ -56,9 +55,14 @@ Window {
         selectedNode = object;
     }
 
-    function emitObjectClicked(object) {
-        selectObject(object);
-        objectClicked(object);
+    function handleObjectClicked(object) {
+        var theObject = object;
+        if (btnSelectGroup.selected) {
+            while (theObject && theObject.parent !== scene)
+                theObject = theObject.parent;
+        }
+        selectObject(theObject);
+        objectClicked(theObject);
     }
 
     function addLightGizmo(obj)
@@ -69,7 +73,7 @@ Window {
                                                {"view3D": overlayView, "targetNode": obj,
                                                 "selectedNode": selectedNode});
             lightGizmos[lightGizmos.length] = gizmo;
-            gizmo.clicked.connect(emitObjectClicked);
+            gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
     }
@@ -78,13 +82,13 @@ Window {
     {
         var component = Qt.createComponent("CameraGizmo.qml");
         if (component.status === Component.Ready) {
-            var geometryName = designStudioNativeCameraControlHelper.generateUniqueName("CameraGeometry");
+            var geometryName = _generalHelper.generateUniqueName("CameraGeometry");
             var gizmo = component.createObject(
                         overlayScene,
                         {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
                          "viewPortRect": viewPortRect, "selectedNode": selectedNode});
             cameraGizmos[cameraGizmos.length] = gizmo;
-            gizmo.clicked.connect(emitObjectClicked);
+            gizmo.clicked.connect(handleObjectClicked);
             gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
             gizmo.selectedNode = Qt.binding(function() {return selectedNode;});
         }
@@ -92,10 +96,10 @@ Window {
 
     // Work-around the fact that the projection matrix for the camera is not calculated until
     // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
-    Component.onCompleted: designStudioNativeCameraControlHelper.requestOverlayUpdate();
+    Component.onCompleted: _generalHelper.requestOverlayUpdate();
 
-    onWidthChanged: designStudioNativeCameraControlHelper.requestOverlayUpdate();
-    onHeightChanged: designStudioNativeCameraControlHelper.requestOverlayUpdate();
+    onWidthChanged: _generalHelper.requestOverlayUpdate();
+    onHeightChanged: _generalHelper.requestOverlayUpdate();
 
     Node {
         id: overlayScene
@@ -114,6 +118,7 @@ Window {
             clipNear: editOrthoCamera.clipNear
             position: editOrthoCamera.position
             rotation: editOrthoCamera.rotation
+            scale: editOrthoCamera.scale
         }
 
         MoveGizmo {
@@ -123,7 +128,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
-            globalOrientation: globalControl.checked
+            globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnMove.selected
             view3D: overlayView
 
@@ -138,7 +143,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
-            globalOrientation: globalControl.checked
+            globalOrientation: false
             visible: selectedNode && btnScale.selected
             view3D: overlayView
 
@@ -153,7 +158,7 @@ Window {
             targetNode: viewWindow.selectedNode
             position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
                                               : Qt.vector3d(0, 0, 0)
-            globalOrientation: globalControl.checked
+            globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnRotate.selected
             view3D: overlayView
 
@@ -169,16 +174,19 @@ Window {
     }
 
     Rectangle {
-        id: sceneBg
-        color: "#FFFFFF"
         anchors.fill: parent
         focus: true
+
+        gradient: Gradient {
+            GradientStop { position: 1.0; color: "#222222" }
+            GradientStop { position: 0.0; color: "#999999" }
+        }
 
         TapHandler { // check tapping/clicking an object in the scene
             onTapped: {
                 var pickResult = editView.pick(eventPoint.scenePosition.x,
                                                eventPoint.scenePosition.y);
-                emitObjectClicked(pickResult.objectHit);
+                handleObjectClicked(pickResult.objectHit);
             }
         }
 
@@ -200,6 +208,12 @@ Window {
                     step: 50
                 }
 
+                SelectionBox {
+                    id: selectionBox
+                    view3D: editView
+                    targetNode: viewWindow.selectedNode
+                }
+
                 PointLight {
                     id: editLight
                     visible: showEditLight
@@ -209,11 +223,14 @@ Window {
                     linearFade: 0
                 }
 
+                // Initial camera position and rotation should be such that they look at origin.
+                // Otherwise EditCameraController._lookAtPoint needs to be initialized to correct
+                // point.
                 PerspectiveCamera {
                     id: editPerspectiveCamera
                     z: -600
-                    y: 200
-                    rotation.x: 30
+                    y: 600
+                    rotation.x: 45
                     clipFar: 100000
                     clipNear: 1
                 }
@@ -221,10 +238,10 @@ Window {
                 OrthographicCamera {
                     id: editOrthoCamera
                     z: -600
-                    y: 200
-                    rotation.x: 30
+                    y: 600
+                    rotation.x: 45
                     clipFar: 100000
-                    clipNear: 1
+                    clipNear: -10000
                 }
             }
         }
@@ -240,14 +257,12 @@ Window {
             id: gizmoLabel
             targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
             targetView: overlayView
-            offsetX: 0
-            offsetY: 45
             visible: targetNode.dragging
 
             Rectangle {
                 color: "white"
                 x: -width / 2
-                y: -height
+                y: -height - 8
                 width: gizmoLabelText.width + 4
                 height: gizmoLabelText.height + 4
                 border.width: 1
@@ -273,19 +288,11 @@ Window {
             }
         }
 
-        WasdController {
+        EditCameraController {
             id: cameraControl
-            controlledObject: editView.camera
-            acceptedButtons: Qt.RightButton
-
-            onInputsNeedProcessingChanged: designStudioNativeCameraControlHelper.enabled
-                                           = cameraControl.inputsNeedProcessing
-
-            // Use separate native timer as QML timers don't work inside Qt Design Studio
-            Connections {
-                target: designStudioNativeCameraControlHelper
-                onUpdateInputs: cameraControl.processInputs()
-            }
+            camera: editView.camera
+            anchors.fill: parent
+            view3d: editView
         }
     }
 
@@ -301,7 +308,8 @@ Window {
             spacing: 5
             padding: 5
 
-            property var group: [btnSelectItem, btnSelectGroup, btnMove, btnRotate, btnScale]
+            property var groupSelect: [btnSelectGroup, btnSelectItem]
+            property var groupTransform: [btnMove, btnRotate, btnScale]
 
             ToolBarButton {
                 id: btnSelectItem
@@ -310,7 +318,7 @@ Window {
                 shortcut: "Q"
                 currentShortcut: selected ? "" : shortcut
                 tool: "item_selection"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupSelect
             }
 
             ToolBarButton {
@@ -319,7 +327,7 @@ Window {
                 shortcut: "Q"
                 currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
                 tool: "group_selection"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupSelect
             }
 
             Rectangle { // separator
@@ -331,11 +339,12 @@ Window {
 
             ToolBarButton {
                 id: btnMove
+                selected: true
                 tooltip: qsTr("Move current selection")
-                shortcut: "M"
+                shortcut: "W"
                 currentShortcut: shortcut
                 tool: "move"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupTransform
             }
 
             ToolBarButton {
@@ -344,60 +353,96 @@ Window {
                 shortcut: "E"
                 currentShortcut: shortcut
                 tool: "rotate"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupTransform
             }
 
             ToolBarButton {
                 id: btnScale
                 tooltip: qsTr("Scale current selection")
-                shortcut: "T"
+                shortcut: "R"
                 currentShortcut: shortcut
                 tool: "scale"
-                buttonsGroup: col.group
+                buttonsGroup: col.groupTransform
+            }
+
+            Rectangle { // separator
+                width: 25
+                height: 1
+                color: "#f1f1f1"
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ToolBarButton {
+                id: btnFit
+                tooltip: qsTr("Fit camera to current selection")
+                shortcut: "F"
+                currentShortcut: shortcut
+                tool: "fit"
+                togglable: false
+
+                onSelectedChanged: {
+                    if (selected) {
+                        var targetNode = viewWindow.selectedNode ? selectionBox.model : null;
+                        cameraControl.fitObject(targetNode, editView.camera.rotation);
+                    }
+                }
             }
         }
     }
 
-    Column {
-        y: 8
+    AxisHelper {
         anchors.right: parent.right
-        CheckBox {
-            id: editLightCheckbox
-            checked: false
-            text: qsTr("Use Edit View Light")
-            onCheckedChanged: cameraControl.forceActiveFocus()
+        anchors.top: parent.top
+        width: 100
+        height: width
+        editCameraCtrl: cameraControl
+        selectedNode : viewWindow.selectedNode ? selectionBox.model : null
+    }
+
+    Rectangle { // top controls bar
+        color: "#aa000000"
+        width: 265
+        height: btnPerspective.height + 10
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: 100
+
+        ToggleButton {
+            id: btnPerspective
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            anchors.left: parent.left
+            anchors.leftMargin: 5
+            tooltip: qsTr("Toggle Perspective / Orthographic Projection")
+            states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
         }
 
-        CheckBox {
-            id: usePerspectiveCheckbox
-            checked: true
-            text: qsTr("Use Perspective Projection")
-            onCheckedChanged: {
-                // Since WasdController always acts on active camera, we need to update pos/rot
-                // to the other camera when we change
-                if (checked) {
-                    editPerspectiveCamera.position = editOrthoCamera.position;
-                    editPerspectiveCamera.rotation = editOrthoCamera.rotation;
-                } else {
-                    editOrthoCamera.position = editPerspectiveCamera.position;
-                    editOrthoCamera.rotation = editPerspectiveCamera.rotation;
-                }
-                designStudioNativeCameraControlHelper.requestOverlayUpdate();
-                cameraControl.forceActiveFocus();
-            }
+        ToggleButton {
+            id: btnLocalGlobal
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            anchors.left: parent.left
+            anchors.leftMargin: 100
+            tooltip: qsTr("Toggle Global / Local Orientation")
+            states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
         }
 
-        CheckBox {
-            id: globalControl
-            checked: true
-            text: qsTr("Use Global Orientation")
-            onCheckedChanged: cameraControl.forceActiveFocus()
+        ToggleButton {
+            id: btnEditViewLight
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            anchors.left: parent.left
+            anchors.leftMargin: 165
+            toggleBackground: true
+            tooltip: qsTr("Toggle Edit Light")
+            states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
         }
     }
 
     Text {
         id: helpText
-        text: qsTr("Camera: W,A,S,D,R,F,right mouse drag")
+        color: "white"
+        text: qsTr("Camera controls: ALT + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
         anchors.bottom: parent.bottom
     }
 }

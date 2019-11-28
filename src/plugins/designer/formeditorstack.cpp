@@ -92,7 +92,7 @@ void FormEditorStack::add(const EditorData &data)
 
     // Since we have 1 pixel splitters we enforce no frame
     // on the content widget
-    if (QFrame *frame = qobject_cast<QFrame*>(data.widgetHost))
+    if (auto frame = qobject_cast<QFrame*>(data.widgetHost))
         frame->setFrameStyle(QFrame::NoFrame);
 }
 
@@ -122,7 +122,7 @@ EditorData FormEditorStack::activeEditor() const
         if (index >= 0)
             return m_formEditors.at(index);
     }
-    return EditorData();
+    return {};
 }
 
 SharedTools::WidgetHost *FormEditorStack::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const
@@ -173,7 +173,7 @@ void FormEditorStack::formSizeChanged(int w, int h)
     // Handle main container resize.
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << w << h;
-    if (const SharedTools::WidgetHost *wh = qobject_cast<const SharedTools::WidgetHost *>(sender())) {
+    if (auto wh = qobject_cast<const SharedTools::WidgetHost *>(sender())) {
         wh->formWindow()->setDirty(true);
         static const QString geometry = "geometry";
         m_designerCore->propertyEditor()->setPropertyValue(geometry, QRect(0,0,w,h) );

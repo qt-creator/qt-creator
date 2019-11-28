@@ -40,10 +40,10 @@
 
 using namespace ProjectExplorer;
 
-typedef QMap<QString, QStringList> DependencyMap;
-typedef CPlusPlus::Document::Ptr DocumentPtr;
-typedef QList<CPlusPlus::Symbol *> SymbolList;
-typedef QList<DocumentPtr> DocumentPtrList;
+using DependencyMap = QMap<QString, QStringList>;
+using DocumentPtr = CPlusPlus::Document::Ptr;
+using SymbolList = QList<CPlusPlus::Symbol *>;
+using DocumentPtrList = QList<DocumentPtr>;
 
 static const char setupUiC[] = "setupUi";
 

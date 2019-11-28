@@ -41,7 +41,6 @@ Section {
 
     function getBackendValue(name)
     {
-        print(fontSection.fontName + "_" + name)
         return backendValues[fontSection.fontName + "_" + name]
     }
 

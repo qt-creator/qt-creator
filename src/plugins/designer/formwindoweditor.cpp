@@ -44,9 +44,7 @@ FormWindowEditor::FormWindowEditor()
     addContext(Designer::Constants::C_DESIGNER_XML_EDITOR);
 }
 
-FormWindowEditor::~FormWindowEditor()
-{
-}
+FormWindowEditor::~FormWindowEditor() = default;
 
 QWidget *FormWindowEditor::toolBar()
 {

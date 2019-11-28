@@ -347,7 +347,7 @@ public:
              int extraOffset = 0)
         : m_node(node)
         , m_fileCache(fileCache)
-        , m_filePath(asString(node["FilePath"]))
+        , m_filePath(QDir::cleanPath(asString(node["FilePath"])))
         , m_fileOffsetKey(fileOffsetKey)
         , m_extraOffset(extraOffset)
     {}

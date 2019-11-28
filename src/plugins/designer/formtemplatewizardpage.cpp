@@ -60,8 +60,7 @@ Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, 
 
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
-    FormTemplateWizardPage *page = new FormTemplateWizardPage;
-    return page;
+    return new FormTemplateWizardPage;
 }
 
 bool FormPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)

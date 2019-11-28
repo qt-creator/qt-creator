@@ -23,40 +23,48 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.0
+import QtQuick3D 1.0
 
-#include <QtCore/QObject>
-#include <QtCore/QTimer>
+Node {
+    id: armRoot
+    property alias posModel: posModel
+    property alias negModel: negModel
+    property View3D view3D
+    property color hoverColor
+    property color color
+    property vector3d camRotPos
+    property vector3d camRotNeg
 
-namespace QmlDesigner {
-namespace Internal {
-class CameraControlHelper : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+    Model {
+        id: posModel
 
-public:
-    CameraControlHelper();
+        property bool hovering: false
+        property vector3d cameraRotation: armRoot.camRotPos
 
-    bool enabled();
-    void setEnabled(bool enabled);
+        source: "meshes/axishelper.mesh"
+        materials: DefaultMaterial {
+            id: posMat
+            emissiveColor: posModel.hovering ? armRoot.hoverColor : armRoot.color
+            lighting: DefaultMaterial.NoLighting
+        }
+        pickable: true
+    }
 
-    Q_INVOKABLE void requestOverlayUpdate();
-    Q_INVOKABLE QString generateUniqueName(const QString &nameRoot);
+    Model {
+        id: negModel
 
-public slots:
-    void handleUpdateTimer();
+        property bool hovering: false
+        property vector3d cameraRotation: armRoot.camRotNeg
 
-signals:
-    void updateInputs();
-    void enabledChanged(bool enabled);
-    void overlayUpdateNeeded();
-
-private:
-    bool m_enabled = false;
-    QTimer m_inputUpdateTimer;
-    QTimer m_overlayUpdateTimer;
-};
-
-}
+        source: "#Sphere"
+        y: -6
+        scale: Qt.vector3d(0.025, 0.025, 0.025)
+        materials: DefaultMaterial {
+            id: negMat
+            emissiveColor: negModel.hovering ? armRoot.hoverColor : armRoot.color
+            lighting: DefaultMaterial.NoLighting
+        }
+        pickable: true
+    }
 }

@@ -630,6 +630,10 @@ Project {
             files: [
                 "bindingeditor/bindingeditor.cpp",
                 "bindingeditor/bindingeditor.h",
+                "bindingeditor/bindingeditordialog.cpp",
+                "bindingeditor/bindingeditordialog.h",
+                "bindingeditor/bindingeditorwidget.cpp",
+                "bindingeditor/bindingeditorwidget.h",
                 "colortool/colortool.cpp",
                 "colortool/colortool.h",
                 "connectioneditor/addnewbackenddialog.h",

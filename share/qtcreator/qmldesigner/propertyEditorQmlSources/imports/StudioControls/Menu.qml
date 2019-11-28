@@ -1,3 +1,5 @@
+
+
 /****************************************************************************
 **
 ** Copyright (C) 2019 The Qt Company Ltd.
@@ -22,7 +24,6 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Templates 2.12 as T
@@ -43,10 +44,11 @@ T.Menu {
     overlap: 1
     padding: 0
 
-    closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnEscape
+    closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
+                 | T.Popup.CloseOnEscape | T.Popup.CloseOnReleaseOutside
+                 | T.Popup.CloseOnReleaseOutsideParent
 
-    delegate: MenuItem {
-    }
+    delegate: MenuItem {}
 
     contentItem: ListView {
         model: control.contentModel

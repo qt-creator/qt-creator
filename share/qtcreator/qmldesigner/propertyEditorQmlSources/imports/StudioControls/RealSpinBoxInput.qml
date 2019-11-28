@@ -193,6 +193,7 @@ TextInput {
             PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.PointingHandCursor
+                enabled: false
             }
         },
         State {

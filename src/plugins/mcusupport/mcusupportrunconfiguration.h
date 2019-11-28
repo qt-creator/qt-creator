@@ -31,10 +31,10 @@
 namespace McuSupport {
 namespace Internal {
 
-class EmrunRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+class McuSupportRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
 {
 public:
-    EmrunRunConfigurationFactory();
+    McuSupportRunConfigurationFactory();
 };
 
 class FlashAndRunConfiguration : public ProjectExplorer::RunConfiguration
