@@ -58,7 +58,7 @@ public:
     void setExcludedFiles(const QStringList &list); // Keep for compatibility with Qt Creator 4.10
     QStringList excludedFiles(); // Make private when no longer supporting Qt Creator 4.10
 
-    void triggerParsing();
+    void triggerParsing() override;
 
     const Utils::FilePathList nimFiles() const;
 
