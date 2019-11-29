@@ -37,7 +37,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/target.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
@@ -235,7 +234,7 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
 
     return QTest::qWaitFor(
         [project]() {
-            return !project->activeTarget()->buildSystem()->isParsing()
+            return !SessionManager::startupBuildSystem()->isParsing()
                    && CppModelManager::instance()->projectInfo(project).isValid();
         },
         timeOutInMs);
