@@ -326,6 +326,7 @@ void ClangToolRunWorker::start()
     }
 
     reportStarted();
+    m_elapsed.start();
 
     while (m_runners.size() < parallelRuns && !m_queue.isEmpty())
         analyzeNextFile();
@@ -343,6 +344,13 @@ void ClangToolRunWorker::stop()
     m_progress.reportFinished();
 
     reportStopped();
+
+    // Print elapsed time since start
+    const QTime format = QTime(0, 0, 0, 0).addMSecs(m_elapsed.elapsed() + 500);
+    QString time = format.toString("h:mm:ss");
+    if (time.startsWith("0:"))
+        time.remove(0, 2); // Don't display zero hours
+    appendMessage(tr("Elapsed time: %1.") .arg(time), NormalMessageFormat);
 }
 
 void ClangToolRunWorker::analyzeNextFile()

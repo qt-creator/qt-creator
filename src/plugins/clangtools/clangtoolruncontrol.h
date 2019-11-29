@@ -34,6 +34,7 @@
 #include <utils/environment.h>
 #include <utils/temporarydirectory.h>
 
+#include <QElapsedTimer>
 #include <QFutureInterface>
 #include <QSet>
 #include <QStringList>
@@ -123,6 +124,8 @@ private:
     int m_initialQueueSize = 0;
     QSet<QString> m_filesAnalyzed;
     QSet<QString> m_filesNotAnalyzed;
+
+    QElapsedTimer m_elapsed;
 };
 
 } // namespace Internal
