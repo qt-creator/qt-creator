@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Design Tooling
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -25,27 +25,41 @@
 
 #pragma once
 
-#include "curveeditor/curveeditor.h"
+#include "treeitem.h"
 
-#include <QDialog>
+#include <QItemSelectionModel>
 
-namespace QmlDesigner {
+namespace DesignTools {
 
-class AnimationCurveDialog : public QDialog
+class CurveItem;
+class TreeItem;
+class NodeTreeItem;
+class PropertyTreeItem;
+
+class SelectionModel : public QItemSelectionModel
 {
     Q_OBJECT
 
+signals:
+    void curvesSelected(const std::vector<CurveItem *> &curves);
+
 public:
-    AnimationCurveDialog(QWidget *parent = nullptr);
+    SelectionModel(QAbstractItemModel *model = nullptr);
 
-    AnimationCurveDialog(DesignTools::CurveEditorModel *model, QWidget *parent = nullptr);
+    std::vector<TreeItem::Path> selectedPaths() const;
 
-    void setModel(DesignTools::CurveEditorModel *model);
+    std::vector<CurveItem *> selectedCurveItems() const;
 
-    void refresh();
+    std::vector<TreeItem *> selectedTreeItems() const;
+
+    std::vector<NodeTreeItem *> selectedNodeItems() const;
+
+    std::vector<PropertyTreeItem *> selectedPropertyItems() const;
+
+    void select(const std::vector<TreeItem::Path> &selection);
 
 private:
-    DesignTools::CurveEditor *m_editor;
+    void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
 };
 
-} // namespace QmlDesigner
+} // End namespace DesignTools.

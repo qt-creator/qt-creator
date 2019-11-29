@@ -14,6 +14,7 @@ HEADERS += \
     $$PWD/detail/keyframeitem.h \
     $$PWD/detail/playhead.h \
     $$PWD/detail/selectableitem.h \
+    $$PWD/detail/selectionmodel.h \
     $$PWD/detail/selector.h \
     $$PWD/detail/shortcut.h \
     $$PWD/detail/treeitemdelegate.h \
@@ -36,6 +37,7 @@ SOURCES += \
     $$PWD/detail/keyframeitem.cpp \
     $$PWD/detail/playhead.cpp \
     $$PWD/detail/selectableitem.cpp \
+    $$PWD/detail/selectionmodel.cpp \
     $$PWD/detail/selector.cpp \
     $$PWD/detail/shortcut.cpp \
     $$PWD/detail/treeitemdelegate.cpp \

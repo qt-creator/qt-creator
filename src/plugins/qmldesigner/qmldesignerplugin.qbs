@@ -691,6 +691,8 @@ Project {
                 "curveeditor/detail/playhead.h",
                 "curveeditor/detail/selectableitem.cpp",
                 "curveeditor/detail/selectableitem.h",
+                "curveeditor/detail/selectionmodel.cpp",
+                "curveeditor/detail/selectionmodel.h",
                 "curveeditor/detail/selector.cpp",
                 "curveeditor/detail/selector.h",
                 "curveeditor/detail/shortcut.cpp",

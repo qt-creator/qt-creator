@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "treemodel.h"
+#include "curveitem.h"
 #include "detail/graphicsview.h"
 #include "treeitem.h"
 #include "treeview.h"
@@ -31,6 +32,42 @@
 #include <QIcon>
 
 namespace DesignTools {
+
+TreeItem *TreeModel::treeItem(const QModelIndex &index)
+{
+    if (index.isValid() && index.column() == 0)
+        return static_cast<TreeItem *>(index.internalPointer());
+
+    return nullptr;
+}
+
+NodeTreeItem *TreeModel::nodeItem(const QModelIndex &index)
+{
+    if (auto *ti = treeItem(index))
+        return ti->asNodeItem();
+
+    return nullptr;
+}
+
+PropertyTreeItem *TreeModel::propertyItem(const QModelIndex &index)
+{
+    if (auto *ti = treeItem(index))
+        return ti->asPropertyItem();
+
+    return nullptr;
+}
+
+CurveItem *TreeModel::curveItem(const QModelIndex &index)
+{
+    if (auto *pti = propertyItem(index)) {
+        auto *citem = new CurveItem(pti->id(), pti->curve());
+        citem->setValueType(pti->valueType());
+        citem->setComponent(pti->component());
+        return citem;
+    }
+
+    return nullptr;
+}
 
 TreeModel::TreeModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -141,16 +178,11 @@ GraphicsView *TreeModel::graphicsView() const
     return m_view;
 }
 
-std::vector<TreeItem::Path> TreeModel::selection() const
+SelectionModel *TreeModel::selectionModel() const
 {
-    std::vector<TreeItem::Path> out;
-    for (auto &&index : m_tree->selectionModel()->selectedIndexes()) {
-        if (index.column() == 0) {
-            TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
-            out.push_back(item->path());
-        }
-    }
-    return out;
+    if (m_tree)
+        return m_tree->selectionModel();
+    return nullptr;
 }
 
 QModelIndex TreeModel::findIdx(const QString &name, const QModelIndex &parent) const
@@ -176,15 +208,6 @@ QModelIndex TreeModel::indexOf(const TreeItem::Path &path) const
     }
 
     return parent;
-}
-
-void TreeModel::select(const std::vector<TreeItem::Path> &selection)
-{
-    for (auto &&sel : selection) {
-        QModelIndex idx = indexOf(sel);
-        if (idx.isValid())
-            m_tree->selectionModel()->select(idx, QItemSelectionModel::Select);
-    }
 }
 
 void TreeModel::initialize()

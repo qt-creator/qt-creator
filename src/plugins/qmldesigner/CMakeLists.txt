@@ -626,6 +626,7 @@ extend_qtc_plugin(QmlDesigner
     detail/keyframeitem.cpp detail/keyframeitem.h
     detail/playhead.cpp detail/playhead.h
     detail/selectableitem.cpp detail/selectableitem.h
+    detail/selectionmodel.cpp detail/selectionmodel.h
     detail/selector.cpp detail/selector.h
     detail/shortcut.cpp detail/shortcut.h
     detail/treeitemdelegate.cpp detail/treeitemdelegate.h

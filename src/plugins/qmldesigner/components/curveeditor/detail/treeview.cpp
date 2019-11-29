@@ -25,6 +25,7 @@
 #include "treeview.h"
 #include "curveeditormodel.h"
 #include "curveitem.h"
+#include "selectionmodel.h"
 #include "treeitem.h"
 #include "treeitemdelegate.h"
 
@@ -49,16 +50,12 @@ TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
     auto expandItems = [this]() { expandAll(); };
     connect(model, &QAbstractItemModel::modelReset, expandItems);
 
-    auto *delegate = new TreeItemDelegate(model->style(), this);
-    setItemDelegate(delegate);
+    setItemDelegate(new TreeItemDelegate(model->style(), this));
 
+    setSelectionModel(new SelectionModel(model));
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    connect(selectionModel(),
-            &QItemSelectionModel::selectionChanged,
-            this,
-            &TreeView::changeSelection);
     setStyle(model->style());
 
     header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -68,6 +65,11 @@ TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
     header()->setStretchLastSection(false);
     header()->resizeSection(1, 20);
     header()->resizeSection(2, 20);
+}
+
+SelectionModel *TreeView::selectionModel() const
+{
+    return qobject_cast<SelectionModel *>(QTreeView::selectionModel());
 }
 
 void TreeView::setStyle(const CurveEditorStyle &style)
@@ -87,44 +89,10 @@ void TreeView::setStyle(const CurveEditorStyle &style)
         delegate->setStyle(style);
 }
 
-std::vector<CurveItem *> TreeView::selection()
-{
-    std::vector<DesignTools::CurveItem *> items;
-    for (auto &&index : selectionModel()->selectedRows(0)) {
-        if (index.isValid()) {
-            auto *treeItem = static_cast<TreeItem *>(index.internalPointer());
-            if (auto *propertyItem = treeItem->asPropertyItem())
-                items.push_back(new CurveItem(treeItem->id(), propertyItem->curve()));
-        }
-    }
-    return items;
-}
-
 void TreeView::changeCurve(unsigned int id, const AnimationCurve &curve)
 {
     if (auto *curveModel = qobject_cast<CurveEditorModel *>(model()))
         curveModel->setCurve(id, curve);
-}
-
-void TreeView::changeSelection(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    Q_UNUSED(selected)
-    Q_UNUSED(deselected)
-
-    std::vector<CurveItem *> curves;
-    for (auto index : selectedIndexes()) {
-        if (index.isValid() && index.column() == 0) {
-            auto *treeItem = static_cast<TreeItem *>(index.internalPointer());
-            if (auto *propertyItem = treeItem->asPropertyItem()) {
-                auto *citem = new CurveItem(treeItem->id(), propertyItem->curve());
-                citem->setValueType(propertyItem->valueType());
-                citem->setComponent(propertyItem->component());
-                curves.push_back(citem);
-            }
-        }
-    }
-
-    emit curvesSelected(curves);
 }
 
 QSize TreeView::sizeHint() const

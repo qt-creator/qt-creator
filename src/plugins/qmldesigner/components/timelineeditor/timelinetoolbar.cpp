@@ -232,6 +232,7 @@ void TimelineToolBar::openAnimationCurveEditor()
             timeline = tlv->timelineForState(tlv->currentState());
     }
 
+    m_dialog.refresh();
     m_curveModel->setTimeline(timeline);
     m_dialog.show();
 }
