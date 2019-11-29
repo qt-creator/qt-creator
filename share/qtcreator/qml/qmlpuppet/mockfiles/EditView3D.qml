@@ -249,7 +249,8 @@ Window {
             acceptedButtons: Qt.LeftButton
             onClicked: {
                 var pickResult = editView.pick(mouse.x, mouse.y);
-                handleObjectClicked(pickResult.objectHit, mouse.modifiers & Qt.ControlModifier);
+                handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
+                                    mouse.modifiers & Qt.ControlModifier);
                 if (!pickResult.objectHit)
                     mouse.accepted = false;
             }

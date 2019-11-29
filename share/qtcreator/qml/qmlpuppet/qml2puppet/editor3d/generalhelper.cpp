@@ -204,6 +204,20 @@ void GeneralHelper::delayedPropertySet(QObject *obj, int delay, const QString &p
     });
 }
 
+QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
+{
+    if (pickNode) {
+        // Check if the picked node actually specifies another node as the pick target
+        QVariant componentVar = pickNode->property("_pickTarget");
+        if (componentVar.isValid()) {
+            auto componentNode = componentVar.value<QQuick3DNode *>();
+            if (componentNode)
+                return componentNode;
+        }
+    }
+    return pickNode;
+}
+
 }
 }
 

@@ -37,6 +37,7 @@
 
 #ifdef QUICK3D_MODULE
 #include <private/qquick3dnode_p.h>
+#include <private/qquick3dmodel_p.h>
 #include <private/qquick3dnode_p_p.h>
 #endif
 
@@ -73,7 +74,7 @@ QQuick3DNode *Quick3DNodeInstance::quick3DNode() const
 #endif
 }
 
-void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyToChildren)
+void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyToChildInstances)
 {
 #ifdef QUICK3D_MODULE
     auto node = quick3DNode();
@@ -90,22 +91,42 @@ void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyT
 
         }
         if (!parentHidden) {
-            if (applyToChildren) {
-                auto getQuick3DInstance = [this](QQuick3DObject *obj) -> Quick3DNodeInstance * {
-                    if (nodeInstanceServer()->hasInstanceForObject(obj)) {
-                        ServerNodeInstance instance = nodeInstanceServer()->instanceForObject(obj);
-                        if (instance.isValid() && qobject_cast<QQuick3DNode *>(instance.internalObject()))
-                            return static_cast<Quick3DNodeInstance *>(instance.internalInstance().data());
-                    }
-                    return nullptr;
-                };
-                const auto childItems = node->childItems();
-                for (auto childItem : childItems) {
-                    if (auto quick3dInstance = getQuick3DInstance(childItem)) {
+            auto getQuick3DInstance = [this](QQuick3DObject *obj) -> Quick3DNodeInstance * {
+                if (nodeInstanceServer()->hasInstanceForObject(obj)) {
+                    ServerNodeInstance instance = nodeInstanceServer()->instanceForObject(obj);
+                    if (instance.isValid() && qobject_cast<QQuick3DNode *>(instance.internalObject()))
+                        return static_cast<Quick3DNodeInstance *>(instance.internalInstance().data());
+                }
+                return nullptr;
+            };
+            const auto childItems = node->childItems();
+            for (auto childItem : childItems) {
+                if (auto quick3dInstance = getQuick3DInstance(childItem)) {
+                    if (applyToChildInstances) {
                         // Don't override explicit block in children
                         if (!QQuick3DNodePrivate::get(quick3dInstance->quick3DNode())->m_isHiddenInEditor)
                             quick3dInstance->setPickable(enable, false, true);
                     }
+                } else {
+                    // Children of components do not have instances, but will still need to be
+                    // pickable. These need to be set even if applyToChildInstances is false.
+                    std::function<void(QQuick3DNode *)> checkChildren;
+                    checkChildren = [&](QQuick3DNode *checkNode) {
+                        const auto childItems = checkNode->childItems();
+                        for (auto child : childItems) {
+                            if (auto childNode = qobject_cast<QQuick3DNode *>(child))
+                                checkChildren(childNode);
+                        }
+                        if (auto checkModel = qobject_cast<QQuick3DModel *>(checkNode)) {
+                            QVariant value;
+                            if (enable)
+                                value = QVariant::fromValue(node);
+                            // Specify the actual pick target with dynamic property
+                            checkModel->setProperty("_pickTarget", value);
+                            checkModel->setPickable(enable);
+                        }
+                    };
+                    checkChildren(node);
                 }
             }
             if (nodeType == QQuick3DObject::Model)

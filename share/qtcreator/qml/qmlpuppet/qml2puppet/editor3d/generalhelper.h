@@ -67,6 +67,8 @@ public:
                                             float oldZoom, bool updateZoom = true);
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
+    Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
+
 
 signals:
     void overlayUpdateNeeded();
