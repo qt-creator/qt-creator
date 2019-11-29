@@ -61,12 +61,10 @@ static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticCo
 {
     QStringList arguments;
 
-    const QString clazyChecks = diagnosticConfig.clazyChecks();
-    if (!clazyChecks.isEmpty()) {
-        arguments << XclangArgs({"-add-plugin",
-                                 "clazy",
-                                 "-plugin-arg-clazy",
-                                 diagnosticConfig.clazyChecks()});
+    if (diagnosticConfig.isClazyEnabled()) {
+        arguments << XclangArgs({"-add-plugin", "clazy"});
+        if (!diagnosticConfig.clazyChecks().isEmpty())
+            arguments << XclangArgs({"-plugin-arg-clazy", diagnosticConfig.clazyChecks()});
     }
 
     return arguments;
