@@ -49,13 +49,6 @@ using Internal::ClangFixItOperation;
 
 namespace {
 
-// CLANG-UPGRADE-CHECK: Checks/update URLs.
-//
-// Once it gets dedicated documentation pages for released versions,
-// use them instead of pointing to master, as checks might vanish.
-const char CLAZY_DOCUMENTATION_URL_TEMPLATE[]
-    = "https://github.com/KDE/clazy/blob/master/docs/checks/README-%1.md";
-
 const char LINK_ACTION_GOTO_LOCATION[] = "#gotoLocation";
 const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
 
@@ -230,7 +223,8 @@ private:
         // Clazy
         if (ClangCodeModel::Utils::DiagnosticTextInfo::isClazyOption(option)) {
             option = optionAsUtf8String.mid(8); // Remove "-Wclazy-" prefix.
-            return QString::fromUtf8(CLAZY_DOCUMENTATION_URL_TEMPLATE).arg(option);
+            return QString::fromUtf8(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE)
+                .arg(option);
         }
 
         // Clang itself

@@ -46,9 +46,6 @@ using namespace CppTools;
 namespace ClangTools {
 namespace Internal {
 
-static constexpr const char CLANG_STATIC_ANALYZER_URL[]
-    = "https://clang-analyzer.llvm.org/available_checks.html";
-
 namespace ClangTidyPrefixTree {
 
 class Node
@@ -346,7 +343,7 @@ private:
             if (role == LinkRole || role == Qt::ToolTipRole) {
                 // 'clang-analyzer-' group
                 if (node->isDir)
-                    return QString::fromUtf8(CLANG_STATIC_ANALYZER_URL);
+                    return CppTools::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
                 return QString::fromUtf8(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE)
                         .arg(node->fullPath.toString());
             }

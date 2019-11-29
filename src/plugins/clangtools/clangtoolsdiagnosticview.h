@@ -44,6 +44,8 @@ public:
     void scheduleAllFixits(bool schedule);
 
 signals:
+    void showHelp();
+
     void showFilter();
     void clearFilter();
     void filterForCurrentKind();
@@ -64,12 +66,18 @@ private:
     QModelIndex getTopLevelIndex(const QModelIndex &index, Direction direction) const;
 
 private:
+    QAction *m_help = nullptr;
+
     QAction *m_showFilter = nullptr;
     QAction *m_clearFilter = nullptr;
     QAction *m_filterForCurrentKind = nullptr;
     QAction *m_filterOutCurrentKind = nullptr;
-    QAction *m_separator = nullptr;
+
     QAction *m_suppressAction = nullptr;
+
+    QAction *m_separator = nullptr;
+    QAction *m_separator2 = nullptr;
+
     DiagnosticViewStyle *m_style = nullptr;
     DiagnosticViewDelegate *m_delegate = nullptr;
     bool m_ignoreSetSelectedFixItsCount = false;

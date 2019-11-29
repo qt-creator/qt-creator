@@ -57,6 +57,8 @@ QString clangTidyFallbackExecutable();
 
 QString fullPath(const QString &executable);
 
+QString documentationUrl(const QString &checkName);
+
 CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel();
 CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel(
     const CppTools::ClangDiagnosticConfigs &customConfigs);

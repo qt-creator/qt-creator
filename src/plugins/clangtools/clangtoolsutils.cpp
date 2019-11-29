@@ -31,6 +31,7 @@
 #include "clangtoolssettings.h"
 
 #include <coreplugin/icore.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -191,6 +192,28 @@ ClangDiagnosticConfigsModel diagnosticConfigsModel(const ClangDiagnosticConfigs 
 ClangDiagnosticConfigsModel diagnosticConfigsModel()
 {
     return Internal::diagnosticConfigsModel(ClangToolsSettings::instance()->diagnosticConfigs());
+}
+
+QString documentationUrl(const QString &checkName)
+{
+    QString name = checkName;
+    const QString clangPrefix = "clang-diagnostic-";
+    if (name.startsWith(clangPrefix))
+        return {}; // No documentation for this.
+
+    QString url;
+    const QString clazyPrefix = "clazy-";
+    const QString clangStaticAnalyzerPrefix = "clang-analyzer-core.";
+    if (name.startsWith(clazyPrefix)) {
+        name = checkName.mid(clazyPrefix.length());
+        url = QString(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE).arg(name);
+    } else if (name.startsWith(clangStaticAnalyzerPrefix)) {
+        url = CppTools::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
+    } else {
+        url = QString(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE).arg(name);
+    }
+
+    return url;
 }
 
 } // namespace Internal

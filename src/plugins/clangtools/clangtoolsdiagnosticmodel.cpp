@@ -433,6 +433,8 @@ QVariant DiagnosticItem::data(int column, int role) const
             }
             break;
         }
+        case ClangToolsDiagnosticModel::DocumentationUrlRole:
+            return documentationUrl(m_diagnostic.name);
         case Qt::DisplayRole:
             return QString("%1: %2").arg(lineColumnString(m_diagnostic.location),
                                          m_diagnostic.description);
@@ -514,6 +516,8 @@ QVariant ExplainingStepItem::data(int column, int role) const
             return m_step.message;
         case ClangToolsDiagnosticModel::DiagnosticRole:
             return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());
+        case ClangToolsDiagnosticModel::DocumentationUrlRole:
+            return parent()->data(column, role);
         case Qt::DisplayRole: {
             const QString mainFilePath = static_cast<DiagnosticItem *>(parent())->diagnostic().location.filePath;
             const QString locationString

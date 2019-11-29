@@ -151,6 +151,14 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     m_separator = new QAction(this);
     m_separator->setSeparator(true);
 
+    m_separator2 = new QAction(this);
+    m_separator2->setSeparator(true);
+
+    m_help = new QAction(tr("Web Page"), this);
+    m_help->setIcon(Utils::Icons::INFO.icon());
+    connect(m_help, &QAction::triggered,
+            this, &DiagnosticView::showHelp);
+
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
@@ -259,17 +267,23 @@ QModelIndex DiagnosticView::getTopLevelIndex(const QModelIndex &index, Direction
 QList<QAction *> DiagnosticView::customActions() const
 {
     const QModelIndex currentIndex = selectionModel()->currentIndex();
+
     const bool isDiagnosticItem = currentIndex.parent().isValid();
+    const QString docUrl
+        = model()->data(currentIndex, ClangToolsDiagnosticModel::DocumentationUrlRole).toString();
+    m_help->setEnabled(isDiagnosticItem && !docUrl.isEmpty());
     m_filterForCurrentKind->setEnabled(isDiagnosticItem);
     m_filterOutCurrentKind->setEnabled(isDiagnosticItem);
     m_suppressAction->setEnabled(isDiagnosticItem);
 
     return {
+        m_help,
+        m_separator,
         m_showFilter,
         m_clearFilter,
         m_filterForCurrentKind,
         m_filterOutCurrentKind,
-        m_separator,
+        m_separator2,
         m_suppressAction,
     };
 }

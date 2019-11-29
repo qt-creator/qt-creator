@@ -126,6 +126,8 @@ private:
     void updateForCurrentState();
     void updateForInitialState();
 
+    void help();
+
     void filter();
     void clearFilter();
     void filterForCurrentKind();

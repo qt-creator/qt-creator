@@ -102,6 +102,13 @@ const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C
 constexpr const char TIDY_DOCUMENTATION_URL_TEMPLATE[]
     = "https://releases.llvm.org/8.0.1/tools/clang/tools/extra/docs/clang-tidy/checks/%1.html";
 
+constexpr const char CLANG_STATIC_ANALYZER_DOCUMENTATION_URL[]
+    = "https://clang-analyzer.llvm.org/available_checks.html";
+
+// CLANG-UPGRADE-CHECK: Checks/update URLs.
+//
+// Once it gets dedicated documentation pages for released versions,
+// use them instead of pointing to master, as checks might vanish.
 constexpr const char CLAZY_DOCUMENTATION_URL_TEMPLATE[]
     = "https://github.com/KDE/clazy/blob/master/docs/checks/README-%1.md";
 

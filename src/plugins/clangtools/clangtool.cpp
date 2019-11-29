@@ -70,6 +70,7 @@
 
 #include <QAction>
 #include <QCheckBox>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -420,6 +421,8 @@ ClangTool::ClangTool()
     m_diagnosticView->setSortingEnabled(true);
     m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::DiagnosticColumn,
                                    Qt::AscendingOrder);
+    connect(m_diagnosticView, &DiagnosticView::showHelp,
+            this, &ClangTool::help);
     connect(m_diagnosticView, &DiagnosticView::showFilter,
             this, &ClangTool::filter);
     connect(m_diagnosticView, &DiagnosticView::clearFilter,
@@ -928,6 +931,15 @@ void ClangTool::updateForInitialState()
     case CheckResult::ReadyToAnalyze:
         break;
         }
+}
+
+void ClangTool::help()
+{
+    if (DiagnosticItem *item = diagnosticItem(m_diagnosticView->currentIndex())) {
+        const QString url = documentationUrl(item->diagnostic().name);
+        if (!url.isEmpty())
+            QDesktopServices::openUrl(url);
+    }
 }
 
 void ClangTool::setFilterOptions(const OptionalFilterOptions &filterOptions)

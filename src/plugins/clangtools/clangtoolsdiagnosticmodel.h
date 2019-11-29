@@ -122,7 +122,8 @@ public:
     enum ItemRole {
         DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1,
         TextRole,
-        CheckBoxEnabledRole
+        CheckBoxEnabledRole,
+        DocumentationUrlRole,
     };
 
     QSet<QString> allChecks() const;
