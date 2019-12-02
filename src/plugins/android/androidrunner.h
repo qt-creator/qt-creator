@@ -72,7 +72,7 @@ private:
     void remoteOutput(const QString &output);
     void remoteErrorOutput(const QString &output);
     void gotRemoteOutput(const QString &output);
-    void handleRemoteProcessStarted(Utils::Port gdbServerPort, const QUrl &qmlServer, int pid);
+    void handleRemoteProcessStarted(Utils::Port gdbServerPort, const QUrl &qmlServer, qint64 pid);
     void handleRemoteProcessFinished(const QString &errString = QString());
     void checkAVD();
     void launchAVD();
