@@ -428,20 +428,22 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
             } else {
                 newline = out.indexOf(QLatin1Char('\n'));
                 moveCursor(QTextCursor::End);
-                if (newline != -1 && d->formatter)
-                    d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
+                if (newline != -1) {
+                    if (d->formatter)
+                        d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
+                    out = out.mid(newline);
+                }
             }
 
-            QString s = out.mid(newline+1);
-            if (s.isEmpty()) {
+            if (out.isEmpty()) {
                 d->enforceNewline = true;
             } else {
-                if (s.endsWith(QLatin1Char('\n'))) {
+                if (out.endsWith(QLatin1Char('\n'))) {
                     d->enforceNewline = true;
-                    s.chop(1);
+                    out.chop(1);
                 }
                 if (d->formatter)
-                    d->formatter->appendMessage(s, format);
+                    d->formatter->appendMessage(out, format);
             }
         } else {
             if (d->formatter)
