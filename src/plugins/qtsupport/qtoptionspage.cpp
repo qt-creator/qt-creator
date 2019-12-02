@@ -65,6 +65,8 @@ namespace Internal {
 
 class QtVersionItem : public TreeItem
 {
+    Q_DECLARE_TR_FUNCTIONS(QtSupport::QtVersion)
+
 public:
     explicit QtVersionItem(BaseQtVersion *version)
         : m_version(version)
@@ -111,6 +113,14 @@ public:
 
         if (role == Qt::DecorationRole && column == 0)
             return m_icon;
+
+        if (role == Qt::ToolTipRole) {
+            const QString row = "<tr><td>%1:</td><td>%2</td></tr>";
+            return QString("<table>"
+                         + row.arg(tr("Qt Version"), m_version->qtVersionString())
+                         + row.arg(tr("Location of qmake)"), m_version->qmakeCommand().toUserOutput())
+                         + "</table>");
+        }
 
         return QVariant();
     }
