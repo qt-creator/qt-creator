@@ -552,7 +552,10 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step, &QMakeStep::userArgumentsChanged,
             this, &QMakeStepConfigWidget::userArgumentsChanged);
     connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmlDebuggingChanged,
-            this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
+            this, [this] {
+        linkQmlDebuggingLibraryChanged();
+        askForRebuild(tr("QML Debugging"));
+    });
     connect(step->project(), &Project::projectLanguagesUpdated,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
     connect(step->target(), &Target::parsingFinished,
@@ -614,7 +617,6 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged()
 {
     updateSummaryLabel();
     updateEffectiveQMakeCall();
-    askForRebuild(tr("QML Debugging"));
 }
 
 void QMakeStepConfigWidget::useQtQuickCompilerChanged()

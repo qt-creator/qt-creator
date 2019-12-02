@@ -13,6 +13,8 @@ add_qtc_plugin(ProjectExplorer
     appoutputpane.cpp appoutputpane.h
     baseprojectwizarddialog.cpp baseprojectwizarddialog.h
     buildaspects.cpp buildaspects.h
+    buildpropertiessettings.h
+    buildpropertiessettingspage.cpp buildpropertiessettingspage.h
     buildconfiguration.cpp buildconfiguration.h
     buildenvironmentwidget.cpp buildenvironmentwidget.h
     buildinfo.cpp buildinfo.h

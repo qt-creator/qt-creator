@@ -26,6 +26,8 @@
 #include "projectexplorer.h"
 
 #include "appoutputpane.h"
+#include "buildpropertiessettings.h"
+#include "buildpropertiessettingspage.h"
 #include "buildsteplist.h"
 #include "buildsystem.h"
 #include "compileoutputwindow.h"
@@ -268,6 +270,10 @@ const char CLEAR_ISSUES_ON_REBUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/Cl
 const char ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY[]
     = "ProjectExplorer/Settings/AbortBuildAllOnError";
 const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
+
+const char SEPARATE_DEBUG_INFO_SETTINGS_KEY[] = "ProjectExplorer/Settings/SeparateDebugInfo";
+const char QML_DEBUGGING_SETTINGS_KEY[] = "ProjectExplorer/Settings/QmlDebugging";
+const char QT_QUICK_COMPILER_SETTINGS_KEY[] = "ProjectExplorer/Settings/QtQuickCompiler";
 
 } // namespace Constants
 
@@ -513,6 +519,7 @@ public:
     QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
+    BuildPropertiesSettings m_buildPropertiesSettings;
     bool m_shouldHaveRunConfiguration = false;
     bool m_shuttingDown = false;
     Core::Id m_runMode = Constants::NO_RUN_MODE;
@@ -588,6 +595,7 @@ public:
 
     // Settings pages
     ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
+    BuildPropertiesSettingsPage m_buildPropertiesSettingsPage;
     AppOutputSettingsPage m_appOutputSettingsPage;
     CompileOutputSettingsPage m_compileOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
@@ -1417,6 +1425,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (dd->m_projectExplorerSettings.buildDirectoryTemplate.isEmpty())
         dd->m_projectExplorerSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
 
+    const auto loadTriStateValue = [&s](const QString &key) {
+      return static_cast<BaseTriStateAspect::Value>(
+                  s->value(key, int(BaseTriStateAspect::Value::Default)).toInt());
+    };
+    dd->m_buildPropertiesSettings.separateDebugInfo
+            = loadTriStateValue(Constants::SEPARATE_DEBUG_INFO_SETTINGS_KEY);
+    dd->m_buildPropertiesSettings.qmlDebugging
+            = loadTriStateValue(Constants::QML_DEBUGGING_SETTINGS_KEY);
+    dd->m_buildPropertiesSettings.qtQuickCompiler
+            = loadTriStateValue(Constants::QT_QUICK_COMPILER_SETTINGS_KEY);
+
     auto buildManager = new BuildManager(this, dd->m_cancelBuildAction);
     connect(buildManager, &BuildManager::buildStateChanged,
             dd, &ProjectExplorerPluginPrivate::updateActions);
@@ -2028,6 +2047,13 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
     // Store this in the Core directory scope for backward compatibility!
     s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY, dd->m_projectExplorerSettings.buildDirectoryTemplate);
+
+    s->setValue(Constants::SEPARATE_DEBUG_INFO_SETTINGS_KEY,
+                int(dd->m_buildPropertiesSettings.separateDebugInfo));
+    s->setValue(Constants::QML_DEBUGGING_SETTINGS_KEY,
+                int(dd->m_buildPropertiesSettings.qmlDebugging));
+    s->setValue(Constants::QT_QUICK_COMPILER_SETTINGS_KEY,
+                int(dd->m_buildPropertiesSettings.qtQuickCompiler));
 }
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
@@ -3865,6 +3891,21 @@ void ProjectExplorerPlugin::setAppOutputSettings(const AppOutputSettings &settin
 const AppOutputSettings &ProjectExplorerPlugin::appOutputSettings()
 {
     return dd->m_outputPane.settings();
+}
+
+void ProjectExplorerPlugin::setBuildPropertiesSettings(const BuildPropertiesSettings &settings)
+{
+    dd->m_buildPropertiesSettings = settings;
+}
+
+const BuildPropertiesSettings &ProjectExplorerPlugin::buildPropertiesSettings()
+{
+    return dd->m_buildPropertiesSettings;
+}
+
+void ProjectExplorerPlugin::showQtSettings()
+{
+    dd->m_buildPropertiesSettings.showQtSettings = true;
 }
 
 QStringList ProjectExplorerPlugin::projectFilePatterns()

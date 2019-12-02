@@ -14,6 +14,8 @@ HEADERS += projectexplorer.h \
     ansifilterparser.h \
     buildaspects.h \
     buildinfo.h \
+    buildpropertiessettings.h \
+    buildpropertiessettingspage.h \
     buildsystem.h \
     buildtargettype.h \
     clangparser.h \
@@ -174,6 +176,7 @@ SOURCES += projectexplorer.cpp \
     ansifilterparser.cpp \
     buildaspects.cpp \
     buildinfo.cpp \
+    buildpropertiessettingspage.cpp \
     buildsystem.cpp \
     clangparser.cpp \
     configtaskhandler.cpp \

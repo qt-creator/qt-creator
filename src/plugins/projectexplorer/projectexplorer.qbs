@@ -37,6 +37,8 @@ Project {
                 "buildinfo.cpp", "buildinfo.h",
                 "buildmanager.cpp", "buildmanager.h",
                 "buildprogress.cpp", "buildprogress.h",
+                "buildpropertiessettings.h",
+                "buildpropertiessettingspage.cpp", "buildpropertiessettingspage.h",
                 "buildsettingspropertiespage.cpp", "buildsettingspropertiespage.h",
                 "buildstep.cpp", "buildstep.h",
                 "buildsteplist.cpp", "buildsteplist.h",

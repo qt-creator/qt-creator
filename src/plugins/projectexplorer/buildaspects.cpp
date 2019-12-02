@@ -25,6 +25,9 @@
 
 #include "buildaspects.h"
 
+#include "buildpropertiessettings.h"
+#include "projectexplorer.h"
+
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
@@ -131,6 +134,7 @@ SeparateDebugInfoAspect::SeparateDebugInfoAspect()
 {
     setDisplayName(tr("Separate Debug Info:"));
     setSettingsKey("SeparateDebugInfo");
+    setSetting(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo);
 }
 
 } // namespace ProjectExplorer

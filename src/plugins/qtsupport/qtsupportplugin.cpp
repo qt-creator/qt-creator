@@ -44,6 +44,7 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
@@ -96,6 +97,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
     ProjectExplorer::JsonWizardFactory::registerPageFactory(new TranslationWizardPageFactory);
+    ProjectExplorerPlugin::showQtSettings();
 
     d = new QtSupportPluginPrivate;
 

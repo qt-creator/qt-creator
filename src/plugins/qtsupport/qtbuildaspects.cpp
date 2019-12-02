@@ -27,6 +27,8 @@
 
 #include "baseqtversion.h"
 
+#include <projectexplorer/buildpropertiessettings.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitmanager.h>
 #include <utils/utilsicons.h>
 
@@ -42,6 +44,7 @@ QmlDebuggingAspect::QmlDebuggingAspect()
 {
     setSettingsKey("EnableQmlDebugging");
     setDisplayName(tr("QML debugging and profiling:"));
+    setSetting(ProjectExplorerPlugin::buildPropertiesSettings().qmlDebugging);
 }
 
 void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
@@ -77,6 +80,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect()
 {
     setSettingsKey("QtQuickCompiler");
     setDisplayName(tr("Qt Quick Compiler:"));
+    setSetting(ProjectExplorerPlugin::buildPropertiesSettings().qtQuickCompiler);
 }
 
 void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)

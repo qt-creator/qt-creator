@@ -49,6 +49,7 @@ class FilePath;
 }
 
 namespace ProjectExplorer {
+class BuildPropertiesSettings;
 class RunControl;
 class RunConfiguration;
 class Project;
@@ -134,6 +135,10 @@ public:
 
     static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
     static const Internal::AppOutputSettings &appOutputSettings();
+
+    static void setBuildPropertiesSettings(const BuildPropertiesSettings &settings);
+    static const BuildPropertiesSettings &buildPropertiesSettings();
+    static void showQtSettings();
 
     static void startRunControl(RunControl *runControl);
     static void showRunErrorMessage(const QString &errorMessage);
