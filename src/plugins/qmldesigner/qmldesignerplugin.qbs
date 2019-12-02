@@ -454,6 +454,8 @@ Project {
                 "formeditor/controlelement.h",
                 "formeditor/dragtool.cpp",
                 "formeditor/dragtool.h",
+                "formeditor/editview3dproxydialog.cpp",
+                "formeditor/editview3dproxydialog.h",
                 "formeditor/formeditor.qrc",
                 "formeditor/formeditorgraphicsview.cpp",
                 "formeditor/formeditorgraphicsview.h",
