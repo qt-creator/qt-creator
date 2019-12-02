@@ -648,13 +648,13 @@ void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
         const Utils::FilePath parentDir = f->filePath().parentDir();
         const auto it = std::lower_bound(fileNodesPerDir.begin(), fileNodesPerDir.end(), parentDir,
             [](const DirWithNodes &nad, const Utils::FilePath &dir) { return nad.first < dir; });
-        if (it == fileNodesPerDir.end() || it->first < parentDir) {
+        if (it != fileNodesPerDir.end() && it->first == parentDir) {
+            it->second.emplace_back(std::move(f));
+        } else {
             DirWithNodes dirWithNodes;
             dirWithNodes.first = parentDir;
             dirWithNodes.second.emplace_back(std::move(f));
             fileNodesPerDir.insert(it, std::move(dirWithNodes));
-        } else {
-            it->second.emplace_back(std::move(f));
         }
     }
 
