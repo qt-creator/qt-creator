@@ -183,6 +183,7 @@ void FormEditorView::temporaryBlockView()
 
 void FormEditorView::setupOption3DAction()
 {
+    QTC_ASSERT(m_formEditorWidget->option3DAction(), return);
     auto import = Import::createLibraryImport("QtQuick3D", "1.0");
     auto action = m_formEditorWidget->option3DAction();
     if (model() && model()->hasImport(import, true, true)) {
