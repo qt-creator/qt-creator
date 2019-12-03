@@ -62,6 +62,7 @@ public:
     QString settingsKey;
 
     bool enforceNewline = false;
+    bool prependCarriageReturn = false;
     bool scrollToBottom = true;
     bool linksActive = true;
     bool zoomEnabled = false;
@@ -383,7 +384,16 @@ int OutputWindow::maxCharCount() const
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
-    QString out = SynchronousProcess::normalizeNewlines(output);
+    QString out = output;
+    if (d->prependCarriageReturn) {
+        d->prependCarriageReturn = false;
+        out.prepend('\r');
+    }
+    out = SynchronousProcess::normalizeNewlines(out);
+    if (out.endsWith('\r')) {
+        d->prependCarriageReturn = true;
+        out.chop(1);
+    }
 
     if (out.size() > d->maxCharCount) {
         // Current line alone exceeds limit, we need to cut it.
@@ -497,6 +507,7 @@ bool OutputWindow::isScrollbarAtBottom() const
 void OutputWindow::clear()
 {
     d->enforceNewline = false;
+    d->prependCarriageReturn = false;
     QPlainTextEdit::clear();
     if (d->formatter)
         d->formatter->clear();
