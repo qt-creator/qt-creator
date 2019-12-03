@@ -63,6 +63,8 @@ Model {
             return;
 
         _pointerPosPressed = mouseArea.mapPositionToScene(scenePos);
+        if (targetNode.orientation === Node.RightHanded)
+            _pointerPosPressed.z = -_pointerPosPressed.z;
         var sp = targetNode.scenePosition;
         _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
         pressed(mouseArea);
@@ -71,9 +73,9 @@ Model {
     function calcRelativeDistance(mouseArea, scenePos)
     {
         var scenePointerPos = mouseArea.mapPositionToScene(scenePos);
-        return Qt.vector3d(scenePointerPos.x - _pointerPosPressed.x,
-                           scenePointerPos.y - _pointerPosPressed.y,
-                           scenePointerPos.z - _pointerPosPressed.z);
+        if (targetNode.orientation === Node.RightHanded)
+            scenePointerPos.z = -scenePointerPos.z;
+        return scenePointerPos.minus(_pointerPosPressed);
     }
 
     function handleDragged(mouseArea, scenePos)

@@ -37,12 +37,17 @@ Node {
     readonly property bool dragging: arrowX.dragging || arrowY.dragging || arrowZ.dragging
                                      || planeX.dragging || planeY.dragging || planeZ.dragging
                                      || centerBall.dragging
+    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    orientation: targetNode ? targetNode.orientation : Node.LeftHanded
 
     signal positionCommit()
     signal positionMove()
 
     Node {
-        rotation: globalOrientation || !targetNode ? Qt.vector3d(0, 0, 0) : targetNode.sceneRotation
+        rotation: globalOrientation || !moveGizmo.targetNode ? Qt.vector3d(0, 0, 0)
+                                                             : moveGizmo.targetNode.sceneRotation
+        rotationOrder: moveGizmo.targetNode ? moveGizmo.targetNode.rotationOrder : Node.YXZ
+        orientation: moveGizmo.orientation
 
         Arrow {
             id: arrowX

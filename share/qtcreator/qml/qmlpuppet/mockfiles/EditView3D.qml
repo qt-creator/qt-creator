@@ -188,8 +188,6 @@ Window {
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
-            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
-                                              : Qt.vector3d(0, 0, 0)
             globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnMove.selected
             view3D: overlayView
@@ -203,8 +201,6 @@ Window {
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
-            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
-                                              : Qt.vector3d(0, 0, 0)
             globalOrientation: false
             visible: selectedNode && btnScale.selected
             view3D: overlayView
@@ -218,8 +214,6 @@ Window {
             scale: autoScale.getScale(Qt.vector3d(7, 7, 7))
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
-            position: viewWindow.selectedNode ? viewWindow.selectedNode.scenePosition
-                                              : Qt.vector3d(0, 0, 0)
             globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnRotate.selected
             view3D: overlayView
@@ -232,6 +226,7 @@ Window {
             id: autoScale
             view3D: overlayView
             position: moveGizmo.scenePosition
+            orientation: moveGizmo.orientation
         }
     }
 

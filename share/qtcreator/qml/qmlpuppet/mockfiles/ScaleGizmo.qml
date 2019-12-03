@@ -38,11 +38,16 @@ Node {
                                      || planeX.dragging || planeY.dragging || planeZ.dragging
                                      || centerMouseArea.dragging
 
+    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    orientation: targetNode ? targetNode.orientation : Node.LeftHanded
+
     signal scaleCommit()
     signal scaleChange()
 
     Node {
         rotation: globalOrientation || !targetNode ? Qt.vector3d(0, 0, 0) : targetNode.sceneRotation
+        rotationOrder: scaleGizmo.targetNode ? scaleGizmo.targetNode.rotationOrder : Node.YXZ
+        orientation: scaleGizmo.orientation
 
         ScaleRod {
             id: scaleRodX

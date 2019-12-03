@@ -77,7 +77,15 @@ Model {
         if (!targetNode)
             return;
 
-        _targetPosOnScreen = view3D.mapFrom3DScene(targetNode.scenePosition);
+        // Need to recreate vector as we need to adjust it and we can't do that on reference of
+        // scenePosition, which is read-only property
+        var scenePos = Qt.vector3d(targetNode.scenePosition.x,
+                                   targetNode.scenePosition.y,
+                                   targetNode.scenePosition.z);
+        if (targetNode && targetNode.orientation === Node.RightHanded)
+            scenePos.z = -scenePos.z
+
+        _targetPosOnScreen = view3D.mapFrom3DScene(scenePos);
         _targetPosOnScreen.z = 0;
         _pointerPosPressed = Qt.vector3d(screenPos.x, screenPos.y, 0);
         _trackBall = angle < 0.1;
