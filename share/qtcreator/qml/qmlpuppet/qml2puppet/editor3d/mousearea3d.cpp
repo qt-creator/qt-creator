@@ -322,11 +322,11 @@ QVector3D MouseArea3D::getNewScale(QQuick3DNode *node, const QVector3D &startSca
         scaleVec *= magnitude;
 
         // Zero axes on scale vector indicate directions we don't want scaling to affect
-        if (qFuzzyIsNull(scaleVec.x()))
+        if (scaleDirVector.x() < 0.0001f)
             scaleVec.setX(1.f);
-        if (qFuzzyIsNull(scaleVec.y()))
+        if (scaleDirVector.y() < 0.0001f)
             scaleVec.setY(1.f);
-        if (qFuzzyIsNull(scaleVec.z()))
+        if (scaleDirVector.z() < 0.0001f)
             scaleVec.setZ(1.f);
         scaleVec *= startScale;
 
