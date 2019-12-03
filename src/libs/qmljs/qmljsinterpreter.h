@@ -1094,9 +1094,12 @@ public:
     bool importFailed() const;
 
     const QList<Import> &all() const;
+    const ObjectValue *aliased(const QString &name) const;
 
     const TypeScope *typeScope() const;
     const JSImportScope *jsImportScope() const;
+
+    const ObjectValue *resolveAliasAndMarkUsed(const QString &name) const;
 
 #ifdef QT_DEBUG
     void dump() const;
@@ -1106,6 +1109,7 @@ private:
     // holds imports in the order they appeared,
     // lookup order is back to front
     QList<Import> m_imports;
+    QHash<QString, ObjectValue *> m_aliased;
     TypeScope *m_typeScope;
     JSImportScope *m_jsImportScope;
     bool m_importFailed;

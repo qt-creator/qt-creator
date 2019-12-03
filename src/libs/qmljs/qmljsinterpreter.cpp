@@ -2355,6 +2355,12 @@ TypeScope::TypeScope(const Imports *imports, ValueOwner *valueOwner)
 const Value *TypeScope::lookupMember(const QString &name, const Context *context,
                                            const ObjectValue **foundInObject, bool) const
 {
+    if (const ObjectValue *value = m_imports->resolveAliasAndMarkUsed(name)) {
+        if (foundInObject)
+            *foundInObject = this;
+        return value;
+    }
+
     const QList<Import> &imports = m_imports->all();
     for (int pos = imports.size(); --pos >= 0; ) {
         const Import &i = imports.at(pos);
@@ -2364,16 +2370,6 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
         // JS import has no types
         if (info.type() == ImportType::File || info.type() == ImportType::QrcFile)
             continue;
-
-        if (!info.as().isEmpty()) {
-            if (info.as() == name) {
-                if (foundInObject)
-                    *foundInObject = this;
-                i.used = true;  // FIXME: This evilly modifies a 'const' object
-                return import;
-            }
-            continue;
-        }
 
         if (const Value *v = import->lookupMember(name, context, foundInObject)) {
             i.used = true;
@@ -2418,26 +2414,10 @@ JSImportScope::JSImportScope(const Imports *imports, ValueOwner *valueOwner)
 const Value *JSImportScope::lookupMember(const QString &name, const Context *,
                                          const ObjectValue **foundInObject, bool) const
 {
-    const QList<Import> &imports = m_imports->all();
-    for (int pos = imports.size(); --pos >= 0; ) {
-        const Import &i = imports.at(pos);
-        const ObjectValue *import = i.object;
-        const ImportInfo &info = i.info;
-
-        // JS imports are always: import "somefile.js" as Foo
-        if (info.type() != ImportType::File && info.type() != ImportType::QrcFile)
-            continue;
-
-        if (info.as() == name) {
-            if (foundInObject)
-                *foundInObject = this;
-            i.used = true;
-            return import;
-        }
-    }
+    const ObjectValue *value = m_imports->resolveAliasAndMarkUsed(name);
     if (foundInObject)
-        *foundInObject = nullptr;
-    return nullptr;
+        *foundInObject = value ? this : nullptr;
+    return value;
 }
 
 void JSImportScope::processMembers(MemberProcessor *processor) const
@@ -2464,10 +2444,31 @@ Imports::Imports(ValueOwner *valueOwner)
     , m_importFailed(false)
 {}
 
+class MemberCopy : public MemberProcessor
+{
+public:
+    explicit MemberCopy(ObjectValue *value) : m_value(value) {}
+    bool processProperty(const QString &name, const Value *value,
+                         const PropertyInfo & /*propertyInfo*/) override
+    {
+        m_value->setMember(name, value);
+        return true;
+    }
+private:
+    ObjectValue *m_value = nullptr;
+};
+
 void Imports::append(const Import &import)
 {
     // when doing lookup, imports with 'as' clause are looked at first
     if (!import.info.as().isEmpty()) {
+        const QString alias = import.info.as();
+        if (!m_aliased.contains(alias))
+            m_aliased.insert(alias, m_typeScope->valueOwner()->newObject(nullptr));
+        ObjectValue *obj = m_aliased[alias];
+        MemberCopy copyProcessor(obj);
+        import.object->processMembers(&copyProcessor);
+
         m_imports.append(import);
     } else {
         // find first as-import and prepend
@@ -2554,6 +2555,11 @@ const QList<Import> &Imports::all() const
     return m_imports;
 }
 
+const ObjectValue *Imports::aliased(const QString &name) const
+{
+    return m_aliased.value(name, nullptr);
+}
+
 const TypeScope *Imports::typeScope() const
 {
     return m_typeScope;
@@ -2562,6 +2568,20 @@ const TypeScope *Imports::typeScope() const
 const JSImportScope *Imports::jsImportScope() const
 {
     return m_jsImportScope;
+}
+
+const ObjectValue *Imports::resolveAliasAndMarkUsed(const QString &name) const
+{
+    if (const ObjectValue *value = m_aliased.value(name, nullptr)) {
+        // mark all respective ImportInfo objects to avoid dropping imports (QmlDesigner) on rewrite
+        for (const Import &i : qAsConst(m_imports)) {
+            const ImportInfo &info = i.info;
+            if (info.as() == name)
+                i.used = true; // FIXME: This evilly modifies a 'const' object
+        }
+        return value;
+    }
+    return nullptr;
 }
 
 #ifdef QT_DEBUG

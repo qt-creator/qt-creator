@@ -104,6 +104,9 @@ const Imports *Context::imports(const QmlJS::Document *doc) const
 const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName,
                                        UiQualifiedId *qmlTypeNameEnd) const
 {
+    if (!qmlTypeName)
+        return nullptr;
+
     const Imports *importsObj = imports(doc);
     if (!importsObj)
         return nullptr;
@@ -111,8 +114,13 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
     if (!objectValue)
         return nullptr;
 
-    for (UiQualifiedId *iter = qmlTypeName; objectValue && iter && iter != qmlTypeNameEnd;
-         iter = iter->next) {
+    UiQualifiedId *iter = qmlTypeName;
+    if (const ObjectValue *value = importsObj->aliased(iter->name.toString())) {
+        objectValue = value;
+        iter = iter->next;
+    }
+
+    for ( ; objectValue && iter && iter != qmlTypeNameEnd; iter = iter->next) {
         const Value *value = objectValue->lookupMember(iter->name.toString(), this, nullptr, false);
         if (!value)
             return nullptr;
@@ -125,6 +133,9 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
 
 const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QStringList &qmlTypeName) const
 {
+    if (qmlTypeName.isEmpty())
+        return nullptr;
+
     const Imports *importsObj = imports(doc);
     if (!importsObj)
         return nullptr;
@@ -132,11 +143,14 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
     if (!objectValue)
         return nullptr;
 
-    foreach (const QString &name, qmlTypeName) {
-        if (!objectValue)
-            return nullptr;
-
-        const Value *value = objectValue->lookupMember(name, this);
+    auto iter = qmlTypeName.cbegin();
+    if (const ObjectValue *value = importsObj->aliased(*iter)) {
+        objectValue = value;
+        ++iter;
+    }
+    auto end = qmlTypeName.cend();
+    for ( ; objectValue && iter != end; ) {
+        const Value *value = objectValue->lookupMember(*iter, this);
         if (!value)
             return nullptr;
 
