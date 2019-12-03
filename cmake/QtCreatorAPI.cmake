@@ -484,16 +484,18 @@ function(add_qtc_library name)
 
   install(TARGETS ${name}
     EXPORT ${IDE_CASED_ID}
-    RUNTIME DESTINATION "${_DESTINATION}"
+    RUNTIME DESTINATION "${_DESTINATION}" OPTIONAL
     LIBRARY
       DESTINATION "${IDE_LIBRARY_PATH}"
       ${NAMELINK_OPTION}
+      OPTIONAL
     OBJECTS
       DESTINATION "${IDE_LIBRARY_PATH}"
       COMPONENT Devel EXCLUDE_FROM_ALL
     ARCHIVE
       DESTINATION "${IDE_LIBRARY_PATH}"
       COMPONENT Devel EXCLUDE_FROM_ALL
+      OPTIONAL
   )
 
   if (NAMELINK_OPTION)
@@ -502,6 +504,7 @@ function(add_qtc_library name)
         DESTINATION "${IDE_LIBRARY_PATH}"
         NAMELINK_ONLY
         COMPONENT Devel EXCLUDE_FROM_ALL
+      OPTIONAL
     )
   endif()
 
@@ -696,11 +699,12 @@ function(add_qtc_plugin target_name)
   if (NOT _arg_SKIP_INSTALL)
     install(TARGETS ${target_name}
       EXPORT ${IDE_CASED_ID}
-      RUNTIME DESTINATION "${plugin_dir}"
-      LIBRARY DESTINATION "${plugin_dir}"
+      RUNTIME DESTINATION "${plugin_dir}" OPTIONAL
+      LIBRARY DESTINATION "${plugin_dir}" OPTIONAL
       ARCHIVE
         DESTINATION "${plugin_dir}"
         COMPONENT Devel EXCLUDE_FROM_ALL
+        OPTIONAL
     )
   endif()
 endfunction()
@@ -850,7 +854,7 @@ function(add_qtc_executable name)
   enable_pch(${name})
 
   if (NOT _arg_SKIP_INSTALL)
-    install(TARGETS ${name} DESTINATION "${_DESTINATION}")
+    install(TARGETS ${name} DESTINATION "${_DESTINATION}" OPTIONAL)
   endif()
 endfunction()
 
