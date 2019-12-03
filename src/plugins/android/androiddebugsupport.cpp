@@ -145,7 +145,7 @@ void AndroidDebugSupport::start()
         setSymbolFile(runControl()->buildDirectory().pathAppended("app_process"));
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
-        QString devicePreferredAbi = AndroidManager::devicePreferredAbi(target);
+        QString devicePreferredAbi = AndroidManager::apkDevicePreferredAbi(target);
         setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
         QUrl gdbServer;
         gdbServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());

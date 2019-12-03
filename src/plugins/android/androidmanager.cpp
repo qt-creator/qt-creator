@@ -433,11 +433,6 @@ static QString preferredAbi(const QStringList &appAbis, Target *target)
     return {};
 }
 
-QString AndroidManager::devicePreferredAbi(Target *target)
-{
-    return preferredAbi(applicationAbis(target), target);
-}
-
 QString AndroidManager::apkDevicePreferredAbi(Target *target)
 {
     auto libsPath = dirPath(target).pathAppended("libs");
