@@ -1,5 +1,6 @@
 HEADERS += \
     $$PWD/defaultgdbserverprovider.h \
+    $$PWD/eblinkgdbserverprovider.h \
     $$PWD/gdbserverprovider.h \
     $$PWD/gdbserverproviderprocess.h \
     $$PWD/openocdgdbserverprovider.h \
@@ -8,6 +9,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/defaultgdbserverprovider.cpp \
+    $$PWD/eblinkgdbserverprovider.cpp \
     $$PWD/gdbserverprovider.cpp \
     $$PWD/gdbserverproviderprocess.cpp \
     $$PWD/openocdgdbserverprovider.cpp \

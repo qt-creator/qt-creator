@@ -31,6 +31,7 @@
 #include "debugservers/gdb/openocdgdbserverprovider.h"
 #include "debugservers/gdb/stlinkutilgdbserverprovider.h"
 #include "debugservers/gdb/jlinkgdbserverprovider.h"
+#include "debugservers/gdb/eblinkgdbserverprovider.h"
 
 #include <coreplugin/icore.h>
 
@@ -59,7 +60,8 @@ DebugServerProviderManager::DebugServerProviderManager()
     , m_factories({new DefaultGdbServerProviderFactory,
                    new JLinkGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
-                   new StLinkUtilGdbServerProviderFactory})
+                   new StLinkUtilGdbServerProviderFactory,
+                   new EBlinkGdbServerProviderFactory})
 {
     m_instance = this;
     m_writer = new Utils::PersistentSettingsWriter(

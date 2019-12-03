@@ -28,4 +28,5 @@ add_qtc_plugin(BareMetal
     keiltoolchain.cpp keiltoolchain.h
     sdccparser.cpp sdccparser.h
     sdcctoolchain.cpp sdcctoolchain.h
+    eblinkgdbserverprovider.cpp eblinkgdbserverprovider.h
 )

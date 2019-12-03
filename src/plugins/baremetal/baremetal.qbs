@@ -48,6 +48,7 @@ QtcPlugin {
             "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
             "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
             "jlinkgdbserverprovider.cpp", "jlinkgdbserverprovider.h",
+            "eblinkgdbserverprovider.cpp", "eblinkgdbserverprovider.h",
         ]
     }
 }

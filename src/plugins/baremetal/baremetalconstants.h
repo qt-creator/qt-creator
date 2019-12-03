@@ -41,6 +41,7 @@ const char OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";
 const char JLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.JLink";
 const char DEFAULT_PROVIDER_ID[] = "BareMetal.GdbServerProvider.Default";
 const char STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
+const char EBLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.EBlink";
 
 // Toolchain types.
 const char IAREW_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Iar";
