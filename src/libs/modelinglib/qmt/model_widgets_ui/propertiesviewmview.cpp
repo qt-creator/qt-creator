@@ -1082,6 +1082,21 @@ void PropertiesView::MView::visitDItem(const DItem *item)
 void PropertiesView::MView::visitDRelation(const DRelation *relation)
 {
     visitDElement(relation);
+#ifdef SHOW_DEBUG_PROPERTIES
+    if (!m_pointsLabel) {
+        m_pointsLabel = new QLabel(m_topWidget);
+        addRow(tr("Intermediate points:"), m_pointsLabel, "intermediate points");
+    }
+    QString points;
+    for (const auto &point : relation->intermediatePoints()) {
+        if (!points.isEmpty())
+            points.append(", ");
+        points.append(QString("(%1,%2)").arg(point.pos().x()).arg(point.pos().y()));
+    }
+    if (points.isEmpty())
+        points = tr("none");
+    m_pointsLabel->setText(points);
+#endif
 }
 
 void PropertiesView::MView::visitDInheritance(const DInheritance *inheritance)

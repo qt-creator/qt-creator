@@ -256,6 +256,8 @@ protected:
     // DAnnotation
     QCheckBox *m_annotationAutoWidthCheckbox = nullptr;
     QComboBox *m_annotationVisualRoleSelector = nullptr;
+    // DRelation
+    QLabel *m_pointsLabel = nullptr;
 };
 
 } // namespace qmt
