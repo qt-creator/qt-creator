@@ -45,11 +45,7 @@ def main():
         selectFromLocator("mainwindow.ui")
         openContextMenu(waitForObject(con[0]), 5, 5, 0)
         snooze(1)
-        # hack for Squish 5/Qt5.2 problems of handling menus on Mac - remove asap
-        if platform.system() == 'Darwin':
-            waitFor("macHackActivateContextMenuItem('Go to slot...', con[0])", 6000)
-        else:
-            activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
+        activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
         signalWidgetObject = waitForObject(":Select signal.signalList_QTreeView")
         signalName = con[1] + "." + con[2]
         mouseClick(waitForObjectItem(signalWidgetObject, signalName), 5, 5, 0, Qt.LeftButton)
