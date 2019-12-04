@@ -44,6 +44,7 @@
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
@@ -72,6 +73,14 @@ using namespace Utils;
 using namespace QmakeProjectManager::Internal;
 
 namespace QmakeProjectManager {
+
+QmakeExtraBuildInfo::QmakeExtraBuildInfo()
+{
+    const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
+    config.separateDebugInfo = settings.separateDebugInfo;
+    config.linkQmlDebuggingQQ2 = settings.qmlDebugging;
+    config.useQtQuickCompiler = settings.qtQuickCompiler;
+}
 
 // --------------------------------------------------------------------
 // Helpers:
@@ -717,17 +726,21 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                           const FilePath &projectPath,
                                                           BuildConfiguration::BuildType type) const
 {
+    const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info(this);
     QString suffix;
+
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.
         info.displayName = tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Release", "Shadow build directory suffix");
-        if (version && version->isQtQuickCompilerSupported())
-            extraInfo.config.useQtQuickCompiler = TriState::Enabled;
+        if (settings.qtQuickCompiler == TriState::Default) {
+            if (version && version->isQtQuickCompilerSupported())
+                extraInfo.config.useQtQuickCompiler = TriState::Enabled;
+        }
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
@@ -739,12 +752,18 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
             info.displayName = tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = tr("Profile", "Shadow build directory suffix");
-            extraInfo.config.separateDebugInfo = TriState::Enabled;
-            if (version && version->isQtQuickCompilerSupported())
-                extraInfo.config.useQtQuickCompiler = TriState::Enabled;
+            if (settings.separateDebugInfo == TriState::Default)
+                extraInfo.config.separateDebugInfo = TriState::Enabled;
+
+            if (settings.qtQuickCompiler == TriState::Default) {
+                if (version && version->isQtQuickCompilerSupported())
+                    extraInfo.config.useQtQuickCompiler = TriState::Enabled;
+            }
         }
-        if (version && version->isQmlDebuggingSupported())
-            extraInfo.config.linkQmlDebuggingQQ2 = TriState::Enabled;
+        if (settings.qmlDebugging == TriState::Default) {
+            if (version && version->isQmlDebuggingSupported())
+                extraInfo.config.linkQmlDebuggingQQ2 = TriState::Enabled;
+        }
     }
     info.typeName = info.displayName;
     // Leave info.buildDirectory unset;
