@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -60,10 +60,6 @@
             NFS share and you encounter this issue, one option would be to
             switch to the nfs-kernel-server, or create a symlink so that the
             settings are stored locally.
-
-        \li  Qt 4.7.4 is known to contain a bug exposed by g++ 4.6 which triggers
-            a crash in \QC. For more information, see
-            \l{https://bugreports.qt.io/browse/QTBUG-21265}{QTBUG-21265}
 
         \li  The Okteta KDE custom widget plugin might be installed as part of
             some Linux distributions. It can cause Qt Designer to crash. For
