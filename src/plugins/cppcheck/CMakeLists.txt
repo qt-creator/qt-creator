@@ -5,7 +5,7 @@ add_qtc_plugin(Cppcheck
     cppcheckconstants.h
     cppcheckdiagnostic.cpp cppcheckdiagnostic.h
     cppcheckdiagnosticmanager.h
-    cppcheckdiagnosticsmodel.cppмcppcheckdiagnosticsmodel.h
+    cppcheckdiagnosticsmodel.cpp cppcheckdiagnosticsmodel.h
     cppcheckdiagnosticview.cpp cppcheckdiagnosticview.h
     cppcheckmanualrundialog.cpp cppcheckmanualrundialog.h
     cppcheckoptions.cpp cppcheckoptions.h
