@@ -306,7 +306,7 @@ void Highlighter::highlightBlock(const QString &text)
     QTextBlock block = currentBlock();
     KSyntaxHighlighting::State state;
     TextDocumentLayout::setBraceDepth(block, TextDocumentLayout::braceDepth(block.previous()));
-    if (TextBlockUserData *data = TextDocumentLayout::testUserData(block)) {
+    if (TextBlockUserData *data = TextDocumentLayout::textUserData(block)) {
         state = data->syntaxState();
         data->setFoldingStartIncluded(false);
         data->setFoldingEndIncluded(false);

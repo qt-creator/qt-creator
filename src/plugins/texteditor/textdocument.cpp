@@ -517,7 +517,7 @@ void TextDocument::setIndenter(Indenter *indenter)
 {
     // clear out existing code formatter data
     for (QTextBlock it = document()->begin(); it.isValid(); it = it.next()) {
-        TextBlockUserData *userData = TextDocumentLayout::testUserData(it);
+        TextBlockUserData *userData = TextDocumentLayout::textUserData(it);
         if (userData)
             userData->setCodeFormatterData(nullptr);
     }
@@ -988,7 +988,7 @@ TextMarks TextDocument::marksAt(int line) const
     QTextBlock block = d->m_document.findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
-        if (TextBlockUserData *userData = TextDocumentLayout::testUserData(block))
+        if (TextBlockUserData *userData = TextDocumentLayout::textUserData(block))
             return userData->marks();
     }
     return TextMarks();
@@ -1069,7 +1069,7 @@ void TextDocument::updateMark(TextMark *mark)
 void TextDocument::moveMark(TextMark *mark, int previousLine)
 {
     QTextBlock block = d->m_document.findBlockByNumber(previousLine - 1);
-    if (TextBlockUserData *data = TextDocumentLayout::testUserData(block)) {
+    if (TextBlockUserData *data = TextDocumentLayout::textUserData(block)) {
         if (!data->removeMark(mark))
             qDebug() << "Could not find mark" << mark << "on line" << previousLine;
     }

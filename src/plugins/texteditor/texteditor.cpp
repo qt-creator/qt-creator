@@ -3445,7 +3445,7 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
 bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &block,
                                                              const QPoint &pos) const
 {
-    TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(block);
+    TextBlockUserData *blockUserData = TextDocumentLayout::textUserData(block);
     if (!blockUserData)
         return false;
 
@@ -4019,7 +4019,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (!m_displaySettings.m_displayAnnotations)
         return;
 
-    TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(data.block);
+    TextBlockUserData *blockUserData = TextDocumentLayout::textUserData(data.block);
     if (!blockUserData)
         return;
 
@@ -4528,7 +4528,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
         painter.setRenderHint(QPainter::Antialiasing, false);
         painter.translate(-.5, -.5);
 
-        if (TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock)) {
+        if (TextBlockUserData *nextBlockUserData = TextDocumentLayout::textUserData(nextBlock)) {
             if (nextBlockUserData->foldingStartIncluded())
                 replacement.prepend(nextBlock.text().trimmed().at(0));
         }
@@ -4537,7 +4537,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
         if (!lastInvisibleBlock.isValid())
             lastInvisibleBlock = data.doc->lastBlock();
 
-        if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(lastInvisibleBlock)) {
+        if (TextBlockUserData *blockUserData = TextDocumentLayout::textUserData(lastInvisibleBlock)) {
             if (blockUserData->foldingEndIncluded()) {
                 QString right = lastInvisibleBlock.text().trimmed();
                 if (right.endsWith(QLatin1Char(';'))) {
@@ -5071,7 +5071,7 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     }
 
     const QTextBlock &nextBlock = data.block.next();
-    TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock);
+    TextBlockUserData *nextBlockUserData = TextDocumentLayout::textUserData(nextBlock);
 
     bool drawBox = nextBlockUserData
             && TextDocumentLayout::foldingIndent(data.block) < nextBlockUserData->foldingIndent();

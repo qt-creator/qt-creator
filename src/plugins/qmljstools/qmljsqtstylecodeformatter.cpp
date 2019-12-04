@@ -52,7 +52,7 @@ void CreatorCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &dat
 
 bool CreatorCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
 {
-    TextBlockUserData *userData = TextDocumentLayout::testUserData(block);
+    TextBlockUserData *userData = TextDocumentLayout::textUserData(block);
     if (!userData)
         return false;
     auto cppData = static_cast<const QmlJSCodeFormatterData *>(userData->codeFormatterData());

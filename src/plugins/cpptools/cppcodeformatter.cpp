@@ -1132,7 +1132,7 @@ void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &dat
 
 bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
 {
-    TextBlockUserData *userData = TextDocumentLayout::testUserData(block);
+    TextBlockUserData *userData = TextDocumentLayout::textUserData(block);
     if (!userData)
         return false;
     auto cppData = static_cast<const CppCodeFormatterData *>(userData->codeFormatterData());

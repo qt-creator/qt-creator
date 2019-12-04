@@ -193,7 +193,7 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
     TextEditor::TextBlockUserData *data =
             TextEditor::TextDocumentLayout::userData(currentBlock());
     QTC_ASSERT(data, return; );
-    if (!TextEditor::TextDocumentLayout::testUserData(currentBlock().previous()))
+    if (!TextEditor::TextDocumentLayout::textUserData(currentBlock().previous()))
         d->m_foldingState = Internal::StartOfFile;
 
     switch (d->m_foldingState) {

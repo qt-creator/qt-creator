@@ -65,7 +65,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     initialLexerState &= ~0x80; // discard newline expected bit
     int foldingIndent = initialBraceDepth;
-    if (TextBlockUserData *userData = TextDocumentLayout::testUserData(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);

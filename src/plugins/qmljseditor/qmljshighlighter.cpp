@@ -287,7 +287,7 @@ int QmlJSHighlighter::onBlockStart()
     m_braceDepth = 0;
     m_foldingIndent = 0;
     m_inMultilineComment = false;
-    if (TextBlockUserData *userData = TextDocumentLayout::testUserData(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);

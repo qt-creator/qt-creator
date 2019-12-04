@@ -196,7 +196,7 @@ public:
         int m_insideFold = 0;
     };
 
-    static TextBlockUserData *testUserData(const QTextBlock &block) {
+    static TextBlockUserData *textUserData(const QTextBlock &block) {
         return static_cast<TextBlockUserData*>(block.userData());
     }
     static TextBlockUserData *userData(const QTextBlock &block) {
