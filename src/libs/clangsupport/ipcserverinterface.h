@@ -30,9 +30,6 @@
 namespace ClangBackEnd {
 
 class IpcServerInterface : public IpcInterface
-{
-protected:
-    ~IpcServerInterface() = default;
-};
+{};
 
 } // namespace ClangBackEnd

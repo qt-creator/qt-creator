@@ -61,9 +61,6 @@ public:
     virtual void references(const ReferencesMessage &message) = 0;
     virtual void followSymbol(const FollowSymbolMessage &message) = 0;
     virtual void tooltip(const ToolTipMessage &message) = 0;
-
-protected:
-    ~ClangCodeModelClientInterface() = default;
 };
 
 } // namespace ClangBackEnd

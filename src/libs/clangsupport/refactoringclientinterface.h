@@ -50,9 +50,6 @@ public:
     virtual void sourceRangesAndDiagnosticsForQueryMessage(SourceRangesAndDiagnosticsForQueryMessage &&message) = 0;
     virtual void sourceRangesForQueryMessage(SourceRangesForQueryMessage &&message) = 0;
     virtual void progress(ProgressMessage &&message) = 0;
-
-protected:
-    ~RefactoringClientInterface() = default;
 };
 
 } // namespace ClangBackEnd

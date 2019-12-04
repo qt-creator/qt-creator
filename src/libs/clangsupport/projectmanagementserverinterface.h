@@ -41,9 +41,6 @@ public:
     virtual void removeProjectParts(RemoveProjectPartsMessage &&message) = 0;
     virtual void updateGeneratedFiles(UpdateGeneratedFilesMessage &&message) = 0;
     virtual void removeGeneratedFiles(RemoveGeneratedFilesMessage &&message) = 0;
-
-protected:
-    ~ProjectManagementServerInterface() = default;
 };
 
 } // namespace ClangBackEnd

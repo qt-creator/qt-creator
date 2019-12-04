@@ -36,7 +36,7 @@ class ClangCodeModelClientInterface;
 class CLANGSUPPORT_EXPORT ClangCodeModelServerInterface : public IpcServerInterface
 {
 public:
-    virtual ~ClangCodeModelServerInterface() = default;
+    ~ClangCodeModelServerInterface() override = default;
 
     void dispatch(const MessageEnvelop &messageEnvelop) override;
 

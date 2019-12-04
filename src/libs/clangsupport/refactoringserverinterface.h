@@ -58,9 +58,6 @@ public:
         isAvailable_ = isAvailable;
     }
 
-protected:
-    ~RefactoringServerInterface() = default;
-
 private:
     bool isAvailable_ = false;
 };

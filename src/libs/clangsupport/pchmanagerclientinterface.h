@@ -40,9 +40,6 @@ public:
     virtual void alive() = 0;
     virtual void precompiledHeadersUpdated(PrecompiledHeadersUpdatedMessage &&message) = 0;
     virtual void progress(ProgressMessage &&message) = 0;
-
-protected:
-    ~PchManagerClientInterface() = default;
 };
 
 } // namespace ClangBackEnd

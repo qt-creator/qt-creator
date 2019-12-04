@@ -43,7 +43,7 @@ public:
     virtual void dispatch(const MessageEnvelop &messageEnvelop) = 0;
 
 protected:
-    ~IpcInterface() = default;
+    virtual ~IpcInterface() = default;
 };
 
 } // namespace ClangBackEnd
