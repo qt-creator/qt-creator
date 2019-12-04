@@ -210,17 +210,6 @@ BuildStepConfigWidget *IosDeployStep::createConfigWidget()
     return widget;
 }
 
-bool IosDeployStep::fromMap(const QVariantMap &map)
-{
-    return BuildStep::fromMap(map);
-}
-
-QVariantMap IosDeployStep::toMap() const
-{
-    QVariantMap map = BuildStep::toMap();
-    return map;
-}
-
 QString IosDeployStep::deviceId() const
 {
     if (iosdevice().isNull())

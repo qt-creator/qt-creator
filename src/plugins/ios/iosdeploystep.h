@@ -57,8 +57,6 @@ public:
 private:
     void doRun() override;
     void doCancel() override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
 
     void handleIsTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, int progress, int maxProgress,
