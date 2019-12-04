@@ -186,7 +186,6 @@ protected:
     using Updater = std::function<void()>;
     void setUpdater(const Updater &updater);
 
-    virtual void updateEnabledState();
     virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
 
 private:

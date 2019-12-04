@@ -117,7 +117,7 @@ void IosDeviceTypeAspect::deviceChanges()
 {
     updateDeviceType();
     m_runConfiguration->updateDisplayNames();
-    m_runConfiguration->updateEnabledState();
+    m_runConfiguration->update();
 }
 
 void IosDeviceTypeAspect::updateDeviceType()

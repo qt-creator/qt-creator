@@ -315,14 +315,12 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     });
 
     m_mainQmlFileAspect = addAspect<MainQmlFileAspect>(target);
-    connect(m_mainQmlFileAspect, &MainQmlFileAspect::changed,
-            this, &QmlProjectRunConfiguration::updateEnabledState);
+    connect(m_mainQmlFileAspect, &MainQmlFileAspect::changed, this, &RunConfiguration::update);
 
-    connect(target, &Target::kitChanged,
-            this, &QmlProjectRunConfiguration::updateEnabledState);
+    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
     setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
-    updateEnabledState();
+    update();
 }
 
 Runnable QmlProjectRunConfiguration::runnable() const

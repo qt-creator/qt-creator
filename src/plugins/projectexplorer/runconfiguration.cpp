@@ -156,11 +156,6 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
     A RunConfiguration disables itself if the project has no parsing
     data available. The disabledReason() method can be used to get a user-facing string
     describing why the RunConfiguration considers itself unfit for use.
-
-    Override updateEnabledState() to change the enabled state handling. Override
-    disabledReasons() to provide better/more descriptions to the user.
-
-    Connect signals that may change enabled state of your RunConfiguration to updateEnabledState.
 */
 
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
@@ -169,12 +164,12 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id)
 {
     QTC_CHECK(target && target == this->target());
-    connect(target, &Target::parsingFinished, this, [this] { updateEnabledState(); });
+    connect(target, &Target::parsingFinished, this, &RunConfiguration::enabledChanged);
 
     connect(target, &Target::addedRunConfiguration,
             this, [this](const RunConfiguration *rc) {
         if (rc == this)
-            updateEnabledState();
+            emit enabledChanged();
     });
 
     connect(this, &RunConfiguration::enabledChanged, this, [this] {
@@ -255,11 +250,6 @@ QWidget *RunConfiguration::createConfigurationWidget()
     return detailsWidget;
 }
 
-void RunConfiguration::updateEnabledState()
-{
-    emit enabledChanged();
-}
-
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 {
     theAspectFactories.push_back(aspectFactory);
@@ -329,8 +319,10 @@ CommandLine RunConfiguration::commandLine() const
 
 void RunConfiguration::update()
 {
-    QTC_ASSERT(m_updater, return);
-    m_updater();
+    if (m_updater)
+        m_updater();
+
+    emit enabledChanged();
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
