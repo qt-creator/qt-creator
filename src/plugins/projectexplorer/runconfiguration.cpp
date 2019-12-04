@@ -166,12 +166,6 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     QTC_CHECK(target && target == this->target());
     connect(target, &Target::parsingFinished, this, &RunConfiguration::enabledChanged);
 
-    connect(target, &Target::addedRunConfiguration,
-            this, [this](const RunConfiguration *rc) {
-        if (rc == this)
-            emit enabledChanged();
-    });
-
     connect(this, &RunConfiguration::enabledChanged, this, [this] {
         if (isActive() && project() == SessionManager::startupProject())
             emit ProjectExplorerPlugin::instance()->updateRunActions();
