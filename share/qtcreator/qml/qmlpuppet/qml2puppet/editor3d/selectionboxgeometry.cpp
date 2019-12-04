@@ -43,6 +43,8 @@ namespace Internal {
 
 static const float floatMin = std::numeric_limits<float>::lowest();
 static const float floatMax = std::numeric_limits<float>::max();
+static const QVector3D maxVec = QVector3D(floatMax, floatMax, floatMax);
+static const QVector3D minVec = QVector3D(floatMin, floatMin, floatMin);
 
 SelectionBoxGeometry::SelectionBoxGeometry()
     : QQuick3DGeometry()
@@ -136,8 +138,8 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
     QByteArray vertexData;
     QByteArray indexData;
 
-    QVector3D minBounds = QVector3D(floatMax, floatMax, floatMax);
-    QVector3D maxBounds = QVector3D(floatMin, floatMin, floatMin);
+    QVector3D minBounds = maxVec;
+    QVector3D maxBounds = minVec;
 
     if (m_targetNode) {
         auto rootPriv = QQuick3DObjectPrivate::get(m_rootNode);
@@ -165,6 +167,8 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
         }
     } else {
         // Fill some dummy data so geometry won't get rejected
+        minBounds = {};
+        maxBounds = {};
         appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);
     }
 
@@ -207,8 +211,8 @@ void SelectionBoxGeometry::getBounds(
         trackNodeChanges(node);
     }
 
-    QVector3D localMinBounds = QVector3D(floatMax, floatMax, floatMax);
-    QVector3D localMaxBounds = QVector3D(floatMin, floatMin, floatMin);
+    QVector3D localMinBounds = maxVec;
+    QVector3D localMaxBounds = minVec;
 
     // Find bounds for children
     QVector<QVector3D> minBoundsVec;
@@ -277,6 +281,14 @@ void SelectionBoxGeometry::getBounds(
                 }
             }
         }
+    } else {
+        combineMinBounds(localMinBounds, {});
+        combineMaxBounds(localMaxBounds, {});
+    }
+
+    if (localMaxBounds == minVec) {
+        localMinBounds = {};
+        localMaxBounds = {};
     }
 
     // Transform local space bounding box to parent space

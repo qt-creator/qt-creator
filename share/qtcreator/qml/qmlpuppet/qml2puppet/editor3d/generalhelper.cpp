@@ -149,7 +149,8 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
     QVector3D lookAt = targetObject ? targetObject->scenePosition() : QVector3D();
 
     // Get object bounds
-    qreal maxExtent = 200.;
+    const qreal defaultExtent = 200.;
+    qreal maxExtent = defaultExtent;
     if (auto modelNode = qobject_cast<QQuick3DModel *>(targetObject)) {
         auto targetPriv = QQuick3DObjectPrivate::get(targetObject);
         if (auto renderModel = static_cast<QSSGRenderModel *>(targetPriv->spatialNode)) {
@@ -172,6 +173,9 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
                     qreal maxScale = qSqrt(qreal(s.x() * s.x() + s.y() * s.y() + s.z() * s.z()));
                     maxExtent = qSqrt(qreal(e.x() * e.x() + e.y() * e.y() + e.z() * e.z()));
                     maxExtent *= maxScale;
+
+                    if (maxExtent < 0.0001)
+                        maxExtent = defaultExtent;
 
                     // Adjust lookAt to look directly at the center of the object bounds
                     lookAt = renderModel->globalTransform.map(center);
