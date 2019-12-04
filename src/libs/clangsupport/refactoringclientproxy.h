@@ -44,8 +44,8 @@ public:
     RefactoringClientProxy(const RefactoringClientProxy&) = delete;
     const RefactoringClientProxy &operator=(const RefactoringClientProxy&) = delete;
 
-    RefactoringClientProxy(RefactoringClientProxy &&other) = default;
-    RefactoringClientProxy &operator=(RefactoringClientProxy &&other) = default;
+    RefactoringClientProxy(RefactoringClientProxy &&other) = delete;
+    RefactoringClientProxy &operator=(RefactoringClientProxy &&other) = delete;
 
     void readMessages();
 
