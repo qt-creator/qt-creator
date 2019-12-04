@@ -755,7 +755,7 @@
                 as
 
     \code
-    QByteArray foo = "foo";
+    QByteArray foo("foo");
     foo.append("bar");
     \endcode
 
