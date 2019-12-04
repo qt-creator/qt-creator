@@ -86,14 +86,14 @@ QbsProjectImporter::QbsProjectImporter(const FilePath &path) : QtProjectImporter
 {
 }
 
-static QString buildDir(const FilePath &projectFilePath, const Kit *k)
+static FilePath buildDir(const FilePath &projectFilePath, const Kit *k)
 {
     const QString projectName = projectFilePath.toFileInfo().completeBaseName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, QString(),
                                   BuildConfiguration::Unknown);
-    const QString projectDir = Project::projectDirectory(projectFilePath).toString();
+    const FilePath projectDir = Project::projectDirectory(projectFilePath);
     const QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-    return FileUtils::resolvePath(projectDir, buildPath);
+    return projectDir.resolvePath(buildPath);
 }
 
 static bool hasBuildGraph(const QString &dir)
@@ -123,7 +123,7 @@ QStringList QbsProjectImporter::importCandidates()
     seenCandidates.insert(projectDir);
     const auto &kits = KitManager::kits();
     for (Kit * const k : kits) {
-        QFileInfo fi(buildDir(projectFilePath(), k));
+        QFileInfo fi = buildDir(projectFilePath(), k).toFileInfo();
         const QString candidate = fi.absolutePath();
         if (!seenCandidates.contains(candidate)) {
             seenCandidates.insert(candidate);

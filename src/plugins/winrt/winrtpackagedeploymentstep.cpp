@@ -91,8 +91,7 @@ bool WinRtPackageDeploymentStep::init()
     if (!qt)
         return false;
 
-    const QString windeployqtPath = FileUtils::resolvePath(qt->hostBinPath().toString(),
-                                                           "windeployqt.exe");
+    const FilePath windeployqtPath = qt->hostBinPath().resolvePath("windeployqt.exe");
 
     CommandLine windeployqt{windeployqtPath};
     windeployqt.addArg(QDir::toNativeSeparators(m_targetFilePath));
@@ -104,7 +103,7 @@ bool WinRtPackageDeploymentStep::init()
     }
 
     ProcessParameters *params = processParameters();
-    if (!QFile::exists(windeployqtPath)) {
+    if (!windeployqtPath.exists()) {
         raiseError(tr("Cannot find windeployqt.exe in \"%1\".")
                        .arg(QDir::toNativeSeparators(qt->hostBinPath().toString())));
         return false;

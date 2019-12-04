@@ -398,13 +398,13 @@ bool FileUtils::isRelativePath(const QString &path)
     return true;
 }
 
-QString FileUtils::resolvePath(const QString &baseDir, const QString &fileName)
+FilePath FilePath::resolvePath(const QString &fileName) const
 {
     if (fileName.isEmpty())
-        return QString();
-    if (isAbsolutePath(fileName))
-        return QDir::cleanPath(fileName);
-    return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
+        return {}; // FIXME: Isn't this odd?
+    if (FileUtils::isAbsolutePath(fileName))
+        return FilePath::fromString(QDir::cleanPath(fileName));
+    return FilePath::fromString(QDir::cleanPath(toString() + QLatin1Char('/') + fileName));
 }
 
 FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)

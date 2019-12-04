@@ -107,6 +107,7 @@ public:
     FilePath relativeChildPath(const FilePath &parent) const;
     FilePath pathAppended(const QString &str) const;
     FilePath stringAppended(const QString &str) const;
+    FilePath resolvePath(const QString &fileName) const;
 
     FilePath canonicalPath() const;
 
@@ -172,7 +173,6 @@ public:
 
     static bool isRelativePath(const QString &fileName);
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
-    static QString resolvePath(const QString &baseDir, const QString &fileName);
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static QByteArray fileId(const FilePath &fileName);
 };

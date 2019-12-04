@@ -155,7 +155,7 @@ FilePath CustomParser::absoluteFilePath(const QString &filePath) const
     if (m_workingDirectory.isEmpty())
         return FilePath::fromUserInput(filePath);
 
-    return FilePath::fromString(FileUtils::resolvePath(m_workingDirectory, filePath));
+    return FilePath::fromString(m_workingDirectory).resolvePath(filePath);
 }
 
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,

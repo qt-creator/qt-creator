@@ -4700,8 +4700,8 @@ static QString findExecutableFromName(const QString &fileNameFromCore, const QSt
         absPath = fileNameFromCore;
     } else {
         QFileInfo coreInfo(coreFile);
-        QDir coreDir = coreInfo.dir();
-        absPath = FileUtils::resolvePath(coreDir.absolutePath(), fileNameFromCore);
+        FilePath coreDir = FilePath::fromString(coreInfo.dir().absolutePath());
+        absPath = coreDir.resolvePath(fileNameFromCore).toString();
     }
     if (QFileInfo(absPath).isFile() || absPath.isEmpty())
         return absPath;
