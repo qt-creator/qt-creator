@@ -112,6 +112,10 @@ void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyT
                 setPropertyVariant("pickable", enable); // allow 3D objects to receive mouse clicks
         }
     }
+#else
+    Q_UNUSED(enable)
+    Q_UNUSED(checkParent)
+    Q_UNUSED(applyToChildren)
 #endif
 }
 
