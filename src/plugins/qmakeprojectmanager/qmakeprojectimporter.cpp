@@ -96,9 +96,10 @@ QStringList QmakeProjectImporter::importCandidates()
     candidates << pfi.absolutePath();
 
     foreach (Kit *k, KitManager::kits()) {
-        QFileInfo fi(QmakeBuildConfiguration::shadowBuildDirectory(projectFilePath(), k,
-                                                                   QString(), BuildConfiguration::Unknown));
-        const QString baseDir = fi.absolutePath();
+        const FilePath sbdir = QmakeBuildConfiguration::shadowBuildDirectory
+                    (projectFilePath(), k, QString(), BuildConfiguration::Unknown);
+
+        const QString baseDir = sbdir.toFileInfo().absolutePath();
 
         foreach (const QString &dir, QDir(baseDir).entryList()) {
             const QString path = baseDir + QLatin1Char('/') + dir;

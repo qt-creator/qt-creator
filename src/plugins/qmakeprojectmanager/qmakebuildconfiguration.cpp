@@ -77,32 +77,21 @@ namespace QmakeProjectManager {
 // Helpers:
 // --------------------------------------------------------------------
 
-QString QmakeBuildConfiguration::shadowBuildDirectory(const FilePath &proFilePath, const Kit *k,
-                                                      const QString &suffix,
-                                                      BuildConfiguration::BuildType buildType)
+FilePath QmakeBuildConfiguration::shadowBuildDirectory(const FilePath &proFilePath, const Kit *k,
+                                                       const QString &suffix,
+                                                       BuildConfiguration::BuildType buildType)
 {
     if (proFilePath.isEmpty())
-        return QString();
+        return {};
 
     const QString projectName = proFilePath.toFileInfo().completeBaseName();
     ProjectMacroExpander expander(proFilePath, projectName, k, suffix, buildType);
     QString projectDir = Project::projectDirectory(proFilePath).toString();
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-    return FileUtils::resolvePath(projectDir, buildPath);
-}
-
-static FilePath defaultBuildDirectory(const FilePath &projectPath,
-                                      const Kit *k,
-                                      const QString &suffix,
-                                      BuildConfiguration::BuildType type)
-{
-    return FilePath::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
-                                                                              suffix, type));
+    return FilePath::fromString(FileUtils::resolvePath(projectDir, buildPath));
 }
 
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";
-
-enum { debug = 0 };
 
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
     : BuildConfiguration(target, id)
@@ -193,9 +182,9 @@ void QmakeBuildConfiguration::initialize()
 
     FilePath directory = initialBuildDirectory();
     if (directory.isEmpty()) {
-        directory = defaultBuildDirectory(target()->project()->projectFilePath(),
-                                          target()->kit(), initialDisplayName(),
-                                          initialBuildType());
+        directory = shadowBuildDirectory(target()->project()->projectFilePath(),
+                                         target()->kit(), initialDisplayName(),
+                                         initialBuildType());
     }
 
     setBuildDirectory(directory);
@@ -772,7 +761,8 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
 
         info.buildDirectory = FilePath::fromString(absoluteBuildPath);
     } else {
-        info.buildDirectory = defaultBuildDirectory(projectPath, k, suffix, type);
+        info.buildDirectory =
+                QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k, suffix, type);
     }
     info.buildType = type;
     info.extraInfo = QVariant::fromValue(extraInfo);

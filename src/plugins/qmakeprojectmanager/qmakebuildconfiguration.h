@@ -65,8 +65,10 @@ public:
     void setQMakeBuildConfiguration(QtSupport::BaseQtVersion::QmakeBuildConfigs config);
 
     /// suffix should be unique
-    static QString shadowBuildDirectory(const Utils::FilePath &profilePath, const ProjectExplorer::Kit *k,
-                                        const QString &suffix, BuildConfiguration::BuildType type);
+    static Utils::FilePath shadowBuildDirectory(const Utils::FilePath &profilePath,
+                                                const ProjectExplorer::Kit *k,
+                                                const QString &suffix,
+                                                BuildConfiguration::BuildType type);
 
     QStringList configCommandLineArguments() const;
 
