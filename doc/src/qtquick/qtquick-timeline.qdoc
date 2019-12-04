@@ -25,7 +25,11 @@
 
 /*!
     \contentspage {Qt Design Studio Manual}
+    \if defined(qtdesignstudio)
+    \previouspage studio-adding-dynamics.html
+    \else
     \previouspage qtquick-properties.html
+    \endif
     \page studio-timeline.html
     \nextpage qmldesigner-connections.html
 
