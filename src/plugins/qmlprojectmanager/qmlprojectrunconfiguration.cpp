@@ -394,6 +394,11 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
         Utils::QtcProcess::addArg(&args, fileSelector, osType);
     }
 
+    if (Utils::HostOsInfo::isWindowsHost() && project->forceFreeType()) {
+        Utils::QtcProcess::addArg(&args, "-platform", osType);
+        Utils::QtcProcess::addArg(&args, "windows:fontengine=freetype", osType);
+    }
+
     const QString main = project->targetFile(Utils::FilePath::fromString(mainScript()),
                                              currentTarget).toString();
     if (!main.isEmpty())

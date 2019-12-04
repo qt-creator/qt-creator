@@ -97,6 +97,11 @@ bool QmlProjectItem::matchesFile(const QString &filePath) const
     });
 }
 
+void QmlProjectItem::setForceFreeType(bool b)
+{
+    m_forceFreeType = b;
+}
+
 Utils::EnvironmentItems QmlProjectItem::environment() const
 {
     return m_environment;

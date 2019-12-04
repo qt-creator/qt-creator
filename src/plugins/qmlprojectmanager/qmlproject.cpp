@@ -229,6 +229,13 @@ QStringList QmlProject::customFileSelectors() const
     return {};
 }
 
+bool QmlProject::forceFreeType() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->forceFreeType();
+    return false;
+}
+
 bool QmlProject::addFiles(const QStringList &filePaths)
 {
     QStringList toAdd;
@@ -259,6 +266,8 @@ QVariant QmlProject::additionalData(Id id, const Target *) const
 {
     if (id == Constants::customFileSelectorsData)
         return customFileSelectors();
+    if (id == Constants::customForceFreeTypeData)
+        return forceFreeType();
     return {};
 }
 
