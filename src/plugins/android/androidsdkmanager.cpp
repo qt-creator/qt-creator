@@ -132,6 +132,8 @@ void watcherDeleter(QFutureWatcher<void> *watcher)
 static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args,
                               QString *output, int timeout = sdkManagerCmdTimeoutS)
 {
+    qCDebug(sdkManagerLog) << "Running SDK Manager command (sync):"
+                           << CommandLine(config.sdkManagerToolPath(), args).toUserOutput();
     SynchronousProcess proc;
     proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
@@ -153,6 +155,8 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                               AndroidSdkManager::OperationOutput &output, double progressQuota,
                               bool interruptible = true, int timeout = sdkManagerOperationTimeoutS)
 {
+    qCDebug(sdkManagerLog) << "Running SDK Manager command (async):"
+                           << CommandLine(config.sdkManagerToolPath(), args).toUserOutput();
     int offset = fi.progressValue();
     SynchronousProcess proc;
     proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
