@@ -53,8 +53,6 @@ public:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
 
 private:
-    friend class IosDeviceTypeAspect;
-    void updateDisplayNames();
     bool isEnabled() const final;
 
     IosDeviceTypeAspect *m_deviceTypeAspect = nullptr;

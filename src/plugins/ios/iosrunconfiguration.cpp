@@ -111,12 +111,20 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
     addAspect<ArgumentsAspect>();
 
     m_deviceTypeAspect = addAspect<IosDeviceTypeAspect>(this);
+
+    setUpdater([this, target, executableAspect] {
+        IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
+        const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
+        setDefaultDisplayName(tr("Run on %1").arg(devName));
+        setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
+
+        executableAspect->setExecutable(localExecutable());
+    });
 }
 
 void IosDeviceTypeAspect::deviceChanges()
 {
     updateDeviceType();
-    m_runConfiguration->updateDisplayNames();
     m_runConfiguration->update();
 }
 
@@ -127,16 +135,6 @@ void IosDeviceTypeAspect::updateDeviceType()
         m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
     else if (m_deviceType.type == IosDeviceType::IosDevice)
         m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
-}
-
-void IosRunConfiguration::updateDisplayNames()
-{
-    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
-    const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
-    setDefaultDisplayName(tr("Run on %1").arg(devName));
-    setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
-
-    aspect<ExecutableAspect>()->setExecutable(localExecutable());
 }
 
 bool IosRunConfiguration::isEnabled() const
@@ -211,7 +209,7 @@ void IosDeviceTypeAspect::fromMap(const QVariantMap &map)
     if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).toMap()))
         updateDeviceType();
 
-    m_runConfiguration->updateDisplayNames();
+    m_runConfiguration->update();
 }
 
 void IosDeviceTypeAspect::toMap(QVariantMap &map) const
@@ -307,7 +305,7 @@ void IosDeviceTypeAspect::setDeviceType(const IosDeviceType &deviceType)
 void IosRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
     m_deviceTypeAspect->updateDeviceType();
-    updateDisplayNames();
+    update();
 }
 
 IosDeviceTypeAspect::IosDeviceTypeAspect(IosRunConfiguration *runConfiguration)
