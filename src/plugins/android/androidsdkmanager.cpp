@@ -281,7 +281,8 @@ private:
     void compilePackageAssociations();
     void parsePackageData(MarkerTag packageMarker, const QStringList &data);
     bool parseAbstractData(GenericPackageData &output, const QStringList &input, int minParts,
-                           const QString &logStrTag, QStringList extraKeys = QStringList()) const;
+                           const QString &logStrTag,
+                           const QStringList &extraKeys = QStringList()) const;
     AndroidSdkPackage *parsePlatform(const QStringList &data) const;
     QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
     BuildTools *parseBuildToolsPackage(const QStringList &data) const;
@@ -453,7 +454,7 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
     };
 
     QRegularExpression delimiters("[\\n\\r]");
-    foreach (QString outputLine, output.split(delimiters)) {
+    for (const QString &outputLine : output.split(delimiters)) {
         MarkerTag marker = parseMarkers(outputLine.trimmed());
         if (marker & SectionMarkers) {
             // Section marker found. Update the current section being parsed.
@@ -605,7 +606,7 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
 bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPackageData &output,
                                                const QStringList &input, int minParts,
                                                const QString &logStrTag,
-                                               QStringList extraKeys) const
+                                               const QStringList &extraKeys) const
 {
     if (input.isEmpty()) {
         qCDebug(sdkManagerLog) << logStrTag + ": Empty input";
@@ -618,10 +619,11 @@ bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPa
         return false;
     }
 
-    extraKeys << installLocationKey << revisionKey << descriptionKey;
-    foreach (QString line, input) {
+    QStringList keys = extraKeys;
+    keys << installLocationKey << revisionKey << descriptionKey;
+    for (const QString &line : input) {
         QString value;
-        for (const auto &key: qAsConst(extraKeys)) {
+        for (const auto &key: qAsConst(keys)) {
             if (valueForKey(key, line, &value)) {
                 if (key == installLocationKey)
                     output.installedLocation = Utils::FilePath::fromString(value);
