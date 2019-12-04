@@ -91,7 +91,6 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
 
     setLowPriority();
 
-    connect(target(), &Target::kitChanged, this, &CMakeBuildStep::cmakeCommandChanged);
     connect(target(), &Target::parsingFinished,
             this, &CMakeBuildStep::handleBuildTargetChanges);
 }

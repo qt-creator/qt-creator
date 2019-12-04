@@ -38,12 +38,10 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class CommandLine;
-class PathChooser;
 } // Utils
 
 namespace ProjectExplorer {
 class RunConfiguration;
-class ToolChain;
 } // ProjectManager
 
 namespace CMakeProjectManager {
@@ -82,7 +80,6 @@ public:
     static QStringList specialTargets();
 
 signals:
-    void cmakeCommandChanged();
     void targetToBuildChanged();
     void buildTargetsChanged();
 
