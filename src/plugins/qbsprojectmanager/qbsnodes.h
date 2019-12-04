@@ -60,6 +60,7 @@ public:
     void build() override;
     QStringList targetApplications() const override;
 
+    QString fullDisplayName() const;
     QString buildKey() const override;
 
     const QJsonObject productData() const { return m_productData; }

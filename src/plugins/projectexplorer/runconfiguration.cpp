@@ -33,6 +33,7 @@
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectnodes.h"
 #include "runconfigurationaspects.h"
 #include "runcontrol.h"
 #include "session.h"
@@ -324,6 +325,13 @@ BuildTargetInfo RunConfiguration::buildTargetInfo() const
     BuildSystem *bs = target()->buildSystem();
     QTC_ASSERT(bs, return {});
     return bs->buildTarget(m_buildKey);
+}
+
+ProjectNode *RunConfiguration::productNode() const
+{
+    return project()->rootProjectNode()->findProjectNode([this](const ProjectNode *candidate) {
+        return candidate->buildKey() == buildKey();
+    });
 }
 
 bool RunConfiguration::fromMap(const QVariantMap &map)

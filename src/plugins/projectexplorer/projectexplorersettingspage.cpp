@@ -75,6 +75,12 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 {
     m_ui.setupUi(this);
     setJomVisible(Utils::HostOsInfo::isWindowsHost());
+    m_ui.buildBeforeDeployComboBox->addItem(tr("Do Not Build Anything"),
+                                            int(BuildBeforeRunMode::Off));
+    m_ui.buildBeforeDeployComboBox->addItem(tr("Build the Whole Project"),
+                                            int(BuildBeforeRunMode::WholeProject));
+    m_ui.buildBeforeDeployComboBox->addItem(tr("Build Only the Application to Be Run"),
+                                            int(BuildBeforeRunMode::AppOnly));
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
 
@@ -97,7 +103,8 @@ void ProjectExplorerSettingsWidget::setJomVisible(bool v)
 
 ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 {
-    m_settings.buildBeforeDeploy = m_ui.buildProjectBeforeDeployCheckBox->isChecked();
+    m_settings.buildBeforeDeploy = static_cast<BuildBeforeRunMode>(
+                m_ui.buildBeforeDeployComboBox->currentData().toInt());
     m_settings.deployBeforeRun = m_ui.deployProjectBeforeRunCheckBox->isChecked();
     m_settings.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
     m_settings.useJom = m_ui.jomCheckbox->isChecked();
@@ -117,7 +124,8 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &pes)
 {
     m_settings = pes;
-    m_ui.buildProjectBeforeDeployCheckBox->setChecked(m_settings.buildBeforeDeploy);
+    m_ui.buildBeforeDeployComboBox->setCurrentIndex(
+                m_ui.buildBeforeDeployComboBox->findData(int(m_settings.buildBeforeDeploy)));
     m_ui.deployProjectBeforeRunCheckBox->setChecked(m_settings.deployBeforeRun);
     m_ui.saveAllFilesCheckBox->setChecked(m_settings.saveBeforeBuild);
     m_ui.jomCheckbox->setChecked(m_settings.useJom);

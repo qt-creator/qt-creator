@@ -125,6 +125,8 @@ protected:
     bool regenerateBuildFiles(ProjectExplorer::Node *node = nullptr) override;
 
 private:
+    void restrictNextBuild(const ProjectExplorer::RunConfiguration *rc) override;
+
     void kitChanged();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void qtVersionsChanged(const QList<int> &, const QList<int> &, const QList<int> &changed);

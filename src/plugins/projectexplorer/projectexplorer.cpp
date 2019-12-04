@@ -1387,8 +1387,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         }
     }
 
-    dd->m_projectExplorerSettings.buildBeforeDeploy =
-            s->value(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY, true).toBool();
+    const QVariant buildBeforeDeploy = s->value(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY);
+    const QString buildBeforeDeployString = buildBeforeDeploy.toString();
+    if (buildBeforeDeployString == "true") { // backward compatibility with QtC < 4.12
+        dd->m_projectExplorerSettings.buildBeforeDeploy = BuildBeforeRunMode::WholeProject;
+    } else if (buildBeforeDeployString == "false") {
+        dd->m_projectExplorerSettings.buildBeforeDeploy = BuildBeforeRunMode::Off;
+    } else if (buildBeforeDeploy.isValid()) {
+        dd->m_projectExplorerSettings.buildBeforeDeploy
+                = static_cast<BuildBeforeRunMode>(buildBeforeDeploy.toInt());
+    }
+
     dd->m_projectExplorerSettings.deployBeforeRun =
             s->value(Constants::DEPLOY_BEFORE_RUN_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.saveBeforeBuild =
@@ -1465,11 +1474,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         QTC_ASSERT(target, return);
         const RunConfiguration * const runConfig = target->activeRunConfiguration();
         QTC_ASSERT(runConfig, return);
-        const auto buildKeyMatcher = [runConfig](const ProjectNode *candidate) {
-            return candidate->buildKey() == runConfig->buildKey();
-        };
-        ProjectNode * const productNode
-                = project->rootProjectNode()->findProjectNode(buildKeyMatcher);
+        ProjectNode * const productNode = runConfig->productNode();
         QTC_ASSERT(productNode->isProduct(), return);
         productNode->build();
     });
@@ -2023,7 +2028,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/RecentProjects/FileNames"), fileNames);
     s->setValue(QLatin1String("ProjectExplorer/RecentProjects/DisplayNames"), displayNames);
 
-    s->setValue(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY, dd->m_projectExplorerSettings.buildBeforeDeploy);
+    s->setValue(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY, int(dd->m_projectExplorerSettings.buildBeforeDeploy));
     s->setValue(Constants::DEPLOY_BEFORE_RUN_SETTINGS_KEY, dd->m_projectExplorerSettings.deployBeforeRun);
     s->setValue(Constants::SAVE_BEFORE_BUILD_SETTINGS_KEY, dd->m_projectExplorerSettings.saveBeforeBuild);
     s->setValue(Constants::USE_JOM_SETTINGS_KEY, dd->m_projectExplorerSettings.useJom);
@@ -2599,7 +2604,7 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate()
 void ProjectExplorerPluginPrivate::deploy(QList<Project *> projects)
 {
     QList<Id> steps;
-    if (m_projectExplorerSettings.buildBeforeDeploy)
+    if (m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off)
         steps << Id(Constants::BUILDSTEPS_BUILD);
     steps << Id(Constants::BUILDSTEPS_DEPLOY);
     queue(projects, steps);
@@ -2878,14 +2883,25 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
 
     QList<Id> stepIds;
     if (!forceSkipDeploy && dd->m_projectExplorerSettings.deployBeforeRun) {
-        if (!BuildManager::isBuilding() && dd->m_projectExplorerSettings.buildBeforeDeploy)
-            stepIds << Id(Constants::BUILDSTEPS_BUILD);
+        if (!BuildManager::isBuilding()) {
+            switch (dd->m_projectExplorerSettings.buildBeforeDeploy) {
+            case BuildBeforeRunMode::AppOnly:
+                rc->target()->activeBuildConfiguration()->restrictNextBuild(rc);
+                Q_FALLTHROUGH();
+            case BuildBeforeRunMode::WholeProject:
+                stepIds << Id(Constants::BUILDSTEPS_BUILD);
+                break;
+            case BuildBeforeRunMode::Off:
+                break;
+            }
+        }
         if (!BuildManager::isDeploying())
             stepIds << Id(Constants::BUILDSTEPS_DEPLOY);
     }
 
     Project *pro = rc->target()->project();
     int queueCount = dd->queue(SessionManager::projectOrder(pro), stepIds);
+    rc->target()->activeBuildConfiguration()->restrictNextBuild(nullptr);
 
     if (queueCount < 0) // something went wrong
         return;
@@ -3022,7 +3038,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
                               && !BuildManager::isBuilding(currentProject)
                               && hasDeploySettings(currentProject);
 
-    if (m_projectExplorerSettings.buildBeforeDeploy) {
+    if (m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off) {
         if (hasBuildSettings(project)
                 && !buildSettingsEnabled(project).first)
             enableDeployActions = false;
@@ -3042,7 +3058,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     m_deployProjectOnlyAction->setEnabled(enableDeployActions);
 
     bool enableDeploySessionAction = true;
-    if (m_projectExplorerSettings.buildBeforeDeploy) {
+    if (m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off) {
         auto hasDisabledBuildConfiguration = [](Project *project) {
             return project && project->activeTarget()
                     && project->activeTarget()->activeBuildConfiguration()
@@ -3095,7 +3111,7 @@ bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyN
         return false;
     }
 
-    if (dd->m_projectExplorerSettings.buildBeforeDeploy
+    if (dd->m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off
             && dd->m_projectExplorerSettings.deployBeforeRun
             && !BuildManager::isBuilding(project)
             && hasBuildSettings(project)) {

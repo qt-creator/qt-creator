@@ -43,6 +43,7 @@ class BuildStepList;
 class Kit;
 class NamedWidget;
 class Node;
+class RunConfiguration;
 class Target;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
@@ -86,6 +87,8 @@ public:
     virtual QString disabledReason() const;
 
     virtual bool regenerateBuildFiles(Node *node);
+
+    virtual void restrictNextBuild(const RunConfiguration *rc);
 
     enum BuildType {
         Unknown,

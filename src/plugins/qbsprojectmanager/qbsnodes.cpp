@@ -135,9 +135,14 @@ QStringList QbsProductNode::targetApplications() const
     return QStringList{m_productData.value("target-executable").toString()};
 }
 
-QString QbsProductNode::buildKey() const
+QString QbsProductNode::fullDisplayName() const
 {
     return m_productData.value("full-display-name").toString();
+}
+
+QString QbsProductNode::buildKey() const
+{
+    return fullDisplayName();
 }
 
 QVariant QbsProductNode::data(Core::Id role) const

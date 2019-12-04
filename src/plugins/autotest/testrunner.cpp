@@ -320,7 +320,8 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     m_runMode = mode;
     ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
         ProjectExplorerPlugin::projectExplorerSettings();
-    if (mode != TestRunMode::RunAfterBuild && projectExplorerSettings.buildBeforeDeploy
+    if (mode != TestRunMode::RunAfterBuild
+            && projectExplorerSettings.buildBeforeDeploy != ProjectExplorer::Internal::BuildBeforeRunMode::Off
             && !projectExplorerSettings.saveBeforeBuild) {
         if (!ProjectExplorerPlugin::saveModifiedFiles())
             return;
@@ -352,7 +353,8 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     m_targetConnect = connect(project, &Project::activeTargetChanged,
                               [this]() { cancelCurrent(KitChanged); });
 
-    if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunMode::DebugWithoutDeploy
+    if (projectExplorerSettings.buildBeforeDeploy == ProjectExplorer::Internal::BuildBeforeRunMode::Off
+            || mode == TestRunMode::DebugWithoutDeploy
             || mode == TestRunMode::RunWithoutDeploy || mode == TestRunMode::RunAfterBuild) {
         runOrDebugTests();
         return;

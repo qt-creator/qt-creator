@@ -191,6 +191,17 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
+void QbsBuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
+{
+    if (!rc) {
+        setProducts({});
+        return;
+    }
+    const auto productNode = dynamic_cast<QbsProductNode *>(rc->productNode());
+    QTC_ASSERT(productNode, return);
+    setProducts({productNode->fullDisplayName()});
+}
+
 QbsBuildStep *QbsBuildConfiguration::qbsStep() const
 {
     return stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)->firstOfType<QbsBuildStep>();

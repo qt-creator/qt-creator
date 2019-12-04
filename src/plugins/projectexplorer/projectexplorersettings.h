@@ -35,13 +35,14 @@ namespace Internal {
 
 enum class TerminalMode { On, Off, Smart };
 enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
+enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
 
 class ProjectExplorerSettings
 {
 public:
     enum StopBeforeBuild { StopNone = 0, StopSameProject, StopAll, StopSameBuildDir };
 
-    bool buildBeforeDeploy = true;
+    BuildBeforeRunMode buildBeforeDeploy = BuildBeforeRunMode::WholeProject;
     bool deployBeforeRun = true;
     bool saveBeforeBuild = false;
     bool useJom = true;

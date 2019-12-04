@@ -886,4 +886,15 @@ bool QmakeBuildConfiguration::regenerateBuildFiles(Node *node)
     return true;
 }
 
+void QmakeBuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
+{
+    if (!rc) {
+        setSubNodeBuild(nullptr);
+        return;
+    }
+    const auto productNode = dynamic_cast<QmakeProFileNode *>(rc->productNode());
+    QTC_ASSERT(productNode, return);
+    setSubNodeBuild(productNode);
+}
+
 } // namespace QmakeProjectManager

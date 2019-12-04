@@ -86,6 +86,7 @@ signals:
 
 private:
     bool fromMap(const QVariantMap &map) override;
+    void restrictNextBuild(const ProjectExplorer::RunConfiguration *rc) override;
     void triggerReparseIfActive();
 
     QStringList m_changedFiles;

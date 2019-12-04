@@ -403,6 +403,11 @@ bool BuildConfiguration::regenerateBuildFiles(Node *node)
     return false;
 }
 
+void BuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
+{
+    Q_UNUSED(rc);
+}
+
 BuildConfiguration::BuildType BuildConfiguration::buildType() const
 {
     return d->m_initialBuildType;

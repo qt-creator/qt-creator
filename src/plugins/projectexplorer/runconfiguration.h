@@ -45,6 +45,7 @@ namespace ProjectExplorer {
 class BuildConfiguration;
 class BuildSystem;
 class GlobalOrProjectAspect;
+class ProjectNode;
 class Runnable;
 class RunConfigurationFactory;
 class RunConfiguration;
@@ -154,6 +155,8 @@ public:
     QString buildKey() const { return m_buildKey; }
     // The BuildTargetInfo corresponding to the buildKey.
     BuildTargetInfo buildTargetInfo() const;
+
+    ProjectExplorer::ProjectNode *productNode() const;
 
     template <class T = ISettingsAspect> T *currentSettings(Core::Id id) const
     {
