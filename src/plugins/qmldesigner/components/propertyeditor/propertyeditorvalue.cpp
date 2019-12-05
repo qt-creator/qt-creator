@@ -34,6 +34,7 @@
 #include <nodemetainfo.h>
 #include <qmlobjectnode.h>
 #include <bindingproperty.h>
+#include <utils/qtcassert.h>
 
 //using namespace QmlDesigner;
 
@@ -348,6 +349,99 @@ QString PropertyEditorValue::getTranslationContext() const
     return QString();
 }
 
+bool PropertyEditorValue::isIdList() const
+{
+    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name())) {
+        const QmlDesigner::QmlObjectNode objectNode(modelNode());
+        if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
+            static const QRegExp rx("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+            const QString exp = objectNode.propertyAffectedByCurrentState(name()) ? expression() : modelNode().bindingProperty(name()).expression();
+            for (const auto &str : generateStringList(exp))
+            {
+                if (!rx.exactMatch(str))
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+
+QStringList PropertyEditorValue::getExpressionAsList() const
+{
+    return generateStringList(expression());
+}
+
+bool PropertyEditorValue::idListAdd(const QString &value)
+{
+    QTC_ASSERT(isIdList(), return false);
+
+    static const QRegExp rx("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+    if (!rx.exactMatch(value))
+        return false;
+
+    auto stringList = generateStringList(expression());
+    stringList.append(value);
+    setExpressionWithEmit(generateString(stringList));
+
+    return true;
+}
+
+bool PropertyEditorValue::idListRemove(int idx)
+{
+    QTC_ASSERT(isIdList(), return false);
+
+    auto stringList = generateStringList(expression());
+
+    if (idx < 0 || idx >= stringList.size())
+        return false;
+
+    stringList.removeAt(idx);
+    setExpressionWithEmit(generateString(stringList));
+
+    return true;
+}
+
+bool PropertyEditorValue::idListReplace(int idx, const QString &value)
+{
+    QTC_ASSERT(isIdList(), return false);
+
+    static const QRegExp rx("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+    if (!rx.exactMatch(value))
+        return false;
+
+    auto stringList = generateStringList(expression());
+
+    if (idx < 0 || idx >= stringList.size())
+        return false;
+
+    stringList.replace(idx, value);
+    setExpressionWithEmit(generateString(stringList));
+
+    return true;
+}
+
+QStringList PropertyEditorValue::generateStringList(const QString &string) const
+{
+    QString copy = string;
+    copy = copy.remove("[").remove("]");
+
+    QStringList tmp = copy.split(",", QString::SkipEmptyParts);
+    for (QString &str : tmp)
+        str = str.trimmed();
+
+    return tmp;
+}
+
+QString PropertyEditorValue::generateString(const QStringList &stringList) const
+{
+    if (stringList.size() > 1)
+        return "[" + stringList.join(",") + "]";
+    else
+        return stringList.first();
+}
+
 void PropertyEditorValue::registerDeclarativeTypes()
 {
     qmlRegisterType<PropertyEditorValue>("HelperWidgets",2,0,"PropertyEditorValue");
@@ -490,4 +584,3 @@ void PropertyEditorNodeWrapper::update()
         emit typeChanged();
     }
 }
-
