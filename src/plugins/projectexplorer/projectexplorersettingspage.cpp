@@ -80,6 +80,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     m_ui.stopBeforeBuildComboBox->addItem(tr("Same Project"), int(StopBeforeBuild::SameProject));
     m_ui.stopBeforeBuildComboBox->addItem(tr("Same Build Directory"),
                                           int(StopBeforeBuild::SameBuildDir));
+    m_ui.stopBeforeBuildComboBox->addItem(tr("Same Application"),
+                                          int(StopBeforeBuild::SameApp));
     m_ui.buildBeforeDeployComboBox->addItem(tr("Do Not Build Anything"),
                                             int(BuildBeforeRunMode::Off));
     m_ui.buildBeforeDeployComboBox->addItem(tr("Build the Whole Project"),

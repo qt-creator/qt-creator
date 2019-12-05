@@ -359,7 +359,7 @@ public:
     ProjectExplorerPluginPrivate();
 
     void deploy(QList<Project *>);
-    int queue(QList<Project *>, QList<Id> stepIds);
+    int queue(QList<Project *>, QList<Id> stepIds, const RunConfiguration *forRunConfig = nullptr);
     void updateContextMenuActions();
     void updateLocationSubMenus();
     void executeRunConfiguration(RunConfiguration *, Core::Id mode);
@@ -1414,7 +1414,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         dd->m_projectExplorerSettings.environmentId = QUuid::createUuid();
     int tmp = s->value(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY,
                             Utils::HostOsInfo::isWindowsHost() ? 1 : 0).toInt();
-    if (tmp < 0 || tmp > int(StopBeforeBuild::SameBuildDir))
+    if (tmp < 0 || tmp > int(StopBeforeBuild::SameApp))
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
     dd->m_projectExplorerSettings.stopBeforeBuild = StopBeforeBuild(tmp);
     dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(s->value(
@@ -2588,7 +2588,8 @@ QString ProjectExplorerPlugin::displayNameForStepId(Id stepId)
     return tr("Build", "Build step");
 }
 
-int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> stepIds)
+int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> stepIds,
+                                        const RunConfiguration *forRunConfig)
 {
     if (!m_instance->saveModifiedFiles())
         return -1;
@@ -2596,8 +2597,10 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
     if (m_projectExplorerSettings.stopBeforeBuild != StopBeforeBuild::None
             && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
         StopBeforeBuild stopCondition = m_projectExplorerSettings.stopBeforeBuild;
+        if (stopCondition == StopBeforeBuild::SameApp && !forRunConfig)
+            stopCondition = StopBeforeBuild::SameBuildDir;
         const QList<RunControl *> toStop
-                = Utils::filtered(m_outputPane.allRunControls(), [&projects, stopCondition](RunControl *rc) -> bool {
+                = Utils::filtered(m_outputPane.allRunControls(), [&projects, stopCondition, forRunConfig](RunControl *rc) -> bool {
                                       if (!rc->isRunning())
                                           return false;
 
@@ -2621,6 +2624,10 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
                                                   device = DeviceKitAspect::device(t->kit());
                                               return !device.isNull() && device->type() == Core::Id(Constants::DESKTOP_DEVICE_TYPE);
                                           });
+                                      case StopBeforeBuild::SameApp:
+                                          QTC_ASSERT(forRunConfig, return false);
+                                          return forRunConfig->buildTargetInfo().targetFilePath
+                                                  == rc->targetFilePath();
                                       }
                                       return false; // Can't get here!
                                   });
@@ -2867,7 +2874,7 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
     }
 
     Project *pro = rc->target()->project();
-    int queueCount = dd->queue(SessionManager::projectOrder(pro), stepIds);
+    int queueCount = dd->queue(SessionManager::projectOrder(pro), stepIds, rc);
     rc->target()->activeBuildConfiguration()->restrictNextBuild(nullptr);
 
     if (queueCount < 0) // something went wrong

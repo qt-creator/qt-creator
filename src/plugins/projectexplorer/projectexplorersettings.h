@@ -36,7 +36,7 @@ namespace Internal {
 enum class TerminalMode { On, Off, Smart };
 enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
 enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
-enum class StopBeforeBuild { None, SameProject, All, SameBuildDir };
+enum class StopBeforeBuild { None, SameProject, All, SameBuildDir, SameApp };
 
 class ProjectExplorerSettings
 {
