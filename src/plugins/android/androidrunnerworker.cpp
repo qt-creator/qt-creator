@@ -599,7 +599,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     QStringList jdbArgs("-connect");
     jdbArgs << QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
                .arg(m_localJdbServerPort.toString());
-    qCDebug(androidRunWorkerLog) << "Starting JDB:" << jdbPath << jdbArgs.join(' ');
+    qCDebug(androidRunWorkerLog) << "Starting JDB:" << CommandLine(jdbPath, jdbArgs).toUserOutput();
     std::unique_ptr<QProcess, Deleter> jdbProcess(new QProcess, &deleter);
     jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
     jdbProcess->start(jdbPath.toString(), jdbArgs);
