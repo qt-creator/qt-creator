@@ -36,12 +36,11 @@ namespace Internal {
 enum class TerminalMode { On, Off, Smart };
 enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
 enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
+enum class StopBeforeBuild { None, SameProject, All, SameBuildDir };
 
 class ProjectExplorerSettings
 {
 public:
-    enum StopBeforeBuild { StopNone = 0, StopSameProject, StopAll, StopSameBuildDir };
-
     BuildBeforeRunMode buildBeforeDeploy = BuildBeforeRunMode::WholeProject;
     bool deployBeforeRun = true;
     bool saveBeforeBuild = false;
@@ -54,7 +53,7 @@ public:
     bool clearIssuesOnRebuild = true;
     bool abortBuildAllOnError = true;
     bool lowBuildPriority = false;
-    StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
+    StopBeforeBuild stopBeforeBuild = StopBeforeBuild::None;
     TerminalMode terminalMode = TerminalMode::Smart;
     QString buildDirectoryTemplate;
 

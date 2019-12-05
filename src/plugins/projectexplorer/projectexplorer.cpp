@@ -1417,9 +1417,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         dd->m_projectExplorerSettings.environmentId = QUuid::createUuid();
     int tmp = s->value(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY,
                             Utils::HostOsInfo::isWindowsHost() ? 1 : 0).toInt();
-    if (tmp < 0 || tmp > ProjectExplorerSettings::StopSameBuildDir)
+    if (tmp < 0 || tmp > int(StopBeforeBuild::SameBuildDir))
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
-    dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
+    dd->m_projectExplorerSettings.stopBeforeBuild = StopBeforeBuild(tmp);
     dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(s->value(
         Constants::TERMINAL_MODE_SETTINGS_KEY, int(TerminalMode::Smart)).toInt());
     dd->m_projectExplorerSettings.closeSourceFilesWithProject
@@ -2048,7 +2048,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(Constants::AUTO_CREATE_RUN_CONFIGS_SETTINGS_KEY,
                 dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations);
     s->setValue(Constants::ENVIRONMENT_ID_SETTINGS_KEY, dd->m_projectExplorerSettings.environmentId.toByteArray());
-    s->setValue(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY, dd->m_projectExplorerSettings.stopBeforeBuild);
+    s->setValue(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY, int(dd->m_projectExplorerSettings.stopBeforeBuild));
 
     // Store this in the Core directory scope for backward compatibility!
     s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY, dd->m_projectExplorerSettings.buildDirectoryTemplate);
@@ -2626,22 +2626,22 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
     if (!m_instance->saveModifiedFiles())
         return -1;
 
-    if (m_projectExplorerSettings.stopBeforeBuild != ProjectExplorerSettings::StopNone
+    if (m_projectExplorerSettings.stopBeforeBuild != StopBeforeBuild::None
             && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
-        ProjectExplorerSettings::StopBeforeBuild stopCondition = m_projectExplorerSettings.stopBeforeBuild;
+        StopBeforeBuild stopCondition = m_projectExplorerSettings.stopBeforeBuild;
         const QList<RunControl *> toStop
                 = Utils::filtered(m_outputPane.allRunControls(), [&projects, stopCondition](RunControl *rc) -> bool {
                                       if (!rc->isRunning())
                                           return false;
 
                                       switch (stopCondition) {
-                                      case ProjectExplorerSettings::StopNone:
+                                      case StopBeforeBuild::None:
                                           return false;
-                                      case ProjectExplorerSettings::StopAll:
+                                      case StopBeforeBuild::All:
                                           return true;
-                                      case ProjectExplorerSettings::StopSameProject:
+                                      case StopBeforeBuild::SameProject:
                                           return projects.contains(rc->project());
-                                      case ProjectExplorerSettings::StopSameBuildDir:
+                                      case StopBeforeBuild::SameBuildDir:
                                           return Utils::contains(projects, [rc](Project *p) {
                                               Target *t = p ? p->activeTarget() : nullptr;
                                               BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;

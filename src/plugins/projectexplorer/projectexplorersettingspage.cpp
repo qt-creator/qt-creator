@@ -75,12 +75,11 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 {
     m_ui.setupUi(this);
     setJomVisible(Utils::HostOsInfo::isWindowsHost());
-    m_ui.stopBeforeBuildComboBox->addItem(tr("None"), ProjectExplorerSettings::StopNone);
-    m_ui.stopBeforeBuildComboBox->addItem(tr("All"), ProjectExplorerSettings::StopAll);
-    m_ui.stopBeforeBuildComboBox->addItem(tr("Same Project"),
-                                          ProjectExplorerSettings::StopSameProject);
+    m_ui.stopBeforeBuildComboBox->addItem(tr("None"), int(StopBeforeBuild::None));
+    m_ui.stopBeforeBuildComboBox->addItem(tr("All"), int(StopBeforeBuild::All));
+    m_ui.stopBeforeBuildComboBox->addItem(tr("Same Project"), int(StopBeforeBuild::SameProject));
     m_ui.stopBeforeBuildComboBox->addItem(tr("Same Build Directory"),
-                                          ProjectExplorerSettings::StopSameBuildDir);
+                                          int(StopBeforeBuild::SameBuildDir));
     m_ui.buildBeforeDeployComboBox->addItem(tr("Do Not Build Anything"),
                                             int(BuildBeforeRunMode::Off));
     m_ui.buildBeforeDeployComboBox->addItem(tr("Build the Whole Project"),
@@ -117,7 +116,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.addLibraryPathsToRunEnv = m_ui.addLibraryPathsToRunEnvCheckBox->isChecked();
     m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     m_settings.automaticallyCreateRunConfigurations = m_ui.automaticallyCreateRunConfiguration->isChecked();
-    m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(
+    m_settings.stopBeforeBuild = static_cast<StopBeforeBuild>(
                 m_ui.stopBeforeBuildComboBox->currentData().toInt());
     m_settings.terminalMode = static_cast<TerminalMode>(m_ui.terminalModeComboBox->currentIndex());
     m_settings.closeSourceFilesWithProject = m_ui.closeSourceFilesCheckBox->isChecked();
