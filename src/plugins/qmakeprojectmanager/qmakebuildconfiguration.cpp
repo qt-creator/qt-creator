@@ -155,15 +155,11 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
 
 void QmakeBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize();
+    auto qmakeStep = new QMakeStep(buildSteps());
+    buildSteps()->appendStep(qmakeStep);
+    buildSteps()->appendStep(Constants::MAKESTEP_BS_ID);
 
-    BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    auto qmakeStep = new QMakeStep(buildSteps);
-    buildSteps->appendStep(qmakeStep);
-    buildSteps->appendStep(Constants::MAKESTEP_BS_ID);
-
-    BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(Constants::MAKESTEP_BS_ID);
+    cleanSteps()->appendStep(Constants::MAKESTEP_BS_ID);
 
     const QmakeExtraBuildInfo qmakeExtra = extraInfo().value<QmakeExtraBuildInfo>();
     BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
@@ -195,8 +191,8 @@ void QmakeBuildConfiguration::initialize()
 
     if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
             == Android::Constants::ANDROID_DEVICE_TYPE) {
-        buildSteps->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
-        buildSteps->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
+        buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
+        buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
     }
 
     updateCacheAndEmitEnvironmentChanged();
@@ -469,8 +465,7 @@ QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 QMakeStep *QmakeBuildConfiguration::qmakeStep() const
 {
     QMakeStep *qs = nullptr;
-    BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
-    Q_ASSERT(bsl);
+    BuildStepList *bsl = buildSteps();
     for (int i = 0; i < bsl->count(); ++i)
         if ((qs = qobject_cast<QMakeStep *>(bsl->at(i))) != nullptr)
             return qs;
@@ -480,8 +475,7 @@ QMakeStep *QmakeBuildConfiguration::qmakeStep() const
 QmakeMakeStep *QmakeBuildConfiguration::makeStep() const
 {
     QmakeMakeStep *ms = nullptr;
-    BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
-    Q_ASSERT(bsl);
+    BuildStepList *bsl = buildSteps();
     for (int i = 0; i < bsl->count(); ++i)
         if ((ms = qobject_cast<QmakeMakeStep *>(bsl->at(i))) != nullptr)
             return ms;
@@ -863,7 +857,7 @@ bool QmakeBuildConfiguration::regenerateBuildFiles(Node *node)
 
     qs->setForced(true);
 
-    BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    BuildManager::buildList(cleanSteps());
     BuildManager::appendStep(qs, ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
 
     QmakeProFileNode *proFile = nullptr;

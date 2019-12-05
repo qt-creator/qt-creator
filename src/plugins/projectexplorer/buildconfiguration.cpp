@@ -69,9 +69,15 @@ namespace Internal {
 class BuildConfigurationPrivate
 {
 public:
+    BuildConfigurationPrivate(BuildConfiguration *bc)
+        : m_buildSteps(bc, Constants::BUILDSTEPS_BUILD),
+          m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
+    {}
+
     bool m_clearSystemEnvironment = false;
     Utils::EnvironmentItems m_userEnvironmentChanges;
-    QList<BuildStepList *> m_stepLists;
+    BuildStepList m_buildSteps;
+    BuildStepList m_cleanSteps;
     BuildDirectoryAspect *m_buildDirectoryAspect = nullptr;
     Utils::FilePath m_lastEmittedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;
@@ -88,7 +94,7 @@ public:
 } // Internal
 
 BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
-    : ProjectConfiguration(target, id), d(new Internal::BuildConfigurationPrivate)
+    : ProjectConfiguration(target, id), d(new Internal::BuildConfigurationPrivate(this))
 {
     QTC_CHECK(target && target == this->target());
 
@@ -167,8 +173,8 @@ void BuildConfiguration::addConfigWidgets(const std::function<void(NamedWidget *
     if (NamedWidget *generalConfigWidget = createConfigWidget())
         adder(generalConfigWidget);
 
-    adder(new Internal::BuildStepListWidget(stepList(Constants::BUILDSTEPS_BUILD)));
-    adder(new Internal::BuildStepListWidget(stepList(Constants::BUILDSTEPS_CLEAN)));
+    adder(new Internal::BuildStepListWidget(buildSteps()));
+    adder(new Internal::BuildStepListWidget(cleanSteps()));
 
     QList<NamedWidget *> subConfigWidgets = createSubConfigWidgets();
     foreach (NamedWidget *subConfigWidget, subConfigWidgets)
@@ -203,12 +209,6 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     return named;
 }
 
-void BuildConfiguration::initialize()
-{
-    d->m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_BUILD));
-    d->m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_CLEAN));
-}
-
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
     return {new BuildEnvironmentWidget(this)};
@@ -220,25 +220,26 @@ BuildSystem *BuildConfiguration::buildSystem() const
     return target()->fallbackBuildSystem();
 }
 
-QList<Core::Id> BuildConfiguration::knownStepLists() const
+BuildStepList *BuildConfiguration::buildSteps() const
 {
-    return Utils::transform(d->m_stepLists, &BuildStepList::id);
+    return &d->m_buildSteps;
 }
 
-BuildStepList *BuildConfiguration::stepList(Core::Id id) const
+BuildStepList *BuildConfiguration::cleanSteps() const
 {
-    return Utils::findOrDefault(d->m_stepLists, Utils::equal(&BuildStepList::id, id));
+    return &d->m_cleanSteps;
 }
 
 QVariantMap BuildConfiguration::toMap() const
 {
-    QVariantMap map(ProjectConfiguration::toMap());
+    QVariantMap map = ProjectConfiguration::toMap();
+
     map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemEnvironment);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
 
-    map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), d->m_stepLists.count());
-    for (int i = 0; i < d->m_stepLists.count(); ++i)
-        map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), d->m_stepLists.at(i)->toMap());
+    map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 2);
+    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(0), d->m_buildSteps.toMap());
+    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(1), d->m_cleanSteps.toMap());
 
     return map;
 }
@@ -250,8 +251,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
 
     updateCacheAndEmitEnvironmentChanged();
 
-    qDeleteAll(d->m_stepLists);
-    d->m_stepLists.clear();
+    d->m_buildSteps.clear();
+    d->m_cleanSteps.clear();
 
     int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
     for (int i = 0; i < maxI; ++i) {
@@ -260,18 +261,17 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No data for build step list" << i << "found!";
             continue;
         }
-        auto list = new BuildStepList(this, idFromMap(data));
-        if (!list->fromMap(data)) {
-            qWarning() << "Failed to restore build step list" << i;
-            delete list;
-            return false;
+        Core::Id id = idFromMap(data);
+        if (id == Constants::BUILDSTEPS_BUILD) {
+            if (!d->m_buildSteps.fromMap(data))
+                qWarning() << "Failed to restore build step list";
+        } else if (id == Constants::BUILDSTEPS_CLEAN) {
+            if (!d->m_cleanSteps.fromMap(data))
+                qWarning() << "Failed to restore clean step list";
+        } else {
+            qWarning() << "Ignoring unknown step list";
         }
-        d->m_stepLists.append(list);
     }
-
-    // We currently assume there to be at least a clean and build list!
-    QTC_CHECK(knownStepLists().contains(Core::Id(Constants::BUILDSTEPS_BUILD)));
-    QTC_CHECK(knownStepLists().contains(Core::Id(Constants::BUILDSTEPS_CLEAN)));
 
     return ProjectConfiguration::fromMap(map);
 }

@@ -100,6 +100,7 @@ class CompilationDatabaseBuildConfiguration : public ProjectExplorer::BuildConfi
     Q_OBJECT
 public:
     CompilationDatabaseBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    void initialize() final {}
 };
 
 class CompilationDatabaseBuildConfigurationFactory

@@ -60,13 +60,8 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id
 
 void GenericBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize();
-
-    BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    buildSteps->appendStep(Constants::GENERIC_MS_ID);
-
-    BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(Constants::GENERIC_MS_ID);
+    buildSteps()->appendStep(Constants::GENERIC_MS_ID);
+    cleanSteps()->appendStep(Constants::GENERIC_MS_ID);
 
     updateCacheAndEmitEnvironmentChanged();
 }

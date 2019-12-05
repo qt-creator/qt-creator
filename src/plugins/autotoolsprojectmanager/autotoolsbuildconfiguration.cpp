@@ -57,27 +57,22 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
 
 void AutotoolsBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize();
-
-    BuildStepList *buildSteps = stepList(BUILDSTEPS_BUILD);
-
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
     QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");
     if (autogenFile.exists())
-        buildSteps->appendStep(Constants::AUTOGEN_STEP_ID);
+        buildSteps()->appendStep(Constants::AUTOGEN_STEP_ID);
     else
-        buildSteps->appendStep(Constants::AUTORECONF_STEP_ID);
+        buildSteps()->appendStep(Constants::AUTORECONF_STEP_ID);
 
     // ./configure.
-    buildSteps->appendStep(Constants::CONFIGURE_STEP_ID);
+    buildSteps()->appendStep(Constants::CONFIGURE_STEP_ID);
 
     // make
-    buildSteps->appendStep(Constants::MAKE_STEP_ID);
+    buildSteps()->appendStep(Constants::MAKE_STEP_ID);
 
     // ### Build Steps Clean ###
-    BuildStepList *cleanSteps = stepList(BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(Constants::MAKE_STEP_ID);
+    cleanSteps()->appendStep(Constants::MAKE_STEP_ID);
 }
 
 

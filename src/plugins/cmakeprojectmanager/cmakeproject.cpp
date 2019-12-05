@@ -133,8 +133,7 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
 {
     MakeInstallCommand cmd;
     if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
-        if (const auto cmakeStep = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-                ->firstOfType<CMakeBuildStep>()) {
+        if (const auto cmakeStep = bc->buildSteps()->firstOfType<CMakeBuildStep>()) {
             if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target->kit()))
                 cmd.command = tool->cmakeExecutable();
         }

@@ -99,15 +99,12 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
 
 void CMakeBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize();
-
-    BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    buildSteps->appendStep(Constants::CMAKE_BUILD_STEP_ID);
+    buildSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
     if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
             == Android::Constants::ANDROID_DEVICE_TYPE) {
-        buildSteps->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
-        const auto &bs = buildSteps->steps().constLast();
+        buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
+        const auto &bs = buildSteps()->steps().constLast();
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NATIVE_API_LEVEL",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::STRING,
                                                                             "Android native API level",
@@ -157,8 +154,7 @@ void CMakeBuildConfiguration::initialize()
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH", "%{Qt:QT_INSTALL_PREFIX}"});
     }
 
-    BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(Constants::CMAKE_BUILD_STEP_ID);
+    cleanSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
     if (initialBuildDirectory().isEmpty()) {
         auto project = target()->project();
@@ -224,9 +220,8 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
 {
-    const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
     auto cmBs = qobject_cast<CMakeBuildStep *>(Utils::findOrDefault(
-                                                   stepList(buildStep)->steps(),
+                                                   buildSteps()->steps(),
                                                    [](const ProjectExplorer::BuildStep *bs) {
         return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
     }));
@@ -237,7 +232,7 @@ void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
         cmBs->setBuildTarget(buildTarget);
     }
 
-    BuildManager::buildList(stepList(buildStep));
+    BuildManager::buildList(buildSteps());
 
     if (cmBs)
         cmBs->setBuildTarget(originalBuildTarget);
@@ -294,7 +289,7 @@ void CMakeBuildConfiguration::setConfigurationForCMake(const QList<ConfigModel::
         // We always need to clean when we change the ANDROID_BUILD_ABI_ variables
         QList<ProjectExplorer::BuildStepList *> stepLists;
         const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
-        stepLists << stepList(clean);
+        stepLists << cleanSteps();
         BuildManager::buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean));
     }
 }

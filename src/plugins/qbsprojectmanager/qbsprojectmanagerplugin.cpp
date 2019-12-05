@@ -513,9 +513,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
     bc->setActiveFileTags(activeFileTags);
     bc->setProducts(QStringList());
 
-    const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-
-    BuildManager::buildList(bc->stepList(buildStep));
+    BuildManager::buildList(bc->buildSteps());
 
     bc->setChangedFiles(QStringList());
     bc->setActiveFileTags(QStringList());
@@ -549,8 +547,13 @@ void QbsProjectManagerPlugin::runStepsForProducts(QbsProject *project,
     QList<ProjectExplorer::BuildStepList *> stepLists;
     QStringList stepListNames;
     for (const Core::Id &stepType : stepTypes) {
-        stepLists << bc->stepList(stepType);
-        stepListNames <<ProjectExplorerPlugin::displayNameForStepId(stepType);
+        if (stepType == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
+            stepLists << bc->buildSteps();
+            stepListNames << ProjectExplorerPlugin::displayNameForStepId(stepType);
+        } else if (stepType == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+            stepLists << bc->cleanSteps();
+            stepListNames << ProjectExplorerPlugin::displayNameForStepId(stepType);
+        }
     }
     BuildManager::buildLists(stepLists, stepListNames);
     bc->setProducts(QStringList());

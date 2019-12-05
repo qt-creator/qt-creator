@@ -77,8 +77,8 @@ public:
 
     virtual void addToEnvironment(Utils::Environment &env) const;
 
-    QList<Core::Id> knownStepLists() const;
-    BuildStepList *stepList(Core::Id id) const;
+    BuildStepList *buildSteps() const;
+    BuildStepList *cleanSteps() const;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -125,7 +125,7 @@ signals:
     void buildTypeChanged();
 
 protected:
-    virtual void initialize();
+    virtual void initialize() = 0;
 
 private:
     void emitBuildDirectoryChanged();

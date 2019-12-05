@@ -2670,11 +2670,13 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
             if (!pro || pro->needsConfiguration())
                 continue;
             BuildStepList *bsl = nullptr;
-            if (id == Constants::BUILDSTEPS_DEPLOY
-                && pro->activeTarget()->activeDeployConfiguration())
-                bsl = pro->activeTarget()->activeDeployConfiguration()->stepList();
-            else if (pro->activeTarget()->activeBuildConfiguration())
-                bsl = pro->activeTarget()->activeBuildConfiguration()->stepList(id);
+            Target *target = pro->activeTarget();
+            if (id == Constants::BUILDSTEPS_DEPLOY && target->activeDeployConfiguration())
+                bsl = target->activeDeployConfiguration()->stepList();
+            else if (id == Constants::BUILDSTEPS_BUILD && target->activeBuildConfiguration())
+                bsl = target->activeBuildConfiguration()->buildSteps();
+            else if (id == Constants::BUILDSTEPS_CLEAN && target->activeBuildConfiguration())
+                bsl = target->activeBuildConfiguration()->cleanSteps();
 
             if (!bsl || bsl->isEmpty())
                 continue;

@@ -75,8 +75,6 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
 
 void NimBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize();
-
     // Create the build configuration and initialize it from build info
     setBuildDirectory(defaultBuildDirectory(target()->kit(),
                                             project()->projectFilePath(),
@@ -85,8 +83,7 @@ void NimBuildConfiguration::initialize()
 
     // Add nim compiler build step
     {
-        BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps);
+        auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps());
         NimCompilerBuildStep::DefaultBuildOptions defaultOption;
         switch (initialBuildType()) {
         case BuildConfiguration::Release:
@@ -107,14 +104,11 @@ void NimBuildConfiguration::initialize()
 
         if (!nimFiles.isEmpty())
             nimCompilerBuildStep->setTargetNimFile(nimFiles.first());
-        buildSteps->appendStep(nimCompilerBuildStep);
+        buildSteps()->appendStep(nimCompilerBuildStep);
     }
 
     // Add clean step
-    {
-        BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        cleanSteps->appendStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
-    }
+    cleanSteps()->appendStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
 }
 
 FilePath NimBuildConfiguration::cacheDirectory() const
@@ -131,9 +125,7 @@ FilePath NimBuildConfiguration::outFilePath() const
 
 const NimCompilerBuildStep *NimBuildConfiguration::nimCompilerBuildStep() const
 {
-    BuildStepList *steps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    QTC_ASSERT(steps, return nullptr);
-    foreach (BuildStep *step, steps->steps())
+    foreach (BuildStep *step, buildSteps()->steps())
         if (step->id() == Constants::C_NIMCOMPILERBUILDSTEP_ID)
             return qobject_cast<NimCompilerBuildStep *>(step);
     return nullptr;

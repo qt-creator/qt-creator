@@ -65,8 +65,6 @@ BuildConfiguration::BuildType NimbleBuildConfiguration::buildType() const
 
 void NimbleBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize();
-
     m_buildType = initialBuildType();
 
     setBuildDirectory(project()->projectDirectory());
@@ -78,8 +76,7 @@ void NimbleBuildConfiguration::initialize()
 //    // Don't add a nimble build step when the package has no binaries (i.e a library package)
 //    if (!m_nimbleBuildSystem->metadata().bin.empty())
 //    {
-        BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        buildSteps->appendStep(new NimbleBuildStep(buildSteps));
+        buildSteps()->appendStep(new NimbleBuildStep(buildSteps()));
 //    }
 }
 

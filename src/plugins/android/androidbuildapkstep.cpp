@@ -138,7 +138,7 @@ AndroidBuildApkStep *AndroidBuildApkStep::findInBuild(const BuildConfiguration *
 {
     if (!bc)
         return nullptr;
-    BuildStepList *bsl = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *bsl = bc->buildSteps();
     QTC_ASSERT(bsl, return nullptr);
     return bsl->firstOfType<AndroidBuildApkStep>();
 }

@@ -146,8 +146,8 @@ void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
         return;
 
     // Find the make step
-    BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()->stepList(
-        ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *buildStepList =
+            cmakeProject->activeTarget()->activeBuildConfiguration()->buildSteps();
     auto buildStep = buildStepList->firstOfType<CMakeBuildStep>();
     if (!buildStep)
         return;

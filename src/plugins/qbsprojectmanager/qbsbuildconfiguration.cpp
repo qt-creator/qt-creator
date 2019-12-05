@@ -126,8 +126,6 @@ BuildSystem *QbsBuildConfiguration::buildSystem() const
 
 void QbsBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize();
-
     QVariantMap configData = extraInfo().value<QVariantMap>();
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
                       (initialBuildType() == BuildConfiguration::Debug)
@@ -159,13 +157,11 @@ void QbsBuildConfiguration::initialize()
 
     m_configurationName->setValue(uniqueConfigName);
 
-    BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    auto bs = new QbsBuildStep(buildSteps);
+    auto bs = new QbsBuildStep(buildSteps());
     bs->setQbsConfiguration(bd);
-    buildSteps->appendStep(bs);
+    buildSteps()->appendStep(bs);
 
-    BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(Constants::QBS_CLEANSTEP_ID);
+    cleanSteps()->appendStep(Constants::QBS_CLEANSTEP_ID);
 
     emit qbsConfigurationChanged();
 }
@@ -204,7 +200,7 @@ void QbsBuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
 
 QbsBuildStep *QbsBuildConfiguration::qbsStep() const
 {
-    return stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)->firstOfType<QbsBuildStep>();
+    return buildSteps()->firstOfType<QbsBuildStep>();
 }
 
 QVariantMap QbsBuildConfiguration::qbsConfiguration() const

@@ -237,17 +237,15 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
         const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
         const Core::Id cleanStep = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
         if (action == BUILD) {
-            BuildManager::buildList(bc->stepList(buildStep));
+            BuildManager::buildList(bc->buildSteps());
         } else if (action == CLEAN) {
-            BuildManager::buildList(bc->stepList(cleanStep));
+            BuildManager::buildList(bc->cleanSteps());
         } else if (action == REBUILD) {
             QStringList names;
             names << ProjectExplorerPlugin::displayNameForStepId(cleanStep)
                   << ProjectExplorerPlugin::displayNameForStepId(buildStep);
 
-            QList<ProjectExplorer::BuildStepList *> stepLists;
-            stepLists << bc->stepList(cleanStep) << bc->stepList(buildStep);
-            BuildManager::buildLists(stepLists, names);
+            BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()}, names);
         }
     }
 

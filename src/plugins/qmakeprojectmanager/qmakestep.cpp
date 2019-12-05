@@ -575,7 +575,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
 
         QList<ProjectExplorer::BuildStepList *> stepLists;
         const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
-        stepLists << bc->stepList(clean);
+        stepLists << bc->cleanSteps();
         BuildManager::buildLists(stepLists, {ProjectExplorerPlugin::displayNameForStepId(clean)});
     });
     auto chooser = new Core::VariableChooser(qmakeAdditonalArgumentsLineEdit);
@@ -758,11 +758,10 @@ void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
         if (!bc)
             return;
 
-        QList<ProjectExplorer::BuildStepList *> stepLists;
         const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
         const Core::Id build = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-        stepLists << bc->stepList(clean) << bc->stepList(build);
-        BuildManager::buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean)
+        BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()},
+                                 QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean)
                        << ProjectExplorerPlugin::displayNameForStepId(build));
     }
 }
