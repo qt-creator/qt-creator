@@ -634,6 +634,8 @@ Project {
             files: [
                 "bindingeditor/bindingeditor.cpp",
                 "bindingeditor/bindingeditor.h",
+                "bindingeditor/actioneditor.cpp",
+                "bindingeditor/actioneditor.h",
                 "bindingeditor/bindingeditordialog.cpp",
                 "bindingeditor/bindingeditordialog.h",
                 "bindingeditor/bindingeditorwidget.cpp",

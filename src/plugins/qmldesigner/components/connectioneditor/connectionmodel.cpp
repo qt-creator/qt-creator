@@ -47,6 +47,7 @@ QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &pr
     foreach (QmlDesigner::PropertyName propertyName, propertyNameList) {
         stringList << QString::fromUtf8(propertyName);
     }
+    stringList.removeDuplicates();
     return stringList;
 }
 
@@ -127,7 +128,7 @@ void ConnectionModel::addSignalHandler(const SignalHandlerProperty &signalHandle
     ModelNode connectionsModelNode = signalHandlerProperty.parentModelNode();
 
     if (connectionsModelNode.bindingProperty("target").isValid()) {
-        idLabel =connectionsModelNode.bindingProperty("target").expression();
+        idLabel = connectionsModelNode.bindingProperty("target").expression();
     }
 
     targetItem = new QStandardItem(idLabel);
@@ -278,6 +279,12 @@ void ConnectionModel::bindingPropertyChanged(const BindingProperty &bindingPrope
 void ConnectionModel::variantPropertyChanged(const VariantProperty &variantProperty)
 {
     if (isConnection(variantProperty.parentModelNode()))
+        resetModel();
+}
+
+void ConnectionModel::abstractPropertyChanged(const AbstractProperty &abstractProperty)
+{
+    if (isConnection(abstractProperty.parentModelNode()))
         resetModel();
 }
 

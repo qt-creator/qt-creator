@@ -29,6 +29,7 @@
 
 namespace QmlDesigner {
 
+class AbstractProperty;
 class ModelNode;
 class BindingProperty;
 class SignalHandlerProperty;
@@ -59,6 +60,7 @@ public:
 
     void bindingPropertyChanged(const BindingProperty &bindingProperty);
     void variantPropertyChanged(const VariantProperty &variantProperty);
+    void abstractPropertyChanged(const AbstractProperty &abstractProperty);
 
     void deleteConnectionByRow(int currentRow);
 
