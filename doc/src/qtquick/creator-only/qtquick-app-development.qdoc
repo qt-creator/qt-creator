@@ -157,12 +157,6 @@
             QML language and you can edit them in the Design mode.
 
         \if defined(qtcreator)
-        \li \l {Exporting Designs from Graphics Software}
-
-            You can export designs from graphics software, such as Adobe
-            Photoshop and GIMP, to QML files. You can then edit QML files in
-            \QC.
-
         \li \l {Using QML Modules with Plugins}
 
             QML modules may use plugins to expose components defined in C++ to
