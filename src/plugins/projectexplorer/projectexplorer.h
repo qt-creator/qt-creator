@@ -142,7 +142,6 @@ public:
 
     static void startRunControl(RunControl *runControl);
     static void showOutputPaneForRunControl(RunControl *runControl);
-    static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel
     static void renameFile(Node *node, const QString &newFilePath);

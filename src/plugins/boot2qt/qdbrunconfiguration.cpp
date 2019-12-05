@@ -100,17 +100,14 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
     setDefaultDisplayName(tr("Run on Boot2Qt Device"));
 }
 
-ProjectExplorer::RunConfiguration::ConfigurationState QdbRunConfiguration::ensureConfigured(QString *errorMessage)
+Tasks QdbRunConfiguration::checkForIssues() const
 {
-    QString remoteExecutable = aspect<ExecutableAspect>()->executable().toString();
-    if (remoteExecutable.isEmpty()) {
-        if (errorMessage) {
-            *errorMessage = tr("The remote executable must be set "
-                               "in order to run on a Boot2Qt device.");
-        }
-        return UnConfigured;
+    Tasks tasks;
+    if (aspect<ExecutableAspect>()->executable().toString().isEmpty()) {
+        tasks << createConfigurationIssue(tr("The remote executable must be set "
+                                             "in order to run on a Boot2Qt device."));
     }
-    return Configured;
+    return tasks;
 }
 
 QString QdbRunConfiguration::defaultDisplayName() const

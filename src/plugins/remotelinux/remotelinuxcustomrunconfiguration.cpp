@@ -68,24 +68,6 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     setDefaultDisplayName(runConfigDefaultDisplayName());
 }
 
-bool RemoteLinuxCustomRunConfiguration::isConfigured() const
-{
-    return !aspect<ExecutableAspect>()->executable().isEmpty();
-}
-
-RunConfiguration::ConfigurationState
-RemoteLinuxCustomRunConfiguration::ensureConfigured(QString *errorMessage)
-{
-    if (!isConfigured()) {
-        if (errorMessage) {
-            *errorMessage = tr("The remote executable must be set "
-                               "in order to run a custom remote run configuration.");
-        }
-        return UnConfigured;
-    }
-    return Configured;
-}
-
 Core::Id RemoteLinuxCustomRunConfiguration::runConfigId()
 {
     return "RemoteLinux.CustomRunConfig";
@@ -105,6 +87,16 @@ Runnable RemoteLinuxCustomRunConfiguration::runnable() const
     if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
         r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
     return r;
+}
+
+Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const
+{
+    Tasks tasks;
+    if (aspect<ExecutableAspect>()->executable().isEmpty()) {
+        tasks << createConfigurationIssue(tr("The remote executable must be set in order to run "
+                                             "a custom remote run configuration."));
+    }
+    return tasks;
 }
 
 // RemoteLinuxCustomRunConfigurationFactory

@@ -37,14 +37,12 @@ class RemoteLinuxCustomRunConfiguration : public ProjectExplorer::RunConfigurati
 public:
     RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    bool isConfigured() const override;
-    ConfigurationState ensureConfigured(QString *errorMessage) override;
-
     static Core::Id runConfigId();
     QString runConfigDefaultDisplayName();
 
 private:
     ProjectExplorer::Runnable runnable() const override;
+    ProjectExplorer::Tasks checkForIssues() const override;
 };
 
 class RemoteLinuxCustomRunConfigurationFactory

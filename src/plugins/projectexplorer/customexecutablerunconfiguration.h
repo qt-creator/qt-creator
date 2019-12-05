@@ -38,23 +38,16 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public RunConfig
 public:
     CustomExecutableRunConfiguration(Target *target, Core::Id id);
     explicit CustomExecutableRunConfiguration(Target *target);
-    ~CustomExecutableRunConfiguration() override;
-
-    Runnable runnable() const override;
-
-    /** Returns whether this runconfiguration ever was configured with an executable
-     */
-    bool isConfigured() const override;
-    bool isEnabled() const override;
-    ConfigurationState ensureConfigured(QString *errorMessage) override;
 
     QString defaultDisplayName() const;
 
 private:
+    Runnable runnable() const override;
+    bool isEnabled() const override;
+    Tasks checkForIssues() const override;
+
     void configurationDialogFinished();
     QString rawExecutable() const;
-
-    class CustomExecutableDialog *m_dialog = nullptr;
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory

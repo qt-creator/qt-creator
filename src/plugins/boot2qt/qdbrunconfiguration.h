@@ -45,9 +45,9 @@ class QdbRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     QdbRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    ConfigurationState ensureConfigured(QString *errorMessage) override;
-
 private:
+    ProjectExplorer::Tasks checkForIssues() const override;
+
     QString defaultDisplayName() const;
 };
 

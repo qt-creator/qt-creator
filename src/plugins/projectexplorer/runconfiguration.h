@@ -25,11 +25,12 @@
 
 #pragma once
 
-#include "projectconfiguration.h"
-#include "projectexplorerconstants.h"
 #include "applicationlauncher.h"
 #include "buildtargetinfo.h"
 #include "devicesupport/idevice.h"
+#include "projectconfiguration.h"
+#include "projectexplorerconstants.h"
+#include "task.h"
 
 #include <utils/environment.h>
 #include <utils/port.h>
@@ -133,11 +134,8 @@ public:
 
     virtual QWidget *createConfigurationWidget();
 
-    virtual bool isConfigured() const;
-    // Pop up configuration dialog in case for example the executable is missing.
-    enum ConfigurationState { Configured, UnConfigured, Waiting };
-    // TODO rename function
-    virtual ConfigurationState ensureConfigured(QString *errorMessage = nullptr);
+    bool isConfigured() const { return checkForIssues().isEmpty(); }
+    virtual Tasks checkForIssues() const { return {}; }
 
     Utils::OutputFormatter *createOutputFormatter() const;
 
@@ -176,7 +174,6 @@ public:
     void update();
 
 signals:
-    void configurationFinished();
     void enabledChanged();
 
 protected:
@@ -190,6 +187,8 @@ protected:
     void setUpdater(const Updater &updater);
 
     virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
+
+    Task createConfigurationIssue(const QString &description) const;
 
 private:
     static void addAspectFactory(const AspectFactory &aspectFactory);

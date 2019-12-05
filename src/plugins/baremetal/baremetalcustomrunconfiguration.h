@@ -42,8 +42,7 @@ public:
 
 public:
     static const char *Id;
-    bool isConfigured() const final;
-    ConfigurationState ensureConfigured(QString *errorMessage) final;
+    ProjectExplorer::Tasks checkForIssues() const final;
 };
 
 // BareMetalCustomRunConfigurationFactory

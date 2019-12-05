@@ -431,8 +431,6 @@ public:
 
     void updateWelcomePage();
 
-    void runConfigurationConfigurationFinished();
-
     void checkForShutdown();
     void timerEvent(QTimerEvent *) override;
 
@@ -516,7 +514,6 @@ public:
 
     QString m_lastOpenDirectory;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
-    QList<QPair<RunConfiguration *, Core::Id>> m_delayedRunConfigurationForRun;
     QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
@@ -2306,21 +2303,14 @@ void ProjectExplorerPluginPrivate::restoreSession()
 
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
 {
-    if (!runConfiguration->isConfigured()) {
-        QString errorMessage;
-        RunConfiguration::ConfigurationState state = runConfiguration->ensureConfigured(&errorMessage);
-
-        if (state == RunConfiguration::UnConfigured) {
-            m_instance->showRunErrorMessage(errorMessage);
-            return;
-        } else if (state == RunConfiguration::Waiting) {
-            connect(runConfiguration, &RunConfiguration::configurationFinished,
-                    this, &ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished);
-            m_delayedRunConfigurationForRun.append(qMakePair(runConfiguration, runMode));
-            return;
-        }
+    const Tasks runConfigIssues = runConfiguration->checkForIssues();
+    if (!runConfigIssues.isEmpty()) {
+        for (const Task &t : runConfigIssues)
+            TaskHub::addTask(t);
+        // TODO: Insert an extra task with a "link" to the run settings page?
+        TaskHub::requestPopup();
+        return;
     }
-
 
     auto runControl = new RunControl(runMode);
     runControl->setRunConfiguration(runConfiguration);
@@ -2333,14 +2323,6 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
     }
 
     startRunControl(runControl);
-}
-
-void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
-{
-    // Empty, non-null means 'canceled' (custom executable dialog for libraries), whereas
-    // empty, null means an error occurred, but message was not set
-    if (!errorMessage.isEmpty() || errorMessage.isNull())
-        QMessageBox::critical(ICore::mainWindow(), errorMessage.isNull() ? tr("Unknown error") : tr("Could Not Run"), errorMessage);
 }
 
 void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
@@ -2427,21 +2409,6 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
     m_shouldHaveRunConfiguration = false;
     m_runMode = Constants::NO_RUN_MODE;
     emit m_instance->updateRunActions();
-}
-
-void ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished()
-{
-    auto rc = qobject_cast<RunConfiguration *>(sender());
-    Core::Id runMode = Constants::NO_RUN_MODE;
-    for (int i = 0; i < m_delayedRunConfigurationForRun.size(); ++i) {
-        if (m_delayedRunConfigurationForRun.at(i).first == rc) {
-            runMode = m_delayedRunConfigurationForRun.at(i).second;
-            m_delayedRunConfigurationForRun.removeAt(i);
-            break;
-        }
-    }
-    if (runMode != Constants::NO_RUN_MODE && rc->isConfigured())
-        executeRunConfiguration(rc, runMode);
 }
 
 QList<QPair<QString, QString> > ProjectExplorerPluginPrivate::recentProjects() const

@@ -57,22 +57,14 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *target,
 
 const char *BareMetalCustomRunConfiguration::Id = "BareMetal";
 
-bool BareMetalCustomRunConfiguration::isConfigured() const
+Tasks BareMetalCustomRunConfiguration::checkForIssues() const
 {
-    return !aspect<ExecutableAspect>()->executable().isEmpty();
-}
-
-RunConfiguration::ConfigurationState
-BareMetalCustomRunConfiguration::ensureConfigured(QString *errorMessage)
-{
-    if (!isConfigured()) {
-        if (errorMessage) {
-            *errorMessage = tr("The remote executable must be set "
-                               "in order to run a custom remote run configuration.");
-        }
-        return UnConfigured;
+    Tasks tasks;
+    if (aspect<ExecutableAspect>()->executable().isEmpty()) {
+        tasks << createConfigurationIssue(tr("The remote executable must be set in order to run "
+                                             "a custom remote run configuration."));
     }
-    return Configured;
+    return tasks;
 }
 
 // BareMetalCustomRunConfigurationFactory
