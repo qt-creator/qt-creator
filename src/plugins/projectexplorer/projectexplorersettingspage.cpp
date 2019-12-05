@@ -75,6 +75,12 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 {
     m_ui.setupUi(this);
     setJomVisible(Utils::HostOsInfo::isWindowsHost());
+    m_ui.stopBeforeBuildComboBox->addItem(tr("None"), ProjectExplorerSettings::StopNone);
+    m_ui.stopBeforeBuildComboBox->addItem(tr("All"), ProjectExplorerSettings::StopAll);
+    m_ui.stopBeforeBuildComboBox->addItem(tr("Same Project"),
+                                          ProjectExplorerSettings::StopSameProject);
+    m_ui.stopBeforeBuildComboBox->addItem(tr("Same Build Directory"),
+                                          ProjectExplorerSettings::StopSameBuildDir);
     m_ui.buildBeforeDeployComboBox->addItem(tr("Do Not Build Anything"),
                                             int(BuildBeforeRunMode::Off));
     m_ui.buildBeforeDeployComboBox->addItem(tr("Build the Whole Project"),
@@ -111,7 +117,8 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.addLibraryPathsToRunEnv = m_ui.addLibraryPathsToRunEnvCheckBox->isChecked();
     m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     m_settings.automaticallyCreateRunConfigurations = m_ui.automaticallyCreateRunConfiguration->isChecked();
-    m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(m_ui.stopBeforeBuildComboBox->currentIndex());
+    m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(
+                m_ui.stopBeforeBuildComboBox->currentData().toInt());
     m_settings.terminalMode = static_cast<TerminalMode>(m_ui.terminalModeComboBox->currentIndex());
     m_settings.closeSourceFilesWithProject = m_ui.closeSourceFilesCheckBox->isChecked();
     m_settings.clearIssuesOnRebuild = m_ui.clearIssuesCheckBox->isChecked();
@@ -132,7 +139,8 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.addLibraryPathsToRunEnvCheckBox->setChecked(m_settings.addLibraryPathsToRunEnv);
     m_ui.promptToStopRunControlCheckBox->setChecked(m_settings.prompToStopRunControl);
     m_ui.automaticallyCreateRunConfiguration->setChecked(m_settings.automaticallyCreateRunConfigurations);
-    m_ui.stopBeforeBuildComboBox->setCurrentIndex(static_cast<int>(m_settings.stopBeforeBuild));
+    m_ui.stopBeforeBuildComboBox->setCurrentIndex(
+                m_ui.stopBeforeBuildComboBox->findData(int(m_settings.stopBeforeBuild)));
     m_ui.terminalModeComboBox->setCurrentIndex(static_cast<int>(m_settings.terminalMode));
     m_ui.closeSourceFilesCheckBox->setChecked(m_settings.closeSourceFilesWithProject);
     m_ui.clearIssuesCheckBox->setChecked(m_settings.clearIssuesOnRebuild);
