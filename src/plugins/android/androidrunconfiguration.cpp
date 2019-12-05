@@ -143,14 +143,4 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
-QWidget *AndroidRunConfiguration::createConfigurationWidget()
-{
-    auto wrapped = RunConfiguration::createConfigurationWidget();
-    auto detailsWidget = qobject_cast<DetailsWidget *>(wrapped);
-    QTC_ASSERT(detailsWidget, return wrapped);
-    detailsWidget->setState(DetailsWidget::Expanded);
-    detailsWidget->setSummaryText(tr("Android run settings"));
-    return detailsWidget;
-}
-
 } // namespace Android
