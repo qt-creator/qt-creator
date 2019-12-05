@@ -788,15 +788,6 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     return info;
 }
 
-static const QList<BuildConfiguration::BuildType> availableBuildTypes(const BaseQtVersion *version)
-{
-    QList<BuildConfiguration::BuildType> types = {BuildConfiguration::Debug,
-                                                  BuildConfiguration::Release};
-    if (version && version->qtVersion().majorVersion > 4)
-        types << BuildConfiguration::Profile;
-    return types;
-}
-
 QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath, bool forSetup) const
 {
     QList<BuildInfo> result;
@@ -806,16 +797,19 @@ QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Kit *k, c
     if (forSetup && (!qtVersion || !qtVersion->isValid()))
         return {};
 
-
-    for (BuildConfiguration::BuildType buildType : availableBuildTypes(qtVersion)) {
+    const auto addBuild = [&](BuildConfiguration::BuildType buildType) {
         BuildInfo info = createBuildInfo(k, projectPath, buildType);
         if (!forSetup) {
             info.displayName.clear(); // ask for a name
             info.buildDirectory.clear(); // This depends on the displayName
         }
         result << info;
+    };
 
-    }
+    addBuild(BuildConfiguration::Debug);
+    addBuild(BuildConfiguration::Release);
+    if (qtVersion && qtVersion->qtVersion().majorVersion > 4)
+        addBuild(BuildConfiguration::Profile);
 
     return result;
 }
