@@ -31,8 +31,10 @@
 #include <QPointer>
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QCheckBox;
+QT_END_NAMESPACE
 
 namespace Utils {
 class PathChooser;
