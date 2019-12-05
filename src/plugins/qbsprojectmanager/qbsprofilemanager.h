@@ -49,7 +49,8 @@ public:
 
     static QbsProfileManager *instance();
 
-    static QString profileForKit(const ProjectExplorer::Kit *k);
+    static QString ensureProfileForKit(const ProjectExplorer::Kit *k);
+    static QString profileNameForKit(const ProjectExplorer::Kit *kit);
     static void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
     enum class QbsConfigOp { Get, Set, Unset }; static QString runQbsConfig(QbsConfigOp op, const QString &key, const QVariant &value = {});
 

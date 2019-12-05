@@ -146,17 +146,12 @@ QbsProfileManager *QbsProfileManager::instance()
     return m_instance;
 }
 
-QString QbsProfileManager::profileForKit(const ProjectExplorer::Kit *k)
+QString QbsProfileManager::ensureProfileForKit(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return QString();
     m_instance->updateProfileIfNecessary(k);
-    const QString output = runQbsConfig(QbsConfigOp::Get, kitNameKeyInQbsSettings(k));
-    const int endQuoteIdx = output.lastIndexOf('"');
-    QTC_ASSERT(endQuoteIdx != -1, return QString());
-    const int startQuoteIdx = output.lastIndexOf('"', endQuoteIdx - 1);
-    QTC_ASSERT(startQuoteIdx != -1, return QString());
-    return output.mid(startQuoteIdx + 1, endQuoteIdx - startQuoteIdx - 1);
+    return profileNameForKit(k);
 }
 
 void QbsProfileManager::setProfileForKit(const QString &name, const ProjectExplorer::Kit *k)
@@ -197,9 +192,7 @@ void QbsProfileManager::addQtProfileFromKit(const QString &profileName, const Pr
 
 void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
-    const QString name = QString::fromLatin1("qtc_%1_%2").arg(k->fileSystemFriendlyName().left(8),
-            QString::fromLatin1(QCryptographicHash::hash(k->id().name(),
-                                                         QCryptographicHash::Sha1).toHex().left(8)));
+    const QString name = profileNameForKit(k);
     runQbsConfig(QbsConfigOp::Unset, "profiles." + name);
     setProfileForKit(name, k);
     addQtProfileFromKit(name, k);
@@ -224,8 +217,17 @@ void QbsProfileManager::handleKitRemoval(ProjectExplorer::Kit *kit)
 {
     m_kitsToBeSetupForQbs.removeOne(kit);
     runQbsConfig(QbsConfigOp::Unset, kitNameKeyInQbsSettings(kit));
-    runQbsConfig(QbsConfigOp::Unset, "profiles." + profileForKit(kit));
+    runQbsConfig(QbsConfigOp::Unset, "profiles." + profileNameForKit(kit));
     emit qbsProfilesUpdated();
+}
+
+QString QbsProfileManager::profileNameForKit(const ProjectExplorer::Kit *kit)
+{
+    if (!kit)
+        return QString();
+    return QString::fromLatin1("qtc_%1_%2").arg(kit->fileSystemFriendlyName().left(8),
+            QString::fromLatin1(QCryptographicHash::hash(
+                                    kit->id().name(), QCryptographicHash::Sha1).toHex().left(8)));
 }
 
 QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, const QVariant &value)

@@ -182,7 +182,7 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     if (m_configurationName->value().isEmpty()) { // pre-4.4 backwards compatibility
-        const QString profileName = QbsProfileManager::profileForKit(target()->kit());
+        const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
         const QString buildVariant = qbsConfiguration()
                 .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
         m_configurationName->setValue(profileName + '-' + buildVariant);
@@ -376,7 +376,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     if (jobCount > 0)
         commandLine.addArgs({"--jobs", QString::number(jobCount)});
 
-    const QString profileName = QbsProfileManager::profileForKit(buildStep->target()->kit());
+    const QString profileName = QbsProfileManager::profileNameForKit(buildStep->target()->kit());
     const QString buildVariant = qbsConfiguration()
             .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
     commandLine.addArg("config:" + configurationName());

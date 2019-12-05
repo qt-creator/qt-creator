@@ -435,7 +435,7 @@ bool QbsBuildSystem::renameFileInProduct(
 
 QString QbsBuildSystem::profile() const
 {
-    return QbsProfileManager::profileForKit(target()->kit());
+    return QbsProfileManager::ensureProfileForKit(target()->kit());
 }
 
 bool QbsBuildSystem::checkCancelStatus()
