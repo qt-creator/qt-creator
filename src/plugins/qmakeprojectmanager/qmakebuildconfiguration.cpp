@@ -178,14 +178,9 @@ void QmakeBuildConfiguration::initialize()
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
 
-    if (qmakeExtra.config.separateDebugInfo == TriState::Enabled)
-        forceSeparateDebugInfo(true);
-
-    if (qmakeExtra.config.linkQmlDebuggingQQ2 != TriState::Default)
-        forceQmlDebugging(qmakeExtra.config.linkQmlDebuggingQQ2 == TriState::Enabled);
-
-    if (qmakeExtra.config.useQtQuickCompiler != TriState::Default)
-        forceQtQuickCompiler(qmakeExtra.config.useQtQuickCompiler == TriState::Enabled);
+    aspect<SeparateDebugInfoAspect>()->setSetting(qmakeExtra.config.separateDebugInfo);
+    aspect<QmlDebuggingAspect>()->setSetting(qmakeExtra.config.linkQmlDebuggingQQ2);
+    aspect<QtQuickCompilerAspect>()->setSetting(qmakeExtra.config.useQtQuickCompiler);
 
     setQMakeBuildConfiguration(config);
 
