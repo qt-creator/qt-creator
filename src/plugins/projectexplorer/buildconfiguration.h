@@ -98,11 +98,6 @@ public:
     };
     virtual BuildType buildType() const;
 
-    BuildType initialBuildType() const; // FIXME: Remove.
-    Utils::FilePath initialBuildDirectory() const; // FIXME: Remove.
-    QString initialDisplayName() const; // FIXME: Remove.
-    QVariant extraInfo() const; // FIXME: Remove.
-
     static QString buildTypeName(BuildType type);
 
     bool isActive() const override;
@@ -127,7 +122,7 @@ signals:
     void buildTypeChanged();
 
 protected:
-    void setInitializer(const std::function<void()> &initializer);
+    void setInitializer(const std::function<void(const BuildInfo &info)> &initializer);
 
 private:
     void emitBuildDirectoryChanged();

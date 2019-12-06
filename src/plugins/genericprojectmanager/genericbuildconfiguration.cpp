@@ -55,7 +55,7 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id
     setConfigWidgetDisplayName(tr("Generic Manager"));
     setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
 
-    setInitializer([this] {
+    setInitializer([this](const BuildInfo &) {
         buildSteps()->appendStep(Constants::GENERIC_MS_ID);
         cleanSteps()->appendStep(Constants::GENERIC_MS_ID);
         updateCacheAndEmitEnvironmentChanged();

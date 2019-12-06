@@ -73,7 +73,7 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
     setBuildDirectorySettingsKey("Nim.NimBuildConfiguration.BuildDirectory");
 
 
-    setInitializer([this, target] {
+    setInitializer([this, target](const BuildInfo &info) {
         // Create the build configuration and initialize it from build info
         setBuildDirectory(defaultBuildDirectory(target->kit(),
                                                 project()->projectFilePath(),
@@ -84,7 +84,7 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
         {
             auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps());
             NimCompilerBuildStep::DefaultBuildOptions defaultOption;
-            switch (initialBuildType()) {
+            switch (info.buildType) {
             case BuildConfiguration::Release:
                 defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Release;
                 break;

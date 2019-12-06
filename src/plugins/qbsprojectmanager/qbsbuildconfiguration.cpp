@@ -80,19 +80,19 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
 {
     setConfigWidgetHasFrame(true);
 
-    setInitializer([this, target] {
+    setInitializer([this, target](const BuildInfo &info) {
         const Kit *kit = target->kit();
-        QVariantMap configData = extraInfo().value<QVariantMap>();
+        QVariantMap configData = info.extraInfo.value<QVariantMap>();
         configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                          (initialBuildType() == BuildConfiguration::Debug)
+                          (info.buildType == BuildConfiguration::Debug)
                           ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
                           : QLatin1String(Constants::QBS_VARIANT_RELEASE));
 
-        Utils::FilePath buildDir = initialBuildDirectory();
+        FilePath buildDir = info.buildDirectory;
         if (buildDir.isEmpty())
             buildDir = defaultBuildDirectory(target->project()->projectFilePath(),
-                                             kit, initialDisplayName(),
-                                             initialBuildType());
+                                             kit, info.displayName,
+                                             buildType());
         setBuildDirectory(buildDir);
 
         // Add the build configuration.
@@ -100,7 +100,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
         QString configName = bd.take("configName").toString();
         if (configName.isEmpty()) {
             configName = "qtc_" + kit->fileSystemFriendlyName() + '_'
-                            + Utils::FileUtils::fileSystemFriendlyName(initialDisplayName());
+                            + FileUtils::fileSystemFriendlyName(info.displayName);
         }
 
         const QString kitName = kit->displayName();

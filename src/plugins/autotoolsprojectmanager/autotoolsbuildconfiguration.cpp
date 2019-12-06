@@ -54,7 +54,7 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
     setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
     setConfigWidgetDisplayName(tr("Autotools Manager"));
 
-    setInitializer([this] {
+    setInitializer([this](const BuildInfo &) {
         // ### Build Steps Build ###
         // autogen.sh or autoreconf
         QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");

@@ -54,9 +54,9 @@ NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Core::Id id)
     setConfigWidgetHasFrame(true);
     setBuildDirectorySettingsKey("Nim.NimbleBuildConfiguration.BuildDirectory");
 
-    setInitializer([this] {
+    setInitializer([this](const BuildInfo &info) {
 
-        m_buildType = initialBuildType();
+        m_buildType = info.buildType;
 
         setBuildDirectory(project()->projectDirectory());
 

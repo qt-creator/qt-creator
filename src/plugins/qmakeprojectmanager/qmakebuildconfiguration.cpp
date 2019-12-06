@@ -109,18 +109,18 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
     setConfigWidgetHasFrame(true);
     m_buildSystem = new QmakeBuildSystem(this);
 
-    setInitializer([this, target] {
+    setInitializer([this, target](const BuildInfo &info) {
         auto qmakeStep = new QMakeStep(buildSteps());
         buildSteps()->appendStep(qmakeStep);
         buildSteps()->appendStep(Constants::MAKESTEP_BS_ID);
 
         cleanSteps()->appendStep(Constants::MAKESTEP_BS_ID);
 
-        const QmakeExtraBuildInfo qmakeExtra = extraInfo().value<QmakeExtraBuildInfo>();
+        const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
         BaseQtVersion *version = QtKitAspect::qtVersion(target->kit());
 
         BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-        if (initialBuildType() == BuildConfiguration::Debug)
+        if (info.buildType == BuildConfiguration::Debug)
             config |= BaseQtVersion::DebugBuild;
         else
             config &= ~BaseQtVersion::DebugBuild;
@@ -135,11 +135,11 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
 
         setQMakeBuildConfiguration(config);
 
-        FilePath directory = initialBuildDirectory();
+        FilePath directory = info.buildDirectory;
         if (directory.isEmpty()) {
             directory = shadowBuildDirectory(target->project()->projectFilePath(),
-                                             target->kit(), initialDisplayName(),
-                                             initialBuildType());
+                                             target->kit(), info.displayName,
+                                             info.buildType);
         }
 
         setBuildDirectory(directory);

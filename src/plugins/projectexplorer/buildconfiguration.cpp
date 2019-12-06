@@ -84,13 +84,9 @@ public:
     QString m_configWidgetDisplayName;
     bool m_configWidgetHasFrame = false;
 
-    std::function<void()> m_initializer;
-
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
-    Utils::FilePath m_initialBuildDirectory;
-    QString m_initialDisplayName;
-    QVariant m_extraInfo;
+    std::function<void(const BuildInfo &)> m_initializer;
 };
 
 } // Internal
@@ -190,17 +186,14 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
     setBuildDirectory(info.buildDirectory);
 
     d->m_initialBuildType = info.buildType;
-    d->m_initialDisplayName = info.displayName;
-    d->m_initialBuildDirectory = info.buildDirectory;
-    d->m_extraInfo = info.extraInfo;
 
     acquaintAspects();
 
     if (d->m_initializer)
-        d->m_initializer();
+        d->m_initializer(info);
 }
 
-void BuildConfiguration::setInitializer(const std::function<void ()> &initializer)
+void BuildConfiguration::setInitializer(const std::function<void(const BuildInfo &)> &initializer)
 {
     d->m_initializer = initializer;
 }
@@ -318,16 +311,6 @@ void BuildConfiguration::emitBuildDirectoryChanged()
     }
 }
 
-QString BuildConfiguration::initialDisplayName() const
-{
-    return d->m_initialDisplayName;
-}
-
-QVariant BuildConfiguration::extraInfo() const
-{
-    return d->m_extraInfo;
-}
-
 ProjectExplorer::BuildDirectoryAspect *BuildConfiguration::buildDirectoryAspect() const
 {
     return d->m_buildDirectoryAspect;
@@ -435,16 +418,6 @@ void BuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
 BuildConfiguration::BuildType BuildConfiguration::buildType() const
 {
     return d->m_initialBuildType;
-}
-
-BuildConfiguration::BuildType BuildConfiguration::initialBuildType() const
-{
-    return d->m_initialBuildType;
-}
-
-FilePath BuildConfiguration::initialBuildDirectory() const
-{
-    return d->m_initialBuildDirectory;
 }
 
 QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)

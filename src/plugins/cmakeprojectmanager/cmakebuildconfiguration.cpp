@@ -89,7 +89,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
                                            displayName(),
                                            BuildConfiguration::Unknown));
 
-    setInitializer([this, target] {
+    setInitializer([this, target](const BuildInfo &info) {
+
         buildSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
         if (DeviceTypeKitAspect::deviceTypeId(target->kit())
@@ -147,14 +148,14 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
 
         cleanSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
-        if (initialBuildDirectory().isEmpty()) {
+        if (info.buildDirectory.isEmpty()) {
             setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
                                                    target->kit(),
-                                                   initialDisplayName(),
-                                                   initialBuildType()));
+                                                   info.displayName,
+                                                   info.buildType));
         }
-        auto info = extraInfo().value<CMakeExtraBuildInfo>();
-        setConfigurationForCMake(info.configuration);
+        auto cinfo = info.extraInfo.value<CMakeExtraBuildInfo>();
+        setConfigurationForCMake(cinfo.configuration);
     });
 }
 
