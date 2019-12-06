@@ -31,6 +31,7 @@ GradientPresetTabContent 2.0 GradientPresetTabContent.qml
 GroupBox 2.0 GroupBox.qml
 HueSlider 2.0 HueSlider.qml
 IconLabel 2.0 IconLabel.qml
+ItemFilterComboBox 2.0 ItemFilterComboBox.qml
 ListViewComboBox 2.0 ListViewComboBox.qml
 Label 2.0 Label.qml
 LineEdit 2.0 LineEdit.qml
