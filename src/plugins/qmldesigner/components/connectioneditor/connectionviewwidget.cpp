@@ -209,7 +209,6 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
     buttons << new QToolButton();
     buttons.constLast()->setIcon(Utils::Icons::MINUS.icon());
     buttons.constLast()->setToolTip(tr("Remove selected binding or connection."));
-    buttons.constLast()->setShortcut(QKeySequence(Qt::Key_Delete));
     connect(buttons.constLast(), &QAbstractButton::clicked, this, &ConnectionViewWidget::removeButtonClicked);
     connect(this, &ConnectionViewWidget::setEnabledRemoveButton, buttons.constLast(), &QWidget::setEnabled);
 
