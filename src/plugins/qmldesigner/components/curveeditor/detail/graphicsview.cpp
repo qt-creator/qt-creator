@@ -554,7 +554,7 @@ double GraphicsView::timeLabelInterval(QPainter *painter, double maxTime)
     double tickDistance = mapTimeToX(deltaTime);
 
     while (true) {
-        if (tickDistance == 0 && deltaTime > maxTime)
+        if (tickDistance == 0 && deltaTime >= maxTime)
             return maxTime;
 
         if (tickDistance > minTextSpacing)
