@@ -157,7 +157,7 @@ void CMakeManager::clearCMakeCache(BuildSystem *buildSystem)
 void CMakeManager::runCMake(BuildSystem *buildSystem)
 {
     auto cmakeBuildSystem = dynamic_cast<CMakeBuildSystem *>(buildSystem);
-    QTC_ASSERT(cmakeBuildSystem, return);
+    QTC_ASSERT(cmakeBuildSystem, return );
 
     if (ProjectExplorerPlugin::saveModifiedFiles())
         cmakeBuildSystem->runCMake();

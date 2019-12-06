@@ -338,6 +338,7 @@ bool BuildDirManager::persistCMakeState()
 
     BuildDirParameters newParameters = m_parameters;
     newParameters.workDirectory.clear();
+    qCDebug(cmakeBuildDirManagerLog) << "Requesting parse due to persisting CMake State";
     setParametersAndRequestParse(newParameters,
                                  REPARSE_URGENT | REPARSE_FORCE_CMAKE_RUN
                                      | REPARSE_FORCE_CONFIGURATION | REPARSE_CHECK_CONFIGURATION);

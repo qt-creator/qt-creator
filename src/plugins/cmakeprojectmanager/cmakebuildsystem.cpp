@@ -129,6 +129,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             return; // not for us...
         // Build configuration has not changed, but Kit settings might have:
         // reparse and check the configuration, independent of whether the reader has changed
+        qCDebug(cmakeBuildSystemLog) << "Requesting parse due to kit being updated";
         m_buildDirManager.setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                                        BuildDirManager::REPARSE_CHECK_CONFIGURATION);
     });
@@ -139,6 +140,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             // Build configuration has switched:
             // * Check configuration if reader changes due to it not existing yet:-)
             // * run cmake without configuration arguments if the reader stays
+            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active target changed";
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                               BuildDirManager::REPARSE_CHECK_CONFIGURATION);
@@ -152,6 +154,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
                 // Build configuration has switched:
                 // * Check configuration if reader changes due to it not existing yet:-)
                 // * run cmake without configuration arguments if the reader stays
+                qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active BC changed";
                 m_buildDirManager
                                 .setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                                               BuildDirManager::REPARSE_CHECK_CONFIGURATION);
@@ -167,6 +170,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             // The environment on our BC has changed:
             // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake without configuration arguments if the reader stays
+            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to environment change";
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                               BuildDirManager::REPARSE_CHECK_CONFIGURATION);
@@ -179,6 +183,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             // * run cmake without configuration arguments if the reader stays
             //   If no configuration exists, then the arguments will get added automatically by
             //   the reader.
+            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                               BuildDirManager::REPARSE_CHECK_CONFIGURATION);
@@ -189,6 +194,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             // The CMake configuration has changed on our BC:
             // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake with configuration arguments if the reader stays
+            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to cmake configuration change";
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                               BuildDirManager::REPARSE_FORCE_CONFIGURATION);
@@ -197,12 +203,14 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
 
     connect(project(), &Project::projectFileIsDirty, this, [this]() {
         if (m_buildConfiguration->isActive()) {
+            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                               BuildDirManager::REPARSE_DEFAULT);
         }
     });
 
+    qCDebug(cmakeBuildSystemLog) << "Requesting parse due to initial CMake BuildSystem setup";
     m_buildDirManager.setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
                                                    BuildDirManager::REPARSE_CHECK_CONFIGURATION);
 }
@@ -221,7 +229,10 @@ CMakeBuildSystem::~CMakeBuildSystem()
 
 void CMakeBuildSystem::triggerParsing()
 {
+    qCDebug(cmakeBuildSystemLog) << "Parsing has been triggered";
     m_currentGuard = guardParsingRun();
+
+    QTC_CHECK(m_currentGuard.guardsProject());
 
     if (m_allFiles.isEmpty())
         m_buildDirManager.requestFilesystemScan();
@@ -279,6 +290,7 @@ QStringList CMakeBuildSystem::filesGeneratedFrom(const QString &sourceFile) cons
 void CMakeBuildSystem::runCMake()
 {
     BuildDirParameters parameters(m_buildConfiguration);
+    qCDebug(cmakeBuildSystemLog) << "Requesting parse due \"Run CMake\" command";
     m_buildDirManager.setParametersAndRequestParse(parameters,
                                                        BuildDirManager::REPARSE_CHECK_CONFIGURATION
                                                        | BuildDirManager::REPARSE_FORCE_CMAKE_RUN
@@ -288,6 +300,7 @@ void CMakeBuildSystem::runCMake()
 void CMakeBuildSystem::runCMakeAndScanProjectTree()
 {
     BuildDirParameters parameters(m_buildConfiguration);
+    qCDebug(cmakeBuildSystemLog) << "Requesting parse due to \"Rescan Project\" command";
     m_buildDirManager.setParametersAndRequestParse(parameters,
                                                        BuildDirManager::REPARSE_CHECK_CONFIGURATION
                                                        | BuildDirManager::REPARSE_SCAN);
