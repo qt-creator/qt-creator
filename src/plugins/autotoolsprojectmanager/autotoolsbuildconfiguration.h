@@ -37,7 +37,7 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::BuildConfigurationFactory;
-    AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    AutotoolsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 };
 
 class AutotoolsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory

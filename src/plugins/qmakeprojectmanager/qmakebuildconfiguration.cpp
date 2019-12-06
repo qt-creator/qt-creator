@@ -108,14 +108,15 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
 {
     setConfigWidgetDisplayName(tr("General"));
     setConfigWidgetHasFrame(true);
+
     m_buildSystem = new QmakeBuildSystem(this);
+
+    appendInitialCleanStep(Constants::MAKESTEP_BS_ID);
 
     setInitializer([this, target](const BuildInfo &info) {
         auto qmakeStep = new QMakeStep(buildSteps());
         buildSteps()->appendStep(qmakeStep);
         buildSteps()->appendStep(Constants::MAKESTEP_BS_ID);
-
-        cleanSteps()->appendStep(Constants::MAKESTEP_BS_ID);
 
         const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
         BaseQtVersion *version = QtKitAspect::qtVersion(target->kit());

@@ -80,6 +80,9 @@ public:
     BuildStepList *buildSteps() const;
     BuildStepList *cleanSteps() const;
 
+    void appendInitialBuildStep(Core::Id id);
+    void appendInitialCleanStep(Core::Id id);
+
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 

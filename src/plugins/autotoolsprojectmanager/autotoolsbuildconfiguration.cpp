@@ -45,8 +45,8 @@ namespace Internal {
 
 // AutotoolsBuildConfiguration
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::Id id)
-    : BuildConfiguration(parent, id)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *target, Core::Id id)
+    : BuildConfiguration(target, id)
 {
     // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
     // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
@@ -54,28 +54,19 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
     setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
     setConfigWidgetDisplayName(tr("Autotools Manager"));
 
-    setInitializer([this](const BuildInfo &) {
-        // ### Build Steps Build ###
-        // autogen.sh or autoreconf
-        QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");
-        if (autogenFile.exists())
-            buildSteps()->appendStep(Constants::AUTOGEN_STEP_ID);
-        else
-            buildSteps()->appendStep(Constants::AUTORECONF_STEP_ID);
+    // ### Build Steps Build ###
+    QFile autogenFile(target->project()->projectDirectory().toString() + "/autogen.sh");
+    if (autogenFile.exists())
+        appendInitialBuildStep(Constants::AUTOGEN_STEP_ID); // autogen.sh
+    else
+        appendInitialBuildStep(Constants::AUTORECONF_STEP_ID); // autoreconf
 
-        // ./configure.
-        buildSteps()->appendStep(Constants::CONFIGURE_STEP_ID);
+    appendInitialBuildStep(Constants::CONFIGURE_STEP_ID); // ./configure.
+    appendInitialBuildStep(Constants::MAKE_STEP_ID); // make
 
-        // make
-        buildSteps()->appendStep(Constants::MAKE_STEP_ID);
-
-        // ### Build Steps Clean ###
-        cleanSteps()->appendStep(Constants::MAKE_STEP_ID);
-    });
+    // ### Build Steps Clean ###
+    appendInitialBuildStep(Constants::MAKE_STEP_ID);
 }
-
-
-// AutotoolsBuildConfiguration class
 
 AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
 {

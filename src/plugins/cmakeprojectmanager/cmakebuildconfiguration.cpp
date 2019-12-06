@@ -75,9 +75,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
                                            displayName(),
                                            BuildConfiguration::Unknown));
 
-    setInitializer([this, target](const BuildInfo &info) {
+    appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
+    appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
 
-        buildSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
+    setInitializer([this, target](const BuildInfo &info) {
 
         CMakeConfig config;
         config.append({"CMAKE_BUILD_TYPE", info.typeName.toUtf8()});
@@ -146,8 +147,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
 
             m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH", "%{Qt:QT_INSTALL_PREFIX}"});
         }
-
-        cleanSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
         if (info.buildDirectory.isEmpty()) {
             setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),

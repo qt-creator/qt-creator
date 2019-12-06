@@ -84,6 +84,8 @@ public:
     mutable Utils::Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
     bool m_configWidgetHasFrame = false;
+    QList<Core::Id> m_initialBuildSteps;
+    QList<Core::Id> m_initialCleanSteps;
 
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
@@ -190,6 +192,12 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
 
     d->m_initialBuildType = info.buildType;
 
+    for (Core::Id id : qAsConst(d->m_initialBuildSteps))
+        d->m_buildSteps.appendStep(id);
+
+    for (Core::Id id : qAsConst(d->m_initialCleanSteps))
+        d->m_cleanSteps.appendStep(id);
+
     acquaintAspects();
 
     if (d->m_initializer)
@@ -248,6 +256,16 @@ BuildStepList *BuildConfiguration::buildSteps() const
 BuildStepList *BuildConfiguration::cleanSteps() const
 {
     return &d->m_cleanSteps;
+}
+
+void BuildConfiguration::appendInitialBuildStep(Core::Id id)
+{
+    d->m_initialBuildSteps.append(id);
+}
+
+void BuildConfiguration::appendInitialCleanStep(Core::Id id)
+{
+    d->m_initialCleanSteps.append(id);
 }
 
 QVariantMap BuildConfiguration::toMap() const
