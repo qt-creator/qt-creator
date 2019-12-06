@@ -487,6 +487,13 @@ static bool mcuTargetIsDesktop(const McuTarget* mcuTarget)
     return mcuTarget->qulPlatform() == "Qt";
 }
 
+static Utils::FilePath jomExecutablePath()
+{
+    return Utils::HostOsInfo::isWindowsHost() ?
+                Utils::FilePath::fromUserInput(Core::ICore::libexecPath() + "/jom.exe")
+              : Utils::FilePath();
+}
+
 static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
                              const McuTarget* mcuTarget)
 {
@@ -500,9 +507,13 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     if (mcuTargetIsDesktop(mcuTarget)) {
         k->setDeviceTypeForIcon(Constants::DEVICE_TYPE);
     } else {
-        k->setIrrelevantAspects({SysRootKitAspect::id(),
-                                 "QtSupport.QtInformation" // QtKitAspect::id()
-                                });
+        QSet<Core::Id> irrelevant = {
+            SysRootKitAspect::id(),
+            "QtSupport.QtInformation" // QtKitAspect::id()
+        };
+        if (jomExecutablePath().exists()) // TODO: add id() getter to CMakeGeneratorKitAspect
+            irrelevant.insert("CMake.GeneratorKitInformation");
+        k->setIrrelevantAspects(irrelevant);
     }
 }
 
@@ -564,8 +575,6 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarge
                             QDir::toNativeSeparators(package->path())});
     }
     pathAdditions.append("${Path}");
-    if (Utils::HostOsInfo::isWindowsHost())
-        pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath())); // for jom
     pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
     const QString path = QLatin1String(Utils::HostOsInfo().isWindowsHost() ? "Path" : "PATH");
     changes.append({path, pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
@@ -591,9 +600,12 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
     if (mcuTarget->colorDepth() >= 0)
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
                                       QString::number(mcuTarget->colorDepth()).toLatin1()));
-    CMakeConfigurationKitAspect::setConfiguration(k, config);
-    if (Utils::HostOsInfo::isWindowsHost())
+    const Utils::FilePath jom = jomExecutablePath();
+    if (jom.exists()) {
+        config.append(CMakeConfigItem("CMAKE_MAKE_PROGRAM", jom.toString().toLatin1()));
         CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
+    }
+    CMakeConfigurationKitAspect::setConfiguration(k, config);
 }
 
 QString McuSupportOptions::kitName(const McuTarget *mcuTarget) const
