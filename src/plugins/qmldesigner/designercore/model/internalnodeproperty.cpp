@@ -100,8 +100,8 @@ QList<InternalNode::Pointer> InternalNodeProperty::allSubNodes() const
     QList<InternalNode::Pointer> nodeList;
 
     if (node()) {
-        nodeList.append(node()->allSubNodes());
         nodeList.append(node());
+        nodeList.append(node()->allSubNodes());
     }
 
     return nodeList;

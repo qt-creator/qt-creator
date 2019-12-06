@@ -1178,7 +1178,7 @@ static QString wrappedMakeCommand(const QString &command)
         return command;
     QTextStream stream(&wrapper);
     stream << "chcp 65001\n";
-    stream << command << " %*";
+    stream << "\"" << QDir::toNativeSeparators(command) << "\" %*";
 
     return wrapperPath;
 }

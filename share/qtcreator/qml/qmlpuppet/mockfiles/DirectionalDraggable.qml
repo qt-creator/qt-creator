@@ -29,7 +29,6 @@ import MouseArea3D 1.0
 
 Model {
     id: rootModel
-    rotationOrder: Node.XYZr
 
     property View3D view3D
     property alias color: material.emissiveColor
@@ -59,6 +58,8 @@ Model {
 
         var maskedPosition = Qt.vector3d(scenePos.x, 0, 0);
         _pointerPosPressed = mouseArea.mapPositionToScene(maskedPosition);
+        if (targetNode.orientation === Node.RightHanded)
+            _pointerPosPressed.z = -_pointerPosPressed.z;
         var sp = targetNode.scenePosition;
         _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
         pressed(mouseArea);
@@ -68,9 +69,9 @@ Model {
     {
         var maskedPosition = Qt.vector3d(scenePos.x, 0, 0);
         var scenePointerPos = mouseArea.mapPositionToScene(maskedPosition);
-        return Qt.vector3d(scenePointerPos.x - _pointerPosPressed.x,
-                           scenePointerPos.y - _pointerPosPressed.y,
-                           scenePointerPos.z - _pointerPosPressed.z);
+        if (targetNode.orientation === Node.RightHanded)
+            scenePointerPos.z = -scenePointerPos.z;
+        return scenePointerPos.minus(_pointerPosPressed);
     }
 
     function handleDragged(mouseArea, scenePos)

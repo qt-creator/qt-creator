@@ -2114,7 +2114,10 @@ GlobalBreakpointItem::GlobalBreakpointItem()
 }
 
 GlobalBreakpointItem::~GlobalBreakpointItem()
-{}
+{
+    delete m_marker;
+    m_marker = nullptr;
+}
 
 QVariant GlobalBreakpointItem::data(int column, int role) const
 {
@@ -2414,8 +2417,6 @@ BreakpointManager::BreakpointManager()
             this, &BreakpointManager::loadSessionData);
     connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
             this, &BreakpointManager::saveSessionData);
-    connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
-            this, &BreakpointManager::aboutToUnloadSession);
 }
 
 QAbstractItemModel *BreakpointManager::model()
@@ -2795,12 +2796,6 @@ void BreakpointManager::saveSessionData()
         list.append(map);
     });
     SessionManager::setValue("Breakpoints", list);
-}
-
-void BreakpointManager::aboutToUnloadSession()
-{
-    saveSessionData();
-    clear();
 }
 
 void BreakpointManager::loadSessionData()

@@ -35,12 +35,24 @@ namespace DesignTools {
 
 class GraphicsView;
 class TreeView;
+class TreeItem;
+class CurveItem;
+class PropertyTreeItem;
+class SelectionModel;
 
 class TreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
+    static TreeItem *treeItem(const QModelIndex &index);
+
+    static NodeTreeItem *nodeItem(const QModelIndex &index);
+
+    static PropertyTreeItem *propertyItem(const QModelIndex &index);
+
+    static CurveItem *curveItem(const QModelIndex &index);
+
     TreeModel(QObject *parent = nullptr);
 
     ~TreeModel() override;
@@ -59,6 +71,8 @@ public:
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    QModelIndex indexOf(const TreeItem::Path &path) const;
+
     void setTreeView(TreeView *view);
 
     void setGraphicsView(GraphicsView *view);
@@ -66,9 +80,7 @@ public:
 protected:
     GraphicsView *graphicsView() const;
 
-    std::vector<TreeItem::Path> selection() const;
-
-    void select(const std::vector<TreeItem::Path> &selection);
+    SelectionModel *selectionModel() const;
 
     void initialize();
 
@@ -77,8 +89,6 @@ protected:
     TreeItem *find(unsigned int id);
 
     QModelIndex findIdx(const QString &name, const QModelIndex &parent) const;
-
-    QModelIndex indexOf(const TreeItem::Path &path) const;
 
 private:
     GraphicsView *m_view;

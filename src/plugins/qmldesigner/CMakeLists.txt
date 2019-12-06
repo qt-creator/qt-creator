@@ -140,6 +140,7 @@ extend_qtc_plugin(QmlDesigner
     valueschangedcommand.cpp valueschangedcommand.h
     changeselectioncommand.cpp changeselectioncommand.h
     drop3dlibraryitemcommand.cpp drop3dlibraryitemcommand.h
+    change3dviewcommand.cpp change3dviewcommand.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -234,6 +235,7 @@ extend_qtc_plugin(QmlDesigner
     snappinglinecreator.cpp snappinglinecreator.h
     toolbox.cpp toolbox.h
     option3daction.cpp option3daction.h
+    editview3dproxydialog.cpp editview3dproxydialog.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -524,6 +526,7 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/bindingeditor
   SOURCES bindingeditor.cpp bindingeditor.h
+    actioneditor.cpp actioneditor.h
     bindingeditordialog.cpp bindingeditordialog.h
     bindingeditorwidget.cpp bindingeditorwidget.h
 )
@@ -624,6 +627,7 @@ extend_qtc_plugin(QmlDesigner
     detail/keyframeitem.cpp detail/keyframeitem.h
     detail/playhead.cpp detail/playhead.h
     detail/selectableitem.cpp detail/selectableitem.h
+    detail/selectionmodel.cpp detail/selectionmodel.h
     detail/selector.cpp detail/selector.h
     detail/shortcut.cpp detail/shortcut.h
     detail/treeitemdelegate.cpp detail/treeitemdelegate.h

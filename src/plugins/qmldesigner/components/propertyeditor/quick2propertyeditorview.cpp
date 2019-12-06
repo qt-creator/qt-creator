@@ -33,6 +33,7 @@
 #include "itemfiltermodel.h"
 #include "simplecolorpalettemodel.h"
 #include "bindingeditor/bindingeditor.h"
+#include "bindingeditor/actioneditor.h"
 #include "qmlanchorbindingproxy.h"
 #include "theme.h"
 #include "aligndistribute.h"
@@ -60,6 +61,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         SimpleColorPaletteModel::registerDeclarativeType();
         Internal::QmlAnchorBindingProxy::registerDeclarativeType();
         BindingEditor::registerDeclarativeType();
+        ActionEditor::registerDeclarativeType();
         AlignDistribute::registerDeclarativeType();
     }
 }

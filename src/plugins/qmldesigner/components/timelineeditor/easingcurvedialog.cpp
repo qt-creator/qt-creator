@@ -62,6 +62,7 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     , m_frames(frames)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowFlag(Qt::Tool, true);
 
     auto tw = new QTabWidget;
     tw->setTabPosition(QTabWidget::East);

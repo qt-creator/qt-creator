@@ -28,11 +28,10 @@
     \page quick-states.html
     \if defined(qtdesignstudio)
     \previouspage quick-property-bindings.html
-    \nextpage studio-fonts.html
     \else
     \previouspage quick-connections-backend.html
-    \nextpage qmldesigner-pathview-editor.html
     \endif
+    \nextpage qmldesigner-pathview-editor.html
 
     \title Adding States
 

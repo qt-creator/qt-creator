@@ -246,6 +246,20 @@ QIcon NodeTreeItem::icon() const
     return m_icon;
 }
 
+std::string toString(ValueType type)
+{
+    switch (type) {
+    case ValueType::Bool:
+        return "Bool";
+    case ValueType::Integer:
+        return "Integer";
+    case ValueType::Double:
+        return "Double";
+    default:
+        return "Undefined";
+    }
+}
+
 PropertyTreeItem::PropertyTreeItem(const QString &name,
                                    const AnimationCurve &curve,
                                    const ValueType &type)

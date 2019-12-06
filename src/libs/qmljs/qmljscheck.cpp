@@ -1674,7 +1674,8 @@ bool Check::visit(CallExpression *ast)
     if (!whiteListedFunction && !isMathFunction && !isDateFunction && !isDirectInConnectionsScope)
         addMessage(ErrFunctionsNotSupportedInQmlUi, location);
 
-    static const QStringList globalFunctions = {"String", "Boolean", "Date", "Number", "Object", "Array", "QT_TR_NOOP", "QT_TRANSLATE_NOOP", "QT_TRID_NOOP"};
+    static const QStringList globalFunctions = {"String", "Boolean", "Date", "Number", "Object", "Array", "Symbol", "Object", "Function", "RegExp",
+                                                "QT_TR_NOOP", "QT_TRANSLATE_NOOP", "QT_TRID_NOOP"};
 
     if (!name.isEmpty() && name.at(0).isUpper() && !globalFunctions.contains(name)) {
         addMessage(WarnExpectedNewWithUppercaseFunction, location);

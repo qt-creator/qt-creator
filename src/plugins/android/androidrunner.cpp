@@ -224,7 +224,7 @@ void AndroidRunner::remoteErrorOutput(const QString &output)
 }
 
 void AndroidRunner::handleRemoteProcessStarted(Utils::Port gdbServerPort,
-                                               const QUrl &qmlServer, int pid)
+                                               const QUrl &qmlServer, qint64 pid)
 {
     m_pid = ProcessHandle(pid);
     m_gdbServerPort = gdbServerPort;

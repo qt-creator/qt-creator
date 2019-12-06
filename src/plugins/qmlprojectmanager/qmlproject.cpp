@@ -391,6 +391,8 @@ QVariant QmlBuildSystem::additionalData(Id id) const
 {
     if (id == Constants::customFileSelectorsData)
         return customFileSelectors();
+    if (id == Constants::customForceFreeTypeData)
+        return forceFreeType();
     return {};
 }
 
@@ -416,6 +418,13 @@ bool QmlBuildSystem::supportsAction(Node *context, ProjectAction action, const N
 QmlProject *QmlBuildSystem::qmlProject() const
 {
     return static_cast<QmlProject *>(BuildSystem::project());
+}
+
+bool QmlBuildSystem::forceFreeType() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->forceFreeType();
+    return false;
 }
 
 bool QmlBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *)

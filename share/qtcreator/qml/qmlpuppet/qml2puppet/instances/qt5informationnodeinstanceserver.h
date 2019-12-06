@@ -28,6 +28,7 @@
 #include "qt5nodeinstanceserver.h"
 #include "tokencommand.h"
 #include "valueschangedcommand.h"
+#include "changeselectioncommand.h"
 
 #include <QTimer>
 #include <QVariant>
@@ -42,6 +43,7 @@ public:
 
     void reparentInstances(const ReparentInstancesCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
+    void change3DView(const Change3DViewCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;
     void completeComponent(const CompleteComponentCommand &command) override;
     void token(const TokenCommand &command) override;
@@ -50,10 +52,11 @@ public:
     void changePropertyValues(const ChangeValuesCommand &command) override;
 
 private slots:
-    void objectClicked(const QVariant &object);
+    void handleSelectionChanged(const QVariant &objs);
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
     void updateViewPortRect();
+    void handleActiveChanged();
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -62,11 +65,12 @@ protected:
     void sendTokenBack();
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
-    void selectInstance(const ServerNodeInstance &instance);
+    void selectInstances(const QList<ServerNodeInstance> &instanceList);
     void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
 
 private:
     void handleObjectPropertyChangeTimeout();
+    void handleSelectionChangeTimeout();
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
@@ -80,14 +84,24 @@ private:
                             const PropertyName &propertyName,
                             ValuesModifiedCommand::TransactionOption option);
 
+    void showEditView(const QPoint &pos, const QSize &size);
+    void hideEditView();
+    void activateEditView();
+    void moveEditView(const QPoint &pos);
+    void resizeEditView(const QSize &size);
+
     QObject *m_editView3D = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;
     QTimer m_propertyChangeTimer;
+    QTimer m_selectionChangeTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ServerNodeInstance m_viewPortInstance;
+    bool m_blockViewActivate = false;
+    QObject *m_rootNode = nullptr;
+    ChangeSelectionCommand m_pendingSelectionChangeCommand;
 };
 
 } // namespace QmlDesigner

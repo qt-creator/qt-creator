@@ -312,7 +312,6 @@ private:
 
     void loadSessionData();
     void saveSessionData();
-    void aboutToUnloadSession();
 
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
     void gotoLocation(const GlobalBreakpoint &gbp) const;

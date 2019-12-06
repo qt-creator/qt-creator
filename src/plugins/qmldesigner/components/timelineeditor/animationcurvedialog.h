@@ -42,8 +42,7 @@ public:
 
     void setModel(DesignTools::CurveEditorModel *model);
 
-protected:
-    void showEvent(QShowEvent *event) override;
+    void refresh();
 
 private:
     DesignTools::CurveEditor *m_editor;

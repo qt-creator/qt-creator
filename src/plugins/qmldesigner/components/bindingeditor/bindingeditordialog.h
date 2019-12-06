@@ -57,8 +57,14 @@ public:
         QStringList properties;
     };
 
+    enum DialogType {
+        Unknown = 0,
+        BindingDialog = 1,
+        ActionDialog = 2
+    };
+
 public:
-    BindingEditorDialog(QWidget *parent = nullptr);
+    BindingEditorDialog(QWidget *parent = nullptr, DialogType type = DialogType::BindingDialog);
     ~BindingEditorDialog() override;
 
     void showWidget(int x, int y);
@@ -84,6 +90,7 @@ public slots:
     void textChanged();
 
 private:
+    DialogType m_dialogType = DialogType::BindingDialog;
     TextEditor::BaseTextEditor *m_editor = nullptr;
     BindingEditorWidget *m_editorWidget = nullptr;
     QVBoxLayout *m_verticalLayout = nullptr;

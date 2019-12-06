@@ -39,6 +39,9 @@ Node {
     property real currentAngle
     property point currentMousePos
 
+    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    orientation: targetNode ? targetNode.orientation : Node.LeftHanded
+
     signal rotateCommit()
     signal rotateChange()
 
@@ -69,7 +72,11 @@ Node {
     }
 
     Node {
-        rotation: globalOrientation || !targetNode ? Qt.vector3d(0, 0, 0) : targetNode.sceneRotation
+        id: rotNode
+        rotation: globalOrientation || !rotateGizmo.targetNode ? Qt.vector3d(0, 0, 0)
+                                                               : rotateGizmo.targetNode.sceneRotation
+        rotationOrder: rotateGizmo.targetNode ? rotateGizmo.targetNode.rotationOrder : Node.YXZ
+        orientation: rotateGizmo.orientation
 
         RotateRing {
             id: rotRingX
@@ -166,7 +173,14 @@ Node {
             if (!rotateGizmo.targetNode)
                 return;
 
-            _targetPosOnScreen = view3D.mapFrom3DScene(rotateGizmo.targetNode.scenePosition);
+            // Need to recreate vector as we need to adjust it and we can't do that on reference of
+            // scenePosition, which is read-only property
+            var scenePos = Qt.vector3d(rotateGizmo.targetNode.scenePosition.x,
+                                       rotateGizmo.targetNode.scenePosition.y,
+                                       rotateGizmo.targetNode.scenePosition.z);
+            if (rotateGizmo.targetNode && rotateGizmo.targetNode.orientation === Node.RightHanded)
+                scenePos.z = -scenePos.z
+            _targetPosOnScreen = view3D.mapFrom3DScene(scenePos);
             _targetPosOnScreen.z = 0;
             _pointerPosPressed = Qt.vector3d(screenPos.x, screenPos.y, 0);
 

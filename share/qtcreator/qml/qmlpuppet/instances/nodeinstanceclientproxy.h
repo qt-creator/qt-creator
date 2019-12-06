@@ -45,6 +45,7 @@ class CreateSceneCommand;
 class CreateInstancesCommand;
 class ClearSceneCommand;
 class ReparentInstancesCommand;
+class Change3DViewCommand;
 class ChangeFileUrlCommand;
 class ChangeValuesCommand;
 class ChangeAuxiliaryCommand;
@@ -95,6 +96,7 @@ protected:
     void changeFileUrl(const ChangeFileUrlCommand &command);
     void createScene(const CreateSceneCommand &command);
     void clearScene(const ClearSceneCommand &command);
+    void change3DView(const Change3DViewCommand &command);
     void removeInstances(const RemoveInstancesCommand &command);
     void removeProperties(const RemovePropertiesCommand &command);
     void changePropertyBindings(const ChangeBindingsCommand &command);

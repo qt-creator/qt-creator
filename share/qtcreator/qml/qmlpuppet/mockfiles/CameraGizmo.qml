@@ -41,8 +41,7 @@ IconGizmo {
         materials: [
             DefaultMaterial {
                 id: defaultMaterial
-                emissiveColor: cameraGizmo.targetNode === cameraGizmo.selectedNode ? "#FF0000"
-                                                                                   : "#555555"
+                emissiveColor: cameraGizmo.selected ? "#FF0000" : "#555555"
                 lighting: DefaultMaterial.NoLighting
                 cullingMode: Material.DisableCulling
             }

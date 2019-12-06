@@ -193,6 +193,21 @@ PythonProject::PythonProject(const FilePath &fileName)
     setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });
 }
 
+static FileType getFileType(const FilePath &f)
+{
+    if (f.endsWith(".py"))
+        return FileType::Source;
+    if (f.endsWith(".pyproject") || f.endsWith(".pyqtc"))
+        return FileType::Project;
+    if (f.endsWith(".qrc"))
+        return FileType::Resource;
+    if (f.endsWith(".ui"))
+        return FileType::Form;
+    if (f.endsWith(".qml") || f.endsWith(".js"))
+        return FileType::QML;
+    return Node::fileTypeForFileName(f);
+}
+
 void PythonBuildSystem::triggerParsing()
 {
     ParseGuard guard = guardParsingRun();
@@ -205,13 +220,7 @@ void PythonBuildSystem::triggerParsing()
     for (const QString &f : qAsConst(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
         const FilePath filePath = FilePath::fromString(f);
-        FileType fileType;
-        if (f.endsWith(".py"))
-            fileType = FileType::Source;
-        else if (f.endsWith(".pyproject") || f.endsWith(".pyqtc"))
-            fileType = FileType::Project;
-        else
-            fileType = Node::fileTypeForFileName(filePath);
+        const FileType fileType = getFileType(filePath);
 
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(filePath, displayName, fileType));
         if (fileType == FileType::Source) {

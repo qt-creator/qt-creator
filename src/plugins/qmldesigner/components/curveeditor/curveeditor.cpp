@@ -52,7 +52,7 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     box->addWidget(splitter);
     setLayout(box);
 
-    connect(m_tree, &TreeView::curvesSelected, m_view, &GraphicsView::reset);
+    connect(m_tree->selectionModel(), &SelectionModel::curvesSelected, m_view, &GraphicsView::reset);
 }
 
 void CurveEditor::zoomX(double zoom)
@@ -67,7 +67,7 @@ void CurveEditor::zoomY(double zoom)
 
 void CurveEditor::clearCanvas()
 {
-    m_view->reset(m_tree->selection());
+    m_view->reset({});
 }
 
 QToolBar *CurveEditor::createToolBar()

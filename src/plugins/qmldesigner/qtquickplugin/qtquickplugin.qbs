@@ -6,6 +6,8 @@ QtcProduct {
     installDir: qtc.ide_plugin_path + '/' + installDirName
     property string installDirName: qbs.targetOS.contains("macos") ? "QmlDesigner" : "qmldesigner"
 
+    Depends { name: "Qt.qml" }
+
     cpp.defines: base.concat("QTQUICK_LIBRARY")
     cpp.includePaths: base.concat("../designercore/include")
     Properties {

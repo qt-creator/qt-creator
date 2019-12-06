@@ -119,6 +119,7 @@ public:
     void exportAsImage();
 
     void toggle3DViewEnabled(bool enabled);
+    void setupOption3DAction();
 
 protected:
     void reset();
@@ -131,7 +132,6 @@ private: //functions
     void hideNodeFromScene(const QmlItemNode &qmlItemNode);
     void createFormEditorWidget();
     void temporaryBlockView();
-    void setupOption3DAction();
 
 private: //variables
     QPointer<FormEditorWidget> m_formEditorWidget;

@@ -294,7 +294,7 @@ private:
 const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
     {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,    "Installed packages:"},
     {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Packages:"},
-    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Updates:"},
+    {SdkManagerOutputParser::MarkerTag::AvailableUpdatesMarker,     "Available Updates:"},
     {SdkManagerOutputParser::MarkerTag::PlatformMarker,             "platforms"},
     {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
     {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},

@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
 
 add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix})
-add_test(%{TestCaseName} COMMAND %{TestCaseName})
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
 @if "%{RequireGUI}" == "true"
 target_link_libraries(%{TestCaseName} PRIVATE Qt5::Gui Qt5::Test)
@@ -46,7 +46,7 @@ enable_testing()
 add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(%{TestCaseName} %{MainCppName})
-add_test(%{TestCaseName} COMMAND %{TestCaseName})
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
 target_link_libraries(%{TestCaseName} PRIVATE Qt5::QuickTest)
 
@@ -91,7 +91,7 @@ include_directories(${GTestIncludes})
 
 add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileWithHeaderSuffix}
                ${GTestFiles})
-add_test(%{TestCaseName} COMMAND %{TestCaseName})
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 target_link_libraries(%{TestCaseName} PRIVATE Threads::Threads)
 
 @endif
@@ -103,7 +103,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
 
 add_executable(%{TestCaseName} %{MainCppName})
-add_test(%{TestCaseName} COMMAND %{TestCaseName})
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
 if (DEFINED ENV{BOOST_INCLUDE_DIR})
     set(BOOST_INCLUDE_DIR $ENV{BOOST_INCLUDE_DIR})

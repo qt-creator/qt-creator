@@ -34,6 +34,7 @@
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
 #include <variantproperty.h>
+#include <signalhandlerproperty.h>
 
 namespace QmlDesigner {
 
@@ -137,6 +138,13 @@ void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &prop
 
         connectionModel()->bindingPropertyChanged(bindingProperty);
     }
+}
+
+void ConnectionView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList,
+                                                    AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+    for (const SignalHandlerProperty &signalHandlerProperty : propertyList)
+        connectionModel()->abstractPropertyChanged(signalHandlerProperty);
 }
 
 void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeList,

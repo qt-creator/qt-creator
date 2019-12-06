@@ -203,7 +203,7 @@ void filteredFlags(const QString &fileName,
             if (CppTools::ProjectFile::isHeader(CppTools::ProjectFile::classify(fileName)))
                 fileKind = cpp ? CppTools::ProjectFile::CXXHeader : CppTools::ProjectFile::CHeader;
             else
-                fileKind = cpp ? CppTools::ProjectFile::CXXSource : CppTools::ProjectFile::CXXHeader;
+                fileKind = cpp ? CppTools::ProjectFile::CXXSource : CppTools::ProjectFile::CSource;
         }
 
         // Skip all remaining Windows flags except feature flags.
