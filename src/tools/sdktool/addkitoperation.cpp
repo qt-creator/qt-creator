@@ -602,6 +602,11 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
         std::cerr << "Error: Device " << qPrintable(device) << " does not exist." << std::endl;
         return QVariantMap();
     }
+
+    // Treat a qt that was explicitly set to '' as "no Qt"
+    if (!qtId.isNull() && qtId.isEmpty())
+        qtId = "-1";
+
     if (!cmakeId.isEmpty() && !AddCMakeOperation::exists(cmakeMap, cmakeId)) {
         std::cerr << "Error: CMake tool " << qPrintable(cmakeId) << " does not exist." << std::endl;
         return QVariantMap();
