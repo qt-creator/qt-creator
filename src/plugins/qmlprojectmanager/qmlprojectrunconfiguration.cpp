@@ -382,7 +382,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();
 
     // arguments from .qmlproject file
-    const QmlProject *project = static_cast<QmlProject *>(currentTarget->project());
+    const QmlProject *project = qobject_cast<QmlProject *>(currentTarget->project());
     foreach (const QString &importPath,
              QmlProject::makeAbsolute(project->targetDirectory(currentTarget), project->customImportPaths())) {
         Utils::QtcProcess::addArg(&args, QLatin1String("-I"), osType);
