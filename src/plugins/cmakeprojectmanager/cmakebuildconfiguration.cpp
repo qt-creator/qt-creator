@@ -60,20 +60,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager {
-
-class CMakeExtraBuildInfo
-{
-public:
-    QString sourceDirectory;
-    CMakeConfig configuration;
-};
-
-} // namespace CMakeProjectManager
-
-Q_DECLARE_METATYPE(CMakeProjectManager::CMakeExtraBuildInfo)
-
-
-namespace CMakeProjectManager {
 namespace Internal {
 
 Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningMsg);
@@ -93,8 +79,23 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
 
         buildSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
-        if (DeviceTypeKitAspect::deviceTypeId(target->kit())
-                        == Android::Constants::ANDROID_DEVICE_TYPE) {
+        CMakeConfig config;
+        config.append({"CMAKE_BUILD_TYPE", info.typeName.toUtf8()});
+
+        Kit *k = target->kit();
+        const QString sysRoot = SysRootKitAspect::sysRoot(k).toString();
+        if (!sysRoot.isEmpty()) {
+            config.append(CMakeConfigItem("CMAKE_SYSROOT", sysRoot.toUtf8()));
+            ToolChain *tc = ToolChainKitAspect::toolChain(k,
+                                  ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            if (tc) {
+                const QByteArray targetTriple = tc->originalTargetTriple().toUtf8();
+                config.append(CMakeConfigItem("CMAKE_C_COMPILER_TARGET", targetTriple));
+                config.append(CMakeConfigItem("CMAKE_CXX_COMPILER_TARGET ", targetTriple));
+            }
+        }
+
+        if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
             const auto &bs = buildSteps()->steps().constLast();
             m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NATIVE_API_LEVEL",
@@ -128,7 +129,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
                                                                                 preferredAbi.toLatin1(),
                                                                                 androidAbis});
 
-            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             if (qt->qtVersion() >= QtSupport::QtVersionNumber{5, 14, 0}) {
                 auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
                 m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_SDK",
@@ -150,12 +151,12 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
 
         if (info.buildDirectory.isEmpty()) {
             setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
-                                                   target->kit(),
+                                                   k,
                                                    info.displayName,
                                                    info.buildType));
         }
-        auto cinfo = info.extraInfo.value<CMakeExtraBuildInfo>();
-        setConfigurationForCMake(cinfo.configuration);
+
+        setConfigurationForCMake(config);
     });
 }
 
@@ -461,16 +462,12 @@ QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Kit *k,
 }
 
 BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                          const QString &sourceDir,
+                                                          const QString &,
                                                           BuildType buildType) const
 {
     BuildInfo info(this);
     info.kitId = k->id();
 
-    CMakeExtraBuildInfo extra;
-    extra.sourceDirectory = sourceDir;
-
-    CMakeConfigItem buildTypeItem;
     switch (buildType) {
     case BuildTypeNone:
         info.typeName = "Build";
@@ -501,24 +498,6 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         QTC_CHECK(false);
         break;
     }
-
-    buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", info.typeName.toUtf8())};
-
-    if (!buildTypeItem.isNull())
-        extra.configuration.append(buildTypeItem);
-
-    const QString sysRoot = SysRootKitAspect::sysRoot(k).toString();
-    if (!sysRoot.isEmpty()) {
-        extra.configuration.append(CMakeConfigItem("CMAKE_SYSROOT", sysRoot.toUtf8()));
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitAspect::toolChain(
-            k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-        if (tc) {
-            const QByteArray targetTriple = tc->originalTargetTriple().toUtf8();
-            extra.configuration.append(CMakeConfigItem("CMAKE_C_COMPILER_TARGET", targetTriple));
-            extra.configuration.append(CMakeConfigItem("CMAKE_CXX_COMPILER_TARGET ", targetTriple));
-        }
-    }
-    info.extraInfo = QVariant::fromValue(extra);
 
     return info;
 }
