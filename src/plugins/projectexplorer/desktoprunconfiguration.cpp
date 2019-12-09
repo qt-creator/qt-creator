@@ -154,8 +154,7 @@ bool DesktopRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    if (m_kind == Qmake || m_kind == Qbs)
-        updateTargetInformation();
+    updateTargetInformation();
 
     return true;
 }
