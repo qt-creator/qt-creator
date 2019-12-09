@@ -2063,6 +2063,7 @@ QWidget *DebuggerPluginPrivate::addSearch(BaseTreeView *treeView)
 {
     QAction *act = action(UseAlternatingRowColors);
     treeView->setAlternatingRowColors(act->isChecked());
+    treeView->setProperty(PerspectiveState::savesHeaderKey(), true);
     connect(act, &QAction::toggled, treeView, &BaseTreeView::setAlternatingRowColors);
 
     return ItemViewFind::createSearchableWrapper(treeView);
