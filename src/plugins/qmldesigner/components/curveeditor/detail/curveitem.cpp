@@ -339,6 +339,8 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
 
 void CurveItem::connect(GraphicsScene *scene)
 {
+    QObject::connect(this, &CurveItem::curveChanged, scene, &GraphicsScene::curveChanged);
+
     for (auto *frame : m_keyframes) {
         QObject::connect(frame, &KeyframeItem::keyframeMoved, scene, &GraphicsScene::keyframeMoved);
         QObject::connect(frame, &KeyframeItem::handleMoved, scene, &GraphicsScene::handleMoved);

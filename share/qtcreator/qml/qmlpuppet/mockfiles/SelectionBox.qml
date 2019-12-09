@@ -33,6 +33,7 @@ Node {
     property View3D view3D
     property Node targetNode: null
     property alias model: selectionBoxModel
+    property alias geometryName: selectionBoxGeometry.name
 
     SelectionBoxGeometry {
         id: selectionBoxGeometry

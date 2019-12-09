@@ -122,10 +122,10 @@ void CMakeBuildConfiguration::initialize()
 
         auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
         QString preferredAbi;
-        if (androidAbis.contains("arm64-v8a")) {
-            preferredAbi = "arm64-v8a";
-        } else if (androidAbis.isEmpty() || androidAbis.contains("armeabi-v7a")) {
+        if (androidAbis.contains("armeabi-v7a")) {
             preferredAbi = "armeabi-v7a";
+        } else if (androidAbis.isEmpty() || androidAbis.contains("arm64-v8a")) {
+            preferredAbi = "arm64-v8a";
         } else {
             preferredAbi = androidAbis.first();
         }

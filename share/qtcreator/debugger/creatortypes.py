@@ -144,7 +144,7 @@ def kindName(d, value):
     e = value.integer()
     if e:
         kindType = d.lookupType("CPlusPlus::Kind")
-        return kindType.typeData().enumDisplay(e, value.address())[11:]
+        return kindType.typeData().enumDisplay(e, value.address(), '%d')[11:]
     else:
         return ''
 

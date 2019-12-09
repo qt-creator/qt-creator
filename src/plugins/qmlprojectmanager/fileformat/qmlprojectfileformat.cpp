@@ -93,6 +93,10 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
         if (fileSelectorsProperty.isValid())
             projectItem->setFileSelectors(fileSelectorsProperty.toStringList());
 
+        const QVariant forceFreeTypeProperty = rootNode->property("forceFreeType");
+        if (forceFreeTypeProperty.isValid())
+            projectItem->setForceFreeType(forceFreeTypeProperty.toBool());
+
         const QVariant targetDirectoryPropery = rootNode->property("targetDirectory");
         if (targetDirectoryPropery.isValid())
             projectItem->setTargetDirectory(targetDirectoryPropery.toString());

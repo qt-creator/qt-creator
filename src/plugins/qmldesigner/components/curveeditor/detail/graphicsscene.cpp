@@ -68,11 +68,8 @@ void GraphicsScene::addCurveItem(CurveItem *item)
 {
     m_dirty = true;
     item->setDirty(false);
-
-    connect(item, &CurveItem::curveChanged, this, &GraphicsScene::curveChanged);
-
-    addItem(item);
     item->connect(this);
+    addItem(item);
 }
 
 void GraphicsScene::setComponentTransform(const QTransform &transform)

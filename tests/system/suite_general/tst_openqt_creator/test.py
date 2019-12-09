@@ -62,11 +62,6 @@ def main():
     if not test.verify(object.exists(":Qt Creator_Core::OutputWindow"),
                        "Did the General Messages view show up?"):
         openGeneralMessages()
-    # Verify message appears once, written before a kit was selected for qtcreator.pro
-    generalMessages = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
-    test.compare(generalMessages.count('Cannot parse project "qtcreator": No kit selected.'), 1,
-                 'Warning about missing kit selection shown?')
-
     # Verify that qmljs.g is in the project even when we don't know where (QTCREATORBUG-17609)
     selectFromLocator("p qmljs.g", "qmljs.g")
     # Now check some basic lookups in the search box

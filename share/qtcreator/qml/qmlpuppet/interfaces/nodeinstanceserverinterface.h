@@ -33,6 +33,7 @@ class PropertyAbstractContainer;
 class PropertyBindingContainer;
 class PropertyValueContainer;
 
+class Change3DViewCommand;
 class ChangeFileUrlCommand;
 class ChangeValuesCommand;
 class ChangeBindingsCommand;
@@ -66,6 +67,7 @@ public:
     virtual void changeFileUrl(const ChangeFileUrlCommand &command) = 0;
     virtual void createScene(const CreateSceneCommand &command) = 0;
     virtual void clearScene(const ClearSceneCommand &command) = 0;
+    virtual void change3DView(const Change3DViewCommand &command) = 0;
     virtual void removeInstances(const RemoveInstancesCommand &command) = 0;
     virtual void removeProperties(const RemovePropertiesCommand &command) = 0;
     virtual void changePropertyBindings(const ChangeBindingsCommand &command) = 0;

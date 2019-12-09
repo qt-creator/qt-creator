@@ -27,6 +27,8 @@
 #include "mcusupportoptionspage.h"
 #include "mcusupportoptions.h"
 
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -36,6 +38,7 @@
 
 #include <QComboBox>
 #include <QDir>
+#include <QHBoxLayout>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
@@ -43,6 +46,11 @@
 
 namespace McuSupport {
 namespace Internal {
+
+static bool cMakeAvailable()
+{
+    return !CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty();
+}
 
 class McuSupportOptionsWidget : public QWidget
 {
@@ -53,12 +61,16 @@ public:
     void showMcuTargetPackages();
     McuTarget *currentMcuTarget() const;
 
+protected:
+    void showEvent(QShowEvent *event) override;
+
 private:
     QString m_armGccPath;
     const McuSupportOptions *m_options;
     QMap <McuPackage*, QWidget*> m_packageWidgets;
     QMap <McuTarget*, QWidget*> m_mcuTargetPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
+    QLabel *m_statusIcon = nullptr;
     QLabel *m_statusLabel = nullptr;
     QComboBox *m_mcuTargetComboBox = nullptr;
 };
@@ -87,17 +99,29 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     m_packagesLayout = new QFormLayout;
     m_packagesGroupBox->setLayout(m_packagesLayout);
 
+    m_statusIcon = new QLabel;
+    m_statusIcon->setAlignment(Qt::AlignBottom);
     m_statusLabel = new QLabel;
-    mainLayout->addWidget(m_statusLabel, 2);
     m_statusLabel->setWordWrap(true);
     m_statusLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
+    m_statusLabel->setOpenExternalLinks(false);
+    auto statusWidget = new QWidget;
+    auto statusLayout = new QHBoxLayout(statusWidget);
+    statusLayout->setMargin(0);
+    statusLayout->addWidget(m_statusIcon, 0);
+    statusLayout->addWidget(m_statusLabel, 2);
+    mainLayout->addWidget(statusWidget, 2);
 
     connect(options, &McuSupportOptions::changed, this, &McuSupportOptionsWidget::updateStatus);
     connect(m_mcuTargetComboBox, &QComboBox::currentTextChanged,
             this, &McuSupportOptionsWidget::showMcuTargetPackages);
+    connect(m_statusLabel, &QLabel::linkActivated, this, []{
+                Core::ICore::showOptionsDialog(
+                            CMakeProjectManager::Constants::CMAKE_SETTINGSPAGE_ID,
+                            Core::ICore::mainWindow());
+            });
 
     showMcuTargetPackages();
-    updateStatus();
 }
 
 void McuSupportOptionsWidget::updateStatus()
@@ -106,12 +130,22 @@ void McuSupportOptionsWidget::updateStatus()
     if (!mcuTarget)
         return;
 
-    m_statusLabel->setText(mcuTarget->isValid()
+    static const QPixmap okIcon = Utils::Icons::OK.pixmap();
+    static const QPixmap notOkIcon = Utils::Icons::BROKEN.pixmap();
+    m_statusIcon->setPixmap(cMakeAvailable() && mcuTarget->isValid() ? okIcon : notOkIcon);
+
+    QStringList errorStrings;
+    if (!mcuTarget->isValid())
+        errorStrings << "Provide the package paths in order to create a kit for your target.";
+    if (!cMakeAvailable())
+        errorStrings << "No CMake tool was detected. Add a CMake tool in the "
+                        "<a href=\"cmake\">CMake options</a> and press Apply.";
+
+    m_statusLabel->setText(errorStrings.isEmpty()
                 ? QString::fromLatin1("A kit <b>%1</b> for the selected target can be generated. "
                                       "Press Apply to generate it.").arg(m_options->kitName(
                                                                              mcuTarget))
-                : QString::fromLatin1("Provide the package paths in order to create a kit for "
-                                      "your target."));
+                : errorStrings.join("<br/>"));
 }
 
 void McuSupportOptionsWidget::showMcuTargetPackages()
@@ -143,6 +177,12 @@ McuTarget *McuSupportOptionsWidget::currentMcuTarget() const
     return m_options->mcuTargets.isEmpty() ? nullptr : m_options->mcuTargets.at(mcuTargetIndex);
 }
 
+void McuSupportOptionsWidget::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event)
+    updateStatus();
+}
+
 McuSupportOptionsPage::McuSupportOptionsPage(QObject* parent)
     : Core::IOptionsPage(parent)
 {
@@ -168,8 +208,8 @@ void McuSupportOptionsPage::apply()
     QTC_ASSERT(m_options->armGccPackage, return);
     QTC_ASSERT(m_options->qtForMCUsSdkPackage, return);
 
-    if (!widget()->isVisible())
-        return; // Only create/overwrite kits when this option page is shown
+    if (!widget()->isVisible() || !cMakeAvailable())
+        return;
 
     const McuTarget *mcuTarget = m_widget->currentMcuTarget();
     if (!mcuTarget)

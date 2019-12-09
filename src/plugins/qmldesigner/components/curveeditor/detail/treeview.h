@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "selectionmodel.h"
+
 #include <QTreeView>
 
 namespace DesignTools {
@@ -45,11 +47,11 @@ signals:
 public:
     TreeView(CurveEditorModel *model, QWidget *parent = nullptr);
 
+    SelectionModel *selectionModel() const;
+
     void changeCurve(unsigned int id, const AnimationCurve &curve);
 
     void setStyle(const CurveEditorStyle &style);
-
-    std::vector<CurveItem *> selection();
 
 protected:
     QSize sizeHint() const override;

@@ -615,6 +615,8 @@ Rectangle {
                         anchors.right: parent.right
                         AdvancedSection {
                         }
+                        LayerSection {
+                        }
                     }
                 }
             }

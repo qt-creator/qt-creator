@@ -42,12 +42,16 @@ using namespace Utils;
 namespace McuSupport {
 namespace Internal {
 
-static CommandLine flashAndRunCommand(Target *target)
+static FilePath cmakeFilePath(const Target *target)
 {
-    const QString projectName = target->project()->displayName();
-
     const CMakeProjectManager::CMakeTool *tool =
             CMakeProjectManager::CMakeKitAspect::cmakeTool(target->kit());
+    return tool->filePath();
+}
+
+static QStringList flashAndRunArgs(const Target *target)
+{
+    const QString projectName = target->project()->displayName();
 
     // TODO: Hack! Implement flash target name handling, properly
     const QString targetName =
@@ -55,23 +59,19 @@ static CommandLine flashAndRunCommand(Target *target)
             ? QString("flash_%1").arg(projectName)
             : QString("flash_%1_and_bootloader").arg(projectName);
 
-    return CommandLine(tool->filePath(), {
-                           "--build",
-                           ".",
-                           "--target",
-                           targetName
-                       });
+    return {"--build", ".", "--target", targetName};
 }
 
 FlashAndRunConfiguration::FlashAndRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto effectiveFlashAndRunCall = addAspect<BaseStringAspect>();
-    effectiveFlashAndRunCall->setLabelText(tr("Effective flash and run call:"));
-    effectiveFlashAndRunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+    auto flashAndRunParameters = addAspect<BaseStringAspect>();
+    flashAndRunParameters->setLabelText("Flash and run CMake parameters:");
+    flashAndRunParameters->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+    flashAndRunParameters->setSettingsKey("FlashAndRunConfiguration.Parameters");
 
-    setUpdater([target, effectiveFlashAndRunCall] {
-        effectiveFlashAndRunCall->setValue(flashAndRunCommand(target).toUserOutput());
+    setUpdater([target, flashAndRunParameters] {
+        flashAndRunParameters->setValue(flashAndRunArgs(target).join(' '));
     });
 
     update();
@@ -86,8 +86,11 @@ public:
         : SimpleTargetRunner(runControl)
     {
         setStarter([this, runControl] {
-            ProjectExplorer::Target *target = runControl->target();
-            const CommandLine cmd = flashAndRunCommand(target);
+            const Target *target = runControl->target();
+            const CommandLine cmd(
+                        cmakeFilePath(target),
+                        runControl->runConfiguration()->aspect<BaseStringAspect>()->value(),
+                        CommandLine::Raw);
             Runnable r;
             r.workingDirectory =
                     target->activeBuildConfiguration()->buildDirectory().toUserOutput();

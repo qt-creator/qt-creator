@@ -159,7 +159,7 @@ void RsyncDeployService::deployNextFile()
     const DeployableFile file = m_deployableFiles.takeFirst();
     const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*connection(), m_flags);
     const QStringList args = QStringList(cmdLine.options)
-            << file.localFilePath().toString()
+            << (file.localFilePath().toString() + (file.localFilePath().isDir() ? "/" : QString()))
             << (cmdLine.remoteHostSpec + ':' + file.remoteFilePath());
     m_rsync.start("rsync", args); // TODO: Get rsync location from settings?
 }

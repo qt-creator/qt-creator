@@ -120,8 +120,8 @@ View3D {
         onPressed: {
             pick(mouse);
             if (pickObj) {
-                axisHelperView.editCameraCtrl.fitObject(axisHelperView.selectedNode,
-                                                        pickObj.cameraRotation);
+                axisHelperView.editCameraCtrl.focusObject(axisHelperView.selectedNode,
+                                                          pickObj.cameraRotation, false);
             } else {
                 mouse.accepted = false;
             }

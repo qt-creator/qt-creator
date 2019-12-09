@@ -37,6 +37,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class EditView3DProxyDialog;
 class ZoomAction;
 class LineEditAction;
 class BackgroundAction;
@@ -46,7 +47,6 @@ class FormEditorScene;
 class FormEditorGraphicsView;
 class ToolBox;
 class QmlItemNode;
-
 
 class FormEditorWidget : public QWidget
 {
@@ -87,6 +87,9 @@ public:
 
     FormEditorGraphicsView *graphicsView() const;
 
+    void set3dEditorVisibility(bool b);
+    void invalidate3DEditor();
+
 protected:
     void wheelEvent(QWheelEvent *event) override;
     QActionGroup *toolActionGroup() const;
@@ -117,6 +120,7 @@ private:
     QPointer<Option3DAction> m_option3DAction;
     QPointer<QAction> m_resetAction;
     QPointer<DocumentWarningWidget> m_documentErrorWidget;
+    QPointer<EditView3DProxyDialog> m_editView3DProxyDialog;
 };
 
 } // namespace QmlDesigner

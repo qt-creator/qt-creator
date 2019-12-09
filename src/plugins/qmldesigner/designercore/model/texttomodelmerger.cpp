@@ -101,7 +101,7 @@ QStringList knownEnumScopes()
 {
     static const QStringList list = {
         "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath",
-        "AbstractButton", "Text"
+        "AbstractButton", "Text", "ShaderEffectSource"
     };
     return list;
 }

@@ -26,6 +26,7 @@
 #include "curveeditormodel.h"
 #include "treeitem.h"
 #include "detail/graphicsview.h"
+#include "detail/selectionmodel.h"
 
 namespace DesignTools {
 
@@ -53,7 +54,9 @@ void CurveEditorModel::setCurve(unsigned int id, const AnimationCurve &curve)
 
 void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
 {
-    std::vector<TreeItem::Path> sel = selection();
+    std::vector<TreeItem::Path> sel;
+    if (SelectionModel *sm = selectionModel())
+        sel = sm->selectedPaths();
 
     beginResetModel();
 
@@ -67,7 +70,8 @@ void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
 
     endResetModel();
 
-    select(sel);
+    if (SelectionModel *sm = selectionModel())
+        sm->select(sel);
 }
 
 } // End namespace DesignTools.

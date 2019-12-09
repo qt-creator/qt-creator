@@ -52,7 +52,11 @@ enum InformationName
     HasBindingForProperty,
     ContentTransform,
     ContentItemTransform,
-    ContentItemBoundingRect
+    ContentItemBoundingRect,
+    MoveView,
+    ShowView,
+    ResizeView,
+    HideView
 };
 
 }

@@ -32,6 +32,9 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+
 #include <resourceeditor/resourcenode.h>
 
 #include <utils/qtcassert.h>
@@ -409,11 +412,16 @@ bool QmakeProFileNode::setData(Core::Id role, const QVariant &value) const
     QmakeProFile *pro = proFile();
     if (!pro)
         return false;
-
-    const QString arch = pro->singleVariableValue(Variable::AndroidArch);
-    const QString scope = "contains(ANDROID_TARGET_ARCH," + arch + ')';
-    auto flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues
-               | QmakeProjectManager::Internal::ProWriter::MultiLine;
+    QString scope;
+    int flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues;
+    if (Target *target = m_buildSystem->target()) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+        if (version && version->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
+            const QString arch = pro->singleVariableValue(Variable::AndroidArch);
+            scope = "contains(ANDROID_TARGET_ARCH," + arch + ')';
+            flags |= QmakeProjectManager::Internal::ProWriter::MultiLine;
+        }
+    }
 
     if (role == Android::Constants::AndroidExtraLibs)
         return pro->setProVariable("ANDROID_EXTRA_LIBS", value.toStringList(), scope, flags);

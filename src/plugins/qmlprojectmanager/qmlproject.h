@@ -81,6 +81,7 @@ public:
     Utils::EnvironmentItems environment() const;
     QStringList customImportPaths() const;
     QStringList customFileSelectors() const;
+    bool forceFreeType() const;
 
     bool addFiles(const QStringList &filePaths);
 

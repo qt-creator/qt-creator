@@ -33,6 +33,7 @@
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
 #include "theme.h"
+#include "signalhandlerproperty.h"
 
 #include <designersettings.h>
 #include <qmldesignerplugin.h>
@@ -43,6 +44,9 @@
 
 #include <QToolButton>
 #include <QStyleFactory>
+#include <QMenu>
+
+#include <bindingeditor/actioneditor.h>
 
 namespace QmlDesigner {
 
@@ -52,6 +56,27 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ConnectionViewWidget)
 {
+    m_actionEditor = new QmlDesigner::ActionEditor(this);
+    QObject::connect(m_actionEditor, &QmlDesigner::ActionEditor::accepted,
+                     [&]() {
+        if (m_actionEditor->hasModelIndex()) {
+            ConnectionModel *connectionModel = qobject_cast<ConnectionModel *>(ui->connectionView->model());
+            if (connectionModel->rowCount() > m_actionEditor->modelIndex().row())
+            {
+                SignalHandlerProperty signalHandler =
+                        connectionModel->signalHandlerPropertyForRow(m_actionEditor->modelIndex().row());
+                signalHandler.setSource(m_actionEditor->bindingValue());
+            }
+            m_actionEditor->resetModelIndex();
+        }
+
+        m_actionEditor->hideWidget();
+    });
+    QObject::connect(m_actionEditor, &QmlDesigner::ActionEditor::rejected,
+                     [&]() {
+        m_actionEditor->resetModelIndex();
+        m_actionEditor->hideWidget();
+    });
 
     setWindowTitle(tr("Connections", "Title of connection view"));
     ui->setupUi(this);
@@ -96,6 +121,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
 ConnectionViewWidget::~ConnectionViewWidget()
 {
+    delete m_actionEditor;
     delete ui;
 }
 
@@ -116,9 +142,37 @@ void ConnectionViewWidget::setConnectionModel(ConnectionModel *model)
     ui->connectionView->horizontalHeader()->setDefaultSectionSize(160);
     ui->connectionView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->connectionView->setItemDelegate(new ConnectionDelegate);
+
     connect(ui->connectionView->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &ConnectionViewWidget::connectionTableViewSelectionChanged);
+}
 
+void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (currentTab() != ConnectionTab || ui->connectionView == nullptr)
+        return;
+
+    //adjusting qpoint to the qtableview entrances:
+    QPoint posInTable(ui->connectionView->mapFromGlobal(mapToGlobal(event->pos())));
+    posInTable = QPoint(posInTable.x(), posInTable.y() - ui->connectionView->horizontalHeader()->height());
+
+    //making sure that we have source column in our hands:
+    QModelIndex index = ui->connectionView->indexAt(posInTable).siblingAtColumn(ConnectionModel::SourceRow);
+    if (!index.isValid())
+        return;
+
+    QMenu menu(this);
+
+    menu.addAction(tr("Open Action Editor"), [&]() {
+        if (index.isValid()) {
+            m_actionEditor->showWidget(mapToGlobal(event->pos()).x(), mapToGlobal(event->pos()).y());
+            m_actionEditor->setBindingValue(index.data().toString());
+            m_actionEditor->setModelIndex(index);
+            m_actionEditor->updateWindowName();
+        }
+    });
+
+    menu.exec(event->globalPos());
 }
 
 void ConnectionViewWidget::setDynamicPropertiesModel(DynamicPropertiesModel *model)
@@ -155,7 +209,6 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
     buttons << new QToolButton();
     buttons.constLast()->setIcon(Utils::Icons::MINUS.icon());
     buttons.constLast()->setToolTip(tr("Remove selected binding or connection."));
-    buttons.constLast()->setShortcut(QKeySequence(Qt::Key_Delete));
     connect(buttons.constLast(), &QAbstractButton::clicked, this, &ConnectionViewWidget::removeButtonClicked);
     connect(this, &ConnectionViewWidget::setEnabledRemoveButton, buttons.constLast(), &QWidget::setEnabled);
 

@@ -41,10 +41,12 @@
 
 namespace QmlDesigner {
 
-BindingEditorDialog::BindingEditorDialog(QWidget *parent)
+BindingEditorDialog::BindingEditorDialog(QWidget *parent, DialogType type)
     : QDialog(parent)
+    , m_dialogType(type)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowFlag(Qt::Tool, true);
     setWindowTitle(defaultTitle());
     setModal(false);
 
@@ -58,12 +60,14 @@ BindingEditorDialog::BindingEditorDialog(QWidget *parent)
     QObject::connect(m_editorWidget, &BindingEditorWidget::returnKeyClicked,
                      this, &BindingEditorDialog::accepted);
 
-    QObject::connect(m_comboBoxItem, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                     this, &BindingEditorDialog::itemIDChanged);
-    QObject::connect(m_comboBoxProperty, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                     this, &BindingEditorDialog::propertyIDChanged);
-    QObject::connect(m_editorWidget, &QPlainTextEdit::textChanged,
-                     this, &BindingEditorDialog::textChanged);
+    if (m_dialogType == DialogType::BindingDialog) {
+        QObject::connect(m_comboBoxItem, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                         this, &BindingEditorDialog::itemIDChanged);
+        QObject::connect(m_comboBoxProperty, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                         this, &BindingEditorDialog::propertyIDChanged);
+        QObject::connect(m_editorWidget, &QPlainTextEdit::textChanged,
+                         this, &BindingEditorDialog::textChanged);
+    }
 }
 
 BindingEditorDialog::~BindingEditorDialog()
@@ -185,10 +189,12 @@ void BindingEditorDialog::setupJSEditor()
 void BindingEditorDialog::setupUIComponents()
 {
     m_verticalLayout = new QVBoxLayout(this);
-    m_comboBoxLayout = new QHBoxLayout;
 
-    m_comboBoxItem = new QComboBox(this);
-    m_comboBoxProperty = new QComboBox(this);
+    if (m_dialogType == DialogType::BindingDialog) {
+        m_comboBoxLayout = new QHBoxLayout;
+        m_comboBoxItem = new QComboBox(this);
+        m_comboBoxProperty = new QComboBox(this);
+    }
 
     m_editorWidget->setParent(this);
     m_editorWidget->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
@@ -199,11 +205,11 @@ void BindingEditorDialog::setupUIComponents()
     m_buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-
-    m_comboBoxLayout->addWidget(m_comboBoxItem);
-    m_comboBoxLayout->addWidget(m_comboBoxProperty);
-
-    m_verticalLayout->addLayout(m_comboBoxLayout);
+    if (m_dialogType == DialogType::BindingDialog) {
+        m_comboBoxLayout->addWidget(m_comboBoxItem);
+        m_comboBoxLayout->addWidget(m_comboBoxProperty);
+        m_verticalLayout->addLayout(m_comboBoxLayout);
+    }
     m_verticalLayout->addWidget(m_editorWidget);
     m_verticalLayout->addWidget(m_buttonBox);
 

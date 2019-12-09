@@ -28,6 +28,7 @@ HEADERS += $$PWD/removesharedmemorycommand.h
 HEADERS += $$PWD/puppetalivecommand.h
 HEADERS += $$PWD/changeselectioncommand.h
 HEADERS += $$PWD/drop3dlibraryitemcommand.h
+HEADERS += $$PWD/change3dviewcommand.h
 
 SOURCES += $$PWD/synchronizecommand.cpp
 SOURCES += $$PWD/debugoutputcommand.cpp
@@ -57,3 +58,4 @@ SOURCES += $$PWD/removesharedmemorycommand.cpp
 SOURCES += $$PWD/puppetalivecommand.cpp
 SOURCES += $$PWD/changeselectioncommand.cpp
 SOURCES += $$PWD/drop3dlibraryitemcommand.cpp
+SOURCES += $$PWD/change3dviewcommand.cpp

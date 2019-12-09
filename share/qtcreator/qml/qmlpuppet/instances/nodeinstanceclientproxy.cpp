@@ -41,6 +41,7 @@
 #include "instancecontainer.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
+#include "change3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeauxiliarycommand.h"
@@ -360,6 +361,11 @@ void NodeInstanceClientProxy::createScene(const CreateSceneCommand &command)
     nodeInstanceServer()->createScene(command);
 }
 
+void NodeInstanceClientProxy::change3DView(const Change3DViewCommand &command)
+{
+    nodeInstanceServer()->change3DView(command);
+}
+
 void NodeInstanceClientProxy::clearScene(const ClearSceneCommand &command)
 {
     nodeInstanceServer()->clearScene(command);
@@ -447,6 +453,7 @@ void NodeInstanceClientProxy::changeSelection(const ChangeSelectionCommand &comm
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
     static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
+    static const int change3DViewCommandType = QMetaType::type("Change3DViewCommand");
     static const int changeFileUrlCommandType = QMetaType::type("ChangeFileUrlCommand");
     static const int createSceneCommandType = QMetaType::type("CreateSceneCommand");
     static const int clearSceneCommandType = QMetaType::type("ClearSceneCommand");
@@ -470,6 +477,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 
     if (commandType == createInstancesCommandType)
         createInstances(command.value<CreateInstancesCommand>());
+    else if (commandType == change3DViewCommandType)
+        change3DView(command.value<Change3DViewCommand>());
     else if (commandType == changeFileUrlCommandType)
         changeFileUrl(command.value<ChangeFileUrlCommand>());
     else if (commandType == createSceneCommandType)

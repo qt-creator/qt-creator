@@ -722,8 +722,8 @@ void QMakeStepConfigWidget::updateSummaryLabel()
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             item->setCheckState(Qt::Unchecked);
             isAndroid = isAndroid && abi.osFlavor() == Abi::OSFlavor::AndroidLinuxFlavor;
-            if (isAndroid && (item->text() == "arm64-v8a" ||
-                              (m_preferredAbiIndex == -1 && item->text() == "armeabi-v7a"))) {
+            if (isAndroid && (item->text() == "armeabi-v7a" ||
+                              (m_preferredAbiIndex == -1 && item->text() == "arm64-v8a"))) {
                     m_preferredAbiIndex = abisListWidget->count() - 1;
             }
         }

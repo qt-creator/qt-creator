@@ -133,6 +133,8 @@ enum class ValueType {
     Double,
 };
 
+std::string toString(ValueType type);
+
 class PropertyTreeItem : public TreeItem
 {
 public:

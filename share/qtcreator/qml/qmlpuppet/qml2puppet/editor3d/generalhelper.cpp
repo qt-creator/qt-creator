@@ -139,8 +139,9 @@ float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float de
 }
 
 // Return value contains new lookAt point (xyz) and zoom factor (w)
-QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
-                                           QQuick3DNode *targetObject, QQuick3DViewport *viewPort)
+QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                             QQuick3DNode *targetObject, QQuick3DViewport *viewPort,
+                                             float oldZoom, bool updateZoom)
 {
     if (!camera)
         return QVector4D(0.f, 0.f, 0.f, 1.f);
@@ -148,7 +149,8 @@ QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float default
     QVector3D lookAt = targetObject ? targetObject->scenePosition() : QVector3D();
 
     // Get object bounds
-    qreal maxExtent = 200.;
+    const qreal defaultExtent = 200.;
+    qreal maxExtent = defaultExtent;
     if (auto modelNode = qobject_cast<QQuick3DModel *>(targetObject)) {
         auto targetPriv = QQuick3DObjectPrivate::get(targetObject);
         if (auto renderModel = static_cast<QSSGRenderModel *>(targetPriv->spatialNode)) {
@@ -172,6 +174,9 @@ QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float default
                     maxExtent = qSqrt(qreal(e.x() * e.x() + e.y() * e.y() + e.z() * e.z()));
                     maxExtent *= maxScale;
 
+                    if (maxExtent < 0.0001)
+                        maxExtent = defaultExtent;
+
                     // Adjust lookAt to look directly at the center of the object bounds
                     lookAt = renderModel->globalTransform.map(center);
                     lookAt.setZ(-lookAt.z()); // Render node transforms have inverted z
@@ -189,11 +194,10 @@ QVector4D GeneralHelper::fitObjectToCamera(QQuick3DCamera *camera, float default
 
     camera->setPosition(lookAt + newLookVector);
 
-    // Emprically determined algorithm for nice zoom
-    float newZoomFactor = qBound(.0001f, float(maxExtent / 700.), 10000.f);
+    float newZoomFactor = updateZoom ? qBound(.0001f, float(maxExtent / 700.), 10000.f) : oldZoom;
+    float cameraZoomFactor = zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
 
-    return QVector4D(lookAt,
-                     zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false));
+    return QVector4D(lookAt, cameraZoomFactor);
 }
 
 void GeneralHelper::delayedPropertySet(QObject *obj, int delay, const QString &property,
@@ -202,6 +206,20 @@ void GeneralHelper::delayedPropertySet(QObject *obj, int delay, const QString &p
     QTimer::singleShot(delay, [obj, property, value]() {
         obj->setProperty(property.toLatin1().constData(), value);
     });
+}
+
+QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
+{
+    if (pickNode) {
+        // Check if the picked node actually specifies another node as the pick target
+        QVariant componentVar = pickNode->property("_pickTarget");
+        if (componentVar.isValid()) {
+            auto componentNode = componentVar.value<QQuick3DNode *>();
+            if (componentNode)
+                return componentNode;
+        }
+    }
+    return pickNode;
 }
 
 }

@@ -38,6 +38,8 @@ namespace QmlDesigner {
 
 namespace Ui { class ConnectionViewWidget; }
 
+class ActionEditor;
+
 namespace Internal {
 
 class BindingModel;
@@ -88,6 +90,9 @@ signals:
     void setEnabledAddButton(bool enabled);
     void setEnabledRemoveButton(bool enabled);
 
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override;
+
 private:
     void handleTabChanged(int i);
     void removeButtonClicked();
@@ -95,6 +100,7 @@ private:
 
 private:
     Ui::ConnectionViewWidget *ui;
+    QmlDesigner::ActionEditor *m_actionEditor;
 };
 
 } // namespace Internal

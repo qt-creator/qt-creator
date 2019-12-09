@@ -60,6 +60,9 @@ public:
     QStringList files() const;
     bool matchesFile(const QString &filePath) const;
 
+    bool forceFreeType() const { return m_forceFreeType; };
+    void setForceFreeType(bool);
+
     QString mainFile() const { return m_mainFile; }
     void setMainFile(const QString &mainFilePath) { m_mainFile = mainFilePath; }
 
@@ -79,6 +82,7 @@ protected:
     QString m_mainFile;
     Utils::EnvironmentItems m_environment;
     QVector<QmlProjectContentItem *> m_content; // content property
+    bool m_forceFreeType = false;
 };
 
 } // namespace QmlProjectManager

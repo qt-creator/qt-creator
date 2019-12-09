@@ -33,15 +33,18 @@ Node {
     property View3D view3D
     property Node target: parent
     property bool autoScale: true
+    property Camera camera: view3D.camera
 
     // Read-only
     property real relativeScale: 1
 
     onSceneTransformChanged: updateScale()
     onAutoScaleChanged: updateScale()
+    // Trigger delayed update on camera change to ensure camera values are correct
+    onCameraChanged: _generalHelper.requestOverlayUpdate();
 
     Connections {
-        target: view3D.camera
+        target: camera
         onSceneTransformChanged: updateScale()
     }
 
@@ -66,16 +69,22 @@ Node {
             // "anchor" distance. Map the two positions back to the target node, and measure the
             // distance between them now, in the 3D scene. The difference of the two distances,
             // view and scene, will tell us what the distance independent scale should be.
-            var posInView1 = view3D.mapFrom3DScene(scenePosition);
+
+            // Need to recreate vector as we need to adjust it and we can't do that on reference of
+            // scenePosition, which is read-only property
+            var scenePos = Qt.vector3d(scenePosition.x, scenePosition.y, scenePosition.z);
+            if (orientation === Node.RightHanded)
+                scenePos.z = -scenePos.z;
+
+            var posInView1 = view3D.mapFrom3DScene(scenePos);
             var posInView2 = Qt.vector3d(posInView1.x + 100, posInView1.y, posInView1.z);
 
             var rayPos1 = view3D.mapTo3DScene(Qt.vector3d(posInView2.x, posInView2.y, 0));
             var rayPos2 = view3D.mapTo3DScene(Qt.vector3d(posInView2.x, posInView2.y, 10));
 
-            var planeNormal = view3D.camera.forward;
-            var rayHitPos = helper.rayIntersectsPlane(rayPos1, rayPos2, scenePosition,
-                                                      planeNormal);
-            relativeScale = scenePosition.minus(rayHitPos).length() / 100;
+            var planeNormal = camera.forward;
+            var rayHitPos = helper.rayIntersectsPlane(rayPos1, rayPos2, scenePos, planeNormal);
+            relativeScale = scenePos.minus(rayHitPos).length() / 100;
         }
     }
 
