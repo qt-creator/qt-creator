@@ -59,8 +59,6 @@ public:
     QString error() const;
     QString warning() const;
 
-    CMakeProject *project() const;
-
     static Utils::FilePath
     shadowBuildDirectory(const Utils::FilePath &projectFilePath, const ProjectExplorer::Kit *k,
                          const QString &bcName, BuildConfiguration::BuildType buildType);

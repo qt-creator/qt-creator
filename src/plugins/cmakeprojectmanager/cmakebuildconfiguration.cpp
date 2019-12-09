@@ -31,8 +31,6 @@
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakebuildsettingswidget.h"
-#include "cmakeprojectmanager.h"
-#include "cmakeprojectnodes.h"
 
 #include <android/androidconstants.h>
 
@@ -544,11 +542,6 @@ ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildTyp
     const CMakeBuildConfigurationFactory::BuildType cmakeBuildType
         = CMakeBuildConfigurationFactory::buildTypeFromByteArray(cmakeBuildTypeName);
     return CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(cmakeBuildType);
-}
-
-CMakeProject *CMakeBuildConfiguration::project() const
-{
-    return qobject_cast<CMakeProject *>(BuildConfiguration::project());
 }
 
 BuildSystem *CMakeBuildConfiguration::buildSystem() const
