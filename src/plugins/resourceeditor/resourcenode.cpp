@@ -41,6 +41,8 @@
 #include <QDir>
 #include <QDebug>
 
+#include <limits>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -105,6 +107,18 @@ private:
     QString m_folder;
     QString m_lang;
 };
+
+static int getPriorityFromContextNode(const ProjectExplorer::Node *resourceNode,
+                                      const ProjectExplorer::Node *contextNode)
+{
+    if (contextNode == resourceNode)
+        return std::numeric_limits<int>::max();
+    for (const ProjectExplorer::Node *n = contextNode; n; n = n->parentFolderNode()) {
+        if (n == resourceNode)
+            return std::numeric_limits<int>::max() - 1;
+    }
+    return -1;
+}
 
 static bool hasPriority(const QStringList &files)
 {
@@ -438,22 +452,13 @@ FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStr
             .arg(filePath().fileName())
             .arg(QLatin1Char('/'));
 
-    int p = -1;
-    if (hasPriority(files)) { // images/* and qml/js mimetypes
+    int p = getPriorityFromContextNode(this, context);
+    if (p == -1 && hasPriority(files)) { // images/* and qml/js mimetypes
         p = 110;
         if (context == this)
             p = 120;
         else if (parentProjectNode() == context)
             p = 150; // steal from our project node
-        // The ResourceFolderNode '/' defers to us, as otherwise
-        // two nodes would be responsible for '/'
-        // Thus also return a high priority for it
-        if (auto rfn = dynamic_cast<ResourceFolderNode *>(context))
-            if (rfn->prefix() == QLatin1String("/") && rfn->parentFolderNode() == this)
-                p = 120;
-        if (auto rfn = dynamic_cast<SimpleResourceFolderNode *>(context))
-            if (rfn->prefix() == QLatin1String("/") && rfn->resourceNode() == this)
-                p = 120;
     }
 
     return AddNewInformation(name, p);
@@ -588,8 +593,8 @@ FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const QStrin
             .arg(m_topLevelNode->filePath().fileName())
             .arg(displayName());
 
-    int p = -1; // never the default
-    if (hasPriority(files)) { // image/* and qml/js mimetypes
+    int p = getPriorityFromContextNode(this, context);
+    if (p == -1 && hasPriority(files)) { // image/* and qml/js mimetypes
         p = 105; // prefer against .pro and .pri files
         if (context == this)
             p = 120;
