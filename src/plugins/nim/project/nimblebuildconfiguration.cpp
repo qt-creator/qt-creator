@@ -54,30 +54,28 @@ NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Core::Id id)
     setConfigWidgetHasFrame(true);
     setBuildDirectorySettingsKey("Nim.NimbleBuildConfiguration.BuildDirectory");
 
-    m_nimbleBuildSystem = dynamic_cast<NimbleBuildSystem *>(buildSystem());
-    QTC_ASSERT(m_nimbleBuildSystem, return);
+    setInitializer([this] {
+
+        m_buildType = initialBuildType();
+
+        setBuildDirectory(project()->projectDirectory());
+
+        // FIXME: This is the wrong place for this decision, as it depends on
+        // information that's typically only available after parsing which takes
+        // the build configuration that is initialized here into account.
+
+        //   // Don't add a nimble build step when the package has no binaries (i.e a library package)
+        // m_nimbleBuildSystem = dynamic_cast<NimbleBuildSystem *>(buildSystem());
+        //    if (!m_nimbleBuildSystem->metadata().bin.empty())
+        //    {
+        buildSteps()->appendStep(new NimbleBuildStep(buildSteps()));
+        //    }
+    });
 }
 
 BuildConfiguration::BuildType NimbleBuildConfiguration::buildType() const
 {
     return m_buildType;
-}
-
-void NimbleBuildConfiguration::initialize()
-{
-    m_buildType = initialBuildType();
-
-    setBuildDirectory(project()->projectDirectory());
-
-    // FIXME: This is the wrong place for this decision, as it depends on
-    // information that's typically only available after parsing which takes
-    // the build configuration that is initialized here into account.
-
-//    // Don't add a nimble build step when the package has no binaries (i.e a library package)
-//    if (!m_nimbleBuildSystem->metadata().bin.empty())
-//    {
-        buildSteps()->appendStep(new NimbleBuildStep(buildSteps()));
-//    }
 }
 
 bool NimbleBuildConfiguration::fromMap(const QVariantMap &map)

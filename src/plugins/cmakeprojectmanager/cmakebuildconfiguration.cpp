@@ -82,14 +82,82 @@ Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningMsg);
 
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
-    : BuildConfiguration(parent, id)
+CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
+    : BuildConfiguration(target, id)
 {
     m_buildSystem = new CMakeBuildSystem(this);
     setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
-                                           target()->kit(),
+                                           target->kit(),
                                            displayName(),
                                            BuildConfiguration::Unknown));
+
+    setInitializer([this, target] {
+        buildSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
+
+        if (DeviceTypeKitAspect::deviceTypeId(target->kit())
+                        == Android::Constants::ANDROID_DEVICE_TYPE) {
+            buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
+            const auto &bs = buildSteps()->steps().constLast();
+            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NATIVE_API_LEVEL",
+                                                                                CMakeProjectManager::CMakeConfigItem::Type::STRING,
+                                                                                "Android native API level",
+                                                                                bs->data(Android::Constants::AndroidNdkPlatform).toString().toUtf8()});
+            auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
+            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NDK",
+                                                                                CMakeProjectManager::CMakeConfigItem::Type::PATH,
+                                                                                "Android NDK PATH",
+                                                                                ndkLocation.toString().toUtf8()});
+
+            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_TOOLCHAIN_FILE",
+                                                                                CMakeProjectManager::CMakeConfigItem::Type::PATH,
+                                                                                "Android CMake toolchain file",
+                                                                                ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").toString().toUtf8()});
+
+            auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
+            QString preferredAbi;
+            if (androidAbis.contains("armeabi-v7a")) {
+                preferredAbi = "armeabi-v7a";
+            } else if (androidAbis.isEmpty() || androidAbis.contains("arm64-v8a")) {
+                preferredAbi = "arm64-v8a";
+            } else {
+                preferredAbi = androidAbis.first();
+            }
+            // FIXME: configmodel doesn't care about our androidAbis list...
+            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_ABI",
+                                                                                CMakeProjectManager::CMakeConfigItem::Type::STRING,
+                                                                                "Android ABI",
+                                                                                preferredAbi.toLatin1(),
+                                                                                androidAbis});
+
+            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+            if (qt->qtVersion() >= QtSupport::QtVersionNumber{5, 14, 0}) {
+                auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
+                m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_SDK",
+                                                                                    CMakeProjectManager::CMakeConfigItem::Type::PATH,
+                                                                                    "Android SDK PATH",
+                                                                                    sdkLocation.toString().toUtf8()});
+
+            }
+
+            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_STL",
+                                                                                CMakeProjectManager::CMakeConfigItem::Type::STRING,
+                                                                                "Android STL",
+                                                                                "c++_shared"});
+
+            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH", "%{Qt:QT_INSTALL_PREFIX}"});
+        }
+
+        cleanSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
+
+        if (initialBuildDirectory().isEmpty()) {
+            setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
+                                                   target->kit(),
+                                                   initialDisplayName(),
+                                                   initialBuildType()));
+        }
+        auto info = extraInfo().value<CMakeExtraBuildInfo>();
+        setConfigurationForCMake(info.configuration);
+    });
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -97,75 +165,6 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
     delete m_buildSystem;
 }
 
-void CMakeBuildConfiguration::initialize()
-{
-    buildSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
-
-    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
-            == Android::Constants::ANDROID_DEVICE_TYPE) {
-        buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
-        const auto &bs = buildSteps()->steps().constLast();
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NATIVE_API_LEVEL",
-                                                                            CMakeProjectManager::CMakeConfigItem::Type::STRING,
-                                                                            "Android native API level",
-                                                                            bs->data(Android::Constants::AndroidNdkPlatform).toString().toUtf8()});
-        auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NDK",
-                                                                            CMakeProjectManager::CMakeConfigItem::Type::PATH,
-                                                                            "Android NDK PATH",
-                                                                            ndkLocation.toString().toUtf8()});
-
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_TOOLCHAIN_FILE",
-                                                                            CMakeProjectManager::CMakeConfigItem::Type::PATH,
-                                                                            "Android CMake toolchain file",
-                                                                            ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").toString().toUtf8()});
-
-        auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
-        QString preferredAbi;
-        if (androidAbis.contains("armeabi-v7a")) {
-            preferredAbi = "armeabi-v7a";
-        } else if (androidAbis.isEmpty() || androidAbis.contains("arm64-v8a")) {
-            preferredAbi = "arm64-v8a";
-        } else {
-            preferredAbi = androidAbis.first();
-        }
-        // FIXME: configmodel doesn't care about our androidAbis list...
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_ABI",
-                                                                            CMakeProjectManager::CMakeConfigItem::Type::STRING,
-                                                                            "Android ABI",
-                                                                            preferredAbi.toLatin1(),
-                                                                            androidAbis});
-
-        QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
-        if (qt->qtVersion() >= QtSupport::QtVersionNumber{5, 14, 0}) {
-            auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
-            m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_SDK",
-                                                                                CMakeProjectManager::CMakeConfigItem::Type::PATH,
-                                                                                "Android SDK PATH",
-                                                                                sdkLocation.toString().toUtf8()});
-
-        }
-
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_STL",
-                                                                            CMakeProjectManager::CMakeConfigItem::Type::STRING,
-                                                                            "Android STL",
-                                                                            "c++_shared"});
-
-        m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_FIND_ROOT_PATH", "%{Qt:QT_INSTALL_PREFIX}"});
-    }
-
-    cleanSteps()->appendStep(Constants::CMAKE_BUILD_STEP_ID);
-
-    if (initialBuildDirectory().isEmpty()) {
-        auto project = target()->project();
-        setBuildDirectory(CMakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
-                                                                        target()->kit(),
-                                                                        initialDisplayName(),
-                                                                        initialBuildType()));
-    }
-    auto info = extraInfo().value<CMakeExtraBuildInfo>();
-    setConfigurationForCMake(info.configuration);
-}
 
 QString CMakeBuildConfiguration::disabledReason() const
 {

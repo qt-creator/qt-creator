@@ -30,8 +30,6 @@
 
 namespace Nim {
 
-class NimbleBuildSystem;
-
 class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
@@ -46,11 +44,7 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
     QVariantMap toMap() const override;
 
-protected:
-    void initialize() override;
-
 private:
-    NimbleBuildSystem *m_nimbleBuildSystem = nullptr;
     BuildType m_buildType;
 };
 

@@ -109,6 +109,50 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
     setConfigWidgetHasFrame(true);
     m_buildSystem = new QmakeBuildSystem(this);
 
+    setInitializer([this, target] {
+        auto qmakeStep = new QMakeStep(buildSteps());
+        buildSteps()->appendStep(qmakeStep);
+        buildSteps()->appendStep(Constants::MAKESTEP_BS_ID);
+
+        cleanSteps()->appendStep(Constants::MAKESTEP_BS_ID);
+
+        const QmakeExtraBuildInfo qmakeExtra = extraInfo().value<QmakeExtraBuildInfo>();
+        BaseQtVersion *version = QtKitAspect::qtVersion(target->kit());
+
+        BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+        if (initialBuildType() == BuildConfiguration::Debug)
+            config |= BaseQtVersion::DebugBuild;
+        else
+            config &= ~BaseQtVersion::DebugBuild;
+
+        QString additionalArguments = qmakeExtra.additionalArguments;
+        if (!additionalArguments.isEmpty())
+            qmakeStep->setUserArguments(additionalArguments);
+
+        aspect<SeparateDebugInfoAspect>()->setSetting(qmakeExtra.config.separateDebugInfo);
+        aspect<QmlDebuggingAspect>()->setSetting(qmakeExtra.config.linkQmlDebuggingQQ2);
+        aspect<QtQuickCompilerAspect>()->setSetting(qmakeExtra.config.useQtQuickCompiler);
+
+        setQMakeBuildConfiguration(config);
+
+        FilePath directory = initialBuildDirectory();
+        if (directory.isEmpty()) {
+            directory = shadowBuildDirectory(target->project()->projectFilePath(),
+                                             target->kit(), initialDisplayName(),
+                                             initialBuildType());
+        }
+
+        setBuildDirectory(directory);
+
+        if (DeviceTypeKitAspect::deviceTypeId(target->kit())
+                        == Android::Constants::ANDROID_DEVICE_TYPE) {
+            buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
+            buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
+        }
+
+        updateCacheAndEmitEnvironmentChanged();
+    });
+
     connect(target, &Target::kitChanged,
             this, &QmakeBuildConfiguration::kitChanged);
     MacroExpander *expander = macroExpander();
@@ -151,51 +195,6 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
         emit qmakeBuildConfigurationChanged();
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
-}
-
-void QmakeBuildConfiguration::initialize()
-{
-    auto qmakeStep = new QMakeStep(buildSteps());
-    buildSteps()->appendStep(qmakeStep);
-    buildSteps()->appendStep(Constants::MAKESTEP_BS_ID);
-
-    cleanSteps()->appendStep(Constants::MAKESTEP_BS_ID);
-
-    const QmakeExtraBuildInfo qmakeExtra = extraInfo().value<QmakeExtraBuildInfo>();
-    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
-
-    BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-    if (initialBuildType() == BuildConfiguration::Debug)
-        config |= BaseQtVersion::DebugBuild;
-    else
-        config &= ~BaseQtVersion::DebugBuild;
-
-    QString additionalArguments = qmakeExtra.additionalArguments;
-    if (!additionalArguments.isEmpty())
-        qmakeStep->setUserArguments(additionalArguments);
-
-    aspect<SeparateDebugInfoAspect>()->setSetting(qmakeExtra.config.separateDebugInfo);
-    aspect<QmlDebuggingAspect>()->setSetting(qmakeExtra.config.linkQmlDebuggingQQ2);
-    aspect<QtQuickCompilerAspect>()->setSetting(qmakeExtra.config.useQtQuickCompiler);
-
-    setQMakeBuildConfiguration(config);
-
-    FilePath directory = initialBuildDirectory();
-    if (directory.isEmpty()) {
-        directory = shadowBuildDirectory(target()->project()->projectFilePath(),
-                                         target()->kit(), initialDisplayName(),
-                                         initialBuildType());
-    }
-
-    setBuildDirectory(directory);
-
-    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
-            == Android::Constants::ANDROID_DEVICE_TYPE) {
-        buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
-        buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
-    }
-
-    updateCacheAndEmitEnvironmentChanged();
 }
 
 QmakeBuildConfiguration::~QmakeBuildConfiguration()

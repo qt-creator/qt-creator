@@ -84,6 +84,8 @@ public:
     QString m_configWidgetDisplayName;
     bool m_configWidgetHasFrame = false;
 
+    std::function<void()> m_initializer;
+
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
     Utils::FilePath m_initialBuildDirectory;
@@ -179,6 +181,28 @@ void BuildConfiguration::addConfigWidgets(const std::function<void(NamedWidget *
     QList<NamedWidget *> subConfigWidgets = createSubConfigWidgets();
     foreach (NamedWidget *subConfigWidget, subConfigWidgets)
         adder(subConfigWidget);
+}
+
+void BuildConfiguration::doInitialize(const BuildInfo &info)
+{
+    setDisplayName(info.displayName);
+    setDefaultDisplayName(info.displayName);
+    setBuildDirectory(info.buildDirectory);
+
+    d->m_initialBuildType = info.buildType;
+    d->m_initialDisplayName = info.displayName;
+    d->m_initialBuildDirectory = info.buildDirectory;
+    d->m_extraInfo = info.extraInfo;
+
+    acquaintAspects();
+
+    if (d->m_initializer)
+        d->m_initializer();
+}
+
+void BuildConfiguration::setInitializer(const std::function<void ()> &initializer)
+{
+    d->m_initializer = initializer;
 }
 
 NamedWidget *BuildConfiguration::createConfigWidget()
@@ -405,7 +429,7 @@ bool BuildConfiguration::regenerateBuildFiles(Node *node)
 
 void BuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
 {
-    Q_UNUSED(rc);
+    Q_UNUSED(rc)
 }
 
 BuildConfiguration::BuildType BuildConfiguration::buildType() const
@@ -568,21 +592,10 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
     if (!canHandle(parent))
         return nullptr;
     QTC_ASSERT(m_creator, return nullptr);
+
     BuildConfiguration *bc = m_creator(parent);
-    if (!bc)
-        return nullptr;
-
-    bc->setDisplayName(info.displayName);
-    bc->setDefaultDisplayName(info.displayName);
-    bc->setBuildDirectory(info.buildDirectory);
-
-    bc->d->m_initialBuildType = info.buildType;
-    bc->d->m_initialDisplayName = info.displayName;
-    bc->d->m_initialBuildDirectory = info.buildDirectory;
-    bc->d->m_extraInfo = info.extraInfo;
-
-    bc->acquaintAspects();
-    bc->initialize();
+    if (bc)
+        bc->doInitialize(info);
 
     return bc;
 }

@@ -38,8 +38,6 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
     friend class ProjectExplorer::BuildConfigurationFactory;
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-
-    void initialize() override;
 };
 
 class AutotoolsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory

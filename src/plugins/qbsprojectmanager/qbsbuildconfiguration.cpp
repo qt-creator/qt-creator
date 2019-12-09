@@ -80,6 +80,47 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
 {
     setConfigWidgetHasFrame(true);
 
+    setInitializer([this, target] {
+        const Kit *kit = target->kit();
+        QVariantMap configData = extraInfo().value<QVariantMap>();
+        configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
+                          (initialBuildType() == BuildConfiguration::Debug)
+                          ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
+                          : QLatin1String(Constants::QBS_VARIANT_RELEASE));
+
+        Utils::FilePath buildDir = initialBuildDirectory();
+        if (buildDir.isEmpty())
+            buildDir = defaultBuildDirectory(target->project()->projectFilePath(),
+                                             kit, initialDisplayName(),
+                                             initialBuildType());
+        setBuildDirectory(buildDir);
+
+        // Add the build configuration.
+        QVariantMap bd = configData;
+        QString configName = bd.take("configName").toString();
+        if (configName.isEmpty()) {
+            configName = "qtc_" + kit->fileSystemFriendlyName() + '_'
+                            + Utils::FileUtils::fileSystemFriendlyName(initialDisplayName());
+        }
+
+        const QString kitName = kit->displayName();
+        const QByteArray kitHash = QCryptographicHash::hash(kitName.toUtf8(), QCryptographicHash::Sha1);
+
+        const QString uniqueConfigName = configName
+                        + '_' + kit->fileSystemFriendlyName().left(8)
+                        + '_' + kitHash.toHex().left(16);
+
+        m_configurationName->setValue(uniqueConfigName);
+
+        auto bs = new QbsBuildStep(buildSteps());
+        bs->setQbsConfiguration(bd);
+        buildSteps()->appendStep(bs);
+
+        cleanSteps()->appendStep(Constants::QBS_CLEANSTEP_ID);
+
+        emit qbsConfigurationChanged();
+    });
+
     m_configurationName = addAspect<BaseStringAspect>();
     m_configurationName->setLabelText(tr("Configuration name:"));
     m_configurationName->setSettingsKey("Qbs.configName");
@@ -122,48 +163,6 @@ QbsBuildConfiguration::~QbsBuildConfiguration()
 BuildSystem *QbsBuildConfiguration::buildSystem() const
 {
     return m_buildSystem;
-}
-
-void QbsBuildConfiguration::initialize()
-{
-    QVariantMap configData = extraInfo().value<QVariantMap>();
-    configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      (initialBuildType() == BuildConfiguration::Debug)
-                      ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
-                      : QLatin1String(Constants::QBS_VARIANT_RELEASE));
-
-    Utils::FilePath buildDir = initialBuildDirectory();
-    if (buildDir.isEmpty())
-        buildDir = defaultBuildDirectory(target()->project()->projectFilePath(),
-                                         target()->kit(), initialDisplayName(),
-                                         initialBuildType());
-    setBuildDirectory(buildDir);
-
-    // Add the build configuration.
-    QVariantMap bd = configData;
-    QString configName = bd.take("configName").toString();
-    if (configName.isEmpty()) {
-        configName = "qtc_" + target()->kit()->fileSystemFriendlyName() + '_'
-                + Utils::FileUtils::fileSystemFriendlyName(initialDisplayName());
-    }
-
-    const Kit *kit = target()->kit();
-    const QString kitName = kit->displayName();
-    const QByteArray kitHash = QCryptographicHash::hash(kitName.toUtf8(), QCryptographicHash::Sha1);
-
-    const QString uniqueConfigName = configName
-            + '_' + kit->fileSystemFriendlyName().left(8)
-            + '_' + kitHash.toHex().left(16);
-
-    m_configurationName->setValue(uniqueConfigName);
-
-    auto bs = new QbsBuildStep(buildSteps());
-    bs->setQbsConfiguration(bd);
-    buildSteps()->appendStep(bs);
-
-    cleanSteps()->appendStep(Constants::QBS_CLEANSTEP_ID);
-
-    emit qbsConfigurationChanged();
 }
 
 void QbsBuildConfiguration::triggerReparseIfActive()

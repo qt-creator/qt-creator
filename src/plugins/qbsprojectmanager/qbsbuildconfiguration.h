@@ -57,7 +57,6 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
 public:
     ProjectExplorer::BuildSystem *buildSystem() const final;
-    void initialize() final;
 
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;

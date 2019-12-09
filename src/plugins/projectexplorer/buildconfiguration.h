@@ -55,7 +55,7 @@ protected:
     explicit BuildConfiguration(Target *target, Core::Id id);
 
 public:
-    ~BuildConfiguration();
+    ~BuildConfiguration() override;
 
     Utils::FilePath buildDirectory() const;
     Utils::FilePath rawBuildDirectory() const;
@@ -118,6 +118,8 @@ public:
 
     void addConfigWidgets(const std::function<void (NamedWidget *)> &adder);
 
+    void doInitialize(const BuildInfo &info);
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
@@ -125,7 +127,7 @@ signals:
     void buildTypeChanged();
 
 protected:
-    virtual void initialize() = 0;
+    void setInitializer(const std::function<void()> &initializer);
 
 private:
     void emitBuildDirectoryChanged();

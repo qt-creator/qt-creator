@@ -27,8 +27,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
-namespace Utils { class FilePath; }
-
 namespace GenericProjectManager {
 namespace Internal {
 
@@ -39,7 +37,6 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class ProjectExplorer::BuildConfigurationFactory;
     GenericBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    void initialize() override;
     void addToEnvironment(Utils::Environment &env) const final;
 };
 

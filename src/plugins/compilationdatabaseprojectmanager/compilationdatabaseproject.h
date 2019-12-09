@@ -95,14 +95,6 @@ public:
     CompilationDatabaseEditorFactory();
 };
 
-class CompilationDatabaseBuildConfiguration : public ProjectExplorer::BuildConfiguration
-{
-    Q_OBJECT
-public:
-    CompilationDatabaseBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    void initialize() final {}
-};
-
 class CompilationDatabaseBuildConfigurationFactory
     : public ProjectExplorer::BuildConfigurationFactory
 {

@@ -53,8 +53,6 @@ public:
 
     ProjectExplorer::BuildSystem *buildSystem() const final;
 
-    void initialize() override;
-
     void setSubNodeBuild(QmakeProFileNode *node);
     QmakeProFileNode *subNodeBuild() const;
 

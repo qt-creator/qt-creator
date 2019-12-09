@@ -528,11 +528,15 @@ CompilationDatabaseEditorFactory::CompilationDatabaseEditorFactory()
     setCodeFoldingSupported(true);
 }
 
-CompilationDatabaseBuildConfiguration::CompilationDatabaseBuildConfiguration(
-    ProjectExplorer::Target *target, Core::Id id)
-    : ProjectExplorer::BuildConfiguration(target, id)
+class CompilationDatabaseBuildConfiguration : public BuildConfiguration
 {
-}
+public:
+    CompilationDatabaseBuildConfiguration(Target *target, Core::Id id)
+        : BuildConfiguration(target, id)
+    {
+    }
+};
+
 
 CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurationFactory()
 {

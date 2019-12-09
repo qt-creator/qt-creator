@@ -47,7 +47,7 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::BuildConfigurationFactory;
-    CMakeBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    CMakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     ~CMakeBuildConfiguration() final;
 
 public:
@@ -79,7 +79,6 @@ private:
     QVariantMap toMap() const override;
     BuildType buildType() const override;
 
-    void initialize() override;
     QString disabledReason() const override;
 
     ProjectExplorer::NamedWidget *createConfigWidget() override;

@@ -53,26 +53,25 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
     setBuildDirectory(Utils::FilePath::fromString("/<foobar>"));
     setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
     setConfigWidgetDisplayName(tr("Autotools Manager"));
-}
 
-void AutotoolsBuildConfiguration::initialize()
-{
-    // ### Build Steps Build ###
-    // autogen.sh or autoreconf
-    QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");
-    if (autogenFile.exists())
-        buildSteps()->appendStep(Constants::AUTOGEN_STEP_ID);
-    else
-        buildSteps()->appendStep(Constants::AUTORECONF_STEP_ID);
+    setInitializer([this] {
+        // ### Build Steps Build ###
+        // autogen.sh or autoreconf
+        QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");
+        if (autogenFile.exists())
+            buildSteps()->appendStep(Constants::AUTOGEN_STEP_ID);
+        else
+            buildSteps()->appendStep(Constants::AUTORECONF_STEP_ID);
 
-    // ./configure.
-    buildSteps()->appendStep(Constants::CONFIGURE_STEP_ID);
+        // ./configure.
+        buildSteps()->appendStep(Constants::CONFIGURE_STEP_ID);
 
-    // make
-    buildSteps()->appendStep(Constants::MAKE_STEP_ID);
+        // make
+        buildSteps()->appendStep(Constants::MAKE_STEP_ID);
 
-    // ### Build Steps Clean ###
-    cleanSteps()->appendStep(Constants::MAKE_STEP_ID);
+        // ### Build Steps Clean ###
+        cleanSteps()->appendStep(Constants::MAKE_STEP_ID);
+    });
 }
 
 
