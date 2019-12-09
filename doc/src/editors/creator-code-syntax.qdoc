@@ -669,6 +669,11 @@
             \l{http://linterrors.com/js/the-array-literal-notation-is-preferrable}
             {The array literal notation [] is preferable}.
 
+    \row
+        \li M400
+        \li Warning
+        \li Duplicate import
+
     \endtable
 
     \section1 Resetting the Code Model

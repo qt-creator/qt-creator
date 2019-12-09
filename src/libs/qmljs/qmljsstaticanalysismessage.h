@@ -43,7 +43,7 @@ enum Type
 {
     // Changing the numbers can break user code.
     // When adding a new check, also add it to the documentation, currently
-    // in creator-editors.qdoc.
+    // in creator-code-syntax.qdoc.
     UnknownType = 0,
     ErrInvalidEnumValue = 1,
     ErrEnumValueMustBeStringOrNumber = 2,
@@ -128,7 +128,8 @@ enum Type
     ErrInvalidStringValuePattern = 320,
     ErrLongerStringValueExpected = 321,
     ErrShorterStringValueExpected = 322,
-    ErrInvalidArrayValueLength = 323
+    ErrInvalidArrayValueLength = 323,
+    WarnDuplicateImport = 400
 };
 
 class QMLJS_EXPORT PrototypeMessageData {

@@ -240,6 +240,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
             tr("Referencing the parent of the root item is not supported in a Qt Quick UI form."));
     newMsg(StateCannotHaveChildItem, Error,
             tr("A State cannot have a child item (%1)."), 1);
+    newMsg(WarnDuplicateImport, Warning,
+           tr("Duplicate import (%1)."), 1);
 }
 
 } // anonymous namespace

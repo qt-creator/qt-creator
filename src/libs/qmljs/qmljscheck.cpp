@@ -764,6 +764,26 @@ bool Check::visit(UiProgram *)
     return true;
 }
 
+bool Check::visit(UiImport *ast)
+{
+    ShortImportInfo info;
+    if (auto ver = ast->version)
+        info.second = LanguageUtils::ComponentVersion(ver->majorVersion, ver->minorVersion);
+
+    if (!ast->fileName.isNull())  // it must be a file import
+        info.first = ast->fileName.toString();
+    else                          // no file import - construct full uri
+        info.first = toString(ast->importUri);
+
+    if (m_importInfo.contains(info)) {
+        SourceLocation location = ast->firstSourceLocation();
+        location.length = ast->lastSourceLocation().end();
+        addMessage(WarnDuplicateImport, location, info.first);
+    }
+    m_importInfo.append(info);
+    return true;
+}
+
 bool Check::visit(UiObjectInitializer *)
 {
     QString typeName;
