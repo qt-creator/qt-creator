@@ -62,7 +62,6 @@ public:
     ProjectExplorer::Kit *kit() const { return m_kit.get(); }
 
 private:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
     std::unique_ptr<ProjectExplorer::Kit> m_kit;
 };
 

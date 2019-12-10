@@ -459,13 +459,6 @@ Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
 #endif
 }
 
-Project::RestoreResult CompilationDatabaseProject::fromMap(const QVariantMap &map,
-                                                           QString *errorMessage)
-{
-    Project::RestoreResult result = Project::fromMap(map, errorMessage);
-    return result;
-}
-
 void CompilationDatabaseBuildSystem::reparseProject()
 {
     if (m_parser) {
