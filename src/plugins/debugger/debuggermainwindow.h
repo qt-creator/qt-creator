@@ -36,11 +36,6 @@
 
 #include <functional>
 
-namespace Core {
-class Context;
-class Id;
-} // Core
-
 namespace Utils {
 
 // To be used for actions that need hideable toolbuttons.
