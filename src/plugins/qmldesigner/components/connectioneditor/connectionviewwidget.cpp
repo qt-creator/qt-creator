@@ -45,6 +45,7 @@
 #include <QToolButton>
 #include <QStyleFactory>
 #include <QMenu>
+#include <QShortcut>
 
 #include <bindingeditor/actioneditor.h>
 
@@ -57,6 +58,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui(new Ui::ConnectionViewWidget)
 {
     m_actionEditor = new QmlDesigner::ActionEditor(this);
+    m_deleteShortcut = new QShortcut(this);
     QObject::connect(m_actionEditor, &QmlDesigner::ActionEditor::accepted,
                      [&]() {
         if (m_actionEditor->hasModelIndex()) {
@@ -123,6 +125,7 @@ ConnectionViewWidget::~ConnectionViewWidget()
 {
     delete m_actionEditor;
     delete ui;
+    delete m_deleteShortcut;
 }
 
 void ConnectionViewWidget::setBindingModel(BindingModel *model)
@@ -211,6 +214,10 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
     buttons.constLast()->setToolTip(tr("Remove selected binding or connection."));
     connect(buttons.constLast(), &QAbstractButton::clicked, this, &ConnectionViewWidget::removeButtonClicked);
     connect(this, &ConnectionViewWidget::setEnabledRemoveButton, buttons.constLast(), &QWidget::setEnabled);
+
+    m_deleteShortcut->setKey(Qt::Key_Delete);
+    m_deleteShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(m_deleteShortcut, &QShortcut::activated, this, &ConnectionViewWidget::removeButtonClicked);
 
     return buttons;
 }
