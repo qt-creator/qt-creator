@@ -122,13 +122,13 @@ public:
     void init();
 
 public:
-    const QPixmap extButtonPixmap;
+    const QIcon extButtonIcon;
     const QPixmap closeButtonPixmap;
     StyleAnimator animator;
 };
 
 ManhattanStylePrivate::ManhattanStylePrivate() :
-    extButtonPixmap(Utils::Icons::TOOLBAR_EXTENSION.pixmap()),
+    extButtonIcon(Utils::Icons::TOOLBAR_EXTENSION.icon()),
     closeButtonPixmap(Utils::Icons::CLOSE_FOREGROUND.pixmap())
 {
 }
@@ -321,9 +321,6 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
 
     QPixmap pixmap;
     switch (standardPixmap) {
-    case QStyle::SP_ToolBarHorizontalExtensionButton:
-        pixmap = d->extButtonPixmap;
-        break;
     case QStyle::SP_TitleBarCloseButton:
         pixmap = d->closeButtonPixmap;
         break;
@@ -336,7 +333,16 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
 
 QIcon ManhattanStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
 {
-    QIcon icon = QProxyStyle::standardIcon(standardIcon, option, widget);
+    QIcon icon;
+    switch (standardIcon) {
+    case QStyle::SP_ToolBarHorizontalExtensionButton:
+        icon = d->extButtonIcon;
+        break;
+    default:
+        icon = QProxyStyle::standardIcon(standardIcon, option, widget);
+        break;
+    }
+
     if (standardIcon == QStyle::SP_ComputerIcon) {
         // Ubuntu has in some versions a 16x16 icon, see QTCREATORBUG-12832
         const QList<QSize> &sizes = icon.availableSizes();

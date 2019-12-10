@@ -158,17 +158,6 @@
        gradientUnits="userSpaceOnUse" />
     <clipPath
        clipPathUnits="userSpaceOnUse"
-       id="clipPath4754">
-      <rect
-         style="fill:none;stroke:none"
-         id="rect4756"
-         width="9"
-         height="9"
-         x="187"
-         y="592" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
        id="clipPath4845">
       <rect
          style="opacity:0.60100002;fill:#ffffff;fill-opacity:0"
@@ -4191,15 +4180,14 @@
     </g>
     <g
        id="src/libs/utils/images/extension"
-       style="display:inline;"
-       clip-path="url(#clipPath4754)"
+       style="display:inline"
        transform="translate(-171,-20)">
       <rect
          id="use4527"
          width="9"
-         height="9"
+         height="16"
          x="187"
-         y="592"
+         y="588"
          style="fill:#ffffff" />
       <path
          sodipodi:nodetypes="ccc"
