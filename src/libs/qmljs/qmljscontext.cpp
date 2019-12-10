@@ -148,8 +148,8 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
         objectValue = value;
         ++iter;
     }
-    auto end = qmlTypeName.cend();
-    for ( ; objectValue && iter != end; ) {
+
+    for (auto end = qmlTypeName.cend() ; objectValue && iter != end; ++iter) {
         const Value *value = objectValue->lookupMember(*iter, this);
         if (!value)
             return nullptr;
