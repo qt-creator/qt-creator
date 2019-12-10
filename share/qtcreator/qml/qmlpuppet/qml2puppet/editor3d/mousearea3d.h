@@ -55,6 +55,7 @@ class MouseArea3D : public QQuick3DNode
     Q_PROPERTY(QPointF circlePickArea READ circlePickArea WRITE setCirclePickArea NOTIFY circlePickAreaChanged)
     Q_PROPERTY(qreal minAngle READ minAngle WRITE setMinAngle NOTIFY minAngleChanged)
     Q_PROPERTY(QQuick3DNode *pickNode READ pickNode WRITE setPickNode NOTIFY pickNodeChanged)
+    Q_PROPERTY(MouseArea3D *dragHelper READ dragHelper WRITE setDragHelper NOTIFY dragHelperChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -76,6 +77,7 @@ public:
     QPointF circlePickArea() const;
     qreal minAngle() const;
     QQuick3DNode *pickNode() const;
+    MouseArea3D *dragHelper() const;
 
     static qreal mouseDragMultiplier() { return .02; }
 
@@ -86,6 +88,7 @@ public slots:
     void setCirclePickArea(const QPointF &pickArea);
     void setMinAngle(qreal angle);
     void setPickNode(QQuick3DNode *node);
+    void setDragHelper(MouseArea3D *dragHelper);
 
     void setX(qreal x);
     void setY(qreal y);
@@ -126,6 +129,7 @@ signals:
     void circlePickAreaChanged();
     void minAngleChanged();
     void pickNodeChanged();
+    void dragHelperChanged();
 
     // angle parameter is only set if circlePickArea is specified
     void pressed(const QVector3D &scenePos, const QPoint &screenPos, qreal angle);
@@ -156,7 +160,7 @@ private:
     bool m_dragging = false;
     bool m_active = false;
 
-    QVector3D getMousePosInPlane(const QPointF &mousePosInView) const;
+    QVector3D getMousePosInPlane(const MouseArea3D *helper, const QPointF &mousePosInView) const;
 
     static MouseArea3D *s_mouseGrab;
     bool m_grabsMouse = false;
@@ -164,6 +168,7 @@ private:
     QPointF m_circlePickArea;
     qreal m_minAngle = 0.;
     QQuick3DNode *m_pickNode = nullptr;
+    MouseArea3D *m_dragHelper = nullptr;
 };
 
 }

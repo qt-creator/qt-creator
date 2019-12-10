@@ -36,7 +36,7 @@ DirectionalDraggable {
     signal scaleCommit()
     signal scaleChange()
 
-    property var _startScale
+    property vector3d _startScale
 
     Model {
         source: "#Cube"

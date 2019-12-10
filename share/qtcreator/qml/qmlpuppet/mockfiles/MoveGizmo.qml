@@ -37,6 +37,8 @@ Node {
     readonly property bool dragging: arrowX.dragging || arrowY.dragging || arrowZ.dragging
                                      || planeX.dragging || planeY.dragging || planeZ.dragging
                                      || centerBall.dragging
+    property MouseArea3D dragHelper: null
+
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     orientation: targetNode ? targetNode.orientation : Node.LeftHanded
 
@@ -57,6 +59,7 @@ Node {
                                                               : Qt.rgba(1, 0, 0, 1)
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
+            dragHelper: moveGizmo.dragHelper
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -70,6 +73,7 @@ Node {
                                                               : Qt.rgba(0, 0.6, 0, 1)
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
+            dragHelper: moveGizmo.dragHelper
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -83,6 +87,7 @@ Node {
                                                               : Qt.rgba(0, 0, 1, 1)
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
+            dragHelper: moveGizmo.dragHelper
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -100,6 +105,7 @@ Node {
                                                               : Qt.rgba(1, 0, 0, 1)
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
+            dragHelper: moveGizmo.dragHelper
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -117,6 +123,7 @@ Node {
                                                               : Qt.rgba(0, 0.6, 0, 1)
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
+            dragHelper: moveGizmo.dragHelper
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -134,6 +141,7 @@ Node {
                                                               : Qt.rgba(0, 0, 1, 1)
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
+            dragHelper: moveGizmo.dragHelper
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -152,6 +160,7 @@ Node {
 
         view3D: moveGizmo.view3D
         active: moveGizmo.visible
+        dragHelper: moveGizmo.dragHelper
 
         onPositionCommit: moveGizmo.positionCommit()
         onPositionMove: moveGizmo.positionMove()

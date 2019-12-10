@@ -35,6 +35,7 @@ Model {
     property Node targetNode: null
     property bool dragging: mouseAreaYZ.dragging || mouseAreaXZ.dragging
     property bool active: false
+    property MouseArea3D dragHelper: null
 
     readonly property bool hovering: mouseAreaYZ.hovering || mouseAreaXZ.hovering
 
@@ -57,7 +58,7 @@ Model {
             return;
 
         var maskedPosition = Qt.vector3d(scenePos.x, 0, 0);
-        _pointerPosPressed = mouseArea.mapPositionToScene(maskedPosition);
+        _pointerPosPressed = mouseArea.dragHelper.mapPositionToScene(maskedPosition);
         if (targetNode.orientation === Node.RightHanded)
             _pointerPosPressed.z = -_pointerPosPressed.z;
         var sp = targetNode.scenePosition;
@@ -68,7 +69,7 @@ Model {
     function calcRelativeDistance(mouseArea, scenePos)
     {
         var maskedPosition = Qt.vector3d(scenePos.x, 0, 0);
-        var scenePointerPos = mouseArea.mapPositionToScene(maskedPosition);
+        var scenePointerPos = mouseArea.dragHelper.mapPositionToScene(maskedPosition);
         if (targetNode.orientation === Node.RightHanded)
             scenePointerPos.z = -scenePointerPos.z;
         return scenePointerPos.minus(_pointerPosPressed);
@@ -100,6 +101,8 @@ Model {
         rotation: Qt.vector3d(0, 0, 90)
         grabsMouse: targetNode
         active: rootModel.active
+        dragHelper: rootModel.dragHelper
+
         onPressed: rootModel.handlePressed(mouseAreaYZ, scenePos)
         onDragged: rootModel.handleDragged(mouseAreaYZ, scenePos)
         onReleased: rootModel.handleReleased(mouseAreaYZ, scenePos)
@@ -115,6 +118,8 @@ Model {
         rotation: Qt.vector3d(0, 90, 90)
         grabsMouse: targetNode
         active: rootModel.active
+        dragHelper: rootModel.dragHelper
+
         onPressed: rootModel.handlePressed(mouseAreaXZ, scenePos)
         onDragged: rootModel.handleDragged(mouseAreaXZ, scenePos)
         onReleased: rootModel.handleReleased(mouseAreaXZ, scenePos)

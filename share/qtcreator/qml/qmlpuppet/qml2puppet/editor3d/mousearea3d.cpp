@@ -83,6 +83,11 @@ QQuick3DNode *MouseArea3D::pickNode() const
     return m_pickNode;
 }
 
+MouseArea3D *MouseArea3D::dragHelper() const
+{
+    return m_dragHelper;
+}
+
 qreal MouseArea3D::x() const
 {
     return m_x;
@@ -177,6 +182,15 @@ void MouseArea3D::setPickNode(QQuick3DNode *node)
 
     m_pickNode = node;
     emit pickNodeChanged();
+}
+
+void MouseArea3D::setDragHelper(MouseArea3D *dragHelper)
+{
+    if (m_dragHelper == dragHelper)
+        return;
+
+    m_dragHelper = dragHelper;
+    emit dragHelperChanged();
 }
 
 void MouseArea3D::setX(qreal x)
@@ -433,19 +447,22 @@ void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRo
     node->rotate(degrees, finalAxis, QQuick3DNode::SceneSpace);
 }
 
-QVector3D MouseArea3D::getMousePosInPlane(const QPointF &mousePosInView) const
+QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
+                                          const QPointF &mousePosInView) const
 {
+    if (!helper)
+        helper = this;
     const QVector3D mousePos1(float(mousePosInView.x()), float(mousePosInView.y()), 0);
     const QVector3D mousePos2(float(mousePosInView.x()), float(mousePosInView.y()), 1);
     const QVector3D rayPos0 = m_view3D->mapTo3DScene(mousePos1);
     const QVector3D rayPos1 = m_view3D->mapTo3DScene(mousePos2);
-    const QVector3D globalPlanePosition = mapPositionToScene(QVector3D(0, 0, 0));
+    const QVector3D globalPlanePosition = helper->mapPositionToScene(QVector3D(0, 0, 0));
     const QVector3D intersectGlobalPos = rayIntersectsPlane(rayPos0, rayPos1,
                                                             globalPlanePosition, forward());
     if (qFuzzyCompare(intersectGlobalPos.z(), -1))
         return intersectGlobalPos;
 
-    return mapPositionFromScene(intersectGlobalPos);
+    return helper->mapPositionFromScene(intersectGlobalPos);
 }
 
 bool MouseArea3D::eventFilter(QObject *, QEvent *event)
@@ -505,7 +522,13 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
     case QEvent::MouseButtonPress: {
         auto const mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::LeftButton) {
-            m_mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
+            // Reset drag helper area to global transform of this area
+            if (m_dragHelper) {
+                m_dragHelper->setPosition(scenePosition());
+                m_dragHelper->setRotation(sceneRotation());
+                m_dragHelper->setScale(sceneScale());
+            }
+            m_mousePosInPlane = getMousePosInPlane(m_dragHelper, mouseEvent->pos());
             if (mouseOnTopOfMouseArea(m_mousePosInPlane, mouseEvent->pos())) {
                 setDragging(true);
                 emit pressed(m_mousePosInPlane, mouseEvent->pos(), pickAngle);
@@ -527,7 +550,7 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
         auto const mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::LeftButton) {
             if (m_dragging) {
-                QVector3D mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
+                QVector3D mousePosInPlane = getMousePosInPlane(m_dragHelper, mouseEvent->pos());
                 if (qFuzzyCompare(mousePosInPlane.z(), -1))
                     mousePosInPlane = m_mousePosInPlane;
                 setDragging(false);
@@ -554,7 +577,8 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
     case QEvent::MouseMove:
     case QEvent::HoverMove: {
         auto const mouseEvent = static_cast<QMouseEvent *>(event);
-        const QVector3D mousePosInPlane = getMousePosInPlane(mouseEvent->pos());
+        const QVector3D mousePosInPlane = getMousePosInPlane(m_dragging ? m_dragHelper : this,
+                                                             mouseEvent->pos());
         const bool hasMouse = mouseOnTopOfMouseArea(mousePosInPlane, mouseEvent->pos());
 
         setHovering(hasMouse);

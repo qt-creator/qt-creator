@@ -28,6 +28,7 @@ import QtQuick.Window 2.12
 import QtQuick3D 1.0
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
+import MouseArea3D 1.0
 
 Window {
     id: viewWindow
@@ -183,6 +184,11 @@ Window {
             scale: editOrthoCamera.scale
         }
 
+        MouseArea3D {
+            id: gizmoDragHelper
+            view3D: overlayView
+        }
+
         MoveGizmo {
             id: moveGizmo
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
@@ -191,6 +197,7 @@ Window {
             globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnMove.selected
             view3D: overlayView
+            dragHelper: gizmoDragHelper
 
             onPositionCommit: viewWindow.commitObjectProperty(selectedNode, "position")
             onPositionMove: viewWindow.changeObjectProperty(selectedNode, "position")
@@ -204,6 +211,7 @@ Window {
             globalOrientation: false
             visible: selectedNode && btnScale.selected
             view3D: overlayView
+            dragHelper: gizmoDragHelper
 
             onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
             onScaleChange: viewWindow.changeObjectProperty(selectedNode, "scale")
@@ -217,6 +225,7 @@ Window {
             globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnRotate.selected
             view3D: overlayView
+            dragHelper: gizmoDragHelper
 
             onRotateCommit: viewWindow.commitObjectProperty(selectedNode, "rotation")
             onRotateChange: viewWindow.changeObjectProperty(selectedNode, "rotation")

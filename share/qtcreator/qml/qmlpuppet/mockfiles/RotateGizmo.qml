@@ -36,6 +36,7 @@ Node {
     property bool globalOrientation: true
     readonly property bool dragging: cameraRing.dragging
                                      || rotRingX.dragging || rotRingY.dragging || rotRingZ.dragging
+    property MouseArea3D dragHelper: null
     property real currentAngle
     property point currentMousePos
 
@@ -88,6 +89,7 @@ Node {
             priority: 40
             view3D: rotateGizmo.view3D
             active: rotateGizmo.visible
+            dragHelper: rotateGizmo.dragHelper
 
             onRotateCommit: rotateGizmo.rotateCommit()
             onRotateChange: rotateGizmo.rotateChange()
@@ -107,6 +109,7 @@ Node {
             priority: 30
             view3D: rotateGizmo.view3D
             active: rotateGizmo.visible
+            dragHelper: rotateGizmo.dragHelper
 
             onRotateCommit: rotateGizmo.rotateCommit()
             onRotateChange: rotateGizmo.rotateChange()
@@ -126,6 +129,7 @@ Node {
             priority: 20
             view3D: rotateGizmo.view3D
             active: rotateGizmo.visible
+            dragHelper: rotateGizmo.dragHelper
 
             onRotateCommit: rotateGizmo.rotateCommit()
             onRotateChange: rotateGizmo.rotateChange()
@@ -145,6 +149,7 @@ Node {
         priority: 10
         view3D: rotateGizmo.view3D
         active: rotateGizmo.visible
+        dragHelper: rotateGizmo.dragHelper
 
         onRotateCommit: rotateGizmo.rotateCommit()
         onRotateChange: rotateGizmo.rotateChange()
@@ -226,6 +231,8 @@ Node {
             circlePickArea: Qt.point(25, 50)
             grabsMouse: rotateGizmo.targetNode
             active: rotateGizmo.visible
+            dragHelper: rotateGizmo.dragHelper
+
             onPressed: freeRotator.handlePressed(screenPos)
             onDragged: freeRotator.handleDragged(screenPos)
             onReleased: freeRotator.handleReleased(screenPos)
