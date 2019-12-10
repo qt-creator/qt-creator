@@ -57,34 +57,6 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
     return false;
 }
 
-static QmlItemNode createQmlItemNodeFromSource(AbstractView *view, const QString &source, const QPointF &position)
-{
-    QScopedPointer<Model> inputModel(Model::create("QtQuick.Item", 1, 0, view->model()));
-    inputModel->setFileUrl(view->model()->fileUrl());
-    QPlainTextEdit textEdit;
-
-    textEdit.setPlainText(source);
-    NotIndentingTextEditModifier modifier(&textEdit);
-
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
-    rewriterView->setCheckSemanticErrors(false);
-    rewriterView->setTextModifier(&modifier);
-    inputModel->setRewriterView(rewriterView.data());
-
-    if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
-        ModelNode rootModelNode = rewriterView->rootModelNode();
-        inputModel->detachView(rewriterView.data());
-
-        rootModelNode.variantProperty("x").setValue(qRound(position.x()));
-        rootModelNode.variantProperty("y").setValue(qRound(position.y()));
-
-        ModelMerger merger(view);
-        return merger.insertModel(rootModelNode);
-    }
-
-    return QmlItemNode();
-}
-
 QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,
                                            const ItemLibraryEntry &itemLibraryEntry,
                                            const QPointF &position,
