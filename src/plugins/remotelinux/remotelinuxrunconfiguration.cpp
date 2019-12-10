@@ -78,6 +78,11 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
 }
 
+void RemoteLinuxRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
+{
+    updateTargetInformation();
+}
+
 Runnable RemoteLinuxRunConfiguration::runnable() const
 {
     Runnable r = RunConfiguration::runnable();

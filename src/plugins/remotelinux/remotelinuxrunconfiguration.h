@@ -40,10 +40,10 @@ public:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
     static const char *IdPrefix;
 
-protected:
+private:
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     ProjectExplorer::Runnable runnable() const override;
 
-private:
     void updateTargetInformation();
 };
 
