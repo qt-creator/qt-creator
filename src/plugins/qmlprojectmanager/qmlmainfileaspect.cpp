@@ -212,6 +212,11 @@ QString QmlMainFileAspect::mainScript() const
     return m_currentFileFilename;
 }
 
+QString QmlMainFileAspect::currentFile() const
+{
+    return m_currentFileFilename;
+}
+
 void QmlMainFileAspect::changeCurrentFile(Core::IEditor *editor)
 {
     if (!editor)

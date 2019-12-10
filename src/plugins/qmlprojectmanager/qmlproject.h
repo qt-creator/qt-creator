@@ -40,7 +40,7 @@ namespace QmlProjectManager {
 class QmlProject;
 class QmlProjectItem;
 
-class QmlBuildSystem : public ProjectExplorer::BuildSystem
+class QMLPROJECTMANAGER_EXPORT QmlBuildSystem : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 

@@ -25,6 +25,9 @@
 
 #include "qmlpreviewruncontrol.h"
 
+#include <qmlprojectmanager/qmlproject.h>
+#include <qmlprojectmanager/qmlmainfileaspect.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -36,6 +39,7 @@
 #include <utils/port.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
+#include <utils/fileutils.h>
 
 namespace QmlPreview {
 
@@ -77,7 +81,7 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
         if (!runControl->isRunning())
             return;
 
-        connect(runControl, &ProjectExplorer::RunControl::stopped, runControl, [runControl]() {
+        this->connect(runControl, &ProjectExplorer::RunControl::stopped, runControl, [runControl]() {
             ProjectExplorer::ProjectExplorerPlugin::runRunConfiguration(
                         runControl->runConfiguration(),
                         ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE, true);
@@ -124,12 +128,33 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
     addStartDependency(preview);
 
     setStarter([this, runControl, serverUrl] {
-        ProjectExplorer::Runnable run = runControl->runnable();
+        ProjectExplorer::Runnable runnable = runControl->runnable();
+        QStringList qmlProjectRunConfigurationArguments = runnable.commandLine().splitArguments();
 
-        Utils::QtcProcess::addArg(&run.commandLineArguments,
+        const auto currentTarget = runControl->target();
+        const auto *qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(currentTarget->buildSystem());
+
+        const auto aspect = runControl->aspect<QmlProjectManager::QmlMainFileAspect>();
+        const QString mainScript = aspect->mainScript();
+        const QString currentFile = aspect->currentFile();
+
+        const QString mainScriptFromProject = qmlBuildSystem->targetFile(
+            Utils::FilePath::fromString(mainScript)).toString();
+
+        const QString currentFileFromProject = qmlBuildSystem->targetFile(
+            Utils::FilePath::fromString(currentFile)).toString();
+
+        if (!currentFile.isEmpty() && qmlProjectRunConfigurationArguments.last().contains(mainScriptFromProject)) {
+            qmlProjectRunConfigurationArguments.removeLast();
+            auto commandLine = Utils::CommandLine(runnable.commandLine().executable(), qmlProjectRunConfigurationArguments);
+            commandLine.addArg(currentFile);
+            runnable.setCommandLine(commandLine);
+        }
+
+        Utils::QtcProcess::addArg(&runnable.commandLineArguments,
                                   QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
                                                                    serverUrl.path()));
-        doStart(run, {});
+        doStart(runnable, {});
     });
 }
 

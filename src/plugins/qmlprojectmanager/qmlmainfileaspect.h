@@ -46,6 +46,7 @@ class QmlBuildSystem;
 
 class QMLPROJECTMANAGER_EXPORT QmlMainFileAspect : public ProjectExplorer::ProjectConfigurationAspect
 {
+    Q_OBJECT
 public:
     explicit QmlMainFileAspect(ProjectExplorer::Target *target);
     ~QmlMainFileAspect() override;
@@ -67,6 +68,7 @@ public:
     void setScriptSource(MainScriptSource source, const QString &settingsPath = QString());
 
     QString mainScript() const;
+    QString currentFile() const;
     void changeCurrentFile(Core::IEditor *editor = nullptr);
     bool isQmlFilePresent();
     QmlBuildSystem *qmlBuildSystem() const;
