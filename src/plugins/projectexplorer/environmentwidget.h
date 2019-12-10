@@ -59,6 +59,8 @@ public:
     using OpenTerminalFunc = std::function<void(const Utils::Environment &env)>;
     void setOpenTerminalFunc(const OpenTerminalFunc &func);
 
+    void expand();
+
 signals:
     void userChangesChanged();
     void detailsVisibleChanged(bool visible);

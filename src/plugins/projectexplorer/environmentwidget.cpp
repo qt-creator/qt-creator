@@ -283,7 +283,12 @@ void EnvironmentWidget::setUserChanges(const Utils::EnvironmentItems &list)
 void EnvironmentWidget::setOpenTerminalFunc(const EnvironmentWidget::OpenTerminalFunc &func)
 {
     d->m_openTerminalFunc = func;
-    d->m_terminalButton->setEnabled(bool(func));
+    d->m_terminalButton->setVisible(bool(func));
+}
+
+void EnvironmentWidget::expand()
+{
+    d->m_detailsContainer->setState(Utils::DetailsWidget::Expanded);
 }
 
 void EnvironmentWidget::updateSummaryText()
@@ -294,7 +299,8 @@ void EnvironmentWidget::updateSummaryText()
     QString text;
     foreach (const Utils::EnvironmentItem &item, list) {
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
-            text.append(QLatin1String("<br>"));
+            if (!d->m_baseEnvironmentText.isEmpty() || !text.isEmpty())
+                text.append(QLatin1String("<br>"));
             switch (item.operation) {
             case Utils::EnvironmentItem::Unset:
                 text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
@@ -313,11 +319,15 @@ void EnvironmentWidget::updateSummaryText()
 
     if (text.isEmpty()) {
         //: %1 is "System Environment" or some such.
-        text.prepend(tr("Use <b>%1</b>").arg(d->m_baseEnvironmentText));
+        if (!d->m_baseEnvironmentText.isEmpty())
+            text.prepend(tr("Use <b>%1</b>").arg(d->m_baseEnvironmentText));
+        else
+            text.prepend(tr("<b>No environment changes</b>"));
     } else {
         //: Yup, word puzzle. The Set/Unset phrases above are appended to this.
         //: %1 is "System Environment" or some such.
-        text.prepend(tr("Use <b>%1</b> and").arg(d->m_baseEnvironmentText));
+        if (!d->m_baseEnvironmentText.isEmpty())
+            text.prepend(tr("Use <b>%1</b> and").arg(d->m_baseEnvironmentText));
     }
 
     d->m_detailsContainer->setSummaryText(text);

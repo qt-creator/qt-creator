@@ -33,6 +33,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
 
+#include <utils/environmentfwd.h>
 #include <utils/fileutils.h>
 
 #include <QObject>
@@ -134,6 +135,9 @@ public:
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, const QVariant &value);
 
+    void setAdditionalEnvironment(const Utils::EnvironmentItems &envItems);
+    Utils::EnvironmentItems additionalEnvironment() const;
+
     virtual bool needsConfiguration() const;
     bool needsBuildConfigurations() const;
     virtual void configureAsExampleProject();
@@ -174,6 +178,7 @@ signals:
 
     void displayNameChanged();
     void fileListChanged();
+    void environmentChanged();
 
     // Note: activeTarget can be 0 (if no targets are defined).
     void activeTargetChanged(ProjectExplorer::Target *target);

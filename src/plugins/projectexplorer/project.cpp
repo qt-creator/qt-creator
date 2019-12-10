@@ -90,6 +90,8 @@ const char TARGET_KEY_PREFIX[] = "ProjectExplorer.Project.Target.";
 const char TARGET_COUNT_KEY[] = "ProjectExplorer.Project.TargetCount";
 const char EDITOR_SETTINGS_KEY[] = "ProjectExplorer.Project.EditorSettings";
 const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Project.PluginSettings";
+
+const char PROJECT_ENV_KEY[] = "ProjectExplorer.Project.Environment";
 } // namespace
 
 namespace ProjectExplorer {
@@ -865,6 +867,17 @@ void Project::setNamedSettings(const QString &name, const QVariant &value)
         d->m_pluginSettings.remove(name);
     else
         d->m_pluginSettings.insert(name, value);
+}
+
+void Project::setAdditionalEnvironment(const Utils::EnvironmentItems &envItems)
+{
+    setNamedSettings(PROJECT_ENV_KEY, Utils::NameValueItem::toStringList(envItems));
+    emit environmentChanged();
+}
+
+Utils::EnvironmentItems Project::additionalEnvironment() const
+{
+    return Utils::NameValueItem::fromStringList(namedSettings(PROJECT_ENV_KEY).toStringList());
 }
 
 bool Project::needsConfiguration() const

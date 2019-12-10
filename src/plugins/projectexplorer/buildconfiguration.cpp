@@ -116,6 +116,8 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(this, &BuildConfiguration::environmentChanged,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
+    connect(target->project(), &Project::environmentChanged,
+            this, &BuildConfiguration::environmentChanged);
     // Many macroexpanders are based on the current project, so they may change the environment:
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
@@ -343,6 +345,7 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
         result = Utils::Environment::systemEnvironment();
     addToEnvironment(result);
     target()->kit()->addToEnvironment(result);
+    result.modify(project()->additionalEnvironment());
     return result;
 }
 

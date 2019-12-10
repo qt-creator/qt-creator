@@ -37,6 +37,7 @@
 #include "deployablefile.h"
 #include "deployconfiguration.h"
 #include "desktoprunconfiguration.h"
+#include "environmentwidget.h"
 #include "extraabi.h"
 #include "gcctoolchainfactories.h"
 #ifdef WITH_JOURNALD
@@ -45,6 +46,7 @@
 #include "jsonwizard/jsonwizardfactory.h"
 #include "jsonwizard/jsonwizardgeneratorfactory.h"
 #include "jsonwizard/jsonwizardpagefactory_p.h"
+#include "namedwidget.h"
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "projectexplorersettingspage.h"
@@ -350,6 +352,29 @@ public:
         setContextHelp("Managing Projects");
     }
 };
+
+
+class ProjectEnvironmentWidget : public NamedWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectEnvironmentWidget)
+
+public:
+    explicit ProjectEnvironmentWidget(Project *project) : NamedWidget(tr("Project Environment"))
+    {
+        const auto vbox = new QVBoxLayout(this);
+        vbox->setContentsMargins(0, 0, 0, 0);
+        const auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal);
+        envWidget->setOpenTerminalFunc({});
+        envWidget->expand();
+        vbox->addWidget(envWidget);
+        connect(envWidget, &EnvironmentWidget::userChangesChanged,
+                this, [project, envWidget] {
+            project->setAdditionalEnvironment(envWidget->userChanges());
+        });
+        envWidget->setUserChanges(project->additionalEnvironment());
+    }
+};
+
 
 class ProjectExplorerPluginPrivate : public QObject
 {
@@ -773,6 +798,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     panelFactory->setDisplayName(QCoreApplication::translate("DependenciesPanelFactory", "Dependencies"));
     panelFactory->setIcon(":/projectexplorer/images/ProjectDependencies.png");
     panelFactory->setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
+    ProjectPanelFactory::registerFactory(panelFactory);
+
+    panelFactory = new ProjectPanelFactory;
+    panelFactory->setPriority(60);
+    panelFactory->setDisplayName(QCoreApplication::translate("EnvironmentPanelFactory", "Environment"));
+    panelFactory->setCreateWidgetFunction([](Project *project) {
+        return new ProjectEnvironmentWidget(project);
+    });
     ProjectPanelFactory::registerFactory(panelFactory);
 
     // context menus
