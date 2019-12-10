@@ -772,7 +772,7 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
         menu->addMenu(fmtMenu);
     }
 
-    menu->addSeparator();
+    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog));
     menu->popup(ev.globalPos());
     return true;

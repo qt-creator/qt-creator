@@ -444,12 +444,9 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
                   [this] { m_engine->loadSymbolsForStack(); });
     }
 
-    if (m_engine->hasCapability(MemoryAddressCapability))
-        menu->addAction(action(UseAddressInStackView));
-
     menu->addSeparator();
     menu->addAction(action(UseToolTipsInStackView));
-    menu->addSeparator();
+    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog));
     menu->popup(ev.globalPos());
     return true;

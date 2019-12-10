@@ -460,6 +460,26 @@ QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool c
     return act;
 }
 
+void addHideColumnActions(QMenu *menu, QWidget *widget)
+{
+    QTreeView *view = qobject_cast<QTreeView *>(widget);
+    QTC_ASSERT(view, return);
+    QAbstractItemModel *model = view->model();
+    QTC_ASSERT(model, return);
+    const int columns = model->columnCount();
+    menu->addSeparator();
+    for (int i = 0; i < columns; ++i) {
+        QString columnName = model->headerData(i, Qt::Horizontal).toString();
+        QAction *act = menu->addAction(DebuggerPlugin::tr("Show %1 Column").arg(columnName));
+        act->setCheckable(true);
+        act->setChecked(!view->isColumnHidden(i));
+        QObject::connect(act, &QAction::toggled, menu, [view, i](bool on) {
+            view->setColumnHidden(i, !on);
+        });
+    }
+    menu->addSeparator();
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // DebugMode

@@ -228,8 +228,6 @@ QWidget *CommonOptionsPage::widget()
         m_group.insert(action(AlwaysAdjustColumnWidths), nullptr);
         m_group.insert(action(UseToolTipsInBreakpointsView), nullptr);
         m_group.insert(action(UseToolTipsInStackView), nullptr);
-        m_group.insert(action(UseAddressInBreakpointsView), nullptr);
-        m_group.insert(action(UseAddressInStackView), nullptr);
         m_group.insert(action(MaximalStackDepth), spinBoxMaximalStackDepth);
         m_group.insert(action(ShowStdNamespace), nullptr);
         m_group.insert(action(ShowQtNamespace), nullptr);

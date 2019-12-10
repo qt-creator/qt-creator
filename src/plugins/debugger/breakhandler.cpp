@@ -1680,8 +1680,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     menu->addSeparator();
 
     menu->addAction(action(UseToolTipsInBreakpointsView));
-    menu->addAction(action(UseAddressInBreakpointsView));
-    menu->addSeparator();
+    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog));
 
     menu->popup(ev.globalPos());
@@ -2669,8 +2668,7 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
     menu->addSeparator();
 
     menu->addAction(action(UseToolTipsInBreakpointsView));
-    menu->addAction(action(UseAddressInBreakpointsView));
-    menu->addSeparator();
+    Internal::addHideColumnActions(menu, ev.view());
     menu->addAction(action(SettingsDialog));
 
     menu->popup(ev.globalPos());

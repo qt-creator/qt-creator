@@ -542,24 +542,6 @@ DebuggerSettings::DebuggerSettings()
     insertItem(UseToolTipsInStackView, item);
 
     item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseAddressInBreakpointsView");
-    item->setText(tr("Show Address Data in Breakpoints View when Debugging"));
-    item->setToolTip(tr("<p>Checking this will show a column with address "
-        "information in the breakpoint view during debugging."));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(UseAddressInBreakpointsView, item);
-
-    item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "UseAddressInStackView");
-    item->setText(tr("Show Address Data in Stack View when Debugging"));
-    item->setToolTip(tr("<p>Checking this will show a column with address "
-        "information in the stack view during debugging."));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(UseAddressInStackView, item);
-
-    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "SkipKnownFrames");
     item->setText(tr("Skip Known Frames"));
     item->setCheckable(true);

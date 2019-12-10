@@ -731,8 +731,6 @@ void DebuggerEnginePrivate::setupViews()
     m_breakView->setWindowIcon(Icons::BREAKPOINTS.icon());
     m_breakView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_breakView->setSpanColumn(BreakpointFunctionColumn);
-    connect(action(UseAddressInBreakpointsView), &QAction::toggled,
-            this, [this](bool on) { m_breakView->setColumnHidden(BreakpointAddressColumn, !on); });
     m_breakView->setSettings(settings, "Debugger.BreakWindow");
     m_breakView->setModel(m_breakHandler.model());
     m_breakView->setRootIsDecorated(true);

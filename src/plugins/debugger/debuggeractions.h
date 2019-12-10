@@ -101,8 +101,6 @@ enum DebuggerActionCode
     UseToolTipsInLocalsView,
     UseToolTipsInBreakpointsView,
     UseToolTipsInStackView,
-    UseAddressInBreakpointsView,
-    UseAddressInStackView,
 
     RegisterForPostMortem,
     AlwaysAdjustColumnWidths,
