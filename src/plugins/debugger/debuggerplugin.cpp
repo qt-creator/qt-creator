@@ -1289,7 +1289,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             *errorMessage = msgParameterMissing(*it);
             return false;
         }
-        const qulonglong pid = it->toULongLong();
+        const qint64 pid = it->toLongLong();
         const QStringList args = it->split(',');
 
         Kit *kit = nullptr;
@@ -1372,7 +1372,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             *errorMessage = msgParameterMissing(*it);
             return false;
         }
-        qint64 pid = it->section(':', 1, 1).toULongLong();
+        qint64 pid = it->section(':', 1, 1).toLongLong();
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(findUniversalCdbKit());
         auto debugger = new DebuggerRunTool(runControl);
@@ -1612,7 +1612,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
 class RemoteAttachRunner : public DebuggerRunTool
 {
 public:
-    RemoteAttachRunner(RunControl *runControl, int pid)
+    RemoteAttachRunner(RunControl *runControl, ProcessHandle pid)
         : DebuggerRunTool(runControl)
     {
         setId("AttachToRunningProcess");
@@ -1620,7 +1620,7 @@ public:
 
         auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
         gdbServer->setUseMulti(false);
-        gdbServer->setAttachPid(ProcessHandle(pid));
+        gdbServer->setAttachPid(pid);
 
         addStartDependency(gdbServer);
 
@@ -1661,7 +1661,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         runControl->setKit(kit);
         //: %1: PID
         runControl->setDisplayName(tr("Process %1").arg(process.pid));
-        auto debugger = new RemoteAttachRunner(runControl,  process.pid);
+        auto debugger = new RemoteAttachRunner(runControl, ProcessHandle(process.pid));
         debugger->startRunControl();
     }
 }
@@ -1883,7 +1883,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     }
 
     // Run to, jump to line below in stopped state.
-    for (const QPointer<DebuggerEngine> engine : EngineManager::engines()) {
+    for (const QPointer<DebuggerEngine> &engine : EngineManager::engines()) {
         if (engine->state() == InferiorStopOk && args.isValid()) {
             menu->addSeparator();
             if (engine->hasCapability(RunToLineCapability)) {

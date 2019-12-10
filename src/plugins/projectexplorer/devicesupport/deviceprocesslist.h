@@ -41,7 +41,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessItem
 public:
     bool operator<(const DeviceProcessItem &other) const;
 
-    int pid = 0;
+    qint64 pid = 0;
     QString cmdLine;
     QString exe;
 };
