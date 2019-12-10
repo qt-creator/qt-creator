@@ -112,14 +112,14 @@ DebuggerSettings::DebuggerSettings()
 
     SavedAction *item = nullptr;
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     insertItem(SettingsDialog, item);
     item->setText(tr("Configure Debugger..."));
 
     //
     // View
     //
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Always Adjust View Column Widths to Contents"));
     item->setCheckable(true);
     item->setValue(true);
@@ -128,28 +128,28 @@ DebuggerSettings::DebuggerSettings()
     insertItem(AlwaysAdjustColumnWidths, item);
 
     // Needed by QML Inspector
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Use Alternating Row Colors"));
     item->setSettingsKey(debugModeGroup, "UseAlternatingRowColours");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(UseAlternatingRowColors, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Keep Editor Stationary When Stepping"));
     item->setSettingsKey(debugModeGroup, "StationaryEditorWhileStepping");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(StationaryEditorWhileStepping, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Debugger Font Size Follows Main Editor"));
     item->setSettingsKey(debugModeGroup, "FontSizeFollowsEditor");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(FontSizeFollowsEditor, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Show a Message Box When Receiving a Signal"));
     item->setSettingsKey(debugModeGroup, "UseMessageBoxForSignals");
     item->setCheckable(true);
@@ -157,14 +157,14 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(UseMessageBoxForSignals, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Log Time Stamps"));
     item->setSettingsKey(debugModeGroup, "LogTimeStamps");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(LogTimeStamps, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Dereference Pointers Automatically"));
     item->setCheckable(true);
     item->setDefaultValue(true);
@@ -179,63 +179,63 @@ DebuggerSettings::DebuggerSettings()
     // Cdb Options
     //
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setDefaultValue(QString());
     item->setSettingsKey(cdbSettingsGroup, "AdditionalArguments");
     insertItem(CdbAdditionalArguments, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setDefaultValue(QStringList());
     item->setSettingsKey(cdbSettingsGroup, "SymbolPaths");
     insertItem(CdbSymbolPaths, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setDefaultValue(QStringList());
     item->setSettingsKey(cdbSettingsGroup, "SourcePaths");
     insertItem(CdbSourcePaths, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setDefaultValue(QStringList());
     item->setSettingsKey(cdbSettingsGroup, "BreakEvent");
     insertItem(CdbBreakEvents, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setSettingsKey(cdbSettingsGroup, "BreakOnCrtDbgReport");
     insertItem(CdbBreakOnCrtDbgReport, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setSettingsKey(cdbSettingsGroup, "CDB_Console");
     insertItem(UseCdbConsole, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(cdbSettingsGroup, "BreakpointCorrection");
     insertItem(CdbBreakPointCorrection, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(cdbSettingsGroup, "UsePythonDumper");
     insertItem(CdbUsePythonDumper, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(cdbSettingsGroup, "FirstChanceExceptionTaskEntry");
     insertItem(FirstChanceExceptionTaskEntry, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(cdbSettingsGroup, "SecondChanceExceptionTaskEntry");
     insertItem(SecondChanceExceptionTaskEntry, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setSettingsKey(cdbSettingsGroup, "IgnoreFirstChanceAccessViolation");
@@ -244,7 +244,7 @@ DebuggerSettings::DebuggerSettings()
     //
     // Locals & Watchers
     //
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "ShowStandardNamespace");
     item->setText(tr("Show \"std::\" Namespace in Types"));
     item->setDialogText(tr("Show \"std::\" namespace in types"));
@@ -254,7 +254,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(ShowStdNamespace, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "ShowQtNamespace");
     item->setText(tr("Show Qt's Namespace in Types"));
     item->setDialogText(tr("Show Qt's namespace in types"));
@@ -265,7 +265,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(ShowQtNamespace, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "ShowQObjectNames2");
     item->setText(tr("Show QObject names if available"));
     item->setDialogText(tr("Show QObject names if available"));
@@ -277,7 +277,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(ShowQObjectNames, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "SortStructMembers");
     item->setText(tr("Sort Members of Classes and Structs Alphabetically"));
     item->setDialogText(tr("Sort members of classes and structs alphabetically"));
@@ -289,7 +289,7 @@ DebuggerSettings::DebuggerSettings()
     //
     // DebuggingHelper
     //
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseDebuggingHelper");
     item->setText(tr("Use Debugging Helpers"));
     item->setCheckable(true);
@@ -297,7 +297,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(UseDebuggingHelpers, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseCodeModel");
     item->setDialogText(tr("Use code model"));
     item->setToolTip(tr("<p>Selecting this causes the C++ Code Model being asked "
@@ -308,7 +308,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(UseCodeModel, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "ShowThreadNames");
     item->setToolTip(tr("<p>Displays names of QThread based threads."));
     item->setDialogText(tr("Display thread names"));
@@ -321,11 +321,11 @@ DebuggerSettings::DebuggerSettings()
     //
     // Breakpoints
     //
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Synchronize Breakpoints"));
     insertItem(SynchronizeBreakpoints, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Adjust Breakpoint Locations"));
     item->setToolTip(tr("<p>Not all source code lines generate "
       "executable code. Putting a breakpoint on such a line acts as "
@@ -339,7 +339,7 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, "AdjustBreakpointLocations");
     insertItem(AdjustBreakpointLocations, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Break on \"throw\""));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -347,7 +347,7 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, "BreakOnThrow");
     insertItem(BreakOnThrow, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Break on \"catch\""));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -355,7 +355,7 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, "BreakOnCatch");
     insertItem(BreakOnCatch, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Break on \"qWarning\""));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -363,7 +363,7 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, "BreakOnWarning");
     insertItem(BreakOnWarning, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Break on \"qFatal\""));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -371,7 +371,7 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, "BreakOnFatal");
     insertItem(BreakOnFatal, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Break on \"abort\""));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -383,7 +383,7 @@ DebuggerSettings::DebuggerSettings()
     // Settings
     //
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "LoadGdbInit");
     item->setDefaultValue(QString());
     item->setCheckable(true);
@@ -391,7 +391,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(LoadGdbInit, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "LoadGdbDumpers2");
     item->setDefaultValue(QString());
     item->setCheckable(true);
@@ -399,7 +399,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(false);
     insertItem(LoadGdbDumpers, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "AutoEnrichParameters");
     item->setDefaultValue(QString());
     item->setCheckable(true);
@@ -407,7 +407,7 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(AutoEnrichParameters, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseDynamicType");
     item->setText(tr("Use Dynamic Object Type for Display"));
     item->setCheckable(true);
@@ -415,95 +415,95 @@ DebuggerSettings::DebuggerSettings()
     item->setValue(true);
     insertItem(UseDynamicType, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "TargetAsync");
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setValue(false);
     insertItem(TargetAsync, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "WarnOnReleaseBuilds");
     item->setCheckable(true);
     item->setDefaultValue(true);
     insertItem(WarnOnReleaseBuilds, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "GdbStartupCommands");
     item->setDefaultValue(QString());
     insertItem(GdbStartupCommands, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "GdbCustomDumperCommands");
     item->setDefaultValue(QString());
     insertItem(ExtraDumperCommands, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "ExtraDumperFile");
     item->setDefaultValue(QString());
     insertItem(ExtraDumperFile, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "GdbPostAttachCommands");
     item->setDefaultValue(QString());
     insertItem(GdbPostAttachCommands, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "CloseBuffersOnExit");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(CloseSourceBuffersOnExit, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "CloseMemoryBuffersOnExit");
     item->setCheckable(true);
     item->setDefaultValue(true);
     insertItem(CloseMemoryBuffersOnExit, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "SwitchModeOnExit");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(SwitchModeOnExit, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "BreakpointsFullPath");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(BreakpointsFullPathByDefault, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
     item->setCheckable(true);
     item->setDefaultValue(true);
     insertItem(RaiseOnInterrupt, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "AutoQuit");
     item->setText(tr("Automatically Quit Debugger"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(AutoQuit, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "MultiInferior");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(MultiInferior, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "IntelFlavor");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(IntelFlavor, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "IdentifyDebugInfoPackages");
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(IdentifyDebugInfoPackages, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseToolTips");
     item->setText(tr("Use tooltips in main editor when debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips for variable "
@@ -514,7 +514,7 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(true);
     insertItem(UseToolTipsInMainEditor, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseToolTipsInLocalsView");
     item->setText(tr("Use Tooltips in Locals View when Debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips in the locals "
@@ -523,7 +523,7 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(false);
     insertItem(UseToolTipsInLocalsView, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseToolTipsInBreakpointsView");
     item->setText(tr("Use Tooltips in Breakpoints View when Debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips in the breakpoints "
@@ -532,7 +532,7 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(false);
     insertItem(UseToolTipsInBreakpointsView, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseToolTipsInStackView");
     item->setText(tr("Use Tooltips in Stack View when Debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips in the stack "
@@ -541,7 +541,7 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(true);
     insertItem(UseToolTipsInStackView, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseAddressInBreakpointsView");
     item->setText(tr("Show Address Data in Breakpoints View when Debugging"));
     item->setToolTip(tr("<p>Checking this will show a column with address "
@@ -550,7 +550,7 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(false);
     insertItem(UseAddressInBreakpointsView, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseAddressInStackView");
     item->setText(tr("Show Address Data in Stack View when Debugging"));
     item->setToolTip(tr("<p>Checking this will show a column with address "
@@ -559,14 +559,14 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(false);
     insertItem(UseAddressInStackView, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "SkipKnownFrames");
     item->setText(tr("Skip Known Frames"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(SkipKnownFrames, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "EnableReverseDebugging");
     item->setText(tr("Enable Reverse Debugging"));
     item->setCheckable(true);
@@ -575,7 +575,7 @@ DebuggerSettings::DebuggerSettings()
     insertItem(EnableReverseDebugging, item);
 
 #ifdef Q_OS_WIN
-    item = new RegisterPostMortemAction(this);
+    item = new RegisterPostMortemAction;
     item->setSettingsKey(debugModeGroup, "RegisterForPostMortem");
     item->setText(tr("Register For Post-Mortem Debugging"));
     item->setCheckable(true);
@@ -583,32 +583,32 @@ DebuggerSettings::DebuggerSettings()
     insertItem(RegisterForPostMortem, item);
 #endif
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "AllPluginBreakpoints");
     item->setDefaultValue(true);
     insertItem(AllPluginBreakpoints, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "SelectedPluginBreakpoints");
     item->setDefaultValue(false);
     insertItem(SelectedPluginBreakpoints, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "NoPluginBreakpoints");
     item->setDefaultValue(false);
     insertItem(NoPluginBreakpoints, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "SelectedPluginBreakpointsPattern");
     item->setDefaultValue(".*");
     insertItem(SelectedPluginBreakpointsPattern, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "MaximalStackDepth");
     item->setDefaultValue(20);
     insertItem(MaximalStackDepth, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "DisplayStringLimit");
     item->setToolTip(tr("<p>The maximum length of string entries in the "
         "Locals and Expressions pane. Longer than that are cut off "
@@ -616,22 +616,22 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(100);
     insertItem(DisplayStringLimit, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "MaximalStringLength");
     item->setToolTip(tr("<p>The maximum length for strings in separated windows. "
         "Longer strings are cut off and displayed with an ellipsis attached."));
     item->setDefaultValue(10000);
     insertItem(MaximalStringLength, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Reload Full Stack"));
     insertItem(ExpandStack, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setText(tr("Create Full Backtrace"));
     insertItem(CreateFullBacktrace, item);
 
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "WatchdogTimeout");
     item->setDefaultValue(20);
     insertItem(GdbWatchdogTimeout, item);
@@ -639,13 +639,13 @@ DebuggerSettings::DebuggerSettings()
     //
     // QML Tools
     //
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "ShowQmlObjectTree");
     item->setDefaultValue(true);
     insertItem(ShowQmlObjectTree, item);
 
     const QString qmlInspectorGroup = "QML.Inspector";
-    item = new SavedAction(this);
+    item = new SavedAction;
     item->setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
     item->setDefaultValue(false);
     insertItem(ShowAppOnTop, item);

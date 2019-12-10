@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QObject>
+#include <QCoreApplication>
 #include <QHash>
 #include <QMap>
 #include <QRegExp>
@@ -50,13 +50,13 @@ public:
     SourcePathRegExpMap sourcePathRegExpMap;
 };
 
-class DebuggerSettings : public QObject
+class DebuggerSettings
 {
-    Q_OBJECT // For tr().
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerSettings)
 
 public:
     explicit DebuggerSettings();
-    ~DebuggerSettings() override;
+    ~DebuggerSettings();
 
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;
@@ -67,6 +67,9 @@ public:
     void writeSettings() const;
 
 private:
+    DebuggerSettings(const DebuggerSettings &) = delete;
+    DebuggerSettings &operator=(const DebuggerSettings &) = delete;
+
     QHash<int, Utils::SavedAction *> m_items;
 };
 
