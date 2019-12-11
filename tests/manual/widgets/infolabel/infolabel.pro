@@ -1,5 +1,5 @@
 SOURCES += \
-    tst_manual_widgets_crumblepath.cpp
+    tst_manual_widgets_infolabel.cpp
 
 RESOURCES += \
     ../themes.qrc

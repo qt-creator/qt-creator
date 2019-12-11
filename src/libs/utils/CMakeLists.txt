@@ -79,6 +79,7 @@ add_qtc_library(Utils
     hostosinfo.cpp hostosinfo.h
     htmldocextractor.cpp htmldocextractor.h
     icon.cpp icon.h
+    infolabel.cpp infolabel.h
     itemviews.cpp itemviews.h
     json.cpp json.h
     jsontreeitem.cpp jsontreeitem.h

@@ -132,7 +132,8 @@ SOURCES += \
     $$PWD/differ.cpp \
     $$PWD/jsontreeitem.cpp \
     $$PWD/namevaluevalidator.cpp \
-    $$PWD/camelcasecursor.cpp
+    $$PWD/camelcasecursor.cpp \
+    $$PWD/infolabel.cpp
 
 HEADERS += \
     $$PWD/environmentfwd.h \
@@ -279,7 +280,8 @@ HEADERS += \
     $$PWD/jsontreeitem.h \
     $$PWD/listmodel.h \
     $$PWD/namevaluevalidator.h \
-    $$PWD/camelcasecursor.h
+    $$PWD/camelcasecursor.h \
+    $$PWD/infolabel.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/newclasswidget.ui \

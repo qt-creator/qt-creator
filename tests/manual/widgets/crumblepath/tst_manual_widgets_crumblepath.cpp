@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     Theme theme("");
-    QSettings settings(":/flat.creatortheme", QSettings::IniFormat);
+    QSettings settings(":/themes/flat.creatortheme", QSettings::IniFormat);
     theme.readSettings(settings);
     setCreatorTheme(&theme);
     StyleHelper::setBaseColor(QColor(StyleHelper::DEFAULT_BASE_COLOR));
