@@ -29,7 +29,8 @@
 
 #include <createinstancescommand.h>
 #include <createscenecommand.h>
-#include <change3dviewcommand.h>
+#include <update3dviewstatecommand.h>
+#include <enable3dviewcommand.h>
 #include <changevaluescommand.h>
 #include <changebindingscommand.h>
 #include <changeauxiliarycommand.h>
@@ -652,7 +653,12 @@ void NodeInstanceServerProxy::clearScene(const ClearSceneCommand &command)
     writeCommand(QVariant::fromValue(command));
 }
 
-void NodeInstanceServerProxy::change3DView(const Change3DViewCommand &command)
+void NodeInstanceServerProxy::update3DViewState(const Update3dViewStateCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::enable3DView(const Enable3DViewCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

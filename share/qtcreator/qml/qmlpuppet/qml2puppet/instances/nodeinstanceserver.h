@@ -101,7 +101,8 @@ public:
     void changeIds(const ChangeIdsCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
-    void change3DView(const Change3DViewCommand &command) override;
+    void update3DViewState(const Update3dViewStateCommand &command) override;
+    void enable3DView(const Enable3DViewCommand &command) override;
     void removeInstances(const RemoveInstancesCommand &command) override;
     void removeProperties(const RemovePropertiesCommand &command) override;
     void reparentInstances(const ReparentInstancesCommand &command) override;

@@ -31,6 +31,7 @@
 #include "designmodecontext.h"
 #include "openuiqmlfiledialog.h"
 #include "generateresource.h"
+#include "nodeinstanceview.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -248,6 +249,16 @@ void QmlDesignerPlugin::extensionsInitialized()
     // delay after Core plugin's extensionsInitialized, so the DesignMode is availabe
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToOpen, this, [this] {
         integrateIntoQtCreator(&d->mainWidget);
+    });
+
+    connect(Core::ICore::instance(), &Core::ICore::windowStateChanged, this,
+            [this] (Qt::WindowStates previousStates, Qt::WindowStates currentStates) {
+        d->viewManager.nodeInstanceView()->mainWindowStateChanged(previousStates, currentStates);
+    });
+
+    connect(Core::ICore::instance(), &Core::ICore::windowActivationChanged, this,
+            [this] (bool isActive, bool hasPopup) {
+        d->viewManager.nodeInstanceView()->mainWindowActiveChanged(isActive, hasPopup);
     });
 }
 

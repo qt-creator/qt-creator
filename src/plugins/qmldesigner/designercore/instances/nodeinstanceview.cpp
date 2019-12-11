@@ -48,7 +48,8 @@
 #include "clearscenecommand.h"
 #include "changefileurlcommand.h"
 #include "reparentinstancescommand.h"
-#include "change3dviewcommand.h"
+#include "update3dviewstatecommand.h"
+#include "enable3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
@@ -979,20 +980,6 @@ ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
     return {};
 }
 
-Change3DViewCommand NodeInstanceView::createChange3DViewCommand(ViewAction action, const QPoint &pos, const QSize &size) const
-{
-    InformationName informationName = InformationName::ShowView;
-
-    if (action == ViewAction::Move)
-        informationName = InformationName::MoveView;
-    else if (action == ViewAction::Hide)
-        informationName = InformationName::HideView;
-
-    const qint32 instanceId = 0;
-
-    return Change3DViewCommand({ InformationContainer(instanceId, informationName, pos, size) });
-}
-
 CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<qint32> containerList;
@@ -1473,21 +1460,22 @@ void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNode
     nodeInstanceServer()->changeSelection(createChangeSelectionCommand(selectedNodeList));
 }
 
-void NodeInstanceView::move3DView(const QPoint &position)
+void NodeInstanceView::mainWindowStateChanged(Qt::WindowStates previousStates, Qt::WindowStates currentStates)
 {
-    nodeInstanceServer()->change3DView(createChange3DViewCommand(ViewAction::Move, position));
+    if (nodeInstanceServer())
+        nodeInstanceServer()->update3DViewState(Update3dViewStateCommand(previousStates, currentStates));
 }
 
-void NodeInstanceView::hide3DView()
+void NodeInstanceView::mainWindowActiveChanged(bool active, bool hasPopup)
 {
-    nodeInstanceServer()->change3DView(createChange3DViewCommand(ViewAction::Hide));
+    if (nodeInstanceServer())
+        nodeInstanceServer()->update3DViewState(Update3dViewStateCommand(active, hasPopup));
 }
 
-void NodeInstanceView::show3DView(const QRect &rect)
+// enable / disable 3D edit View
+void NodeInstanceView::enable3DView(bool enable)
 {
-    nodeInstanceServer()->change3DView(createChange3DViewCommand(ViewAction::Show,
-                                                                 rect.topLeft(),
-                                                                 rect.size()));
+    nodeInstanceServer()->enable3DView(Enable3DViewCommand(enable));
 }
 
 void NodeInstanceView::timerEvent(QTimerEvent *event)

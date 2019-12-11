@@ -41,7 +41,8 @@
 #include "instancecontainer.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
-#include "change3dviewcommand.h"
+#include "update3dviewstatecommand.h"
+#include "enable3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeauxiliarycommand.h"
@@ -361,9 +362,14 @@ void NodeInstanceClientProxy::createScene(const CreateSceneCommand &command)
     nodeInstanceServer()->createScene(command);
 }
 
-void NodeInstanceClientProxy::change3DView(const Change3DViewCommand &command)
+void NodeInstanceClientProxy::update3DViewState(const Update3dViewStateCommand &command)
 {
-    nodeInstanceServer()->change3DView(command);
+    nodeInstanceServer()->update3DViewState(command);
+}
+
+void NodeInstanceClientProxy::enable3DView(const Enable3DViewCommand &command)
+{
+    nodeInstanceServer()->enable3DView(command);
 }
 
 void NodeInstanceClientProxy::clearScene(const ClearSceneCommand &command)
@@ -453,7 +459,8 @@ void NodeInstanceClientProxy::changeSelection(const ChangeSelectionCommand &comm
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
     static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
-    static const int change3DViewCommandType = QMetaType::type("Change3DViewCommand");
+    static const int update3dViewStateCommand = QMetaType::type("Update3dViewStateCommand");
+    static const int enable3DViewCommandType = QMetaType::type("Enable3DViewCommand");
     static const int changeFileUrlCommandType = QMetaType::type("ChangeFileUrlCommand");
     static const int createSceneCommandType = QMetaType::type("CreateSceneCommand");
     static const int clearSceneCommandType = QMetaType::type("ClearSceneCommand");
@@ -477,8 +484,10 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 
     if (commandType == createInstancesCommandType)
         createInstances(command.value<CreateInstancesCommand>());
-    else if (commandType == change3DViewCommandType)
-        change3DView(command.value<Change3DViewCommand>());
+    else if (commandType == update3dViewStateCommand)
+        update3DViewState(command.value<Update3dViewStateCommand>());
+    else if (commandType == enable3DViewCommandType)
+        enable3DView(command.value<Enable3DViewCommand>());
     else if (commandType == changeFileUrlCommandType)
         changeFileUrl(command.value<ChangeFileUrlCommand>());
     else if (commandType == createSceneCommandType)

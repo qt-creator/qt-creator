@@ -201,6 +201,19 @@ MainWindow::MainWindow()
             this, &MainWindow::openDroppedFiles);
 }
 
+// Edit View 3D needs to know when the main windows's state or activation change
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::WindowStateChange) {
+        emit m_coreImpl->windowStateChanged(m_previousWindowStates, windowState());
+        m_previousWindowStates = windowState();
+    } else if (event->type() == QEvent::ActivationChange) {
+        auto lastChild = qobject_cast<QWidget *>(children().last());
+        bool hasPopup = lastChild && lastChild->isActiveWindow();
+        emit m_coreImpl->windowActivationChanged(isActiveWindow(), hasPopup);
+    }
+}
+
 NavigationWidget *MainWindow::navigationWidget(Side side) const
 {
     return side == Side::Left ? m_leftNavigationWidget : m_rightNavigationWidget;

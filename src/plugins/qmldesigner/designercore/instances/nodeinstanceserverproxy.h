@@ -69,7 +69,8 @@ public:
     void createInstances(const CreateInstancesCommand &command) override;
     void changeFileUrl(const ChangeFileUrlCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;
-    void change3DView(const Change3DViewCommand &command) override;
+    void update3DViewState(const Update3dViewStateCommand &command) override;
+    void enable3DView(const Enable3DViewCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
     void removeInstances(const RemoveInstancesCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;

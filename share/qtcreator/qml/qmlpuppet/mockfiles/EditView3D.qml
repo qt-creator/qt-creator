@@ -34,14 +34,10 @@ Window {
     id: viewWindow
     width: 1024
     height: 768
-    visible: false
-    title: "3D"
-    flags: Qt.Widget | Qt.SplashScreen
-
-    onActiveChanged: {
-        if (viewWindow.active)
-            cameraControl.forceActiveFocus()
-    }
+    visible: true
+    title: "3D Edit View"
+    // need all those flags otherwise the title bar disappears after setting WindowStaysOnTopHint flag later
+    flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
 
     property alias scene: editView.importScene
     property alias showEditLight: btnEditViewLight.toggled

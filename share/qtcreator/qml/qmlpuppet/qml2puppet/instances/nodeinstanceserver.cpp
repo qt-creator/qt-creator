@@ -332,7 +332,11 @@ void NodeInstanceServer::clearScene(const ClearSceneCommand &/*command*/)
     m_fileUrl.clear();
 }
 
-void NodeInstanceServer::change3DView(const Change3DViewCommand &/*command*/)
+void NodeInstanceServer::update3DViewState(const Update3dViewStateCommand &/*command*/)
+{
+}
+
+void NodeInstanceServer::enable3DView(const Enable3DViewCommand &/*command*/)
 {
 }
 

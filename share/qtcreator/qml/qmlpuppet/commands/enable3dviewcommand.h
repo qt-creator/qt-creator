@@ -25,43 +25,30 @@
 
 #pragma once
 
-#include "abstractcustomtool.h"
-
-#include <QObject>
-#include <QDialog>
+#include <QMetaType>
 
 namespace QmlDesigner {
 
-class FormEditorView;
-class NodeInstanceView;
-
-class EditView3DProxyDialog : public QDialog
+class Enable3DViewCommand
 {
-    Q_OBJECT
+    friend QDataStream &operator>>(QDataStream &in, Enable3DViewCommand &command);
+    friend QDebug operator<<(QDebug debug, const Enable3DViewCommand &command);
 
 public:
-    explicit EditView3DProxyDialog(FormEditorView *view);
+    explicit Enable3DViewCommand(bool enable);
+    Enable3DViewCommand() = default;
 
-    void invalidate();
-
-protected:
-    void moveEvent(QMoveEvent *event) override;
-    void closeEvent(QCloseEvent *event) override;
-    void hideEvent(QHideEvent *event) override;
-    void focusOutEvent(QFocusEvent *event) override;
-    void focusInEvent(QFocusEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
-    bool event(QEvent *event) override;
+    bool isEnable() const;
 
 private:
-    QRect adjustedRect() const;
-    NodeInstanceView *nodeInstanceView() const;
-    void showView();
-    void hideView();
-
-    QPointer<FormEditorView> m_formEditorView;
-
+    bool m_enable = true;
 };
 
-} //QmlDesigner
+QDataStream &operator<<(QDataStream &out, const Enable3DViewCommand &command);
+QDataStream &operator>>(QDataStream &in, Enable3DViewCommand &command);
 
+QDebug operator<<(QDebug debug, const Enable3DViewCommand &command);
+
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::Enable3DViewCommand)

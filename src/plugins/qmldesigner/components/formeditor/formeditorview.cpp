@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "formeditorview.h"
+#include "nodeinstanceview.h"
 #include "selectiontool.h"
 #include "movetool.h"
 #include "option3daction.h"
@@ -475,8 +476,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
                 itemNodeList.append(item);
             }
         }
-        if (node.isRootNode())
-            formEditorWidget()->invalidate3DEditor();
     }
     currentTool()->instancesCompleted(itemNodeList);
 }
@@ -598,7 +597,7 @@ void FormEditorView::toggle3DViewEnabled(bool enabled)
     else
         rootModelNode().setAuxiliaryData("3d-view", false);
 
-    formEditorWidget()->set3dEditorVisibility(enabled);
+    nodeInstanceView()->enable3DView(enabled);
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
