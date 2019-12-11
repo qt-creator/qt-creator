@@ -55,6 +55,7 @@ enum class ResultType {
     MessageWarn,
     MessageFatal,
     MessageSystem,
+    MessageError,
 
     // special message - get's icon (but no color/short text) from parent
     MessageLocation,

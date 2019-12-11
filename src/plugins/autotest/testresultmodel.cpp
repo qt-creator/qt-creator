@@ -63,13 +63,14 @@ static QIcon testResultIcon(ResultType result) {
         Icons::RESULT_MESSAGEWARN.icon(),
         Icons::RESULT_MESSAGEFATAL.icon(),
         Icons::RESULT_MESSAGEFATAL.icon(), // System gets same handling as Fatal for now
+        Icons::RESULT_MESSAGEFATAL.icon(), // Error gets same handling as Fatal for now
         ProjectExplorer::Icons::DESKTOP_DEVICE.icon(),  // for now
     }; // provide an icon for unknown??
 
     if (result < ResultType::FIRST_TYPE || result >= ResultType::MessageInternal) {
         switch (result) {
         case ResultType::Application:
-            return icons[15];
+            return icons[16];
         default:
             return QIcon();
         }
@@ -443,10 +444,12 @@ void TestResultFilterModel::enableAllResultTypes(bool enabled)
                   << ResultType::BlacklistedFail << ResultType::BlacklistedXFail << ResultType::BlacklistedXPass
                   << ResultType::Benchmark
                   << ResultType::MessageCurrentTest << ResultType::TestStart << ResultType::TestEnd
-                  << ResultType::MessageInfo << ResultType::MessageSystem << ResultType::Application;
+                  << ResultType::MessageInfo << ResultType::MessageSystem << ResultType::Application
+                  << ResultType::MessageError;
     } else {
         m_enabled.clear();
-        m_enabled << ResultType::MessageFatal << ResultType::MessageSystem;
+        m_enabled << ResultType::MessageFatal << ResultType::MessageSystem
+                  << ResultType::MessageError;
     }
     invalidateFilter();
 }
