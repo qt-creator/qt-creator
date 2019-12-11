@@ -738,6 +738,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
     m_titleWidgets[PROJECT] = createTitleLabel(tr("Project"));
     m_projectListWidget = new ProjectListWidget(this);
+    connect(m_projectListWidget, &QListWidget::itemDoubleClicked,
+            this, &MiniProjectTargetSelector::hide);
 
     QStringList titles;
     titles << tr("Kit") << tr("Build")
@@ -746,6 +748,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     for (int i = TARGET; i < LAST; ++i) {
         m_titleWidgets[i] = createTitleLabel(titles.at(i -1));
         m_listWidgets[i] = new GenericListWidget(this);
+        connect(m_listWidgets[i], &QListWidget::itemDoubleClicked,
+                this, &MiniProjectTargetSelector::hide);
     }
 
     // Validate state: At this point the session is still empty!
