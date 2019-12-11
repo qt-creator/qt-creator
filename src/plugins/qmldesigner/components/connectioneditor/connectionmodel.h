@@ -63,6 +63,7 @@ public:
     void abstractPropertyChanged(const AbstractProperty &abstractProperty);
 
     void deleteConnectionByRow(int currentRow);
+    void removeRowFromTable(const SignalHandlerProperty &property);
 
 protected:
     void addModelNode(const ModelNode &modelNode);

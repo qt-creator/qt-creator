@@ -290,7 +290,28 @@ void ConnectionModel::abstractPropertyChanged(const AbstractProperty &abstractPr
 
 void ConnectionModel::deleteConnectionByRow(int currentRow)
 {
-    signalHandlerPropertyForRow(currentRow).parentModelNode().destroy();
+    SignalHandlerProperty targetSignal = signalHandlerPropertyForRow(currentRow);
+    QmlDesigner::ModelNode node = targetSignal.parentModelNode();
+    QList<SignalHandlerProperty> allSignals = node.signalProperties();
+    if (allSignals.size() > 1) {
+        if (allSignals.contains(targetSignal))
+            node.removeProperty(targetSignal.name());
+    }
+    else {
+        node.destroy();
+    }
+}
+
+void ConnectionModel::removeRowFromTable(const SignalHandlerProperty &property)
+{
+    for (int currentRow = 0; currentRow < rowCount(); currentRow++) {
+        SignalHandlerProperty targetSignal = signalHandlerPropertyForRow(currentRow);
+
+        if (targetSignal == property) {
+            removeRow(currentRow);
+            break;
+        }
+    }
 }
 
 void ConnectionModel::handleException()

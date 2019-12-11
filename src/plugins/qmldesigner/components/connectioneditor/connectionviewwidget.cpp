@@ -63,7 +63,8 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
                      [&]() {
         if (m_actionEditor->hasModelIndex()) {
             ConnectionModel *connectionModel = qobject_cast<ConnectionModel *>(ui->connectionView->model());
-            if (connectionModel->rowCount() > m_actionEditor->modelIndex().row())
+            if (connectionModel->connectionView()->isWidgetEnabled()
+                    && (connectionModel->rowCount() > m_actionEditor->modelIndex().row()))
             {
                 SignalHandlerProperty signalHandler =
                         connectionModel->signalHandlerPropertyForRow(m_actionEditor->modelIndex().row());
@@ -166,7 +167,7 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu menu(this);
 
-    menu.addAction(tr("Open Action Editor"), [&]() {
+    menu.addAction(tr("Open Connection Editor"), [&]() {
         if (index.isValid()) {
             m_actionEditor->showWidget(mapToGlobal(event->pos()).x(), mapToGlobal(event->pos()).y());
             m_actionEditor->setBindingValue(index.data().toString());
