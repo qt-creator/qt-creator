@@ -67,6 +67,7 @@ protected:
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
     void selectInstances(const QList<ServerNodeInstance> &instanceList);
     void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
+    QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container) override;
 
 private:
     void handleObjectPropertyChangeTimeout();
@@ -74,8 +75,7 @@ private:
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
-    void findCamerasAndLights( const QList<ServerNodeInstance> &instanceList,
-                               QObjectList &cameras, QObjectList &lights) const;
+    void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
     ServerNodeInstance findViewPort(const QList<ServerNodeInstance> &instanceList);
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
         const PropertyName &propertyName,

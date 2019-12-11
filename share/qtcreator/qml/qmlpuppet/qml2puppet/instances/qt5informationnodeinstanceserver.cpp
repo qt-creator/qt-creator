@@ -409,6 +409,17 @@ void Qt5InformationNodeInstanceServer::modifyProperties(
     nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
 }
 
+QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
+        const QVector<InstanceContainer> &container)
+{
+    const auto createdInstances = NodeInstanceServer::createInstances(container);
+
+    if (m_editView3D)
+        createCameraAndLightGizmos(createdInstances);
+
+    return createdInstances;
+}
+
 void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 {
     modifyVariantValue(m_changedNode, m_changedProperty,
@@ -448,15 +459,26 @@ QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
     return nullptr;
 }
 
-void Qt5InformationNodeInstanceServer::findCamerasAndLights(
-        const QList<ServerNodeInstance> &instanceList,
-        QObjectList &cameras, QObjectList &lights) const
+void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
+        const QList<ServerNodeInstance> &instanceList) const
 {
+    QObjectList cameras;
+    QObjectList lights;
+
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DCamera"))
             cameras << instance.internalObject();
         else if (instance.isSubclassOf("QQuick3DAbstractLight"))
             lights << instance.internalObject();
+    }
+
+    for (auto &obj : qAsConst(cameras)) {
+        QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
+                Q_ARG(QVariant, objectToVariant(obj)));
+    }
+    for (auto &obj : qAsConst(lights)) {
+        QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
+                Q_ARG(QVariant, objectToVariant(obj)));
     }
 }
 
@@ -506,18 +528,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             updateViewPortRect();
         }
 
-        // Create camera and light gizmos
-        QObjectList cameras;
-        QObjectList lights;
-        findCamerasAndLights(instanceList, cameras, lights);
-        for (auto &obj : qAsConst(cameras)) {
-            QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
-                    Q_ARG(QVariant, objectToVariant(obj)));
-        }
-        for (auto &obj : qAsConst(lights)) {
-            QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
-                    Q_ARG(QVariant, objectToVariant(obj)));
-        }
+        createCameraAndLightGizmos(instanceList);
     }
 }
 

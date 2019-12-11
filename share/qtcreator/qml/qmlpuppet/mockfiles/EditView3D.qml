@@ -127,6 +127,15 @@ Window {
 
     function addLightGizmo(obj)
     {
+        // Insert into first available gizmo
+        for (var i = 0; i < lightGizmos.length; ++i) {
+            if (!lightGizmos[i].targetNode) {
+                lightGizmos[i].targetNode = obj;
+                return;
+            }
+        }
+
+        // No free gizmos available, create a new one
         var component = Qt.createComponent("LightGizmo.qml");
         if (component.status === Component.Ready) {
             var gizmo = component.createObject(overlayScene,
@@ -140,6 +149,14 @@ Window {
 
     function addCameraGizmo(obj)
     {
+        // Insert into first available gizmo
+        for (var i = 0; i < cameraGizmos.length; ++i) {
+            if (!cameraGizmos[i].targetNode) {
+                cameraGizmos[i].targetNode = obj;
+                return;
+            }
+        }
+        // No free gizmos available, create a new one
         var component = Qt.createComponent("CameraGizmo.qml");
         if (component.status === Component.Ready) {
             var geometryName = _generalHelper.generateUniqueName("CameraGeometry");

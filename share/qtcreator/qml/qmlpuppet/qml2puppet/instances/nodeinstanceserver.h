@@ -155,7 +155,7 @@ public slots:
     void emitParentChanged(QObject *child);
 
 protected:
-    QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container);
+    virtual QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container);
     void reparentInstances(const QVector<ReparentContainer> &containerVector);
 
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
