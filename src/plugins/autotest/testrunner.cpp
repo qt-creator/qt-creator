@@ -627,6 +627,7 @@ void TestRunner::debugTests()
                                  runControl, &RunControl::initiateStop);
 
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
+    m_finishDebugConnect = connect(runControl, &RunControl::finished, this, &TestRunner::onFinished);
     ProjectExplorerPlugin::startRunControl(runControl);
     if (useOutputProcessor && AutotestPlugin::settings()->popupOnStart)
         AutotestPlugin::popupResultsPane();
@@ -723,6 +724,7 @@ void TestRunner::onFinished()
     m_selectedTests.clear();
 
     disconnect(m_stopDebugConnect);
+    disconnect(m_finishDebugConnect);
     disconnect(m_targetConnect);
     m_fakeFutureInterface = nullptr;
     m_runMode = TestRunMode::None;
