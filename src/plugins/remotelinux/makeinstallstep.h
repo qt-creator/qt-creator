@@ -30,6 +30,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/makestep.h>
 
+namespace ProjectExplorer { class BaseStringAspect; }
 namespace Utils { class FilePath; }
 
 namespace RemoteLinux {
@@ -57,6 +58,9 @@ private:
     void updateCommandFromAspect();
     void updateArgsFromAspect();
     void updateFullCommandLine();
+    void updateFromCustomCommandLineAspect();
+
+    ProjectExplorer::BaseStringAspect *customCommandLineAspect() const;
 
     ProjectExplorer::DeploymentData m_deploymentData;
     bool m_noInstallTarget = false;

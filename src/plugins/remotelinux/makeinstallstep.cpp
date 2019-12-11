@@ -51,6 +51,7 @@ const char MakeAspectId[] = "RemoteLinux.MakeInstall.Make";
 const char InstallRootAspectId[] = "RemoteLinux.MakeInstall.InstallRoot";
 const char CleanInstallRootAspectId[] = "RemoteLinux.MakeInstall.CleanInstallRoot";
 const char FullCommandLineAspectId[] = "RemoteLinux.MakeInstall.FullCommandLine";
+const char CustomCommandLineAspectId[] = "RemoteLinux.MakeInstall.CustomCommandLine";
 
 MakeInstallStep::MakeInstallStep(BuildStepList *parent) : MakeStep(parent, stepId())
 {
@@ -76,14 +77,31 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent) : MakeStep(parent, stepI
     const auto cleanInstallRootAspect = addAspect<BaseBoolAspect>();
     cleanInstallRootAspect->setId(CleanInstallRootAspectId);
     cleanInstallRootAspect->setSettingsKey(CleanInstallRootAspectId);
-    cleanInstallRootAspect->setLabel(tr("Clean install root first"),
-                                     BaseBoolAspect::LabelPlacement::AtCheckBox);
+    cleanInstallRootAspect->setLabel(tr("Clean install root first:"),
+                                     BaseBoolAspect::LabelPlacement::InExtraLabel);
     cleanInstallRootAspect->setValue(false);
 
     const auto commandLineAspect = addAspect<BaseStringAspect>();
     commandLineAspect->setId(FullCommandLineAspectId);
     commandLineAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
     commandLineAspect->setLabelText(tr("Full command line:"));
+
+    const auto customCommandLineAspect = addAspect<BaseStringAspect>();
+    customCommandLineAspect->setId(CustomCommandLineAspectId);
+    customCommandLineAspect->setSettingsKey(CustomCommandLineAspectId);
+    customCommandLineAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    customCommandLineAspect->setLabelText(tr("Custom command line:"));
+    customCommandLineAspect->makeCheckable(BaseStringAspect::CheckBoxPlacement::Top,
+                                           tr("Use custom command line instead:"),
+                                           "RemoteLinux.MakeInstall.EnableCustomCommandLine");
+    connect(customCommandLineAspect, &BaseStringAspect::checkedChanged,
+            this, &MakeInstallStep::updateCommandFromAspect);
+    connect(customCommandLineAspect, &BaseStringAspect::checkedChanged,
+            this, &MakeInstallStep::updateArgsFromAspect);
+    connect(customCommandLineAspect, &BaseStringAspect::checkedChanged,
+            this, &MakeInstallStep::updateFromCustomCommandLineAspect);
+    connect(customCommandLineAspect, &BaseStringAspect::changed,
+            this, &MakeInstallStep::updateFromCustomCommandLineAspect);
 
     QTemporaryDir tmpDir;
     installRootAspect->setFilePath(FilePath::fromString(tmpDir.path()));
@@ -199,12 +217,16 @@ bool MakeInstallStep::cleanInstallRoot() const
 
 void MakeInstallStep::updateCommandFromAspect()
 {
+    if (customCommandLineAspect()->isChecked())
+        return;
     setMakeCommand(aspect<ExecutableAspect>()->executable());
     updateFullCommandLine();
 }
 
 void MakeInstallStep::updateArgsFromAspect()
 {
+    if (customCommandLineAspect()->isChecked())
+        return;
     setUserArguments(QtcProcess::joinArgs(target()->makeInstallCommand(
         static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->filePath().toString())
                                           .arguments));
@@ -220,12 +242,28 @@ void MakeInstallStep::updateFullCommandLine()
                 + ' '  + userArguments());
 }
 
+void MakeInstallStep::updateFromCustomCommandLineAspect()
+{
+    const BaseStringAspect * const aspect = customCommandLineAspect();
+    if (!aspect->isChecked())
+        return;
+    const QStringList tokens = QtcProcess::splitArgs(aspect->value());
+    setMakeCommand(tokens.isEmpty() ? FilePath() : FilePath::fromString(tokens.first()));
+    setUserArguments(QtcProcess::joinArgs(tokens.mid(1)));
+}
+
+BaseStringAspect *MakeInstallStep::customCommandLineAspect() const
+{
+    return static_cast<BaseStringAspect *>(aspect(CustomCommandLineAspectId));
+}
+
 bool MakeInstallStep::fromMap(const QVariantMap &map)
 {
     if (!MakeStep::fromMap(map))
         return false;
     updateCommandFromAspect();
     updateArgsFromAspect();
+    updateFromCustomCommandLineAspect();
     return true;
 }
 
