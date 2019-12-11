@@ -1001,11 +1001,13 @@ void PerspectivePrivate::saveLayout()
     PerspectiveState state;
     state.mainWindowState = theMainWindow->saveState();
     for (DockOperation &op : m_dockOperations) {
-        QTC_ASSERT(op.dock, continue);
-        for (QTreeView *tv : op.dock->findChildren<QTreeView *>()) {
-            if (tv->property(PerspectiveState::savesHeaderKey()).toBool()) {
-                if (QHeaderView *hv = tv->header())
-                    state.headerViewStates.insert(op.name(), hv->saveState());
+        if (op.operationType != Perspective::Raise) {
+            QTC_ASSERT(op.dock, continue);
+            for (QTreeView *tv : op.dock->findChildren<QTreeView *>()) {
+                if (tv->property(PerspectiveState::savesHeaderKey()).toBool()) {
+                    if (QHeaderView *hv = tv->header())
+                        state.headerViewStates.insert(op.name(), hv->saveState());
+                }
             }
         }
     }
