@@ -73,6 +73,8 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression errorLocation("^(.*)\\((\\d+)\\): error:.*$");
     static const QRegularExpression iterations("^Repeating all tests "
                                                "\\(iteration (\\d+)\\) \\. \\. \\.$");
+    static const QRegularExpression logging("^\\[( FATAL | ERROR |WARNING|  INFO )\\] "
+                                            "(.*):(\\d+):: (.*)$");
 
     const QString line = removeCommandlineColors(QString::fromLatin1(outputLine));
     if (line.trimmed().isEmpty())
@@ -177,7 +179,31 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult->setDescription(tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
+    } else if (ExactMatch match = logging.match(line)) {
+        const QString severity = match.captured(1).trimmed();
+        ResultType type = ResultType::Invalid;
+        switch (severity.at(0).toLatin1()) {
+        case 'I': type = ResultType::MessageInfo; break;    // INFO
+        case 'W': type = ResultType::MessageWarn; break;    // WARNING
+        case 'E': type = ResultType::MessageError; break;   // ERROR
+        case 'F': type = ResultType::MessageFatal; break;   // FATAL
+        }
+        TestResultPtr testResult = createDefaultResult();
+        testResult->setResult(type);
+        testResult->setLine(match.captured(3).toInt());
+        const QString file = constructSourceFilePath(m_buildDir, match.captured(2));
+        if (!file.isEmpty())
+            testResult->setFileName(file);
+        testResult->setDescription(match.captured(4));
+        reportResult(testResult);
     }
+}
+
+void GTestOutputReader::processStdError(const QByteArray &outputLine)
+{
+    // we need to process the output, GTest may uses both out streams
+    processOutputLine(outputLine);
+    emit newOutputLineAvailable(outputLine, OutputChannel::StdErr);
 }
 
 TestResultPtr GTestOutputReader::createDefaultResult() const

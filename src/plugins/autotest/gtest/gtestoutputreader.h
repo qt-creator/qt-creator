@@ -44,6 +44,7 @@ public:
                       const QString &projectFile);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;
+    void processStdError(const QByteArray &outputLine) override;
     TestResultPtr createDefaultResult() const override;
 
 private:
