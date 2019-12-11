@@ -78,6 +78,11 @@ enum StashFlag {
     NoPrompt       = 0x02
 };
 
+enum PushFailure {
+    NonFastForward,
+    NoRemoteBranch
+};
+
 class SubmoduleData
 {
 public:
@@ -381,6 +386,7 @@ private:
 
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;
+    QString m_pushFallbackCommand;
     QStringList m_updatedSubmodules;
     bool m_disableEditor;
     QFutureSynchronizer<void> m_synchronizer; // for commit updates

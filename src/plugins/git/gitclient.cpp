@@ -3127,23 +3127,69 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
     VcsCommand *command = vcsExec(
                 workingDirectory, QStringList({"push"}) + pushArgs, nullptr, true,
                 VcsCommand::ShowSuccessMessage);
-    connect(command, &VcsCommand::stdErrText, this, [command](const QString &text) {
+    connect(command, &VcsCommand::stdErrText, this, [this, command](const QString &text) {
         if (text.contains("non-fast-forward"))
-            command->setCookie(true);
+            command->setCookie(NonFastForward);
+        else if (text.contains("has no upstream branch"))
+            command->setCookie(NoRemoteBranch);
+
+        if (command->cookie().toInt() == NoRemoteBranch) {
+            const QStringList lines = text.split('\n', QString::SkipEmptyParts);
+            for (const QString &line : lines) {
+                /* Extract the suggested command from the git output which
+                 * should be similar to the following:
+                 *
+                 *     git push --set-upstream origin add_set_upstream_dialog
+                 */
+                const QString trimmedLine = line.trimmed();
+                if (trimmedLine.startsWith("git push")) {
+                    m_pushFallbackCommand = trimmedLine;
+                    break;
+                }
+            }
+        }
     });
     connect(command, &VcsCommand::finished,
             this, [this, command, workingDirectory, pushArgs](bool success) {
-        if (!success && command->cookie().toBool()) {
-            const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
-            if (QMessageBox::question(
-                        Core::ICore::dialogParent(), tr("Force Push"),
-                        tr("Push failed. Would you like to force-push <span style=\"color:#%1\">"
-                           "(rewrites remote history)</span>?")
-                        .arg(QString::number(warnColor.rgba(), 16)),
-                        QMessageBox::Yes | QMessageBox::No,
-                        QMessageBox::No) == QMessageBox::Yes) {
-                vcsExec(workingDirectory, QStringList({"push", "--force-with-lease"}) + pushArgs,
-                        nullptr, true, VcsCommand::ShowSuccessMessage);
+        if (!success) {
+            switch (static_cast<PushFailure>(command->cookie().toInt())) {
+            case NonFastForward: {
+                const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
+                if (QMessageBox::question(
+                            Core::ICore::dialogParent(), tr("Force Push"),
+                            tr("Push failed. Would you like to force-push <span style=\"color:#%1\">"
+                            "(rewrites remote history)</span>?")
+                            .arg(QString::number(warnColor.rgba(), 16)),
+                            QMessageBox::Yes | QMessageBox::No,
+                            QMessageBox::No) == QMessageBox::Yes) {
+                    vcsExec(workingDirectory, QStringList({"push", "--force-with-lease"}) + pushArgs,
+                            nullptr, true, VcsCommand::ShowSuccessMessage);
+                }
+                break;
+            }
+            case NoRemoteBranch:
+                if (QMessageBox::question(
+                            Core::ICore::dialogParent(), tr("No Upstream Branch"),
+                            tr("Push failed because the local branch \"%1\" "
+                               "does not have an upstream branch on the remote.\n\n"
+                               "Would you like to create the branch \"%1\" on the "
+                               "remote and set it as upstream?")
+                            .arg(synchronousCurrentLocalBranch(workingDirectory)),
+                            QMessageBox::Yes | QMessageBox::No,
+                            QMessageBox::No) == QMessageBox::Yes) {
+
+                    const QStringList fallbackCommandParts =
+                            m_pushFallbackCommand.split(' ', QString::SkipEmptyParts);
+                    VcsCommand *rePushCommand = vcsExec(workingDirectory,
+                                                        fallbackCommandParts.mid(1),
+                            nullptr, true, VcsCommand::ShowSuccessMessage);
+                    connect(rePushCommand, &VcsCommand::success,
+                            this, [workingDirectory]() {
+                                GitPlugin::instance()->updateBranches(workingDirectory);
+                            }
+                    );
+                }
+                break;
             }
         }
     });
