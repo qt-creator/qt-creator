@@ -35,9 +35,6 @@ class NimRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     NimRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-private:
-    void updateConfiguration();
 };
 
 class NimRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory

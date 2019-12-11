@@ -39,8 +39,6 @@ public:
     QString disabledReason() const override;
 
 private:
-    void updateTargetInformation();
-
     bool isBuildTargetValid() const;
 };
 

@@ -49,19 +49,16 @@ NimbleRunConfiguration::NimbleRunConfiguration(ProjectExplorer::Target *target, 
     addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
-    connect(target, &Target::buildSystemUpdated,
-            this, &NimbleRunConfiguration::updateTargetInformation);
+    setUpdater([this] {
+        BuildTargetInfo bti = buildTargetInfo();
+        setDisplayName(bti.displayName);
+        setDefaultDisplayName(bti.displayName);
+        aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+    });
 
-    updateTargetInformation();
-}
-
-void NimbleRunConfiguration::updateTargetInformation()
-{
-    BuildTargetInfo bti = buildTargetInfo();
-    setDisplayName(bti.displayName);
-    setDefaultDisplayName(bti.displayName);
-    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    update();
 }
 
 bool NimbleRunConfiguration::isBuildTargetValid() const

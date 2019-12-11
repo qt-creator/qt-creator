@@ -53,20 +53,18 @@ NimRunConfiguration::NimRunConfiguration(Target *target, Core::Id id)
     setDisplayName(tr("Current Build Target"));
     setDefaultDisplayName(tr("Current Build Target"));
 
-    // Connect target signals
-    connect(target, &Target::buildSystemUpdated, this, &NimRunConfiguration::updateConfiguration);
-    updateConfiguration();
-}
+    setUpdater([this] {
+        auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(activeBuildConfiguration());
+        QTC_ASSERT(buildConfiguration, return);
+        const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
+        aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
+        const QString workingDirectory = outFileInfo.absoluteDir().absolutePath();
+        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(FilePath::fromString(workingDirectory));
+    });
 
-void NimRunConfiguration::updateConfiguration()
-{
-    auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(activeBuildConfiguration());
-    if (!buildConfiguration)
-        return;
-    const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
-    aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
-    const QString workingDirectory = outFileInfo.absoluteDir().absolutePath();
-    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(FilePath::fromString(workingDirectory));
+    // Connect target signals
+    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    update();
 }
 
 // NimRunConfigurationFactory
