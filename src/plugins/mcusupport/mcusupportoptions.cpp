@@ -39,6 +39,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -93,12 +94,7 @@ QWidget *McuPackage::widget()
 
     auto layout = new QGridLayout(m_widget);
     layout->setContentsMargins(0, 0, 0, 0);
-    m_statusIcon = new QLabel;
-    m_statusIcon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
-    m_statusIcon->setAlignment(Qt::AlignTop);
-    m_statusLabel = new QLabel;
-    m_statusLabel->setWordWrap(true);
-    m_statusLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    m_infoLabel = new Utils::InfoLabel();
 
     if (!m_downloadUrl.isEmpty()) {
         auto downLoadButton = new QToolButton;
@@ -111,8 +107,7 @@ QWidget *McuPackage::widget()
     }
 
     layout->addWidget(m_fileChooser, 0, 0, 1, 2);
-    layout->addWidget(m_statusIcon, 1, 0);
-    layout->addWidget(m_statusLabel, 1, 1, 1, -1);
+    layout->addWidget(m_infoLabel, 1, 0, 1, -1);
 
     m_fileChooser->setPath(m_path);
 
@@ -182,9 +177,8 @@ void McuPackage::updateStatus()
 
     m_status = validPath ? (validPackage ? ValidPackage : ValidPathInvalidPackage) : InvalidPath;
 
-    static const QPixmap okIcon = Utils::Icons::OK.pixmap();
-    static const QPixmap notOkIcon = Utils::Icons::BROKEN.pixmap();
-    m_statusIcon->setPixmap(m_status == ValidPackage ? okIcon : notOkIcon);
+    m_infoLabel->setType(m_status == ValidPackage ? Utils::InfoLabel::Ok
+                                                  : Utils::InfoLabel::NotOk);
 
     QString statusText;
     switch (m_status) {
@@ -198,7 +192,7 @@ void McuPackage::updateStatus()
         statusText = tr("Path does not exist.");
         break;
     }
-    m_statusLabel->setText(statusText);
+    m_infoLabel->setText(statusText);
 }
 
 McuTarget::McuTarget(const QString &vendor, const QString &model,

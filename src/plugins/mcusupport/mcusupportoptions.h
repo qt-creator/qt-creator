@@ -29,10 +29,10 @@
 #include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
-QT_FORWARD_DECLARE_CLASS(QLabel)
 
 namespace Utils {
 class PathChooser;
+class InfoLabel;
 }
 
 namespace ProjectExplorer {
@@ -79,8 +79,7 @@ private:
 
     QWidget *m_widget = nullptr;
     Utils::PathChooser *m_fileChooser = nullptr;
-    QLabel *m_statusIcon = nullptr;
-    QLabel *m_statusLabel = nullptr;
+    Utils::InfoLabel *m_infoLabel = nullptr;
 
     const QString m_label;
     const QString m_defaultPath;

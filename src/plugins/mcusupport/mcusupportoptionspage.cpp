@@ -33,6 +33,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
+#include <utils/infolabel.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -70,8 +71,7 @@ private:
     QMap <McuPackage*, QWidget*> m_packageWidgets;
     QMap <McuTarget*, QWidget*> m_mcuTargetPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
-    QLabel *m_statusIcon = nullptr;
-    QLabel *m_statusLabel = nullptr;
+    Utils::InfoLabel *m_infoLabel = nullptr;
     QComboBox *m_mcuTargetComboBox = nullptr;
 };
 
@@ -99,23 +99,18 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     m_packagesLayout = new QFormLayout;
     m_packagesGroupBox->setLayout(m_packagesLayout);
 
-    m_statusIcon = new QLabel;
-    m_statusIcon->setAlignment(Qt::AlignBottom);
-    m_statusLabel = new QLabel;
-    m_statusLabel->setWordWrap(true);
-    m_statusLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
-    m_statusLabel->setOpenExternalLinks(false);
-    auto statusWidget = new QWidget;
-    auto statusLayout = new QHBoxLayout(statusWidget);
-    statusLayout->setMargin(0);
-    statusLayout->addWidget(m_statusIcon, 0);
-    statusLayout->addWidget(m_statusLabel, 2);
-    mainLayout->addWidget(statusWidget, 2);
+    mainLayout->addStretch();
+
+    m_infoLabel = new Utils::InfoLabel;
+    m_infoLabel->setOpenExternalLinks(false);
+    m_infoLabel->setElideMode(Qt::ElideNone);
+    m_infoLabel->setWordWrap(true);
+    mainLayout->addWidget(m_infoLabel);
 
     connect(options, &McuSupportOptions::changed, this, &McuSupportOptionsWidget::updateStatus);
     connect(m_mcuTargetComboBox, &QComboBox::currentTextChanged,
             this, &McuSupportOptionsWidget::showMcuTargetPackages);
-    connect(m_statusLabel, &QLabel::linkActivated, this, []{
+    connect(m_infoLabel, &QLabel::linkActivated, this, []{
                 Core::ICore::showOptionsDialog(
                             CMakeProjectManager::Constants::CMAKE_SETTINGSPAGE_ID,
                             Core::ICore::mainWindow());
@@ -130,9 +125,8 @@ void McuSupportOptionsWidget::updateStatus()
     if (!mcuTarget)
         return;
 
-    static const QPixmap okIcon = Utils::Icons::OK.pixmap();
-    static const QPixmap notOkIcon = Utils::Icons::BROKEN.pixmap();
-    m_statusIcon->setPixmap(cMakeAvailable() && mcuTarget->isValid() ? okIcon : notOkIcon);
+    m_infoLabel->setType(cMakeAvailable() && mcuTarget->isValid()
+                         ? Utils::InfoLabel::Ok : Utils::InfoLabel::NotOk);
 
     QStringList errorStrings;
     if (!mcuTarget->isValid())
@@ -141,7 +135,7 @@ void McuSupportOptionsWidget::updateStatus()
         errorStrings << "No CMake tool was detected. Add a CMake tool in the "
                         "<a href=\"cmake\">CMake options</a> and press Apply.";
 
-    m_statusLabel->setText(errorStrings.isEmpty()
+    m_infoLabel->setText(errorStrings.isEmpty()
                 ? QString::fromLatin1("A kit <b>%1</b> for the selected target can be generated. "
                                       "Press Apply to generate it.").arg(m_options->kitName(
                                                                              mcuTarget))
