@@ -119,7 +119,7 @@ QString QdbRunConfiguration::defaultDisplayName() const
 
 QdbRunConfigurationFactory::QdbRunConfigurationFactory()
 {
-    registerRunConfiguration<QdbRunConfiguration>(Qdb::Constants::QdbRunConfigurationPrefix);
+    registerRunConfiguration<QdbRunConfiguration>("QdbLinuxRunConfiguration:");
     addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
 }
 

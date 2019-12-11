@@ -68,11 +68,6 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     setDefaultDisplayName(runConfigDefaultDisplayName());
 }
 
-Core::Id RemoteLinuxCustomRunConfiguration::runConfigId()
-{
-    return "RemoteLinux.CustomRunConfig";
-}
-
 QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
 {
     QString remoteExecutable = aspect<ExecutableAspect>()->executable().toString();
@@ -104,8 +99,7 @@ Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const
 RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory()
     : FixedRunConfigurationFactory(RemoteLinuxCustomRunConfiguration::tr("Custom Executable"), true)
 {
-    registerRunConfiguration<RemoteLinuxCustomRunConfiguration>
-            (RemoteLinuxCustomRunConfiguration::runConfigId());
+    registerRunConfiguration<RemoteLinuxCustomRunConfiguration>("RemoteLinux.CustomRunConfig");
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 

@@ -37,7 +37,6 @@ class RemoteLinuxCustomRunConfiguration : public ProjectExplorer::RunConfigurati
 public:
     RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    static Core::Id runConfigId();
     QString runConfigDefaultDisplayName();
 
 private:

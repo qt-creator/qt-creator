@@ -36,7 +36,6 @@ const char QdbDeployConfigurationId[] = "Qt4ProjectManager.Qdb.QdbDeployConfigur
 
 const Core::Id QdbHardwareDevicePrefix = "QdbHardwareDevice";
 const char AppcontrollerFilepath[] = "/usr/bin/appcontroller";
-const char QdbRunConfigurationPrefix[] = "QdbLinuxRunConfiguration:";
 
 } // namespace Constants
 

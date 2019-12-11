@@ -38,8 +38,6 @@ class BareMetalRunConfiguration final : public ProjectExplorer::RunConfiguration
 
 public:
     explicit BareMetalRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-    static const char *IdPrefix;
 };
 
 // BareMetalRunConfigurationFactory

@@ -55,8 +55,6 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *target,
     setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable"), target));
 }
 
-const char *BareMetalCustomRunConfiguration::Id = "BareMetal";
-
 Tasks BareMetalCustomRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
@@ -72,7 +70,7 @@ Tasks BareMetalCustomRunConfiguration::checkForIssues() const
 BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory()
     : FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable"), true)
 {
-    registerRunConfiguration<BareMetalCustomRunConfiguration>(BareMetalCustomRunConfiguration::Id);
+    registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal");
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 

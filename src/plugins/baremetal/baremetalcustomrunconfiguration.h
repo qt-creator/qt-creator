@@ -41,7 +41,6 @@ public:
     explicit BareMetalCustomRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 public:
-    static const char *Id;
     ProjectExplorer::Tasks checkForIssues() const final;
 };
 

@@ -102,7 +102,7 @@ Runnable QnxRunConfiguration::runnable() const
 
 QnxRunConfigurationFactory::QnxRunConfigurationFactory()
 {
-    registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
+    registerRunConfiguration<QnxRunConfiguration>("Qt4ProjectManager.QNX.QNXRunConfiguration.");
     addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
 }
 

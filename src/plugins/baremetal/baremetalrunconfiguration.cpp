@@ -59,13 +59,11 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
-const char *BareMetalRunConfiguration::IdPrefix = "BareMetalCustom";
-
 // BareMetalRunConfigurationFactory
 
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 {
-    registerRunConfiguration<BareMetalRunConfiguration>(BareMetalRunConfiguration::IdPrefix);
+    registerRunConfiguration<BareMetalRunConfiguration>("BareMetalCustom");
     setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }

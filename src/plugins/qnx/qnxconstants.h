@@ -37,8 +37,6 @@ const char QNX_QNX_QT[] = "Qt4ProjectManager.QtVersion.QNX.QNX";
 
 const char QNX_QNX_FEATURE[] = "QtSupport.Wizards.FeatureQNX";
 
-const char QNX_QNX_RUNCONFIGURATION_PREFIX[] = "Qt4ProjectManager.QNX.QNXRunConfiguration.";
-
 const char QNX_QNX_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.QNX.QNXDeployConfiguration";
 
 const char QNX_QNX_OS_TYPE[] = "QnxOsType"; // Also used for device type.

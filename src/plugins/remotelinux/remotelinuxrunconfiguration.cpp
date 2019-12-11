@@ -93,14 +93,12 @@ Runnable RemoteLinuxRunConfiguration::runnable() const
     return r;
 }
 
-const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration:";
-
 
 // RemoteLinuxRunConfigurationFactory
 
 RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
 {
-    registerRunConfiguration<RemoteLinuxRunConfiguration>(RemoteLinuxRunConfiguration::IdPrefix);
+    registerRunConfiguration<RemoteLinuxRunConfiguration>("RemoteLinuxRunConfiguration:");
     setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
