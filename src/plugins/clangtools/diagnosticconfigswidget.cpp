@@ -344,7 +344,7 @@ private:
             if (!needsLink(node))
                 return QVariant();
 
-            if (role == LinkRole) {
+            if (role == LinkRole || role == Qt::ToolTipRole) {
                 // 'clang-analyzer-' group
                 if (node->isDir)
                     return QString::fromUtf8(CLANG_STATIC_ANALYZER_URL);
@@ -511,7 +511,7 @@ private:
         const auto *node = ClazyChecksTree::fromIndex(index);
 
         if (fullIndex.column() == LinkColumn) {
-            if (role == LinkRole) {
+            if (role == LinkRole || role == Qt::ToolTipRole) {
                 if (node->check.name.isEmpty())
                     return QVariant();
                 return QString::fromUtf8(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE)
