@@ -29,6 +29,7 @@
 #include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
+class QShortcut;
 class QToolButton;
 class QTableView;
 class QListView;
