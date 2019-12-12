@@ -74,7 +74,7 @@ private:
     bool m_interfaceResetOnConnect = true;  // (inversed)-I stlink,dr ;Disable reset at connection (hotplug)
     int  m_interfaceSpeed = 4000;           // -I stlink,speed=4000
     QString m_interfaceExplicidDevice;      // device=<usb_bus>:<usb_addr> ; Set device explicit
-    QString m_targetName = "cortex-m";      // -T cortex-m(default)
+    QString m_targetName = {"cortex-m"};    // -T cortex-m(default)
     bool m_targetDisableStack = false;      // -T cortex-m,nu ;Disable stack unwind at exception
     bool m_gdbShutDownAfterDisconnect = true;// -G S ; Shutdown after disconnect
     bool m_gdbNotUseCache = false;           // -G nc ; Don't use EBlink flash cache
