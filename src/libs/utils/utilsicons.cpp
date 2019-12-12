@@ -67,7 +67,7 @@ const Icon ZOOMOUT_TOOLBAR({
 const Icon FITTOVIEW_TOOLBAR({
         {QLatin1String(":/utils/images/fittoview.png"), Theme::IconsBaseColor}});
 const Icon OK({
-        {QLatin1String(":/utils/images/ok.png"), Theme::IconsRunToolBarColor}}, Icon::Tint);
+        {QLatin1String(":/utils/images/ok.png"), Theme::IconsRunColor}}, Icon::Tint);
 const Icon NOTLOADED({
         {QLatin1String(":/utils/images/notloaded.png"), Theme::IconsErrorColor}}, Icon::Tint);
 const Icon BROKEN({
