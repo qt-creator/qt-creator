@@ -37,8 +37,8 @@
 
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
-#include <utils/elidinglabel.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/runextensions.h>
 #include <utils/utilsicons.h>
@@ -88,8 +88,7 @@ class SummaryWidget : public QWidget
 {
     class RowData {
     public:
-        QLabel *m_iconLabel = nullptr;
-        Utils::ElidingLabel *m_textLabel = nullptr;
+        Utils::InfoLabel *m_infoLabel = nullptr;
         bool m_valid = false;
     };
 
@@ -102,20 +101,14 @@ public:
         m_detailsWidget(detailsWidget)
     {
         QTC_CHECK(m_detailsWidget);
-        auto layout = new QGridLayout(this);
+        auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(12, 12, 12, 12);
-        int row = 0;
         for (auto itr = validationPoints.cbegin(); itr != validationPoints.cend(); ++itr) {
             RowData data;
-            data.m_iconLabel = new QLabel(this);
-            layout->addWidget(data.m_iconLabel, row, 0, 1, 1);
-            data.m_textLabel = new Utils::ElidingLabel(itr.value(), this);
-            data.m_textLabel->setElideMode(Qt::ElideRight);
-            data.m_textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-            layout->addWidget(data.m_textLabel, row, 1, 1, 1);
+            data.m_infoLabel = new Utils::InfoLabel(itr.value());
+            layout->addWidget(data.m_infoLabel);
             m_validationData[itr.key()] = data;
             setPointValid(itr.key(), true);
-            ++row;
         }
     }
 
@@ -125,8 +118,7 @@ public:
             return;
         RowData& data = m_validationData[key];
         data.m_valid = valid;
-        data.m_iconLabel->setPixmap(data.m_valid ? Utils::Icons::OK.pixmap() :
-                                                   Utils::Icons::BROKEN.pixmap());
+        data.m_infoLabel->setType(valid ? Utils::InfoLabel::Ok : Utils::InfoLabel::NotOk);
         updateUi();
     }
 
