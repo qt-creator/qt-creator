@@ -110,6 +110,11 @@ ProjectExplorer::RunConfiguration::ConfigurationState QdbRunConfiguration::ensur
     return Configured;
 }
 
+void QdbRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
+{
+    updateTargetInformation();
+}
+
 void QdbRunConfiguration::updateTargetInformation()
 {
     const BuildTargetInfo bti = buildTargetInfo();
