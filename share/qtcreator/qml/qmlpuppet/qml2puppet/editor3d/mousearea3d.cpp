@@ -358,6 +358,11 @@ qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
         QQuick3DNode *node, const QVector3D &pressPos, const QVector3D &currentPos,
         const QVector3D &nodePos, qreal prevAngle, bool trackBall)
 {
+    const QVector3D dragVector = currentPos - pressPos;
+
+    if (dragVector.length() < 0.001f)
+        return prevAngle;
+
     // Get camera to node direction in node orientation
     QVector3D cameraToNodeDir = getCameraToNodeDir(node);
     if (trackBall) {
