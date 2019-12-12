@@ -60,6 +60,7 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
     setChannel("localhost", 3333);
     setSettingsKeyBase("BareMetal.OpenOcdGdbServerProvider");
     setTypeDisplayName(OpenOcdGdbServerProviderFactory::tr("OpenOCD"));
+    setConfigurationWidgetCreator([this] { return new OpenOcdGdbServerProviderConfigWidget(this); });
 }
 
 QString OpenOcdGdbServerProvider::defaultInitCommands()
@@ -180,11 +181,6 @@ bool OpenOcdGdbServerProvider::operator==(const IDebugServerProvider &other) con
             && m_rootScriptsDir == p->m_rootScriptsDir
             && m_configurationFile == p->m_configurationFile
             && m_additionalArguments == p->m_additionalArguments;
-}
-
-GdbServerProviderConfigWidget *OpenOcdGdbServerProvider::configurationWidget()
-{
-    return new OpenOcdGdbServerProviderConfigWidget(this);
 }
 
 // OpenOcdGdbServerProviderFactory

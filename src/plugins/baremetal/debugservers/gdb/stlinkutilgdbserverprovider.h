@@ -49,8 +49,6 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const final;
 
-    GdbServerProviderConfigWidget *configurationWidget() final;
-
     QString channelString() const final;
     Utils::CommandLine command() const final;
 

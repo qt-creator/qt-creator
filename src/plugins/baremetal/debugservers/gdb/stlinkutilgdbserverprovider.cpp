@@ -61,6 +61,7 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
     setChannel("localhost", 4242);
     setSettingsKeyBase("BareMetal.StLinkUtilGdbServerProvider");
     setTypeDisplayName(StLinkUtilGdbServerProviderFactory::tr("ST-LINK Utility"));
+    setConfigurationWidgetCreator([this] { return new StLinkUtilGdbServerProviderConfigWidget(this); });
 }
 
 QString StLinkUtilGdbServerProvider::defaultInitCommands()
@@ -166,11 +167,6 @@ bool StLinkUtilGdbServerProvider::operator==(const IDebugServerProvider &other) 
             && m_extendedMode == p->m_extendedMode
             && m_resetBoard == p->m_resetBoard
             && m_transport == p->m_transport;
-}
-
-GdbServerProviderConfigWidget *StLinkUtilGdbServerProvider::configurationWidget()
-{
-    return new StLinkUtilGdbServerProviderConfigWidget(this);
 }
 
 // StLinkUtilGdbServerProviderFactory

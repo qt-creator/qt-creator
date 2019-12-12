@@ -84,7 +84,9 @@ public:
 
     virtual bool operator==(const IDebugServerProvider &other) const;
 
-    virtual IDebugServerProviderConfigWidget *configurationWidget() = 0;
+    IDebugServerProviderConfigWidget *configurationWidget() const;
+    void setConfigurationWidgetCreator
+        (const std::function<IDebugServerProviderConfigWidget *()> &configurationWidgetCreator);
 
     virtual QVariantMap toMap() const;
     virtual bool fromMap(const QVariantMap &data);
@@ -114,6 +116,7 @@ protected:
     QUrl m_channel;
     Debugger::DebuggerEngineType m_engineType = Debugger::NoEngineType;
     QSet<BareMetalDevice *> m_devices;
+    std::function<IDebugServerProviderConfigWidget *()> m_configurationWidgetCreator;
 
     friend class DebugServerProvidersSettingsWidget;
     friend class IDebugServerProviderConfigWidget;

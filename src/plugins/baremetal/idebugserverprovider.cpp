@@ -155,6 +155,12 @@ bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
             && m_channel == other.m_channel;
 }
 
+IDebugServerProviderConfigWidget *IDebugServerProvider::configurationWidget() const
+{
+    QTC_ASSERT(m_configurationWidgetCreator, return nullptr);
+    return m_configurationWidgetCreator();
+}
+
 QVariantMap IDebugServerProvider::toMap() const
 {
     return {
@@ -195,6 +201,11 @@ bool IDebugServerProvider::fromMap(const QVariantMap &data)
     m_channel.setHost(data.value(m_settingsBase + hostKeySuffixC).toString());
     m_channel.setPort(data.value(m_settingsBase + portKeySuffixC).toInt());
     return true;
+}
+
+void IDebugServerProvider::setConfigurationWidgetCreator(const std::function<IDebugServerProviderConfigWidget *()> &configurationWidgetCreator)
+{
+    m_configurationWidgetCreator = configurationWidgetCreator;
 }
 
 // IDebugServerProviderFactory

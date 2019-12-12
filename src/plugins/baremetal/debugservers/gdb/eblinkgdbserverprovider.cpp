@@ -69,6 +69,7 @@ EBlinkGdbServerProvider::EBlinkGdbServerProvider()
     setChannel("127.0.0.1", 2331);
     setSettingsKeyBase("BareMetal.EBlinkGdbServerProvider");
     setTypeDisplayName(EBlinkGdbServerProviderFactory::tr("EBlink"));
+    setConfigurationWidgetCreator([this] { return new EBlinkGdbServerProviderConfigWidget(this); });
 }
 
 QString EBlinkGdbServerProvider::defaultInitCommands()
@@ -225,11 +226,6 @@ bool EBlinkGdbServerProvider::operator==(const IDebugServerProvider &other) cons
             && m_targetDisableStack == p->m_targetDisableStack
             && m_gdbShutDownAfterDisconnect == p->m_gdbShutDownAfterDisconnect
             && m_gdbNotUseCache == p->m_gdbNotUseCache;
-}
-
-GdbServerProviderConfigWidget *EBlinkGdbServerProvider::configurationWidget()
-{
-    return new EBlinkGdbServerProviderConfigWidget(this);
 }
 
 // EBlinkGdbServerProviderFactory
