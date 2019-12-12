@@ -2306,8 +2306,9 @@ void ProjectExplorerPluginPrivate::restoreSession()
         } // for arguments
     } // !arguments.isEmpty()
     // Restore latest session or what was passed on the command line
-    if (!dd->m_sessionToRestoreAtStartup.isEmpty())
-        SessionManager::loadSession(dd->m_sessionToRestoreAtStartup);
+
+    SessionManager::loadSession(!dd->m_sessionToRestoreAtStartup.isEmpty()
+                                ? dd->m_sessionToRestoreAtStartup : QString(), true);
 
     // update welcome page
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,

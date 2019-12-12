@@ -456,69 +456,81 @@ bool SessionManager::loadingSession()
 
 bool SessionManager::save()
 {
-    // do not save new virgin default sessions
-    if (isDefaultVirgin())
-        return true;
-
     emit m_instance->aboutToSaveSession();
 
-    if (!d->m_writer || d->m_writer->fileName() != sessionNameToFileName(d->m_sessionName)) {
-        delete d->m_writer;
-        d->m_writer = new PersistentSettingsWriter(sessionNameToFileName(d->m_sessionName),
-                                                       QLatin1String("QtCreatorSession"));
-    }
-
+    const FilePath filePath = sessionNameToFileName(d->m_sessionName);
     QVariantMap data;
-    // save the startup project
-    if (d->m_startupProject)
-        data.insert(QLatin1String("StartupProject"), d->m_startupProject->projectFilePath().toString());
 
-    QColor c = StyleHelper::requestedBaseColor();
-    if (c.isValid()) {
-        QString tmp = QString::fromLatin1("#%1%2%3")
-                .arg(c.red(), 2, 16, QLatin1Char('0'))
-                .arg(c.green(), 2, 16, QLatin1Char('0'))
-                .arg(c.blue(), 2, 16, QLatin1Char('0'));
-        data.insert(QLatin1String("Color"), tmp);
+    // See the explanation at loadSession() for how we handle the implicit default session.
+    if (isDefaultVirgin()) {
+        if (filePath.exists()) {
+            PersistentSettingsReader reader;
+            if (!reader.load(filePath)) {
+                QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
+                                     tr("Could not save session %1").arg(filePath.toUserOutput()));
+                return false;
+            }
+            data = reader.restoreValues();
+        }
+    } else {
+        // save the startup project
+        if (d->m_startupProject) {
+            data.insert(QLatin1String("StartupProject"),
+                        d->m_startupProject->projectFilePath().toString());
+        }
+
+        const QColor c = StyleHelper::requestedBaseColor();
+        if (c.isValid()) {
+            QString tmp = QString::fromLatin1("#%1%2%3")
+                    .arg(c.red(), 2, 16, QLatin1Char('0'))
+                    .arg(c.green(), 2, 16, QLatin1Char('0'))
+                    .arg(c.blue(), 2, 16, QLatin1Char('0'));
+            data.insert(QLatin1String("Color"), tmp);
+        }
+
+        QStringList projectFiles = Utils::transform(projects(), [](Project *p) {
+                return p->projectFilePath().toString();
+        });
+        // Restore information on projects that failed to load:
+        // don't read projects to the list, which the user loaded
+        foreach (const QString &failed, d->m_failedProjects) {
+            if (!projectFiles.contains(failed))
+                projectFiles << failed;
+        }
+
+        data.insert(QLatin1String("ProjectList"), projectFiles);
+        data.insert(QLatin1String("CascadeSetActive"), d->m_casadeSetActive);
+
+        QVariantMap depMap;
+        auto i = d->m_depMap.constBegin();
+        while (i != d->m_depMap.constEnd()) {
+            QString key = i.key();
+            QStringList values;
+            foreach (const QString &value, i.value())
+                values << value;
+            depMap.insert(key, values);
+            ++i;
+        }
+        data.insert(QLatin1String("ProjectDependencies"), QVariant(depMap));
+        data.insert(QLatin1String("EditorSettings"), EditorManager::saveState().toBase64());
     }
 
-    QStringList projectFiles
-            = Utils::transform(projects(), [](Project *p) { return p->projectFilePath().toString(); });
-    // Restore infromation on projects that failed to load:
-    // don't readd projects to the list, which the user loaded
-    foreach (const QString &failed, d->m_failedProjects) {
-        if (!projectFiles.contains(failed))
-            projectFiles << failed;
-    }
-
-    data.insert(QLatin1String("ProjectList"), projectFiles);
-    data.insert(QLatin1String("CascadeSetActive"), d->m_casadeSetActive);
-
-    QMap<QString, QVariant> depMap;
-    auto i = d->m_depMap.constBegin();
-    while (i != d->m_depMap.constEnd()) {
-        QString key = i.key();
-        QStringList values;
-        foreach (const QString &value, i.value())
-            values << value;
-        depMap.insert(key, values);
-        ++i;
-    }
-    data.insert(QLatin1String("ProjectDependencies"), QVariant(depMap));
-    data.insert(QLatin1String("EditorSettings"), EditorManager::saveState().toBase64());
-
-    auto end = d->m_values.constEnd();
+    const auto end = d->m_values.constEnd();
     QStringList keys;
     for (auto it = d->m_values.constBegin(); it != end; ++it) {
         data.insert(QLatin1String("value-") + it.key(), it.value());
         keys << it.key();
     }
-
     data.insert(QLatin1String("valueKeys"), keys);
 
-    bool result = d->m_writer->save(data, ICore::mainWindow());
+    if (!d->m_writer || d->m_writer->fileName() != filePath) {
+        delete d->m_writer;
+        d->m_writer = new PersistentSettingsWriter(filePath, "QtCreatorSession");
+    }
+    const bool result = d->m_writer->save(data, ICore::mainWindow());
     if (result) {
-        d->m_sessionDateTimes.insert(activeSession(), QDateTime::currentDateTime());
+        if (!isDefaultVirgin())
+            d->m_sessionDateTimes.insert(activeSession(), QDateTime::currentDateTime());
     } else {
         QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
             tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
@@ -962,21 +974,49 @@ void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
     }
 }
 
-bool SessionManager::loadSession(const QString &session)
+/*
+ * ========== Notes on storing and loading the default session ==========
+ * The default session comes in two flavors: implicit and explicit. The implicit one,
+ * also referred to as "default virgin" in the code base, is the one that is active
+ * at start-up, if no session has been explicitly loaded due to command-line arguments
+ * or the "restore last session" setting in the session manager.
+ * The implicit default session silently turns into the explicit default session
+ * by loading a project or a file or changing settings in the Dependencies panel. The explicit
+ * default session can also be loaded by the user via the Welcome Screen.
+ * This mechanism somewhat complicates the handling of session-specific settings such as
+ * the ones in the task pane: Users expect that changes they make there become persistent, even
+ * when they are in the implicit default session. However, we can't just blindly store
+ * the implicit default session, because then we'd overwrite the project list of the explicit
+ * default session. Therefore, we use the following logic:
+ *     - Upon start-up, if no session is to be explicitly loaded, we restore the parts of the
+ *       explicit default session that are not related to projects, editors etc; the
+ *       "general settings" of the session, so to speak.
+ *     - When storing the implicit default session, we overwrite only these "general settings"
+ *       of the explicit default session and keep the others as they are.
+ *     - When switching from the implicit to the explicit default session, we keep the
+ *       "general settings" and load everything else from the session file.
+ * This guarantees that user changes are properly transferred and nothing gets lost from
+ * either the implicit or the explicit default session.
+ *
+ */
+bool SessionManager::loadSession(const QString &session, bool initial)
 {
+    const bool loadImplicitDefault = session.isEmpty();
+    const bool switchFromImplicitToExplicitDefault = session == "default"
+            && d->m_sessionName == "default" && !initial;
+
     // Do nothing if we have that session already loaded,
     // exception if the session is the default virgin session
     // we still want to be able to load the default session
     if (session == d->m_sessionName && !isDefaultVirgin())
         return true;
 
-    if (!sessions().contains(session))
+    if (!loadImplicitDefault && !sessions().contains(session))
         return false;
-
 
     QStringList fileList;
     // Try loading the file
-    FilePath fileName = sessionNameToFileName(session);
+    FilePath fileName = sessionNameToFileName(loadImplicitDefault ? "default" : session);
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
@@ -985,7 +1025,16 @@ bool SessionManager::loadSession(const QString &session)
 
             return false;
         }
+
+        if (loadImplicitDefault) {
+            d->restoreValues(reader);
+            emit m_instance->sessionLoaded("default");
+            return true;
+        }
+
         fileList = reader.restoreValue(QLatin1String("ProjectList")).toStringList();
+    } else if (loadImplicitDefault) {
+        return true;
     }
 
     d->m_loadingSession = true;
@@ -1016,7 +1065,8 @@ bool SessionManager::loadSession(const QString &session)
     });
     d->m_failedProjects.clear();
     d->m_depMap.clear();
-    d->m_values.clear();
+    if (!switchFromImplicitToExplicitDefault)
+        d->m_values.clear();
     d->m_casadeSetActive = false;
 
     d->m_sessionName = session;
@@ -1033,7 +1083,8 @@ bool SessionManager::loadSession(const QString &session)
         d->m_future.setProgressRange(0, 1);
         d->m_future.setProgressValue(0);
 
-        d->restoreValues(reader);
+        if (!switchFromImplicitToExplicitDefault)
+            d->restoreValues(reader);
         emit m_instance->aboutToLoadSession(session);
 
         // retrieve all values before the following code could change them again

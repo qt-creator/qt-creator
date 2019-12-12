@@ -73,7 +73,7 @@ public:
     static bool cloneSession(const QString &original, const QString &clone);
     static bool renameSession(const QString &original, const QString &newName);
 
-    static bool loadSession(const QString &session);
+    static bool loadSession(const QString &session, bool initial = false);
 
     static bool save();
     static void closeAllProjects();
