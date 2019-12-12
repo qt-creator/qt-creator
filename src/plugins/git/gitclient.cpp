@@ -1312,6 +1312,17 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
     vcsExec(workingDirectory, arguments, nullptr, true, flags);
 }
 
+void GitClient::removeStaleRemoteBranches(const QString &workingDirectory, const QString &remote)
+{
+    const QStringList arguments = {"remote", "prune", remote};
+
+    VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
+                                  VcsCommand::ShowSuccessMessage);
+
+    connect(command, &VcsCommand::success,
+            this, [workingDirectory]() { GitPlugin::instance()->updateBranches(workingDirectory); });
+}
+
 void GitClient::recoverDeletedFiles(const QString &workingDirectory)
 {
     const SynchronousProcessResponse response =

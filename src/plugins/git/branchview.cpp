@@ -212,6 +212,12 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             GitPlugin::client()->fetch(m_repository, *remote);
         });
         contextMenu.addSeparator();
+        if (!remote->isEmpty()) {
+            contextMenu.addAction(tr("Remove &Stale Branches"), this, [this, &remote]() {
+                GitPlugin::client()->removeStaleRemoteBranches(m_repository, *remote);
+            });
+            contextMenu.addSeparator();
+        }
         contextMenu.addAction(tr("Manage &Remotes..."), GitPlugin::instance(),
                               &GitPlugin::manageRemotes);
     }

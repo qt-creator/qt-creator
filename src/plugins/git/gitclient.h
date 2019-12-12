@@ -155,6 +155,7 @@ public:
             const QString &workingDir, const QString &file, const QString &revision = QString(),
             int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
     void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
+    void removeStaleRemoteBranches(const QString &workingDirectory, const QString &remote);
     void recoverDeletedFiles(const QString &workingDirectory);
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory, const QStringList &arguments,
