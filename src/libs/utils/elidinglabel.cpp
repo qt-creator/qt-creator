@@ -38,15 +38,14 @@
 namespace Utils {
 
 ElidingLabel::ElidingLabel(QWidget *parent)
-    : QLabel(parent), m_elideMode(Qt::ElideRight)
+    : ElidingLabel({}, parent)
 {
-    setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred, QSizePolicy::Label));
 }
 
 ElidingLabel::ElidingLabel(const QString &text, QWidget *parent)
-    : QLabel(text, parent), m_elideMode(Qt::ElideRight)
+    : QLabel(text, parent)
 {
-    setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred, QSizePolicy::Label));
+    setElideMode(Qt::ElideRight);
 }
 
 Qt::TextElideMode ElidingLabel::elideMode() const
@@ -57,11 +56,23 @@ Qt::TextElideMode ElidingLabel::elideMode() const
 void ElidingLabel::setElideMode(const Qt::TextElideMode &elideMode)
 {
     m_elideMode = elideMode;
+    if (elideMode == Qt::ElideNone)
+        setToolTip({});
+
+    setSizePolicy(QSizePolicy(
+                      m_elideMode == Qt::ElideNone ? QSizePolicy::Preferred : QSizePolicy::Ignored,
+                      QSizePolicy::Preferred,
+                      QSizePolicy::Label));
     update();
 }
 
 void ElidingLabel::paintEvent(QPaintEvent *)
 {
+    if (m_elideMode == Qt::ElideNone) {
+        QLabel::paintEvent(nullptr);
+        return;
+    }
+
     const int m = margin();
     QRect contents = contentsRect().adjusted(m, m, -m, -m);
     QFontMetrics fm = fontMetrics();
