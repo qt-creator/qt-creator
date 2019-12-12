@@ -256,6 +256,17 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                     extractBacktraceInformation(t.backtraceGraph, sourceDir, id.backtrace, 500));
             }
 
+            // Is this a terminal application?
+            if (ct.targetType == ExecutableType && t.link && t.link.value().language == "CXX") {
+                for (const FragmentInfo &f : t.link.value().fragments) {
+                    if (f.role != "libraries")
+                        continue;
+                    if (f.fragment.contains("QtGui") || f.fragment.contains("Qt5Gui")
+                        || f.fragment.contains("Qt6Gui"))
+                        ct.linksToQtGui = true;
+                }
+            }
+
             return ct;
         });
     return result;

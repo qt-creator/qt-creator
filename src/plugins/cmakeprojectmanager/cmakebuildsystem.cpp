@@ -554,6 +554,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             bti.projectFilePath = ct.sourceDirectory.stringAppended("/");
             bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = ct.title;
+            bti.usesTerminal = !ct.linksToQtGui;
 
             // Workaround for QTCREATORBUG-19354:
             bti.runEnvModifier = [this](Environment &env, bool) {

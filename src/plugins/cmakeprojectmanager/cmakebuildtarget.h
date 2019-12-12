@@ -53,6 +53,7 @@ public:
     QString title;
     Utils::FilePath executable; // TODO: rename to output?
     TargetType targetType = UtilityType;
+    bool linksToQtGui = false;
     Utils::FilePath workingDirectory;
     Utils::FilePath sourceDirectory;
     Utils::FilePath makeCommand;
