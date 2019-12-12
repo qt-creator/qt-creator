@@ -222,6 +222,17 @@ IDebugServerProvider *IDebugServerProviderFactory::create() const
     return m_creator();
 }
 
+IDebugServerProvider *IDebugServerProviderFactory::restore(const QVariantMap &data) const
+{
+    IDebugServerProvider *p = m_creator();
+    const auto updated = data;
+
+    if (p->fromMap(updated))
+        return p;
+    delete p;
+    return nullptr;
+}
+
 void IDebugServerProviderFactory::setDisplayName(const QString &name)
 {
     m_displayName = name;

@@ -204,16 +204,6 @@ bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) con
     return id.startsWith(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID + QLatin1Char(':'));
 }
 
-GdbServerProvider *StLinkUtilGdbServerProviderFactory::restore(const QVariantMap &data)
-{
-    const auto p = new StLinkUtilGdbServerProvider;
-    const auto updated = data;
-    if (p->fromMap(updated))
-        return p;
-    delete p;
-    return nullptr;
-}
-
 // StLinkUtilGdbServerProviderConfigWidget
 
 StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget(

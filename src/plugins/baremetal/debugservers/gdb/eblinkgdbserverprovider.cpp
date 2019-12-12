@@ -268,17 +268,6 @@ bool EBlinkGdbServerProviderFactory::canRestore(const QVariantMap &data) const
     return id.startsWith(Constants::GDBSERVER_EBLINK_PROVIDER_ID + QLatin1Char(':'));
 }
 
-GdbServerProvider *EBlinkGdbServerProviderFactory::restore(const QVariantMap &data)
-{
-    const auto p = new EBlinkGdbServerProvider;
-    const auto updated = data;
-
-    if (p->fromMap(updated))
-        return p;
-    delete p;
-    return nullptr;
-}
-
 // EBlinkGdbServerProviderConfigWidget
 
 EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(

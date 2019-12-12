@@ -116,6 +116,7 @@ protected:
     QSet<BareMetalDevice *> m_devices;
 
     friend class IDebugServerProviderConfigWidget;
+    friend class IDebugServerProviderFactory;
 };
 
 // IDebugServerProviderFactory
@@ -129,9 +130,9 @@ public:
     QString displayName() const;
 
     IDebugServerProvider *create() const;
+    IDebugServerProvider *restore(const QVariantMap &data) const;
 
     virtual bool canRestore(const QVariantMap &data) const = 0;
-    virtual IDebugServerProvider *restore(const QVariantMap &data) = 0;
 
     static QString idFromMap(const QVariantMap &data);
     static void idToMap(QVariantMap &data, const QString &id);
