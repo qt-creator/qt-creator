@@ -132,7 +132,7 @@ public:
     IDebugServerProvider *create() const;
     IDebugServerProvider *restore(const QVariantMap &data) const;
 
-    virtual bool canRestore(const QVariantMap &data) const = 0;
+    bool canRestore(const QVariantMap &data) const;
 
     static QString idFromMap(const QVariantMap &data);
     static void idToMap(QVariantMap &data, const QString &id);

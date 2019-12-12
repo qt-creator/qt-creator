@@ -94,8 +94,6 @@ class EBlinkGdbServerProviderFactory final
 
 public:
     explicit EBlinkGdbServerProviderFactory();
-
-    bool canRestore(const QVariantMap &data) const final;
 };
 
 // EBlinkGdbServerProviderConfigWidget

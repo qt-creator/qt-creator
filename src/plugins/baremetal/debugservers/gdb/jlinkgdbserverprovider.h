@@ -82,8 +82,6 @@ class JLinkGdbServerProviderFactory final
 
 public:
     explicit JLinkGdbServerProviderFactory();
-
-    bool canRestore(const QVariantMap &data) const final;
 };
 
 // JLinkGdbServerProviderConfigWidget

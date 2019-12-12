@@ -201,12 +201,6 @@ OpenOcdGdbServerProviderFactory::OpenOcdGdbServerProviderFactory()
     setCreator([] { return new OpenOcdGdbServerProvider; });
 }
 
-bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const
-{
-    const QString id = idFromMap(data);
-    return id.startsWith(Constants::GDBSERVER_OPENOCD_PROVIDER_ID + QLatin1Char(':'));
-}
-
 // OpenOcdGdbServerProviderConfigWidget
 
 OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(

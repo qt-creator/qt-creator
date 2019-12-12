@@ -79,8 +79,6 @@ class OpenOcdGdbServerProviderFactory final
 
 public:
     explicit OpenOcdGdbServerProviderFactory();
-
-    bool canRestore(const QVariantMap &data) const final;
 };
 
 // OpenOcdGdbServerProviderConfigWidget

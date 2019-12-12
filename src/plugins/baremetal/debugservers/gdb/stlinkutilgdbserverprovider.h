@@ -84,8 +84,6 @@ class StLinkUtilGdbServerProviderFactory final
 
 public:
     explicit StLinkUtilGdbServerProviderFactory();
-
-    bool canRestore(const QVariantMap &data) const final;
 };
 
 // StLinkUtilGdbServerProviderConfigWidget

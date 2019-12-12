@@ -262,12 +262,6 @@ EBlinkGdbServerProviderFactory::EBlinkGdbServerProviderFactory()
     setCreator([] { return new EBlinkGdbServerProvider; });
 }
 
-bool EBlinkGdbServerProviderFactory::canRestore(const QVariantMap &data) const
-{
-    const QString id = idFromMap(data);
-    return id.startsWith(Constants::GDBSERVER_EBLINK_PROVIDER_ID + QLatin1Char(':'));
-}
-
 // EBlinkGdbServerProviderConfigWidget
 
 EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(

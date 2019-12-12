@@ -198,12 +198,6 @@ JLinkGdbServerProviderFactory::JLinkGdbServerProviderFactory()
     setCreator([] { return new JLinkGdbServerProvider; });
 }
 
-bool JLinkGdbServerProviderFactory::canRestore(const QVariantMap &data) const
-{
-    const QString id = idFromMap(data);
-    return id.startsWith(Constants::GDBSERVER_JLINK_PROVIDER_ID + QLatin1Char(':'));
-}
-
 // JLinkGdbServerProviderConfigWidget
 
 JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(

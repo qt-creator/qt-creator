@@ -198,12 +198,6 @@ StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
     setCreator([] { return new StLinkUtilGdbServerProvider; });
 }
 
-bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) const
-{
-    const QString id = idFromMap(data);
-    return id.startsWith(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID + QLatin1Char(':'));
-}
-
 // StLinkUtilGdbServerProviderConfigWidget
 
 StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget(

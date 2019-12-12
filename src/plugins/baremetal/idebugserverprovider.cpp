@@ -233,6 +233,12 @@ IDebugServerProvider *IDebugServerProviderFactory::restore(const QVariantMap &da
     return nullptr;
 }
 
+bool IDebugServerProviderFactory::canRestore(const QVariantMap &data) const
+{
+    const QString id = idFromMap(data);
+    return id.startsWith(m_id + ':');
+}
+
 void IDebugServerProviderFactory::setDisplayName(const QString &name)
 {
     m_displayName = name;
