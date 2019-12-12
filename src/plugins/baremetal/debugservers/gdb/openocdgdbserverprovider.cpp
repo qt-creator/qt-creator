@@ -198,11 +198,7 @@ OpenOcdGdbServerProviderFactory::OpenOcdGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_OPENOCD_PROVIDER_ID);
     setDisplayName(tr("OpenOCD"));
-}
-
-GdbServerProvider *OpenOcdGdbServerProviderFactory::create()
-{
-    return new OpenOcdGdbServerProvider;
+    setCreator([] { return new OpenOcdGdbServerProvider; });
 }
 
 bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const

@@ -195,11 +195,7 @@ JLinkGdbServerProviderFactory::JLinkGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_JLINK_PROVIDER_ID);
     setDisplayName(tr("JLink"));
-}
-
-GdbServerProvider *JLinkGdbServerProviderFactory::create()
-{
-    return new JLinkGdbServerProvider;
+    setCreator([] { return new JLinkGdbServerProvider; });
 }
 
 bool JLinkGdbServerProviderFactory::canRestore(const QVariantMap &data) const

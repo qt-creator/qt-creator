@@ -217,9 +217,19 @@ QString IDebugServerProviderFactory::displayName() const
     return m_displayName;
 }
 
+IDebugServerProvider *IDebugServerProviderFactory::create() const
+{
+    return m_creator();
+}
+
 void IDebugServerProviderFactory::setDisplayName(const QString &name)
 {
     m_displayName = name;
+}
+
+void IDebugServerProviderFactory::setCreator(const std::function<IDebugServerProvider *()> &creator)
+{
+    m_creator = creator;
 }
 
 QString IDebugServerProviderFactory::idFromMap(const QVariantMap &data)

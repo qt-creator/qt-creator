@@ -80,8 +80,6 @@ class OpenOcdGdbServerProviderFactory final
 public:
     explicit OpenOcdGdbServerProviderFactory();
 
-    GdbServerProvider *create() final;
-
     bool canRestore(const QVariantMap &data) const final;
     GdbServerProvider *restore(const QVariantMap &data) final;
 };

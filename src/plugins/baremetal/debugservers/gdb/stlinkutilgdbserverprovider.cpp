@@ -195,11 +195,7 @@ StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID);
     setDisplayName(tr("ST-LINK Utility"));
-}
-
-GdbServerProvider *StLinkUtilGdbServerProviderFactory::create()
-{
-    return new StLinkUtilGdbServerProvider;
+    setCreator([] { return new StLinkUtilGdbServerProvider; });
 }
 
 bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) const

@@ -259,11 +259,7 @@ EBlinkGdbServerProviderFactory::EBlinkGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_EBLINK_PROVIDER_ID);
     setDisplayName(tr("EBlink"));
-}
-
-GdbServerProvider *EBlinkGdbServerProviderFactory::create()
-{
-    return new EBlinkGdbServerProvider;
+    setCreator([] { return new EBlinkGdbServerProvider; });
 }
 
 bool EBlinkGdbServerProviderFactory::canRestore(const QVariantMap &data) const

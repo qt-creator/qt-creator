@@ -128,7 +128,7 @@ public:
     QString id() const;
     QString displayName() const;
 
-    virtual IDebugServerProvider *create() = 0;
+    IDebugServerProvider *create() const;
 
     virtual bool canRestore(const QVariantMap &data) const = 0;
     virtual IDebugServerProvider *restore(const QVariantMap &data) = 0;
@@ -139,10 +139,12 @@ public:
 protected:
     void setId(const QString &id);
     void setDisplayName(const QString &name);
+    void setCreator(const std::function<IDebugServerProvider *()> &creator);
 
 private:
     QString m_displayName;
     QString m_id;
+    std::function<IDebugServerProvider *()> m_creator;
 };
 
 // IDebugServerProviderConfigWidget
