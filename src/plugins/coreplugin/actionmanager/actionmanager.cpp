@@ -335,7 +335,7 @@ QList<Command *> ActionManager::commands()
 */
 void ActionManager::unregisterAction(QAction *action, Id id)
 {
-    Action *a = d->m_idCmdMap.value(id, 0);
+    Action *a = d->m_idCmdMap.value(id, nullptr);
     if (!a) {
         qWarning() << "unregisterAction: id" << id.name()
                    << "is registered with a different command type.";
@@ -468,7 +468,7 @@ void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
 
 Action *ActionManagerPrivate::overridableAction(Id id)
 {
-    Action *a = m_idCmdMap.value(id, 0);
+    Action *a = m_idCmdMap.value(id, nullptr);
     if (!a) {
         a = new Action(id);
         m_idCmdMap.insert(id, a);
