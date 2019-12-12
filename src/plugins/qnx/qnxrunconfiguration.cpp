@@ -68,22 +68,14 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
     libAspect->setLabelText(tr("Path to Qt libraries on device"));
     libAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
 
-    auto updateTargetInformation = [this, target, exeAspect, symbolsAspect] {
-
-        const BuildTargetInfo bti = buildTargetInfo();
-        const FilePath localExecutable = bti.targetFilePath;
-        const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
-
-        exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-        symbolsAspect->setFilePath(localExecutable);
-
-        emit enabledChanged();
-    };
-
-    connect(target, &Target::deploymentDataChanged, this, updateTargetInformation);
-    connect(target, &Target::applicationTargetsChanged, this, updateTargetInformation);
-    connect(target->project(), &Project::parsingFinished, this, updateTargetInformation);
-    connect(target, &Target::kitChanged, this, updateTargetInformation);
+    connect(target, &Target::deploymentDataChanged,
+            this, &QnxRunConfiguration::updateTargetInformation);
+    connect(target, &Target::applicationTargetsChanged,
+            this, &QnxRunConfiguration::updateTargetInformation);
+    connect(target->project(), &Project::parsingFinished,
+            this, &QnxRunConfiguration::updateTargetInformation);
+    connect(target, &Target::kitChanged,
+            this, &QnxRunConfiguration::updateTargetInformation);
 }
 
 Runnable QnxRunConfiguration::runnable() const
@@ -98,6 +90,22 @@ Runnable QnxRunConfiguration::runnable() const
         r.environment.set("QT_QPA_FONTDIR", libPath + "/lib/fonts");
     }
     return r;
+}
+
+void QnxRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
+{
+    updateTargetInformation();
+}
+
+void QnxRunConfiguration::updateTargetInformation()
+{
+    const BuildTargetInfo bti = buildTargetInfo();
+    const FilePath localExecutable = bti.targetFilePath;
+    const DeployableFile depFile = target()->deploymentData()
+            .deployableForLocalFile(localExecutable);
+    aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+    aspect<SymbolFileAspect>()->setFilePath(localExecutable);
+    emit enabledChanged();
 }
 
 // QnxRunConfigurationFactory
