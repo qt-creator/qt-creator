@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 #include "wizardpage.h"
+#include "infolabel.h"
 
 namespace Utils {
 
@@ -77,10 +78,8 @@ private:
     void slotChanged();
     void slotActivated();
 
-    enum StatusLabelMode { Error, Warning, Hint };
-
     bool validate();
-    void displayStatusMessage(StatusLabelMode m, const QString &);
+    void displayStatusMessage(InfoLabel::InfoType t, const QString &);
     void hideStatusLabel();
 
     ProjectIntroPagePrivate *d;

@@ -58,29 +58,19 @@ namespace Utils {
 class ProjectIntroPagePrivate
 {
 public:
-    ProjectIntroPagePrivate();
     Ui::ProjectIntroPage m_ui;
     bool m_complete = false;
     QRegularExpressionValidator m_projectNameValidator;
-    // Status label style sheets
-    const QString m_errorStyleSheet;
-    const QString m_warningStyleSheet;
-    const QString m_hintStyleSheet;
     bool m_forceSubProject = false;
     QStringList m_projectDirectories;
 };
-
-ProjectIntroPagePrivate::  ProjectIntroPagePrivate() :
-    m_errorStyleSheet(QLatin1String("background : red;")),
-    m_warningStyleSheet(QLatin1String("background : yellow;"))
-{
-}
 
 ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     WizardPage(parent),
     d(new ProjectIntroPagePrivate)
 {
     d->m_ui.setupUi(this);
+    d->m_ui.stateLabel->setFilled(true);
     hideStatusLabel();
     d->m_ui.nameLineEdit->setPlaceholderText(tr("Enter project name"));
     d->m_ui.nameLineEdit->setFocus();
@@ -171,7 +161,7 @@ bool ProjectIntroPage::validate()
     }
     // Validate and display status
     if (!d->m_ui.pathChooser->isValid()) {
-        displayStatusMessage(Error, d->m_ui.pathChooser->errorMessage());
+        displayStatusMessage(InfoLabel::Error, d->m_ui.pathChooser->errorMessage());
         return false;
     }
 
@@ -179,7 +169,7 @@ bool ProjectIntroPage::validate()
     bool nameValid = false;
     switch (d->m_ui.nameLineEdit->state()) {
     case FancyLineEdit::Invalid:
-        displayStatusMessage(Error, d->m_ui.nameLineEdit->errorMessage());
+        displayStatusMessage(InfoLabel::Error, d->m_ui.nameLineEdit->errorMessage());
         return false;
     case FancyLineEdit::DisplayingPlaceholderText:
         break;
@@ -197,11 +187,11 @@ bool ProjectIntroPage::validate()
     }
 
     if (projectDirFile.isDir()) {
-        displayStatusMessage(Warning, tr("The project already exists."));
+        displayStatusMessage(InfoLabel::Warning, tr("The project already exists."));
         return nameValid;
     }
     // Not a directory, but something else, likely causing directory creation to fail
-    displayStatusMessage(Error, tr("A file with that name already exists."));
+    displayStatusMessage(InfoLabel::Error, tr("A file with that name already exists."));
     return false;
 }
 
@@ -292,25 +282,15 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
     return true;
 }
 
-void ProjectIntroPage::displayStatusMessage(StatusLabelMode m, const QString &s)
+void ProjectIntroPage::displayStatusMessage(InfoLabel::InfoType t, const QString &s)
 {
-    switch (m) {
-    case Error:
-        d->m_ui.stateLabel->setStyleSheet(d->m_errorStyleSheet);
-        break;
-    case Warning:
-        d->m_ui.stateLabel->setStyleSheet(d->m_warningStyleSheet);
-        break;
-    case Hint:
-        d->m_ui.stateLabel->setStyleSheet(d->m_hintStyleSheet);
-        break;
-    }
+    d->m_ui.stateLabel->setType(t);
     d->m_ui.stateLabel->setText(s);
 }
 
 void ProjectIntroPage::hideStatusLabel()
 {
-    displayStatusMessage(Hint, QString());
+    displayStatusMessage(InfoLabel::None, {});
 }
 
 bool ProjectIntroPage::useAsDefaultPath() const
