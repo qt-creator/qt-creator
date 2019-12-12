@@ -38,6 +38,10 @@ class QComboBox;
 class QLabel;
 QT_END_NAMESPACE
 
+namespace Utils {
+class InfoLabel;
+}
+
 namespace Android {
 namespace Internal {
 
@@ -62,8 +66,7 @@ private:
 private:
     AndroidBuildApkStep *m_step = nullptr;
     QCheckBox *m_signPackageCheckBox = nullptr;
-    QLabel *m_signingDebugWarningIcon = nullptr;
-    QLabel *m_signingDebugWarningLabel = nullptr;
+    Utils::InfoLabel *m_signingDebugWarningLabel = nullptr;
     QComboBox *m_certificatesAliasComboBox = nullptr;
     QCheckBox *m_addDebuggerCheckBox = nullptr;
 };

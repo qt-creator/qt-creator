@@ -50,9 +50,9 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/infolabel.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
-#include <utils/utilsicons.h>
 
 #include <QDateTime>
 #include <QDialogButtonBox>
@@ -118,8 +118,8 @@ private:
     std::function<bool (const QString &)> verifyCallback = [](const QString &) { return true; };
     QLabel *inputContextlabel = new QLabel(this);
     QLineEdit *inputEdit = new QLineEdit(this);
-    QLabel *warningIcon = new QLabel(this);
-    QLabel *warningLabel = new QLabel(this);
+    Utils::InfoLabel *warningLabel = new Utils::InfoLabel(tr("Incorrect password."),
+                                                          Utils::InfoLabel::Warning, this);
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        this);
 };
@@ -633,20 +633,12 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
 {
     inputEdit->setEchoMode(QLineEdit::Password);
 
-    warningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
-    warningIcon->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum));
-    warningIcon->hide();
-
     warningLabel->hide();
-
-    auto warningLayout = new QHBoxLayout;
-    warningLayout->addWidget(warningIcon);
-    warningLayout->addWidget(warningLabel);
 
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(inputContextlabel);
     mainLayout->addWidget(inputEdit);
-    mainLayout->addLayout(warningLayout);
+    mainLayout->addWidget(warningLabel);
     mainLayout->addWidget(buttonBox);
 
     connect(inputEdit, &QLineEdit::textChanged,[this](const QString &text) {
@@ -657,9 +649,7 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
         if (verifyCallback(inputEdit->text())) {
             accept(); // Dialog accepted.
         } else {
-            warningIcon->show();
             warningLabel->show();
-            warningLabel->setText(tr("Incorrect password."));
             inputEdit->clear();
             adjustSize();
         }

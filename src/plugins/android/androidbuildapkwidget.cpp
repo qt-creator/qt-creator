@@ -42,9 +42,9 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/infolabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
-#include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -156,13 +156,8 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     m_signPackageCheckBox = new QCheckBox(tr("Sign package"), group);
     m_signPackageCheckBox->setChecked(m_step->signPackage());
 
-    m_signingDebugWarningIcon = new QLabel(group);
-    m_signingDebugWarningIcon->setSizePolicy(sizePolicy);
-    m_signingDebugWarningIcon->setPixmap(Icons::WARNING.pixmap());
-    m_signingDebugWarningIcon->hide();
-
-    m_signingDebugWarningLabel = new QLabel(tr("Signing a debug package"), group);
-    m_signingDebugWarningLabel->setSizePolicy(sizePolicy);
+    m_signingDebugWarningLabel = new Utils::InfoLabel(tr("Signing a debug package"),
+                                                      Utils::InfoLabel::Warning, group);
     m_signingDebugWarningLabel->hide();
 
     auto certificateAliasLabel = new QLabel(tr("Certificate alias:"), group);
@@ -182,7 +177,6 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     horizontalLayout_2->addWidget(keystoreCreateButton);
 
     auto horizontalLayout_3 = new QHBoxLayout;
-    horizontalLayout_3->addWidget(m_signingDebugWarningIcon);
     horizontalLayout_3->addWidget(m_signingDebugWarningLabel);
     horizontalLayout_3->addWidget(certificateAliasLabel);
     horizontalLayout_3->addWidget(m_certificatesAliasComboBox);
@@ -356,7 +350,6 @@ void AndroidBuildApkWidget::updateSigningWarning()
 {
     bool nonRelease = m_step->buildConfiguration()->buildType() != BuildConfiguration::Release;
     bool visible = m_step->signPackage() && nonRelease;
-    m_signingDebugWarningIcon->setVisible(visible);
     m_signingDebugWarningLabel->setVisible(visible);
 }
 
