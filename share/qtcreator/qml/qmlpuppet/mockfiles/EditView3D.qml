@@ -479,48 +479,48 @@ Window {
 
     Rectangle { // top controls bar
         color: "#aa000000"
-        width: 265
+        width: 290
         height: btnPerspective.height + 10
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.rightMargin: 100
 
-        ToggleButton {
-            id: btnPerspective
-            anchors.top: parent.top
-            anchors.topMargin: 5
-            anchors.left: parent.left
-            anchors.leftMargin: 5
-            tooltip: qsTr("Toggle Perspective / Orthographic Projection")
-            states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
+        Row {
+            padding: 5
+            anchors.fill: parent
+            ToggleButton {
+                id: btnPerspective
+                width: 105
+                tooltip: qsTr("Toggle Perspective / Orthographic Projection")
+                states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
+            }
+
+            ToggleButton {
+                id: btnLocalGlobal
+                width: 65
+                tooltip: qsTr("Toggle Global / Local Orientation")
+                states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
+            }
+
+            ToggleButton {
+                id: btnEditViewLight
+                width: 110
+                toggleBackground: true
+                tooltip: qsTr("Toggle Edit Light")
+                states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
+            }
         }
 
-        ToggleButton {
-            id: btnLocalGlobal
-            anchors.top: parent.top
-            anchors.topMargin: 5
-            anchors.left: parent.left
-            anchors.leftMargin: 100
-            tooltip: qsTr("Toggle Global / Local Orientation")
-            states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
-        }
-
-        ToggleButton {
-            id: btnEditViewLight
-            anchors.top: parent.top
-            anchors.topMargin: 5
-            anchors.left: parent.left
-            anchors.leftMargin: 165
-            toggleBackground: true
-            tooltip: qsTr("Toggle Edit Light")
-            states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
-        }
     }
 
     Text {
         id: helpText
+
+        property string modKey: _generalHelper.isMacOS ? qsTr("Option") : qsTr("Alt")
+
         color: "white"
-        text: qsTr("Camera controls: ALT + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
+        text: qsTr("Camera controls: ") + modKey
+              + qsTr(" + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
         anchors.bottom: parent.bottom
     }
 }
