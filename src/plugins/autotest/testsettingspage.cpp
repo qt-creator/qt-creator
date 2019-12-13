@@ -43,9 +43,9 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
 {
     m_ui.setupUi(this);
 
-    m_ui.frameworksWarnIcon->setVisible(false);
-    m_ui.frameworksWarnIcon->setPixmap(Utils::Icons::WARNING.pixmap());
     m_ui.frameworksWarn->setVisible(false);
+    m_ui.frameworksWarn->setElideMode(Qt::ElideNone);
+    m_ui.frameworksWarn->setType(Utils::InfoLabel::Warning);
     m_ui.frameworksWarn->setText(tr("No active test frameworks."));
     m_ui.frameworksWarn->setToolTip(tr("You will not be able to use the AutoTest plugin without "
                                        "having at least one active test framework."));
@@ -133,13 +133,11 @@ void TestSettingsWidget::onFrameworkItemChanged()
         for (int row = 0, count = model->rowCount(); row < count; ++row) {
             if (model->index(row, 0).data(Qt::CheckStateRole) == Qt::Checked) {
                 m_ui.frameworksWarn->setVisible(false);
-                m_ui.frameworksWarnIcon->setVisible(false);
                 return;
             }
         }
     }
     m_ui.frameworksWarn->setVisible(true);
-    m_ui.frameworksWarnIcon->setVisible(true);
 }
 
 TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)
