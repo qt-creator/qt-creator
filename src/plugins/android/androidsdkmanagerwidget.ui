@@ -70,14 +70,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="warningIconLabel">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Utils::ElidingLabel" name="warningLabel">
+          <widget class="Utils::InfoLabel" name="warningLabel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -294,9 +287,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::ElidingLabel</class>
+   <class>Utils::InfoLabel</class>
    <extends>QLabel</extends>
-   <header>utils/elidinglabel.h</header>
+   <header location="global">utils/infolabel.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
