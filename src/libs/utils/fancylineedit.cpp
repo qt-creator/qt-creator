@@ -370,15 +370,20 @@ void FancyLineEdit::onEditingFinished()
 
 void FancyLineEdit::keyPressEvent(QKeyEvent *event)
 {
-    const QTextCursor::MoveMode mode = (event->modifiers() & Qt::ShiftModifier)
-            ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor;
-
-    if (camelCaseNavigation && event == QKeySequence::MoveToPreviousWord)
-        CamelCaseCursor::left(this, mode);
-    else if (camelCaseNavigation && event == QKeySequence::MoveToNextWord)
-        CamelCaseCursor::right(this, mode);
-    else
+    if (camelCaseNavigation) {
+        if (event == QKeySequence::MoveToPreviousWord)
+            CamelCaseCursor::left(this, QTextCursor::MoveAnchor);
+        else if (event == QKeySequence::SelectPreviousWord)
+            CamelCaseCursor::left(this, QTextCursor::KeepAnchor);
+        else if (event == QKeySequence::MoveToNextWord)
+            CamelCaseCursor::right(this, QTextCursor::MoveAnchor);
+        else if (event == QKeySequence::SelectNextWord)
+            CamelCaseCursor::right(this, QTextCursor::KeepAnchor);
+        else
+            QLineEdit::keyPressEvent(event);
+    } else {
         QLineEdit::keyPressEvent(event);
+    }
 }
 
 void FancyLineEdit::setCamelCaseNavigationEnabled(bool enabled)
