@@ -366,6 +366,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     config.setClangOptions({
         "-Wall",
         "-Wextra",
+        "-Wno-c++98-compat"
     });
     model.appendOrUpdate(config);
 
