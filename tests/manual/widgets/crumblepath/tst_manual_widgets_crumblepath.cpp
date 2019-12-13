@@ -80,7 +80,7 @@ QWidget *shrinkingCrumblePath()
 {
     auto *cp = new CrumblePath;
     for (const auto &title : {"Ene", "Mene", "Mopel", "Zicke", "Zacke"})
-        cp->pushElement(title, title);
+        cp->pushElement(QLatin1String(title), title);
 
     auto *timer = new QTimer(cp);
     timer->setInterval(2000);
