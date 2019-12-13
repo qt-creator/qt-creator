@@ -61,7 +61,7 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     m_avdDialog.nameLineEdit->setValidator(v);
     m_avdDialog.nameLineEdit->installEventFilter(this);
 
-    m_avdDialog.warningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_avdDialog.warningText->setType(Utils::InfoLabel::Warning);
 
     updateApiLevelComboBox();
 
@@ -136,18 +136,15 @@ void AvdDialog::updateApiLevelComboBox()
     }
 
     if (platforms.isEmpty()) {
-        m_avdDialog.warningIcon->setVisible(true);
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(tr("Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
                                             "Install an SDK of at least API version %1.")
                                          .arg(m_minApiLevel));
     } else if (filteredList.isEmpty()) {
-        m_avdDialog.warningIcon->setVisible(true);
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(tr("Cannot create a AVD for ABI %1. Install an image for it.")
                                          .arg(abi()));
     } else {
-        m_avdDialog.warningIcon->setVisible(false);
         m_avdDialog.warningText->setVisible(false);
     }
 }
