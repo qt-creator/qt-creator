@@ -1680,21 +1680,25 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(menu, tr("Expand All Children"),
               item,
-              [this, item] {
-                m_expandedINames.insert(item->iname);
-                item->forFirstLevelChildren([this](WatchItem *child) {
-                    m_expandedINames.insert(child->iname);
-                });
-                m_engine->updateLocals();
+              [this, name = item->iname] {
+                m_expandedINames.insert(name);
+                if (auto item = findItem(name)) {
+                    item->forFirstLevelChildren([this](WatchItem *child) {
+                        m_expandedINames.insert(child->iname);
+                    });
+                    m_engine->updateLocals();
+                }
               });
 
     addAction(menu, tr("Collapse All Children"),
               item,
-              [this, item] {
-                item->forFirstLevelChildren([this](WatchItem *child) {
-                    m_expandedINames.remove(child->iname);
-                });
-                m_engine->updateLocals();
+              [this, name = item->iname] {
+                if (auto item = findItem(name)) {
+                    item->forFirstLevelChildren([this](WatchItem *child) {
+                        m_expandedINames.remove(child->iname);
+                    });
+                    m_engine->updateLocals();
+                }
               });
 
     addAction(menu, tr("Close Editor Tooltips"),
@@ -1707,7 +1711,10 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(menu, tr("Copy Current Value to Clipboard"),
               item,
-              [item] { copyToClipboard(item->value); });
+              [this, name = item->iname] {
+                if (auto item = findItem(name))
+                    copyToClipboard(item->value);
+              });
 
 //    addAction(menu, tr("Copy Selected Rows to Clipboard"),
 //              selectionModel()->hasSelection(),
