@@ -93,6 +93,16 @@ public:
 
 using SubmoduleDataMap = QMap<QString, SubmoduleData>;
 
+class UpstreamStatus
+{
+public:
+    UpstreamStatus() = default;
+    UpstreamStatus(int ahead, int behind) : ahead(ahead), behind(behind) {}
+
+    int ahead = 0;
+    int behind = 0;
+};
+
 class GitClient : public VcsBase::VcsBaseClientImpl
 {
     Q_OBJECT
@@ -338,6 +348,8 @@ public:
     void show(const QString &source, const QString &id, const QString &name = QString());
     void archive(const QString &workingDirectory, const QString &commit);
 
+    VcsBase::VcsCommand *asyncUpstreamStatus(const QString &workingDirectory,
+                                             const QString &branch, const QString &upstream);
 private:
     void finishSubmoduleUpdate();
     void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,

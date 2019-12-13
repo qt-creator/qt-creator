@@ -3037,6 +3037,15 @@ bool GitClient::synchronousSetTrackingBranch(const QString &workingDirectory,
             == SynchronousProcessResponse::Finished;
 }
 
+VcsBase::VcsCommand *GitClient::asyncUpstreamStatus(const QString &workingDirectory,
+                                                    const QString &branch,
+                                                    const QString &upstream)
+{
+    const QStringList args {"rev-list", noColorOption, "--left-right", "--count",
+                branch + "..." + upstream};
+    return vcsExec(workingDirectory, args, nullptr, false, silentFlags);
+}
+
 void GitClient::handleMergeConflicts(const QString &workingDir, const QString &commit,
                                      const QStringList &files, const QString &abortCommand)
 {
