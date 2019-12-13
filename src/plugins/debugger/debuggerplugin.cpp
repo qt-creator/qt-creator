@@ -1638,7 +1638,7 @@ public:
         setId("AttachToRunningProcess");
         setUsePortsGatherer(true, false);
 
-        auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
+        auto gdbServer = new DebugServerRunner(runControl, portsGatherer());
         gdbServer->setUseMulti(false);
         gdbServer->setAttachPid(pid);
 

@@ -97,7 +97,7 @@ static QStringList searchPaths(Kit *kit)
 class QnxDebuggeeRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
-    QnxDebuggeeRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
+    QnxDebuggeeRunner(RunControl *runControl, DebugServerPortsGatherer *portsGatherer)
         : SimpleTargetRunner(runControl)
     {
         setId("QnxDebuggeeRunner");
@@ -191,7 +191,7 @@ private:
 class PDebugRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
-    PDebugRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
+    PDebugRunner(RunControl *runControl, DebugServerPortsGatherer *portsGatherer)
         : SimpleTargetRunner(runControl)
     {
         setId("PDebugRunner");

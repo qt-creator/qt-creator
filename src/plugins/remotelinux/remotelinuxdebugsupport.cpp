@@ -41,7 +41,7 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
     addQmlServerInferiorCommandLineArgumentIfNeeded();
 
-    auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
+    auto gdbServer = new DebugServerRunner(runControl, portsGatherer());
     gdbServer->setEssential(true);
 
     addStartDependency(gdbServer);

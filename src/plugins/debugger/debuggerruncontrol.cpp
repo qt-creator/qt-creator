@@ -253,7 +253,7 @@ class DebuggerRunToolPrivate
 public:
     bool useTerminal = false;
     QPointer<CoreUnpacker> coreUnpacker;
-    QPointer<GdbServerPortsGatherer> portsGatherer;
+    QPointer<DebugServerPortsGatherer> portsGatherer;
     bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
     TerminalRunner *terminalRunner = nullptr;
     int snapshotCounter = 0;
@@ -765,13 +765,13 @@ int DebuggerRunTool::portsUsedByDebugger() const
 void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
 {
     QTC_ASSERT(!d->portsGatherer, reportFailure(); return);
-    d->portsGatherer = new GdbServerPortsGatherer(runControl());
+    d->portsGatherer = new DebugServerPortsGatherer(runControl());
     d->portsGatherer->setUseGdbServer(useCpp);
     d->portsGatherer->setUseQmlServer(useQml);
     addStartDependency(d->portsGatherer);
 }
 
-GdbServerPortsGatherer *DebuggerRunTool::portsGatherer() const
+DebugServerPortsGatherer *DebuggerRunTool::portsGatherer() const
 {
     return d->portsGatherer;
 }
@@ -1037,30 +1037,30 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 
 // GdbServerPortGatherer
 
-GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
+DebugServerPortsGatherer::DebugServerPortsGatherer(RunControl *runControl)
     : ChannelProvider(runControl, 2)
 {
-    setId("GdbServerPortsGatherer");
+    setId("DebugServerPortsGatherer");
 }
 
-GdbServerPortsGatherer::~GdbServerPortsGatherer() = default;
+DebugServerPortsGatherer::~DebugServerPortsGatherer() = default;
 
-QUrl GdbServerPortsGatherer::gdbServer() const
+QUrl DebugServerPortsGatherer::gdbServer() const
 {
     return channel(0);
 }
 
-QUrl GdbServerPortsGatherer::qmlServer() const
+QUrl DebugServerPortsGatherer::qmlServer() const
 {
     return channel(1);
 }
 
-// GdbServerRunner
+// DebugServerRunner
 
-GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
+DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGatherer *portsGatherer)
    : SimpleTargetRunner(runControl)
 {
-    setId("GdbServerRunner");
+    setId("DebugServerRunner");
     const Runnable mainRunnable = runControl->runnable();
     addStartDependency(portsGatherer);
 
@@ -1103,14 +1103,14 @@ GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer 
     });
 }
 
-GdbServerRunner::~GdbServerRunner() = default;
+DebugServerRunner::~DebugServerRunner() = default;
 
-void GdbServerRunner::setUseMulti(bool on)
+void DebugServerRunner::setUseMulti(bool on)
 {
     m_useMulti = on;
 }
 
-void GdbServerRunner::setAttachPid(ProcessHandle pid)
+void DebugServerRunner::setAttachPid(ProcessHandle pid)
 {
     m_pid = pid;
 }

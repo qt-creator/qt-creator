@@ -40,7 +40,7 @@ class TerminalRunner;
 class DebuggerRunToolPrivate;
 } // Internal
 
-class GdbServerPortsGatherer;
+class DebugServerPortsGatherer;
 
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
@@ -64,7 +64,7 @@ public:
     int portsUsedByDebugger() const;
 
     void setUsePortsGatherer(bool useCpp, bool useQml);
-    GdbServerPortsGatherer *portsGatherer() const;
+    DebugServerPortsGatherer *portsGatherer() const;
 
     void setSolibSearchPath(const QStringList &list);
     void addSolibSearchDir(const QString &str);
@@ -137,13 +137,13 @@ private:
     Internal::DebuggerRunParameters m_runParameters;
 };
 
-class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::ChannelProvider
+class DEBUGGER_EXPORT DebugServerPortsGatherer : public ProjectExplorer::ChannelProvider
 {
     Q_OBJECT
 
 public:
-    explicit GdbServerPortsGatherer(ProjectExplorer::RunControl *runControl);
-    ~GdbServerPortsGatherer() override;
+    explicit DebugServerPortsGatherer(ProjectExplorer::RunControl *runControl);
+    ~DebugServerPortsGatherer() override;
 
     void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
     bool useGdbServer() const { return m_useGdbServer; }
@@ -158,15 +158,15 @@ private:
     bool m_useQmlServer = false;
 };
 
-class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::SimpleTargetRunner
+class DEBUGGER_EXPORT DebugServerRunner : public ProjectExplorer::SimpleTargetRunner
 {
     Q_OBJECT
 
 public:
-    explicit GdbServerRunner(ProjectExplorer::RunControl *runControl,
-                             GdbServerPortsGatherer *portsGatherer);
+    explicit DebugServerRunner(ProjectExplorer::RunControl *runControl,
+                               DebugServerPortsGatherer *portsGatherer);
 
-    ~GdbServerRunner() override;
+    ~DebugServerRunner() override;
 
     void setUseMulti(bool on);
     void setAttachPid(Utils::ProcessHandle pid);
@@ -176,7 +176,7 @@ private:
     bool m_useMulti = true;
 };
 
-extern DEBUGGER_EXPORT const char GdbServerRunnerWorkerId[];
+extern DEBUGGER_EXPORT const char DebugServerRunnerWorkerId[];
 extern DEBUGGER_EXPORT const char GdbServerPortGathererWorkerId[];
 
 } // namespace Debugger

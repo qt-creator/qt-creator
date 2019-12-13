@@ -66,7 +66,7 @@ public:
         connect(&m_launcher, &ApplicationLauncher::remoteStderr,
                 this, [this](const QString &out) { appendMessage(out, StdErrFormat); });
 
-        m_portsGatherer = new GdbServerPortsGatherer(runControl);
+        m_portsGatherer = new DebugServerPortsGatherer(runControl);
         m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
         m_portsGatherer->setUseQmlServer(useQmlServer);
         addStartDependency(m_portsGatherer);
@@ -128,7 +128,7 @@ public:
     void stop() override { m_launcher.stop(); }
 
 private:
-    Debugger::GdbServerPortsGatherer *m_portsGatherer = nullptr;
+    Debugger::DebugServerPortsGatherer *m_portsGatherer = nullptr;
     bool m_usePerf;
     bool m_useGdbServer;
     bool m_useQmlServer;
