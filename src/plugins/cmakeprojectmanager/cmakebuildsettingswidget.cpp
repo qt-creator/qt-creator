@@ -42,10 +42,10 @@
 #include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/pathchooser.h>
 #include <utils/progressindicator.h>
-#include <utils/utilsicons.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -124,26 +124,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
 
     ++row;
-    m_errorLabel = new QLabel;
-    m_errorLabel->setPixmap(Utils::Icons::CRITICAL.pixmap());
-    m_errorLabel->setVisible(false);
-    m_errorMessageLabel = new QLabel;
+    m_errorMessageLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Error);
     m_errorMessageLabel->setVisible(false);
-    auto boxLayout = new QHBoxLayout;
-    boxLayout->addWidget(m_errorLabel);
-    boxLayout->addWidget(m_errorMessageLabel);
-    mainLayout->addLayout(boxLayout, row, 0, 1, 3, Qt::AlignHCenter);
+    mainLayout->addWidget(m_errorMessageLabel, row, 0, 1, -1, Qt::AlignHCenter);
 
     ++row;
-    m_warningLabel = new QLabel;
-    m_warningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
-    m_warningLabel->setVisible(false);
-    m_warningMessageLabel = new QLabel;
+    m_warningMessageLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
     m_warningMessageLabel->setVisible(false);
-    auto boxLayout2 = new QHBoxLayout;
-    boxLayout2->addWidget(m_warningLabel);
-    boxLayout2->addWidget(m_warningMessageLabel);
-    mainLayout->addLayout(boxLayout2, row, 0, 1, 3, Qt::AlignHCenter);
+    mainLayout->addWidget(m_warningMessageLabel, row, 0, 1, -1, Qt::AlignHCenter);
 
     ++row;
     mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
@@ -345,21 +333,15 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 void CMakeBuildSettingsWidget::setError(const QString &message)
 {
     bool showError = !message.isEmpty();
-    m_errorLabel->setVisible(showError);
-    m_errorLabel->setToolTip(message);
     m_errorMessageLabel->setVisible(showError);
     m_errorMessageLabel->setText(message);
-    m_errorMessageLabel->setToolTip(message);
 }
 
 void CMakeBuildSettingsWidget::setWarning(const QString &message)
 {
     bool showWarning = !message.isEmpty();
-    m_warningLabel->setVisible(showWarning);
-    m_warningLabel->setToolTip(message);
     m_warningMessageLabel->setVisible(showWarning);
     m_warningMessageLabel->setText(message);
-    m_warningMessageLabel->setToolTip(message);
 }
 
 void CMakeBuildSettingsWidget::updateButtonState()
