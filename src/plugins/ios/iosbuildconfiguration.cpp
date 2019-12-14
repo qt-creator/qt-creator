@@ -37,7 +37,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
-#include <utils/utilsicons.h>
+#include <utils/infolabel.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -91,10 +91,8 @@ private:
     QComboBox *m_signEntityCombo;
     QCheckBox *m_autoSignCheckbox;
     QLabel *m_signEntityLabel;
-    QLabel *m_infoIconLabel;
-    QLabel *m_infoLabel;
-    QLabel *m_warningIconLabel;
-    QLabel *m_warningLabel;
+    Utils::InfoLabel *m_infoLabel;
+    Utils::InfoLabel *m_warningLabel;
 };
 
 IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
@@ -132,36 +130,16 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
 
     m_signEntityLabel = new QLabel(container);
 
-    m_infoIconLabel = new QLabel(container);
-    QSizePolicy sizePolicy3(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    sizePolicy3.setHorizontalStretch(0);
-    sizePolicy3.setVerticalStretch(0);
-    m_infoIconLabel->setSizePolicy(sizePolicy3);
+    m_infoLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Information, container);
 
-    m_infoLabel = new QLabel(container);
-    QSizePolicy sizePolicy4(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    sizePolicy4.setHorizontalStretch(0);
-    sizePolicy4.setVerticalStretch(0);
-    m_infoLabel->setSizePolicy(sizePolicy4);
-    m_infoLabel->setWordWrap(false);
-
-    m_warningIconLabel = new QLabel(container);
-    m_warningIconLabel->setSizePolicy(sizePolicy3);
-
-    m_warningLabel = new QLabel(container);
-    m_warningLabel->setSizePolicy(sizePolicy4);
-    m_warningLabel->setWordWrap(true);
+    m_warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning, container);
 
     m_signEntityLabel->setText(IosBuildConfiguration::tr("Development team:"));
 
     connect(m_qmakeDefaults, &QPushButton::clicked, this, &IosBuildSettingsWidget::onReset);
 
-    m_infoIconLabel->hide();
-    m_infoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
     m_infoLabel->hide();
 
-    m_warningIconLabel->hide();
-    m_warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
     m_warningLabel->hide();
 
     detailsWidget->setState(Utils::DetailsWidget::NoSummary);
@@ -192,18 +170,10 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
     gridLayout->addWidget(m_autoSignCheckbox, 0, 2, 1, 1);
     gridLayout->addWidget(m_qmakeDefaults, 1, 1, 1, 1);
 
-    auto horizontalLayout = new QHBoxLayout();
-    horizontalLayout->addWidget(m_infoIconLabel);
-    horizontalLayout->addWidget(m_infoLabel);
-
-    auto horizontalLayout_2 = new QHBoxLayout();
-    horizontalLayout_2->addWidget(m_warningIconLabel);
-    horizontalLayout_2->addWidget(m_warningLabel);
-
     auto verticalLayout = new QVBoxLayout(container);
     verticalLayout->addLayout(gridLayout);
-    verticalLayout->addLayout(horizontalLayout);
-    verticalLayout->addLayout(horizontalLayout_2);
+    verticalLayout->addWidget(m_infoLabel);
+    verticalLayout->addWidget(m_warningLabel);
 }
 
 void IosBuildSettingsWidget::setDefaultSigningIdentfier(const QString &identifier) const
@@ -366,7 +336,6 @@ void IosBuildSettingsWidget::updateInfoText()
         }
     }
 
-    m_infoIconLabel->setVisible(!infoMessage.isEmpty());
     m_infoLabel->setVisible(!infoMessage.isEmpty());
     m_infoLabel->setText(infoMessage);
 }
@@ -400,7 +369,6 @@ void IosBuildSettingsWidget::updateWarningText()
     }
 
     m_warningLabel->setVisible(!warningText.isEmpty());
-    m_warningIconLabel->setVisible(!warningText.isEmpty());
     m_warningLabel->setText(warningText);
 }
 
