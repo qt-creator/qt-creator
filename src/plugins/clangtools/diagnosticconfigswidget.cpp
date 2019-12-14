@@ -35,7 +35,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 #include <QDesktopServices>
 #include <QDialogButtonBox>
@@ -709,7 +708,8 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     m_clazyChecks = std::make_unique<Ui::ClazyChecks>();
     m_clazyChecksWidget = new QWidget();
     m_clazyChecks->setupUi(m_clazyChecksWidget);
-    m_clazyChecks->invalidExecutableIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_clazyChecks->invalidExecutableLabel->setType(Utils::InfoLabel::Warning);
+    m_clazyChecks->invalidExecutableLabel->setElideMode(Qt::ElideNone);
     m_clazySortFilterProxyModel = new ClazyChecksSortFilterModel(this);
     m_clazySortFilterProxyModel->setSourceModel(m_clazyTreeModel.get());
     setupTreeView(m_clazyChecks->checksView, m_clazySortFilterProxyModel, 2);
@@ -752,7 +752,8 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     m_tidyChecks = std::make_unique<Ui::TidyChecks>();
     m_tidyChecksWidget = new QWidget();
     m_tidyChecks->setupUi(m_tidyChecksWidget);
-    m_tidyChecks->invalidExecutableIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_tidyChecks->invalidExecutableLabel->setType(Utils::InfoLabel::Warning);
+    m_tidyChecks->invalidExecutableLabel->setElideMode(Qt::ElideNone);
     setupTreeView(m_tidyChecks->checksPrefixesTree, m_tidyTreeModel.get());
 
     connect(m_tidyChecks->checksPrefixesTree,
