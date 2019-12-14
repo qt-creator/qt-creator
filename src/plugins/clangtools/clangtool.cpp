@@ -63,6 +63,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
 #include <utils/fancymainwindow.h>
+#include <utils/infolabel.h>
 #include <utils/progressindicator.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -91,54 +92,6 @@ static QString makeLink(const QString &text)
     return QString("<a href=t>%1</a>").arg(text);
 }
 
-class IconAndLabel : public QWidget
-{
-    Q_OBJECT
-
-public:
-    IconAndLabel(const QPixmap &pixmap, const QString &text = {})
-        : m_icon(new QLabel)
-        , m_label(new QLabel)
-    {
-        QSizePolicy minSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        minSizePolicy.setHorizontalStretch(0);
-
-        m_icon->setPixmap(pixmap);
-        m_icon->setSizePolicy(minSizePolicy);
-
-        m_label->setSizePolicy(minSizePolicy);
-        m_label->setText(text);
-        m_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-
-        QHBoxLayout *layout = new QHBoxLayout;
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(m_icon);
-        layout->addWidget(m_label);
-        setLayout(layout);
-
-        connect(m_label, &QLabel::linkActivated, this, &IconAndLabel::linkActivated);
-    }
-
-    void setIcon(const QPixmap &pixmap) {
-        m_icon->setPixmap(pixmap);
-        m_icon->setVisible(!pixmap.isNull());
-    }
-
-    QString text() const { return m_label->text(); }
-    void setText(const QString &text)
-    {
-        m_label->setText(text);
-        setVisible(!text.isEmpty());
-    }
-
-signals:
-    void linkActivated(const QString &link);
-
-private:
-    QLabel *m_icon;
-    QLabel *m_label;
-};
-
 class InfoBarWidget : public QFrame
 {
     Q_OBJECT
@@ -146,10 +99,13 @@ class InfoBarWidget : public QFrame
 public:
     InfoBarWidget()
         : m_progressIndicator(new Utils::ProgressIndicator(ProgressIndicatorSize::Small))
-        , m_info(new IconAndLabel(Utils::Icons::INFO.pixmap()))
-        , m_error(new IconAndLabel(Utils::Icons::WARNING.pixmap()))
+        , m_info(new InfoLabel({}, InfoLabel::Information))
+        , m_error(new InfoLabel({}, InfoLabel::Warning))
         , m_diagStats(new QLabel)
     {
+        m_info->setElideMode(Qt::ElideNone);
+        m_error->setElideMode(Qt::ElideNone);
+
         m_diagStats->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
         QHBoxLayout *layout = new QHBoxLayout;
@@ -175,11 +131,12 @@ public:
     {
         const bool showProgress = type == ProgressIcon;
         m_progressIndicator->setVisible(showProgress);
-        m_info->setIcon(showProgress ? QPixmap() : Utils::Icons::INFO.pixmap());
+        m_info->setType(showProgress ? InfoLabel::None : InfoLabel::Information);
     }
     QString infoText() const { return m_info->text(); }
     void setInfoText(const QString &text)
     {
+        m_info->setVisible(!text.isEmpty());
         m_info->setText(text);
         evaluateVisibility();
     }
@@ -193,12 +150,12 @@ public:
                   const QString &text,
                   const OnLinkActivated &linkAction = OnLinkActivated())
     {
+        m_error->setVisible(!text.isEmpty());
         m_error->setText(text);
-        m_error->setIcon(type == Warning ? Utils::Icons::WARNING.pixmap()
-                                         : Utils::Icons::CRITICAL.pixmap());
+        m_error->setType(type == Warning ? InfoLabel::Warning : InfoLabel::Error);
         m_error->disconnect();
         if (linkAction)
-            connect(m_error, &IconAndLabel::linkActivated, this, linkAction);
+            connect(m_error, &QLabel::linkActivated, this, linkAction);
         evaluateVisibility();
     }
 
@@ -220,8 +177,8 @@ public:
 
 private:
     Utils::ProgressIndicator *m_progressIndicator;
-    IconAndLabel *m_info;
-    IconAndLabel *m_error;
+    InfoLabel *m_info;
+    InfoLabel *m_error;
     QLabel *m_diagStats;
 };
 
