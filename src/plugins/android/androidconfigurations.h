@@ -123,8 +123,6 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
-    Utils::FilePath qtLiveApkPath() const;
-
     Utils::FilePath adbToolPath() const;
     Utils::FilePath androidToolPath() const;
     Utils::FilePath emulatorToolPath() const;

@@ -42,7 +42,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -175,9 +174,7 @@ bool AndroidDeployQtStep::init()
 
     RunConfiguration *rc = target()->activeRunConfiguration();
     QTC_ASSERT(rc, return false);
-    const bool deployQtLive = rc->id().name().startsWith(qmlProjectRunConfigIdName);
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    QTC_ASSERT(deployQtLive || bc, return false);
 
     auto androidBuildApkStep = AndroidBuildApkStep::findInBuild(bc);
     int minTargetApi = AndroidManager::minimumSDK(target());
@@ -205,8 +202,7 @@ bool AndroidDeployQtStep::init()
     m_serialNumber = info.serialNumber;
     qCDebug(deployStepLog) << "Selected Device:" << info;
 
-    if (!deployQtLive)
-        gatherFilesToPull();
+    gatherFilesToPull();
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
     AndroidManager::setDeviceApiLevel(target(), info.sdk);
@@ -222,8 +218,7 @@ bool AndroidDeployQtStep::init()
     if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
 
-    m_useAndroiddeployqt = !deployQtLive &&
-            version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
+    m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     if (m_useAndroiddeployqt) {
         const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey());
@@ -273,8 +268,7 @@ bool AndroidDeployQtStep::init()
     } else {
         m_uninstallPreviousPackageRun = true;
         m_command = AndroidConfigurations::currentConfig().adbToolPath();
-        const AndroidConfig &config = AndroidConfigurations::currentConfig();
-        m_apkPath = deployQtLive ? config.qtLiveApkPath() : AndroidManager::apkPath(target());
+        m_apkPath = AndroidManager::apkPath(target());
         m_workingDirectory = bc ? bc->buildDirectory() : FilePath();
     }
     m_environment = bc ? bc->environment() : Utils::Environment();
@@ -304,34 +298,10 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
     } else {
         RunConfiguration *rc = target()->activeRunConfiguration();
         QTC_ASSERT(rc, return DeployErrorCode::Failure);
-        const bool deployQtLive = rc->id().name().startsWith(qmlProjectRunConfigIdName);
         QString packageName;
-        int packageVersion = -1;
-        if (deployQtLive) {
-            // Do not install Qt live if apk is already installed or the same version is
-            // being installed.
-            AndroidManager::apkInfo(m_apkPath, &packageName, &packageVersion);
-            if (AndroidManager::packageInstalled(m_serialNumber, packageName)) {
-                int installedVersion = AndroidManager::packageVersionCode(m_serialNumber,
-                                                                          packageName);
-                if (installedVersion == packageVersion) {
-                    qCDebug(deployStepLog) << "Qt live APK already installed. APK version:"
-                                           << packageVersion << "Installed version:"
-                                           << installedVersion;
-                    return DeployErrorCode::NoError;
-                } else {
-                    qCDebug(deployStepLog) << "Re-installing Qt live APK. Version mismatch."
-                                           << "APK version:" << packageVersion
-                                           << "Installed version:" << installedVersion;
-                }
-            } else {
-                qCDebug(deployStepLog) << "Installing Qt live APK. APK version:" << packageVersion;
-            }
-        }
 
         if (m_uninstallPreviousPackageRun) {
-            if (!deployQtLive)
-                packageName = AndroidManager::packageName(m_manifestName);
+            packageName = AndroidManager::packageName(m_manifestName);
             if (packageName.isEmpty()) {
                 emit addOutput(tr("Cannot find the package name."), OutputFormat::Stderr);
                 return Failure;

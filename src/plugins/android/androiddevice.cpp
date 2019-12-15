@@ -56,14 +56,6 @@ AndroidDevice::AndroidDevice()
     setOsType(Utils::OsTypeOtherUnix);
 
     setDeviceState(DeviceReadyToUse);
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
-    if (config.qtLiveApkPath().exists()) {
-        QString activityPath;
-        AndroidManager::apkInfo(config.qtLiveApkPath(), nullptr, nullptr, &activityPath);
-        qCDebug(androidDeviceLog) << "Using Qt live apk from: " << config.qtLiveApkPath()
-                                  << "Activity Path:" << activityPath;
-        setQmlsceneCommand(activityPath);
-    }
 }
 
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const

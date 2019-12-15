@@ -117,9 +117,6 @@ namespace {
     const QLatin1String sdkToolsVersionKey("Pkg.Revision");
     const QLatin1String ndkRevisionKey("Pkg.Revision");
 
-    const QString defaultQtLiveApk = Core::ICore::resourcePath() +
-            ("/qtlive/android/armv7/qt_live_viewer.apk");
-
     static QString sdkSettingsFileName()
     {
         return Core::ICore::installerResourcePath() + "/android.xml";
@@ -855,14 +852,6 @@ bool AndroidConfig::automaticKitCreation() const
 void AndroidConfig::setAutomaticKitCreation(bool b)
 {
     m_automaticKitCreation = b;
-}
-
-FilePath AndroidConfig::qtLiveApkPath() const
-{
-    QString apkPathStr(defaultQtLiveApk);
-    if (qEnvironmentVariableIsSet("QTC_QT_LIVE_APK_PATH"))
-         apkPathStr = QString::fromLocal8Bit(qgetenv("QTC_QT_LIVE_APK_PATH"));
-    return Utils::FilePath::fromString(apkPathStr);
 }
 
 ///////////////////////////////////
