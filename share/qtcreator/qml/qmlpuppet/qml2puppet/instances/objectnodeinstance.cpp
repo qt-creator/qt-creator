@@ -571,11 +571,30 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
     return property.read();
 }
 
+void ObjectNodeInstance::ensureVector3DDotProperties(PropertyNameList &list) const
+{
+    const PropertyNameList properties = { "rotation", "scale", "pivot" };
+    for (const auto &property : properties) {
+        if (list.contains(property) && instanceType(property) == "QVector3D") {
+            const PropertyNameList dotProperties = { "x", "y", "z" };
+            for (const auto &dotProperty : dotProperties) {
+                const PropertyName dotPropertyName = property + "." + dotProperty;
+                if (!list.contains(dotPropertyName))
+                    list.append(dotPropertyName);
+            }
+        }
+    }
+}
+
 PropertyNameList ObjectNodeInstance::propertyNames() const
 {
+    PropertyNameList list;
     if (isValid())
-        return QmlPrivateGate::allPropertyNames(object());
-    return PropertyNameList();
+        list = QmlPrivateGate::allPropertyNames(object());
+
+    ensureVector3DDotProperties(list);
+
+    return list;
 }
 
 QString ObjectNodeInstance::instanceType(const PropertyName &name) const
