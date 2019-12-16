@@ -31,6 +31,7 @@
 #include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -446,7 +447,16 @@ void PyLSConfigureAssistant::resetEditorInfoBar(TextEditor::TextDocument *docume
 
 PyLSConfigureAssistant::PyLSConfigureAssistant(QObject *parent)
     : QObject(parent)
-{}
+{
+    Core::EditorManager::instance();
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::documentClosed,
+            this,
+            [this](Core::IDocument *document) {
+                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
+                    resetEditorInfoBar(textDocument);
+            });
+}
 
 } // namespace Internal
 } // namespace Python

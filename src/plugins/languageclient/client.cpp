@@ -818,6 +818,8 @@ bool Client::reset()
     m_project = nullptr;
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
+    for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
+        resetAssistProviders(document);
     return true;
 }
 

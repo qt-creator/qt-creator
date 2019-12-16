@@ -166,12 +166,12 @@ QList<QByteArray> Macro::tokenizeLine(const QByteArray &line)
 
     const auto begin = normalizedLine.begin();
     auto first = std::find(normalizedLine.begin(), normalizedLine.end(), ' ');
-    auto second = std::find(std::next(first), normalizedLine.end(), ' ');
     const auto end = normalizedLine.end();
 
     QList<QByteArray> tokens;
 
     if (first != end) {
+        auto second = std::find(std::next(first), normalizedLine.end(), ' ');
         tokens.append(QByteArray(begin, int(std::distance(begin, first))));
 
         std::advance(first, 1);

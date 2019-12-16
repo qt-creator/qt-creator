@@ -74,6 +74,7 @@ public:
 
     WidgetInfo widgetInfo() override;
     bool hasWidget() const override;
+    bool isWidgetEnabled();
 
     QTableView *connectionTableView() const;
     QTableView *bindingTableView() const;

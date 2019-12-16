@@ -33,7 +33,7 @@ Node {
     property View3D view3D
     property bool highlightOnHover: true
     property Node targetNode: null
-    property var selectedNodes: null
+    property var selectedNodes: []
     readonly property bool selected: {
         for (var i = 0; i < selectedNodes.length; ++i) {
             if (selectedNodes[i] === targetNode)

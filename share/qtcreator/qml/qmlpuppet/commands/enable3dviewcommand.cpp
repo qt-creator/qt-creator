@@ -23,35 +23,43 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "enable3dviewcommand.h"
 
-#include <QMetaType>
-#include <QVector>
-
-#include "informationcontainer.h"
+#include <QDebug>
+#include <QDataStream>
 
 namespace QmlDesigner {
 
-class Change3DViewCommand
+// open / close edit view 3D command
+Enable3DViewCommand::Enable3DViewCommand(bool enable)
+    : m_enable(enable)
 {
-    friend QDataStream &operator>>(QDataStream &in, Change3DViewCommand &command);
-    friend QDebug operator <<(QDebug debug, const Change3DViewCommand &command);
+}
 
-public:
-    Change3DViewCommand();
-    explicit Change3DViewCommand(const QVector<InformationContainer> &auxiliaryChangeVector);
+bool Enable3DViewCommand::isEnable() const
+{
+    return m_enable;
+}
 
-    QVector<InformationContainer> informationVector() const;
+QDataStream &operator<<(QDataStream &out, const Enable3DViewCommand &command)
+{
+    out << qint32(command.isEnable());
 
-private:
-    QVector<InformationContainer> m_informationVector;
-};
+    return out;
+}
 
-QDataStream &operator<<(QDataStream &out, const Change3DViewCommand &command);
-QDataStream &operator>>(QDataStream &in, Change3DViewCommand &command);
+QDataStream &operator>>(QDataStream &in, Enable3DViewCommand &command)
+{
+    qint32 enable;
+    in >> enable;
+    command.m_enable = enable;
 
-QDebug operator <<(QDebug debug, const Change3DViewCommand &command);
+    return in;
+}
+
+QDebug operator<<(QDebug debug, const Enable3DViewCommand &command)
+{
+    return debug.nospace() << "Enable3DViewCommand(enable: " << command.m_enable << ")";
+}
 
 } // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::Change3DViewCommand)

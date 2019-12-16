@@ -28,19 +28,16 @@ import QtQuick.Window 2.12
 import QtQuick3D 1.0
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
+import MouseArea3D 1.0
 
 Window {
     id: viewWindow
     width: 1024
     height: 768
-    visible: false
-    title: "3D"
-    flags: Qt.Widget | Qt.SplashScreen
-
-    onActiveChanged: {
-        if (viewWindow.active)
-            cameraControl.forceActiveFocus()
-    }
+    visible: true
+    title: "3D Edit View"
+    // need all those flags otherwise the title bar disappears after setting WindowStaysOnTopHint flag later
+    flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
 
     property alias scene: editView.importScene
     property alias showEditLight: btnEditViewLight.toggled
@@ -126,6 +123,15 @@ Window {
 
     function addLightGizmo(obj)
     {
+        // Insert into first available gizmo
+        for (var i = 0; i < lightGizmos.length; ++i) {
+            if (!lightGizmos[i].targetNode) {
+                lightGizmos[i].targetNode = obj;
+                return;
+            }
+        }
+
+        // No free gizmos available, create a new one
         var component = Qt.createComponent("LightGizmo.qml");
         if (component.status === Component.Ready) {
             var gizmo = component.createObject(overlayScene,
@@ -139,6 +145,14 @@ Window {
 
     function addCameraGizmo(obj)
     {
+        // Insert into first available gizmo
+        for (var i = 0; i < cameraGizmos.length; ++i) {
+            if (!cameraGizmos[i].targetNode) {
+                cameraGizmos[i].targetNode = obj;
+                return;
+            }
+        }
+        // No free gizmos available, create a new one
         var component = Qt.createComponent("CameraGizmo.qml");
         if (component.status === Component.Ready) {
             var geometryName = _generalHelper.generateUniqueName("CameraGeometry");
@@ -183,6 +197,11 @@ Window {
             scale: editOrthoCamera.scale
         }
 
+        MouseArea3D {
+            id: gizmoDragHelper
+            view3D: overlayView
+        }
+
         MoveGizmo {
             id: moveGizmo
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
@@ -191,6 +210,7 @@ Window {
             globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnMove.selected
             view3D: overlayView
+            dragHelper: gizmoDragHelper
 
             onPositionCommit: viewWindow.commitObjectProperty(selectedNode, "position")
             onPositionMove: viewWindow.changeObjectProperty(selectedNode, "position")
@@ -204,6 +224,7 @@ Window {
             globalOrientation: false
             visible: selectedNode && btnScale.selected
             view3D: overlayView
+            dragHelper: gizmoDragHelper
 
             onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
             onScaleChange: viewWindow.changeObjectProperty(selectedNode, "scale")
@@ -217,6 +238,7 @@ Window {
             globalOrientation: btnLocalGlobal.toggled
             visible: selectedNode && btnRotate.selected
             view3D: overlayView
+            dragHelper: gizmoDragHelper
 
             onRotateCommit: viewWindow.commitObjectProperty(selectedNode, "rotation")
             onRotateChange: viewWindow.changeObjectProperty(selectedNode, "rotation")
@@ -457,48 +479,48 @@ Window {
 
     Rectangle { // top controls bar
         color: "#aa000000"
-        width: 265
+        width: 290
         height: btnPerspective.height + 10
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.rightMargin: 100
 
-        ToggleButton {
-            id: btnPerspective
-            anchors.top: parent.top
-            anchors.topMargin: 5
-            anchors.left: parent.left
-            anchors.leftMargin: 5
-            tooltip: qsTr("Toggle Perspective / Orthographic Projection")
-            states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
+        Row {
+            padding: 5
+            anchors.fill: parent
+            ToggleButton {
+                id: btnPerspective
+                width: 105
+                tooltip: qsTr("Toggle Perspective / Orthographic Projection")
+                states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
+            }
+
+            ToggleButton {
+                id: btnLocalGlobal
+                width: 65
+                tooltip: qsTr("Toggle Global / Local Orientation")
+                states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
+            }
+
+            ToggleButton {
+                id: btnEditViewLight
+                width: 110
+                toggleBackground: true
+                tooltip: qsTr("Toggle Edit Light")
+                states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
+            }
         }
 
-        ToggleButton {
-            id: btnLocalGlobal
-            anchors.top: parent.top
-            anchors.topMargin: 5
-            anchors.left: parent.left
-            anchors.leftMargin: 100
-            tooltip: qsTr("Toggle Global / Local Orientation")
-            states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
-        }
-
-        ToggleButton {
-            id: btnEditViewLight
-            anchors.top: parent.top
-            anchors.topMargin: 5
-            anchors.left: parent.left
-            anchors.leftMargin: 165
-            toggleBackground: true
-            tooltip: qsTr("Toggle Edit Light")
-            states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
-        }
     }
 
     Text {
         id: helpText
+
+        property string modKey: _generalHelper.isMacOS ? qsTr("Option") : qsTr("Alt")
+
         color: "white"
-        text: qsTr("Camera controls: ALT + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
+        text: qsTr("Camera controls: ") + modKey
+              + qsTr(" + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
         anchors.bottom: parent.bottom
     }
 }

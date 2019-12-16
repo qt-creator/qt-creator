@@ -384,7 +384,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     const OsType osType = device ? device->osType() : HostOsInfo::hostOs();
 
     // arguments from .qmlproject file
-    const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(target()->buildSystem());
+    const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
     foreach (const QString &importPath,
              QmlBuildSystem::makeAbsolute(bs->targetDirectory(), bs->customImportPaths())) {
         QtcProcess::addArg(&args, "-I", osType);

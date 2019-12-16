@@ -644,6 +644,16 @@ QList<BindingProperty> ModelNode::bindingProperties() const
     return propertyList;
 }
 
+QList<SignalHandlerProperty> ModelNode::signalProperties() const
+{
+    QList<SignalHandlerProperty> propertyList;
+
+    foreach (const AbstractProperty &property, properties())
+        if (property.isSignalHandlerProperty())
+            propertyList.append(property.toSignalHandlerProperty());
+    return propertyList;
+}
+
 /*!
 \brief removes a property from this node
 \param name name of the property

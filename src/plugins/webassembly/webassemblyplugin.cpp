@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitmanager.h>
 
 using namespace ProjectExplorer;
 
@@ -80,7 +81,9 @@ bool WebAssemblyPlugin::initialize(const QStringList& arguments, QString* errorS
 
 void WebAssemblyPlugin::extensionsInitialized()
 {
-    ProjectExplorer::DeviceManager::instance()->addDevice(WebAssemblyDevice::create());
+    connect(KitManager::instance(), &KitManager::kitsLoaded, this, [] {
+        DeviceManager::instance()->addDevice(WebAssemblyDevice::create());
+    });
 }
 
 } // namespace Internal

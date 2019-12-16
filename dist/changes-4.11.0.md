@@ -53,6 +53,8 @@ you can check out from the public Git repository. For example:
 ### Python
 
 * Simplified registration of language server
+* Added python settings to configure multiple python interpreters
+* Simplified switching python interpreters for python projects
 
 ## Help
 

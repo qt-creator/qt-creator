@@ -98,6 +98,10 @@ void SelectionBoxGeometry::setTargetNode(QQuick3DNode *targetNode)
         QObject::connect(model, &QQuick3DModel::geometryChanged,
                          this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
     }
+    if (m_targetNode) {
+        QObject::connect(m_targetNode, &QQuick3DNode::parentChanged,
+                         this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+    }
 
     emit targetNodeChanged();
     update();

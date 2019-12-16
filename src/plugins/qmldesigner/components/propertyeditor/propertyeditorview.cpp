@@ -280,8 +280,10 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             }
         }
 
-        if (value->expression().isEmpty())
+        if (value->expression().isEmpty()) {
+            value->resetValue();
             return;
+        }
 
         if (qmlObjectNode.expression(name) != value->expression() || !qmlObjectNode.propertyAffectedByCurrentState(name))
             qmlObjectNode.setBindingProperty(name, value->expression());

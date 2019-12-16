@@ -42,6 +42,8 @@ class QmlProjectItem;
 
 class QmlBuildSystem : public ProjectExplorer::BuildSystem
 {
+    Q_OBJECT
+
 public:
     explicit QmlBuildSystem(ProjectExplorer::Target *target);
     ~QmlBuildSystem();

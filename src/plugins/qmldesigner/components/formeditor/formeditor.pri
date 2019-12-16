@@ -1,6 +1,5 @@
 VPATH += $$PWD
 SOURCES += formeditoritem.cpp \
-    editview3dproxydialog.cpp \
     formeditorview.cpp \
     formeditorscene.cpp \
     formeditorwidget.cpp \
@@ -41,7 +40,6 @@ SOURCES += formeditoritem.cpp \
     option3daction.cpp
 
 HEADERS += formeditorscene.h \
-    editview3dproxydialog.h \
     formeditorwidget.h \
     formeditoritem.h \
     formeditorview.h \

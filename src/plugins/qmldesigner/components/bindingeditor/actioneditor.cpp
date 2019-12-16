@@ -123,7 +123,7 @@ void ActionEditor::updateWindowName()
 {
     if (!m_dialog.isNull())
     {
-        m_dialog->setWindowTitle(tr("Action Editor"));
+        m_dialog->setWindowTitle(tr("Connection Editor"));
         m_dialog->raise();
     }
 }

@@ -222,6 +222,15 @@ QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
     return pickNode;
 }
 
+bool GeneralHelper::isMacOS() const
+{
+#ifdef Q_OS_MACOS
+    return true;
+#else
+    return false;
+#endif
+}
+
 }
 }
 

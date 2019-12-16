@@ -389,6 +389,7 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
 
 #else
     Q_UNUSED(file)
+    Q_UNUSED(options)
 #endif
 }
 

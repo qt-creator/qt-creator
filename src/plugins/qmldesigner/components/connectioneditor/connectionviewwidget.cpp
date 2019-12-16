@@ -45,6 +45,7 @@
 #include <QToolButton>
 #include <QStyleFactory>
 #include <QMenu>
+#include <QShortcut>
 
 #include <bindingeditor/actioneditor.h>
 
@@ -57,11 +58,13 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui(new Ui::ConnectionViewWidget)
 {
     m_actionEditor = new QmlDesigner::ActionEditor(this);
+    m_deleteShortcut = new QShortcut(this);
     QObject::connect(m_actionEditor, &QmlDesigner::ActionEditor::accepted,
                      [&]() {
         if (m_actionEditor->hasModelIndex()) {
             ConnectionModel *connectionModel = qobject_cast<ConnectionModel *>(ui->connectionView->model());
-            if (connectionModel->rowCount() > m_actionEditor->modelIndex().row())
+            if (connectionModel->connectionView()->isWidgetEnabled()
+                    && (connectionModel->rowCount() > m_actionEditor->modelIndex().row()))
             {
                 SignalHandlerProperty signalHandler =
                         connectionModel->signalHandlerPropertyForRow(m_actionEditor->modelIndex().row());
@@ -123,6 +126,7 @@ ConnectionViewWidget::~ConnectionViewWidget()
 {
     delete m_actionEditor;
     delete ui;
+    delete m_deleteShortcut;
 }
 
 void ConnectionViewWidget::setBindingModel(BindingModel *model)
@@ -163,7 +167,7 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu menu(this);
 
-    menu.addAction(tr("Open Action Editor"), [&]() {
+    menu.addAction(tr("Open Connection Editor"), [&]() {
         if (index.isValid()) {
             m_actionEditor->showWidget(mapToGlobal(event->pos()).x(), mapToGlobal(event->pos()).y());
             m_actionEditor->setBindingValue(index.data().toString());
@@ -211,6 +215,10 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
     buttons.constLast()->setToolTip(tr("Remove selected binding or connection."));
     connect(buttons.constLast(), &QAbstractButton::clicked, this, &ConnectionViewWidget::removeButtonClicked);
     connect(this, &ConnectionViewWidget::setEnabledRemoveButton, buttons.constLast(), &QWidget::setEnabled);
+
+    m_deleteShortcut->setKey(Qt::Key_Delete);
+    m_deleteShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(m_deleteShortcut, &QShortcut::activated, this, &ConnectionViewWidget::removeButtonClicked);
 
     return buttons;
 }

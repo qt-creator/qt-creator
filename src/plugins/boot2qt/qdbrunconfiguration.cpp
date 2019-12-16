@@ -86,15 +86,7 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
     addAspect<WorkingDirectoryAspect>();
     addAspect<FullCommandLineAspect>(this);
 
-    setUpdater([this, target, exeAspect, symbolsAspect] {
-        const BuildTargetInfo bti = buildTargetInfo();
-        const FilePath localExecutable = bti.targetFilePath;
-        const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
-
-        exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-        symbolsAspect->setFilePath(localExecutable);
-    });
-
+    setUpdater([this] { updateTargetInformation(); });
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 
     setDefaultDisplayName(tr("Run on Boot2Qt Device"));
@@ -108,6 +100,21 @@ Tasks QdbRunConfiguration::checkForIssues() const
                                              "in order to run on a Boot2Qt device."));
     }
     return tasks;
+}
+
+void QdbRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
+{
+    updateTargetInformation();
+}
+
+void QdbRunConfiguration::updateTargetInformation()
+{
+    const BuildTargetInfo bti = buildTargetInfo();
+    const FilePath localExecutable = bti.targetFilePath;
+    const DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
+
+    aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+    aspect<SymbolFileAspect>()->setFilePath(localExecutable);
 }
 
 QString QdbRunConfiguration::defaultDisplayName() const

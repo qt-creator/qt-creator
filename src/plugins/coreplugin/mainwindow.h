@@ -114,6 +114,7 @@ public slots:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
 private:
     void openFile();
@@ -192,6 +193,7 @@ private:
     QToolButton *m_toggleRightSideBarButton = nullptr;
     QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
+    Qt::WindowStates m_previousWindowStates = Qt::WindowNoState;
 };
 
 } // namespace Internal

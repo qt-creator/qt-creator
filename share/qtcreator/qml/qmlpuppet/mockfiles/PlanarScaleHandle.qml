@@ -36,7 +36,7 @@ PlanarDraggable {
     signal scaleCommit()
     signal scaleChange()
 
-    property var _startScale
+    property vector3d _startScale
 
     onPressed: {
         // Recreate vector so we don't follow the changes in targetNode.sceneScale
