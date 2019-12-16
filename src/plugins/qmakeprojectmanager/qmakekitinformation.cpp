@@ -107,51 +107,6 @@ Tasks QmakeKitAspect::validate(const Kit *k) const
     return result;
 }
 
-void QmakeKitAspect::setup(Kit *k)
-{
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-    if (!version)
-        return;
-
-    // HACK: Ignore Boot2Qt kits!
-    if (version->type() == "Boot2Qt.QtVersionType" || version->type() == "Qdb.EmbeddedLinuxQt")
-        return;
-
-    QString spec = QmakeKitAspect::mkspec(k);
-    if (spec.isEmpty())
-        spec = version->mkspec();
-
-    ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-    if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
-        const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
-                    [version](const ToolChain *t) {
-            return t->isValid()
-                && t->language() == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-                && version->qtAbis().contains(t->targetAbi());
-        });
-        if (!possibleTcs.isEmpty()) {
-            const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
-                                                               [&spec](const ToolChain *t) {
-                return t->suggestedMkspecList().contains(spec);
-            });
-            // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
-            // This improves the situation a bit if a cross-compilation tool chain has the
-            // same ABI as the host.
-            const Environment systemEnvironment = Environment::systemEnvironment();
-            ToolChain *bestTc = Utils::findOrDefault(goodTcs,
-                                                     [&systemEnvironment](const ToolChain *t) {
-                return systemEnvironment.path().contains(t->compilerCommand().parentDir());
-            });
-            if (!bestTc) {
-                bestTc = goodTcs.isEmpty() ? possibleTcs.last() : goodTcs.last();
-            }
-            if (bestTc)
-                ToolChainKitAspect::setAllToolChainsToMatch(k, bestTc);
-        }
-    }
-}
-
 KitAspectWidget *QmakeKitAspect::createConfigWidget(Kit *k) const
 {
     return new Internal::QmakeKitAspectWidget(k, this);

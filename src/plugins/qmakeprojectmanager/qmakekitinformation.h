@@ -38,7 +38,6 @@ public:
     QmakeKitAspect();
 
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
-    void setup(ProjectExplorer::Kit *k) override;
 
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 
