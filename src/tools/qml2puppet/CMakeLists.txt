@@ -48,6 +48,7 @@ extend_qtc_executable(qml2puppet
     drop3dlibraryitemcommand.cpp drop3dlibraryitemcommand.h
     update3dviewstatecommand.cpp update3dviewstatecommand.h
     enable3dviewcommand.cpp enable3dviewcommand.h
+    view3dclosedcommand.cpp view3dclosedcommand.h
     valueschangedcommand.cpp
 )
 

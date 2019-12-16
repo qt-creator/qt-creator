@@ -138,6 +138,7 @@ public:
 
     void selectionChanged(const ChangeSelectionCommand &command) override;
     void library3DItemDropped(const Drop3DLibraryItemCommand &command) override;
+    void view3DClosed(const View3DClosedCommand &command) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;

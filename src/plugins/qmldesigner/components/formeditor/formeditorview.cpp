@@ -462,6 +462,9 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
             if (isInvisible)
                 newNode.deselectNode();
         }
+    } else if (name == "3d-view") {
+        bool is3DEnabled = data.isNull() || data.toBool();
+        formEditorWidget()->option3DAction()->set3DEnabled(is3DEnabled);
     }
 }
 

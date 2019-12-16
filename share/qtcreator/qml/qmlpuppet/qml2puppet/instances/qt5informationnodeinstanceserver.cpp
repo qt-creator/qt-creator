@@ -61,6 +61,7 @@
 #include "removesharedmemorycommand.h"
 #include "objectnodeinstance.h"
 #include "drop3dlibraryitemcommand.h"
+#include "view3dclosedcommand.h"
 
 #include "dummycontextobject.h"
 #include "../editor3d/generalhelper.h"
@@ -95,6 +96,10 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
         if (!data.isEmpty())
             nodeInstanceClient()->library3DItemDropped(createDrop3DLibraryItemCommand(data));
 
+    } break;
+
+    case QEvent::Close: {
+        nodeInstanceClient()->view3DClosed(View3DClosedCommand());
     } break;
 
     default:
