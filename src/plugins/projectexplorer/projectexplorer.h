@@ -178,6 +178,8 @@ public:
     static void updateActions();
 
     static void activateProjectPanel(Core::Id panelId);
+    static void clearRecentProjects();
+    static void removeFromRecentProjects(const QString &fileName, const QString &displayName);
 
 signals:
     void finishedInitialization();

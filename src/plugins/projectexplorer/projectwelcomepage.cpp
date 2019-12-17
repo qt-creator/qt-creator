@@ -31,6 +31,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
@@ -49,6 +50,7 @@
 #include <QHeaderView>
 #include <QHelpEvent>
 #include <QLabel>
+#include <QMenu>
 #include <QPainter>
 #include <QToolTip>
 #include <QTreeView>
@@ -480,7 +482,7 @@ public:
         return QSize(width, 48);
     }
 
-    bool editorEvent(QEvent *ev, QAbstractItemModel *,
+    bool editorEvent(QEvent *ev, QAbstractItemModel *model,
         const QStyleOptionViewItem &, const QModelIndex &idx) final
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
@@ -489,6 +491,27 @@ public:
             if (button == Qt::LeftButton) {
                 const QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
                 ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+                return true;
+            }
+            if (button == Qt::RightButton) {
+                QMenu contextMenu;
+                QAction *action = new QAction(tr("Remove Project from Recent Projects"));
+                const auto projectModel = qobject_cast<ProjectModel *>(model);
+                contextMenu.addAction(action);
+                connect(action, &QAction::triggered, [idx, projectModel](){
+                    const QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
+                    const QString displayName = idx.data(Qt::DisplayRole).toString();
+                    ProjectExplorerPlugin::removeFromRecentProjects(projectFile, displayName);
+                    projectModel->resetProjects();
+                });
+                contextMenu.addSeparator();
+                action = new QAction(tr("Clear Recent Project List"));
+                connect(action, &QAction::triggered, [projectModel]() {
+                    ProjectExplorerPlugin::clearRecentProjects();
+                    projectModel->resetProjects();
+                });
+                contextMenu.addAction(action);
+                contextMenu.exec(mouseEvent->globalPos());
                 return true;
             }
         }

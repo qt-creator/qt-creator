@@ -435,6 +435,7 @@ public:
     void updateRecentProjectMenu();
     void clearRecentProjects();
     void openRecentProject(const QString &fileName);
+    void removeFromRecentProjects(const QString &fileName, const QString &displayName);
     void updateUnloadProjectMenu();
     using EnvironmentGetter = std::function<Utils::optional<Utils::Environment>(const Project *project)>;
     void openTerminalHere(const EnvironmentGetter &env);
@@ -3251,6 +3252,13 @@ void ProjectExplorerPluginPrivate::openRecentProject(const QString &fileName)
     }
 }
 
+void ProjectExplorerPluginPrivate::removeFromRecentProjects(const QString &fileName,
+                                                            const QString &displayName)
+{
+    QTC_ASSERT(!fileName.isEmpty() && !displayName.isEmpty(), return);
+    QTC_CHECK(m_recentProjects.removeOne(QPair<QString, QString>(fileName, displayName)));
+}
+
 void ProjectExplorerPluginPrivate::invalidateProject(Project *project)
 {
     disconnect(project, &Project::fileListChanged,
@@ -3999,6 +4007,17 @@ void ProjectExplorerPlugin::activateProjectPanel(Core::Id panelId)
 {
     Core::ModeManager::activateMode(Constants::MODE_SESSION);
     dd->m_proWindow->activateProjectPanel(panelId);
+}
+
+void ProjectExplorerPlugin::clearRecentProjects()
+{
+    dd->clearRecentProjects();
+}
+
+void ProjectExplorerPlugin::removeFromRecentProjects(const QString &fileName,
+                                                     const QString &displayName)
+{
+    dd->removeFromRecentProjects(fileName, displayName);
 }
 
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
