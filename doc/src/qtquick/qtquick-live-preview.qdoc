@@ -73,7 +73,7 @@
             \endif
         \li \l{Previewing in Browsers}
 
-            You can open \l{http://qt-webassembly.io/designviewer/}{\QDV}
+            You can open \l{https://qt-webassembly.io/designviewer/}{\QDV}
             in a browser and load applications to it.
     \endlist
 */
