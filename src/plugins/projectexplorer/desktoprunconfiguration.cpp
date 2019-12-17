@@ -108,8 +108,6 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         auto wda = aspect<WorkingDirectoryAspect>();
         wda->setDefaultWorkingDirectory(bti.workingDirectory);
-        if (wda->pathChooser())
-            wda->pathChooser()->setBaseFileName(target()->project()->projectDirectory());
 
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 
