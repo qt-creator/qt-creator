@@ -119,12 +119,13 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
         setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
 
         executableAspect->setExecutable(localExecutable());
+
+        m_deviceTypeAspect->updateDeviceType();
     });
 }
 
 void IosDeviceTypeAspect::deviceChanges()
 {
-    updateDeviceType();
     m_runConfiguration->update();
 }
 
@@ -304,7 +305,6 @@ void IosDeviceTypeAspect::setDeviceType(const IosDeviceType &deviceType)
 
 void IosRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
-    m_deviceTypeAspect->updateDeviceType();
     update();
 }
 
