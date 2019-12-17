@@ -159,8 +159,11 @@ public:
 private:
     static QString getQbsVersion()
     {
+        const FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
+        if (qbsExe.isEmpty() || !qbsExe.exists())
+            return tr("Failed to retrieve version.");
         QProcess qbsProc;
-        qbsProc.start(QbsSettings::qbsExecutableFilePath().toString(), {"--version"});
+        qbsProc.start(qbsExe.toString(), {"--version"});
         if (!qbsProc.waitForStarted(3000) || !qbsProc.waitForFinished(5000)
                 || qbsProc.exitCode() != 0) {
             return tr("Failed to retrieve version.");

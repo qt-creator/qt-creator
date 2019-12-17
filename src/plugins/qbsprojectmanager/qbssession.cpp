@@ -219,7 +219,12 @@ void QbsSession::initialize()
     });
     connect(d->packetReader, &PacketReader::packetReceived, this, &QbsSession::handlePacket);
     d->state = State::Initializing;
-    d->qbsProcess->start(QbsSettings::qbsExecutableFilePath().toString(), {"session"});
+    const FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
+    if (qbsExe.isEmpty() || !qbsExe.exists()) {
+        QTimer::singleShot(0, this, [this] { setError(Error::QbsFailedToStart); });
+        return;
+    }
+    d->qbsProcess->start(qbsExe.toString(), {"session"});
 }
 
 void QbsSession::sendQuitPacket()

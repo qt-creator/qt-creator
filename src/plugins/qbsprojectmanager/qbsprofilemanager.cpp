@@ -247,7 +247,10 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
         args << "--unset" << key;
         break;
     }
-    qbsConfig.start(QbsSettings::qbsExecutableFilePath().toString(), args);
+    const Utils::FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
+    if (qbsExe.isEmpty() || !qbsExe.exists())
+        return {};
+    qbsConfig.start(qbsExe.toString(), args);
     if (!qbsConfig.waitForStarted(3000) || !qbsConfig.waitForFinished(5000)) {
         Core::MessageManager::write(tr("Failed run qbs config: %1").arg(qbsConfig.errorString()));
     } else if (qbsConfig.exitCode() != 0) {
