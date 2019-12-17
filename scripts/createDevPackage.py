@@ -80,10 +80,10 @@ source_include_patterns = [
     r"^src/plugins/qmldesigner/components/componentcore/images/.*$",
     r"^src/plugins/qmldesigner/components/timelineeditor/images/.*$",
     r"^src/plugins/qmldesigner/qmlpreviewplugin/images/.*$",
-    r"^src/plugins/texteditor/images/.*$"
+    r"^src/plugins/texteditor/images/.*$",
     # also some single files
     r"^src/plugins/qmldesigner/components/formeditor/.*\.png$",
-    r"^src/plugins/qmldesigner/components/navigator/.*\.png$",
+    r"^src/plugins/qmldesigner/components/navigator/.*\.png$"
 ]
 
 build_include_patterns = [
