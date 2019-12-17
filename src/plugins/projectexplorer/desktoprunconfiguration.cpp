@@ -149,11 +149,8 @@ bool DesktopRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-void DesktopRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+void DesktopRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
 {
-    if (m_kind == Qbs)
-        setDefaultDisplayName(info.displayName);
-
     updateTargetInformation();
 }
 
