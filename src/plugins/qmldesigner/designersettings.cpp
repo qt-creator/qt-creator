@@ -67,7 +67,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::CONTROLS_STYLE);
     restoreValue(settings, DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT, false);
-    restoreValue(settings, DesignerSettingsKey::PUPPET_KILL_TIMEOUT, 3000); // this has no ui at the moment
+    restoreValue(settings, DesignerSettingsKey::PUPPET_KILL_TIMEOUT, 30000); // this has no ui at the moment
     restoreValue(settings, DesignerSettingsKey::DEBUG_PUPPET, QString());
     restoreValue(settings, DesignerSettingsKey::FORWARD_PUPPET_OUTPUT, QString());
     restoreValue(settings, DesignerSettingsKey::REFORMAT_UI_QML_FILES, true);
