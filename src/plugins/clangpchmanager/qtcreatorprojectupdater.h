@@ -103,7 +103,7 @@ public:
 protected:
     void newExtraCompiler(const ProjectExplorer::Project *,
                           const Utils::FilePath &,
-                          const Utils::FilePathList &targets) override
+                          const Utils::FilePaths &targets) override
     {
         auto filePaths = Utils::transform<ClangBackEnd::FilePaths>(targets,
                                                                    [](const Utils::FilePath &filePath) {

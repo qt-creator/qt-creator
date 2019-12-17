@@ -64,14 +64,14 @@ public:
 
     using PathFilter = std::function<bool(const FilePath &)>;
     FilePath searchInPath(const QString &executable,
-                          const FilePathList &additionalDirs = FilePathList(),
+                          const FilePaths &additionalDirs = FilePaths(),
                           const PathFilter &func = PathFilter()) const;
-    FilePathList findAllInPath(const QString &executable,
-                               const FilePathList &additionalDirs = FilePathList(),
+    FilePaths findAllInPath(const QString &executable,
+                               const FilePaths &additionalDirs = FilePaths(),
                                const PathFilter &func = PathFilter()) const;
 
-    FilePathList path() const;
-    FilePathList pathListValue(const QString &varName) const;
+    FilePaths path() const;
+    FilePaths pathListValue(const QString &varName) const;
     QStringList appendExeExtensions(const QString &executable) const;
 
     bool isSameExecutable(const QString &exe1, const QString &exe2) const;

@@ -851,7 +851,7 @@ QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(const QStr
     return result;
 }
 
-Utils::FilePathList Snapshot::filesDependingOn(const Utils::FilePath &fileName) const
+Utils::FilePaths Snapshot::filesDependingOn(const Utils::FilePath &fileName) const
 {
     updateDependencyTable();
     return m_deps.filesDependingOn(fileName);

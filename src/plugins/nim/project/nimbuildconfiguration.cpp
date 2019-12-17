@@ -97,7 +97,7 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
             }
             nimCompilerBuildStep->setDefaultCompilerOptions(defaultOption);
 
-            const Utils::FilePathList nimFiles = project()->files([](const Node *n) {
+            const Utils::FilePaths nimFiles = project()->files([](const Node *n) {
                 return Project::AllFiles(n) && n->path().endsWith(".nim");
             });
 

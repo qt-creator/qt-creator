@@ -216,7 +216,7 @@ public:
     Utils::FilePath qmlBinPath() const;
     Utils::FilePath librarySearchPath() const;
 
-    Utils::FilePathList directoriesToIgnoreInProjectTree() const;
+    Utils::FilePaths directoriesToIgnoreInProjectTree() const;
 
     QString qtNamespace() const;
     QString qtLibInfix() const;
@@ -242,7 +242,7 @@ protected:
     virtual ProjectExplorer::Tasks reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
-    static ProjectExplorer::Abis qtAbisFromLibrary(const Utils::FilePathList &coreLibraries);
+    static ProjectExplorer::Abis qtAbisFromLibrary(const Utils::FilePaths &coreLibraries);
 
     void resetCache() const;
 

@@ -748,7 +748,7 @@ static void notifyChangedHelper(const FilePath &fileName, QmakeProFile *file)
 
 void QmakeBuildSystem::notifyChanged(const FilePath &name)
 {
-    FilePathList files = project()->files([&name](const Node *n) {
+    FilePaths files = project()->files([&name](const Node *n) {
         return Project::SourceFiles(n) && n->filePath() == name;
     });
 

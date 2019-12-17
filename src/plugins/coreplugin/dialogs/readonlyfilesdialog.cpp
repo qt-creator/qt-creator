@@ -68,8 +68,8 @@ public:
         NumberOfColumns
     };
 
-    void initDialog(const FilePathList &filePaths);
-    void promptFailWarning(const FilePathList &files, ReadOnlyFilesDialog::ReadOnlyResult type) const;
+    void initDialog(const FilePaths &filePaths);
+    void promptFailWarning(const FilePaths &files, ReadOnlyFilesDialog::ReadOnlyResult type) const;
     QRadioButton *createRadioButtonForItem(QTreeWidgetItem *item, QButtonGroup *group, ReadOnlyFilesTreeColumn type);
 
     void setAll(int index);
@@ -143,7 +143,7 @@ using namespace Internal;
  * and Save As which is used to save the changes to a document in another file.
  */
 
-ReadOnlyFilesDialog::ReadOnlyFilesDialog(const Utils::FilePathList &filePaths, QWidget *parent)
+ReadOnlyFilesDialog::ReadOnlyFilesDialog(const Utils::FilePaths &filePaths, QWidget *parent)
     : QDialog(parent)
     , d(new ReadOnlyFilesDialogPrivate(this))
 {
@@ -170,7 +170,7 @@ ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<IDocument *> &documents, QW
     : QDialog(parent)
     , d(new ReadOnlyFilesDialogPrivate(this))
 {
-    FilePathList files;
+    FilePaths files;
     for (IDocument *document : documents)
         files << document->filePath();
     d->initDialog(files);
@@ -205,7 +205,7 @@ void ReadOnlyFilesDialog::setShowFailWarning(bool show, const QString &warning)
  * Opens a message box with an error description according to the type.
  * \internal
  */
-void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePathList &files, ReadOnlyFilesDialog::ReadOnlyResult type) const
+void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePaths &files, ReadOnlyFilesDialog::ReadOnlyResult type) const
 {
     if (files.isEmpty())
         return;
@@ -281,7 +281,7 @@ int ReadOnlyFilesDialog::exec()
         return RO_Cancel;
 
     ReadOnlyResult result = RO_Cancel;
-    FilePathList failedToMakeWritable;
+    FilePaths failedToMakeWritable;
     for (ReadOnlyFilesDialogPrivate::ButtonGroupForFile buttongroup : qAsConst(d->buttonGroups)) {
         result = static_cast<ReadOnlyResult>(buttongroup.group->checkedId());
         switch (result) {
@@ -388,7 +388,7 @@ void ReadOnlyFilesDialogPrivate::updateSelectAll()
  * dialog.
  * \internal
  */
-void ReadOnlyFilesDialogPrivate::initDialog(const FilePathList &filePaths)
+void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
 {
     ui.setupUi(q);
     ui.buttonBox->addButton(tr("Change &Permission"), QDialogButtonBox::AcceptRole);

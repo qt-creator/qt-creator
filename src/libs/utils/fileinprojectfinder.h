@@ -50,17 +50,17 @@ public:
     void setProjectDirectory(const FilePath &absoluteProjectPath);
     FilePath projectDirectory() const;
 
-    void setProjectFiles(const FilePathList &projectFiles);
+    void setProjectFiles(const FilePaths &projectFiles);
     void setSysroot(const FilePath &sysroot);
 
     void addMappedPath(const FilePath &localFilePath, const QString &remoteFilePath);
 
-    FilePathList findFile(const QUrl &fileUrl, bool *success = nullptr) const;
+    FilePaths findFile(const QUrl &fileUrl, bool *success = nullptr) const;
     bool findFileOrDirectory(const QString &originalPath, FileHandler fileHandler = nullptr,
                              DirectoryHandler directoryHandler = nullptr) const;
 
-    FilePathList searchDirectories() const;
-    void setAdditionalSearchDirectories(const FilePathList &searchDirectories);
+    FilePaths searchDirectories() const;
+    void setAdditionalSearchDirectories(const FilePaths &searchDirectories);
 
 private:
     struct PathMappingNode
@@ -77,11 +77,11 @@ private:
 
     class QrcUrlFinder {
     public:
-        FilePathList find(const QUrl &fileUrl) const;
-        void setProjectFiles(const FilePathList &projectFiles);
+        FilePaths find(const QUrl &fileUrl) const;
+        void setProjectFiles(const FilePaths &projectFiles);
     private:
-        FilePathList m_allQrcFiles;
-        mutable QHash<QUrl, FilePathList> m_fileCache;
+        FilePaths m_allQrcFiles;
+        mutable QHash<QUrl, FilePaths> m_fileCache;
         mutable QHash<FilePath, QSharedPointer<QrcParser>> m_parserCache;
     };
 
@@ -100,14 +100,14 @@ private:
 
     FilePath m_projectDir;
     FilePath m_sysroot;
-    FilePathList m_projectFiles;
-    FilePathList m_searchDirectories;
+    FilePaths m_projectFiles;
+    FilePaths m_searchDirectories;
     PathMappingNode m_pathMapRoot;
 
     mutable QHash<QString, CacheEntry> m_cache;
     QrcUrlFinder m_qrcUrlFinder;
 };
 
-QTCREATOR_UTILS_EXPORT FilePath chooseFileFromList(const FilePathList &candidates);
+QTCREATOR_UTILS_EXPORT FilePath chooseFileFromList(const FilePaths &candidates);
 
 } // namespace Utils

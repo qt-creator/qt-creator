@@ -29,9 +29,9 @@
 
 using namespace CPlusPlus;
 
-Utils::FilePathList DependencyTable::filesDependingOn(const Utils::FilePath &fileName) const
+Utils::FilePaths DependencyTable::filesDependingOn(const Utils::FilePath &fileName) const
 {
-    Utils::FilePathList deps;
+    Utils::FilePaths deps;
 
     int index = fileIndex.value(fileName, -1);
     if (index == -1)

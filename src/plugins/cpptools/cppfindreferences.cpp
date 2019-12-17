@@ -284,7 +284,7 @@ static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
 
     const Utils::FilePath sourceFile = Utils::FilePath::fromUtf8(symbol->fileName(),
                                                                  symbol->fileNameLength());
-    Utils::FilePathList files{sourceFile};
+    Utils::FilePaths files{sourceFile};
 
     if (symbol->isClass()
         || symbol->isForwardClassDeclaration()
@@ -689,7 +689,7 @@ static void findMacroUses_helper(QFutureInterface<CPlusPlus::Usage> &future,
                                  const CPlusPlus::Macro macro)
 {
     const Utils::FilePath sourceFile = Utils::FilePath::fromString(macro.fileName());
-    Utils::FilePathList files{sourceFile};
+    Utils::FilePaths files{sourceFile};
     files = Utils::filteredUnique(files + snapshot.filesDependingOn(sourceFile));
 
     future.setProgressRange(0, files.size());

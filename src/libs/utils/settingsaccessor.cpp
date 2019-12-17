@@ -217,7 +217,7 @@ QVariantMap SettingsAccessor::prepareToWriteSettings(const QVariantMap &data) co
 // BackingUpSettingsAccessor:
 // --------------------------------------------------------------------
 
-FilePathList BackUpStrategy::readFileCandidates(const FilePath &baseFileName) const
+FilePaths BackUpStrategy::readFileCandidates(const FilePath &baseFileName) const
 {
 
     const QFileInfo pfi = baseFileName.toFileInfo();
@@ -264,7 +264,7 @@ BackingUpSettingsAccessor::BackingUpSettingsAccessor(std::unique_ptr<BackUpStrat
 SettingsAccessor::RestoreData
 BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
 {
-    const FilePathList fileList = readFileCandidates(path);
+    const FilePaths fileList = readFileCandidates(path);
     if (fileList.isEmpty()) // No settings found at all.
         return RestoreData(path, QVariantMap());
 
@@ -301,9 +301,9 @@ BackingUpSettingsAccessor::writeData(const FilePath &path, const QVariantMap &da
     return SettingsAccessor::writeData(path, data, parent);
 }
 
-FilePathList BackingUpSettingsAccessor::readFileCandidates(const FilePath &path) const
+FilePaths BackingUpSettingsAccessor::readFileCandidates(const FilePath &path) const
 {
-    FilePathList result = Utils::filteredUnique(m_strategy->readFileCandidates(path));
+    FilePaths result = Utils::filteredUnique(m_strategy->readFileCandidates(path));
     if (result.removeOne(baseFilePath()))
         result.prepend(baseFilePath());
 
@@ -311,7 +311,7 @@ FilePathList BackingUpSettingsAccessor::readFileCandidates(const FilePath &path)
 }
 
 SettingsAccessor::RestoreData
-BackingUpSettingsAccessor::bestReadFileData(const FilePathList &candidates, QWidget *parent) const
+BackingUpSettingsAccessor::bestReadFileData(const FilePaths &candidates, QWidget *parent) const
 {
     SettingsAccessor::RestoreData bestMatch;
     for (const FilePath &c : candidates) {

@@ -72,7 +72,7 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 {
     Utils::Environment env = Environment::systemEnvironment();
 
-    Utils::FilePathList path = env.path();
+    Utils::FilePaths path = env.path();
     path = Utils::filteredUnique(path);
 
     if (HostOsInfo::isWindowsHost()) {
@@ -93,7 +93,7 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 
     const QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
 
-    FilePathList suspects;
+    FilePaths suspects;
     foreach (const Utils::FilePath &base, path) {
         if (base.isEmpty())
             continue;

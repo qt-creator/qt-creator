@@ -44,7 +44,7 @@ public:
     ~CppcheckTextMarkManager() override;
 
     void add(const Diagnostic &diagnostic) override;
-    void clearFiles(const Utils::FilePathList &files);
+    void clearFiles(const Utils::FilePaths &files);
 
 private:
     using MarkPtr = std::unique_ptr<CppcheckTextMark>;

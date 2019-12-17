@@ -29,7 +29,7 @@
 
 namespace Utils {
 class FilePath;
-using FilePathList = QList<FilePath>;
+using FilePaths = QList<FilePath>;
 } // namespace Utils
 
 namespace ProjectExplorer {
@@ -51,7 +51,7 @@ public:
                     const ProjectExplorer::Project *project);
 
     CppcheckOptions options() const;
-    Utils::FilePathList filePaths() const;
+    Utils::FilePaths filePaths() const;
     QSize sizeHint() const override;
 
 private:

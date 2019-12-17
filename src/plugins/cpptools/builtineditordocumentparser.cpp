@@ -269,7 +269,7 @@ void BuiltinEditorDocumentParser::addFileAndDependencies(Snapshot *snapshot,
 
     toRemove->insert(fileName);
     if (fileName != Utils::FilePath::fromString(filePath())) {
-        Utils::FilePathList deps = snapshot->filesDependingOn(fileName);
+        Utils::FilePaths deps = snapshot->filesDependingOn(fileName);
         toRemove->unite(Utils::toSet(deps));
     }
 }

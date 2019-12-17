@@ -1397,7 +1397,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     if (result->state == QmakeEvalResult::EvalOk) {
         if (result->projectType == ProjectType::SubDirsTemplate) {
             QStringList errors;
-            FilePathList subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
+            FilePaths subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
             result->errors.append(errors);
 
             foreach (const Utils::FilePath &subDirName, subDirs) {
@@ -1434,7 +1434,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     }
 
     if (result->projectType == ProjectType::SubDirsTemplate) {
-        FilePathList subDirs = subDirsPaths(input.readerCumulative, input.projectDir, nullptr, nullptr);
+        FilePaths subDirs = subDirsPaths(input.readerCumulative, input.projectDir, nullptr, nullptr);
         foreach (const Utils::FilePath &subDirName, subDirs) {
             auto it = result->includedFiles.children.find(subDirName);
             if (it == result->includedFiles.children.end()) {
@@ -1869,12 +1869,12 @@ QStringList QmakeProFile::libDirectories(QtSupport::ProFileReader *reader)
     return result;
 }
 
-FilePathList QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
+FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
                                             const QString &projectDir,
                                             QStringList *subProjectsNotToDeploy,
                                             QStringList *errors)
 {
-    FilePathList subProjectPaths;
+    FilePaths subProjectPaths;
 
     const QStringList subDirVars = reader->values(QLatin1String("SUBDIRS"));
 
@@ -2043,7 +2043,7 @@ FilePath QmakeProFile::buildDir(BuildConfiguration *bc) const
     return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
 }
 
-FilePathList QmakeProFile::generatedFiles(const FilePath &buildDir,
+FilePaths QmakeProFile::generatedFiles(const FilePath &buildDir,
                                           const FilePath &sourceFile,
                                           const FileType &sourceFileType) const
 {
@@ -2086,7 +2086,7 @@ void QmakeProFile::setupExtraCompiler(const FilePath &buildDir,
                                        const FileType &fileType, ExtraCompilerFactory *factory)
 {
     for (const FilePath &fn : collectFiles(fileType)) {
-        const FilePathList generated = generatedFiles(buildDir, fn, fileType);
+        const FilePaths generated = generatedFiles(buildDir, fn, fileType);
         if (!generated.isEmpty())
             m_extraCompilers.append(factory->create(m_buildSystem->project(), fn, generated));
     }

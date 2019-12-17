@@ -633,7 +633,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     d->docLocker.unlock();
 
     // recalculate file list
-    FilePathList fileList;
+    FilePaths fileList;
 
     // check all projects
     for (const Project *prj : SessionManager::projects())

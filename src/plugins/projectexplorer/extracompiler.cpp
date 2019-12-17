@@ -71,7 +71,7 @@ public:
 };
 
 ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FilePath &source,
-                             const Utils::FilePathList &targets, QObject *parent) :
+                             const Utils::FilePaths &targets, QObject *parent) :
     QObject(parent), d(std::make_unique<ExtraCompilerPrivate>())
 {
     d->project = project;
@@ -146,7 +146,7 @@ QByteArray ExtraCompiler::content(const Utils::FilePath &file) const
     return d->contents.value(file);
 }
 
-Utils::FilePathList ExtraCompiler::targets() const
+Utils::FilePaths ExtraCompiler::targets() const
 {
     return d->contents.keys();
 }
@@ -323,7 +323,7 @@ ExtraCompilerFactory::~ExtraCompilerFactory()
 
 void ExtraCompilerFactory::annouceCreation(const Project *project,
                                            const Utils::FilePath &source,
-                                           const Utils::FilePathList &targets)
+                                           const Utils::FilePaths &targets)
 {
     for (ExtraCompilerFactoryObserver *observer : *observers)
         observer->newExtraCompiler(project, source, targets);
@@ -335,7 +335,7 @@ QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
 }
 
 ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const Utils::FilePath &source,
-                                           const Utils::FilePathList &targets, QObject *parent) :
+                                           const Utils::FilePaths &targets, QObject *parent) :
     ExtraCompiler(project, source, targets, parent)
 { }
 

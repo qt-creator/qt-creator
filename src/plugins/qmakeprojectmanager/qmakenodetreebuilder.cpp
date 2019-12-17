@@ -133,7 +133,7 @@ namespace QmakeProjectManager {
 static void createTree(QmakeBuildSystem *buildSystem,
                        const QmakePriFile *pri,
                        QmakePriFileNode *node,
-                       const FilePathList &toExclude)
+                       const FilePaths &toExclude)
 {
     QTC_ASSERT(pri, return);
     QTC_ASSERT(node, return);
@@ -146,7 +146,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
 
     // other normal files:
     const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
-    FilePathList generatedFiles;
+    FilePaths generatedFiles;
     const auto proFile = dynamic_cast<const QmakeProFile *>(pri);
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
@@ -242,7 +242,7 @@ std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeBuildSyst
     Target *t = buildSystem->target();
     BaseQtVersion *qt = QtKitAspect::qtVersion(t->kit());
 
-    const FilePathList toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FilePathList();
+    const FilePaths toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FilePaths();
 
     auto root = std::make_unique<QmakeProFileNode>(buildSystem,
                                                    buildSystem->projectFilePath(),

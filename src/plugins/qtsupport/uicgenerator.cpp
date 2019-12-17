@@ -44,7 +44,7 @@ using namespace ProjectExplorer;
 namespace QtSupport {
 
 UicGenerator::UicGenerator(const Project *project, const Utils::FilePath &source,
-                           const Utils::FilePathList &targets, QObject *parent) :
+                           const Utils::FilePaths &targets, QObject *parent) :
     ProcessExtraCompiler(project, source, targets, parent)
 {
     QTC_ASSERT(targets.count() == 1, return);
@@ -76,7 +76,7 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
         return result;
 
-    const Utils::FilePathList targetList = targets();
+    const Utils::FilePaths targetList = targets();
     if (targetList.size() != 1)
         return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
@@ -105,7 +105,7 @@ QString UicGeneratorFactory::sourceTag() const
 
 ExtraCompiler *UicGeneratorFactory::create(const Project *project,
                                            const Utils::FilePath &source,
-                                           const Utils::FilePathList &targets)
+                                           const Utils::FilePaths &targets)
 {
     annouceCreation(project, source, targets);
 

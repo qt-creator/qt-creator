@@ -550,12 +550,12 @@ void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int 
 
 }
 
-static Utils::FilePathList collectQtIncludePaths(const ProjectExplorer::Kit *kit)
+static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
 {
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit);
     if (qt == nullptr)
-        return Utils::FilePathList();
-    Utils::FilePathList paths{qt->headerPath()};
+        return Utils::FilePaths();
+    Utils::FilePaths paths{qt->headerPath()};
     QDirIterator dit(paths.first().toString(), QStringList(), QDir::Dirs | QDir::NoDotAndDotDot,
                      QDirIterator::Subdirectories);
     while (dit.hasNext()) {
@@ -570,9 +570,9 @@ static Utils::FilePath sysroot(const Kit *kit)
     return SysRootKitAspect::sysRoot(kit);
 }
 
-static Utils::FilePathList sourceFiles(const Project *currentProject = nullptr)
+static Utils::FilePaths sourceFiles(const Project *currentProject = nullptr)
 {
-    Utils::FilePathList sourceFiles;
+    Utils::FilePaths sourceFiles;
 
     // Have the current project first.
     if (currentProject)

@@ -83,7 +83,7 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
     const QList<Core::IEditor *> editorList = !editors.isEmpty()
             ? editors : Core::DocumentModel::editorsForOpenedDocuments();
 
-    Utils::FilePathList toCheck;
+    Utils::FilePaths toCheck;
     for (const Core::IEditor *editor : editorList) {
         QTC_ASSERT(editor, continue);
         Core::IDocument *document = editor->document();
@@ -128,7 +128,7 @@ void CppcheckTrigger::removeEditors(const QList<Core::IEditor *> &editors)
     const QList<Core::IEditor *> editorList = !editors.isEmpty()
             ? editors : Core::DocumentModel::editorsForOpenedDocuments();
 
-    Utils::FilePathList toRemove;
+    Utils::FilePaths toRemove;
     for (const Core::IEditor *editor : editorList) {
         QTC_ASSERT(editor, return);
         const Core::IDocument *document = editor->document();
@@ -185,12 +185,12 @@ void CppcheckTrigger::updateProjectFiles(ProjectExplorer::Project *project)
     checkEditors(Core::DocumentModel::editorsForOpenedDocuments());
 }
 
-void CppcheckTrigger::check(const Utils::FilePathList &files)
+void CppcheckTrigger::check(const Utils::FilePaths &files)
 {
     m_tool.check(files);
 }
 
-void CppcheckTrigger::remove(const Utils::FilePathList &files)
+void CppcheckTrigger::remove(const Utils::FilePaths &files)
 {
     m_marks.clearFiles(files);
     m_tool.stop(files);

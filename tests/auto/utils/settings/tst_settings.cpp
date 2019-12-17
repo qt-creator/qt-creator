@@ -77,7 +77,7 @@ public:
 
     QHash<Utils::FilePath, QVariantMap> files() const { return m_files; }
     void addFile(const Utils::FilePath &path, const QVariantMap &data) const { m_files.insert(path, data); }
-    Utils::FilePathList fileNames() const { return m_files.keys(); }
+    Utils::FilePaths fileNames() const { return m_files.keys(); }
     QVariantMap fileContents(const Utils::FilePath &path) const { return m_files.value(path); }
 
 protected:
@@ -137,7 +137,7 @@ public:
         VersionedBackUpStrategy(accessor)
     { }
 
-    FilePathList readFileCandidates(const Utils::FilePath &baseFileName) const
+    FilePaths readFileCandidates(const Utils::FilePath &baseFileName) const
     {
         return Utils::filtered(static_cast<const BasicTestSettingsAccessor *>(accessor())->fileNames(),
                                [&baseFileName](const Utils::FilePath &f) {

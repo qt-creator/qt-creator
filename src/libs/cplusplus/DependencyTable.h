@@ -44,7 +44,7 @@ class CPLUSPLUS_EXPORT DependencyTable
 private:
     friend class Snapshot;
     void build(const Snapshot &snapshot);
-    Utils::FilePathList filesDependingOn(const Utils::FilePath &fileName) const;
+    Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
 
     QVector<Utils::FilePath> files;
     QHash<Utils::FilePath, int> fileIndex;

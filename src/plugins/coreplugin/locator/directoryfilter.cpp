@@ -233,7 +233,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     }
     Utils::SubDirFileIterator subDirIterator(directories, m_filters, m_exclusionFilters);
     future.setProgressRange(0, subDirIterator.maxProgress());
-    Utils::FilePathList filesFound;
+    Utils::FilePaths filesFound;
     auto end = subDirIterator.end();
     for (auto it = subDirIterator.begin(); it != end; ++it) {
         if (future.isCanceled())

@@ -119,7 +119,7 @@ void NimCompilerBuildStepConfigWidget::updateTargetComboBox()
     // Re enter the files
     m_ui->targetComboBox->clear();
 
-    const FilePathList nimFiles = m_buildStep->project()->files([](const Node *n) {
+    const FilePaths nimFiles = m_buildStep->project()->files([](const Node *n) {
         return Project::AllFiles(n) && n->path().endsWith(".nim");
     });
 

@@ -51,7 +51,7 @@ public:
 
     class CORE_EXPORT ListIterator : public Iterator {
     public:
-        ListIterator(const Utils::FilePathList &filePaths);
+        ListIterator(const Utils::FilePaths &filePaths);
 
         void toFront() override;
         bool hasNext() const override;
@@ -59,8 +59,8 @@ public:
         Utils::FilePath filePath() const override;
 
     private:
-        Utils::FilePathList m_filePaths;
-        Utils::FilePathList::const_iterator m_pathPosition;
+        Utils::FilePaths m_filePaths;
+        Utils::FilePaths::const_iterator m_pathPosition;
     };
 
     BaseFileFilter();

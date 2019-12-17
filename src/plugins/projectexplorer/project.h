@@ -124,7 +124,7 @@ public:
     static const NodeMatcher SourceFiles;
     static const NodeMatcher GeneratedFiles;
 
-    Utils::FilePathList files(const NodeMatcher &matcher) const;
+    Utils::FilePaths files(const NodeMatcher &matcher) const;
     bool isKnownFile(const Utils::FilePath &filename) const;
 
     virtual QVariantMap toMap() const;

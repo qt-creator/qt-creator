@@ -100,7 +100,7 @@ FilePath  FileInProjectFinder::projectDirectory() const
     return m_projectDir;
 }
 
-void FileInProjectFinder::setProjectFiles(const FilePathList &projectFiles)
+void FileInProjectFinder::setProjectFiles(const FilePaths &projectFiles)
 {
     if (m_projectFiles == projectFiles)
         return;
@@ -142,12 +142,12 @@ void FileInProjectFinder::addMappedPath(const FilePath &localFilePath, const QSt
   folder specified. Third, we walk the list of project files, and search for a file name match
   there. If all fails, it returns the original path from the file URL.
   */
-FilePathList FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
+FilePaths FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 {
     qCDebug(finderLog) << "FileInProjectFinder: trying to find file" << fileUrl.toString() << "...";
 
     if (fileUrl.scheme() == "qrc" || fileUrl.toString().startsWith(':')) {
-        const FilePathList result = m_qrcUrlFinder.find(fileUrl);
+        const FilePaths result = m_qrcUrlFinder.find(fileUrl);
         if (!result.isEmpty()) {
             if (success)
                 *success = true;
@@ -159,7 +159,7 @@ FilePathList FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) c
     if (originalPath.isEmpty()) // e.g. qrc://
         originalPath = fileUrl.path();
 
-    FilePathList result;
+    FilePaths result;
     bool found = findFileOrDirectory(originalPath, [&](const QString &fileName, int) {
         result << FilePath::fromString(fileName);
     });
@@ -446,12 +446,12 @@ QStringList FileInProjectFinder::bestMatches(const QStringList &filePaths,
     return bestFilePaths;
 }
 
-FilePathList FileInProjectFinder::searchDirectories() const
+FilePaths FileInProjectFinder::searchDirectories() const
 {
     return m_searchDirectories;
 }
 
-void FileInProjectFinder::setAdditionalSearchDirectories(const FilePathList &searchDirectories)
+void FileInProjectFinder::setAdditionalSearchDirectories(const FilePaths &searchDirectories)
 {
     m_searchDirectories = searchDirectories;
 }
@@ -461,7 +461,7 @@ FileInProjectFinder::PathMappingNode::~PathMappingNode()
     qDeleteAll(children);
 }
 
-FilePathList FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
+FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
 {
     const auto fileIt = m_fileCache.constFind(fileUrl);
     if (fileIt != m_fileCache.cend())
@@ -476,19 +476,19 @@ FilePathList FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
         qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);
     }
     hits.removeDuplicates();
-    const FilePathList result = transform(hits, &FilePath::fromString);
+    const FilePaths result = transform(hits, &FilePath::fromString);
     m_fileCache.insert(fileUrl, result);
     return result;
 }
 
-void FileInProjectFinder::QrcUrlFinder::setProjectFiles(const FilePathList &projectFiles)
+void FileInProjectFinder::QrcUrlFinder::setProjectFiles(const FilePaths &projectFiles)
 {
     m_allQrcFiles = filtered(projectFiles, [](const FilePath &f) { return f.endsWith(".qrc"); });
     m_fileCache.clear();
     m_parserCache.clear();
 }
 
-FilePath chooseFileFromList(const FilePathList &candidates)
+FilePath chooseFileFromList(const FilePaths &candidates)
 {
     if (candidates.length() == 1)
         return candidates.first();

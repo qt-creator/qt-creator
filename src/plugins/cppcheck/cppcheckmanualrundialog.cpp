@@ -93,7 +93,7 @@ CppcheckOptions ManualRunDialog::options() const
     return result;
 }
 
-Utils::FilePathList ManualRunDialog::filePaths() const
+Utils::FilePaths ManualRunDialog::filePaths() const
 {
     return m_model->selectedFiles();
 }

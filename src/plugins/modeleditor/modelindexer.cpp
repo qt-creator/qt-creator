@@ -395,7 +395,7 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
         return;
 
     // TODO harmonize following code with findFirstModel()?
-    const Utils::FilePathList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
     QQueue<QueuedFile> filesQueue;
     QSet<QueuedFile> filesSet;
 
@@ -477,7 +477,7 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode)
 
 void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
 {
-    const Utils::FilePathList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
 
     QMutexLocker locker(&d->indexerMutex);
     for (const Utils::FilePath &file : files) {

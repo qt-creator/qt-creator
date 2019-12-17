@@ -150,7 +150,7 @@ public:
     // Used by Android to avoid false positives on warnOnRelease
     bool skipExecutableValidation = false;
     bool useTargetAsync = false;
-    Utils::FilePathList additionalSearchDirectories;
+    Utils::FilePaths additionalSearchDirectories;
 
     // Used by iOS.
     QString platform;
@@ -181,7 +181,7 @@ public:
     ProjectExplorer::Abi toolChainAbi;
 
     Utils::FilePath projectSourceDirectory;
-    Utils::FilePathList projectSourceFiles;
+    Utils::FilePaths projectSourceFiles;
 
     // Used by Script debugging
     QString interpreter;

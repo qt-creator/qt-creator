@@ -83,12 +83,12 @@ QString GenericProjectWizardDialog::path() const
     return m_firstPage->path();
 }
 
-Utils::FilePathList GenericProjectWizardDialog::selectedPaths() const
+Utils::FilePaths GenericProjectWizardDialog::selectedPaths() const
 {
     return m_secondPage->selectedPaths();
 }
 
-Utils::FilePathList GenericProjectWizardDialog::selectedFiles() const
+Utils::FilePaths GenericProjectWizardDialog::selectedFiles() const
 {
     return m_secondPage->selectedFiles();
 }

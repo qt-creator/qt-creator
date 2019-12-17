@@ -183,7 +183,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
         for (auto it = m_sourcesForGeneratedFiles.cbegin();
              it != m_sourcesForGeneratedFiles.cend(); ++it) {
             for (const QString &sourceFile : it.value()) {
-                const FilePathList generatedFilePaths = transform(
+                const FilePaths generatedFilePaths = transform(
                             generatedFiles.value(sourceFile),
                             [](const QString &s) { return FilePath::fromString(s); });
                 if (!generatedFilePaths.empty()) {

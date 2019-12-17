@@ -446,7 +446,7 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
         while (filePath.startsWith("../"))
             filePath.remove(0, 3);
         bool found = false;
-        const Utils::FilePathList candidates
+        const Utils::FilePaths candidates
                 = d->m_fileFinder.findFile(QUrl::fromLocalFile(filePath), &found);
         if (found && candidates.size() == 1)
             editable.file = candidates.first();

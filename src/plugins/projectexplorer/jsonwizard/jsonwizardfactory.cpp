@@ -334,9 +334,9 @@ static QStringList environmentTemplatesPaths()
     return paths;
 }
 
-Utils::FilePathList &JsonWizardFactory::searchPaths()
+Utils::FilePaths &JsonWizardFactory::searchPaths()
 {
-    static Utils::FilePathList m_searchPaths = Utils::FilePathList()
+    static Utils::FilePaths m_searchPaths = Utils::FilePaths()
             << Utils::FilePath::fromString(Core::ICore::userResourcePath() + QLatin1Char('/') +
                                            QLatin1String(WIZARD_PATH))
             << Utils::FilePath::fromString(Core::ICore::resourcePath() + QLatin1Char('/') +

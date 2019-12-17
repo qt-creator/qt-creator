@@ -181,11 +181,11 @@ const CppcheckOptions &CppcheckTool::options() const
     return m_options;
 }
 
-void CppcheckTool::check(const Utils::FilePathList &files)
+void CppcheckTool::check(const Utils::FilePaths &files)
 {
     QTC_ASSERT(m_project, return);
 
-    Utils::FilePathList filtered;
+    Utils::FilePaths filtered;
     if (m_filters.isEmpty()) {
         filtered = files;
     } else {
@@ -208,7 +208,7 @@ void CppcheckTool::check(const Utils::FilePathList &files)
         return;
     }
 
-    std::map<CppTools::ProjectPart::Ptr, Utils::FilePathList> groups;
+    std::map<CppTools::ProjectPart::Ptr, Utils::FilePaths> groups;
     for (const Utils::FilePath &file : qAsConst(filtered)) {
         const QString stringed = file.toString();
         for (const CppTools::ProjectPart::Ptr &part : parts) {
@@ -224,7 +224,7 @@ void CppcheckTool::check(const Utils::FilePathList &files)
         addToQueue(group.second, *group.first);
 }
 
-void CppcheckTool::addToQueue(const Utils::FilePathList &files, CppTools::ProjectPart &part)
+void CppcheckTool::addToQueue(const Utils::FilePaths &files, CppTools::ProjectPart &part)
 {
     const QString key = part.id();
     if (!m_cachedAdditionalArguments.contains(key))
@@ -232,7 +232,7 @@ void CppcheckTool::addToQueue(const Utils::FilePathList &files, CppTools::Projec
     m_runner->addToQueue(files, m_cachedAdditionalArguments[key]);
 }
 
-void CppcheckTool::stop(const Utils::FilePathList &files)
+void CppcheckTool::stop(const Utils::FilePaths &files)
 {
     m_runner->removeFromQueue(files);
     m_runner->stop(files);

@@ -77,7 +77,7 @@ private:
     QDialog *m_dialog = nullptr;
     Internal::Ui::DirectoryFilterOptions *m_ui = nullptr;
     mutable QMutex m_lock;
-    Utils::FilePathList m_files;
+    Utils::FilePaths m_files;
     bool m_isCustomFilter = true;
 };
 

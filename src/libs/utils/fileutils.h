@@ -128,7 +128,7 @@ private:
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
 
-using FilePathList = QList<FilePath>;
+using FilePaths = QList<FilePath>;
 
 class QTCREATOR_UTILS_EXPORT CommandLine
 {

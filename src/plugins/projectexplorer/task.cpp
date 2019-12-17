@@ -124,7 +124,7 @@ void Task::setFile(const Utils::FilePath &file_)
 {
     file = file_;
     if (!file.isEmpty() && !file.toFileInfo().isAbsolute()) {
-        Utils::FilePathList possiblePaths = findFileInSession(file);
+        Utils::FilePaths possiblePaths = findFileInSession(file);
         if (possiblePaths.length() == 1)
             file = possiblePaths.first();
         else

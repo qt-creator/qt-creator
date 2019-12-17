@@ -59,7 +59,7 @@ public:
         RO_SaveAs = SaveAs
     };
 
-    explicit ReadOnlyFilesDialog(const Utils::FilePathList &filePaths,
+    explicit ReadOnlyFilesDialog(const Utils::FilePaths &filePaths,
                                  QWidget *parent = nullptr);
     explicit ReadOnlyFilesDialog(const Utils::FilePath &filePath,
                                  QWidget * parent = nullptr);

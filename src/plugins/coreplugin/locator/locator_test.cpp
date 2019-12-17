@@ -45,7 +45,7 @@ QTC_DECLARE_MYTESTDATADIR("../../../../tests/locators/")
 class MyBaseFileFilter : public Core::BaseFileFilter
 {
 public:
-    MyBaseFileFilter(const Utils::FilePathList &theFiles)
+    MyBaseFileFilter(const Utils::FilePaths &theFiles)
     {
         setFileIterator(new BaseFileFilter::ListIterator(theFiles));
     }

@@ -1904,14 +1904,14 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     QSsh::SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {
-        Utils::FilePathList searchPaths;
+        Utils::FilePaths searchPaths;
         searchPaths << Utils::FilePath::fromString(Core::ICore::libexecPath());
         if (Utils::HostOsInfo::isWindowsHost()) {
             const QString gitBinary = Core::ICore::settings()->value("Git/BinaryPath", "git")
                     .toString();
             const QStringList rawGitSearchPaths = Core::ICore::settings()->value("Git/Path")
                     .toString().split(':', QString::SkipEmptyParts);
-            const Utils::FilePathList gitSearchPaths = Utils::transform(rawGitSearchPaths,
+            const Utils::FilePaths gitSearchPaths = Utils::transform(rawGitSearchPaths,
                     [](const QString &rawPath) { return Utils::FilePath::fromString(rawPath); });
             const Utils::FilePath fullGitPath = Utils::Environment::systemEnvironment()
                     .searchInPath(gitBinary, gitSearchPaths);
@@ -3578,7 +3578,7 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
     QTC_ASSERT(folderNode, return);
 
     SelectableFilesDialogAddDirectory dialog(Utils::FilePath::fromString(node->directory()),
-                                             Utils::FilePathList(), ICore::mainWindow());
+                                             Utils::FilePaths(), ICore::mainWindow());
     dialog.setAddFileFilter({});
 
     if (dialog.exec() == QDialog::Accepted)

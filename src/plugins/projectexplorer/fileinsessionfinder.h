@@ -32,6 +32,6 @@
 namespace ProjectExplorer {
 
 // Possibly used by "QtCreatorTerminalPlugin"
-PROJECTEXPLORER_EXPORT Utils::FilePathList findFileInSession(const Utils::FilePath &filePath);
+PROJECTEXPLORER_EXPORT Utils::FilePaths findFileInSession(const Utils::FilePath &filePath);
 
 } // namespace ProjectExplorer

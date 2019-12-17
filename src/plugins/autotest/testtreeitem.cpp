@@ -369,7 +369,7 @@ QSet<QString> TestTreeItem::dependingInternalTargets(CppTools::CppModelManager *
     bool wasHeader;
     const QString correspondingFile
             = CppTools::correspondingHeaderOrSource(file, &wasHeader, CppTools::CacheUsage::ReadOnly);
-    const Utils::FilePathList dependingFiles = snapshot.filesDependingOn(
+    const Utils::FilePaths dependingFiles = snapshot.filesDependingOn(
                 wasHeader ? file : correspondingFile);
     for (const Utils::FilePath &fn : dependingFiles) {
         for (const CppTools::ProjectPart::Ptr &part : cppMM->projectPart(fn))

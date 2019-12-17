@@ -387,7 +387,7 @@ static Utils::FilePath findLocalCompiler(const Utils::FilePath &compilerPath,
         return compilerPath;
 
     // Filter out network compilers
-    const FilePathList pathComponents = Utils::filtered(env.path(), [] (const FilePath &dirPath) {
+    const FilePaths pathComponents = Utils::filtered(env.path(), [] (const FilePath &dirPath) {
         return !isNetworkCompiler(dirPath.toString());
     });
 
@@ -905,7 +905,7 @@ Utils::FilePath GccToolChain::detectInstallDir() const
 // GccToolChainFactory
 // --------------------------------------------------------------------------
 
-static Utils::FilePathList gnuSearchPathsFromRegistry()
+static Utils::FilePaths gnuSearchPathsFromRegistry()
 {
     if (!HostOsInfo::isWindowsHost())
         return {};
@@ -914,7 +914,7 @@ static Utils::FilePathList gnuSearchPathsFromRegistry()
     static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
                                          "Windows\\CurrentVersion\\Uninstall\\";
 
-    Utils::FilePathList searchPaths;
+    Utils::FilePaths searchPaths;
 
     QSettings registry(kRegistryToken, QSettings::NativeFormat);
     const auto productGroups = registry.childGroups();
@@ -937,7 +937,7 @@ static Utils::FilePathList gnuSearchPathsFromRegistry()
     return searchPaths;
 }
 
-static Utils::FilePathList atmelSearchPathsFromRegistry()
+static Utils::FilePaths atmelSearchPathsFromRegistry()
 {
     if (!HostOsInfo::isWindowsHost())
         return {};
@@ -946,7 +946,7 @@ static Utils::FilePathList atmelSearchPathsFromRegistry()
     // "Atmel Studio" IDE.
     static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Atmel\\";
 
-    Utils::FilePathList searchPaths;
+    Utils::FilePaths searchPaths;
     QSettings registry(kRegistryToken, QSettings::NativeFormat);
 
     // This code enumerate the installed toolchains provided
@@ -1015,7 +1015,7 @@ static Utils::FilePathList atmelSearchPathsFromRegistry()
     return searchPaths;
 }
 
-static Utils::FilePathList renesasRl78SearchPathsFromRegistry()
+static Utils::FilePaths renesasRl78SearchPathsFromRegistry()
 {
     if (!HostOsInfo::isWindowsHost())
         return {};
@@ -1024,7 +1024,7 @@ static Utils::FilePathList renesasRl78SearchPathsFromRegistry()
     static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
                                          "Windows\\CurrentVersion\\Uninstall";
 
-    Utils::FilePathList searchPaths;
+    Utils::FilePaths searchPaths;
 
     QSettings registry(QLatin1String(kRegistryToken), QSettings::NativeFormat);
     const auto productGroups = registry.childGroups();
@@ -1093,13 +1093,13 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
         const Core::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
         const ToolchainChecker &checker)
 {
-    FilePathList compilerPaths;
+    FilePaths compilerPaths;
     QFileInfo fi(compilerName);
     if (fi.isAbsolute()) {
         if (fi.isFile())
             compilerPaths << FilePath::fromString(compilerName);
     } else {
-        FilePathList searchPaths = Environment::systemEnvironment().path();
+        FilePaths searchPaths = Environment::systemEnvironment().path();
         searchPaths << gnuSearchPathsFromRegistry();
         searchPaths << atmelSearchPathsFromRegistry();
         searchPaths << renesasRl78SearchPathsFromRegistry();

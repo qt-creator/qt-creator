@@ -591,11 +591,11 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 /*!
  * Returns a sorted list of all files matching the predicate \a filter.
  */
-Utils::FilePathList Project::files(const Project::NodeMatcher &filter) const
+Utils::FilePaths Project::files(const Project::NodeMatcher &filter) const
 {
     QTC_ASSERT(filter, return {});
 
-    Utils::FilePathList result;
+    Utils::FilePaths result;
     if (d->m_sortedNodeList.empty() && filter(containerNode()))
         result.append(projectFilePath());
 
@@ -1177,14 +1177,14 @@ void ProjectExplorerPlugin::testProject_projectTree()
     QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), true);
     QCOMPARE(project.isKnownFile(TEST_PROJECT_GENERATED_FILE), true);
 
-    Utils::FilePathList allFiles = project.files(Project::AllFiles);
+    Utils::FilePaths allFiles = project.files(Project::AllFiles);
     QCOMPARE(allFiles.count(), 3);
     QVERIFY(allFiles.contains(TEST_PROJECT_PATH));
     QVERIFY(allFiles.contains(TEST_PROJECT_CPP_FILE));
     QVERIFY(allFiles.contains(TEST_PROJECT_GENERATED_FILE));
 
     QCOMPARE(project.files(Project::GeneratedFiles), {TEST_PROJECT_GENERATED_FILE});
-    Utils::FilePathList sourceFiles = project.files(Project::SourceFiles);
+    Utils::FilePaths sourceFiles = project.files(Project::SourceFiles);
     QCOMPARE(sourceFiles.count(), 2);
     QVERIFY(sourceFiles.contains(TEST_PROJECT_PATH));
     QVERIFY(sourceFiles.contains(TEST_PROJECT_CPP_FILE));

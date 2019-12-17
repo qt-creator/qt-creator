@@ -1960,7 +1960,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
 
             Snapshot localForwardHeaders = forwardHeaders;
             localForwardHeaders.insert(interface.snapshot().document(info->fileName()));
-            Utils::FilePathList headerAndItsForwardingHeaders;
+            Utils::FilePaths headerAndItsForwardingHeaders;
             headerAndItsForwardingHeaders << Utils::FilePath::fromString(info->fileName());
             headerAndItsForwardingHeaders += localForwardHeaders.filesDependingOn(info->fileName());
 

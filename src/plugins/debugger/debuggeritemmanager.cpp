@@ -625,7 +625,7 @@ void DebuggerOptionsPage::finish()
 
 void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 {
-    FilePathList cdbs;
+    FilePaths cdbs;
 
     const QStringList programDirs = {
         QString::fromLocal8Bit(qgetenv("ProgramFiles")),
@@ -697,7 +697,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
     }
 }
 
-static Utils::FilePathList searchGdbPathsFromRegistry()
+static Utils::FilePaths searchGdbPathsFromRegistry()
 {
     if (!HostOsInfo::isWindowsHost())
         return {};
@@ -706,7 +706,7 @@ static Utils::FilePathList searchGdbPathsFromRegistry()
     static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
                                          "Windows\\CurrentVersion\\Uninstall\\";
 
-    Utils::FilePathList searchPaths;
+    Utils::FilePaths searchPaths;
 
     QSettings registry(kRegistryToken, QSettings::NativeFormat);
     const auto productGroups = registry.childGroups();
@@ -755,7 +755,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     }
     */
 
-    FilePathList suspects;
+    FilePaths suspects;
 
     if (HostOsInfo::isMacHost()) {
         SynchronousProcess lldbInfo;
@@ -771,7 +771,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
         }
     }
 
-    FilePathList path = Utils::filteredUnique(
+    FilePaths path = Utils::filteredUnique(
                 Environment::systemEnvironment().path() + searchGdbPathsFromRegistry());
 
     QDir dir;

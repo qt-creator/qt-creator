@@ -43,7 +43,7 @@ struct SshSettings
     FilePath sftpFilePath;
     FilePath askpassFilePath;
     FilePath keygenFilePath;
-    QSsh::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FilePathList(); };
+    QSsh::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FilePaths(); };
 };
 
 } // namespace Internal

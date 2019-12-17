@@ -55,7 +55,7 @@ class PROJECTEXPLORER_EXPORT ExtraCompiler : public QObject
 public:
 
     ExtraCompiler(const Project *project, const Utils::FilePath &source,
-                  const Utils::FilePathList &targets, QObject *parent = nullptr);
+                  const Utils::FilePaths &targets, QObject *parent = nullptr);
     ~ExtraCompiler() override;
 
     const Project *project() const;
@@ -66,7 +66,7 @@ public:
     void setContent(const Utils::FilePath &file, const QByteArray &content);
     QByteArray content(const Utils::FilePath &file) const;
 
-    Utils::FilePathList targets() const;
+    Utils::FilePaths targets() const;
     void forEachTarget(std::function<void(const Utils::FilePath &)> func);
 
     void setCompileTime(const QDateTime &time);
@@ -99,7 +99,7 @@ class PROJECTEXPLORER_EXPORT ProcessExtraCompiler : public ExtraCompiler
 public:
 
     ProcessExtraCompiler(const Project *project, const Utils::FilePath &source,
-                         const Utils::FilePathList &targets, QObject *parent = nullptr);
+                         const Utils::FilePaths &targets, QObject *parent = nullptr);
     ~ProcessExtraCompiler() override;
 
 protected:
@@ -147,7 +147,7 @@ protected:
 
     virtual void newExtraCompiler(const Project *project,
                                   const Utils::FilePath &source,
-                                  const Utils::FilePathList &targets)
+                                  const Utils::FilePaths &targets)
         = 0;
 };
 
@@ -163,12 +163,12 @@ public:
 
     virtual ExtraCompiler *create(const Project *project,
                                   const Utils::FilePath &source,
-                                  const Utils::FilePathList &targets)
+                                  const Utils::FilePaths &targets)
         = 0;
 
     void annouceCreation(const Project *project,
                          const Utils::FilePath &source,
-                         const Utils::FilePathList &targets);
+                         const Utils::FilePaths &targets);
 
     static QList<ExtraCompilerFactory *> extraCompilerFactories();
 };

@@ -154,7 +154,7 @@ class QTCREATOR_UTILS_EXPORT BackUpStrategy
 public:
     virtual ~BackUpStrategy() = default;
 
-    virtual FilePathList readFileCandidates(const FilePath &baseFileName) const;
+    virtual FilePaths readFileCandidates(const FilePath &baseFileName) const;
     // Return -1 if data1 is better that data2, 0 if both are equally worthwhile
     // and 1 if data2 is better than data1
     virtual int compare(const SettingsAccessor::RestoreData &data1,
@@ -179,8 +179,8 @@ public:
     BackUpStrategy *strategy() const { return m_strategy.get(); }
 
 private:
-    FilePathList readFileCandidates(const FilePath &path) const;
-    RestoreData bestReadFileData(const FilePathList &candidates, QWidget *parent) const;
+    FilePaths readFileCandidates(const FilePath &path) const;
+    RestoreData bestReadFileData(const FilePaths &candidates, QWidget *parent) const;
     void backupFile(const FilePath &path, const QVariantMap &data, QWidget *parent) const;
 
     std::unique_ptr<BackUpStrategy> m_strategy;

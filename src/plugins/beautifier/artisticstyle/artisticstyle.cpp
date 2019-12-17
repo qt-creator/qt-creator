@@ -104,7 +104,7 @@ QString ArtisticStyle::configurationFile() const
     if (m_settings.useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const Utils::FilePathList astyleRcfiles = project->files(
+            const Utils::FilePaths astyleRcfiles = project->files(
                 [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".astylerc"); });
             for (const Utils::FilePath &file : astyleRcfiles) {
                 const QFileInfo fi = file.toFileInfo();

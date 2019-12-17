@@ -101,15 +101,15 @@ static FilePath findQmakeInDir(const FilePath &path)
 
 FilePath BuildableHelperLibrary::findSystemQt(const Environment &env)
 {
-    const FilePathList list = findQtsInEnvironment(env, 1);
+    const FilePaths list = findQtsInEnvironment(env, 1);
     return list.size() == 1 ? list.first() : FilePath();
 }
 
-FilePathList BuildableHelperLibrary::findQtsInEnvironment(const Environment &env, int maxCount)
+FilePaths BuildableHelperLibrary::findQtsInEnvironment(const Environment &env, int maxCount)
 {
-    FilePathList qmakeList;
+    FilePaths qmakeList;
     std::set<QString> canonicalEnvPaths;
-    const FilePathList paths = env.path();
+    const FilePaths paths = env.path();
     for (const FilePath &path : paths) {
         if (!canonicalEnvPaths.insert(path.toFileInfo().canonicalFilePath()).second)
             continue;

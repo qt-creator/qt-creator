@@ -50,7 +50,7 @@ public:
     }
 
     QSharedPointer<BaseFileFilter::Iterator> iterator;
-    FilePathList previousResultPaths;
+    FilePaths previousResultPaths;
     bool forceNewSearchList;
     QString previousEntry;
 };
@@ -220,7 +220,7 @@ void BaseFileFilter::updatePreviousResultData()
     // forceNewSearchList was already reset in prepareSearch
 }
 
-BaseFileFilter::ListIterator::ListIterator(const FilePathList  &filePaths)
+BaseFileFilter::ListIterator::ListIterator(const FilePaths  &filePaths)
 {
     m_filePaths = filePaths;
     toFront();

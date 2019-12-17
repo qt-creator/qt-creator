@@ -1137,7 +1137,7 @@ QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
         const Utils::FilePath &fileName) const
 {
     QSet<ProjectPart::Ptr> parts;
-    const Utils::FilePathList deps = snapshot().filesDependingOn(fileName);
+    const Utils::FilePaths deps = snapshot().filesDependingOn(fileName);
 
     QMutexLocker locker(&d->m_projectMutex);
     for (const Utils::FilePath &dep : deps)

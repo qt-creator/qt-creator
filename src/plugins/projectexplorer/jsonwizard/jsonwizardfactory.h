@@ -96,7 +96,7 @@ private:
     static QList<IWizardFactory *> createWizardFactories();
     static JsonWizardFactory *createWizardFactory(const QVariantMap &data, const QDir &baseDir,
                                                   QString *errorMessage);
-    static Utils::FilePathList &searchPaths();
+    static Utils::FilePaths &searchPaths();
 
     static void setVerbose(int level);
     static int verbose();

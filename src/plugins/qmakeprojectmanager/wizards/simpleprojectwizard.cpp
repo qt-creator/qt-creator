@@ -70,8 +70,8 @@ public:
     bool isComplete() const override { return m_filesWidget->hasFilesSelected(); }
     void initializePage() override;
     void cleanupPage() override { m_filesWidget->cancelParsing(); }
-    FilePathList selectedFiles() const { return m_filesWidget->selectedFiles(); }
-    FilePathList selectedPaths() const { return m_filesWidget->selectedPaths(); }
+    FilePaths selectedFiles() const { return m_filesWidget->selectedFiles(); }
+    FilePaths selectedPaths() const { return m_filesWidget->selectedPaths(); }
 
 private:
     SimpleProjectWizardDialog *m_simpleProjectWizardDialog;
@@ -117,8 +117,8 @@ public:
 
     QString path() const { return m_firstPage->path(); }
     void setPath(const QString &path) { m_firstPage->setPath(path); }
-    FilePathList selectedFiles() const { return m_secondPage->selectedFiles(); }
-    FilePathList selectedPaths() const { return m_secondPage->selectedPaths(); }
+    FilePaths selectedFiles() const { return m_secondPage->selectedFiles(); }
+    FilePaths selectedPaths() const { return m_secondPage->selectedPaths(); }
     QString projectName() const { return m_firstPage->fileName(); }
 
     FileWizardPage *m_firstPage;
@@ -128,7 +128,7 @@ public:
 void FilesSelectionWizardPage::initializePage()
 {
     m_filesWidget->resetModel(FilePath::fromString(m_simpleProjectWizardDialog->path()),
-                              FilePathList());
+                              FilePaths());
 }
 
 SimpleProjectWizard::SimpleProjectWizard()

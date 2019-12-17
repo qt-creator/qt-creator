@@ -61,7 +61,7 @@ public:
     static void setKeygenFilePath(const Utils::FilePath &keygen);
     static Utils::FilePath keygenFilePath();
 
-    using SearchPathRetriever = std::function<Utils::FilePathList()>;
+    using SearchPathRetriever = std::function<Utils::FilePaths()>;
     static void setExtraSearchPathRetriever(const SearchPathRetriever &pathRetriever);
 };
 

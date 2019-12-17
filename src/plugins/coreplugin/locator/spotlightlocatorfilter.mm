@@ -176,7 +176,7 @@ void SpotlightLocatorFilter::prepareSearch(const QString &entry)
 {
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
     if (fp.filePath.isEmpty()) {
-        setFileIterator(new BaseFileFilter::ListIterator(Utils::FilePathList()));
+        setFileIterator(new BaseFileFilter::ListIterator(Utils::FilePaths()));
     } else {
         // only pass the file name part to spotlight to allow searches like "somepath/*foo"
         int lastSlash = fp.filePath.lastIndexOf(QLatin1Char('/'));

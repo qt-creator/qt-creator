@@ -408,11 +408,11 @@ static QString qmakePath(const QString &qtchooser, const QString &version)
     return QString();
 }
 
-static FilePathList gatherQmakePathsFromQtChooser()
+static FilePaths gatherQmakePathsFromQtChooser()
 {
     const QString qtchooser = QStandardPaths::findExecutable(QStringLiteral("qtchooser"));
     if (qtchooser.isEmpty())
-        return FilePathList();
+        return FilePaths();
 
     const QList<QByteArray> versions = runQtChooser(qtchooser, QStringList("-l"));
     QSet<FilePath> foundQMakes;
@@ -427,12 +427,12 @@ static FilePathList gatherQmakePathsFromQtChooser()
 
 static void findSystemQt()
 {
-    FilePathList systemQMakes
+    FilePaths systemQMakes
             = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
 
     systemQMakes.append(gatherQmakePathsFromQtChooser());
 
-    const FilePathList uniqueSystemQmakes = Utils::filteredUnique(systemQMakes);
+    const FilePaths uniqueSystemQmakes = Utils::filteredUnique(systemQMakes);
     for (const FilePath &qmakePath : uniqueSystemQmakes) {
         BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qmakePath,
                                                                                 false,

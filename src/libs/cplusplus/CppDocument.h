@@ -442,8 +442,8 @@ public:
     QSet<QString> allIncludesForDocument(const QString &fileName) const;
     QList<IncludeLocation> includeLocationsOfDocument(const QString &fileName) const;
 
-    Utils::FilePathList filesDependingOn(const Utils::FilePath &fileName) const;
-    Utils::FilePathList filesDependingOn(const QString &fileName) const
+    Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
+    Utils::FilePaths filesDependingOn(const QString &fileName) const
     { return filesDependingOn(Utils::FilePath::fromString(fileName)); }
     void updateDependencyTable() const;
 

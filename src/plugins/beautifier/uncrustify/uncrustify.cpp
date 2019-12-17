@@ -145,7 +145,7 @@ QString Uncrustify::configurationFile() const
     if (m_settings.useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const Utils::FilePathList files = project->files(
+            const Utils::FilePaths files = project->files(
                 [](const ProjectExplorer::Node *n) { return n->filePath().endsWith("cfg"); });
             for (const Utils::FilePath &file : files) {
                 const QFileInfo fi = file.toFileInfo();

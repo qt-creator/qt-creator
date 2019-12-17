@@ -218,7 +218,7 @@ QString Environment::expandedValueForKey(const QString &key) const
 }
 
 FilePath Environment::searchInPath(const QString &executable,
-                                   const FilePathList &additionalDirs,
+                                   const FilePaths &additionalDirs,
                                    const PathFilter &func) const
 {
     if (executable.isEmpty())
@@ -256,8 +256,8 @@ FilePath Environment::searchInPath(const QString &executable,
     return FilePath();
 }
 
-FilePathList Environment::findAllInPath(const QString &executable,
-                                        const FilePathList &additionalDirs,
+FilePaths Environment::findAllInPath(const QString &executable,
+                                        const FilePaths &additionalDirs,
                                         const Environment::PathFilter &func) const
 {
     if (executable.isEmpty())
@@ -295,12 +295,12 @@ FilePathList Environment::findAllInPath(const QString &executable,
     return result.values();
 }
 
-FilePathList Environment::path() const
+FilePaths Environment::path() const
 {
     return pathListValue("PATH");
 }
 
-FilePathList Environment::pathListValue(const QString &varName) const
+FilePaths Environment::pathListValue(const QString &varName) const
 {
     const QStringList pathComponents = expandedValueForKey(varName)
             .split(OsSpecificAspects::pathListSeparator(m_osType), QString::SkipEmptyParts);

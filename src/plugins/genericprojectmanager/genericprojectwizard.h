@@ -46,8 +46,8 @@ public:
 
     QString path() const;
     void setPath(const QString &path);
-    Utils::FilePathList selectedFiles() const;
-    Utils::FilePathList selectedPaths() const;
+    Utils::FilePaths selectedFiles() const;
+    Utils::FilePaths selectedPaths() const;
 
     QString projectName() const;
 

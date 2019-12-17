@@ -199,7 +199,7 @@ public:
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace Qt versions
 
-    FilePathList qtCorePaths();
+    FilePaths qtCorePaths();
 
 public:
     BaseQtVersion *q;
@@ -645,9 +645,9 @@ FilePath BaseQtVersion::librarySearchPath() const
     return HostOsInfo::isWindowsHost() ? binPath() : libraryPath();
 }
 
-FilePathList BaseQtVersion::directoriesToIgnoreInProjectTree() const
+FilePaths BaseQtVersion::directoriesToIgnoreInProjectTree() const
 {
-    FilePathList result;
+    FilePaths result;
     const FilePath mkspecPathGet = mkspecsPath();
     result.append(mkspecPathGet);
 
@@ -1381,7 +1381,7 @@ FilePath BaseQtVersion::examplesPath() const // QT_INSTALL_EXAMPLES
 
 QStringList BaseQtVersion::qtSoPaths() const
 {
-    const FilePathList qtPaths = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
+    const FilePaths qtPaths = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
     QSet<QString> paths;
     for (const FilePath &p : qtPaths) {
         QString path = p.toString();
@@ -1574,7 +1574,7 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     QTC_CHECK(projects.isEmpty() || startupProject);
 
     FilePath projectDirectory;
-    FilePathList sourceFiles;
+    FilePaths sourceFiles;
 
     // Sort files from startupProject to the front of the list ...
     if (startupProject) {
@@ -1598,8 +1598,8 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     const FilePath activeSysroot = SysRootKitAspect::sysRoot(kit);
     const BaseQtVersion *qtVersion = QtVersionManager::isLoaded()
             ? QtKitAspect::qtVersion(kit) : nullptr;
-    FilePathList additionalSearchDirectories = qtVersion
-            ? FilePathList({qtVersion->qmlPath()}) : FilePathList();
+    FilePaths additionalSearchDirectories = qtVersion
+            ? FilePaths({qtVersion->qmlPath()}) : FilePaths();
 
     if (target) {
         for (const DeployableFile &file : target->deploymentData().allFiles())
@@ -2002,7 +2002,7 @@ bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
     return true;
 }
 
-FilePathList BaseQtVersionPrivate::qtCorePaths()
+FilePaths BaseQtVersionPrivate::qtCorePaths()
 {
     updateVersionInfo();
     const QString versionString = m_data.qtVersionString;
@@ -2020,8 +2020,8 @@ FilePathList BaseQtVersionPrivate::qtCorePaths()
             result += QDir(installBinDir).entryInfoList(filters);
         return result;
     }();
-    FilePathList staticLibs;
-    FilePathList dynamicLibs;
+    FilePaths staticLibs;
+    FilePaths dynamicLibs;
     for (const QFileInfo &info : entryInfoList) {
         const QString file = info.fileName();
         if (info.isDir()
@@ -2215,7 +2215,7 @@ static Abi scanQtBinaryForBuildStringAndRefineAbi(const FilePath &library,
     return results.value(library);
 }
 
-Abis BaseQtVersion::qtAbisFromLibrary(const FilePathList &coreLibraries)
+Abis BaseQtVersion::qtAbisFromLibrary(const FilePaths &coreLibraries)
 {
     Abis res;
     for (const FilePath &library : coreLibraries) {
