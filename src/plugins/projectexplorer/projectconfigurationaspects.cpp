@@ -436,7 +436,7 @@ void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
     d->m_checkBox = new QCheckBox();
     if (d->m_labelPlacement == LabelPlacement::AtCheckBox) {
         d->m_checkBox->setText(d->m_label);
-        builder.addItem(QString());
+        builder.addItem(new QLabel);
     } else {
         builder.addItem(d->m_label);
     }
