@@ -27,13 +27,11 @@
 
 #include <QWidget>
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
-namespace Ui {
-class ClangIndexingProjectSettingsWidget;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class ClangIndexingProjectSettingsWidget; }
+QT_END_NAMESPACE
 
 namespace ClangPchManager {
 
