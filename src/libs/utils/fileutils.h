@@ -294,12 +294,7 @@ template<> struct hash<Utils::FilePath>
 {
     using argument_type = Utils::FilePath;
     using result_type = size_t;
-    result_type operator()(const argument_type &fn) const
-    {
-        if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
-            return hash<string>()(fn.toString().toUpper().toStdString());
-        return hash<string>()(fn.toString().toStdString());
-    }
+    result_type operator()(const argument_type &fn) const;
 };
 } // namespace std
 

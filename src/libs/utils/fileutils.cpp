@@ -994,3 +994,11 @@ void withNtfsPermissions(const std::function<void()> &task)
 }
 #endif
 } // namespace Utils
+
+std::hash<Utils::FilePath>::result_type
+    std::hash<Utils::FilePath>::operator()(const std::hash<Utils::FilePath>::argument_type &fn) const
+{
+    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+        return hash<string>()(fn.toString().toUpper().toStdString());
+    return hash<string>()(fn.toString().toStdString());
+}
