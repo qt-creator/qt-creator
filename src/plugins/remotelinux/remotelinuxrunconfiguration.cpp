@@ -75,11 +75,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 }
 
-void RemoteLinuxRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    updateTargetInformation();
-}
-
 Runnable RemoteLinuxRunConfiguration::runnable() const
 {
     Runnable r = RunConfiguration::runnable();

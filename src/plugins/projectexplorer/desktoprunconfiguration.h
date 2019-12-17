@@ -41,7 +41,6 @@ protected:
     DesktopRunConfiguration(Target *target, Core::Id id, Kind kind);
 
 private:
-    void doAdditionalSetup(const RunConfigurationCreationInfo &info) final;
     bool fromMap(const QVariantMap &map) final;
 
     void updateTargetInformation();

@@ -149,11 +149,6 @@ bool DesktopRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-void DesktopRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    updateTargetInformation();
-}
-
 Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
 {
     const FilePath appInBuildDir = targetInfo.targetFilePath;

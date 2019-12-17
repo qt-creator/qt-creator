@@ -303,11 +303,6 @@ void IosDeviceTypeAspect::setDeviceType(const IosDeviceType &deviceType)
     m_deviceType = deviceType;
 }
 
-void IosRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    update();
-}
-
 IosDeviceTypeAspect::IosDeviceTypeAspect(IosRunConfiguration *runConfiguration)
     : m_runConfiguration(runConfiguration)
 {

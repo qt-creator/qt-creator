@@ -289,11 +289,6 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 
-void PythonRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    update();
-}
-
 void PythonRunConfiguration::updateLanguageServer()
 {
     using namespace LanguageClient;

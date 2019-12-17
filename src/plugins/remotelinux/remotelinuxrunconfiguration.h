@@ -40,7 +40,6 @@ public:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     ProjectExplorer::Runnable runnable() const override;
     void updateTargetInformation();
 };

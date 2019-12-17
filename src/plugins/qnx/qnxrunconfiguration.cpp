@@ -88,11 +88,6 @@ Runnable QnxRunConfiguration::runnable() const
     return r;
 }
 
-void QnxRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    updateTargetInformation();
-}
-
 void QnxRunConfiguration::updateTargetInformation()
 {
     const BuildTargetInfo bti = buildTargetInfo();

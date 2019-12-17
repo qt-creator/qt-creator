@@ -47,7 +47,6 @@ public:
 
 private:
     ProjectExplorer::Tasks checkForIssues() const override;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     void updateTargetInformation();
     QString defaultDisplayName() const;
 };

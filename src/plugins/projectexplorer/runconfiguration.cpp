@@ -550,7 +550,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
         return nullptr;
 
     rc->m_buildKey = buildKey;
-    rc->doAdditionalSetup(*this);
+    rc->update();
     rc->setDisplayName(displayName);
 
     return rc;

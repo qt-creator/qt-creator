@@ -186,8 +186,6 @@ protected:
     using Updater = std::function<void()>;
     void setUpdater(const Updater &updater);
 
-    virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
-
     Task createConfigurationIssue(const QString &description) const;
 
 private:

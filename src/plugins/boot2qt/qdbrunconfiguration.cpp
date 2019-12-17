@@ -102,11 +102,6 @@ Tasks QdbRunConfiguration::checkForIssues() const
     return tasks;
 }
 
-void QdbRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    updateTargetInformation();
-}
-
 void QdbRunConfiguration::updateTargetInformation()
 {
     const BuildTargetInfo bti = buildTargetInfo();

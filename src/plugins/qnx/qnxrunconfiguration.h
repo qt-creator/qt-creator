@@ -48,7 +48,6 @@ public:
 
 private:
     ProjectExplorer::Runnable runnable() const override;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
 
     void updateTargetInformation();
 };

@@ -50,8 +50,6 @@ public:
     QString disabledReason() const override;
     IosDeviceType deviceType() const;
 
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
-
 private:
     bool isEnabled() const final;
 

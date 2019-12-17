@@ -45,7 +45,6 @@ public:
     QString interpreter() const;
 
 private:
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) final;
     void updateLanguageServer();
 
     bool supportsDebugger() const;
