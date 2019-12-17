@@ -20,7 +20,6 @@ add_qtc_plugin(Help
     openpagesmanager.cpp openpagesmanager.h
     openpagesswitcher.cpp openpagesswitcher.h
     openpageswidget.cpp openpageswidget.h
-    remotehelpfilter.cpp remotehelpfilter.h remotehelpfilter.ui
     searchtaskhandler.cpp searchtaskhandler.h
     searchwidget.cpp searchwidget.h
     textbrowserhelpviewer.cpp textbrowserhelpviewer.h

@@ -39,7 +39,6 @@
 #include "helpwidget.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
-#include "remotehelpfilter.h"
 #include "searchtaskhandler.h"
 #include "searchwidget.h"
 #include "topicchooser.h"
@@ -155,7 +154,6 @@ public:
     LocalHelpManager m_localHelpManager;
 
     HelpIndexFilter helpIndexFilter;
-    RemoteHelpFilter remoteHelpFilter;
 };
 
 static HelpPluginPrivate *dd = nullptr;
@@ -280,9 +278,6 @@ HelpPluginPrivate::HelpPluginPrivate()
 
     connect(&helpIndexFilter, &HelpIndexFilter::linksActivated,
             this, &HelpPluginPrivate::showLinksInCurrentViewer);
-
-    connect(&remoteHelpFilter, &RemoteHelpFilter::linkActivated,
-            this, &QDesktopServices::openUrl);
 
     QDesktopServices::setUrlHandler("qthelp", HelpManager::instance(), "showHelpUrl");
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,

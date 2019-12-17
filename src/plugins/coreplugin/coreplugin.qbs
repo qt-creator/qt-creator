@@ -363,13 +363,16 @@ Project {
                 "locator.h",
                 "locatorsearchutils.cpp",
                 "locatorsearchutils.h",
+                "locatorsettingspage.cpp",
+                "locatorsettingspage.h",
+                "locatorsettingspage.ui",
                 "locatorwidget.cpp",
                 "locatorwidget.h",
                 "opendocumentsfilter.cpp",
                 "opendocumentsfilter.h",
-                "locatorsettingspage.cpp",
-                "locatorsettingspage.h",
-                "locatorsettingspage.ui",
+                "urllocatorfilter.cpp",
+                "urllocatorfilter.h",
+                "urllocatorfilter.ui"
             ]
         }
 

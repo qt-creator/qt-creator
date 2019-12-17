@@ -15,6 +15,7 @@ HEADERS += \
     $$PWD/executefilter.h \
     $$PWD/locatorsearchutils.h \
     $$PWD/locatorsettingspage.h \
+    $$PWD/urllocatorfilter.h \
     $$PWD/externaltoolsfilter.h
 
 SOURCES += \
@@ -31,7 +32,11 @@ SOURCES += \
     $$PWD/executefilter.cpp \
     $$PWD/locatorsearchutils.cpp \
     $$PWD/locatorsettingspage.cpp \
-    $$PWD/externaltoolsfilter.cpp \
+    $$PWD/urllocatorfilter.cpp \
+    $$PWD/externaltoolsfilter.cpp
+
+FORMS += \
+    $$PWD/urllocatorfilter.ui
 
 qtHaveModule(script) {
     QT *= script

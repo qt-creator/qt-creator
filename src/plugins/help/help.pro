@@ -23,7 +23,6 @@ HEADERS += \
     openpagesmanager.h \
     openpagesswitcher.h \
     openpageswidget.h \
-    remotehelpfilter.h \
     searchwidget.h \
     xbelsupport.h \
     searchtaskhandler.h \
@@ -44,7 +43,6 @@ SOURCES += \
     openpagesmanager.cpp \
     openpagesswitcher.cpp \
     openpageswidget.cpp \
-    remotehelpfilter.cpp \
     searchwidget.cpp \
     xbelsupport.cpp \
     searchtaskhandler.cpp \
@@ -53,8 +51,7 @@ SOURCES += \
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \
-    generalsettingspage.ui \
-    remotehelpfilter.ui
+    generalsettingspage.ui
 
 !isEmpty(QT.webenginewidgets.name) {
     QT += webenginewidgets

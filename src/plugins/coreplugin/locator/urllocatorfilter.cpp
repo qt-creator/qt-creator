@@ -23,20 +23,21 @@
 **
 ****************************************************************************/
 
-#include "remotehelpfilter.h"
+#include "urllocatorfilter.h"
 
+#include <QDesktopServices>
 #include <QMutexLocker>
 #include <QUrl>
 
-namespace Help {
+namespace Core {
 namespace Internal {
 
-RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent)
+UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
     : QDialog(parent)
     , m_filter(filter)
 {
     m_ui.setupUi(this);
-    setWindowTitle(Core::ILocatorFilter::msgConfigureDialogTitle());
+    setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
     m_ui.prefixLabel->setText(Core::ILocatorFilter::msgPrefixLabel());
     m_ui.prefixLabel->setToolTip(Core::ILocatorFilter::msgPrefixToolTip());
     m_ui.includeByDefault->setText(Core::ILocatorFilter::msgIncludeByDefault());
@@ -51,20 +52,18 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
         item->setFlags(item->flags() | Qt::ItemIsEditable);
     }
 
-    connect(m_ui.add, &QPushButton::clicked,
-            this, &RemoteFilterOptions::addNewItem);
-    connect(m_ui.remove, &QPushButton::clicked,
-            this, &RemoteFilterOptions::removeItem);
-    connect(m_ui.moveUp, &QPushButton::clicked,
-            this, &RemoteFilterOptions::moveItemUp);
-    connect(m_ui.moveDown, &QPushButton::clicked,
-            this, &RemoteFilterOptions::moveItemDown);
-    connect(m_ui.listWidget, &QListWidget::currentItemChanged,
-            this, &RemoteFilterOptions::updateActionButtons);
+    connect(m_ui.add, &QPushButton::clicked, this, &UrlFilterOptions::addNewItem);
+    connect(m_ui.remove, &QPushButton::clicked, this, &UrlFilterOptions::removeItem);
+    connect(m_ui.moveUp, &QPushButton::clicked, this, &UrlFilterOptions::moveItemUp);
+    connect(m_ui.moveDown, &QPushButton::clicked, this, &UrlFilterOptions::moveItemDown);
+    connect(m_ui.listWidget,
+            &QListWidget::currentItemChanged,
+            this,
+            &UrlFilterOptions::updateActionButtons);
     updateActionButtons();
 }
 
-void RemoteFilterOptions::addNewItem()
+void UrlFilterOptions::addNewItem()
 {
     QListWidgetItem *item = new QListWidgetItem(tr("Double-click to edit item."));
     m_ui.listWidget->addItem(item);
@@ -74,7 +73,7 @@ void RemoteFilterOptions::addNewItem()
     m_ui.listWidget->editItem(item);
 }
 
-void RemoteFilterOptions::removeItem()
+void UrlFilterOptions::removeItem()
 {
     if (QListWidgetItem *item = m_ui.listWidget->currentItem()) {
         m_ui.listWidget->removeItemWidget(item);
@@ -82,7 +81,7 @@ void RemoteFilterOptions::removeItem()
     }
 }
 
-void RemoteFilterOptions::moveItemUp()
+void UrlFilterOptions::moveItemUp()
 {
     const int row = m_ui.listWidget->currentRow();
     if (row > 0) {
@@ -92,7 +91,7 @@ void RemoteFilterOptions::moveItemUp()
     }
 }
 
-void RemoteFilterOptions::moveItemDown()
+void UrlFilterOptions::moveItemDown()
 {
     const int row = m_ui.listWidget->currentRow();
     if (row >= 0 && row < m_ui.listWidget->count() - 1) {
@@ -102,7 +101,7 @@ void RemoteFilterOptions::moveItemDown()
     }
 }
 
-void RemoteFilterOptions::updateActionButtons()
+void UrlFilterOptions::updateActionButtons()
 {
     m_ui.remove->setEnabled(m_ui.listWidget->currentItem());
     const int row = m_ui.listWidget->currentRow();
@@ -110,9 +109,11 @@ void RemoteFilterOptions::updateActionButtons()
     m_ui.moveDown->setEnabled(row >= 0 && row < m_ui.listWidget->count() - 1);
 }
 
-// -- RemoteHelpFilter
+} // namespace Internal
 
-RemoteHelpFilter::RemoteHelpFilter()
+// -- UrlLocatorFilter
+
+UrlLocatorFilter::UrlLocatorFilter()
 {
     setId("RemoteHelpFilter");
     setDisplayName(tr("Web Search"));
@@ -127,9 +128,10 @@ RemoteHelpFilter::RemoteHelpFilter()
     m_remoteUrls.append("https://en.wikipedia.org/w/index.php?search=%1");
 }
 
-RemoteHelpFilter::~RemoteHelpFilter() = default;
+UrlLocatorFilter::~UrlLocatorFilter() = default;
 
-QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<Core::LocatorFilterEntry> UrlLocatorFilter::matchesFor(
+    QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
     QList<Core::LocatorFilterEntry> entries;
     const QStringList urls = remoteUrls();
@@ -144,24 +146,26 @@ QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Co
     return entries;
 }
 
-void RemoteHelpFilter::accept(Core::LocatorFilterEntry selection,
-                              QString *newText, int *selectionStart, int *selectionLength) const
+void UrlLocatorFilter::accept(Core::LocatorFilterEntry selection,
+                              QString *newText,
+                              int *selectionStart,
+                              int *selectionLength) const
 {
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     const QString &url = selection.displayName;
     if (!url.isEmpty())
-        emit linkActivated(url);
+        QDesktopServices::openUrl(url);
 }
 
-void RemoteHelpFilter::refresh(QFutureInterface<void> &future)
+void UrlLocatorFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
     // Nothing to refresh
 }
 
-QByteArray RemoteHelpFilter::saveState() const
+QByteArray UrlLocatorFilter::saveState() const
 {
     QByteArray value;
     QDataStream out(&value, QIODevice::WriteOnly);
@@ -171,7 +175,7 @@ QByteArray RemoteHelpFilter::saveState() const
     return value;
 }
 
-void RemoteHelpFilter::restoreState(const QByteArray &state)
+void UrlLocatorFilter::restoreState(const QByteArray &state)
 {
     QDataStream in(state);
 
@@ -188,10 +192,10 @@ void RemoteHelpFilter::restoreState(const QByteArray &state)
     setIncludedByDefault(defaultFilter);
 }
 
-bool RemoteHelpFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
+bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
     Q_UNUSED(needsRefresh)
-    RemoteFilterOptions optionsDialog(this, parent);
+    Internal::UrlFilterOptions optionsDialog(this, parent);
     if (optionsDialog.exec() == QDialog::Accepted) {
         QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
         m_remoteUrls.clear();
@@ -204,11 +208,10 @@ bool RemoteHelpFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     return true;
 }
 
-QStringList RemoteHelpFilter::remoteUrls() const
+QStringList UrlLocatorFilter::remoteUrls() const
 {
     QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     return m_remoteUrls;
 }
 
-} // namespace Internal
-} // namespace Help
+} // namespace Core

@@ -36,6 +36,7 @@
 #include "locatorsettingspage.h"
 #include "locatorwidget.h"
 #include "opendocumentsfilter.h"
+#include "urllocatorfilter.h"
 
 #include <coreplugin/coreplugin.h>
 #include <coreplugin/coreconstants.h>
@@ -82,6 +83,7 @@ public:
     ExternalToolsFilter m_externalToolsFilter;
     LocatorFiltersFilter m_locatorsFiltersFilter;
     MenuBarFilter m_menubarFilter;
+    UrlLocatorFilter m_urlFilter;
 #ifdef Q_OS_MACOS
     SpotlightLocatorFilter m_spotlightLocatorFilter;
 #endif

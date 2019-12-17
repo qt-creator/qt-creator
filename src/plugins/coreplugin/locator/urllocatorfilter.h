@@ -25,22 +25,23 @@
 
 #pragma once
 
-#include "ui_remotehelpfilter.h"
+#include "ui_urllocatorfilter.h"
 
-#include <coreplugin/locator/ilocatorfilter.h>
+#include "ilocatorfilter.h"
+
+#include <coreplugin/core_global.h>
 
 #include <QIcon>
 #include <QMutex>
 
-namespace Help {
-namespace Internal {
+namespace Core {
 
-class RemoteHelpFilter : public Core::ILocatorFilter
+class CORE_EXPORT UrlLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
-    RemoteHelpFilter();
-    ~RemoteHelpFilter() final;
+    UrlLocatorFilter();
+    ~UrlLocatorFilter() final;
 
     // ILocatorFilter
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
@@ -54,22 +55,21 @@ public:
 
     QStringList remoteUrls() const;
 
-signals:
-    void linkActivated(const QUrl &url) const;
-
 private:
     QIcon m_icon;
     QStringList m_remoteUrls;
     mutable QMutex m_mutex;
 };
 
-class RemoteFilterOptions : public QDialog
+namespace Internal {
+
+class UrlFilterOptions : public QDialog
 {
     Q_OBJECT
-    friend class RemoteHelpFilter;
+    friend class Core::UrlLocatorFilter;
 
 public:
-    explicit RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent = nullptr);
+    explicit UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent = nullptr);
 
 private:
     void addNewItem();
@@ -78,9 +78,10 @@ private:
     void moveItemDown();
     void updateActionButtons();
 
-    RemoteHelpFilter *m_filter = nullptr;
-    Ui::RemoteFilterOptions m_ui;
+    UrlLocatorFilter *m_filter = nullptr;
+    Ui::UrlFilterOptions m_ui;
 };
 
 } // namespace Internal
-} // namespace Help
+
+} // namespace Core
