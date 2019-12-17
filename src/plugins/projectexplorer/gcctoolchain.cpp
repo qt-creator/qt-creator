@@ -1194,6 +1194,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const ToolChainDescr
     Macros macros
             = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(tcd.language),
                                   systemEnvironment.toStringList());
+    if (macros.isEmpty())
+        return result;
     const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
                                                                       systemEnvironment.toStringList(),
                                                                       macros);
