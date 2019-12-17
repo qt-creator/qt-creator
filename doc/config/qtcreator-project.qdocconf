@@ -33,6 +33,7 @@ HTML.extraimages         = images/commercial.png
 qhp.QtCreator.extraFiles = images/commercial.png
 
 depends +=    qtwidgets \
+              qtcmake \
               qtcore \
               qtqml \
               qtquick \
