@@ -260,7 +260,7 @@ void AutotestPlugin::extensionsInitialized()
 
     QAction *action = new QAction(tr("&Run Test Under Cursor"), this);
     action->setEnabled(false);
-    action->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::RUN_SMALL.icon());
 
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_UCURSOR);
     connect(action, &QAction::triggered,
