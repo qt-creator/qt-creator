@@ -171,7 +171,7 @@ public:
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
     QString m_initialBrowsePathOverride;
-    QString m_baseDirectory;
+    FilePath m_baseDirectory;
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
@@ -201,7 +201,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
-        const FilePath expanded = m_environment.searchInPath(path, {FilePath::fromString(m_baseDirectory)});
+        const FilePath expanded = m_environment.searchInPath(path, {m_baseDirectory});
         return expanded.isEmpty() ? path : expanded.toString();
     }
     case PathChooser::Any:
@@ -211,7 +211,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::File:
     case PathChooser::SaveFile:
         if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
-            return QFileInfo(m_baseDirectory + '/' + path).absoluteFilePath();
+            return m_baseDirectory.pathAppended(path).toFileInfo().absoluteFilePath();
         break;
     }
     return path;
@@ -280,27 +280,17 @@ QAbstractButton *PathChooser::buttonAtIndex(int index) const
     return d->m_buttons.at(index);
 }
 
-QString PathChooser::baseDirectory() const
+void PathChooser::setBaseDirectory(const FilePath &base)
 {
-    return d->m_baseDirectory;
-}
-
-void PathChooser::setBaseDirectory(const QString &directory)
-{
-    if (d->m_baseDirectory == directory)
+    if (d->m_baseDirectory == base)
         return;
-    d->m_baseDirectory = directory;
+    d->m_baseDirectory = base;
     triggerChanged();
 }
 
-FilePath PathChooser::baseFileName() const
+FilePath PathChooser::baseDirectory() const
 {
-    return FilePath::fromString(d->m_baseDirectory);
-}
-
-void PathChooser::setBaseFileName(const FilePath &base)
-{
-    setBaseDirectory(base.toString());
+    return d->m_baseDirectory;
 }
 
 void PathChooser::setEnvironment(const Environment &env)

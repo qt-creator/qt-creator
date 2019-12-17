@@ -773,7 +773,7 @@ void PathChooserField::initializeData(MacroExpander *expander)
 {
     auto w = qobject_cast<PathChooser *>(widget());
     QTC_ASSERT(w, return);
-    w->setBaseDirectory(expander->expand(m_basePath));
+    w->setBaseDirectory(expander->expand(FilePath::fromString(m_basePath)));
     w->setExpectedKind(m_kind);
 
     if (m_currentPath.isNull())

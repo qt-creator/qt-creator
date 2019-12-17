@@ -229,7 +229,7 @@ void FindInFiles::setDirectory(const FilePath &directory)
 
 void FindInFiles::setBaseDirectory(const FilePath &directory)
 {
-    m_directory->setBaseFileName(directory);
+    m_directory->setBaseDirectory(directory);
 }
 
 FilePath FindInFiles::directory() const

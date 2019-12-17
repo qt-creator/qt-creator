@@ -79,7 +79,7 @@ ImportWidget::ImportWidget(QWidget *parent) :
 
 void ImportWidget::setCurrentDirectory(const Utils::FilePath &dir)
 {
-    m_pathChooser->setBaseFileName(dir);
+    m_pathChooser->setBaseDirectory(dir);
     m_pathChooser->setFileName(dir);
 }
 
@@ -93,7 +93,7 @@ void ImportWidget::handleImportRequest()
     Utils::FilePath dir = m_pathChooser->fileName();
     emit importFrom(dir);
 
-    m_pathChooser->setFileName(m_pathChooser->baseFileName());
+    m_pathChooser->setFileName(m_pathChooser->baseDirectory());
 }
 
 } // namespace Internal

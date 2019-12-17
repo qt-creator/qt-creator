@@ -268,7 +268,7 @@ void BaseStringAspect::setBaseFileName(const FilePath &baseFileName)
 {
     d->m_baseFileName = baseFileName;
     if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setBaseFileName(baseFileName);
+        d->m_pathChooserDisplay->setBaseDirectory(baseFileName);
 }
 
 void BaseStringAspect::setReadOnly(bool readOnly)
@@ -323,7 +323,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
-        d->m_pathChooserDisplay->setBaseFileName(d->m_baseFileName);
+        d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setReadOnly(d->m_readOnly);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,

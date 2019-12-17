@@ -147,7 +147,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
-    m_chooser->setBaseFileName(m_defaultWorkingDirectory);
+    m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
     m_chooser->setFileName(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
     connect(m_chooser.data(), &PathChooser::pathChanged, this,
             [this]() {
@@ -234,7 +234,7 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultW
     Utils::FilePath oldDefaultDir = m_defaultWorkingDirectory;
     m_defaultWorkingDirectory = defaultWorkingDir;
     if (m_chooser)
-        m_chooser->setBaseFileName(m_defaultWorkingDirectory);
+        m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
 
     if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir) {
         if (m_chooser)

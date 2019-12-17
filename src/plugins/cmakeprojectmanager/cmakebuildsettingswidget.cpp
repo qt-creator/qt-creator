@@ -107,7 +107,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     auto project = bc->project();
 
     auto buildDirChooser = new Utils::PathChooser;
-    buildDirChooser->setBaseFileName(project->projectDirectory());
+    buildDirChooser->setBaseDirectory(project->projectDirectory());
     buildDirChooser->setFileName(bc->buildDirectory());
     connect(buildDirChooser, &Utils::PathChooser::rawPathChanged, this,
             [this](const QString &path) {

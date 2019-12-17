@@ -463,7 +463,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
 
     connect(m_binaryChooser, &PathChooser::rawPathChanged, this, [this]() {
         updateQchFilePath();
-        m_qchFileChooser->setBaseFileName(m_binaryChooser->fileName().parentDir());
+        m_qchFileChooser->setBaseDirectory(m_binaryChooser->fileName().parentDir());
         store();
     });
     connect(m_qchFileChooser, &PathChooser::rawPathChanged, this, &CMakeToolItemConfigWidget::store);
@@ -508,7 +508,7 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_binaryChooser->setFileName(item->m_executable);
 
     m_qchFileChooser->setReadOnly(item->m_autodetected);
-    m_qchFileChooser->setBaseFileName(item->m_executable.parentDir());
+    m_qchFileChooser->setBaseDirectory(item->m_executable.parentDir());
     m_qchFileChooser->setFileName(item->m_qchFile);
 
     m_autoRunCheckBox->setChecked(item->m_isAutoRun);

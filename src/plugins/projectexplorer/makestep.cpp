@@ -408,7 +408,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     }
 
     m_ui->makeLineEdit->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui->makeLineEdit->setBaseDirectory(Utils::PathChooser::homePath());
+    m_ui->makeLineEdit->setBaseDirectory(FilePath::fromString(PathChooser::homePath()));
     m_ui->makeLineEdit->setHistoryCompleter("PE.MakeCommand.History");
     m_ui->makeLineEdit->setPath(m_makeStep->makeCommand().toString());
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());

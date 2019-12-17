@@ -51,12 +51,11 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(QString promptDialogTitle READ promptDialogTitle WRITE setPromptDialogTitle DESIGNABLE true)
     Q_PROPERTY(QString promptDialogFilter READ promptDialogFilter WRITE setPromptDialogFilter DESIGNABLE true)
     Q_PROPERTY(Kind expectedKind READ expectedKind WRITE setExpectedKind DESIGNABLE true)
-    Q_PROPERTY(QString baseDirectory READ baseDirectory WRITE setBaseDirectory DESIGNABLE true)
+    Q_PROPERTY(Utils::FilePath baseDirectory READ baseDirectory WRITE setBaseDirectory DESIGNABLE true)
     Q_PROPERTY(QStringList commandVersionArguments READ commandVersionArguments WRITE setCommandVersionArguments)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE true)
     // Designer does not know this type, so force designable to false:
     Q_PROPERTY(Utils::FilePath fileName READ fileName WRITE setFileName DESIGNABLE false)
-    Q_PROPERTY(Utils::FilePath baseFileName READ baseFileName WRITE setBaseFileName DESIGNABLE false)
     Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
     Q_PROPERTY(QColor okColor READ okColor WRITE setOkColor DESIGNABLE true)
 
@@ -99,11 +98,8 @@ public:
     static QString expandedDirectory(const QString &input, const Environment &env,
                                      const QString &baseDir);
 
-    QString baseDirectory() const;
-    void setBaseDirectory(const QString &directory);
-
-    FilePath baseFileName() const;
-    void setBaseFileName(const FilePath &base);
+    FilePath baseDirectory() const;
+    void setBaseDirectory(const FilePath &base);
 
     void setEnvironment(const Environment &env);
 

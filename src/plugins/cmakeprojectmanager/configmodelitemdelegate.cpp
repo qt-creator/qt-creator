@@ -42,7 +42,7 @@ QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOpti
         if (data.type == ConfigModel::DataItem::FILE || data.type == ConfigModel::DataItem::DIRECTORY) {
             auto edit = new Utils::PathChooser(parent);
             edit->setFocusPolicy(Qt::StrongFocus);
-            edit->setBaseFileName(m_base);
+            edit->setBaseDirectory(m_base);
             edit->setAutoFillBackground(true);
             if (data.type == ConfigModel::DataItem::FILE) {
                 edit->setExpectedKind(Utils::PathChooser::File);
