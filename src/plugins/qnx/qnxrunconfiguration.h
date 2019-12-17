@@ -48,8 +48,6 @@ public:
 
 private:
     ProjectExplorer::Runnable runnable() const override;
-
-    void updateTargetInformation();
 };
 
 class QnxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory

@@ -41,7 +41,6 @@ public:
 
 private:
     ProjectExplorer::Runnable runnable() const override;
-    void updateTargetInformation();
 };
 
 class RemoteLinuxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
