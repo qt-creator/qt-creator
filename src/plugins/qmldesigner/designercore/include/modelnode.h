@@ -133,6 +133,7 @@ public:
     QList<NodeProperty> nodeProperties() const;
     QList<NodeListProperty> nodeListProperties() const;
     QList<BindingProperty> bindingProperties() const;
+    QList<SignalHandlerProperty> signalProperties() const;
     PropertyNameList propertyNames() const;
 
     bool hasProperties() const;

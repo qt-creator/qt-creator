@@ -55,8 +55,6 @@ Rectangle {
     border.color: StudioTheme.Values.themeControlOutline
     border.width: StudioTheme.Values.border
 
-    property int numVisibleItems: myRepeater.count
-
     Layout.preferredWidth: StudioTheme.Values.height * 10
     Layout.preferredHeight: myColumn.height
 
@@ -158,6 +156,13 @@ Rectangle {
             }
         }
 
+        Item {
+            id: dummyItem
+            visible: myRepeater.count === 0
+            width: StudioTheme.Values.height
+            height: StudioTheme.Values.height
+        }
+
         Row {
             id: row
             spacing: -StudioTheme.Values.border
@@ -175,7 +180,7 @@ Rectangle {
             StudioControls.AbstractButton {
                 buttonIcon: "+"
                 iconFont: StudioTheme.Constants.font
-                enabled: !myRepeater.dirty
+                enabled: !myRepeater.dirty && !(editableListView.backendValue.isInModel && !editableListView.backendValue.isIdList)
                 onClicked: {
                     var idx = myRepeater.localModel.push("") - 1
                     myRepeater.model = myRepeater.localModel // trigger on change handler
@@ -187,7 +192,7 @@ Rectangle {
             StudioControls.AbstractButton {
                 buttonIcon: "-"
                 iconFont: StudioTheme.Constants.font
-                enabled: myRepeater.model.length
+                enabled: myRepeater.model.length && !(editableListView.backendValue.isInModel && !editableListView.backendValue.isIdList)
                 onClicked: {
                     var lastItem = myColumn.currentIndex === myRepeater.localModel.length - 1
                     if (myColumn.currentItem.initialModelData === "") {

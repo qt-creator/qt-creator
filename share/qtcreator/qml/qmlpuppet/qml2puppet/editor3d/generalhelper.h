@@ -45,6 +45,7 @@ namespace Internal {
 class GeneralHelper : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
 
 public:
     GeneralHelper();
@@ -69,6 +70,8 @@ public:
                                         const QVariant& value);
     Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
 
+
+    bool isMacOS() const;
 
 signals:
     void overlayUpdateNeeded();

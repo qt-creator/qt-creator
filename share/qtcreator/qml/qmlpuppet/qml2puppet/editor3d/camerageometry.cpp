@@ -148,16 +148,19 @@ void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexDat
     auto dataPtr = reinterpret_cast<float *>(vertexData.data());
     auto indexPtr = reinterpret_cast<quint16 *>(indexData.data());
 
+    QMatrix4x4 m;
     QSSGRenderCamera *camera = m_camera->cameraNode();
-    if (qobject_cast<QQuick3DOrthographicCamera *>(m_camera)) {
-        // For some reason ortho cameras show double what projection suggests,
-        // so give them doubled viewport to match visualization to actual camera view
-        camera->calculateProjection(QRectF(0, 0, m_viewPortRect.width() * 2.0,
-                                           m_viewPortRect.height() * 2.0));
-    } else {
-        camera->calculateProjection(m_viewPortRect);
+    if (camera) {
+        if (qobject_cast<QQuick3DOrthographicCamera *>(m_camera)) {
+            // For some reason ortho cameras show double what projection suggests,
+            // so give them doubled viewport to match visualization to actual camera view
+            camera->calculateProjection(QRectF(0, 0, m_viewPortRect.width() * 2.0,
+                                               m_viewPortRect.height() * 2.0));
+        } else {
+            camera->calculateProjection(m_viewPortRect);
+        }
+        m = camera->projection.inverted();
     }
-    const QMatrix4x4 m = camera->projection.inverted();
 
     const QVector3D farTopLeft = m * QVector3D(1.f, -1.f, 1.f);
     const QVector3D farBottomRight = m * QVector3D(-1.f, 1.f, 1.f);

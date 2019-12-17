@@ -37,6 +37,7 @@ Node {
     readonly property bool dragging: scaleRodX.dragging || scaleRodY.dragging || scaleRodZ.dragging
                                      || planeX.dragging || planeY.dragging || planeZ.dragging
                                      || centerMouseArea.dragging
+    property MouseArea3D dragHelper: null
 
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     orientation: targetNode ? targetNode.orientation : Node.LeftHanded
@@ -58,6 +59,7 @@ Node {
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
             globalOrientation: scaleGizmo.globalOrientation
+            dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -72,6 +74,7 @@ Node {
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
             globalOrientation: scaleGizmo.globalOrientation
+            dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -86,6 +89,7 @@ Node {
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
             globalOrientation: scaleGizmo.globalOrientation
+            dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -104,6 +108,7 @@ Node {
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
             globalOrientation: scaleGizmo.globalOrientation
+            dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -122,6 +127,7 @@ Node {
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
             globalOrientation: scaleGizmo.globalOrientation
+            dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -140,6 +146,7 @@ Node {
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
             globalOrientation: scaleGizmo.globalOrientation
+            dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
             onScaleChange: scaleGizmo.scaleChange()
@@ -171,15 +178,16 @@ Node {
             grabsMouse: scaleGizmo.targetNode
             priority: 1
             active: scaleGizmo.visible
+            dragHelper: scaleGizmo.dragHelper
 
-            property var _startScale
-            property var _startScreenPos
+            property vector3d _startScale
+            property point _startScreenPos
 
             function localScale(screenPos)
             {
                 var yDelta = screenPos.y - _startScreenPos.y;
                 if (yDelta === 0)
-                    return;
+                    return _startScale;
                 var scaler = 1.0 + (yDelta * 0.025);
                 if (scaler === 0)
                     scaler = 0.0001;
@@ -203,7 +211,6 @@ Node {
             onDragged: {
                 if (!scaleGizmo.targetNode)
                     return;
-
                 scaleGizmo.targetNode.scale = localScale(screenPos);
                 scaleGizmo.scaleChange();
             }

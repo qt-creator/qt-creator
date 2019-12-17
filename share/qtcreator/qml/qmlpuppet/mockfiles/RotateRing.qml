@@ -39,6 +39,7 @@ Model {
     property alias priority: mouseAreaMain.priority
     property real currentAngle
     property point currentMousePos
+    property MouseArea3D dragHelper: null
 
     property vector3d _pointerPosPressed
     property vector3d _targetPosOnScreen
@@ -132,6 +133,8 @@ Model {
         active: rotateRing.active
         pickNode: pickModel
         minAngle: 0.05
+        dragHelper: rotateRing.dragHelper
+
         onPressed: rotateRing.handlePressed(screenPos, angle)
         onDragged: rotateRing.handleDragged(screenPos)
         onReleased: rotateRing.handleReleased(screenPos)

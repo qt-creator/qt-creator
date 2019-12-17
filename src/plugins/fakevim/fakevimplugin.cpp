@@ -1675,11 +1675,11 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         if (key == "C" || key == "<C-C>")
             triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
         else if (key == "N" || key == "<C-N>")
-            triggerAction(Core::Constants::GOTONEXT);
+            triggerAction(Core::Constants::GOTO_NEXT_SPLIT);
         else if (key == "O" || key == "<C-O>")
             keepOnlyWindow();
         else if (key == "P" || key == "<C-P>")
-            triggerAction(Core::Constants::GOTOPREV);
+            triggerAction(Core::Constants::GOTO_PREV_SPLIT);
         else if (key == "S" || key == "<C-S>")
             triggerAction(Core::Constants::SPLIT);
         else if (key == "V" || key == "<C-V>")

@@ -36,11 +36,12 @@ Model {
     property Node targetNode: null
     property bool dragging: mouseArea.dragging
     property bool active: false
+    property MouseArea3D dragHelper: null
 
     readonly property bool hovering: mouseArea.hovering
 
-    property var _pointerPosPressed
-    property var _targetStartPos
+    property vector3d _pointerPosPressed
+    property vector3d _targetStartPos
 
     signal pressed(var mouseArea)
     signal dragged(var mouseArea, vector3d sceneRelativeDistance)
@@ -62,7 +63,7 @@ Model {
         if (!targetNode)
             return;
 
-        _pointerPosPressed = mouseArea.mapPositionToScene(scenePos);
+        _pointerPosPressed = mouseArea.dragHelper.mapPositionToScene(scenePos);
         if (targetNode.orientation === Node.RightHanded)
             _pointerPosPressed.z = -_pointerPosPressed.z;
         var sp = targetNode.scenePosition;
@@ -72,7 +73,7 @@ Model {
 
     function calcRelativeDistance(mouseArea, scenePos)
     {
-        var scenePointerPos = mouseArea.mapPositionToScene(scenePos);
+        var scenePointerPos = mouseArea.dragHelper.mapPositionToScene(scenePos);
         if (targetNode.orientation === Node.RightHanded)
             scenePointerPos.z = -scenePointerPos.z;
         return scenePointerPos.minus(_pointerPosPressed);
@@ -103,6 +104,8 @@ Model {
         height: 120
         grabsMouse: targetNode
         active: rootModel.active
+        dragHelper: rootModel.dragHelper
+
         onPressed: rootModel.handlePressed(mouseArea, scenePos)
         onDragged: rootModel.handleDragged(mouseArea, scenePos)
         onReleased: rootModel.handleReleased(mouseArea, scenePos)

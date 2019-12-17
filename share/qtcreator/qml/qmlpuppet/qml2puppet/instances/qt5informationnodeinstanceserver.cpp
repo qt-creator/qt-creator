@@ -40,7 +40,8 @@
 #include "changefileurlcommand.h"
 #include "clearscenecommand.h"
 #include "reparentinstancescommand.h"
-#include "change3dviewcommand.h"
+#include "update3dviewstatecommand.h"
+#include "enable3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
@@ -59,7 +60,7 @@
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
 #include "objectnodeinstance.h"
-#include <drop3dlibraryitemcommand.h>
+#include "drop3dlibraryitemcommand.h"
 
 #include "dummycontextobject.h"
 #include "../editor3d/generalhelper.h"
@@ -119,7 +120,7 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     QWindow *window = qobject_cast<QWindow *>(component.create());
 
     if (!window) {
-        qWarning() << "Could not create edit view" << component.errors();
+        qWarning() << "Could not create edit view 3D: " << component.errors();
         return nullptr;
     }
 
@@ -130,8 +131,6 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
                      this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
     QObject::connect(window, SIGNAL(changeObjectProperty(QVariant, QVariant)),
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
-    QObject::connect(window, SIGNAL(activeChanged()),
-                     this, SLOT(handleActiveChanged()));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
@@ -150,7 +149,7 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     return window;
 }
 
-// The selection has changed in the 3D edit view. Empty list indicates selection is cleared.
+// The selection has changed in the edit view 3D. Empty list indicates selection is cleared.
 void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &objs)
 {
     QList<ServerNodeInstance> instanceList;
@@ -231,65 +230,6 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
     }
 }
 
-void Qt5InformationNodeInstanceServer::showEditView(const QPoint &pos, const QSize &size)
-{
-    m_blockViewActivate = false;
-    auto window = qobject_cast<QWindow *>(m_editView3D);
-    if (window) {
-        activateEditView();
-        window->setPosition(pos);
-        window->resize(size);
-    }
-}
-
-void Qt5InformationNodeInstanceServer::hideEditView()
-{
-    m_blockViewActivate = true;
-    auto window = qobject_cast<QWindow *>(m_editView3D);
-    if (window)
-        window->hide();
-}
-
-void Qt5InformationNodeInstanceServer::activateEditView()
-{
-    auto window = qobject_cast<QWindow *>(m_editView3D);
-    if (window) {
-        Qt::WindowFlags flags = window->flags();
-
-#ifdef Q_OS_MACOS
-        window->setFlags(Qt::Popup);
-        window->show();
-        window->setFlags(flags);
-#else
-        window->raise();
-        window->setFlags(flags | Qt::WindowStaysOnTopHint);
-        window->show();
-
-        window->requestActivate();
-        window->raise();
-        window->setFlags(flags);
-#endif
-    }
-}
-
-void Qt5InformationNodeInstanceServer::moveEditView(const QPoint &pos)
-{
-    auto window = qobject_cast<QWindow*>(m_editView3D);
-    if (window) {
-        activateEditView();
-        window->setPosition(pos);
-    }
-}
-
-void Qt5InformationNodeInstanceServer::resizeEditView(const QSize &size)
-{
-    auto window = qobject_cast<QWindow *>(m_editView3D);
-    if (window) {
-        activateEditView();
-        window->resize(size);
-    }
-}
-
 void Qt5InformationNodeInstanceServer::handleObjectPropertyCommit(const QVariant &object,
                                                                   const QVariant &propName)
 {
@@ -322,14 +262,6 @@ void Qt5InformationNodeInstanceServer::updateViewPortRect()
                         m_viewPortInstance.internalObject()->property("height").toDouble());
     QQmlProperty viewPortProperty(m_editView3D, "viewPortRect", context());
     viewPortProperty.write(viewPortrect);
-}
-
-void Qt5InformationNodeInstanceServer::handleActiveChanged()
-{
-    if (m_blockViewActivate)
-        return;
-
-    activateEditView();
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -409,6 +341,17 @@ void Qt5InformationNodeInstanceServer::modifyProperties(
     nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
 }
 
+QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
+        const QVector<InstanceContainer> &container)
+{
+    const auto createdInstances = NodeInstanceServer::createInstances(container);
+
+    if (m_editView3D)
+        createCameraAndLightGizmos(createdInstances);
+
+    return createdInstances;
+}
+
 void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 {
     modifyVariantValue(m_changedNode, m_changedProperty,
@@ -448,15 +391,26 @@ QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
     return nullptr;
 }
 
-void Qt5InformationNodeInstanceServer::findCamerasAndLights(
-        const QList<ServerNodeInstance> &instanceList,
-        QObjectList &cameras, QObjectList &lights) const
+void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
+        const QList<ServerNodeInstance> &instanceList) const
 {
+    QObjectList cameras;
+    QObjectList lights;
+
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DCamera"))
             cameras << instance.internalObject();
         else if (instance.isSubclassOf("QQuick3DAbstractLight"))
             lights << instance.internalObject();
+    }
+
+    for (auto &obj : qAsConst(cameras)) {
+        QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
+                Q_ARG(QVariant, objectToVariant(obj)));
+    }
+    for (auto &obj : qAsConst(lights)) {
+        QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
+                Q_ARG(QVariant, objectToVariant(obj)));
     }
 }
 
@@ -506,18 +460,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             updateViewPortRect();
         }
 
-        // Create camera and light gizmos
-        QObjectList cameras;
-        QObjectList lights;
-        findCamerasAndLights(instanceList, cameras, lights);
-        for (auto &obj : qAsConst(cameras)) {
-            QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
-                    Q_ARG(QVariant, objectToVariant(obj)));
-        }
-        for (auto &obj : qAsConst(lights)) {
-            QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
-                    Q_ARG(QVariant, objectToVariant(obj)));
-        }
+        createCameraAndLightGizmos(instanceList);
     }
 }
 
@@ -748,17 +691,36 @@ void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCo
     startRenderTimer();
 }
 
-void Qt5InformationNodeInstanceServer::change3DView(const Change3DViewCommand &command)
+// update 3D view window state when the main app window state change
+void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
 {
-    for (const InformationContainer &container : command.informationVector()) {
-        if (container.name() == InformationName::ShowView)
-            showEditView(container.information().toPoint(), container.secondInformation().toSize());
-        else if (container.name() == InformationName::HideView)
-            hideEditView();
-        else if (container.name() == InformationName::MoveView)
-            moveEditView(container.information().toPoint());
-        else if (container.name() == InformationName::ResizeView)
-            resizeEditView(container.secondInformation().toSize());
+    auto window = qobject_cast<QWindow *>(m_editView3D);
+    if (window) {
+        if (command.type() == Update3dViewStateCommand::StateChange) {
+            if (command.previousStates() & Qt::WindowMinimized) // main window expanded from minimize state
+                window->show();
+            else if (command.currentStates() & Qt::WindowMinimized) // main window minimized
+                window->hide();
+        } else if (command.type() == Update3dViewStateCommand::ActiveChange) {
+            window->setFlag(Qt::WindowStaysOnTopHint, command.isActive());
+
+            // main window has a popup open, lower the edit view 3D so that the pop up is visible
+            if (command.hasPopup())
+                window->lower();
+        }
+    }
+}
+
+void Qt5InformationNodeInstanceServer::enable3DView(const Enable3DViewCommand &command)
+{
+    // TODO: this method is not currently in use as the 3D view is currently enabled by resetting the puppet.
+    //       It should however be implemented here.
+
+    auto window = qobject_cast<QWindow *>(m_editView3D);
+    if (window && !command.isEnable()) {
+        // TODO: remove the 3D view
+    } else if (!window && command.isEnable()) {
+        // TODO: create the 3D view
     }
 }
 

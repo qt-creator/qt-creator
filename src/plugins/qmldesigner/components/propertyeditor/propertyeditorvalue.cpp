@@ -375,7 +375,9 @@ QStringList PropertyEditorValue::getExpressionAsList() const
 
 bool PropertyEditorValue::idListAdd(const QString &value)
 {
-    QTC_ASSERT(isIdList(), return false);
+    const QmlDesigner::QmlObjectNode objectNode(modelNode());
+    if (!isIdList() && (objectNode.isValid() && objectNode.hasProperty(name())))
+        return false;
 
     static const QRegExp rx("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
     if (!rx.exactMatch(value))
@@ -393,7 +395,6 @@ bool PropertyEditorValue::idListRemove(int idx)
     QTC_ASSERT(isIdList(), return false);
 
     auto stringList = generateStringList(expression());
-
     if (idx < 0 || idx >= stringList.size())
         return false;
 
@@ -438,6 +439,8 @@ QString PropertyEditorValue::generateString(const QStringList &stringList) const
 {
     if (stringList.size() > 1)
         return "[" + stringList.join(",") + "]";
+    else if (stringList.isEmpty())
+        return QString();
     else
         return stringList.first();
 }

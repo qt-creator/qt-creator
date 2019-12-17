@@ -768,7 +768,7 @@ QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString
 {
     std::unique_ptr<QProcess> p(new QProcess);
     const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
-    qCDebug(androidManagerLog) << "Running command:" << adb << args.join(' ');
+    qCDebug(androidManagerLog) << "Running command (async):" << CommandLine(adb, args).toUserOutput();
     p->start(adb, args);
     if (p->waitForStarted(500) && p->state() == QProcess::Running) {
         if (deleteOnFinish) {
@@ -779,7 +779,9 @@ QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString
     }
 
     QString errorStr = QString::fromUtf8(p->readAllStandardError());
-    qCDebug(androidManagerLog) << "Running command failed" << adb << args.join(' ') << errorStr;
+    qCDebug(androidManagerLog) << "Running command (async) failed:"
+                               << CommandLine(adb, args).toUserOutput()
+                               << "Output:" << errorStr;
     if (err)
         *err = errorStr;
     return nullptr;
@@ -791,12 +793,12 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
     Android::SdkToolResult cmdResult;
     Utils::SynchronousProcess cmdProc;
     cmdProc.setTimeoutS(timeoutS);
-    qCDebug(androidManagerLog) << "Running command: " << command.toUserOutput();
+    qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
     SynchronousProcessResponse response = cmdProc.run(command, writeData);
     cmdResult.m_stdOut = response.stdOut().trimmed();
     cmdResult.m_stdErr = response.stdErr().trimmed();
     cmdResult.m_success = response.result == Utils::SynchronousProcessResponse::Finished;
-    qCDebug(androidManagerLog) << "Running command finshed:" << command.toUserOutput()
+    qCDebug(androidManagerLog) << "Running command (sync) finshed:" << command.toUserOutput()
                                << "Success:" << cmdResult.m_success
                                << "Output:" << response.allRawOutput();
     if (!cmdResult.success())

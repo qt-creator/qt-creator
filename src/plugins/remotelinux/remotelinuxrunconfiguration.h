@@ -39,8 +39,10 @@ class RemoteLinuxRunConfiguration final : public ProjectExplorer::RunConfigurati
 public:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-protected:
+private:
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     ProjectExplorer::Runnable runnable() const override;
+    void updateTargetInformation();
 };
 
 class RemoteLinuxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory

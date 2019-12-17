@@ -29,6 +29,7 @@
 #include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
+class QShortcut;
 class QToolButton;
 class QTableView;
 class QListView;
@@ -101,6 +102,7 @@ private:
 private:
     Ui::ConnectionViewWidget *ui;
     QmlDesigner::ActionEditor *m_actionEditor;
+    QShortcut *m_deleteShortcut;
 };
 
 } // namespace Internal

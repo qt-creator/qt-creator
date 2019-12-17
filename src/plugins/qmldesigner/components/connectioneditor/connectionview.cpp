@@ -108,6 +108,8 @@ void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> & 
             dynamicPropertiesModel()->bindingRemoved(property.toBindingProperty());
         } else if (property.isVariantProperty()) {
             //### dynamicPropertiesModel->bindingRemoved(property.toVariantProperty());
+        } else if (property.isSignalHandlerProperty()) {
+            connectionModel()->removeRowFromTable(property.toSignalHandlerProperty());
         }
     }
 }
@@ -178,6 +180,11 @@ WidgetInfo ConnectionView::widgetInfo()
 bool ConnectionView::hasWidget() const
 {
     return true;
+}
+
+bool ConnectionView::isWidgetEnabled()
+{
+    return widgetInfo().widget->isEnabled();
 }
 
 QTableView *ConnectionView::connectionTableView() const

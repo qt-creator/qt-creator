@@ -83,6 +83,7 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(bool isValid READ isValid NOTIFY isValidChanged FINAL)
     Q_PROPERTY(bool isTranslated READ isTranslated NOTIFY expressionChanged FINAL)
 
+    Q_PROPERTY(bool isIdList READ isIdList NOTIFY expressionChanged FINAL)
     Q_PROPERTY(QStringList expressionAsList READ getExpressionAsList NOTIFY expressionChanged FINAL)
 
     Q_PROPERTY(QString name READ nameAsQString FINAL)

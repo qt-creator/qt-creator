@@ -38,12 +38,14 @@ namespace QmlDesigner {
 class Qt5InformationNodeInstanceServer : public Qt5NodeInstanceServer
 {
     Q_OBJECT
+
 public:
     explicit Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
     void reparentInstances(const ReparentInstancesCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
-    void change3DView(const Change3DViewCommand &command) override;
+    void update3DViewState(const Update3dViewStateCommand &command) override;
+    void enable3DView(const Enable3DViewCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;
     void completeComponent(const CompleteComponentCommand &command) override;
     void token(const TokenCommand &command) override;
@@ -56,7 +58,6 @@ private slots:
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
     void updateViewPortRect();
-    void handleActiveChanged();
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -67,6 +68,7 @@ protected:
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
     void selectInstances(const QList<ServerNodeInstance> &instanceList);
     void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
+    QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container) override;
 
 private:
     void handleObjectPropertyChangeTimeout();
@@ -74,8 +76,7 @@ private:
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
-    void findCamerasAndLights( const QList<ServerNodeInstance> &instanceList,
-                               QObjectList &cameras, QObjectList &lights) const;
+    void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
     ServerNodeInstance findViewPort(const QList<ServerNodeInstance> &instanceList);
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
         const PropertyName &propertyName,
@@ -83,12 +84,6 @@ private:
     void modifyVariantValue(const QVariant &node,
                             const PropertyName &propertyName,
                             ValuesModifiedCommand::TransactionOption option);
-
-    void showEditView(const QPoint &pos, const QSize &size);
-    void hideEditView();
-    void activateEditView();
-    void moveEditView(const QPoint &pos);
-    void resizeEditView(const QSize &size);
 
     QObject *m_editView3D = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
@@ -99,7 +94,6 @@ private:
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ServerNodeInstance m_viewPortInstance;
-    bool m_blockViewActivate = false;
     QObject *m_rootNode = nullptr;
     ChangeSelectionCommand m_pendingSelectionChangeCommand;
 };
