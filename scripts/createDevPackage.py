@@ -69,6 +69,7 @@ source_include_patterns = [
     r"^.*\.h$",      # .h files in all directories that are looked into
     r"^.*\.hpp$",    # .hpp files in all directories that are looked into
     # qtdesignstudio docs are build against dev package, so we need to include some image directories
+    r"^share/qtcreator/qml/qmlpuppet/mockfiles/images/.*$",
     r"^share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/.*$",
     r"^src/libs/qmleditorwidgets/images/.*$",
     r"^src/libs/utils/images/.*$",
