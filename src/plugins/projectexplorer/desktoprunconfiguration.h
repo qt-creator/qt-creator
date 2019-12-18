@@ -41,8 +41,6 @@ protected:
     DesktopRunConfiguration(Target *target, Core::Id id, Kind kind);
 
 private:
-    bool fromMap(const QVariantMap &map) final;
-
     void updateTargetInformation();
 
     Utils::FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
