@@ -119,11 +119,9 @@ void DesktopRunConfiguration::updateTargetInformation()
         aspect<ExecutableAspect>()->setExecutable(executable);
 
         if (!executable.isEmpty()) {
-            QString defaultWorkingDir = QFileInfo(executable.toString()).absolutePath();
-            if (!defaultWorkingDir.isEmpty()) {
-                auto wdAspect = aspect<WorkingDirectoryAspect>();
-                wdAspect->setDefaultWorkingDirectory(FilePath::fromString(defaultWorkingDir));
-            }
+            const FilePath defaultWorkingDir = executable.absolutePath();
+            if (!defaultWorkingDir.isEmpty())
+                aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(defaultWorkingDir);
         }
 
         emit enabledChanged();

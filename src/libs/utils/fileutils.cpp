@@ -800,6 +800,13 @@ FilePath FilePath::parentDir() const
     return FilePath::fromString(parent);
 }
 
+FilePath FilePath::absolutePath() const
+{
+    FilePath result = *this;
+    result.m_data = QFileInfo(m_data).absolutePath();
+    return result;
+}
+
 /// Constructs a FilePath from \a filename
 /// \a filename is not checked for validity.
 FilePath FilePath::fromString(const QString &filename)

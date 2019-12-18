@@ -86,6 +86,7 @@ public:
     bool isWritablePath() const;
 
     FilePath parentDir() const;
+    FilePath absolutePath() const;
 
     bool operator==(const FilePath &other) const;
     bool operator!=(const FilePath &other) const;
