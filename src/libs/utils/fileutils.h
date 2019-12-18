@@ -290,7 +290,7 @@ inline uint qHash(const Utils::FilePath &a, uint seed = 0) { return a.hash(seed)
 } // namespace Utils
 
 namespace std {
-template<> struct hash<Utils::FilePath>
+template<> struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
 {
     using argument_type = Utils::FilePath;
     using result_type = size_t;
