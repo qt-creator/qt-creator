@@ -34,7 +34,7 @@
 namespace PerfProfiler {
 namespace Internal {
 
-struct PerfProfilerFlameGraphData;
+class PerfProfilerFlameGraphData;
 class PerfProfilerFlameGraphModel : public QAbstractItemModel
 {
     Q_OBJECT
