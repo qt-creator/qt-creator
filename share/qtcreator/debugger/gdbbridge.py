@@ -243,6 +243,10 @@ class Dumper(DumperBase):
                 nativeTargetValue = None
             targetType = self.fromNativeType(nativeType.target().unqualified())
             val = self.createPointerValue(toInteger(nativeValue), targetType)
+            # The nativeValue is needed in case of multiple inheritance, see
+            # QTCREATORBUG-17823. Using it triggers nativeValueDereferencePointer()
+            # later which
+            # is surprisingly expensive.
             val.nativeValue = nativeValue
             #warn('CREATED PTR 1: %s' % val)
             if not nativeValue.address is None:
@@ -447,7 +451,6 @@ class Dumper(DumperBase):
         return typeId
 
     def nativeStructAlignment(self, nativeType):
-        self.preping('align ' + str(nativeType))
         #warn('NATIVE ALIGN FOR %s' % nativeType.name)
         def handleItem(nativeFieldType, align):
             a = self.fromNativeType(nativeFieldType).alignment()
@@ -455,7 +458,6 @@ class Dumper(DumperBase):
         align = 1
         for f in nativeType.fields():
             align = handleItem(f.type, align)
-        self.ping('align ' + str(nativeType))
         return align
 
 
@@ -668,9 +670,7 @@ class Dumper(DumperBase):
         self.resetStats()
         self.prepare(args)
 
-        self.preping('endian')
         self.isBigEndian = gdb.execute('show endian', to_string = True).find('big endian') > 0
-        self.ping('endian')
         self.packCode = '>' if self.isBigEndian else '<'
 
         (ok, res) = self.tryFetchInterpreterVariables(args)
@@ -827,9 +827,7 @@ class Dumper(DumperBase):
         #warn('READ: %s FROM 0x%x' % (size, address))
         if address == 0 or size == 0:
             return bytes()
-        self.preping('readMem')
         res = self.selectedInferior().read_memory(address, size)
-        self.ping('readMem')
         return res
 
     def findStaticMetaObject(self, type):
@@ -1137,6 +1135,7 @@ class Dumper(DumperBase):
         self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 
     def nativeValueDereferencePointer(self, value):
+        # This is actually pretty expensive, up to 100ms.
         deref = value.nativeValue.dereference()
         return self.fromNativeValue(deref.cast(deref.dynamic_type))
 

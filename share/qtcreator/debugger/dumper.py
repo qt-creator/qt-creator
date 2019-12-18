@@ -173,6 +173,20 @@ def error(message):
 def showException(msg, exType, exValue, exTraceback):
     DumperBase.showException(msg, exType, exValue, exTraceback)
 
+
+class Timer:
+    def __init__(self, d, desc):
+        self.d = d
+        self.desc = desc + '-' + d.currentIName
+
+    def __enter__(self):
+        self.starttime = time.time()
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        elapsed = int(1000 * (time.time() - self.starttime))
+        self.d.timings.append([self.desc, elapsed])
+
+
 class Children:
     def __init__(self, d, numChild = 1, childType = None, childNumChild = None,
             maxNumChild = None, addrBase = None, addrStep = None):
@@ -260,6 +274,9 @@ class DumperBase:
                 warn('%s' % line)
         except:
             pass
+
+    def timer(self, desc):
+        return Timer(self, desc)
 
     def __init__(self):
         self.isCdb = False
@@ -372,12 +389,10 @@ class DumperBase:
 
         self.counts = {}
         self.structPatternCache = {}
-        self.pretimings = {}
         self.timings = []
 
     def resetStats(self):
         # Timing collection
-        self.pretimings = {}
         self.timings = []
         pass
 
@@ -391,15 +406,6 @@ class DumperBase:
             self.counts[key] += 1
         else:
             self.counts[key] = 1
-
-    def preping(self, key):
-        return
-        self.pretimings[key] = time.time()
-
-    def ping(self, key):
-        return
-        elapsed = int(1000 * (time.time() - self.pretimings[key]))
-        self.timings.append([key, elapsed])
 
     def childRange(self):
         if self.currentMaxNumChild is None:
@@ -1369,9 +1375,8 @@ class DumperBase:
         return False
 
     def putFormattedPointer(self, value):
-        self.preping('formattedPointer')
+        #with self.timer('formattedPointer'):
         self.putFormattedPointerX(value)
-        self.ping('formattedPointer')
 
     def putDerefedPointer(self, value):
         derefValue = value.dereference()
@@ -1735,15 +1740,13 @@ class DumperBase:
         metaObjectPtr = 0
         if not metaObjectPtr:
             # measured: 3 ms (example had one level of inheritance)
-            self.preping('metaObjectType-' + self.currentIName)
+            #with self.timer('metaObjectType-' + self.currentIName):
             metaObjectPtr = extractStaticMetaObjectPtrFromType(typeobj)
-            self.ping('metaObjectType-' + self.currentIName)
 
         if not metaObjectPtr:
             # measured: 200 ms (example had one level of inheritance)
-            self.preping('metaObjectCall-' + self.currentIName)
+            #with self.timer('metaObjectCall-' + self.currentIName):
             metaObjectPtr = extractMetaObjectPtrFromAddress()
-            self.ping('metaObjectCall-' + self.currentIName)
 
         #if metaObjectPtr:
         #    self.bump('foundMetaObject')
@@ -2392,7 +2395,7 @@ class DumperBase:
 
     def handleLocals(self, variables):
         #warn('VARIABLES: %s' % variables)
-        self.preping('locals')
+        #with self.timer('locals'):
         shadowed = {}
         for value in variables:
             if value.name == 'argv':
@@ -2412,20 +2415,17 @@ class DumperBase:
             # A 'normal' local variable or parameter.
             iname = value.iname if hasattr(value, 'iname') else 'local.' + name
             with TopLevelItem(self, iname):
-                self.preping('all-' + iname)
+                #with self.timer('all-' + iname):
                 self.putField('iname', iname)
                 self.putField('name', name)
                 self.putItem(value)
-                self.ping('all-' + iname)
-        self.ping('locals')
 
     def handleWatches(self, args):
-        self.preping('watches')
+        #with self.timer('watches'):
         for watcher in args.get('watchers', []):
             iname = watcher['iname']
             exp = self.hexdecode(watcher['exp'])
             self.handleWatch(exp, exp, iname)
-        self.ping('watches')
 
     def handleWatch(self, origexp, exp, iname):
         exp = str(exp).strip()
@@ -2734,9 +2734,8 @@ class DumperBase:
                     self.putSubItem(i, val)
 
     def putItem(self, value):
-        self.preping('putItem')
+        #with self.timer('putItem'):
         self.putItemX(value)
-        self.ping('putItem')
 
     def putItemX(self, value):
         #warn('PUT ITEM: %s' % value.stringify())
@@ -2868,9 +2867,8 @@ class DumperBase:
         self.putEmptyValue()
         #warn('STRUCT GUTS: %s  ADDRESS: 0x%x ' % (value.name, value.address()))
         if self.showQObjectNames:
-            self.preping(self.currentIName)
+            #with self.timer(self.currentIName):
             self.putQObjectNameValue(value)
-            self.ping(self.currentIName)
         if self.isExpanded():
             self.putField('sortable', 1)
             with Children(self, 1, childType=None):
@@ -3351,7 +3349,7 @@ class DumperBase:
             error('CANNOT CONVERT TO BYTES: %s' % self)
 
         def extractInteger(self, bitsize, unsigned):
-            self.dumper.preping('extractInt')
+            #with self.dumper.timer('extractInt'):
             self.check()
             if bitsize > 32:
                 size = 8
@@ -3369,23 +3367,21 @@ class DumperBase:
             res = struct.unpack_from(self.dumper.packCode + code, rawBytes, 0)[0]
             #warn('Extract: Code: %s Bytes: %s Bitsize: %s Size: %s'
             #    % (self.dumper.packCode + code, self.dumper.hexencode(rawBytes), bitsize, size))
-            self.dumper.ping('extractInt')
             return res
 
         def extractSomething(self, code, bitsize):
-            self.dumper.preping('extractSomething')
+            #with self.dumper.timer('extractSomething'):
             self.check()
             size = (bitsize + 7) >> 3
             rawBytes = self.data(size)
             res = struct.unpack_from(self.dumper.packCode + code, rawBytes, 0)[0]
-            self.dumper.ping('extractSomething')
             return res
 
         def to(self, pattern):
             return self.split(pattern)[0]
 
         def split(self, pattern):
-            self.dumper.preping('split')
+            #with self.dumper.timer('split'):
             #warn('EXTRACT STRUCT FROM: %s' % self.type)
             (pp, size, fields) = self.dumper.describeStruct(pattern)
             #warn('SIZE: %s ' % size)
@@ -3405,7 +3401,6 @@ class DumperBase:
                 return thing
             if len(fields) != len(result):
                 error('STRUCT ERROR: %s %s' (fields, result))
-            self.dumper.ping('split')
             return tuple(map(structFixer, fields, result))
 
     def checkPointer(self, p, align = 1):
@@ -3548,9 +3543,8 @@ class DumperBase:
             # FIXME: That buys some performance at the cost of a fail
             # of Gdb13393 dumper test.
             #return self
-            self.dumper.preping('dynamicType %s 0x%s' % (self.name, address))
+            #with self.dumper.timer('dynamicType %s 0x%s' % (self.name, address)):
             dynTypeName = self.dynamicTypeName(address)
-            self.dumper.ping('dynamicType %s 0x%s' % (self.name, address))
             if dynTypeName is not None:
                 return self.dumper.createType(dynTypeName)
             return self
