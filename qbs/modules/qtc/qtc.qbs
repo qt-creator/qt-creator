@@ -63,6 +63,8 @@ Module {
     property string ide_qbs_imports_path: ide_qbs_resources_path + "/imports"
     property string ide_shared_sources_path: "src/shared"
 
+    property string litehtmlInstallDir: Environment.getEnv("LITEHTML_INSTALL_DIR")
+
     property bool make_dev_package: false
 
     // Will be replaced when creating modules from products
