@@ -86,6 +86,7 @@ public:
     LocatorFiltersFilter m_locatorsFiltersFilter;
     MenuBarFilter m_menubarFilter;
     UrlLocatorFilter m_urlFilter{UrlLocatorFilter::tr("Web Search"), "RemoteHelpFilter"};
+    UrlLocatorFilter m_bugFilter{UrlLocatorFilter::tr("Qt Project Bugs"), "QtProjectBugs"};
 #ifdef Q_OS_MACOS
     SpotlightLocatorFilter m_spotlightLocatorFilter;
 #endif
@@ -101,6 +102,9 @@ LocatorData::LocatorData()
     m_urlFilter.addDefaultUrl(
         "http://en.cppreference.com/mwiki/index.php?title=Special%3ASearch&search=%1");
     m_urlFilter.addDefaultUrl("https://en.wikipedia.org/w/index.php?search=%1");
+
+    m_bugFilter.setShortcutString("bug");
+    m_bugFilter.addDefaultUrl("https://bugreports.qt.io/secure/QuickSearch.jspa?searchString=%1");
 }
 
 Locator::Locator()
