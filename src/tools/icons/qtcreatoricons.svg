@@ -3488,6 +3488,28 @@
          height="100%" />
     </g>
     <g
+       id="src/plugins/qbsprojectmanager/images/settingscategory_qbsprojectmanager">
+      <use
+         style="display:inline"
+         transform="translate(1040,64)"
+         height="100%"
+         width="100%"
+         id="use6243"
+         xlink:href="#backgroundRect_24"
+         y="0"
+         x="0" />
+      <path
+         style="fill:#b3b3b3"
+         d="m 1021.5,485.5 h 12 v 8 l 2,-2 v -8 h -12 z"
+         id="path6323"
+         inkscape:connector-curvature="0" />
+      <path
+         id="path6314"
+         style="fill:none;stroke:#000000"
+         d="m 1033.5,485.5 v 8 m -12,-8 h 12 l 2,-2 m -14,2 2,-2 h 12 v 8 l -2,2 h -12 z m 8,8 v -8 l 2,-2 m -6,10 v -8 l 2,-2 m -6,6 h 12 l 2,-2"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
        id="src/plugins/valgrind/images/kcachegrind"
        transform="translate(112)">
       <use
