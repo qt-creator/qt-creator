@@ -44,6 +44,12 @@ UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
     m_ui.includeByDefault->setToolTip(Core::ILocatorFilter::msgIncludeByDefaultToolTip());
     m_ui.shortcutEdit->setText(m_filter->shortcutString());
     m_ui.includeByDefault->setChecked(m_filter->isIncludedByDefault());
+    m_ui.nameEdit->setText(filter->displayName());
+    m_ui.nameEdit->selectAll();
+    m_ui.nameLabel->setVisible(filter->isCustomFilter());
+    m_ui.nameEdit->setVisible(filter->isCustomFilter());
+    m_ui.listWidget->setToolTip(
+        tr("Add \"%1\" placeholder for the query string.\nDouble-click to edit item."));
 
     const QStringList remoteUrls = m_filter->remoteUrls();
     for (const QString &url : remoteUrls) {
@@ -65,7 +71,7 @@ UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
 
 void UrlFilterOptions::addNewItem()
 {
-    QListWidgetItem *item = new QListWidgetItem(tr("Double-click to edit item."));
+    QListWidgetItem *item = new QListWidgetItem("https://www.example.com/search?query=%1");
     m_ui.listWidget->addItem(item);
     item->setSelected(true);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -112,6 +118,10 @@ void UrlFilterOptions::updateActionButtons()
 } // namespace Internal
 
 // -- UrlLocatorFilter
+
+UrlLocatorFilter::UrlLocatorFilter(Id id)
+    : UrlLocatorFilter(tr("URL Template"), id)
+{}
 
 UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
 {
@@ -164,6 +174,7 @@ QByteArray UrlLocatorFilter::saveState() const
     out << m_remoteUrls.join('^');
     out << shortcutString();
     out << isIncludedByDefault();
+    out << displayName();
     return value;
 }
 
@@ -182,6 +193,12 @@ void UrlLocatorFilter::restoreState(const QByteArray &state)
     bool defaultFilter;
     in >> defaultFilter;
     setIncludedByDefault(defaultFilter);
+
+    if (!in.atEnd()) {
+        QString name;
+        in >> name;
+        setDisplayName(name);
+    }
 }
 
 bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
@@ -195,6 +212,8 @@ bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         setShortcutString(optionsDialog.m_ui.shortcutEdit->text().trimmed());
         for (int i = 0; i < optionsDialog.m_ui.listWidget->count(); ++i)
             m_remoteUrls.append(optionsDialog.m_ui.listWidget->item(i)->text());
+        if (isCustomFilter())
+            setDisplayName(optionsDialog.m_ui.nameEdit->text());
         return true;
     }
     return true;
@@ -207,8 +226,19 @@ void UrlLocatorFilter::addDefaultUrl(const QString &urlTemplate)
 
 QStringList UrlLocatorFilter::remoteUrls() const
 {
-    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
+    QMutexLocker lock(&m_mutex);
+    Q_UNUSED(lock)
     return m_remoteUrls;
+}
+
+void UrlLocatorFilter::setIsCustomFilter(bool value)
+{
+    m_isCustomFilter = value;
+}
+
+bool UrlLocatorFilter::isCustomFilter() const
+{
+    return m_isCustomFilter;
 }
 
 } // namespace Core

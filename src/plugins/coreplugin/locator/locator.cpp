@@ -69,6 +69,9 @@ namespace Internal {
 
 static Locator *m_instance = nullptr;
 
+const char kDirectoryFilterPrefix[] = "directory";
+const char kUrlFilterPrefix[] = "url";
+
 class LocatorData
 {
 public:
@@ -190,9 +193,18 @@ void Locator::loadSettings()
     QList<ILocatorFilter *> customFilters;
     const QStringList keys = settings->childKeys();
     int count = 0;
-    Id baseId(Constants::CUSTOM_FILTER_BASEID);
+    const Id directoryBaseId(Constants::CUSTOM_DIRECTORY_FILTER_BASEID);
+    const Id urlBaseId(Constants::CUSTOM_URL_FILTER_BASEID);
     for (const QString &key : keys) {
-        ILocatorFilter *filter = new DirectoryFilter(baseId.withSuffix(++count));
+        ++count;
+        ILocatorFilter *filter;
+        if (key.startsWith(kDirectoryFilterPrefix)) {
+            filter = new DirectoryFilter(directoryBaseId.withSuffix(count));
+        } else {
+            auto urlFilter = new UrlLocatorFilter(urlBaseId.withSuffix(count));
+            urlFilter->setIsCustomFilter(true);
+            filter = urlFilter;
+        }
         filter->restoreState(settings->value(key).toByteArray());
         customFilters.append(filter);
     }
@@ -302,7 +314,11 @@ void Locator::saveSettings() const
     s->beginGroup("CustomFilters");
     int i = 0;
     for (ILocatorFilter *filter : m_customFilters) {
-        s->setValue("directory" + QString::number(i), filter->saveState());
+        const char *prefix = filter->id().name().startsWith(
+                                 Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
+                                 ? kDirectoryFilterPrefix
+                                 : kUrlFilterPrefix;
+        s->setValue(prefix + QString::number(i), filter->saveState());
         ++i;
     }
     s->endGroup();

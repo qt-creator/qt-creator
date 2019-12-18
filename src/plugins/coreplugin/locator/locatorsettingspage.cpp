@@ -29,6 +29,7 @@
 #include "ilocatorfilter.h"
 #include "locator.h"
 #include "locatorconstants.h"
+#include "urllocatorfilter.h"
 
 #include <coreplugin/coreconstants.h>
 
@@ -39,6 +40,7 @@
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
+#include <QMenu>
 
 using namespace Utils;
 
@@ -209,10 +211,23 @@ QWidget *LocatorSettingsPage::widget()
                 this, &LocatorSettingsPage::configureFilter);
         connect(m_ui.editButton, &QPushButton::clicked,
                 this, [this]() { configureFilter(m_ui.filterList->currentIndex()); });
-        connect(m_ui.addButton, &QPushButton::clicked,
-                this, &LocatorSettingsPage::addCustomFilter);
-        connect(m_ui.removeButton, &QPushButton::clicked,
-                this, &LocatorSettingsPage::removeCustomFilter);
+        connect(m_ui.removeButton,
+                &QPushButton::clicked,
+                this,
+                &LocatorSettingsPage::removeCustomFilter);
+
+        auto addMenu = new QMenu(m_ui.addButton);
+        addMenu->addAction(tr("Files in Directories"), this, [this] {
+            addCustomFilter(new DirectoryFilter(Id(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
+                                                    .withSuffix(m_customFilters.size() + 1)));
+        });
+        addMenu->addAction(tr("URL Template"), this, [this] {
+            auto filter = new UrlLocatorFilter(
+                Id(Constants::CUSTOM_URL_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
+            filter->setIsCustomFilter(true);
+            addCustomFilter(filter);
+        });
+        m_ui.addButton->setMenu(addMenu);
 
         m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
         saveFilterStates();
@@ -336,10 +351,8 @@ void LocatorSettingsPage::configureFilter(const QModelIndex &proxyIndex)
         item->updateColumn(FilterPrefix);
 }
 
-void LocatorSettingsPage::addCustomFilter()
+void LocatorSettingsPage::addCustomFilter(ILocatorFilter *filter)
 {
-    ILocatorFilter *filter = new DirectoryFilter(
-                Id(Constants::CUSTOM_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
     bool needsRefresh = false;
     if (filter->openConfigDialog(m_widget, needsRefresh)) {
         m_filters.append(filter);

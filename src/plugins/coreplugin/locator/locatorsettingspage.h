@@ -59,7 +59,7 @@ public:
 private:
     void updateButtonStates();
     void configureFilter(const QModelIndex &proxyIndex);
-    void addCustomFilter();
+    void addCustomFilter(ILocatorFilter *filter);
     void removeCustomFilter();
     void initializeModel();
     void saveFilterStates();
