@@ -207,6 +207,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
             label->setContentsMargins(0, 0, 0, 8);
             return label;
         });
+        Core::ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
         Core::ICore::infoBar()->unsuppressInfo(InstallUpdates);
         Core::ICore::infoBar()->addInfo(info);
     } else {

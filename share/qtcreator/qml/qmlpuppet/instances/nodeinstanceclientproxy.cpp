@@ -71,6 +71,7 @@
 #include "puppetalivecommand.h"
 #include "changeselectioncommand.h"
 #include "drop3dlibraryitemcommand.h"
+#include "view3dclosedcommand.h"
 
 namespace QmlDesigner {
 
@@ -257,6 +258,11 @@ void NodeInstanceClientProxy::selectionChanged(const ChangeSelectionCommand &com
 }
 
 void NodeInstanceClientProxy::library3DItemDropped(const Drop3DLibraryItemCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::view3DClosed(const View3DClosedCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

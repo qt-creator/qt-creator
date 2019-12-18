@@ -137,10 +137,9 @@ WinRtDeviceFactory::WinRtDeviceFactory(Core::Id deviceType)
 void WinRtDeviceFactory::autoDetect()
 {
     qCDebug(winrtDeviceLog) << __FUNCTION__;
-    MessageManager::write(tr("Running Windows Runtime device detection."));
     const QString runnerFilePath = findRunnerFilePath();
     if (runnerFilePath.isEmpty()) {
-        MessageManager::write(tr("No winrtrunner.exe found."));
+        qCDebug(winrtDeviceLog) << "No winrtrunner.exe found.";
         return;
     }
 
@@ -155,7 +154,6 @@ void WinRtDeviceFactory::autoDetect()
     const CommandLine cmd{runnerFilePath, {"--list-devices"}};
     m_process->setCommand(cmd);
     qCDebug(winrtDeviceLog) << __FUNCTION__ << "Starting process" << cmd.toUserOutput();
-    MessageManager::write(cmd.toUserOutput());
     m_process->start();
     qCDebug(winrtDeviceLog) << __FUNCTION__ << "Process started";
 }
@@ -361,7 +359,7 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
         message += QLatin1Char(' ');
         message += tr("%n of them are new.", nullptr, numNew);
     }
-    MessageManager::write(message);
+    qCDebug(winrtDeviceLog) << message;
 }
 
 } // Internal

@@ -1446,6 +1446,13 @@ void NodeInstanceView::library3DItemDropped(const Drop3DLibraryItemCommand &comm
     QmlVisualNode::createQmlVisualNode(this, itemLibraryEntry, {});
 }
 
+void NodeInstanceView::view3DClosed(const View3DClosedCommand &command)
+{
+    Q_UNUSED(command)
+
+    rootModelNode().setAuxiliaryData("3d-view", false);
+}
+
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                             const QList<ModelNode> & /*lastSelectedNodeList*/)
 {

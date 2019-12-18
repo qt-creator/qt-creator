@@ -1970,11 +1970,12 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
     if (itemList.isEmpty())
         return result;
 
-    const QString installPrefix
-            = reader->propertyValue(QLatin1String("QT_INSTALL_PREFIX"));
-    const QString devInstallPrefix
-            = reader->propertyValue(QLatin1String("QT_INSTALL_PREFIX/dev"));
-    bool fixInstallPrefix = (installPrefix != devInstallPrefix);
+    const QStringList installPrefixVars{"QT_INSTALL_PREFIX", "QT_INSTALL_EXAMPLES"};
+    QList<QPair<QString, QString>> installPrefixValues;
+    for (const QString &installPrefix : installPrefixVars) {
+        installPrefixValues << qMakePair(reader->propertyValue(installPrefix),
+                                         reader->propertyValue(installPrefix + "/dev"));
+    }
 
     foreach (const QString &item, itemList) {
         const QStringList config = reader->values(item + ".CONFIG");
@@ -1993,13 +1994,18 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
         }
 
         QString itemPath = itemPaths.last();
-        if (fixInstallPrefix && itemPath.startsWith(installPrefix)) {
+        for (const auto &prefixValuePair : qAsConst(installPrefixValues)) {
+            if (prefixValuePair.first == prefixValuePair.second
+                    || !itemPath.startsWith(prefixValuePair.first)) {
+                continue;
+            }
             // This is a hack for projects which install into $$[QT_INSTALL_*],
             // in particular Qt itself, examples being most relevant.
             // Projects which implement their own install path policy must
             // parametrize their INSTALLS themselves depending on the intended
             // installation/deployment mode.
-            itemPath.replace(0, installPrefix.length(), devInstallPrefix);
+            itemPath.replace(0, prefixValuePair.first.length(), prefixValuePair.second);
+            break;
         }
         if (item == QLatin1String("target")) {
             if (active)

@@ -63,12 +63,13 @@
 #include "endpuppetcommand.h"
 #include "debugoutputcommand.h"
 #include "puppetalivecommand.h"
+#include "view3dclosedcommand.h"
 
 #include <enumeration.h>
 
 namespace QmlDesigner {
 
-static bool isRegistered=false;
+static bool isRegistered = false;
 
 NodeInstanceServerInterface::NodeInstanceServerInterface(QObject *parent) :
     QObject(parent)
@@ -205,6 +206,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<PuppetAliveCommand>("PuppetAliveCommand");
     qRegisterMetaTypeStreamOperators<PuppetAliveCommand>("PuppetAliveCommand");
+
+    qRegisterMetaType<View3DClosedCommand>("View3DClosedCommand");
+    qRegisterMetaTypeStreamOperators<View3DClosedCommand>("View3DClosedCommand");
 }
 
 }

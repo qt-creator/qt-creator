@@ -42,6 +42,7 @@ class DebugOutputCommand;
 class PuppetAliveCommand;
 class ChangeSelectionCommand;
 class Drop3DLibraryItemCommand;
+class View3DClosedCommand;
 
 class NodeInstanceClientInterface
 {
@@ -57,6 +58,7 @@ public:
     virtual void debugOutput(const DebugOutputCommand &command) = 0;
     virtual void selectionChanged(const ChangeSelectionCommand &command) = 0;
     virtual void library3DItemDropped(const Drop3DLibraryItemCommand &command) = 0;
+    virtual void view3DClosed(const View3DClosedCommand &command) = 0;
 
     virtual void flush() {}
     virtual void synchronizeWithClientProcess() {}

@@ -634,6 +634,15 @@ def qdumpHelper_std__string(d, value, charType, format):
         qdumpHelper__std__string__MSVC(d, value, charType, format)
         return
 
+    # GCC 9, QTCREATORBUG-22753
+    try:
+        data = value["_M_dataplus"]["_M_p"].pointer()
+        size = int(value["_M_string_length"])
+        d.putCharArrayHelper(data, size, charType, format)
+        return
+    except:
+        pass
+
     data = value.extractPointer()
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position

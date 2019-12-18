@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,40 +25,23 @@
 
 #pragma once
 
-#include <QWidget>
+#include <qmetatype.h>
+#include <QDataStream>
+#include <QDebug>
 
-namespace ProjectExplorer { class Project; }
+namespace QmlDesigner {
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class ClangIndexingProjectSettingsWidget; }
-QT_END_NAMESPACE
-
-namespace ClangPchManager {
-
-template<typename T>
-class QtCreatorProjectUpdater;
-class PchManagerProjectUpdater;
-
-class ClangIndexingProjectSettings;
-
-class ClangIndexingProjectSettingsWidget : public QWidget
+class View3DClosedCommand
 {
-    Q_OBJECT
-
 public:
-    explicit ClangIndexingProjectSettingsWidget(
-        ClangIndexingProjectSettings *settings,
-        ProjectExplorer::Project *project,
-        QtCreatorProjectUpdater<PchManagerProjectUpdater> &projectUpdater);
-    ~ClangIndexingProjectSettingsWidget();
-
-    void onProjectPartsUpdated(ProjectExplorer::Project *project);
-    void reindex();
-
-private:
-    Ui::ClangIndexingProjectSettingsWidget *ui;
-    ProjectExplorer::Project *m_project;
-    QtCreatorProjectUpdater<PchManagerProjectUpdater> &m_projectUpdater;
+    View3DClosedCommand();
 };
 
-} // namespace ClangPchManager
+QDataStream &operator<<(QDataStream &out, const View3DClosedCommand &command);
+QDataStream &operator>>(QDataStream &in, View3DClosedCommand &command);
+
+QDebug operator<<(QDebug debug, const View3DClosedCommand &command);
+
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::View3DClosedCommand)

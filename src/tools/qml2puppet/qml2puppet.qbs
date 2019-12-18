@@ -101,6 +101,8 @@ QtcTool {
             "commands/update3dviewstatecommand.h",
             "commands/enable3dviewcommand.cpp",
             "commands/enable3dviewcommand.h",
+            "commands/view3dclosedcommand.cpp",
+            "commands/view3dclosedcommand.h",
             "container/addimportcontainer.cpp",
             "container/addimportcontainer.h",
             "container/idcontainer.cpp",

@@ -209,6 +209,7 @@ protected:
     static QVariant enumationValue(const Enumeration &enumeration);
 
     void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
+    void ensureVector3DDotProperties(PropertyNameList &list) const;
 private:
     QString m_id;
 

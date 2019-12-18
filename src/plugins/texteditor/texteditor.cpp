@@ -833,6 +833,10 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_fileLineEnding->addItems(ExtraEncodingSettings::lineTerminationModeNames());
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
     m_fileLineEndingAction = m_toolBar->addWidget(m_fileLineEnding);
+    m_fileLineEndingAction->setVisible(!q->isReadOnly());
+    connect(q, &TextEditorWidget::readOnlyChanged, this, [this] {
+        m_fileLineEndingAction->setVisible(!q->isReadOnly());
+    });
 
     m_fileEncodingLabel = new FixedSizeClickLabel;
     m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);

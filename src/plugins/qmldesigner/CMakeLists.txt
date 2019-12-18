@@ -142,6 +142,7 @@ extend_qtc_plugin(QmlDesigner
     drop3dlibraryitemcommand.cpp drop3dlibraryitemcommand.h
     update3dviewstatecommand.cpp update3dviewstatecommand.h
     enable3dviewcommand.cpp enable3dviewcommand.h
+    view3dclosedcommand.cpp view3dclosedcommand.h
 )
 
 extend_qtc_plugin(QmlDesigner
