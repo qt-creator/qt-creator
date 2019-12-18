@@ -72,6 +72,8 @@ static Locator *m_instance = nullptr;
 class LocatorData
 {
 public:
+    LocatorData();
+
     LocatorManager m_locatorManager;
 
 #ifdef WITH_JAVASCRIPTFILTER
@@ -83,11 +85,23 @@ public:
     ExternalToolsFilter m_externalToolsFilter;
     LocatorFiltersFilter m_locatorsFiltersFilter;
     MenuBarFilter m_menubarFilter;
-    UrlLocatorFilter m_urlFilter;
+    UrlLocatorFilter m_urlFilter{UrlLocatorFilter::tr("Web Search"), "RemoteHelpFilter"};
 #ifdef Q_OS_MACOS
     SpotlightLocatorFilter m_spotlightLocatorFilter;
 #endif
 };
+
+LocatorData::LocatorData()
+{
+    m_urlFilter.setShortcutString("r");
+    m_urlFilter.addDefaultUrl("https://www.bing.com/search?q=%1");
+    m_urlFilter.addDefaultUrl("https://www.google.com/search?q=%1");
+    m_urlFilter.addDefaultUrl("https://search.yahoo.com/search?p=%1");
+    m_urlFilter.addDefaultUrl("https://stackoverflow.com/search?q=%1");
+    m_urlFilter.addDefaultUrl(
+        "http://en.cppreference.com/mwiki/index.php?title=Special%3ASearch&search=%1");
+    m_urlFilter.addDefaultUrl("https://en.wikipedia.org/w/index.php?search=%1");
+}
 
 Locator::Locator()
 {

@@ -113,19 +113,11 @@ void UrlFilterOptions::updateActionButtons()
 
 // -- UrlLocatorFilter
 
-UrlLocatorFilter::UrlLocatorFilter()
+UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
 {
-    setId("RemoteHelpFilter");
-    setDisplayName(tr("Web Search"));
+    setId(id);
+    setDisplayName(displayName);
     setIncludedByDefault(false);
-    setShortcutString("r");
-
-    m_remoteUrls.append("https://www.bing.com/search?q=%1");
-    m_remoteUrls.append("https://www.google.com/search?q=%1");
-    m_remoteUrls.append("https://search.yahoo.com/search?p=%1");
-    m_remoteUrls.append("https://stackoverflow.com/search?q=%1");
-    m_remoteUrls.append("http://en.cppreference.com/mwiki/index.php?title=Special%3ASearch&search=%1");
-    m_remoteUrls.append("https://en.wikipedia.org/w/index.php?search=%1");
 }
 
 UrlLocatorFilter::~UrlLocatorFilter() = default;
@@ -206,6 +198,11 @@ bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         return true;
     }
     return true;
+}
+
+void UrlLocatorFilter::addDefaultUrl(const QString &urlTemplate)
+{
+    m_remoteUrls.append(urlTemplate);
 }
 
 QStringList UrlLocatorFilter::remoteUrls() const

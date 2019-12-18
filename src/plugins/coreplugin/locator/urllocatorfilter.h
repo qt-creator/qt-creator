@@ -40,7 +40,7 @@ class CORE_EXPORT UrlLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
-    UrlLocatorFilter();
+    UrlLocatorFilter(const QString &displayName, Id id);
     ~UrlLocatorFilter() final;
 
     // ILocatorFilter
@@ -53,6 +53,7 @@ public:
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
 
+    void addDefaultUrl(const QString &urlTemplate);
     QStringList remoteUrls() const;
 
 private:
