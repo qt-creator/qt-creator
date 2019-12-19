@@ -71,15 +71,10 @@ void HeaderPathFilter::removeGccInternalIncludePaths()
         return;
 
     const Utils::FilePath gccInstallDir = projectPart.toolChainInstallDir;
-    auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath){
-        const auto includePath = Utils::FilePath::fromString(headerPath.path);
-        if (includePath.isChildOf(gccInstallDir)) {
-           const QString remainingPath = headerPath.path.mid(gccInstallDir.toString().size());
-           // MinGW ships the standard library headers in "<installdir>/include/c++".
-           // Ensure that we do not remove include paths pointing there.
-           return !remainingPath.startsWith("/include/c++");
-        }
-        return false;
+    auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath) {
+        const auto filePath = Utils::FilePath::fromString(headerPath.path);
+        return filePath == gccInstallDir.pathAppended("include")
+               || filePath == gccInstallDir.pathAppended("include-fixed");
     };
 
     Utils::erase(builtInHeaderPaths, isGccInternalInclude);
