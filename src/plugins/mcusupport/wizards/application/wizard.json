@@ -1,11 +1,11 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
-    "id": "A.McuSupportApplication",
-    "category": "F.Application",
+    "id": "M.McuSupportApplication",
+    "category": "D.ApplicationMCU",
     "trDescription": "Creates an Mcu Support application with an empty UI.",
     "trDisplayName": "Mcu Support Application",
-    "trDisplayCategory": "Application",
+    "trDisplayCategory": "Application (Qt for MCU)",
     "icon": "../icon.png",
     "enabled": true,
 

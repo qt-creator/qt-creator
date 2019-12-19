@@ -2,10 +2,10 @@
     "version": 1,
     "supportedProjectTypes": [ "PythonProject" ],
     "id": "F.QtForPythonApplicationWindowWidget",
-    "category": "F.Application",
+    "category": "F.ApplicationPySide",
     "trDescription": "Creates a Qt for Python application that includes a Qt Designer-based widget (ui file)",
     "trDisplayName": "Qt for Python - Window (UI file)",
-    "trDisplayCategory": "Application",
+    "trDisplayCategory": "Application (Qt for Python)",
     "icon": "../icons/icon.png",
     "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
 

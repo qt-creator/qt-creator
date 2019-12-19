@@ -2,10 +2,10 @@
     "version": 1,
     "supportedProjectTypes": [ "PythonProject" ],
     "id": "F.QtQuickQtForPythonApplicationEmpty",
-    "category": "F.Application",
+    "category": "F.ApplicationPySide",
     "trDescription": "Creates a Qt Quick application that contains an empty window.",
     "trDisplayName": "Qt for Python - Qt Quick Application - Empty",
-    "trDisplayCategory": "Application",
+    "trDisplayCategory": "Application (Qt for Python)",
     "icon": "../icons/icon.png",
     "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
 
