@@ -139,9 +139,6 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const;
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
     using CommandLineGetter = std::function<Utils::CommandLine()>;
     void setCommandLineGetter(const CommandLineGetter &cmdGetter);
     Utils::CommandLine commandLine() const;
@@ -189,10 +186,15 @@ protected:
     Task createConfigurationIssue(const QString &description) const;
 
 private:
+    // Any additional data should be handled by aspects.
+    bool fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
+
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
     friend class RunConfigurationCreationInfo;
     friend class RunConfigurationFactory;
+    friend class Target;
 
     QString m_buildKey;
     CommandLineGetter m_commandLineGetter;
