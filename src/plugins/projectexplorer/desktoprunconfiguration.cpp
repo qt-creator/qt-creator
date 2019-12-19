@@ -124,8 +124,6 @@ void DesktopRunConfiguration::updateTargetInformation()
                 aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(defaultWorkingDir);
         }
 
-        emit enabledChanged();
-
     } else if (m_kind == CMake) {
 
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);

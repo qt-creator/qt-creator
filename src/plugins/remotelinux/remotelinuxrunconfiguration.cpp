@@ -76,8 +76,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
 
         exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
         symbolsAspect->setFilePath(localExecutable);
-
-        emit enabledChanged();
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);

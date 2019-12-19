@@ -53,7 +53,6 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
     setUpdater([this, exeAspect] {
         const BuildTargetInfo bti = buildTargetInfo();
         exeAspect->setExecutable(bti.targetFilePath);
-        emit enabledChanged();
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);

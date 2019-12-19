@@ -76,7 +76,6 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
             .deployableForLocalFile(localExecutable);
         exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
         symbolsAspect->setFilePath(localExecutable);
-        emit enabledChanged();
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
