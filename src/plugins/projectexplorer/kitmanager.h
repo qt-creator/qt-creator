@@ -38,10 +38,6 @@
 
 #include <functional>
 
-QT_BEGIN_NAMESPACE
-class QStyle;
-QT_END_NAMESPACE
-
 namespace Utils {
 class Environment;
 class FilePath;
@@ -146,9 +142,6 @@ public:
     static QString msgManage();
 
     Kit *kit() const { return m_kit; }
-
-    virtual void setPalette(const QPalette &p);
-    virtual void setStyle(QStyle *s);
 
 signals:
     void dirty();

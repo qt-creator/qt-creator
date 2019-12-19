@@ -613,7 +613,6 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout(new QGridLayout(this))
 {
     m_layout->setContentsMargins(3, 3, 3, 3);
-    setAutoFillBackground(true);
     connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
 }
 
@@ -642,9 +641,6 @@ void KitAreaWidget::setKit(Kit *k)
             m_widgets << widget;
             QLabel *label = new QLabel(aspect->displayName());
             m_labels << label;
-
-            widget->setStyle(QStyleFactory::create(QLatin1String("fusion")));
-            widget->setPalette(palette());
 
             m_layout->addWidget(label, row, 0);
             m_layout->addWidget(widget->mainWidget(), row, 1);

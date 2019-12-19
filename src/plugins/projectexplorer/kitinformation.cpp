@@ -95,11 +95,6 @@ private:
             m_chooser->setFileName(SysRootKitAspect::sysRoot(m_kit));
     }
 
-    void setPalette(const QPalette &p) override
-    {
-        KitAspectWidget::setPalette(p);
-    }
-
     void pathWasChanged()
     {
         m_ignoreChange = true;

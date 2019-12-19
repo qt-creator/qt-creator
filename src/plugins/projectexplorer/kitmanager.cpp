@@ -727,22 +727,6 @@ QString KitAspectWidget::msgManage()
     return tr("Manage...");
 }
 
-void KitAspectWidget::setPalette(const QPalette &p)
-{
-    if (mainWidget())
-        mainWidget()->setPalette(p);
-    if (buttonWidget())
-        buttonWidget()->setPalette(p);
-}
-
-void KitAspectWidget::setStyle(QStyle *s)
-{
-    if (mainWidget())
-        mainWidget()->setStyle(s);
-    if (buttonWidget())
-        buttonWidget()->setStyle(s);
-}
-
 // --------------------------------------------------------------------
 // KitFeatureProvider:
 // --------------------------------------------------------------------
