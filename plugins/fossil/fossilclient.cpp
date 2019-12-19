@@ -70,7 +70,7 @@ public:
         VcsBase::VcsBaseClientSettings &settings = client->settings();
         FossilClient::SupportedFeatures features = client->supportedFeatures();
 
-        addButton(tr("Reload"), Icons::RELOAD.icon());
+        addReloadButton();
         if (features.testFlag(FossilClient::DiffIgnoreWhiteSpaceFeature)) {
             mapSetting(addToggleButton("-w", tr("Ignore All Whitespace")),
                        settings.boolPointer(FossilSettings::diffIgnoreAllWhiteSpaceKey));
@@ -117,8 +117,7 @@ public:
         VcsBase::VcsBaseEditorConfig(toolBar)
     {
         QTC_ASSERT(client, return);
-
-        addButton(tr("Reload"), Icons::RELOAD.icon());
+        addReloadButton();
     }
 
 };
@@ -134,7 +133,7 @@ public:
     {
         QTC_ASSERT(client, return);
 
-        addButton(tr("Reload"), Icons::RELOAD.icon());
+        addReloadButton();
         addLineageComboBox();
         addVerboseToggleButton();
         addItemTypeComboBox();

@@ -91,7 +91,7 @@ void PullOrPushDialog::setDefaultRemoteLocation(const QString &url)
 
 void PullOrPushDialog::setLocalBaseDirectory(const QString &dir)
 {
-    m_ui->localPathChooser->setBaseDirectory(dir);
+    m_ui->localPathChooser->setBaseDirectory(Utils::FilePath::fromString(dir));
 }
 
 void PullOrPushDialog::changeEvent(QEvent *e)
