@@ -77,8 +77,6 @@ const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_F
 const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
 const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
-static const char *qmlProjectRunConfigIdName = "QmlProjectManager.QmlRunConfiguration";
-
 
 // AndroidDeployQtStepFactory
 
