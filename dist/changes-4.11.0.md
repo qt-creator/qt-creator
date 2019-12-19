@@ -101,6 +101,7 @@ you can check out from the public Git repository. For example:
 
 ### Qbs
 
+* Updated to Qbs version 1.15.0
 * Fixed that include paths were not correctly categorized into user and system paths
   for the code model
 

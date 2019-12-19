@@ -183,7 +183,7 @@
     Since Qt 5.11, you can compile QML source code into the final binary. This
     improves the startup time of the application and eliminates the need to
     deploy QML files together with the application. For more information, see
-    \l{Compiling QML Ahead of Time}.
+    \l{Ahead-of-Time Compilation}.
 
     \QC new project wizards create Qt Quick projects that can be compiled,
     because they are set up to use the Qt Resource System. To compile Qt Quick

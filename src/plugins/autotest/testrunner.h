@@ -108,6 +108,7 @@ private:
     QMetaObject::Connection m_buildConnect;
     // temporarily used when debugging
     QMetaObject::Connection m_stopDebugConnect;
+    QMetaObject::Connection m_finishDebugConnect;
     // temporarily used for handling of switching the current target
     QMetaObject::Connection m_targetConnect;
 };

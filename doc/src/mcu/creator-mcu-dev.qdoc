@@ -31,7 +31,7 @@
 
     \title Connecting MCUs
 
-    \l{Qt for MCU} enables you to use subsets of QML and Qt Quick Controls
+    Qt for MCU enables you to use subsets of QML and Qt Quick Controls
     to create user interfaces for devices that are powered by microcontroller
     units (MCU). It includes a new graphics rendering engine that has a low
     memory footprint and is optimized for MCUs and other resource-constrained

@@ -154,6 +154,7 @@
     \list
         \li \l{Setting Bindings}
         \li \l{Setting Anchors and Margins}
+        \li \l{Aligning and Distributing Items}
         \li \l{Using Positioners}
         \li \l{Using Layouts}
         \li \l{Organizing Items}
@@ -252,9 +253,9 @@
     Rectangle {
         id: rectangle2
         anchors.left: rectangle1.right
-        anchors.leftMargin: 15
+        anchors.leftMargin: 10
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 15
+        anchors.bottomMargin: 10
         //
     }
     \endqml
@@ -262,6 +263,60 @@
     Margins specify the amount of empty space to leave to the outside of an
     item. Margins only have meaning for anchors. They do not take any effect
     when using layouts or absolute positioning.
+
+    \section2 Aligning and Distributing Items
+
+    When you're working with a group of items, you can select them to align
+    and distribute them evenly. As the positions of the items are fixed, you
+    cannot apply these functions to anchored items. For scalability, you can
+    anchor the aligned and distributed items when your design is ready.
+
+    \image qmldesigner-alignment.png "Aligning sibling items"
+
+    Select the buttons in the \uicontrol Align group to align the top/bottom
+    or left/right edges of the items in the group to the one farthest away from
+    the center of the group. For example, when left-aligning, the items are
+    aligned to the leftmost item. You can also align the horizontal/vertical
+    centers of items, or both, as in the image above.
+
+    In the \uicontrol {Align to} field, select whether to align the items in
+    respect to the selection, the root item, or a \e {key object} that you
+    select in the \uicontrol {Key object} field. The key object must be a part
+    of the selection.
+
+    You can distribute either \e objects or the \e spacing between them. If the
+    objects or spacing cannot be distributed to equal pixel values without
+    ending up with half pixels, you receive a notification. You can either allow
+    \QDS to distribute objects or spacing using the closest values possible or
+    tweak your design so that the objects and spacing can be distributed
+    perfectly.
+
+    When distributing objects, you can select whether the distance between
+    them is calculated from their top/bottom or left/right edges or their
+    horizontal/vertical center.
+
+    \image qmldesigner-distribute-objects.png "Distribute objects buttons"
+
+    You can distribute spacing either evenly within a target area or at
+    specified distances, calculated from a starting point.
+
+    You can select the orientation in which the objects are distributed evenly
+    within the target area: horizontally along the x axis or vertically along
+    the y axis.
+
+    \image qmldesigner-distribute-spacing-evenly.png "Distribute spacing evenly"
+
+    Alternatively, you can distribute spacing in pixels by selecting one of the
+    starting point buttons: left/right or top/bottom edge of the target area,
+    or its horizontal/vertical center. Note that some items might end up outside
+    the target area.
+
+    \image qmldesigner-distribute-spacing-pixels.png "Distribute spacing in pixels"
+
+    You can set the space between objects in pixels. You can
+    disable the distribution of spacing in pixels by clicking
+    the \inlineimage qmldesigner-distribute-spacing-x.png
+    button.
 
     \section2 Using Positioners
 

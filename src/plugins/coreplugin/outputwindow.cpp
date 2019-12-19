@@ -33,6 +33,7 @@
 #include <utils/synchronousprocess.h>
 
 #include <QAction>
+#include <QPointer>
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -58,7 +59,7 @@ public:
     }
 
     IContext *outputWindowContext = nullptr;
-    Utils::OutputFormatter *formatter = nullptr;
+    QPointer<Utils::OutputFormatter> formatter;
     QString settingsKey;
 
     bool enforceNewline = false;
