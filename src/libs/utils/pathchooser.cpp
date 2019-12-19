@@ -347,16 +347,6 @@ void PathChooser::setFileName(const FilePath &fn)
     d->m_lineEdit->setTextKeepingActiveCursor(fn.toUserOutput());
 }
 
-void PathChooser::setErrorColor(const QColor &errorColor)
-{
-    d->m_lineEdit->setErrorColor(errorColor);
-}
-
-void PathChooser::setOkColor(const QColor &okColor)
-{
-    d->m_lineEdit->setOkColor(okColor);
-}
-
 bool PathChooser::isReadOnly() const
 {
     return d->m_lineEdit->isReadOnly();
@@ -485,16 +475,6 @@ void PathChooser::triggerChanged()
 void PathChooser::setAboutToShowContextMenuHandler(PathChooser::AboutToShowContextMenuHandler handler)
 {
     s_aboutToShowContextMenuHandler = handler;
-}
-
-QColor PathChooser::errorColor() const
-{
-    return d->m_lineEdit->errorColor();
-}
-
-QColor PathChooser::okColor() const
-{
-    return d->m_lineEdit->okColor();
 }
 
 FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const

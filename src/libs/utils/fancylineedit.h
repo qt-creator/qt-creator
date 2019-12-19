@@ -73,10 +73,6 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
     Q_OBJECT
     Q_ENUMS(Side)
 
-    // Validation.
-    Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
-    Q_PROPERTY(QColor okColor READ okColor WRITE setOkColor DESIGNABLE true)
-
 public:
     enum Side {Left = 0, Right = 1};
 
@@ -130,12 +126,6 @@ public:
     State state() const;
     bool isValid() const;
     QString errorMessage() const;
-
-    QColor errorColor() const;
-    void setErrorColor(const  QColor &c);
-
-    QColor okColor() const;
-    void setOkColor(const  QColor &c);
 
     void setValidationFunction(const ValidationFunction &fn);
     static ValidationFunction defaultValidationFunction();

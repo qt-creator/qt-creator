@@ -98,7 +98,6 @@ private:
     void setPalette(const QPalette &p) override
     {
         KitAspectWidget::setPalette(p);
-        m_chooser->setOkColor(p.color(QPalette::Active, QPalette::Text));
     }
 
     void pathWasChanged()

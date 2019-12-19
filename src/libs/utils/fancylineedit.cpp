@@ -133,19 +133,18 @@ public:
 
     QString m_lastFilterText;
 
-    QColor m_okTextColor;
-    QColor m_errorTextColor;
+    const QColor m_okTextColor;
+    const QColor m_errorTextColor;
     QString m_errorMessage;
 };
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
     m_lineEdit(parent),
-    m_completionShortcut(completionShortcut()->key(), parent)
+    m_completionShortcut(completionShortcut()->key(), parent),
+    m_okTextColor(creatorTheme()->color(Theme::TextColorNormal)),
+    m_errorTextColor(creatorTheme()->color(Theme::TextColorError))
 {
-    m_okTextColor = creatorTheme()->color(Theme::TextColorNormal);
-    m_errorTextColor = creatorTheme()->color(Theme::TextColorError);
-
     m_completionShortcut.setContext(Qt::WidgetShortcut);
     connect(completionShortcut(), &CompletionShortcut::keyChanged,
             &m_completionShortcut, &QShortcut::setKey);
@@ -449,28 +448,6 @@ void FancyLineEdit::setFiltering(bool on)
     } else {
         disconnect(this, &FancyLineEdit::rightButtonClicked, this, &QLineEdit::clear);
     }
-}
-
-QColor FancyLineEdit::errorColor() const
-{
-    return d->m_errorTextColor;
-}
-
-void FancyLineEdit::setErrorColor(const  QColor &c)
-{
-    d->m_errorTextColor = c;
-    validate();
-}
-
-QColor FancyLineEdit::okColor() const
-{
-    return d->m_okTextColor;
-}
-
-void FancyLineEdit::setOkColor(const QColor &c)
-{
-    d->m_okTextColor = c;
-    validate();
 }
 
 void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
