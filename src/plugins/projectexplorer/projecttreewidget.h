@@ -67,6 +67,8 @@ public:
 
     void toggleAutoSynchronization();
     void editCurrentItem();
+    void collapseCurrentNode();
+    void expandCurrentNode();
     void collapseAll();
     void expandAll();
 
