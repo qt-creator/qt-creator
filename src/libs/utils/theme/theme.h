@@ -96,9 +96,9 @@ public:
         MenuBarItemTextColorNormal,
         MenuItemTextColorDisabled,
         MenuItemTextColorNormal,
-        MiniProjectTargetSelectorBackgroundColor,
+        MiniProjectTargetSelectorBackgroundColor, // TODO: Deprecate. -> Utils::StyleHelper().baseColor()
         MiniProjectTargetSelectorBorderColor,
-        MiniProjectTargetSelectorSummaryBackgroundColor,
+        MiniProjectTargetSelectorSummaryBackgroundColor, // TODO: Deprecate. -> Utils::StyleHelper().baseColor()
         MiniProjectTargetSelectorTextColor,
         OutputPaneButtonFlashColor,
         OutputPaneToggleButtonTextColorChecked,

@@ -723,8 +723,9 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_summaryLabel = new QLabel(this);
     m_summaryLabel->setContentsMargins(3, 3, 3, 3);
     m_summaryLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    m_summaryLabel->setStyleSheet(QString::fromLatin1("background: %1;")
-        .arg(creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name()));
+    QPalette pal = m_summaryLabel->palette();
+    pal.setColor(QPalette::Window, Utils::StyleHelper().baseColor());
+    m_summaryLabel->setPalette(pal);
     m_summaryLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_summaryLabel->setTextInteractionFlags(m_summaryLabel->textInteractionFlags() | Qt::LinksAccessibleByMouse);
 
@@ -1628,8 +1629,7 @@ void MiniProjectTargetSelector::updateSummary()
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.setBrush(creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor));
-    painter.drawRect(rect());
+    painter.fillRect(rect(), Utils::StyleHelper().baseColor());
     painter.setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorBorderColor));
     // draw border on top and right
     QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
