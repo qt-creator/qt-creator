@@ -36,19 +36,27 @@ QtObject {
     property bool isInModel: backendValue.isInModel;
     property bool isInSubState: backendValue.isInSubState;
     property bool highlight: textColor === __changedTextColor
+    property bool errorState: false
 
-    property color __defaultTextColor: StudioTheme.Values.themeTextColor
+    readonly property color __defaultTextColor: StudioTheme.Values.themeTextColor
     readonly property color __changedTextColor: StudioTheme.Values.themeInteraction
+    readonly property color __errorTextColor: StudioTheme.Values.themeErrorColor
 
     onBackendValueChanged: evaluate()
     onValueFromBackendChanged: evaluate()
     onBaseStateFlagChanged: evaluate()
     onIsInModelChanged: evaluate()
     onIsInSubStateChanged: evaluate()
+    onErrorStateChanged: evaluate()
 
     function evaluate() {
         if (innerObject.backendValue === undefined)
             return
+
+        if (innerObject.errorState) {
+            innerObject.textColor = __errorTextColor
+            return
+        }
 
         if (innerObject.baseStateFlag) {
             if (innerObject.backendValue.isInModel)

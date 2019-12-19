@@ -108,6 +108,8 @@ QtObject {
     property string themeSliderInactiveTrackFocus: "#606060"
     property string themeSliderHandleFocus: values.themeInteraction
 
+    property string themeErrorColor: "#df3a3a"
+
     // NEW NEW NEW NEW NEW
     property string themeControlBackgroundDisabled: "#363636"
     property string themeControlOutlineDisabled: "#404040"
