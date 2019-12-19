@@ -137,8 +137,7 @@ private:
 
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &ProjectBuilder::onBuildFinished, Qt::QueuedConnection);
-
-        ProjectExplorerPlugin::buildProject(target->project());
+        BuildManager::buildProjectWithDependencies(target->project());
      }
 
      void onBuildFinished(bool success)

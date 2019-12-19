@@ -97,7 +97,6 @@
 #include "devicesupport/sshsettingspage.h"
 #include "targetsettingspanel.h"
 #include "projectpanelfactory.h"
-#include "waitforstopdialog.h"
 #include "projectexplorericons.h"
 
 #include "windebuginterface.h"
@@ -383,8 +382,6 @@ class ProjectExplorerPluginPrivate : public QObject
 public:
     ProjectExplorerPluginPrivate();
 
-    void deploy(QList<Project *>);
-    int queue(QList<Project *>, QList<Id> stepIds, const RunConfiguration *forRunConfig = nullptr);
     void updateContextMenuActions();
     void updateLocationSubMenus();
     void executeRunConfiguration(RunConfiguration *, Core::Id mode);
@@ -1489,14 +1486,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_loadAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::loadAction);
     connect(dd->m_buildProjectOnlyAction, &QAction::triggered, dd, [] {
-        dd->queue({ SessionManager::startupProject() }, { Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::buildProjectWithoutDependencies(SessionManager::startupProject());
     });
     connect(dd->m_buildAction, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(SessionManager::startupProject()),
-                  { Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::buildProjectWithDependencies(SessionManager::startupProject());
     });
     connect(dd->m_buildActionContextMenu, &QAction::triggered, dd, [] {
-        dd->queue({ ProjectTree::currentProject() }, { Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::buildProjectWithoutDependencies(ProjectTree::currentProject());
     });
     connect(dd->m_buildForRunConfigAction, &QAction::triggered, dd, [] {
         const Project * const project = SessionManager::startupProject();
@@ -1510,60 +1506,52 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         productNode->build();
     });
     connect(dd->m_buildDependenciesActionContextMenu, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(ProjectTree::currentProject()),
-                  { Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::buildProjectWithDependencies(ProjectTree::currentProject());
     });
     connect(dd->m_buildSessionAction, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(), { Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::buildProjects(SessionManager::projectOrder());
     });
     connect(dd->m_rebuildProjectOnlyAction, &QAction::triggered, dd, [] {
-        dd->queue({ SessionManager::startupProject() },
-                  { Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::rebuildProjectWithoutDependencies(SessionManager::startupProject());
     });
     connect(dd->m_rebuildAction, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(SessionManager::startupProject()),
-                  { Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::rebuildProjectWithDependencies(SessionManager::startupProject());
     });
     connect(dd->m_rebuildActionContextMenu, &QAction::triggered, dd, [] {
-        dd->queue({ ProjectTree::currentProject() },
-                  { Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::rebuildProjectWithoutDependencies(ProjectTree::currentProject());
     });
     connect(dd->m_rebuildDependenciesActionContextMenu, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(ProjectTree::currentProject()),
-                  { Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::rebuildProjectWithDependencies(ProjectTree::currentProject());
     });
     connect(dd->m_rebuildSessionAction, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(),
-                  { Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD) });
+        BuildManager::rebuildProjects(SessionManager::projectOrder());
     });
     connect(dd->m_deployProjectOnlyAction, &QAction::triggered, dd, [] {
-        dd->deploy({ SessionManager::startupProject() });
+        BuildManager::deployProjects({SessionManager::startupProject()});
     });
     connect(dd->m_deployAction, &QAction::triggered, dd, [] {
-        dd->deploy(SessionManager::projectOrder(SessionManager::startupProject()));
+        BuildManager::deployProjects(SessionManager::projectOrder(SessionManager::startupProject()));
     });
     connect(dd->m_deployActionContextMenu, &QAction::triggered, dd, [] {
-        dd->deploy({ ProjectTree::currentProject() });
+        BuildManager::deployProjects({ProjectTree::currentProject()});
     });
     connect(dd->m_deploySessionAction, &QAction::triggered, dd, [] {
-        dd->deploy(SessionManager::projectOrder());
+        BuildManager::deployProjects(SessionManager::projectOrder());
     });
     connect(dd->m_cleanProjectOnlyAction, &QAction::triggered, dd, [] {
-        dd->queue({ SessionManager::startupProject() }, { Id(Constants::BUILDSTEPS_CLEAN) });
+        BuildManager::cleanProjectWithoutDependencies(SessionManager::startupProject());
     });
     connect(dd->m_cleanAction, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(SessionManager::startupProject()),
-                  { Id(Constants::BUILDSTEPS_CLEAN) });
+        BuildManager::cleanProjectWithDependencies(SessionManager::startupProject());
     });
     connect(dd->m_cleanActionContextMenu, &QAction::triggered, dd, [] {
-        dd->queue({ ProjectTree::currentProject() }, { Id(Constants::BUILDSTEPS_CLEAN) });
+        BuildManager::cleanProjectWithoutDependencies(ProjectTree::currentProject());
     });
     connect(dd->m_cleanDependenciesActionContextMenu, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(ProjectTree::currentProject()),
-                  { Id(Constants::BUILDSTEPS_CLEAN) });
+        BuildManager::cleanProjectWithDependencies(ProjectTree::currentProject());
     });
     connect(dd->m_cleanSessionAction, &QAction::triggered, dd, [] {
-        dd->queue(SessionManager::projectOrder(), { Id(Constants::BUILDSTEPS_CLEAN) });
+        BuildManager::cleanProjects(SessionManager::projectOrder());
     });
     connect(dd->m_runAction, &QAction::triggered,
             dd, []() { m_instance->runStartupProject(Constants::NORMAL_RUN_MODE); });
@@ -2602,15 +2590,6 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate()
     m_allProjectDirectoriesFilter.setIsCustomFilter(false);
 }
 
-void ProjectExplorerPluginPrivate::deploy(QList<Project *> projects)
-{
-    QList<Id> steps;
-    if (m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off)
-        steps << Id(Constants::BUILDSTEPS_BUILD);
-    steps << Id(Constants::BUILDSTEPS_DEPLOY);
-    queue(projects, steps);
-}
-
 QString ProjectExplorerPlugin::displayNameForStepId(Id stepId)
 {
     if (stepId == Constants::BUILDSTEPS_CLEAN)
@@ -2620,115 +2599,6 @@ QString ProjectExplorerPlugin::displayNameForStepId(Id stepId)
     if (stepId == Constants::BUILDSTEPS_DEPLOY)
         return tr("Deploy");
     return tr("Build", "Build step");
-}
-
-int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> stepIds,
-                                        const RunConfiguration *forRunConfig)
-{
-    if (!m_instance->saveModifiedFiles())
-        return -1;
-
-    if (m_projectExplorerSettings.stopBeforeBuild != StopBeforeBuild::None
-            && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
-        StopBeforeBuild stopCondition = m_projectExplorerSettings.stopBeforeBuild;
-        if (stopCondition == StopBeforeBuild::SameApp && !forRunConfig)
-            stopCondition = StopBeforeBuild::SameBuildDir;
-        const QList<RunControl *> toStop
-                = Utils::filtered(m_outputPane.allRunControls(), [&projects, stopCondition, forRunConfig](RunControl *rc) -> bool {
-                                      if (!rc->isRunning())
-                                          return false;
-
-                                      switch (stopCondition) {
-                                      case StopBeforeBuild::None:
-                                          return false;
-                                      case StopBeforeBuild::All:
-                                          return true;
-                                      case StopBeforeBuild::SameProject:
-                                          return projects.contains(rc->project());
-                                      case StopBeforeBuild::SameBuildDir:
-                                          return Utils::contains(projects, [rc](Project *p) {
-                                              Target *t = p ? p->activeTarget() : nullptr;
-                                              BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
-                                              if (!bc)
-                                                  return false;
-                                              if (!rc->runnable().executable.isChildOf(bc->buildDirectory()))
-                                                  return false;
-                                              IDevice::ConstPtr device = rc->runnable().device;
-                                              if (device.isNull())
-                                                  device = DeviceKitAspect::device(t->kit());
-                                              return !device.isNull() && device->type() == Core::Id(Constants::DESKTOP_DEVICE_TYPE);
-                                          });
-                                      case StopBeforeBuild::SameApp:
-                                          QTC_ASSERT(forRunConfig, return false);
-                                          return forRunConfig->buildTargetInfo().targetFilePath
-                                                  == rc->targetFilePath();
-                                      }
-                                      return false; // Can't get here!
-                                  });
-
-        if (!toStop.isEmpty()) {
-            bool stopThem = true;
-            if (m_projectExplorerSettings.prompToStopRunControl) {
-                QStringList names = Utils::transform(toStop, &RunControl::displayName);
-                if (QMessageBox::question(ICore::mainWindow(), tr("Stop Applications"),
-                                          tr("Stop these applications before building?")
-                                          + QLatin1String("\n\n")
-                                          + names.join(QLatin1Char('\n')))
-                        == QMessageBox::No) {
-                    stopThem = false;
-                }
-            }
-
-            if (stopThem) {
-                foreach (RunControl *rc, toStop)
-                    rc->initiateStop();
-
-                WaitForStopDialog dialog(toStop);
-                dialog.exec();
-
-                if (dialog.canceled())
-                    return -1;
-            }
-        }
-    }
-
-    QList<BuildStepList *> stepLists;
-    QStringList preambleMessage;
-
-    foreach (Project *pro, projects)
-        if (pro && pro->needsConfiguration())
-            preambleMessage.append(tr("The project %1 is not configured, skipping it.")
-                                   .arg(pro->displayName()) + QLatin1Char('\n'));
-    foreach (Id id, stepIds) {
-        foreach (Project *pro, projects) {
-            if (!pro || pro->needsConfiguration())
-                continue;
-            BuildStepList *bsl = nullptr;
-            Target *target = pro->activeTarget();
-            if (id == Constants::BUILDSTEPS_DEPLOY && target->activeDeployConfiguration())
-                bsl = target->activeDeployConfiguration()->stepList();
-            else if (id == Constants::BUILDSTEPS_BUILD && target->activeBuildConfiguration())
-                bsl = target->activeBuildConfiguration()->buildSteps();
-            else if (id == Constants::BUILDSTEPS_CLEAN && target->activeBuildConfiguration())
-                bsl = target->activeBuildConfiguration()->cleanSteps();
-
-            if (!bsl || bsl->isEmpty())
-                continue;
-            stepLists << bsl;
-        }
-    }
-
-    if (stepLists.isEmpty())
-        return 0;
-
-    if (!BuildManager::buildLists(stepLists, preambleMessage))
-        return -1;
-    return stepLists.count();
-}
-
-void ProjectExplorerPlugin::buildProject(Project *p)
-{
-    dd->queue(SessionManager::projectOrder(p), { Id(Constants::BUILDSTEPS_BUILD) });
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
@@ -2890,41 +2760,24 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
 {
     if (!rc->isEnabled())
         return;
-
-    QList<Id> stepIds;
-    if (!forceSkipDeploy && dd->m_projectExplorerSettings.deployBeforeRun) {
-        if (!BuildManager::isBuilding()) {
-            switch (dd->m_projectExplorerSettings.buildBeforeDeploy) {
-            case BuildBeforeRunMode::AppOnly:
-                rc->target()->activeBuildConfiguration()->restrictNextBuild(rc);
-                Q_FALLTHROUGH();
-            case BuildBeforeRunMode::WholeProject:
-                stepIds << Id(Constants::BUILDSTEPS_BUILD);
-                break;
-            case BuildBeforeRunMode::Off:
-                break;
-            }
-        }
-        if (!BuildManager::isDeploying())
-            stepIds << Id(Constants::BUILDSTEPS_DEPLOY);
-    }
-
-    Project *pro = rc->target()->project();
-    int queueCount = dd->queue(SessionManager::projectOrder(pro), stepIds, rc);
-    rc->target()->activeBuildConfiguration()->restrictNextBuild(nullptr);
-
-    if (queueCount < 0) // something went wrong
+    const BuildForRunConfigStatus buildStatus = forceSkipDeploy
+            ? BuildManager::isBuilding(rc->project())
+                ? BuildForRunConfigStatus::Building : BuildForRunConfigStatus::NotBuilding
+            : BuildManager::potentiallyBuildForRunConfig(rc);
+    switch (buildStatus) {
+    case BuildForRunConfigStatus::BuildFailed:
         return;
-
-    if (queueCount > 0 || BuildManager::isBuilding(rc->project())) {
+    case BuildForRunConfigStatus::Building:
         QTC_ASSERT(dd->m_runMode == Constants::NO_RUN_MODE, return);
 
         // delay running till after our queued steps were processed
         dd->m_runMode = runMode;
         dd->m_delayedRunConfiguration = rc;
         dd->m_shouldHaveRunConfiguration = true;
-    } else {
+        break;
+    case BuildForRunConfigStatus::NotBuilding:
         dd->executeRunConfiguration(rc, runMode);
+        break;
     }
     emit m_instance->updateRunActions();
 }
@@ -2932,11 +2785,16 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
 QList<QPair<Runnable, Utils::ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
 {
     QList<QPair<Runnable, Utils::ProcessHandle>> processes;
-    foreach (RunControl *rc, dd->m_outputPane.allRunControls()) {
+    foreach (RunControl *rc, allRunControls()) {
         if (rc->isRunning())
             processes << qMakePair(rc->runnable(), rc->applicationProcessHandle());
     }
     return processes;
+}
+
+QList<RunControl *> ProjectExplorerPlugin::allRunControls()
+{
+    return dd->m_outputPane.allRunControls();
 }
 
 void ProjectExplorerPluginPrivate::projectAdded(Project *pro)

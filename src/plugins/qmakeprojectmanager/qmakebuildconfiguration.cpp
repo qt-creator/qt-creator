@@ -51,6 +51,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitinformation.h>

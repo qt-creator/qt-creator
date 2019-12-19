@@ -155,10 +155,9 @@ public:
     static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,
                              const bool forceSkipDeploy = false);
     static QList<QPair<Runnable, Utils::ProcessHandle>> runningRunControlProcesses();
+    static QList<RunControl *> allRunControls();
 
     static void addExistingFiles(FolderNode *folderNode, const QStringList &filePaths);
-
-    static void buildProject(Project *p);
 
     static void initiateInlineRenaming();
 

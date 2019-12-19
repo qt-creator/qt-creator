@@ -32,10 +32,14 @@
 #include <QStringList>
 
 namespace ProjectExplorer {
+class RunConfiguration;
+
 namespace Internal { class CompileOutputSettings; }
 
 class Task;
 class Project;
+
+enum class BuildForRunConfigStatus { Building, NotBuilding, BuildFailed };
 
 class PROJECTEXPLORER_EXPORT BuildManager : public QObject
 {
@@ -47,6 +51,20 @@ public:
     static BuildManager *instance();
 
     static void extensionsInitialized();
+
+    static void buildProjectWithoutDependencies(Project *project);
+    static void cleanProjectWithoutDependencies(Project *project);
+    static void rebuildProjectWithoutDependencies(Project *project);
+    static void buildProjectWithDependencies(Project *project);
+    static void cleanProjectWithDependencies(Project *project);
+    static void rebuildProjectWithDependencies(Project *project);
+    static void buildProjects(const QList<Project *> &projects);
+    static void cleanProjects(const QList<Project *> &projects);
+    static void rebuildProjects(const QList<Project *> &projects);
+
+    static void deployProjects(const QList<Project *> &projects);
+
+    static BuildForRunConfigStatus potentiallyBuildForRunConfig(RunConfiguration *rc);
 
     static bool isBuilding();
     static bool isDeploying();

@@ -2391,7 +2391,7 @@ void DebuggerUnitTests::testStateMachine()
     QEventLoop loop;
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             &loop, &QEventLoop::quit);
-    ProjectExplorerPlugin::buildProject(SessionManager::startupProject());
+    BuildManager::buildProjectWithDependencies(SessionManager::startupProject());
     loop.exec();
 
     ExecuteOnDestruction guard([] { EditorManager::closeAllEditors(false); });

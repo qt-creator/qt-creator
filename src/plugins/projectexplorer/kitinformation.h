@@ -29,13 +29,13 @@
 #include "devicesupport/idevice.h"
 #include "kitmanager.h"
 #include "kit.h"
-#include "toolchain.h"
 
 #include <utils/environment.h>
 
 #include <QVariant>
 
 namespace ProjectExplorer {
+class ToolChain;
 
 class KitAspectWidget;
 

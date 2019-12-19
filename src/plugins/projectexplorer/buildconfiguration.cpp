@@ -42,6 +42,7 @@
 #include "projecttree.h"
 #include "target.h"
 #include "session.h"
+#include "toolchain.h"
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/variablechooser.h>

@@ -30,8 +30,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -157,7 +157,7 @@ void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
     buildStep->setBuildTarget(selection.displayName);
 
     // Build
-    ProjectExplorerPlugin::buildProject(cmakeProject);
+    BuildManager::buildProjectWithDependencies(cmakeProject);
     buildStep->setBuildTarget(oldTarget);
 }
 

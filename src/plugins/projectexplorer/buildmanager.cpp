@@ -28,15 +28,19 @@
 #include "buildprogress.h"
 #include "buildsteplist.h"
 #include "compileoutputwindow.h"
+#include "deployconfiguration.h"
 #include "kit.h"
+#include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "runcontrol.h"
 #include "session.h"
 #include "target.h"
 #include "task.h"
 #include "taskhub.h"
 #include "taskwindow.h"
+#include "waitforstopdialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -49,6 +53,7 @@
 #include <QFutureWatcher>
 #include <QHash>
 #include <QList>
+#include <QMessageBox>
 #include <QPointer>
 #include <QTime>
 #include <QTimer>
@@ -56,11 +61,123 @@
 using namespace Core;
 
 namespace ProjectExplorer {
+using namespace Internal;
 
 static QString msgProgress(int progress, int total)
 {
     return BuildManager::tr("Finished %1 of %n steps", nullptr, total).arg(progress);
 }
+
+static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
+                 const RunConfiguration *forRunConfig = nullptr)
+{
+    if (!ProjectExplorerPlugin::saveModifiedFiles())
+        return -1;
+
+    const ProjectExplorerSettings &settings = ProjectExplorerPlugin::projectExplorerSettings();
+    if (settings.stopBeforeBuild != StopBeforeBuild::None
+            && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
+        StopBeforeBuild stopCondition = settings.stopBeforeBuild;
+        if (stopCondition == StopBeforeBuild::SameApp && !forRunConfig)
+            stopCondition = StopBeforeBuild::SameBuildDir;
+        const auto isStoppableRc = [&projects, stopCondition, forRunConfig](RunControl *rc) {
+            if (!rc->isRunning())
+                return false;
+
+            switch (stopCondition) {
+            case StopBeforeBuild::None:
+                return false;
+            case StopBeforeBuild::All:
+                return true;
+            case StopBeforeBuild::SameProject:
+                return projects.contains(rc->project());
+            case StopBeforeBuild::SameBuildDir:
+                return Utils::contains(projects, [rc](Project *p) {
+                    Target *t = p ? p->activeTarget() : nullptr;
+                    BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
+                    if (!bc)
+                        return false;
+                    if (!rc->runnable().executable.isChildOf(bc->buildDirectory()))
+                        return false;
+                    IDevice::ConstPtr device = rc->runnable().device;
+                    if (device.isNull())
+                        device = DeviceKitAspect::device(t->kit());
+                    return !device.isNull()
+                            && device->type() == Core::Id(Constants::DESKTOP_DEVICE_TYPE);
+                });
+            case StopBeforeBuild::SameApp:
+                QTC_ASSERT(forRunConfig, return false);
+                return forRunConfig->buildTargetInfo().targetFilePath
+                        == rc->targetFilePath();
+            }
+            return false; // Can't get here!
+        };
+        const QList<RunControl *> toStop
+                = Utils::filtered(ProjectExplorerPlugin::allRunControls(), isStoppableRc);
+
+        if (!toStop.isEmpty()) {
+            bool stopThem = true;
+            if (settings.prompToStopRunControl) {
+                QStringList names = Utils::transform(toStop, &RunControl::displayName);
+                if (QMessageBox::question(ICore::mainWindow(),
+                        BuildManager::tr("Stop Applications"),
+                        BuildManager::tr("Stop these applications before building?")
+                        + "\n\n" + names.join('\n'))
+                        == QMessageBox::No) {
+                    stopThem = false;
+                }
+            }
+
+            if (stopThem) {
+                foreach (RunControl *rc, toStop)
+                    rc->initiateStop();
+
+                WaitForStopDialog dialog(toStop);
+                dialog.exec();
+
+                if (dialog.canceled())
+                    return -1;
+            }
+        }
+    }
+
+    QList<BuildStepList *> stepLists;
+    QStringList preambleMessage;
+
+    foreach (Project *pro, projects) {
+        if (pro && pro->needsConfiguration()) {
+            preambleMessage.append(
+                        BuildManager::tr("The project %1 is not configured, skipping it.")
+                        .arg(pro->displayName()) + QLatin1Char('\n'));
+        }
+    }
+    foreach (Id id, stepIds) {
+        foreach (Project *pro, projects) {
+            if (!pro || pro->needsConfiguration())
+                continue;
+            BuildStepList *bsl = nullptr;
+            Target *target = pro->activeTarget();
+            if (id == Constants::BUILDSTEPS_DEPLOY && target->activeDeployConfiguration())
+                bsl = target->activeDeployConfiguration()->stepList();
+            else if (id == Constants::BUILDSTEPS_BUILD && target->activeBuildConfiguration())
+                bsl = target->activeBuildConfiguration()->buildSteps();
+            else if (id == Constants::BUILDSTEPS_CLEAN && target->activeBuildConfiguration())
+                bsl = target->activeBuildConfiguration()->cleanSteps();
+
+            if (!bsl || bsl->isEmpty())
+                continue;
+            stepLists << bsl;
+        }
+    }
+
+    if (stepLists.isEmpty())
+        return 0;
+
+    if (!BuildManager::buildLists(stepLists, preambleMessage))
+        return -1;
+    return stepLists.count();
+}
+
 
 class BuildManagerPrivate
 {
@@ -145,6 +262,93 @@ void BuildManager::extensionsInitialized()
                          tr("Deployment", "Category for deployment issues listed under 'Issues'"));
     TaskHub::addCategory(Constants::TASK_CATEGORY_AUTOTEST,
                          tr("Autotests", "Category for autotest issues listed under 'Issues'"));
+}
+
+void BuildManager::buildProjectWithoutDependencies(Project *project)
+{
+    queue({project}, {Id(Constants::BUILDSTEPS_BUILD)});
+}
+
+void BuildManager::cleanProjectWithoutDependencies(Project *project)
+{
+    queue({project}, {Id(Constants::BUILDSTEPS_CLEAN)});
+}
+
+void BuildManager::rebuildProjectWithoutDependencies(Project *project)
+{
+    queue({project}, {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)});
+}
+
+void BuildManager::buildProjectWithDependencies(Project *project)
+{
+    queue(SessionManager::projectOrder(project), {Id(Constants::BUILDSTEPS_BUILD)});
+}
+
+void BuildManager::cleanProjectWithDependencies(Project *project)
+{
+    queue(SessionManager::projectOrder(project), {Id(Constants::BUILDSTEPS_CLEAN)});
+}
+
+void BuildManager::rebuildProjectWithDependencies(Project *project)
+{
+    queue(SessionManager::projectOrder(project),
+          {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)});
+}
+
+void BuildManager::buildProjects(const QList<Project *> &projects)
+{
+    queue(projects, {Id(Constants::BUILDSTEPS_BUILD)});
+}
+
+void BuildManager::cleanProjects(const QList<Project *> &projects)
+{
+    queue(projects, {Id(Constants::BUILDSTEPS_CLEAN)});
+}
+
+void BuildManager::rebuildProjects(const QList<Project *> &projects)
+{
+    queue(projects, {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)});
+}
+
+void BuildManager::deployProjects(const QList<Project *> &projects)
+{
+    QList<Id> steps;
+    if (ProjectExplorerPlugin::projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off)
+        steps << Id(Constants::BUILDSTEPS_BUILD);
+    steps << Id(Constants::BUILDSTEPS_DEPLOY);
+    queue(projects, steps);
+}
+
+BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfiguration *rc)
+{
+    QList<Id> stepIds;
+    const ProjectExplorerSettings &settings = ProjectExplorerPlugin::projectExplorerSettings();
+    if (settings.deployBeforeRun) {
+        if (!isBuilding()) {
+            switch (settings.buildBeforeDeploy) {
+            case BuildBeforeRunMode::AppOnly:
+                rc->target()->activeBuildConfiguration()->restrictNextBuild(rc);
+                Q_FALLTHROUGH();
+            case BuildBeforeRunMode::WholeProject:
+                stepIds << Id(Constants::BUILDSTEPS_BUILD);
+                break;
+            case BuildBeforeRunMode::Off:
+                break;
+            }
+        }
+        if (!isDeploying())
+            stepIds << Id(Constants::BUILDSTEPS_DEPLOY);
+    }
+
+    Project * const pro = rc->target()->project();
+    int queueCount = queue(SessionManager::projectOrder(pro), stepIds, rc);
+    rc->target()->activeBuildConfiguration()->restrictNextBuild(nullptr);
+
+    if (queueCount < 0)
+        return BuildForRunConfigStatus::BuildFailed;
+    if (queueCount > 0 || isBuilding(rc->project()))
+        return BuildForRunConfigStatus::Building;
+    return BuildForRunConfigStatus::NotBuilding;
 }
 
 BuildManager::~BuildManager()
