@@ -72,6 +72,8 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
     setConfigWidgetHasFrame(true);
     setBuildDirectorySettingsKey("Nim.NimBuildConfiguration.BuildDirectory");
 
+    appendInitialBuildStep(Constants::C_NIMCOMPILERBUILDSTEP_ID);
+    appendInitialCleanStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
 
     setInitializer([this, target](const BuildInfo &info) {
         // Create the build configuration and initialize it from build info
@@ -80,34 +82,28 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
                                                 displayName(),
                                                 buildType()));
 
-        // Add nim compiler build step
-        {
-            auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps());
-            NimCompilerBuildStep::DefaultBuildOptions defaultOption;
-            switch (info.buildType) {
-            case BuildConfiguration::Release:
-                defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Release;
-                break;
-            case BuildConfiguration::Debug:
-                defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Debug;
-                break;
-            default:
-                defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Empty;
-                break;
-            }
-            nimCompilerBuildStep->setDefaultCompilerOptions(defaultOption);
-
-            const Utils::FilePaths nimFiles = project()->files([](const Node *n) {
-                return Project::AllFiles(n) && n->path().endsWith(".nim");
-            });
-
-            if (!nimFiles.isEmpty())
-                nimCompilerBuildStep->setTargetNimFile(nimFiles.first());
-            buildSteps()->appendStep(nimCompilerBuildStep);
+        auto nimCompilerBuildStep = buildSteps()->firstOfType<NimCompilerBuildStep>();
+        QTC_ASSERT(nimCompilerBuildStep, return);
+        NimCompilerBuildStep::DefaultBuildOptions defaultOption;
+        switch (info.buildType) {
+        case BuildConfiguration::Release:
+            defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Release;
+            break;
+        case BuildConfiguration::Debug:
+            defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Debug;
+            break;
+        default:
+            defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Empty;
+            break;
         }
+        nimCompilerBuildStep->setDefaultCompilerOptions(defaultOption);
 
-        // Add clean step
-        cleanSteps()->appendStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
+        const Utils::FilePaths nimFiles = project()->files([](const Node *n) {
+            return Project::AllFiles(n) && n->path().endsWith(".nim");
+        });
+
+        if (!nimFiles.isEmpty())
+            nimCompilerBuildStep->setTargetNimFile(nimFiles.first());
     });
 }
 

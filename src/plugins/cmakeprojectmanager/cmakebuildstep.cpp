@@ -76,8 +76,8 @@ static bool isCurrentExecutableTarget(const QString &target)
     return target == ADD_RUNCONFIGURATION_TEXT;
 }
 
-CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Constants::CMAKE_BUILD_STEP_ID)
+CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Core::Id id) :
+    AbstractProcessStep(bsl, id)
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
     m_ninjaProgress = QRegExp("^\\[\\s*(\\d*)/\\s*(\\d*)");

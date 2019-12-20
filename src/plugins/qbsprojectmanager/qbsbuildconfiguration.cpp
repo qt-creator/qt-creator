@@ -80,6 +80,9 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
 {
     setConfigWidgetHasFrame(true);
 
+    appendInitialBuildStep(Constants::QBS_BUILDSTEP_ID);
+    appendInitialCleanStep(Constants::QBS_CLEANSTEP_ID);
+
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *kit = target->kit();
         QVariantMap configData = info.extraInfo.value<QVariantMap>();
@@ -112,11 +115,9 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
 
         m_configurationName->setValue(uniqueConfigName);
 
-        auto bs = new QbsBuildStep(buildSteps());
+        auto bs = buildSteps()->firstOfType<QbsBuildStep>();
+        QTC_ASSERT(bs, return);
         bs->setQbsConfiguration(bd);
-        buildSteps()->appendStep(bs);
-
-        cleanSteps()->appendStep(Constants::QBS_CLEANSTEP_ID);
 
         emit qbsConfigurationChanged();
     });

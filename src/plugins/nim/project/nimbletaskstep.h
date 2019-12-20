@@ -34,7 +34,7 @@ class NimbleTaskStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 
 public:
-    NimbleTaskStep(ProjectExplorer::BuildStepList *parentList);
+    NimbleTaskStep(ProjectExplorer::BuildStepList *parentList, Core::Id id);
 
     bool init() override;
 

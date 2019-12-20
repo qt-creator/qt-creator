@@ -39,7 +39,7 @@ class REMOTELINUX_EXPORT MakeInstallStep : public ProjectExplorer::MakeStep
 {
     Q_OBJECT
 public:
-    MakeInstallStep(ProjectExplorer::BuildStepList *parent);
+    MakeInstallStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
 
     static Core::Id stepId();
     static QString displayName();

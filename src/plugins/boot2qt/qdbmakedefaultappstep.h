@@ -35,7 +35,7 @@ class QdbMakeDefaultAppStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
     Q_OBJECT
 
 public:
-    explicit QdbMakeDefaultAppStep(ProjectExplorer::BuildStepList *bsl);
+    QdbMakeDefaultAppStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     static Core::Id stepId();
     static QString stepDisplayName();

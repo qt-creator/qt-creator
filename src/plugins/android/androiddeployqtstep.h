@@ -64,8 +64,8 @@ public:
         Uninstall,
         ForceUnintall
     };
-public:
-    explicit AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
+
+    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
 
     static Core::Id stepId();
 

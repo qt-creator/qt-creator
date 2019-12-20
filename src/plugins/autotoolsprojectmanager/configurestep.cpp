@@ -70,8 +70,8 @@ ConfigureStepFactory::ConfigureStepFactory()
 
 // ConfigureStep
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl)
-    : AbstractProcessStep(bsl, Constants::CONFIGURE_STEP_ID)
+ConfigureStep::ConfigureStep(BuildStepList *bsl, Core::Id id)
+    : AbstractProcessStep(bsl, id)
 {
     setDefaultDisplayName(tr("Configure"));
 

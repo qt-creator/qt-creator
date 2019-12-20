@@ -98,8 +98,8 @@ private:
 
 }
 
-NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList)
-    : AbstractProcessStep(parentList, Constants::C_NIMBLEBUILDSTEP_ID)
+NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Core::Id id)
+    : AbstractProcessStep(parentList, id)
 {
     setDefaultDisplayName(tr(Constants::C_NIMBLEBUILDSTEP_DISPLAY));
     setDisplayName(tr(Constants::C_NIMBLEBUILDSTEP_DISPLAY));

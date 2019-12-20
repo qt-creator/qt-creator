@@ -36,7 +36,7 @@ class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 
 public:
-    explicit WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl);
+    WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     QString defaultWinDeployQtArguments() const;
 

@@ -37,7 +37,7 @@ class ANDROID_EXPORT AndroidPackageInstallationStep : public ProjectExplorer::Ab
     Q_OBJECT
 
 public:
-    explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);
+    AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 

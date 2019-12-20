@@ -137,8 +137,8 @@ public:
 
 // AndroidDeployQtStep
 
-AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
-    : ProjectExplorer::BuildStep(parent, stepId())
+AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Core::Id id)
+    : BuildStep(parent, id)
 {
     setImmutable(true);
     m_uninstallPreviousPackage = QtSupport::QtKitAspect::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);

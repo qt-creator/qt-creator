@@ -65,7 +65,7 @@ class ConfigureStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 
 public:
-    explicit ConfigureStep(ProjectExplorer::BuildStepList *bsl);
+    ConfigureStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     void setAdditionalArguments(const QString &list);
 

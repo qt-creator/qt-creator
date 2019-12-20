@@ -60,8 +60,8 @@ AbstractRemoteLinuxPackageInstaller *UploadAndInstallTarPackageService::packageI
 }
 
 
-UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl)
-    : AbstractRemoteLinuxDeployStep(bsl, stepId())
+UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl, Core::Id id)
+    : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<UploadAndInstallTarPackageService>();
 

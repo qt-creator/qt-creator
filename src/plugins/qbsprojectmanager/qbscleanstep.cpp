@@ -49,8 +49,8 @@ namespace Internal {
 // QbsCleanStep:
 // --------------------------------------------------------------------
 
-QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
-    ProjectExplorer::BuildStep(bsl, Constants::QBS_CLEANSTEP_ID)
+QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Core::Id id)
+    : BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Clean"));
 
@@ -151,11 +151,6 @@ void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, con
               ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);
     emit addOutput(message, OutputFormat::Stdout);
-}
-
-QbsBuildSystem *QbsCleanStep::qbsBuildSystem() const
-{
-    return static_cast<QbsBuildSystem *>(buildSystem());
 }
 
 // --------------------------------------------------------------------

@@ -40,8 +40,8 @@ using namespace Utils;
 
 namespace Nim {
 
-NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList)
-    : BuildStep(parentList, Constants::C_NIMCOMPILERCLEANSTEP_ID)
+NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Core::Id id)
+    : BuildStep(parentList, id)
 {
     setDefaultDisplayName(tr("Nim Clean Step"));
     setDisplayName(tr("Nim Clean Step"));

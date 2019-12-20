@@ -34,8 +34,8 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-GenericMakeStep::GenericMakeStep(BuildStepList *parent)
-    : MakeStep(parent, Constants::GENERIC_MS_ID)
+GenericMakeStep::GenericMakeStep(BuildStepList *parent, Core::Id id)
+    : MakeStep(parent, id)
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
         setBuildTarget("all");

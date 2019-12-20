@@ -43,7 +43,7 @@ class REMOTELINUX_EXPORT TarPackageCreationStep : public AbstractPackagingStep
 {
     Q_OBJECT
 public:
-    TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
+    TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     static Core::Id stepId();
     static QString displayName();

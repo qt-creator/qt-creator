@@ -70,8 +70,8 @@ struct TarFileHeader {
 
 } // Anonymous namespace.
 
-TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl)
-    : AbstractPackagingStep(bsl, stepId())
+TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Core::Id id)
+    : AbstractPackagingStep(bsl, id)
 {
     setDefaultDisplayName(displayName());
 

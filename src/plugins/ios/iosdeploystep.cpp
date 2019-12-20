@@ -55,8 +55,8 @@ using namespace Utils;
 namespace Ios {
 namespace Internal {
 
-IosDeployStep::IosDeployStep(BuildStepList *parent)
-    : BuildStep(parent, stepId())
+IosDeployStep::IosDeployStep(BuildStepList *parent, Core::Id id)
+    : BuildStep(parent, id)
 {
     setImmutable(true);
     updateDisplayNames();

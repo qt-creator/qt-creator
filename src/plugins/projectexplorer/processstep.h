@@ -43,7 +43,7 @@ class PROJECTEXPLORER_EXPORT ProcessStep : public AbstractProcessStep
     friend class ProcessStepFactory;
 
 public:
-    explicit ProcessStep(BuildStepList *bsl);
+    ProcessStep(BuildStepList *bsl, Core::Id id);
 
 private:
     bool init() override;

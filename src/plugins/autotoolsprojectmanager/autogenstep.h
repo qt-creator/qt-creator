@@ -64,7 +64,7 @@ class AutogenStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 
 public:
-    explicit AutogenStep(ProjectExplorer::BuildStepList *bsl);
+    AutogenStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
 private:
     bool init() override;

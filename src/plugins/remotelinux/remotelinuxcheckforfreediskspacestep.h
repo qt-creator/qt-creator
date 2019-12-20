@@ -34,7 +34,7 @@ class REMOTELINUX_EXPORT RemoteLinuxCheckForFreeDiskSpaceStep : public AbstractR
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl);
+    RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     ~RemoteLinuxCheckForFreeDiskSpaceStep() override;
 
     static Core::Id stepId();

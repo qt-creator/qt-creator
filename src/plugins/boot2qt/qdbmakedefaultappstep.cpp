@@ -34,8 +34,8 @@ using namespace ProjectExplorer;
 namespace Qdb {
 namespace Internal {
 
-QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(BuildStepList *bsl)
-    : AbstractRemoteLinuxDeployStep(bsl, stepId())
+QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(BuildStepList *bsl, Core::Id id)
+    : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     setDefaultDisplayName(stepDisplayName());
 

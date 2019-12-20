@@ -111,12 +111,13 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
 
     m_buildSystem = new QmakeBuildSystem(this);
 
+    appendInitialBuildStep(Constants::QMAKE_BS_ID);
+    appendInitialBuildStep(Constants::MAKESTEP_BS_ID);
     appendInitialCleanStep(Constants::MAKESTEP_BS_ID);
 
     setInitializer([this, target](const BuildInfo &info) {
-        auto qmakeStep = new QMakeStep(buildSteps());
-        buildSteps()->appendStep(qmakeStep);
-        buildSteps()->appendStep(Constants::MAKESTEP_BS_ID);
+        auto qmakeStep = buildSteps()->firstOfType<QMakeStep>();
+        QTC_ASSERT(qmakeStep, return);
 
         const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
         BaseQtVersion *version = QtKitAspect::qtVersion(target->kit());

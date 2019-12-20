@@ -34,7 +34,7 @@ class QdbStopApplicationStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 public:
-    explicit QdbStopApplicationStep(ProjectExplorer::BuildStepList *bsl);
+    QdbStopApplicationStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     static Core::Id stepId();
     static QString stepDisplayName();

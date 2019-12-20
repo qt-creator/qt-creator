@@ -52,8 +52,8 @@ using namespace Utils;
 namespace WinRt {
 namespace Internal {
 
-WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
-    : AbstractProcessStep(bsl, Constants::WINRT_BUILD_STEP_DEPLOY)
+WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl, Core::Id id)
+    : AbstractProcessStep(bsl, id)
 {
     setDisplayName(tr("Run windeployqt"));
 

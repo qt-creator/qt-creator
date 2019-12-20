@@ -163,8 +163,8 @@ private:
     QLineEdit *m_extraArgumentsLineEdit;
 };
 
-IosBuildStep::IosBuildStep(BuildStepList *parent) :
-    AbstractProcessStep(parent, IOS_BUILD_STEP_ID)
+IosBuildStep::IosBuildStep(BuildStepList *parent, Id id)
+    : AbstractProcessStep(parent, id)
 {
     setDefaultDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
                                                       IOS_BUILD_STEP_DISPLAY_NAME));

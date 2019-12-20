@@ -46,8 +46,8 @@ MakeStepFactory::MakeStepFactory()
 
 // MakeStep
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl)
-    : ProjectExplorer::MakeStep(bsl, MAKE_STEP_ID)
+MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id)
+    : ProjectExplorer::MakeStep(bsl, id)
 {
     setAvailableBuildTargets({"all", "clean"});
     if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {

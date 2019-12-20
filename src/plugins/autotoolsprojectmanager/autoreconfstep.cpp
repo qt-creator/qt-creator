@@ -51,8 +51,8 @@ AutoreconfStepFactory::AutoreconfStepFactory()
 
 // AutoreconfStep class
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl)
-    : AbstractProcessStep(bsl, Constants::AUTORECONF_STEP_ID)
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id)
+    : AbstractProcessStep(bsl, id)
 {
     setDefaultDisplayName(tr("Autoreconf"));
 

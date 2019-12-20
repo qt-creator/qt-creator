@@ -26,7 +26,7 @@
 #include "nimblebuildconfiguration.h"
 
 #include "nimconstants.h"
-#include "nimblebuildstep.h"
+//#include "nimblebuildstep.h"
 #include "nimbleproject.h"
 #include "nimblebuildsystem.h"
 
@@ -53,23 +53,11 @@ NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Core::Id id)
     setConfigWidgetDisplayName(tr("General"));
     setConfigWidgetHasFrame(true);
     setBuildDirectorySettingsKey("Nim.NimbleBuildConfiguration.BuildDirectory");
+    appendInitialBuildStep(Constants::C_NIMBLEBUILDSTEP_ID);
 
     setInitializer([this](const BuildInfo &info) {
-
         m_buildType = info.buildType;
-
         setBuildDirectory(project()->projectDirectory());
-
-        // FIXME: This is the wrong place for this decision, as it depends on
-        // information that's typically only available after parsing which takes
-        // the build configuration that is initialized here into account.
-
-        //   // Don't add a nimble build step when the package has no binaries (i.e a library package)
-        // m_nimbleBuildSystem = dynamic_cast<NimbleBuildSystem *>(buildSystem());
-        //    if (!m_nimbleBuildSystem->metadata().bin.empty())
-        //    {
-        buildSteps()->appendStep(new NimbleBuildStep(buildSteps()));
-        //    }
     });
 }
 

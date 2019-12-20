@@ -48,8 +48,8 @@ using namespace Android::Internal;
 
 namespace Android {
 
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl)
-    : AbstractProcessStep(bsl, Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID)
+AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Core::Id id)
+    : AbstractProcessStep(bsl, id)
 {
     const QString name = tr("Copy application data");
     setDefaultDisplayName(name);

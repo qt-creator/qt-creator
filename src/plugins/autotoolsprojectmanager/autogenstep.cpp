@@ -54,7 +54,7 @@ AutogenStepFactory::AutogenStepFactory()
 
 // AutogenStep
 
-AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Constants::AUTOGEN_STEP_ID)
+AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
     setDefaultDisplayName(tr("Autogen"));
 

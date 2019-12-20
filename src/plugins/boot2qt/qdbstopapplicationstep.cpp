@@ -30,8 +30,8 @@
 namespace Qdb {
 namespace Internal {
 
-QdbStopApplicationStep::QdbStopApplicationStep(ProjectExplorer::BuildStepList *bsl)
-    : AbstractRemoteLinuxDeployStep(bsl, stepId())
+QdbStopApplicationStep::QdbStopApplicationStep(ProjectExplorer::BuildStepList *bsl, Core::Id id)
+    : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<QdbStopApplicationService>();
 

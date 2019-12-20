@@ -41,7 +41,7 @@ class QbsCleanStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    explicit QbsCleanStep(ProjectExplorer::BuildStepList *bsl);
+    QbsCleanStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     ~QbsCleanStep() override;
 
     bool dryRun() const { return m_dryRunAspect->value(); }
@@ -61,8 +61,6 @@ private:
 
     ProjectExplorer::BaseBoolAspect *m_dryRunAspect = nullptr;
     ProjectExplorer::BaseBoolAspect *m_keepGoingAspect = nullptr;
-
-    QbsBuildSystem *qbsBuildSystem() const;
 
     QStringList m_products;
     QbsSession *m_session = nullptr;

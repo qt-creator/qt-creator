@@ -69,8 +69,10 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     };
     setPostRestore([needsMakeInstall](DeployConfiguration *dc, const QVariantMap &map) {
         // 4.9 -> 4.10. See QTCREATORBUG-22689.
-        if (map.value("_checkMakeInstall").toBool() && needsMakeInstall(dc->target()))
-                dc->stepList()->insertStep(0, new MakeInstallStep(dc->stepList()));
+        if (map.value("_checkMakeInstall").toBool() && needsMakeInstall(dc->target())) {
+            auto step = new MakeInstallStep(dc->stepList(), MakeInstallStep::stepId());
+            dc->stepList()->insertStep(0, step);
+        }
     });
 
     addInitialStep(MakeInstallStep::stepId(), needsMakeInstall);

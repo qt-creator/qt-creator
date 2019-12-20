@@ -46,8 +46,8 @@ const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
 const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.WorkingDirectory";
 const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
 
-ProcessStep::ProcessStep(BuildStepList *bsl)
-    : AbstractProcessStep(bsl, Constants::PROCESS_STEP_ID)
+ProcessStep::ProcessStep(BuildStepList *bsl, Core::Id id)
+    : AbstractProcessStep(bsl, id)
 {
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
@@ -115,7 +115,7 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
 
 ProcessStepFactory::ProcessStepFactory()
 {
-    registerStep<ProcessStep>(Constants::PROCESS_STEP_ID);
+    registerStep<ProcessStep>("ProjectExplorer.ProcessStep");
     setDisplayName(ProcessStep::tr("Custom Process Step", "item in combobox"));
 }
 

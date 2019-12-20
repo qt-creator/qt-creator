@@ -137,8 +137,8 @@ private:
 // QbsBuildStep:
 // --------------------------------------------------------------------
 
-QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
-    ProjectExplorer::BuildStep(bsl, Constants::QBS_BUILDSTEP_ID)
+QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Core::Id id) :
+    BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());

@@ -184,7 +184,7 @@ protected:
     {
         QTC_CHECK(!m_info.creator);
         m_info.id = id;
-        m_info.creator = [](BuildStepList *bsl) { return new BuildStepType(bsl); };
+        m_info.creator = [id](BuildStepList *bsl) { return new BuildStepType(bsl, id); };
     }
 
     void setSupportedStepList(Core::Id id);

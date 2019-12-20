@@ -64,7 +64,7 @@ class AutoreconfStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 
 public:
-    explicit AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
+    AutoreconfStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     bool init() override;
     void doRun() override;

@@ -53,7 +53,7 @@ const char CleanInstallRootAspectId[] = "RemoteLinux.MakeInstall.CleanInstallRoo
 const char FullCommandLineAspectId[] = "RemoteLinux.MakeInstall.FullCommandLine";
 const char CustomCommandLineAspectId[] = "RemoteLinux.MakeInstall.CustomCommandLine";
 
-MakeInstallStep::MakeInstallStep(BuildStepList *parent) : MakeStep(parent, stepId())
+MakeInstallStep::MakeInstallStep(BuildStepList *parent, Core::Id id) : MakeStep(parent, id)
 {
     setDefaultDisplayName(displayName());
 

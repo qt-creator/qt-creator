@@ -56,7 +56,7 @@ class CMakeBuildStep : public ProjectExplorer::AbstractProcessStep
     friend class CMakeBuildStepFactory;
 
 public:
-    explicit CMakeBuildStep(ProjectExplorer::BuildStepList *bsl);
+    CMakeBuildStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 

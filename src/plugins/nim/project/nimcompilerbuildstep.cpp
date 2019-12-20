@@ -98,8 +98,8 @@ private:
     }
 };
 
-NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList)
-    : AbstractProcessStep(parentList, Constants::C_NIMCOMPILERBUILDSTEP_ID)
+NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList, Core::Id id)
+    : AbstractProcessStep(parentList, id)
 {
     setDefaultDisplayName(tr(Constants::C_NIMCOMPILERBUILDSTEP_DISPLAY));
     setDisplayName(tr(Constants::C_NIMCOMPILERBUILDSTEP_DISPLAY));

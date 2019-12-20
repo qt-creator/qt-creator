@@ -36,7 +36,7 @@ class NimCompilerCleanStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    NimCompilerCleanStep(ProjectExplorer::BuildStepList *parentList);
+    NimCompilerCleanStep(ProjectExplorer::BuildStepList *parentList, Core::Id id);
 
 private:
     bool init() override;

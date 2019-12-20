@@ -74,7 +74,8 @@ const char QMAKE_ARGUMENTS_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeArgumen
 const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
 }
 
-QMakeStep::QMakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Constants::QMAKE_BS_ID)
+QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id)
+    : AbstractProcessStep(bsl, id)
 {
     //: QMakeStep default display name
     setDefaultDisplayName(tr("qmake"));

@@ -49,7 +49,7 @@ class MakeStep : public ProjectExplorer::MakeStep
     Q_OBJECT
 
 public:
-    explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
+    MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 };
 
 } // namespace Internal

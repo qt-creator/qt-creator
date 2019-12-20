@@ -140,8 +140,8 @@ static FilePath aabPath(const BuildConfiguration *bc)
             .pathAppended(QString("build/outputs/bundle/%1/android-build-%1.aab").arg(buildType));
 }
 
-AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
-    : AbstractProcessStep(parent, Constants::ANDROID_BUILD_APK_ID),
+AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Core::Id id)
+    : AbstractProcessStep(parent, id),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
                                          sdkManager()->latestAndroidSdkPlatform()))
 {

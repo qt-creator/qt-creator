@@ -35,7 +35,7 @@ class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeploymentStep
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
+    RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     ~RemoteLinuxCustomCommandDeploymentStep() override;
 
     static Core::Id stepId();

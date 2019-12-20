@@ -53,7 +53,7 @@ class REMOTELINUX_EXPORT UploadAndInstallTarPackageStep : public AbstractRemoteL
     Q_OBJECT
 
 public:
-    explicit UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl);
+    UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     static Core::Id stepId();
     static QString displayName();

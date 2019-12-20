@@ -50,7 +50,7 @@ public:
     };
 
     friend class IosDeployStepFactory;
-    explicit IosDeployStep(ProjectExplorer::BuildStepList *bc);
+    IosDeployStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
     static Core::Id stepId();
 
     void cleanup();

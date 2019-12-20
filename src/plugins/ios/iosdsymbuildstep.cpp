@@ -59,8 +59,8 @@ static const char COMMAND_PARTIAL_KEY[] = ".Command";
 static const char ARGUMENTS_PARTIAL_KEY[] = ".Arguments";
 static const char CLEAN_PARTIAL_KEY[] = ".Clean";
 
-IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent) :
-    AbstractProcessStep(parent, Constants::IOS_DSYM_BUILD_STEP_ID),
+IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, Id id) :
+    AbstractProcessStep(parent, id),
     m_clean(parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
 {
 }

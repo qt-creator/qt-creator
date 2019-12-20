@@ -43,7 +43,7 @@ class ANDROID_EXPORT AndroidBuildApkStep : public ProjectExplorer::AbstractProce
     Q_OBJECT
 
 public:
-    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc);
+    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

@@ -35,8 +35,8 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
-GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl)
-    : AbstractRemoteLinuxDeployStep(bsl, stepId())
+GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id)
+    : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<GenericDirectUploadService>();
 

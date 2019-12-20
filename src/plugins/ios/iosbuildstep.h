@@ -45,7 +45,7 @@ class IosBuildStep : public ProjectExplorer::AbstractProcessStep
     friend class IosBuildStepFactory;
 
 public:
-    explicit IosBuildStep(ProjectExplorer::BuildStepList *parent);
+    IosBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void setBaseArguments(const QStringList &args);

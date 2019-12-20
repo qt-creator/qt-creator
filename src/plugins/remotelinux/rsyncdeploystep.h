@@ -45,7 +45,7 @@ class REMOTELINUX_EXPORT RsyncDeployStep : public AbstractRemoteLinuxDeployStep
     Q_OBJECT
 
 public:
-    explicit RsyncDeployStep(ProjectExplorer::BuildStepList *bsl);
+    RsyncDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     ~RsyncDeployStep() override;
 
     static Core::Id stepId();
