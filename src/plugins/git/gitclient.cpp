@@ -1131,7 +1131,7 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
                                });
 }
 
-void GitClient::archive(const QString &workingDirectory, const QString &commit)
+void GitClient::archive(const QString &workingDirectory, QString commit)
 {
     QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (repoDirectory.isEmpty())
@@ -1147,6 +1147,10 @@ void GitClient::archive(const QString &workingDirectory, const QString &commit)
         selectedFilter = filters.key(".zip");
     else
         selectedFilter = filters.key(".tar.gz");
+
+    QString output;
+    if (synchronousRevParseCmd(repoDirectory, commit, &output))
+        commit = output.trimmed();
 
     QString archiveName = QFileDialog::getSaveFileName(
                 ICore::dialogParent(),

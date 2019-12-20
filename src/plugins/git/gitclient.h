@@ -346,7 +346,7 @@ public:
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
     void show(const QString &source, const QString &id, const QString &name = QString());
-    void archive(const QString &workingDirectory, const QString &commit);
+    void archive(const QString &workingDirectory, QString commit);
 
     VcsBase::VcsCommand *asyncUpstreamStatus(const QString &workingDirectory,
                                              const QString &branch, const QString &upstream);
