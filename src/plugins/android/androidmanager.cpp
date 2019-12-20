@@ -250,8 +250,10 @@ int AndroidManager::minimumSDK(const ProjectExplorer::Kit *kit)
 
 QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 {
-    if (auto androidBuildApkStep = AndroidBuildApkStep::findInBuild(target->activeBuildConfiguration()))
-        return androidBuildApkStep->buildTargetSdk();
+    if (auto bc = target->activeBuildConfiguration()) {
+        if (auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>())
+            return androidBuildApkStep->buildTargetSdk();
+    }
 
     QString fallback = AndroidConfig::apiLevelNameFor(
                 AndroidConfigurations::sdkManager()->latestAndroidSdkPlatform());
@@ -297,7 +299,10 @@ Utils::FilePath AndroidManager::apkPath(const ProjectExplorer::Target *target)
 {
     QTC_ASSERT(target, return Utils::FilePath());
 
-    auto buildApkStep = AndroidBuildApkStep::findInBuild(target->activeBuildConfiguration());
+    auto bc = target->activeBuildConfiguration();
+    if (!bc)
+        return {};
+    auto buildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
     if (!buildApkStep)
         return Utils::FilePath();
 
@@ -314,7 +319,10 @@ FilePath AndroidManager::aabPath(const Target *target)
 {
     QTC_ASSERT(target, return Utils::FilePath());
 
-    auto buildApkStep = AndroidBuildApkStep::findInBuild(target->activeBuildConfiguration());
+    auto bc = target->activeBuildConfiguration();
+    if (!bc)
+        return {};
+    auto buildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
     if (!buildApkStep)
         return Utils::FilePath();
 

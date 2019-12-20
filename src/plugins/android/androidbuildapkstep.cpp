@@ -134,15 +134,6 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
     setImmutable(true);
 }
 
-AndroidBuildApkStep *AndroidBuildApkStep::findInBuild(const BuildConfiguration *bc)
-{
-    if (!bc)
-        return nullptr;
-    BuildStepList *bsl = bc->buildSteps();
-    QTC_ASSERT(bsl, return nullptr);
-    return bsl->firstOfType<AndroidBuildApkStep>();
-}
-
 bool AndroidBuildApkStep::init()
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
