@@ -457,9 +457,6 @@ AndroidDeviceInfoList AvdManagerOutputParser::parseAvdList(const QString &output
             avdInfo << line;
     }
 
-    if (!avdInfo.isEmpty())
-        parseAvdInfo();
-
     Utils::sort(avdList);
 
     return avdList;
