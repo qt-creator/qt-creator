@@ -31,7 +31,6 @@
 
 #include <utils/executeondestruction.h>
 #include <utils/treemodel.h>
-#include <utils/utilsicons.h>
 
 #include <QInputDialog>
 #include <QPushButton>
@@ -309,9 +308,9 @@ void ClangDiagnosticConfigsWidget::sync()
     m_clangBaseChecksWidget->setEnabled(!config.isReadOnly());
 
     if (config.isReadOnly()) {
-        m_ui->infoIcon->setPixmap(Utils::Icons::INFO.pixmap());
+        m_ui->infoLabel->setType(Utils::InfoLabel::Information);
         m_ui->infoLabel->setText(tr("Copy this configuration to customize it."));
-        m_ui->infoLabel->setStyleSheet(QString());
+        m_ui->infoLabel->setFilled(false);
     }
 
     syncExtraWidgets(config);
@@ -334,21 +333,15 @@ void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
 
 void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMessage)
 {
-    QString validationResult;
-    const Utils::Icon *icon = nullptr;
-    QString styleSheet;
     if (errorMessage.isEmpty()) {
-        icon = &Utils::Icons::INFO;
-        validationResult = tr("Configuration passes sanity checks.");
+        m_ui->infoLabel->setType(Utils::InfoLabel::Information);
+        m_ui->infoLabel->setText(tr("Configuration passes sanity checks."));
+        m_ui->infoLabel->setFilled(false);
     } else {
-        icon = &Utils::Icons::CRITICAL;
-        validationResult = tr("%1").arg(errorMessage);
-        styleSheet = "color: red;";
+        m_ui->infoLabel->setType(Utils::InfoLabel::Error);
+        m_ui->infoLabel->setText(tr("%1").arg(errorMessage));
+        m_ui->infoLabel->setFilled(true);
     }
-
-    m_ui->infoIcon->setPixmap(icon->pixmap());
-    m_ui->infoLabel->setText(validationResult);
-    m_ui->infoLabel->setStyleSheet(styleSheet);
 }
 
 void ClangDiagnosticConfigsWidget::connectClangOnlyOptionsChanged()
