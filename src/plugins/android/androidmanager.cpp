@@ -315,25 +315,6 @@ Utils::FilePath AndroidManager::apkPath(const ProjectExplorer::Target *target)
     return dirPath(target).pathAppended(apkPath);
 }
 
-FilePath AndroidManager::aabPath(const Target *target)
-{
-    QTC_ASSERT(target, return Utils::FilePath());
-
-    auto bc = target->activeBuildConfiguration();
-    if (!bc)
-        return {};
-    auto buildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
-    if (!buildApkStep)
-        return Utils::FilePath();
-
-    QString buildType;
-    if (buildApkStep->buildConfiguration()->buildType() == BuildConfiguration::Release)
-        buildType = "release";
-    else
-        buildType = "debug";
-    return dirPath(target).pathAppended(QString("build/outputs/bundle/%1/android-build-%1.aab").arg(buildType));
-}
-
 bool AndroidManager::matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis)
 {
     for (const auto &abi : appAbis) {

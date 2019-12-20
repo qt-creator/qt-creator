@@ -103,7 +103,6 @@ public:
     static Utils::FilePath manifestSourcePath(ProjectExplorer::Target *target);
     static Utils::FilePath defaultPropertiesPath(ProjectExplorer::Target *target);
     static Utils::FilePath apkPath(const ProjectExplorer::Target *target);
-    static Utils::FilePath aabPath(const ProjectExplorer::Target *target);
     static bool matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis);
     static QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis);
     static ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);

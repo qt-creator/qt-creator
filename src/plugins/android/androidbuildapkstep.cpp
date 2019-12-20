@@ -124,6 +124,22 @@ private:
                                                        this);
 };
 
+static FilePath aabPath(const BuildConfiguration *bc)
+{
+    if (!bc)
+        return {};
+
+    QString buildType;
+    if (bc->buildType() == BuildConfiguration::Release)
+        buildType = "release";
+    else
+        buildType = "debug";
+
+    return bc->buildDirectory()
+            .pathAppended(Constants::ANDROID_BUILDDIRECTORY)
+            .pathAppended(QString("build/outputs/bundle/%1/android-build-%1.aab").arg(buildType));
+}
+
 AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
     : AbstractProcessStep(parent, Constants::ANDROID_BUILD_APK_ID),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
@@ -196,8 +212,8 @@ bool AndroidBuildApkStep::init()
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
-    m_packagePath = m_buildAAB ? AndroidManager::aabPath(target()).toString()
-                           : AndroidManager::apkPath(target()).toString();
+    m_packagePath = m_buildAAB ? aabPath(buildConfiguration()).toString()
+                               : AndroidManager::apkPath(target()).toString();
     qCDebug(buildapkstepLog) << "Package path:" << m_packagePath;
 
     if (!AbstractProcessStep::init())
