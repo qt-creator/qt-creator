@@ -82,9 +82,6 @@ public:
     static Project *projectForNode(const Node *node);
     static Node *nodeForFile(const Utils::FilePath &fileName);
 
-    void collapseCurrentNode();
-    void expandCurrentNode();
-
     void collapseAll();
     void expandAll();
 
@@ -120,7 +117,6 @@ private:
 
     void updateExternalFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
-    Internal::ProjectTreeWidget *currentWidget() const;
     void hideContextMenu();
 
 private:

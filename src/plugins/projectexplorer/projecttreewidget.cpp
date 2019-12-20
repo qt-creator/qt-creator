@@ -430,16 +430,6 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync)
         syncFromDocumentManager();
 }
 
-void ProjectTreeWidget::collapseCurrentNode()
-{
-    m_view->collapse(m_view->currentIndex());
-}
-
-void ProjectTreeWidget::expandCurrentNode()
-{
-    m_view->expand(m_view->currentIndex());
-}
-
 void ProjectTreeWidget::collapseAll()
 {
     m_view->collapseAll();

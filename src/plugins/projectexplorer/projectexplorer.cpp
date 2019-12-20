@@ -511,8 +511,6 @@ public:
     QAction *m_openFileAction;
     QAction *m_projectTreeCollapseAllAction;
     QAction *m_projectTreeExpandAllAction;
-    QAction *m_projectTreeCollapseNodeAction = nullptr;
-    QAction *m_projectTreeExpandNodeAction = nullptr;
     Utils::ParameterAction *m_closeProjectFilesActionFileMenu;
     Utils::ParameterAction *m_closeProjectFilesActionContextMenu;
     QAction *m_searchOnFileSystem;
@@ -1352,26 +1350,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Collapse & Expand.
     const Id treeGroup = Constants::G_PROJECT_TREE;
-
-    dd->m_projectTreeCollapseNodeAction = new QAction(tr("Collapse"), this);
-    connect(dd->m_projectTreeCollapseNodeAction, &QAction::triggered,
-            ProjectTree::instance(), &ProjectTree::collapseCurrentNode);
-    Command * const collapseNodeCmd = ActionManager::registerAction(
-                dd->m_projectTreeCollapseNodeAction, "ProjectExplorer.CollapseNode",
-                projectTreeContext);
-    dd->m_projectTreeExpandNodeAction = new QAction(tr("Expand"), this);
-    connect(dd->m_projectTreeExpandNodeAction, &QAction::triggered,
-            ProjectTree::instance(), &ProjectTree::expandCurrentNode);
-    Command * const expandNodeCmd = ActionManager::registerAction(
-                dd->m_projectTreeExpandNodeAction, "ProjectExplorer.ExpandNode",
-                projectTreeContext);
-    for (Core::ActionContainer * const ac : {msubProjectContextMenu, mfolderContextMenu,
-                                             mprojectContextMenu}) {
-        ac->addSeparator(treeGroup);
-        ac->addAction(collapseNodeCmd, treeGroup);
-        ac->addAction(expandNodeCmd, treeGroup);
-    }
-
     dd->m_projectTreeCollapseAllAction = new QAction(tr("Collapse All"), this);
     Command * const collapseCmd = ActionManager::registerAction(
                 dd->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,

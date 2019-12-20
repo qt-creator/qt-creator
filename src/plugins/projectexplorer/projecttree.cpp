@@ -154,7 +154,7 @@ void ProjectTree::update()
     ProjectTreeWidget *focus = m_focusForContextMenu;
     static QPointer<ProjectTreeWidget> lastFocusedProjectTreeWidget;
     if (!focus) {
-        focus = currentWidget();
+        focus = Utils::findOrDefault(m_projectTreeWidgets, &ProjectTree::hasFocus);
         lastFocusedProjectTreeWidget = focus;
     }
     if (!focus)
@@ -284,27 +284,15 @@ void ProjectTree::sessionAndTreeChanged()
     emit treeChanged();
 }
 
-void ProjectTree::collapseCurrentNode()
-{
-    if (const auto w = currentWidget())
-        w->collapseCurrentNode();
-}
-
-void ProjectTree::expandCurrentNode()
-{
-    if (const auto w = currentWidget())
-        w->expandCurrentNode();
-}
-
 void ProjectTree::collapseAll()
 {
-    if (const auto w = currentWidget())
+    if (auto w = Utils::findOrDefault(s_instance->m_projectTreeWidgets, &ProjectTree::hasFocus))
         w->collapseAll();
 }
 
 void ProjectTree::expandAll()
 {
-    if (const auto w = currentWidget())
+    if (auto w = Utils::findOrDefault(s_instance->m_projectTreeWidgets, &ProjectTree::hasFocus))
         w->expandAll();
 }
 
@@ -354,11 +342,6 @@ bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
     return widget
             && ((widget->focusWidget() && widget->focusWidget()->hasFocus())
                 || s_instance->m_focusForContextMenu == widget);
-}
-
-ProjectTreeWidget *ProjectTree::currentWidget() const
-{
-    return findOrDefault(m_projectTreeWidgets, &ProjectTree::hasFocus);
 }
 
 void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &globalPos, Node *node)
