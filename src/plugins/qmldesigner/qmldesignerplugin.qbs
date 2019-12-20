@@ -618,6 +618,8 @@ Project {
                 "propertyeditor/simplecolorpalettemodel.h",
                 "propertyeditor/simplecolorpalettesingleton.cpp",
                 "propertyeditor/simplecolorpalettesingleton.h",
+                "propertyeditor/tooltip.cpp",
+                "propertyeditor/tooltip.h",
                 "resources/resources.qrc",
                 "stateseditor/stateseditorimageprovider.cpp",
                 "stateseditor/stateseditorimageprovider.h",

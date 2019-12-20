@@ -24,16 +24,18 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
+import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
-import QtQuick.Controls.Private 1.0
 
 MouseArea {
     id: mouseArea
 
-    onExited: Tooltip.hideText()
-    onCanceled: Tooltip.hideText()
+    Tooltip {
+        id: myTooltip
+    }
 
+    onExited: myTooltip.hideText()
+    onCanceled: myTooltip.hideText()
     onClicked: forceActiveFocus()
 
     hoverEnabled: true
@@ -43,6 +45,6 @@ MouseArea {
     Timer {
         interval: 1000
         running: mouseArea.containsMouse && tooltip.length
-        onTriggered: Tooltip.showText(mouseArea, Qt.point(mouseArea.mouseX, mouseArea.mouseY), tooltip)
+        onTriggered: myTooltip.showText(mouseArea, Qt.point(mouseArea.mouseX, mouseArea.mouseY), tooltip)
     }
 }

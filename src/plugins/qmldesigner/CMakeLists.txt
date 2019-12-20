@@ -320,6 +320,7 @@ extend_qtc_plugin(QmlDesigner
     simplecolorpalette.cpp simplecolorpalette.h
     simplecolorpalettemodel.cpp simplecolorpalettemodel.h
     simplecolorpalettesingleton.cpp simplecolorpalettesingleton.h
+    tooltip.cpp tooltip.h
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h
     quick2propertyeditorview.cpp quick2propertyeditorview.h

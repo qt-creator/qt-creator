@@ -37,6 +37,7 @@
 #include "qmlanchorbindingproxy.h"
 #include "theme.h"
 #include "aligndistribute.h"
+#include "tooltip.h"
 
 namespace QmlDesigner {
 
@@ -63,6 +64,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         BindingEditor::registerDeclarativeType();
         ActionEditor::registerDeclarativeType();
         AlignDistribute::registerDeclarativeType();
+        Tooltip::registerDeclarativeType();
     }
 }
 
