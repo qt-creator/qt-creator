@@ -58,6 +58,10 @@ const char avdInfoPathKey[] = "Path:";
 const char avdInfoAbiKey[] = "abi.type";
 const char avdInfoTargetKey[] = "target";
 const char avdInfoErrorKey[] = "Error:";
+const char avdInfoSdcardKey[] = "Sdcard";
+const char avdInfoTargetTypeKey[] = "Target";
+const char avdInfoDeviceKey[] = "Device";
+const char avdInfoSkinKey[] = "Skin";
 const char googleApiTag[] = "google_apis";
 
 const int avdCreateTimeoutMs = 30000;
@@ -453,6 +457,14 @@ bool AvdManagerOutputParser::parseAvd(const QStringList &deviceInfo, AndroidDevi
                 else
                    qCDebug(avdManagerLog) << "Avd Parsing: Cannot find sdk API:" << avdInfoFile.toString();
             }
+        } else if (valueForKey(avdInfoDeviceKey, line, &value)) {
+            avd->avdDevice = value.remove(0, 2);
+        } else if (valueForKey(avdInfoTargetTypeKey, line, &value)) {
+            avd->avdTarget = value.remove(0, 2);
+        } else if (valueForKey(avdInfoSkinKey, line, &value)) {
+            avd->avdSkin = value.remove(0, 2);
+        } else if (valueForKey(avdInfoSdcardKey, line, &value)) {
+            avd->avdSdcardSize = value.remove(0, 2);
         }
     }
     return true;

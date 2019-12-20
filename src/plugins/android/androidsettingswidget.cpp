@@ -177,15 +177,23 @@ QVariant AvdModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole || !index.isValid())
         return QVariant();
+
+    const AndroidDeviceInfo currentRow = m_list.at(index.row());
     switch (index.column()) {
         case 0:
-            return m_list[index.row()].avdname;
+            return currentRow.avdname;
         case 1:
-            return QString::fromLatin1("API %1").arg(m_list[index.row()].sdk);
+            return currentRow.sdk;
         case 2: {
-            QStringList cpuAbis = m_list[index.row()].cpuAbi;
+            QStringList cpuAbis = currentRow.cpuAbi;
             return cpuAbis.isEmpty() ? QVariant() : QVariant(cpuAbis.first());
         }
+        case 3:
+            return currentRow.avdDevice;
+        case 4:
+            return currentRow.avdTarget;
+        case 5:
+            return currentRow.avdSdcardSize;
     }
     return QVariant();
 }
@@ -198,9 +206,15 @@ QVariant AvdModel::headerData(int section, Qt::Orientation orientation, int role
                 //: AVD - Android Virtual Device
                 return tr("AVD Name");
             case 1:
-                return tr("AVD Target");
+                return tr("API");
             case 2:
                 return tr("CPU/ABI");
+            case 3:
+                return tr("Device type");
+            case 4:
+                return tr("Target");
+            case 5:
+                return tr("SD-card size");
         }
     }
     return QAbstractItemModel::headerData(section, orientation, role );
@@ -213,7 +227,7 @@ int AvdModel::rowCount(const QModelIndex &/*parent*/) const
 
 int AvdModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    return 3;
+    return 6;
 }
 
 AndroidSettingsWidget::AndroidSettingsWidget()

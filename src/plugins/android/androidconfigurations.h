@@ -63,6 +63,11 @@ public:
     QString serialNumber;
     QString avdname;
     QStringList cpuAbi;
+    QString avdTarget;
+    QString avdDevice;
+    QString avdSkin;
+    QString avdSdcardSize;
+
     int sdk = -1;
     enum State { OkState, UnAuthorizedState, OfflineState };
     State state = OfflineState;
