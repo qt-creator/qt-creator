@@ -305,6 +305,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="AVDRefreshPushButton">
+           <property name="text">
+            <string>Refresh List</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -351,8 +358,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="android.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

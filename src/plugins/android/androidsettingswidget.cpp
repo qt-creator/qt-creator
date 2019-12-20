@@ -286,6 +286,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     connect(&m_virtualDevicesWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::updateAvds);
+    connect(m_ui->AVDRefreshPushButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::startUpdateAvd);
     connect(&m_futureWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::avdAdded);
     connect(m_ui->NDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
@@ -324,6 +326,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     // Reloading SDK packages is still synchronous. Use zero timer to let settings dialog open
     // first.
     QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages, m_sdkManager.get(), false));
+
+    startUpdateAvd();
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
@@ -548,7 +552,6 @@ void AndroidSettingsWidget::updateUI()
                                                     Utils::DetailsWidget::Expanded);
     m_ui->androidDetailsWidget->setState(androidSetupOk ? Utils::DetailsWidget::Collapsed :
                                                           Utils::DetailsWidget::Expanded);
-    startUpdateAvd();
 }
 
 void AndroidSettingsWidget::manageAVD()
