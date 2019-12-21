@@ -51,6 +51,7 @@ public:
     void setType(InfoType type);
     bool filled() const;
     void setFilled(bool filled);
+    QSize minimumSizeHint() const override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;

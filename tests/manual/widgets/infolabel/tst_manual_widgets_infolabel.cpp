@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QFormLayout>
 #include <QLayout>
 #include <QMessageBox>
 #include <QSettings>
@@ -93,6 +94,13 @@ int main(int argc, char *argv[])
     auto stretching = new Utils::InfoLabel("Stretching and centering vertically", InfoLabel::Warning);
     stretching->setFilled(true);
     mainLayout->addWidget(stretching, 2);
+
+    auto formLayout = new QFormLayout;
+    auto multiLine = new Utils::InfoLabel("Multi line<br/>in<br/>QFormLayout");
+    multiLine->setElideMode(Qt::ElideNone);
+    multiLine->setFilled(true);
+    formLayout->addRow("Label:", multiLine);
+    mainLayout->addLayout(formLayout);
 
     const QString lorem =
             "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt "

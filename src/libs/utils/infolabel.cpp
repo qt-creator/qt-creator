@@ -45,7 +45,6 @@ InfoLabel::InfoLabel(const QString &text, InfoType type, QWidget *parent)
     : ElidingLabel(text, parent)
 {
     setType(type);
-    setMinimumHeight(iconSize);
 }
 
 InfoLabel::InfoType InfoLabel::type() const
@@ -68,6 +67,13 @@ bool InfoLabel::filled() const
 void InfoLabel::setFilled(bool filled)
 {
     m_filled = filled;
+}
+
+QSize InfoLabel::minimumSizeHint() const
+{
+    QSize baseHint = ElidingLabel::minimumSizeHint();
+    baseHint.setHeight(qMax(baseHint.height(), iconSize));
+    return baseHint;
 }
 
 static Utils::Theme::Color fillColorForType(InfoLabel::InfoType type)
