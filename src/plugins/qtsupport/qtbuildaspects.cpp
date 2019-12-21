@@ -30,10 +30,9 @@
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitmanager.h>
-#include <utils/utilsicons.h>
+#include <utils/infolabel.h>
 
 #include <QCheckBox>
-#include <QLabel>
 #include <QLayout>
 
 using namespace ProjectExplorer;
@@ -50,13 +49,10 @@ QmlDebuggingAspect::QmlDebuggingAspect()
 void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
 {
     BaseSelectionAspect::addToLayout(builder);
-    const auto warningIconLabel = new QLabel;
-    warningIconLabel->setAlignment(Qt::AlignTop);
-    warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
-    const auto warningTextLabel = new QLabel;
-    warningTextLabel->setAlignment(Qt::AlignTop);
-    builder.startNewRow().addItems(QString(), warningIconLabel, warningTextLabel);
-    const auto changeHandler = [this, warningIconLabel, warningTextLabel] {
+    const auto warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
+    warningLabel->setElideMode(Qt::ElideNone);
+    builder.startNewRow().addItems(QString(), warningLabel);
+    const auto changeHandler = [this, warningLabel] {
         QString warningText;
         const bool supported = m_kit && BaseQtVersion::isQmlDebuggingSupported(m_kit, &warningText);
         if (!supported) {
@@ -65,11 +61,10 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
             warningText = tr("Might make your application vulnerable.<br/>"
                              "Only use in a safe environment.");
         }
-        warningTextLabel->setText(warningText);
+        warningLabel->setText(warningText);
         setVisibleDynamic(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
-        warningIconLabel->setVisible(warningLabelsVisible);
-        warningTextLabel->setVisible(warningLabelsVisible);
+        warningLabel->setVisible(warningLabelsVisible);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
     connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
@@ -86,13 +81,10 @@ QtQuickCompilerAspect::QtQuickCompilerAspect()
 void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
 {
     BaseSelectionAspect::addToLayout(builder);
-    const auto warningIconLabel = new QLabel;
-    warningIconLabel->setAlignment(Qt::AlignTop);
-    warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
-    const auto warningTextLabel = new QLabel;
-    warningTextLabel->setAlignment(Qt::AlignTop);
-    builder.startNewRow().addItems(QString(), warningIconLabel, warningTextLabel);
-    const auto changeHandler = [this, warningIconLabel, warningTextLabel] {
+    const auto warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
+    warningLabel->setElideMode(Qt::ElideNone);
+    builder.startNewRow().addItems(QString(), warningLabel);
+    const auto changeHandler = [this, warningLabel] {
         QString warningText;
         const bool supported = m_kit
                 && BaseQtVersion::isQtQuickCompilerSupported(m_kit, &warningText);
@@ -102,11 +94,10 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
                 && m_qmlDebuggingAspect && m_qmlDebuggingAspect->setting() == TriState::Enabled) {
             warningText = tr("Disables QML debugging. QML profiling will still work.");
         }
-        warningTextLabel->setText(warningText);
+        warningLabel->setText(warningText);
         setVisibleDynamic(supported);
         const bool warningLabelsVisible = supported && !warningText.isEmpty();
-        warningIconLabel->setVisible(warningLabelsVisible);
-        warningTextLabel->setVisible(warningLabelsVisible);
+        warningLabel->setVisible(warningLabelsVisible);
     };
     connect(KitManager::instance(), &KitManager::kitsChanged, builder.layout(), changeHandler);
     connect(this, &QmlDebuggingAspect::changed, builder.layout(), changeHandler);
