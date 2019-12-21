@@ -70,8 +70,10 @@ void SerialDeviceModel::disablePort(const QString &portName)
         return info.portName() == portName;
     });
 
-    if (i >= 0)
-         emit dataChanged(index(i), index(i), {Qt::DisplayRole});
+    if (i >= 0) {
+        const QModelIndex itemIndex = index(i);
+        emit dataChanged(itemIndex, itemIndex, {Qt::DisplayRole});
+    }
 }
 
 void SerialDeviceModel::enablePort(const QString &portName)

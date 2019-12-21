@@ -443,7 +443,7 @@ QModelIndex TreeModel::indexOf(const MElement *element) const
             QMT_CHECK(false);
             return QModelIndex();
         }
-        QModelIndex parentIndex = indexFromItem(item);
+        const QModelIndex parentIndex = indexFromItem(item);
         int row = parentObject->children().indexOf(object);
         return QStandardItemModel::index(row, 0, parentIndex);
     } else if (auto relation = dynamic_cast<const MRelation *>(element)) {
@@ -454,7 +454,7 @@ QModelIndex TreeModel::indexOf(const MElement *element) const
             QMT_CHECK(false);
             return QModelIndex();
         }
-        QModelIndex parentIndex = indexFromItem(item);
+        const QModelIndex parentIndex = indexFromItem(item);
         int row = owner->children().size() + owner->relations().indexOf(relation);
         return QStandardItemModel::index(row, 0, parentIndex);
     }
@@ -519,7 +519,7 @@ void TreeModel::onEndUpdateObject(int row, const MObject *parent)
         parentIndex = indexFromItem(parentItem);
     }
     // reflect updated element in standard item
-    QModelIndex elementIndex = this->QStandardItemModel::index(row, 0, parentIndex);
+    const QModelIndex elementIndex = this->QStandardItemModel::index(row, 0, parentIndex);
     MElement *element = TreeModel::element(elementIndex);
     if (element) {
         auto object = dynamic_cast<MObject *>(element);
@@ -531,7 +531,7 @@ void TreeModel::onEndUpdateObject(int row, const MObject *parent)
         }
     }
     m_busyState = NotBusy;
-    emit dataChanged(QStandardItemModel::index(row, 0, parentIndex), QStandardItemModel::index(row, 0, parentIndex));
+    emit dataChanged(elementIndex, elementIndex);
 }
 
 void TreeModel::onBeginInsertObject(int row, const MObject *parent)
@@ -616,11 +616,11 @@ void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
     QMT_CHECK(m_objectToItemMap.contains(parent));
     ModelItem *parentItem = m_objectToItemMap.value(parent);
     QMT_ASSERT(parentItem, return);
-    QModelIndex parentIndex = indexFromItem(parentItem);
+    const QModelIndex parentIndex = indexFromItem(parentItem);
 
     // reflect updated relation in standard item
     row += parent->children().size();
-    QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
+    const QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
     MElement *element = TreeModel::element(elementIndex);
     if (element) {
         auto relation = dynamic_cast<MRelation *>(element);
@@ -632,7 +632,7 @@ void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
         }
     }
     m_busyState = NotBusy;
-    emit dataChanged(QStandardItemModel::index(row, 0, parentIndex), QStandardItemModel::index(row, 0, parentIndex));
+    emit dataChanged(elementIndex, elementIndex);
 }
 
 void TreeModel::onBeginInsertRelation(int row, const MObject *parent)
@@ -707,10 +707,10 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
     QMT_CHECK(m_objectToItemMap.contains(parent));
     ModelItem *parentItem = m_objectToItemMap.value(parent);
     QMT_ASSERT(parentItem, return);
-    QModelIndex parentIndex = indexFromItem(parentItem);
+    const QModelIndex parentIndex = indexFromItem(parentItem);
 
     int row = parent->children().size() + relation->owner()->relations().indexOf(relation);
-    QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
+    const QModelIndex elementIndex = QStandardItemModel::index(row, 0, parentIndex);
     QMT_CHECK(elementIndex.isValid());
 
     auto item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
@@ -720,7 +720,7 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
     if (item->text() != label)
         item->setText(label);
 
-    emit dataChanged(QStandardItemModel::index(row, 0, parentIndex), QStandardItemModel::index(row, 0, parentIndex));
+    emit dataChanged(elementIndex, elementIndex);
 }
 
 void TreeModel::onModelDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright)

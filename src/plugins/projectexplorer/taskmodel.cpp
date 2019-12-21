@@ -148,7 +148,8 @@ void TaskModel::updateTaskFileName(unsigned int id, const QString &fileName)
     QTC_ASSERT(i != -1, return);
     if (m_tasks.at(i).taskId == id) {
         m_tasks[i].file = Utils::FilePath::fromString(fileName);
-        emit dataChanged(index(i, 0), index(i, 0));
+        const QModelIndex itemIndex = index(i, 0);
+        emit dataChanged(itemIndex, itemIndex);
     }
 }
 
@@ -158,7 +159,8 @@ void TaskModel::updateTaskLineNumber(unsigned int id, int line)
     QTC_ASSERT(i != -1, return);
     if (m_tasks.at(i).taskId == id) {
         m_tasks[i].movedLine = line;
-        emit dataChanged(index(i, 0), index(i, 0));
+        const QModelIndex itemIndex = index(i, 0);
+        emit dataChanged(itemIndex, itemIndex);
     }
 }
 

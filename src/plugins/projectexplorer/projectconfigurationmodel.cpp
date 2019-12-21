@@ -75,6 +75,7 @@ void ProjectConfigurationModel::displayNameChanged()
     if (oldPos < 0)
         return;
 
+    QModelIndex itemIndex;
     if (oldPos >= 1 && isOrderedBefore(m_projectConfigurations.at(oldPos), m_projectConfigurations.at(oldPos - 1))) {
         // We need to move up
         int newPos = oldPos - 1;
@@ -88,7 +89,7 @@ void ProjectConfigurationModel::displayNameChanged()
         m_projectConfigurations.removeAt(oldPos + 1);
         endMoveRows();
         // Not only did we move, we also changed...
-        emit dataChanged(index(newPos, 0), index(newPos,0));
+        itemIndex = index(newPos, 0);
     } else if (oldPos < m_projectConfigurations.size() - 1
                && isOrderedBefore(m_projectConfigurations.at(oldPos + 1), m_projectConfigurations.at(oldPos))) {
         // We need to move down
@@ -103,10 +104,11 @@ void ProjectConfigurationModel::displayNameChanged()
         endMoveRows();
 
         // We need to subtract one since removing at the old place moves the newIndex down
-        emit dataChanged(index(newPos - 1, 0), index(newPos - 1, 0));
+        itemIndex = index(newPos - 1, 0);
     } else {
-        emit dataChanged(index(oldPos, 0), index(oldPos, 0));
+        itemIndex = index(oldPos, 0);
     }
+    emit dataChanged(itemIndex, itemIndex);
 }
 
 QVariant ProjectConfigurationModel::data(const QModelIndex &index, int role) const
