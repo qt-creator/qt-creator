@@ -29,9 +29,8 @@
 #include "projectexplorer.h"
 
 #include <utils/fileutils.h>
-#include <utils/utilsicons.h>
+#include <utils/infolabel.h>
 
-#include <QLabel>
 #include <QLayout>
 
 using namespace Utils;
@@ -44,8 +43,7 @@ public:
     FilePath sourceDir;
     FilePath savedShadowBuildDir;
     QString problem;
-    QPointer<QLabel> warningLabel;
-    QPointer<QLabel> problemLabel;
+    QPointer<InfoLabel> problemLabel;
 };
 
 BuildDirectoryAspect::BuildDirectoryAspect() : d(new Private)
@@ -100,12 +98,9 @@ void BuildDirectoryAspect::fromMap(const QVariantMap &map)
 void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
 {
     BaseStringAspect::addToLayout(builder);
-    d->warningLabel = new QLabel;
-    d->warningLabel->setAlignment(Qt::AlignTop);
-    d->warningLabel->setPixmap(Icons::WARNING.pixmap());
-    d->problemLabel = new QLabel;
-    d->problemLabel->setAlignment(Qt::AlignTop);
-    builder.startNewRow().addItems(QString(), d->warningLabel.data(), d->problemLabel.data());
+    d->problemLabel = new InfoLabel({}, InfoLabel::Warning);
+    d->problemLabel->setElideMode(Qt::ElideNone);
+    builder.startNewRow().addItems(QString(), d->problemLabel.data());
     updateProblemLabel();
     if (!d->sourceDir.isEmpty()) {
         connect(this, &BaseStringAspect::checkedChanged, builder.layout(), [this] {
@@ -122,12 +117,11 @@ void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
 
 void BuildDirectoryAspect::updateProblemLabel()
 {
-    if (!d->warningLabel)
+    if (!d->problemLabel)
         return;
-    QTC_ASSERT(d->problemLabel, return);
+
     d->problemLabel->setText(d->problem);
     d->problemLabel->setVisible(!d->problem.isEmpty());
-    d->warningLabel->setVisible(!d->problem.isEmpty());
 }
 
 SeparateDebugInfoAspect::SeparateDebugInfoAspect()
