@@ -1,3 +1,7 @@
+if (NOT TARGET QmlProjectManager)
+  return()
+endif()
+
 get_target_property(QmlProjectManagerSources QmlProjectManager SOURCES)
 foreach(source IN LISTS QmlProjectManagerSources)
   if (source MATCHES "fileformat")
