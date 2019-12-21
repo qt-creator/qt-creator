@@ -1,3 +1,7 @@
+if (NOT TARGET QmlJSTools)
+  return()
+endif()
+
 add_subdirectory(codemodel)
 add_subdirectory(persistenttrie)
 add_subdirectory(qmldesigner)
