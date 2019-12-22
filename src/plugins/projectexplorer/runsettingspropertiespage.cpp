@@ -37,7 +37,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/utilsicons.h>
+#include <utils/infolabel.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -156,15 +156,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runLayout->setContentsMargins(0, 0, 0, 0);
     m_runLayout->setSpacing(5);
 
-    m_disabledIcon = new QLabel;
-    m_disabledIcon->setPixmap(Utils::Icons::WARNING.pixmap());
-    m_disabledText = new QLabel;
-    auto disabledHBox = new QHBoxLayout;
-    disabledHBox->addWidget(m_disabledIcon);
-    disabledHBox->addWidget(m_disabledText);
-    disabledHBox->addStretch(255);
-
-    m_runLayout->addLayout(disabledHBox);
+    m_disabledText = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
+    m_runLayout->addWidget(m_disabledText);
 
     ProjectConfigurationModel *model = m_target->runConfigurationModel();
     RunConfiguration *rc = m_target->activeRunConfiguration();
@@ -527,7 +520,6 @@ void RunSettingsWidget::updateEnabledState()
 
     m_runConfigurationWidget->setEnabled(enable);
 
-    m_disabledIcon->setVisible(!enable && !reason.isEmpty());
     m_disabledText->setVisible(!enable && !reason.isEmpty());
     m_disabledText->setText(reason);
 }

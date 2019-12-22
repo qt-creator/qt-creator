@@ -36,6 +36,10 @@ class QPushButton;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
+namespace Utils {
+class InfoLabel;
+}
+
 namespace ProjectExplorer {
 
 class DeployConfiguration;
@@ -101,8 +105,7 @@ private:
     QPushButton *m_renameRunButton;
     QPushButton *m_cloneRunButton;
     QPushButton *m_renameDeployButton;
-    QLabel *m_disabledIcon;
-    QLabel *m_disabledText;
+    Utils::InfoLabel *m_disabledText;
 };
 
 } // namespace Internal
