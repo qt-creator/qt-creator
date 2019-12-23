@@ -46,6 +46,10 @@
 #  include "androidqbspropertyprovider.h"
 #endif
 
+#include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
+#include <utils/checkablemessagebox.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -59,6 +63,8 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;
+
+const char kSetupAndroidSetting[] = "ConfigureAndroid";
 
 namespace Android {
 namespace Internal {
@@ -153,6 +159,10 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     d = new AndroidPluginPrivate;
 
+    if (!AndroidConfigurations::currentConfig().sdkFullyConfigured()) {
+        connect(Core::ICore::instance(), &Core::ICore::coreOpened, this,
+                &AndroidPlugin::askUserAboutAndroidSetup, Qt::QueuedConnection);
+    }
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);
 
@@ -166,6 +176,26 @@ void AndroidPlugin::kitsRestored()
             AndroidConfigurations::instance(), &AndroidConfigurations::updateAutomaticKitList);
     disconnect(KitManager::instance(), &KitManager::kitsLoaded,
                this, &AndroidPlugin::kitsRestored);
+}
+
+void AndroidPlugin::askUserAboutAndroidSetup()
+{
+    if (!Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(), kSetupAndroidSetting)
+        || !Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
+        return;
+
+    Core::InfoBarEntry info(
+        kSetupAndroidSetting,
+        tr("Would you like to configure Android options? This will ensure "
+           "Android kits can be usable and all essential packages are installed. "
+           "To do it later, select Options > Devices > Android."),
+        Core::InfoBarEntry::GlobalSuppression::Enabled);
+    info.setCustomButtonInfo(tr("Configure Android"), [this] {
+        Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
+        Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
+        QTimer::singleShot(0, this, [this]() { d->potentialKit.executeFromMenu(); });
+    });
+    Core::ICore::infoBar()->addInfo(info);
 }
 
 } // namespace Internal

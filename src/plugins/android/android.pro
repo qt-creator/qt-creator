@@ -48,7 +48,8 @@ HEADERS += \
     androidsdkmanagerwidget.h \
     androidpackageinstallationstep.h \
     androidextralibrarylistmodel.h \
-    createandroidmanifestwizard.h
+    createandroidmanifestwizard.h \
+    androidsdkdownloader.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -90,7 +91,8 @@ SOURCES += \
     androidsdkmanagerwidget.cpp \
     androidpackageinstallationstep.cpp \
     androidextralibrarylistmodel.cpp \
-    createandroidmanifestwizard.cpp
+    createandroidmanifestwizard.cpp \
+    androidsdkdownloader.cpp
 
 FORMS += \
     androidsettingswidget.ui \

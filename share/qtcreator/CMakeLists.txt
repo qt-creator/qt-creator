@@ -1,4 +1,4 @@
-set(template_directories cplusplus debugger glsl modeleditor qml qmldesigner
+set(template_directories android cplusplus debugger glsl modeleditor qml qmldesigner
   qmlicons qml-type-descriptions schemes scripts snippets styles templates themes welcomescreen)
 
 add_custom_target(copy_share_to_builddir ALL

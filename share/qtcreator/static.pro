@@ -23,7 +23,8 @@ DATA_DIRS = \
     modeleditor \
     glsl \
     cplusplus \
-    indexer_preincludes
+    indexer_preincludes \
+    android
 macx: DATA_DIRS += scripts
 
 for(data_dir, DATA_DIRS) {

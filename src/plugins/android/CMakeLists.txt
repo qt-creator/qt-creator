@@ -33,6 +33,7 @@ add_qtc_plugin(Android
     androidruncontrol.cpp androidruncontrol.h
     androidrunner.cpp androidrunner.h
     androidrunnerworker.cpp androidrunnerworker.h
+    androidsdkdownloader.cpp androidsdkdownloader.h
     androidsdkmanager.cpp androidsdkmanager.h
     androidsdkmanagerwidget.cpp androidsdkmanagerwidget.h androidsdkmanagerwidget.ui
     androidsdkmodel.cpp androidsdkmodel.h

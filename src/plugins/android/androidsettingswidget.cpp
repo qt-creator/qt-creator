@@ -33,6 +33,7 @@
 #include "androidavdmanager.h"
 #include "androidsdkmanager.h"
 #include "avddialog.h"
+#include "androidsdkdownloader.h"
 #include "androidsdkmanagerwidget.h"
 
 #include <utils/qtcassert.h>
@@ -51,6 +52,7 @@
 
 #include <QAbstractTableModel>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFutureWatcher>
 #include <QList>
 #include <QMessageBox>
@@ -104,6 +106,7 @@ private:
     void validateJdk();
     Utils::FilePath findJdkInCommonPaths();
     void validateNdk();
+    void updateNdkList();
     void onSdkPathChanged();
     void validateSdk();
     void openSDKDownloadUrl();
@@ -124,6 +127,11 @@ private:
     void startUpdateAvd();
     void enableAvdControls();
     void disableAvdControls();
+
+    void downloadSdk();
+    bool allEssentialsInstalled();
+    bool sdkToolsOk() const;
+    Utils::FilePath getDefaultSdkPath();
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
@@ -150,6 +158,7 @@ enum AndroidValidation {
     BuildToolsInstalledRow,
     SdkManagerSuccessfulRow,
     PlatformSdkInstalledRow,
+    AllEssentialsInstalledRow,
     NdkPathExistsRow,
     NdkDirStructureRow,
     NdkinstallDirOkRow
@@ -302,6 +311,37 @@ int AvdModel::columnCount(const QModelIndex &/*parent*/) const
     return 6;
 }
 
+Utils::FilePath AndroidSettingsWidget::getDefaultSdkPath()
+{
+    QString sdkFromEnvVar = QString::fromLocal8Bit(getenv("ANDROID_SDK_ROOT"));
+    if (!sdkFromEnvVar.isEmpty())
+        return Utils::FilePath::fromString(sdkFromEnvVar);
+
+    // Set default path of SDK as used by Android Studio
+    if (Utils::HostOsInfo::isMacHost()) {
+        return Utils::FilePath::fromString(
+            QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
+            + "/../Android/sdk");
+    }
+
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        return Utils::FilePath::fromString(
+            QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/sdk");
+    }
+
+    return Utils::FilePath::fromString(
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/Sdk");
+}
+
+void AndroidSettingsWidget::updateNdkList()
+{
+    m_ui->ndkListComboBox->clear();
+    QString currentNdk = m_androidConfig.ndkLocation().toString();
+    for (const Ndk *ndk : m_sdkManager->installedNdkPackages())
+        m_ui->ndkListComboBox->addItem(ndk->installedLocation().toString());
+    m_ui->ndkListComboBox->setCurrentText(currentNdk);
+}
+
 AndroidSettingsWidget::AndroidSettingsWidget()
     : m_ui(new Ui_AndroidSettingsWidget),
       m_androidConfig(AndroidConfigurations::currentConfig()),
@@ -339,28 +379,36 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     androidValidationPoints[PlatformToolsInstalledRow] = tr("Platform tools installed.");
     androidValidationPoints[SdkManagerSuccessfulRow] = tr(
         "SDK manager runs (requires exactly Java 1.8).");
+    androidValidationPoints[AllEssentialsInstalledRow] = tr(
+        "All essential packages installed for all installed Qt versions.");
     androidValidationPoints[BuildToolsInstalledRow] = tr("Build tools installed.");
     androidValidationPoints[PlatformSdkInstalledRow] = tr("Platform SDK installed.");
-    androidValidationPoints[NdkPathExistsRow] = tr("Android NDK path exists.");
-    androidValidationPoints[NdkDirStructureRow] = tr("Android NDK directory structure is correct.");
-    androidValidationPoints[NdkinstallDirOkRow] = tr("Android NDK installed into a path without "
+    androidValidationPoints[NdkPathExistsRow] = tr("Default Android NDK path exists.");
+    androidValidationPoints[NdkDirStructureRow] = tr("Default Android NDK directory structure is correct.");
+    androidValidationPoints[NdkinstallDirOkRow] = tr("Default Android NDK installed into a path without "
                                                      "spaces.");
     auto androidSummary = new SummaryWidget(androidValidationPoints, tr("Android settings are OK."),
                                             tr("Android settings have errors."),
                                             m_ui->androidDetailsWidget);
     m_ui->androidDetailsWidget->setWidget(androidSummary);
 
-    m_ui->SDKLocationPathChooser->setFileName(m_androidConfig.sdkLocation());
-    m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
-    m_ui->NDKLocationPathChooser->setFileName(m_androidConfig.ndkLocation());
-    m_ui->NDKLocationPathChooser->setPromptDialogTitle(tr("Select Android NDK folder"));
-
+    connect(m_ui->OpenJDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::validateJdk);
     Utils::FilePath currentJdkPath = m_androidConfig.openJDKLocation();
     if (currentJdkPath.isEmpty())
         currentJdkPath = findJdkInCommonPaths();
-
     m_ui->OpenJDKLocationPathChooser->setFileName(currentJdkPath);
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
+
+    connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::onSdkPathChanged);
+    Utils::FilePath currentSDKPath = m_androidConfig.sdkLocation();
+    if (currentSDKPath.isEmpty())
+        currentSDKPath = getDefaultSdkPath();
+
+    m_ui->SDKLocationPathChooser->setFileName(currentSDKPath);
+    m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
+
     m_ui->DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui->AVDTableView->setModel(&m_AVDModel);
@@ -373,19 +421,15 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui->downloadSDKToolButton->setIcon(downloadIcon);
     m_ui->downloadNDKToolButton->setIcon(downloadIcon);
     m_ui->downloadOpenJDKToolButton->setIcon(downloadIcon);
+    m_ui->sdkToolsAutoDownloadButton->setIcon(Utils::Icons::RELOAD.icon());
 
+    connect(m_ui->ndkListComboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+            [this](const QString) { validateNdk(); });
     connect(&m_virtualDevicesWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::updateAvds);
     connect(m_ui->AVDRefreshPushButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::startUpdateAvd);
-    connect(&m_futureWatcher, &QFutureWatcherBase::finished,
-            this, &AndroidSettingsWidget::avdAdded);
-    connect(m_ui->NDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::validateNdk);
-    connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::onSdkPathChanged);
-    connect(m_ui->OpenJDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::validateJdk);
+    connect(&m_futureWatcher, &QFutureWatcherBase::finished, this, &AndroidSettingsWidget::avdAdded);
     connect(m_ui->AVDAddPushButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::addAVD);
     connect(m_ui->AVDRemovePushButton, &QAbstractButton::clicked,
@@ -402,20 +446,38 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::manageAVD);
     connect(m_ui->CreateKitCheckBox, &QAbstractButton::toggled,
             this, &AndroidSettingsWidget::createKitToggled);
-    connect(m_ui->downloadSDKToolButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::openSDKDownloadUrl);
     connect(m_ui->downloadNDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openNDKDownloadUrl);
+    connect(m_ui->downloadSDKToolButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::openSDKDownloadUrl);
     connect(m_ui->downloadOpenJDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
     // Validate SDK again after any change in SDK packages.
-    connect(m_sdkManager.get(), &AndroidSdkManager::packageReloadFinished,
-            this, &AndroidSettingsWidget::validateSdk);
-    validateJdk();
-    validateNdk();
-    // Reloading SDK packages is still synchronous. Use zero timer to let settings dialog open
+    connect(m_sdkManager.get(),
+            &AndroidSdkManager::packageReloadFinished,
+            this,
+            &AndroidSettingsWidget::validateSdk);
+    connect(m_ui->sdkToolsAutoDownloadButton, &QAbstractButton::clicked, this, [this]() {
+        if (sdkToolsOk()) {
+            QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(),
+                                 tr("The selected path already has a valid SDK Tools package."));
+            validateSdk();
+            return;
+        }
+        downloadSdk();
+    });
+
+    auto startOneShot = QSharedPointer<QMetaObject::Connection>::create();
+    *startOneShot = connect(m_sdkManager.get(),
+                               &AndroidSdkManager::packageReloadFinished, [this, startOneShot] {
+                                   QObject::disconnect(*startOneShot);
+                                   if (!sdkToolsOk())
+                                       downloadSdk();
+    });
+
+    // Reloading SDK packages (force) is still synchronous. Use zero timer to let settings dialog open
     // first.
-    QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages, m_sdkManager.get(), false));
+    QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages, m_sdkManager.get(), true));
 
     startUpdateAvd();
 }
@@ -521,11 +583,11 @@ Utils::FilePath AndroidSettingsWidget::findJdkInCommonPaths()
 
 void AndroidSettingsWidget::validateNdk()
 {
-    auto ndkPath = Utils::FilePath::fromUserInput(m_ui->NDKLocationPathChooser->rawPath());
+    auto ndkPath = Utils::FilePath::fromString(m_ui->ndkListComboBox->currentText());
     m_androidConfig.setNdkLocation(ndkPath);
 
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
-    summaryWidget->setPointValid(NdkPathExistsRow, m_androidConfig.ndkLocation().exists());
+    summaryWidget->setPointValid(NdkPathExistsRow, ndkPath.exists());
 
     const Utils::FilePath ndkPlatformsDir = ndkPath.pathAppended("platforms");
     const Utils::FilePath ndkToolChainsDir = ndkPath.pathAppended("toolchains");
@@ -550,6 +612,9 @@ void AndroidSettingsWidget::onSdkPathChanged()
 
 void AndroidSettingsWidget::validateSdk()
 {
+    auto sdkPath = Utils::FilePath::fromString(m_ui->SDKLocationPathChooser->rawPath());
+    m_androidConfig.setSdkLocation(sdkPath);
+
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
     summaryWidget->setPointValid(SdkPathExistsRow, m_androidConfig.sdkLocation().exists());
     summaryWidget->setPointValid(SdkPathWritableRow, m_androidConfig.sdkLocation().isWritablePath());
@@ -559,19 +624,21 @@ void AndroidSettingsWidget::validateSdk()
                                  m_androidConfig.adbToolPath().exists());
     summaryWidget->setPointValid(BuildToolsInstalledRow,
                                  !m_androidConfig.buildToolsVersion().isNull());
-
     summaryWidget->setPointValid(SdkManagerSuccessfulRow, m_sdkManager->packageListingSuccessful());
     // installedSdkPlatforms should not trigger a package reload as validate SDK is only called
     // after AndroidSdkManager::packageReloadFinished.
     summaryWidget->setPointValid(PlatformSdkInstalledRow,
                                  !m_sdkManager->installedSdkPlatforms().isEmpty());
+
+    summaryWidget->setPointValid(AllEssentialsInstalledRow, allEssentialsInstalled());
     updateUI();
     bool sdkToolsOk = summaryWidget->rowsOk(
         {SdkPathExistsRow, SdkPathWritableRow, SdkToolsInstalledRow, SdkManagerSuccessfulRow});
     bool componentsOk = summaryWidget->rowsOk({PlatformToolsInstalledRow,
                                                       BuildToolsInstalledRow,
-                                                      PlatformSdkInstalledRow});
-
+                                                      PlatformSdkInstalledRow,
+                                                      AllEssentialsInstalledRow});
+    m_androidConfig.setSdkFullyConfigured(sdkToolsOk && componentsOk);
     if (sdkToolsOk && !componentsOk && !m_androidConfig.useNativeUiTools()) {
         // Ask user to install essential SDK components. Works only for sdk tools version >= 26.0.0
         QString message = tr("Android SDK installation is missing necessary packages. Do you "
@@ -583,6 +650,9 @@ void AndroidSettingsWidget::validateSdk()
             m_sdkManagerWidget->installEssentials();
         }
     }
+
+    updateNdkList();
+    validateNdk();
 }
 
 void AndroidSettingsWidget::openSDKDownloadUrl()
@@ -675,7 +745,7 @@ void AndroidSettingsWidget::updateUI()
     m_ui->sdkManagerTab->setEnabled(sdkToolsOk);
     m_sdkManagerWidget->setSdkManagerControlsEnabled(!m_androidConfig.useNativeUiTools());
 
-    auto infoText = tr("(SDK Version: %1, NDK Version: %2)")
+    auto infoText = tr("(SDK Version: %1, NDK Bundle Version: %2)")
             .arg(m_androidConfig.sdkToolsVersion().toString())
             .arg(m_androidConfig.ndkVersion().toString());
     androidSummaryWidget->setInfoText(androidSetupOk ? infoText : "");
@@ -697,6 +767,57 @@ void AndroidSettingsWidget::manageAVD()
                                 "advanced AVD management.")
                              .arg(m_androidConfig.sdkToolsVersion().toString()));
     }
+}
+
+void AndroidSettingsWidget::downloadSdk()
+{
+    QString message(tr("Android SDK Tools package is not installed. Do you want to download it?\n"
+                       "The final location: ")
+                    + QDir::toNativeSeparators(m_ui->SDKLocationPathChooser->rawPath()));
+    auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
+                                              message, QMessageBox::Yes | QMessageBox::No);
+    if (userInput == QMessageBox::Yes) {
+        auto javaSummaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
+        if (javaSummaryWidget->allRowsOk()) {
+            auto javaPath = Utils::FilePath::fromUserInput(m_ui->OpenJDKLocationPathChooser->rawPath());
+            AndroidSdkDownloader *sdkDownloader = new AndroidSdkDownloader(
+                                                        m_androidConfig.sdkToolsUrl(),
+                                                        m_androidConfig.getSdkToolsSha256());
+            sdkDownloader->downloadAndExtractSdk(javaPath.toString(),
+                                                 m_ui->SDKLocationPathChooser->path());
+
+            connect(sdkDownloader, &AndroidSdkDownloader::sdkExtracted, this, [this]() {
+                m_sdkManager->reloadPackages(true);
+                apply();
+            });
+
+            auto showErrorDialog = [this](const QString &error) {
+                QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(), error);
+            };
+
+            connect(sdkDownloader, &AndroidSdkDownloader::sdkDownloaderError, this, showErrorDialog);
+        }
+    }
+}
+
+bool AndroidSettingsWidget::allEssentialsInstalled()
+{
+    QStringList essentialPkgs(m_androidConfig.allEssentials());
+    for (const AndroidSdkPackage *pkg : m_sdkManager->installedSdkPackages()) {
+        if (essentialPkgs.contains(pkg->sdkStylePath()))
+            essentialPkgs.removeOne(pkg->sdkStylePath());
+        if (essentialPkgs.isEmpty())
+            break;
+    }
+    return essentialPkgs.isEmpty() ? true : false;
+}
+
+bool AndroidSettingsWidget::sdkToolsOk() const
+{
+    bool exists = m_androidConfig.sdkLocation().exists();
+    bool writable = m_androidConfig.sdkLocation().isWritablePath();
+    bool sdkToolsExist = !m_androidConfig.sdkToolsVersion().isNull();
+    return exists && writable && sdkToolsExist;
 }
 
 // AndroidSettingsPage

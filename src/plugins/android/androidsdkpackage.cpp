@@ -294,4 +294,29 @@ AndroidSdkPackage::PackageType ExtraTools::type() const
     return AndroidSdkPackage::ExtraToolsPackage;
 }
 
+Ndk::Ndk(QVersionNumber revision, QString sdkStylePathStr, QObject *parent) :
+    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+{
+}
+
+bool Ndk::isValid() const
+{
+    return installedLocation().exists();
+}
+
+AndroidSdkPackage::PackageType Ndk::type() const
+{
+    return AndroidSdkPackage::NDKPackage;
+}
+
+bool Ndk::isNdkBundle() const
+{
+    return m_isBundle;
+}
+
+void Ndk::setAsNdkBundle(const bool isBundle)
+{
+    m_isBundle = isBundle;
+}
+
 } // namespace Android

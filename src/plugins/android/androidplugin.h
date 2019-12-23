@@ -40,6 +40,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
 
     void kitsRestored();
+    void askUserAboutAndroidSetup();
 
     class AndroidPluginPrivate *d = nullptr;
 };

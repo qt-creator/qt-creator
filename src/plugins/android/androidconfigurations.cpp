@@ -61,6 +61,9 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QHostAddress>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QProcess>
 #include <QRegularExpression>
@@ -72,6 +75,7 @@
 #include <functional>
 #include <memory>
 
+using namespace QtSupport;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -82,11 +86,21 @@ static Q_LOGGING_CATEGORY(avdConfigLog, "qtc.android.androidconfig", QtWarningMs
 namespace Android {
 using namespace Internal;
 
+const char JsonFilePath[] = "/android/sdk_definitions.json";
+const char SdkToolsUrlKey[] = "sdk_tools_url";
+const char CommonKey[] = "common";
+const char SdkEssentialPkgsKey[] = "sdk_essential_packages";
+const char VersionsKey[] = "versions";
+const char NdkPathKey[] = "ndk_path";
+const char SpecificQtVersionsKey[] = "specific_qt_versions";
+const char DefaultVersionKey[] = "default";
+
 namespace {
     const char jdkSettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\Java Development Kit";
 
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
+    const QLatin1String SdkFullyConfiguredKey("AllEssentialsInstalled");
     const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
     const QLatin1String NDKLocationKey("NDKLocation");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
@@ -228,6 +242,7 @@ void AndroidConfig::load(const QSettings &settings)
     m_keystoreLocation = FilePath::fromString(settings.value(KeystoreLocationKey).toString());
     m_toolchainHost = settings.value(ToolchainHostKey).toString();
     m_automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
+    m_sdkFullyConfigured = settings.value(SdkFullyConfiguredKey, false).toBool();
 
     PersistentSettingsReader reader;
     if (reader.load(FilePath::fromString(sdkSettingsFileName()))
@@ -240,8 +255,10 @@ void AndroidConfig::load(const QSettings &settings)
         m_keystoreLocation = FilePath::fromString(reader.restoreValue(KeystoreLocationKey, m_keystoreLocation.toString()).toString());
         m_toolchainHost = reader.restoreValue(ToolchainHostKey, m_toolchainHost).toString();
         m_automaticKitCreation = reader.restoreValue(AutomaticKitCreationKey, m_automaticKitCreation).toBool();
+        m_sdkFullyConfigured = reader.restoreValue(SdkFullyConfiguredKey, m_sdkFullyConfigured).toBool();
         // persistent settings
     }
+    parseDependenciesJson();
     m_NdkInformationUpToDate = false;
 }
 
@@ -260,6 +277,7 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(PartitionSizeKey, m_partitionSize);
     settings.setValue(AutomaticKitCreationKey, m_automaticKitCreation);
     settings.setValue(ToolchainHostKey, m_toolchainHost);
+    settings.setValue(SdkFullyConfiguredKey, m_sdkFullyConfigured);
 }
 
 void AndroidConfig::updateNdkInformation() const
@@ -296,6 +314,72 @@ void AndroidConfig::updateNdkInformation() const
     }
 
     m_NdkInformationUpToDate = true;
+}
+
+void AndroidConfig::parseDependenciesJson()
+{
+    QString sdkConfigFile(Core::ICore::resourcePath() + JsonFilePath);
+    QFile jsonFile(sdkConfigFile);
+    if (!jsonFile.open(QIODevice::ReadOnly))
+        qCDebug(avdConfigLog, "Couldn't open JSON config file %s.", qPrintable(sdkConfigFile));
+
+    QJsonDocument loadDoc(QJsonDocument::fromJson(jsonFile.readAll()));
+    QJsonObject jsonObject = loadDoc.object();
+
+    if (jsonObject.contains(CommonKey) && jsonObject[CommonKey].isObject()) {
+        QJsonObject commonObject = jsonObject[CommonKey].toObject();
+        // Parse SDK Tools URL
+        if (commonObject.contains(SdkToolsUrlKey) && commonObject[SdkToolsUrlKey].isObject()) {
+            QJsonObject sdkToolsObj(commonObject[SdkToolsUrlKey].toObject());
+            if (Utils::HostOsInfo::isMacHost()) {
+                m_sdkToolsUrl = sdkToolsObj["mac"].toString();
+                m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["mac_sha256"].toString().toUtf8());
+            } else if (Utils::HostOsInfo::isWindowsHost()) {
+                m_sdkToolsUrl = sdkToolsObj["windows"].toString();
+                m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["windows_sha256"].toString().toUtf8());
+            } else {
+                m_sdkToolsUrl = sdkToolsObj["linux"].toString();
+                m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["linux_sha256"].toString().toUtf8());
+            }
+        }
+
+        // Parse common essential packages
+        QJsonArray commonEssentials = commonObject[SdkEssentialPkgsKey].toArray();
+        for (const QJsonValueRef &pkg : commonEssentials)
+            m_commonEssentialPkgs.append(pkg.toString());
+    }
+
+    auto fillQtVersionsRange = [](const QString &shortVersion) {
+        QList<QtVersionNumber> versions;
+        QRegularExpression re("([0-9]\\.[0-9]*\\.)\\[([0-9])\\-([0-9])\\]");
+        QRegularExpressionMatch match = re.match(shortVersion);
+        if (match.hasMatch() && match.lastCapturedIndex() == 3)
+            for (int i = match.captured(2).toInt(); i <= match.captured(3).toInt(); ++i)
+                versions.append(QtVersionNumber(match.captured(1) + QString::number(i)));
+        else
+            versions.append(QtVersionNumber(shortVersion));
+
+        return versions;
+    };
+
+    if (jsonObject.contains(SpecificQtVersionsKey) && jsonObject[SpecificQtVersionsKey].isArray()) {
+        QJsonArray versionsArray = jsonObject[SpecificQtVersionsKey].toArray();
+        for (const QJsonValueRef &item : versionsArray) {
+            QJsonObject itemObj = item.toObject();
+            SdkForQtVersions specificVersion;
+
+            specificVersion.ndkPath = itemObj[NdkPathKey].toString();
+            for (const QJsonValueRef &pkg : itemObj[SdkEssentialPkgsKey].toArray())
+                specificVersion.essentialPackages.append(pkg.toString());
+            for (const QJsonValueRef &pkg : itemObj[VersionsKey].toArray())
+                specificVersion.versions.append(fillQtVersionsRange(pkg.toString()));
+
+            if (itemObj[VersionsKey].toArray().first().toString() == DefaultVersionKey)
+                m_defaultSdkDepends = specificVersion;
+            else
+                m_specificQtVersions.append(specificVersion);
+        }
+    }
 }
 
 QStringList AndroidConfig::apiLevelNamesFor(const SdkPlatformList &platforms)
@@ -709,6 +793,7 @@ QVersionNumber AndroidConfig::sdkToolsVersion() const
 
 QVersionNumber AndroidConfig::buildToolsVersion() const
 {
+    //TODO: return version according to qt version
     QVersionNumber maxVersion;
     QDir buildToolsDir(m_sdkLocation.pathAppended("build-tools").toString());
     for (const QFileInfo &file: buildToolsDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot))
@@ -730,6 +815,11 @@ void AndroidConfig::setSdkManagerToolArgs(const QStringList &args)
 FilePath AndroidConfig::ndkLocation() const
 {
     return m_ndkLocation;
+}
+
+FilePath AndroidConfig::defaultNdkLocation() const
+{
+    return sdkLocation().pathAppended(m_defaultSdkDepends.ndkPath);
 }
 
 static inline QString gdbServerArch(const QString &androidAbi)
@@ -806,6 +896,57 @@ void AndroidConfig::setNdkLocation(const FilePath &ndkLocation)
 {
     m_ndkLocation = ndkLocation;
     m_NdkInformationUpToDate = false;
+}
+
+QStringList AndroidConfig::allEssentials() const
+{
+    QList<BaseQtVersion *> installedVersions = QtVersionManager::versions(
+        [](const BaseQtVersion *v) {
+            return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
+        });
+
+    QStringList allPackages(defaultEssentials());
+    for (const BaseQtVersion *version : installedVersions)
+        allPackages.append(essentialsFromQtVersion(*version));
+    allPackages.removeDuplicates();
+
+    return allPackages;
+}
+
+QStringList AndroidConfig::essentialsFromQtVersion(const BaseQtVersion &version) const
+{
+    QtVersionNumber qtVersion = version.qtVersion();
+    for (const SdkForQtVersions &item : m_specificQtVersions)
+        if (item.containsVersion(qtVersion))
+            return item.essentialPackages;
+
+    return m_defaultSdkDepends.essentialPackages;
+}
+
+QString AndroidConfig::ndkPathFromQtVersion(const BaseQtVersion &version) const
+{
+    QtVersionNumber qtVersion = version.qtVersion();
+    for (const SdkForQtVersions &item : m_specificQtVersions)
+        if (item.containsVersion(qtVersion))
+            return item.ndkPath;
+
+    return m_defaultSdkDepends.ndkPath;
+}
+
+QStringList AndroidConfig::defaultEssentials() const
+{
+    return m_defaultSdkDepends.essentialPackages + m_commonEssentialPkgs;
+}
+
+void AndroidConfig::updateDependenciesConfig()
+{
+    parseDependenciesJson();
+}
+
+bool SdkForQtVersions::containsVersion(const QtVersionNumber &qtVersion) const
+{
+    return versions.contains(qtVersion)
+           || versions.contains(QtVersionNumber(qtVersion.majorVersion, qtVersion.minorVersion));
 }
 
 FilePath AndroidConfig::openJDKLocation() const

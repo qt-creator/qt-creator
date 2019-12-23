@@ -70,6 +70,7 @@ public:
     AndroidSdkPackageList availableSdkPackages();
     AndroidSdkPackageList installedSdkPackages();
     SystemImageList installedSystemImages();
+    NdkList installedNdkPackages();
 
     SdkPlatform *latestAndroidSdkPlatform(AndroidSdkPackage::PackageState state
                                           = AndroidSdkPackage::Installed);

@@ -28,6 +28,7 @@
 #include "android_global.h"
 #include "androidsdkpackage.h"
 #include <projectexplorer/toolchain.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QObject>
 #include <QProcessEnvironment>
@@ -95,6 +96,16 @@ public:
     bool overwrite = false;
 };
 
+struct SdkForQtVersions
+{
+    QList<QtSupport::QtVersionNumber> versions;
+    QStringList essentialPackages;
+    QString ndkPath;
+
+public:
+    bool containsVersion(const QtSupport::QtVersionNumber &qtVersion) const;
+};
+
 class ANDROID_EXPORT AndroidConfig
 {
 public:
@@ -112,9 +123,19 @@ public:
     void setSdkManagerToolArgs(const QStringList &args);
 
     Utils::FilePath ndkLocation() const;
+    Utils::FilePath defaultNdkLocation() const;
     Utils::FilePath gdbServer(const QString &androidAbi) const;
     QVersionNumber ndkVersion() const;
     void setNdkLocation(const Utils::FilePath &ndkLocation);
+
+    QUrl sdkToolsUrl() const { return m_sdkToolsUrl; };
+    QByteArray getSdkToolsSha256() const { return m_sdkToolsSha256; };
+    QString ndkPathFromQtVersion(const QtSupport::BaseQtVersion &version) const;
+
+    QStringList defaultEssentials() const;
+    QStringList essentialsFromQtVersion(const QtSupport::BaseQtVersion &version) const;
+    QStringList allEssentials() const;
+    void updateDependenciesConfig();
 
     Utils::FilePath openJDKLocation() const;
     void setOpenJDKLocation(const Utils::FilePath &openJDKLocation);
@@ -162,6 +183,9 @@ public:
 
     bool useNativeUiTools() const;
 
+    bool sdkFullyConfigured() const { return m_sdkFullyConfigured; };
+    void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; };
+
 private:
     static QString getDeviceProperty(const Utils::FilePath &adbToolPath,
                                      const QString &device, const QString &property);
@@ -176,6 +200,7 @@ private:
     static QString getAvdName(const QString &serialnumber);
 
     void updateNdkInformation() const;
+    void parseDependenciesJson();
 
     Utils::FilePath m_sdkLocation;
     QStringList m_sdkManagerToolArgs;
@@ -184,6 +209,12 @@ private:
     Utils::FilePath m_keystoreLocation;
     unsigned m_partitionSize = 1024;
     bool m_automaticKitCreation = true;
+    QUrl m_sdkToolsUrl;
+    QByteArray m_sdkToolsSha256;
+    QStringList m_commonEssentialPkgs;
+    SdkForQtVersions m_defaultSdkDepends;
+    QList<SdkForQtVersions> m_specificQtVersions;
+    bool m_sdkFullyConfigured = false;
 
     //caches
     mutable bool m_NdkInformationUpToDate = false;
