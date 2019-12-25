@@ -1828,7 +1828,8 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     if (state == EngineRunRequested) {
         emit engineStarted();
-        d->m_perspective->select();
+        if (d->m_perspective)
+            d->m_perspective->select();
     }
 
     showMessage(msg, LogDebug);
