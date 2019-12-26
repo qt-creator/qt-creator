@@ -731,6 +731,7 @@ void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
     const QString tracking = fullName(trackingIndex, true);
     d->client->synchronousSetTrackingBranch(d->workingDirectory, currentName, tracking);
     d->currentBranch->tracking = shortTracking;
+    updateUpstreamStatus(d->currentBranch);
     emit dataChanged(current, current);
 }
 
@@ -840,17 +841,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     root->insert(nameParts, newNode);
     if (current)
         currentBranch = newNode;
-    if (newNode->tracking.isEmpty())
-        return;
-    VcsCommand *command = client->asyncUpstreamStatus(workingDirectory, newNode->name, newNode->tracking);
-    QObject::connect(command, &VcsCommand::stdOutText, newNode, [this, newNode](const QString &text) {
-        const QStringList split = text.trimmed().split('\t');
-        QTC_ASSERT(split.size() == 2, return);
-
-        newNode->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
-        const QModelIndex idx = q->nodeToIndex(newNode, 0);
-        emit q->dataChanged(idx, idx);
-    });
+    q->updateUpstreamStatus(newNode);
 }
 
 void BranchModel::Private::flushOldEntries()
@@ -896,6 +887,21 @@ void BranchModel::removeNode(const QModelIndex &idx)
         node = parentNode;
         nodeIndex = parentIndex;
     }
+}
+
+void BranchModel::updateUpstreamStatus(BranchNode *node)
+{
+    if (node->tracking.isEmpty())
+        return;
+    VcsCommand *command = d->client->asyncUpstreamStatus(d->workingDirectory, node->name, node->tracking);
+    QObject::connect(command, &VcsCommand::stdOutText, node, [this, node](const QString &text) {
+        const QStringList split = text.trimmed().split('\t');
+        QTC_ASSERT(split.size() == 2, return);
+
+        node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
+        const QModelIndex idx = nodeToIndex(node, 0);
+        emit dataChanged(idx, idx);
+    });
 }
 
 QString BranchModel::toolTip(const QString &sha) const

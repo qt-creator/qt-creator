@@ -92,6 +92,7 @@ private:
     BranchNode *indexToNode(const QModelIndex &index) const;
     QModelIndex nodeToIndex(BranchNode *node, int column) const;
     void removeNode(const QModelIndex &idx);
+    void updateUpstreamStatus(BranchNode *node);
 
     QString toolTip(const QString &sha) const;
 
