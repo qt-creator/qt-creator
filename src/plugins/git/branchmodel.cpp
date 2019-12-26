@@ -49,6 +49,12 @@ enum RootNodes {
     Tags = 2
 };
 
+enum Columns {
+    ColumnBranch = 0,
+    ColumnDateTime = 1,
+    ColumnCount
+};
+
 // --------------------------------------------------------------------------
 // BranchNode:
 // --------------------------------------------------------------------------
@@ -293,7 +299,7 @@ QModelIndex BranchModel::parent(const QModelIndex &index) const
     BranchNode *node = indexToNode(index);
     if (node->parent == d->rootNode)
         return QModelIndex();
-    return nodeToIndex(node->parent, 0);
+    return nodeToIndex(node->parent, ColumnBranch);
 }
 
 int BranchModel::rowCount(const QModelIndex &parentIdx) const
@@ -307,7 +313,7 @@ int BranchModel::rowCount(const QModelIndex &parentIdx) const
 int BranchModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return 2;
+    return ColumnCount;
 }
 
 QVariant BranchModel::data(const QModelIndex &index, int role) const
@@ -323,7 +329,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole: {
         QString res;
         switch (index.column()) {
-        case 0: {
+        case ColumnBranch: {
             res = node->name;
             if (!node->tracking.isEmpty()) {
                 res += ' ' + arrowUp + QString::number(node->status.ahead);
@@ -332,7 +338,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             }
             break;
         }
-        case 1:
+        case ColumnDateTime:
             if (node->isLeaf() && node->dateTime.isValid())
                 res = node->dateTime.toString("yyyy-MM-dd HH:mm");
             break;
@@ -365,7 +371,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
 
 bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (index.column() != 0 || role != Qt::EditRole)
+    if (index.column() != ColumnBranch || role != Qt::EditRole)
         return false;
     BranchNode *node = indexToNode(index);
     if (!node)
@@ -389,7 +395,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
     if (!node)
         return Qt::NoItemFlags;
     Qt::ItemFlags res = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    if (node != d->headNode && node->isLeaf() && node->isLocal() && index.column() == 0)
+    if (node != d->headNode && node->isLeaf() && node->isLocal() && index.column() == ColumnBranch)
         res |= Qt::ItemIsEditable;
     return res;
 }
@@ -512,7 +518,7 @@ QModelIndex BranchModel::currentBranch() const
 {
     if (!d->currentBranch)
         return QModelIndex();
-    return nodeToIndex(d->currentBranch, 0);
+    return nodeToIndex(d->currentBranch, ColumnBranch);
 }
 
 QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
@@ -704,7 +710,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         BranchNode *child = (pos == local->count()) ? nullptr : local->children.at(pos);
         if (!child || child->name != nodeName) {
             child = new BranchNode(nodeName);
-            beginInsertRows(nodeToIndex(local, 0), pos, pos);
+            beginInsertRows(nodeToIndex(local, ColumnBranch), pos, pos);
             added = true;
             child->parent = local;
             local->children.insert(pos, child);
@@ -715,11 +721,11 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     auto newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString(),
                                   branchDateTime);
     if (!added)
-        beginInsertRows(nodeToIndex(local, 0), pos, pos);
+        beginInsertRows(nodeToIndex(local, ColumnBranch), pos, pos);
     newNode->parent = local;
     local->children.insert(pos, newNode);
     endInsertRows();
-    return nodeToIndex(newNode, 0);
+    return nodeToIndex(newNode, ColumnBranch);
 }
 
 void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
@@ -878,7 +884,7 @@ void BranchModel::removeNode(const QModelIndex &idx)
     BranchNode *node = indexToNode(nodeIndex);
     while (node->count() == 0 && node->parent != d->rootNode) {
         BranchNode *parentNode = node->parent;
-        const QModelIndex parentIndex = nodeToIndex(parentNode, 0);
+        const QModelIndex parentIndex = nodeToIndex(parentNode, ColumnBranch);
         const int nodeRow = nodeIndex.row();
         beginRemoveRows(parentIndex, nodeRow, nodeRow);
         parentNode->children.removeAt(nodeRow);
@@ -899,7 +905,7 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
         QTC_ASSERT(split.size() == 2, return);
 
         node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
-        const QModelIndex idx = nodeToIndex(node, 0);
+        const QModelIndex idx = nodeToIndex(node, ColumnBranch);
         emit dataChanged(idx, idx);
     });
 }
