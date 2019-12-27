@@ -119,12 +119,12 @@ BranchView::BranchView() :
                 tr("Include branches and tags that have not been active for %n days.", nullptr,
                    Constants::OBSOLETE_COMMIT_AGE_IN_DAYS));
     connect(m_includeOldEntriesAction, &QAction::toggled,
-            this, &BranchView::BranchView::setIncludeOldEntries);
+            this, &BranchView::setIncludeOldEntries);
     m_includeTagsAction->setCheckable(true);
     m_includeTagsAction->setChecked(
                 GitPlugin::client()->settings().boolValue(GitSettings::showTagsKey));
     connect(m_includeTagsAction, &QAction::toggled,
-            this, &BranchView::BranchView::setIncludeTags);
+            this, &BranchView::setIncludeTags);
 
     m_branchView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_branchView->setEditTriggers(QAbstractItemView::SelectedClicked
