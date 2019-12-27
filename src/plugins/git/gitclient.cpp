@@ -3200,8 +3200,9 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
                     VcsCommand *rePushCommand = vcsExec(workingDirectory,
                                                         fallbackCommandParts.mid(1),
                             nullptr, true, VcsCommand::ShowSuccessMessage);
-                    connect(rePushCommand, &VcsCommand::success,
-                            this, []() { GitPlugin::instance()->updateCurrentBranch(); });
+                    connect(rePushCommand, &VcsCommand::success, this, [workingDirectory]() {
+                        GitPlugin::instance()->updateBranches(workingDirectory);
+                    });
                 }
                 break;
             }
