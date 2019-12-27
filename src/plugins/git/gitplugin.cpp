@@ -1416,6 +1416,12 @@ void GitPlugin::updateBranches(const QString &repository)
         m_branchViewFactory->view()->refreshIfSame(repository);
 }
 
+void GitPlugin::updateCurrentBranch()
+{
+    if (m_branchViewFactory && m_branchViewFactory->view())
+        m_branchViewFactory->view()->refreshCurrentBranch();
+}
+
 QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &workingDirectory,
                                   const QStringList &)
 {

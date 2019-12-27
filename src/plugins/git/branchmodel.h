@@ -86,6 +86,7 @@ public:
     void setRemoteTracking(const QModelIndex &trackingIndex);
     void setOldBranchesIncluded(bool value);
     Utils::optional<QString> remoteName(const QModelIndex &idx) const;
+    void refreshCurrentBranch();
 
 private:
     void setCurrentBranch();

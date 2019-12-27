@@ -759,6 +759,13 @@ Utils::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
     return Utils::nullopt;
 }
 
+void BranchModel::refreshCurrentBranch()
+{
+    const QModelIndex currentIndex = currentBranch();
+    BranchNode *node = indexToNode(currentIndex);
+    updateUpstreamStatus(node);
+}
+
 void BranchModel::Private::parseOutputLine(const QString &line, bool force)
 {
     if (line.size() < 3)

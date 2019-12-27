@@ -89,6 +89,7 @@ public:
     static QString invalidBranchAndRemoteNamePattern();
     void startCommit(CommitType commitType = SimpleCommit);
     void updateBranches(const QString &repository);
+    void updateCurrentBranch();
 
     QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
                            const QStringList &args) override;

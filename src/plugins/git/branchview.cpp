@@ -169,6 +169,11 @@ void BranchView::refresh(const QString &repository, bool force)
         VcsBase::VcsOutputWindow::appendError(errorMessage);
 }
 
+void BranchView::refreshCurrentBranch()
+{
+    m_model->refreshCurrentBranch();
+}
+
 QToolButton *BranchView::addButton() const
 {
     return m_addButton;

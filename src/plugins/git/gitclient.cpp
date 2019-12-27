@@ -2843,6 +2843,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     if (resp.result == SynchronousProcessResponse::Finished) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
         VcsOutputWindow::appendError(stdErr);
+        GitPlugin::instance()->updateCurrentBranch();
         return true;
     } else {
         VcsOutputWindow::appendError(tr("Cannot commit %n files: %1\n", nullptr, commitCount).arg(stdErr));
@@ -3175,8 +3176,11 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
                             .arg(QString::number(warnColor.rgba(), 16)),
                             QMessageBox::Yes | QMessageBox::No,
                             QMessageBox::No) == QMessageBox::Yes) {
-                    vcsExec(workingDirectory, QStringList({"push", "--force-with-lease"}) + pushArgs,
+                    VcsCommand *rePushCommand = vcsExec(workingDirectory,
+                            QStringList({"push", "--force-with-lease"}) + pushArgs,
                             nullptr, true, VcsCommand::ShowSuccessMessage);
+                    connect(rePushCommand, &VcsCommand::success,
+                            this, []() { GitPlugin::instance()->updateCurrentBranch(); });
                 }
                 break;
             }
@@ -3197,13 +3201,12 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
                                                         fallbackCommandParts.mid(1),
                             nullptr, true, VcsCommand::ShowSuccessMessage);
                     connect(rePushCommand, &VcsCommand::success,
-                            this, [workingDirectory]() {
-                                GitPlugin::instance()->updateBranches(workingDirectory);
-                            }
-                    );
+                            this, []() { GitPlugin::instance()->updateCurrentBranch(); });
                 }
                 break;
             }
+        } else {
+            GitPlugin::instance()->updateCurrentBranch();
         }
     });
 }

@@ -57,6 +57,7 @@ public:
 
     void refreshIfSame(const QString &repository);
     void refresh(const QString &repository, bool force);
+    void refreshCurrentBranch();
 
     QToolButton *addButton() const;
     QToolButton *refreshButton() const;
