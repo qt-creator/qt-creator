@@ -1210,7 +1210,9 @@ void GitPluginPrivate::startChangeRelatedAction(const Id &id)
     if (dialog.command() == Show) {
         m_gitClient.show(workingDirectory, change);
         return;
-    } else if (dialog.command() == Archive) {
+    }
+
+    if (dialog.command() == Archive) {
         m_gitClient.archive(workingDirectory, change);
         return;
     }
