@@ -490,7 +490,7 @@ bool BranchView::reset(const QByteArray &resetType)
         return false;
 
     if (QMessageBox::question(this, tr("Git Reset"), tr("Reset branch \"%1\" to \"%2\"?")
-                              .arg(currentName).arg(branchName),
+                              .arg(currentName, branchName),
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
         GitClient::instance()->reset(m_repository, QLatin1String("--" + resetType), branchName);
         return true;
