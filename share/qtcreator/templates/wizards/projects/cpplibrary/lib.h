@@ -30,7 +30,7 @@ public:
 class %{CN} : public %{BaseClassName}
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.%{PluginInterface}" FILE "%{PluginJsonFile}")
+    Q_PLUGIN_METADATA(IID %{PluginInterface}_iid FILE "%{PluginJsonFile}")
 
 public:
     explicit %{CN}(QObject *parent = nullptr);
