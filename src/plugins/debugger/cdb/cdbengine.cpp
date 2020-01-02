@@ -916,7 +916,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const DebuggerResponse &respon
     const quint64 address = answer.toULongLong(&ok, 16);
     if (ok && address) {
         jumpToAddress(address);
-        gotoLocation(Location(context.fileName.toString(), context.lineNumber));
+        gotoLocation(Location(context.fileName, context.lineNumber));
     }
 }
 

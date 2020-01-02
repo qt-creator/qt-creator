@@ -211,7 +211,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     addAction(menu, tr("Edit File \"%1\"").arg(moduleName),
               tr("Edit File"),
               moduleNameValid,
-              [this, modulePath] { engine->gotoLocation(modulePath); });
+              [this, modulePath] { engine->gotoLocation(FilePath::fromString(modulePath)); });
 
     addAction(menu, tr("Show Symbols in File \"%1\"").arg(moduleName),
               tr("Show Symbols"),

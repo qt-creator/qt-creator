@@ -163,7 +163,7 @@ static bool debuggerActionsEnabledHelper(DebuggerState state)
 
 Location::Location(const StackFrame &frame, bool marker)
 {
-    m_fileName = frame.file;
+    m_fileName = Utils::FilePath::fromString(frame.file);
     m_lineNumber = frame.line;
     m_needsMarker = marker;
     m_functionName = frame.function;
@@ -1081,7 +1081,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         showMessage("CANNOT GO TO THIS LOCATION");
         return;
     }
-    const QString file = QDir::cleanPath(loc.fileName());
+    const QString file = loc.fileName().toString();
     const int line = loc.lineNumber();
     bool newEditor = false;
     IEditor *editor = EditorManager::openEditor(
@@ -1096,7 +1096,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 
     if (loc.needsMarker()) {
-        d->m_locationMark.reset(new LocationMark(this, FilePath::fromString(file), line));
+        d->m_locationMark.reset(new LocationMark(this, loc.fileName(), line));
         d->m_locationMark->setToolTip(tr("Current debugger location of %1").arg(displayName()));
     }
 }

@@ -465,8 +465,8 @@ void QmlEngine::errorMessageBoxFinished(int result)
 
 void QmlEngine::gotoLocation(const Location &location)
 {
-    const QString fileName = location.fileName();
-    if (QUrl(fileName).isLocalFile()) {
+    if (location.fileName().isLocal()) {
+        const QString fileName = location.fileName().toString();
         // internal file from source files -> show generated .js
         QTC_ASSERT(d->sourceDocuments.contains(fileName), return);
 

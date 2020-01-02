@@ -110,7 +110,7 @@ QVariant SourceFilesHandler::data(const QModelIndex &index, int role) const
 bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
 {
     if (role == BaseTreeView::ItemActivatedRole) {
-        m_engine->gotoLocation(idx.data().toString());
+        m_engine->gotoLocation(FilePath::fromString(idx.data().toString()));
         return true;
     }
 
@@ -135,7 +135,7 @@ bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, i
                 addAction(tr("Open File"), false, {});
             else
                 addAction(tr("Open File \"%1\"").arg(name), true,
-                          [this, name] { m_engine->gotoLocation(name); });
+                          [this, name] { m_engine->gotoLocation(FilePath::fromString(name)); });
 
             Internal::addHideColumnActions(menu, ev.view());
             menu->addAction(action(SettingsDialog));

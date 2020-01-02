@@ -225,17 +225,17 @@ class Location
 public:
     Location() = default;
     Location(quint64 address) { m_address = address; }
-    Location(const QString &file) { m_fileName = file; }
-    Location(const QString &file, int line, bool marker = true)
+    Location(const Utils::FilePath &file) { m_fileName = file; }
+    Location(const Utils::FilePath &file, int line, bool marker = true)
         { m_lineNumber = line; m_fileName = file; m_needsMarker = marker; }
     Location(const StackFrame &frame, bool marker = true);
-    QString fileName() const { return m_fileName; }
+    Utils::FilePath fileName() const { return m_fileName; }
     QString functionName() const { return m_functionName; }
     QString from() const { return m_from; }
     int lineNumber() const { return m_lineNumber; }
     void setNeedsRaise(bool on) { m_needsRaise = on; }
     void setNeedsMarker(bool on) { m_needsMarker = on; }
-    void setFileName(const QString &fileName) { m_fileName = fileName; }
+    void setFileName(const Utils::FilePath &fileName) { m_fileName = fileName; }
     void setUseAssembler(bool on) { m_hasDebugInfo = !on; }
     bool needsRaise() const { return m_needsRaise; }
     bool needsMarker() const { return m_needsMarker; }
@@ -249,7 +249,7 @@ private:
     bool m_needsRaise = true;
     bool m_hasDebugInfo = true;
     int m_lineNumber = -1;
-    QString m_fileName;
+    Utils::FilePath m_fileName;
     QString m_functionName;
     QString m_from;
     quint64 m_address = 0;

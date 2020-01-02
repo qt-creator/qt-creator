@@ -928,20 +928,18 @@ void LldbEngine::handleStateNotification(const GdbMi &item)
 void LldbEngine::handleLocationNotification(const GdbMi &reportedLocation)
 {
     qulonglong address = reportedLocation["address"].toAddress();
-    QString fileName = reportedLocation["file"].data();
+    Utils::FilePath fileName = FilePath::fromUserInput(reportedLocation["file"].data());
     QString function = reportedLocation["function"].data();
     int lineNumber = reportedLocation["line"].toInt();
     Location loc = Location(fileName, lineNumber);
-    if (operatesByInstruction() || !QFileInfo::exists(fileName) || lineNumber <= 0) {
+    if (operatesByInstruction() || !fileName.exists() || lineNumber <= 0) {
         loc = Location(address);
         loc.setNeedsMarker(true);
         loc.setUseAssembler(true);
     }
 
     // Quickly set the location marker.
-    if (lineNumber > 0
-            && QFileInfo::exists(fileName)
-            && function != "::qt_qmlDebugMessageAvailable()")
+    if (lineNumber > 0 && fileName.exists() && function != "::qt_qmlDebugMessageAvailable()")
         gotoLocation(Location(fileName, lineNumber));
 }
 

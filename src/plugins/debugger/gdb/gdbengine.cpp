@@ -1210,25 +1210,28 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         showMessage("INVALID STOPPED REASON", LogWarning);
     }
 
+    const FilePath fileName = FilePath::fromString(fullName);
+
     if (!nr.isEmpty() && frame.isValid()) {
         // Use opportunity to update the breakpoint marker position.
         if (Breakpoint bp = breakHandler()->findBreakpointByResponseId(nr)) {
-            FilePath fileName = bp->fileName();
-            if (fileName.isEmpty())
-                fileName = FilePath::fromString(fullName);
-            if (!fileName.isEmpty())
+            const FilePath &bpFileName = bp->fileName();
+            if (!bpFileName.isEmpty())
+                bp->setMarkerFileAndLine(bpFileName, lineNumber);
+            else if (!fileName.isEmpty())
                 bp->setMarkerFileAndLine(fileName, lineNumber);
         }
     }
 
     //qDebug() << "BP " << rid << data.toString();
     // Quickly set the location marker.
-    if (lineNumber && !operatesByInstruction()
-            && QFileInfo::exists(fullName)
+    if (lineNumber
+            && !operatesByInstruction()
+            && fileName.exists()
             && function != "qt_v4TriggeredBreakpointHook"
             && function != "qt_qmlDebugMessageAvailable"
             && language != "js")
-        gotoLocation(Location(fullName, lineNumber));
+        gotoLocation(Location(fileName, lineNumber));
 
     if (state() == InferiorRunOk) {
         // Stop triggered by a breakpoint or otherwise not directly
