@@ -1,0 +1,226 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "id": "R.QtCreatorPlugin",
+    "category": "G.Library",
+    "trDescription": "Creates a custom Qt Creator plugin.",
+    "trDisplayName": "Qt Creator Plugin",
+    "trDisplayCategory": "Library",
+    "icon": "qtcreatorplugin.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{ProFile}" },
+        { "key": "PluginNameLower", "value": "%{JS: value('PluginName').toLowerCase()}"},
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('PluginNameLower'), 'pro')}" },
+        { "key": "PluginJsonFile", "value": "%{JS: Util.fileName(value('PluginName'), 'json.in')}" },
+        { "key": "LibraryDefine", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_LIBRARY'}" },
+        { "key": "LibraryExport", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_EXPORT'}" },
+        { "key": "SrcFileName", "value": "%{JS: Util.fileName(value('PluginNameLower'), Util.preferredSuffix('text/x-c++src'))}" },
+        { "key": "HdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower'), Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + '_global', Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "ConstantsHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + 'constants', Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "CN", "value": "%{JS: Cpp.className(value('PluginName') + 'Plugin')}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('CN'), Util.suffix(value('HdrFileName')))}" },
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
+        { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard(value('GlobalHdrFileName'))}" },
+        { "key": "CONSTANTS_GUARD", "value": "%{JS: Cpp.headerGuard(value('ConstantsHdrFileName'))}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard creates a custom Qt Creator plugin." }
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ClassPageDescription",
+                    "type": "Label",
+                    "data":
+                    {
+                        "trText": "Specify details about your custom Qt Creator plugin.",
+                        "wordWrap": true
+                    }
+                },
+                {
+                    "name": "PluginName",
+                    "trDisplayName": "Plugin name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "[a-zA-Z_][a-zA-Z_0-9]*",
+                        "trText": "%{JS: value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1)}"
+                    }
+                },
+                {
+                    "name": "VendorName",
+                    "persistenceKey": "VendorName",
+                    "trDisplayName": "Vendor name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "trText": "MyCompany"
+                    }
+                },
+                {
+                    "name": "Copyright",
+                    "trDisplayName": "Copyright:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "trText": "(C) %{VendorName}"
+                    }
+                },
+                {
+                    "name": "License",
+                    "trDisplayName": "License:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "trText": "Put short license information here"
+                    }
+                },
+                {
+                    "name": "Description",
+                    "trDisplayName": "Description:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "trText": "Put a short description of your plugin here"
+                    }
+                },
+                {
+                    "name": "Url",
+                    "persistenceKey": "VendorUrl",
+                    "trDisplayName": "URL:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "trText": "https://www.%{JS: encodeURIComponent(value('VendorName').toLowerCase())}.com"
+                    }
+                },
+                {
+                    "name": "QtCreatorSources",
+                    "persistenceKey": "QtCreatorSources",
+                    "trDisplayName": "Qt Creator sources:",
+                    "mandatory": true,
+                    "type": "PathChooser",
+                    "data":
+                    {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "QtCreatorBuild",
+                    "persistenceKey": "QtCreatorBuild",
+                    "trDisplayName": "Qt Creator build:",
+                    "mandatory": true,
+                    "type": "PathChooser",
+                    "data":
+                    {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "DestDir",
+                    "persistenceKey": "QtCreatorPluginDestDir",
+                    "trDisplayName": "Deploy into:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt Creator Build",
+                                "value": "# "
+                            },
+                            {
+                                "trKey": "Local User Settings",
+                                "value": ""
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Translation File",
+            "trShortTitle": "Translation",
+            "typeId": "QtTranslation"
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": { "projectFilePath": "%{ProjectFile}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "myplugin.pro",
+                    "target": "%{ProFile}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "myplugin.cpp",
+                    "target": "%{SrcFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "myplugin.h",
+                    "target": "%{HdrFileName}"
+                },
+                {
+                    "source": "myplugin_global.h",
+                    "target": "%{GlobalHdrFileName}"
+                },
+                {
+                    "source": "mypluginconstants.h",
+                    "target": "%{ConstantsHdrFileName}"
+                },
+                {
+                    "source": "MyPlugin.json.in",
+                    "target": "%{PluginJsonFile}"
+                },
+                {
+                    "source": "../projects/translation.ts",
+                    "target": "%{TsFileName}",
+                    "condition": "%{HasTranslation}"
+                },
+                {
+                    "source": "../projects/git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}
