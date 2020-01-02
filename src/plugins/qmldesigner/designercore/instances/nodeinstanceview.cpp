@@ -30,7 +30,7 @@
 #include <metainfo.h>
 #include <nodehints.h>
 #include <rewriterview.h>
-
+#include "qmldesignerplugin.h"
 #include "abstractproperty.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
@@ -42,7 +42,10 @@
 #include "qmltimeline.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
-
+#include "coreplugin/actionmanager/actionmanager.h"
+#include "coreplugin/editormanager/editormanager.h"
+#include "coreplugin/documentmanager.h"
+#include "plugins/qmldesigner/qmldesignerconstants.h"
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
 #include "clearscenecommand.h"
@@ -71,6 +74,7 @@
 #include "removesharedmemorycommand.h"
 #include "debugoutputcommand.h"
 #include "nodeinstanceserverproxy.h"
+#include "puppettocreatorcommand.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -1452,6 +1456,40 @@ void NodeInstanceView::library3DItemDropped(const Drop3DLibraryItemCommand &comm
         return;
 
     QmlVisualNode::createQmlVisualNode(this, itemLibraryEntry, {});
+}
+
+void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)
+{
+    if (command.type() == PuppetToCreatorCommand::Key_Pressed) {
+        QPair<int, int> data = qvariant_cast<QPair<int, int>>(command.data());
+        int key = data.first;
+        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(data.second);
+
+        handlePuppetKeyPress(key, modifiers);
+    }
+}
+
+// puppet to creator command handlers
+void NodeInstanceView::handlePuppetKeyPress(int key, Qt::KeyboardModifiers modifiers)
+{
+    // TODO: optimal way to handle key events is to just pass them on. This is done
+    // using the code below but it is so far not working, if someone could get it to work then
+    // it should be utilized and the rest of the method deleted
+//    QCoreApplication::postEvent([receiver], new QKeyEvent(QEvent::KeyPress, key, modifiers));
+
+    // handle common keyboard actions coming from puppet
+    if (Core::ActionManager::command(Core::Constants::UNDO)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
+        QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
+    else if (Core::ActionManager::command(Core::Constants::REDO)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
+        QmlDesignerPlugin::instance()->currentDesignDocument()->redo();
+    else if (Core::ActionManager::command(Core::Constants::SAVE)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
+        Core::EditorManager::saveDocument();
+    else if (Core::ActionManager::command(Core::Constants::SAVEAS)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
+        Core::EditorManager::saveDocumentAs();
+    else if (Core::ActionManager::command(Core::Constants::SAVEALL)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
+        Core::DocumentManager::saveAllModifiedDocuments();
+    else if (Core::ActionManager::command(QmlDesigner::Constants::C_DELETE)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
+        QmlDesignerPlugin::instance()->currentDesignDocument()->deleteSelected();
 }
 
 void NodeInstanceView::view3DClosed(const View3DClosedCommand &command)

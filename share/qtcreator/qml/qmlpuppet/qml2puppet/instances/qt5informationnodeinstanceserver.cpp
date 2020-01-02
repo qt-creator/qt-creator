@@ -61,6 +61,7 @@
 #include "removesharedmemorycommand.h"
 #include "objectnodeinstance.h"
 #include "drop3dlibraryitemcommand.h"
+#include "puppettocreatorcommand.h"
 #include "view3dclosedcommand.h"
 
 #include "dummycontextobject.h"
@@ -100,6 +101,13 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
 
     case QEvent::Close: {
         nodeInstanceClient()->view3DClosed(View3DClosedCommand());
+    } break;
+
+    case QEvent::KeyPress: {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        QPair<int, int> data = {keyEvent->key(), keyEvent->modifiers()};
+        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Key_Pressed,
+                                                            QVariant::fromValue(data)});
     } break;
 
     default:

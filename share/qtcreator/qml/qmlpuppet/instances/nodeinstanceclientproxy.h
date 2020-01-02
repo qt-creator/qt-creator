@@ -60,6 +60,7 @@ class ChangeNodeSourceCommand;
 class EndPuppetCommand;
 class ChangeSelectionCommand;
 class Drop3DLibraryItemCommand;
+class PuppetToCreatorCommand;
 class View3DClosedCommand;
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
@@ -81,6 +82,7 @@ public:
     void puppetAlive(const PuppetAliveCommand &command);
     void selectionChanged(const ChangeSelectionCommand &command) override;
     void library3DItemDropped(const Drop3DLibraryItemCommand &command) override;
+    void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
     void view3DClosed(const View3DClosedCommand &command) override;
 
     void flush() override;

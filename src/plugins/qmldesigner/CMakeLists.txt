@@ -143,6 +143,7 @@ extend_qtc_plugin(QmlDesigner
     update3dviewstatecommand.cpp update3dviewstatecommand.h
     enable3dviewcommand.cpp enable3dviewcommand.h
     view3dclosedcommand.cpp view3dclosedcommand.h
+    puppettocreatorcommand.cpp puppettocreatorcommand.h
 )
 
 extend_qtc_plugin(QmlDesigner

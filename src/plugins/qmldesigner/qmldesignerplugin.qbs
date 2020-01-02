@@ -177,6 +177,8 @@ Project {
                 "commands/enable3dviewcommand.h",
                 "commands/view3dclosedcommand.cpp",
                 "commands/view3dclosedcommand.h",
+                "commands/puppettocreatorcommand.cpp",
+                "commands/puppettocreatorcommand.h",
                 "container/addimportcontainer.cpp",
                 "container/addimportcontainer.h",
                 "container/idcontainer.cpp",

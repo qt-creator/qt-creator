@@ -147,6 +147,8 @@ public:
     void mainWindowActiveChanged(bool active, bool hasPopup);
     void enable3DView(bool enable);
 
+    void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
+
 protected:
     void timerEvent(QTimerEvent *event) override;
 
@@ -198,12 +200,13 @@ private: // functions
     void restartProcess();
     void delayedRestartProcess();
 
-private:
     void handleCrash();
     void startPuppetTransaction();
     void endPuppetTransaction();
 
-private: //variables
+    // puppet to creator command handlers
+    void handlePuppetKeyPress(int key, Qt::KeyboardModifiers modifiers);
+
     NodeInstance m_rootNodeInstance;
     NodeInstance m_activeStateInstance;
 

@@ -49,6 +49,7 @@ extend_qtc_executable(qml2puppet
     update3dviewstatecommand.cpp update3dviewstatecommand.h
     enable3dviewcommand.cpp enable3dviewcommand.h
     view3dclosedcommand.cpp view3dclosedcommand.h
+    puppettocreatorcommand.cpp puppettocreatorcommand.h
     valueschangedcommand.cpp
 )
 
