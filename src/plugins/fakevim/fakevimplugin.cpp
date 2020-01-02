@@ -1617,6 +1617,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
         tabSettings.m_tabPolicy = theFakeVimSetting(ConfigExpandTab)->value().toBool()
                 ? TabSettings::SpacesOnlyTabPolicy : TabSettings::TabsOnlyTabPolicy;
+        tabSettings.m_continuationAlignBehavior =
+                tew->textDocument()->tabSettings().m_continuationAlignBehavior;
 
         QTextDocument *doc = tew->document();
         QTextBlock startBlock = doc->findBlockByNumber(beginBlock);
