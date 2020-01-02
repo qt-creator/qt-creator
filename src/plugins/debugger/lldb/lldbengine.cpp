@@ -564,7 +564,7 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
     bp->setIgnoreCount(bkpt["ignorecount"].toInt());
     bp->setCondition(fromHex(bkpt["condition"].data()));
     bp->setHitCount(bkpt["hitcount"].toInt());
-    bp->setFileName(bkpt["file"].data());
+    bp->setFileName(FilePath::fromUserInput(bkpt["file"].data()));
     bp->setLineNumber(bkpt["line"].toInt());
 
     GdbMi locations = bkpt["locations"];
@@ -577,7 +577,7 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
             loc->params.type = bp->type();
             loc->params.address = location["addr"].toAddress();
             loc->params.functionName = location["function"].data();
-            loc->params.fileName = location["file"].data();
+            loc->params.fileName = FilePath::fromUserInput(location["file"].data());
             loc->params.lineNumber = location["line"].toInt();
             loc->displayName = QString("%1.%2").arg(bp->responseId()).arg(locid);
         }

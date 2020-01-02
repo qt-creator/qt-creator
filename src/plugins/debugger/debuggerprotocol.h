@@ -33,6 +33,7 @@
 #include <QVector>
 
 #include <functional>
+#include <utils/fileutils.h>
 
 namespace Utils { class ProcessHandle; }
 
@@ -64,6 +65,7 @@ public:
     void arg(const char *name, const QList<int> &list);
     void arg(const char *name, const QStringList &list); // Note: Hex-encodes.
     void arg(const char *name, const QJsonValue &value);
+    void arg(const char *name, const Utils::FilePath &filePath);
 
     QString argsToPython() const;
     QString argsToString() const;
@@ -313,7 +315,7 @@ public:
 
 public:
     LocationType type = UnknownLocation;
-    QString fileName;
+    Utils::FilePath fileName;
     int lineNumber = 0;
     quint64 address = 0;
 };

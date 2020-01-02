@@ -142,7 +142,7 @@ void BreakpointParameters::updateLocation(const QString &location)
             file = file.mid(1, file.size() - 2);
         QFileInfo fi(file);
         if (fi.isReadable())
-            fileName = fi.absoluteFilePath();
+            fileName = Utils::FilePath::fromFileInfo(fi);
     }
 }
 
@@ -156,8 +156,9 @@ bool BreakpointParameters::isQmlFileAndLineBreakpoint() const
         qmlExtensionString = ".qml;.js";
 
     const auto qmlFileExtensions = qmlExtensionString.splitRef(';', QString::SkipEmptyParts);
+    const QString file = fileName.toString();
     for (const QStringRef &extension : qmlFileExtensions) {
-        if (fileName.endsWith(extension, Qt::CaseInsensitive))
+        if (file.endsWith(extension, Qt::CaseInsensitive))
             return true;
     }
     return false;
@@ -377,7 +378,6 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(fullName);
-        fileName = name;
         //if (data->markerFileName().isEmpty())
         //    data->setMarkerFileName(name);
     } else {
@@ -386,7 +386,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
         // gdb's own. No point in assigning markerFileName for now.
     }
     if (!name.isEmpty())
-        fileName = name;
+        fileName = Utils::FilePath::fromString(name);
 
     if (fileName.isEmpty())
         updateLocation(originalLocation);

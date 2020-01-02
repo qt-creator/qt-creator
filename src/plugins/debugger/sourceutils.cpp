@@ -328,14 +328,14 @@ ContextData getLocationContext(TextDocument *document, int lineNumber)
                 int ln = line.leftRef(pos - 1).toInt();
                 if (ln > 0) {
                     data.type = LocationByFile;
-                    data.fileName = fileName;
+                    data.fileName = Utils::FilePath::fromString(fileName);
                     data.lineNumber = ln;
                 }
             }
         }
     } else {
         data.type = LocationByFile;
-        data.fileName = document->filePath().toString();
+        data.fileName = document->filePath();
         data.lineNumber = lineNumber;
     }
     return data;

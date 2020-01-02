@@ -879,7 +879,7 @@ void CdbEngine::executeJumpToLine(const ContextData &data)
         // Jump to source line: Resolve source line address and go to that location
         QString cmd;
         StringInputStream str(cmd);
-        str << "? `" << QDir::toNativeSeparators(data.fileName) << ':' << data.lineNumber << '`';
+        str << "? `" << data.fileName.toUserOutput() << ':' << data.lineNumber << '`';
         runCommand({cmd, BuiltinCommand, [this, data](const DebuggerResponse &r) {
                         handleJumpToLineAddressResolution(r, data); }});
     }
@@ -916,7 +916,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const DebuggerResponse &respon
     const quint64 address = answer.toULongLong(&ok, 16);
     if (ok && address) {
         jumpToAddress(address);
-        gotoLocation(Location(context.fileName, context.lineNumber));
+        gotoLocation(Location(context.fileName.toString(), context.lineNumber));
     }
 }
 
@@ -2449,8 +2449,8 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
     if (!m_autoBreakPointCorrection
             && parameters.type == BreakpointByFileAndLine
             && boolSetting(CdbBreakPointCorrection)) {
-        response.lineNumber = int(lineCorrection->fixLineNumber(
-                                      parameters.fileName, unsigned(parameters.lineNumber)));
+        response.lineNumber = int(lineCorrection->fixLineNumber(parameters.fileName.toString(),
+                                                                unsigned(parameters.lineNumber)));
         QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     } else {

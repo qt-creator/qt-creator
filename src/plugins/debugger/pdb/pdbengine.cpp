@@ -233,8 +233,7 @@ void PdbEngine::selectThread(const Thread &thread)
 
 bool PdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    const QString fileName = bp.fileName;
-    return fileName.endsWith(".py");
+    return bp.fileName.endsWith(".py");
 }
 
 void PdbEngine::insertBreakpoint(const Breakpoint &bp)
@@ -248,7 +247,7 @@ void PdbEngine::insertBreakpoint(const Breakpoint &bp)
     if (params.type  == BreakpointByFunction)
         loc = params.functionName;
     else
-        loc = params.fileName + ':' + QString::number(params.lineNumber);
+        loc = params.fileName.toString() + ':' + QString::number(params.lineNumber);
 
     postDirectCommand("break " + loc);
 }
@@ -285,7 +284,7 @@ void PdbEngine::removeBreakpoint(const Breakpoint &bp)
         return;
     }
     showMessage(QString("DELETING BP %1 IN %2")
-                .arg(bp->responseId()).arg(bp->fileName()));
+                .arg(bp->responseId()).arg(bp->fileName().toUserOutput()));
     postDirectCommand("clear " + bp->responseId());
     // Pretend it succeeds without waiting for response.
     notifyBreakpointRemoveOk(bp);
@@ -498,7 +497,8 @@ void PdbEngine::handleOutput2(const QString &data)
             const QString bpnr = line.mid(11, pos1 - 11);
             const int pos2 = line.lastIndexOf(':');
             QTC_ASSERT(pos2 != -1, continue);
-            const QString fileName = line.mid(pos1 + 4, pos2 - pos1 - 4);
+            const Utils::FilePath fileName = Utils::FilePath::fromString(
+                line.mid(pos1 + 4, pos2 - pos1 - 4));
             const int lineNumber = line.midRef(pos2 + 1).toInt();
             const Breakpoint bp = Utils::findOrDefault(breakHandler()->breakpoints(), [&](const Breakpoint &bp) {
                 return bp->parameters().isLocatedAt(fileName, lineNumber, bp->markerFileName())

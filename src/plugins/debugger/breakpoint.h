@@ -28,6 +28,8 @@
 #include <QMetaType>
 #include <QString>
 
+#include <utils/fileutils.h>
+
 namespace Debugger {
 namespace Internal {
 
@@ -140,7 +142,7 @@ public:
     bool conditionsMatch(const QString &other) const;
     bool isWatchpoint() const
         { return type == WatchpointAtAddress || type == WatchpointAtExpression; }
-    bool isLocatedAt(const QString &fileName, int lineNumber, const QString &markerFileName) const;
+    bool isLocatedAt(const Utils::FilePath &file, int line, const Utils::FilePath &markerFile) const;
     // Enough for now.
     bool isBreakpoint() const { return !isWatchpoint() && !isTracepoint(); }
     bool isTracepoint() const { return tracepoint; }
@@ -156,7 +158,7 @@ public:
     BreakpointType type;     //!< Type of breakpoint.
     bool enabled;            //!< Should we talk to the debugger engine?
     BreakpointPathUsage pathUsage;  //!< Should we use the full path when setting the bp?
-    QString fileName;        //!< Short name of source file.
+    Utils::FilePath fileName;//!< Short name of source file.
     QString condition;       //!< Condition associated with breakpoint.
     int ignoreCount;         //!< Ignore count associated with breakpoint.
     int lineNumber;          //!< Line in source file.

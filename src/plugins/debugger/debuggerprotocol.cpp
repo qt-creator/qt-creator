@@ -811,6 +811,11 @@ void DebuggerCommand::arg(const char *name, const QJsonValue &value)
     args = addToJsonObject(args, name, value);
 }
 
+void DebuggerCommand::arg(const char *name, const Utils::FilePath &filePath)
+{
+    args = addToJsonObject(args, name, filePath.toString());
+}
+
 static QJsonValue translateJsonToPython(const QJsonValue &value)
 {
     // TODO: Verify that this covers all incompatibilities between python and json,

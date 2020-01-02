@@ -1213,9 +1213,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (!nr.isEmpty() && frame.isValid()) {
         // Use opportunity to update the breakpoint marker position.
         if (Breakpoint bp = breakHandler()->findBreakpointByResponseId(nr)) {
-            QString fileName = bp->fileName();
+            FilePath fileName = bp->fileName();
             if (fileName.isEmpty())
-                fileName = fullName;
+                fileName = FilePath::fromString(fullName);
             if (!fileName.isEmpty())
                 bp->setMarkerFileAndLine(fileName, lineNumber);
         }
@@ -1980,7 +1980,7 @@ void GdbEngine::executeRunToLine(const ContextData &data)
     if (data.address)
         loc = addressSpec(data.address);
     else
-        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
+        loc = '"' + breakLocation(data.fileName.toString()) + '"' + ':' + QString::number(data.lineNumber);
     runCommand({"tbreak " + loc});
 
     runCommand({"continue", NativeCommand|RunRequest, CB(handleExecuteRunToLine)});
@@ -2008,7 +2008,7 @@ void GdbEngine::executeJumpToLine(const ContextData &data)
     if (data.address)
         loc = addressSpec(data.address);
     else
-        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
+        loc = '"' + breakLocation(data.fileName.toString()) + '"' + ':' + QString::number(data.lineNumber);
     runCommand({"tbreak " + loc});
     notifyInferiorRunRequested();
 
@@ -2110,7 +2110,7 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
         usage = BreakpointUseShortPath;
 
     const QString fileName = usage == BreakpointUseFullPath
-        ? data.fileName : breakLocation(data.fileName);
+        ? data.fileName.toString() : breakLocation(data.fileName.toString());
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName) + "\\\":"
@@ -2124,7 +2124,7 @@ QString GdbEngine::breakpointLocation2(const BreakpointParameters &data)
         usage = BreakpointUseShortPath;
 
     const QString fileName = usage == BreakpointUseFullPath
-        ? data.fileName : breakLocation(data.fileName);
+        ? data.fileName.toString() : breakLocation(data.fileName.toString());
     return GdbMi::escapeCString(fileName) + ':' + QString::number(data.lineNumber);
 }
 
@@ -2252,7 +2252,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
     } else if (response.data["msg"].data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
-        const QString fileName = bp->fileName();
+        const QString fileName = bp->fileName().toString();
         const int lineNumber = bp->lineNumber();
         DebuggerCommand cmd("trace \"" + GdbMi::escapeCString(fileName) + "\":"
                             + QString::number(lineNumber),
@@ -2539,7 +2539,8 @@ void GdbEngine::removeBreakpoint(const Breakpoint &bp)
     if (!bp->responseId().isEmpty()) {
         // We already have a fully inserted breakpoint.
         notifyBreakpointRemoveProceeding(bp);
-        showMessage(QString("DELETING BP %1 IN %2").arg(bp->responseId()).arg(bp->fileName()));
+        showMessage(
+            QString("DELETING BP %1 IN %2").arg(bp->responseId()).arg(bp->fileName().toString()));
         DebuggerCommand cmd("-break-delete " + bp->responseId(), NeedsTemporaryStop);
         runCommand(cmd);
 

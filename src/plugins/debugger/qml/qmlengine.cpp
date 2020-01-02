@@ -625,8 +625,11 @@ void QmlEngine::executeStepOver(bool)
 void QmlEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    showStatusMessage(tr("Run to line %1 (%2) requested...").arg(data.lineNumber).arg(data.fileName), 5000);
-    d->setBreakpoint(SCRIPTREGEXP, data.fileName, true, data.lineNumber);
+    showStatusMessage(tr("Run to line %1 (%2) requested...")
+                          .arg(data.lineNumber)
+                          .arg(data.fileName.toString()),
+                      5000);
+    d->setBreakpoint(SCRIPTREGEXP, data.fileName.toString(), true, data.lineNumber);
     clearExceptionSelection();
     d->continueDebugging(Continue);
 
@@ -677,7 +680,7 @@ void QmlEngine::insertBreakpoint(const Breakpoint &bp)
         d->setExceptionBreak(AllExceptions, requested.enabled);
 
     } else if (requested.type == BreakpointByFileAndLine) {
-        d->setBreakpoint(SCRIPTREGEXP, requested.fileName,
+        d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toString(),
                          requested.enabled, requested.lineNumber, 0,
                          requested.condition, requested.ignoreCount);
 
@@ -735,7 +738,7 @@ void QmlEngine::updateBreakpoint(const Breakpoint &bp)
         d->changeBreakpoint(bp, requested.enabled);
     } else {
         d->clearBreakpoint(bp);
-        d->setBreakpoint(SCRIPTREGEXP, requested.fileName,
+        d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toString(),
                          requested.enabled, requested.lineNumber, 0,
                          requested.condition, requested.ignoreCount);
         d->breakpointsSync.insert(d->sequence, bp);
@@ -1855,7 +1858,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                             clearBreakpoint(bp);
                             setBreakpoint(SCRIPTREGEXP,
-                                          params.fileName,
+                                          params.fileName.toString(),
                                           params.enabled,
                                           params.lineNumber,
                                           newColumn,

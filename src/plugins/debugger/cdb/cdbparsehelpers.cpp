@@ -82,10 +82,10 @@ static inline QString cdbBreakPointFileName(const BreakpointParameters &params,
                                             const QList<QPair<QString, QString> > &sourcePathMapping)
 {
     if (params.fileName.isEmpty())
-        return params.fileName;
+        return {};
     if (params.pathUsage == BreakpointUseShortPath)
-        return Utils::FilePath::fromString(params.fileName).fileName();
-    return cdbSourcePathMapping(QDir::toNativeSeparators(params.fileName), sourcePathMapping, SourceToDebugger);
+        return params.fileName.fileName();
+    return cdbSourcePathMapping(params.fileName.toUserOutput(), sourcePathMapping, SourceToDebugger);
 }
 
 static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
@@ -250,7 +250,8 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointParameters *r,
         r->module = moduleG.data();
     const GdbMi sourceFileName = gdbmi["srcfile"];
     if (sourceFileName.isValid()) {
-        r->fileName = Utils::FileUtils::normalizePathName(sourceFileName.data());
+        r->fileName = Utils::FilePath::fromUserInput(
+            Utils::FileUtils::normalizePathName(sourceFileName.data()));
         const GdbMi lineNumber = gdbmi["srcline"];
         if (lineNumber.isValid())
             r->lineNumber = lineNumber.data().toULongLong(nullptr, 0);

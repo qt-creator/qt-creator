@@ -672,9 +672,9 @@ public:
                 message = tr("0x%1 hit").arg(data.address, 0, 16);
             } else {
                 //: Message tracepoint: %1 file, %2 line %3 function hit.
-                message = tr("%1:%2 %3() hit").arg(FilePath::fromString(data.fileName).fileName()).
+                message = tr("%1:%2 %3() hit").arg(data.fileName.fileName()).
                         arg(data.lineNumber).
-                        arg(cppFunctionAt(data.fileName, data.lineNumber));
+                        arg(cppFunctionAt(data.fileName.toString(), data.lineNumber));
             }
             QInputDialog dialog; // Create wide input dialog.
             dialog.setWindowFlags(dialog.windowFlags()
@@ -1927,7 +1927,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             // Disassemble current function in stopped state.
             if (engine->hasCapability(DisassemblerCapability)) {
                 StackFrame frame;
-                frame.function = cppFunctionAt(args.fileName, lineNumber, 1);
+                frame.function = cppFunctionAt(args.fileName.toString(), lineNumber, 1);
                 frame.line = 42; // trick gdb into mixed mode.
                 if (!frame.function.isEmpty()) {
                     const QString text = tr("Disassemble Function \"%1\"")
