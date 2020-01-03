@@ -10,6 +10,10 @@ HEADERS += \\
         %{GlobalHdrFileName} \\
         %{ConstantsHdrFileName}
 
+DISTFILES += \\
+        .github/workflow/build_qmake.yml \\
+        .github/workflow/README.md
+
 # Qt Creator linking
 
 ## Either set the IDE_SOURCE_TREE when running qmake,

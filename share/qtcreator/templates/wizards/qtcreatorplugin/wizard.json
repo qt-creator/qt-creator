@@ -14,7 +14,7 @@
     [
         { "key": "ProjectFile", "value": "%{ProFile}" },
         { "key": "PluginNameLower", "value": "%{JS: value('PluginName').toLowerCase()}"},
-        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('PluginNameLower'), 'pro')}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('PluginNameLower'), 'pro')}" },
         { "key": "PluginJsonFile", "value": "%{JS: Util.fileName(value('PluginName'), 'json.in')}" },
         { "key": "LibraryDefine", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_LIBRARY'}" },
         { "key": "LibraryExport", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_EXPORT'}" },
@@ -188,6 +188,14 @@
                     "source": "myplugin.pro",
                     "target": "%{ProFile}",
                     "openAsProject": true
+                },
+                {
+                    "source": "github_workflow_build_qmake.yml",
+                    "target": ".github/workflow/build_qmake.yml"
+                },
+                {
+                    "source": "github_workflow_README.md",
+                    "target": ".github/workflow/README.md"
                 },
                 {
                     "source": "myplugin.cpp",

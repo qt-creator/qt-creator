@@ -41,6 +41,10 @@ class UtilsJsExtension : public QObject
 public:
     UtilsJsExtension(QObject *parent = nullptr) : QObject(parent) { }
 
+    // General information
+    Q_INVOKABLE QString qtVersion() const;
+    Q_INVOKABLE QString qtCreatorVersion() const;
+
     // File name conversions:
     Q_INVOKABLE QString toNativeSeparators(const QString &in) const;
     Q_INVOKABLE QString fromNativeSeparators(const QString &in) const;
