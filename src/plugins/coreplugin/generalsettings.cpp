@@ -28,6 +28,8 @@
 #include "icore.h"
 #include "infobar.h"
 
+#include <coreplugin/dialogs/restartdialog.h>
+
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
@@ -199,9 +201,11 @@ QString GeneralSettings::language() const
 void GeneralSettings::setLanguage(const QString &locale)
 {
     QSettings *settings = ICore::settings();
-    if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale)
-        QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
-                                 tr("The language change will take effect after restart."));
+    if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale) {
+        RestartDialog dialog(ICore::dialogParent(),
+                             tr("The language change will take effect after restart."));
+        dialog.exec();
+    }
 
     if (locale.isEmpty())
         settings->remove(QLatin1String("General/OverrideLanguage"));

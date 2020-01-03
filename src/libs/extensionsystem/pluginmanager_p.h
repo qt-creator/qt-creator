@@ -118,6 +118,7 @@ public:
     QEventLoop *shutdownEventLoop = nullptr; // used for async shutdown
 
     QStringList arguments;
+    QStringList argumentsForRestart;
     QScopedPointer<QElapsedTimer> m_profileTimer;
     QHash<const PluginSpec *, int> m_profileTotal;
     int m_profileElapsedMS = 0;

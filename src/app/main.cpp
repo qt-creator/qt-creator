@@ -32,6 +32,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -56,6 +57,7 @@
 
 #include <QApplication>
 #include <QMessageBox>
+#include <QProcess>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 
@@ -356,6 +358,9 @@ struct Options
     QString settingsPath;
     QString installSettingsPath;
     QStringList customPluginPaths;
+    // list of arguments that were handled and not passed to the application or plugin manager
+    QStringList preAppArguments;
+    // list of arguments to be passed to the application or plugin manager
     std::vector<char *> appArguments;
     Utils::optional<QString> userLibraryPath;
     bool hasTestOption = false;
@@ -375,17 +380,22 @@ Options parseCommandLine(int argc, char *argv[])
         if (arg == SETTINGS_OPTION && hasNext) {
             ++it;
             options.settingsPath = QDir::fromNativeSeparators(nextArg);
+            options.preAppArguments << arg << nextArg;
         } else if (arg == INSTALL_SETTINGS_OPTION && hasNext) {
             ++it;
             options.installSettingsPath = QDir::fromNativeSeparators(nextArg);
+            options.preAppArguments << arg << nextArg;
         } else if (arg == PLUGINPATH_OPTION && hasNext) {
             ++it;
             options.customPluginPaths += QDir::fromNativeSeparators(nextArg);
+            options.preAppArguments << arg << nextArg;
         } else if (arg == USER_LIBRARY_PATH_OPTION && hasNext) {
             ++it;
             options.userLibraryPath = nextArg;
+            options.preAppArguments << arg << nextArg;
         } else if (arg == TEMPORARY_CLEAN_SETTINGS1 || arg == TEMPORARY_CLEAN_SETTINGS2) {
             options.wantsCleanSettings = true;
+            options.preAppArguments << arg;
         } else { // arguments that are still passed on to the application
             if (arg == TEST_OPTION)
                 options.hasTestOption = true;
@@ -396,8 +406,49 @@ Options parseCommandLine(int argc, char *argv[])
     return options;
 }
 
+class Restarter
+{
+public:
+    Restarter(int argc, char *argv[])
+    {
+        Q_UNUSED(argc)
+        m_executable = QString::fromLocal8Bit(argv[0]);
+        m_workingPath = QDir::currentPath();
+    }
+
+    void setArguments(const QStringList &args) { m_args = args; }
+
+    QStringList arguments() const { return m_args; }
+
+    int restartOrExit(int exitCode)
+    {
+        return qApp->property("restart").toBool() ? restart(exitCode) : exitCode;
+    }
+
+    int restart(int exitCode)
+    {
+        QProcess::startDetached(m_executable, m_args, m_workingPath);
+        return exitCode;
+    }
+
+private:
+    QString m_executable;
+    QStringList m_args;
+    QString m_workingPath;
+};
+
+QStringList lastSessionArgument()
+{
+    // using insider information here is not particularly beautiful, anyhow
+    const bool hasProjectExplorer = Utils::anyOf(PluginManager::plugins(),
+                                                 Utils::equal(&PluginSpec::name,
+                                                              QString("ProjectExplorer")));
+    return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
+}
+
 int main(int argc, char **argv)
 {
+    Restarter restarter(argc, argv);
     Utils::Environment::systemEnvironment(); // cache system environment before we do any changes
 
     // Manually determine various command line options
@@ -553,6 +604,8 @@ int main(int argc, char **argv)
             return -1;
         }
     }
+    restarter.setArguments(options.preAppArguments + PluginManager::argumentsForRestart()
+                           + lastSessionArgument());
 
     const PluginSpecSet plugins = PluginManager::plugins();
     PluginSpec *coreplugin = nullptr;
@@ -638,5 +691,5 @@ int main(int argc, char **argv)
     // shutdown plugin manager on the exit
     QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, &PluginManager::shutdown);
 
-    return app.exec();
+    return restarter.restartOrExit(app.exec());
 }

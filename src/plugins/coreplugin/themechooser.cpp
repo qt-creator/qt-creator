@@ -28,6 +28,8 @@
 #include "manhattanstyle.h"
 #include "themechooser.h"
 
+#include "dialogs/restartdialog.h"
+
 #include <utils/algorithm.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
@@ -178,11 +180,11 @@ void ThemeChooser::apply()
     QSettings *settings = ICore::settings();
     const QString currentThemeId = ThemeEntry::themeSetting().toString();
     if (currentThemeId != themeId) {
-        QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
-                                 tr("The theme change will take effect after restart."));
-
         // save filename of selected theme in global config
         settings->setValue(QLatin1String(Constants::SETTINGS_THEME), themeId);
+        RestartDialog restartDialog(ICore::dialogParent(),
+                                    tr("The theme change will take effect after restart."));
+        restartDialog.exec();
     }
 }
 

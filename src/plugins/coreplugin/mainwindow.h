@@ -108,6 +108,8 @@ public:
 
     void saveSettings();
 
+    void restart();
+
 public slots:
     void openFileWith();
     void exit();

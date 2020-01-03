@@ -106,6 +106,7 @@ public:
 
     // command line arguments
     static QStringList arguments();
+    static QStringList argumentsForRestart();
     static bool parseOptions(const QStringList &args,
         const QMap<QString, bool> &appOptions,
         QMap<QString, QString> *foundAppOptions,

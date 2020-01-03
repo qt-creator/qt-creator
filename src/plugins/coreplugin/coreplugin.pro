@@ -101,6 +101,7 @@ SOURCES += corejsextensions.cpp \
     documentmanager.cpp \
     iversioncontrol.cpp \
     dialogs/addtovcsdialog.cpp \
+    dialogs/restartdialog.cpp \
     ioutputpane.cpp \
     patchtool.cpp \
     windowsupport.cpp \
@@ -216,6 +217,7 @@ HEADERS += corejsextensions.h \
     textdocument.h \
     documentmanager.h \
     dialogs/addtovcsdialog.h \
+    dialogs/restartdialog.h \
     patchtool.h \
     windowsupport.h \
     opendocumentstreeview.h \

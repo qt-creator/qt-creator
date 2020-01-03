@@ -153,6 +153,8 @@ public:
         MainWindowClosing,
     };
 
+    static void restart();
+
 public slots:
     static void saveSettings(SaveSettingsReason reason);
 

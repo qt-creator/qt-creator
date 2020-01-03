@@ -710,6 +710,11 @@ void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
         new ScreenShooter(w, name, rc);
 }
 
+void ICore::restart()
+{
+    m_mainwindow->restart();
+}
+
 void ICore::saveSettings(SaveSettingsReason reason)
 {
     emit m_instance->saveSettingsRequested(reason);

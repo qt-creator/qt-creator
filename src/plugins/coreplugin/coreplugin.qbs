@@ -216,6 +216,7 @@ Project {
                 "openwithdialog.cpp", "openwithdialog.h", "openwithdialog.ui",
                 "promptoverwritedialog.cpp", "promptoverwritedialog.h",
                 "readonlyfilesdialog.cpp", "readonlyfilesdialog.h", "readonlyfilesdialog.ui",
+                "restartdialog.cpp", "restartdialog.h",
                 "saveitemsdialog.cpp", "saveitemsdialog.h", "saveitemsdialog.ui",
                 "settingsdialog.cpp", "settingsdialog.h",
                 "shortcutsettings.cpp", "shortcutsettings.h",

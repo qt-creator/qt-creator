@@ -537,6 +537,17 @@ QStringList PluginManager::arguments()
 }
 
 /*!
+    The arguments that should be used when automatically restarting the application.
+    This includes plugin manager related options for enabling or disabling plugins,
+    but excludes others, like the arguments returned by arguments() and the appOptions
+    passed to the parseOptions() method.
+*/
+QStringList PluginManager::argumentsForRestart()
+{
+    return d->argumentsForRestart;
+}
+
+/*!
     List of all plugin specifications that have been found in the plugin search paths.
     This list is valid directly after the setPluginPaths() call.
     The plugin specifications contain the information from the plugins' xml description files
