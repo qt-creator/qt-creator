@@ -48,11 +48,16 @@ using namespace CppTools;
 namespace ClangTools {
 namespace Internal {
 
+static bool isClMode(const QStringList &options)
+{
+    return options.contains("--driver-mode=cl");
+}
+
 static QStringList serializeDiagnosticsArguments(const QStringList &baseOptions,
                                                  const QString &outputFilePath)
 {
     const QStringList serializeArgs{"-serialize-diagnostics", outputFilePath};
-    if (baseOptions.contains("--driver-mode=cl"))
+    if (isClMode(baseOptions))
         return clangArgsForCl(serializeArgs);
     return serializeArgs;
 }
@@ -102,7 +107,8 @@ static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
 {
     QStringList arguments;
     arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
-              << diagnosticConfig.clangOptions()
+              << (isClMode(baseOptions) ? CppTools::clangArgsForCl(diagnosticConfig.clangOptions())
+                                        : diagnosticConfig.clangOptions())
               << baseOptions;
 
     if (LOG().isDebugEnabled())

@@ -441,6 +441,7 @@ public:
     {
         // Determine the driver mode from toolchain and flags.
         m_builder.evaluateCompilerFlags();
+        m_isClMode = m_builder.isClStyle();
 
         addLanguageOptions();
         addGlobalDiagnosticOptions(); // Before addDiagnosticOptions() so users still can overwrite.
@@ -498,7 +499,10 @@ private:
                                        ? CppTools::UseBuildSystemWarnings::Yes
                                        : CppTools::UseBuildSystemWarnings::No;
 
-        m_options.append(diagnosticConfig.clangOptions());
+        const QStringList options = m_isClMode
+                                        ? CppTools::clangArgsForCl(diagnosticConfig.clangOptions())
+                                        : diagnosticConfig.clangOptions();
+        m_options.append(options);
     }
 
     void addGlobalDiagnosticOptions()
@@ -537,6 +541,7 @@ private:
     Core::Id m_diagnosticConfigId;
     CppTools::UseBuildSystemWarnings m_useBuildSystemWarnings = CppTools::UseBuildSystemWarnings::No;
     CppTools::CompilerOptionsBuilder m_builder;
+    bool m_isClMode = false;
     QStringList m_options;
 };
 } // namespace

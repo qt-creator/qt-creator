@@ -69,6 +69,7 @@ public:
     void addExtraCodeModelFlags();
     void addPicIfCompilerFlagsContainsIt();
     void addCompilerFlags();
+    void enableExceptions();
     void insertWrappedQtHeaders();
     void addLanguageVersionAndExtensions();
     void updateFileLanguage(ProjectFile::Kind fileKind);

@@ -444,6 +444,22 @@ TEST_F(CompilerOptionsBuilder, AddTargetTriple)
     ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("--target=x86_64-apple-darwin10"));
 }
 
+TEST_F(CompilerOptionsBuilder, EnableCExceptions)
+{
+    projectPart.languageVersion = Utils::LanguageVersion::C99;
+
+    compilerOptionsBuilder.enableExceptions();
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-fexceptions"));
+}
+
+TEST_F(CompilerOptionsBuilder, EnableCXXExceptions)
+{
+    compilerOptionsBuilder.enableExceptions();
+
+    ASSERT_THAT(compilerOptionsBuilder.options(), ElementsAre("-fcxx-exceptions", "-fexceptions"));
+}
+
 TEST_F(CompilerOptionsBuilder, InsertWrappedQtHeaders)
 {
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder{projectPart,
@@ -601,6 +617,8 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
                             "-x",
                             "c++",
                             "-std=c++17",
+                            "-fcxx-exceptions",
+                            "-fexceptions",
                             "-DprojectFoo=projectBar",
                             "-I", IsPartOfHeader("wrappedQtHeaders"),
                             "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
@@ -632,6 +650,8 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
                             "--target=x86_64-apple-darwin10",
                             "/TP",
                             "/std:c++17",
+                            "-fcxx-exceptions",
+                            "-fexceptions",
                             "-fms-compatibility-version=19.00",
                             "-DprojectFoo=projectBar",
                             "-D__FUNCSIG__=\"\"",

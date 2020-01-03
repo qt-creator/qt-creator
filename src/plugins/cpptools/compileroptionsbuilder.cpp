@@ -138,6 +138,7 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addTargetTriple();
     updateFileLanguage(fileKind);
     addLanguageVersionAndExtensions();
+    enableExceptions();
 
     addPrecompiledHeaderOptions(usePrecompiledHeaders);
     addProjectConfigFileInclude();
@@ -270,6 +271,17 @@ void CompilerOptionsBuilder::addPicIfCompilerFlagsContainsIt()
 void CompilerOptionsBuilder::addCompilerFlags()
 {
     add(m_compilerFlags.flags);
+}
+
+void CompilerOptionsBuilder::enableExceptions()
+{
+    // With "--driver-mode=cl" exceptions are disabled (clang 8).
+    // This is most likely due to incomplete exception support of clang.
+    // However, as we need exception support only in the frontend,
+    // enabling them explicitly should be fine.
+    if (m_projectPart.languageVersion > ::Utils::LanguageVersion::LatestC)
+        add("-fcxx-exceptions");
+    add("-fexceptions");
 }
 
 static QString creatorResourcePath()

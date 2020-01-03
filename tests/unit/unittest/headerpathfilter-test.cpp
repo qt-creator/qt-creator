@@ -245,7 +245,8 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
                             HasBuiltIn("/builtin_path")));
 }
 
-// Include paths below the installation dir should be removed as they confuse clang.
+// GCC-internal include paths like <installdir>/include and <installdir/include-next> might confuse
+// clang and should be filtered out. clang on the command line filters them out, too.
 TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
 {
     projectPart.toolChainInstallDir = Utils::FilePath::fromUtf8("/usr/lib/gcc/x86_64-linux-gnu/7");
@@ -264,7 +265,8 @@ TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
     ASSERT_THAT(filter.builtInHeaderPaths, ElementsAre(HasBuiltIn(CLANG_RESOURCE_DIR)));
 }
 
-// MinGW ships the standard library headers in "<installdir>/include/c++".
+// Some distributions ship the standard library headers in "<installdir>/include/c++" (MinGW)
+// or e.g. "<installdir>/include/g++-v8" (Gentoo).
 // Ensure that we do not remove include paths pointing there.
 TEST_F(HeaderPathFilter, RemoveGccInternalPathsExceptForStandardPaths)
 {

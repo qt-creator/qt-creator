@@ -467,7 +467,7 @@ void addCompileGroups(ProjectNode *targetRoot,
         if (sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
             buildFileNodes.emplace_back(std::move(node));
         } else if (sourcePath.isChildOf(sourceDirectory)) {
-            sourceGroupNodes[si.sourceGroup]->addNode(std::move(node));
+            sourceGroupNodes[si.sourceGroup]->addNestedNode(std::move(node));
         } else {
             otherFileNodes.emplace_back(std::move(node));
         }
