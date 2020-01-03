@@ -148,7 +148,6 @@ public:
     GlobalBreakpointMarker(GlobalBreakpoint gbp, const FilePath &fileName, int lineNumber)
         : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_gbp(gbp)
     {
-        setColor(Theme::Debugger_Breakpoint_TextMarkColor);
         setDefaultToolTip(QApplication::translate("BreakHandler", "Breakpoint"));
         setPriority(TextEditor::TextMark::NormalPriority);
         setIcon(m_gbp->icon());
