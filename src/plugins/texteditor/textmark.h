@@ -30,6 +30,7 @@
 #include <coreplugin/id.h>
 #include <utils/theme/theme.h>
 #include <utils/fileutils.h>
+#include <utils/optional.h>
 
 #include <QIcon>
 #include <QVector>
@@ -108,9 +109,8 @@ public:
     double widthFactor() const;
     void setWidthFactor(double factor);
 
-    Utils::Theme::Color color() const;
+    Utils::optional<Utils::Theme::Color> color() const;
     void setColor(const Utils::Theme::Color &color);
-    bool hasColor() const { return m_hasColor; }
 
     QString defaultToolTip() const { return m_defaultToolTip; }
     void setDefaultToolTip(const QString &toolTip) { m_defaultToolTip = toolTip; }
@@ -135,9 +135,8 @@ private:
     int m_lineNumber = 0;
     Priority m_priority = LowPriority;
     QIcon m_icon;
-    Utils::Theme::Color m_color = Utils::Theme::TextColorNormal;
+    Utils::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
-    bool m_hasColor = false;
     Core::Id m_category;
     double m_widthFactor = 1.0;
     QString m_lineAnnotation;
