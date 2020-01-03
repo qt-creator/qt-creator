@@ -41,21 +41,21 @@
 
 namespace Utils {
 
-#define WINDOWS_DEVICES "CON|AUX|PRN|COM1|COM2|LPT1|LPT2|NUL"
+#define WINDOWS_DEVICES_PATTERN "(CON|AUX|PRN|NUL|COM[1-9]|LPT[1-9])(\\..*)?"
 
 // Naming a file like a device name will break on Windows, even if it is
 // "com1.txt". Since we are cross-platform, we generally disallow such file
 //  names.
 static const QRegExp &windowsDeviceNoSubDirPattern()
 {
-    static const QRegExp rc(QLatin1String(WINDOWS_DEVICES), Qt::CaseInsensitive);
+    static const QRegExp rc(QLatin1String(WINDOWS_DEVICES_PATTERN), Qt::CaseInsensitive);
     QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }
 
 static const QRegExp &windowsDeviceSubDirPattern()
 {
-    static const QRegExp rc(QLatin1String(".*[/\\\\](" WINDOWS_DEVICES ")"), Qt::CaseInsensitive);
+    static const QRegExp rc(QLatin1String(".*[/\\\\]" WINDOWS_DEVICES_PATTERN), Qt::CaseInsensitive);
     QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }
@@ -140,8 +140,10 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         matchesWinDevice = windowsDeviceSubDirPattern().exactMatch(name);
     if (matchesWinDevice) {
         if (errorMessage)
-            *errorMessage = tr("Name matches MS Windows device. (%1).").
-                            arg(windowsDeviceNoSubDirPattern().pattern().replace(QLatin1Char('|'), QLatin1Char(',')));
+            *errorMessage = tr("Name matches MS Windows device"
+                               " (CON, AUX, PRN, NUL,"
+                               " COM1, COM2, ..., COM9,"
+                               " LPT1, LPT2, ..., LPT9)");
         return false;
     }
     return true;
