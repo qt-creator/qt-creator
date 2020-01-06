@@ -96,7 +96,7 @@ void ToolTip::show(const QPoint &pos,
     } else {
         if (contextHelp.isNull()) {
             instance()->showInternal(pos,
-                                     qVariantFromValue(TextItem(content, format)),
+                                     QVariant::fromValue(TextItem(content, format)),
                                      TextContent,
                                      w,
                                      contextHelp,
