@@ -9,6 +9,7 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
+    Depends { name: "QmlProjectManager" }
     Depends { name: "QtSupport" }
     Depends { name: "ResourceEditor" }
     Depends { name: "Utils" }

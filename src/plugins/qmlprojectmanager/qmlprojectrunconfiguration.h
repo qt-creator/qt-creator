@@ -28,11 +28,13 @@
 #include "qmlprojectmanager_global.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
 
+namespace ProjectExplorer {
+class BaseStringAspect;
+}
 namespace QmlProjectManager {
 
-class MainQmlFileAspect;
+class QmlMainFileAspect;
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -50,8 +52,8 @@ private:
     Utils::FilePath qmlScenePath() const;
     QString commandLineArguments() const;
 
-    ProjectExplorer::BaseStringAspect *m_qmlViewerAspect;
-    MainQmlFileAspect *m_mainQmlFileAspect;
+    ProjectExplorer::BaseStringAspect *m_qmlViewerAspect = nullptr;
+    QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
 };
 
 namespace Internal {

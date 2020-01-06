@@ -10,4 +10,5 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     qmljstools \
     qtsupport \
-    resourceeditor
+    resourceeditor \
+    qmlprojectmanager
