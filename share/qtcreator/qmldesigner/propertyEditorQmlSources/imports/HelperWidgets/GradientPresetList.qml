@@ -25,42 +25,43 @@
 
 import QtQuick 2.11
 import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.5
 import QtQuick.Dialogs 1.3
 
 import HelperWidgets 2.0
 import QtQuickDesignerTheme 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Dialog {
     id: dialogWindow
     width: 1200
     height: 650
-    title: "Gradient Picker"
+    title: qsTr("Gradient Picker")
 
-    signal saved;
-    property alias gradientData: gradientPickerData;
+    signal saved
+    property alias gradientData: gradientPickerData
 
 
     QtObject {
         id: gradientPickerData
-        property var stops;
-        property var colors;
-        property int stopsCount;
-        property int presetID;
-        property int presetType; //default(0) or custom(1)
-        property Item selectedItem;
+        property var stops
+        property var colors
+        property int stopsCount
+        property int presetID
+        property int presetType // default(0) or custom(1)
+        property Item selectedItem
     }
 
     function addGradient(stopsPositions, stopsColors, stopsCount) {
-        customPresetListModel.addGradient(stopsPositions, stopsColors, stopsCount);
+        customPresetListModel.addGradient(stopsPositions, stopsColors, stopsCount)
     }
 
     function updatePresets() {
-        customPresetListModel.readPresets();
+        customPresetListModel.readPresets()
     }
 
-    GradientPresetDefaultListModel { id: defaultPresetListModel; }
-    GradientPresetCustomListModel { id: customPresetListModel; }
+    GradientPresetDefaultListModel { id: defaultPresetListModel }
+    GradientPresetCustomListModel { id: customPresetListModel }
 
     standardButtons: Dialog.NoButton
 
@@ -68,27 +69,30 @@ Dialog {
         anchors.fill: parent
         anchors.margins: -12
         anchors.bottomMargin: -70
-        color: "#363636"
+        color: StudioTheme.Values.themeColumnBackground
+
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 13
             anchors.bottomMargin: 71
+
             TabView {
                 id: presetTabView
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.fillHeight: true
                 Layout.fillWidth: true
+
                 Tab {
                     title: qsTr("System Presets")
-                    anchors.fill:parent
+                    anchors.fill: parent
 
                     GradientPresetTabContent {
                         id: defaultTabContent
                         viewModel: defaultPresetListModel
                         editableName: false
                     }
+                }
 
-                } //tab default
                 Tab {
                     title: qsTr("User Presets")
                     anchors.fill: parent
@@ -97,11 +101,12 @@ Dialog {
                         id: customTabContent
                         viewModel: customPresetListModel
                         editableName: true
-                        onPresetNameChanged: customPresetListModel.changePresetName(id, name);
-                        property int deleteId;
+                        onPresetNameChanged: customPresetListModel.changePresetName(id, name)
+
+                        property int deleteId
 
                         onDeleteButtonClicked: {
-                            deleteId = id;
+                            deleteId = id
                             deleteDialog.open()
                         }
 
@@ -112,11 +117,12 @@ Dialog {
                             standardButtons: Dialog.No | Dialog.Yes
                             title: qsTr("Delete preset?")
                             text: qsTr("Are you sure you want to delete this preset?")
-                            onAccepted: customPresetListModel.deletePreset(customTabContent.deleteId);
+                            onAccepted: customPresetListModel.deletePreset(customTabContent.deleteId)
                         }
                     }
-                } //tab custom
-            } //tabview
+                }
+            }
+
             RowLayout {
                 Layout.alignment: Qt.AlignBottom | Qt.AlignRight
                 Layout.topMargin: 5
@@ -124,7 +130,7 @@ Dialog {
                 Button { id: buttonClose; text: qsTr("Close"); onClicked: { dialogWindow.reject(); } }
                 Button { id: buttonSave; text: qsTr("Save"); onClicked: { dialogWindow.saved(); } }
                 Button { id: buttonApply; text: qsTr("Apply"); onClicked: { dialogWindow.apply(); } }
-            } //RowLayout
-        } //ColumnLayout
-    } //rectangle
-} //dialog
+            }
+        }
+    }
+}
