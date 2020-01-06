@@ -26,6 +26,7 @@ Product {
     }
     cpp.optimization: "fast"
     cpp.warningLevel: "none"
+    cpp.cxxLanguageVersion: "c++14"
 
     Export {
         Depends { name: "cpp" }
