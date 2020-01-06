@@ -44,8 +44,10 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_NAMESPACE
 class QPointF;
 class QQuickItem;
+QT_END_NAMESPACE
 
 class Tooltip : public QObject
 {
