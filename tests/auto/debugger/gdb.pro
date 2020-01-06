@@ -8,6 +8,25 @@ INCLUDEPATH += $$DEBUGGERDIR
 
 SOURCES += \
     tst_gdb.cpp \
-    $$DEBUGGERDIR/debuggerprotocol.cpp \
-    $$UTILSDIR/processhandle.cpp
+    $$UTILSDIR/environment.cpp \
+    $$UTILSDIR/fileutils.cpp \
+    $$UTILSDIR/hostosinfo.cpp \
+    $$UTILSDIR/namevaluedictionary.cpp \
+    $$UTILSDIR/namevalueitem.cpp \
+    $$UTILSDIR/qtcassert.cpp \
+    $$UTILSDIR/qtcprocess.cpp \
+    $$UTILSDIR/processhandle.cpp \
+    $$UTILSDIR/savefile.cpp \
+    $$DEBUGGERDIR/debuggerprotocol.cpp
 
+HEADERS += \
+    $$UTILSDIR/environment.h \
+    $$UTILSDIR/fileutils.h \
+    $$UTILSDIR/hostosinfo.h \
+    $$UTILSDIR/namevaluedictionary.h \
+    $$UTILSDIR/namevalueitem.h \
+    $$UTILSDIR/qtcassert.h \
+    $$UTILSDIR/qtcprocess.h \
+    $$UTILSDIR/processhandle.h \
+    $$UTILSDIR/savefile.h \
+    $$DEBUGGERDIR/debuggerprotocol.h
