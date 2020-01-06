@@ -12,7 +12,7 @@ Project {
         Depends {
             name: "Qt";
             submodules: [
-                "core-private", "quickwidgets"
+                "core-private", "gui-private", "quickwidgets"
             ]
         }
         Depends { name: "Core" }
