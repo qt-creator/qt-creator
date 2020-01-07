@@ -35,6 +35,8 @@
 
 #include <memory>
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 QT_BEGIN_NAMESPACE
 class Ui_AndroidSettingsWidget;
 QT_END_NAMESPACE
@@ -64,17 +66,19 @@ private:
     AndroidDeviceInfoList m_list;
 };
 
-class AndroidSettingsWidget : public QWidget
+class AndroidSettingsWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 public:
     // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
-    AndroidSettingsWidget(QWidget *parent = nullptr);
-    ~AndroidSettingsWidget() override;
-
-    void saveSettings();
+    AndroidSettingsWidget();
+    ~AndroidSettingsWidget() final;
 
 private:
+    void apply() final { saveSettings(); }
+    void finish() final {}
+
+    void saveSettings();
     void validateJdk();
     void validateNdk();
     void onSdkPathChanged();
@@ -94,7 +98,6 @@ private:
     void updateUI();
     void updateAvds();
 
-private:
     void startUpdateAvd();
     void enableAvdControls();
     void disableAvdControls();

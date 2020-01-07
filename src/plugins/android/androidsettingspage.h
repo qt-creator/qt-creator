@@ -27,12 +27,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace Android {
 namespace Internal {
-
-class AndroidSettingsWidget;
 
 class AndroidSettingsPage : public Core::IOptionsPage
 {
@@ -40,13 +36,6 @@ class AndroidSettingsPage : public Core::IOptionsPage
 
 public:
     AndroidSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<AndroidSettingsWidget> m_widget;
 };
 
 } // namespace Internal

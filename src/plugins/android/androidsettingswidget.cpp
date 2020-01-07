@@ -216,9 +216,8 @@ int AvdModel::columnCount(const QModelIndex &/*parent*/) const
     return 3;
 }
 
-AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
-    : QWidget(parent),
-      m_ui(new Ui_AndroidSettingsWidget),
+AndroidSettingsWidget::AndroidSettingsWidget()
+    : m_ui(new Ui_AndroidSettingsWidget),
       m_androidConfig(AndroidConfigurations::currentConfig()),
       m_avdManager(new AndroidAvdManager(m_androidConfig)),
       m_sdkManager(new AndroidSdkManager(m_androidConfig))

@@ -27,13 +27,8 @@
 
 #include "androidsettingswidget.h"
 #include "androidconstants.h"
-#include "androidtoolchain.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchainmanager.h>
-
-#include <QCoreApplication>
-
-using namespace ProjectExplorer;
 
 namespace Android {
 namespace Internal {
@@ -43,24 +38,7 @@ AndroidSettingsPage::AndroidSettingsPage()
     setId(Constants::ANDROID_SETTINGS_ID);
     setDisplayName(tr("Android"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-}
-
-QWidget *AndroidSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new AndroidSettingsWidget;
-    return m_widget;
-}
-
-void AndroidSettingsPage::apply()
-{
-    if (m_widget)
-        m_widget->saveSettings();
-}
-
-void AndroidSettingsPage::finish()
-{
-    delete m_widget;
+    setWidgetCreator([] { return new AndroidSettingsWidget; });
 }
 
 } // namespace Internal
