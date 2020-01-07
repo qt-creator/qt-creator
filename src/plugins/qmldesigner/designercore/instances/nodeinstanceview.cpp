@@ -30,7 +30,6 @@
 #include <metainfo.h>
 #include <nodehints.h>
 #include <rewriterview.h>
-#include "qmldesignerplugin.h"
 #include "abstractproperty.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
@@ -73,9 +72,13 @@
 #include "nodeinstanceserverproxy.h"
 #include "puppettocreatorcommand.h"
 
+#ifndef QMLDESIGNER_TEST
+#include <qmldesignerplugin.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
+#endif
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -1477,6 +1480,7 @@ void NodeInstanceView::handlePuppetKeyPress(int key, Qt::KeyboardModifiers modif
     // it should be utilized and the rest of the method deleted
 //    QCoreApplication::postEvent([receiver], new QKeyEvent(QEvent::KeyPress, key, modifiers));
 
+#ifndef QMLDESIGNER_TEST
     // handle common keyboard actions coming from puppet
     if (Core::ActionManager::command(Core::Constants::UNDO)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
         QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
@@ -1490,6 +1494,10 @@ void NodeInstanceView::handlePuppetKeyPress(int key, Qt::KeyboardModifiers modif
         Core::DocumentManager::saveAllModifiedDocuments();
     else if (Core::ActionManager::command(QmlDesigner::Constants::C_DELETE)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
         QmlDesignerPlugin::instance()->currentDesignDocument()->deleteSelected();
+#else
+    Q_UNUSED(key);
+    Q_UNUSED(modifiers);
+#endif
 }
 
 void NodeInstanceView::view3DClosed(const View3DClosedCommand &command)
