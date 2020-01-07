@@ -449,12 +449,12 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
 }
 
-static FilePath rootPathFromSettings(const FilePath &projectDirectory)
+Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
 {
 #ifdef WITH_TESTS
-    return FilePath::fromString(projectDirectory.fileName());
+    return Utils::FilePath::fromString(projectDirectory().fileName());
 #else
-    return FilePath::fromString(
+    return Utils::FilePath::fromString(
         namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
 #endif
 }
@@ -465,9 +465,7 @@ void CompilationDatabaseBuildSystem::reparseProject()
         QTC_CHECK(isParsing());
         m_parser->stop();
     }
-
-    const FilePath rootPath = rootPathFromSettings(projectDirectory());
-
+    const FilePath rootPath = static_cast<CompilationDatabaseProject *>(project())->rootPathFromSettings();
     m_parser = new CompilationDbParser(project()->displayName(),
                                        projectFilePath(),
                                        rootPath,

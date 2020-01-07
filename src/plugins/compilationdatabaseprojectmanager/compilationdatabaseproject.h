@@ -58,6 +58,7 @@ public:
 
     bool needsConfiguration() const override { return false; }
 
+    Utils::FilePath rootPathFromSettings() const;
     ProjectExplorer::Kit *kit() const { return m_kit.get(); }
 
 private:
