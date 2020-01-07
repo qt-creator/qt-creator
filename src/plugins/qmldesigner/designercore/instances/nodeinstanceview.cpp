@@ -42,10 +42,7 @@
 #include "qmltimeline.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
-#include "coreplugin/actionmanager/actionmanager.h"
-#include "coreplugin/editormanager/editormanager.h"
-#include "coreplugin/documentmanager.h"
-#include "plugins/qmldesigner/qmldesignerconstants.h"
+#include "qmldesignerconstants.h"
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
 #include "clearscenecommand.h"
@@ -76,6 +73,9 @@
 #include "nodeinstanceserverproxy.h"
 #include "puppettocreatorcommand.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/documentmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
