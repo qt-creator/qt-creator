@@ -53,21 +53,23 @@ static bool cMakeAvailable()
     return !CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty();
 }
 
-class McuSupportOptionsWidget : public QWidget
+class McuSupportOptionsWidget : public Core::IOptionsPageWidget
 {
 public:
-    McuSupportOptionsWidget(const McuSupportOptions *options, QWidget *parent = nullptr);
+    McuSupportOptionsWidget();
 
     void updateStatus();
     void showMcuTargetPackages();
     McuTarget *currentMcuTarget() const;
 
-protected:
-    void showEvent(QShowEvent *event) override;
-
 private:
+    void apply() final;
+    void finish() final {}
+
+    void showEvent(QShowEvent *event) final;
+
     QString m_armGccPath;
-    const McuSupportOptions *m_options;
+    McuSupportOptions m_options;
     QMap <McuPackage*, QWidget*> m_packageWidgets;
     QMap <McuTarget*, QWidget*> m_mcuTargetPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
@@ -75,9 +77,7 @@ private:
     QComboBox *m_mcuTargetComboBox = nullptr;
 };
 
-McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *options, QWidget *parent)
-    : QWidget(parent)
-    , m_options(options)
+McuSupportOptionsWidget::McuSupportOptionsWidget()
 {
     auto mainLayout = new QVBoxLayout(this);
 
@@ -88,8 +88,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     mcuTargetChooserLabel->setBuddy(m_mcuTargetComboBox);
     mcuTargetChooserLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     m_mcuTargetComboBox->addItems(
-                Utils::transform<QStringList>(m_options->mcuTargets, [this](McuTarget *t){
-                    return m_options->kitName(t);
+                Utils::transform<QStringList>(m_options.mcuTargets, [this](McuTarget *t){
+                    return m_options.kitName(t);
                 }));
     mcuTargetChooserlayout->addWidget(m_mcuTargetComboBox);
     mainLayout->addLayout(mcuTargetChooserlayout);
@@ -107,7 +107,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(const McuSupportOptions *option
     m_infoLabel->setWordWrap(true);
     mainLayout->addWidget(m_infoLabel);
 
-    connect(options, &McuSupportOptions::changed, this, &McuSupportOptionsWidget::updateStatus);
+    connect(&m_options, &McuSupportOptions::changed, this, &McuSupportOptionsWidget::updateStatus);
     connect(m_mcuTargetComboBox, &QComboBox::currentTextChanged,
             this, &McuSupportOptionsWidget::showMcuTargetPackages);
     connect(m_infoLabel, &QLabel::linkActivated, this, []{
@@ -137,7 +137,7 @@ void McuSupportOptionsWidget::updateStatus()
 
     m_infoLabel->setText(errorStrings.isEmpty()
                 ? QString::fromLatin1("A kit <b>%1</b> for the selected target can be generated. "
-                                      "Press Apply to generate it.").arg(m_options->kitName(
+                                      "Press Apply to generate it.").arg(m_options.kitName(
                                                                              mcuTarget))
                 : errorStrings.join("<br/>"));
 }
@@ -154,7 +154,7 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         row.fieldItem->widget()->hide();
     }
 
-    for (auto package : m_options->packages) {
+    for (auto package : m_options.packages) {
         QWidget *packageWidget = package->widget();
         if (!mcuTarget->packages().contains(package))
             continue;
@@ -168,7 +168,7 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
 McuTarget *McuSupportOptionsWidget::currentMcuTarget() const
 {
     const int mcuTargetIndex = m_mcuTargetComboBox->currentIndex();
-    return m_options->mcuTargets.isEmpty() ? nullptr : m_options->mcuTargets.at(mcuTargetIndex);
+    return m_options.mcuTargets.isEmpty() ? nullptr : m_options.mcuTargets.at(mcuTargetIndex);
 }
 
 void McuSupportOptionsWidget::showEvent(QShowEvent *event)
@@ -177,50 +177,32 @@ void McuSupportOptionsWidget::showEvent(QShowEvent *event)
     updateStatus();
 }
 
-McuSupportOptionsPage::McuSupportOptionsPage(QObject* parent)
-    : Core::IOptionsPage(parent)
+void McuSupportOptionsWidget::apply()
+{
+    for (auto package : m_options.packages)
+        package->writeToSettings();
+
+    QTC_ASSERT(m_options.armGccPackage, return);
+    QTC_ASSERT(m_options.qtForMCUsSdkPackage, return);
+
+    if (!isVisible() || !cMakeAvailable())
+        return;
+
+    const McuTarget *mcuTarget = currentMcuTarget();
+    if (!mcuTarget)
+        return;
+
+    for (auto existingKit : m_options.existingKits(mcuTarget))
+        ProjectExplorer::KitManager::deregisterKit(existingKit);
+    m_options.newKit(mcuTarget);
+}
+
+McuSupportOptionsPage::McuSupportOptionsPage()
 {
     setId(Core::Id(Constants::SETTINGS_ID));
     setDisplayName(tr("MCU"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-}
-
-QWidget *McuSupportOptionsPage::widget()
-{
-    if (!m_options)
-        m_options = new McuSupportOptions(this);
-    if (!m_widget)
-        m_widget = new McuSupportOptionsWidget(m_options);
-    return m_widget;
-}
-
-void McuSupportOptionsPage::apply()
-{
-    for (auto package : m_options->packages)
-        package->writeToSettings();
-
-    QTC_ASSERT(m_options->armGccPackage, return);
-    QTC_ASSERT(m_options->qtForMCUsSdkPackage, return);
-
-    if (!widget()->isVisible() || !cMakeAvailable())
-        return;
-
-    const McuTarget *mcuTarget = m_widget->currentMcuTarget();
-    if (!mcuTarget)
-        return;
-
-    using namespace ProjectExplorer;
-
-    for (auto existingKit : m_options->existingKits(mcuTarget))
-        ProjectExplorer::KitManager::deregisterKit(existingKit);
-    m_options->newKit(mcuTarget);
-}
-
-void McuSupportOptionsPage::finish()
-{
-    delete m_options;
-    m_options = nullptr;
-    delete m_widget;
+    setWidgetCreator([] { return new McuSupportOptionsWidget; });
 }
 
 } // Internal
