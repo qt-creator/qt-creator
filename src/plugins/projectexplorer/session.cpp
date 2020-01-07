@@ -1137,7 +1137,12 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 
 QString SessionManager::lastSession()
 {
-    return ICore::settings()->value(QLatin1String("ProjectExplorer/StartupSession")).toString();
+    return ICore::settings()->value(Constants::LASTSESSION_KEY).toString();
+}
+
+QString SessionManager::startupSession()
+{
+    return ICore::settings()->value(Constants::STARTUPSESSION_KEY).toString();
 }
 
 void SessionManager::reportProjectLoadingProgress()

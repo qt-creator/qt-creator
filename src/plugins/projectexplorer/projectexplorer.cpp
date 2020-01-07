@@ -2031,8 +2031,12 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     }
 
     QSettings *s = ICore::settings();
-    if (!SessionManager::isDefaultVirgin())
-        s->setValue(QLatin1String("ProjectExplorer/StartupSession"), SessionManager::activeSession());
+    if (SessionManager::isDefaultVirgin()) {
+        s->remove(Constants::STARTUPSESSION_KEY);
+    } else {
+        s->setValue(Constants::STARTUPSESSION_KEY, SessionManager::activeSession());
+        s->setValue(Constants::LASTSESSION_KEY, SessionManager::activeSession());
+    }
     s->remove(QLatin1String("ProjectExplorer/RecentProjects/Files"));
 
     QStringList fileNames;
@@ -2217,10 +2221,10 @@ void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
 void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
 {
     // Process command line arguments first:
-    if (m_instance->pluginSpec()->arguments().contains(QLatin1String("-lastsession")))
-        m_sessionToRestoreAtStartup = SessionManager::lastSession();
+    const bool lastSessionArg = m_instance->pluginSpec()->arguments().contains("-lastsession");
+    m_sessionToRestoreAtStartup = lastSessionArg ? SessionManager::startupSession() : QString();
     QStringList arguments = ExtensionSystem::PluginManager::arguments();
-    if (m_sessionToRestoreAtStartup.isNull()) {
+    if (!lastSessionArg) {
         QStringList sessions = SessionManager::sessions();
         // We have command line arguments, try to find a session in them
         // Default to no session loading
@@ -2233,11 +2237,10 @@ void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
         }
     }
     // Handle settings only after command line arguments:
-    if (m_sessionToRestoreAtStartup.isNull()
-        && m_projectExplorerSettings.autorestoreLastSession)
-        m_sessionToRestoreAtStartup = SessionManager::lastSession();
+    if (m_sessionToRestoreAtStartup.isEmpty() && m_projectExplorerSettings.autorestoreLastSession)
+        m_sessionToRestoreAtStartup = SessionManager::startupSession();
 
-    if (!m_sessionToRestoreAtStartup.isNull())
+    if (!m_sessionToRestoreAtStartup.isEmpty())
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 

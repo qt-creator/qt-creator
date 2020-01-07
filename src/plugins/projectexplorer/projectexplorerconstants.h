@@ -221,8 +221,11 @@ const char FILEOVERLAY_SCXML[]=":/projectexplorer/images/fileoverlay_scxml.png";
 const char FILEOVERLAY_PY[]=":/projectexplorer/images/fileoverlay_py.png";
 const char FILEOVERLAY_UNKNOWN[]=":/projectexplorer/images/fileoverlay_unknown.png";
 
+// Settings
 const char ADD_FILES_DIALOG_FILTER_HISTORY_KEY[] = "ProjectExplorer.AddFilesFilterKey";
 const char PROJECT_ROOT_PATH_KEY[] = "ProjectExplorer.Project.RootPath";
+const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
+const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
 
 } // namespace Constants
 } // namespace ProjectExplorer

@@ -61,6 +61,7 @@ public:
     // higher level session management
     static QString activeSession();
     static QString lastSession();
+    static QString startupSession();
     static QStringList sessions();
     static QDateTime sessionDateTime(const QString &session);
 
