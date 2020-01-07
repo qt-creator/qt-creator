@@ -46,4 +46,4 @@ HEADERS += propertyeditorview.h \
     aligndistribute.h \
     tooltip.h
 
-QT += qml quick
+QT += qml quick gui-private
