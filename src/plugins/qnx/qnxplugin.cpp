@@ -67,6 +67,13 @@ using namespace ProjectExplorer;
 namespace Qnx {
 namespace Internal {
 
+class QnxUploadStep : public RemoteLinux::GenericDirectUploadStep
+{
+public:
+    QnxUploadStep(BuildStepList *bsl, Core::Id id) : GenericDirectUploadStep(bsl, id, false) {}
+    static Core::Id stepId() { return "Qnx.DirectUploadStep"; }
+};
+
 template <class Step>
 class GenericQnxDeployStepFactory : public BuildStepFactory
 {
@@ -98,7 +105,7 @@ public:
         });
         addInitialStep(DeviceCheckBuildStep::stepId());
         addInitialStep(RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
-        addInitialStep(RemoteLinux::GenericDirectUploadStep::stepId());
+        addInitialStep(QnxUploadStep::stepId());
     }
 };
 
@@ -114,7 +121,7 @@ public:
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
-    GenericQnxDeployStepFactory<RemoteLinux::GenericDirectUploadStep> directUploadDeployFactory;
+    GenericQnxDeployStepFactory<QnxUploadStep> directUploadDeployFactory;
     GenericQnxDeployStepFactory<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep> checkForFreeDiskSpaceDeployFactory;
     GenericQnxDeployStepFactory<RemoteLinux::MakeInstallStep> makeInstallDeployFactory;
     GenericQnxDeployStepFactory<DeviceCheckBuildStep> checkBuildDeployFactory;

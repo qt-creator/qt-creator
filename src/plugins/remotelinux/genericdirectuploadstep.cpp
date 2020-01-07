@@ -35,16 +35,21 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
-GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id)
+GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id,
+                                                 bool offerIncrementalDeployment)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<GenericDirectUploadService>();
 
-    auto incremental = addAspect<BaseBoolAspect>();
-    incremental->setSettingsKey("RemoteLinux.GenericDirectUploadStep.Incremental");
-    incremental->setLabel(tr("Incremental deployment"), BaseBoolAspect::LabelPlacement::AtCheckBox);
-    incremental->setValue(true);
-    incremental->setDefaultValue(true);
+    BaseBoolAspect *incremental = nullptr;
+    if (offerIncrementalDeployment) {
+        incremental = addAspect<BaseBoolAspect>();
+        incremental->setSettingsKey("RemoteLinux.GenericDirectUploadStep.Incremental");
+        incremental->setLabel(tr("Incremental deployment"),
+                              BaseBoolAspect::LabelPlacement::AtCheckBox);
+        incremental->setValue(true);
+        incremental->setDefaultValue(true);
+    }
 
     auto ignoreMissingFiles = addAspect<BaseBoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles");
@@ -53,7 +58,12 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id
     ignoreMissingFiles->setValue(false);
 
     setInternalInitializer([incremental, ignoreMissingFiles, service] {
-        service->setIncrementalDeployment(incremental->value());
+        if (incremental) {
+            service->setIncrementalDeployment(incremental->value()
+                ? IncrementalDeployment::Enabled : IncrementalDeployment::Disabled);
+        } else {
+            service->setIncrementalDeployment(IncrementalDeployment::NotSupported);
+        }
         service->setIgnoreMissingFiles(ignoreMissingFiles->value());
         return service->isDeploymentPossible();
     });

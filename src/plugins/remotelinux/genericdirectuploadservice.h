@@ -40,6 +40,8 @@ namespace QSsh { class SshRemoteProcess; }
 namespace RemoteLinux {
 namespace Internal { class GenericDirectUploadServicePrivate; }
 
+enum class IncrementalDeployment { Enabled, Disabled, NotSupported };
+
 class REMOTELINUX_EXPORT GenericDirectUploadService : public AbstractRemoteLinuxDeployService
 {
     Q_OBJECT
@@ -48,7 +50,7 @@ public:
     ~GenericDirectUploadService() override;
 
     void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &deployableFiles);
-    void setIncrementalDeployment(bool incremental);
+    void setIncrementalDeployment(IncrementalDeployment incremental);
     void setIgnoreMissingFiles(bool ignoreMissingFiles);
 
   protected:

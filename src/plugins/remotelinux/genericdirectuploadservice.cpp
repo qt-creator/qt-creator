@@ -63,7 +63,7 @@ public:
         return file;
     }
 
-    bool incremental = false;
+    IncrementalDeployment incremental = IncrementalDeployment::NotSupported;
     bool ignoreMissingFiles = false;
     QHash<SshRemoteProcess *, DeployableFile> remoteProcs;
     QQueue<DeployableFile> filesToStat;
@@ -92,7 +92,7 @@ void GenericDirectUploadService::setDeployableFiles(const QList<DeployableFile> 
     d->deployableFiles = deployableFiles;
 }
 
-void GenericDirectUploadService::setIncrementalDeployment(bool incremental)
+void GenericDirectUploadService::setIncrementalDeployment(IncrementalDeployment incremental)
 {
     d->incremental = incremental;
 }
@@ -274,10 +274,13 @@ void GenericDirectUploadService::queryFiles()
     const QList<DeployableFile> &filesToCheck = d->state == PreChecking
             ? d->deployableFiles : d->filesToUpload;
     for (const DeployableFile &file : filesToCheck) {
-        if (d->state == PreChecking && (!d->incremental || hasLocalFileChanged(file))) {
+        if (d->state == PreChecking && (d->incremental != IncrementalDeployment::Enabled
+                                        || hasLocalFileChanged(file))) {
             d->filesToUpload.append(file);
             continue;
         }
+        if (d->incremental == IncrementalDeployment::NotSupported)
+            continue;
         if (d->remoteProcs.size() >= MaxConcurrentStatCalls)
             d->filesToStat << file;
         else
