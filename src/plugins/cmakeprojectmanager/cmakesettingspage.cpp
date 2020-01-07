@@ -522,7 +522,7 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
 // CMakeToolConfigWidget
 // --------------------------------------------------------------------------
 
-class CMakeToolConfigWidget : public QWidget
+class CMakeToolConfigWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 public:
@@ -588,7 +588,9 @@ public:
         m_container->setWidget(m_itemConfigWidget);
     }
 
-    void apply();
+    void apply() final;
+    void finish() final {}
+
     void cloneCMakeTool();
     void addCMakeTool();
     void removeCMakeTool();
@@ -608,6 +610,7 @@ public:
 
 void CMakeToolConfigWidget::apply()
 {
+    m_itemConfigWidget->store();
     m_model.apply();
 }
 
@@ -688,26 +691,7 @@ CMakeSettingsPage::CMakeSettingsPage()
     setId(Constants::CMAKE_SETTINGSPAGE_ID);
     setDisplayName(tr("CMake"));
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
-}
-
-QWidget *CMakeSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new CMakeToolConfigWidget;
-    return m_widget;
-}
-
-void CMakeSettingsPage::apply()
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->m_itemConfigWidget->store();
-    m_widget->apply();
-}
-
-void CMakeSettingsPage::finish()
-{
-    delete m_widget;
-    m_widget = nullptr;
+    setWidgetCreator([] { return new CMakeToolConfigWidget; });
 }
 
 } // namespace Internal

@@ -26,16 +26,9 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/pathchooser.h>
-
-#include <QPointer>
-
-#include "cmaketool.h"
 
 namespace CMakeProjectManager {
 namespace Internal {
-
-class CMakeToolConfigWidget;
 
 class CMakeSettingsPage : public Core::IOptionsPage
 {
@@ -43,13 +36,6 @@ class CMakeSettingsPage : public Core::IOptionsPage
 
 public:
     CMakeSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    CMakeToolConfigWidget *m_widget = nullptr;
 };
 
 } // namespace Internal
