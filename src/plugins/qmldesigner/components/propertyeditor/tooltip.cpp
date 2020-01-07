@@ -40,8 +40,6 @@
 #include "tooltip.h"
 #include <qquickwindow.h>
 #include <qquickitem.h>
-#include <private/qguiapplication_p.h>
-#include <qpa/qplatformintegration.h>
 #include <QtQuick/QQuickRenderControl>
 #include <QtWidgets/qtwidgetsglobal.h>
 #include <qtooltip.h>
@@ -55,9 +53,7 @@ void Tooltip::showText(QQuickItem *item, const QPointF &pos, const QString &str)
     if (!item || !item->window())
         return;
 
-    if (QGuiApplicationPrivate::platformIntegration()->
-            hasCapability(QPlatformIntegration::MultipleWindows) &&
-        QCoreApplication::instance()->inherits("QApplication")) {
+    if (QCoreApplication::instance()->inherits("QApplication")) {
         QPoint quickWidgetOffsetInTlw;
         QWindow *renderWindow = QQuickRenderControl::renderWindowFor(item->window(), &quickWidgetOffsetInTlw);
         QWindow *window = renderWindow ? renderWindow : item->window();
