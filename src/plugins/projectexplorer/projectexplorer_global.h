@@ -56,29 +56,31 @@ enum class WarningFlags {
     NonVirtualDestructor =  1 << 26
 };
 
-inline WarningFlags operator|(WarningFlags first, WarningFlags second)
+} // namespace ProjectExplorer
+
+inline ProjectExplorer::WarningFlags operator|(ProjectExplorer::WarningFlags first,
+                                               ProjectExplorer::WarningFlags second)
 {
-    return static_cast<WarningFlags>(static_cast<int>(first) | static_cast<int>(second));
+    return ProjectExplorer::WarningFlags(int(first) | int(second));
 }
 
-inline WarningFlags operator&(WarningFlags first, WarningFlags second)
+inline ProjectExplorer::WarningFlags operator&(ProjectExplorer::WarningFlags first,
+                                               ProjectExplorer::WarningFlags second)
 {
-    return static_cast<WarningFlags>(static_cast<int>(first) & static_cast<int>(second));
+    return ProjectExplorer::WarningFlags(int(first) & int(second));
 }
 
-inline void operator|=(WarningFlags &first, WarningFlags second)
+inline void operator|=(ProjectExplorer::WarningFlags &first, ProjectExplorer::WarningFlags second)
 {
     first = first | second;
 }
 
-inline void operator&=(WarningFlags &first, WarningFlags second)
+inline void operator&=(ProjectExplorer::WarningFlags &first, ProjectExplorer::WarningFlags second)
 {
     first = first & second;
 }
 
-inline WarningFlags operator~(WarningFlags flags)
+inline ProjectExplorer::WarningFlags operator~(ProjectExplorer::WarningFlags flags)
 {
-    return static_cast<WarningFlags>(~static_cast<int>(flags));
+    return ProjectExplorer::WarningFlags(~int(flags));
 }
-
-} // namespace ProjectExplorer

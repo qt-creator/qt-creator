@@ -61,17 +61,18 @@ enum class LanguageExtension : unsigned char {
 
 Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
 
-constexpr LanguageExtension operator|(LanguageExtension first, LanguageExtension second)
-{
-    return static_cast<LanguageExtension>(
-        (static_cast<unsigned char>(first) | static_cast<unsigned char>(second)));
-}
-
-constexpr bool operator&&(LanguageExtension first, LanguageExtension second)
-{
-    return static_cast<unsigned char>(first) & static_cast<unsigned char>(second);
-}
-
 enum class QtVersion { Unknown = -1, None, Qt4, Qt5 };
 
 } // namespace Utils
+
+constexpr Utils::LanguageExtension operator|(Utils::LanguageExtension first,
+                                             Utils::LanguageExtension second)
+{
+    return Utils::LanguageExtension(static_cast<unsigned char>(first)
+                                    | static_cast<unsigned char>(second));
+}
+
+constexpr bool operator&&(Utils::LanguageExtension first, Utils::LanguageExtension second)
+{
+    return static_cast<unsigned char>(first) & static_cast<unsigned char>(second);
+}
