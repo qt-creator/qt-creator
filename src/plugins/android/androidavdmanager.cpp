@@ -73,6 +73,7 @@ static bool avdManagerCommand(const AndroidConfig config, const QStringList &arg
     Utils::SynchronousProcess proc;
     auto env = AndroidConfigurations::toolsEnvironment(config).toStringList();
     proc.setEnvironment(env);
+    qCDebug(avdManagerLog) << "Running command:" << cmd.toUserOutput();
     SynchronousProcessResponse response = proc.runBlocking(cmd);
     if (response.result == Utils::SynchronousProcessResponse::Finished) {
         if (output)
