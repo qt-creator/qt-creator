@@ -26,7 +26,6 @@
 #pragma once
 
 #include "projectconfigurationaspects.h"
-#include "projectexplorer_global.h"
 
 namespace ProjectExplorer {
 

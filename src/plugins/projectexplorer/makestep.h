@@ -26,7 +26,6 @@
 #pragma once
 
 #include "abstractprocessstep.h"
-#include "projectexplorer_global.h"
 
 #include <utils/fileutils.h>
 

@@ -61,7 +61,7 @@ public:
     ProjectExplorer::Macros predefinedMacros(const QStringList &cxxflags) const final;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const final;
-    ProjectExplorer::WarningFlags warningFlags(const QStringList &cxxflags) const final;
+    Utils::WarningFlags warningFlags(const QStringList &cxxflags) const final;
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &) const final;

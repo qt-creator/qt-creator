@@ -507,12 +507,12 @@ Utils::LanguageExtensions GccToolChain::languageExtensions(const QStringList &cx
 WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
 {
     // based on 'LC_ALL="en" gcc -Q --help=warnings | grep enabled'
-    WarningFlags flags(WarningFlags::Deprecated | WarningFlags::IgnoredQualfiers
+    WarningFlags flags(WarningFlags::Deprecated | WarningFlags::IgnoredQualifiers
                        | WarningFlags::SignedComparison | WarningFlags::UninitializedVars);
     WarningFlags groupWall(WarningFlags::All | WarningFlags::UnknownPragma | WarningFlags::UnusedFunctions
                            | WarningFlags::UnusedLocals | WarningFlags::UnusedResult | WarningFlags::UnusedValue
                            | WarningFlags::SignedComparison | WarningFlags::UninitializedVars);
-    WarningFlags groupWextra(WarningFlags::Extra | WarningFlags::IgnoredQualfiers | WarningFlags::UnusedParams);
+    WarningFlags groupWextra(WarningFlags::Extra | WarningFlags::IgnoredQualifiers | WarningFlags::UnusedParams);
 
     foreach (const QString &flag, cflags) {
         if (flag == "--all-warnings")
@@ -530,7 +530,7 @@ WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
         add("extra", groupWextra);
         add("deprecated", WarningFlags::Deprecated);
         add("effc++", WarningFlags::EffectiveCxx);
-        add("ignored-qualifiers", WarningFlags::IgnoredQualfiers);
+        add("ignored-qualifiers", WarningFlags::IgnoredQualifiers);
         add("non-virtual-dtor", WarningFlags::NonVirtualDestructor);
         add("overloaded-virtual", WarningFlags::OverloadedVirtual);
         add("shadow", WarningFlags::HiddenLocals);

@@ -78,7 +78,7 @@ public:
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
-    WarningFlags warningFlags(const QStringList &cflags) const override;
+    Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
     HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
@@ -108,18 +108,18 @@ protected:
     class WarningFlagAdder
     {
         int m_warningCode = 0;
-        WarningFlags &m_flags;
+        Utils::WarningFlags &m_flags;
         bool m_doesEnable = false;
         bool m_triggered = false;
 
     public:
-        WarningFlagAdder(const QString &flag, WarningFlags &flags);
-        void operator()(int warningCode, WarningFlags flagsSet);
+        WarningFlagAdder(const QString &flag, Utils::WarningFlags &flags);
+        void operator()(int warningCode, Utils::WarningFlags flagsSet);
 
         bool triggered() const;
     };
 
-    static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
+    static void inferWarningsForLevel(int warningLevel, Utils::WarningFlags &flags);
 
     Utils::Environment readEnvironmentSetting(const Utils::Environment &env) const;
     // Function must be thread-safe!

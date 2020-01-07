@@ -31,7 +31,6 @@
 
 #include <projectexplorer/buildtargettype.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/projectexplorer_global.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/rawprojectpart.h>
 
@@ -110,7 +109,7 @@ public:
     QString toolChainTargetTriple;
     ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
     Utils::FilePath toolChainInstallDir;
-    ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
+    Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
 
     // Misc
     QStringList extraCodeModelFlags;

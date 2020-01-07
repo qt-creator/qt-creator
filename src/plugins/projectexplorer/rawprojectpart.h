@@ -28,7 +28,6 @@
 #include "buildtargettype.h"
 #include "headerpath.h"
 #include "projectexplorer_export.h"
-#include "projectexplorer_global.h"
 #include "projectmacro.h"
 
 // this include style is forced for the cpp unit test mocks
@@ -56,7 +55,7 @@ public:
 public:
     QStringList commandLineFlags;
     // The following are deduced from commandLineFlags.
-    WarningFlags warningFlags = WarningFlags::Default;
+    Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
     Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
 };
 

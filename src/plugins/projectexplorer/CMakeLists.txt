@@ -133,7 +133,6 @@ add_qtc_plugin(ProjectExplorer
     projectexplorer.cpp projectexplorer.h
     projectexplorer.qrc
     projectexplorer_export.h
-    projectexplorer_global.h
     projectexplorerconstants.h
     projectexplorericons.cpp projectexplorericons.h
     projectexplorersettings.h

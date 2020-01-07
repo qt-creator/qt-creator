@@ -870,7 +870,7 @@ void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
     flags = flags & WarningFlags::AsErrors;
 
     if (warningLevel >= 1)
-        flags |= WarningFlags(WarningFlags::Default | WarningFlags::IgnoredQualfiers
+        flags |= WarningFlags(WarningFlags::Default | WarningFlags::IgnoredQualifiers
                               | WarningFlags::HiddenLocals | WarningFlags::UnknownPragma);
     if (warningLevel >= 2)
         flags |= WarningFlags::All;
@@ -1112,7 +1112,7 @@ WarningFlags MsvcToolChain::warningFlags(const QStringList &cflags) const
         // http://msdn.microsoft.com/en-us/library/ay4h0tc9.aspx
         add(4263, WarningFlags::OverloadedVirtual);
         // http://msdn.microsoft.com/en-us/library/ytxde1x7.aspx
-        add(4230, WarningFlags::IgnoredQualfiers);
+        add(4230, WarningFlags::IgnoredQualifiers);
         // not exact match, http://msdn.microsoft.com/en-us/library/0hx5ckb0.aspx
         add(4258, WarningFlags::HiddenLocals);
         // http://msdn.microsoft.com/en-us/library/wzxffy8c.aspx

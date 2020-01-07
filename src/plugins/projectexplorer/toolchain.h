@@ -26,7 +26,6 @@
 #pragma once
 
 #include "projectexplorer_export.h"
-#include "projectexplorer_global.h"
 
 #include "abi.h"
 #include "headerpath.h"
@@ -120,7 +119,7 @@ public:
     virtual bool isValid() const = 0;
 
     virtual Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const = 0;
-    virtual WarningFlags warningFlags(const QStringList &cflags) const = 0;
+    virtual Utils::WarningFlags warningFlags(const QStringList &cflags) const = 0;
     virtual QString sysRoot() const;
 
     class MacroInspectionReport

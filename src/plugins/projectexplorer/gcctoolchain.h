@@ -79,7 +79,7 @@ public:
     bool isValid() const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
-    WarningFlags warningFlags(const QStringList &cflags) const override;
+    Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
@@ -166,13 +166,13 @@ protected:
     class WarningFlagAdder
     {
     public:
-        WarningFlagAdder(const QString &flag, WarningFlags &flags);
-        void operator ()(const char name[], WarningFlags flagsSet);
+        WarningFlagAdder(const QString &flag, Utils::WarningFlags &flags);
+        void operator ()(const char name[], Utils::WarningFlags flagsSet);
 
         bool triggered() const;
     private:
         QByteArray m_flagUtf8;
-        WarningFlags &m_flags;
+        Utils::WarningFlags &m_flags;
         bool m_doesEnable = false;
         bool m_triggered = false;
     };
@@ -220,7 +220,7 @@ public:
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
-    WarningFlags warningFlags(const QStringList &cflags) const override;
+    Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
 
     IOutputParser *outputParser() const override;
 

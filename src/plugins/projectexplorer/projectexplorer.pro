@@ -159,7 +159,6 @@ HEADERS += projectexplorer.h \
     expanddata.h \
     waitforstopdialog.h \
     projectexplorericons.h \
-    projectexplorer_global.h \
     extracompiler.h \
     customexecutablerunconfiguration.h \
     projectmacro.h \
