@@ -31,21 +31,20 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace QtSupport {
 namespace Internal {
 
-class CodeGenSettingsPageWidget : public QWidget
+class CodeGenSettingsPageWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
+
 public:
     CodeGenSettingsPageWidget();
 
-    CodeGenSettings parameters() const;
-    void setParameters(const CodeGenSettings &p);
-
 private:
+    void apply() final;
+    void finish() final {}
+
     int uiEmbedding() const;
     void setUiEmbedding(int);
 
@@ -56,14 +55,6 @@ class CodeGenSettingsPage : public Core::IOptionsPage
 {
 public:
     CodeGenSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<CodeGenSettingsPageWidget> m_widget;
-    CodeGenSettings m_parameters;
 };
 
 } // namespace Internal
