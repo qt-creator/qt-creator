@@ -26,13 +26,6 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/savedaction.h>
-#include "ui_cdboptionspagewidget.h"
-
-#include <QPointer>
-#include <QSharedPointer>
-#include <QStringList>
-#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -45,66 +38,14 @@ namespace Internal {
 class CdbSymbolPathListEditor;
 class CdbPathsPageWidget;
 
-// Widget displaying a list of break events for the 'sxe' command
-// with a checkbox to enable 'break' and optionally a QLineEdit for
-// events with parameters (like 'out:Needle').
-class CdbBreakEventWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit CdbBreakEventWidget(QWidget *parent = nullptr);
-
-    void setBreakEvents(const QStringList &l);
-    QStringList breakEvents() const;
-
-private:
-    QString filterText(int i) const;
-    void clear();
-
-    QList<QCheckBox*> m_checkBoxes;
-    QList<QLineEdit*> m_lineEdits;
-};
-
-class CdbOptionsPageWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    CdbOptionsPageWidget();
-
-    QStringList breakEvents() const;
-
-    Utils::SavedActionSet group;
-
-private:
-    inline QString path() const;
-
-
-    Ui::CdbOptionsPageWidget m_ui;
-    CdbBreakEventWidget *m_breakEventWidget;
-    CdbSymbolPathListEditor *m_symbolPathListEditor;
-    Utils::PathListEditor *m_sourcePathListEditor;
-};
-
 class CdbOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
     CdbOptionsPage();
-    ~CdbOptionsPage() override;
-
-    // IOptionsPage
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
 
     static const char *crtDbgReport;
-
-private:
-    Utils::SavedActionSet group;
-    QPointer<CdbOptionsPageWidget> m_widget;
 };
 
 class CdbPathsPage : public Core::IOptionsPage
@@ -113,17 +54,6 @@ class CdbPathsPage : public Core::IOptionsPage
 
 public:
     CdbPathsPage();
-    ~CdbPathsPage() override;
-
-    static CdbPathsPage *instance();
-
-    // IOptionsPage
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<CdbPathsPageWidget> m_widget;
 };
 
 } // namespace Internal
