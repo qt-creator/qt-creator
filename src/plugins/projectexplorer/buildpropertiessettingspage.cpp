@@ -66,7 +66,7 @@ public:
 
     void apply() final
     {
-        BuildPropertiesSettings s;
+        BuildPropertiesSettings s = ProjectExplorerPlugin::buildPropertiesSettings();
         s.separateDebugInfo = TriState::fromVariant(m_separateDebugInfoComboBox.currentData());
         s.qmlDebugging = TriState::fromVariant(m_qmlDebuggingComboBox.currentData());
         s.qtQuickCompiler = TriState::fromVariant(m_qtQuickCompilerComboBox.currentData());
