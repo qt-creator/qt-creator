@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QWidget>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QStringList>
 #include <QMap>
@@ -34,21 +34,23 @@ QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
-
 namespace Macros {
 namespace Internal {
 
 namespace Ui { class MacroOptionsWidget; }
 
-class MacroOptionsWidget : public QWidget {
+class MacroOptionsWidget : public Core::IOptionsPageWidget
+{
     Q_OBJECT
+
 public:
-    explicit MacroOptionsWidget(QWidget *parent = nullptr);
-    ~MacroOptionsWidget() override;
+    MacroOptionsWidget();
+    ~MacroOptionsWidget() final;
 
     void initialize();
 
-    void apply();
+    void apply() final;
+    void finish() final {}
 
 private:
     void remove();
@@ -61,7 +63,7 @@ private:
 private:
     Ui::MacroOptionsWidget *m_ui;
     QStringList m_macroToRemove;
-    bool m_changingCurrent;
+    bool m_changingCurrent = false;
 
     QMap<QString, QString> m_macroToChange;
 };

@@ -27,12 +27,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace Macros {
 namespace Internal {
-
-class MacroOptionsWidget;
 
 class MacroOptionsPage : public Core::IOptionsPage
 {
@@ -40,14 +36,6 @@ class MacroOptionsPage : public Core::IOptionsPage
 
 public:
     MacroOptionsPage();
-
-    // IOptionsPage implementation
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<MacroOptionsWidget> m_widget;
 };
 
 } // namespace Internal

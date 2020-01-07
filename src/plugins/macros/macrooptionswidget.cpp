@@ -50,10 +50,8 @@ using namespace Macros;
 using namespace Macros::Internal;
 
 
-MacroOptionsWidget::MacroOptionsWidget(QWidget *parent) :
-    QWidget(parent),
-    m_ui(new Ui::MacroOptionsWidget),
-    m_changingCurrent(false)
+MacroOptionsWidget::MacroOptionsWidget() :
+    m_ui(new Ui::MacroOptionsWidget)
 {
     m_ui->setupUi(this);
 
