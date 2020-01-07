@@ -27,6 +27,7 @@
 
 #include <qmetatype.h>
 #include <QDataStream>
+#include <QVariant>
 
 namespace QmlDesigner {
 
