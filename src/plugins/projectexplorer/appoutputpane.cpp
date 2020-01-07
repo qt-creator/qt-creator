@@ -120,8 +120,7 @@ private:
     int m_tabIndexForMiddleClick = -1;
 };
 
-}
-}
+} // Internal
 
 TabWidget::TabWidget(QWidget *parent)
     : QTabWidget(parent)
@@ -817,11 +816,11 @@ bool AppOutputPane::canNavigate() const
     return false;
 }
 
-class AppOutputSettingsPage::SettingsWidget : public QWidget
+class AppOutputSettingsWidget : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::AppOutputSettingsPage)
 public:
-    SettingsWidget()
+    AppOutputSettingsWidget()
     {
         const AppOutputSettings &settings = ProjectExplorerPlugin::appOutputSettings();
         m_wrapOutputCheckBox.setText(tr("Word-wrap output"));
@@ -863,7 +862,7 @@ public:
         layout->addStretch(1);
     }
 
-    AppOutputSettings settings() const
+    void apply() final
     {
         AppOutputSettings s;
         s.wrapOutput = m_wrapOutputCheckBox.isChecked();
@@ -874,8 +873,11 @@ public:
         s.debugOutputMode = static_cast<AppOutputPaneMode>(
                     m_debugOutputModeComboBox.currentData().toInt());
         s.maxCharCount = m_maxCharsBox.value();
-        return s;
+
+        ProjectExplorerPlugin::setAppOutputSettings(s);
     }
+
+    void finish() final {}
 
 private:
     QCheckBox m_wrapOutputCheckBox;
@@ -891,25 +893,10 @@ AppOutputSettingsPage::AppOutputSettingsPage()
     setId(OPTIONS_PAGE_ID);
     setDisplayName(tr("Application Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new AppOutputSettingsWidget; });
 }
 
-QWidget *AppOutputSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new SettingsWidget;
-    return m_widget;
-}
-
-void AppOutputSettingsPage::apply()
-{
-    if (m_widget)
-        ProjectExplorerPlugin::setAppOutputSettings(m_widget->settings());
-}
-
-void AppOutputSettingsPage::finish()
-{
-    delete m_widget;
-}
+} // ProjectExplorer
 
 #include "appoutputpane.moc"
 
