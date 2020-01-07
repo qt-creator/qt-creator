@@ -8,7 +8,7 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/litehtml/CMakeLists.txt)
       set(LITEHTML_UTF8 ON CACHE BOOL "")
     endif()
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-    add_subdirectory(litehtml)
+    add_subdirectory(litehtml EXCLUDE_FROM_ALL)
     set(CMAKE_POSITION_INDEPENDENT_CODE "${ORIG_FPIC}")
     # force optimized litehtml even in debug
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
