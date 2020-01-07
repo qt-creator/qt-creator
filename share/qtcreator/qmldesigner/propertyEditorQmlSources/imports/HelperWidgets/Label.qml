@@ -24,13 +24,12 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
 import QtQuick.Layouts 1.0
-import QtQuick.Controls.Private 1.0
+import QtQuick.Controls 2.12
 import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 
-Controls.Label {
+Label {
     id: label
 
     property alias tooltip: toolTipArea.tooltip

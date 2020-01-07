@@ -28,7 +28,6 @@ import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import QtQuick.Layouts 1.0
-import QtQuick.Controls.Styles 1.1
 
 RowLayout {
     id: urlChooser

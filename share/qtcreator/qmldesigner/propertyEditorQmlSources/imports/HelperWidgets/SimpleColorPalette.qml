@@ -24,10 +24,8 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 2.5
 import StudioControls 1.0 as StudioControls
 import HelperWidgets 2.0
-import QtQuick.Controls.Private 1.0 // showing a ToolTip
 
 Item {
     property color selectedColor

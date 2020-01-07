@@ -25,7 +25,6 @@
 
 import QtQuick 2.1
 import StudioControls 1.0 as StudioControls
-import QtQuick.Controls.Styles 1.1
 
 StudioControls.ActionIndicator {
 }
