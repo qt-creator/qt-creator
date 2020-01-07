@@ -27,24 +27,28 @@
 
 #include "iosconfigurations.h"
 #include "simulatorcontrol.h"
-#include <QWidget>
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Ios {
 namespace Internal {
 
 namespace Ui { class IosSettingsWidget; }
 
-class IosSettingsWidget : public QWidget
+class IosSettingsWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 
 public:
     IosSettingsWidget();
-    ~IosSettingsWidget() override;
+    ~IosSettingsWidget() final;
+
+private:
+    void apply() final;
+    void finish() final {}
 
     void saveSettings();
 
-private:
     void onStart();
     void onCreate();
     void onReset();

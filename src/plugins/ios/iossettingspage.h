@@ -27,12 +27,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace Ios {
 namespace Internal {
-
-class IosSettingsWidget;
 
 class IosSettingsPage : public Core::IOptionsPage
 {
@@ -40,13 +36,6 @@ class IosSettingsPage : public Core::IOptionsPage
 
 public:
     IosSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<IosSettingsWidget> m_widget;
 };
 
 } // namespace Internal

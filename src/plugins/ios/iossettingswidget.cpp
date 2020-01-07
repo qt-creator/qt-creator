@@ -94,6 +94,12 @@ IosSettingsWidget::~IosSettingsWidget()
     delete m_ui;
 }
 
+void IosSettingsWidget::apply()
+{
+    saveSettings();
+    IosConfigurations::updateAutomaticKitList();
+}
+
 /*!
     Called on start button click. Selected simulator devices are started. Multiple devices can be
     started simultaneously provided they in shutdown state.
