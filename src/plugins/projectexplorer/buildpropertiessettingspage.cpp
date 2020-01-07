@@ -34,11 +34,11 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class BuildPropertiesSettingsPage::SettingsWidget : public QWidget
+class BuildPropertiesSettingsWidget : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::BuildPropertiesSettingsPage)
 public:
-    SettingsWidget()
+    BuildPropertiesSettingsWidget()
     {
         const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
         for (QComboBox * const comboBox : {&m_separateDebugInfoComboBox, &m_qmlDebuggingComboBox,
@@ -64,14 +64,16 @@ public:
         }
     }
 
-    BuildPropertiesSettings settings() const
+    void apply() final
     {
         BuildPropertiesSettings s;
         s.separateDebugInfo = TriState::fromVariant(m_separateDebugInfoComboBox.currentData());
         s.qmlDebugging = TriState::fromVariant(m_qmlDebuggingComboBox.currentData());
         s.qtQuickCompiler = TriState::fromVariant(m_qtQuickCompilerComboBox.currentData());
-        return s;
+        ProjectExplorerPlugin::setBuildPropertiesSettings(s);
     }
+
+    void finish() final {}
 
 private:
     QComboBox m_separateDebugInfoComboBox;
@@ -84,24 +86,7 @@ BuildPropertiesSettingsPage::BuildPropertiesSettingsPage()
     setId("AB.ProjectExplorer.BuildPropertiesSettingsPage");
     setDisplayName(tr("Default Build Properties"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-}
-
-QWidget *BuildPropertiesSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new SettingsWidget;
-    return m_widget;
-}
-
-void BuildPropertiesSettingsPage::apply()
-{
-    if (m_widget)
-        ProjectExplorerPlugin::setBuildPropertiesSettings(m_widget->settings());
-}
-
-void BuildPropertiesSettingsPage::finish()
-{
-    delete m_widget;
+    setWidgetCreator([] { return new BuildPropertiesSettingsWidget; });
 }
 
 } // namespace Internal

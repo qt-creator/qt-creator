@@ -27,8 +27,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -37,14 +35,6 @@ class BuildPropertiesSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 public:
     BuildPropertiesSettingsPage();
-
-private:
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-    class SettingsWidget;
-    QPointer<SettingsWidget> m_widget;
 };
 
 } // namespace Internal
