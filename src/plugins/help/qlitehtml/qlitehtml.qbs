@@ -104,7 +104,7 @@ Product {
         Group {
             name: "gumbo Windows headers"
             condition: qbs.targetOS.contains("windows")
-            files: "../visualc/include/strings.h"
+            files: "../../visualc/include/strings.h"
         }
     }
 
