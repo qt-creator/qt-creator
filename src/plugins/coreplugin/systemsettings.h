@@ -26,18 +26,9 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <QPointer>
-
-QT_BEGIN_NAMESPACE
-class QMessageBox;
-QT_END_NAMESPACE
-
-namespace Utils { class TerminalCommand; }
 
 namespace Core {
 namespace Internal {
-
-namespace Ui { class SystemSettings; }
 
 class SystemSettings : public IOptionsPage
 {
@@ -45,22 +36,6 @@ class SystemSettings : public IOptionsPage
 
 public:
     SystemSettings();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    void showHelpForFileBrowser();
-    void resetFileBrowser();
-    void resetTerminal();
-    void updateTerminalUi(const Utils::TerminalCommand &term);
-    void updatePath();
-
-    void variableHelpDialogCreator(const QString &helpText);
-    Ui::SystemSettings *m_page;
-    QPointer<QMessageBox> m_dialog;
-    QPointer<QWidget> m_widget;
 };
 
 } // namespace Internal
