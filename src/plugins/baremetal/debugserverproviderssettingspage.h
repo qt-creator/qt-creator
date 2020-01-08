@@ -88,13 +88,6 @@ class DebugServerProvidersSettingsPage final : public Core::IOptionsPage
 
 public:
     DebugServerProvidersSettingsPage();
-
-private:
-    QWidget *widget() final;
-    void apply() final;
-    void finish() final;
-
-    DebugServerProvidersSettingsWidget *m_configWidget = nullptr;
 };
 
 } // namespace Internal

@@ -269,12 +269,15 @@ void DebugServerProviderModel::removeProvider(IDebugServerProvider *provider)
 
 // DebugServerProvidersSettingsWidget
 
-class DebugServerProvidersSettingsWidget final : public QWidget
+class DebugServerProvidersSettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::DebugServerProvidersSettingsPage)
 
 public:
-    explicit DebugServerProvidersSettingsWidget(DebugServerProvidersSettingsPage *page);
+    DebugServerProvidersSettingsWidget();
+
+    void apply() final { m_model.apply(); }
+    void finish() final {}
 
     void providerSelectionChanged();
     void removeProvider();
@@ -284,7 +287,6 @@ public:
     QModelIndex currentIndex() const;
 
 public:
-    DebugServerProvidersSettingsPage *m_page = nullptr;
     DebugServerProviderModel m_model;
     QItemSelectionModel *m_selectionModel = nullptr;
     QTreeView *m_providerView = nullptr;
@@ -294,9 +296,7 @@ public:
     QPushButton *m_delButton = nullptr;
 };
 
-DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget
-        (DebugServerProvidersSettingsPage *page)
-    : m_page(page)
+DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
 {
     m_providerView = new QTreeView(this);
     m_providerView->setUniformRowHeights(true);
@@ -444,35 +444,14 @@ QModelIndex DebugServerProvidersSettingsWidget::currentIndex() const
     return rows.at(0);
 }
 
+// DebugServerProvidersSettingsPage
 
 DebugServerProvidersSettingsPage::DebugServerProvidersSettingsPage()
 {
     setId(Constants::DEBUG_SERVER_PROVIDERS_SETTINGS_ID);
     setDisplayName(tr("Bare Metal"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-}
-
-QWidget *DebugServerProvidersSettingsPage::widget()
-{
-    if (!m_configWidget)
-        m_configWidget = new DebugServerProvidersSettingsWidget(this);
-     return m_configWidget;
-}
-
-void DebugServerProvidersSettingsPage::apply()
-{
-    if (m_configWidget)
-        m_configWidget->m_model.apply();
-}
-
-void DebugServerProvidersSettingsPage::finish()
-{
-    if (m_configWidget)
-        disconnect(DebugServerProviderManager::instance(), &DebugServerProviderManager::providersChanged,
-                   m_configWidget, &DebugServerProvidersSettingsWidget::providerSelectionChanged);
-
-    delete m_configWidget;
-    m_configWidget = nullptr;
+    setWidgetCreator([] { return new DebugServerProvidersSettingsWidget; });
 }
 
 } // namespace Internal
