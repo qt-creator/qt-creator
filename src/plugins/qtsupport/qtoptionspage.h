@@ -64,10 +64,13 @@ public:
     ~QtOptionsPageWidget();
     void apply();
 
+    static void linkWithQt();
+
 private:
     void updateDescriptionLabel();
     void userChangedCurrentVersion();
     void updateWidgets();
+    void setupLinkWithQtButton();
     BaseQtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
     void showDebuggingBuildLog(const QtVersionItem *item);

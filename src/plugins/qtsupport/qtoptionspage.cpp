@@ -32,33 +32,39 @@
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
 
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <app/app_version.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/restartdialog.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/variablechooser.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
+#include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
-#include <utils/algorithm.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
-#include <QDir>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QTextBrowser>
 #include <QDesktopServices>
+#include <QDir>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QSortFilterProxyModel>
+#include <QTextBrowser>
+#include <QTimer>
 
 #include <utility>
 
 using namespace ProjectExplorer;
 using namespace Utils;
+
+const char kInstallSettingsKey[] = "Settings/InstallSettings";
 
 namespace QtSupport {
 namespace Internal {
@@ -191,7 +197,6 @@ void QtOptionsPage::finish()
 
 //-----------------------------------------------------
 
-
 QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     : QWidget(parent)
     , m_specifyNameString(tr("<specify a name>"))
@@ -207,6 +212,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_versionUi->editPathPushButton->setText(PathChooser::browseButtonLabel());
 
     m_ui->setupUi(this);
+
+    setupLinkWithQtButton();
 
     m_infoBrowser->setOpenLinks(false);
     m_infoBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
@@ -751,6 +758,58 @@ void QtOptionsPageWidget::updateWidgets()
     m_versionUi->editPathPushButton->setEnabled(enabled && !isAutodetected);
 }
 
+static QString settingsFile(const QString &baseDir)
+{
+    return baseDir + (baseDir.isEmpty() ? "" : "/") + Core::Constants::IDE_SETTINGSVARIANT_STR + '/'
+           + Core::Constants::IDE_CASED_ID + ".ini";
+}
+
+static Utils::optional<QString> currentlyLinkedQtDir(bool *hasInstallSettings)
+{
+    const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath());
+    const bool installSettingsExist = QFile::exists(installSettingsFilePath);
+    if (hasInstallSettings)
+        *hasInstallSettings = installSettingsExist;
+    if (installSettingsExist) {
+        const QVariant value = QSettings(installSettingsFilePath, QSettings::IniFormat)
+                                   .value(kInstallSettingsKey);
+        if (value.isValid())
+            return value.toString();
+    }
+    return {};
+}
+
+static QString linkingPurposeText()
+{
+    return QtOptionsPageWidget::tr(
+        "Linking with a Qt installation automatically registers Qt versions and kits.");
+}
+
+void QtOptionsPageWidget::setupLinkWithQtButton()
+{
+    bool installSettingsExist;
+    const Utils::optional<QString> installSettingsValue = currentlyLinkedQtDir(
+        &installSettingsExist);
+    QStringList tip;
+    tip << linkingPurposeText();
+    if (!FilePath::fromString(Core::ICore::resourcePath()).isWritablePath()) {
+        m_ui->linkWithQtButton->setEnabled(false);
+        tip << tr("%1's resource directory is not writable.").arg(Core::Constants::IDE_DISPLAY_NAME);
+    }
+    // guard against redirecting Qt Creator that is part of a Qt installations
+    // TODO this fails for pre-releases in the online installer
+    // TODO this will fail when make Qt Creator non-required in the Qt installers
+    if (installSettingsExist && !installSettingsValue) {
+        m_ui->linkWithQtButton->setEnabled(false);
+        tip << tr("%1 is part of a Qt installation.").arg(Core::Constants::IDE_DISPLAY_NAME);
+    }
+    const QString link = installSettingsValue ? *installSettingsValue : QString();
+    if (!link.isEmpty())
+        tip << tr("%1 is currently linked to \"%2\".").arg(Core::Constants::IDE_DISPLAY_NAME, link);
+    m_ui->linkWithQtButton->setToolTip(tip.join("\n\n"));
+    connect(m_ui->linkWithQtButton, &QPushButton::clicked, this, &QtOptionsPageWidget::linkWithQt);
+}
+
 void QtOptionsPageWidget::updateCurrentQtName()
 {
     QtVersionItem *item = currentItem();
@@ -781,8 +840,126 @@ void QtOptionsPageWidget::apply()
     });
     QtVersionManager::setNewQtVersions(versions);
 
-    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            this, &QtOptionsPageWidget::updateQtVersions);
+    connect(QtVersionManager::instance(),
+            &QtVersionManager::qtVersionsChanged,
+            this,
+            &QtOptionsPageWidget::updateQtVersions);
+}
+
+// TODO whenever we move the output of sdktool to a different location in the installer,
+// this needs to be adapted accordingly
+const QStringList kSubdirsToCheck = {"",
+                                     "Qt Creator.app/Contents/Resources",
+                                     "Contents/Resources",
+                                     "Tools/QtCreator/share/qtcreator"};
+
+static Utils::optional<QString> settingsDirForQtDir(const QString &qtDir)
+{
+    const QStringList dirsToCheck = Utils::transform(kSubdirsToCheck, [qtDir](const QString &dir) {
+        return QString(qtDir + '/' + dir);
+    });
+    const QString validDir = Utils::findOrDefault(dirsToCheck, [](const QString &dir) {
+        return QFile::exists(settingsFile(dir));
+    });
+    if (!validDir.isEmpty())
+        return validDir;
+    return {};
+}
+
+static bool validateQtInstallDir(FancyLineEdit *input, QString *errorString)
+{
+    const QString qtDir = input->text();
+    if (!settingsDirForQtDir(qtDir)) {
+        if (errorString) {
+            const QStringList filesToCheck = Utils::transform(kSubdirsToCheck,
+                                                              [](const QString &dir) {
+                                                                  return settingsFile(dir);
+                                                              });
+            *errorString = QtOptionsPageWidget::tr(
+                               "<html><body>Qt installation information was not found in \"%1\". "
+                               "Choose a directory that contains one of the files <pre>%2</pre>")
+                               .arg(qtDir, filesToCheck.join('\n'));
+        }
+        return false;
+    }
+    return true;
+}
+
+static QString defaultQtInstallationPath()
+{
+    if (HostOsInfo::isWindowsHost())
+        return "C:/Qt";
+    return QDir::homePath() + "/Qt";
+}
+
+void QtOptionsPageWidget::linkWithQt()
+{
+    const QString title = tr("Choose Qt Installation");
+    const QString restartText = tr("The change will take effect after restart.");
+    bool askForRestart = false;
+    QDialog dialog(Core::ICore::dialogParent());
+    dialog.setWindowTitle(title);
+    auto layout = new QVBoxLayout;
+    dialog.setLayout(layout);
+    layout->addWidget(new QLabel(linkingPurposeText()));
+    auto pathLayout = new QHBoxLayout;
+    layout->addLayout(pathLayout);
+    auto pathLabel = new QLabel(tr("Qt installation path:"));
+    pathLabel->setToolTip(
+        tr("Choose the Qt installation directory, or a directory that contains \"%1\".")
+            .arg(settingsFile("")));
+    pathLayout->addWidget(pathLabel);
+    auto pathInput = new PathChooser;
+    pathLayout->addWidget(pathInput);
+    pathInput->setExpectedKind(PathChooser::ExistingDirectory);
+    pathInput->setPromptDialogTitle(title);
+    pathInput->setMacroExpander(nullptr);
+    pathInput->setValidationFunction([pathInput](FancyLineEdit *input, QString *errorString) {
+        if (pathInput->defaultValidationFunction()
+            && !pathInput->defaultValidationFunction()(input, errorString))
+            return false;
+        return validateQtInstallDir(input, errorString);
+    });
+    const Utils::optional<QString> currentLink = currentlyLinkedQtDir(nullptr);
+    pathInput->setPath(currentLink ? *currentLink : defaultQtInstallationPath());
+    auto buttons = new QDialogButtonBox;
+    layout->addWidget(buttons);
+    auto linkButton = buttons->addButton(tr("Link with Qt"), QDialogButtonBox::AcceptRole);
+    connect(linkButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    auto cancelButton = buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
+    connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+    auto unlinkButton = buttons->addButton(tr("Remove Link"), QDialogButtonBox::DestructiveRole);
+    unlinkButton->setEnabled(currentLink.has_value());
+    connect(unlinkButton, &QPushButton::clicked, &dialog, [&dialog, &askForRestart] {
+        bool removeSettingsFile = false;
+        const QString filePath = settingsFile(Core::ICore::resourcePath());
+        {
+            QSettings installSettings(filePath, QSettings::IniFormat);
+            installSettings.remove(kInstallSettingsKey);
+            if (installSettings.allKeys().isEmpty())
+                removeSettingsFile = true;
+        }
+        if (removeSettingsFile)
+            QFile::remove(filePath);
+        askForRestart = true;
+        dialog.reject();
+    });
+    connect(pathInput, &PathChooser::validChanged, linkButton, &QPushButton::setEnabled);
+    linkButton->setEnabled(pathInput->isValid());
+
+    dialog.exec();
+    if (dialog.result() == QDialog::Accepted) {
+        const Utils::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawPath());
+        if (QTC_GUARD(settingsDir)) {
+            QSettings(settingsFile(Core::ICore::resourcePath()), QSettings::IniFormat)
+                .setValue(kInstallSettingsKey, *settingsDir);
+            askForRestart = true;
+        }
+    }
+    if (askForRestart) {
+        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
+        restartDialog.exec();
+    }
 }
 
 } // namespace Internal

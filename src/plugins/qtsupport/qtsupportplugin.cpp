@@ -40,6 +40,7 @@
 #include "uicgenerator.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/jsexpander.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
@@ -115,6 +116,30 @@ static BaseQtVersion *qtVersion()
     return QtKitAspect::qtVersion(project->activeTarget()->kit());
 }
 
+const char kLinkWithQtInstallationSetting[] = "LinkWithQtInstallation";
+
+static void askAboutQtInstallation()
+{
+    // if the install settings exist, the Qt Creator installation is (probably) already linked to
+    // a Qt installation, so don't ask
+    if (QFile::exists(ICore::settings(QSettings::SystemScope)->fileName())
+        || !ICore::infoBar()->canInfoBeAdded(kLinkWithQtInstallationSetting))
+        return;
+
+    InfoBarEntry info(
+        kLinkWithQtInstallationSetting,
+        QtSupportPlugin::tr(
+            "Link with a Qt installation to automatically register Qt versions and kits? To do "
+            "this later, select Options > Kits > Qt Versions > Link with Qt."),
+        InfoBarEntry::GlobalSuppression::Enabled);
+    info.setCustomButtonInfo(QtSupportPlugin::tr("Link with Qt"), [] {
+        ICore::infoBar()->removeInfo(kLinkWithQtInstallationSetting);
+        ICore::infoBar()->globallySuppressInfo(kLinkWithQtInstallationSetting);
+        QTimer::singleShot(0, ICore::mainWindow(), &QtOptionsPageWidget::linkWithQt);
+    });
+    ICore::infoBar()->addInfo(info);
+}
+
 void QtSupportPlugin::extensionsInitialized()
 {
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
@@ -136,6 +161,8 @@ void QtSupportPlugin::extensionsInitialized()
             BaseQtVersion *qt = qtVersion();
             return qt ? qt->binPath().toUserOutput() : QString();
         });
+
+    askAboutQtInstallation();
 }
 
 } // Internal

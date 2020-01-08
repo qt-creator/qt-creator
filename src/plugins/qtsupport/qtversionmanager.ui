@@ -100,6 +100,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="linkWithQtButton">
+       <property name="text">
+        <string>Link with Qt...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="cleanUpButton">
        <property name="text">
         <string>Clean Up</string>
