@@ -216,12 +216,17 @@ std::unique_ptr<QbsProjectNode> QbsNodeTreeBuilder::buildTree(const QbsBuildSyst
     auto buildSystemFiles = std::make_unique<FolderNode>(project->projectDirectory());
     buildSystemFiles->setDisplayName(QCoreApplication::translate("QbsProjectNode", "Qbs files"));
 
-    const FilePath base = project->projectDirectory();
+    const FilePath projectDir = project->projectDirectory();
+    const FilePath buildDir = FilePath::fromString(buildSystem->projectData()
+                                                   .value("build-directory").toString());
     const QStringList files = unreferencedBuildSystemFiles(buildSystem->projectData());
     for (const QString &f : files) {
         const FilePath filePath = FilePath::fromString(f);
-        if (filePath.isChildOf(base))
-            buildSystemFiles->addNestedNode(std::make_unique<FileNode>(filePath, FileType::Project));
+        if (filePath.isChildOf(projectDir)) {
+            auto fileNode = std::make_unique<FileNode>(filePath, FileType::Project);
+            fileNode->setIsGenerated(filePath.isChildOf(buildDir));
+            buildSystemFiles->addNestedNode(std::move(fileNode));
+        }
     }
     buildSystemFiles->compress();
     root->addNode(std::move(buildSystemFiles));
