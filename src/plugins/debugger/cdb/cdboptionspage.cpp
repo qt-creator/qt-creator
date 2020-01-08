@@ -35,6 +35,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/savedaction.h>
+
 #include <QDialogButtonBox>
 #include <QTextStream>
 

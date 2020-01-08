@@ -759,9 +759,10 @@ public:
     Console m_console; // ensure Debugger Console is created before settings are taken into account
     DebuggerSettings m_debuggerSettings;
     QStringList m_arguments;
-    const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
+    GlobalDebuggerOptions m_globalDebuggerOptions;
 
     DebuggerItemManager m_debuggerItemManager;
+
     QList<IOptionsPage *> m_optionPages;
     IContext m_debugModeContext;
 
@@ -769,6 +770,7 @@ public:
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, tr("Debugger")};
 
     DebuggerKitAspect debuggerKitAspect;
+    CommonOptionsPage commonOptionsPage;
 
     RunWorkerFactory debuggerWorkerFactory{
         RunWorkerFactory::make<DebuggerRunTool>(),
@@ -784,7 +786,6 @@ public:
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
-    : m_globalDebuggerOptions(new GlobalDebuggerOptions)
 {
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerRunParameters>("DebuggerRunParameters");
@@ -1253,9 +1254,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     connect(EngineManager::instance(), &EngineManager::currentEngineChanged,
         this, &DebuggerPluginPrivate::updatePresetState);
 
-    m_optionPages.append(new CommonOptionsPage(m_globalDebuggerOptions));
-
-    m_globalDebuggerOptions->fromSettings();
+    m_globalDebuggerOptions.fromSettings();
 }
 
 
@@ -2136,9 +2135,9 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
     QTC_ASSERT(editor, return);
 }
 
-QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()
+Internal::GlobalDebuggerOptions *globalDebuggerOptions()
 {
-    return dd->m_globalDebuggerOptions;
+    return &dd->m_globalDebuggerOptions;
 }
 
 ///////////////////////////////////////////////////////////////////////

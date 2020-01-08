@@ -30,9 +30,6 @@
 #include <coreplugin/id.h>
 #include <projectexplorer/abi.h>
 
-#include <QObject>
-#include <QSharedPointer>
-
 #include <functional>
 
 QT_BEGIN_NAMESPACE
@@ -60,7 +57,7 @@ enum TestCases
 // Some convenience.
 void openTextEditor(const QString &titlePattern, const QString &contents);
 
-QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
+GlobalDebuggerOptions *globalDebuggerOptions();
 
 bool isTestRun();
 

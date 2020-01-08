@@ -28,52 +28,21 @@
 #include "debuggersourcepathmappingwidget.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/savedaction.h>
-
-#include <QPointer>
-#include <QSharedPointer>
 
 namespace Debugger {
 namespace Internal {
-
-class GlobalDebuggerOptions;
-class DebuggerSourcePathMappingWidget;
-
-///////////////////////////////////////////////////////////////////////
-//
-// CommonOptionsPage
-//
-///////////////////////////////////////////////////////////////////////
 
 class CommonOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go);
-
-    // IOptionsPage
-    QWidget *widget() final;
-    void apply() final;
-    void finish() final;
+    CommonOptionsPage();
 
     static QString msgSetBreakpointAtFunction(const char *function);
     static QString msgSetBreakpointAtFunctionToolTip(const char *function,
-                                                     const QString &hint = QString());
-
-private:
-    QPointer<QWidget> m_widget;
-    Utils::SavedActionSet m_group;
-    const QSharedPointer<GlobalDebuggerOptions> m_options;
-    DebuggerSourcePathMappingWidget *m_sourceMappingWidget = nullptr;
+                                                     const QString &hint = {});
 };
-
-
-///////////////////////////////////////////////////////////////////////
-//
-// LocalsAndExpressionsOptionsPage
-//
-///////////////////////////////////////////////////////////////////////
 
 class LocalsAndExpressionsOptionsPage : public Core::IOptionsPage
 {

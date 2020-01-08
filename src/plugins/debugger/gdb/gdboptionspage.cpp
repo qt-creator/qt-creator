@@ -35,6 +35,7 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
+#include <utils/savedaction.h>
 
 #include <QCheckBox>
 #include <QCoreApplication>
@@ -73,7 +74,7 @@ public:
     void apply() final { group.apply(ICore::settings()); }
     void finish() final { group.finish(); }
 
-    Utils::SavedActionSet group;
+    SavedActionSet group;
 };
 
 GdbOptionsPageWidget::GdbOptionsPageWidget()

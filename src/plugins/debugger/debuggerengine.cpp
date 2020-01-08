@@ -2789,7 +2789,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
-            QSharedPointer<GlobalDebuggerOptions> options = Internal::globalDebuggerOptions();
+            const GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
             SourcePathRegExpMap globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
             for (auto entry : qAsConst(options->sourcePathRegExpMap)) {

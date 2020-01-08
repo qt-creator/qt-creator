@@ -33,6 +33,7 @@
 #include <coreplugin/variablechooser.h>
 
 #include <app/app_version.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -61,50 +62,12 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go) :
-    m_options(go)
+class CommonOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    setId(DEBUGGER_COMMON_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("Debugger", "General"));
-    setCategory(DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger", "Debugger"));
-    setCategoryIcon(Utils::Icon({{":/debugger/images/settingscategory_debugger.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
-}
-
-void CommonOptionsPage::apply()
-{
-    m_group.apply(ICore::settings());
-
-    GlobalDebuggerOptions newOptions;
-    SourcePathMap allPathMap = m_sourceMappingWidget->sourcePathMap();
-    for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
-        const QString key = it.key();
-        if (key.startsWith('('))
-            newOptions.sourcePathRegExpMap.append(qMakePair(QRegExp(key), it.value()));
-        else
-            newOptions.sourcePathMap.insert(key, it.value());
-    }
-
-    if (newOptions.sourcePathMap != m_options->sourcePathMap
-            || newOptions.sourcePathRegExpMap != m_options->sourcePathRegExpMap) {
-        *m_options = newOptions;
-        m_options->toSettings();
-    }
-}
-
-void CommonOptionsPage::finish()
-{
-    m_group.finish();
-    delete m_widget;
-}
-
-QWidget *CommonOptionsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new QWidget;
-
-        auto behaviorBox = new QGroupBox(m_widget);
+public:
+    explicit CommonOptionsPageWidget()
+    {
+        auto behaviorBox = new QGroupBox(this);
         behaviorBox->setTitle(tr("Behavior"));
 
         auto checkBoxUseAlternatingRowColors = new QCheckBox(behaviorBox);
@@ -171,7 +134,7 @@ QWidget *CommonOptionsPage::widget()
         spinBoxMaximalStackDepth->setSingleStep(5);
         spinBoxMaximalStackDepth->setValue(10);
 
-        m_sourceMappingWidget = new DebuggerSourcePathMappingWidget(m_widget);
+        m_sourceMappingWidget = new DebuggerSourcePathMappingWidget(this);
 
         auto horizontalLayout = new QHBoxLayout;
         horizontalLayout->addWidget(labelMaximalStackDepth);
@@ -194,12 +157,10 @@ QWidget *CommonOptionsPage::widget()
         gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 3, 1, 1, 1);
         gridLayout->addWidget(checkBoxRegisterForPostMortem, 4, 1, 1, 1);
 
-        auto verticalLayout = new QVBoxLayout(m_widget);
+        auto verticalLayout = new QVBoxLayout(this);
         verticalLayout->addWidget(behaviorBox);
         verticalLayout->addWidget(m_sourceMappingWidget);
         verticalLayout->addStretch();
-
-        m_group.clear();
 
         m_group.insert(action(UseAlternatingRowColors),
                        checkBoxUseAlternatingRowColors);
@@ -245,12 +206,49 @@ QWidget *CommonOptionsPage::widget()
             checkBoxRegisterForPostMortem->setVisible(false);
         }
 
-        SourcePathMap allPathMap = m_options->sourcePathMap;
-        for (auto regExpMap : qAsConst(m_options->sourcePathRegExpMap))
+        GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
+        SourcePathMap allPathMap = options->sourcePathMap;
+        for (auto regExpMap : qAsConst(options->sourcePathRegExpMap))
             allPathMap.insert(regExpMap.first.pattern(), regExpMap.second);
         m_sourceMappingWidget->setSourcePathMap(allPathMap);
     }
-    return m_widget;
+
+    void apply() final;
+    void finish() final { m_group.finish(); }
+
+private:
+    SavedActionSet m_group;
+    DebuggerSourcePathMappingWidget *m_sourceMappingWidget = nullptr;
+};
+
+void CommonOptionsPageWidget::apply()
+{
+    m_group.apply(ICore::settings());
+
+    GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
+    options->sourcePathMap.clear();
+    options->sourcePathRegExpMap.clear();
+
+    SourcePathMap allPathMap = m_sourceMappingWidget->sourcePathMap();
+    for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
+        const QString key = it.key();
+        if (key.startsWith('('))
+            options->sourcePathRegExpMap.append(qMakePair(QRegExp(key), it.value()));
+        else
+            options->sourcePathMap.insert(key, it.value());
+    }
+    options->toSettings();
+}
+
+CommonOptionsPage::CommonOptionsPage()
+{
+    setId(DEBUGGER_COMMON_SETTINGS_ID);
+    setDisplayName(QCoreApplication::translate("Debugger", "General"));
+    setCategory(DEBUGGER_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("Debugger", "Debugger"));
+    setCategoryIcon(Icon({{":/debugger/images/settingscategory_debugger.png",
+                    Theme::PanelTextColorDark}}, Icon::Tint));
+    setWidgetCreator([] { return new CommonOptionsPageWidget; });
 }
 
 QString CommonOptionsPage::msgSetBreakpointAtFunction(const char *function)

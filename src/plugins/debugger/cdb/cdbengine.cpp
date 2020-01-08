@@ -251,8 +251,7 @@ void CdbEngine::init()
         }
     }
 
-    const QSharedPointer<GlobalDebuggerOptions> globalOptions = Internal::globalDebuggerOptions();
-    SourcePathMap sourcePathMap = globalOptions->sourcePathMap;
+    const SourcePathMap &sourcePathMap = Internal::globalDebuggerOptions()->sourcePathMap;
     if (!sourcePathMap.isEmpty()) {
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
             m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),
