@@ -41,6 +41,7 @@
 #include <projectexplorer/session.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -353,13 +354,13 @@ void Client::cancelRequest(const MessageId &id)
 
 void Client::closeDocument(TextEditor::TextDocument *document)
 {
-    if (m_openedDocument.remove(document) == 0)
-        return;
-    const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
-    const DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
-    m_highlights[uri].clear();
-    sendContent(uri, DidCloseTextDocumentNotification(params));
     deactivateDocument(document);
+    const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
+    m_highlights[uri].clear();
+    if (m_openedDocument.remove(document) != 0) {
+        DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
+        sendContent(DidCloseTextDocumentNotification(params));
+    }
 }
 
 void Client::activateDocument(TextEditor::TextDocument *document)
@@ -378,6 +379,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
         document->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
         document->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
     }
+    document->setFormatter(new LanguageClientFormatter(document, this));
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         updateEditorToolBar(editor);
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
@@ -389,6 +391,7 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
 {
     hideDiagnostics(document);
     resetAssistProviders(document);
+    document->setFormatter(nullptr);
     if (TextEditor::SyntaxHighlighter *highlighter = document->syntaxHighlighter())
         highlighter->clearAllExtraFormats();
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
@@ -397,9 +400,9 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     }
 }
 
-bool Client::documentOpen(TextEditor::TextDocument *document) const
+bool Client::documentOpen(const TextEditor::TextDocument *document) const
 {
-    return m_openedDocument.contains(document);
+    return m_openedDocument.contains(const_cast<TextEditor::TextDocument *>(document));
 }
 
 void Client::documentContentsSaved(TextEditor::TextDocument *document)
@@ -713,6 +716,101 @@ void Client::executeCommand(const Command &command)
     }
 
     const ExecuteCommandRequest request((ExecuteCommandParams(command)));
+    sendContent(request);
+}
+
+static const FormattingOptions formattingOptions(const TextEditor::TabSettings &settings)
+{
+    FormattingOptions options;
+    options.setTabSize(settings.m_tabSize);
+    options.setInsertSpace(settings.m_tabPolicy == TextEditor::TabSettings::SpacesOnlyTabPolicy);
+    return options;
+}
+
+template<typename FormattingResponse>
+static void handleFormattingResponse(const DocumentUri &uri,
+                                     const QPointer<Client> client,
+                                     const FormattingResponse &response)
+{
+    if (client) {
+        if (const Utils::optional<typename FormattingResponse::Error> &error = response.error())
+            client->log(*error);
+    }
+    if (Utils::optional<LanguageClientArray<TextEdit>> result = response.result()) {
+        if (!result->isNull()) {
+            applyTextEdits(uri, result->toList());
+        }
+    }
+
+}
+
+void Client::formatFile(const TextEditor::TextDocument *document)
+{
+    if (!isSupportedDocument(document))
+        return;
+
+    const FilePath &filePath = document->filePath();
+    const QString method(DocumentFormattingRequest::methodName);
+    if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
+        if (!registered.value())
+            return;
+        const TextDocumentRegistrationOptions option(
+            m_dynamicCapabilities.option(method).toObject());
+        if (option.isValid(nullptr)
+            && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
+            return;
+        }
+    } else if (!m_serverCapabilities.documentFormattingProvider().value_or(false)) {
+        return;
+    }
+
+    DocumentFormattingParams params;
+    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
+    params.setTextDocument(uri);
+    params.setOptions(formattingOptions(document->tabSettings()));
+    DocumentFormattingRequest request(params);
+    request.setResponseCallback(
+        [uri, self = QPointer<Client>(this)](const DocumentFormattingRequest::Response &response) {
+            handleFormattingResponse(uri, self, response);
+        });
+    sendContent(request);
+}
+
+void Client::formatRange(const TextEditor::TextDocument *document, const QTextCursor &cursor)
+{
+    if (!isSupportedDocument(document))
+        return;
+
+    const FilePath &filePath = document->filePath();
+    const QString method(DocumentRangeFormattingRequest::methodName);
+    if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
+        if (!registered.value())
+            return;
+        const TextDocumentRegistrationOptions option(
+            m_dynamicCapabilities.option(method).toObject());
+        if (option.isValid(nullptr)
+            && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
+            return;
+        }
+    } else if (!m_serverCapabilities.documentRangeFormattingProvider().value_or(false)) {
+        return;
+    }
+    DocumentRangeFormattingParams params;
+    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
+    params.setTextDocument(uri);
+    params.setOptions(formattingOptions(document->tabSettings()));
+    if (!cursor.hasSelection()) {
+        QTextCursor c = cursor;
+        c.select(QTextCursor::LineUnderCursor);
+        params.setRange(Range(c));
+    } else {
+        params.setRange(Range(cursor));
+    }
+    DocumentRangeFormattingRequest request(params);
+    request.setResponseCallback([uri, self = QPointer<Client>(this)](
+                                    const DocumentRangeFormattingRequest::Response &response) {
+        handleFormattingResponse(uri, self, response);
+    });
     sendContent(request);
 }
 

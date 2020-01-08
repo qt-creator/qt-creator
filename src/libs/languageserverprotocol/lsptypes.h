@@ -30,9 +30,10 @@
 #include "lsputils.h"
 
 #include <utils/fileutils.h>
-#include <utils/optional.h>
-#include <utils/variant.h>
 #include <utils/link.h>
+#include <utils/optional.h>
+#include <utils/textutils.h>
+#include <utils/variant.h>
 
 #include <QTextCursor>
 #include <QJsonObject>
@@ -221,6 +222,8 @@ public:
     // The string to be inserted. For delete operations use an empty string.
     QString newText() const { return typedValue<QString>(newTextKey); }
     void setNewText(const QString &text) { insert(newTextKey, text); }
+
+    Utils::Text::Replacement toReplacement(QTextDocument *document) const;
 
     bool isValid(QStringList *error) const override
     { return check<Range>(error, rangeKey) && check<QString>(error, newTextKey); }

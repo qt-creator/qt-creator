@@ -8,6 +8,7 @@ add_qtc_plugin(LanguageClient
     languageclient.qrc
     languageclientcompletionassist.cpp languageclientcompletionassist.h
     languageclientfunctionhint.cpp languageclientfunctionhint.h
+    languageclientformatter.cpp languageclientformatter.h
     languageclienthoverhandler.cpp languageclienthoverhandler.h
     languageclientinterface.cpp languageclientinterface.h
     languageclientmanager.cpp languageclientmanager.h

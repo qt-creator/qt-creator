@@ -8,6 +8,7 @@ HEADERS += \
     dynamiccapabilities.h \
     languageclient_global.h \
     languageclientcompletionassist.h \
+    languageclientformatter.h \
     languageclientfunctionhint.h \
     languageclienthoverhandler.h \
     languageclientinterface.h \
@@ -26,6 +27,7 @@ SOURCES += \
     documentsymbolcache.cpp \
     dynamiccapabilities.cpp \
     languageclientcompletionassist.cpp \
+    languageclientformatter.cpp \
     languageclientfunctionhint.cpp \
     languageclienthoverhandler.cpp \
     languageclientinterface.cpp \

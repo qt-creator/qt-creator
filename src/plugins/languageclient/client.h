@@ -29,10 +29,11 @@
 #include "dynamiccapabilities.h"
 #include "languageclient_global.h"
 #include "languageclientcompletionassist.h"
+#include "languageclientformatter.h"
 #include "languageclientfunctionhint.h"
+#include "languageclienthoverhandler.h"
 #include "languageclientquickfix.h"
 #include "languageclientsettings.h"
-#include "languageclienthoverhandler.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/messagemanager.h>
@@ -100,7 +101,7 @@ public:
     void closeDocument(TextEditor::TextDocument *document);
     void activateDocument(TextEditor::TextDocument *document);
     void deactivateDocument(TextEditor::TextDocument *document);
-    bool documentOpen(TextEditor::TextDocument *document) const;
+    bool documentOpen(const TextEditor::TextDocument *document) const;
     void documentContentsSaved(TextEditor::TextDocument *document);
     void documentWillSave(Core::IDocument *document);
     void documentContentsChanged(TextEditor::TextDocument *document,
@@ -119,6 +120,9 @@ public:
     void handleCodeActionResponse(const LanguageServerProtocol::CodeActionRequest::Response &response,
                                   const LanguageServerProtocol::DocumentUri &uri);
     void executeCommand(const LanguageServerProtocol::Command &command);
+
+    void formatFile(const TextEditor::TextDocument *document);
+    void formatRange(const TextEditor::TextDocument *document, const QTextCursor &cursor);
 
     // workspace control
     void setCurrentProject(ProjectExplorer::Project *project);
