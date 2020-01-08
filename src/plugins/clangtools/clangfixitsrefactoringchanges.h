@@ -72,10 +72,10 @@ private:
                 const ReplacementOperations &operationsForFile,
                 int firstOperationIndex);
     void shiftAffectedReplacements(const QString &fileName,
-                                   const TextEditor::Replacements &replacements,
+                                   const Utils::Text::Replacements &replacements,
                                    int startIndex);
     bool hasIntersection(const QString &fileName,
-                         const TextEditor::Replacements &replacements,
+                         const Utils::Text::Replacements &replacements,
                          int startIndex) const;
 
     QString m_filePath;

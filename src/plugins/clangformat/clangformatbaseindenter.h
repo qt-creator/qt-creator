@@ -53,7 +53,7 @@ public:
     void autoIndent(const QTextCursor &cursor,
                     const TextEditor::TabSettings &tabSettings,
                     int cursorPositionInEditor = -1) override;
-    TextEditor::Replacements format(const TextEditor::RangesInLines &rangesInLines) override;
+    Utils::Text::Replacements format(const TextEditor::RangesInLines &rangesInLines) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
@@ -78,17 +78,17 @@ private:
                       const QTextBlock &endBlock,
                       const QChar &typedChar,
                       int cursorPositionInEditor);
-    TextEditor::Replacements indentsFor(QTextBlock startBlock,
-                                        const QTextBlock &endBlock,
-                                        const QChar &typedChar,
-                                        int cursorPositionInEditor);
-    TextEditor::Replacements replacements(QByteArray buffer,
-                                          const QTextBlock &startBlock,
-                                          const QTextBlock &endBlock,
-                                          int cursorPositionInEditor,
-                                          ReplacementsToKeep replacementsToKeep,
-                                          const QChar &typedChar = QChar::Null,
-                                          bool secondTry = false) const;
+    Utils::Text::Replacements indentsFor(QTextBlock startBlock,
+                                         const QTextBlock &endBlock,
+                                         const QChar &typedChar,
+                                         int cursorPositionInEditor);
+    Utils::Text::Replacements replacements(QByteArray buffer,
+                                           const QTextBlock &startBlock,
+                                           const QTextBlock &endBlock,
+                                           int cursorPositionInEditor,
+                                           ReplacementsToKeep replacementsToKeep,
+                                           const QChar &typedChar = QChar::Null,
+                                           bool secondTry = false) const;
 };
 
 } // namespace ClangFormat

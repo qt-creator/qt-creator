@@ -36,6 +36,23 @@ QT_FORWARD_DECLARE_CLASS(QTextCursor)
 namespace Utils {
 namespace Text {
 
+struct Replacement
+{
+    Replacement() = default;
+    Replacement(int offset, int length, const QString &text)
+        : offset(offset)
+        , length(length)
+        , text(text)
+    {}
+
+    int offset = -1;
+    int length = -1;
+    QString text;
+
+    bool isValid() const { return offset >= 0 && length >= 0;  }
+};
+using Replacements = std::vector<Replacement>;
+
 // line is 1-based, column is 1-based
 QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
                                             int pos,
