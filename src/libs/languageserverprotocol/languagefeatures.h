@@ -738,10 +738,10 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentRangeFormattingRequest : public Request<
-        QList<TextEdit>, std::nullptr_t, DocumentFormattingParams>
+        LanguageClientArray<TextEdit>, std::nullptr_t, DocumentRangeFormattingParams>
 {
 public:
-    DocumentRangeFormattingRequest(const DocumentFormattingParams &params = DocumentFormattingParams());
+    DocumentRangeFormattingRequest(const DocumentRangeFormattingParams &params = DocumentRangeFormattingParams());
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/rangeFormatting";
 };

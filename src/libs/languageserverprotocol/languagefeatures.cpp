@@ -228,7 +228,7 @@ bool DocumentRangeFormattingParams::isValid(QStringList *error) const
 }
 
 DocumentRangeFormattingRequest::DocumentRangeFormattingRequest(
-        const DocumentFormattingParams &params)
+        const DocumentRangeFormattingParams &params)
     : Request(methodName, params)
 { }
 
