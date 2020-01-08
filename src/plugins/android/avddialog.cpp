@@ -51,8 +51,8 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     m_hideTipTimer.setSingleShot(true);
 
     if (abis.isEmpty()) {
-        m_avdDialog.abiComboBox->addItems(QStringList({"armeabi-v7a", "armeabi", "x86",
-                                                       "arm64-v8a", "x86_64"}));
+        m_avdDialog.abiComboBox->addItems(QStringList({"x86", "x86_64", "armeabi-v7a",
+                                                       "armeabi", "arm64-v8a"}));
     } else {
         m_avdDialog.abiComboBox->addItems(abis);
     }
@@ -95,7 +95,7 @@ CreateAvdInfo AvdDialog::gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager 
 
 const SdkPlatform* AvdDialog::sdkPlatform() const
 {
-    return m_avdDialog.targetComboBox->currentData().value<SdkPlatform*>();
+    return m_avdDialog.targetApiComboBox->currentData().value<SdkPlatform*>();
 }
 
 QString AvdDialog::name() const
@@ -110,7 +110,7 @@ QString AvdDialog::abi() const
 
 int AvdDialog::sdcardSize() const
 {
-    return m_avdDialog.sizeSpinBox->value();
+    return m_avdDialog.sdcardSizeSpinBox->value();
 }
 
 void AvdDialog::updateApiLevelComboBox()
@@ -127,11 +127,11 @@ void AvdDialog::updateApiLevelComboBox()
         return platform && Utils::anyOf(platform->systemImages(), hasAbi);
     });
 
-    m_avdDialog.targetComboBox->clear();
+    m_avdDialog.targetApiComboBox->clear();
     for (SdkPlatform *platform: filteredList) {
-        m_avdDialog.targetComboBox->addItem(platform->displayText(),
+        m_avdDialog.targetApiComboBox->addItem(platform->displayText(),
                                             QVariant::fromValue<SdkPlatform *>(platform));
-        m_avdDialog.targetComboBox->setItemData(m_avdDialog.targetComboBox->count() - 1,
+        m_avdDialog.targetApiComboBox->setItemData(m_avdDialog.targetApiComboBox->count() - 1,
                                                 platform->descriptionText(), Qt::ToolTipRole);
     }
 
