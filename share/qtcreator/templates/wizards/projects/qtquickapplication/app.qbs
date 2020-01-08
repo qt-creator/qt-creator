@@ -1,6 +1,6 @@
 import qbs
 
-Application {
+CppApplication {
 @if "%{UseVirtualKeyboard}" == "true"
     Depends { name: "Qt"; submodules: ["quick", "virtualkeyboard"] }
 @else
