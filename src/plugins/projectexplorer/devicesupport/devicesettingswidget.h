@@ -31,6 +31,8 @@
 #include <QString>
 #include <QWidget>
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 QT_BEGIN_NAMESPACE
 class QPushButton;
 QT_END_NAMESPACE
@@ -45,16 +47,19 @@ namespace Internal {
 namespace Ui { class DeviceSettingsWidget; }
 class NameValidator;
 
-class DeviceSettingsWidget : public QWidget
+class DeviceSettingsWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 public:
     DeviceSettingsWidget();
-    ~DeviceSettingsWidget() override;
+    ~DeviceSettingsWidget() final;
+
+private:
+    void apply() final { saveSettings(); }
+    void finish() final {}
 
     void saveSettings();
 
-private:
     void handleDeviceUpdated(Core::Id id);
     void currentDeviceChanged(int index);
     void addDevice();

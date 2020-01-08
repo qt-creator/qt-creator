@@ -27,12 +27,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace ProjectExplorer {
 namespace Internal {
-
-class DeviceSettingsWidget;
 
 class DeviceSettingsPage : public Core::IOptionsPage
 {
@@ -40,13 +36,6 @@ class DeviceSettingsPage : public Core::IOptionsPage
 
 public:
     DeviceSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<DeviceSettingsWidget> m_widget;
 };
 
 } // namespace Internal
