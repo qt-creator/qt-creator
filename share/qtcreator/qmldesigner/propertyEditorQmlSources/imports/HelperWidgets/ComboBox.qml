@@ -33,7 +33,7 @@ StudioControls.ComboBox {
 
     property variant backendValue
 
-    labelColor: edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
+    labelColor: edit && !colorLogic.errorState ? StudioTheme.Values.themeTextColor : colorLogic.textColor
     property string scope: "Qt"
 
     property bool useInteger: false
@@ -47,6 +47,8 @@ StudioControls.ComboBox {
     property bool block: false
 
     property bool showExtendedFunctionButton: true
+
+    property alias colorLogic: colorLogic
 
     ExtendedFunctionLogic {
         id: extFuncLogic

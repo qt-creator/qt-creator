@@ -143,6 +143,7 @@ extend_qtc_plugin(QmlDesigner
     update3dviewstatecommand.cpp update3dviewstatecommand.h
     enable3dviewcommand.cpp enable3dviewcommand.h
     view3dclosedcommand.cpp view3dclosedcommand.h
+    puppettocreatorcommand.cpp puppettocreatorcommand.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -320,6 +321,7 @@ extend_qtc_plugin(QmlDesigner
     simplecolorpalette.cpp simplecolorpalette.h
     simplecolorpalettemodel.cpp simplecolorpalettemodel.h
     simplecolorpalettesingleton.cpp simplecolorpalettesingleton.h
+    tooltip.cpp tooltip.h
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h
     quick2propertyeditorview.cpp quick2propertyeditorview.h

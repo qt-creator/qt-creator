@@ -32,7 +32,7 @@
 namespace TextEditor {
 
 TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
-    QWidget(parent),
+    QGroupBox(parent),
     ui(new Internal::Ui::TabSettingsWidget)
 {
     ui->setupUi(this);
@@ -89,13 +89,6 @@ void TabSettingsWidget::codingStyleLinkActivated(const QString &linkString)
         emit codingStyleLinkClicked(CppLink);
     else if (linkString == QLatin1String("QtQuick"))
         emit codingStyleLinkClicked(QtQuickLink);
-}
-
-void TabSettingsWidget::setFlat(bool on)
-{
-    ui->tabsAndIndentationGroupBox->setFlat(on);
-    const int margin = on ? 0 : -1;
-    ui->tabsAndIndentationGroupBox->layout()->setContentsMargins(margin, -1, margin, margin);
 }
 
 void TabSettingsWidget::setCodingStyleWarningVisible(bool visible)

@@ -89,11 +89,6 @@ void SimpleCodeStylePreferencesWidget::slotTabSettingsChanged(const TextEditor::
     current->setTabSettings(settings);
 }
 
-void SimpleCodeStylePreferencesWidget::setFlat(bool on)
-{
-    m_tabSettingsWidget->setFlat(on);
-}
-
 TabSettingsWidget *SimpleCodeStylePreferencesWidget::tabSettingsWidget() const
 {
     return m_tabSettingsWidget;

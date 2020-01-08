@@ -72,6 +72,7 @@
 #include "changeselectioncommand.h"
 #include "drop3dlibraryitemcommand.h"
 #include "view3dclosedcommand.h"
+#include "puppettocreatorcommand.h"
 
 namespace QmlDesigner {
 
@@ -258,6 +259,11 @@ void NodeInstanceClientProxy::selectionChanged(const ChangeSelectionCommand &com
 }
 
 void NodeInstanceClientProxy::library3DItemDropped(const Drop3DLibraryItemCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

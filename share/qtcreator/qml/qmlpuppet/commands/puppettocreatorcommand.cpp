@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,45 +23,33 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "puppettocreatorcommand.h"
 
-#include "texteditor_global.h"
+namespace QmlDesigner {
 
-#include <QGroupBox>
+// A generic command that can hold a variant data from puppet to creator
 
-namespace TextEditor {
-
-namespace Internal { namespace Ui { class TabSettingsWidget; } }
-
-class TabSettings;
-
-class TEXTEDITOR_EXPORT TabSettingsWidget : public QGroupBox
+PuppetToCreatorCommand::PuppetToCreatorCommand(Type type, const QVariant &data)
+    : m_type(type)
+    , m_data(data)
 {
-    Q_OBJECT
 
-public:
-    enum CodingStyleLink {
-        CppLink,
-        QtQuickLink
-    };
+}
 
-    explicit TabSettingsWidget(QWidget *parent = nullptr);
-    ~TabSettingsWidget() override;
+QDataStream &operator<<(QDataStream &out, const PuppetToCreatorCommand &command)
+{
+    out << qint32(command.type());
+    out << command.data();
+    return out;
+}
 
-    TabSettings tabSettings() const;
+QDataStream &operator>>(QDataStream &in, PuppetToCreatorCommand &command)
+{
+    qint32 type;
+    in >> type;
+    command.m_type = PuppetToCreatorCommand::Type(type);
+    in >> command.m_data;
+    return in;
+}
 
-    void setCodingStyleWarningVisible(bool visible);
-    void setTabSettings(const TextEditor::TabSettings& s);
-
-signals:
-    void settingsChanged(const TextEditor::TabSettings &);
-    void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
-
-private:
-    void slotSettingsChanged();
-    void codingStyleLinkActivated(const QString &linkString);
-
-    Internal::Ui::TabSettingsWidget *ui;
-};
-
-} // namespace TextEditor
+} // namespace QmlDesigner

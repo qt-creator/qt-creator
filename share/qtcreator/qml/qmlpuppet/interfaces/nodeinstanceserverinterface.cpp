@@ -64,6 +64,7 @@
 #include "debugoutputcommand.h"
 #include "puppetalivecommand.h"
 #include "view3dclosedcommand.h"
+#include "puppettocreatorcommand.h"
 
 #include <enumeration.h>
 
@@ -209,6 +210,12 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<View3DClosedCommand>("View3DClosedCommand");
     qRegisterMetaTypeStreamOperators<View3DClosedCommand>("View3DClosedCommand");
+
+    qRegisterMetaType<PuppetToCreatorCommand>("PuppetToCreatorCommand");
+    qRegisterMetaTypeStreamOperators<PuppetToCreatorCommand>("PuppetToCreatorCommand");
+
+    qRegisterMetaType<QPair<int, int>>("QPairIntInt");
+    qRegisterMetaTypeStreamOperators<QPair<int, int>>("QPairIntInt");
 }
 
 }

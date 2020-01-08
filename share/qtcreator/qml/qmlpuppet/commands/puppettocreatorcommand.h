@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,43 +25,33 @@
 
 #pragma once
 
-#include "texteditor_global.h"
+#include <qmetatype.h>
+#include <QDataStream>
+#include <QVariant>
 
-#include <QGroupBox>
+namespace QmlDesigner {
 
-namespace TextEditor {
-
-namespace Internal { namespace Ui { class TabSettingsWidget; } }
-
-class TabSettings;
-
-class TEXTEDITOR_EXPORT TabSettingsWidget : public QGroupBox
+class PuppetToCreatorCommand
 {
-    Q_OBJECT
-
 public:
-    enum CodingStyleLink {
-        CppLink,
-        QtQuickLink
-    };
+    enum Type { Key_Pressed, None };
 
-    explicit TabSettingsWidget(QWidget *parent = nullptr);
-    ~TabSettingsWidget() override;
+    PuppetToCreatorCommand(Type type, const QVariant &data);
+    PuppetToCreatorCommand() = default;
 
-    TabSettings tabSettings() const;
-
-    void setCodingStyleWarningVisible(bool visible);
-    void setTabSettings(const TextEditor::TabSettings& s);
-
-signals:
-    void settingsChanged(const TextEditor::TabSettings &);
-    void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
+    Type type() const { return m_type; }
+    QVariant data() const { return m_data; }
 
 private:
-    void slotSettingsChanged();
-    void codingStyleLinkActivated(const QString &linkString);
+    Type m_type = None;
+    QVariant m_data;
 
-    Internal::Ui::TabSettingsWidget *ui;
+    friend QDataStream &operator>>(QDataStream &in, PuppetToCreatorCommand &command);
 };
 
-} // namespace TextEditor
+QDataStream &operator<<(QDataStream &out, const PuppetToCreatorCommand &command);
+QDataStream &operator>>(QDataStream &in, PuppetToCreatorCommand &command);
+
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::PuppetToCreatorCommand)

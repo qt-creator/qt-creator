@@ -31,6 +31,7 @@ HEADERS += $$PWD/drop3dlibraryitemcommand.h
 HEADERS += $$PWD/update3dviewstatecommand.h
 HEADERS += $$PWD/enable3dviewcommand.h
 HEADERS += $$PWD/view3dclosedcommand.h
+HEADERS += $$PWD/puppettocreatorcommand.h
 
 SOURCES += $$PWD/synchronizecommand.cpp
 SOURCES += $$PWD/debugoutputcommand.cpp
@@ -63,3 +64,4 @@ SOURCES += $$PWD/drop3dlibraryitemcommand.cpp
 SOURCES += $$PWD/update3dviewstatecommand.cpp
 SOURCES += $$PWD/enable3dviewcommand.cpp
 SOURCES += $$PWD/view3dclosedcommand.cpp
+SOURCES += $$PWD/puppettocreatorcommand.cpp

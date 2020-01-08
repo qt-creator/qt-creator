@@ -46,7 +46,6 @@ public:
 
     void setPreferences(ICodeStylePreferences *tabPreferences);
 
-    void setFlat(bool on);
     TabSettingsWidget *tabSettingsWidget() const;
 
 private:

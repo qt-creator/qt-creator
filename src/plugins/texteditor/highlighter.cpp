@@ -301,8 +301,10 @@ static bool isClosingParenthesis(QChar c)
 
 void Highlighter::highlightBlock(const QString &text)
 {
-    if (!definition().isValid())
+    if (!definition().isValid()) {
+        formatSpaces(text);
         return;
+    }
     QTextBlock block = currentBlock();
     KSyntaxHighlighting::State state;
     TextDocumentLayout::setBraceDepth(block, TextDocumentLayout::braceDepth(block.previous()));
