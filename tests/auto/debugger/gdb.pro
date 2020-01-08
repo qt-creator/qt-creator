@@ -37,4 +37,10 @@ HEADERS += \
         $$UTILSDIR/qtcprocess.h \
         $$UTILSDIR/processhandle.h \
         $$UTILSDIR/savefile.h \
+
+    macos: {
+         HEADERS += $$UTILSDIR/fileutils_mac.h
+         OBJECTIVE_SOURCES += $$UTILSDIR/fileutils_mac.mm
+         LIBS += -framework Foundation
+    }
 }

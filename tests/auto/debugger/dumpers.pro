@@ -39,6 +39,11 @@ msvc {
         $$IDE_SOURCE_TREE/src/libs/utils/processhandle.h \
         $$IDE_SOURCE_TREE/src/libs/utils/savefile.h
 
+    macos: {
+        HEADERS += $$IDE_SOURCE_TREE/src/libs/utils/fileutils_mac.h
+        OBJECTIVE_SOURCES += $$IDE_SOURCE_TREE/src/libs/utils/fileutils_mac.mm
+        LIBS += -framework Foundation
+    }
 }
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
