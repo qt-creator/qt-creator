@@ -25,11 +25,15 @@
 
 #include "locatorsettingspage.h"
 
+#include "ui_locatorsettingspage.h"
+
 #include "directoryfilter.h"
 #include "ilocatorfilter.h"
 #include "locator.h"
 #include "locatorconstants.h"
 #include "urllocatorfilter.h"
+
+#include <utils/treemodel.h>
 
 #include <coreplugin/coreconstants.h>
 
@@ -40,6 +44,7 @@
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
+#include <QHash>
 #include <QMenu>
 
 using namespace Utils;
@@ -82,12 +87,6 @@ private:
     QString m_name;
     int m_order = 0;
 };
-
-} // Internal
-} // Core
-
-using namespace Core;
-using namespace Core::Internal;
 
 FilterItem::FilterItem(ILocatorFilter *filter)
     : m_filter(filter)
@@ -164,22 +163,18 @@ QVariant CategoryItem::data(int column, int role) const
     return QVariant();
 }
 
-LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
-    : m_plugin(plugin), m_widget(nullptr)
+class LocatorSettingsWidget : public IOptionsPageWidget
 {
-    setId(Constants::FILTER_OPTIONS_PAGE);
-    setDisplayName(QCoreApplication::translate("Locator", Constants::FILTER_OPTIONS_PAGE));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-}
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::LocatorSettingsWidget)
 
-QWidget *LocatorSettingsPage::widget()
-{
-    if (!m_widget) {
+public:
+    LocatorSettingsWidget()
+    {
+        m_plugin = Locator::instance();
         m_filters = Locator::filters();
         m_customFilters = m_plugin->customFilters();
 
-        m_widget = new QWidget;
-        m_ui.setupUi(m_widget);
+        m_ui.setupUi(this);
         m_ui.refreshInterval->setToolTip(m_ui.refreshIntervalLabel->toolTip());
 
         m_ui.filterEdit->setFiltering(true);
@@ -204,17 +199,15 @@ QWidget *LocatorSettingsPage::widget()
         m_ui.filterList->header()->setSortIndicator(FilterName, Qt::AscendingOrder);
 
         connect(m_ui.filterEdit, &FancyLineEdit::filterChanged,
-                this, &LocatorSettingsPage::setFilter);
+                this, &LocatorSettingsWidget::setFilter);
         connect(m_ui.filterList->selectionModel(), &QItemSelectionModel::currentChanged,
-                this, &LocatorSettingsPage::updateButtonStates);
+                this, &LocatorSettingsWidget::updateButtonStates);
         connect(m_ui.filterList, &Utils::TreeView::activated,
-                this, &LocatorSettingsPage::configureFilter);
+                this, &LocatorSettingsWidget::configureFilter);
         connect(m_ui.editButton, &QPushButton::clicked,
                 this, [this]() { configureFilter(m_ui.filterList->currentIndex()); });
-        connect(m_ui.removeButton,
-                &QPushButton::clicked,
-                this,
-                &LocatorSettingsPage::removeCustomFilter);
+        connect(m_ui.removeButton, &QPushButton::clicked,
+                this, &LocatorSettingsWidget::removeCustomFilter);
 
         auto addMenu = new QMenu(m_ui.addButton);
         addMenu->addAction(tr("Files in Directories"), this, [this] {
@@ -232,10 +225,35 @@ QWidget *LocatorSettingsPage::widget()
         m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
         saveFilterStates();
     }
-    return m_widget;
-}
 
-void LocatorSettingsPage::apply()
+    void apply() final;
+    void finish() final;
+
+private:
+    void updateButtonStates();
+    void configureFilter(const QModelIndex &proxyIndex);
+    void addCustomFilter(ILocatorFilter *filter);
+    void removeCustomFilter();
+    void initializeModel();
+    void saveFilterStates();
+    void restoreFilterStates();
+    void requestRefresh();
+    void setFilter(const QString &text);
+
+    Ui::LocatorSettingsWidget m_ui;
+    Locator *m_plugin = nullptr;
+    Utils::TreeModel<> *m_model = nullptr;
+    QSortFilterProxyModel *m_proxyModel = nullptr;
+    Utils::TreeItem *m_customFilterRoot = nullptr;
+    QList<ILocatorFilter *> m_filters;
+    QList<ILocatorFilter *> m_addedFilters;
+    QList<ILocatorFilter *> m_removedFilters;
+    QList<ILocatorFilter *> m_customFilters;
+    QList<ILocatorFilter *> m_refreshFilters;
+    QHash<ILocatorFilter *, QByteArray> m_filterStates;
+};
+
+void LocatorSettingsWidget::apply()
 {
     // Delete removed filters and clear added filters
     qDeleteAll(m_removedFilters);
@@ -251,7 +269,7 @@ void LocatorSettingsPage::apply()
     saveFilterStates();
 }
 
-void LocatorSettingsPage::finish()
+void LocatorSettingsWidget::finish()
 {
     // If settings were applied, this shouldn't change anything. Otherwise it
     // makes sure the filter states aren't changed permanently.
@@ -266,36 +284,35 @@ void LocatorSettingsPage::finish()
     m_filters.clear();
     m_customFilters.clear();
     m_refreshFilters.clear();
-    delete m_widget;
 }
 
-void LocatorSettingsPage::requestRefresh()
+void LocatorSettingsWidget::requestRefresh()
 {
     if (!m_refreshFilters.isEmpty())
         m_plugin->refresh(m_refreshFilters);
 }
 
-void LocatorSettingsPage::setFilter(const QString &text)
+void LocatorSettingsWidget::setFilter(const QString &text)
 {
     m_proxyModel->setFilterFixedString(text);
     m_ui.filterList->expandAll();
 }
 
-void LocatorSettingsPage::saveFilterStates()
+void LocatorSettingsWidget::saveFilterStates()
 {
     m_filterStates.clear();
     for (ILocatorFilter *filter : qAsConst(m_filters))
         m_filterStates.insert(filter, filter->saveState());
 }
 
-void LocatorSettingsPage::restoreFilterStates()
+void LocatorSettingsWidget::restoreFilterStates()
 {
     const QList<ILocatorFilter *> filterStatesKeys = m_filterStates.keys();
     for (ILocatorFilter *filter : filterStatesKeys)
         filter->restoreState(m_filterStates.value(filter));
 }
 
-void LocatorSettingsPage::initializeModel()
+void LocatorSettingsWidget::initializeModel()
 {
     m_model->setHeader({tr("Name"), tr("Prefix"), tr("Default")});
     m_model->setHeaderToolTip({
@@ -317,7 +334,7 @@ void LocatorSettingsPage::initializeModel()
     m_model->rootItem()->appendChild(m_customFilterRoot);
 }
 
-void LocatorSettingsPage::updateButtonStates()
+void LocatorSettingsWidget::updateButtonStates()
 {
     const QModelIndex currentIndex = m_proxyModel->mapToSource(m_ui.filterList->currentIndex());
     bool selected = currentIndex.isValid();
@@ -331,7 +348,7 @@ void LocatorSettingsPage::updateButtonStates()
     m_ui.removeButton->setEnabled(filter && m_customFilters.contains(filter));
 }
 
-void LocatorSettingsPage::configureFilter(const QModelIndex &proxyIndex)
+void LocatorSettingsWidget::configureFilter(const QModelIndex &proxyIndex)
 {
     const QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
     QTC_ASSERT(index.isValid(), return);
@@ -342,7 +359,7 @@ void LocatorSettingsPage::configureFilter(const QModelIndex &proxyIndex)
     bool includedByDefault = filter->isIncludedByDefault();
     QString shortcutString = filter->shortcutString();
     bool needsRefresh = false;
-    filter->openConfigDialog(m_widget, needsRefresh);
+    filter->openConfigDialog(this, needsRefresh);
     if (needsRefresh && !m_refreshFilters.contains(filter))
         m_refreshFilters.append(filter);
     if (filter->isIncludedByDefault() != includedByDefault)
@@ -351,10 +368,10 @@ void LocatorSettingsPage::configureFilter(const QModelIndex &proxyIndex)
         item->updateColumn(FilterPrefix);
 }
 
-void LocatorSettingsPage::addCustomFilter(ILocatorFilter *filter)
+void LocatorSettingsWidget::addCustomFilter(ILocatorFilter *filter)
 {
     bool needsRefresh = false;
-    if (filter->openConfigDialog(m_widget, needsRefresh)) {
+    if (filter->openConfigDialog(this, needsRefresh)) {
         m_filters.append(filter);
         m_addedFilters.append(filter);
         m_customFilters.append(filter);
@@ -363,7 +380,7 @@ void LocatorSettingsPage::addCustomFilter(ILocatorFilter *filter)
     }
 }
 
-void LocatorSettingsPage::removeCustomFilter()
+void LocatorSettingsWidget::removeCustomFilter()
 {
     QModelIndex currentIndex = m_proxyModel->mapToSource(m_ui.filterList->currentIndex());
     QTC_ASSERT(currentIndex.isValid(), return);
@@ -382,3 +399,16 @@ void LocatorSettingsPage::removeCustomFilter()
         m_removedFilters.append(filter);
     }
 }
+
+// LocatorSettingsPage
+
+LocatorSettingsPage::LocatorSettingsPage()
+{
+    setId(Constants::FILTER_OPTIONS_PAGE);
+    setDisplayName(QCoreApplication::translate("Locator", Constants::FILTER_OPTIONS_PAGE));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setWidgetCreator([] { return new LocatorSettingsWidget; });
+}
+
+} // Internal
+} // Core

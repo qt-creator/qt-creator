@@ -38,7 +38,6 @@ namespace Core {
 namespace Internal {
 
 class LocatorData;
-class LocatorSettingsPage;
 
 class Locator : public QObject
 {
@@ -73,7 +72,6 @@ private:
     void updateFilterActions();
     void updateEditorManagerPlaceholderText();
 
-    LocatorSettingsPage *m_settingsPage = nullptr;
     LocatorData *m_locatorData = nullptr;
 
     bool m_settingsInitialized = false;

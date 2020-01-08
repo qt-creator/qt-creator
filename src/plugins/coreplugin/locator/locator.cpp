@@ -78,6 +78,7 @@ public:
     LocatorData();
 
     LocatorManager m_locatorManager;
+    LocatorSettingsPage m_locatorSettingsPage;
 
 #ifdef WITH_JAVASCRIPTFILTER
     JavaScriptFilter m_javaScriptFilter;
@@ -119,7 +120,6 @@ Locator::Locator()
 
 Locator::~Locator()
 {
-    delete m_settingsPage;
     delete m_locatorData;
     qDeleteAll(m_customFilters);
 }
@@ -132,7 +132,6 @@ Locator *Locator::instance()
 void Locator::initialize()
 {
     m_locatorData = new LocatorData;
-    m_settingsPage = new LocatorSettingsPage(this);
 
     QAction *action = new QAction(Utils::Icons::ZOOM.icon(), tr("Locate..."), this);
     Command *cmd = ActionManager::registerAction(action, Constants::LOCATE);
