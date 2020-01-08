@@ -38,7 +38,7 @@
 
 #include <qtsupport/qtkitinformation.h>
 
-#include <utils/utilsicons.h>
+#include <utils/infolabel.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -123,22 +123,13 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_androidPackageSourceDir->setExpectedKind(PathChooser::Directory);
     m_layout->addRow(tr("Android package source directory:"), m_androidPackageSourceDir);
 
-    m_sourceDirectoryWarning = new QLabel(this);
+    m_sourceDirectoryWarning =
+            new Utils::InfoLabel(tr("The Android package source directory cannot be the same as "
+                                    "the project directory."), Utils::InfoLabel::Error, this);
     m_sourceDirectoryWarning->setVisible(false);
-    m_sourceDirectoryWarning->setText(tr("The Android package source directory cannot be the same as the project directory."));
+    m_sourceDirectoryWarning->setElideMode(Qt::ElideNone);
     m_sourceDirectoryWarning->setWordWrap(true);
-    m_warningIcon = new QLabel(this);
-    m_warningIcon->setVisible(false);
-    m_warningIcon->setPixmap(Utils::Icons::CRITICAL.pixmap());
-    m_warningIcon->setWordWrap(true);
-    m_warningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-    auto hbox = new QHBoxLayout;
-    hbox->addWidget(m_warningIcon);
-    hbox->addWidget(m_sourceDirectoryWarning);
-    hbox->setAlignment(m_warningIcon, Qt::AlignTop);
-
-    m_layout->addRow(hbox);
+    m_layout->addRow(m_sourceDirectoryWarning);
 
     connect(m_androidPackageSourceDir, &PathChooser::pathChanged,
             m_wizard, &CreateAndroidManifestWizard::setDirectory);
@@ -163,7 +154,6 @@ void ChooseDirectoryPage::checkPackageSourceDir()
     bool isComplete = QFileInfo(projectDir) != QFileInfo(newDir);
 
     m_sourceDirectoryWarning->setVisible(!isComplete);
-    m_warningIcon->setVisible(!isComplete);
 
     if (isComplete != m_complete) {
         m_complete = isComplete;

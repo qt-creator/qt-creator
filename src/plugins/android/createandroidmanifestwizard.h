@@ -37,6 +37,10 @@ class QLabel;
 class QFormLayout;
 QT_END_NAMESPACE
 
+namespace Utils {
+class InfoLabel;
+}
+
 namespace ProjectExplorer { class Target; }
 
 namespace Android {
@@ -78,8 +82,7 @@ private:
 private:
     CreateAndroidManifestWizard *m_wizard;
     Utils::PathChooser *m_androidPackageSourceDir;
-    QLabel *m_sourceDirectoryWarning;
-    QLabel *m_warningIcon;
+    Utils::InfoLabel *m_sourceDirectoryWarning;
     QLabel *m_label;
     QFormLayout *m_layout;
     bool m_complete;
