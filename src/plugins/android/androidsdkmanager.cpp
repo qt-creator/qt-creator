@@ -69,12 +69,15 @@ using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutpu
 int platformNameToApiLevel(const QString &platformName)
 {
     int apiLevel = -1;
-    QRegularExpression re("(android-)(?<apiLevel>[0-9]{1,})",
+    QRegularExpression re("(android-)(?<apiLevel>[0-9Q]{1,})",
                           QRegularExpression::CaseInsensitiveOption);
     QRegularExpressionMatch match = re.match(platformName);
     if (match.hasMatch()) {
         QString apiLevelStr = match.captured("apiLevel");
-        apiLevel = apiLevelStr.toInt();
+        if (apiLevelStr == 'Q')
+            apiLevel = 29;
+        else
+            apiLevel = apiLevelStr.toInt();
     }
     return apiLevel;
 }
