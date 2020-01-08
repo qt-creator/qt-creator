@@ -86,20 +86,8 @@ public:
         setCategory("T.Analyzer");
         setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
         setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        setWidgetCreator([] { return new SettingsWidget; });
     }
-
-    QWidget *widget() override
-    {
-        if (!m_widget)
-            m_widget = new SettingsWidget(ClangToolsSettings::instance());
-        return m_widget;
-    }
-
-    void apply() override { m_widget->apply(); }
-    void finish() override { delete m_widget; }
-
-private:
-    QPointer<SettingsWidget> m_widget;
 };
 
 class ClangToolsPluginPrivate

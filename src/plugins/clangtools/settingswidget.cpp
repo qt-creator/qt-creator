@@ -72,10 +72,9 @@ SettingsWidget *SettingsWidget::instance()
     return m_instance;
 }
 
-SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
-    : QWidget(parent)
-    , m_ui(new Ui::SettingsWidget)
-    , m_settings(settings)
+SettingsWidget::SettingsWidget()
+    : m_ui(new Ui::SettingsWidget)
+    , m_settings(ClangToolsSettings::instance())
 {
     m_instance = this;
     m_ui->setupUi(this);
@@ -85,7 +84,7 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
     //
 
     QString placeHolderText = shippedClangTidyExecutable();
-    QString path = settings->clangTidyExecutable();
+    QString path = m_settings->clangTidyExecutable();
     if (path.isEmpty() && placeHolderText.isEmpty())
         path = Constants::CLANG_TIDY_EXECUTABLE_NAME;
     setupPathChooser(m_ui->clangTidyPathChooser,
@@ -99,7 +98,7 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
         m_ui->clazyStandaloneLabel->setVisible(false);
     } else {
         placeHolderText = shippedClazyStandaloneExecutable();
-        path = settings->clazyStandaloneExecutable();
+        path = m_settings->clazyStandaloneExecutable();
         if (path.isEmpty() && placeHolderText.isEmpty())
             path = Constants::CLAZY_STANDALONE_EXECUTABLE_NAME;
         setupPathChooser(m_ui->clazyStandalonePathChooser,

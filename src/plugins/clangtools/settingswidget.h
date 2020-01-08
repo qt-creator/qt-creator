@@ -27,7 +27,7 @@
 
 #include "clangtoolssettings.h"
 
-#include <QWidget>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <memory>
 
@@ -36,22 +36,23 @@ namespace Internal {
 
 namespace Ui { class SettingsWidget; }
 
-class SettingsWidget : public QWidget
+class SettingsWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 
 public:
     static SettingsWidget *instance();
 
-    SettingsWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
+    SettingsWidget();
     ~SettingsWidget() override;
 
     QString clangTidyPath() const;
     QString clazyStandalonePath() const;
 
-    void apply();
-
 private:
+    void apply() final;
+    void finish() final {};
+
     std::unique_ptr<Ui::SettingsWidget> m_ui;
     ClangToolsSettings *m_settings;
 };
