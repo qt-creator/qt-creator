@@ -260,7 +260,8 @@ QVariant AvdModel::data(const QModelIndex &index, int role) const
             return cpuAbis.isEmpty() ? QVariant() : QVariant(cpuAbis.first());
         }
         case 3:
-            return currentRow.avdDevice;
+            return currentRow.avdDevice.isEmpty() ? QVariant("Custom")
+                                                  : currentRow.avdDevice;
         case 4:
             return currentRow.avdTarget;
         case 5:
@@ -556,7 +557,7 @@ void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 void AndroidSettingsWidget::addAVD()
 {
     disableAvdControls();
-    CreateAvdInfo info = AvdDialog::gatherCreateAVDInfo(this, m_sdkManager.get());
+    CreateAvdInfo info = AvdDialog::gatherCreateAVDInfo(this, m_sdkManager.get(), m_androidConfig);
 
     if (!info.isValid()) {
         enableAvdControls();

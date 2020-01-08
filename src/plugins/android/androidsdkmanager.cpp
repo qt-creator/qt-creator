@@ -345,6 +345,21 @@ AndroidSdkPackageList AndroidSdkManager::installedSdkPackages()
     return m_d->filteredPackages(AndroidSdkPackage::Installed, AndroidSdkPackage::AnyValidType);
 }
 
+SystemImageList AndroidSdkManager::installedSystemImages()
+{
+    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::AnyValidState,
+                                                       AndroidSdkPackage::SdkPlatformPackage);
+    QList<SdkPlatform *> platforms = Utils::static_container_cast<SdkPlatform *>(list);
+
+    SystemImageList result;
+    for (SdkPlatform *platform : platforms) {
+        if (platform->systemImages().size() > 0)
+            result.append(platform->systemImages());
+    }
+
+    return result;
+}
+
 SdkPlatform *AndroidSdkManager::latestAndroidSdkPlatform(AndroidSdkPackage::PackageState state)
 {
     SdkPlatform *result = nullptr;
@@ -679,6 +694,7 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
         image->setInstalledLocation(packageData.installedLocation);
         image->setDisplayText(packageData.description);
         image->setDescriptionText(packageData.description);
+        image->setApiLevel(apiLevel);
         result = qMakePair(image, apiLevel);
     } else {
         qCDebug(sdkManagerLog) << "System-image: Minimum required data unavailable: "<< data;

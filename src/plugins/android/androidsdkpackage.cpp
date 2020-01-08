@@ -134,6 +134,16 @@ void SystemImage::setPlatform(SdkPlatform *platform)
     m_platform = platform;
 }
 
+int SystemImage::apiLevel() const
+{
+    return m_apiLevel;
+}
+
+void SystemImage::setApiLevel(const int apiLevel)
+{
+    m_apiLevel = apiLevel;
+}
+
 SdkPlatform::SdkPlatform(QVersionNumber version, QString sdkStylePathStr, int api, QObject *parent) :
     AndroidSdkPackage(version, sdkStylePathStr, parent),
     m_apiLevel(api)

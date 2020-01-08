@@ -54,6 +54,9 @@ public:
     QString waitForAvd(const QString &avdName,
                        const std::function<bool()> &cancelChecker = {}) const;
     bool isAvdBooted(const QString &device) const;
+    static bool avdManagerCommand(const AndroidConfig config,
+                                  const QStringList &args,
+                                  QString *output);
 
 private:
     bool waitForBooted(const QString &serialNumber,

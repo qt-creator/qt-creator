@@ -71,7 +71,7 @@ const int avdCreateTimeoutMs = 30000;
     \c true if the command is successfully executed. Output is copied into \a output. The function
     blocks the calling thread.
  */
-static bool avdManagerCommand(const AndroidConfig config, const QStringList &args, QString *output)
+bool AndroidAvdManager::avdManagerCommand(const AndroidConfig config, const QStringList &args, QString *output)
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
     Utils::SynchronousProcess proc;
@@ -118,7 +118,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig config, const CreateAv
 
     if (!result.isValid()) {
         qCDebug(avdManagerLog) << "AVD Create failed. Invalid CreateAvdInfo" << result.name
-                               << result.sdkPlatform->displayText() << result.sdkPlatform->apiLevel();
+                               << result.systemImage->displayText() << result.systemImage->apiLevel();
         result.error = QApplication::translate("AndroidAvdManager",
                                                "Cannot create AVD. Invalid input.");
         return result;
@@ -126,27 +126,16 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig config, const CreateAv
 
     QStringList arguments({"create", "avd", "-n", result.name});
 
-    if (!result.abi.isEmpty()) {
-        SystemImage *image = Utils::findOrDefault(result.sdkPlatform->systemImages(),
-                                                 Utils::equal(&SystemImage::abiName, result.abi));
-        if (image && image->isValid()) {
-            arguments << "-k" << image->sdkStylePath();
-        } else {
-            QString name = result.sdkPlatform->displayText();
-            qCDebug(avdManagerLog) << "AVD Create failed. Cannot find system image for the platform"
-                                   << result.abi << name;
-            result.error = QApplication::translate("AndroidAvdManager",
-                                                   "Cannot create AVD. Cannot find system image for "
-                                                   "the ABI %1(%2).").arg(result.abi).arg(name);
-            return result;
-        }
-
-    } else {
-        arguments << "-k" << result.sdkPlatform->sdkStylePath();
-    }
+    arguments << "-k" << result.systemImage->sdkStylePath();
 
     if (result.sdcardSize > 0)
         arguments << "-c" << QString::fromLatin1("%1M").arg(result.sdcardSize);
+
+    if (!result.deviceDefinition.isEmpty() && result.deviceDefinition != "Custom")
+        arguments << "-d" << QString::fromLatin1("%1").arg(result.deviceDefinition);
+
+    if (result.overwrite)
+        arguments << "-f";
 
     QProcess proc;
     proc.start(config.avdManagerToolPath().toString(), arguments);
@@ -419,7 +408,7 @@ AndroidDeviceInfoList AvdManagerOutputParser::listVirtualDevices(const AndroidCo
     AndroidDeviceInfoList avdList;
 
     do {
-        if (!avdManagerCommand(config, {"list", "avd"}, &output)) {
+        if (!AndroidAvdManager::avdManagerCommand(config, {"list", "avd"}, &output)) {
             qCDebug(avdManagerLog)
                 << "Avd list command failed" << output << config.sdkToolsVersion();
             return {};

@@ -25,6 +25,7 @@
 
 #include "avddialog.h"
 #include "androidsdkmanager.h"
+#include "androidavdmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/tooltip/tooltip.h>
@@ -34,16 +35,22 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QToolTip>
+#include <QLoggingCategory>
 
 using namespace Android;
 using namespace Android::Internal;
 
+namespace {
+Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
+}
+
 AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStringList &abis,
-                     QWidget *parent) :
+                     const AndroidConfig &config, QWidget *parent) :
     QDialog(parent),
     m_sdkManager(sdkManager),
     m_minApiLevel(minApiLevel),
-    m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
+    m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*")),
+    m_androidConfig(config)
 {
     QTC_CHECK(m_sdkManager);
     m_avdDialog.setupUi(this);
@@ -63,39 +70,119 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
 
     m_avdDialog.warningText->setType(Utils::InfoLabel::Warning);
 
-    updateApiLevelComboBox();
+    connect(&m_hideTipTimer, &QTimer::timeout, this, []() { Utils::ToolTip::hide(); });
 
+    parseDeviceDefinitionsList();
+    for (const QString &type : DeviceTypeToStringMap.values())
+        m_avdDialog.deviceDefinitionTypeComboBox->addItem(type);
+
+    connect(m_avdDialog.deviceDefinitionTypeComboBox,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &AvdDialog::updateDeviceDefinitionComboBox);
     connect(m_avdDialog.abiComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AvdDialog::updateApiLevelComboBox);
 
-    connect(&m_hideTipTimer, &QTimer::timeout,
-            this, [](){Utils::ToolTip::hide();});
+    m_avdDialog.deviceDefinitionTypeComboBox->setCurrentIndex(1); // Set Phone type as default index
+    updateApiLevelComboBox();
 }
 
 bool AvdDialog::isValid() const
 {
-    return !name().isEmpty() && sdkPlatform() && sdkPlatform()->isValid() && !abi().isEmpty();
+    return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty();
 }
 
 CreateAvdInfo AvdDialog::gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager *sdkManager,
-                                             int minApiLevel, const QStringList &abis)
+                                             const AndroidConfig &config, int minApiLevel, const QStringList &abis)
 {
     CreateAvdInfo result;
-    AvdDialog d(minApiLevel, sdkManager, abis, parent);
+    AvdDialog d(minApiLevel, sdkManager, abis, config, parent);
     if (d.exec() != QDialog::Accepted || !d.isValid())
         return result;
 
-    result.sdkPlatform = d.sdkPlatform();
+    result.systemImage = d.systemImage();
     result.name = d.name();
     result.abi = d.abi();
+    result.deviceDefinition = d.deviceDefinition();
     result.sdcardSize = d.sdcardSize();
+    result.overwrite = d.m_avdDialog.overwriteCheckBox->isChecked();
+
     return result;
 }
 
-const SdkPlatform* AvdDialog::sdkPlatform() const
+AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
 {
-    return m_avdDialog.targetApiComboBox->currentData().value<SdkPlatform*>();
+    if (type_tag.contains("android-wear"))
+        return AvdDialog::Wear;
+    else if (type_tag.contains("android-tv"))
+        return AvdDialog::TV;
+    else if (type_tag.contains("android-automotive"))
+        return AvdDialog::Automotive;
+    else
+        return AvdDialog::PhoneOrTablet;
+}
+
+void AvdDialog::parseDeviceDefinitionsList()
+{
+    QString output;
+
+    if (!AndroidAvdManager::avdManagerCommand(m_androidConfig, {"list", "device"}, &output)) {
+        qCDebug(avdDialogLog) << "Avd list command failed" << output
+                              << m_androidConfig.sdkToolsVersion();
+        return;
+    }
+
+    QStringList avdDeviceInfo;
+
+    for (QString line : output.split('\n')) {
+        if (line.startsWith("---------") || line.isEmpty()) {
+            DeviceDefinitionStruct deviceDefinition;
+            for (const QString &line : avdDeviceInfo) {
+                QString value;
+                if (line.contains("id:")) {
+                    deviceDefinition.name_id = line.split("or").at(1);
+                    deviceDefinition.name_id = deviceDefinition.name_id.remove(0, 1).remove('"');
+                } else if (line.contains("Tag :")) {
+                    deviceDefinition.type_str = line.split(':').at(1);
+                    deviceDefinition.type_str = deviceDefinition.type_str.remove(0, 1);
+                }
+            }
+
+            DeviceType deviceType = tagToDeviceType(deviceDefinition.type_str);
+            if (deviceType == PhoneOrTablet) {
+                if (deviceDefinition.name_id.contains("Tablet"))
+                    deviceType = Tablet;
+                else
+                    deviceType = Phone;
+            }
+            deviceDefinition.deviceType = deviceType;
+            m_deviceDefinitionsList.append(deviceDefinition);
+            avdDeviceInfo.clear();
+        } else {
+            avdDeviceInfo << line;
+        }
+    }
+}
+
+void AvdDialog::updateDeviceDefinitionComboBox()
+{
+    DeviceType curDeviceType = DeviceTypeToStringMap.key(
+        m_avdDialog.deviceDefinitionTypeComboBox->currentText());
+
+    m_avdDialog.deviceDefinitionComboBox->clear();
+    for (auto item : m_deviceDefinitionsList) {
+        if (item.deviceType == curDeviceType)
+            m_avdDialog.deviceDefinitionComboBox->addItem(item.name_id);
+    }
+    m_avdDialog.deviceDefinitionComboBox->addItem("Custom");
+
+    updateApiLevelComboBox();
+}
+
+const SystemImage* AvdDialog::systemImage() const
+{
+    return m_avdDialog.targetApiComboBox->currentData().value<SystemImage*>();
 }
 
 QString AvdDialog::name() const
@@ -108,6 +195,11 @@ QString AvdDialog::abi() const
     return m_avdDialog.abiComboBox->currentText();
 }
 
+QString AvdDialog::deviceDefinition() const
+{
+    return m_avdDialog.deviceDefinitionComboBox->currentText();
+}
+
 int AvdDialog::sdcardSize() const
 {
     return m_avdDialog.sdcardSizeSpinBox->value();
@@ -115,37 +207,49 @@ int AvdDialog::sdcardSize() const
 
 void AvdDialog::updateApiLevelComboBox()
 {
-    SdkPlatformList filteredList;
-    const SdkPlatformList platforms = m_sdkManager->filteredSdkPlatforms(m_minApiLevel);
+    SystemImageList installedSystemImages = m_sdkManager->installedSystemImages();
+    DeviceType curDeviceType = DeviceTypeToStringMap.key(
+        m_avdDialog.deviceDefinitionTypeComboBox->currentText());
 
     QString selectedAbi = abi();
     auto hasAbi = [selectedAbi](const SystemImage *image) {
         return image && image->isValid() && (image->abiName() == selectedAbi);
     };
 
-    filteredList = Utils::filtered(platforms, [hasAbi](const SdkPlatform *platform) {
-        return platform && Utils::anyOf(platform->systemImages(), hasAbi);
+    SystemImageList filteredList;
+    filteredList = Utils::filtered(installedSystemImages, [hasAbi, &curDeviceType](const SystemImage *image) {
+        DeviceType deviceType = tagToDeviceType(image->sdkStylePath().split(';').at(2));
+        if (deviceType == PhoneOrTablet && (curDeviceType == Phone || curDeviceType == Tablet))
+            curDeviceType = PhoneOrTablet;
+        return image && deviceType == curDeviceType && hasAbi(image);
     });
 
     m_avdDialog.targetApiComboBox->clear();
-    for (SdkPlatform *platform: filteredList) {
-        m_avdDialog.targetApiComboBox->addItem(platform->displayText(),
-                                            QVariant::fromValue<SdkPlatform *>(platform));
-        m_avdDialog.targetApiComboBox->setItemData(m_avdDialog.targetApiComboBox->count() - 1,
-                                                platform->descriptionText(), Qt::ToolTipRole);
+    for (SystemImage *image : filteredList) {
+            QString imageString = "android-" % QString::number(image->apiLevel());
+            if (image->sdkStylePath().contains("playstore"))
+                imageString += " (Google PlayStore)";
+            m_avdDialog.targetApiComboBox->addItem(imageString,
+                                                   QVariant::fromValue<SystemImage *>(image));
+            m_avdDialog.targetApiComboBox->setItemData(m_avdDialog.targetApiComboBox->count() - 1,
+                                                       image->descriptionText(),
+                                                       Qt::ToolTipRole);
     }
 
-    if (platforms.isEmpty()) {
+    if (installedSystemImages.isEmpty()) {
+        m_avdDialog.targetApiComboBox->setEnabled(false);
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(tr("Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
                                             "Install an SDK of at least API version %1.")
                                          .arg(m_minApiLevel));
     } else if (filteredList.isEmpty()) {
+        m_avdDialog.targetApiComboBox->setEnabled(false);
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(tr("Cannot create a AVD for ABI %1. Install an image for it.")
                                          .arg(abi()));
     } else {
         m_avdDialog.warningText->setVisible(false);
+        m_avdDialog.targetApiComboBox->setEnabled(true);
     }
 }
 

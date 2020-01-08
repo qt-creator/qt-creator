@@ -69,6 +69,7 @@ public:
     const AndroidSdkPackageList &allSdkPackages();
     AndroidSdkPackageList availableSdkPackages();
     AndroidSdkPackageList installedSdkPackages();
+    SystemImageList installedSystemImages();
 
     SdkPlatform *latestAndroidSdkPlatform(AndroidSdkPackage::PackageState state
                                           = AndroidSdkPackage::Installed);

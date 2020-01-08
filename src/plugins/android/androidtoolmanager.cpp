@@ -148,7 +148,7 @@ CreateAvdInfo AndroidToolManager::createAvdImpl(CreateAvdInfo info, FilePath and
     proc.setProcessEnvironment(env);
     QStringList arguments;
     arguments << QLatin1String("create") << QLatin1String("avd")
-              << QLatin1String("-t") << AndroidConfig::apiLevelNameFor(info.sdkPlatform)
+              << QLatin1String("-t") << QString("android-%1").arg(info.systemImage->apiLevel())
               << QLatin1String("-n") << info.name
               << QLatin1String("-b") << info.abi;
     if (info.sdcardSize > 0)

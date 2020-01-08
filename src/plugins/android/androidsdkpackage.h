@@ -114,10 +114,13 @@ public:
     const QString &abiName() const;
     const SdkPlatform *platform() const;
     void setPlatform(SdkPlatform *platform);
+    int apiLevel() const;
+    void setApiLevel(const int apiLevel);
 
 private:
     QPointer<SdkPlatform> m_platform;
     QString m_abiName;
+    int m_apiLevel = -1;
 };
 using SystemImageList = QList<SystemImage*>;
 

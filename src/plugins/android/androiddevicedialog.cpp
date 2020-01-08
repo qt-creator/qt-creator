@@ -578,7 +578,7 @@ void AndroidDeviceDialog::createAvd()
 {
     m_ui->createAVDButton->setEnabled(false);
     CreateAvdInfo info = AvdDialog::gatherCreateAVDInfo(this, AndroidConfigurations::sdkManager(),
-                                                        m_apiLevel, m_abis);
+                                                        AndroidConfigurations::currentConfig(), m_apiLevel, m_abis);
 
     if (!info.isValid()) {
         m_ui->createAVDButton->setEnabled(true);

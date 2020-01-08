@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>187</height>
+    <height>243</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -30,45 +30,49 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="nameLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Name:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="nameLineEdit"/>
-     </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="abiLabel">
        <property name="text">
         <string>Architecture (ABI):</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="abiComboBox"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="targetApiLabel">
-       <property name="text">
-        <string>Target API:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="targetApiComboBox"/>
-     </item>
-     <item row="3" column="1">
-      <widget class="Utils::InfoLabel" name="warningText"/>
-     </item>
-     <item row="4" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="sdcardSizeLabel">
        <property name="text">
         <string>SD card size:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="3" column="0">
+      <widget class="QLabel" name="targetApiLabel">
+       <property name="text">
+        <string>Target API:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="deviceDefinitionLabel">
+       <property name="text">
+        <string>Device definition:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QComboBox" name="abiComboBox"/>
+     </item>
+     <item row="5" column="1" colspan="2">
       <widget class="QSpinBox" name="sdcardSizeSpinBox">
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -84,6 +88,35 @@
        </property>
        <property name="value">
         <number>512</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="nameLineEdit"/>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QComboBox" name="targetApiComboBox"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="deviceDefinitionComboBox"/>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="Utils::InfoLabel" name="warningText"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="deviceDefinitionTypeComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QCheckBox" name="overwriteCheckBox">
+       <property name="text">
+        <string>Overwrite existing AVD name</string>
        </property>
       </widget>
      </item>

@@ -85,12 +85,14 @@ using AndroidDeviceInfoList = QList<AndroidDeviceInfo>;
 class CreateAvdInfo
 {
 public:
-    bool isValid() const { return sdkPlatform && sdkPlatform->isValid() && !name.isEmpty(); }
-    const SdkPlatform *sdkPlatform = nullptr;
+    bool isValid() const { return systemImage && systemImage->isValid() && !name.isEmpty(); }
+    const SystemImage *systemImage = nullptr;
     QString name;
     QString abi;
+    QString deviceDefinition;
     int sdcardSize = 0;
     QString error; // only used in the return value of createAVD
+    bool overwrite = false;
 };
 
 class ANDROID_EXPORT AndroidConfig
