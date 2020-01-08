@@ -42,17 +42,6 @@ class NimCodeStyleSettingsPage : public Core::IOptionsPage
 
 public:
     NimCodeStyleSettingsPage();
-    ~NimCodeStyleSettingsPage() override;
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    void deleteWidget();
-
-    TextEditor::SimpleCodeStylePreferences *m_nimCodeStylePreferences;
-    TextEditor::CodeStyleEditor *m_widget;
 };
 
 }
