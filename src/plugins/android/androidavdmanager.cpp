@@ -494,7 +494,7 @@ bool AvdManagerOutputParser::parseAvd(const QStringList &deviceInfo, AndroidDevi
                    qCDebug(avdManagerLog) << "Avd Parsing: Cannot find ABI:" << configFile;
 
                 // Get Target
-                QString avdInfoFileName = avdPath.toFileInfo().baseName() + ".ini";
+                const QString avdInfoFileName = avd->avdname + ".ini";
                 const Utils::FilePath
                         avdInfoFile = avdPath.parentDir().pathAppended(avdInfoFileName);
                 QSettings avdInfo(avdInfoFile.toString(), QSettings::IniFormat);
