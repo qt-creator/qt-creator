@@ -33,6 +33,8 @@
 #include <utils/synchronousprocess.h>
 
 #include <QAction>
+#include <QCursor>
+#include <QMimeData>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QScrollBar>
@@ -510,6 +512,33 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
 bool OutputWindow::isScrollbarAtBottom() const
 {
     return verticalScrollBar()->value() == verticalScrollBar()->maximum();
+}
+
+QMimeData *OutputWindow::createMimeDataFromSelection() const
+{
+    const auto mimeData = new QMimeData;
+    QString content;
+    const int selStart = textCursor().selectionStart();
+    const int selEnd = textCursor().selectionEnd();
+    const QTextBlock firstBlock = document()->findBlock(selStart);
+    const QTextBlock lastBlock = document()->findBlock(selEnd);
+    for (QTextBlock curBlock = firstBlock; curBlock != lastBlock; curBlock = curBlock.next()) {
+        if (!curBlock.isVisible())
+            continue;
+        if (curBlock == firstBlock)
+            content += curBlock.text().mid(selStart - firstBlock.position());
+        else
+            content += curBlock.text();
+        content += '\n';
+    }
+    if (lastBlock.isValid() && lastBlock.isVisible()) {
+        if (firstBlock == lastBlock)
+            content = textCursor().selectedText();
+        else
+            content += lastBlock.text().mid(0, selEnd - lastBlock.position());
+    }
+    mimeData->setText(content);
+    return mimeData;
 }
 
 void OutputWindow::clear()

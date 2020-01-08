@@ -66,8 +66,6 @@ public:
     void grayOutOldContent();
     void clear();
 
-    void showEvent(QShowEvent *) override;
-
     void scrollToBottom();
 
     void setMaxCharCount(int count);
@@ -94,14 +92,16 @@ public slots:
 protected:
     bool isScrollbarAtBottom() const;
 
+private:
+    QMimeData *createMimeDataFromSelection() const override;
+    void keyPressEvent(QKeyEvent *ev) override;
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void resizeEvent(QResizeEvent *e) override;
-    void keyPressEvent(QKeyEvent *ev) override;
+    void showEvent(QShowEvent *) override;
     void wheelEvent(QWheelEvent *e) override;
 
-private:
     using QPlainTextEdit::setFont; // call setBaseFont instead, which respects the zoom factor
     QTimer m_scrollTimer;
     QElapsedTimer m_lastMessage;
