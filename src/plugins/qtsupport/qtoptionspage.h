@@ -31,7 +31,6 @@
 #include <utils/treemodel.h>
 
 #include <QIcon>
-#include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -55,18 +54,20 @@ class QtVersionManager;
 class QtVersionInfo;
 }
 
-class QtOptionsPageWidget : public QWidget
+class QtOptionsPageWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 
 public:
-    QtOptionsPageWidget(QWidget *parent = nullptr);
+    QtOptionsPageWidget();
     ~QtOptionsPageWidget();
-    void apply();
 
     static void linkWithQt();
 
 private:
+    void apply() final;
+    void finish() final {}
+
     void updateDescriptionLabel();
     void userChangedCurrentVersion();
     void updateWidgets();
@@ -126,13 +127,6 @@ class QtOptionsPage : public Core::IOptionsPage
 
 public:
     QtOptionsPage();
-
-    QWidget *widget();
-    void apply();
-    void finish();
-
-private:
-    QPointer<QtOptionsPageWidget> m_widget;
 };
 
 } //namespace Internal

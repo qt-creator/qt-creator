@@ -169,37 +169,17 @@ private:
 ///
 
 QtOptionsPage::QtOptionsPage()
-    : m_widget(nullptr)
 {
     setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("QtSupport", "Qt Versions"));
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
-}
-
-QWidget *QtOptionsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new QtOptionsPageWidget;
-    return m_widget;
-}
-
-void QtOptionsPage::apply()
-{
-    if (!m_widget) // page was never shown
-        return;
-    m_widget->apply();
-}
-
-void QtOptionsPage::finish()
-{
-    delete m_widget;
+    setWidgetCreator([] { return new QtOptionsPageWidget; });
 }
 
 //-----------------------------------------------------
 
-QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_specifyNameString(tr("<specify a name>"))
+QtOptionsPageWidget::QtOptionsPageWidget()
+    : m_specifyNameString(tr("<specify a name>"))
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_infoBrowser(new QTextBrowser)
