@@ -32,7 +32,6 @@
 
 #include <QHash>
 #include <QPair>
-#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -109,14 +108,6 @@ class CompileOutputSettingsPage : public Core::IOptionsPage
 
 public:
     CompileOutputSettingsPage();
-
-private:
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-    class SettingsWidget;
-    QPointer<SettingsWidget> m_widget;
 };
 
 } // namespace Internal

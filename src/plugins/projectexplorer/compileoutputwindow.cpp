@@ -57,20 +57,15 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+namespace Internal {
 
-namespace {
 const char SETTINGS_KEY[] = "ProjectExplorer/CompileOutput/Zoom";
 const char C_COMPILE_OUTPUT[] = "ProjectExplorer.CompileOutput";
 const char POP_UP_KEY[] = "ProjectExplorer/Settings/ShowCompilerOutput";
 const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapBuildOutput";
 const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxBuildOutputLines";
 const char OPTIONS_PAGE_ID[] = "C.ProjectExplorer.CompileOutputOptions";
-}
-
-namespace ProjectExplorer {
-namespace Internal {
 
 class CompileOutputTextEdit : public Core::OutputWindow
 {
@@ -127,9 +122,6 @@ private:
     QPoint m_mousePressPosition;
     Qt::MouseButton m_mousePressButton = Qt::NoButton;
 };
-
-} // namespace Internal
-} // namespace ProjectExplorer
 
 CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
@@ -374,11 +366,11 @@ void CompileOutputWindow::storeSettings() const
     s->setValue(MAX_LINES_KEY, m_settings.maxCharCount / 100);
 }
 
-class CompileOutputSettingsPage::SettingsWidget : public QWidget
+class CompileOutputSettingsWidget : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::CompileOutputSettingsPage)
 public:
-    SettingsWidget()
+    CompileOutputSettingsWidget()
     {
         const CompileOutputSettings &settings = BuildManager::compileOutputSettings();
         m_wrapOutputCheckBox.setText(tr("Word-wrap output"));
@@ -401,14 +393,16 @@ public:
         layout->addStretch(1);
     }
 
-    CompileOutputSettings settings() const
+    void apply() final
     {
         CompileOutputSettings s;
         s.wrapOutput = m_wrapOutputCheckBox.isChecked();
         s.popUp = m_popUpCheckBox.isChecked();
         s.maxCharCount = m_maxCharsBox.value();
-        return s;
+        BuildManager::setCompileOutputSettings(s);
     }
+
+    void finish() final {}
 
 private:
     QCheckBox m_wrapOutputCheckBox;
@@ -421,24 +415,10 @@ CompileOutputSettingsPage::CompileOutputSettingsPage()
     setId(OPTIONS_PAGE_ID);
     setDisplayName(tr("Compile Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new CompileOutputSettingsWidget; });
 }
 
-QWidget *CompileOutputSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new SettingsWidget;
-    return m_widget;
-}
-
-void CompileOutputSettingsPage::apply()
-{
-    if (m_widget)
-        BuildManager::setCompileOutputSettings(m_widget->settings());
-}
-
-void CompileOutputSettingsPage::finish()
-{
-    delete m_widget;
-}
+} // Internal
+} // ProjectExplorer
 
 #include "compileoutputwindow.moc"
