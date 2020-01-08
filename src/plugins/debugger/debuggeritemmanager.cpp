@@ -444,7 +444,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
 // DebuggerConfigWidget
 // --------------------------------------------------------------------------
 
-class DebuggerConfigWidget : public QWidget
+class DebuggerConfigWidget : public IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 public:
@@ -504,6 +504,17 @@ public:
         m_itemConfigWidget = new DebuggerItemConfigWidget;
         m_container->setWidget(m_itemConfigWidget);
         updateButtons();
+    }
+
+    void apply() final
+    {
+        m_itemConfigWidget->store();
+        d->m_model->apply();
+    }
+
+    void finish() final
+    {
+        d->m_model->cancel();
     }
 
     void cloneDebugger();
@@ -585,43 +596,13 @@ class DebuggerOptionsPage : public Core::IOptionsPage
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 
 public:
-    DebuggerOptionsPage();
-
-    QWidget *widget() final;
-    void apply() final;
-    void finish() final;
-
-private:
-    QPointer<DebuggerConfigWidget> m_configWidget;
+    DebuggerOptionsPage() {
+        setId(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
+        setDisplayName(tr("Debuggers"));
+        setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new DebuggerConfigWidget; });
+    }
 };
-
-DebuggerOptionsPage::DebuggerOptionsPage()
-{
-    setId(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
-    setDisplayName(tr("Debuggers"));
-    setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
-}
-
-QWidget *DebuggerOptionsPage::widget()
-{
-    if (!m_configWidget)
-        m_configWidget = new DebuggerConfigWidget;
-    return m_configWidget;
-}
-
-void DebuggerOptionsPage::apply()
-{
-    QTC_ASSERT(m_configWidget, return);
-    m_configWidget->m_itemConfigWidget->store();
-    d->m_model->apply();
-}
-
-void DebuggerOptionsPage::finish()
-{
-    delete m_configWidget;
-    m_configWidget = nullptr;
-    d->m_model->cancel();
-}
 
 void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 {
