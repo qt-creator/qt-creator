@@ -78,7 +78,10 @@ Node {
                     id: iconMouseArea
                     anchors.fill: parent
                     onPressed: {
-                        if (iconGizmo.selected && !(mouse.modifiers & Qt.ControlModifier)) {
+                        // Ignore singleselection mouse presses when we have single object selected
+                        // so that the icon gizmo doesn't hijack mouse clicks meant for other gizmos
+                        if (iconGizmo.selected && !(mouse.modifiers & Qt.ControlModifier)
+                                && selectedNodes.length === 1) {
                             mouse.accepted = false;
                         }
                     }
