@@ -112,6 +112,7 @@ public slots:
                                               qreal angle);
     Q_INVOKABLE void applyFreeRotation(QQuick3DNode *node, const QVector3D &startRotation,
                                        const QVector3D &pressPos, const QVector3D &currentPos);
+    Q_INVOKABLE QVector3D pivotScenePosition(QQuick3DNode *node) const;
 
 signals:
     void view3DChanged();

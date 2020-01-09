@@ -61,8 +61,7 @@ Model {
         _pointerPosPressed = mouseArea.dragHelper.mapPositionToScene(maskedPosition);
         if (targetNode.orientation === Node.RightHanded)
             _pointerPosPressed.z = -_pointerPosPressed.z;
-        var sp = targetNode.scenePosition;
-        _targetStartPos = Qt.vector3d(sp.x, sp.y, sp.z);
+        _targetStartPos = mouseArea.pivotScenePosition(targetNode);
         pressed(mouseArea);
     }
 

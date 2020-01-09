@@ -32,6 +32,7 @@
 #include <QtQuick3D/private/qquick3dcamera_p.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercamera_p.h>
+#include <QtQuick3DUtils/private/qssgutils_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -296,7 +297,7 @@ QVector3D MouseArea3D::getNewScale(QQuick3DNode *node, const QVector3D &startSca
         };
         const float nonZeroValue = 0.0001f;
 
-        const QVector3D scenePos = node->scenePosition();
+        const QVector3D scenePos = pivotScenePosition(node);
         const QMatrix4x4 parentTransform = node->parentNode()->sceneTransform();
         QMatrix4x4 newTransform = node->sceneTransform();
         const QVector3D nodeToPressPos = pressPos - scenePos;
@@ -368,7 +369,7 @@ qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
     if (trackBall) {
         // Only the distance in plane direction is relevant in trackball drag
         QVector3D dragDir = QVector3D::crossProduct(getNormal(), cameraToNodeDir).normalized();
-        QVector3D scenePos = node->scenePosition();
+        QVector3D scenePos = pivotScenePosition(node);
         if (node->orientation() == QQuick3DNode::RightHanded) {
             scenePos.setZ(-scenePos.z());
             dragDir = -dragDir;
@@ -450,6 +451,25 @@ void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRo
 
     node->setRotation(startRotation);
     node->rotate(degrees, finalAxis, QQuick3DNode::SceneSpace);
+}
+
+// Calculate scene position of the node's pivot point, which in practice is just the position
+// of the node without applying the pivot offset.
+QVector3D MouseArea3D::pivotScenePosition(QQuick3DNode *node) const
+{
+    if (!node)
+        return {};
+
+    QQuick3DNode *parent = node->parentNode();
+    if (!parent)
+        return node->position();
+
+    QMatrix4x4 localTransform;
+    localTransform.translate(node->position());
+
+    const QMatrix4x4 sceneTransform = parent->sceneTransform() * localTransform;
+
+    return mat44::getPosition(sceneTransform);
 }
 
 QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
@@ -644,10 +664,10 @@ QVector3D MouseArea3D::getCameraToNodeDir(QQuick3DNode *node) const
         dir.setZ(-dir.z());
     } else {
         QVector3D camPos = m_view3D->camera()->scenePosition();
-        QVector3D nodePos = node->scenePosition();
+        QVector3D nodePos = pivotScenePosition(node);
         if (node->orientation() == QQuick3DNode::RightHanded)
             nodePos.setZ(-nodePos.z());
-        dir = (node->scenePosition() - camPos).normalized();
+        dir = (nodePos - camPos).normalized();
     }
     return dir;
 }

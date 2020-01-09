@@ -80,9 +80,7 @@ Model {
 
         // Need to recreate vector as we need to adjust it and we can't do that on reference of
         // scenePosition, which is read-only property
-        var scenePos = Qt.vector3d(targetNode.scenePosition.x,
-                                   targetNode.scenePosition.y,
-                                   targetNode.scenePosition.z);
+        var scenePos = mouseAreaMain.pivotScenePosition(targetNode);
         if (targetNode && targetNode.orientation === Node.RightHanded)
             scenePos.z = -scenePos.z
 

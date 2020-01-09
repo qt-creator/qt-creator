@@ -39,8 +39,17 @@ Node {
                                      || centerMouseArea.dragging
     property MouseArea3D dragHelper: null
 
-    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    position: dragHelper.pivotScenePosition(targetNode)
     orientation: targetNode ? targetNode.orientation : Node.LeftHanded
+
+    onTargetNodeChanged: position = dragHelper.pivotScenePosition(targetNode)
+
+    Connections {
+        target: scaleGizmo.targetNode
+        onSceneTransformChanged: {
+            scaleGizmo.position = scaleGizmo.dragHelper.pivotScenePosition(scaleGizmo.targetNode);
+        }
+    }
 
     signal scaleCommit()
     signal scaleChange()

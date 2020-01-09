@@ -40,8 +40,17 @@ Node {
     property real currentAngle
     property point currentMousePos
 
-    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    position: dragHelper.pivotScenePosition(targetNode)
     orientation: targetNode ? targetNode.orientation : Node.LeftHanded
+
+    onTargetNodeChanged: position = dragHelper.pivotScenePosition(targetNode)
+
+    Connections {
+        target: rotateGizmo.targetNode
+        onSceneTransformChanged: {
+            rotateGizmo.position = rotateGizmo.dragHelper.pivotScenePosition(rotateGizmo.targetNode);
+        }
+    }
 
     signal rotateCommit()
     signal rotateChange()
@@ -180,9 +189,7 @@ Node {
 
             // Need to recreate vector as we need to adjust it and we can't do that on reference of
             // scenePosition, which is read-only property
-            var scenePos = Qt.vector3d(rotateGizmo.targetNode.scenePosition.x,
-                                       rotateGizmo.targetNode.scenePosition.y,
-                                       rotateGizmo.targetNode.scenePosition.z);
+            var scenePos = rotateGizmo.dragHelper.pivotScenePosition(rotateGizmo.targetNode);
             if (rotateGizmo.targetNode && rotateGizmo.targetNode.orientation === Node.RightHanded)
                 scenePos.z = -scenePos.z
             _targetPosOnScreen = view3D.mapFrom3DScene(scenePos);
