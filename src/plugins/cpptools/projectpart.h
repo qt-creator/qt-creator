@@ -108,8 +108,8 @@ public:
     bool isMsvc2015Toolchain = false;
     QString toolChainTargetTriple;
     ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
-    Utils::FilePath toolChainInstallDir;
-    Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
+    ::Utils::FilePath toolChainInstallDir;
+    ::Utils::WarningFlags warningFlags = ::Utils::WarningFlags::Default;
 
     // Misc
     QStringList extraCodeModelFlags;
