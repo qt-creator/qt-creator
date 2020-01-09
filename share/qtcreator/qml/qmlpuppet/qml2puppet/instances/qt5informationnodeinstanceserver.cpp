@@ -90,10 +90,16 @@ static QVariant objectToVariant(QObject *object)
 bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
 {
     switch (event->type()) {
+    case QEvent::DragMove: {
+        if (!dropAcceptable(static_cast<QDragMoveEvent *>(event))) {
+            event->ignore();
+            return true;
+        }
+    } break;
+
     case QEvent::Drop: {
         QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
-        QByteArray data = dropEvent->mimeData()->data(
-                                        QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+        QByteArray data = dropEvent->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
         if (!data.isEmpty())
             nodeInstanceClient()->library3DItemDropped(createDrop3DLibraryItemCommand(data));
 
@@ -115,6 +121,37 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
     }
 
     return false;
+}
+
+bool Qt5InformationNodeInstanceServer::dropAcceptable(QDragMoveEvent *event) const
+{
+    // Note: this method parses data out of the QDataStream. This should be in sync with how the
+    // data is written to the stream (check QDataStream overloaded operators << and >> in
+    // itemlibraryentry.cpp). If the write order changes, this logic may break.
+    QDataStream stream(event->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo")));
+
+    QString name;
+    TypeName typeName;
+    int majorVersion;
+    int minorVersion;
+    QIcon typeIcon;
+    QString libraryEntryIconPath;
+    QString category;
+    QString requiredImport;
+    QHash<QString, QString> hints;
+
+    stream >> name;
+    stream >> typeName;
+    stream >> majorVersion;
+    stream >> minorVersion;
+    stream >> typeIcon;
+    stream >> libraryEntryIconPath;
+    stream >> category;
+    stream >> requiredImport;
+    stream >> hints;
+
+    QString canBeDropped = hints.value("canBeDroppedInView3D");
+    return canBeDropped == "true" || canBeDropped == "True";
 }
 
 QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)

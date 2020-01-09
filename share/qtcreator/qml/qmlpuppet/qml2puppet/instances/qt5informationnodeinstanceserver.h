@@ -79,11 +79,12 @@ private:
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
     ServerNodeInstance findViewPort(const QList<ServerNodeInstance> &instanceList);
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
-        const PropertyName &propertyName,
-        const QVariant &variant);
+                                                               const PropertyName &propertyName,
+                                                               const QVariant &variant);
     void modifyVariantValue(const QVariant &node,
                             const PropertyName &propertyName,
                             ValuesModifiedCommand::TransactionOption option);
+    bool dropAcceptable(QDragMoveEvent *event) const;
 
     QObject *m_editView3D = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;

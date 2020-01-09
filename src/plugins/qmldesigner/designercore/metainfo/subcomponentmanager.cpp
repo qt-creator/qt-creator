@@ -157,7 +157,7 @@ void SubComponentManager::parseDirectories()
                     parseDirectory(dirInfo.canonicalFilePath(), false);
                 }
 
-                QString fullUrlVersion = path + QLatin1Char('/') + url + QLatin1Char('.') + import.version().split(".").constFirst();
+                QString fullUrlVersion = path + QLatin1Char('/') + url + QLatin1Char('.') + import.version().split('.').constFirst();
                 dirInfo = QFileInfo(fullUrlVersion);
 
                 if (dirInfo.exists() && dirInfo.isDir()) {
@@ -169,7 +169,7 @@ void SubComponentManager::parseDirectories()
     }
 }
 
-void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool addToLibrary, const TypeName& qualification)
+void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool addToLibrary, const TypeName &qualification)
 {
     if (!model() || !model()->rewriterView())
         return;
@@ -268,7 +268,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
     }
 }
 
-void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString&  qualification)
+void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString &qualification)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << canonicalFilePath;
@@ -311,7 +311,7 @@ void SubComponentManager::unregisterQmlFile(const QFileInfo &fileInfo, const QSt
 
 
 void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
-                                                 bool addToLibrary)
+                                          bool addToLibrary)
 {
     if (!model())
         return;
@@ -407,6 +407,18 @@ void SubComponentManager::parseQuick3DAssetDir(const QString &assetPath)
                     iconName = iconPath;
                 itemLibraryEntry.setLibraryEntryIconPath(iconName);
                 itemLibraryEntry.setTypeIcon(QIcon(iconName));
+
+                // load hints file if exists
+                QFile hintsFile(qmlIt.fileInfo().absolutePath() + '/' + name + ".hints");
+                if (hintsFile.exists() && hintsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                    QTextStream in(&hintsFile);
+                    QHash<QString, QString> hints;
+                    while (!in.atEnd()) {
+                        QStringList hint = in.readLine().split(':');
+                        hints.insert(hint[0].trimmed(), hint[1].trimmed());
+                    }
+                    itemLibraryEntry.addHints(hints);
+                }
 
                 if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
                     model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});

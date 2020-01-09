@@ -1446,10 +1446,6 @@ void NodeInstanceView::library3DItemDropped(const Drop3DLibraryItemCommand &comm
     QDataStream stream(command.itemData());
     ItemLibraryEntry itemLibraryEntry;
     stream >> itemLibraryEntry;
-
-    if (itemLibraryEntry.category() != "Qt Quick 3D")
-        return;
-
     QmlVisualNode::createQmlVisualNode(this, itemLibraryEntry, {});
 }
 

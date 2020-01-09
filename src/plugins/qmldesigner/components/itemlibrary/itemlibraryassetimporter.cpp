@@ -348,16 +348,19 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
                         if (braceIdx != -1) {
                             int nlIdx = content.lastIndexOf('\n', braceIdx);
                             QByteArray rootItem = content.mid(nlIdx, braceIdx - nlIdx).trimmed();
-                            if (rootItem == "Node") {
-                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon.png",
-                                            iconFileName);
-                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon@2x.png",
-                                            iconFileName2x);
+                            if (rootItem == "Node") { // a 3D object
+                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon.png", iconFileName);
+                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon@2x.png", iconFileName2x);
+                                // create hints file with proper hints
+                                QFile file(outDir.path() + '/' + fi.baseName() + ".hints");
+                                file.open(QIODevice::WriteOnly | QIODevice::Text);
+                                QTextStream out(&file);
+                                out << "canBeDroppedInFormEditor: false" << endl;
+                                out << "canBeDroppedInView3D: true" << endl;
+                                file.close();
                             } else {
-                                QFile::copy(":/ItemLibrary/images/item-default-icon.png",
-                                            iconFileName);
-                                QFile::copy(":/ItemLibrary/images/item-default-icon@2x.png",
-                                            iconFileName2x);
+                                QFile::copy(":/ItemLibrary/images/item-default-icon.png", iconFileName);
+                                QFile::copy(":/ItemLibrary/images/item-default-icon@2x.png", iconFileName2x);
                             }
                         }
                     }

@@ -274,7 +274,7 @@ void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &v
 
 void MetaInfoReader::readQmlSourceProperty(const QString &name, const QVariant &value)
 {
-    if (name == QStringLiteral("source")) {
+    if (name == QLatin1String("source")) {
         m_currentEntry.setQmlPath(absoluteFilePathForDocument(value.toString()));
     } else {
         addError(tr("Unknown property for QmlSource %1").arg(name), currentSourceLocation());

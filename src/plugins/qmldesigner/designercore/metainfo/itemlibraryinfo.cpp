@@ -39,6 +39,7 @@ class ItemLibraryEntryData : public QSharedData
 public:
     ItemLibraryEntryData()
     {}
+
     QString name;
     TypeName typeName;
     QString category;
