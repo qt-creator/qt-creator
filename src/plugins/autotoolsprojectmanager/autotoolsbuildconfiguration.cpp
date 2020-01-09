@@ -35,9 +35,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-using namespace AutotoolsProjectManager::Constants;
 using namespace ProjectExplorer;
-using namespace ProjectExplorer::Constants;
 using namespace Utils;
 
 namespace AutotoolsProjectManager {
@@ -45,28 +43,34 @@ namespace Internal {
 
 // AutotoolsBuildConfiguration
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *target, Core::Id id)
-    : BuildConfiguration(target, id)
+class AutotoolsBuildConfiguration : public BuildConfiguration
 {
-    // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
-    // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
-    setBuildDirectory(Utils::FilePath::fromString("/<foobar>"));
-    setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
-    setConfigWidgetDisplayName(tr("Autotools Manager"));
+    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration)
 
-    // ### Build Steps Build ###
-    QFile autogenFile(target->project()->projectDirectory().toString() + "/autogen.sh");
-    if (autogenFile.exists())
-        appendInitialBuildStep(Constants::AUTOGEN_STEP_ID); // autogen.sh
-    else
-        appendInitialBuildStep(Constants::AUTORECONF_STEP_ID); // autoreconf
+public:
+    AutotoolsBuildConfiguration(Target *target, Core::Id id)
+        : BuildConfiguration(target, id)
+    {
+        // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
+        // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
+        setBuildDirectory(Utils::FilePath::fromString("/<foobar>"));
+        setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
+        setConfigWidgetDisplayName(tr("Autotools Manager"));
 
-    appendInitialBuildStep(Constants::CONFIGURE_STEP_ID); // ./configure.
-    appendInitialBuildStep(Constants::MAKE_STEP_ID); // make
+        // ### Build Steps Build ###
+        QFile autogenFile(target->project()->projectDirectory().toString() + "/autogen.sh");
+        if (autogenFile.exists())
+            appendInitialBuildStep(Constants::AUTOGEN_STEP_ID); // autogen.sh
+        else
+            appendInitialBuildStep(Constants::AUTORECONF_STEP_ID); // autoreconf
 
-    // ### Build Steps Clean ###
-    appendInitialBuildStep(Constants::MAKE_STEP_ID);
-}
+        appendInitialBuildStep(Constants::CONFIGURE_STEP_ID); // ./configure.
+        appendInitialBuildStep(Constants::MAKE_STEP_ID); // make
+
+        // ### Build Steps Clean ###
+        appendInitialBuildStep(Constants::MAKE_STEP_ID);
+    }
+};
 
 AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
 {

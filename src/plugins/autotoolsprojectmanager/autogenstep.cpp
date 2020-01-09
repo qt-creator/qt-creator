@@ -29,30 +29,46 @@
 
 #include "autotoolsprojectconstants.h"
 
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
 #include <QDateTime>
 
-using namespace AutotoolsProjectManager;
-using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-// AutogenStepFactory
-
-AutogenStepFactory::AutogenStepFactory()
-{
-    registerStep<AutogenStep>(Constants::AUTOGEN_STEP_ID);
-    setDisplayName(AutogenStep::tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-}
-
+namespace AutotoolsProjectManager {
+namespace Internal {
 
 // AutogenStep
+
+/**
+ * @brief Implementation of the ProjectExplorer::AbstractProcessStep interface.
+ *
+ * A autogen step can be configured by selecting the "Projects" button of Qt Creator
+ * (in the left hand side menu) and under "Build Settings".
+ *
+ * It is possible for the user to specify custom arguments.
+ */
+
+class AutogenStep : public AbstractProcessStep
+{
+    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutogenStep)
+
+public:
+    AutogenStep(BuildStepList *bsl, Core::Id id);
+
+private:
+    bool init() override;
+    void doRun() override;
+
+    BaseStringAspect *m_additionalArgumentsAspect = nullptr;
+    bool m_runAutogen = false;
+};
 
 AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
@@ -104,7 +120,7 @@ void AutogenStep::doRun()
     BuildConfiguration *bc = buildConfiguration();
 
     // Check whether we need to run autogen.sh
-    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    const QString projectDir = bc->target()->project()->projectDirectory().toString();
     const QFileInfo configureInfo(projectDir + "/configure");
     const QFileInfo configureAcInfo(projectDir + "/configure.ac");
     const QFileInfo makefileAmInfo(projectDir + "/Makefile.am");
@@ -124,3 +140,22 @@ void AutogenStep::doRun()
     m_runAutogen = false;
     AbstractProcessStep::doRun();
 }
+
+// AutogenStepFactory
+
+/**
+ * @brief Implementation of the ProjectExplorer::BuildStepFactory interface.
+ *
+ * This factory is used to create instances of AutogenStep.
+ */
+
+AutogenStepFactory::AutogenStepFactory()
+{
+    registerStep<AutogenStep>(Constants::AUTOGEN_STEP_ID);
+    setDisplayName(AutogenStep::tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+}
+
+} // Internal
+} // AutotoolsProjectManager

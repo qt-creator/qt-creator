@@ -37,6 +37,7 @@
 
 #include <coreplugin/icontext.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 

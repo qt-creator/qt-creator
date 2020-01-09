@@ -27,51 +27,15 @@
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/projectconfigurationaspects.h>
+#include <projectexplorer/buildstep.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-/////////////////////////////
-// AutogenStepFactory class
-/////////////////////////////
-/**
- * @brief Implementation of the ProjectExplorer::IBuildStepFactory interface.
- *
- * This factory is used to create instances of AutogenStep.
- */
-class AutogenStepFactory : public ProjectExplorer::BuildStepFactory
+class AutogenStepFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
     AutogenStepFactory();
-};
-
-///////////////////////
-// AutogenStep class
-///////////////////////
-/**
- * @brief Implementation of the ProjectExplorer::AbstractProcessStep interface.
- *
- * A autogen step can be configured by selecting the "Projects" button of Qt Creator
- * (in the left hand side menu) and under "Build Settings".
- *
- * It is possible for the user to specify custom arguments.
- */
-
-class AutogenStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-
-public:
-    AutogenStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
-private:
-    bool init() override;
-    void doRun() override;
-
-    ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
-    bool m_runAutogen = false;
 };
 
 } // namespace Internal

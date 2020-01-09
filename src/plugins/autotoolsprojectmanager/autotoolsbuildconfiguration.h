@@ -32,14 +32,6 @@
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
-{
-    Q_OBJECT
-
-    friend class ProjectExplorer::BuildConfigurationFactory;
-    AutotoolsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
 class AutotoolsBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
 public:

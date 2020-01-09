@@ -27,51 +27,15 @@
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/projectconfigurationaspects.h>
+#include <projectexplorer/buildstep.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-////////////////////////////////
-// AutoreconfStepFactory class
-////////////////////////////////
-/**
- * @brief Implementation of the ProjectExplorer::IBuildStepFactory interface.
- *
- * The factory is used to create instances of AutoreconfStep.
- */
-class AutoreconfStepFactory : public ProjectExplorer::BuildStepFactory
+class AutoreconfStepFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
     AutoreconfStepFactory();
-};
-
-/////////////////////////
-// AutoreconfStep class
-/////////////////////////
-/**
- * @brief Implementation of the ProjectExplorer::AbstractProcessStep interface.
- *
- * A autoreconf step can be configured by selecting the "Projects" button
- * of Qt Creator (in the left hand side menu) and under "Build Settings".
- *
- * It is possible for the user to specify custom arguments.
- */
-
-class AutoreconfStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-
-public:
-    AutoreconfStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
-    bool init() override;
-    void doRun() override;
-
-private:
-    ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
-    bool m_runAutoreconf = false;
 };
 
 } // namespace Internal

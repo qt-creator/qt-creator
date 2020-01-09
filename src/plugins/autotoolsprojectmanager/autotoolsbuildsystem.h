@@ -36,13 +36,11 @@ namespace Internal {
 
 class MakefileParserThread;
 
-class AutotoolsBuildSystem : public ProjectExplorer::BuildSystem
+class AutotoolsBuildSystem final : public ProjectExplorer::BuildSystem
 {
-    Q_OBJECT
-
 public:
     explicit AutotoolsBuildSystem(ProjectExplorer::Target *target);
-    ~AutotoolsBuildSystem() override;
+    ~AutotoolsBuildSystem() final;
 
 private:
     void triggerParsing() final;

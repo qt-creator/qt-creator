@@ -30,22 +30,25 @@
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
 
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
 #include <QDateTime>
 #include <QDir>
 
-using namespace AutotoolsProjectManager;
-using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-/////////////////////
+namespace AutotoolsProjectManager {
+namespace Internal {
+
 // Helper Function
-/////////////////////
-static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
+
+static QString projectDirRelativeToBuildDir(BuildConfiguration *bc)
+{
     const QDir buildDir(bc->buildDirectory().toString());
     QString projDirToBuildDir = buildDir.relativeFilePath(
         bc->project()->projectDirectory().toString());
@@ -56,19 +59,35 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
     return projDirToBuildDir;
 }
 
-
-// ConfigureStepFactory
-
-ConfigureStepFactory::ConfigureStepFactory()
-{
-    registerStep<ConfigureStep>(Constants::CONFIGURE_STEP_ID);
-    setDisplayName(ConfigureStep::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-}
-
-
 // ConfigureStep
+
+///**
+// * @brief Implementation of the ProjectExplorer::AbstractProcessStep interface.
+// *
+// * A configure step can be configured by selecting the "Projects" button of Qt
+// * Creator (in the left hand side menu) and under "Build Settings".
+// *
+// * It is possible for the user to specify custom arguments. The corresponding
+// * configuration widget is created by MakeStep::createConfigWidget and is
+// * represented by an instance of the class MakeStepConfigWidget.
+// */
+
+class ConfigureStep : public ProjectExplorer::AbstractProcessStep
+{
+    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::ConfigureStep)
+
+public:
+    ConfigureStep(BuildStepList *bsl, Core::Id id);
+
+    void setAdditionalArguments(const QString &list);
+
+private:
+    bool init() override;
+    void doRun() override;
+
+    ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
+    bool m_runConfigure = false;
+};
 
 ConfigureStep::ConfigureStep(BuildStepList *bsl, Core::Id id)
     : AbstractProcessStep(bsl, id)
@@ -139,3 +158,22 @@ void ConfigureStep::doRun()
     m_runConfigure = false;
     AbstractProcessStep::doRun();
 }
+
+// ConfigureStepFactory
+
+/**
+ * @brief Implementation of the ProjectExplorer::IBuildStepFactory interface.
+ *
+ * The factory is used to create instances of ConfigureStep.
+ */
+
+ConfigureStepFactory::ConfigureStepFactory()
+{
+    registerStep<ConfigureStep>(Constants::CONFIGURE_STEP_ID);
+    setDisplayName(ConfigureStep::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+}
+
+} // namespace Internal
+} // namespace AutotoolsProjectManager

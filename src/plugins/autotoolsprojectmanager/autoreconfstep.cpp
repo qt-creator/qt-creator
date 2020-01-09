@@ -29,27 +29,43 @@
 
 #include "autotoolsprojectconstants.h"
 
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-using namespace AutotoolsProjectManager;
-using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-// AutoreconfStepFactory class
-
-AutoreconfStepFactory::AutoreconfStepFactory()
-{
-    registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
-    setDisplayName(AutoreconfStep::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-}
-
+namespace AutotoolsProjectManager {
+namespace Internal {
 
 // AutoreconfStep class
+
+/**
+ * @brief Implementation of the ProjectExplorer::AbstractProcessStep interface.
+ *
+ * A autoreconf step can be configured by selecting the "Projects" button
+ * of Qt Creator (in the left hand side menu) and under "Build Settings".
+ *
+ * It is possible for the user to specify custom arguments.
+ */
+
+class AutoreconfStep : public AbstractProcessStep
+{
+    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutoreconfStep)
+
+public:
+    AutoreconfStep(BuildStepList *bsl, Core::Id id);
+
+    bool init() override;
+    void doRun() override;
+
+private:
+    BaseStringAspect *m_additionalArgumentsAspect = nullptr;
+    bool m_runAutoreconf = false;
+};
 
 AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id)
     : AbstractProcessStep(bsl, id)
@@ -115,3 +131,22 @@ void AutoreconfStep::doRun()
     m_runAutoreconf = false;
     AbstractProcessStep::doRun();
 }
+
+// AutoreconfStepFactory class
+
+/**
+ * @brief Implementation of the ProjectExplorer::IBuildStepFactory interface.
+ *
+ * The factory is used to create instances of AutoreconfStep.
+ */
+
+AutoreconfStepFactory::AutoreconfStepFactory()
+{
+    registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
+    setDisplayName(AutoreconfStep::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+}
+
+} // Internal
+} // AutotoolsProjectManager

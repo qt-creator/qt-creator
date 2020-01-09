@@ -31,20 +31,18 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-using namespace AutotoolsProjectManager;
-using namespace AutotoolsProjectManager::Internal;
 using namespace AutotoolsProjectManager::Constants;
 
-// MakeStepFactory
-
-MakeStepFactory::MakeStepFactory()
-{
-    registerStep<MakeStep>(MAKE_STEP_ID);
-    setDisplayName(ProjectExplorer::MakeStep::defaultDisplayName());
-    setSupportedProjectType(AUTOTOOLS_PROJECT_ID);
-}
+namespace AutotoolsProjectManager {
+namespace Internal {
 
 // MakeStep
+
+class MakeStep : public ProjectExplorer::MakeStep
+{
+public:
+    MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+};
 
 MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id)
     : ProjectExplorer::MakeStep(bsl, id)
@@ -57,3 +55,15 @@ MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id)
         setBuildTarget("all", true);
     }
 }
+
+// MakeStepFactory
+
+MakeStepFactory::MakeStepFactory()
+{
+    registerStep<MakeStep>(MAKE_STEP_ID);
+    setDisplayName(ProjectExplorer::MakeStep::defaultDisplayName());
+    setSupportedProjectType(AUTOTOOLS_PROJECT_ID);
+}
+
+} // Internal
+} // AutotoolsProjectManager
