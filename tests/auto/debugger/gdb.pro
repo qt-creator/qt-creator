@@ -1,4 +1,6 @@
 QT = core network
+
+msvc: QTC_LIB_DEPENDS += utils
 include(../qttest.pri)
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
@@ -8,25 +10,31 @@ INCLUDEPATH += $$DEBUGGERDIR
 
 SOURCES += \
     tst_gdb.cpp \
-    $$UTILSDIR/environment.cpp \
-    $$UTILSDIR/fileutils.cpp \
-    $$UTILSDIR/hostosinfo.cpp \
-    $$UTILSDIR/namevaluedictionary.cpp \
-    $$UTILSDIR/namevalueitem.cpp \
-    $$UTILSDIR/qtcassert.cpp \
-    $$UTILSDIR/qtcprocess.cpp \
-    $$UTILSDIR/processhandle.cpp \
-    $$UTILSDIR/savefile.cpp \
     $$DEBUGGERDIR/debuggerprotocol.cpp
 
 HEADERS += \
-    $$UTILSDIR/environment.h \
-    $$UTILSDIR/fileutils.h \
-    $$UTILSDIR/hostosinfo.h \
-    $$UTILSDIR/namevaluedictionary.h \
-    $$UTILSDIR/namevalueitem.h \
-    $$UTILSDIR/qtcassert.h \
-    $$UTILSDIR/qtcprocess.h \
-    $$UTILSDIR/processhandle.h \
-    $$UTILSDIR/savefile.h \
     $$DEBUGGERDIR/debuggerprotocol.h
+
+!msvc {
+    SOURCES += \
+        $$UTILSDIR/environment.cpp \
+        $$UTILSDIR/fileutils.cpp \
+        $$UTILSDIR/hostosinfo.cpp \
+        $$UTILSDIR/namevaluedictionary.cpp \
+        $$UTILSDIR/namevalueitem.cpp \
+        $$UTILSDIR/qtcassert.cpp \
+        $$UTILSDIR/qtcprocess.cpp \
+        $$UTILSDIR/processhandle.cpp \
+        $$UTILSDIR/savefile.cpp \
+
+    HEADERS += \
+        $$UTILSDIR/environment.h \
+        $$UTILSDIR/fileutils.h \
+        $$UTILSDIR/hostosinfo.h \
+        $$UTILSDIR/namevaluedictionary.h \
+        $$UTILSDIR/namevalueitem.h \
+        $$UTILSDIR/qtcassert.h \
+        $$UTILSDIR/qtcprocess.h \
+        $$UTILSDIR/processhandle.h \
+        $$UTILSDIR/savefile.h \
+}
