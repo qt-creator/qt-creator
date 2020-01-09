@@ -76,12 +76,12 @@ void DeviceTestDialog::reject()
 
 void DeviceTestDialog::handleProgressMessage(const QString &message)
 {
-    addText(message, QLatin1String("black"), false);
+    addText(message, Utils::Theme::OutputPanes_NormalMessageTextColor, false);
 }
 
 void DeviceTestDialog::handleErrorMessage(const QString &message)
 {
-    addText(message, QLatin1String("red"), false);
+    addText(message, Utils::Theme::OutputPanes_ErrorMessageTextColor, false);
 }
 
 void DeviceTestDialog::handleTestFinished(DeviceTester::TestResult result)
@@ -90,15 +90,18 @@ void DeviceTestDialog::handleTestFinished(DeviceTester::TestResult result)
     d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
 
     if (result == DeviceTester::TestSuccess)
-        addText(tr("Device test finished successfully."), QLatin1String("blue"), true);
+        addText(tr("Device test finished successfully."),
+                Utils::Theme::OutputPanes_NormalMessageTextColor, true);
     else
-        addText(tr("Device test failed."), QLatin1String("red"), true);
+        addText(tr("Device test failed."), Utils::Theme::OutputPanes_ErrorMessageTextColor, true);
 }
 
-void DeviceTestDialog::addText(const QString &text, const QString &color, bool bold)
+void DeviceTestDialog::addText(const QString &text, Utils::Theme::Color color, bool bold)
 {
+    Utils::Theme *theme = Utils::creatorTheme();
+
     QTextCharFormat format = d->ui.textEdit->currentCharFormat();
-    format.setForeground(QBrush(QColor(color)));
+    format.setForeground(QBrush(theme->color(color)));
     QFont font = format.font();
     font.setBold(bold);
     format.setFont(font);

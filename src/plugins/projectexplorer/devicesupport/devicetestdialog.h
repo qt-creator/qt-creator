@@ -27,6 +27,8 @@
 
 #include "idevice.h"
 
+#include <utils/theme/theme.h>
+
 #include <QDialog>
 
 #include <memory>
@@ -49,7 +51,7 @@ private:
     void handleErrorMessage(const QString &message);
     void handleTestFinished(ProjectExplorer::DeviceTester::TestResult result);
 
-    void addText(const QString &text, const QString &color, bool bold);
+    void addText(const QString &text, Utils::Theme::Color color, bool bold);
 
     class DeviceTestDialogPrivate;
     const std::unique_ptr<DeviceTestDialogPrivate> d;
