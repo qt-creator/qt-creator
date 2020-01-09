@@ -135,11 +135,10 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
     setSupportedProjectType(Constants::C_NIMPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::C_NIM_PROJECT_MIMETYPE);
 
-    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+    setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         const auto oneBuild = [&](BuildConfiguration::BuildType buildType, const QString &typeName) {
-            BuildInfo info(this);
+            BuildInfo info;
             info.buildType = buildType;
-            info.kitId = k->id();
             info.typeName = typeName;
             if (forSetup) {
                 info.displayName = info.typeName;

@@ -80,12 +80,11 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::MAKEFILE_MIMETYPE);
 
-    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
-        BuildInfo info(this);
+    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
+        BuildInfo info;
         info.typeName = BuildConfiguration::tr("Build");
         info.buildDirectory = forSetup
                 ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
-        info.kitId = k->id();
         if (forSetup) {
             //: The name of the build configuration created by default for a autotools project.
             info.displayName = BuildConfiguration::tr("Default");

@@ -92,7 +92,7 @@ protected:
     // will get one of the results from examineDirectory
     virtual Kit *createKit(void *directoryData) const = 0;
     // will get one of the results from examineDirectory
-    virtual const QList<BuildInfo> buildInfoListForKit(const Kit *k, void *directoryData) const = 0;
+    virtual const QList<BuildInfo> buildInfoList(void *directoryData) const = 0;
 
     virtual void deleteDirectoryData(void *directoryData) const = 0;
 

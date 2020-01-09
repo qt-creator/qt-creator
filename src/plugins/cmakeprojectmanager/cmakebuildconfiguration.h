@@ -124,9 +124,7 @@ public:
     static ProjectExplorer::BuildConfiguration::BuildType cmakeBuildTypeToBuildType(const BuildType &in);
 
 private:
-    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k,
-                                               const QString &sourceDir,
-                                               BuildType buildType) const;
+    static ProjectExplorer::BuildInfo createBuildInfo(BuildType buildType);
 
     friend class CMakeProjectImporter;
 };

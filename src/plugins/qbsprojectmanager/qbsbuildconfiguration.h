@@ -101,8 +101,7 @@ public:
     QbsBuildConfigurationFactory();
 
 private:
-    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k,
-                                                ProjectExplorer::BuildConfiguration::BuildType type) const;
+    ProjectExplorer::BuildInfo createBuildInfo(ProjectExplorer::BuildConfiguration::BuildType type) const;
 };
 
 } // namespace Internal

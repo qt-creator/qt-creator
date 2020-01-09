@@ -75,11 +75,10 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
     setSupportedProjectType(Constants::GENERICPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
 
-    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
-        BuildInfo info(this);
+    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
+        BuildInfo info;
         info.typeName = BuildConfiguration::tr("Build");
         info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
-        info.kitId = k->id();
 
         if (forSetup)  {
             //: The name of the build configuration created by default for a generic project.

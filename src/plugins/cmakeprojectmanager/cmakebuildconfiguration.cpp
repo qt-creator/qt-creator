@@ -409,13 +409,13 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
     setSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::CMAKEPROJECTMIMETYPE);
 
-    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+    setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;
 
         FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
 
         for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
-            BuildInfo info = createBuildInfo(k, path.toString(), BuildType(type));
+            BuildInfo info = createBuildInfo(BuildType(type));
             if (forSetup) {
                 info.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectPath,
                                 k,
@@ -457,12 +457,9 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
         return BuildConfiguration::Unknown;
 }
 
-BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                          const QString &,
-                                                          BuildType buildType) const
+BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
 {
-    BuildInfo info(this);
-    info.kitId = k->id();
+    BuildInfo info;
 
     switch (buildType) {
     case BuildTypeNone:

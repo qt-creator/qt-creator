@@ -231,7 +231,7 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
             return;
     }
 
-    BuildConfiguration *bc = info.factory()->create(m_target, info);
+    BuildConfiguration *bc = info.factory->create(m_target, info);
     if (!bc)
         return;
 

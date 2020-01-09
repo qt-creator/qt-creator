@@ -151,7 +151,7 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
     store.isEnabled = true;
     ++m_selected;
 
-    if (info.factory()) {
+    if (info.factory) {
         store.checkbox = new QCheckBox;
         store.checkbox->setText(info.displayName);
         store.checkbox->setChecked(store.isEnabled);
@@ -250,7 +250,7 @@ const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const File
     if (auto factory = BuildConfigurationFactory::find(k, projectPath))
         return factory->allAvailableSetups(k, projectPath);
 
-    BuildInfo info(nullptr);
+    BuildInfo info;
     info.kitId = k->id();
     return {info};
 }
@@ -294,7 +294,7 @@ void TargetSetupWidget::clear()
 void TargetSetupWidget::updateDefaultBuildDirectories()
 {
     for (const BuildInfo &buildInfo : buildInfoList(m_kit, m_projectPath)) {
-        if (!buildInfo.factory())
+        if (!buildInfo.factory)
             continue;
         bool found = false;
         for (BuildInfoStore &buildInfoStore : m_infoStore) {
@@ -364,13 +364,13 @@ void TargetSetupWidget::reportIssues(int index)
 
 QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &info)
 {
-    if (m_projectPath.isEmpty() || !info.factory())
+    if (m_projectPath.isEmpty() || !info.factory)
         return qMakePair(Task::Unknown, QString());
 
     QString buildDir = info.buildDirectory.toString();
     Tasks issues;
-    if (info.factory())
-        issues = info.factory()->reportIssues(m_kit, m_projectPath.toString(), buildDir);
+    if (info.factory)
+        issues = info.factory->reportIssues(m_kit, m_projectPath.toString(), buildDir);
 
     QString text;
     Task::TaskType highestType = Task::Unknown;

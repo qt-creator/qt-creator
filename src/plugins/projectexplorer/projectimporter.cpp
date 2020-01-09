@@ -132,13 +132,16 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
 
         foreach (Kit *k, kitList) {
             qCDebug(log) << "Creating buildinfos for kit" << k->displayName();
-            const QList<BuildInfo> infoList = buildInfoListForKit(k, data);
+            const QList<BuildInfo> infoList = buildInfoList(data);
             if (infoList.isEmpty()) {
                 qCDebug(log) << "No build infos for kit" << k->displayName();
                 continue;
             }
 
-            for (const BuildInfo &i : infoList) {
+            auto factory = BuildConfigurationFactory::find(k, projectFilePath());
+            for (BuildInfo i : infoList) {
+                i.kitId = k->id();
+                i.factory = factory;
                 if (!result.contains(i))
                     result += i;
             }

@@ -932,10 +932,10 @@ void Project::setup(const QList<BuildInfo> &infoList)
             toRegister.emplace_back(std::move(newTarget));
         }
 
-        if (!info.factory())
+        if (!info.factory)
             continue;
 
-        if (BuildConfiguration *bc = info.factory()->create(t, info))
+        if (BuildConfiguration *bc = info.factory->create(t, info))
             t->addBuildConfiguration(bc);
     }
     for (std::unique_ptr<Target> &t : toRegister) {

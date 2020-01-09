@@ -539,14 +539,13 @@ CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurat
     setSupportedProjectType(Constants::COMPILATIONDATABASEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::COMPILATIONDATABASEMIMETYPE);
 
-    setBuildGenerator([this](const Kit *kit, const FilePath &projectPath, bool) {
+    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool) {
         const QString name = BuildConfiguration::tr("Release");
-        ProjectExplorer::BuildInfo info(this);
+        ProjectExplorer::BuildInfo info;
         info.typeName = name;
         info.displayName = name;
         info.buildType = BuildConfiguration::Release;
         info.buildDirectory = projectPath.parentDir();
-        info.kitId = kit->id();
         return QList<BuildInfo>{info};
     });
 }

@@ -583,7 +583,7 @@ public:
                 target = project->addTargetForKit(KitManager::kit(info.kitId));
             if (target) {
                 projectImporter->makePersistent(target->kit());
-                BuildConfiguration *bc = info.factory()->create(target, info);
+                BuildConfiguration *bc = info.factory->create(target, info);
                 QTC_ASSERT(bc, continue);
                 target->addBuildConfiguration(bc);
 

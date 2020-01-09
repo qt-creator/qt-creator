@@ -28,7 +28,6 @@
 #include "projectexplorer_export.h"
 
 #include "buildconfiguration.h"
-#include "task.h"
 
 #include <coreplugin/id.h>
 #include <utils/fileutils.h>
@@ -40,9 +39,7 @@ class BuildConfigurationFactory;
 class PROJECTEXPLORER_EXPORT BuildInfo final
 {
 public:
-    BuildInfo(const BuildConfigurationFactory *f = nullptr) : m_factory(f) { }
-
-    const BuildConfigurationFactory *factory() const { return m_factory; }
+    BuildInfo() = default;
 
     QString displayName;
     QString typeName;
@@ -51,11 +48,11 @@ public:
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
 
     QVariant extraInfo;
-    const BuildConfigurationFactory *m_factory = nullptr;
+    const BuildConfigurationFactory *factory = nullptr;
 
     bool operator==(const BuildInfo &o) const
     {
-        return m_factory == o.m_factory
+        return factory == o.factory
                 && displayName == o.displayName && typeName == o.typeName
                 && buildDirectory == o.buildDirectory && kitId == o.kitId
                 && buildType == o.buildType;

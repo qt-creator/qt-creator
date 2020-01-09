@@ -232,16 +232,12 @@ Kit *QmakeProjectImporter::createKit(void *directoryData) const
     return createTemporaryKit(data->qtVersionData, data->parsedSpec, data->archConfig, data->osType);
 }
 
-const QList<BuildInfo> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
+const QList<BuildInfo> QmakeProjectImporter::buildInfoList(void *directoryData) const
 {
     auto *data = static_cast<DirectoryData *>(directoryData);
-    auto factory = dynamic_cast<QmakeBuildConfigurationFactory *>(
-                BuildConfigurationFactory::find(k, projectFilePath()));
-    if (!factory)
-        return {};
 
     // create info:
-    BuildInfo info(factory);
+    BuildInfo info;
     if (data->buildConfig & BaseQtVersion::DebugBuild) {
         info.buildType = BuildConfiguration::Debug;
         info.displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
@@ -249,7 +245,6 @@ const QList<BuildInfo> QmakeProjectImporter::buildInfoListForKit(const Kit *k, v
         info.buildType = BuildConfiguration::Release;
         info.displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
     }
-    info.kitId = k->id();
     info.buildDirectory = data->buildDirectory;
 
     QmakeExtraBuildInfo extra;

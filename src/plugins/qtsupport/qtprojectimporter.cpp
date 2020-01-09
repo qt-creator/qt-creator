@@ -181,7 +181,7 @@ protected:
     QList<void *> examineDirectory(const Utils::FilePath &importPath) const override;
     bool matchKit(void *directoryData, const Kit *k) const override;
     Kit *createKit(void *directoryData) const override;
-    const QList<BuildInfo> buildInfoListForKit(const Kit *k, void *directoryData) const override;
+    const QList<BuildInfo> buildInfoList(void *directoryData) const override;
     void deleteDirectoryData(void *directoryData) const override;
 
 private:
@@ -241,7 +241,7 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
     });
 }
 
-const QList<BuildInfo> TestQtProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
+const QList<BuildInfo> TestQtProjectImporter::buildInfoList(void *directoryData) const
 {
     Q_UNUSED(directoryData)
     assert(m_testData.contains(directoryData));
@@ -252,7 +252,6 @@ const QList<BuildInfo> TestQtProjectImporter::buildInfoListForKit(const Kit *k, 
     info.displayName = "Test Build info";
     info.typeName = "Debug";
     info.buildDirectory = m_path;
-    info.kitId = k->id();
     info.buildType = BuildConfiguration::Debug;
     return {info};
 }

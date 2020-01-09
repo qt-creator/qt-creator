@@ -428,7 +428,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
 
         if (forSetup) {
 
-            BuildInfo info = createBuildInfo(k, BuildConfiguration::Debug);
+            BuildInfo info = createBuildInfo(BuildConfiguration::Debug);
             //: The name of the debug build configuration created by default for a qbs project.
             info.displayName = BuildConfiguration::tr("Debug");
             //: Non-ASCII characters in directory suffix may cause build issues.
@@ -436,7 +436,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
             info.buildDirectory = defaultBuildDirectory(projectPath, k, dbg, info.buildType);
             result << info;
 
-            info = createBuildInfo(k, BuildConfiguration::Release);
+            info = createBuildInfo(BuildConfiguration::Release);
             //: The name of the release build configuration created by default for a qbs project.
             info.displayName = BuildConfiguration::tr("Release");
             //: Non-ASCII characters in directory suffix may cause build issues.
@@ -446,7 +446,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
 
         } else {
 
-            result << createBuildInfo(k, BuildConfiguration::Debug);
+            result << createBuildInfo(BuildConfiguration::Debug);
 
         }
 
@@ -454,11 +454,9 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
     });
 }
 
-BuildInfo QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                        BuildConfiguration::BuildType type) const
+BuildInfo QbsBuildConfigurationFactory::createBuildInfo(BuildConfiguration::BuildType type) const
 {
-    BuildInfo info(this);
-    info.kitId = k->id();
+    BuildInfo info;
     info.buildType = type;
     info.typeName = BuildConfiguration::tr("Build");
     QVariantMap config;

@@ -692,60 +692,13 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
   \class QmakeBuildConfigurationFactory
 */
 
-QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
-{
-    registerBuildConfiguration<QmakeBuildConfiguration>(Constants::QMAKE_BC_ID);
-    setSupportedProjectType(Constants::QMAKEPROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
-    setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-        Tasks issues;
-        if (version)
-            issues << version->reportIssues(projectPath, buildDir);
-        if (QmakeSettings::warnAgainstUnalignedBuildDir()
-                && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
-                    QFileInfo(projectPath).absoluteDir().path(), QDir(buildDir).absolutePath())) {
-            issues.append(Task(Task::Warning, QmakeBuildConfiguration::unalignedBuildDirWarning(),
-                               Utils::FilePath(), -1,
-                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        }
-        return issues;
-    });
-
-    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
-        QList<BuildInfo> result;
-
-        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(k);
-
-        if (forSetup && (!qtVersion || !qtVersion->isValid()))
-            return result;
-
-        const auto addBuild = [&](BuildConfiguration::BuildType buildType) {
-            BuildInfo info = createBuildInfo(k, projectPath, buildType);
-            if (!forSetup) {
-                info.displayName.clear(); // ask for a name
-                info.buildDirectory.clear(); // This depends on the displayName
-            }
-            result << info;
-        };
-
-        addBuild(BuildConfiguration::Debug);
-        addBuild(BuildConfiguration::Release);
-        if (qtVersion && qtVersion->qtVersion().majorVersion > 4)
-            addBuild(BuildConfiguration::Profile);
-
-        return result;
-    });
-}
-
-BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                          const FilePath &projectPath,
-                                                          BuildConfiguration::BuildType type) const
+static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
+                 BuildConfiguration::BuildType type)
 {
     const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
-    BuildInfo info(this);
+    BuildInfo info;
     QString suffix;
 
     if (type == BuildConfiguration::Release) {
@@ -783,7 +736,6 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     }
     info.typeName = info.displayName;
     // Leave info.buildDirectory unset;
-    info.kitId = k->id();
 
     // check if this project is in the source directory:
     if (version && version->isInSourceDirectory(projectPath)) {
@@ -802,6 +754,52 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info.buildType = type;
     info.extraInfo = QVariant::fromValue(extraInfo);
     return info;
+}
+
+QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
+{
+    registerBuildConfiguration<QmakeBuildConfiguration>(Constants::QMAKE_BC_ID);
+    setSupportedProjectType(Constants::QMAKEPROJECT_ID);
+    setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
+    setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+        Tasks issues;
+        if (version)
+            issues << version->reportIssues(projectPath, buildDir);
+        if (QmakeSettings::warnAgainstUnalignedBuildDir()
+                && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
+                    QFileInfo(projectPath).absoluteDir().path(), QDir(buildDir).absolutePath())) {
+            issues.append(Task(Task::Warning, QmakeBuildConfiguration::unalignedBuildDirWarning(),
+                               Utils::FilePath(), -1,
+                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+        return issues;
+    });
+
+    setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        QList<BuildInfo> result;
+
+        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(k);
+
+        if (forSetup && (!qtVersion || !qtVersion->isValid()))
+            return result;
+
+        const auto addBuild = [&](BuildConfiguration::BuildType buildType) {
+            BuildInfo info = createBuildInfo(k, projectPath, buildType);
+            if (!forSetup) {
+                info.displayName.clear(); // ask for a name
+                info.buildDirectory.clear(); // This depends on the displayName
+            }
+            result << info;
+        };
+
+        addBuild(BuildConfiguration::Debug);
+        addBuild(BuildConfiguration::Release);
+        if (qtVersion && qtVersion->qtVersion().majorVersion > 4)
+            addBuild(BuildConfiguration::Profile);
+
+        return result;
+    });
 }
 
 BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const

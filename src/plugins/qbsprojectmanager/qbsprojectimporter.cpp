@@ -218,25 +218,18 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
     });
 }
 
-const QList<BuildInfo> QbsProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
+const QList<BuildInfo> QbsProjectImporter::buildInfoList(void *directoryData) const
 {
-    qCDebug(qbsPmLog) << "creating build info for kit" << k->displayName();
-    const auto factory = dynamic_cast<QbsBuildConfigurationFactory *>(
-                BuildConfigurationFactory::find(k, projectFilePath()));
-    if (!factory) {
-        qCDebug(qbsPmLog) << "no build config factory found";
-        return {};
-    }
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
-    BuildInfo info(factory);
+    BuildInfo info;
     info.displayName = bgData->bgFilePath.toFileInfo().completeBaseName();
     info.buildType = bgData->buildVariant == "debug"
             ? BuildConfiguration::Debug : BuildConfiguration::Release;
-    info.kitId = k->id();
     info.buildDirectory = bgData->bgFilePath.parentDir().parentDir();
     QVariantMap config = bgData->overriddenProperties;
     config.insert("configName", info.displayName);
     info.extraInfo = config;
+    qCDebug(qbsPmLog) << "creating build info for " << info.displayName << ' ' << bgData->buildVariant;
     return {info};
 }
 

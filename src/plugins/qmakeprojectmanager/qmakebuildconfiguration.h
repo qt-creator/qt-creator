@@ -155,10 +155,6 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public Project
 {
 public:
     QmakeBuildConfigurationFactory();
-
-private:
-    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k, const Utils::FilePath &projectPath,
-                                               ProjectExplorer::BuildConfiguration::BuildType type) const;
 };
 
 } // namespace QmakeProjectManager
