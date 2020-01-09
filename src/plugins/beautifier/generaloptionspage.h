@@ -27,51 +27,13 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-#include <QSharedPointer>
-#include <QWidget>
-
 namespace Beautifier {
 namespace Internal {
 
-class GeneralSettings;
-
-namespace Ui { class GeneralOptionsPage; }
-
-class GeneralOptionsPageWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit GeneralOptionsPageWidget(const QSharedPointer<GeneralSettings> &settings,
-                                      const QStringList &toolIds);
-    ~GeneralOptionsPageWidget() override;
-    void restore();
-    void apply(bool *autoFormatChanged);
-
-private:
-    Ui::GeneralOptionsPage *ui;
-    QSharedPointer<GeneralSettings> m_settings;
-};
-
 class GeneralOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit GeneralOptionsPage(const QSharedPointer<GeneralSettings> &settings,
-                                const QStringList &toolIds, QObject *parent = nullptr);
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-signals:
-    void autoFormatChanged();
-
-private:
-    QPointer<GeneralOptionsPageWidget> m_widget;
-    QSharedPointer<GeneralSettings> m_settings;
-    QStringList m_toolIds;
+    GeneralOptionsPage(const QStringList &toolIds, QObject *parent);
 };
 
 } // namespace Internal

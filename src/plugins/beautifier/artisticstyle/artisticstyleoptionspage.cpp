@@ -33,89 +33,73 @@
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
 
-#include <coreplugin/icore.h>
-
 namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
+class ArtisticStyleOptionsPageWidget : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Beautifier::Internal::ArtisticStyle)
+
+public:
+    explicit ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings);
+
+    void apply() final;
+    void finish() final {}
+
+private:
+    Ui::ArtisticStyleOptionsPage ui;
+    ArtisticStyleSettings *m_settings;
+};
+
 ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings)
-    : ui(new Ui::ArtisticStyleOptionsPage), m_settings(settings)
+    : m_settings(settings)
 {
-    ui->setupUi(this);
-    ui->useHomeFile->setText(ui->useHomeFile->text().replace(
+    ui.setupUi(this);
+    ui.useHomeFile->setText(ui.useHomeFile->text().replace(
                                  "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
-    ui->specificConfigFile->setExpectedKind(Utils::PathChooser::File);
-    ui->specificConfigFile->setPromptDialogFilter(tr("AStyle (*.astylerc)"));
-    ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui->command->setCommandVersionArguments({"--version"});
-    ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
+    ui.specificConfigFile->setExpectedKind(Utils::PathChooser::File);
+    ui.specificConfigFile->setPromptDialogFilter(tr("AStyle (*.astylerc)"));
+    ui.command->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    ui.command->setCommandVersionArguments({"--version"});
+    ui.command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                           ArtisticStyle::tr(Constants::ArtisticStyle::DISPLAY_NAME)));
-    connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
-    ui->configurations->setSettings(m_settings);
-}
+    connect(ui.command, &Utils::PathChooser::validChanged, ui.options, &QWidget::setEnabled);
+    ui.configurations->setSettings(m_settings);
 
-ArtisticStyleOptionsPageWidget::~ArtisticStyleOptionsPageWidget()
-{
-    delete ui;
-}
-
-void ArtisticStyleOptionsPageWidget::restore()
-{
-    ui->command->setFileName(m_settings->command());
-    ui->mime->setText(m_settings->supportedMimeTypesAsString());
-    ui->useOtherFiles->setChecked(m_settings->useOtherFiles());
-    ui->useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());
-    ui->specificConfigFile->setFileName(m_settings->specificConfigFile());
-    ui->useHomeFile->setChecked(m_settings->useHomeFile());
-    ui->useCustomStyle->setChecked(m_settings->useCustomStyle());
-    ui->configurations->setCurrentConfiguration(m_settings->customStyle());
+    ui.command->setFileName(m_settings->command());
+    ui.mime->setText(m_settings->supportedMimeTypesAsString());
+    ui.useOtherFiles->setChecked(m_settings->useOtherFiles());
+    ui.useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());
+    ui.specificConfigFile->setFileName(m_settings->specificConfigFile());
+    ui.useHomeFile->setChecked(m_settings->useHomeFile());
+    ui.useCustomStyle->setChecked(m_settings->useCustomStyle());
+    ui.configurations->setCurrentConfiguration(m_settings->customStyle());
 }
 
 void ArtisticStyleOptionsPageWidget::apply()
 {
-    m_settings->setCommand(ui->command->path());
-    m_settings->setSupportedMimeTypes(ui->mime->text());
-    m_settings->setUseOtherFiles(ui->useOtherFiles->isChecked());
-    m_settings->setUseSpecificConfigFile(ui->useSpecificConfigFile->isChecked());
-    m_settings->setSpecificConfigFile(ui->specificConfigFile->fileName());
-    m_settings->setUseHomeFile(ui->useHomeFile->isChecked());
-    m_settings->setUseCustomStyle(ui->useCustomStyle->isChecked());
-    m_settings->setCustomStyle(ui->configurations->currentConfiguration());
+    m_settings->setCommand(ui.command->path());
+    m_settings->setSupportedMimeTypes(ui.mime->text());
+    m_settings->setUseOtherFiles(ui.useOtherFiles->isChecked());
+    m_settings->setUseSpecificConfigFile(ui.useSpecificConfigFile->isChecked());
+    m_settings->setSpecificConfigFile(ui.specificConfigFile->fileName());
+    m_settings->setUseHomeFile(ui.useHomeFile->isChecked());
+    m_settings->setUseCustomStyle(ui.useCustomStyle->isChecked());
+    m_settings->setCustomStyle(ui.configurations->currentConfiguration());
     m_settings->save();
 
     // update since not all MIME types are accepted (invalids or duplicates)
-    ui->mime->setText(m_settings->supportedMimeTypesAsString());
+    ui.mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
 ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent) :
-    IOptionsPage(parent),
-    m_settings(settings)
+    IOptionsPage(parent)
 {
     setId(Constants::ArtisticStyle::OPTION_ID);
     setDisplayName(tr("Artistic Style"));
     setCategory(Constants::OPTION_CATEGORY);
-}
-
-QWidget *ArtisticStyleOptionsPage::widget()
-{
-    m_settings->read();
-
-    if (!m_widget)
-        m_widget = new ArtisticStyleOptionsPageWidget(m_settings);
-    m_widget->restore();
-
-    return m_widget;
-}
-
-void ArtisticStyleOptionsPage::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void ArtisticStyleOptionsPage::finish()
-{
+    setWidgetCreator([settings] { return new ArtisticStyleOptionsPageWidget(settings); });
 }
 
 } // namespace ArtisticStyle

@@ -27,45 +27,16 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-#include <QWidget>
-
 namespace Beautifier {
 namespace Internal {
 namespace ClangFormat {
 
 class ClangFormatSettings;
 
-namespace Ui { class ClangFormatOptionsPage; }
-
-class ClangFormatOptionsPageWidget : public QWidget
+class ClangFormatOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings, QWidget *parent = nullptr);
-    ~ClangFormatOptionsPageWidget() override;
-    void restore();
-    void apply();
-
-private:
-    Ui::ClangFormatOptionsPage *ui;
-    ClangFormatSettings *m_settings;
-};
-
-class ClangFormatOptionsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    explicit ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent = nullptr);
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<ClangFormatOptionsPageWidget> m_widget;
-    ClangFormatSettings *m_settings;
+    ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent);
 };
 
 } // namespace ClangFormat

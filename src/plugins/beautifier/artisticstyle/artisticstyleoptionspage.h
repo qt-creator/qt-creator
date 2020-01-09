@@ -27,45 +27,16 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-#include <QWidget>
-
 namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
 class ArtisticStyleSettings;
 
-namespace Ui { class ArtisticStyleOptionsPage; }
-
-class ArtisticStyleOptionsPageWidget : public QWidget
+class ArtisticStyleOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings);
-    ~ArtisticStyleOptionsPageWidget() override;
-    void restore();
-    void apply();
-
-private:
-    Ui::ArtisticStyleOptionsPage *ui;
-    ArtisticStyleSettings *m_settings;
-};
-
-class ArtisticStyleOptionsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    explicit ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent = nullptr);
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<ArtisticStyleOptionsPageWidget> m_widget;
-    ArtisticStyleSettings *m_settings;
+    ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent);
 };
 
 } // namespace ArtisticStyle

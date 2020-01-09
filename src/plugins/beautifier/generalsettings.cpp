@@ -41,9 +41,17 @@ const char AUTO_FORMAT_MIME[]                 = "autoFormatMime";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "autoFormatOnlyCurrentProject";
 }
 
+static GeneralSettings *m_instance;
+
 GeneralSettings::GeneralSettings()
 {
+    m_instance = this;
     read();
+}
+
+GeneralSettings *GeneralSettings::instance()
+{
+    return m_instance;
 }
 
 void GeneralSettings::read()

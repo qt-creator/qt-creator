@@ -36,6 +36,8 @@ class GeneralSettings
 {
 public:
     explicit GeneralSettings();
+    static GeneralSettings *instance();
+
     void read();
     void save();
 

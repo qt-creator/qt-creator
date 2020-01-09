@@ -27,45 +27,16 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-#include <QWidget>
-
 namespace Beautifier {
 namespace Internal {
 namespace Uncrustify {
 
 class UncrustifySettings;
 
-namespace Ui { class UncrustifyOptionsPage; }
-
-class UncrustifyOptionsPageWidget : public QWidget
+class UncrustifyOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit UncrustifyOptionsPageWidget(UncrustifySettings *settings, QWidget *parent = nullptr);
-    ~UncrustifyOptionsPageWidget() override;
-    void restore();
-    void apply();
-
-private:
-    Ui::UncrustifyOptionsPage *ui;
-    UncrustifySettings *m_settings;
-};
-
-class UncrustifyOptionsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    explicit UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent = nullptr);
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<UncrustifyOptionsPageWidget> m_widget;
-    UncrustifySettings *m_settings;
+    UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent);
 };
 
 } // namespace Uncrustify

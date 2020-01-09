@@ -97,7 +97,7 @@ public:
 
     void autoFormatOnSave(Core::IDocument *document);
 
-    QSharedPointer<GeneralSettings> m_generalSettings;
+    GeneralSettings generalSettings;
 
     ArtisticStyle::ArtisticStyle artisticStyleBeautifier;
     ClangFormat::ClangFormat clangFormatBeautifier;
@@ -133,8 +133,7 @@ BeautifierPluginPrivate::BeautifierPluginPrivate()
     for (BeautifierAbstractTool *tool : m_tools)
         toolIds << tool->id();
 
-    m_generalSettings.reset(new GeneralSettings);
-    new GeneralOptionsPage(m_generalSettings, toolIds, this);
+    new GeneralOptionsPage(toolIds, this);
 
     updateActions();
 
@@ -153,14 +152,14 @@ void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
 
 void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 {
-    if (!m_generalSettings->autoFormatOnSave())
+    if (!generalSettings.autoFormatOnSave())
         return;
 
-    if (!isAutoFormatApplicable(document, m_generalSettings->autoFormatMime()))
+    if (!isAutoFormatApplicable(document, generalSettings.autoFormatMime()))
         return;
 
     // Check if file is contained in the current project (if wished)
-    if (m_generalSettings->autoFormatOnlyCurrentProject()) {
+    if (generalSettings.autoFormatOnlyCurrentProject()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
         if (!pro
             || pro->files([document](const ProjectExplorer::Node *n) {
@@ -173,7 +172,7 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
     }
 
     // Find tool to use by id and format file!
-    const QString id = m_generalSettings->autoFormatTool();
+    const QString id = generalSettings.autoFormatTool();
     auto tool = std::find_if(m_tools.constBegin(), m_tools.constEnd(),
                              [&id](const BeautifierAbstractTool *t){return t->id() == id;});
     if (tool != m_tools.constEnd()) {
