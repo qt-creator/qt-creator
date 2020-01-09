@@ -503,13 +503,13 @@ UseLibraryPathsAspect::UseLibraryPathsAspect()
     setId("UseLibraryPath");
     setSettingsKey("RunConfiguration.UseLibrarySearchPath");
     if (HostOsInfo::isMacHost()) {
-        setLabel(tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH:"),
-                 LabelPlacement::InExtraLabel);
+        setLabel(tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH"),
+                 LabelPlacement::AtCheckBox);
     } else if (HostOsInfo::isWindowsHost()) {
-        setLabel(tr("Add build library search path to PATH"), LabelPlacement::InExtraLabel);
+        setLabel(tr("Add build library search path to PATH"), LabelPlacement::AtCheckBox);
     } else {
-        setLabel(tr("Add build library search path to LD_LIBRARY_PATH:"),
-                 LabelPlacement::InExtraLabel);
+        setLabel(tr("Add build library search path to LD_LIBRARY_PATH"),
+                 LabelPlacement::AtCheckBox);
     }
     setValue(ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv);
 }
@@ -522,8 +522,8 @@ UseDyldSuffixAspect::UseDyldSuffixAspect()
 {
     setId("UseDyldSuffix");
     setSettingsKey("RunConfiguration.UseDyldImageSuffix");
-    setLabel(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug):"),
-             LabelPlacement::InExtraLabel);
+    setLabel(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"),
+             LabelPlacement::AtCheckBox);
 }
 
 } // namespace ProjectExplorer
