@@ -52,6 +52,7 @@
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QRegularExpression>
+#include <QTimer>
 
 #include <memory>
 
@@ -93,9 +94,11 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
     SynchronousProcessResponse response =  cpp.runBlocking(cmdLine);
     if (response.result != SynchronousProcessResponse::Finished ||
             response.exitCode != 0) {
-        Core::MessageManager::write("Compiler feature detection failure!");
-        Core::MessageManager::write(response.exitMessage(cmdLine.toUserOutput(), 10));
-        Core::MessageManager::write(QString::fromUtf8(response.allRawOutput()));
+        QTimer::singleShot(0, Core::MessageManager::instance(), [cmdLine, response] {
+            Core::MessageManager::write("Compiler feature detection failure!");
+            Core::MessageManager::write(response.exitMessage(cmdLine.toUserOutput(), 10));
+            Core::MessageManager::write(QString::fromUtf8(response.allRawOutput()));
+        });
         return QByteArray();
     }
 

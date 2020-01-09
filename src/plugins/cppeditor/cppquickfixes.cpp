@@ -4153,20 +4153,21 @@ private:
 
     void removeNewExpression(ChangeSet &changes, NewExpressionAST *newExprAST) const
     {
-        ExpressionListParenAST *exprlist = newExprAST->new_initializer
-                ? newExprAST->new_initializer->asExpressionListParen()
-                : nullptr;
+        ExpressionListAST *exprlist = nullptr;
+        if (newExprAST->new_initializer) {
+            if (ExpressionListParenAST *ast = newExprAST->new_initializer->asExpressionListParen())
+                exprlist = ast->expression_list;
+            else if (BracedInitializerAST *ast = newExprAST->new_initializer->asBracedInitializer())
+                exprlist = ast->expression_list;
+        }
 
-        if (exprlist && exprlist->expression_list) {
+        if (exprlist) {
             // remove 'new' keyword and type before initializer
             changes.remove(m_file->startOf(newExprAST->new_token),
                            m_file->startOf(newExprAST->new_initializer));
 
-            // remove parenthesis around initializer
-            int pos = m_file->startOf(exprlist->lparen_token);
-            changes.remove(pos, pos + 1);
-            pos = m_file->startOf(exprlist->rparen_token);
-            changes.remove(pos, pos + 1);
+            changes.remove(m_file->endOf(m_declaratorAST->equal_token - 1),
+                           m_file->startOf(m_declaratorAST->equal_token + 1));
         } else {
             // remove the whole new expression
             changes.remove(m_file->endOf(m_identifierAST->firstToken()),
@@ -4272,24 +4273,30 @@ private:
         return overview.prettyName(namedType->name->name);
     }
 
-    void insertNewExpression(ChangeSet &changes, CallAST *callAST) const
+    void insertNewExpression(ChangeSet &changes, ExpressionAST *ast) const
     {
         const QString typeName = typeNameOfDeclaration();
-        if (typeName.isEmpty()) {
-            changes.insert(m_file->startOf(callAST), QLatin1String("new "));
+        if (CallAST *callAST = ast->asCall()) {
+            if (typeName.isEmpty()) {
+                changes.insert(m_file->startOf(callAST), QLatin1String("new "));
+            } else {
+                changes.insert(m_file->startOf(callAST),
+                               QLatin1String("new ") + typeName + QLatin1Char('('));
+                changes.insert(m_file->startOf(callAST->lastToken()), QLatin1String(")"));
+            }
         } else {
-            changes.insert(m_file->startOf(callAST),
-                           QLatin1String("new ") + typeName + QLatin1Char('('));
-            changes.insert(m_file->startOf(callAST->lastToken()), QLatin1String(")"));
+            if (typeName.isEmpty())
+                return;
+            changes.insert(m_file->startOf(ast), QLatin1String(" = new ") + typeName);
         }
     }
 
-    void insertNewExpression(ChangeSet &changes, ExpressionListParenAST *exprListAST) const
+    void insertNewExpression(ChangeSet &changes) const
     {
         const QString typeName = typeNameOfDeclaration();
         if (typeName.isEmpty())
             return;
-        changes.insert(m_file->startOf(exprListAST),
+        changes.insert(m_file->endOf(m_identifierAST->firstToken()),
                        QLatin1String(" = new ") + typeName);
     }
 
@@ -4301,10 +4308,15 @@ private:
                 changes.insert(m_file->startOf(idExprAST), QLatin1String("&"));
             } else if (CallAST *callAST = m_declaratorAST->initializer->asCall()) {
                 insertNewExpression(changes, callAST);
-            } else if (ExpressionListParenAST *exprListAST
-                     = m_declaratorAST->initializer->asExpressionListParen()) {
+            } else if (ExpressionListParenAST *exprListAST = m_declaratorAST->initializer
+                                                                 ->asExpressionListParen()) {
                 insertNewExpression(changes, exprListAST);
+            } else if (BracedInitializerAST *bracedInitializerAST = m_declaratorAST->initializer
+                                                                        ->asBracedInitializer()) {
+                insertNewExpression(changes, bracedInitializerAST);
             }
+        } else {
+            insertNewExpression(changes);
         }
 
         // Fix all occurrences of the identifier in this function.
