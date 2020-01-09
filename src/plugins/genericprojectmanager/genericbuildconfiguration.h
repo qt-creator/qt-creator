@@ -40,10 +40,8 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     void addToEnvironment(Utils::Environment &env) const final;
 };
 
-class GenericBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+class GenericBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     GenericBuildConfigurationFactory();
 };

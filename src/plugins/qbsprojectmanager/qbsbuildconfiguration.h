@@ -95,10 +95,8 @@ private:
     QbsBuildSystem *m_buildSystem = nullptr;
 };
 
-class QbsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+class QbsBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     QbsBuildConfigurationFactory();
 

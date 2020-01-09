@@ -109,10 +109,8 @@ private:
 
 class CMakeProjectImporter;
 
-class CMakeBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+class CMakeBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     CMakeBuildConfigurationFactory();
 

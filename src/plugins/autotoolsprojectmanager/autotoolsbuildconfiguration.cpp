@@ -78,13 +78,13 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
 
     setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
         BuildInfo info(this);
-        info.typeName = tr("Build");
+        info.typeName = BuildConfiguration::tr("Build");
         info.buildDirectory = forSetup
                 ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
         info.kitId = k->id();
         if (forSetup) {
             //: The name of the build configuration created by default for a autotools project.
-            info.displayName = tr("Default");
+            info.displayName = BuildConfiguration::tr("Default");
         }
         return QList<BuildInfo>{info};
     });

@@ -338,7 +338,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 const QList<BuildInfo> CMakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
     auto data = static_cast<const DirectoryData *>(directoryData);
-    auto factory = qobject_cast<CMakeBuildConfigurationFactory *>(
+    auto factory = dynamic_cast<CMakeBuildConfigurationFactory *>(
                 BuildConfigurationFactory::find(k, projectFilePath()));
     if (!factory)
         return {};

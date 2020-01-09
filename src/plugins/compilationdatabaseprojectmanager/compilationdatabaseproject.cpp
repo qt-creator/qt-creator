@@ -540,7 +540,7 @@ CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurat
     setSupportedProjectMimeTypeName(Constants::COMPILATIONDATABASEMIMETYPE);
 
     setBuildGenerator([this](const Kit *kit, const FilePath &projectPath, bool) {
-        const QString name = tr("Release");
+        const QString name = BuildConfiguration::tr("Release");
         ProjectExplorer::BuildInfo info(this);
         info.typeName = name;
         info.displayName = name;

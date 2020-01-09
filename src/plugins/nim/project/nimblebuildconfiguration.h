@@ -48,12 +48,10 @@ private:
     BuildType m_buildType;
 };
 
-class NimbleBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+class NimbleBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     NimbleBuildConfigurationFactory();
 };
 
-}
+} // Nim

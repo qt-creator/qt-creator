@@ -52,12 +52,10 @@ private:
 };
 
 
-class NimBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+class NimBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     NimBuildConfigurationFactory();
 };
 
-}
+} // Nim

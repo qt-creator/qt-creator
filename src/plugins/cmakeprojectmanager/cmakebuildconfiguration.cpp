@@ -467,27 +467,27 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     switch (buildType) {
     case BuildTypeNone:
         info.typeName = "Build";
-        info.displayName = tr("Build");
+        info.displayName = BuildConfiguration::tr("Build");
         info.buildType = BuildConfiguration::Unknown;
         break;
     case BuildTypeDebug:
         info.typeName = "Debug";
-        info.displayName = tr("Debug");
+        info.displayName = BuildConfiguration::tr("Debug");
         info.buildType = BuildConfiguration::Debug;
         break;
     case BuildTypeRelease:
         info.typeName = "Release";
-        info.displayName = tr("Release");
+        info.displayName = BuildConfiguration::tr("Release");
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:
         info.typeName = "MinSizeRel";
-        info.displayName = tr("Minimum Size Release");
+        info.displayName = CMakeBuildConfiguration::tr("Minimum Size Release");
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeRelWithDebInfo:
         info.typeName = "RelWithDebInfo";
-        info.displayName = tr("Release with Debug Information");
+        info.displayName = CMakeBuildConfiguration::tr("Release with Debug Information");
         info.buildType = BuildConfiguration::Profile;
         break;
     default:

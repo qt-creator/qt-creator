@@ -430,20 +430,18 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
 
             BuildInfo info = createBuildInfo(k, BuildConfiguration::Debug);
             //: The name of the debug build configuration created by default for a qbs project.
-            info.displayName = tr("Debug");
+            info.displayName = BuildConfiguration::tr("Debug");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            info.buildDirectory
-                            = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
-                                                    info.buildType);
+            const QString dbg = QbsBuildConfiguration::tr("Debug", "Shadow build directory suffix");
+            info.buildDirectory = defaultBuildDirectory(projectPath, k, dbg, info.buildType);
             result << info;
 
             info = createBuildInfo(k, BuildConfiguration::Release);
             //: The name of the release build configuration created by default for a qbs project.
-            info.displayName = tr("Release");
+            info.displayName = BuildConfiguration::tr("Release");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            info.buildDirectory
-                            = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
-                                                    info.buildType);
+            const QString rel = QbsBuildConfiguration::tr("Release", "Shadow build directory suffix");
+            info.buildDirectory = defaultBuildDirectory(projectPath, k, rel, info.buildType);
             result << info;
 
         } else {
@@ -462,7 +460,7 @@ BuildInfo QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
     BuildInfo info(this);
     info.kitId = k->id();
     info.buildType = type;
-    info.typeName = tr("Build");
+    info.typeName = BuildConfiguration::tr("Build");
     QVariantMap config;
     config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
     info.extraInfo = config;

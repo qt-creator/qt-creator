@@ -148,8 +148,8 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
             return info;
         };
         return QList<BuildInfo>{
-            oneBuild(BuildConfiguration::Debug, tr("Debug")),
-            oneBuild(BuildConfiguration::Release, tr("Release"))
+            oneBuild(BuildConfiguration::Debug, BuildConfiguration::tr("Debug")),
+            oneBuild(BuildConfiguration::Release, BuildConfiguration::tr("Release"))
         };
     });
 }

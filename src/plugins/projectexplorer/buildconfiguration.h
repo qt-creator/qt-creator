@@ -132,13 +132,14 @@ private:
     Internal::BuildConfigurationPrivate *d = nullptr;
 };
 
-class PROJECTEXPLORER_EXPORT BuildConfigurationFactory : public QObject
+class PROJECTEXPLORER_EXPORT BuildConfigurationFactory
 {
-    Q_OBJECT
-
 protected:
     BuildConfigurationFactory();
-    ~BuildConfigurationFactory() override;
+    BuildConfigurationFactory(const BuildConfigurationFactory &) = delete;
+    BuildConfigurationFactory &operator=(const BuildConfigurationFactory &) = delete;
+
+    virtual ~BuildConfigurationFactory(); // Needed for dynamic_casts in importers.
 
 public:
     // List of build information that can be used to create a new build configuration via
@@ -178,7 +179,6 @@ protected:
     template <class BuildConfig>
     void registerBuildConfiguration(Core::Id buildConfigId)
     {
-        setObjectName(buildConfigId.toString() + "BuildConfigurationFactory");
         m_creator = [buildConfigId](Target *t) { return new BuildConfig(t, buildConfigId); };
         m_buildConfigId = buildConfigId;
     }

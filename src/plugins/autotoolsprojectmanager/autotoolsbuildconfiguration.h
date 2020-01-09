@@ -40,10 +40,8 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     AutotoolsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 };
 
-class AutotoolsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+class AutotoolsBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     AutotoolsBuildConfigurationFactory();
 };

@@ -750,9 +750,9 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
 
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.
-        info.displayName = tr("Release");
+        info.displayName = BuildConfiguration::tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
-        suffix = tr("Release", "Shadow build directory suffix");
+        suffix = QmakeBuildConfiguration::tr("Release", "Shadow build directory suffix");
         if (settings.qtQuickCompiler == TriState::Default) {
             if (version && version->isQtQuickCompilerSupported())
                 extraInfo.config.useQtQuickCompiler = TriState::Enabled;
@@ -760,14 +760,14 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
-            info.displayName = tr("Debug");
+            info.displayName = BuildConfiguration::tr("Debug");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            suffix = tr("Debug", "Shadow build directory suffix");
+            suffix = QmakeBuildConfiguration::tr("Debug", "Shadow build directory suffix");
         } else if (type == BuildConfiguration::Profile) {
             //: The name of the profile build configuration created by default for a qmake project.
-            info.displayName = tr("Profile");
+            info.displayName = BuildConfiguration::tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            suffix = tr("Profile", "Shadow build directory suffix");
+            suffix = QmakeBuildConfiguration::tr("Profile", "Shadow build directory suffix");
             if (settings.separateDebugInfo == TriState::Default)
                 extraInfo.config.separateDebugInfo = TriState::Enabled;
 

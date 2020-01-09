@@ -65,9 +65,7 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id
 }
 
 
-/*!
-  \class GenericBuildConfigurationFactory
-*/
+// GenericBuildConfigurationFactory
 
 GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 {
@@ -79,13 +77,13 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 
     setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
         BuildInfo info(this);
-        info.typeName = tr("Build");
+        info.typeName = BuildConfiguration::tr("Build");
         info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
         info.kitId = k->id();
 
         if (forSetup)  {
             //: The name of the build configuration created by default for a generic project.
-            info.displayName = tr("Default");
+            info.displayName = BuildConfiguration::tr("Default");
         }
 
         return QList<BuildInfo>{info};

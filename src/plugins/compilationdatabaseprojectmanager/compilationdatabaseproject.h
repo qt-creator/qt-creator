@@ -94,10 +94,8 @@ public:
     CompilationDatabaseEditorFactory();
 };
 
-class CompilationDatabaseBuildConfigurationFactory
-    : public ProjectExplorer::BuildConfigurationFactory
+class CompilationDatabaseBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_OBJECT
 public:
     CompilationDatabaseBuildConfigurationFactory();
 };
