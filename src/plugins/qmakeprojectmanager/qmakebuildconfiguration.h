@@ -158,9 +158,6 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public Project
 public:
     QmakeBuildConfigurationFactory();
 
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath,
-                                                      bool forSetup) const override;
 private:
     ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k, const Utils::FilePath &projectPath,
                                                ProjectExplorer::BuildConfiguration::BuildType type) const;

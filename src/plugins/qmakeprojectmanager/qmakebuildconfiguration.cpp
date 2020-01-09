@@ -711,6 +711,31 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
         }
         return issues;
     });
+
+    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        QList<BuildInfo> result;
+
+        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(k);
+
+        if (forSetup && (!qtVersion || !qtVersion->isValid()))
+            return result;
+
+        const auto addBuild = [&](BuildConfiguration::BuildType buildType) {
+            BuildInfo info = createBuildInfo(k, projectPath, buildType);
+            if (!forSetup) {
+                info.displayName.clear(); // ask for a name
+                info.buildDirectory.clear(); // This depends on the displayName
+            }
+            result << info;
+        };
+
+        addBuild(BuildConfiguration::Debug);
+        addBuild(BuildConfiguration::Release);
+        if (qtVersion && qtVersion->qtVersion().majorVersion > 4)
+            addBuild(BuildConfiguration::Profile);
+
+        return result;
+    });
 }
 
 BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
@@ -777,32 +802,6 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info.buildType = type;
     info.extraInfo = QVariant::fromValue(extraInfo);
     return info;
-}
-
-QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath, bool forSetup) const
-{
-    QList<BuildInfo> result;
-
-    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(k);
-
-    if (forSetup && (!qtVersion || !qtVersion->isValid()))
-        return {};
-
-    const auto addBuild = [&](BuildConfiguration::BuildType buildType) {
-        BuildInfo info = createBuildInfo(k, projectPath, buildType);
-        if (!forSetup) {
-            info.displayName.clear(); // ask for a name
-            info.buildDirectory.clear(); // This depends on the displayName
-        }
-        result << info;
-    };
-
-    addBuild(BuildConfiguration::Debug);
-    addBuild(BuildConfiguration::Release);
-    if (qtVersion && qtVersion->qtVersion().majorVersion > 4)
-        addBuild(BuildConfiguration::Profile);
-
-    return result;
 }
 
 BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const

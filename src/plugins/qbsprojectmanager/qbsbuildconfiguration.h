@@ -102,9 +102,6 @@ class QbsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationF
 public:
     QbsBuildConfigurationFactory();
 
-    QList<ProjectExplorer::BuildInfo> availableBuilds
-        (const ProjectExplorer::Kit *k, const Utils::FilePath &projectPath, bool forSetup) const override;
-
 private:
     ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k,
                                                 ProjectExplorer::BuildConfiguration::BuildType type) const;

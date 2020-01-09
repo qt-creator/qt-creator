@@ -422,39 +422,38 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
         return version ? version->reportIssues(projectPath, buildDir)
                        : Tasks();
     });
-}
 
-QList<BuildInfo> QbsBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath, bool forSetup) const
-{
-    QList<BuildInfo> result;
+    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        QList<BuildInfo> result;
 
-    if (forSetup) {
+        if (forSetup) {
 
-        BuildInfo info = createBuildInfo(k, BuildConfiguration::Debug);
-        //: The name of the debug build configuration created by default for a qbs project.
-        info.displayName = tr("Debug");
-        //: Non-ASCII characters in directory suffix may cause build issues.
-        info.buildDirectory
-                = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
-                                        info.buildType);
-        result << info;
+            BuildInfo info = createBuildInfo(k, BuildConfiguration::Debug);
+            //: The name of the debug build configuration created by default for a qbs project.
+            info.displayName = tr("Debug");
+            //: Non-ASCII characters in directory suffix may cause build issues.
+            info.buildDirectory
+                            = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
+                                                    info.buildType);
+            result << info;
 
-        info = createBuildInfo(k, BuildConfiguration::Release);
-        //: The name of the release build configuration created by default for a qbs project.
-        info.displayName = tr("Release");
-        //: Non-ASCII characters in directory suffix may cause build issues.
-        info.buildDirectory
-                = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
-                                        info.buildType);
-        result << info;
+            info = createBuildInfo(k, BuildConfiguration::Release);
+            //: The name of the release build configuration created by default for a qbs project.
+            info.displayName = tr("Release");
+            //: Non-ASCII characters in directory suffix may cause build issues.
+            info.buildDirectory
+                            = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
+                                                    info.buildType);
+            result << info;
 
-    } else {
+        } else {
 
-        result << createBuildInfo(k, BuildConfiguration::Debug);
+            result << createBuildInfo(k, BuildConfiguration::Debug);
 
-    }
+        }
 
-    return result;
+        return result;
+    });
 }
 
 BuildInfo QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,

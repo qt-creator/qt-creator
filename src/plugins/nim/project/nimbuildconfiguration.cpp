@@ -134,31 +134,24 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
     registerBuildConfiguration<NimBuildConfiguration>(Constants::C_NIMBUILDCONFIGURATION_ID);
     setSupportedProjectType(Constants::C_NIMPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::C_NIM_PROJECT_MIMETYPE);
-}
 
-QList<BuildInfo> NimBuildConfigurationFactory::availableBuilds
-    (const Kit *k, const FilePath &projectPath, bool forSetup) const
-{
-    QList<BuildInfo> result;
-    for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release}) {
-        BuildInfo info(this);
-        info.buildType = buildType;
-        info.kitId = k->id();
-
-        if (buildType == BuildConfiguration::Debug)
-            info.typeName = tr("Debug");
-        else if (buildType == BuildConfiguration::Profile)
-            info.typeName = tr("Profile");
-        else if (buildType == BuildConfiguration::Release)
-            info.typeName = tr("Release");
-
-        if (forSetup) {
-            info.displayName = info.typeName;
-            info.buildDirectory = defaultBuildDirectory(k, projectPath, info.typeName, buildType);
-        }
-        result.push_back(info);
-    }
-    return result;
+    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        const auto oneBuild = [&](BuildConfiguration::BuildType buildType, const QString &typeName) {
+            BuildInfo info(this);
+            info.buildType = buildType;
+            info.kitId = k->id();
+            info.typeName = typeName;
+            if (forSetup) {
+                info.displayName = info.typeName;
+                info.buildDirectory = defaultBuildDirectory(k, projectPath, info.typeName, buildType);
+            }
+            return info;
+        };
+        return QList<BuildInfo>{
+            oneBuild(BuildConfiguration::Debug, tr("Debug")),
+            oneBuild(BuildConfiguration::Release, tr("Release"))
+        };
+    });
 }
 
 } // namespace Nim

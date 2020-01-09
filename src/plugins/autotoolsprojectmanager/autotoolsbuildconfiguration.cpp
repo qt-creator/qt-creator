@@ -75,20 +75,19 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
 
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::MAKEFILE_MIMETYPE);
-}
 
-QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds
-    (const Kit *k, const FilePath &projectPath, bool forSetup) const
-{
-    BuildInfo info(this);
-    info.typeName = tr("Build");
-    info.buildDirectory = forSetup ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
-    info.kitId = k->id();
-    if (forSetup) {
-        //: The name of the build configuration created by default for a autotools project.
-        info.displayName = tr("Default");
-    }
-    return {info};
+    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        BuildInfo info(this);
+        info.typeName = tr("Build");
+        info.buildDirectory = forSetup
+                ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
+        info.kitId = k->id();
+        if (forSetup) {
+            //: The name of the build configuration created by default for a autotools project.
+            info.displayName = tr("Default");
+        }
+        return QList<BuildInfo>{info};
+    });
 }
 
 } // Internal

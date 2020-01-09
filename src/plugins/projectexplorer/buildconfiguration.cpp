@@ -508,13 +508,15 @@ const Tasks BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, c
 
 const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Target *parent) const
 {
-    return availableBuilds(parent->kit(), parent->project()->projectFilePath(), false);
+    QTC_ASSERT(m_buildGenerator, return {});
+    return m_buildGenerator(parent->kit(), parent->project()->projectFilePath(), false);
 }
 
 const QList<BuildInfo>
     BuildConfigurationFactory::allAvailableSetups(const Kit *k, const FilePath &projectPath) const
 {
-    return availableBuilds(k, projectPath, /* forSetup = */ true);
+    QTC_ASSERT(m_buildGenerator, return {});
+    return m_buildGenerator(k, projectPath, /* forSetup = */ true);
 }
 
 bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
@@ -575,6 +577,11 @@ bool BuildConfigurationFactory::canHandle(const Target *target) const
         return false;
 
     return true;
+}
+
+void BuildConfigurationFactory::setBuildGenerator(const BuildGenerator &buildGenerator)
+{
+    m_buildGenerator = buildGenerator;
 }
 
 void BuildConfigurationFactory::setIssueReporter(const IssueReporter &issueReporter)

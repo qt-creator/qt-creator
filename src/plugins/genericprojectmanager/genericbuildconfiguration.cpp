@@ -76,22 +76,20 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 
     setSupportedProjectType(Constants::GENERICPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
-}
 
-QList<BuildInfo> GenericBuildConfigurationFactory::availableBuilds
-    (const Kit *k, const FilePath &projectPath, bool forSetup) const
-{
-    BuildInfo info(this);
-    info.typeName = tr("Build");
-    info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
-    info.kitId = k->id();
+    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        BuildInfo info(this);
+        info.typeName = tr("Build");
+        info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
+        info.kitId = k->id();
 
-    if (forSetup)  {
-        //: The name of the build configuration created by default for a generic project.
-        info.displayName = tr("Default");
-    }
+        if (forSetup)  {
+            //: The name of the build configuration created by default for a generic project.
+            info.displayName = tr("Default");
+        }
 
-    return {info};
+        return QList<BuildInfo>{info};
+    });
 }
 
 void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const

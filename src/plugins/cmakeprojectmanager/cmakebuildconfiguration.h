@@ -125,10 +125,6 @@ public:
     static BuildType buildTypeFromByteArray(const QByteArray &in);
     static ProjectExplorer::BuildConfiguration::BuildType cmakeBuildTypeToBuildType(const BuildType &in);
 
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath,
-                                                      bool forSetup) const override;
-
 private:
     ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k,
                                                const QString &sourceDir,

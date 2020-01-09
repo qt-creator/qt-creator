@@ -58,11 +58,6 @@ class NimBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationF
 
 public:
     NimBuildConfigurationFactory();
-
-private:
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath,
-                                                      bool forSetup) const override;
 };
 
 }

@@ -408,6 +408,24 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
 
     setSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::CMAKEPROJECTMIMETYPE);
+
+    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        QList<BuildInfo> result;
+
+        FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
+
+        for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
+            BuildInfo info = createBuildInfo(k, path.toString(), BuildType(type));
+            if (forSetup) {
+                info.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectPath,
+                                k,
+                                info.typeName,
+                                info.buildType);
+            }
+            result << info;
+        }
+        return result;
+    });
 }
 
 CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildTypeFromByteArray(
@@ -437,27 +455,6 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
         return BuildConfiguration::Profile;
     else
         return BuildConfiguration::Unknown;
-}
-
-QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Kit *k,
-                                                                 const FilePath &projectPath,
-                                                                 bool forSetup) const
-{
-    QList<BuildInfo> result;
-
-    FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
-
-    for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
-        BuildInfo info = createBuildInfo(k, path.toString(), BuildType(type));
-        if (forSetup) {
-            info.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectPath,
-                                                                                k,
-                                                                                info.typeName,
-                                                                                info.buildType);
-        }
-        result << info;
-    }
-    return result;
 }
 
 BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(const Kit *k,

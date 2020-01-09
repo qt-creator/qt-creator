@@ -46,11 +46,6 @@ class GenericBuildConfigurationFactory : public ProjectExplorer::BuildConfigurat
 
 public:
     GenericBuildConfigurationFactory();
-
-private:
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath,
-                                                      bool forSetup) const override;
 };
 
 } // namespace Internal

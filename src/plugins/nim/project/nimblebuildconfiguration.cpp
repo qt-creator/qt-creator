@@ -85,25 +85,22 @@ NimbleBuildConfigurationFactory::NimbleBuildConfigurationFactory()
     registerBuildConfiguration<NimbleBuildConfiguration>(Constants::C_NIMBLEBUILDCONFIGURATION_ID);
     setSupportedProjectType(Constants::C_NIMBLEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::C_NIMBLE_MIMETYPE);
-}
 
-QList<BuildInfo> NimbleBuildConfigurationFactory::availableBuilds(const Kit *k, const Utils::FilePath &projectPath, bool forSetup) const
-{
-    static const QList<BuildConfiguration::BuildType> configurations = {BuildConfiguration::Debug, BuildConfiguration::Release};
-    return Utils::transform(configurations, [&](BuildConfiguration::BuildType buildType){
-        BuildInfo info(this);
-        info.buildType = buildType;
-        info.kitId = k->id();
-
-        if (buildType == BuildConfiguration::Debug)
-            info.typeName = tr("Debug");
-        else if (buildType == BuildConfiguration::Release)
-            info.typeName = tr("Release");
-
-        if (forSetup) {
-            info.displayName = info.typeName;
-            info.buildDirectory = projectPath.parentDir();
-        }
-        return info;
+    setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
+        const auto oneBuild = [&](BuildConfiguration::BuildType buildType, const QString &typeName) {
+            BuildInfo info(this);
+            info.buildType = buildType;
+            info.kitId = k->id();
+            info.typeName = typeName;
+            if (forSetup) {
+                info.displayName = info.typeName;
+                info.buildDirectory = projectPath.parentDir();
+            }
+            return info;
+        };
+        return QList<BuildInfo>{
+            oneBuild(BuildConfiguration::Debug, tr("Debug")),
+            oneBuild(BuildConfiguration::Release, tr("Release"))
+        };
     });
 }

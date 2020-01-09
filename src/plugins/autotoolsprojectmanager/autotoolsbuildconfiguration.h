@@ -46,11 +46,6 @@ class AutotoolsBuildConfigurationFactory : public ProjectExplorer::BuildConfigur
 
 public:
     AutotoolsBuildConfigurationFactory();
-
-private:
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath,
-                                                      bool forSetup) const override;
 };
 
 } // namespace Internal

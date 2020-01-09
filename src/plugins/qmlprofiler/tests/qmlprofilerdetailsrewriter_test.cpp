@@ -68,13 +68,12 @@ public:
     bool needsConfiguration() const final { return false; }
 };
 
-class DummyBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+class DummyBuildConfigurationFactory : public BuildConfigurationFactory
 {
 public:
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *,
-                                                      const FilePath &, bool) const final
+    DummyBuildConfigurationFactory()
     {
-        return {};
+        setBuildGenerator([](const Kit *, const FilePath &, bool) { return QList<BuildInfo>{}; });
     }
 };
 

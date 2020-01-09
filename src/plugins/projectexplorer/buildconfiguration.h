@@ -163,8 +163,9 @@ public:
                              const QString &projectPath, const QString &buildDir) const;
 
 protected:
-    virtual QList<BuildInfo>
-        availableBuilds(const Kit *k, const Utils::FilePath &projectPath, bool forSetup) const = 0;
+    using BuildGenerator
+        = std::function<QList<BuildInfo>(const Kit *, const Utils::FilePath &, bool)>;
+    void setBuildGenerator(const BuildGenerator &buildGenerator);
 
     bool supportsTargetDeviceType(Core::Id id) const;
     void setSupportedProjectType(Core::Id id);
@@ -191,6 +192,7 @@ private:
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QString m_supportedProjectMimeTypeName;
     IssueReporter m_issueReporter;
+    BuildGenerator m_buildGenerator;
 };
 
 } // namespace ProjectExplorer

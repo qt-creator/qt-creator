@@ -538,19 +538,17 @@ CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurat
 
     setSupportedProjectType(Constants::COMPILATIONDATABASEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::COMPILATIONDATABASEMIMETYPE);
-}
 
-QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds
-    (const Kit *kit, const FilePath &projectPath, bool) const
-{
-    const QString name = tr("Release");
-    ProjectExplorer::BuildInfo info(this);
-    info.typeName = name;
-    info.displayName = name;
-    info.buildType = BuildConfiguration::Release;
-    info.buildDirectory = projectPath.parentDir();
-    info.kitId = kit->id();
-    return {info};
+    setBuildGenerator([this](const Kit *kit, const FilePath &projectPath, bool) {
+        const QString name = tr("Release");
+        ProjectExplorer::BuildInfo info(this);
+        info.typeName = name;
+        info.displayName = name;
+        info.buildType = BuildConfiguration::Release;
+        info.buildDirectory = projectPath.parentDir();
+        info.kitId = kit->id();
+        return QList<BuildInfo>{info};
+    });
 }
 
 } // namespace Internal
