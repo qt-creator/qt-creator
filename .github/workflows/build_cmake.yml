@@ -1,6 +1,14 @@
 name: CMake Build Matrix
 
-on: [push]
+on: [push, pull_request]
+
+env:
+  QT_VERSION: 5.14.0
+  CLANG_VERSION: 80
+  CMAKE_VERSION: 3.16.2
+  NINJA_VERSION: 1.9.0
+  BUILD_TYPE: Release
+  CCACHE_VERSION: 3.7.7
 
 jobs:
   build:
@@ -13,23 +21,23 @@ jobs:
         - {
             name: "Windows Latest MSVC", artifact: "Windows-MSVC.tar.xz",
             os: windows-latest,
-            build_type: "Release", cc: "cl", cxx: "cl",
+            cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
             name: "Windows Latest MinGW", artifact: "Windows-MinGW.tar.xz",
             os: windows-latest,
-            build_type: "Release", cc: "gcc", cxx: "g++"
+            cc: "gcc", cxx: "g++"
           }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
             os: ubuntu-latest,
-            build_type: "Release", cc: "gcc", cxx: "g++"
+            cc: "gcc", cxx: "g++"
           }
         - {
             name: "macOS Latest Clang", artifact: "macOS.tar.xz",
             os: macos-latest,
-            build_type: "Release", cc: "clang", cxx: "clang++"
+            cc: "clang", cxx: "clang++"
           }
 
     steps:
@@ -39,8 +47,8 @@ jobs:
       id: cmake_and_ninja
       shell: cmake -P {0}
       run: |
-        set(ninja_version "1.9.0")
-        set(cmake_version "3.16.0")
+        set(cmake_version "$ENV{CMAKE_VERSION}")
+        set(ninja_version "$ENV{NINJA_VERSION}")
 
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(ninja_suffix "win.zip")
@@ -79,7 +87,7 @@ jobs:
       id: qt
       shell: cmake -P {0}
       run: |
-        set(qt_version "5.14.0")
+        set(qt_version "$ENV{QT_VERSION}")
 
         string(REPLACE "." "" qt_version_dotless "${qt_version}")
         if ("${{ runner.os }}" STREQUAL "Windows")
@@ -151,7 +159,7 @@ jobs:
       id: libclang
       shell: cmake -P {0}
       run: |
-        set(clang_version "80")
+        set(clang_version "$ENV{CLANG_VERSION}")
 
         if ("${{ runner.os }}" STREQUAL "Windows")
           if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
@@ -176,6 +184,29 @@ jobs:
         # Save the path for other steps
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/libclang" libclang_dir)
         message("::set-output name=libclang_dir::${libclang_dir}")
+
+    - name: Download ccache
+      id: ccache
+      shell: cmake -P {0}
+      run: |
+        set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
+        file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
+
+    - name: Prepare ccache timestamp
+      id: ccache_cache_timestamp
+      shell: cmake -P {0}
+      run: |
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("::set-output name=timestamp::${current_date}")
+
+    - name: ccache cache files
+      uses: actions/cache@v1.1.0
+      with:
+        path: .ccache
+        key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        restore-keys: |
+          ${{ matrix.config.name }}-ccache-
 
     - name: Install system libs
       shell: cmake -P {0}
@@ -205,7 +236,23 @@ jobs:
           endforeach()
         endif()
 
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
+        if ($ENV{CC} STREQUAL "cl")
+          set(build_speedup
+            -D BUILD_WITH_PCH=ON
+          )
+        else()
+          set(build_speedup
+            -D CMAKE_C_COMPILER_LAUNCHER=ccache
+            -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -D BUILD_WITH_PCH=OFF
+          )
+        endif()
+
+        set(path_separator ":")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(path_separator ";")
+        endif()
+        set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
 
         # Workaround for https://gitlab.kitware.com/cmake/cmake/issues/20119
         foreach(step 1 2)
@@ -213,11 +260,12 @@ jobs:
             COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
               -S .
               -B build
-              -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
+              -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D "CMAKE_PREFIX_PATH=${{ steps.libclang.outputs.libclang_dir }};${{ steps.qt.outputs.qt_dir }}"
               -G Ninja
-              -D CMAKE_MAKE_PROGRAM=${ninja_program}
+              -D CMAKE_MAKE_PROGRAM=ninja
               -D CMAKE_FIND_PACKAGE_PREFER_CONFIG=TRUE
+              ${build_speedup}
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -239,14 +287,33 @@ jobs:
           endforeach()
         endif()
 
+        set(path_separator ":")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(path_separator ";")
+        endif()
+        set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
+
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+        set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
+        set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
+        set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
+        set(ENV{CCACHE_COMPRESS} "true")
+        set(ENV{CCACHE_COMPRESSLEVEL} "6")
+        set(ENV{CCACHE_MAXSIZE} "400M")
+
+        execute_process(COMMAND ccache -p)
+        execute_process(COMMAND ccache -z)
+
         execute_process(
           COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build
           RESULT_VARIABLE result
         )
+
         if (NOT result EQUAL 0)
           message(FATAL_ERROR "Bad exit status")
         endif()
 
+        execute_process(COMMAND ccache -s)
 
     - name: Run tests
       shell: cmake -P {0}
