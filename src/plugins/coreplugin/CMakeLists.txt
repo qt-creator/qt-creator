@@ -148,6 +148,7 @@ add_qtc_plugin(Core
     variablechooser.cpp variablechooser.h
     vcsmanager.cpp vcsmanager.h
     versiondialog.cpp versiondialog.h
+    welcomepagehelper.cpp welcomepagehelper.h
     windowsupport.cpp windowsupport.h
   EXPLICIT_MOC dialogs/filepropertiesdialog.h
 )

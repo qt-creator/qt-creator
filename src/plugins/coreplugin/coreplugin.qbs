@@ -186,6 +186,8 @@ Project {
                 "vcsmanager.h",
                 "versiondialog.cpp",
                 "versiondialog.h",
+                "welcomepagehelper.cpp",
+                "welcomepagehelper.h",
                 "windowsupport.cpp",
                 "windowsupport.h",
             ]

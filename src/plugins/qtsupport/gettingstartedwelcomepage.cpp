@@ -38,30 +38,20 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/welcomepagehelper.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 
-#include <QApplication>
-#include <QBuffer>
-#include <QCloseEvent>
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QDialogButtonBox>
-#include <QDir>
 #include <QElapsedTimer>
 #include <QGridLayout>
-#include <QHeaderView>
-#include <QIdentityProxyModel>
-#include <QImage>
-#include <QImageReader>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPainter>
-#include <QPointer>
 #include <QPushButton>
 #include <QStyledItemDelegate>
-#include <QTableView>
-#include <QTime>
 #include <QTimer>
 
 using namespace Core;
@@ -71,11 +61,6 @@ namespace QtSupport {
 namespace Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
-
-const int itemWidth = 230;
-const int itemHeight = 230;
-const int itemGap = 10;
-const int tagsSeparatorY = itemHeight - 60;
 
 ExamplesWelcomePage::ExamplesWelcomePage(bool showExamples)
     : m_showExamples(showExamples)
@@ -243,182 +228,6 @@ static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
     return f;
 }
 
-class SearchBox : public WelcomePageFrame
-{
-public:
-    SearchBox(QWidget *parent)
-        : WelcomePageFrame(parent)
-    {
-        QPalette pal;
-        pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
-
-        m_lineEdit = new FancyLineEdit;
-        m_lineEdit->setFiltering(true);
-        m_lineEdit->setFrame(false);
-        m_lineEdit->setFont(sizedFont(14, this));
-        m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
-        m_lineEdit->setPalette(pal);
-
-        auto box = new QHBoxLayout(this);
-        box->setContentsMargins(10, 3, 3, 3);
-        box->addWidget(m_lineEdit);
-    }
-
-    FancyLineEdit *m_lineEdit;
-};
-
-class GridView : public QTableView
-{
-public:
-    GridView(QWidget *parent)
-        : QTableView(parent)
-    {
-        setVerticalScrollMode(ScrollPerPixel);
-        horizontalHeader()->hide();
-        horizontalHeader()->setDefaultSectionSize(itemWidth);
-        verticalHeader()->hide();
-        verticalHeader()->setDefaultSectionSize(itemHeight);
-        setMouseTracking(true); // To enable hover.
-        setSelectionMode(QAbstractItemView::NoSelection);
-        setFrameShape(QFrame::NoFrame);
-        setGridStyle(Qt::NoPen);
-
-        QPalette pal;
-        pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
-        setPalette(pal); // Makes a difference on Mac.
-    }
-
-    void leaveEvent(QEvent *) final
-    {
-        QHoverEvent hev(QEvent::HoverLeave, QPointF(), QPointF());
-        viewportEvent(&hev); // Seemingly needed to kill the hover paint.
-    }
-};
-
-class GridProxyModel : public QAbstractItemModel
-{
-public:
-    using OptModelIndex = Utils::optional<QModelIndex>;
-
-    void setSourceModel(QAbstractItemModel *newModel)
-    {
-        if (m_sourceModel == newModel)
-            return;
-        if (m_sourceModel)
-            disconnect(m_sourceModel, nullptr, this, nullptr);
-        m_sourceModel = newModel;
-        if (newModel) {
-            connect(newModel, &QAbstractItemModel::layoutAboutToBeChanged, this, [this] {
-                emit layoutAboutToBeChanged();
-            });
-            connect(newModel, &QAbstractItemModel::layoutChanged, this, [this] {
-                emit layoutChanged();
-            });
-            connect(newModel, &QAbstractItemModel::modelAboutToBeReset, this, [this] {
-                beginResetModel();
-            });
-            connect(newModel, &QAbstractItemModel::modelReset, this, [this] { endResetModel(); });
-            connect(newModel, &QAbstractItemModel::rowsAboutToBeInserted, this, [this] {
-                beginResetModel();
-            });
-            connect(newModel, &QAbstractItemModel::rowsInserted, this, [this] { endResetModel(); });
-            connect(newModel, &QAbstractItemModel::rowsAboutToBeRemoved, this, [this] {
-                beginResetModel();
-            });
-            connect(newModel, &QAbstractItemModel::rowsRemoved, this, [this] { endResetModel(); });
-        }
-    }
-
-    QAbstractItemModel *sourceModel() const
-    {
-        return m_sourceModel;
-    }
-
-    QVariant data(const QModelIndex &index, int role) const final
-    {
-        const OptModelIndex sourceIndex = mapToSource(index);
-        if (sourceIndex)
-            return sourceModel()->data(*sourceIndex, role);
-        return QVariant();
-    }
-
-    Qt::ItemFlags flags(const QModelIndex &index) const final
-    {
-        const OptModelIndex sourceIndex = mapToSource(index);
-        if (sourceIndex)
-            return sourceModel()->flags(*sourceIndex);
-        return Qt::ItemFlags();
-    }
-
-    bool hasChildren(const QModelIndex &parent) const final
-    {
-        const OptModelIndex sourceParent = mapToSource(parent);
-        if (sourceParent)
-            return sourceModel()->hasChildren(*sourceParent);
-        return false;
-    }
-
-    void setColumnCount(int columnCount)
-    {
-        if (columnCount == m_columnCount)
-            return;
-        QTC_ASSERT(columnCount >= 1, columnCount = 1);
-        m_columnCount = columnCount;
-        emit layoutChanged();
-    }
-
-    int rowCount(const QModelIndex &parent) const final
-    {
-        if (parent.isValid())
-            return 0;
-        int rows = sourceModel()->rowCount(QModelIndex());
-        return (rows + m_columnCount - 1) / m_columnCount;
-    }
-
-    int columnCount(const QModelIndex &parent) const final
-    {
-        if (parent.isValid())
-            return 0;
-        return m_columnCount;
-    }
-
-    QModelIndex index(int row, int column, const QModelIndex &) const final
-    {
-        return createIndex(row, column, nullptr);
-    }
-
-    QModelIndex parent(const QModelIndex &) const final
-    {
-        return QModelIndex();
-    }
-
-    // The items at the lower right of the grid might not correspond to source items, if
-    // source's row count is not N*columnCount
-    OptModelIndex mapToSource(const QModelIndex &proxyIndex) const
-    {
-        if (!proxyIndex.isValid())
-            return QModelIndex();
-        int sourceRow = proxyIndex.row() * m_columnCount + proxyIndex.column();
-        if (sourceRow < sourceModel()->rowCount())
-            return sourceModel()->index(sourceRow, 0);
-        return OptModelIndex();
-    }
-
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const
-    {
-        if (!sourceIndex.isValid())
-            return QModelIndex();
-        QTC_CHECK(sourceIndex.column() == 0);
-        int proxyRow = sourceIndex.row() / m_columnCount;
-        int proxyColumn = sourceIndex.row() % m_columnCount;
-        return index(proxyRow, proxyColumn, QModelIndex());
-    }
-
-private:
-    QAbstractItemModel *m_sourceModel = nullptr;
-    int m_columnCount = 1;
-};
-
 class ExampleDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -436,13 +245,13 @@ public:
         const int d = 10;
         const int x = rc.x() + d;
         const int y = rc.y() + d;
-        const int w = rc.width() - 2 * d - itemGap;
+        const int w = rc.width() - 2 * d - GridProxyModel::GridItemGap;
         const int h = rc.height() - 2 * d;
         const bool hovered = option.state & QStyle::State_MouseOver;
 
-        const int tagsBase = tagsSeparatorY + 10;
-        const int shiftY = tagsSeparatorY - 20;
-        const int nameY = tagsSeparatorY - 20;
+        const int tagsBase = GridProxyModel::TagsSeparatorY + 10;
+        const int shiftY = GridProxyModel::TagsSeparatorY - 20;
+        const int nameY = GridProxyModel::TagsSeparatorY - 20;
 
         const QRect textRect = QRect(x, y + nameY, w, h);
 
@@ -457,7 +266,7 @@ public:
                 m_currentWidget = qobject_cast<QAbstractItemView *>(
                     const_cast<QWidget *>(option.widget));
             }
-            offset = m_startTime.elapsed() * itemHeight / 200; // Duration 200 ms.
+            offset = m_startTime.elapsed() * GridProxyModel::GridItemHeight / 200; // Duration 200 ms.
             if (offset < shiftY)
                 QTimer::singleShot(5, this, &ExampleDelegate::goon);
             else if (offset > shiftY)
@@ -530,7 +339,8 @@ public:
 
         // Separator line between text and 'Tags:' section
         painter->setPen(lightColor);
-        painter->drawLine(x, y + tagsSeparatorY, x + w, y + tagsSeparatorY);
+        painter->drawLine(x, y + GridProxyModel::TagsSeparatorY,
+                          x + w, y + GridProxyModel::TagsSeparatorY);
 
         // The 'Tags:' section
         const int tagsHeight = h - tagsBase;
@@ -578,7 +388,7 @@ public:
             auto mev = static_cast<QMouseEvent *>(ev);
             if (idx.isValid()) {
                 const QPoint pos = mev->pos();
-                if (pos.y() > option.rect.y() + tagsSeparatorY) {
+                if (pos.y() > option.rect.y() + GridProxyModel::TagsSeparatorY) {
                     //const QStringList tags = idx.data(Tags).toStringList();
                     for (const auto &it : m_currentTagRects) {
                         if (it.second.contains(pos))
@@ -641,8 +451,8 @@ public:
             m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Examples..."));
 
             auto exampleSetSelector = new QComboBox(this);
-            exampleSetSelector->setMinimumWidth(itemWidth);
-            exampleSetSelector->setMaximumWidth(itemWidth);
+            exampleSetSelector->setMinimumWidth(GridProxyModel::GridItemWidth);
+            exampleSetSelector->setMaximumWidth(GridProxyModel::GridItemWidth);
             ExampleSetModel *exampleSetModel = m_examplesModel->exampleSetModel();
             exampleSetSelector->setModel(exampleSetModel);
             exampleSetSelector->setCurrentIndex(exampleSetModel->selectedExampleSet());
@@ -675,7 +485,7 @@ public:
 
     int bestColumnCount() const
     {
-        return qMax(1, width() / (itemWidth + itemGap));
+        return qMax(1, width() / (GridProxyModel::GridItemWidth + GridProxyModel::GridItemGap));
     }
 
     void resizeEvent(QResizeEvent *ev) final

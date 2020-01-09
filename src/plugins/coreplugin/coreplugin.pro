@@ -112,7 +112,8 @@ SOURCES += corejsextensions.cpp \
     systemsettings.cpp \
     coreicons.cpp \
     diffservice.cpp \
-    menubarfilter.cpp
+    menubarfilter.cpp \
+    welcomepagehelper.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
@@ -228,7 +229,8 @@ HEADERS += corejsextensions.h \
     editormanager/documentmodel_p.h \
     diffservice.h \
     menubarfilter.h \
-    editormanager/ieditorfactory_p.h
+    editormanager/ieditorfactory_p.h \
+    welcomepagehelper.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
