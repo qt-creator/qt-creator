@@ -89,7 +89,7 @@ public:
     bool visit(CPlusPlus::CallAST *ast) override;
     bool preVisit(CPlusPlus::AST *ast) override;
     void postVisit(CPlusPlus::AST *ast) override;
-    QMap<QString, QtTestCodeLocationList> dataTags() const { return m_dataTags; }
+    QHash<QString, QtTestCodeLocationList> dataTags() const { return m_dataTags; }
 
 private:
     QString extractNameFromAST(CPlusPlus::StringLiteralAST *ast, bool *ok) const;
@@ -98,7 +98,7 @@ private:
     CPlusPlus::Document::Ptr m_currentDoc;
     CPlusPlus::Overview m_overview;
     QString m_currentFunction;
-    QMap<QString, QtTestCodeLocationList> m_dataTags;
+    QHash<QString, QtTestCodeLocationList> m_dataTags;
     QtTestCodeLocationList m_currentTags;
     unsigned m_currentAstDepth = 0;
     unsigned m_insideUsingQTestDepth = 0;

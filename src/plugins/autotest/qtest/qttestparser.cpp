@@ -180,7 +180,7 @@ static QSet<QString> filesWithDataFunctionDefinitions(
     return result;
 }
 
-static QMap<QString, QtTestCodeLocationList> checkForDataTags(const QString &fileName,
+static QHash<QString, QtTestCodeLocationList> checkForDataTags(const QString &fileName,
             const CPlusPlus::Snapshot &snapshot)
 {
     const QByteArray fileContent = CppParser::getFileContent(fileName);
@@ -256,13 +256,13 @@ static void fetchAndMergeBaseTestFunctions(const QSet<QString> &baseClasses,
 }
 
 static QtTestCodeLocationList tagLocationsFor(const QtTestParseResult *func,
-                                              const QMap<QString, QtTestCodeLocationList> &dataTags)
+                                              const QHash<QString, QtTestCodeLocationList> &dataTags)
 {
     if (!func->inherited())
         return dataTags.value(func->name);
 
-    QMap<QString, QtTestCodeLocationList>::ConstIterator it = dataTags.begin();
-    QMap<QString, QtTestCodeLocationList>::ConstIterator end = dataTags.end();
+    QHash<QString, QtTestCodeLocationList>::ConstIterator it = dataTags.begin();
+    QHash<QString, QtTestCodeLocationList>::ConstIterator end = dataTags.end();
     const int lastColon = func->name.lastIndexOf(':');
     QString funcName = lastColon == -1 ? func->name : func->name.mid(lastColon - 1);
     for ( ; it != end; ++it) {
@@ -317,8 +317,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
         const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 
-        // TODO: change to QHash<>
-        QMap<QString, QtTestCodeLocationList> dataTags;
+        QHash<QString, QtTestCodeLocationList> dataTags;
         for (const QString &file : files)
             dataTags.unite(checkForDataTags(file, snapshot));
 
