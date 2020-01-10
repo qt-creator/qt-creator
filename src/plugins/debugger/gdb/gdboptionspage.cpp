@@ -41,6 +41,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPointer>
@@ -61,7 +62,8 @@ namespace Internal {
 
 class GdbOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::GdbOptionsPage)
+
 public:
     GdbOptionsPage();
 };
@@ -279,7 +281,6 @@ GdbOptionsPage::GdbOptionsPage()
 
 class GdbOptionsPageWidget2 : public IOptionsPageWidget
 {
-    Q_OBJECT
 public:
     GdbOptionsPageWidget2();
 
@@ -391,5 +392,3 @@ void addGdbOptionPages(QList<IOptionsPage *> *opts)
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "gdboptionspage.moc"

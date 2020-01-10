@@ -28,6 +28,7 @@
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
+#include "debuggersourcepathmappingwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
@@ -64,6 +65,8 @@ namespace Internal {
 
 class CommonOptionsPageWidget : public Core::IOptionsPageWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::CommonOptionsPageWidget)
+
 public:
     explicit CommonOptionsPageWidget()
     {
@@ -253,14 +256,15 @@ CommonOptionsPage::CommonOptionsPage()
 
 QString CommonOptionsPage::msgSetBreakpointAtFunction(const char *function)
 {
-    return tr("Stop when %1() is called").arg(QLatin1String(function));
+    return CommonOptionsPageWidget::tr("Stop when %1() is called").arg(QLatin1String(function));
 }
 
 QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *function,
                                                              const QString &hint)
 {
     QString result = "<html><head/><body>";
-    result += tr("Always adds a breakpoint on the <i>%1()</i> function.").arg(QLatin1String(function));
+    result += CommonOptionsPageWidget::tr("Always adds a breakpoint on the <i>%1()</i> function.")
+            .arg(QLatin1String(function));
     if (!hint.isEmpty()) {
         result += "<br>";
         result += hint;

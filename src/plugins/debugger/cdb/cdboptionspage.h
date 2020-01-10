@@ -27,31 +27,19 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
-
-namespace Utils { class PathListEditor; }
 namespace Debugger {
 namespace Internal {
 
-class CdbSymbolPathListEditor;
-class CdbPathsPageWidget;
-
-class CdbOptionsPage : public Core::IOptionsPage
+class CdbOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     CdbOptionsPage();
 
     static const char *crtDbgReport;
 };
 
-class CdbPathsPage : public Core::IOptionsPage
+class CdbPathsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     CdbPathsPage();
 };

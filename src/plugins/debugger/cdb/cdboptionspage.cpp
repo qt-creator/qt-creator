@@ -84,7 +84,7 @@ static inline int indexOfEvent(const QString &abbrev)
 // events with parameters (like 'out:Needle').
 class CdbBreakEventWidget : public QWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::CdbBreakEventWidget)
 
 public:
     explicit CdbBreakEventWidget(QWidget *parent = nullptr);
@@ -183,7 +183,7 @@ QStringList CdbBreakEventWidget::breakEvents() const
 
 class CdbOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::CdbOptionsPageWidget)
 
 public:
     CdbOptionsPageWidget();
@@ -248,7 +248,7 @@ void CdbOptionsPageWidget::finish()
 CdbOptionsPage::CdbOptionsPage()
 {
     setId("F.Debugger.Cda");
-    setDisplayName(tr("CDB"));
+    setDisplayName(CdbOptionsPageWidget::tr("CDB"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new CdbOptionsPageWidget; });
 }
@@ -258,7 +258,7 @@ CdbOptionsPage::CdbOptionsPage()
 
 class CdbPathsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::CdbPathsPageWidget)
 
 public:
     CdbPathsPageWidget();
@@ -295,12 +295,10 @@ CdbPathsPageWidget::CdbPathsPageWidget()
 CdbPathsPage::CdbPathsPage()
 {
     setId("F.Debugger.Cdb");
-    setDisplayName(tr("CDB Paths"));
+    setDisplayName(CdbPathsPageWidget::tr("CDB Paths"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new CdbPathsPageWidget; });
 }
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "cdboptionspage.moc"

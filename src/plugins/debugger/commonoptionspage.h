@@ -25,17 +25,13 @@
 
 #pragma once
 
-#include "debuggersourcepathmappingwidget.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Debugger {
 namespace Internal {
 
-class CommonOptionsPage : public Core::IOptionsPage
+class CommonOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     CommonOptionsPage();
 
@@ -44,10 +40,8 @@ public:
                                                      const QString &hint = {});
 };
 
-class LocalsAndExpressionsOptionsPage : public Core::IOptionsPage
+class LocalsAndExpressionsOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     LocalsAndExpressionsOptionsPage();
 };
