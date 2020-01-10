@@ -184,9 +184,7 @@ QbsSettingsPage::QbsSettingsPage()
     setCategory(Constants::QBS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("QbsProjectManager",
                                                    Constants::QBS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(
-                Utils::Icon({{":/qbsprojectmanager/images/settingscategory_qbsprojectmanager.png",
-                              Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/qbsprojectmanager/images/settingscategory_qbsprojectmanager.png");
 }
 
 QWidget *QbsSettingsPage::widget()

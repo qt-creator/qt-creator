@@ -37,6 +37,8 @@
 #include <QLabel>
 #include <QPushButton>
 
+using namespace Utils;
+
 /*!
     \class Core::IOptionsPage
     \mainclass
@@ -142,6 +144,11 @@ void Core::IOptionsPage::finish()
         m_widget->finish();
         delete m_widget;
     }
+}
+
+void Core::IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
+{
+    m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
 }
 
 /*!

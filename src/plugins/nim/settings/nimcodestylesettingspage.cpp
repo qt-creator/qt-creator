@@ -50,8 +50,7 @@ NimCodeStyleSettingsPage::NimCodeStyleSettingsPage()
     setDisplayName(tr(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_DISPLAY));
     setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
     setDisplayCategory(tr("Nim"));
-    setCategoryIcon(Utils::Icon({{":/nim/images/settingscategory_nim.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
 }
 
 NimCodeStyleSettingsPage::~NimCodeStyleSettingsPage()

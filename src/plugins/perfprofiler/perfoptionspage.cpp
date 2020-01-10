@@ -39,7 +39,7 @@ PerfOptionsPage::PerfOptionsPage()
     setDisplayName(QCoreApplication::translate("PerfProfiler::PerfOptionsPage", "CPU Usage"));
     setCategory("T.Analyzer");
     setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-    setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 }
 
 QWidget *PerfOptionsPage::widget()

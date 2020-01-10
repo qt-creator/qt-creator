@@ -25,13 +25,10 @@
 
 #pragma once
 
-#include <utils/icon.h>
-
 namespace Analyzer {
 namespace Icons {
 
-const Utils::Icon SETTINGSCATEGORY_ANALYZER({
-        {":/images/settingscategory_analyzer.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
+const char SETTINGSCATEGORY_ANALYZER[] = ":/images/settingscategory_analyzer.png";
 
 } // namespace Icons
 } // namespace Analyzer

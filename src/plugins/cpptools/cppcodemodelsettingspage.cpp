@@ -166,9 +166,7 @@ CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSe
     setDisplayName(QCoreApplication::translate("CppTools",Constants::CPP_CODE_MODEL_SETTINGS_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CppTools", "C++"));
-    setCategoryIcon(Utils::Icon({{":/projectexplorer/images/settingscategory_cpp.png",
-                                  Utils::Theme::PanelTextColorDark}},
-                                Utils::Icon::Tint));
+    setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
 }
 
 QWidget *CppCodeModelSettingsPage::widget()

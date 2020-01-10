@@ -75,6 +75,7 @@ protected:
     void setCategory(Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
+    void setCategoryIconPath(const QString &categoryIconPath);
 
     Id m_id;
     Id m_category;

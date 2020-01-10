@@ -58,8 +58,8 @@ GeneralSettings::GeneralSettings()
     setDisplayName(tr("Interface"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", "Environment"));
-    setCategoryIcon(Utils::Icon({{":/core/images/settingscategory_core.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/core/images/settingscategory_core.png");
+
     m_defaultShowShortcutsInContextMenu = QGuiApplication::styleHints()
                                               ->showShortcutsInContextMenus();
 }

@@ -272,8 +272,7 @@ KitOptionsPage::KitOptionsPage()
     setDisplayName(tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Kits"));
-    setCategoryIcon(Utils::Icon({{":/projectexplorer/images/settingscategory_kits.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");
 }
 
 QWidget *KitOptionsPage::widget()

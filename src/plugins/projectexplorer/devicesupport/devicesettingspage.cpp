@@ -40,8 +40,7 @@ DeviceSettingsPage::DeviceSettingsPage()
     setDisplayName(tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Devices"));
-    setCategoryIcon(Utils::Icon({{":/projectexplorer/images/settingscategory_devices.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
     setWidgetCreator([] { return new DeviceSettingsWidget; });
 }
 

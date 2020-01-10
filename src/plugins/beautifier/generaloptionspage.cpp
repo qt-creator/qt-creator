@@ -73,9 +73,8 @@ GeneralOptionsPage::GeneralOptionsPage(const QStringList &toolIds, QObject *pare
     setDisplayName(tr("General"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", "Beautifier"));
-    setCategoryIcon(Utils::Icon({{":/beautifier/images/settingscategory_beautifier.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
     setWidgetCreator([toolIds] { return new GeneralOptionsPageWidget(toolIds); });
+    setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
 }
 
 } // namespace Internal

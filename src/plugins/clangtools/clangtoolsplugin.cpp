@@ -85,7 +85,7 @@ public:
                            "Clang Tools"));
         setCategory("T.Analyzer");
         setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-        setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
         setWidgetCreator([] { return new SettingsWidget; });
     }
 };

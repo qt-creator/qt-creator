@@ -233,8 +233,7 @@ InterpreterOptionsPage::InterpreterOptionsPage()
     setDisplayName(PythonSettings::tr("Interpreters"));
     setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
     setDisplayCategory(PythonSettings::tr("Python"));
-    setCategoryIcon(Utils::Icon({{":/python/images/settingscategory_python.png",
-                                  Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/python/images/settingscategory_python.png");
 }
 
 Interpreter InterpreterOptionsPage::defaultInterpreter() const

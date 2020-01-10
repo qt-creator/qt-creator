@@ -146,7 +146,7 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     setDisplayName(tr("Cppcheck"));
     setCategory("T.Analyzer");
     setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-    setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 
     CppcheckOptions options;
     if (Utils::HostOsInfo::isAnyUnixHost()) {

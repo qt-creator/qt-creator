@@ -96,9 +96,7 @@ CodeGenSettingsPage::CodeGenSettingsPage()
     setCategory(CppTools::Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(
         QCoreApplication::translate("CppTools", CppTools::Constants::CPP_SETTINGS_NAME));
-    setCategoryIcon(Utils::Icon({{":/projectexplorer/images/settingscategory_cpp.png",
-                                  Utils::Theme::PanelTextColorDark}},
-                                Utils::Icon::Tint));
+    setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
     setWidgetCreator([] { return new CodeGenSettingsPageWidget; });
 }
 

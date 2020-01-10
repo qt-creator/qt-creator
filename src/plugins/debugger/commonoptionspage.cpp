@@ -249,8 +249,7 @@ CommonOptionsPage::CommonOptionsPage()
     setDisplayName(QCoreApplication::translate("Debugger", "General"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", "Debugger"));
-    setCategoryIcon(Icon({{":/debugger/images/settingscategory_debugger.png",
-                    Theme::PanelTextColorDark}}, Icon::Tint));
+    setCategoryIconPath(":/debugger/images/settingscategory_debugger.png");
     setWidgetCreator([] { return new CommonOptionsPageWidget; });
 }
 

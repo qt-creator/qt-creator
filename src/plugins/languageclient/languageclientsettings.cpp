@@ -254,8 +254,7 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
     setCategory(Constants::LANGUAGECLIENT_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("LanguageClient",
                                                    Constants::LANGUAGECLIENT_SETTINGS_TR));
-    setCategoryIcon(Utils::Icon({{":/languageclient/images/settingscategory_languageclient.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/languageclient/images/settingscategory_languageclient.png");
 }
 
 LanguageClientSettingsPage::~LanguageClientSettingsPage()
