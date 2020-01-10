@@ -27,43 +27,59 @@
 #include "boosttestconstants.h"
 #include "boosttestsettings.h"
 #include "../testframeworkmanager.h"
+#include "ui_boosttestsettingspage.h"
 
 #include <coreplugin/icore.h>
 
 namespace Autotest {
 namespace Internal {
 
-BoostTestSettingsWidget::BoostTestSettingsWidget(QWidget *parent) :
-    QWidget(parent)
+class BoostTestSettingsWidget : public Core::IOptionsPageWidget
+{
+    QT_DECLARE_DEPRECATED_TR_FUNCTIONS(Autotest::Internal::BoostTestSettingsWidget)
+
+public:
+    explicit BoostTestSettingsWidget(QSharedPointer<BoostTestSettings> settings);
+
+    void apply() final;
+    void finish() final {}
+
+    void setSettings(const BoostTestSettings &settings);
+    BoostTestSettings settings() const;
+
+private:
+    void fillComboBoxes();
+    Ui::BoostSettingsPage m_ui;
+    QSharedPointer<BoostTestSettings> m_settings;
+};
+
+BoostTestSettingsWidget::BoostTestSettingsWidget(QSharedPointer<BoostTestSettings> settings)
+    : m_settings(settings)
 {
     m_ui.setupUi(this);
     fillComboBoxes();
     connect(m_ui.randomizeCB, &QCheckBox::toggled, m_ui.seedSB, &QSpinBox::setEnabled);
+
+    m_ui.logFormatCB->setCurrentIndex(int(m_settings->logLevel));
+    m_ui.reportLevelCB->setCurrentIndex(int(m_settings->reportLevel));
+    m_ui.randomizeCB->setChecked(m_settings->randomize);
+    m_ui.seedSB->setValue(m_settings->seed);
+    m_ui.systemErrorCB->setChecked(m_settings->systemErrors);
+    m_ui.fpExceptions->setChecked(m_settings->fpExceptions);
+    m_ui.memoryLeakCB->setChecked(m_settings->memLeaks);
 }
 
-void BoostTestSettingsWidget::setSettings(const BoostTestSettings &settings)
+void BoostTestSettingsWidget::apply()
 {
-    m_ui.logFormatCB->setCurrentIndex(int(settings.logLevel));
-    m_ui.reportLevelCB->setCurrentIndex(int(settings.reportLevel));
-    m_ui.randomizeCB->setChecked(settings.randomize);
-    m_ui.seedSB->setValue(settings.seed);
-    m_ui.systemErrorCB->setChecked(settings.systemErrors);
-    m_ui.fpExceptions->setChecked(settings.fpExceptions);
-    m_ui.memoryLeakCB->setChecked(settings.memLeaks);
-}
+    m_settings->logLevel = LogLevel(m_ui.logFormatCB->currentData().toInt());
+    m_settings->reportLevel = ReportLevel(m_ui.reportLevelCB->currentData().toInt());
+    m_settings->randomize = m_ui.randomizeCB->isChecked();
+    m_settings->seed = m_ui.seedSB->value();
+    m_settings->systemErrors = m_ui.systemErrorCB->isChecked();
+    m_settings->fpExceptions = m_ui.fpExceptions->isChecked();
+    m_settings->memLeaks = m_ui.memoryLeakCB->isChecked();
 
-BoostTestSettings BoostTestSettingsWidget::settings() const
-{
-    BoostTestSettings result;
-
-    result.logLevel = LogLevel(m_ui.logFormatCB->currentData().toInt());
-    result.reportLevel = ReportLevel(m_ui.reportLevelCB->currentData().toInt());
-    result.randomize = m_ui.randomizeCB->isChecked();
-    result.seed = m_ui.seedSB->value();
-    result.systemErrors = m_ui.systemErrorCB->isChecked();
-    result.fpExceptions = m_ui.fpExceptions->isChecked();
-    result.memLeaks = m_ui.memoryLeakCB->isChecked();
-    return result;
+    m_settings->toSettings(Core::ICore::settings());
 }
 
 void BoostTestSettingsWidget::fillComboBoxes()
@@ -88,29 +104,13 @@ void BoostTestSettingsWidget::fillComboBoxes()
 
 BoostTestSettingsPage::BoostTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
                                              const ITestFramework *framework)
-    : ITestSettingsPage(framework),
-      m_settings(qSharedPointerCast<BoostTestSettings>(settings))
+    : ITestSettingsPage(framework)
 {
     setDisplayName(QCoreApplication::translate("BoostTestFramework",
                                                BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-}
-
-QWidget *BoostTestSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new BoostTestSettingsWidget;
-        m_widget->setSettings(*m_settings);
-    }
-    return m_widget;
-}
-
-void BoostTestSettingsPage::apply()
-{
-    if (!m_widget) // page was not shown at all
-        return;
-
-    *m_settings = m_widget->settings();
-    m_settings->toSettings(Core::ICore::settings());
+    setWidgetCreator([settings] {
+        return new BoostTestSettingsWidget(qSharedPointerCast<BoostTestSettings>(settings));
+    });
 }
 
 } // Internal

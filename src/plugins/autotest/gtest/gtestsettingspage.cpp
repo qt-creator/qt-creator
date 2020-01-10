@@ -30,6 +30,7 @@
 #include "../autotestconstants.h"
 #include "../testframeworkmanager.h"
 
+#include "ui_gtestsettingspage.h"
 #include <coreplugin/icore.h>
 
 namespace Autotest {
@@ -40,7 +41,24 @@ static bool validateFilter(Utils::FancyLineEdit *edit, QString * /*error*/)
     return edit && GTestUtils::isValidGTestFilter(edit->text());
 }
 
-GTestSettingsWidget::GTestSettingsWidget()
+class GTestSettingsWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::GTestSettingsWidget)
+
+public:
+    explicit GTestSettingsWidget(const QSharedPointer<GTestSettings> &settings);
+
+private:
+    void apply() final;
+    void finish() final {}
+
+    Ui::GTestSettingsPage m_ui;
+    QString m_currentGTestFilter;
+    QSharedPointer<GTestSettings> m_settings;
+};
+
+GTestSettingsWidget::GTestSettingsWidget(const QSharedPointer<GTestSettings> &settings)
+    : m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.filterLineEdit->setValidationFunction(&validateFilter);
@@ -52,73 +70,53 @@ GTestSettingsWidget::GTestSettingsWidget()
     });
     connect(m_ui.repeatGTestsCB, &QCheckBox::toggled, m_ui.repetitionSpin, &QSpinBox::setEnabled);
     connect(m_ui.shuffleGTestsCB, &QCheckBox::toggled, m_ui.seedSpin, &QSpinBox::setEnabled);
+
+    m_ui.runDisabledGTestsCB->setChecked(m_settings->runDisabled);
+    m_ui.repeatGTestsCB->setChecked(m_settings->repeat);
+    m_ui.shuffleGTestsCB->setChecked(m_settings->shuffle);
+    m_ui.repetitionSpin->setValue(m_settings->iterations);
+    m_ui.seedSpin->setValue(m_settings->seed);
+    m_ui.breakOnFailureCB->setChecked(m_settings->breakOnFailure);
+    m_ui.throwOnFailureCB->setChecked(m_settings->throwOnFailure);
+    m_ui.groupModeCombo->setCurrentIndex(m_settings->groupMode - 1); // there's None for internal use
+    m_ui.filterLineEdit->setText(m_settings->gtestFilter);
+    m_currentGTestFilter = m_settings->gtestFilter; // store it temporarily (if edit is invalid)
 }
 
-void GTestSettingsWidget::setSettings(const GTestSettings &settings)
+void GTestSettingsWidget::apply()
 {
-    m_ui.runDisabledGTestsCB->setChecked(settings.runDisabled);
-    m_ui.repeatGTestsCB->setChecked(settings.repeat);
-    m_ui.shuffleGTestsCB->setChecked(settings.shuffle);
-    m_ui.repetitionSpin->setValue(settings.iterations);
-    m_ui.seedSpin->setValue(settings.seed);
-    m_ui.breakOnFailureCB->setChecked(settings.breakOnFailure);
-    m_ui.throwOnFailureCB->setChecked(settings.throwOnFailure);
-    m_ui.groupModeCombo->setCurrentIndex(settings.groupMode - 1); // there's None for internal use
-    m_ui.filterLineEdit->setText(settings.gtestFilter);
-    m_currentGTestFilter = settings.gtestFilter; // store it temporarily (if edit is invalid)
-}
-
-GTestSettings GTestSettingsWidget::settings() const
-{
-    GTestSettings result;
-    result.runDisabled = m_ui.runDisabledGTestsCB->isChecked();
-    result.repeat = m_ui.repeatGTestsCB->isChecked();
-    result.shuffle = m_ui.shuffleGTestsCB->isChecked();
-    result.iterations = m_ui.repetitionSpin->value();
-    result.seed = m_ui.seedSpin->value();
-    result.breakOnFailure = m_ui.breakOnFailureCB->isChecked();
-    result.throwOnFailure = m_ui.throwOnFailureCB->isChecked();
-    result.groupMode = static_cast<GTest::Constants::GroupMode>(
-                m_ui.groupModeCombo->currentIndex() + 1);
-    if (m_ui.filterLineEdit->isValid())
-        result.gtestFilter = m_ui.filterLineEdit->text();
-    else
-        result.gtestFilter = m_currentGTestFilter;
-    return result;
-}
-
-GTestSettingsPage::GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
-                                     const ITestFramework *framework)
-    : ITestSettingsPage(framework),
-      m_settings(qSharedPointerCast<GTestSettings>(settings))
-{
-    setDisplayName(QCoreApplication::translate("GTestFramework",
-                                               GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-}
-
-QWidget *GTestSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new GTestSettingsWidget;
-        m_widget->setSettings(*m_settings);
-    }
-    return m_widget;
-}
-
-void GTestSettingsPage::apply()
-{
-    if (!m_widget) // page was not shown at all
-        return;
-
     GTest::Constants::GroupMode oldGroupMode = m_settings->groupMode;
     const QString oldFilter = m_settings->gtestFilter;
-    *m_settings = m_widget->settings();
+
+    m_settings->runDisabled = m_ui.runDisabledGTestsCB->isChecked();
+    m_settings->repeat = m_ui.repeatGTestsCB->isChecked();
+    m_settings->shuffle = m_ui.shuffleGTestsCB->isChecked();
+    m_settings->iterations = m_ui.repetitionSpin->value();
+    m_settings->seed = m_ui.seedSpin->value();
+    m_settings->breakOnFailure = m_ui.breakOnFailureCB->isChecked();
+    m_settings->throwOnFailure = m_ui.throwOnFailureCB->isChecked();
+    m_settings->groupMode = static_cast<GTest::Constants::GroupMode>(
+                m_ui.groupModeCombo->currentIndex() + 1);
+    if (m_ui.filterLineEdit->isValid())
+        m_settings->gtestFilter = m_ui.filterLineEdit->text();
+    else
+        m_settings->gtestFilter = m_currentGTestFilter;
+
     m_settings->toSettings(Core::ICore::settings());
     if (m_settings->groupMode == oldGroupMode && oldFilter == m_settings->gtestFilter)
         return;
 
     auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
     TestTreeModel::instance()->rebuild({id});
+}
+
+GTestSettingsPage::GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
+                                     const ITestFramework *framework)
+    : ITestSettingsPage(framework)
+{
+    setDisplayName(QCoreApplication::translate("GTestFramework",
+                                               GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setWidgetCreator([settings] { return new GTestSettingsWidget(qSharedPointerCast<GTestSettings>(settings)); });
 }
 
 } // namespace Internal

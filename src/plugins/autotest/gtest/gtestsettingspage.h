@@ -25,11 +25,7 @@
 
 #pragma once
 
-#include "ui_gtestsettingspage.h"
-
 #include "../itestsettingspage.h"
-
-#include <QPointer>
 
 namespace Autotest {
 
@@ -37,35 +33,10 @@ class IFrameworkSettings;
 
 namespace Internal {
 
-class GTestSettings;
-
-class GTestSettingsWidget : public QWidget
+class GTestSettingsPage final : public ITestSettingsPage
 {
-    Q_OBJECT
-
-public:
-    GTestSettingsWidget();
-
-    void setSettings(const GTestSettings &settings);
-    GTestSettings settings() const;
-
-private:
-    Ui::GTestSettingsPage m_ui;
-    QString m_currentGTestFilter;
-};
-
-class GTestSettingsPage : public ITestSettingsPage
-{
-    Q_OBJECT
 public:
     GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings, const ITestFramework *framework);
-
-    QWidget *widget() override;
-    void apply() override;
-
-private:
-    QSharedPointer<GTestSettings> m_settings;
-    QPointer<GTestSettingsWidget> m_widget;
 };
 
 } // namespace Internal

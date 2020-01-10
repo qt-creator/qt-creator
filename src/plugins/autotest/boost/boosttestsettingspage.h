@@ -25,10 +25,7 @@
 
 #pragma once
 
-#include "ui_boosttestsettingspage.h"
 #include "../itestsettingspage.h"
-
-#include <QPointer>
 
 namespace Autotest {
 
@@ -36,35 +33,11 @@ class IFrameworkSettings;
 
 namespace Internal {
 
-class BoostTestSettings;
-
-class BoostTestSettingsWidget : public QWidget
+class BoostTestSettingsPage final : public ITestSettingsPage
 {
-    Q_OBJECT
-
-public:
-    explicit BoostTestSettingsWidget(QWidget *parent = nullptr);
-
-    void setSettings(const BoostTestSettings &settings);
-    BoostTestSettings settings() const;
-private:
-    void fillComboBoxes();
-    Ui::BoostSettingsPage m_ui;
-};
-
-class BoostTestSettingsPage : public ITestSettingsPage
-{
-    Q_OBJECT
 public:
     BoostTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
                           const ITestFramework *framework);
-
-    QWidget *widget() override;
-    void apply() override;
-
-private:
-    QSharedPointer<BoostTestSettings> m_settings;
-    QPointer<BoostTestSettingsWidget> m_widget;
 };
 
 } // Internal
