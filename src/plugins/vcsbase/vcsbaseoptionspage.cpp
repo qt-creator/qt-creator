@@ -54,8 +54,7 @@ VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) : Core::IOptionsPage(par
 
 VcsBaseOptionsPage::~VcsBaseOptionsPage() = default;
 
-VcsClientOptionsPageWidget::VcsClientOptionsPageWidget(QWidget *parent) : QWidget(parent)
-{ }
+VcsClientOptionsPageWidget::VcsClientOptionsPageWidget() = default;
 
 VcsClientOptionsPage::VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client,
                                            QObject *parent) :

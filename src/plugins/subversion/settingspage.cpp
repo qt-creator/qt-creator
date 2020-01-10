@@ -42,7 +42,7 @@ using namespace Subversion::Internal;
 using namespace Utils;
 using namespace VcsBase;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
+SettingsPageWidget::SettingsPageWidget()
 {
     m_ui.setupUi(this);
     m_ui.pathChooser->setExpectedKind(PathChooser::ExistingCommand);

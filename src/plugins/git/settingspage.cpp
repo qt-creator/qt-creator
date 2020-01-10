@@ -44,7 +44,7 @@ using namespace VcsBase;
 namespace Git {
 namespace Internal {
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
+SettingsPageWidget::SettingsPageWidget()
 {
     m_ui.setupUi(this);
     if (Utils::HostOsInfo::isWindowsHost()) {

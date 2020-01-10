@@ -37,7 +37,7 @@ using namespace Bazaar::Internal;
 using namespace Bazaar;
 using namespace VcsBase;
 
-OptionsPageWidget::OptionsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
+OptionsPageWidget::OptionsPageWidget()
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);

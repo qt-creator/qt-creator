@@ -42,7 +42,7 @@ using namespace Cvs::Internal;
 using namespace Utils;
 using namespace VcsBase;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
+SettingsPageWidget::SettingsPageWidget()
 {
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);

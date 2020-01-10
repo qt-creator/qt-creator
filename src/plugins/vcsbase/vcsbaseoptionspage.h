@@ -48,12 +48,15 @@ public:
 
 class VcsBaseClientImpl;
 
-class VCSBASE_EXPORT VcsClientOptionsPageWidget : public QWidget
+class VCSBASE_EXPORT VcsClientOptionsPageWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 
 public:
-    VcsClientOptionsPageWidget(QWidget *parent = nullptr);
+    VcsClientOptionsPageWidget();
+
+    void apply() override {}
+    void finish() override {}
 
     virtual void setSettings(const VcsBaseClientSettings &s) = 0;
     virtual VcsBaseClientSettings settings() const = 0;
