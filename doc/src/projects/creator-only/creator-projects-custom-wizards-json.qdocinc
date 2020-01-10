@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -23,59 +23,8 @@
 **
 ****************************************************************************/
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
-    \contentspage index.html
-    \previouspage creator-project-wizards.html
-    \page creator-project-wizards-json.html
-    \nextpage creator-project-wizards-xml.html
-
-    \title Adding JSON-Based Wizards
-
-    \QC searches for wizards in the shared directory and in the local user's
-    settings directory, as described in \l{Locating Wizards}.
-
-    JSON-based wizard template directories contain a JSON configuration file
-    called \c {wizard.json} and any template files needed. The configuration
-    file contains sections that specify information about the wizard, variables
-    that you can use, wizard pages, and generators for creating files.
-
-    To create a customized wizard, copy a template directory to the shared
-    directory or the settings directory under a new name. If you want to use
-    qmake to build the wizard and integrate it into \QC, use the shared
-    directory. Otherwise, you can create a subdirectory in the settings
-    directory. The standard wizards are organized into subdirectories by type,
-    but you can add your wizard directory to any directory you like. The folder
-    hierarchy does not affect the order in which the wizards are displayed.
-
-    To share the wizard with other users, you can create an archive of the
-    wizard directory and instruct the recipients to extract it into one of the
-    directories \QC searches wizards from.
-
-    For wizard development, we recommend that you start \QC with the
-    \c {-customwizard-verbose} argument to receive confirmation that \QC was
-    able to find and parse the \c {wizard.json} file. The verbose mode displays
-    information about syntax errors, which are the most typical errors you might
-    run into while editing wizards. For more information, see
-    \l {Verbose Output}.
-
-    In addition, set keyboard shortcuts for the \uicontrol Inspect and
-    \uicontrol {Factory.Reset} functions to be able to inspect the fields and
-    variables in the wizard and to have the wizard listed in \uicontrol File >
-    \uicontrol {New File or Project} without restarting \QC. For more
-    information, see \l {Tips for Wizard Development}.
-
-    \QC displays the wizards that it finds in the
-    \uicontrol {New File or Project} dialog. For each wizard, an icon (1), a
-    display name (2), and a description (3) are displayed.
-
-    \image qtcreator-custom-wizard.png
-
+//! [json wizards]
     \section1 Integrating Wizards into Builds
 
     To integrate the wizard into \QC and to deliver it as part of the \QC build,
@@ -994,5 +943,5 @@
             and no subdirectories will be scanned.
 
     \endlist
-
+//! [json wizards]
 */

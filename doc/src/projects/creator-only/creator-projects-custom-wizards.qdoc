@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -33,7 +33,7 @@
     \contentspage index.html
     \previouspage creator-project-qmake-libraries.html
     \page creator-project-wizards.html
-    \nextpage creator-project-wizards-json.html
+    \nextpage creator-version-control.html
 
     \title Adding New Custom Wizards
 
@@ -41,14 +41,30 @@
     you might want to standardize the way the team members create projects and
     files.
 
-    You can copy the wizard templates in the template folders to create your own
-    project and file wizards. They are displayed in the \uicontrol New
-    dialog that opens when you choose \uicontrol File >
-    \uicontrol {New File or Project}.
+    You can create custom wizards in JSON format. They are stored in wizard
+    template directories that contain a JSON configuration file called
+    \c {wizard.json} and any template files needed. The configuration file
+    contains sections that specify information about the wizard, variables
+    that you can use, wizard pages, and generators for creating files.
 
-    A custom wizard defines the user interface of a set of wizard pages. The
-    values the user enters in the wizard are assigned field names. Field name
-    and value pairs are then passed to the file creation process.
+    To create a customized wizard, copy a template directory to the shared
+    directory or the local user's settings directory under a new name. Then
+    change the wizard id in the \c {wizard.json} file.
+
+    You can create a subdirectory for the templates in the settings directory.
+    The standard wizards are organized into subdirectories by type, but you can
+    add your wizard directory to any directory you like. The folder hierarchy
+    does not affect the order in which the wizards are displayed.
+
+    To share the wizard with other users, you can create an archive of the
+    wizard directory and instruct the recipients to extract it into one of the
+    directories \QC searches wizards from.
+
+    \QC displays the wizards that it finds in the
+    \uicontrol {New File or Project} dialog. For each wizard, an icon (1), a
+    display name (2), and a description (3) are displayed.
+
+    \image qtcreator-custom-wizard.png
 
     \section1 Wizard Types
 
@@ -58,34 +74,33 @@
 
     A file wizard is similar, but does not contain any project file.
 
-    You are encouraged to create JSON-based wizards. They provide a super-set
-    of the functionality available in the XML based wizards used before. For
-    more information, see:
-
-    \list
-        \li \l{Adding JSON-Based Wizards}
-        \li \l{Adding XML-Based Wizards} (deprecated)
-    \endlist
-
     \section1 Locating Wizards
 
-    Wizards are located in subdirectories of the following directories:
+    \QC searches the following locations for wizards:
 
     \list
 
-        \li \c {share/qtcreator/templates/wizards}
-
-        \li the local user's configuration folder,
-            \c {$HOME/.config/QtProject/qtcreator/templates/wizards} on Linux
-            and \macos or \c {%APPDATA%\QtProject\qtcreator\templates\wizards} on
-            Windows
-
+        \li Shared directory:
+            \list
+                \li On Windows: \c {share\qtcreator\templates\wizards}
+                \li On Linux: \c {share/qtcreator/templates/wizards}
+                \li On \macos:
+                    \c{Qt Creator.app/Contents/Resources/templates/wizards}
+            \endlist
+        \li Local user's settings directory:
+            \list
+                \li On Windows:
+                    \c {%APPDATA%\QtProject\qtcreator\templates\wizards}
+                \li On Linux and \macos:
+                    \c {$HOME/.config/QtProject/qtcreator/templates/wizards}
+            \endlist
     \endlist
 
-    \note If you installed \QC on \macos, you can find the wizards in
-    \c {Qt Creator.app/Contents/Resources/templates/wizards}.
-
     \section1 Tips for Wizard Development
+
+    Assign keyboard shortcuts to some helper actions and turn on verbose output.
+
+    \section2 Mapping Actions to Keyboard Shortcuts
 
     \QC has some actions that can improve the wizard development process. These
     are by default not bound to any keyboard shortcuts and can thus not be
@@ -119,10 +134,14 @@
 
     \section2 Verbose Output
 
-    When developing custom wizards (both JSON as well as XML based), it is
-    recommended to start \QC with the \c {-customwizard-verbose} argument. It
-    causes each correctly set up wizard to produce output along the following
-    lines:
+    For wizard development, we recommend that you start \QC with the
+    \c {-customwizard-verbose} argument to receive confirmation that \QC was
+    able to find and parse the \c {wizard.json} file. The verbose mode displays
+    information about syntax errors, which are the most typical errors you might
+    run into while editing wizards.
+
+    In verbose mode, each correctly set up wizard produces output along the
+    following lines:
 
     \code
     Checking "/home/jsmith/.config/QtProject/qtcreator/templates/wizards/mywizard"
@@ -147,4 +166,6 @@
 
     See \l{Using Command Line Options} for more information about command line
     arguments.
+
+    \include creator-projects-custom-wizards-json.qdocinc json wizards
 */
