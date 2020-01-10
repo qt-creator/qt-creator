@@ -25,93 +25,15 @@
 
 #pragma once
 
-#include "androidconfigurations.h"
-
-#include <QList>
-#include <QString>
-#include <QWidget>
-#include <QAbstractTableModel>
-#include <QFutureWatcher>
-
-#include <memory>
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-QT_BEGIN_NAMESPACE
-class Ui_AndroidSettingsWidget;
-QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
 
-class AndroidSdkManagerWidget;
-
-class AndroidAvdManager;
-
-class AvdModel: public QAbstractTableModel
+class AndroidSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
-    void setAvdList(const AndroidDeviceInfoList &list);
-    QString avdName(const QModelIndex &index) const;
-    QModelIndex indexForAvdName(const QString &avdName) const;
-
-protected:
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
-private:
-    AndroidDeviceInfoList m_list;
-};
-
-class AndroidSettingsWidget : public Core::IOptionsPageWidget
-{
-    Q_OBJECT
-public:
-    // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
-    AndroidSettingsWidget();
-    ~AndroidSettingsWidget() final;
-
-private:
-    void apply() final { saveSettings(); }
-    void finish() final {}
-
-    void saveSettings();
-    void validateJdk();
-    void validateNdk();
-    void onSdkPathChanged();
-    void validateSdk();
-    void openSDKDownloadUrl();
-    void openNDKDownloadUrl();
-    void openOpenJDKDownloadUrl();
-    void addAVD();
-    void avdAdded();
-    void removeAVD();
-    void startAVD();
-    void avdActivated(const QModelIndex &);
-    void dataPartitionSizeEditingFinished();
-    void manageAVD();
-    void createKitToggled();
-
-    void updateUI();
-    void updateAvds();
-
-    void startUpdateAvd();
-    void enableAvdControls();
-    void disableAvdControls();
-
-    Ui_AndroidSettingsWidget *m_ui;
-    AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
-    AndroidConfig m_androidConfig;
-    AvdModel m_AVDModel;
-    QFutureWatcher<CreateAvdInfo> m_futureWatcher;
-
-    QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
-    QString m_lastAddedAvd;
-    std::unique_ptr<AndroidAvdManager> m_avdManager;
-    std::unique_ptr<AndroidSdkManager> m_sdkManager;
+    AndroidSettingsPage();
 };
 
 } // namespace Internal

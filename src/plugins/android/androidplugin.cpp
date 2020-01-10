@@ -38,7 +38,7 @@
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
 #include "androidruncontrol.h"
-#include "androidsettingspage.h"
+#include "androidsettingswidget.h"
 #include "androidtoolchain.h"
 #include "javaeditor.h"
 

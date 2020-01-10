@@ -49,22 +49,94 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QFile>
-#include <QTextStream>
-#include <QProcess>
-#include <QTimer>
-#include <QTime>
-
+#include <QAbstractTableModel>
 #include <QDesktopServices>
-#include <QFileDialog>
+#include <QFutureWatcher>
+#include <QList>
 #include <QMessageBox>
 #include <QModelIndex>
-#include <QtCore/QUrl>
+#include <QString>
+#include <QTimer>
+#include <QUrl>
+#include <QWidget>
+
+#include <memory>
 
 namespace Android {
 namespace Internal {
 
-namespace {
+class AndroidSdkManagerWidget;
+
+class AndroidAvdManager;
+
+class AvdModel final : public QAbstractTableModel
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AvdModel)
+
+public:
+    void setAvdList(const AndroidDeviceInfoList &list);
+    QString avdName(const QModelIndex &index) const;
+    QModelIndex indexForAvdName(const QString &avdName) const;
+
+protected:
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const final;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const final;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const final;
+
+private:
+    AndroidDeviceInfoList m_list;
+};
+
+class AndroidSettingsWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidSettingsWidget)
+
+public:
+    // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
+    AndroidSettingsWidget();
+    ~AndroidSettingsWidget() final;
+
+private:
+    void apply() final { saveSettings(); }
+    void finish() final {}
+
+    void saveSettings();
+    void validateJdk();
+    void validateNdk();
+    void onSdkPathChanged();
+    void validateSdk();
+    void openSDKDownloadUrl();
+    void openNDKDownloadUrl();
+    void openOpenJDKDownloadUrl();
+    void addAVD();
+    void avdAdded();
+    void removeAVD();
+    void startAVD();
+    void avdActivated(const QModelIndex &);
+    void dataPartitionSizeEditingFinished();
+    void manageAVD();
+    void createKitToggled();
+
+    void updateUI();
+    void updateAvds();
+
+    void startUpdateAvd();
+    void enableAvdControls();
+    void disableAvdControls();
+
+    Ui_AndroidSettingsWidget *m_ui;
+    AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
+    AndroidConfig m_androidConfig;
+    AvdModel m_AVDModel;
+    QFutureWatcher<CreateAvdInfo> m_futureWatcher;
+
+    QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
+    QString m_lastAddedAvd;
+    std::unique_ptr<AndroidAvdManager> m_avdManager;
+    std::unique_ptr<AndroidSdkManager> m_sdkManager;
+};
+
 enum JavaValidation {
     JavaPathExistsRow,
     JavaJdkValidRow
@@ -82,7 +154,6 @@ enum AndroidValidation {
     NdkDirStructureRow,
     NdkinstallDirOkRow
 };
-}
 
 class SummaryWidget : public QWidget
 {
@@ -581,6 +652,15 @@ void AndroidSettingsWidget::manageAVD()
     }
 }
 
+// AndroidSettingsPage
+
+AndroidSettingsPage::AndroidSettingsPage()
+{
+    setId(Constants::ANDROID_SETTINGS_ID);
+    setDisplayName(AndroidSettingsWidget::tr("Android"));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new AndroidSettingsWidget; });
+}
 
 } // namespace Internal
 } // namespace Android

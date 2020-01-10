@@ -11,7 +11,6 @@ HEADERS += \
     androidmanager.h \
     androidrunconfiguration.h \
     androidruncontrol.h \
-    androidsettingspage.h \
     androidsettingswidget.h \
     androidtoolchain.h \
     androiderrormessage.h \
@@ -56,7 +55,6 @@ SOURCES += \
     androidmanager.cpp \
     androidrunconfiguration.cpp \
     androidruncontrol.cpp \
-    androidsettingspage.cpp \
     androidsettingswidget.cpp \
     androidtoolchain.cpp \
     androiderrormessage.cpp \

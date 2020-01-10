@@ -87,8 +87,6 @@ Project {
             "androidsdkmodel.h",
             "androidsdkpackage.cpp",
             "androidsdkpackage.h",
-            "androidsettingspage.cpp",
-            "androidsettingspage.h",
             "androidsettingswidget.cpp",
             "androidsettingswidget.h",
             "androidsettingswidget.ui",
