@@ -28,11 +28,12 @@
 #include "autotestplugin.h"
 #include "iframeworksettings.h"
 #include "itestparser.h"
-#include "itestsettingspage.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -216,6 +217,12 @@ unsigned TestFrameworkManager::priority(const Id &frameworkId) const
     if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
         return framework->priority();
     return unsigned(-1);
+}
+
+Id ITestFramework::settingsId() const
+{
+    return Core::Id(Constants::SETTINGSPAGE_PREFIX)
+            .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
 }
 
 } // namespace Autotest

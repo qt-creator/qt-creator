@@ -103,9 +103,10 @@ void BoostTestSettingsWidget::fillComboBoxes()
 }
 
 BoostTestSettingsPage::BoostTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
-                                             const ITestFramework *framework)
-    : ITestSettingsPage(framework)
+                                             Core::Id settingsId)
 {
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(QCoreApplication::translate("BoostTestFramework",
                                                BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setWidgetCreator([settings] {

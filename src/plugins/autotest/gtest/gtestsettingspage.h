@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../itestsettingspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Autotest {
 
@@ -33,10 +33,10 @@ class IFrameworkSettings;
 
 namespace Internal {
 
-class GTestSettingsPage final : public ITestSettingsPage
+class GTestSettingsPage final : public Core::IOptionsPage
 {
 public:
-    GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings, const ITestFramework *framework);
+    GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings, Core::Id settingsId);
 };
 
 } // namespace Internal

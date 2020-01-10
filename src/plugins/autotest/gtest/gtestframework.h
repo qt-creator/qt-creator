@@ -38,7 +38,7 @@ public:
     const char *name() const override;
     unsigned priority() const override;
     IFrameworkSettings *createFrameworkSettings() const override;
-    ITestSettingsPage *createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const override;
+    Core::IOptionsPage *createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const override;
     bool hasFrameworkSettings() const override;
     static GTest::Constants::GroupMode groupMode();
     static QString currentGTestFilter();

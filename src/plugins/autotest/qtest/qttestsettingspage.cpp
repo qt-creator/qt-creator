@@ -102,9 +102,10 @@ void QtTestSettingsWidget::apply()
 }
 
 QtTestSettingsPage::QtTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
-                                       const ITestFramework *framework)
-    : ITestSettingsPage(framework)
+                                       Core::Id settingsId)
 {
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(QCoreApplication::translate("QtTestFramework",
                                                QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setWidgetCreator([settings] {

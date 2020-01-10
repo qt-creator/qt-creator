@@ -62,9 +62,9 @@ IFrameworkSettings *BoostTestFramework::createFrameworkSettings() const
     return new BoostTestSettings;
 }
 
-ITestSettingsPage *BoostTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
+Core::IOptionsPage *BoostTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
 {
-    return new BoostTestSettingsPage(settings, this);
+    return new BoostTestSettingsPage(settings, settingsId());
 }
 
 bool BoostTestFramework::hasFrameworkSettings() const

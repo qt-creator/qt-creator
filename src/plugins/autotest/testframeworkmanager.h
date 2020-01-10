@@ -44,12 +44,10 @@ namespace Internal {
 
 class TestRunner;
 struct TestSettings;
-
 }
 
 class IFrameworkSettings;
 class ITestParser;
-class ITestSettingsPage;
 class TestTreeModel;
 
 class TestFrameworkManager
@@ -80,7 +78,7 @@ private:
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
     QHash<Core::Id, QSharedPointer<IFrameworkSettings> > m_frameworkSettings;
-    QVector<ITestSettingsPage *> m_frameworkSettingsPages;
+    QVector<Core::IOptionsPage *> m_frameworkSettingsPages;
     TestTreeModel *m_testTreeModel;
     Internal::TestRunner *m_testRunner;
 

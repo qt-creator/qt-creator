@@ -71,7 +71,6 @@ HEADERS += \
     iframeworksettings.h \
     itestframework.h \
     itestparser.h \
-    itestsettingspage.h \
     projectsettingswidget.h \
     testcodeparser.h \
     testconfiguration.h \
