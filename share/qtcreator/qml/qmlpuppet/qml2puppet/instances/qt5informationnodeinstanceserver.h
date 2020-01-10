@@ -33,6 +33,10 @@
 #include <QTimer>
 #include <QVariant>
 
+QT_BEGIN_NAMESPACE
+class QDragMoveEvent;
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
 class Qt5InformationNodeInstanceServer : public Qt5NodeInstanceServer
