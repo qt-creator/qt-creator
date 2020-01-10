@@ -17,7 +17,6 @@ SOURCES += qnxplugin.cpp \
     qnxtoolchain.cpp \
     slog2inforunner.cpp \
     qnxconfiguration.cpp \
-    qnxsettingswidget.cpp \
     qnxconfigurationmanager.cpp \
     qnxsettingspage.cpp \
     qnxversionnumber.cpp \
@@ -40,7 +39,6 @@ HEADERS += qnxplugin.h\
     qnxtoolchain.h \
     slog2inforunner.h \
     qnxconfiguration.h \
-    qnxsettingswidget.h \
     qnxconfigurationmanager.h \
     qnxsettingspage.h \
     qnxversionnumber.h \

@@ -27,26 +27,13 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace Qnx {
 namespace Internal {
 
-class QnxSettingsWidget;
-
 class QnxSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     QnxSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<QnxSettingsWidget> m_widget;
 };
 
 } // namespace Internal
