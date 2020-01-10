@@ -257,12 +257,7 @@ public:
         connect(&m_killTimer, &QTimer::timeout, this, &PythonLSInstallHelper::cancel);
         connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PythonLSInstallHelper::cancel);
 
-        // on windows the pyls 0.28.3 crashes with pylint so just install the pyflakes linter
-        const QString &pylsVersion = HostOsInfo::isWindowsHost()
-                                         ? QString{"python-language-server[pyflakes]"}
-                                         : QString{"python-language-server[all]"};
-
-        QStringList arguments = {"-m", "pip", "install", pylsVersion};
+        QStringList arguments = {"-m", "pip", "install", "python-language-server[all]"};
 
         // add --user to global pythons, but skip it for venv pythons
         if (!QDir(m_python.parentDir().toString()).exists("activate"))
