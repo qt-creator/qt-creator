@@ -32,8 +32,6 @@ namespace Internal {
 
 class CMakeSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     CMakeSettingsPage();
 };

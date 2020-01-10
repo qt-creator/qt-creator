@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "cmakespecificsettingspage.h"
+#include "cmakespecificsettings.h"
+#include "ui_cmakespecificsettingspage.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -31,7 +33,23 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-CMakeSpecificSettingWidget::CMakeSpecificSettingWidget()
+class CMakeSpecificSettingWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeSpecificSettingWidget)
+
+public:
+    explicit CMakeSpecificSettingWidget(CMakeSpecificSettings *settings);
+
+    void apply() final;
+    void finish() final {}
+
+private:
+    Ui::CMakeSpecificSettingForm m_ui;
+    CMakeSpecificSettings *m_settings;
+};
+
+CMakeSpecificSettingWidget::CMakeSpecificSettingWidget(CMakeSpecificSettings *settings)
+    : m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.newFileAddedCopyToCpliSettingGroup->setId(m_ui.alwaysAskRadio,
@@ -40,68 +58,37 @@ CMakeSpecificSettingWidget::CMakeSpecificSettingWidget()
                                                    AfterAddFileAction::NEVER_COPY_FILE_PATH);
     m_ui.newFileAddedCopyToCpliSettingGroup->setId(m_ui.alwaysCopyRadio,
                                                    AfterAddFileAction::COPY_FILE_PATH);
-}
 
-void CMakeSpecificSettingWidget::setSettings(const CMakeSpecificSettings &settings)
-{
-    setProjectPopupSetting(settings.afterAddFileSetting());
-}
-
-CMakeSpecificSettings CMakeSpecificSettingWidget::settings() const
-{
-    CMakeSpecificSettings set;
-
-    int popupSetting = m_ui.newFileAddedCopyToCpliSettingGroup->checkedId();
-    set.setAfterAddFileSetting(popupSetting == -1 ? AfterAddFileAction::ASK_USER
-                                                  : static_cast<AfterAddFileAction>(popupSetting));
-    return set;
-}
-
-void CMakeSpecificSettingWidget::setProjectPopupSetting(AfterAddFileAction mode)
-{
+    const AfterAddFileAction mode = settings->afterAddFileSetting();
     switch (mode) {
-    case CMakeProjectManager::Internal::ASK_USER:
+    case ASK_USER:
         m_ui.alwaysAskRadio->setChecked(true);
         break;
-    case CMakeProjectManager::Internal::COPY_FILE_PATH:
+    case COPY_FILE_PATH:
         m_ui.alwaysCopyRadio->setChecked(true);
         break;
-    case CMakeProjectManager::Internal::NEVER_COPY_FILE_PATH:
+    case NEVER_COPY_FILE_PATH:
         m_ui.neverCopyRadio->setChecked(true);
         break;
     }
 }
 
-CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
-    : m_settings(settings)
+void CMakeSpecificSettingWidget::apply()
 {
-    setId("CMakeSpecificSettings");
-    setDisplayName(tr("CMake"));
-    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-}
-
-QWidget *CMakeSpecificSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new CMakeSpecificSettingWidget();
-        m_widget->setSettings(*m_settings);
-    }
-    return m_widget;
-}
-
-void CMakeSpecificSettingsPage::apply()
-{
-    if (!m_widget) // page was never shown
-        return;
-    const CMakeSpecificSettings newSettings = m_widget->settings();
-    *m_settings = newSettings;
+    int popupSetting = m_ui.newFileAddedCopyToCpliSettingGroup->checkedId();
+    m_settings->setAfterAddFileSetting(popupSetting == -1 ? AfterAddFileAction::ASK_USER
+                                                  : static_cast<AfterAddFileAction>(popupSetting));
     m_settings->toSettings(Core::ICore::settings());
 }
 
-void CMakeSpecificSettingsPage::finish()
+// CMakeSpecificSettingsPage
+
+CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
 {
-    delete m_widget;
-    m_widget = nullptr;
+    setId("CMakeSpecificSettings");
+    setDisplayName(CMakeSpecificSettingWidget::tr("CMake"));
+    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setWidgetCreator([settings] { return new CMakeSpecificSettingWidget(settings); });
 }
 
 } // Internal

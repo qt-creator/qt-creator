@@ -29,6 +29,7 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 
 #include <android/androidconstants.h>
 

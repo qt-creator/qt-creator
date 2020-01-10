@@ -25,46 +25,17 @@
 
 #pragma once
 
-#include "cmakespecificsettings.h"
-#include "ui_cmakespecificsettingspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QPointer>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeSpecificSettingWidget : public QWidget
+class CMakeSpecificSettings;
+
+class CMakeSpecificSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
-public:
-    CMakeSpecificSettingWidget();
-
-    void setSettings(const CMakeSpecificSettings &settings);
-    CMakeSpecificSettings settings() const;
-
-private:
-    Ui::CMakeSpecificSettingForm m_ui;
-
-    void setProjectPopupSetting(AfterAddFileAction mode);
-};
-
-class CMakeSpecificSettingsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
 public:
     explicit CMakeSpecificSettingsPage(CMakeSpecificSettings *settings);
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    CMakeSpecificSettings * const m_settings = nullptr;
-    QPointer<CMakeSpecificSettingWidget> m_widget;
 };
 
 } // Internal

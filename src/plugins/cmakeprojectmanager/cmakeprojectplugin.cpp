@@ -37,6 +37,7 @@
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
 #include "cmakekitinformation.h"
+#include "cmakespecificsettings.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
