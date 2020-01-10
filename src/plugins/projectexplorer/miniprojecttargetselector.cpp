@@ -37,6 +37,7 @@
 #include "target.h"
 
 #include <utils/algorithm.h>
+#include <utils/itemviews.h>
 #include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
@@ -89,44 +90,13 @@ static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
     return QIcon(targetPixmap);
 }
 
-static bool projectLesserThan(Project *p1, Project *p2)
-{
-    int result = caseFriendlyCompare(p1->displayName(), p2->displayName());
-    if (result != 0)
-        return result < 0;
-    else
-        return p1 < p2;
-}
-
-static QString displayNameFor(QObject *object)
-{
-    if (auto t = qobject_cast<Target *>(object))
-        return t->displayName();
-    if (auto pc = qobject_cast<ProjectConfiguration *>(object))
-        return pc->displayName();
-    QTC_CHECK(false);
-    return {};
-}
-
-static QString toolTipFor(QObject *object)
-{
-    if (auto t = qobject_cast<Target *>(object))
-        return t->toolTip();
-    if (auto pc = qobject_cast<ProjectConfiguration *>(object))
-        return pc->toolTip();
-    QTC_CHECK(false);
-    return {};
-}
-
-// helper classes
-class ListWidget : public QListWidget
+class SelectorView : public TreeView
 {
     Q_OBJECT
 
 public:
-    ListWidget(QWidget *parent);
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
+    SelectorView(QWidget *parent);
+
     void setMaxCount(int maxCount);
     int maxCount();
 
@@ -136,70 +106,338 @@ public:
     int padding();
 
 private:
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+
     int m_maxCount = 0;
     int m_optimalWidth = 0;
 };
 
-class ProjectListWidget : public ListWidget
+// The project-specific classes look annoyingly similar to the generic ones.
+// Can we merge them?
+class SelectorProjectItem : public TreeItem
 {
-    Q_OBJECT
-
 public:
-    explicit ProjectListWidget(QWidget *parent = nullptr);
+    SelectorProjectItem() = default;
+    SelectorProjectItem(Project *project) : m_project(project) {}
+    Project *project() const { return m_project; }
+    QString displayName() const
+    {
+        const auto hasSameProjectName = [this](TreeItem *ti) {
+            return ti != this && static_cast<SelectorProjectItem *>(ti)->project()->displayName()
+                                   == project()->displayName();
+        };
+        QString displayName = m_project->displayName();
+        if (parent()->findAnyChild(hasSameProjectName)) {
+            displayName.append(" (").append(project()->projectFilePath().toUserOutput())
+                    .append(')');
+        }
+        return displayName;
+    }
 
 private:
-    void addProject(ProjectExplorer::Project *project);
-    void removeProject(ProjectExplorer::Project *project);
-    void projectDisplayNameChanged(ProjectExplorer::Project *project);
-    void changeStartupProject(ProjectExplorer::Project *project);
-    void setProject(int index);
-    QListWidgetItem *itemForProject(Project *project);
-    QString fullName(Project *project);
-    bool m_ignoreIndexChange;
+    QVariant data(int column, int role) const override
+    {
+        return column == 0 && role == Qt::DisplayRole ? displayName() : QString();
+    }
+
+    Project *m_project = nullptr;
 };
 
-class KitAreaWidget : public QWidget
+class GenericItem : public TreeItem
 {
-    Q_OBJECT
 public:
-    explicit KitAreaWidget(QWidget *parent = nullptr);
-    ~KitAreaWidget() override;
-
-    void setKit(ProjectExplorer::Kit *k);
+    GenericItem() = default;
+    GenericItem(QObject *object) : m_object(object) {}
+    QObject *object() const { return m_object; }
+    QString displayName() const
+    {
+        if (const auto t = qobject_cast<Target *>(object()))
+            return t->displayName();
+        return static_cast<ProjectConfiguration *>(object())->displayName();
+    }
 
 private:
-    void updateKit(ProjectExplorer::Kit *k);
+    QString toolTip() const
+    {
+        if (const auto t = qobject_cast<Target *>(object()))
+            return t->toolTip();
+        return static_cast<ProjectConfiguration *>(object())->toolTip();
+    }
 
-    QGridLayout *m_layout;
-    Kit *m_kit = nullptr;
-    QList<KitAspectWidget *> m_widgets;
-    QList<QLabel *> m_labels;
+    QVariant data(int column, int role) const override
+    {
+        if (column != 0)
+            return {};
+        switch (role) {
+        case Qt::DisplayRole:
+            return displayName();
+        case Qt::ToolTipRole:
+            return toolTip();
+        default:break;
+        }
+        return {};
+    }
+
+    QObject *m_object = nullptr;
 };
 
-class GenericListWidget : public ListWidget
+static QString rawDisplayName(const SelectorProjectItem *item)
+{
+    return item->project()->displayName();
+}
+static QString rawDisplayName(const GenericItem *item) { return item->displayName(); }
+
+template<typename T> bool compareItems(const TreeItem *ti1, const TreeItem *ti2)
+{
+    const int result = caseFriendlyCompare(rawDisplayName(static_cast<const T*>(ti1)),
+                                           rawDisplayName(static_cast<const T*>(ti2)));
+    if (result != 0)
+        return result < 0;
+    return ti1 < ti2;
+}
+
+class ProjectsModel : public TreeModel<SelectorProjectItem, SelectorProjectItem>
 {
     Q_OBJECT
-
 public:
-    explicit GenericListWidget(QWidget *parent = nullptr);
+    ProjectsModel(QObject *parent) : TreeModel(parent)
+    {
+        connect(SessionManager::instance(), &SessionManager::projectAdded,
+                this, [this](Project *project) {
+            emit projectAdded(addItemForProject(project));
+        });
+        connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject,
+                this, [this](const Project *project) {
+            SelectorProjectItem * const item = itemForProject(project);
+            if (!item)
+                return;
+            destroyItem(item);
+            emit optimalWidthChanged();
+        });
+        buildTree();
+    }
+
+    SelectorProjectItem *itemForProject(const Project *project) const
+    {
+        return findItemAtLevel<1>([project](const SelectorProjectItem *item) {
+            return item->project() == project;
+        });
+    }
 
 signals:
-    void changeActiveProjectConfiguration(QObject *dc);
-
-public:
-    void setProjectConfigurations(const QList<QObject *> &list, QObject *active);
-    void setActiveProjectConfiguration(QObject *active);
-    void addProjectConfiguration(QObject *pc);
-    void removeProjectConfiguration(QObject *pc);
+    void projectAdded(const SelectorProjectItem *projectItem);
+    void requestRestoreCurrentIndex();
+    void optimalWidthChanged();
 
 private:
-    QObject *objectAt(int row) const;
+    const SelectorProjectItem *addItemForProject(Project *project)
+    {
+        const auto projectItem = new SelectorProjectItem(project);
+        rootItem()->insertOrderedChild(projectItem, &compareItems<SelectorProjectItem>);
+        connect(project, &Project::displayNameChanged, this, [this] {
+            rootItem()->sortChildren(&compareItems<SelectorProjectItem>);
+            emit optimalWidthChanged();
+            emit requestRestoreCurrentIndex();
+        });
+        return projectItem;
+    }
 
-    void rowChanged(int index);
+    void buildTree()
+    {
+        for (Project * const project : SessionManager::projects())
+            addItemForProject(project);
+    }
+};
+
+class ProjectListView : public SelectorView
+{
+    Q_OBJECT
+
+public:
+    explicit ProjectListView(QWidget *parent = nullptr) : SelectorView(parent)
+    {
+        ProjectsModel * const model = new ProjectsModel(this);
+        connect(model, &ProjectsModel::projectAdded, this,
+                [this](const SelectorProjectItem *projectItem) {
+            QFontMetrics fn(font());
+            const int width = fn.horizontalAdvance(projectItem->displayName()) + padding();
+            if (width > optimalWidth())
+                setOptimalWidth(width);
+            restoreCurrentIndex();
+        });
+        connect(model, &ProjectsModel::optimalWidthChanged,
+                this, &ProjectListView::resetOptimalWidth);
+        connect(model, &ProjectsModel::requestRestoreCurrentIndex,
+                this, &ProjectListView::restoreCurrentIndex);
+        connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+                this, [this, model](const Project *project) {
+            const SelectorProjectItem * const item = model->itemForProject(project);
+            if (item)
+                setCurrentIndex(item->index());
+        });
+        setModel(model);
+        connect(selectionModel(), &QItemSelectionModel::currentChanged,
+                this, [model](const QModelIndex &index) {
+            const SelectorProjectItem * const item = model->itemForIndex(index);
+            if (item && item->project())
+                SessionManager::setStartupProject(item->project());
+        });
+    }
+
+private:
+    ProjectsModel *theModel() const { return static_cast<ProjectsModel *>(model()); }
+
+    void restoreCurrentIndex()
+    {
+        const SelectorProjectItem * const itemForStartupProject
+                = theModel()->itemForProject(SessionManager::startupProject());
+        if (itemForStartupProject)
+            setCurrentIndex(theModel()->indexForItem(itemForStartupProject));
+    }
+
+    void resetOptimalWidth()
+    {
+        int width = 0;
+        QFontMetrics fn(font());
+        theModel()->forItemsAtLevel<1>([this, &width, &fn](const SelectorProjectItem *item) {
+            width = qMax(fn.horizontalAdvance(item->displayName()) + padding(), width);
+        });
+        setOptimalWidth(width);
+    }
+};
+
+class GenericModel : public TreeModel<GenericItem, GenericItem>
+{
+    Q_OBJECT
+public:
+    GenericModel(QObject *parent) : TreeModel(parent) { }
+
+    void rebuild(const QList<QObject *> &objects)
+    {
+        clear();
+        for (QObject * const e : objects)
+            addItemForObject(e);
+    }
+
+    const GenericItem *addItemForObject(QObject *object)
+    {
+        const auto item = new GenericItem(object);
+        rootItem()->insertOrderedChild(item, &compareItems<GenericItem>);
+        if (const auto target = qobject_cast<Target *>(object)) {
+            connect(target, &Target::kitChanged, this, &GenericModel::displayNameChanged);
+        } else {
+            const auto pc = qobject_cast<ProjectConfiguration *>(object);
+            QTC_CHECK(pc);
+            connect(pc, &ProjectConfiguration::displayNameChanged,
+                    this, &GenericModel::displayNameChanged);
+            connect(pc, &ProjectConfiguration::toolTipChanged,
+                    this, &GenericModel::updateToolTips);
+        }
+        return item;
+    }
+
+signals:
     void displayNameChanged();
-    void toolTipChanged();
-    QListWidgetItem *itemForProjectConfiguration(QObject *pc);
-    bool m_ignoreIndexChange;
+
+private:
+    void updateToolTips()
+    {
+        emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::ToolTipRole});
+    }
+};
+
+class GenericListWidget : public SelectorView
+{
+    Q_OBJECT
+
+public:
+    explicit GenericListWidget(QWidget *parent = nullptr) : SelectorView(parent)
+    {
+        const auto model = new GenericModel(this);
+        connect(model, &GenericModel::displayNameChanged, this, [this, model] {
+            const GenericItem * const activeItem = model->itemForIndex(currentIndex());
+            model->rootItem()->sortChildren(&compareItems<GenericItem>);
+            resetOptimalWidth();
+            if (activeItem)
+                setCurrentIndex(activeItem->index());
+        });
+        setModel(model);
+        connect(selectionModel(), &QItemSelectionModel::currentChanged,
+                this, &GenericListWidget::rowChanged);
+    }
+
+signals:
+    void changeActiveProjectConfiguration(QObject *pc);
+
+public:
+    void setProjectConfigurations(const QList<QObject *> &list, QObject *active)
+    {
+        theModel()->rebuild(list);
+        resetOptimalWidth();
+        setActiveProjectConfiguration(active);
+    }
+
+    void setActiveProjectConfiguration(QObject *active)
+    {
+        if (const GenericItem * const item = itemForObject(active))
+            setCurrentIndex(item->index());
+    }
+
+    void addProjectConfiguration(QObject *pc)
+    {
+        const auto activeItem = theModel()->itemForIndex(currentIndex());
+        const auto item = theModel()->addItemForObject(pc);
+        QFontMetrics fn(font());
+        const int width = fn.horizontalAdvance(item->displayName()) + padding();
+        if (width > optimalWidth())
+            setOptimalWidth(width);
+        if (activeItem)
+            setCurrentIndex(activeItem->index());
+    }
+
+    void removeProjectConfiguration(QObject *pc)
+    {
+        const auto activeItem = theModel()->itemForIndex(currentIndex());
+        if (GenericItem * const item = itemForObject(pc)) {
+            theModel()->destroyItem(item);
+            resetOptimalWidth();
+            if (activeItem && activeItem != item)
+                setCurrentIndex(activeItem->index());
+        }
+    }
+
+private:
+    GenericModel *theModel() const { return static_cast<GenericModel *>(model()); }
+
+private:
+    GenericItem *itemForObject(const QObject *object)
+    {
+        return theModel()->findItemAtLevel<1>([object](const GenericItem *item) {
+            return item->object() == object;
+        });
+    }
+
+    void resetOptimalWidth()
+    {
+        int width = 0;
+        QFontMetrics fn(font());
+        theModel()->forItemsAtLevel<1>([this, &width, &fn](const GenericItem *item) {
+            width = qMax(fn.horizontalAdvance(item->displayName()) + padding(), width);
+        });
+        setOptimalWidth(width);
+    }
+
+    QObject *objectAt(const QModelIndex &index) const
+    {
+        return theModel()->itemForIndex(index)->object();
+    }
+
+    void rowChanged(const QModelIndex &index)
+    {
+        if (index.isValid())
+            emit changeActiveProjectConfiguration(objectAt(index));
+    }
 };
 
 ////////
@@ -208,20 +446,20 @@ private:
 class TargetSelectorDelegate : public QItemDelegate
 {
 public:
-    TargetSelectorDelegate(ListWidget *parent) : QItemDelegate(parent), m_listWidget(parent) { }
+    TargetSelectorDelegate(SelectorView *parent) : QItemDelegate(parent), m_view(parent) { }
 private:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
-    ListWidget *m_listWidget;
+    SelectorView *m_view;
 };
 
 QSize TargetSelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option)
     Q_UNUSED(index)
-    return QSize(m_listWidget->size().width(), 30);
+    return QSize(m_view->size().width(), 30);
 }
 
 void TargetSelectorDelegate::paint(QPainter *painter,
@@ -274,60 +512,63 @@ void TargetSelectorDelegate::paint(QPainter *painter,
 ////////
 // ListWidget
 ////////
-ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
+SelectorView::SelectorView(QWidget *parent) : TreeView(parent)
 {
     setFocusPolicy(Qt::NoFocus);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAlternatingRowColors(false);
+    setUniformRowHeights(true);
+    setIndentation(0);
     setFocusPolicy(Qt::WheelFocus);
     setItemDelegate(new TargetSelectorDelegate(this));
     setAttribute(Qt::WA_MacShowFocusRect, false);
+    setHeaderHidden(true);
     const QColor bgColor = creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor);
     const QString bgColorName = creatorTheme()->flag(Theme::FlatToolBars)
             ? bgColor.lighter(120).name() : bgColor.name();
-    setStyleSheet(QString::fromLatin1("QListWidget { background: %1; border-style: none; }").arg(bgColorName));
+    setStyleSheet(QString::fromLatin1("QAbstractItemView { background: %1; border-style: none; }").arg(bgColorName));
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
 
-void ListWidget::keyPressEvent(QKeyEvent *event)
+void SelectorView::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Left)
         focusPreviousChild();
     else if (event->key() == Qt::Key_Right)
         focusNextChild();
     else
-        QListWidget::keyPressEvent(event);
+        TreeView::keyPressEvent(event);
 }
 
-void ListWidget::keyReleaseEvent(QKeyEvent *event)
+void SelectorView::keyReleaseEvent(QKeyEvent *event)
 {
     if (event->key() != Qt::Key_Left && event->key() != Qt::Key_Right)
-        QListWidget::keyReleaseEvent(event);
+        TreeView::keyReleaseEvent(event);
 }
 
-void ListWidget::setMaxCount(int maxCount)
+void SelectorView::setMaxCount(int maxCount)
 {
     m_maxCount = maxCount;
     updateGeometry();
 }
 
-int ListWidget::maxCount()
+int SelectorView::maxCount()
 {
     return m_maxCount;
 }
 
-int ListWidget::optimalWidth() const
+int SelectorView::optimalWidth() const
 {
     return m_optimalWidth;
 }
 
-void ListWidget::setOptimalWidth(int width)
+void SelectorView::setOptimalWidth(int width)
 {
     m_optimalWidth = width;
     updateGeometry();
 }
 
-int ListWidget::padding()
+int SelectorView::padding()
 {
     // there needs to be enough extra pixels to show a scrollbar
     return 2 * style()->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, this)
@@ -335,435 +576,87 @@ int ListWidget::padding()
             + 10;
 }
 
-////////
-// ProjectListWidget
-////////
-ProjectListWidget::ProjectListWidget(QWidget *parent)
-    : ListWidget(parent), m_ignoreIndexChange(false)
-{
-    SessionManager *sessionManager = SessionManager::instance();
-    connect(sessionManager, &SessionManager::projectAdded,
-            this, &ProjectListWidget::addProject);
-    connect(sessionManager, &SessionManager::aboutToRemoveProject,
-            this, &ProjectListWidget::removeProject);
-    connect(sessionManager, &SessionManager::startupProjectChanged,
-            this, &ProjectListWidget::changeStartupProject);
-    connect(sessionManager, &SessionManager::projectDisplayNameChanged,
-            this, &ProjectListWidget::projectDisplayNameChanged);
-    connect(this, &QListWidget::currentRowChanged,
-            this, &ProjectListWidget::setProject);
-}
-
-QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
-{
-    for (int i = 0; i < count(); ++i) {
-        QListWidgetItem *currentItem = item(i);
-        if (currentItem->data(Qt::UserRole).value<Project*>() == project)
-            return currentItem;
-    }
-    return nullptr;
-}
-
-QString ProjectListWidget::fullName(Project *project)
-{
-    return tr("%1 (%2)").arg(project->displayName(), project->projectFilePath().toUserOutput());
-}
-
-void ProjectListWidget::addProject(Project *project)
-{
-    m_ignoreIndexChange = true;
-
-    int pos = count();
-    for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<Project*>();
-        if (projectLesserThan(project, p)) {
-            pos = i;
-            break;
-        }
-    }
-
-    bool useFullName = false;
-    for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<Project*>();
-        if (p->displayName() == project->displayName()) {
-            useFullName = true;
-            item(i)->setText(fullName(p));
-        }
-    }
-
-    QString displayName = useFullName ? fullName(project) : project->displayName();
-    auto *item = new QListWidgetItem();
-    item->setData(Qt::UserRole, QVariant::fromValue(project));
-    item->setText(displayName);
-    insertItem(pos, item);
-
-    if (project == SessionManager::startupProject())
-        setCurrentItem(item);
-
-    QFontMetrics fn(font());
-    int width = fn.horizontalAdvance(displayName) + padding();
-    if (width > optimalWidth())
-        setOptimalWidth(width);
-
-    m_ignoreIndexChange = false;
-}
-
-void ProjectListWidget::removeProject(Project *project)
-{
-    m_ignoreIndexChange = true;
-
-    QListWidgetItem *listItem = itemForProject(project);
-    delete listItem;
-
-    // Update display names
-    QString name = project->displayName();
-    int countDisplayName = 0;
-    int otherIndex = -1;
-    for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<Project *>();
-        if (p->displayName() == name) {
-            ++countDisplayName;
-            otherIndex = i;
-        }
-    }
-    if (countDisplayName == 1) {
-        auto *p = item(otherIndex)->data(Qt::UserRole).value<Project *>();
-        item(otherIndex)->setText(p->displayName());
-    }
-
-    QFontMetrics fn(font());
-
-    // recheck optimal width
-    int width = 0;
-    for (int i = 0; i < count(); ++i)
-        width = qMax(fn.horizontalAdvance(item(i)->text()) + padding(), width);
-    setOptimalWidth(width);
-
-    m_ignoreIndexChange = false;
-}
-
-void ProjectListWidget::projectDisplayNameChanged(Project *project)
-{
-    m_ignoreIndexChange = true;
-
-    int oldPos = 0;
-    bool useFullName = false;
-    for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<Project*>();
-        if (p == project) {
-            oldPos = i;
-        } else if (p->displayName() == project->displayName()) {
-            useFullName = true;
-            item(i)->setText(fullName(p));
-        }
-    }
-
-    bool isCurrentItem = (oldPos == currentRow());
-    QListWidgetItem *projectItem = takeItem(oldPos);
-
-    int pos = count();
-    for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<Project*>();
-        if (projectLesserThan(project, p)) {
-            pos = i;
-            break;
-        }
-    }
-
-    QString displayName = useFullName ? fullName(project) : project->displayName();
-    projectItem->setText(displayName);
-    insertItem(pos, projectItem);
-    if (isCurrentItem)
-        setCurrentRow(pos);
-
-    // recheck optimal width
-    QFontMetrics fn(font());
-    int width = 0;
-    for (int i = 0; i < count(); ++i)
-        width = qMax(fn.horizontalAdvance(item(i)->text()) + padding(), width);
-    setOptimalWidth(width);
-
-    m_ignoreIndexChange = false;
-}
-
-void ProjectListWidget::setProject(int index)
-{
-    if (m_ignoreIndexChange)
-        return;
-    if (index < 0)
-        return;
-    auto *p = item(index)->data(Qt::UserRole).value<Project *>();
-    SessionManager::setStartupProject(p);
-}
-
-void ProjectListWidget::changeStartupProject(Project *project)
-{
-    setCurrentItem(itemForProject(project));
-}
-
-/////////
-// GenericListWidget
-/////////
-
-GenericListWidget::GenericListWidget(QWidget *parent)
-    : ListWidget(parent), m_ignoreIndexChange(false)
-{
-    connect(this, &QListWidget::currentRowChanged,
-            this, &GenericListWidget::rowChanged);
-}
-
-void GenericListWidget::setProjectConfigurations(const QList<QObject *> &list, QObject *active)
-{
-    m_ignoreIndexChange = true;
-    clear();
-
-    for (int i = 0; i < count(); ++i) {
-        auto obj = objectAt(i);
-        if (auto t = qobject_cast<Target *>(obj)) {
-            disconnect(t, &Target::kitChanged,
-                   this, &GenericListWidget::displayNameChanged);
-        } else if (auto pc = qobject_cast<ProjectConfiguration *>(obj)) {
-            disconnect(pc, &ProjectConfiguration::displayNameChanged,
-                   this, &GenericListWidget::displayNameChanged);
-        }
-    }
-
-    QFontMetrics fn(font());
-    int width = 0;
-    for (QObject *pc : list) {
-        addProjectConfiguration(pc);
-        width = qMax(width, fn.horizontalAdvance(displayNameFor(pc)) + padding());
-    }
-    setOptimalWidth(width);
-    setActiveProjectConfiguration(active);
-
-    m_ignoreIndexChange = false;
-}
-
-QObject *GenericListWidget::objectAt(int row) const
-{
-    return item(row)->data(Qt::UserRole).value<QObject *>();
-}
-
-void GenericListWidget::setActiveProjectConfiguration(QObject *active)
-{
-    QListWidgetItem *item = itemForProjectConfiguration(active);
-    setCurrentItem(item);
-}
-
-void GenericListWidget::addProjectConfiguration(QObject *obj)
-{
-    const QString displayName = displayNameFor(obj);
-    const QString toolTip = toolTipFor(obj);
-
-    m_ignoreIndexChange = true;
-    auto lwi = new QListWidgetItem();
-    lwi->setText(displayName);
-    lwi->setData(Qt::ToolTipRole, toolTip);
-    lwi->setData(Qt::UserRole + 1, toolTip);
-    lwi->setData(Qt::UserRole, QVariant::fromValue(obj));
-
-    // Figure out pos
-    int pos = count();
-    for (int i = 0; i < count(); ++i) {
-        QObject *p = objectAt(i);
-        if (caseFriendlyCompare(displayName, displayNameFor(p)) < 0) {
-            pos = i;
-            break;
-        }
-    }
-    insertItem(pos, lwi);
-
-    if (auto t = qobject_cast<Target *>(obj)) {
-        connect(t, &Target::kitChanged, this,
-                &GenericListWidget::displayNameChanged);
-        connect(t, &Target::kitChanged, this,
-                &GenericListWidget::toolTipChanged);
-    } else if (auto pc = qobject_cast<ProjectConfiguration *>(obj)) {
-        connect(pc, &ProjectConfiguration::displayNameChanged,
-                this, &GenericListWidget::displayNameChanged);
-        connect(pc, &ProjectConfiguration::toolTipChanged,
-                this, &GenericListWidget::toolTipChanged);
-    }
-
-    QFontMetrics fn(font());
-    int width = fn.horizontalAdvance(displayName) + padding();
-    if (width > optimalWidth())
-        setOptimalWidth(width);
-
-    m_ignoreIndexChange = false;
-}
-
-void GenericListWidget::removeProjectConfiguration(QObject *obj)
-{
-    m_ignoreIndexChange = true;
-    if (auto t = qobject_cast<Target *>(obj)) {
-        disconnect(t, &Target::kitChanged,
-                   this, &GenericListWidget::displayNameChanged);
-    } else if (auto pc = qobject_cast<ProjectConfiguration *>(obj)) {
-        disconnect(pc, &ProjectConfiguration::displayNameChanged,
-                   this, &GenericListWidget::displayNameChanged);
-    }
-    delete itemForProjectConfiguration(obj);
-
-    QFontMetrics fn(font());
-    int width = 0;
-    for (int i = 0; i < count(); ++i)
-        width = qMax(width, fn.horizontalAdvance(displayNameFor(objectAt(i))) + padding());
-
-    setOptimalWidth(width);
-
-    m_ignoreIndexChange = false;
-}
-
-void GenericListWidget::rowChanged(int index)
-{
-    if (m_ignoreIndexChange)
-        return;
-    if (index < 0)
-        return;
-    emit changeActiveProjectConfiguration(objectAt(index));
-}
-
-void GenericListWidget::displayNameChanged()
-{
-    m_ignoreIndexChange = true;
-    QObject *activeObject = nullptr;
-    if (currentItem())
-        activeObject = currentItem()->data(Qt::UserRole).value<QObject *>();
-
-    QObject *obj = sender();
-    int index = -1;
-    int i = 0;
-    for (; i < count(); ++i) {
-        QListWidgetItem *lwi = item(i);
-        if (lwi->data(Qt::UserRole).value<QObject *>() == obj) {
-            index = i;
-            break;
-        }
-    }
-    if (index == -1)
-        return;
-
-    const QString displayName = displayNameFor(obj);
-    QListWidgetItem *lwi = takeItem(i);
-    lwi->setText(displayName);
-    int pos = count();
-    for (int i = 0; i < count(); ++i) {
-        if (caseFriendlyCompare(displayName, displayNameFor(objectAt(i))) < 0) {
-            pos = i;
-            break;
-        }
-    }
-    insertItem(pos, lwi);
-    if (activeObject)
-        setCurrentItem(itemForProjectConfiguration(activeObject));
-
-    QFontMetrics fn(font());
-    int width = 0;
-    for (int i = 0; i < count(); ++i)
-        width = qMax(width, fn.horizontalAdvance(displayNameFor(objectAt(i))) + padding());
-
-    setOptimalWidth(width);
-
-    m_ignoreIndexChange = false;
-}
-
-void GenericListWidget::toolTipChanged()
-{
-    QObject *obj = sender();
-    if (QListWidgetItem *lwi = itemForProjectConfiguration(obj)) {
-        const QString toolTip = toolTipFor(obj);
-        lwi->setData(Qt::ToolTipRole, toolTip);
-        lwi->setData(Qt::UserRole + 1, toolTip);
-    }
-}
-
-QListWidgetItem *GenericListWidget::itemForProjectConfiguration(QObject *pc)
-{
-    for (int i = 0; i < count(); ++i) {
-        QListWidgetItem *lwi = item(i);
-        if (lwi->data(Qt::UserRole).value<QObject *>() == pc)
-            return lwi;
-    }
-    return nullptr;
-}
-
 /////////
 // KitAreaWidget
 /////////
-
-KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
-    m_layout(new QGridLayout(this))
+class KitAreaWidget : public QWidget
 {
-    m_layout->setContentsMargins(3, 3, 3, 3);
-    connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
-}
+    Q_OBJECT
+public:
+    explicit KitAreaWidget(QWidget *parent = nullptr)
+        : QWidget(parent), m_layout(new QGridLayout(this))
+    {
+        m_layout->setContentsMargins(3, 3, 3, 3);
+        connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
+    }
 
-KitAreaWidget::~KitAreaWidget()
-{
-    setKit(nullptr);
-}
+    ~KitAreaWidget() override { setKit(nullptr); }
 
-void KitAreaWidget::setKit(Kit *k)
-{
-    foreach (KitAspectWidget *w, m_widgets)
-        delete(w);
-    m_widgets.clear();
+    void setKit(ProjectExplorer::Kit *k)
+    {
+        qDeleteAll(m_widgets);
+        m_widgets.clear();
 
-    if (!k)
-        return;
+        if (!k)
+            return;
 
-    foreach (QLabel *l, m_labels)
-        l->deleteLater();
-    m_labels.clear();
+        foreach (QLabel *l, m_labels)
+            l->deleteLater();
+        m_labels.clear();
 
-    int row = 0;
-    for (KitAspect *aspect : KitManager::kitAspects()) {
-        if (k && k->isMutable(aspect->id())) {
-            KitAspectWidget *widget = aspect->createConfigWidget(k);
-            m_widgets << widget;
-            QLabel *label = new QLabel(aspect->displayName());
-            m_labels << label;
+        int row = 0;
+        for (KitAspect *aspect : KitManager::kitAspects()) {
+            if (k && k->isMutable(aspect->id())) {
+                KitAspectWidget *widget = aspect->createConfigWidget(k);
+                m_widgets << widget;
+                QLabel *label = new QLabel(aspect->displayName());
+                m_labels << label;
 
-            m_layout->addWidget(label, row, 0);
-            m_layout->addWidget(widget->mainWidget(), row, 1);
-            m_layout->addWidget(widget->buttonWidget(), row, 2);
+                m_layout->addWidget(label, row, 0);
+                m_layout->addWidget(widget->mainWidget(), row, 1);
+                m_layout->addWidget(widget->buttonWidget(), row, 2);
 
-            ++row;
+                ++row;
+            }
+        }
+        m_kit = k;
+
+        setHidden(m_widgets.isEmpty());
+    }
+
+private:
+    void updateKit(ProjectExplorer::Kit *k)
+    {
+        if (!m_kit || m_kit != k)
+            return;
+
+        bool addedMutables = false;
+        QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitAspectWidget::kitInformationId);
+
+        for (KitAspect *aspect : KitManager::kitAspects()) {
+            const Core::Id currentId = aspect->id();
+            if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
+                addedMutables = true;
+                break;
+            }
+        }
+        const bool removedMutables = !knownIdList.isEmpty();
+
+        if (addedMutables || removedMutables) {
+            // Redo whole setup if the number of mutable settings did change
+            setKit(m_kit);
+        } else {
+            // Refresh all widgets if the number of mutable settings did not change
+            foreach (KitAspectWidget *w, m_widgets)
+                w->refresh();
         }
     }
-    m_kit = k;
 
-    setHidden(m_widgets.isEmpty());
-}
-
-void KitAreaWidget::updateKit(Kit *k)
-{
-    if (!m_kit || m_kit != k)
-        return;
-
-    bool addedMutables = false;
-    QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitAspectWidget::kitInformationId);
-
-    for (KitAspect *aspect : KitManager::kitAspects()) {
-        const Core::Id currentId = aspect->id();
-        if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
-            addedMutables = true;
-            break;
-        }
-    }
-    const bool removedMutables = !knownIdList.isEmpty();
-
-    if (addedMutables || removedMutables) {
-        // Redo whole setup if the number of mutable settings did change
-        setKit(m_kit);
-    } else {
-        // Refresh all widgets if the number of mutable settings did not change
-        foreach (KitAspectWidget *w, m_widgets)
-            w->refresh();
-    }
-}
+    QGridLayout *m_layout;
+    Kit *m_kit = nullptr;
+    QList<KitAspectWidget *> m_widgets;
+    QList<QLabel *> m_labels;
+};
 
 /////////
 // MiniProjectTargetSelector
@@ -818,8 +711,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_listWidgets[PROJECT] = nullptr; //project is not a generic list widget
 
     m_titleWidgets[PROJECT] = createTitleLabel(tr("Project"));
-    m_projectListWidget = new ProjectListWidget(this);
-    connect(m_projectListWidget, &QListWidget::itemDoubleClicked,
+    m_projectListWidget = new ProjectListView(this);
+    connect(m_projectListWidget, &QAbstractItemView::doubleClicked,
             this, &MiniProjectTargetSelector::hide);
 
     QStringList titles;
@@ -829,7 +722,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     for (int i = TARGET; i < LAST; ++i) {
         m_titleWidgets[i] = createTitleLabel(titles.at(i -1));
         m_listWidgets[i] = new GenericListWidget(this);
-        connect(m_listWidgets[i], &QListWidget::itemDoubleClicked,
+        connect(m_listWidgets[i], &QAbstractItemView::doubleClicked,
                 this, &MiniProjectTargetSelector::hide);
     }
 
@@ -1543,11 +1436,11 @@ void MiniProjectTargetSelector::nextOrShow()
     } else {
         m_hideOnRelease = true;
         m_earliestHidetime = QDateTime::currentDateTime().addMSecs(800);
-        if (auto *lw = qobject_cast<ListWidget *>(focusWidget())) {
-            if (lw->currentRow() < lw->count() -1)
-                lw->setCurrentRow(lw->currentRow() + 1);
+        if (auto *lw = qobject_cast<SelectorView *>(focusWidget())) {
+            if (lw->currentIndex().row() < lw->model()->rowCount() -1)
+                lw->setCurrentIndex(lw->model()->index(lw->currentIndex().row() + 1, 0));
             else
-                lw->setCurrentRow(0);
+                lw->setCurrentIndex(lw->model()->index(0, 0));
         }
     }
 }

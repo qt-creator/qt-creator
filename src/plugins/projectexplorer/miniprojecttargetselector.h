@@ -42,9 +42,9 @@ class ProjectConfiguration;
 class RunConfiguration;
 
 namespace Internal {
-class ProjectListWidget;
-class KitAreaWidget;
 class GenericListWidget;
+class ProjectListView;
+class KitAreaWidget;
 
 class MiniProjectTargetSelector : public QWidget
 {
@@ -104,7 +104,7 @@ private:
     QAction *m_projectAction;
 
     enum TYPES { PROJECT = 0, TARGET = 1, BUILD = 2, DEPLOY = 3, RUN = 4, LAST = 5 };
-    ProjectListWidget *m_projectListWidget;
+    ProjectListView *m_projectListWidget;
     KitAreaWidget *m_kitAreaWidget;
     QVector<GenericListWidget *> m_listWidgets;
     QVector<QWidget *> m_titleWidgets;
