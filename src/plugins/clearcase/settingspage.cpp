@@ -28,52 +28,44 @@
 #include "clearcaseconstants.h"
 #include "clearcasesettings.h"
 #include "clearcaseplugin.h"
+#include "ui_settingspage.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 #include <QCoreApplication>
-#include <QFileDialog>
-#include <QTextStream>
 
-using namespace ClearCase::Internal;
 using namespace Utils;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) : QWidget(parent)
+namespace ClearCase {
+namespace Internal {
+
+class SettingsPageWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ClearCase::Internal::SettingsPageWidget)
+
+public:
+    SettingsPageWidget();
+
+private:
+    void apply() final;
+    void finish() final { }
+
+    Ui::SettingsPage m_ui;
+};
+
+SettingsPageWidget::SettingsPageWidget()
 {
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setPromptDialogTitle(tr("ClearCase Command"));
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_ui.commandPathChooser->setHistoryCompleter(QLatin1String("ClearCase.Command.History"));
-}
 
-ClearCaseSettings SettingsPageWidget::settings() const
-{
-    ClearCaseSettings rc;
-    rc.ccCommand = m_ui.commandPathChooser->rawPath();
-    rc.ccBinaryPath = m_ui.commandPathChooser->path();
-    rc.timeOutS = m_ui.timeOutSpinBox->value();
-    rc.autoCheckOut = m_ui.autoCheckOutCheckBox->isChecked();
-    rc.noComment = m_ui.noCommentCheckBox->isChecked();
-    if (m_ui.graphicalDiffRadioButton->isChecked())
-        rc.diffType = GraphicalDiff;
-    else if (m_ui.externalDiffRadioButton->isChecked())
-        rc.diffType = ExternalDiff;
-    rc.autoAssignActivityName = m_ui.autoAssignActivityCheckBox->isChecked();
-    rc.historyCount = m_ui.historyCountSpinBox->value();
-    rc.promptToCheckIn = m_ui.promptCheckBox->isChecked();
-    rc.disableIndexer = m_ui.disableIndexerCheckBox->isChecked();
-    rc.diffArgs = m_ui.diffArgsEdit->text();
-    rc.indexOnlyVOBs = m_ui.indexOnlyVOBsEdit->text();
-    rc.extDiffAvailable = m_ui.externalDiffRadioButton->isEnabled();
-    return rc;
-}
+    ClearCaseSettings s = ClearCasePlugin::instance()->settings();
 
-void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
-{
     m_ui.commandPathChooser->setPath(s.ccCommand);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.autoCheckOutCheckBox->setChecked(s.autoCheckOut);
@@ -104,22 +96,36 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
 }
 
-SettingsPage::SettingsPage(QObject *parent)
+void SettingsPageWidget::apply()
+{
+    ClearCaseSettings rc;
+    rc.ccCommand = m_ui.commandPathChooser->rawPath();
+    rc.ccBinaryPath = m_ui.commandPathChooser->path();
+    rc.timeOutS = m_ui.timeOutSpinBox->value();
+    rc.autoCheckOut = m_ui.autoCheckOutCheckBox->isChecked();
+    rc.noComment = m_ui.noCommentCheckBox->isChecked();
+    if (m_ui.graphicalDiffRadioButton->isChecked())
+        rc.diffType = GraphicalDiff;
+    else if (m_ui.externalDiffRadioButton->isChecked())
+        rc.diffType = ExternalDiff;
+    rc.autoAssignActivityName = m_ui.autoAssignActivityCheckBox->isChecked();
+    rc.historyCount = m_ui.historyCountSpinBox->value();
+    rc.promptToCheckIn = m_ui.promptCheckBox->isChecked();
+    rc.disableIndexer = m_ui.disableIndexerCheckBox->isChecked();
+    rc.diffArgs = m_ui.diffArgsEdit->text();
+    rc.indexOnlyVOBs = m_ui.indexOnlyVOBsEdit->text();
+    rc.extDiffAvailable = m_ui.externalDiffRadioButton->isEnabled();
+
+    ClearCasePlugin::instance()->setSettings(rc);
+}
+
+ClearCaseSettingsPage::ClearCaseSettingsPage(QObject *parent)
     : VcsBaseOptionsPage(parent)
 {
     setId(ClearCase::Constants::VCS_ID_CLEARCASE);
     setDisplayName(tr("ClearCase"));
+    setWidgetCreator([] { return new SettingsPageWidget; });
 }
 
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new SettingsPageWidget;
-    m_widget->setSettings(ClearCasePlugin::instance()->settings());
-    return m_widget;
-}
-
-void SettingsPage::apply()
-{
-    ClearCasePlugin::instance()->setSettings(m_widget->settings());
-}
+} // Internal
+} // ClearCase

@@ -28,43 +28,13 @@
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include "ui_settingspage.h"
-
-#include <QPointer>
-
 namespace ClearCase {
 namespace Internal {
 
-class ClearCaseSettings;
-
-class SettingsPageWidget : public QWidget
+class ClearCaseSettingsPage : public VcsBase::VcsBaseOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit SettingsPageWidget(QWidget *parent = nullptr);
-
-    ClearCaseSettings settings() const;
-    void setSettings(const ClearCaseSettings &);
-
-private:
-    Ui::SettingsPage m_ui;
-};
-
-
-class SettingsPage : public VcsBase::VcsBaseOptionsPage
-{
-    Q_OBJECT
-
-public:
-    explicit SettingsPage(QObject *parent);
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override { }
-
-private:
-    QPointer<SettingsPageWidget> m_widget;
+    explicit ClearCaseSettingsPage(QObject *parent);
 };
 
 } // namespace ClearCase

@@ -424,7 +424,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &ClearCasePlugin::projectChanged);
 
-    new SettingsPage(this);
+    new ClearCaseSettingsPage(this);
 
     new VcsSubmitEditorFactory(&submitParameters,
         []() { return new ClearCaseSubmitEditor(&submitParameters); }, this);
