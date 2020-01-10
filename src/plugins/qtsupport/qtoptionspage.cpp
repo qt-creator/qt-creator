@@ -888,7 +888,7 @@ static bool validateQtInstallDir(FancyLineEdit *input, QString *errorString)
 static QString defaultQtInstallationPath()
 {
     if (HostOsInfo::isWindowsHost())
-        return "C:/Qt";
+        return {"C:/Qt"};
     return QDir::homePath() + "/Qt";
 }
 
