@@ -37,29 +37,22 @@ using namespace VcsBase;
 namespace Bazaar {
 namespace Internal {
 
-class OptionsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+class OptionsPageWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::OptionsPageWidget)
 
 public:
-    OptionsPageWidget();
+    OptionsPageWidget(Core::IVersionControl *control);
 
-    VcsBase::VcsBaseClientSettings settings() const final;
-    void setSettings(const VcsBase::VcsBaseClientSettings &s) final;
+    void apply() final;
 
 private:
     Ui::OptionsPage m_ui;
+    Core::IVersionControl *m_control;
+    BazaarClient *m_client;
 };
 
-OptionsPageWidget::OptionsPageWidget()
-{
-    m_ui.setupUi(this);
-    m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui.commandChooser->setPromptDialogTitle(tr("Bazaar Command"));
-    m_ui.commandChooser->setHistoryCompleter(QLatin1String("Bazaar.Command.History"));
-}
-
-VcsBaseClientSettings OptionsPageWidget::settings() const
+void OptionsPageWidget::apply()
 {
     VcsBaseClientSettings s = BazaarPlugin::instance()->client()->settings();
     s.setValue(BazaarSettings::binaryPathKey, m_ui.commandChooser->rawPath());
@@ -67,11 +60,22 @@ VcsBaseClientSettings OptionsPageWidget::settings() const
     s.setValue(BazaarSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
     s.setValue(BazaarSettings::logCountKey, m_ui.logEntriesCount->value());
     s.setValue(BazaarSettings::timeoutKey, m_ui.timeout->value());
-    return s;
+
+    const bool notify = m_client->settings() != s;
+    m_client->settings() = s;
+    if (notify)
+        emit m_control->configurationChanged();
 }
 
-void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
+OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control)
+    : m_control(control), m_client(BazaarPlugin::instance()->client())
 {
+    m_ui.setupUi(this);
+    m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui.commandChooser->setPromptDialogTitle(tr("Bazaar Command"));
+    m_ui.commandChooser->setHistoryCompleter(QLatin1String("Bazaar.Command.History"));
+
+    VcsBaseClientSettings s = m_client->settings();
     m_ui.commandChooser->setPath(s.stringValue(BazaarSettings::binaryPathKey));
     m_ui.defaultUsernameLineEdit->setText(s.stringValue(BazaarSettings::userNameKey));
     m_ui.defaultEmailLineEdit->setText(s.stringValue(BazaarSettings::userEmailKey));
@@ -80,11 +84,11 @@ void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
 }
 
 OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
-    VcsClientOptionsPage(control, BazaarPlugin::instance()->client(), parent)
+    Core::IOptionsPage(parent)
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(OptionsPageWidget::tr("Bazaar"));
-    setWidgetFactory([] { return new OptionsPageWidget; });
+    setWidgetCreator([control] { return new OptionsPageWidget(control); });
 }
 
 } // Internal

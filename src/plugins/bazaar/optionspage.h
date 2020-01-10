@@ -30,7 +30,7 @@
 namespace Bazaar {
 namespace Internal {
 
-class OptionsPage final : public VcsBase::VcsClientOptionsPage
+class OptionsPage final : public Core::IOptionsPage
 {
 public:
     OptionsPage(Core::IVersionControl *control, QObject *parent);
