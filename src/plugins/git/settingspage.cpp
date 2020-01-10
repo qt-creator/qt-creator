@@ -28,6 +28,8 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
+#include "ui_settingspage.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <vcsbase/vcsbaseconstants.h>
@@ -36,13 +38,27 @@
 #include <utils/hostosinfo.h>
 
 #include <QDir>
-#include <QDebug>
-#include <QTextStream>
 
 using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
+
+class SettingsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Git::Internal::SettingsPageWidget)
+
+public:
+    SettingsPageWidget();
+
+    VcsBase::VcsBaseClientSettings settings() const final;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s) final;
+
+private:
+    void updateNoteField();
+
+    Ui::SettingsPage m_ui;
+};
 
 SettingsPageWidget::SettingsPageWidget()
 {
@@ -106,12 +122,13 @@ void SettingsPageWidget::updateNoteField()
 }
 
 // -------- SettingsPage
+
 SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
     VcsClientOptionsPage(control, GitPlugin::client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
-    setDisplayName(tr("Git"));
-    setWidgetFactory([]() { return new SettingsPageWidget; });
+    setDisplayName(SettingsPageWidget::tr("Git"));
+    setWidgetFactory([] { return new SettingsPageWidget; });
 }
 
 void SettingsPage::apply()

@@ -28,17 +28,31 @@
 #include "mercurialclient.h"
 #include "mercurialsettings.h"
 #include "mercurialplugin.h"
+#include "ui_optionspage.h"
+#include "ui_optionspage.h"
 
 #include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QTextStream>
-
 using namespace VcsBase;
 
 namespace Mercurial {
 namespace Internal  {
+
+class OptionsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Mercurial::Internal::OptionsPageWidget)
+
+public:
+    OptionsPageWidget();
+
+    VcsBase::VcsBaseClientSettings settings() const final;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s) final;
+
+private:
+    Ui::OptionsPage m_ui;
+};
 
 OptionsPageWidget::OptionsPageWidget()
 {
@@ -72,8 +86,8 @@ OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
     VcsClientOptionsPage(control, MercurialPlugin::client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
-    setDisplayName(tr("Mercurial"));
-    setWidgetFactory([]() { return new OptionsPageWidget; });
+    setDisplayName(OptionsPageWidget::tr("Mercurial"));
+    setWidgetFactory([] { return new OptionsPageWidget; });
 }
 
 } // namespace Internal

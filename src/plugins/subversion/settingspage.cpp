@@ -29,18 +29,34 @@
 #include "subversionplugin.h"
 #include "subversionsettings.h"
 
+#include "ui_settingspage.h"
+
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <utils/pathchooser.h>
 
 #include <QCoreApplication>
-#include <QTextStream>
-#include <QFileDialog>
 
-using namespace Subversion::Internal;
 using namespace Utils;
 using namespace VcsBase;
+
+namespace Subversion {
+namespace Internal {
+
+class SettingsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SettingsPageWidget)
+
+public:
+    SettingsPageWidget();
+
+    VcsBase::VcsBaseClientSettings settings() const final;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s) final;
+
+private:
+    Ui::SettingsPage m_ui;
+};
 
 SettingsPageWidget::SettingsPageWidget()
 {
@@ -84,6 +100,9 @@ SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
     VcsClientOptionsPage(control, SubversionPlugin::instance()->client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
-    setDisplayName(tr("Subversion"));
-    setWidgetFactory([]() { return new SettingsPageWidget; });
+    setDisplayName(SettingsPageWidget::tr("Subversion"));
+    setWidgetFactory([] { return new SettingsPageWidget; });
 }
+
+} // Internal
+} // Subversion

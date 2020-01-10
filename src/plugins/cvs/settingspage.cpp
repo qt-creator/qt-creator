@@ -28,6 +28,7 @@
 #include "cvsclient.h"
 #include "cvssettings.h"
 #include "cvsplugin.h"
+#include "ui_settingspage.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -35,12 +36,26 @@
 #include <utils/pathchooser.h>
 
 #include <QCoreApplication>
-#include <QTextStream>
-#include <QFileDialog>
 
-using namespace Cvs::Internal;
 using namespace Utils;
 using namespace VcsBase;
+
+namespace Cvs {
+namespace Internal {
+
+class SettingsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::SettingsPageWidget)
+
+public:
+    SettingsPageWidget();
+
+    VcsBase::VcsBaseClientSettings settings() const final;
+    void setSettings(const VcsBase::VcsBaseClientSettings &) final;
+
+private:
+    Ui::SettingsPage m_ui;
+};
 
 SettingsPageWidget::SettingsPageWidget()
 {
@@ -76,6 +91,9 @@ SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
     VcsClientOptionsPage(control, CvsPlugin::instance()->client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
-    setDisplayName(tr("CVS"));
-    setWidgetFactory([]() { return new SettingsPageWidget; });
+    setDisplayName(SettingsPageWidget::tr("CVS"));
+    setWidgetFactory([] { return new SettingsPageWidget; });
 }
+
+} // Internal
+} // Cvs

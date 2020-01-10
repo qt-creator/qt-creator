@@ -27,15 +27,29 @@
 #include "bazaarclient.h"
 #include "bazaarsettings.h"
 #include "bazaarplugin.h"
+#include "ui_optionspage.h"
 
 #include <coreplugin/icore.h>
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QTextStream>
-
-using namespace Bazaar::Internal;
-using namespace Bazaar;
 using namespace VcsBase;
+
+namespace Bazaar {
+namespace Internal {
+
+class OptionsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::OptionsPageWidget)
+
+public:
+    OptionsPageWidget();
+
+    VcsBase::VcsBaseClientSettings settings() const final;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s) final;
+
+private:
+    Ui::OptionsPage m_ui;
+};
 
 OptionsPageWidget::OptionsPageWidget()
 {
@@ -69,6 +83,9 @@ OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
     VcsClientOptionsPage(control, BazaarPlugin::instance()->client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
-    setDisplayName(tr("Bazaar"));
-    setWidgetFactory([]() { return new OptionsPageWidget; });
+    setDisplayName(OptionsPageWidget::tr("Bazaar"));
+    setWidgetFactory([] { return new OptionsPageWidget; });
 }
+
+} // Internal
+} // Bazaar

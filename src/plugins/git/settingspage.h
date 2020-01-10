@@ -27,40 +27,14 @@
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include "ui_settingspage.h"
-
-#include <QPointer>
-#include <QWidget>
-
-namespace VcsBase {
-class VcsBaseClientSettings;
-} // namespace VcsBase
-
 namespace Git {
 namespace Internal {
 
-class SettingsPageWidget : public VcsBase::VcsClientOptionsPageWidget {
-    Q_OBJECT
-
-public:
-    SettingsPageWidget();
-
-    VcsBase::VcsBaseClientSettings settings() const override;
-    void setSettings(const VcsBase::VcsBaseClientSettings &s) override;
-
-private:
-    void updateNoteField();
-
-    Ui::SettingsPage m_ui;
-};
-
-class SettingsPage : public VcsBase::VcsClientOptionsPage
+class SettingsPage final : public VcsBase::VcsClientOptionsPage
 {
-    Q_OBJECT
-
 public:
     SettingsPage(Core::IVersionControl *control, QObject *parent);
-    void apply() override;
+    void apply() final;
 };
 
 } // namespace Internal
