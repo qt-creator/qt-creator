@@ -554,12 +554,12 @@ bool LocalHelpManager::canOpenOnlineHelp(const QUrl &url)
 
 bool LocalHelpManager::openOnlineHelp(const QUrl &url)
 {
-    static const QString qtcreatorUnversionedID = "org.qt-project.qtcreator";
+    static const QString unversionedLocalDomainName = QString("org.qt-project.%1").arg(Core::Constants::IDE_ID);
 
     if (canOpenOnlineHelp(url)) {
         QString urlPrefix = "http://doc.qt.io/";
-        if (url.authority().startsWith(qtcreatorUnversionedID))
-            urlPrefix.append(QString::fromLatin1("qtcreator"));
+        if (url.authority().startsWith(unversionedLocalDomainName))
+            urlPrefix.append(Core::Constants::IDE_ID);
         else
             urlPrefix.append("qt-5");
         const QString address = url.toString();
