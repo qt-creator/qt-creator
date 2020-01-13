@@ -66,11 +66,10 @@ Model {
 
     function applyLocalRotation(screenPos)
     {
-        currentAngle = mouseAreaMain.getNewRotationAngle(targetNode, _pointerPosPressed,
-                                                         Qt.vector3d(screenPos.x, screenPos.y, 0),
-                                                         _targetPosOnScreen, currentAngle,
-                                                         _trackBall);
-        mouseAreaMain.applyRotationAngleToNode(targetNode, _startRotation, currentAngle);
+        currentAngle = mouseAreaMain.dragHelper.getNewRotationAngle(
+                    targetNode, _pointerPosPressed, Qt.vector3d(screenPos.x, screenPos.y, 0),
+                    _targetPosOnScreen, currentAngle, _trackBall);
+        mouseAreaMain.dragHelper.applyRotationAngleToNode(targetNode, _startRotation, currentAngle);
     }
 
     function handlePressed(screenPos, angle)

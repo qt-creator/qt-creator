@@ -55,6 +55,21 @@ Node {
     signal rotateCommit()
     signal rotateChange()
 
+    function copyRingProperties(srcRing) {
+        draggingRing.rotation = srcRing.sceneRotation;
+        draggingRing.color = srcRing.color;
+        draggingRing.scale = srcRing.scale;
+    }
+
+    onDraggingChanged: {
+        if (rotRingX.dragging)
+            copyRingProperties(rotRingX)
+        else if (rotRingY.dragging)
+            copyRingProperties(rotRingY)
+        else if (rotRingZ.dragging)
+            copyRingProperties(rotRingZ)
+    }
+
     Rectangle {
         id: angleLabel
         color: "white"
@@ -87,6 +102,7 @@ Node {
                                                                : rotateGizmo.targetNode.sceneRotation
         rotationOrder: rotateGizmo.targetNode ? rotateGizmo.targetNode.rotationOrder : Node.YXZ
         orientation: rotateGizmo.orientation
+        visible: !rotateGizmo.dragging && !freeRotator.dragging
 
         RotateRing {
             id: rotRingX
@@ -148,6 +164,20 @@ Node {
     }
 
     RotateRing {
+        // This ring is used as visual proxy during dragging to display the currently dragged
+        // plane in static position, as rotation planes can wobble when ancestors don't have
+        // uniform scaling.
+        // Camera ring doesn't need dragging proxy as it doesn't wobble.
+        id: draggingRing
+        objectName: "draggingRing"
+        targetNode: rotateGizmo.targetNode
+        view3D: rotateGizmo.view3D
+        active: false
+        visible: rotRingX.dragging || rotRingY.dragging || rotRingZ.dragging
+        orientation: rotateGizmo.orientation
+    }
+
+    RotateRing {
         id: cameraRing
         objectName: "cameraRing"
         rotation: rotateGizmo.view3D.camera.rotation
@@ -159,6 +189,7 @@ Node {
         view3D: rotateGizmo.view3D
         active: rotateGizmo.visible
         dragHelper: rotateGizmo.dragHelper
+        visible: !rotRingX.dragging && !rotRingY.dragging && !rotRingZ.dragging && !freeRotator.dragging
 
         onRotateCommit: rotateGizmo.rotateCommit()
         onRotateChange: rotateGizmo.rotateChange()
@@ -177,7 +208,9 @@ Node {
             lighting: DefaultMaterial.NoLighting
         }
         scale: Qt.vector3d(0.15, 0.15, 0.15)
+        visible: !rotateGizmo.dragging && !dragging
 
+        property bool dragging: false
         property vector3d _pointerPosPressed
         property vector3d _targetPosOnScreen
         property vector3d _startRotation
@@ -200,6 +233,7 @@ Node {
             _startRotation = Qt.vector3d(rotateGizmo.targetNode.rotation.x,
                                          rotateGizmo.targetNode.rotation.y,
                                          rotateGizmo.targetNode.rotation.z);
+            dragging = true;
         }
 
         function handleDragged(screenPos)
@@ -224,6 +258,7 @@ Node {
                         Qt.vector3d(screenPos.x, screenPos.y, 0), _targetPosOnScreen);
 
             rotateGizmo.rotateCommit();
+            dragging = false;
         }
 
         MouseArea3D {
