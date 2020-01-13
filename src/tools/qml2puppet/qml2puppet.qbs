@@ -215,6 +215,8 @@ QtcTool {
             "editor3d/gridgeometry.h",
             "editor3d/selectionboxgeometry.cpp",
             "editor3d/selectionboxgeometry.h",
+            "editor3d/linegeometry.cpp",
+            "editor3d/linegeometry.h",
             "qml2puppetmain.cpp",
         ]
     }

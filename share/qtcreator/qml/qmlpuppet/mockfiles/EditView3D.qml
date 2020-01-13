@@ -208,12 +208,12 @@ Window {
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
             globalOrientation: btnLocalGlobal.toggled
-            visible: selectedNode && btnMove.selected
+            visible: viewWindow.selectedNode && btnMove.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onPositionCommit: viewWindow.commitObjectProperty(selectedNode, "position")
-            onPositionMove: viewWindow.changeObjectProperty(selectedNode, "position")
+            onPositionCommit: viewWindow.commitObjectProperty(viewWindow.selectedNode, "position")
+            onPositionMove: viewWindow.changeObjectProperty(viewWindow.selectedNode, "position")
         }
 
         ScaleGizmo {
@@ -222,12 +222,12 @@ Window {
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
             globalOrientation: false
-            visible: selectedNode && btnScale.selected
+            visible: viewWindow.selectedNode && btnScale.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onScaleCommit: viewWindow.commitObjectProperty(selectedNode, "scale")
-            onScaleChange: viewWindow.changeObjectProperty(selectedNode, "scale")
+            onScaleCommit: viewWindow.commitObjectProperty(viewWindow.selectedNode, "scale")
+            onScaleChange: viewWindow.changeObjectProperty(viewWindow.selectedNode, "scale")
         }
 
         RotateGizmo {
@@ -236,12 +236,12 @@ Window {
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
             globalOrientation: btnLocalGlobal.toggled
-            visible: selectedNode && btnRotate.selected
+            visible: viewWindow.selectedNode && btnRotate.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onRotateCommit: viewWindow.commitObjectProperty(selectedNode, "rotation")
-            onRotateChange: viewWindow.changeObjectProperty(selectedNode, "rotation")
+            onRotateCommit: viewWindow.commitObjectProperty(viewWindow.selectedNode, "rotation")
+            onRotateChange: viewWindow.changeObjectProperty(viewWindow.selectedNode, "rotation")
         }
 
         AutoScaleHelper {
@@ -249,6 +249,52 @@ Window {
             view3D: overlayView
             position: moveGizmo.scenePosition
             orientation: moveGizmo.orientation
+        }
+
+        Line3D {
+            id: pivotLine
+            visible: viewWindow.selectedNode
+            name: "3D Edit View Pivot Line"
+            color: "#ddd600"
+
+            function flipIfNeeded(vec) {
+                if (viewWindow.selectedNode.orientation === Node.LeftHanded)
+                    return vec;
+                else
+                    return Qt.vector3d(vec.x, vec.y, -vec.z);
+            }
+
+            startPos: viewWindow.selectedNode ? flipIfNeeded(viewWindow.selectedNode.scenePosition)
+                                              : Qt.vector3d(0, 0, 0)
+            Connections {
+                target: viewWindow
+                onSelectedNodeChanged: {
+                    pivotLine.endPos = pivotLine.flipIfNeeded(gizmoDragHelper.pivotScenePosition(
+                                                                  viewWindow.selectedNode));
+                }
+            }
+            Connections {
+                target: viewWindow.selectedNode
+                onSceneTransformChanged: {
+                    pivotLine.endPos = pivotLine.flipIfNeeded(gizmoDragHelper.pivotScenePosition(
+                                                                  viewWindow.selectedNode));
+                }
+            }
+
+            Model {
+                id: pivotCap
+                source: "#Sphere"
+                scale: autoScale.getScale(Qt.vector3d(0.03, 0.03, 0.03))
+                position: pivotLine.startPos
+                materials: [
+                    DefaultMaterial {
+                        id: lineMat
+                        lighting: DefaultMaterial.NoLighting
+                        cullingMode: Material.DisableCulling
+                        emissiveColor: pivotLine.color
+                    }
+                ]
+            }
         }
     }
 
