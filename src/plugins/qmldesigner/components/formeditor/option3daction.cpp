@@ -37,7 +37,8 @@ Option3DAction::Option3DAction(QObject *parent) :
 
 void Option3DAction::set3DEnabled(bool enabled)
 {
-    m_comboBox->setCurrentIndex(enabled ? 1 : 0);
+    if (m_comboBox)
+        m_comboBox->setCurrentIndex(enabled ? 1 : 0);
 }
 
 QWidget *Option3DAction::createWidget(QWidget *parent)

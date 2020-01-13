@@ -25,6 +25,7 @@
 #pragma once
 
 #include <QWidgetAction>
+#include <QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QComboBox)
 
@@ -46,7 +47,7 @@ protected:
     QWidget *createWidget(QWidget *parent) override;
 
 private:
-    QComboBox *m_comboBox = nullptr;
+    QPointer<QComboBox> m_comboBox;
 };
 
 } // namespace QmlDesigner
