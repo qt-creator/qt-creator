@@ -2412,7 +2412,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (camelCaseNavigationEnabled())
             CamelCaseCursor::left(&c, this, QTextCursor::KeepAnchor);
         else
-            c.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+            c.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
         c.removeSelectedText();
         return;
     } else if (!ro && e == QKeySequence::DeleteEndOfWord && !textCursor().hasSelection()) {
@@ -2421,7 +2421,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (camelCaseNavigationEnabled())
             CamelCaseCursor::right(&c, this, QTextCursor::KeepAnchor);
         else
-            c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+            c.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
         c.removeSelectedText();
         return;
     } else if (!ro && (e == QKeySequence::MoveToNextPage || e == QKeySequence::MoveToPreviousPage)
@@ -6912,7 +6912,7 @@ void TextEditorWidget::deleteEndOfLine()
 
 void TextEditorWidget::deleteEndOfWord()
 {
-    moveCursor(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    moveCursor(QTextCursor::NextWord, QTextCursor::KeepAnchor);
     textCursor().removeSelectedText();
     setTextCursor(textCursor());
 }
@@ -6934,7 +6934,7 @@ void TextEditorWidget::deleteStartOfLine()
 
 void TextEditorWidget::deleteStartOfWord()
 {
-    moveCursor(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+    moveCursor(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
     textCursor().removeSelectedText();
     setTextCursor(textCursor());
 }
