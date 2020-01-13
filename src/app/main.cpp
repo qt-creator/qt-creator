@@ -512,6 +512,11 @@ int main(int argc, char **argv)
     SharedTools::QtSingleApplication app((QLatin1String(Core::Constants::IDE_DISPLAY_NAME)),
                                          numberofArguments,
                                          options.appArguments.data());
+    QCoreApplication::setApplicationName(Core::Constants::IDE_CASED_ID);
+    QCoreApplication::setApplicationVersion(Core::Constants::IDE_VERSION_LONG);
+    QCoreApplication::setOrganizationName(Core::Constants::IDE_SETTINGSVARIANT_STR);
+    QGuiApplication::setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+
     const QStringList pluginArguments = app.arguments();
 
     /*Initialize global settings and resetup install settings with QApplication::applicationDirPath */
