@@ -79,6 +79,14 @@
     To determine when the state should be applied, select
     \uicontrol {Set when Condition} in the menu and specify a
     \l [QtQuick]{State::when}{when} property for the state.
+    Set the value of the property to an expression that
+    evaluates to \c true when you want the state to be applied.
+    In the binding editor, select the component and property to
+    create the expression. For example, to change the state when
+    a button is pressed, you could select a button component and
+    its pressed property.
+
+    \image qtquick-states-binding-editor.png "Binding editor in States pane"
 
     You can preview the states in the \uicontrol States pane and click them to
     switch between states on the canvas.
