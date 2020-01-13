@@ -137,12 +137,15 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig config, const CreateAv
     if (result.overwrite)
         arguments << "-f";
 
+    const QString avdManagerTool = config.avdManagerToolPath().toString();
+    qCDebug(avdManagerLog)
+            << "Running command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
     QProcess proc;
-    proc.start(config.avdManagerToolPath().toString(), arguments);
+    proc.start(avdManagerTool, arguments);
     if (!proc.waitForStarted()) {
         result.error = QApplication::translate("AndroidAvdManager",
                                                "Could not start process \"%1 %2\"")
-                .arg(config.avdManagerToolPath().toString(), arguments.join(' '));
+                .arg(avdManagerTool, arguments.join(' '));
         return result;
     }
     QTC_CHECK(proc.state() == QProcess::Running);
@@ -251,10 +254,11 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     if (m_config.useNativeUiTools())
         return m_androidTool->removeAvd(name);
 
+    const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
+    qCDebug(avdManagerLog) << "Running command (removeAvd):" << command.toUserOutput();
     Utils::SynchronousProcess proc;
     proc.setTimeoutS(5);
-    Utils::SynchronousProcessResponse response
-            = proc.runBlocking({m_config.avdManagerToolPath(), {"delete", "avd", "-n", name}});
+    const Utils::SynchronousProcessResponse response = proc.runBlocking(command);
     return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
@@ -298,6 +302,8 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 
     arguments << "-partition-size" << QString::number(m_config.partitionSize())
               << "-avd" << avdName;
+    qCDebug(avdManagerLog) << "Running command (startAvdAsync):"
+                           << CommandLine(m_config.emulatorToolPath(), arguments).toUserOutput();
     avdProcess->start(m_config.emulatorToolPath().toString(), arguments);
     if (!avdProcess->waitForStarted(-1)) {
         delete avdProcess;
@@ -340,9 +346,11 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "init.svc.bootanim";
 
+    const CommandLine command({m_config.adbToolPath(), arguments});
+    qCDebug(avdManagerLog) << "Running command (isAvdBooted):" << command.toUserOutput();
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.runBlocking({m_config.adbToolPath(), arguments});
+    const SynchronousProcessResponse response = adbProc.runBlocking(command);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return false;
     QString value = response.allOutput().trimmed();
