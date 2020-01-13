@@ -360,7 +360,7 @@ static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &proj
 static RunSettings runSettings()
 {
     if (Project *project = SessionManager::startupProject()) {
-        auto *projectSettings = ClangToolsProjectSettingsManager::getSettings(project);
+        const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
             return projectSettings->runSettings();
     }
@@ -1075,7 +1075,7 @@ static FileInfos fileInfosMatchingEditedDocuments(const FileInfos &fileInfos)
 FileInfoProviders ClangTool::fileInfoProviders(ProjectExplorer::Project *project,
                                                const FileInfos &allFileInfos)
 {
-    ClangToolsProjectSettings *s = ClangToolsProjectSettingsManager::getSettings(project);
+    const QSharedPointer<ClangToolsProjectSettings> s = ClangToolsProjectSettings::getSettings(project);
     static FileInfoSelection openedFilesSelection;
     static FileInfoSelection editeddFilesSelection;
 

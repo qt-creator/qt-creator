@@ -95,7 +95,6 @@ class ClangToolsPluginPrivate
 public:
     ClangTool clangTool;
     ClangToolsOptionsPage optionsPage;
-    ClangToolsProjectSettingsManager settingsManager;
 };
 
 ClangToolsPlugin::~ClangToolsPlugin()

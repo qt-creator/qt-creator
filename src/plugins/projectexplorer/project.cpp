@@ -206,6 +206,8 @@ public:
     Utils::MacroExpander m_macroExpander;
     Utils::FilePath m_rootProjectDirectory;
     mutable QVector<const Node *> m_sortedNodeList;
+
+    QVariantMap m_extraData;
 };
 
 ProjectPrivate::~ProjectPrivate()
@@ -988,6 +990,16 @@ Kit::Predicate Project::preferredKitPredicate() const
 void Project::setPreferredKitPredicate(const Kit::Predicate &predicate)
 {
     d->m_preferredKitPredicate = predicate;
+}
+
+void Project::setExtraData(const QString &key, const QVariant &data)
+{
+    d->m_extraData.insert(key, data);
+}
+
+QVariant Project::extraData(const QString &key) const
+{
+    return d->m_extraData.value(key);
 }
 
 #if defined(WITH_TESTS)

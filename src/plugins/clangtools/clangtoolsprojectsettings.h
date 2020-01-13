@@ -87,6 +87,9 @@ public:
     void removeSuppressedDiagnostic(const SuppressedDiagnostic &diag);
     void removeAllSuppressedDiagnostics();
 
+    using ClangToolsProjectSettingsPtr = QSharedPointer<ClangToolsProjectSettings>;
+    static ClangToolsProjectSettingsPtr getSettings(ProjectExplorer::Project *project);
+
 signals:
     void suppressedDiagnosticsChanged();
 
@@ -106,19 +109,7 @@ private:
     SuppressedDiagnosticsList m_suppressedDiagnostics;
 };
 
-class ClangToolsProjectSettingsManager
-{
-public:
-    ClangToolsProjectSettingsManager();
-
-    static ClangToolsProjectSettings *getSettings(ProjectExplorer::Project *project);
-
-private:
-    static void handleProjectToBeRemoved(ProjectExplorer::Project *project);
-
-    using SettingsMap = QHash<ProjectExplorer::Project *, QSharedPointer<ClangToolsProjectSettings>>;
-    static SettingsMap m_settings;
-};
-
 } // namespace Internal
 } // namespace ClangTools
+
+Q_DECLARE_METATYPE(QSharedPointer<ClangTools::Internal::ClangToolsProjectSettings>)

@@ -178,28 +178,18 @@ void ClangToolsProjectSettings::store()
     m_project->setNamedSettings(SETTINGS_KEY_MAIN, map);
 }
 
-ClangToolsProjectSettingsManager::ClangToolsProjectSettingsManager()
+ClangToolsProjectSettings::ClangToolsProjectSettingsPtr
+    ClangToolsProjectSettings::getSettings(ProjectExplorer::Project *project)
 {
-    QObject::connect(ProjectExplorer::SessionManager::instance(),
-                     &ProjectExplorer::SessionManager::aboutToRemoveProject,
-                     &ClangToolsProjectSettingsManager::handleProjectToBeRemoved);
+    const QString key = "ClangToolsProjectSettings";
+    QVariant v = project->extraData(key);
+    if (v.isNull()) {
+        v = QVariant::fromValue(
+                     ClangToolsProjectSettingsPtr{new ClangToolsProjectSettings(project)});
+        project->setExtraData(key, v);
+    }
+    return v.value<QSharedPointer<ClangToolsProjectSettings>>();
 }
-
-ClangToolsProjectSettings *ClangToolsProjectSettingsManager::getSettings(
-    ProjectExplorer::Project *project)
-{
-    auto &settings = m_settings[project];
-    if (!settings)
-        settings.reset(new ClangToolsProjectSettings(project));
-    return settings.data();
-}
-
-void ClangToolsProjectSettingsManager::handleProjectToBeRemoved(ProjectExplorer::Project *project)
-{
-    m_settings.remove(project);
-}
-
-ClangToolsProjectSettingsManager::SettingsMap ClangToolsProjectSettingsManager::m_settings;
 
 SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)
     : filePath(Utils::FilePath::fromString(diag.location.filePath))

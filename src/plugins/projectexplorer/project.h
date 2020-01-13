@@ -173,6 +173,9 @@ public:
     void setProjectLanguage(Core::Id id, bool enabled);
     void addProjectLanguage(Core::Id id);
 
+    void setExtraData(const QString &key, const QVariant &data);
+    QVariant extraData(const QString &key) const;
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 

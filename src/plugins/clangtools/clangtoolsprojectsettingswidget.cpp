@@ -70,7 +70,7 @@ enum { UseGlobalSettings, UseCustomSettings }; // Values in sync with m_ui->glob
 ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui::ProjectSettingsWidget)
-  , m_projectSettings(ClangToolsProjectSettingsManager::getSettings(project))
+  , m_projectSettings(ClangToolsProjectSettings::getSettings(project))
 {
     m_ui->setupUi(this);
 
@@ -117,7 +117,7 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
     // Suppressed diagnostics
     auto * const model = new SuppressedDiagnosticsModel(this);
     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
-    connect(m_projectSettings, &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
+    connect(m_projectSettings.data(), &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
             [model, this] {
                     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
                     updateButtonStates();
