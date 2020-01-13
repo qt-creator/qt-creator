@@ -362,6 +362,10 @@ QWidget *FontSettingsPage::widget()
         d_ptr->m_ui->schemeEdit->setBaseFont(d_ptr->m_value.font());
         d_ptr->m_ui->schemeEdit->setColorScheme(d_ptr->m_value.colorScheme());
 
+        auto sizeValidator = new QIntValidator(d_ptr->m_ui->sizeComboBox);
+        sizeValidator->setBottom(0);
+        d_ptr->m_ui->sizeComboBox->setValidator(sizeValidator);
+
         connect(d_ptr->m_ui->fontComboBox, &QFontComboBox::currentFontChanged,
                 this, &FontSettingsPage::fontSelected);
         connect(d_ptr->m_ui->sizeComboBox,
@@ -405,8 +409,11 @@ void FontSettingsPage::updatePointSizes()
     int idx = -1;
     int i = 0;
     for (; i < sizeLst.count(); ++i) {
-        if (idx == -1 && sizeLst.at(i) >= oldSize)
+        if (idx == -1 && sizeLst.at(i) >= oldSize) {
             idx = i;
+            if (sizeLst.at(i) != oldSize)
+                d_ptr->m_ui->sizeComboBox->addItem(QString::number(oldSize));
+        }
         d_ptr->m_ui->sizeComboBox->addItem(QString::number(sizeLst.at(i)));
     }
     if (idx != -1)
@@ -629,6 +636,13 @@ void FontSettingsPage::apply()
         d_ptr->m_value.setColorScheme(d_ptr->m_ui->schemeEdit->colorScheme());
         const ColorScheme &scheme = d_ptr->m_value.colorScheme();
         scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::mainWindow());
+    }
+
+    bool ok;
+    int fontSize = d_ptr->m_ui->sizeComboBox->currentText().toInt(&ok);
+    if (ok && d_ptr->m_value.fontSize() != fontSize) {
+        d_ptr->m_value.setFontSize(fontSize);
+        d_ptr->m_ui->schemeEdit->setBaseFont(d_ptr->m_value.font());
     }
 
     int index = d_ptr->m_ui->schemeComboBox->currentIndex();
