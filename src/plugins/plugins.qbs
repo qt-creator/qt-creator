@@ -46,6 +46,7 @@ Project {
         "ios/ios.qbs",
         "languageclient/languageclient.qbs",
         "macros/macros.qbs",
+        "marketplace/marketplace.qbs",
         "mcusupport/mcusupport.qbs",
         "mercurial/mercurial.qbs",
         "modeleditor/modeleditor.qbs",
