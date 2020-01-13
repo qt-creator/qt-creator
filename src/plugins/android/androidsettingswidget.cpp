@@ -55,6 +55,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QModelIndex>
+#include <QSettings>
 #include <QString>
 #include <QTimer>
 #include <QUrl>
@@ -101,6 +102,7 @@ private:
     void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
 
     void validateJdk();
+    Utils::FilePath findJdkInCommonPaths();
     void validateNdk();
     void onSdkPathChanged();
     void validateSdk();
@@ -353,7 +355,11 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui->NDKLocationPathChooser->setFileName(m_androidConfig.ndkLocation());
     m_ui->NDKLocationPathChooser->setPromptDialogTitle(tr("Select Android NDK folder"));
 
-    m_ui->OpenJDKLocationPathChooser->setFileName(m_androidConfig.openJDKLocation());
+    Utils::FilePath currentJdkPath = m_androidConfig.openJDKLocation();
+    if (currentJdkPath.isEmpty())
+        currentJdkPath = findJdkInCommonPaths();
+
+    m_ui->OpenJDKLocationPathChooser->setFileName(currentJdkPath);
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
     m_ui->DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
@@ -464,6 +470,53 @@ void AndroidSettingsWidget::validateJdk()
     const Utils::FilePath bin = m_androidConfig.openJDKLocation().pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
     summaryWidget->setPointValid(JavaJdkValidRow, jdkPathExists && bin.exists());
     updateUI();
+}
+
+Utils::FilePath AndroidSettingsWidget::findJdkInCommonPaths()
+{
+    QString jdkFromEnvVar = QString::fromLocal8Bit(getenv("JAVA_HOME"));
+    if (!jdkFromEnvVar.isEmpty())
+        return Utils::FilePath::fromString(jdkFromEnvVar);
+
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        QString jdkRegisteryPath = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\JDK\\";
+        QSettings jdkSettings(jdkRegisteryPath, QSettings::NativeFormat);
+
+        QStringList jdkVersions = jdkSettings.childGroups();
+        Utils::FilePath jdkHome;
+
+        for (const QString &version : jdkVersions) {
+            jdkSettings.beginGroup(version);
+            jdkHome = Utils::FilePath::fromString(jdkSettings.value("JavaHome").toString());
+            jdkSettings.endGroup();
+            if (version.startsWith("1.8"))
+                return jdkHome;
+        }
+
+        return jdkHome;
+    }
+
+    QProcess findJdkPathProc;
+
+    QString cmd;
+    QStringList args;
+
+    if (Utils::HostOsInfo::isMacHost()) {
+        cmd = "sh";
+        args << "-c" << "/usr/libexec/java_home";
+    } else {
+        cmd = "sh";
+        args << "-c" << "readlink -f $(which java)";
+    }
+
+    findJdkPathProc.start(cmd, args);
+    findJdkPathProc.waitForFinished();
+    QByteArray jdkPath = findJdkPathProc.readAllStandardOutput().trimmed();
+
+    if (Utils::HostOsInfo::isMacHost())
+        return Utils::FilePath::fromUtf8(jdkPath);
+    else
+        return Utils::FilePath::fromUtf8(jdkPath.replace("jre/bin/java", ""));
 }
 
 void AndroidSettingsWidget::validateNdk()
