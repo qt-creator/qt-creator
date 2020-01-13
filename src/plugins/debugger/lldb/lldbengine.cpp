@@ -203,7 +203,9 @@ void LldbEngine::setupEngine()
     const FilePath lldbCmd = runParameters().debugger.executable;
 
     showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
-    m_lldbProc.setEnvironment(runParameters().debugger.environment);
+    Environment environment = runParameters().debugger.environment;
+    environment.appendOrSet("PYTHONUNBUFFERED", "1");  // avoid flushing problem on macOS
+    m_lldbProc.setEnvironment(environment);
     if (QFileInfo(runParameters().debugger.workingDirectory).isDir())
         m_lldbProc.setWorkingDirectory(runParameters().debugger.workingDirectory);
 
