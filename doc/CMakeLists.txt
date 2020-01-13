@@ -199,7 +199,7 @@ endfunction()
 ### Skip docs setup if that is not needed!
 if (WITH_ONLINE_DOCS OR WITH_DOCS)
   if (WITH_DOCS)
-    set(_qch_params "QCH;QCH_DIR;${PROJECT_BINARY_DIR}/doc")
+    set(_qch_params "QCH;QCH_DIR;${PROJECT_BINARY_DIR}/${IDE_DOC_PATH}")
   endif()
 
   set(_qdoc_params HTML_DIR "${PROJECT_BINARY_DIR}/doc")
