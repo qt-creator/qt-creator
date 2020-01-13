@@ -29,6 +29,7 @@
 #include <coreplugin/opendocumentstreeview.h>
 
 #include <QAbstractProxyModel>
+#include <QCoreApplication>
 
 namespace Core {
 class IEditor;
