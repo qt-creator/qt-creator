@@ -481,8 +481,6 @@ Project {
                 "formeditor/movemanipulator.h",
                 "formeditor/movetool.cpp",
                 "formeditor/movetool.h",
-                "formeditor/numberseriesaction.cpp",
-                "formeditor/numberseriesaction.h",
                 "formeditor/onedimensionalcluster.cpp",
                 "formeditor/onedimensionalcluster.h",
                 "formeditor/resizecontroller.cpp",

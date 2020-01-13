@@ -220,7 +220,6 @@ extend_qtc_plugin(QmlDesigner
     lineeditaction.cpp lineeditaction.h
     movemanipulator.cpp movemanipulator.h
     movetool.cpp movetool.h
-    numberseriesaction.cpp numberseriesaction.h
     onedimensionalcluster.cpp onedimensionalcluster.h
     resizecontroller.cpp resizecontroller.h
     resizehandleitem.cpp resizehandleitem.h

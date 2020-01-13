@@ -27,7 +27,6 @@ SOURCES += formeditoritem.cpp \
     dragtool.cpp \
     toolbox.cpp \
     formeditorgraphicsview.cpp \
-    numberseriesaction.cpp \
     lineeditaction.cpp \
     abstractcustomtool.cpp \
     anchorindicator.cpp \
@@ -67,7 +66,6 @@ HEADERS += formeditorscene.h \
     dragtool.h \
     toolbox.h \
     formeditorgraphicsview.h \
-    numberseriesaction.h \
     lineeditaction.h \
     abstractcustomtool.h \
     anchorindicator.h \
