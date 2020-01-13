@@ -94,26 +94,26 @@ jobs:
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
           if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
-            set(qt_package_name "qt.qt5.${qt_version_dotless}.win64_mingw73")
+            set(qt_package_arch_suffix "win64_mingw73")
             set(qt_dir_prefix "${qt_version}/mingw73_64")
             set(qt_package_suffix "-Windows-Windows_10-Mingw73-Windows-Windows_10-X86_64")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
-            set(qt_package_name "qt.qt5.${qt_version_dotless}.win64_msvc2017_64")
+            set(qt_package_arch_suffix "win64_msvc2017_64")
             set(qt_dir_prefix "${qt_version}/msvc2017_64")
             set(qt_package_suffix "-Windows-Windows_10-MSVC2017-Windows-Windows_10-X86_64")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars32.bat")
-            set(qt_package_name "qt.qt5.${qt_version_dotless}.win32_msvc2017")
+            set(qt_package_arch_suffix "win32_msvc2017")
             set(qt_dir_prefix "${qt_version}/msvc2017")
             set(qt_package_suffix "-Windows-Windows_10-MSVC2017-Windows-Windows_10-X86")
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
-          set(qt_package_name "qt.qt5.${qt_version_dotless}.gcc_64")
+          set(qt_package_arch_suffix "gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
           set(qt_package_suffix "-Linux-RHEL_7_6-GCC-Linux-RHEL_7_6-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
-          set(qt_package_name "qt.qt5.${qt_version_dotless}.clang_64")
+          set(qt_package_arch_suffix "clang_64")
           set(qt_dir_prefix "${qt_version}/clang_64")
           set(qt_package_suffix "-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64")
         endif()
@@ -122,7 +122,7 @@ jobs:
         file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
 
         file(READ ./Updates.xml updates_xml)
-        string(REGEX MATCH "<Name>${qt_package_name}.*<Version>([0-9+-.]+)</Version>" updates_xml_output "${updates_xml}")
+        string(REGEX MATCH "<Name>qt.qt5.*<Version>([0-9+-.]+)</Version>" updates_xml_output "${updates_xml}")
         set(qt_package_version ${CMAKE_MATCH_1})
 
         file(MAKE_DIRECTORY qt5)
@@ -131,21 +131,32 @@ jobs:
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt5/${qt_dir_prefix}" qt_dir)
         message("::set-output name=qt_dir::${qt_dir}")
 
-        foreach(package qtbase qtdeclarative qttools qtsvg)
-          file(DOWNLOAD
-            "${qt_base_url}/${qt_package_name}/${qt_package_version}${package}${qt_package_suffix}.7z" ./${package}.7z
-            SHOW_PROGRESS
+        function(downloadAndExtract url archive)
+          message("Downloading ${url}")
+          file(DOWNLOAD "${url}" ./${archive} SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../${archive} WORKING_DIRECTORY qt5)
+        endfunction()
+
+        foreach(package qtbase qtdeclarative qttools qtsvg qtserialport)
+          downloadAndExtract(
+            "${qt_base_url}/qt.qt5.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}${package}${qt_package_suffix}.7z"
+            ${package}.7z
           )
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../${package}.7z WORKING_DIRECTORY qt5)
+        endforeach()
+
+        foreach(package qtquicktimeline qtquick3d qtscript)
+          downloadAndExtract(
+            "${qt_base_url}/qt.qt5.${qt_version_dotless}.${package}.${qt_package_arch_suffix}/${qt_package_version}${package}${qt_package_suffix}.7z"
+            ${package}.7z
+          )
         endforeach()
 
         # uic depends on libicu56.so
         if ("${{ runner.os }}" STREQUAL "Linux")
-          file(DOWNLOAD
-            "${qt_base_url}/${qt_package_name}/${qt_package_version}icu-linux-Rhel7.2-x64.7z" ./icu.7z
-            SHOW_PROGRESS
+          downloadAndExtract(
+            "${qt_base_url}/qt.qt5.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-Rhel7.2-x64.7z"
+            icu.7z
           )
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../icu.7z WORKING_DIRECTORY qt5)
         endif()
 
         file(READ "qt5/${qt_dir_prefix}/mkspecs/qconfig.pri" qtconfig)
