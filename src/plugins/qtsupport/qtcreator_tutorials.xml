@@ -148,7 +148,7 @@
       <description><![CDATA[Best practices for an efficient app lifecycle.]]></description>
       <tags>qt,qt quick,screen resolution,ui,talk,2016</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: App Development with Qt - Technical Tips and Examples for Development & Testing" isVideo="true" videoUrl="https://www.youtube.com/watch?v=OqqarK73I9E" videoLength="53:57">
+    <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: App Development with Qt - Technical Tips and Examples for Development &amp; Testing" isVideo="true" videoUrl="https://www.youtube.com/watch?v=OqqarK73I9E" videoLength="53:57">
       <description><![CDATA[Technical tips and examples for developing and testing mobile apps.]]></description>
       <tags>android,ios,talk,2017</tags>
     </tutorial>
@@ -156,7 +156,7 @@
       <description><![CDATA[Integrating custom widgets into Qt Designer.]]></description>
       <tags>qt designer,widgets,ui,talk,2019</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: Android & iOS - Put Your App on a Diet" isVideo="true" videoUrl="https://www.youtube.com/watch?v=3o2Wo4YzlII" videoLength="23:41">
+    <tutorial imageUrl=":qtsupport/images/icons/qteventicon.png" difficulty="" projectPath="" name="Talk: Android &amp; iOS - Put Your App on a Diet" isVideo="true" videoUrl="https://www.youtube.com/watch?v=3o2Wo4YzlII" videoLength="23:41">
       <description><![CDATA[Making Android and iOS apps smaller.]]></description>
       <tags>android,ios,talk,2017</tags>
     </tutorial>
