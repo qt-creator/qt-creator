@@ -37,7 +37,6 @@ namespace Internal {
 
 class ProxyModel : public QAbstractProxyModel
 {
-    Q_OBJECT
 public:
     explicit ProxyModel(QObject *parent = nullptr);
     QModelIndex mapFromSource(const QModelIndex & sourceIndex) const override;
@@ -65,8 +64,7 @@ private:
 
 class OpenEditorsWidget : public OpenDocumentsTreeView
 {
-    Q_OBJECT
-
+    Q_DECLARE_TR_FUNCTIONS(OpenEditorsWidget)
 public:
     OpenEditorsWidget();
     ~OpenEditorsWidget() override;
@@ -83,8 +81,6 @@ private:
 
 class OpenEditorsViewFactory : public INavigationWidgetFactory
 {
-    Q_OBJECT
-
 public:
     OpenEditorsViewFactory();
 
