@@ -31,14 +31,18 @@
 #include "iplugin.h"
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QEventLoop>
 #include <QFile>
+#include <QGuiApplication>
 #include <QLibrary>
 #include <QLibraryInfo>
+#include <QMessageBox>
 #include <QMetaProperty>
+#include <QPushButton>
 #include <QSettings>
 #include <QSysInfo>
 #include <QTextStream>
@@ -1353,6 +1357,94 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
     return true;
 }
 
+class LockFile
+{
+public:
+    static QString filePath(PluginManagerPrivate *pm)
+    {
+        return QFileInfo(pm->settings->fileName()).absolutePath() + '/'
+               + QCoreApplication::applicationName() + '.'
+               + QCryptographicHash::hash(QCoreApplication::applicationDirPath().toUtf8(),
+                                          QCryptographicHash::Sha1)
+                     .left(8)
+                     .toHex()
+               + ".lock";
+    }
+
+    static Utils::optional<QString> lockedPluginName(PluginManagerPrivate *pm)
+    {
+        const QString lockFilePath = LockFile::filePath(pm);
+        if (QFile::exists(lockFilePath)) {
+            QFile f(lockFilePath);
+            f.open(QIODevice::ReadOnly);
+            const auto pluginName = QString::fromUtf8(f.readLine()).trimmed();
+            f.close();
+            return pluginName;
+        }
+        return {};
+    }
+
+    LockFile(PluginManagerPrivate *pm, PluginSpec *spec)
+        : m_filePath(filePath(pm))
+    {
+        QFile f(m_filePath);
+        f.open(QIODevice::WriteOnly);
+        f.write(spec->name().toUtf8());
+        f.write("\n");
+        f.close();
+    }
+
+    ~LockFile() { QFile::remove(m_filePath); }
+
+private:
+    QString m_filePath;
+};
+
+void PluginManagerPrivate::checkForProblematicPlugins()
+{
+    const Utils::optional<QString> pluginName = LockFile::lockedPluginName(this);
+    if (pluginName) {
+        PluginSpec *spec = pluginByName(*pluginName);
+        if (spec && !spec->isRequired()) {
+            const QSet<PluginSpec *> dependents = PluginManager::pluginsRequiringPlugin(spec);
+            auto dependentsNames = Utils::transform<QStringList>(dependents, &PluginSpec::name);
+            std::sort(dependentsNames.begin(), dependentsNames.end());
+            const QString dependentsList = dependentsNames.join(", ");
+            const QString pluginsMenu = HostOsInfo::isMacHost()
+                                            ? tr("%1 > About Plugins")
+                                                  .arg(QGuiApplication::applicationDisplayName())
+                                            : tr("Help > About Plugins");
+            const QString otherPluginsText = tr("The following plugins depend on "
+                                                "%1 and are also disabled: %2.\n\n")
+                                                 .arg(spec->name(), dependentsList);
+            const QString detailsText = (dependents.isEmpty() ? QString() : otherPluginsText)
+                                        + tr("Disable plugins permanently in %1.").arg(pluginsMenu);
+            const QString text = tr("It looks like %1 closed because of a problem with the \"%2\" "
+                                    "plugin. Temporarily disable the plugin?")
+                                     .arg(QGuiApplication::applicationDisplayName(), spec->name());
+            QMessageBox dialog;
+            dialog.setIcon(QMessageBox::Question);
+            dialog.setText(text);
+            dialog.setDetailedText(detailsText);
+            QPushButton *disableButton = dialog.addButton(tr("Disable Plugin"),
+                                                          QMessageBox::AcceptRole);
+            dialog.addButton(tr("Continue"), QMessageBox::RejectRole);
+            dialog.exec();
+            if (dialog.clickedButton() == disableButton) {
+                spec->d->setForceDisabled(true);
+                for (PluginSpec *other : dependents)
+                    other->d->setForceDisabled(true);
+                enableDependenciesIndirectly();
+            }
+        }
+    }
+}
+
+void PluginManager::checkForProblematicPlugins()
+{
+    d->checkForProblematicPlugins();
+}
+
 /*!
     \internal
 */
@@ -1364,6 +1456,8 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     // don't load disabled plugins.
     if (!spec->isEffectivelyEnabled() && destState == PluginSpec::Loaded)
         return;
+
+    LockFile f(this, spec);
 
     switch (destState) {
     case PluginSpec::Running:

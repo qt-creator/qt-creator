@@ -65,6 +65,7 @@ public:
     void removeObject(QObject *obj);
 
     // Plugin operations
+    void checkForProblematicPlugins();
     void loadPlugins();
     void shutdown();
     void setPluginPaths(const QStringList &paths);

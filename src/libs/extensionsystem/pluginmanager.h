@@ -96,6 +96,7 @@ public:
     static const QStringList allErrors();
     static QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
     static QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
+    static void checkForProblematicPlugins();
 
     // Settings
     static void setSettings(QSettings *settings);

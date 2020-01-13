@@ -680,6 +680,7 @@ int main(int argc, char **argv)
         }
     }
 
+    PluginManager::checkForProblematicPlugins();
     PluginManager::loadPlugins();
     if (coreplugin->hasError()) {
         displayError(msgCoreLoadFailure(coreplugin->errorString()));
