@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "buildconfiguration.h"
+#include "buildmanager.h"
 #include "deployconfiguration.h"
 #include "kit.h"
 #include "kitmanager.h"
@@ -42,6 +43,7 @@
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -167,6 +169,8 @@ private:
 
     QVariant data(int column, int role) const override
     {
+        if (column == 1 && role == Qt::ToolTipRole)
+            return QCoreApplication::translate("RunConfigSelector", "Run Without Deployment");
         if (column != 0)
             return {};
         switch (role) {
@@ -337,6 +341,8 @@ public:
         return item;
     }
 
+    void setColumnCount(int columns) { m_columnCount = columns; }
+
 signals:
     void displayNameChanged();
 
@@ -407,10 +413,35 @@ public:
         }
     }
 
-private:
     GenericModel *theModel() const { return static_cast<GenericModel *>(model()); }
 
 private:
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        const QModelIndex pressedIndex = indexAt(event->pos());
+        if (pressedIndex.column() == 1) {
+            m_pressedIndex = pressedIndex;
+            return; // Clicking on the run button should not change the current index
+        }
+        m_pressedIndex = QModelIndex();
+        TreeView::mousePressEvent(event);
+    }
+
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+        const QModelIndex pressedIndex = m_pressedIndex;
+        m_pressedIndex = QModelIndex();
+        if (pressedIndex.isValid() && pressedIndex == indexAt(event->pos())) {
+            const auto rc = qobject_cast<RunConfiguration *>(
+                        theModel()->itemForIndex(pressedIndex)->object());
+            QTC_ASSERT(rc, return);
+            if (!BuildManager::isBuilding(rc->project()))
+                ProjectExplorerPlugin::runRunConfiguration(rc, Constants::NORMAL_RUN_MODE, true);
+            return;
+        }
+        TreeView::mouseReleaseEvent(event);
+    }
+
     GenericItem *itemForObject(const QObject *object)
     {
         return theModel()->findItemAtLevel<1>([object](const GenericItem *item) {
@@ -438,6 +469,8 @@ private:
         if (index.isValid())
             emit changeActiveProjectConfiguration(objectAt(index));
     }
+
+    QModelIndex m_pressedIndex;
 };
 
 ////////
@@ -472,7 +505,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
     QColor textColor = creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor);
     if (option.state & QStyle::State_Selected) {
         QColor color;
-        if (option.state & QStyle::State_HasFocus) {
+        if (m_view->hasFocus()) {
             color = option.palette.highlight().color();
             textColor = option.palette.highlightedText().color();
         } else {
@@ -505,6 +538,16 @@ void TargetSelectorDelegate::paint(QPainter *painter,
         const_cast<QAbstractItemModel *>(index.model())
             ->setData(index, index.model()->data(index, Qt::UserRole + 1).toString(), Qt::ToolTipRole);
     painter->drawText(option.rect.left() + 6, option.rect.top() + (option.rect.height() - fm.height()) / 2 + fm.ascent(), elidedText);
+    if (index.column() == 1 && option.state & QStyle::State_MouseOver) {
+        const QIcon icon = Utils::Icons::RUN_SMALL.icon();
+        QRect iconRect(option.rect.right() - option.rect.height(),
+                       option.rect.top(),
+                       option.rect.height() / painter->device()->devicePixelRatio(),
+                       option.rect.height() / painter->device()->devicePixelRatio());
+        iconRect.translate((option.rect.width() - iconRect.width()) / 2,
+                           (option.rect.height() - iconRect.height()) / 2);
+        icon.paint(painter, iconRect, Qt::AlignHCenter | Qt::AlignVCenter);
+    }
 
     painter->restore();
 }
@@ -521,6 +564,7 @@ SelectorView::SelectorView(QWidget *parent) : TreeView(parent)
     setIndentation(0);
     setFocusPolicy(Qt::WheelFocus);
     setItemDelegate(new TargetSelectorDelegate(this));
+    setSelectionBehavior(SelectRows);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setHeaderHidden(true);
     const QColor bgColor = creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor);
@@ -725,6 +769,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
         connect(m_listWidgets[i], &QAbstractItemView::doubleClicked,
                 this, &MiniProjectTargetSelector::hide);
     }
+    m_listWidgets[RUN]->theModel()->setColumnCount(2);
+    m_listWidgets[RUN]->viewport()->setAttribute(Qt::WA_Hover);
 
     // Validate state: At this point the session is still empty!
     Project *startup = SessionManager::startupProject();
@@ -967,6 +1013,8 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         }
 
         QVector<int> widths = listWidgetWidths(minWidth, 1000);
+
+        const int runColumnWidth = widths[RUN] == -1 ? 0 : 30;
         int x = 0;
         for (int i = PROJECT; i < LAST; ++i) {
             int optimalWidth = widths[i];
@@ -974,6 +1022,8 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
                 m_projectListWidget->resize(optimalWidth, listHeight);
                 m_projectListWidget->move(x, listY);
             } else {
+                if (i == RUN)
+                    optimalWidth += runColumnWidth;
                 m_listWidgets[i]->resize(optimalWidth, listHeight);
                 m_listWidgets[i]->move(x, listY);
             }
@@ -982,6 +1032,8 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
             x += optimalWidth + 1; //1 extra pixel for the separators or the right border
         }
 
+        m_listWidgets[RUN]->setColumnWidth(0, m_listWidgets[RUN]->size().width() - runColumnWidth);
+        m_listWidgets[RUN]->setColumnWidth(1, runColumnWidth);
         m_summaryLabel->resize(x - 1, summaryLabelHeight);
         m_kitAreaWidget->resize(x - 1, kitAreaHeight);
         setFixedSize(x, heightWithoutKitArea + kitAreaHeight);
