@@ -236,18 +236,6 @@ jobs:
           endforeach()
         endif()
 
-        if ($ENV{CC} STREQUAL "cl")
-          set(build_speedup
-            -D BUILD_WITH_PCH=ON
-          )
-        else()
-          set(build_speedup
-            -D CMAKE_C_COMPILER_LAUNCHER=ccache
-            -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
-            -D BUILD_WITH_PCH=OFF
-          )
-        endif()
-
         set(path_separator ":")
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(path_separator ";")
@@ -265,7 +253,9 @@ jobs:
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
               -D CMAKE_FIND_PACKAGE_PREFER_CONFIG=TRUE
-              ${build_speedup}
+              -D CMAKE_C_COMPILER_LAUNCHER=ccache
+              -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+              -D BUILD_WITH_PCH=OFF
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -300,6 +290,9 @@ jobs:
         set(ENV{CCACHE_COMPRESS} "true")
         set(ENV{CCACHE_COMPRESSLEVEL} "6")
         set(ENV{CCACHE_MAXSIZE} "400M")
+        if ("${{ matrix.config.cxx }}" STREQUAL "cl")
+          set(ENV{CCACHE_MAXSIZE} "600M")
+        endif()
 
         execute_process(COMMAND ccache -p)
         execute_process(COMMAND ccache -z)
