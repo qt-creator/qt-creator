@@ -63,6 +63,7 @@ OpenEditorsWidget::OpenEditorsWidget()
 
     connect(this, &OpenDocumentsTreeView::customContextMenuRequested,
             this, &OpenEditorsWidget::contextMenuRequested);
+    updateCurrentItem(EditorManager::currentEditor());
 }
 
 OpenEditorsWidget::~OpenEditorsWidget() = default;
