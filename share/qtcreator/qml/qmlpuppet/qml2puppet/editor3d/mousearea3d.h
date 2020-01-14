@@ -31,6 +31,8 @@
 #include <QtCore/qpoint.h>
 #include <QtCore/qpointer.h>
 
+#include <QtQml/qqmlparserstatus.h>
+
 #include <QtQuick3D/private/qquick3dnode_p.h>
 #include <QtQuick3D/private/qquick3dmodel_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>

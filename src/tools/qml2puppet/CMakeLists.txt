@@ -96,7 +96,7 @@ find_package(Qt5 COMPONENTS Quick3D QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt5::Quick3D
   FEATURE_INFO "Qt Quick 3D"
-  DEPENDS Qt5::Quick3D
+  DEPENDS Qt5::Quick3D Qt5::Quick3DPrivate
   DEFINES QUICK3D_MODULE
 )
 
