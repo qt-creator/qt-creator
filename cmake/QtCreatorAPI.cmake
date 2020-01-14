@@ -484,6 +484,14 @@ function(add_qtc_library name)
   )
   enable_pch(${name})
 
+  if (WIN32)
+    # Match qmake naming scheme e.g. Library4.dll
+    set_target_properties(${name} PROPERTIES
+      SUFFIX "${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+      PREFIX ""
+    )
+  endif()
+
   unset(NAMELINK_OPTION)
   if (library_type STREQUAL "SHARED")
     set(NAMELINK_OPTION NAMELINK_SKIP)
@@ -696,6 +704,14 @@ function(add_qtc_plugin target_name)
     QT_SKIP_TRANSLATION "${skip_translation}"
     ${_arg_PROPERTIES}
   )
+
+  if (WIN32)
+    # Match qmake naming scheme e.g. Plugin4.dll
+    set_target_properties(${target_name} PROPERTIES
+      SUFFIX "${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+      PREFIX ""
+    )
+  endif()
   append_extra_translations("${target_name}" "${_arg_EXTRA_TRANSLATIONS}")
   enable_pch(${target_name})
 
