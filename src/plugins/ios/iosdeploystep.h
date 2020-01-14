@@ -74,8 +74,6 @@ private:
     IosSimulator::ConstPtr iossimulator() const;
 
     QString deviceId() const;
-    void raiseError(const QString &error);
-    void writeOutput(const QString &text, OutputFormat = OutputFormat::NormalMessage);
     void checkProvisioningProfile();
 
     TransferStatus m_transferStatus = NoTransfer;

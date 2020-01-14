@@ -217,17 +217,6 @@ QString IosDeployStep::deviceId() const
     return iosdevice()->uniqueDeviceID();
 }
 
-void IosDeployStep::raiseError(const QString &errorString)
-{
-    emit addTask(Task(Task::Error, errorString, Utils::FilePath::fromString(QString()), -1,
-        ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
-}
-
-void IosDeployStep::writeOutput(const QString &text, OutputFormat format)
-{
-    emit addOutput(text, format);
-}
-
 void IosDeployStep::checkProvisioningProfile()
 {
     IosDevice::ConstPtr device = iosdevice();
