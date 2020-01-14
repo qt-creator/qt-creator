@@ -396,19 +396,35 @@ void addProjects(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
     }
 }
 
-std::unique_ptr<FolderNode> createSourceGroupNode(const QString &sourceGroupName,
-                                                  const FilePath &sourceDirectory)
+FolderNode *createSourceGroupNode(const QString &sourceGroupName,
+                                  const FilePath &sourceDirectory,
+                                  FolderNode *targetRoot)
 {
-    if (sourceGroupName.isEmpty())
-        return {};
+    FolderNode *currentNode = targetRoot;
 
-    auto sgNode = createCMakeVFolder(sourceDirectory,
-                                     Node::DefaultFolderPriority + 5,
-                                     sourceGroupName);
+    if (!sourceGroupName.isEmpty()) {
+        const QStringList parts = sourceGroupName.split("\\");
 
-    sgNode->setListInProject(false);
-    sgNode->setIcon(QIcon::fromTheme("edit-copy", ::Utils::Icons::COPY.icon()));
-    return sgNode;
+        for (const QString &p : parts) {
+            FolderNode *existingNode = Utils::findOrDefault(currentNode->folderNodes(),
+                                                            [&p](const FolderNode *fn) {
+                                                                return fn->displayName() == p;
+                                                            });
+
+            if (!existingNode) {
+                auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
+                node->setListInProject(false);
+                node->setIcon(QIcon::fromTheme("edit-copy", ::Utils::Icons::COPY.icon()));
+
+                existingNode = node.get();
+
+                currentNode->addNode(std::move(node));
+            }
+
+            currentNode = existingNode;
+        }
+    }
+    return currentNode;
 }
 
 void addCompileGroups(ProjectNode *targetRoot,
@@ -475,12 +491,9 @@ void addCompileGroups(ProjectNode *targetRoot,
             }
         }
 
-        FolderNode *insertNode = targetRoot;
-        if (auto sgNode = createSourceGroupNode(td.sourceGroups[i], baseDirectory)) {
-            insertNode = sgNode.get();
-            targetRoot->addNode(std::move(sgNode));
-        }
-
+        FolderNode *insertNode = createSourceGroupNode(td.sourceGroups[i],
+                                                       baseDirectory,
+                                                       targetRoot);
         insertNode->addNestedNodes(std::move(sourceGroupFileNodes[i]));
     }
 
