@@ -101,9 +101,8 @@ public slots:
                                              const QVector3D &planePos,
                                              const QVector3D &planeNormal) const;
 
-    Q_INVOKABLE QVector3D getNewScale(QQuick3DNode *node, const QVector3D &startScale,
-                                      const QVector3D &pressPos,
-                                      const QVector3D &sceneRelativeDistance, bool global);
+    Q_INVOKABLE QVector3D getNewScale(const QVector3D &startScale, const QVector2D &relativeDistance,
+                                      const QVector3D &axisX, const QVector3D &axisY);
 
     Q_INVOKABLE qreal getNewRotationAngle(QQuick3DNode *node, const QVector3D &pressPos,
                                           const QVector3D &currentPos, const QVector3D &nodePos,
@@ -133,9 +132,9 @@ signals:
     void dragHelperChanged();
 
     // angle parameter is only set if circlePickArea is specified
-    void pressed(const QVector3D &scenePos, const QPoint &screenPos, qreal angle);
-    void released(const QVector3D &scenePos, const QPoint &screenPos);
-    void dragged(const QVector3D &scenePos, const QPoint &screenPos);
+    void pressed(const QVector2D &planePos, const QPoint &screenPos, qreal angle);
+    void released(const QVector2D &planePos, const QPoint &screenPos);
+    void dragged(const QVector2D &planePos, const QPoint &screenPos);
 
 protected:
     void classBegin() override {}

@@ -221,7 +221,6 @@ Window {
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
-            globalOrientation: false
             visible: viewWindow.selectedNode && btnScale.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper

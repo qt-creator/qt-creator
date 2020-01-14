@@ -31,7 +31,7 @@ DirectionalDraggable {
     id: scaleRod
     source: "meshes/scalerod.mesh"
 
-    property bool globalOrientation: false
+    property vector3d axis
 
     signal scaleCommit()
     signal scaleChange()
@@ -50,23 +50,18 @@ DirectionalDraggable {
     }
 
     onPressed: {
-        // Recreate vector so we don't follow the changes in targetNode.sceneScale
-        _startScale = Qt.vector3d(targetNode.sceneScale.x,
-                                  targetNode.sceneScale.y,
-                                  targetNode.sceneScale.z);
+        _startScale = targetNode.scale;
     }
 
     onDragged: {
-        targetNode.scale = mouseArea.getNewScale(targetNode, _startScale,
-                                                 _pointerPosPressed, sceneRelativeDistance,
-                                                 globalOrientation);
+        targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
+                                                 axis, Qt.vector3d(0, 0, 0));
         scaleChange();
     }
 
     onReleased: {
-        targetNode.scale = mouseArea.getNewScale(targetNode, _startScale,
-                                                 _pointerPosPressed, sceneRelativeDistance,
-                                                 globalOrientation);
+        targetNode.scale = mouseArea.getNewScale(_startScale, Qt.vector2d(relativeDistance, 0),
+                                                 axis, Qt.vector3d(0, 0, 0));
         scaleCommit();
     }
 }

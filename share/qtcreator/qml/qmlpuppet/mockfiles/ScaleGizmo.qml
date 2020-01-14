@@ -33,7 +33,6 @@ Node {
     property View3D view3D
     property bool highlightOnHover: false
     property Node targetNode: null
-    property bool globalOrientation: true
     readonly property bool dragging: scaleRodX.dragging || scaleRodY.dragging || scaleRodZ.dragging
                                      || planeX.dragging || planeY.dragging || planeZ.dragging
                                      || centerMouseArea.dragging
@@ -55,19 +54,19 @@ Node {
     signal scaleChange()
 
     Node {
-        rotation: globalOrientation || !targetNode ? Qt.vector3d(0, 0, 0) : targetNode.sceneRotation
+        rotation: !targetNode ? Qt.vector3d(0, 0, 0) : targetNode.sceneRotation
         rotationOrder: scaleGizmo.targetNode ? scaleGizmo.targetNode.rotationOrder : Node.YXZ
         orientation: scaleGizmo.orientation
 
         ScaleRod {
             id: scaleRodX
             rotation: Qt.vector3d(0, 0, -90)
+            axis: Qt.vector3d(1, 0, 0)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
                                                               : Qt.rgba(1, 0, 0, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
-            globalOrientation: scaleGizmo.globalOrientation
             dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
@@ -77,12 +76,12 @@ Node {
         ScaleRod {
             id: scaleRodY
             rotation: Qt.vector3d(0, 0, 0)
+            axis: Qt.vector3d(0, 1, 0)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                                                               : Qt.rgba(0, 0.6, 0, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
-            globalOrientation: scaleGizmo.globalOrientation
             dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
@@ -92,12 +91,12 @@ Node {
         ScaleRod {
             id: scaleRodZ
             rotation: Qt.vector3d(90, 0, 0)
+            axis: Qt.vector3d(0, 0, 1)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
                                                               : Qt.rgba(0, 0, 1, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
-            globalOrientation: scaleGizmo.globalOrientation
             dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
@@ -111,12 +110,13 @@ Node {
             z: 10
 
             rotation: Qt.vector3d(0, 90, 0)
+            axisX: Qt.vector3d(0, 0, -1)
+            axisY: Qt.vector3d(0, 1, 0)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
                                                               : Qt.rgba(1, 0, 0, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
-            globalOrientation: scaleGizmo.globalOrientation
             dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
@@ -130,12 +130,13 @@ Node {
             z: 10
 
             rotation: Qt.vector3d(90, 0, 0)
+            axisX: Qt.vector3d(1, 0, 0)
+            axisY: Qt.vector3d(0, 0, 1)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                                                               : Qt.rgba(0, 0.6, 0, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
-            globalOrientation: scaleGizmo.globalOrientation
             dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()
@@ -149,12 +150,13 @@ Node {
             y: 10
 
             rotation: Qt.vector3d(0, 0, 0)
+            axisX: Qt.vector3d(1, 0, 0)
+            axisY: Qt.vector3d(0, 1, 0)
             targetNode: scaleGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
                                                               : Qt.rgba(0, 0, 1, 1)
             view3D: scaleGizmo.view3D
             active: scaleGizmo.visible
-            globalOrientation: scaleGizmo.globalOrientation
             dragHelper: scaleGizmo.dragHelper
 
             onScaleCommit: scaleGizmo.scaleCommit()

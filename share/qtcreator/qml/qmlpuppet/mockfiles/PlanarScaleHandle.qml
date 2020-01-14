@@ -32,6 +32,8 @@ PlanarDraggable {
     scale: Qt.vector3d(0.024, 0.024, 0.024)
 
     property bool globalOrientation: false
+    property vector3d axisX
+    property vector3d axisY
 
     signal scaleCommit()
     signal scaleChange()
@@ -39,23 +41,18 @@ PlanarDraggable {
     property vector3d _startScale
 
     onPressed: {
-        // Recreate vector so we don't follow the changes in targetNode.sceneScale
-        _startScale = Qt.vector3d(targetNode.sceneScale.x,
-                                  targetNode.sceneScale.y,
-                                  targetNode.sceneScale.z);
+        _startScale = targetNode.scale;
     }
 
     onDragged: {
-        targetNode.scale = mouseArea.getNewScale(targetNode, _startScale,
-                                                 _pointerPosPressed, sceneRelativeDistance,
-                                                 globalOrientation);
+        targetNode.scale = mouseArea.getNewScale(_startScale, relativeDistance.times(scale.x),
+                                                 axisX, axisY);
         scaleChange();
     }
 
     onReleased: {
-        targetNode.scale = mouseArea.getNewScale(targetNode, _startScale,
-                                                 _pointerPosPressed, sceneRelativeDistance,
-                                                 globalOrientation);
+        targetNode.scale = mouseArea.getNewScale(_startScale, relativeDistance.times(scale.x),
+                                                 axisX, axisY);
         scaleCommit();
     }
 }

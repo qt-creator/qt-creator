@@ -281,78 +281,24 @@ QVector3D MouseArea3D::rayIntersectsPlane(const QVector3D &rayPos0,
     return rayPos0 + distanceFromRayPos0ToPlane * rayDirection;
 }
 
-// Get a new scale based on a relative scene distance along a drag axis.
-// This function never returns a negative scaling.
-// Note that scaling a rotated object in global coordinate space can't be meaningfully done without
-// distorting the object beyond what current scale property can represent, so global scaling is
-// effectively same as local scaling.
-QVector3D MouseArea3D::getNewScale(QQuick3DNode *node, const QVector3D &startScale,
-                                   const QVector3D &pressPos,
-                                   const QVector3D &sceneRelativeDistance, bool global)
+// Get a new scale based on a relative scene distance along a drag axes.
+// relativeDistance contains x and y distance on drag plane. axisX indicates which axis corresponds
+// to x value of relative distance. Similarly to axisY.
+QVector3D MouseArea3D::getNewScale(const QVector3D &startScale, const QVector2D &relativeDistance,
+                                   const QVector3D &axisX, const QVector3D &axisY)
 {
-    if (node) {
-        // Note: This only returns correct scale when scale is positive
-        auto getScale = [&](const QMatrix4x4 &m) -> QVector3D {
-            return QVector3D(m.column(0).length(), m.column(1).length(), m.column(2).length());
-        };
-        const float nonZeroValue = 0.0001f;
-
-        const QVector3D scenePos = pivotScenePosition(node);
-        const QMatrix4x4 parentTransform = node->parentNode()->sceneTransform();
-        QMatrix4x4 newTransform = node->sceneTransform();
-        const QVector3D nodeToPressPos = pressPos - scenePos;
-        const QVector3D nodeToRelPos = nodeToPressPos + sceneRelativeDistance;
-        const float sceneToPressLen = nodeToPressPos.length();
-        QVector3D scaleDirVector = nodeToRelPos;
-        float magnitude = (scaleDirVector.length() / sceneToPressLen);
-        scaleDirVector.normalize();
-
-        // Reset everything but rotation to ensure translation and scale don't affect rotation below
-        newTransform(0, 3) = 0;
-        newTransform(1, 3) = 0;
-        newTransform(2, 3) = 0;
-        QVector3D curScale = getScale(newTransform);
-        if (qFuzzyIsNull(curScale.x()))
-            curScale.setX(nonZeroValue);
-        if (qFuzzyIsNull(curScale.y()))
-            curScale.setY(nonZeroValue);
-        if (qFuzzyIsNull(curScale.z()))
-            curScale.setZ(nonZeroValue);
-        newTransform.scale({1.f / curScale.x(), 1.f / curScale.y(), 1.f / curScale.z()});
-
-        // Rotate the local scale vector so that scale axes are parallel to global axes for easier
-        // scale vector manipulation
-        if (!global)
-            scaleDirVector = newTransform.inverted().map(scaleDirVector).normalized();
-
-        // Ensure scaling is always positive/negative according to direction
-        scaleDirVector.setX(qAbs(scaleDirVector.x()));
-        scaleDirVector.setY(qAbs(scaleDirVector.y()));
-        scaleDirVector.setZ(qAbs(scaleDirVector.z()));
-
-        // Make sure the longest scale vec axis is equal to 1 before applying magnitude to avoid
-        // initial jump in size when planar drag starts
-        float maxDir = qMax(qMax(scaleDirVector.x(), scaleDirVector.y()), scaleDirVector.z());
-        QVector3D scaleVec = scaleDirVector / maxDir;
-        scaleVec *= magnitude;
-
-        // Zero axes on scale vector indicate directions we don't want scaling to affect
-        if (scaleDirVector.x() < 0.0001f)
-            scaleVec.setX(1.f);
-        if (scaleDirVector.y() < 0.0001f)
-            scaleVec.setY(1.f);
-        if (scaleDirVector.z() < 0.0001f)
-            scaleVec.setZ(1.f);
-        scaleVec *= startScale;
-
-        newTransform = parentTransform;
-        newTransform.scale(scaleVec);
-
-        const QMatrix4x4 localTransform = parentTransform.inverted() * newTransform;
-        return getScale(localTransform);
-    }
-
-    return startScale;
+    // Distance factor was calculated based on scale rod size.
+    // For other use cases, relativeDistance needs to be adjusted to the same scale prior calling
+    // this method.
+    const float distanceFactor = 0.1f;
+    QVector3D scaleVec(1.f, 1.f, 1.f);
+    QVector3D xScaler(1.f, 1.f, 1.f);
+    QVector3D yScaler(1.f, 1.f, 1.f);
+    xScaler += axisX * relativeDistance.x() * distanceFactor;
+    yScaler += axisY * relativeDistance.y() * distanceFactor;
+    scaleVec *= xScaler;
+    scaleVec *= yScaler;
+    return startScale * scaleVec;
 }
 
 qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
@@ -483,7 +429,7 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
     const QVector3D rayPos1 = m_view3D->mapTo3DScene(mousePos2);
     const QVector3D globalPlanePosition = helper->mapPositionToScene(QVector3D(0, 0, 0));
     const QVector3D intersectGlobalPos = rayIntersectsPlane(rayPos0, rayPos1,
-                                                            globalPlanePosition, forward());
+                                                            globalPlanePosition, helper->forward());
     if (qFuzzyCompare(intersectGlobalPos.z(), -1))
         return intersectGlobalPos;
 
@@ -556,7 +502,7 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
             m_mousePosInPlane = getMousePosInPlane(m_dragHelper, mouseEvent->pos());
             if (mouseOnTopOfMouseArea(m_mousePosInPlane, mouseEvent->pos())) {
                 setDragging(true);
-                emit pressed(m_mousePosInPlane, mouseEvent->pos(), pickAngle);
+                emit pressed(m_mousePosInPlane.toVector2D(), mouseEvent->pos(), pickAngle);
                 if (m_grabsMouse) {
                     if (s_mouseGrab && s_mouseGrab != this) {
                         s_mouseGrab->setDragging(false);
@@ -579,7 +525,7 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                 if (qFuzzyCompare(mousePosInPlane.z(), -1))
                     mousePosInPlane = m_mousePosInPlane;
                 setDragging(false);
-                emit released(mousePosInPlane, mouseEvent->pos());
+                emit released(mousePosInPlane.toVector2D(), mouseEvent->pos());
                 if (m_grabsMouse) {
                     if (s_mouseGrab && s_mouseGrab != this) {
                         s_mouseGrab->setDragging(false);
@@ -620,7 +566,7 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
 
         if (m_dragging && (m_circlePickArea.y() > 0. || !qFuzzyCompare(mousePosInPlane.z(), -1))) {
             m_mousePosInPlane = mousePosInPlane;
-            emit dragged(mousePosInPlane, mouseEvent->pos());
+            emit dragged(mousePosInPlane.toVector2D(), mouseEvent->pos());
         }
 
         break;

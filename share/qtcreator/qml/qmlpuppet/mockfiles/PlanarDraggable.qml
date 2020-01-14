@@ -40,12 +40,13 @@ Model {
 
     readonly property bool hovering: mouseArea.hovering
 
-    property vector3d _pointerPosPressed
+    property vector3d _scenePosPressed
+    property vector2d _planePosPressed
     property vector3d _targetStartPos
 
     signal pressed(var mouseArea)
-    signal dragged(var mouseArea, vector3d sceneRelativeDistance)
-    signal released(var mouseArea, vector3d sceneRelativeDistance)
+    signal dragged(var mouseArea, vector3d sceneRelativeDistance, vector2d relativeDistance)
+    signal released(var mouseArea, vector3d sceneRelativeDistance, vector2d relativeDistance)
 
     rotationOrder: Node.XYZr
     source: "#Rectangle"
@@ -58,40 +59,43 @@ Model {
     }
     materials: gizmoMaterial
 
-    function handlePressed(mouseArea, scenePos)
+    function handlePressed(mouseArea, planePos)
     {
         if (!targetNode)
             return;
 
-        _pointerPosPressed = mouseArea.dragHelper.mapPositionToScene(scenePos);
+        _planePosPressed = planePos;
+        _scenePosPressed = mouseArea.dragHelper.mapPositionToScene(planePos.toVector3d());
         if (targetNode.orientation === Node.RightHanded)
-            _pointerPosPressed.z = -_pointerPosPressed.z;
+            _scenePosPressed.z = -_scenePosPressed.z;
         _targetStartPos = mouseArea.pivotScenePosition(targetNode);
         pressed(mouseArea);
     }
 
-    function calcRelativeDistance(mouseArea, scenePos)
+    function calcRelativeDistance(mouseArea, planePos)
     {
-        var scenePointerPos = mouseArea.dragHelper.mapPositionToScene(scenePos);
+        var scenePointerPos = mouseArea.dragHelper.mapPositionToScene(planePos.toVector3d());
         if (targetNode.orientation === Node.RightHanded)
             scenePointerPos.z = -scenePointerPos.z;
-        return scenePointerPos.minus(_pointerPosPressed);
+        return scenePointerPos.minus(_scenePosPressed);
     }
 
-    function handleDragged(mouseArea, scenePos)
+    function handleDragged(mouseArea, planePos)
     {
         if (!targetNode)
             return;
 
-        dragged(mouseArea, calcRelativeDistance(mouseArea, scenePos));
+        dragged(mouseArea, calcRelativeDistance(mouseArea, planePos),
+                planePos.minus(_planePosPressed));
     }
 
-    function handleReleased(mouseArea, scenePos)
+    function handleReleased(mouseArea, planePos)
     {
         if (!targetNode)
             return;
 
-        released(mouseArea, calcRelativeDistance(mouseArea, scenePos));
+        released(mouseArea, calcRelativeDistance(mouseArea, planePos),
+                 planePos.minus(_planePosPressed));
     }
 
     MouseArea3D {
@@ -105,9 +109,9 @@ Model {
         active: rootModel.active
         dragHelper: rootModel.dragHelper
 
-        onPressed: rootModel.handlePressed(mouseArea, scenePos)
-        onDragged: rootModel.handleDragged(mouseArea, scenePos)
-        onReleased: rootModel.handleReleased(mouseArea, scenePos)
+        onPressed: rootModel.handlePressed(mouseArea, planePos)
+        onDragged: rootModel.handleDragged(mouseArea, planePos)
+        onReleased: rootModel.handleReleased(mouseArea, planePos)
     }
 }
 
