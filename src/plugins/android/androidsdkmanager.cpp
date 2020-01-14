@@ -473,6 +473,11 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
 
     QRegularExpression delimiters("[\\n\\r]");
     for (const QString &outputLine : output.split(delimiters)) {
+
+        // NOTE: we don't want to parse Dependencies part as it does not add value
+        if (outputLine.startsWith("        "))
+            continue;
+
         MarkerTag marker = parseMarkers(outputLine.trimmed());
         if (marker & SectionMarkers) {
             // Section marker found. Update the current section being parsed.
