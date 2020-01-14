@@ -34,9 +34,10 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class BuildPropertiesSettingsWidget : public Core::IOptionsPageWidget
+class BuildPropertiesSettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::BuildPropertiesSettingsPage)
+
 public:
     BuildPropertiesSettingsWidget()
     {
@@ -82,7 +83,7 @@ private:
 BuildPropertiesSettingsPage::BuildPropertiesSettingsPage()
 {
     setId("AB.ProjectExplorer.BuildPropertiesSettingsPage");
-    setDisplayName(tr("Default Build Properties"));
+    setDisplayName(BuildPropertiesSettingsWidget::tr("Default Build Properties"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new BuildPropertiesSettingsWidget; });
 }

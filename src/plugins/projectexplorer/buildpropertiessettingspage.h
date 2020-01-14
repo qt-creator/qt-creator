@@ -30,9 +30,8 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class BuildPropertiesSettingsPage : public Core::IOptionsPage
+class BuildPropertiesSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
     BuildPropertiesSettingsPage();
 };
