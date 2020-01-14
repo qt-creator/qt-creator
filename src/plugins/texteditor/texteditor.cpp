@@ -2396,7 +2396,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (camelCaseNavigationEnabled())
             CamelCaseCursor::left(&c, this, QTextCursor::MoveAnchor);
         else
-            c.movePosition(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
+            c.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor);
         int targetpos = c.position();
         forever {
             d->handleBackspaceKey();
