@@ -195,7 +195,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
              &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 
     auto handle3DModel = [](const QStringList &fileNames, const QString &defaultDir) -> bool {
-        auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir);
+        auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir, Core::ICore::mainWindow());
         importDlg->show();
         return true;
     };
@@ -505,7 +505,7 @@ void ItemLibraryWidget::addResources()
     static QString lastDir;
     const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
 
-    const auto fileNames = QFileDialog::getOpenFileNames(this,
+    const auto fileNames = QFileDialog::getOpenFileNames(Core::ICore::mainWindow(),
                                                    tr("Add Resources"),
                                                    currentDir,
                                                    filters.join(";;"));
