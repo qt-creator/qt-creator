@@ -43,28 +43,28 @@ const char IDE_CASED_ID[] = \"$${IDE_CASED_ID}\";
 #define IDE_VERSION_MINOR $$replace(QTCREATOR_VERSION, "^\\d+\\.(\\d+)\\.\\d+(-.*)?$", \\1)
 #define IDE_VERSION_RELEASE $$replace(QTCREATOR_VERSION, "^\\d+\\.\\d+\\.(\\d+)(-.*)?$", \\1)
 
-const char * const IDE_VERSION_LONG      = IDE_VERSION_STR;
-const char * const IDE_VERSION_DISPLAY   = STRINGIFY(IDE_VERSION_DISPLAY_DEF);
-const char * const IDE_AUTHOR            = \"The Qt Company Ltd\";
-const char * const IDE_YEAR              = \"$${QTCREATOR_COPYRIGHT_YEAR}\";
+const char IDE_VERSION_LONG[]      = IDE_VERSION_STR;
+const char IDE_VERSION_DISPLAY[]   = STRINGIFY(IDE_VERSION_DISPLAY_DEF);
+const char IDE_AUTHOR[]            = \"The Qt Company Ltd\";
+const char IDE_YEAR[]              = \"$${QTCREATOR_COPYRIGHT_YEAR}\";
 
 #ifdef IDE_REVISION
-const char * const IDE_REVISION_STR      = STRINGIFY(IDE_REVISION);
+const char IDE_REVISION_STR[]      = STRINGIFY(IDE_REVISION);
 #else
-const char * const IDE_REVISION_STR      = \"\";
+const char IDE_REVISION_STR[]      = \"\";
 #endif
 
 // changes the path where the settings are saved to
 #ifdef IDE_SETTINGSVARIANT
-const char * const IDE_SETTINGSVARIANT_STR      = STRINGIFY(IDE_SETTINGSVARIANT);
+const char IDE_SETTINGSVARIANT_STR[]      = STRINGIFY(IDE_SETTINGSVARIANT);
 #else
-const char * const IDE_SETTINGSVARIANT_STR      = \"QtProject\";
+const char IDE_SETTINGSVARIANT_STR[]      = \"QtProject\";
 #endif
 
 #ifdef IDE_COPY_SETTINGS_FROM_VARIANT
-const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = STRINGIFY(IDE_COPY_SETTINGS_FROM_VARIANT);
+const char IDE_COPY_SETTINGS_FROM_VARIANT_STR[] = STRINGIFY(IDE_COPY_SETTINGS_FROM_VARIANT);
 #else
-const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = \"\";
+const char IDE_COPY_SETTINGS_FROM_VARIANT_STR[] = \"\";
 #endif
 
 #undef IDE_VERSION_DISPLAY_DEF
