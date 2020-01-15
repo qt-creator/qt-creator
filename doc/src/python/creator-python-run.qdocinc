@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -28,7 +28,7 @@
     \section1 Running Python Projects
 
     You can execute Qt for Python applications directly from \QC. If you
-    used the \l{Creating Qt for Python Applications}{new project wizard}
+    used the \l{Using Project Wizards}{new project wizard}
     to create the application project, the \c main.py file is automatically
     executed when you select the \uicontrol Run button.
 

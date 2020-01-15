@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -49,6 +49,9 @@
             application project that can contain both QML and C++ code. You can
             build the application and deploy it to desktop, embedded, and mobile
             target platforms.
+
+        \li \uicontrol {Qt for Python - Qt Quick Application - Empty} creates a
+            Python project that contains an empty Qt Quick Application.
 
         \li \uicontrol {Qt Quick Application - Scroll} uses the
             \l{http://doc.qt.io/qt-5/qml-qtquick-controls2-scrollview.html}
@@ -151,6 +154,8 @@
 
     \QC generates a QML file, \e main.qml, that you can modify in the Design
     mode.
+
+    \include creator-python-project.qdocinc python qml project wizards
 
     \section1 Creating Qt Quick Controls Applications
 

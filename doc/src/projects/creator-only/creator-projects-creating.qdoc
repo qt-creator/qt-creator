@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -126,12 +126,14 @@
 
                 Use a single main.cpp file
 
-            \li Qt for Python Application - Empty or Window
+            \li Qt for Python Application - Empty, Window, Window (UI file), or
+                Qt Quick Application (Empty)
 
                 Create a \l{https://doc.qt.io/qtforpython/index.html}
                 {Qt for Python} application that contains only the main
-                code for a QApplication or create one that contains an
-                empty window.
+                code for a QApplication or an empty window with or without
+                a widget-based UI. Alternatively, you can create an empty
+                Qt Quick Application.
 
             \li MCU Support Application
 
