@@ -98,9 +98,8 @@ public:
     ~AndroidSettingsWidget() final;
 
 private:
-    void apply() final { saveSettings(); }
+    void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
 
-    void saveSettings();
     void validateJdk();
     void validateNdk();
     void onSdkPathChanged();
@@ -452,11 +451,6 @@ void AndroidSettingsWidget::updateAvds()
         m_lastAddedAvd.clear();
     }
     enableAvdControls();
-}
-
-void AndroidSettingsWidget::saveSettings()
-{
-    AndroidConfigurations::setConfig(m_androidConfig);
 }
 
 void AndroidSettingsWidget::validateJdk()
