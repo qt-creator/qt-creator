@@ -44,7 +44,7 @@
 
 namespace
 {
-Q_LOGGING_CATEGORY(importerLog, "qtc.itemlibrary.assetImporter", QtWarningMsg)
+static Q_LOGGING_CATEGORY(importerLog, "qtc.itemlibrary.assetImporter", QtWarningMsg)
 }
 
 namespace QmlDesigner {

@@ -76,7 +76,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace {
-Q_LOGGING_CATEGORY(avdConfigLog, "qtc.android.androidconfig", QtWarningMsg)
+static Q_LOGGING_CATEGORY(avdConfigLog, "qtc.android.androidconfig", QtWarningMsg)
 }
 
 namespace Android {

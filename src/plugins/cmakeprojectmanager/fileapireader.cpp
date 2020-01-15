@@ -55,7 +55,7 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(cmakeFileApiMode, "qtc.cmake.fileApiMode", QtWarningMsg);
+static Q_LOGGING_CATEGORY(cmakeFileApiMode, "qtc.cmake.fileApiMode", QtWarningMsg);
 
 using namespace FileApiDetails;
 

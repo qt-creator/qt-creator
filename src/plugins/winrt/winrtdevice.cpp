@@ -56,7 +56,7 @@ using namespace Utils;
 namespace WinRt {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(winrtDeviceLog, "qtc.winrt.deviceParser", QtWarningMsg)
+static Q_LOGGING_CATEGORY(winrtDeviceLog, "qtc.winrt.deviceParser", QtWarningMsg)
 
 WinRtDevice::WinRtDevice()
 {

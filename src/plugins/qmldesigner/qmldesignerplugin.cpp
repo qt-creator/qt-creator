@@ -75,7 +75,7 @@
 #include <QScreen>
 #include <QWindow>
 
-Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
+static Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
 
 using namespace QmlDesigner::Internal;
 

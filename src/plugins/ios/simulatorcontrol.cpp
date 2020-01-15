@@ -48,7 +48,7 @@ using namespace Utils;
 using namespace std;
 
 namespace {
-Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
+static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
 }
 
 namespace Ios {

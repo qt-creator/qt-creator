@@ -67,7 +67,7 @@
 #include <QMenu>
 #include <QMessageBox>
 
-Q_LOGGING_CATEGORY(log, "qtc.core.documentmanager", QtWarningMsg)
+static Q_LOGGING_CATEGORY(log, "qtc.core.documentmanager", QtWarningMsg)
 
 /*!
   \class Core::DocumentManager

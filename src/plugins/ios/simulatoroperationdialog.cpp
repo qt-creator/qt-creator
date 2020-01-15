@@ -34,7 +34,7 @@
 #include <QPushButton>
 
 namespace {
-Q_LOGGING_CATEGORY(iosCommon, "qtc.ios.common", QtWarningMsg)
+static Q_LOGGING_CATEGORY(iosCommon, "qtc.ios.common", QtWarningMsg)
 }
 
 namespace Ios {

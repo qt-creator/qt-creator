@@ -59,7 +59,7 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(cmakeBuildDirManagerLog, "qtc.cmake.builddirmanager", QtWarningMsg);
+static Q_LOGGING_CATEGORY(cmakeBuildDirManagerLog, "qtc.cmake.builddirmanager", QtWarningMsg);
 
 // --------------------------------------------------------------------
 // BuildDirManager:

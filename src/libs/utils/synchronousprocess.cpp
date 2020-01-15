@@ -84,7 +84,7 @@ enum { defaultMaxHangTimerCount = 10 };
 
 namespace Utils {
 
-Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
+static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
 
 // A special QProcess derivative allowing for terminal control.
 class TerminalControllingProcess : public QProcess {

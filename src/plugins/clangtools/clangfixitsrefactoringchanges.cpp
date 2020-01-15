@@ -45,7 +45,7 @@
 
 #include <algorithm>
 
-Q_LOGGING_CATEGORY(fixitsLog, "qtc.clangtools.fixits", QtWarningMsg);
+static Q_LOGGING_CATEGORY(fixitsLog, "qtc.clangtools.fixits", QtWarningMsg);
 
 using namespace TextEditor;
 using namespace Utils;

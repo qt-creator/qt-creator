@@ -28,7 +28,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(ipcLog, "qtc.clangcodemodel.ipc", QtWarningMsg)
+static Q_LOGGING_CATEGORY(ipcLog, "qtc.clangcodemodel.ipc", QtWarningMsg)
 
 } // namespace Internal
 } // namespace ClangCodeModel

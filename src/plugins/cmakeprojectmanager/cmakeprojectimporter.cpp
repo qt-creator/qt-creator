@@ -51,7 +51,7 @@ using namespace Utils;
 
 namespace {
 
-Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
+static Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
 
 struct DirectoryData
 {

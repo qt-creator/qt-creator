@@ -55,7 +55,7 @@
 #include <chrono>
 
 namespace {
-Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerworker", QtWarningMsg)
+static Q_LOGGING_CATEGORY(androidRunWorkerLog, "qtc.android.run.androidrunnerworker", QtWarningMsg)
 static const int GdbTempFileMaxCounter = 20;
 }
 

@@ -41,7 +41,7 @@ using namespace Android;
 using namespace Android::Internal;
 
 namespace {
-Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
+static Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
 }
 
 AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStringList &abis,
