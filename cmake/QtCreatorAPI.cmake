@@ -485,7 +485,7 @@ function(add_qtc_library name)
   )
   enable_pch(${name})
 
-  if (WIN32)
+  if (WIN32 AND library_type STREQUAL "SHARED")
     # Match qmake naming scheme e.g. Library4.dll
     set_target_properties(${name} PROPERTIES
       SUFFIX "${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
