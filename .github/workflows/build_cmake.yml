@@ -42,7 +42,9 @@ jobs:
           }
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+    - name: Checkout submodules
+      run: git submodule update --init src/plugins/help/qlitehtml/litehtml
 
     - name: Download Ninja and CMake
       id: cmake_and_ninja
