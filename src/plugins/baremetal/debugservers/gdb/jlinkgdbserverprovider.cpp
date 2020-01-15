@@ -141,11 +141,6 @@ bool JLinkGdbServerProvider::isValid() const
     return true;
 }
 
-GdbServerProvider *JLinkGdbServerProvider::clone() const
-{
-    return new JLinkGdbServerProvider(*this);
-}
-
 QVariantMap JLinkGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();

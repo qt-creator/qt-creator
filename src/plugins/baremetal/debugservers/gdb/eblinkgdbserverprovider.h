@@ -50,7 +50,6 @@ public:
     bool operator==(const IDebugServerProvider &other) const final;
 
     GdbServerProviderConfigWidget *configurationWidget() final;
-    GdbServerProvider *clone() const final;
 
     QString channelString() const final;
     Utils::CommandLine command() const final;
@@ -59,8 +58,7 @@ public:
     bool isValid() const final;
 
 private:
-    explicit EBlinkGdbServerProvider();
-    explicit EBlinkGdbServerProvider(const EBlinkGdbServerProvider &);
+    EBlinkGdbServerProvider();
 
     static QString defaultInitCommands();
     static QString defaultResetCommands();

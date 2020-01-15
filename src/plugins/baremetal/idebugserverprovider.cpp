@@ -61,14 +61,6 @@ IDebugServerProvider::IDebugServerProvider(const QString &id)
 {
 }
 
-IDebugServerProvider::IDebugServerProvider(const IDebugServerProvider &provider)
-    : m_id(createId(provider.m_id))
-{
-    m_displayName = QCoreApplication::translate(
-                "BareMetal::IDebugServerProvider", "Clone of %1")
-            .arg(provider.displayName());
-}
-
 IDebugServerProvider::~IDebugServerProvider()
 {
     const QSet<BareMetalDevice *> devices = m_devices;
@@ -187,6 +179,11 @@ void IDebugServerProvider::unregisterDevice(BareMetalDevice *device)
 void IDebugServerProvider::providerUpdated()
 {
     DebugServerProviderManager::notifyAboutUpdate(this);
+}
+
+void IDebugServerProvider::resetId()
+{
+    m_id = createId(m_id);
 }
 
 bool IDebugServerProvider::fromMap(const QVariantMap &data)

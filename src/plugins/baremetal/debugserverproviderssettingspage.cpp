@@ -282,10 +282,10 @@ public:
     void removeProvider();
     void updateState();
 
-    void createProvider(IDebugServerProviderFactory *f);
+private:
+    void addProviderToModel(IDebugServerProvider *p);
     QModelIndex currentIndex() const;
 
-public:
     DebugServerProviderModel m_model;
     QItemSelectionModel *m_selectionModel = nullptr;
     QTreeView *m_providerView = nullptr;
@@ -357,11 +357,24 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     for (const auto f : DebugServerProviderManager::factories()) {
         const auto action = new QAction(addMenu);
         action->setText(f->displayName());
-        connect(action, &QAction::triggered, this, [this, f] { createProvider(f); });
+        connect(action, &QAction::triggered, this, [this, f] { addProviderToModel(f->create()); });
         addMenu->addAction(action);
     }
 
-    connect(m_cloneButton, &QAbstractButton::clicked, this, [this] { createProvider(nullptr); });
+    connect(m_cloneButton, &QAbstractButton::clicked, this, [this] {
+        if (const IDebugServerProvider *old = m_model.provider(currentIndex())) {
+            QString id = old->id();
+            for (const auto f : DebugServerProviderManager::factories()) {
+                if (id.startsWith(f->id())) {
+                    IDebugServerProvider *p = f->create();
+                    p->fromMap(old->toMap());
+                    p->setDisplayName(tr("Clone of %1").arg(old->displayName()));
+                    p->resetId();
+                    addProviderToModel(p);
+                }
+            }
+        }
+    });
 
     m_addButton->setMenu(addMenu);
 
@@ -387,21 +400,9 @@ void DebugServerProvidersSettingsWidget::providerSelectionChanged()
     updateState();
 }
 
-void DebugServerProvidersSettingsWidget::createProvider(IDebugServerProviderFactory *f)
+void DebugServerProvidersSettingsWidget::addProviderToModel(IDebugServerProvider *provider)
 {
-    IDebugServerProvider *provider = nullptr;
-    if (!f) {
-        const IDebugServerProvider *old = m_model.provider(currentIndex());
-        if (!old)
-            return;
-        provider = old->clone();
-    } else {
-        provider = f->create();
-    }
-
-    if (!provider)
-        return;
-
+    QTC_ASSERT(provider, return);
     m_model.markForAddition(provider);
 
     m_selectionModel->select(m_model.indexForProvider(provider),

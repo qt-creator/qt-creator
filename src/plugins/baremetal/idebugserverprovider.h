@@ -61,6 +61,11 @@ class IDebugServerProviderConfigWidget;
 
 class IDebugServerProvider
 {
+protected:
+    explicit IDebugServerProvider(const QString &id);
+    IDebugServerProvider(const IDebugServerProvider &provider) = delete;
+    IDebugServerProvider &operator=(const IDebugServerProvider &provider) = delete;
+
 public:
     virtual ~IDebugServerProvider();
 
@@ -81,9 +86,8 @@ public:
 
     virtual IDebugServerProviderConfigWidget *configurationWidget() = 0;
 
-    virtual IDebugServerProvider *clone() const = 0;
-
     virtual QVariantMap toMap() const;
+    virtual bool fromMap(const QVariantMap &data);
 
     virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
                             QString &errorMessage) const = 0;
@@ -96,16 +100,12 @@ public:
     void unregisterDevice(BareMetalDevice *device);
 
 protected:
-    explicit IDebugServerProvider(const QString &id);
-    explicit IDebugServerProvider(const IDebugServerProvider &provider);
-
     void setTypeDisplayName(const QString &typeDisplayName);
     void setEngineType(Debugger::DebuggerEngineType engineType);
     void setSettingsKeyBase(const QString &settingsBase);
 
     void providerUpdated();
-
-    virtual bool fromMap(const QVariantMap &data);
+    void resetId();
 
     QString m_id;
     mutable QString m_displayName;
@@ -115,6 +115,7 @@ protected:
     Debugger::DebuggerEngineType m_engineType = Debugger::NoEngineType;
     QSet<BareMetalDevice *> m_devices;
 
+    friend class DebugServerProvidersSettingsWidget;
     friend class IDebugServerProviderConfigWidget;
     friend class IDebugServerProviderFactory;
 };

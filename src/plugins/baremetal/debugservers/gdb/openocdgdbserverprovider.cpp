@@ -148,11 +148,6 @@ bool OpenOcdGdbServerProvider::isValid() const
     return true;
 }
 
-GdbServerProvider *OpenOcdGdbServerProvider::clone() const
-{
-    return new OpenOcdGdbServerProvider(*this);
-}
-
 QVariantMap OpenOcdGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();

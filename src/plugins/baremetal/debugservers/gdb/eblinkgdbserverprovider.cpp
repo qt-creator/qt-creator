@@ -71,22 +71,6 @@ EBlinkGdbServerProvider::EBlinkGdbServerProvider()
     setTypeDisplayName(EBlinkGdbServerProviderFactory::tr("EBlink"));
 }
 
-EBlinkGdbServerProvider::EBlinkGdbServerProvider(
-        const EBlinkGdbServerProvider &other)
-    : GdbServerProvider(other)
-    , m_executableFile(other.m_executableFile)
-    , m_verboseLevel(0)
-    , m_interfaceType(other.m_interfaceType)
-    , m_deviceScript(other.m_deviceScript)
-    , m_interfaceResetOnConnect(other.m_interfaceResetOnConnect)
-    , m_interfaceSpeed(other.m_interfaceSpeed)
-    , m_interfaceExplicidDevice(other.m_interfaceExplicidDevice)
-    , m_targetName(other.m_targetName)
-    , m_targetDisableStack(other.m_targetDisableStack)
-    , m_gdbShutDownAfterDisconnect(other.m_gdbShutDownAfterDisconnect)
-    , m_gdbNotUseCache(other.m_gdbNotUseCache){
-}
-
 QString EBlinkGdbServerProvider::defaultInitCommands()
 {
     return {"monitor reset halt\n"
@@ -182,11 +166,6 @@ bool EBlinkGdbServerProvider::isValid() const
     default:
         return false;
     }
-}
-
-GdbServerProvider *EBlinkGdbServerProvider::clone() const
-{
-    return new EBlinkGdbServerProvider(*this);
 }
 
 QVariantMap EBlinkGdbServerProvider::toMap() const

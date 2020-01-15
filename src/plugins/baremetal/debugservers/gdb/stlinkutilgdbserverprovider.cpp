@@ -63,17 +63,6 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
     setTypeDisplayName(StLinkUtilGdbServerProviderFactory::tr("ST-LINK Utility"));
 }
 
-StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider(
-        const StLinkUtilGdbServerProvider &other)
-    : GdbServerProvider(other)
-    , m_executableFile(other.m_executableFile)
-    , m_verboseLevel(0)
-    , m_extendedMode(false)
-    , m_resetBoard(true)
-    , m_transport(RawUsb)
-{
-}
-
 QString StLinkUtilGdbServerProvider::defaultInitCommands()
 {
     return {"load\n"};
@@ -139,11 +128,6 @@ bool StLinkUtilGdbServerProvider::isValid() const
     }
 
     return true;
-}
-
-GdbServerProvider *StLinkUtilGdbServerProvider::clone() const
-{
-    return new StLinkUtilGdbServerProvider(*this);
 }
 
 QVariantMap StLinkUtilGdbServerProvider::toMap() const
