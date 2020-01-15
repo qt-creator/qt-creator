@@ -20,23 +20,23 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows Latest MSVC", artifact: "Windows-MSVC.tar.xz",
+            name: "Windows Latest MSVC", artifact: "Windows-MSVC",
             os: windows-latest,
             cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW.tar.xz",
+            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
             os: windows-latest,
             cc: "gcc", cxx: "g++"
           }
         - {
-            name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
+            name: "Ubuntu Latest GCC", artifact: "Linux",
             os: ubuntu-latest,
             cc: "gcc", cxx: "g++"
           }
         - {
-            name: "macOS Latest Clang", artifact: "macOS.tar.xz",
+            name: "macOS Latest Clang", artifact: "macOS",
             os: macos-latest,
             cc: "clang", cxx: "clang++"
           }
@@ -358,17 +358,28 @@ jobs:
     - name: Install Strip
       run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --install build --prefix instdir --strip
 
+    - name: Install Devel
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --install build --prefix instdir-dev --component Devel
 
     - name: Pack
       working-directory: instdir
-      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cJfv ../${{ matrix.config.artifact }} .
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cJfv ../${{ matrix.config.artifact }}.tar.xz .
 
+    - name: Pack Devel
+      working-directory: instdir-dev
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cJfv ../${{ matrix.config.artifact }}-dev.tar.xz .
 
     - name: Upload
       uses: actions/upload-artifact@v1
       with:
-        path: ./${{ matrix.config.artifact }}
-        name: ${{ matrix.config.artifact }}
+        path: ./${{ matrix.config.artifact }}.tar.xz
+        name: ${{ matrix.config.artifact }}.tar.xz
+
+    - name: Upload Devel
+      uses: actions/upload-artifact@v1
+      with:
+        path: ./${{ matrix.config.artifact }}-dev.tar.xz
+        name: ${{ matrix.config.artifact }}-dev.tar.xz
 
   release:
     if: contains(github.ref, 'tags/v')
@@ -405,19 +416,19 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows Latest MSVC", artifact: "Windows-MSVC.tar.xz",
+            name: "Windows Latest MSVC", artifact: "Windows-MSVC",
             os: ubuntu-latest
           }
         - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW.tar.xz",
+            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
             os: ubuntu-latest
           }
         - {
-            name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
+            name: "Ubuntu Latest GCC", artifact: "Linux",
             os: ubuntu-latest
           }
         - {
-            name: "macOS Latest Clang", artifact: "macOS.tar.xz",
+            name: "macOS Latest Clang", artifact: "macOS",
             os: ubuntu-latest
           }
     needs: release
@@ -426,7 +437,13 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v1
       with:
-        name: ${{ matrix.config.artifact }}
+        name: ${{ matrix.config.artifact }}.tar.xz
+        path: ./
+
+    - name: Download Devel artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}-dev.tar.xz
         path: ./
 
     - name: Download URL
@@ -440,12 +457,21 @@ jobs:
         echo ::set-output name=upload_url::$upload_url
 
     - name: Upload to Release
-      id: upload_to_release
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./${{ matrix.config.artifact }}
-        asset_name: ${{ matrix.config.artifact }}
+        asset_path: ./${{ matrix.config.artifact }}.tar.xz
+        asset_name: ${{ matrix.config.artifact }}.tar.xz
+        asset_content_type: application/x-gtar
+
+    - name: Upload Devel to Release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
+        asset_path: ./${{ matrix.config.artifact }}-dev.tar.xz
+        asset_name: ${{ matrix.config.artifact }}-dev.tar.xz
         asset_content_type: application/x-gtar
