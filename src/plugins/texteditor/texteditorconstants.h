@@ -209,6 +209,7 @@ const char SCROLL_BAR_CURRENT_LINE[] = "TextEditor.ScrollBarCurrentLine";
 const TEXTEDITOR_EXPORT char *nameForStyle(TextStyle style);
 TextStyle styleFromName(const char *name);
 
+const char TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH[] =  ":/texteditor/images/settingscategory_texteditor.png";
 const char TEXT_EDITOR_SETTINGS_CATEGORY[] = "C.TextEditor";
 const char TEXT_EDITOR_FONT_SETTINGS[] = "A.FontSettings";
 const char TEXT_EDITOR_BEHAVIOR_SETTINGS[] = "B.BehaviourSettings";

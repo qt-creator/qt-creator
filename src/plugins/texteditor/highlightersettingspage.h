@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "texteditoroptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace TextEditor {
 
 class HighlighterSettings;
 
-class HighlighterSettingsPage : public TextEditorOptionsPage
+class HighlighterSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

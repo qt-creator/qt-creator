@@ -39,7 +39,6 @@ SOURCES += texteditorplugin.cpp \
     colorscheme.cpp \
     colorschemeedit.cpp \
     texteditoroverlay.cpp \
-    texteditoroptionspage.cpp \
     textdocumentlayout.cpp \
     completionsettings.cpp \
     normalindenter.cpp \
@@ -128,7 +127,6 @@ HEADERS += texteditorplugin.h \
     colorscheme.h \
     colorschemeedit.h \
     texteditoroverlay.h \
-    texteditoroptionspage.h \
     textdocumentlayout.h \
     completionsettings.h \
     normalindenter.h \

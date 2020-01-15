@@ -330,11 +330,14 @@ bool FormatDescription::showControl(FormatDescription::ShowControls showControl)
 FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
                                    Core::Id id,
                                    QObject *parent) :
-    TextEditorOptionsPage(parent),
+    Core::IOptionsPage(parent),
     d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), category().toString()))
 {
     setId(d_ptr->m_id);
     setDisplayName(d_ptr->m_displayName);
+    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 
 FontSettingsPage::~FontSettingsPage()

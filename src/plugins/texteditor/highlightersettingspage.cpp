@@ -84,11 +84,14 @@ void HighlighterSettingsPage::HighlighterSettingsPagePrivate::ensureInitialized(
 }
 
 HighlighterSettingsPage::HighlighterSettingsPage(Core::Id id, QObject *parent) :
-    TextEditorOptionsPage(parent),
+    Core::IOptionsPage(parent),
     m_d(new HighlighterSettingsPagePrivate(id))
 {
     setId(m_d->m_id);
     setDisplayName(m_d->m_displayName);
+    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 
 HighlighterSettingsPage::~HighlighterSettingsPage()

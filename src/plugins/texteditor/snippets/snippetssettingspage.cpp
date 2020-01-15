@@ -549,11 +549,14 @@ void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings
 
 // SnippetsSettingsPage
 SnippetsSettingsPage::SnippetsSettingsPage(Core::Id id, QObject *parent) :
-    TextEditorOptionsPage(parent),
+    Core::IOptionsPage(parent),
     d(new SnippetsSettingsPagePrivate(id))
 {
     setId(d->id());
     setDisplayName(d->displayName());
+    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 
 SnippetsSettingsPage::~SnippetsSettingsPage()

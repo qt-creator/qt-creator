@@ -143,8 +143,6 @@ Project {
             "texteditoractionhandler.h",
             "texteditorconstants.cpp",
             "texteditorconstants.h",
-            "texteditoroptionspage.cpp",
-            "texteditoroptionspage.h",
             "texteditoroverlay.cpp",
             "texteditoroverlay.h",
             "texteditorplugin.cpp",

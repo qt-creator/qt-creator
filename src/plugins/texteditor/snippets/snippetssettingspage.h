@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include "../texteditoroptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace TextEditor {
 namespace Internal {
 
 class SnippetsSettingsPagePrivate;
 
-class SnippetsSettingsPage : public TextEditorOptionsPage
+class SnippetsSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

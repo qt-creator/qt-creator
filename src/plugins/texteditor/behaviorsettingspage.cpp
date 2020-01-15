@@ -88,9 +88,13 @@ void BehaviorSettingsPage::BehaviorSettingsPagePrivate::init()
 
 BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters &p,
                                            QObject *parent)
-  : TextEditorOptionsPage(parent),
+  : Core::IOptionsPage(parent),
     d(new BehaviorSettingsPagePrivate(p))
 {
+    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
+
     // global tab preferences for all other languages
     d->m_codeStyle = new SimpleCodeStylePreferences(this);
     d->m_codeStyle->setDisplayName(tr("Global", "Settings"));

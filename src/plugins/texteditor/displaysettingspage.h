@@ -27,7 +27,7 @@
 
 #include "texteditor_global.h"
 
-#include "texteditoroptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace TextEditor {
 
@@ -42,7 +42,7 @@ public:
     QString settingsPrefix;
 };
 
-class DisplaySettingsPage : public TextEditorOptionsPage
+class DisplaySettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

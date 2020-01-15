@@ -27,8 +27,9 @@
 
 #include "texteditor_global.h"
 
-#include "texteditoroptionspage.h"
 #include "tabsettingswidget.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace TextEditor {
 
@@ -48,7 +49,7 @@ public:
     QString settingsPrefix;
 };
 
-class BehaviorSettingsPage : public TextEditorOptionsPage
+class BehaviorSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

@@ -30,13 +30,12 @@
 #include "texteditorconstants.h"
 #include "colorscheme.h"
 
-#include "texteditoroptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QList>
 #include <QString>
 
 QT_BEGIN_NAMESPACE
-class QWidget;
 class QColor;
 QT_END_NAMESPACE
 
@@ -119,7 +118,7 @@ private:
 
 using FormatDescriptions = std::vector<FormatDescription>;
 
-class TEXTEDITOR_EXPORT FontSettingsPage : public TextEditorOptionsPage
+class TEXTEDITOR_EXPORT FontSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

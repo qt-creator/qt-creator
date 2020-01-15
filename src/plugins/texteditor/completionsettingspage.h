@@ -27,8 +27,8 @@
 
 #include "commentssettings.h"
 #include "completionsettings.h"
-#include "texteditoroptionspage.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
 
@@ -37,7 +37,7 @@ namespace Internal {
 
 namespace Ui { class CompletionSettingsPage; }
 
-class CompletionSettingsPage : public TextEditorOptionsPage
+class CompletionSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

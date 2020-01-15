@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "completionsettingspage.h"
-#include "ui_completionsettingspage.h"
+
 #include "texteditorsettings.h"
+#include "texteditorconstants.h"
+#include "ui_completionsettingspage.h"
 
 #include <cpptools/cpptoolssettings.h>
 
@@ -38,10 +40,13 @@ using namespace TextEditor::Internal;
 using namespace CppTools;
 
 CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
-    : TextEditor::TextEditorOptionsPage(parent)
+    : Core::IOptionsPage(parent)
 {
     setId("P.Completion");
     setDisplayName(tr("Completion"));
+    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 
     QSettings *s = Core::ICore::settings();
     m_completionSettings.fromSettings(s);

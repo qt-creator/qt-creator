@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "displaysettingspage.h"
+
 #include "displaysettings.h"
 #include "marginsettings.h"
+#include "texteditorconstants.h"
 #include "ui_displaysettingspage.h"
 
 #include <coreplugin/icore.h>
@@ -56,11 +58,14 @@ DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate
 
 DisplaySettingsPage::DisplaySettingsPage(const DisplaySettingsPageParameters &p,
                                          QObject *parent)
-  : TextEditorOptionsPage(parent),
+  : Core::IOptionsPage(parent),
     d(new DisplaySettingsPagePrivate(p))
 {
     setId(p.id);
     setDisplayName(p.displayName);
+    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 
 DisplaySettingsPage::~DisplaySettingsPage()
