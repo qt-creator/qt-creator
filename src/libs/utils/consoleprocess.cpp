@@ -64,10 +64,11 @@ namespace Utils {
 
 // TerminalCommand
 
-TerminalCommand::TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs)
+TerminalCommand::TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs, bool needsQuotes)
     : command(command)
     , openArgs(openArgs)
     , executeArgs(executeArgs)
+    , needsQuotes(needsQuotes)
 {
 }
 
@@ -143,6 +144,7 @@ void ConsoleProcess::setSettings(QSettings *settings)
 Q_GLOBAL_STATIC_WITH_ARGS(const QVector<TerminalCommand>, knownTerminals, (
 {
     {"x-terminal-emulator", "", "-e"},
+    {"xdg-terminal", "", "", true},
     {"xterm", "", "-e"},
     {"aterm", "", "-e"},
     {"Eterm", "", "-e"},
@@ -173,7 +175,7 @@ TerminalCommand ConsoleProcess::defaultTerminalEmulator()
             for (const TerminalCommand &term : *knownTerminals) {
                 const QString result = env.searchInPath(term.command).toString();
                 if (!result.isEmpty()) {
-                    defaultTerm = {result, term.openArgs, term.executeArgs};
+                    defaultTerm = {result, term.openArgs, term.executeArgs, term.needsQuotes};
                     break;
                 }
             }
@@ -562,16 +564,19 @@ bool ConsoleProcess::start()
 
     const QString stubPath = QCoreApplication::applicationDirPath()
             + QLatin1String("/" QTC_REL_TOOLS_PATH "/qtcreator_process_stub");
-    const QStringList allArgs = terminalArgs.toUnixArgs()
-                                << stubPath
-                                << modeOption(d->m_mode)
-                                << d->m_stubServer.fullServerName()
-                                << msgPromptToClose()
-                                << workingDirectory()
-                                << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
-                                << QString::number(getpid())
-                                << pcmd
-                                << pargs.toUnixArgs();
+    QStringList allArgs = terminalArgs.toUnixArgs()
+                          << stubPath
+                          << modeOption(d->m_mode)
+                          << d->m_stubServer.fullServerName()
+                          << msgPromptToClose()
+                          << workingDirectory()
+                          << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
+                          << QString::number(getpid())
+                          << pcmd
+                          << pargs.toUnixArgs();
+
+    if (terminal.needsQuotes)
+        allArgs = QStringList { QtcProcess::joinArgs(allArgs) };
 
     d->m_process.start(terminal.command, allArgs);
     if (!d->m_process.waitForStarted()) {

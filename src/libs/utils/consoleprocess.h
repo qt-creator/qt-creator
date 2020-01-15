@@ -43,7 +43,7 @@ class QTCREATOR_UTILS_EXPORT TerminalCommand
 {
 public:
     TerminalCommand() = default;
-    TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs);
+    TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs, bool needsQuotes = false);
 
     bool operator==(const TerminalCommand &other) const;
     bool operator<(const TerminalCommand &other) const;
@@ -51,6 +51,7 @@ public:
     QString command;
     QString openArgs;
     QString executeArgs;
+    bool needsQuotes = false;
 };
 
 class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject
