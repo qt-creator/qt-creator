@@ -2266,7 +2266,7 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand("type summary add -F %s -w %s %s" \
         % (summary_function, type_category, ' '.join(types)))
 
-    regex_types = map(lambda x: "'" + x + "'", dumper.qqDumpersEx.keys())
+    regex_types = list(map(lambda x: "'" + x + "'", dumper.qqDumpersEx.keys()))
     if regex_types:
         debugger.HandleCommand("type summary add -x -F %s -w %s %s" \
             % (summary_function, type_category, ' '.join(regex_types)))
@@ -2281,7 +2281,7 @@ def __lldb_init_module(debugger, internal_dict):
 
     # Synthetic children
     debugger.HandleCommand("type synthetic add -x '^Q.*$' -l %s -w %s" \
-        % (SyntheticChildrenProvider, type_category))
+        % ("lldbbridge.SyntheticChildrenProvider", type_category))
 
     debugger.HandleCommand('type category enable %s' % type_category)
 
