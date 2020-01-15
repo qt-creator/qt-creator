@@ -29,6 +29,7 @@ import platform
 import re
 import sys
 import threading
+import time
 import lldb
 
 from contextlib import contextmanager
@@ -953,14 +954,16 @@ class Dumper(DumperBase):
 
     def loop(self):
         event = lldb.SBEvent()
-        broadcaster = self.target.GetBroadcaster()
+        #broadcaster = self.target.GetBroadcaster()
         listener = self.debugger.GetListener()
+
         while True:
-            sys.stdout.flush() # IMPORTANT! to receive process state changes with lldb 1100
             while listener.GetNextEvent(event):
                 self.handleEvent(event)
-            if listener.WaitForEventForBroadcaster(0, broadcaster, event):
-                self.handleEvent(event)
+            time.sleep(0.25)
+
+            #if listener.WaitForEventForBroadcaster(0, broadcaster, event):
+            #    self.handleEvent(event)
 
 
     def describeError(self, error):

@@ -25,7 +25,6 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
-import QtQuick.Controls.Private 1.0 // showing a ToolTip
 
 Item {
     width: 300

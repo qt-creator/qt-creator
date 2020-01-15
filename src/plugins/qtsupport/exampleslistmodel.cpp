@@ -488,8 +488,11 @@ void ExamplesListModel::updateExamples()
                 break;
             }
 
-        if (reader.hasError() && debugExamples())
-            qWarning() << QString::fromLatin1("ERROR: Could not parse file as XML document (%1)").arg(exampleSource);
+        if (reader.hasError() && debugExamples()) {
+            qWarning().noquote().nospace() << "ERROR: Could not parse file as XML document ("
+                << exampleSource << "):" << reader.lineNumber() << ':' << reader.columnNumber()
+                << ": " << reader.errorString();
+        }
     }
     endResetModel();
 }

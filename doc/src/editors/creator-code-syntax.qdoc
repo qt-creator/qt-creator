@@ -50,7 +50,7 @@
 
     To modify the colors used for underlining errors and warnings, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
-    \uicontrol {Fonts & Colors} > \uicontrol Copy, and select new colors for
+    \uicontrol {Font & Colors} > \uicontrol Copy, and select new colors for
     \uicontrol Error and \uicontrol Warning.
 
     \section1 Viewing Annotations
