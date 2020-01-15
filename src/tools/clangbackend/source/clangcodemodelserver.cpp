@@ -48,7 +48,7 @@
 #include <QLoggingCategory>
 #include <QDir>
 
-Q_LOGGING_CATEGORY(serverLog, "qtc.clangbackend.server", QtWarningMsg);
+static Q_LOGGING_CATEGORY(serverLog, "qtc.clangbackend.server", QtWarningMsg);
 
 static bool useSupportiveTranslationUnit()
 {

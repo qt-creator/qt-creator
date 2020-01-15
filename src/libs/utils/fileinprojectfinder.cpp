@@ -42,7 +42,7 @@
 #include <algorithm>
 
 namespace {
-Q_LOGGING_CATEGORY(finderLog, "qtc.utils.fileinprojectfinder", QtWarningMsg);
+static Q_LOGGING_CATEGORY(finderLog, "qtc.utils.fileinprojectfinder", QtWarningMsg);
 }
 
 namespace Utils {

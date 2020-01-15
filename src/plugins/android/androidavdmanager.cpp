@@ -44,7 +44,7 @@
 using namespace Utils;
 
 namespace {
-Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
+static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 }
 
 namespace Android {

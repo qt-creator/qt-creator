@@ -55,7 +55,7 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarningMsg);
+static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarningMsg);
 
 // --------------------------------------------------------------------
 // CMakeBuildSystem:

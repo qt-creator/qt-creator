@@ -49,7 +49,7 @@ using Font = QFont;
 using Context = QPainter;
 
 namespace {
-Q_LOGGING_CATEGORY(log, "qlitehtml", QtCriticalMsg)
+static Q_LOGGING_CATEGORY(log, "qlitehtml", QtCriticalMsg)
 }
 
 static QFont toQFont(litehtml::uint_ptr hFont)

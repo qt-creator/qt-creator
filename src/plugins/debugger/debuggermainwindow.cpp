@@ -65,7 +65,7 @@
 using namespace Debugger;
 using namespace Core;
 
-Q_LOGGING_CATEGORY(perspectivesLog, "qtc.utils.perspectives", QtWarningMsg)
+static Q_LOGGING_CATEGORY(perspectivesLog, "qtc.utils.perspectives", QtWarningMsg)
 
 namespace Utils {
 

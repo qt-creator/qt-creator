@@ -64,7 +64,7 @@ using namespace Utils;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-Q_LOGGING_CATEGORY(statesLog, "qtc.projectmanager.states", QtWarningMsg)
+static Q_LOGGING_CATEGORY(statesLog, "qtc.projectmanager.states", QtWarningMsg)
 }
 
 namespace ProjectExplorer {

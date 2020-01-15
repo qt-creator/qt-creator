@@ -62,7 +62,7 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningMsg);
+static Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningMsg);
 
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 

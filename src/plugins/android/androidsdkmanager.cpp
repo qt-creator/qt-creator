@@ -41,7 +41,7 @@
 #include <QSettings>
 
 namespace {
-Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
+static Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 }
 
 namespace Android {

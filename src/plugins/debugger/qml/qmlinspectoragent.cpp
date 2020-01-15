@@ -57,7 +57,7 @@ using namespace QmlDebug::Constants;
 namespace Debugger {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector", QtWarningMsg)
+static Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector", QtWarningMsg)
 
 
 /*!

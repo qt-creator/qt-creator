@@ -71,8 +71,8 @@ using namespace Utils;
 using namespace Debugger;
 
 namespace {
-Q_LOGGING_CATEGORY(kitSetupLog, "qtc.ios.kitSetup", QtWarningMsg)
-Q_LOGGING_CATEGORY(iosCommonLog, "qtc.ios.common", QtWarningMsg)
+static Q_LOGGING_CATEGORY(kitSetupLog, "qtc.ios.kitSetup", QtWarningMsg)
+static Q_LOGGING_CATEGORY(iosCommonLog, "qtc.ios.common", QtWarningMsg)
 }
 
 using ToolChainPair = std::pair<ClangToolChain *, ClangToolChain *>;

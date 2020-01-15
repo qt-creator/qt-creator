@@ -40,7 +40,7 @@
 #include <QSet>
 #include <QStringList>
 
-Q_LOGGING_CATEGORY(qrcParserLog, "qtc.qrcParser", QtWarningMsg)
+static Q_LOGGING_CATEGORY(qrcParserLog, "qtc.qrcParser", QtWarningMsg)
 
 namespace Utils {
 

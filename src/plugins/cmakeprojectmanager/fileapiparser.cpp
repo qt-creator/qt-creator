@@ -47,7 +47,7 @@ using namespace Utils;
 const char CMAKE_RELATIVE_REPLY_PATH[] = ".cmake/api/v1/reply";
 const char CMAKE_RELATIVE_QUERY_PATH[] = ".cmake/api/v1/query";
 
-Q_LOGGING_CATEGORY(cmakeFileApi, "qtc.cmake.fileApi", QtWarningMsg);
+static Q_LOGGING_CATEGORY(cmakeFileApi, "qtc.cmake.fileApi", QtWarningMsg);
 
 // --------------------------------------------------------------------
 // Helper:

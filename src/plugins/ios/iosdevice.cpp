@@ -49,7 +49,7 @@
 using namespace ProjectExplorer;
 
 namespace {
-Q_LOGGING_CATEGORY(detectLog, "qtc.ios.deviceDetect", QtWarningMsg)
+static Q_LOGGING_CATEGORY(detectLog, "qtc.ios.deviceDetect", QtWarningMsg)
 }
 
 #ifdef Q_OS_MAC

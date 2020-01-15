@@ -43,7 +43,7 @@
 #include <QTextCodec>
 #include <QVBoxLayout>
 
-Q_LOGGING_CATEGORY(hoverLog, "qtc.clangcodemodel.hover", QtWarningMsg);
+static Q_LOGGING_CATEGORY(hoverLog, "qtc.clangcodemodel.hover", QtWarningMsg);
 
 using namespace TextEditor;
 

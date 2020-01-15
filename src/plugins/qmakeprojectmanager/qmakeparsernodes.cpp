@@ -100,7 +100,7 @@ private:
 
 namespace QmakeProjectManager {
 
-Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);
+static Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);
 
 uint qHash(Variable key, uint seed) { return ::qHash(static_cast<int>(key), seed); }
 uint qHash(FileOrigin fo) { return ::qHash(int(fo)); }
