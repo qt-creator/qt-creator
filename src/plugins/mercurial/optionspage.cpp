@@ -87,6 +87,7 @@ OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(OptionsPageWidget::tr("Mercurial"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setWidgetFactory([] { return new OptionsPageWidget; });
 }
 

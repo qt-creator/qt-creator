@@ -118,10 +118,11 @@ void SettingsPageWidget::setStatusError(const QString &t)
 }
 
 SettingsPage::SettingsPage(QObject *parent)
-    : VcsBaseOptionsPage(parent)
+    : Core::IOptionsPage(parent)
 {
     setId(VcsBase::Constants::VCS_ID_PERFORCE);
     setDisplayName(tr("Perforce"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
 SettingsPage::~SettingsPage()

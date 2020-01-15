@@ -32,6 +32,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <vcsbase/vcsbaseconstants.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -119,10 +121,11 @@ void SettingsPageWidget::apply()
 }
 
 ClearCaseSettingsPage::ClearCaseSettingsPage(QObject *parent)
-    : VcsBaseOptionsPage(parent)
+    : Core::IOptionsPage(parent)
 {
     setId(ClearCase::Constants::VCS_ID_CLEARCASE);
     setDisplayName(tr("ClearCase"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new SettingsPageWidget; });
 }
 

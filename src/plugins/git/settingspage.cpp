@@ -128,6 +128,7 @@ SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(SettingsPageWidget::tr("Git"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setWidgetFactory([] { return new SettingsPageWidget; });
 }
 

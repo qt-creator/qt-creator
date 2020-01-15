@@ -44,20 +44,11 @@
 
 namespace VcsBase {
 
-VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) : Core::IOptionsPage(parent)
-{
-    setCategory(Constants::VCS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("VcsBase", "Version Control"));
-    setCategoryIconPath(":/vcsbase/images/settingscategory_vcs.png");
-}
-
-VcsBaseOptionsPage::~VcsBaseOptionsPage() = default;
-
 VcsClientOptionsPageWidget::VcsClientOptionsPageWidget() = default;
 
 VcsClientOptionsPage::VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client,
                                            QObject *parent) :
-    VcsBaseOptionsPage(parent),
+    Core::IOptionsPage(parent),
     m_client(client)
 {
     QTC_CHECK(m_client);

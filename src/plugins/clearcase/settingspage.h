@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace ClearCase {
 namespace Internal {
 
-class ClearCaseSettingsPage : public VcsBase::VcsBaseOptionsPage
+class ClearCaseSettingsPage final : public Core::IOptionsPage
 {
 public:
     explicit ClearCaseSettingsPage(QObject *parent);

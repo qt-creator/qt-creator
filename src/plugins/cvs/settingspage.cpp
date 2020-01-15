@@ -92,6 +92,7 @@ SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(SettingsPageWidget::tr("CVS"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setWidgetFactory([] { return new SettingsPageWidget; });
 }
 

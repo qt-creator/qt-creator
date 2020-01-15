@@ -30,6 +30,8 @@
 #include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
 
+#include <vcsbase/vcsbaseconstants.h>
+
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QCheckBox>
@@ -40,11 +42,12 @@ namespace Internal {
 
 GerritOptionsPage::GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
                                      QObject *parent)
-    : VcsBase::VcsBaseOptionsPage(parent)
+    : Core::IOptionsPage(parent)
     , m_parameters(p)
 {
     setId("Gerrit");
     setDisplayName(tr("Gerrit"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
 GerritOptionsPage::~GerritOptionsPage()

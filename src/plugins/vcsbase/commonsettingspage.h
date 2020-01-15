@@ -27,10 +27,9 @@
 
 #include "commonvcssettings.h"
 
-#include "vcsbaseoptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
-#include <QWidget>
 
 namespace VcsBase {
 namespace Internal {
@@ -54,7 +53,7 @@ private:
     Ui::CommonSettingsPage *m_ui;
 };
 
-class CommonOptionsPage : public VcsBaseOptionsPage
+class CommonOptionsPage final : public Core::IOptionsPage
 {
     Q_OBJECT
 

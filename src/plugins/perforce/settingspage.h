@@ -25,9 +25,7 @@
 
 #pragma once
 
-#include <QWidget>
-
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include "ui_settingspage.h"
 
@@ -59,7 +57,7 @@ private:
     PerforceChecker *m_checker = nullptr;
 };
 
-class SettingsPage : public VcsBase::VcsBaseOptionsPage
+class SettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 

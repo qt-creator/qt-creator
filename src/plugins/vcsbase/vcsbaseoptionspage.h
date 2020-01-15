@@ -39,13 +39,6 @@ namespace Core { class IVersionControl; }
 
 namespace VcsBase {
 
-class VCSBASE_EXPORT VcsBaseOptionsPage : public Core::IOptionsPage
-{
-public:
-    explicit VcsBaseOptionsPage(QObject *parent = nullptr);
-    ~VcsBaseOptionsPage() override;
-};
-
 class VcsBaseClientImpl;
 
 class VCSBASE_EXPORT VcsClientOptionsPageWidget : public Core::IOptionsPageWidget
@@ -61,7 +54,7 @@ public:
     virtual VcsBaseClientSettings settings() const = 0;
 };
 
-class VCSBASE_EXPORT VcsClientOptionsPage : public VcsBaseOptionsPage
+class VCSBASE_EXPORT VcsClientOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
