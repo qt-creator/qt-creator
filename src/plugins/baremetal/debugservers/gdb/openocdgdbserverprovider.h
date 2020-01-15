@@ -72,10 +72,8 @@ private:
 class OpenOcdGdbServerProviderFactory final
         : public IDebugServerProviderFactory
 {
-    Q_OBJECT
-
 public:
-    explicit OpenOcdGdbServerProviderFactory();
+    OpenOcdGdbServerProviderFactory();
 };
 
 // OpenOcdGdbServerProviderConfigWidget

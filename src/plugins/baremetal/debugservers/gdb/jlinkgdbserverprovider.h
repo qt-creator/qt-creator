@@ -75,10 +75,8 @@ private:
 class JLinkGdbServerProviderFactory final
         : public IDebugServerProviderFactory
 {
-    Q_OBJECT
-
 public:
-    explicit JLinkGdbServerProviderFactory();
+    JLinkGdbServerProviderFactory();
 };
 
 // JLinkGdbServerProviderConfigWidget

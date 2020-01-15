@@ -86,8 +86,6 @@ private:
 class EBlinkGdbServerProviderFactory final
         : public IDebugServerProviderFactory
 {
-    Q_OBJECT
-
 public:
     explicit EBlinkGdbServerProviderFactory();
 };

@@ -42,6 +42,8 @@ namespace Internal {
 
 class GdbServerProvider : public IDebugServerProvider
 {
+    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::GdbServerProvider)
+
 public:
     enum StartupMode {
         StartupOnNetwork,

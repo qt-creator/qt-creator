@@ -64,7 +64,7 @@ JLinkGdbServerProvider::JLinkGdbServerProvider()
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 2331);
     setSettingsKeyBase("BareMetal.JLinkGdbServerProvider");
-    setTypeDisplayName(JLinkGdbServerProviderFactory::tr("JLink"));
+    setTypeDisplayName(tr("JLink"));
     setConfigurationWidgetCreator([this] { return new JLinkGdbServerProviderConfigWidget(this); });
 }
 
@@ -185,7 +185,7 @@ bool JLinkGdbServerProvider::operator==(const IDebugServerProvider &other) const
 JLinkGdbServerProviderFactory::JLinkGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_JLINK_PROVIDER_ID);
-    setDisplayName(tr("JLink"));
+    setDisplayName(GdbServerProvider::tr("JLink"));
     setCreator([] { return new JLinkGdbServerProvider; });
 }
 

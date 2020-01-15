@@ -76,10 +76,8 @@ private:
 class StLinkUtilGdbServerProviderFactory final
         : public IDebugServerProviderFactory
 {
-    Q_OBJECT
-
 public:
-    explicit StLinkUtilGdbServerProviderFactory();
+    StLinkUtilGdbServerProviderFactory();
 };
 
 // StLinkUtilGdbServerProviderConfigWidget

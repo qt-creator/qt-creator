@@ -125,10 +125,8 @@ protected:
 
 // IDebugServerProviderFactory
 
-class IDebugServerProviderFactory : public QObject
+class IDebugServerProviderFactory
 {
-    Q_OBJECT
-
 public:
     QString id() const;
     QString displayName() const;
@@ -142,11 +140,15 @@ public:
     static void idToMap(QVariantMap &data, const QString &id);
 
 protected:
+    IDebugServerProviderFactory();
     void setId(const QString &id);
     void setDisplayName(const QString &name);
     void setCreator(const std::function<IDebugServerProvider *()> &creator);
 
 private:
+    IDebugServerProviderFactory(const IDebugServerProviderFactory &) = delete;
+    IDebugServerProviderFactory &operator=(const IDebugServerProviderFactory &) = delete;
+
     QString m_displayName;
     QString m_id;
     std::function<IDebugServerProvider *()> m_creator;

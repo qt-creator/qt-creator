@@ -210,6 +210,8 @@ void IDebugServerProvider::setConfigurationWidgetCreator(const std::function<IDe
 
 // IDebugServerProviderFactory
 
+IDebugServerProviderFactory::IDebugServerProviderFactory() = default;
+
 QString IDebugServerProviderFactory::id() const
 {
     return m_id;
