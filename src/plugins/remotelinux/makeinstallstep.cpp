@@ -131,28 +131,27 @@ bool MakeInstallStep::init()
         return false;
     const QString rootDirPath = installRoot().toString();
     if (rootDirPath.isEmpty()) {
-        emit addTask(Task(Task::Error, tr("You must provide an install root."), FilePath(), -1,
-                     Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(BuildSystemTask(Task::Error, tr("You must provide an install root.")));
         return false;
     }
     QDir rootDir(rootDirPath);
     if (cleanInstallRoot() && !rootDir.removeRecursively()) {
-        emit addTask(Task(Task::Error, tr("The install root \"%1\" could not be cleaned.")
-                          .arg(installRoot().toUserOutput()),
-                          FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(BuildSystemTask(Task::Error,
+                                        tr("The install root \"%1\" could not be cleaned.")
+                                            .arg(installRoot().toUserOutput())));
         return false;
     }
     if (!rootDir.exists() && !QDir::root().mkpath(rootDirPath)) {
-        emit addTask(Task(Task::Error, tr("The install root \"%1\" could not be created.")
-                          .arg(installRoot().toUserOutput()),
-                          FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(BuildSystemTask(Task::Error,
+                                        tr("The install root \"%1\" could not be created.")
+                                            .arg(installRoot().toUserOutput())));
         return false;
     }
     if (this == deployConfiguration()->stepList()->steps().last()) {
-        emit addTask(Task(Task::Warning, tr("The \"make install\" step should probably not be "
+        emit addTask(BuildSystemTask(Task::Warning,
+                                        tr("The \"make install\" step should probably not be "
                                             "last in the list of deploy steps. "
-                                            "Consider moving it up."), FilePath(), -1,
-                          Constants::TASK_CATEGORY_BUILDSYSTEM));
+                                            "Consider moving it up.")));
     }
     const MakeInstallCommand cmd = target()->makeInstallCommand(installRoot().toString());
     if (cmd.environment.size() > 0) {
@@ -189,9 +188,8 @@ void MakeInstallStep::finish(bool success)
         }
         buildSystem()->setDeploymentData(m_deploymentData);
     } else if (m_noInstallTarget && m_isCmakeProject) {
-        emit addTask(Task(Task::Warning, tr("You need to add an install statement to your "
-                                            "CMakeLists.txt file for deployment to work."),
-                          FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
+        emit addTask(DeploymentTask(Task::Warning, tr("You need to add an install statement "
+                   "to your CMakeLists.txt file for deployment to work.")));
     }
     MakeStep::finish(success);
 }

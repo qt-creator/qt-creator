@@ -144,9 +144,9 @@ TaskHub *TaskHub::instance()
     return m_instance;
 }
 
-void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id category, const Utils::FilePath &file, int line)
+void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id category)
 {
-    addTask(Task(type, description, file, line, category));
+    addTask(Task(type, description, {}, -1, category));
 }
 
 void TaskHub::addTask(Task task)

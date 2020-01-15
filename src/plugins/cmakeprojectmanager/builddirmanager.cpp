@@ -281,9 +281,8 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
 {
     qCDebug(cmakeBuildDirManagerLog) << "setting parameters and requesting reparse";
     if (!parameters.cmakeTool()) {
-        TaskHub::addTask(Task::Error,
-                         tr("The kit needs to define a CMake tool to parse this project."),
-                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        TaskHub::addTask(BuildSystemTask(Task::Error, tr(
+            "The kit needs to define a CMake tool to parse this project.")));
         return;
     }
     QTC_ASSERT(parameters.isValid(), return );

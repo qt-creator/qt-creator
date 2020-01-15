@@ -225,7 +225,7 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
 
     if (!msg.isEmpty()) {
         Core::MessageManager::write(msg);
-        TaskHub::addTask(Task::Error, msg, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        TaskHub::addTask(BuildSystemTask(Task::Error, msg));
         m_future->reportCanceled();
     } else {
         m_future->setProgressValue(1);

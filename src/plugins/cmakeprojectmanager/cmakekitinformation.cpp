@@ -252,9 +252,8 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
     if (tool) {
         CMakeTool::Version version = tool->version();
         if (version.major < 3) {
-            result << Task(Task::Warning, tr("CMake version %1 is unsupported. Please update to "
-                                             "version 3.0 or later.").arg(QString::fromUtf8(version.fullVersion)),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            result << BuildSystemTask(Task::Warning, tr("CMake version %1 is unsupported. Please update to "
+                                         "version 3.0 or later.").arg(QString::fromUtf8(version.fullVersion)));
         }
     }
     return result;
@@ -653,41 +652,38 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
 Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
 {
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
-    GeneratorInfo info = generatorInfo(k);
+    if (!tool)
+        return {};
 
     Tasks result;
-    if (tool) {
-        if (!tool->isValid()) {
-            result << Task(Task::Warning, tr("CMake Tool is unconfigured, CMake generator will be ignored."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    const auto addWarning = [&result](const QString &desc) {
+        result << BuildSystemTask(Task::Warning, desc);
+    };
+
+    if (!tool->isValid()) {
+        addWarning(tr("CMake Tool is unconfigured, CMake generator will be ignored."));
+    } else {
+        const GeneratorInfo info = generatorInfo(k);
+        QList<CMakeTool::Generator> known = tool->supportedGenerators();
+        auto it = std::find_if(known.constBegin(), known.constEnd(), [info](const CMakeTool::Generator &g) {
+            return g.matches(info.generator, info.extraGenerator);
+        });
+        if (it == known.constEnd()) {
+            addWarning(tr("CMake Tool does not support the configured generator."));
         } else {
-            QList<CMakeTool::Generator> known = tool->supportedGenerators();
-            auto it = std::find_if(known.constBegin(), known.constEnd(), [info](const CMakeTool::Generator &g) {
-                return g.matches(info.generator, info.extraGenerator);
-            });
-            if (it == known.constEnd()) {
-                result << Task(Task::Warning, tr("CMake Tool does not support the configured generator."),
-                               Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-            } else {
-                if (!it->supportsPlatform && !info.platform.isEmpty()) {
-                    result << Task(Task::Warning, tr("Platform is not supported by the selected CMake generator."),
-                                   Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-                }
-                if (!it->supportsToolset && !info.toolset.isEmpty()) {
-                    result << Task(Task::Warning, tr("Toolset is not supported by the selected CMake generator."),
-                                   Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-                }
-            }
-            if ((!tool->hasServerMode() && !tool->hasFileApi())
-                && info.extraGenerator != "CodeBlocks") {
-                result << Task(Task::Warning, tr("The selected CMake binary has no server-mode and the CMake "
-                                                 "generator does not generate a CodeBlocks file. "
-                                                 "%1 will not be able to parse CMake projects.")
-                               .arg(Core::Constants::IDE_DISPLAY_NAME),
-                               Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-            }
+            if (!it->supportsPlatform && !info.platform.isEmpty())
+                addWarning(tr("Platform is not supported by the selected CMake generator."));
+            if (!it->supportsToolset && !info.toolset.isEmpty())
+                addWarning(tr("Toolset is not supported by the selected CMake generator."));
+        }
+        if (!tool->hasServerMode() && !tool->hasFileApi() && info.extraGenerator != "CodeBlocks") {
+            addWarning(tr("The selected CMake binary has no server-mode and the CMake "
+                          "generator does not generate a CodeBlocks file. "
+                          "%1 will not be able to parse CMake projects.")
+                       .arg(Core::Constants::IDE_DISPLAY_NAME));
         }
     }
+
     return result;
 }
 
@@ -982,69 +978,63 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
     }
 
     Tasks result;
+    const auto addWarning = [&result](const QString &desc) {
+        result << BuildSystemTask(Task::Warning, desc);
+    };
+
     // Validate Qt:
     if (qmakePath.isEmpty()) {
         if (version && version->isValid() && isQt4) {
-            result << Task(Task::Warning, tr("CMake configuration has no path to qmake binary set, "
-                                             "even though the kit has a valid Qt version."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has no path to qmake binary set, "
+                          "even though the kit has a valid Qt version."));
         }
     } else {
         if (!version || !version->isValid()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set, "
-                                             "even though the kit has no valid Qt version."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has a path to a qmake binary set, "
+                          "even though the kit has no valid Qt version."));
         } else if (qmakePath != version->qmakeCommand() && isQt4) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set "
-                                             "that does not match the qmake binary path "
-                                             "configured in the Qt version."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has a path to a qmake binary set "
+                          "that does not match the qmake binary path "
+                          "configured in the Qt version."));
         }
     }
     if (version && !qtInstallDirs.contains(version->prefix().toString()) && !isQt4) {
         if (version->isValid()) {
-            result << Task(Task::Warning, tr("CMake configuration has no CMAKE_PREFIX_PATH set "
-                                             "that points to the kit Qt version."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has no CMAKE_PREFIX_PATH set "
+                          "that points to the kit Qt version."));
         }
     }
 
     // Validate Toolchains:
     if (tcCPath.isEmpty()) {
         if (tcC && tcC->isValid()) {
-            result << Task(Task::Warning, tr("CMake configuration has no path to a C compiler set, "
-                                             "even though the kit has a valid tool chain."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has no path to a C compiler set, "
+                           "even though the kit has a valid tool chain."));
         }
     } else {
         if (!tcC || !tcC->isValid()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a C compiler set, "
-                                             "even though the kit has no valid tool chain."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has a path to a C compiler set, "
+                          "even though the kit has no valid tool chain."));
         } else if (tcCPath != tcC->compilerCommand()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a C compiler set "
-                                             "that does not match the compiler path "
-                                             "configured in the tool chain of the kit."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has a path to a C compiler set "
+                          "that does not match the compiler path "
+                          "configured in the tool chain of the kit."));
         }
     }
 
     if (tcCxxPath.isEmpty()) {
         if (tcCxx && tcCxx->isValid()) {
-            result << Task(Task::Warning, tr("CMake configuration has no path to a C++ compiler set, "
-                                             "even though the kit has a valid tool chain."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has no path to a C++ compiler set, "
+                          "even though the kit has a valid tool chain."));
         }
     } else {
         if (!tcCxx || !tcCxx->isValid()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set, "
-                                             "even though the kit has no valid tool chain."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has a path to a C++ compiler set, "
+                          "even though the kit has no valid tool chain."));
         } else if (tcCxxPath != tcCxx->compilerCommand()) {
-            result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set "
-                                             "that does not match the compiler path "
-                                             "configured in the tool chain of the kit."),
-                           Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            addWarning(tr("CMake configuration has a path to a C++ compiler set "
+                          "that does not match the compiler path "
+                          "configured in the tool chain of the kit."));
         }
     }
 

@@ -87,6 +87,8 @@ class BaseQtVersionPrivate;
 
 class QTSUPPORT_EXPORT BaseQtVersion
 {
+    Q_DECLARE_TR_FUNCTIONS(QtSupport::BaseQtVersion)
+
 public:
     using Predicate = std::function<bool(const BaseQtVersion *)>;
 

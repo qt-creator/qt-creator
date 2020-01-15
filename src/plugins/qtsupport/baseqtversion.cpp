@@ -501,12 +501,8 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
 
     const Id dt = DeviceTypeKitAspect::deviceTypeId(k);
     const QSet<Id> tdt = targetDeviceTypes();
-    if (!tdt.isEmpty() && !tdt.contains(dt)) {
-        result << Task(Task::Warning,
-                       QCoreApplication::translate("BaseQtVersion",
-                                                   "Device type is not supported by Qt version."),
-                       FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    }
+    if (!tdt.isEmpty() && !tdt.contains(dt))
+        result << BuildSystemTask(Task::Warning, tr("Device type is not supported by Qt version."));
 
     ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (tc) {
@@ -529,21 +525,16 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
         QString message;
         if (!fullMatch) {
             if (!fuzzyMatch)
-                message = QCoreApplication::translate("BaseQtVersion",
-                                                      "The compiler \"%1\" (%2) cannot produce code for the Qt version \"%3\" (%4).");
+                message = tr("The compiler \"%1\" (%2) cannot produce code for the Qt version \"%3\" (%4).");
             else
-                message = QCoreApplication::translate("BaseQtVersion",
-                                                      "The compiler \"%1\" (%2) may not produce code compatible with the Qt version \"%3\" (%4).");
+                message = tr("The compiler \"%1\" (%2) may not produce code compatible with the Qt version \"%3\" (%4).");
             message = message.arg(tc->displayName(), targetAbi.toString(),
                                   version->displayName(), qtAbiString);
-            result << Task(fuzzyMatch ? Task::Warning : Task::Error, message, FilePath(), -1,
-                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+            result << BuildSystemTask(fuzzyMatch ? Task::Warning : Task::Error, message);
         }
     } else if (ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID)) {
-        const QString message = QCoreApplication::translate("BaseQtVersion",
-            "The kit has a Qt version, but no C++ compiler.");
-        result << Task(Task::Warning, message, FilePath(), -1,
-                       ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        const QString message = tr("The kit has a Qt version, but no C++ compiler.");
+        result << BuildSystemTask(Task::Warning, message);
     }
     return result;
 }
@@ -1680,8 +1671,7 @@ Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &bui
     if (!isValid()) {
         //: %1: Reason for being invalid
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion", "The Qt version is invalid: %1").arg(invalidReason());
-        results.append(Task(Task::Error, msg, FilePath(), -1,
-                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        results.append(BuildSystemTask(Task::Error, msg));
     }
 
     QFileInfo qmakeInfo = qmakeCommand().toFileInfo();
@@ -1690,8 +1680,7 @@ Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &bui
         //: %1: Path to qmake executable
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
                                                         "The qmake command \"%1\" was not found or is not executable.").arg(qmakeCommand().toUserOutput());
-        results.append(Task(Task::Error, msg, FilePath(), -1,
-                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        results.append(BuildSystemTask(Task::Error, msg));
     }
 
     return results;

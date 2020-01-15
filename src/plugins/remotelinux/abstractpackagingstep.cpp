@@ -135,17 +135,13 @@ void AbstractPackagingStep::setDeploymentDataModified()
 
 void AbstractPackagingStep::raiseError(const QString &errorMessage)
 {
-    Task task = Task(Task::Error, errorMessage, Utils::FilePath(), -1,
-                     Constants::TASK_CATEGORY_DEPLOYMENT);
-    emit addTask(task);
+    emit addTask(DeploymentTask(Task::Error, errorMessage));
     emit addOutput(errorMessage, BuildStep::OutputFormat::Stderr);
 }
 
 void AbstractPackagingStep::raiseWarning(const QString &warningMessage)
 {
-    Task task = Task(Task::Warning, warningMessage, Utils::FilePath(), -1,
-                     Constants::TASK_CATEGORY_DEPLOYMENT);
-    emit addTask(task);
+    emit addTask(DeploymentTask(Task::Warning, warningMessage));
     emit addOutput(warningMessage, OutputFormat::ErrorMessage);
 }
 

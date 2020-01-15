@@ -175,8 +175,7 @@ bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomP
     const int lineNumber = match.captured(expression.lineNumberCap()).toInt();
     const QString message = match.captured(expression.messageCap());
 
-    const Task task = Task(taskType, message, fileName, lineNumber, Constants::TASK_CATEGORY_COMPILE);
-    emit addTask(task, 1);
+    emit addTask(CompileTask(taskType, message, fileName, lineNumber), 1);
     return true;
 }
 
@@ -218,7 +217,6 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
     QTest::addColumn<Tasks >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
     const QString simplePattern = "^([a-z]+\\.[a-z]+):(\\d+): error: ([^\\s].+)$";
     const FilePath fileName = FilePath::fromUserInput("main.c");
 
@@ -267,7 +265,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks{Task(Task::Error, message, fileName, 9, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, message, fileName, 9)})
             << QString();
 
     const QString pathPattern = "^([a-z\\./]+):(\\d+): error: ([^\\s].+)$";
@@ -282,7 +280,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << pathPattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks{Task(Task::Error, message, expandedFileName, 9, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)})
             << QString();
 
     expandedFileName = FilePath::fromString("/home/src/project/subdir/main.c");
@@ -294,7 +292,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << pathPattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks{Task(Task::Error, message, expandedFileName, 9, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)})
             << QString();
 
     workingDir = "/home/src/build-project";
@@ -306,7 +304,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << pathPattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks{Task(Task::Error, message, expandedFileName, 9, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)})
             << QString();
 
     QTest::newRow("simple error on wrong channel")
@@ -343,7 +341,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern2 << 2 << 1 << 3
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks{Task(Task::Error, message, fileName, lineNumber2, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, message, fileName, lineNumber2)})
             << QString();
 
     QTest::newRow("another simple error on stdout")
@@ -354,7 +352,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern2 << 2 << 1 << 3
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks{Task(Task::Error, message, fileName, lineNumber2, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, message, fileName, lineNumber2)})
             << QString();
 
     const QString simpleWarningPattern = "^([a-z]+\\.[a-z]+):(\\d+): warning: ([^\\s].+)$";
@@ -369,7 +367,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QString() << 1 << 2 << 3
             << simpleWarningPattern << 1 << 2 << 3
             << QString() << QString()
-            << Tasks{Task(Task::Warning, warningMessage, fileName, 1234, categoryCompile)}
+            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, 1234)})
             << QString();
 
     const QString simpleWarning2 = "Warning: `helloWorld' declared but not used (main.c:19)";
@@ -384,7 +382,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern2 << 1 << 2 << 3
             << simpleWarningPattern2 << 2 << 3 << 1
             << QString() << QString()
-            << Tasks{Task(Task::Warning, warningMessage, fileName, lineNumber2, categoryCompile)}
+            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, lineNumber2)})
             << QString();
 
     QTest::newRow("warning on wrong channel")
@@ -417,7 +415,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << simpleWarningPattern << 1 << 2 << 3
             << QString() << QString()
-            << Tasks{Task(Task::Warning, warningMessage, fileName, 1234, categoryCompile)}
+            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, 1234)})
             << QString();
 
     QTest::newRow("*error* when equal pattern")
@@ -428,7 +426,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << simplePattern << 1 << 2 << 3
             << QString() << QString()
-            << Tasks{Task(Task::Error, message, fileName, 9, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, message, fileName, 9)})
             << QString();
 
     const QString unitTestError = "../LedDriver/LedDriverTest.c:63: FAIL: Expected 0x0080 Was 0xffff";
@@ -445,7 +443,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << unitTestPattern << 1 << 2 << 3
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks{Task(Task::Error, unitTestMessage, unitTestFileName, unitTestLineNumber, categoryCompile)}
+            << Tasks({CompileTask(Task::Error, unitTestMessage, unitTestFileName, unitTestLineNumber)})
             << QString();
 }
 

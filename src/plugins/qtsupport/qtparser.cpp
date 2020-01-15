@@ -29,7 +29,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace QtSupport;
-using ProjectExplorer::Task;
+using namespace ProjectExplorer;
 
 // opt. drive letter + filename: (2 brackets)
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
@@ -57,10 +57,9 @@ void QtParser::stdError(const QString &line)
             type = Task::Warning;
         if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
             type = Task::Unknown;
-        Task task(type, m_mocRegExp.cap(5).trimmed() /* description */,
-                  Utils::FilePath::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
-                  lineno,
-                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+        CompileTask task(type, m_mocRegExp.cap(5).trimmed() /* description */,
+                         Utils::FilePath::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
+                         lineno);
         emit addTask(task, 1);
         return;
     }
@@ -68,10 +67,8 @@ void QtParser::stdError(const QString &line)
         Task::TaskType type = Task::Warning;
         if (m_translationRegExp.cap(1) == QLatin1String("Error"))
             type = Task::Error;
-        Task task(type, m_translationRegExp.cap(2),
-                  Utils::FilePath::fromUserInput(m_translationRegExp.cap(3)) /* filename */,
-                  -1,
-                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+        CompileTask task(type, m_translationRegExp.cap(2),
+                         Utils::FilePath::fromUserInput(m_translationRegExp.cap(3)));
         emit addTask(task, 1);
         return;
     }
@@ -129,55 +126,49 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString::fromLatin1("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp:295: warning: Can't create link to 'Object Trees & Ownership'")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (Tasks() << Task(Task::Warning,
+            << (Tasks() << CompileTask(Task::Warning,
                                                        QLatin1String("Can't create link to 'Object Trees & Ownership'"),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp")), 295,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp")), 295))
             << QString();
     QTest::newRow("moc warning")
             << QString::fromLatin1("..\\untitled\\errorfile.h:0: Warning: No relevant classes found. No output generated.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (Tasks() << Task(Task::Warning,
+            << (Tasks() << CompileTask(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), 0,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), 0))
             << QString();
     QTest::newRow("moc warning 2")
             << QString::fromLatin1("c:\\code\\test.h(96): Warning: Property declaration ) has no READ accessor function. The property will be invalid.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (Tasks() << Task(Task::Warning,
+            << (Tasks() << CompileTask(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("c:\\code\\test.h")), 96))
             << QString();
     QTest::newRow("moc note")
             << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (Tasks() << Task(Task::Unknown,
+            << (Tasks() << CompileTask(Task::Unknown,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0))
             << QString();
     QTest::newRow("ninja with moc")
             << QString::fromLatin1("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h(54): Error: Undefined interface")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (Tasks() << Task(Task::Error,
+            << (Tasks() << CompileTask(Task::Error,
                                                        QLatin1String("Undefined interface"),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54))
             << QString();
     QTest::newRow("translation")
             << QString::fromLatin1("Warning: dropping duplicate messages in '/some/place/qtcreator_fr.qm'")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (Tasks() << Task(Task::Warning,
+            << (Tasks() << CompileTask(Task::Warning,
                                                        QLatin1String("dropping duplicate messages"),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("/some/place/qtcreator_fr.qm")), -1,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("/some/place/qtcreator_fr.qm")), -1))
             << QString();
 }
 

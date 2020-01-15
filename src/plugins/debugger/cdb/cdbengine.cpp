@@ -2147,9 +2147,9 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
             const FilePath fileName = FilePath::fromUserInput(exception.file);
             const QString taskEntry = tr("Debugger encountered an exception: %1").arg(
                         exception.toString(false).trimmed());
-            TaskHub::addTask(type, taskEntry,
-                             Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
-                             fileName, exception.lineNumber);
+            TaskHub::addTask(Task(type, taskEntry,
+                                  fileName, exception.lineNumber,
+                                  Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
         }
         return;
     }

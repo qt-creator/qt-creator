@@ -756,7 +756,7 @@ void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
         if (result.error) {
             const QString &errorMessage = *result.error;
             if (!errorMessage.isEmpty())
-                TaskHub::addTask(Task::Error, errorMessage, Constants::TASK_CATEGORY_COMPILE);
+                TaskHub::addTask(CompileTask(Task::Error, errorMessage));
         } else {
             updateEnvironmentModifications(result.environmentItems);
         }
@@ -833,7 +833,7 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environmen
             if (result.error) {
                 const QString &errorMessage = *result.error;
                 if (!errorMessage.isEmpty())
-                    TaskHub::addTask(Task::Error, errorMessage, Constants::TASK_CATEGORY_COMPILE);
+                    TaskHub::addTask(CompileTask(Task::Error, errorMessage));
             } else {
                 resultEnv.modify(result.environmentItems);
             }

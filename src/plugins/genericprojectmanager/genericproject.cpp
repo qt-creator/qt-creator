@@ -602,9 +602,8 @@ void GenericBuildSystem::updateDeploymentData()
 void GenericBuildSystem::removeFiles(const QStringList &filesToRemove)
 {
     if (removeFiles(nullptr, filesToRemove, nullptr) == RemovedFilesFromProject::Error) {
-        TaskHub::addTask(Task::Error, tr("Project files list update failed."),
-                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
-                         filesFilePath());
+        TaskHub::addTask(BuildSystemTask(Task::Error, tr("Project files list update failed."),
+                                         filesFilePath()));
     }
 }
 

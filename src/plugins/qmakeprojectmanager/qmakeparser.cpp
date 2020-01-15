@@ -29,8 +29,10 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildmanager.h>
 
-using namespace QmakeProjectManager;
-using ProjectExplorer::Task;
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace QmakeProjectManager {
 
 QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
 {
@@ -57,39 +59,29 @@ void QMakeParser::stdError(const QString &line)
             type = Task::Warning;
         else if (description.startsWith(QLatin1String("error:"), Qt::CaseInsensitive))
             type = Task::Error;
-        Task task = Task(type,
-                         description,
-                         Utils::FilePath::fromUserInput(fileName),
-                         m_error.cap(2).toInt() /* line */,
-                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        emit addTask(task, 1);
+        emit addTask(BuildSystemTask(type,
+                                     description,
+                                     FilePath::fromUserInput(fileName),
+                                     m_error.cap(2).toInt() /* line */),
+                     1);
         return;
     }
     if (lne.startsWith(QLatin1String("Project ERROR: "))
             || lne.startsWith(QLatin1String("ERROR: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
-        Task task = Task(Task::Error,
-                         description,
-                         Utils::FilePath() /* filename */,
-                         -1 /* linenumber */,
-                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        emit addTask(task, 1);
+        emit addTask(BuildSystemTask(Task::Error, description), 1);
         return;
     }
     if (lne.startsWith(QLatin1String("Project WARNING: "))
             || lne.startsWith(QLatin1String("WARNING: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
-        Task task = Task(Task::Warning,
-                         description,
-                         Utils::FilePath() /* filename */,
-                         -1 /* linenumber */,
-                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        emit addTask(task, 1);
+        emit addTask(BuildSystemTask(Task::Warning, description), 1);
         return;
     }
     IOutputParser::stdError(line);
 }
 
+} // QmakeProjectManager
 
 // Unit tests:
 
@@ -101,11 +93,11 @@ void QMakeParser::stdError(const QString &line)
 #   include "projectexplorer/outputparser_test.h"
 
 using namespace QmakeProjectManager::Internal;
-using namespace ProjectExplorer;
+
+namespace QmakeProjectManager {
 
 void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
 {
-    const Core::Id categoryBuildSystem = Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
@@ -130,10 +122,8 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QLatin1String("undefined file"),
-                        Utils::FilePath(), -1,
-                        categoryBuildSystem))
+                << BuildSystemTask(Task::Error,
+                                   "undefined file"))
             << QString();
 
     QTest::newRow("qMake Parse Error")
@@ -141,11 +131,10 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QLatin1String("Parse Error ('sth odd')"),
-                        Utils::FilePath::fromUserInput(QLatin1String("e:\\project.pro")),
-                        14,
-                        categoryBuildSystem))
+                << BuildSystemTask(Task::Error,
+                                   "Parse Error ('sth odd')",
+                                   FilePath::fromUserInput("e:\\project.pro"),
+                                   14))
             << QString();
 
     QTest::newRow("qMake warning")
@@ -153,10 +142,8 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Warning,
-                        QLatin1String("bearer module might require ReadUserData capability"),
-                        Utils::FilePath(), -1,
-                        categoryBuildSystem))
+                << BuildSystemTask(Task::Warning,
+                                   "bearer module might require ReadUserData capability"))
             << QString();
 
     QTest::newRow("qMake warning 2")
@@ -164,10 +151,8 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Warning,
-                        QLatin1String("Failure to find: blackberrycreatepackagestepconfigwidget.cpp"),
-                        Utils::FilePath(), -1,
-                        categoryBuildSystem))
+                << BuildSystemTask(Task::Warning,
+                                   "Failure to find: blackberrycreatepackagestepconfigwidget.cpp"))
             << QString();
 
     QTest::newRow("qMake warning with location")
@@ -175,22 +160,21 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Warning,
-                        QLatin1String("Unescaped backslashes are deprecated."),
-                        Utils::FilePath::fromUserInput(QLatin1String("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
-                        categoryBuildSystem))
+                << BuildSystemTask(Task::Warning,
+                                   "Unescaped backslashes are deprecated.",
+                                   FilePath::fromUserInput("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl"), 1))
             << QString();
+
     QTest::newRow("moc note")
             << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Unknown,
-                        QLatin1String("Note: No relevant classes found. No output generated."),
-                        Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
-                        categoryBuildSystem)
-                )
-            << QString();}
+                << BuildSystemTask(Task::Unknown,
+                        "Note: No relevant classes found. No output generated.",
+                        FilePath::fromUserInput("/home/qtwebkithelpviewer.h"), 0))
+            << QString();
+}
 
 void QmakeProjectManagerPlugin::testQmakeOutputParsers()
 {
@@ -207,4 +191,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers()
                           tasks, childStdOutLines, childStdErrLines,
                           outputLines);
 }
+
+} // QmakeProjectManager
+
 #endif

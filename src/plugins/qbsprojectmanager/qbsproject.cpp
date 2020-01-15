@@ -197,8 +197,8 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
         m_sourcesForGeneratedFiles.clear();
     });
     connect(m_session, &QbsSession::errorOccurred, this, [](QbsSession::Error e) {
-        TaskHub::addTask(Task::Error, tr("Fatal qbs error: %1").arg(QbsSession::errorString(e)),
-                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        const QString msg = tr("Fatal qbs error: %1").arg(QbsSession::errorString(e));
+        TaskHub::addTask(BuildSystemTask(Task::Error, msg));
     });
     connect(m_session, &QbsSession::fileListUpdated, this, &QbsBuildSystem::delayParsing);
 
@@ -644,9 +644,8 @@ void QbsBuildSystem::updateAfterBuild()
 void QbsBuildSystem::generateErrors(const ErrorInfo &e)
 {
     for (const ErrorInfoItem &item : e.items) {
-        TaskHub::addTask(Task::Error, item.description,
-                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
-                         item.filePath, item.line);
+        TaskHub::addTask(BuildSystemTask(Task::Error, item.description,
+                                         item.filePath, item.line));
     }
 }
 

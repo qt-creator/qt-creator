@@ -139,18 +139,14 @@ void AbstractRemoteLinuxDeployStep::handleProgressMessage(const QString &message
 
 void AbstractRemoteLinuxDeployStep::handleErrorMessage(const QString &message)
 {
-    ProjectExplorer::Task task = Task(Task::Error, message, Utils::FilePath(), -1,
-                                      Constants::TASK_CATEGORY_DEPLOYMENT);
-    emit addTask(task, 1); // TODO correct?
+    emit addTask(DeploymentTask(Task::Error, message), 1); // TODO correct?
     emit addOutput(message, OutputFormat::ErrorMessage);
     d->hasError = true;
 }
 
 void AbstractRemoteLinuxDeployStep::handleWarningMessage(const QString &message)
 {
-    ProjectExplorer::Task task = Task(Task::Warning, message, Utils::FilePath(), -1,
-                                      Constants::TASK_CATEGORY_DEPLOYMENT);
-    emit addTask(task, 1); // TODO correct?
+    emit addTask(DeploymentTask(Task::Warning, message), 1); // TODO correct?
     emit addOutput(message, OutputFormat::ErrorMessage);
 }
 

@@ -275,7 +275,7 @@ void RunConfiguration::setUpdater(const Updater &updater)
 
 Task RunConfiguration::createConfigurationIssue(const QString &description) const
 {
-    return {Task::Error, description, FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM};
+    return BuildSystemTask(Task::Error, description);
 }
 
 QVariantMap RunConfiguration::toMap() const

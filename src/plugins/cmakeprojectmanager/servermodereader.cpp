@@ -439,8 +439,8 @@ void ServerModeReader::handleReply(const QVariantMap &data, const QString &inRep
 
 void ServerModeReader::handleError(const QString &message)
 {
-    TaskHub::addTask(Task::Error, message, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
-                     Utils::FilePath(), -1);
+    TaskHub::addTask(BuildSystemTask(Task::Error, message));
+
     if (!m_delayedErrorMessage.isEmpty()) {
         reportError();
         return;

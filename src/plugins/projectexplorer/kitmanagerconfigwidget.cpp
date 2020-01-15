@@ -214,10 +214,9 @@ bool KitManagerConfigWidget::isDirty() const
 QString KitManagerConfigWidget::validityMessage() const
 {
     Tasks tmp;
-    if (!m_hasUniqueName) {
-        tmp.append(Task(Task::Warning, tr("Display name is not unique."), Utils::FilePath(), -1,
-                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
-    }
+    if (!m_hasUniqueName)
+        tmp.append(CompileTask(Task::Warning, tr("Display name is not unique.")));
+
     return m_modifiedKit->toHtml(tmp);
 }
 

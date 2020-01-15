@@ -355,27 +355,26 @@ Tasks DebuggerKitAspect::validateDebugger(const Kit *k)
     if (const DebuggerItem *item = debugger(k))
         path = item->command().toUserOutput();
 
-    const Core::Id id = ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM;
     if (errors & NoDebugger)
-        result << Task(Task::Warning, tr("No debugger set up."), FilePath(), -1, id);
+        result << BuildSystemTask(Task::Warning, tr("No debugger set up."));
 
     if (errors & DebuggerNotFound)
-        result << Task(Task::Error, tr("Debugger \"%1\" not found.").arg(path),
-                       FilePath(), -1, id);
+        result << BuildSystemTask(Task::Error, tr("Debugger \"%1\" not found.").arg(path));
+
     if (errors & DebuggerNotExecutable)
-        result << Task(Task::Error, tr("Debugger \"%1\" not executable.").arg(path), FilePath(), -1, id);
+        result << BuildSystemTask(Task::Error, tr("Debugger \"%1\" not executable.").arg(path));
 
     if (errors & DebuggerNeedsAbsolutePath) {
         const QString message =
                 tr("The debugger location must be given as an "
                    "absolute path (%1).").arg(path);
-        result << Task(Task::Error, message, FilePath(), -1, id);
+        result << BuildSystemTask(Task::Error, message);
     }
 
     if (errors & DebuggerDoesNotMatch) {
         const QString message = tr("The ABI of the selected debugger does not "
                                    "match the toolchain ABI.");
-        result << Task(Task::Warning, message, FilePath(), -1, id);
+        result << BuildSystemTask(Task::Warning, message);
     }
     return result;
 }

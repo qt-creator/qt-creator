@@ -87,12 +87,7 @@ private:
         else
             return;
 
-        Task task(type,
-                  message,
-                  Utils::FilePath::fromUserInput(filename),
-                  lineNumber,
-                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(CompileTask(type, message, FilePath::fromUserInput(filename), lineNumber));
     }
 };
 

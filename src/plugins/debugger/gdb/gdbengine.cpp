@@ -329,7 +329,8 @@ void GdbEngine::handleResponse(const QString &buff)
                 m_lastWinException = msgWinException(data, &exCode);
                 showMessage(m_lastWinException, LogMisc);
                 const Task::TaskType type = isFatalWinException(exCode) ? Task::Error : Task::Warning;
-                TaskHub::addTask(type, m_lastWinException, Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
+                TaskHub::addTask(Task(type, m_lastWinException, {}, -1,
+                                      Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
             }
             break;
         }

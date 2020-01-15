@@ -218,8 +218,7 @@ void QmakeMakeStep::finish(bool success)
             && QmakeSettings::warnAgainstUnalignedBuildDir()) {
         const QString msg = tr("The build directory is not at the same level as the source "
                                "directory, which could be the reason for the build failure.");
-        emit addTask(Task(Task::Warning, msg, Utils::FilePath(), -1,
-                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(BuildSystemTask(Task::Warning, msg));
     }
     MakeStep::finish(success);
 }

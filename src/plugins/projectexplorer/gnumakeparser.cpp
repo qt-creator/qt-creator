@@ -34,7 +34,9 @@
 #include <QDir>
 #include <QFile>
 
-using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace ProjectExplorer {
 
 namespace {
     // optional full path, make executable name, optional exe extension, optional number in square brackets, colon space
@@ -132,10 +134,10 @@ void GnuMakeParser::stdError(const QString &line)
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues) {
-            taskAdded(Task(res.type, res.description,
-                           Utils::FilePath::fromUserInput(match.captured(1)) /* filename */,
-                           match.captured(4).toInt(), /* line */
-                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)), 1, 0);
+            taskAdded(BuildSystemTask(res.type, res.description,
+                                      FilePath::fromUserInput(match.captured(1)) /* filename */,
+                                      match.captured(4).toInt() /* line */),
+                      1, 0);
         }
         return;
     }
@@ -145,12 +147,8 @@ void GnuMakeParser::stdError(const QString &line)
         Result res = parseDescription(match.captured(6));
         if (res.isFatal)
             ++m_fatalErrorCount;
-        if (!m_suppressIssues) {
-            Task task = Task(res.type, res.description,
-                             Utils::FilePath() /* filename */, -1, /* line */
-                             Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
-            taskAdded(task, 1, 0);
-        }
+        if (!m_suppressIssues)
+            taskAdded(BuildSystemTask(res.type, res.description), 1, 0);
         return;
     }
 
@@ -199,14 +197,7 @@ void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLine
     IOutputParser::taskAdded(editable, linkedLines, skippedLines);
 }
 
-#if defined WITH_TESTS
-QStringList GnuMakeParser::searchDirectories() const
-{
-    return m_directories;
-}
-#endif
-
-// Unit tests:
+} // ProjectExplorer
 
 #ifdef WITH_TESTS
 #   include <QTest>
@@ -216,6 +207,13 @@ QStringList GnuMakeParser::searchDirectories() const
 #   include "outputparser_test.h"
 #   include "projectexplorer.h"
 #   include "projectexplorerconstants.h"
+
+namespace ProjectExplorer {
+
+QStringList GnuMakeParser::searchDirectories() const
+{
+    return m_directories;
+}
 
 GnuMakeParserTester::GnuMakeParserTester(GnuMakeParser *p, QObject *parent) :
     QObject(parent),
@@ -289,18 +287,18 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << Tasks()
             << QString()
             << QStringList("/test/dir");
+
     QTest::newRow("make error")
             << QStringList()
             << QString::fromLatin1("make: *** No rule to make target `hello.c', needed by `hello.o'.  Stop.")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QString::fromLatin1("No rule to make target `hello.c', needed by `hello.o'.  Stop."),
-                        Utils::FilePath(), -1,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Error,
+                                   "No rule to make target `hello.c', needed by `hello.o'.  Stop."))
             << QString()
             << QStringList();
+
     QTest::newRow("multiple fatals")
             << QStringList()
             << QString::fromLatin1("make[3]: *** [.obj/debug-shared/gnumakeparser.o] Error 1\n"
@@ -309,24 +307,23 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QString::fromLatin1("[.obj/debug-shared/gnumakeparser.o] Error 1"),
-                        Utils::FilePath(), -1,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Error,
+                                   "[.obj/debug-shared/gnumakeparser.o] Error 1"))
             << QString()
             << QStringList();
+
     QTest::newRow("Makefile error")
             << QStringList()
             << QString::fromLatin1("Makefile:360: *** missing separator (did you mean TAB instead of 8 spaces?). Stop.")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QString::fromLatin1("missing separator (did you mean TAB instead of 8 spaces?). Stop."),
-                        Utils::FilePath::fromUserInput(QLatin1String("Makefile")), 360,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Error,
+                                   "missing separator (did you mean TAB instead of 8 spaces?). Stop.",
+                                   Utils::FilePath::fromUserInput("Makefile"), 360))
             << QString()
             << QStringList();
+
     QTest::newRow("mingw32-make error")
             << QStringList()
             << QString::fromLatin1("mingw32-make[1]: *** [debug/qplotaxis.o] Error 1\n"
@@ -334,36 +331,33 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QString::fromLatin1("[debug/qplotaxis.o] Error 1"),
-                        Utils::FilePath(), -1,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Error,
+                                   "[debug/qplotaxis.o] Error 1"))
             << QString()
             << QStringList();
+
     QTest::newRow("mingw64-make error")
             << QStringList()
             << QString::fromLatin1("mingw64-make.exe[1]: *** [dynlib.inst] Error -1073741819")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QString::fromLatin1("[dynlib.inst] Error -1073741819"),
-                        Utils::FilePath(), -1,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Error,
+                                   "[dynlib.inst] Error -1073741819"))
             << QString()
             << QStringList();
+
     QTest::newRow("make warning")
             << QStringList()
             << QString::fromLatin1("make[2]: warning: jobserver unavailable: using -j1. Add `+' to parent make rule.")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Warning,
-                        QString::fromLatin1("jobserver unavailable: using -j1. Add `+' to parent make rule."),
-                        Utils::FilePath(), -1,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Warning,
+                                   "jobserver unavailable: using -j1. Add `+' to parent make rule."))
             << QString()
             << QStringList();
+
     QTest::newRow("pass-trough note")
             << QStringList()
             << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
@@ -372,40 +366,38 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << Tasks()
             << QString()
             << QStringList();
+
     QTest::newRow("Full path make exe")
             << QStringList()
             << QString::fromLatin1("C:\\Qt\\4.6.2-Symbian\\s60sdk\\epoc32\\tools\\make.exe: *** [sis] Error 2")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QString::fromLatin1("[sis] Error 2"),
-                        Utils::FilePath(), -1,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Error,
+                                   "[sis] Error 2"))
             << QString()
             << QStringList();
+
     QTest::newRow("missing g++")
             << QStringList()
             << QString::fromLatin1("make: g++: Command not found")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Error,
-                        QString::fromLatin1("g++: Command not found"),
-                        Utils::FilePath(), -1,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Error,
+                                   "g++: Command not found"))
             << QString()
             << QStringList();
+
     QTest::newRow("warning in Makefile")
             << QStringList()
             << QString::fromLatin1("Makefile:794: warning: overriding commands for target `xxxx.app/Contents/Info.plist'")
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << Task(Task::Warning,
-                        QString::fromLatin1("overriding commands for target `xxxx.app/Contents/Info.plist'"),
-                        Utils::FilePath::fromString(QLatin1String("Makefile")), 794,
-                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                << BuildSystemTask(Task::Warning,
+                                   "overriding commands for target `xxxx.app/Contents/Info.plist'",
+                                   FilePath::fromString("Makefile"), 794))
             << QString()
             << QStringList();
 }
@@ -465,42 +457,32 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
     QTest::newRow("no filename")
             << QStringList()
             << QStringList()
-            << Task(Task::Error,
-                    QLatin1String("no filename, no mangling"),
-                    Utils::FilePath(),
-                    -1,
-                    Constants::TASK_CATEGORY_COMPILE)
-            << Task(Task::Error,
-                    QLatin1String("no filename, no mangling"),
-                    Utils::FilePath(),
-                    -1,
-                    Constants::TASK_CATEGORY_COMPILE);
+            << Task(CompileTask(Task::Error,
+                                "no filename, no mangling"))
+            << Task(CompileTask(Task::Error,
+                                "no filename, no mangling"));
+
    QTest::newRow("no mangling")
             << QStringList()
             << QStringList()
-            << Task(Task::Error,
-                    QLatin1String("unknown filename, no mangling"),
-                    Utils::FilePath::fromUserInput(QLatin1String("some/path/unknown.cpp")),
-                    -1,
-                    Constants::TASK_CATEGORY_COMPILE)
-            << Task(Task::Error,
-                    QLatin1String("unknown filename, no mangling"),
-                    Utils::FilePath::fromUserInput(QLatin1String("some/path/unknown.cpp")),
-                    -1,
-                    Constants::TASK_CATEGORY_COMPILE);
+            << Task(CompileTask(Task::Error,
+                                "unknown filename, no mangling",
+                                FilePath::fromUserInput("some/path/unknown.cpp")))
+            << Task(CompileTask(Task::Error,
+                                 "unknown filename, no mangling",
+                                 FilePath::fromUserInput("some/path/unknown.cpp")));
+
     QTest::newRow("find file")
             << QStringList("test/file.cpp")
             << QStringList("test")
-            << Task(Task::Error,
-                    QLatin1String("mangling"),
-                    Utils::FilePath::fromUserInput(QLatin1String("file.cpp")),
-                    10,
-                    Constants::TASK_CATEGORY_COMPILE)
-            << Task(Task::Error,
-                    QLatin1String("mangling"),
-                    Utils::FilePath::fromUserInput(QLatin1String("$TMPDIR/test/file.cpp")),
-                    10,
-                    Constants::TASK_CATEGORY_COMPILE);
+            << Task(CompileTask(Task::Error,
+                                "mangling",
+                                FilePath::fromUserInput("file.cpp"),
+                                10))
+            << Task(CompileTask(Task::Error,
+                                "mangling",
+                                FilePath::fromUserInput("$TMPDIR/test/file.cpp"),
+                                10));
 }
 
 void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()
@@ -550,4 +532,7 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()
     foreach (const QString &file, files)
         filedir.rmpath(tempdir + file);
 }
+
+} // ProjectExplorer
+
 #endif

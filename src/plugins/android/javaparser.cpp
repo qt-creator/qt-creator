@@ -84,11 +84,10 @@ void JavaParser::parse(const QString &line)
                 }
         }
 
-        Task task(Task::Error,
-                  m_javaRegExp.cap(4).trimmed(),
-                  file /* filename */,
-                  lineno,
-                  Constants::TASK_CATEGORY_COMPILE);
+        CompileTask task(Task::Error,
+                         m_javaRegExp.cap(4).trimmed(),
+                         file /* filename */,
+                         lineno);
         emit addTask(task, 1);
         return;
     }

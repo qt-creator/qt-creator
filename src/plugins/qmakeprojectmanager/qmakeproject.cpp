@@ -1228,14 +1228,13 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
         return;
     }
     TaskHub::addTask(
-                Task(Task::Warning,
+                BuildSystemTask(Task::Warning,
                      QCoreApplication::translate(
                          "QmakeProjectManager",
                          "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
                          "Please update your kit (%3) or choose a mkspec for qmake that matches "
                          "your target environment better.")
-                     .arg(path.toUserOutput()).arg(expected.toUserOutput()).arg(k->displayName()),
-                     Utils::FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                     .arg(path.toUserOutput()).arg(expected.toUserOutput()).arg(k->displayName())));
     m_toolChainWarnings.insert(pair);
 }
 

@@ -169,11 +169,7 @@ QString MakeStep::msgNoMakeCommand()
 
 Task MakeStep::makeCommandMissingTask()
 {
-    return Task(Task::Error,
-                msgNoMakeCommand(),
-                Utils::FilePath(),
-                -1,
-                Constants::TASK_CATEGORY_BUILDSYSTEM);
+    return BuildSystemTask(Task::Error, msgNoMakeCommand());
 }
 
 bool MakeStep::isJobCountSupported() const

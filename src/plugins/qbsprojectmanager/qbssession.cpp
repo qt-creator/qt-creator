@@ -494,9 +494,8 @@ void QbsSession::handlePacket(const QJsonObject &packet)
 
         // TODO: This loop occurs a lot. Factor it out.
         for (const ErrorInfoItem &item : errorInfo.items) {
-            TaskHub::addTask(Task::Warning, item.description,
-                             ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
-                             item.filePath, item.line);
+            TaskHub::addTask(BuildSystemTask(Task::Warning, item.description,
+                                             item.filePath, item.line));
         }
     } else if (type == "task-started") {
         emit taskStarted(packet.value("description").toString(),

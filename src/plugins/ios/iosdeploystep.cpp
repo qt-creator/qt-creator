@@ -105,8 +105,8 @@ void IosDeployStep::doRun()
 {
     QTC_CHECK(m_transferStatus == NoTransfer);
     if (device().isNull()) {
-        TaskHub::addTask(Task::Error, tr("Deployment failed. No iOS device found."),
-                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        TaskHub::addTask(
+                    DeploymentTask(Task::Error, tr("Deployment failed. No iOS device found.")));
         emit finished(!iossimulator().isNull());
         cleanup();
         return;
@@ -160,9 +160,8 @@ void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString 
     } else {
         m_transferStatus = TransferFailed;
         if (!m_expectFail)
-            TaskHub::addTask(Task::Error,
-                             tr("Deployment failed. The settings in the Devices window of Xcode might be incorrect."),
-                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+            TaskHub::addTask(DeploymentTask(Task::Error,
+                 tr("Deployment failed. The settings in the Devices window of Xcode might be incorrect.")));
     }
     emit finished(status == IosToolHandler::Success);
 }
@@ -172,8 +171,7 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
     switch (m_transferStatus) {
     case TransferInProgress:
         m_transferStatus = TransferFailed;
-        TaskHub::addTask(Task::Error, tr("Deployment failed."),
-                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        TaskHub::addTask(DeploymentTask(Task::Error, tr("Deployment failed.")));
         emit finished(false);
         break;
     case NoTransfer:
@@ -190,9 +188,8 @@ void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
     Q_UNUSED(handler)
     if (msg.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
-        TaskHub::addTask(Task::Warning,
-                         tr("The Info.plist might be incorrect."),
-                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        TaskHub::addTask(DeploymentTask(Task::Warning, tr("The Info.plist might be incorrect.")));
+
     emit addOutput(msg, BuildStep::OutputFormat::ErrorMessage);
 }
 
@@ -258,14 +255,11 @@ void IosDeployStep::checkProvisioningProfile()
     m_expectFail = true;
     QString provisioningProfile = provisionPlist.value(QLatin1String("Name")).toString();
     QString provisioningUid = provisionPlist.value(QLatin1String("UUID")).toString();
-    Task task(Task::Warning,
+    CompileTask task(Task::Warning,
               tr("The provisioning profile \"%1\" (%2) used to sign the application "
                  "does not cover the device %3 (%4). Deployment to it will fail.")
               .arg(provisioningProfile, provisioningUid, device->displayName(),
-                   targetId),
-              Utils::FilePath(), /* filename */
-              -1, /* line */
-              ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+                   targetId));
     emit addTask(task);
 }
 

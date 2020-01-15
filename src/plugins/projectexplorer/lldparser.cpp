@@ -39,8 +39,7 @@ void LldParser::stdError(const QString &line)
 {
     const QString trimmedLine = rightTrimmed(line);
     if (trimmedLine.contains("error:") && trimmedLine.contains("lld")) {
-        emit addTask({Task::Error, trimmedLine, Utils::FilePath(), -1,
-                      Constants::TASK_CATEGORY_COMPILE});
+        emit addTask(CompileTask(Task::Error, trimmedLine));
         return;
     }
     static const QStringList prefixes{">>> referenced by ", ">>> defined at ", ">>> "};
@@ -65,8 +64,7 @@ void LldParser::stdError(const QString &line)
         const int filePathLen = locOffset == -1 ? -1 : locOffset - filePathOffset;
         const auto file = Utils::FilePath::fromUserInput(
                     trimmedLine.mid(filePathOffset, filePathLen).trimmed());
-        emit addTask({Task::Unknown, trimmedLine.mid(4).trimmed(), file, lineNo,
-                      Constants::TASK_CATEGORY_COMPILE});
+        emit addTask(CompileTask(Task::Unknown, trimmedLine.mid(4).trimmed(), file, lineNo));
         return;
     }
     IOutputParser::stdError(line);

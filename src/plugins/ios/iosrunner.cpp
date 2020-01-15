@@ -160,9 +160,7 @@ void IosRunner::start()
     m_cleanExit = false;
     m_qmlServerPort = Port();
     if (!QFileInfo::exists(m_bundleDir)) {
-        TaskHub::addTask(Task::Warning,
-                         tr("Could not find %1.").arg(m_bundleDir),
-                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        TaskHub::addTask(DeploymentTask(Task::Warning, tr("Could not find %1.").arg(m_bundleDir)));
         reportFailure();
         return;
     }
@@ -292,13 +290,11 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
     QString res(msg);
     QString lockedErr ="Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
     if (msg.contains("AMDeviceStartService returned -402653150")) {
-        TaskHub::addTask(Task::Warning,
-                         tr("Run failed. The settings in the Organizer window of Xcode might be incorrect."),
-                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        TaskHub::addTask(DeploymentTask(Task::Warning, tr("Run failed. "
+           "The settings in the Organizer window of Xcode might be incorrect.")));
     } else if (res.contains(lockedErr)) {
         QString message = tr("The device is locked, please unlock.");
-        TaskHub::addTask(Task::Error, message,
-                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        TaskHub::addTask(DeploymentTask(Task::Error, message));
         res.replace(lockedErr, message);
     }
     QRegExp qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
@@ -454,12 +450,11 @@ void IosDebugSupport::start()
             if (deviceSdk2.isDir()) {
                 deviceSdk = deviceSdk2.toString();
             } else {
-                TaskHub::addTask(Task::Warning, tr(
+                TaskHub::addTask(DeploymentTask(Task::Warning, tr(
                   "Could not find device specific debug symbols at %1. "
                   "Debugging initialization will be slow until you open the Organizer window of "
                   "Xcode with the device connected to have the symbols generated.")
-                                 .arg(deviceSdk1.toUserOutput()),
-                                 ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+                                 .arg(deviceSdk1.toUserOutput())));
             }
         }
         setDeviceSymbolsRoot(deviceSdk);
@@ -487,10 +482,9 @@ void IosDebugSupport::start()
         FilePath dsymPath = FilePath::fromString(bundlePath.append(".dSYM"));
         if (dsymPath.exists() && dsymPath.toFileInfo().lastModified()
                 < QFileInfo(iosRunConfig->localExecutable().toUserOutput()).lastModified()) {
-            TaskHub::addTask(Task::Warning,
-                             tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
-                             .arg(dsymPath.toUserOutput()),
-                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+            TaskHub::addTask(DeploymentTask(Task::Warning,
+                     tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
+                             .arg(dsymPath.toUserOutput())));
         }
     }
 

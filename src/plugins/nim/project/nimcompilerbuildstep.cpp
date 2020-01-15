@@ -89,12 +89,7 @@ private:
         else
             return;
 
-        Task task(type,
-                  message,
-                  Utils::FilePath::fromUserInput(filename),
-                  lineNumber,
-                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(CompileTask(type, message, FilePath::fromUserInput(filename), lineNumber));
     }
 };
 
@@ -327,20 +322,18 @@ void NimPlugin::testNimParser_data()
             << QString::fromLatin1("main.nim(23, 1) Error: undeclared identifier: 'x'")
             << OutputParserTester::STDERR
             << QString("") << QString("main.nim(23, 1) Error: undeclared identifier: 'x'\n")
-            << Tasks({Task(Task::Error,
-                            "Error: undeclared identifier: 'x'",
-                            Utils::FilePath::fromUserInput("main.nim"), 23,
-                            ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
+            << Tasks({CompileTask(Task::Error,
+                                  "Error: undeclared identifier: 'x'",
+                                  FilePath::fromUserInput("main.nim"), 23)})
             << QString();
 
     QTest::newRow("Parse warning string")
             << QString::fromLatin1("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]")
             << OutputParserTester::STDERR
             << QString("") << QString("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]\n")
-            << Tasks({Task(Task::Warning,
-                            "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
-                            Utils::FilePath::fromUserInput("lib/pure/parseopt.nim"), 56,
-                            ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
+            << Tasks({CompileTask(Task::Warning,
+                                  "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
+                                   FilePath::fromUserInput("lib/pure/parseopt.nim"), 56)})
             << QString();
 }
 

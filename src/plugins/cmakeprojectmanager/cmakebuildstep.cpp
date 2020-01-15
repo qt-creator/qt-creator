@@ -141,32 +141,26 @@ bool CMakeBuildStep::init()
         canInit = false;
     }
     if (bc && !bc->isEnabled()) {
-        emit addTask(Task(Task::Error,
-                          QCoreApplication::translate("CMakeProjectManager::CMakeBuildStep",
-                                                      "The build configuration is currently disabled."),
-                          Utils::FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(BuildSystemTask(Task::Error,
+                          tr("CMakeProjectManager::CMakeBuildStep")));
         canInit = false;
     }
 
     CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
     if (!tool || !tool->isValid()) {
-        emit addTask(Task(Task::Error,
+        emit addTask(BuildSystemTask(Task::Error,
                           tr("A CMake tool must be set up for building. "
-                             "Configure a CMake tool in the kit options."),
-                          Utils::FilePath(), -1,
-                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                             "Configure a CMake tool in the kit options.")));
         canInit = false;
     }
 
     RunConfiguration *rc =  target()->activeRunConfiguration();
     if (isCurrentExecutableTarget(m_buildTarget) && (!rc || rc->buildKey().isEmpty())) {
-        emit addTask(Task(Task::Error,
+        emit addTask(BuildSystemTask(Task::Error,
                           QCoreApplication::translate("ProjectExplorer::Task",
                                     "You asked to build the current Run Configuration's build target only, "
                                     "but it is not associated with a build target. "
-                                    "Update the Make Step in your build settings."),
-                        Utils::FilePath(), -1,
-                        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                                    "Update the Make Step in your build settings.")));
         canInit = false;
     }
 
@@ -179,13 +173,11 @@ bool CMakeBuildStep::init()
     const Utils::FilePath projectDirectory = bc->target()->project()->projectDirectory();
     if (bc->buildDirectory() != projectDirectory) {
         if (projectDirectory.pathAppended("CMakeCache.txt").exists()) {
-            emit addTask(Task(Task::Warning,
+            emit addTask(BuildSystemTask(Task::Warning,
                               tr("There is a CMakeCache.txt file in \"%1\", which suggest an "
                                  "in-source build was done before. You are now building in \"%2\", "
                                  "and the CMakeCache.txt file might confuse CMake.")
-                              .arg(projectDirectory.toUserOutput(), bc->buildDirectory().toUserOutput()),
-                              Utils::FilePath(), -1,
-                              ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                              .arg(projectDirectory.toUserOutput(), bc->buildDirectory().toUserOutput())));
         }
     }
 

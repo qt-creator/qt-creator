@@ -153,8 +153,8 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
         }
         description = unescape(description);
 
-        TaskHub::addTask(type, description, Constants::TASKLISTTASK_ID,
-                         FilePath::fromUserInput(file), line);
+        TaskHub::addTask(Task(type, description, FilePath::fromUserInput(file), line,
+                              Constants::TASKLISTTASK_ID));
     }
     return true;
 }
