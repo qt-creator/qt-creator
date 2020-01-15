@@ -427,7 +427,7 @@ QString AndroidManager::apkDevicePreferredAbi(Target *target)
     auto libsPath = dirPath(target).pathAppended("libs");
     QStringList apkAbis;
     for (const auto &abi : QDir{libsPath.toString()}.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
-        if (QDir{libsPath.pathAppended(abi).toString()}.entryList(QStringList("*.so"), QDir::Files | QDir::NoDotAndDotDot).length())
+        if (!QDir{libsPath.pathAppended(abi).toString()}.entryList(QStringList("*.so"), QDir::Files | QDir::NoDotAndDotDot).isEmpty())
             apkAbis << abi;
     return preferredAbi(apkAbis, target);
 }

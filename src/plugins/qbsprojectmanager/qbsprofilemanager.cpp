@@ -85,7 +85,7 @@ QString toJSLiteral(const QVariant &val)
         QString res;
         const auto list = val.toList();
         for (const QVariant &child : list) {
-            if (res.length()) res.append(", ");
+            if (!res.isEmpty() ) res.append(", ");
             res.append(toJSLiteral(child));
         }
         res.prepend('[');

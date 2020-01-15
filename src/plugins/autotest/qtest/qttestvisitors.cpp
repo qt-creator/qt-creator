@@ -128,7 +128,7 @@ bool TestAstVisitor::visit(CallAST *ast)
                             QList<LookupItem> toeItems
                                     = toe(argumentExpressionAST, m_currentDoc, m_currentScope);
 
-                            if (toeItems.size()) {
+                            if (!toeItems.isEmpty()) {
                                 if (const auto pointerType = toeItems.first().type()->asPointerType())
                                     m_className = o.prettyType(pointerType->elementType());
                             }

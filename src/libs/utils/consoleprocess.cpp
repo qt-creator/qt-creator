@@ -271,7 +271,7 @@ static QString quoteWinCommand(const QString &program)
 
 static QString quoteWinArgument(const QString &arg)
 {
-    if (!arg.length())
+    if (arg.isEmpty())
         return QString::fromLatin1("\"\"");
 
     QString ret(arg);

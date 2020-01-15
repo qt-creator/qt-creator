@@ -103,7 +103,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
     QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
     QString proFile;
     const QList<CppTools::ProjectPart::Ptr> &ppList = modelManager->projectPart(filePath);
-    if (ppList.size())
+    if (!ppList.isEmpty())
         proFile = ppList.first()->projectFile;
     else
         return false; // happens if shutting down while parsing

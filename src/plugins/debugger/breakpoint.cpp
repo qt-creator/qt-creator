@@ -134,7 +134,7 @@ bool BreakpointParameters::conditionsMatch(const QString &other) const
 
 void BreakpointParameters::updateLocation(const QString &location)
 {
-    if (location.size()) {
+    if (!location.isEmpty()) {
         int pos = location.indexOf(':');
         lineNumber = location.midRef(pos + 1).toInt();
         QString file = location.left(pos);

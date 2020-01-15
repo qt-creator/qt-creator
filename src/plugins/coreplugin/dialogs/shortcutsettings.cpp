@@ -56,7 +56,7 @@ static int translateModifiers(Qt::KeyboardModifiers state,
     int result = 0;
     // The shift modifier only counts when it is not used to type a symbol
     // that is only reachable using the shift key anyway
-    if ((state & Qt::ShiftModifier) && (text.size() == 0
+    if ((state & Qt::ShiftModifier) && (text.isEmpty()
                                         || !text.at(0).isPrint()
                                         || text.at(0).isLetterOrNumber()
                                         || text.at(0).isSpace()))

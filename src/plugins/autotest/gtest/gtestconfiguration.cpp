@@ -83,7 +83,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     }
 
     const QStringList &testSets = testCases();
-    if (testSets.size())
+    if (!testSets.isEmpty())
         arguments << "--gtest_filter=" + testSets.join(':');
 
     TestFrameworkManager *manager = TestFrameworkManager::instance();

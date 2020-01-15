@@ -1556,7 +1556,7 @@ void BinEditorWidget::undo()
     setCursorPosition(cmd.position);
     if (emitModificationChanged)
         emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
-    if (!m_undoStack.size())
+    if (m_undoStack.isEmpty())
         emit undoAvailable(false);
     if (m_redoStack.size() == 1)
         emit redoAvailable(true);
@@ -1577,7 +1577,7 @@ void BinEditorWidget::redo()
         emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
     if (m_undoStack.size() == 1)
         emit undoAvailable(true);
-    if (!m_redoStack.size())
+    if (m_redoStack.isEmpty())
         emit redoAvailable(false);
 }
 

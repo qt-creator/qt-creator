@@ -133,7 +133,7 @@ void TransitionItem::createGrabbers()
     if (m_cornerGrabbers.count() != m_cornerPoints.count()) {
         int selectedGrabberIndex = m_cornerGrabbers.indexOf(m_selectedCornerGrabber);
 
-        if (m_cornerGrabbers.count() > 0) {
+        if (!m_cornerGrabbers.isEmpty()) {
             qDeleteAll(m_cornerGrabbers);
             m_cornerGrabbers.clear();
         }
@@ -158,7 +158,7 @@ void TransitionItem::createGrabbers()
 
 void TransitionItem::removeGrabbers()
 {
-    if (m_cornerGrabbers.count() > 0) {
+    if (!m_cornerGrabbers.isEmpty()) {
         qDeleteAll(m_cornerGrabbers);
         m_cornerGrabbers.clear();
     }
@@ -267,7 +267,7 @@ void TransitionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             m_cornerPoints.append(p);
             snapToAnyPoint(m_cornerPoints.count() - 1, p);
 
-            if (m_cornerGrabbers.count() > 0) {
+            if (!m_cornerGrabbers.isEmpty()) {
                 auto corner = new CornerGrabberItem(this);
                 corner->setGrabberType(CornerGrabberItem::Circle);
                 corner->setPos(p);
@@ -615,7 +615,7 @@ void TransitionItem::connectToTopItem(const QPointF &pos, TransitionPoint tp, It
 
     // First try to find parentItem
     QList<QGraphicsItem*> items = scene()->items(p);
-    if (items.count() > 0) {
+    if (!items.isEmpty()) {
         for (int i = 0; i < items.count(); ++i) {
             ItemType type = ItemType(items[i]->type());
             if ((targetType == UnknownType && type >= FinalStateType) || type >= StateType) {
@@ -797,7 +797,7 @@ QPointF TransitionItem::findIntersectionPoint(ConnectableItem *item, const QLine
 
     // Find intersection point between line and target item
     QPolygonF itemPolygon = item->polygonShape();
-    if (itemPolygon.count() > 0) {
+    if (!itemPolygon.isEmpty()) {
         QPointF intersectPoint;
         QPointF p1 = itemPolygon.at(0) + item->scenePos();
         QPointF p2;

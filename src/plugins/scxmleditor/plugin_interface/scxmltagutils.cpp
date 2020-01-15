@@ -264,7 +264,7 @@ void initChildMenu(TagType tagType, QMenu *menu)
 
     QVector<TagType> childTags = childTypes(tagType);
 
-    if (childTags.count() > 0) {
+    if (!childTags.isEmpty()) {
         for (int i = 0; i < childTags.count(); ++i) {
             if (childTags[i] == OnEntry || childTags[i] == OnExit)
                 initChildMenu(childTags[i], menu->addMenu(QLatin1String(scxml_tags[childTags[i]].name)));

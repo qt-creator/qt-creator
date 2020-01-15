@@ -250,7 +250,7 @@ QVariantMap AddKeysOperation::addKeys(const QVariantMap &map, const KeyValuePair
             foldBack = current;
         }
 
-        Q_ASSERT(stack.count() == 0);
+        Q_ASSERT(stack.isEmpty());
         Q_ASSERT(foldBack != map);
 
         result = foldBack;

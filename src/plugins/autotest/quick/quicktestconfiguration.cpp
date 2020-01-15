@@ -72,7 +72,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
         return arguments;
     if (qtSettings->useXMLOutput)
         arguments << "-xml";
-    if (testCases().count())
+    if (!testCases().isEmpty())
         arguments << testCases();
 
     const QString &metricsOption = QtTestSettings::metricsTypeToOption(qtSettings->metrics);

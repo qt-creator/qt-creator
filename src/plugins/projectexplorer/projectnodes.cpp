@@ -80,7 +80,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
         }
     }
     QStringList parts = directoryWithoutPrefix.toString().split('/', QString::SkipEmptyParts);
-    if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && parts.count() > 0)
+    if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && !parts.isEmpty())
         parts[0].prepend('/');
 
     ProjectExplorer::FolderNode *parent = folder;

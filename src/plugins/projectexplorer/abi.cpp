@@ -790,7 +790,7 @@ Abi Abi::fromString(const QString &abiString)
 {
     Abi::Architecture architecture = UnknownArchitecture;
     const QVector<QStringRef> abiParts = abiString.splitRef('-');
-    if (abiParts.count() >= 1) {
+    if (!abiParts.isEmpty()) {
         architecture = architectureFromString(abiParts.at(0));
         if (abiParts.at(0) != toString(architecture))
             return Abi();

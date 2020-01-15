@@ -238,7 +238,7 @@ void layout(const QList<QGraphicsItem*> &items)
 
     int startAngle = qrand() % 2 == 0 ? 180 : 90;
     int startDistance = 40 + childItems.count() * 10;
-    if (childItems.count() > 0) {
+    if (!childItems.isEmpty()) {
         // Init position of the items
         int angleDiff = 360 / (childItems.count() + 1);
         for (int i = 0; i < childItems.count(); ++i) {

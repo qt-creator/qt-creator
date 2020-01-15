@@ -89,7 +89,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     QStringList titleList = m_sideBar->availableItemTitles();
     Utils::sort(titleList);
     QString t = id;
-    if (titleList.count()) {
+    if (!titleList.isEmpty()) {
         foreach (const QString &itemTitle, titleList)
             m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));
 

@@ -702,7 +702,7 @@ void BookmarkManager::itemChanged(QStandardItem *item)
     if (item->text() != oldText) {
         if (item->data(Qt::UserRole + 10).toString() != QLatin1String("Folder")) {
             QList<QStandardItem*>itemList = listModel->findItems(oldText);
-            if (itemList.count() > 0)
+            if (!itemList.isEmpty())
                 itemList.at(0)->setText(item->text());
         }
     }

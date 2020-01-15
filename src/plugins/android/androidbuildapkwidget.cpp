@@ -191,7 +191,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
 
     auto updateAlias = [this](int idx) {
         QString alias = m_certificatesAliasComboBox->itemText(idx);
-        if (alias.length())
+        if (!alias.isEmpty())
             m_step->setCertificateAlias(alias);
     };
 

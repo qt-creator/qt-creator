@@ -206,7 +206,7 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
     const QRegularExpression blankLineStart("^\\r?\\n\\r?\\n");
     const QRegularExpression sentenceEnd("\\. $");
 
-    if (!text1.count() || !text2.count()) // Edges
+    if (text1.isEmpty() || text2.isEmpty()) // Edges
         return 6;
 
     const QChar char1 = text1[text1.count() - 1];
@@ -551,13 +551,12 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
             return QString(); // equalities broken
         }
 
-        if ((leftWhitespaces.count() && !rightWhitespaces.count())
-                || (!leftWhitespaces.count() && rightWhitespaces.count())) {
+        if (leftWhitespaces.isEmpty() ^ rightWhitespaces.isEmpty()) {
             // there must be at least 1 corresponding whitespace, equalities broken
             return QString();
         }
 
-        if (leftWhitespaces.count() && rightWhitespaces.count()) {
+        if (!leftWhitespaces.isEmpty() && !rightWhitespaces.isEmpty()) {
             const int replacementPosition = output.count();
             const int replacementSize = qMax(leftWhitespaces.count(), rightWhitespaces.count());
             const QString replacement(replacementSize, ' ');
@@ -723,10 +722,10 @@ static void appendWithEqualitiesSquashed(const QList<Diff> &leftInput,
                              QList<Diff> *leftOutput,
                              QList<Diff> *rightOutput)
 {
-    if (leftInput.count()
-            && rightInput.count()
-            && leftOutput->count()
-            && rightOutput->count()
+    if (!leftInput.isEmpty()
+            && !rightInput.isEmpty()
+            && !leftOutput->isEmpty()
+            && !rightOutput->isEmpty()
             && leftInput.first().command == Diff::Equal
             && rightInput.first().command == Diff::Equal
             && leftOutput->last().command == Diff::Equal
@@ -1245,7 +1244,7 @@ QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
         } else if (diffItem.command == Diff::Insert) {
             lastInsert += diffItem.text;
         } else { // Diff::Equal
-            if (lastDelete.count() || lastInsert.count()) {
+            if (!(lastDelete.isEmpty() && lastInsert.isEmpty())) {
                 // Rediff here on char basis
                 newDiffList += preprocess1AndDiff(lastDelete, lastInsert);
 
@@ -1334,7 +1333,7 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
         } else if (diff.command == Diff::Insert) {
             lastInsert += diff.text;
         } else { // Diff::Equal
-            if (lastDelete.count() || lastInsert.count()) {
+            if (!(lastDelete.isEmpty() && lastInsert.isEmpty())) {
 
                 // common prefix
                 const int prefixCount = commonPrefix(lastDelete, lastInsert);
@@ -1343,7 +1342,7 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
                     lastDelete = lastDelete.mid(prefixCount);
                     lastInsert = lastInsert.mid(prefixCount);
 
-                    if (newDiffList.count()
+                    if (!newDiffList.isEmpty()
                             && newDiffList.last().command == Diff::Equal) {
                         newDiffList.last().text += prefix;
                     } else {
@@ -1362,20 +1361,20 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
                 }
 
                 // append delete / insert / equal
-                if (lastDelete.count())
+                if (!lastDelete.isEmpty())
                     newDiffList.append(Diff(Diff::Delete, lastDelete));
-                if (lastInsert.count())
+                if (!lastInsert.isEmpty())
                     newDiffList.append(Diff(Diff::Insert, lastInsert));
-                if (diff.text.count())
+                if (!diff.text.isEmpty())
                     newDiffList.append(diff);
                 lastDelete.clear();
                 lastInsert.clear();
             } else { // join with last equal diff
-                if (newDiffList.count()
+                if (!newDiffList.isEmpty()
                         && newDiffList.last().command == Diff::Equal) {
                     newDiffList.last().text += diff.text;
                 } else {
-                    if (diff.text.count())
+                    if (!diff.text.isEmpty())
                         newDiffList.append(diff);
                 }
             }

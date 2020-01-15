@@ -51,7 +51,7 @@ bool CppParser::selectedForBuilding(const QString &fileName)
     QList<CppTools::ProjectPart::Ptr> projParts =
             CppTools::CppModelManager::instance()->projectPart(fileName);
 
-    return projParts.size() && projParts.at(0)->selectedForBuilding;
+    return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
 }
 
 QByteArray CppParser::getFileContent(const QString &filePath)

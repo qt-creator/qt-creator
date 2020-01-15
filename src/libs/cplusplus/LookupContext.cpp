@@ -1100,7 +1100,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
         // for "using" we should use the real one ClassOrNamespace(it should be the first
         // one item from usings list)
         // we indicate that it is a 'using' by checking number of symbols(it should be 0)
-        if (reference->symbols().count() == 0 && reference->usings().count() != 0)
+        if (reference->symbols().isEmpty() && !reference->usings().isEmpty())
             reference = reference->_usings[0];
 
         // if it is a TemplateNameId it could be a specialization(full or partial) or

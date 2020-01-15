@@ -92,7 +92,7 @@ void ParallelItem::doLayout(int d)
     // 3. Relocate children-states
     // a) sort list
     QVector<StateItem*> sortedList;
-    while (children.count() > 0) {
+    while (!children.isEmpty()) {
         qreal minTop = children.first()->boundingRect().top();
         int minTopIndex = 0;
         for (int i = 1; i < children.count(); ++i) {

@@ -274,7 +274,7 @@ void IosBuildSettingsWidget::populateProvisioningProfiles()
         QSignalBlocker blocker(m_signEntityCombo);
         m_signEntityCombo->clear();
         const ProvisioningProfiles profiles = IosConfigurations::provisioningProfiles();
-        if (profiles.count() > 0) {
+        if (!profiles.isEmpty()) {
             for (auto profile : profiles) {
                 m_signEntityCombo->addItem(profile->displayName());
                 const int index = m_signEntityCombo->count() - 1;

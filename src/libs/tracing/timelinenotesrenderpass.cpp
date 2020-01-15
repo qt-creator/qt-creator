@@ -141,7 +141,7 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
 
     QSGGeometryNode *collapsedNode = static_cast<QSGGeometryNode *>(state->collapsedOverlay());
 
-    if (collapsed.count() > 0) {
+    if (!collapsed.isEmpty()) {
         collapsedNode->setGeometry(NotesGeometry::createGeometry(collapsed, model, parentState,
                                                                  true));
         collapsedNode->setFlag(QSGGeometryNode::OwnsGeometry, true);

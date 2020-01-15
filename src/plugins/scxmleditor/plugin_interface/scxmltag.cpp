@@ -269,7 +269,7 @@ void ScxmlTag::setContent(const QString &content)
 
 bool ScxmlTag::hasData() const
 {
-    if (m_attributeNames.count() > 0 || !m_content.isEmpty())
+    if (!m_attributeNames.isEmpty() || !m_content.isEmpty())
         return true;
 
     foreach (ScxmlTag *tag, m_childTags) {

@@ -466,7 +466,7 @@ QString FunctionHintProposalModel::text(int index) const
         prettyMethod += arg;
     }
     if (m_isVariadic) {
-        if (m_namedArguments.size())
+        if (!m_namedArguments.isEmpty())
             prettyMethod += QLatin1String(", ");
         prettyMethod += QLatin1String("...");
     }

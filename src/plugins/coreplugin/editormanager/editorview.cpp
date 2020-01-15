@@ -348,12 +348,12 @@ void EditorView::removeEditor(IEditor *editor)
     m_toolBar->removeToolbarForEditor(editor);
 
     if (wasCurrent)
-        setCurrentEditor(m_editors.count() ? m_editors.last() : nullptr);
+        setCurrentEditor(!m_editors.isEmpty() ? m_editors.last() : nullptr);
 }
 
 IEditor *EditorView::currentEditor() const
 {
-    if (m_editors.count() > 0)
+    if (!m_editors.isEmpty())
         return m_widgetEditorMap.value(m_container->currentWidget());
     return nullptr;
 }

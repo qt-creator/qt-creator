@@ -61,10 +61,10 @@ static QList<TextLineData> assemblyRows(const QList<TextLineData> &lines,
 static bool lastLinesEqual(const QList<TextLineData> &leftLines,
                            const QList<TextLineData> &rightLines)
 {
-    const bool leftLineEqual = leftLines.count()
+    const bool leftLineEqual = !leftLines.isEmpty()
             ? leftLines.last().text.isEmpty()
             : true;
-    const bool rightLineEqual = rightLines.count()
+    const bool rightLineEqual = !rightLines.isEmpty()
             ? rightLines.last().text.isEmpty()
             : true;
     return leftLineEqual && rightLineEqual;
@@ -166,7 +166,7 @@ ChunkData DiffUtils::calculateOriginalData(const QList<Diff> &leftDiffList,
 
             int line = 0;
 
-            if (i < leftDiffList.count() || j < rightDiffList.count() || (leftLines.count() && rightLines.count())) {
+            if (i < leftDiffList.count() || j < rightDiffList.count() || (!leftLines.isEmpty() && !rightLines.isEmpty())) {
                 while (line < qMax(newLeftLines.count(), newRightLines.count())) {
                     handleLine(newLeftLines, line, &leftLines, &leftLineNumber);
                     handleLine(newRightLines, line, &rightLines, &rightLineNumber);
@@ -409,7 +409,7 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
                                         // ensure we process buffers to the end.
                                         // rowData will be equal
         if (rowData.equal && i != rowToBeSplit) {
-            if (leftBuffer.count()) {
+            if (!leftBuffer.isEmpty()) {
                 for (int j = 0; j < leftBuffer.count(); j++) {
                     const QString line = makePatchLine('-',
                                               leftBuffer.at(j).text,
@@ -424,7 +424,7 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
                 }
                 leftBuffer.clear();
             }
-            if (rightBuffer.count()) {
+            if (!rightBuffer.isEmpty()) {
                 for (int j = 0; j < rightBuffer.count(); j++) {
                     const QString line = makePatchLine('+',
                                               rightBuffer.at(j).text,

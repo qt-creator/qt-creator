@@ -105,7 +105,7 @@ qint64 QCompressedDevice::writeData(const char *data, qint64 len)
 
 qint64 QCompressedDevice::flush()
 {
-    if (openMode() == QIODevice::WriteOnly && m_buffer.size() > 0) {
+    if (openMode() == QIODevice::WriteOnly && !m_buffer.isEmpty()) {
         QMT_ASSERT(m_targetDevice->isOpen(), return 0);
         QMT_ASSERT(m_targetDevice->openMode() == QIODevice::WriteOnly, return 0);
         QByteArray compressedBuffer = qCompress(m_buffer);

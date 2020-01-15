@@ -139,7 +139,7 @@ QString IoUtils::shellQuoteUnix(const QString &arg)
         0x00, 0x00, 0x00, 0x38, 0x01, 0x00, 0x00, 0x78
     }; // 0-32 \'"$`<>|;&(){}*?#!~[]
 
-    if (!arg.length())
+    if (arg.isEmpty())
         return QString::fromLatin1("''");
 
     QString ret(arg);
@@ -167,7 +167,7 @@ QString IoUtils::shellQuoteWin(const QString &arg)
         0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x10
     }; // &()<>^|
 
-    if (!arg.length())
+    if (arg.isEmpty())
         return QString::fromLatin1("\"\"");
 
     QString ret(arg);

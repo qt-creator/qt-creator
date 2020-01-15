@@ -376,7 +376,7 @@ void LldbEngine::handleResponse(const QString &response)
         const QString name = item.name();
         if (name == "result") {
             QString msg = item["status"].data();
-            if (msg.size())
+            if (!msg.isEmpty())
                 msg[0] = msg.at(0).toUpper();
             showStatusMessage(msg);
 

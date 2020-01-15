@@ -207,7 +207,7 @@ void DirectoryFilter::handleRemoveDirectory()
 
 void DirectoryFilter::updateOptionButtons()
 {
-    bool haveSelectedItem = (m_ui->directoryList->selectedItems().count() > 0);
+    bool haveSelectedItem = !m_ui->directoryList->selectedItems().isEmpty();
     m_ui->editButton->setEnabled(haveSelectedItem);
     m_ui->removeButton->setEnabled(haveSelectedItem);
 }
@@ -222,7 +222,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     QStringList directories;
     {
         QMutexLocker locker(&m_lock);
-        if (m_directories.count() < 1) {
+        if (m_directories.isEmpty()) {
             m_files.clear();
             QTimer::singleShot(0, this, &DirectoryFilter::updateFileIterator);
             future.setProgressRange(0, 1);

@@ -201,7 +201,7 @@ void GraphicsScene::cut()
 void GraphicsScene::removeSelectedItems()
 {
     QVector<ScxmlTag*> tags = SceneUtils::findRemovedTags(m_baseItems);
-    if (tags.count() > 0) {
+    if (!tags.isEmpty()) {
         m_document->undoStack()->beginMacro(tr("Remove items"));
 
         // Then remove found tags
@@ -235,7 +235,7 @@ void GraphicsScene::copy()
     if (tags.isEmpty() && m_document->currentTag())
         tags << m_document->currentTag();
 
-    if (tags.count() > 0) {
+    if (!tags.isEmpty()) {
         auto mime = new QMimeData;
         QByteArray result = m_document->content(tags);
         mime->setText(QLatin1String(result));

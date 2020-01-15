@@ -254,7 +254,7 @@ qint64 QPacketProtocol::packetsAvailable() const
   */
 QByteArray QPacketProtocol::read()
 {
-    if (0 == d->packets.count())
+    if (d->packets.isEmpty())
         return QByteArray();
 
     return d->packets.takeFirst();

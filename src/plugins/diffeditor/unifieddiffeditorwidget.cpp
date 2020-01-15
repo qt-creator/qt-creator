@@ -373,7 +373,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                                        // ensure we process buffers to the end.
                                        // rowData will be equal
         if (rowData.equal && i != lastEqualRow) {
-            if (leftBuffer.count()) {
+            if (!leftBuffer.isEmpty()) {
                 for (int j = 0; j < leftBuffer.count(); j++) {
                     const TextLineData &lineData = leftBuffer.at(j);
                     const QString line = DiffUtils::makePatchLine(
@@ -414,7 +414,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                 leftBuffer.clear();
                 leftRowsBuffer.clear();
             }
-            if (rightBuffer.count()) {
+            if (!rightBuffer.isEmpty()) {
                 for (int j = 0; j < rightBuffer.count(); j++) {
                     const TextLineData &lineData = rightBuffer.at(j);
                     const QString line = DiffUtils::makePatchLine(

@@ -203,7 +203,7 @@ QVariantMap RmKeysOperation::rmKeys(const QVariantMap &map, const QStringList &r
             foldBack = current;
         }
 
-        Q_ASSERT(stack.count() == 0);
+        Q_ASSERT(stack.isEmpty());
         Q_ASSERT(foldBack != map);
 
         result = foldBack;

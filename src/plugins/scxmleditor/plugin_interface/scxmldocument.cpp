@@ -400,7 +400,7 @@ void ScxmlDocument::printSCXML()
 QByteArray ScxmlDocument::content(const QVector<ScxmlTag*> &tags) const
 {
     QByteArray result;
-    if (tags.count() > 0) {
+    if (!tags.isEmpty()) {
         QBuffer buffer(&result);
         buffer.open(QIODevice::WriteOnly);
 
@@ -666,7 +666,7 @@ ScxmlTag *ScxmlDocument::popRootTag()
 
 void ScxmlDocument::deleteRootTags()
 {
-    while (m_rootTags.count() > 0)
+    while (!m_rootTags.isEmpty())
         delete m_rootTags.takeLast();
 }
 

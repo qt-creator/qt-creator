@@ -6666,7 +6666,7 @@ static int someInt(const QString &str)
 {
     if (str.toInt())
         return str.toInt();
-    if (str.size())
+    if (!str.isEmpty())
         return str.at(0).unicode();
     return 0;
 }

@@ -98,7 +98,7 @@ Macro& Macro::operator=(const Macro &other)
 
 bool Macro::load(QString fileName)
 {
-    if (d->events.count())
+    if (!d->events.isEmpty())
         return true; // the macro is not empty
 
     // Take the current filename if the parameter is null

@@ -535,7 +535,7 @@ void MainWidget::addStateView(BaseItem *item)
         m_actionHandler->action(ActionPaste)->setEnabled(currentView && para);
     });
 
-    if (m_views.count() > 0)
+    if (!m_views.isEmpty())
         m_views.last()->scene()->unselectAll();
 
     if (item) {
@@ -582,7 +582,7 @@ void MainWidget::newDocument()
 void MainWidget::clear()
 {
     // Clear and delete all stateviews
-    while (m_views.count() > 0) {
+    while (!m_views.isEmpty()) {
         m_views.last()->clear();
         delete m_views.takeLast();
     }

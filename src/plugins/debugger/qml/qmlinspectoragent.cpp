@@ -254,7 +254,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
     } else if (queryId == m_engineQueryId) {
         m_engineQueryId = 0;
         QList<EngineReference> engines = qvariant_cast<QList<EngineReference> >(value);
-        QTC_ASSERT(engines.count(), return);
+        QTC_ASSERT(!engines.isEmpty(), return);
         m_engines = engines;
         queryEngineContext();
     } else {
@@ -637,7 +637,7 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
     }
 
     // properties
-    if (append && obj.properties().count()) {
+    if (append && !obj.properties().isEmpty()) {
         QString iname = objIname + ".[properties]";
         auto propertiesWatch = new WatchItem;
         propertiesWatch->iname = iname;

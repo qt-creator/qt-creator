@@ -223,7 +223,7 @@ void RemoteDialog::updateButtonState()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
 
-    const bool haveSelection = (indexList.count() > 0);
+    const bool haveSelection = !indexList.isEmpty();
     m_ui->addButton->setEnabled(true);
     m_ui->fetchButton->setEnabled(haveSelection);
     m_ui->pushButton->setEnabled(haveSelection);

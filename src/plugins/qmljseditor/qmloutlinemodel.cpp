@@ -332,7 +332,7 @@ QStringList QmlOutlineModel::mimeTypes() const
 
 QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 {
-    if (indexes.count() <= 0)
+    if (indexes.isEmpty())
         return nullptr;
     auto data = new Utils::DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction);

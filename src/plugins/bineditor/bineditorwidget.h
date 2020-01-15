@@ -113,8 +113,8 @@ public:
 
     bool event(QEvent*) override;
 
-    bool isUndoAvailable() const { return m_undoStack.size(); }
-    bool isRedoAvailable() const { return m_redoStack.size(); }
+    bool isUndoAvailable() const { return !m_undoStack.isEmpty(); }
+    bool isRedoAvailable() const { return !m_redoStack.isEmpty(); }
 
     QString addressString(quint64 address);
 

@@ -335,7 +335,7 @@ void TypePrettyPrinter::prependSpaceAfterIndirection(bool hasName)
     const bool case2 = ! hasCvSpecifier && spaceBeforeNameNeeded;
     // case 3: In "char *argv[]", put a space between '*' and "argv" when requested
     const bool case3 = ! hasCvSpecifier && ! shouldBindToIdentifier
-        && ! _isIndirectionToArrayOrFunction && _text.size() && _text.at(0).isLetter();
+        && ! _isIndirectionToArrayOrFunction && !_text.isEmpty() && _text.at(0).isLetter();
     if (case1 || case2 || case3)
         _text.prepend(QLatin1Char(' '));
 }

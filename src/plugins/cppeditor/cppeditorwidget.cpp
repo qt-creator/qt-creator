@@ -413,7 +413,7 @@ static void addSearchResults(CppTools::Usages usages, SearchResult &search, cons
 
         const QString lineContent = getDocumentLine(document, usage.line);
 
-        if (lineContent.size()) {
+        if (!lineContent.isEmpty()) {
             Search::TextRange range{Search::TextPosition(usage.line, usage.column - 1),
                                     Search::TextPosition(usage.line, usage.column + text.length() - 1)};
             search.addResult(usage.path, lineContent, range);

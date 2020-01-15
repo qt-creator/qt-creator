@@ -165,10 +165,10 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
                                .arg(ui->localityNameLineEdit->text().replace(QLatin1Char(','), QLatin1String("\\,")))
                                .arg(ui->countryLineEdit->text().replace(QLatin1Char(','), QLatin1String("\\,"))));
 
-    if (ui->organizationUnitLineEdit->text().length())
+    if (!ui->organizationUnitLineEdit->text().isEmpty())
         distinguishedNames += QLatin1String(", OU=") + ui->organizationUnitLineEdit->text().replace(QLatin1Char(','), QLatin1String("\\,"));
 
-    if (ui->stateNameLineEdit->text().length())
+    if (!ui->stateNameLineEdit->text().isEmpty())
         distinguishedNames += QLatin1String(", S=") + ui->stateNameLineEdit->text().replace(QLatin1Char(','), QLatin1String("\\,"));
 
     const CommandLine command(AndroidConfigurations::currentConfig().keytoolPath(),

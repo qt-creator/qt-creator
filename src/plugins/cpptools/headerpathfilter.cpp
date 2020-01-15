@@ -165,7 +165,7 @@ void HeaderPathFilter::tweakHeaderPaths()
 
 void HeaderPathFilter::addPreIncludesPath()
 {
-    if (projectDirectory.size()) {
+    if (!projectDirectory.isEmpty()) {
         const Utils::FilePath rootProjectDirectory = Utils::FilePath::fromString(projectDirectory)
                 .pathAppended(".pre_includes");
 

@@ -120,7 +120,7 @@ void StateItem::updateAttributes()
         QString strNewId = tagValue("id", true);
         if (!m_parallelState) {
             QStringList NSIDs = strNewId.split(tag()->document()->nameSpaceDelimiter(), QString::SkipEmptyParts);
-            if (NSIDs.count() > 0) {
+            if (!NSIDs.isEmpty()) {
                 NSIDs[NSIDs.count() - 1] = m_stateNameItem->toPlainText();
                 QString strOldId = NSIDs.join(tag()->document()->nameSpaceDelimiter());
                 ScxmlTag *parentTag = tag()->parentTag();
@@ -388,7 +388,7 @@ void StateItem::checkInitial(bool parent)
         tag = this->tag();
     }
 
-    if (items.count() > 0 && tag && uiFactory()) {
+    if (!items.isEmpty() && tag && uiFactory()) {
         auto utilsProvider = static_cast<UtilsProvider*>(uiFactory()->object("utilsProvider"));
         if (utilsProvider)
             utilsProvider->checkInitialState(items, tag);

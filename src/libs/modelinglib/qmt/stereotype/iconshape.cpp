@@ -76,7 +76,7 @@ public:
 PathShape *IconShape::IconShapePrivate::activePath()
 {
     PathShape *pathShape = nullptr;
-    if (m_shapes.count() > 0)
+    if (!m_shapes.isEmpty())
         pathShape = dynamic_cast<PathShape *>(m_shapes.last());
     if (!pathShape) {
         pathShape = new PathShape();

@@ -4603,7 +4603,7 @@ void TextEditorWidgetPrivate::paintCursor(const PaintEventData &data, QPainter &
 
 void TextEditorWidgetPrivate::clearSelectionBackground(PaintEventData &data) const
 {
-    if (m_inBlockSelectionMode && data.context.selections.count()
+    if (m_inBlockSelectionMode && !data.context.selections.isEmpty()
             && data.context.selections.last().cursor == data.textCursor) {
         data.blockSelectionIndex = data.context.selections.size() - 1;
         data.context.selections[data.blockSelectionIndex].format.clearBackground();

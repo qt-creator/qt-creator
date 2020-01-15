@@ -538,7 +538,7 @@ QStringList QtcProcess::splitArgs(const QString &args, OsType osType,
 
 QString QtcProcess::quoteArgUnix(const QString &arg)
 {
-    if (!arg.length())
+    if (arg.isEmpty())
         return QString::fromLatin1("''");
 
     QString ret(arg);
@@ -574,7 +574,7 @@ static bool hasSpecialCharsWin(const QString &arg)
 
 static QString quoteArgWin(const QString &arg)
 {
-    if (!arg.length())
+    if (arg.isEmpty())
         return QString::fromLatin1("\"\"");
 
     QString ret(arg);

@@ -131,7 +131,7 @@ CppTools::CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
 
         // Filter out C++ keywords
         const Tokens tokens = tokenize(name);
-        if (tokens.length() && (tokens.at(0).isKeyword() || tokens.at(0).isObjCAtKeyword()))
+        if (!tokens.isEmpty() && (tokens.at(0).isKeyword() || tokens.at(0).isObjCAtKeyword()))
             continue;
 
         int line, column;

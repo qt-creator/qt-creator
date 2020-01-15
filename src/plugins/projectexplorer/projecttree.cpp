@@ -364,7 +364,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
         contextMenu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT)->menu();
     }
 
-    if (contextMenu && contextMenu->actions().count() > 0) {
+    if (contextMenu && !contextMenu->actions().isEmpty()) {
         s_instance->m_focusForContextMenu = focus;
         contextMenu->popup(globalPos);
         connect(contextMenu, &QMenu::aboutToHide,

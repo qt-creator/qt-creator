@@ -1364,7 +1364,7 @@ void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSour
     DebuggerCommand cmd(SCRIPTS);
     cmd.arg(TYPES, types);
 
-    if (ids.count())
+    if (!ids.isEmpty())
         cmd.arg(IDS, ids);
 
     if (includeSource)
@@ -1727,7 +1727,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         const QVariantList actualLocations =
                                 breakpointData.value("actual_locations").toList();
                         const int line = breakpointData.value("line").toInt() + 1;
-                        if (actualLocations.count()) {
+                        if (!actualLocations.isEmpty()) {
                             //The breakpoint requested line should be same as
                             //actual line
                             if (bp && bp->state() != BreakpointInserted) {

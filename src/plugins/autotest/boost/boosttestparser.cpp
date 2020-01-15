@@ -144,7 +144,7 @@ static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface
                                                                 firstSuite);
         BoostTestParseResult *currentSuite = topLevelSuite;
         suitesStates.removeFirst();
-        while (suitesStates.size()) {
+        while (!suitesStates.isEmpty()) {
             firstSuite = suitesStates.first();
             suites = firstSuite.fullName.split('/');
             BoostTestParseResult *suiteResult = createParseResult(suites.last(), filePath,

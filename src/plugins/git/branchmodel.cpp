@@ -179,7 +179,7 @@ public:
 
     QStringList childrenNames() const
     {
-        if (children.count() > 0) {
+        if (!children.isEmpty()) {
             QStringList names;
             for (BranchNode *n : children) {
                 names.append(n->childrenNames());

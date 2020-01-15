@@ -144,7 +144,7 @@ void OptionsDialog::resetKeywordsButtonClicked()
 
 void OptionsDialog::setKeywordsButtonsEnabled()
 {
-    bool isSomethingSelected = ui->keywordsList->selectedItems().count() != 0;
+    const bool isSomethingSelected = !ui->keywordsList->selectedItems().isEmpty();
     ui->removeKeywordButton->setEnabled(isSomethingSelected);
     ui->editKeywordButton->setEnabled(isSomethingSelected);
 }

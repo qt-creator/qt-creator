@@ -56,7 +56,7 @@ void ShapesToolbox::setUIFactory(ScxmlEditor::PluginInterface::ScxmlUiFactory *f
 void ShapesToolbox::initView()
 {
     // Delete old widgets
-    while (m_widgets.count() > 0)
+    while (!m_widgets.isEmpty())
         delete m_widgets.takeLast();
 
     // Create new widgets

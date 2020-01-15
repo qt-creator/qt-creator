@@ -381,7 +381,7 @@ void MacroManager::changeMacro(const QString &name, const QString &description)
 
 void MacroManager::saveLastMacro()
 {
-    if (d->currentMacro->events().count())
+    if (!d->currentMacro->events().isEmpty())
         d->showSaveDialog();
 }
 
