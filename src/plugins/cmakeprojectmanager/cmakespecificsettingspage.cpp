@@ -41,7 +41,6 @@ public:
     explicit CMakeSpecificSettingWidget(CMakeSpecificSettings *settings);
 
     void apply() final;
-    void finish() final {}
 
 private:
     Ui::CMakeSpecificSettingForm m_ui;

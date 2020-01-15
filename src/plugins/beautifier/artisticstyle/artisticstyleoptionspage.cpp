@@ -45,7 +45,6 @@ public:
     explicit ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings);
 
     void apply() final;
-    void finish() final {}
 
 private:
     Ui::ArtisticStyleOptionsPage ui;

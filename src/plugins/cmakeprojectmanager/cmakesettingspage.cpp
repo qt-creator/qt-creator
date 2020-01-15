@@ -590,7 +590,6 @@ public:
     }
 
     void apply() final;
-    void finish() final {}
 
     void cloneCMakeTool();
     void addCMakeTool();

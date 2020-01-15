@@ -44,7 +44,6 @@ public:
     explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings);
 
     void apply() final;
-    void finish() final {}
 
 private:
     Ui::ClangFormatOptionsPage ui;

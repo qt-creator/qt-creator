@@ -44,7 +44,6 @@ public:
     explicit QtTestSettingsWidget(QSharedPointer<QtTestSettings> settings);
 
     void apply() final;
-    void finish() final {}
 
 private:
     Ui::QtTestSettingsPage m_ui;

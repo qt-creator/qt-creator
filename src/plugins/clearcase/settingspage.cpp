@@ -52,7 +52,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final { }
 
     Ui::SettingsPage m_ui;
 };

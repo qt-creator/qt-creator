@@ -39,7 +39,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final {}
 
     Ui::GeneralOptionsPage ui;
 };

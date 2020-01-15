@@ -182,7 +182,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final {}
 
     void updateDescriptionLabel();
     void userChangedCurrentVersion();

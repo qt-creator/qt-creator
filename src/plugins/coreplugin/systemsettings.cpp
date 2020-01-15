@@ -157,7 +157,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final {}
 
     void showHelpForFileBrowser();
     void resetFileBrowser();

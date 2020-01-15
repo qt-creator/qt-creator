@@ -45,7 +45,6 @@ public:
     explicit UncrustifyOptionsPageWidget(UncrustifySettings *settings);
 
     void apply() final;
-    void finish() final {}
 
 private:
     Ui::UncrustifyOptionsPage ui;

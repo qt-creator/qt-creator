@@ -64,7 +64,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final {}
 
     void showEvent(QShowEvent *event) final;
 

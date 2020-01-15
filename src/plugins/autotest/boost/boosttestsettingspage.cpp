@@ -42,7 +42,6 @@ public:
     explicit BoostTestSettingsWidget(QSharedPointer<BoostTestSettings> settings);
 
     void apply() final;
-    void finish() final {}
 
     void setSettings(const BoostTestSettings &settings);
     BoostTestSettings settings() const;

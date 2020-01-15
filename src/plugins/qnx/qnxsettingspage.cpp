@@ -67,7 +67,6 @@ public:
     };
 
     void apply() final;
-    void finish() final {}
 
     void addConfiguration();
     void removeConfiguration();

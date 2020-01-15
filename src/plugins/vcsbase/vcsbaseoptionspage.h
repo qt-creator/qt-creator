@@ -56,7 +56,6 @@ public:
     VcsClientOptionsPageWidget();
 
     void apply() override {}
-    void finish() override {}
 
     virtual void setSettings(const VcsBaseClientSettings &s) = 0;
     virtual VcsBaseClientSettings settings() const = 0;

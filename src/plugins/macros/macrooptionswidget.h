@@ -50,7 +50,6 @@ public:
     void initialize();
 
     void apply() final;
-    void finish() final {}
 
 private:
     void remove();

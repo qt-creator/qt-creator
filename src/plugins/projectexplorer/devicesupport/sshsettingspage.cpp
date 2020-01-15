@@ -52,7 +52,6 @@ public:
 
 private:
     void apply() final { saveSettings(); }
-    void finish() final {}
 
     void setupConnectionSharingCheckBox();
     void setupConnectionSharingSpinBox();

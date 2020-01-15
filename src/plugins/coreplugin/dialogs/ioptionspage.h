@@ -42,7 +42,7 @@ class CORE_EXPORT IOptionsPageWidget : public QWidget
 {
 public:
     virtual void apply() = 0;
-    virtual void finish() = 0;
+    virtual void finish() {}
 };
 
 class CORE_EXPORT IOptionsPage : public QObject

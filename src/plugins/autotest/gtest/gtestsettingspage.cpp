@@ -50,7 +50,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final {}
 
     Ui::GTestSettingsPage m_ui;
     QString m_currentGTestFilter;

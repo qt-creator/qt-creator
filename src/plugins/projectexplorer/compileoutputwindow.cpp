@@ -402,8 +402,6 @@ public:
         BuildManager::setCompileOutputSettings(s);
     }
 
-    void finish() final {}
-
 private:
     QCheckBox m_wrapOutputCheckBox;
     QCheckBox m_popUpCheckBox;

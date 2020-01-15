@@ -51,7 +51,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final {};
 
     std::unique_ptr<Ui::SettingsWidget> m_ui;
     ClangToolsSettings *m_settings;

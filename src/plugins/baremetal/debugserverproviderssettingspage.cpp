@@ -277,7 +277,6 @@ public:
     DebugServerProvidersSettingsWidget();
 
     void apply() final { m_model.apply(); }
-    void finish() final {}
 
     void providerSelectionChanged();
     void removeProvider();

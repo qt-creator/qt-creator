@@ -73,8 +73,6 @@ public:
         ProjectExplorerPlugin::setBuildPropertiesSettings(s);
     }
 
-    void finish() final {}
-
 private:
     QComboBox m_separateDebugInfoComboBox;
     QComboBox m_qmlDebuggingComboBox;

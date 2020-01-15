@@ -43,7 +43,6 @@ public:
 
 private:
     void apply() final;
-    void finish() final {}
 
     int uiEmbedding() const;
     void setUiEmbedding(int);

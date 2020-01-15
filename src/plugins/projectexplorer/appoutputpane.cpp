@@ -877,8 +877,6 @@ public:
         ProjectExplorerPlugin::setAppOutputSettings(s);
     }
 
-    void finish() final {}
-
 private:
     QCheckBox m_wrapOutputCheckBox;
     QCheckBox m_cleanOldOutputCheckBox;
