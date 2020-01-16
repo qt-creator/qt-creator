@@ -895,7 +895,7 @@ function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST" "" "DEFINES;DEPENDS;INCLUDES;SOURCES" ${ARGN})
 
   foreach(dependency ${_arg_DEPENDS})
-    if (NOT TARGET &{dependency})
+    if (NOT TARGET dependency AND NOT _arg_GTEST)
       return()
     endif()
   endforeach()
