@@ -89,6 +89,7 @@ OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(OptionsPageWidget::tr("Bazaar"));
     setWidgetCreator([control] { return new OptionsPageWidget(control); });
+    setCategory(Constants::VCS_SETTINGS_CATEGORY);
 }
 
 } // Internal
