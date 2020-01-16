@@ -305,7 +305,7 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
 {
     theGlobalSettings = this;
 
-    setConfigWidgetCreator([this] { return new ValgrindConfigWidget(this, true); });
+    setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
     readSettings();
 }
 
@@ -494,7 +494,7 @@ void ValgrindGlobalSettings::setShortenTemplates(bool on)
 
 ValgrindProjectSettings::ValgrindProjectSettings()
 {
-    setConfigWidgetCreator([this] { return new ValgrindConfigWidget(this, false); });
+    setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
 }
 
 void ValgrindProjectSettings::fromMap(const QVariantMap &map)

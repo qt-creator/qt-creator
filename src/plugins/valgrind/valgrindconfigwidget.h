@@ -26,42 +26,17 @@
 
 #pragma once
 
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-QT_END_NAMESPACE
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Valgrind {
 namespace Internal {
 
-namespace Ui { class ValgrindConfigWidget; }
-
-class ValgrindBaseSettings;
-
-class ValgrindConfigWidget : public QWidget
+class ValgrindOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    ValgrindConfigWidget(ValgrindBaseSettings *settings, bool global);
-    ~ValgrindConfigWidget() override;
+    ValgrindOptionsPage();
 
-    void setSuppressions(const QStringList &files);
-    QStringList suppressions() const;
-
-    void slotAddSuppression();
-    void slotRemoveSuppression();
-    void slotSuppressionsRemoved(const QStringList &files);
-    void slotSuppressionsAdded(const QStringList &files);
-    void slotSuppressionSelectionChanged();
-
-private:
-    void updateUi();
-
-    ValgrindBaseSettings *m_settings;
-    Ui::ValgrindConfigWidget *m_ui;
-    QStandardItemModel *m_model;
+    static QWidget *createSettingsWidget(class ValgrindBaseSettings *settings);
 };
 
 } // namespace Internal

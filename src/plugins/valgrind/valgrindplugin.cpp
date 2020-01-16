@@ -53,40 +53,6 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindOptionsPage : public IOptionsPage
-{
-public:
-    explicit ValgrindOptionsPage(QObject *parent)
-        : IOptionsPage(parent)
-    {
-        setId(ANALYZER_VALGRIND_SETTINGS);
-        setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindOptionsPage", "Valgrind"));
-        setCategory("T.Analyzer");
-        setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
-    }
-
-    QWidget *widget() override
-    {
-        if (!m_widget)
-            m_widget = new ValgrindConfigWidget(ValgrindGlobalSettings::instance(), true);
-        return m_widget;
-    }
-
-    void apply() override
-    {
-        ValgrindGlobalSettings::instance()->writeSettings();
-    }
-
-    void finish() override
-    {
-        delete m_widget;
-    }
-
-private:
-    QPointer<QWidget> m_widget;
-};
-
 class ValgrindRunConfigurationAspect : public GlobalOrProjectAspect
 {
 public:
@@ -109,6 +75,7 @@ public:
     ValgrindGlobalSettings valgrindGlobalSettings; // Needs to come before the tools.
     MemcheckTool memcheckTool;
     CallgrindTool callgrindTool;
+    ValgrindOptionsPage valgrindOptionsPage;
 };
 
 ValgrindPlugin::~ValgrindPlugin()
@@ -119,8 +86,6 @@ ValgrindPlugin::~ValgrindPlugin()
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
     d = new ValgrindPluginPrivate;
-
-    new ValgrindOptionsPage(this);
 
     RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
 

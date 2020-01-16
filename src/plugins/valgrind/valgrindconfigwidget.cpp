@@ -30,12 +30,13 @@
 
 #include "ui_valgrindconfigwidget.h"
 
+#include <debugger/analyzer/analyzericons.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-
 #include <QStandardItemModel>
 #include <QFileDialog>
 
@@ -44,7 +45,39 @@
 namespace Valgrind {
 namespace Internal {
 
-ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings, bool global)
+class ValgrindBaseSettings;
+
+class ValgrindConfigWidget : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::ValgrindConfigWidget)
+
+public:
+    explicit ValgrindConfigWidget(ValgrindBaseSettings *settings);
+    ~ValgrindConfigWidget() override;
+
+    void apply() final
+    {
+        ValgrindGlobalSettings::instance()->writeSettings();
+    }
+
+    void setSuppressions(const QStringList &files);
+    QStringList suppressions() const;
+
+    void slotAddSuppression();
+    void slotRemoveSuppression();
+    void slotSuppressionsRemoved(const QStringList &files);
+    void slotSuppressionsAdded(const QStringList &files);
+    void slotSuppressionSelectionChanged();
+
+private:
+    void updateUi();
+
+    ValgrindBaseSettings *m_settings;
+    Ui::ValgrindConfigWidget *m_ui;
+    QStandardItemModel *m_model;
+};
+
+ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
     : m_settings(settings),
       m_ui(new Ui::ValgrindConfigWidget)
 {
@@ -149,7 +182,7 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings, bool 
             this, &ValgrindConfigWidget::slotSuppressionSelectionChanged);
     slotSuppressionSelectionChanged();
 
-    if (!global) {
+    if (settings != ValgrindGlobalSettings::instance()) {
         // In project settings we want a flat vertical list.
         auto l = new QVBoxLayout;
         while (layout()->count()) {
@@ -266,6 +299,23 @@ QStringList ValgrindConfigWidget::suppressions() const
 void ValgrindConfigWidget::slotSuppressionSelectionChanged()
 {
     m_ui->removeSuppression->setEnabled(m_ui->suppressionList->selectionModel()->hasSelection());
+}
+
+// ValgrindOptionsPage
+
+ValgrindOptionsPage::ValgrindOptionsPage()
+{
+    setId(ANALYZER_VALGRIND_SETTINGS);
+    setDisplayName(ValgrindConfigWidget::tr("Valgrind"));
+    setCategory("T.Analyzer");
+    setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+    setWidgetCreator([] { return new ValgrindConfigWidget(ValgrindGlobalSettings::instance()); });
+}
+
+QWidget *ValgrindOptionsPage::createSettingsWidget(ValgrindBaseSettings *settings)
+{
+    return new ValgrindConfigWidget(settings);
 }
 
 } // namespace Internal
