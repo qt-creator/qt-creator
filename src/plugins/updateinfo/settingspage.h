@@ -25,14 +25,7 @@
 
 #pragma once
 
-#include "ui_settingspage.h"
-#include "updateinfoplugin.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QPointer>
-
-namespace Utils { class ProgressIndicator; }
 
 namespace UpdateInfo {
 namespace Internal {
@@ -45,22 +38,6 @@ class SettingsPage : public Core::IOptionsPage
 
 public:
     explicit SettingsPage(UpdateInfoPlugin *plugin);
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    void newUpdatesAvailable(bool available);
-    void checkRunningChanged(bool running);
-    void updateLastCheckDate();
-    void updateNextCheckDate();
-    UpdateInfoPlugin::CheckUpdateInterval currentCheckInterval() const;
-
-    QPointer<QWidget> m_widget;
-    QPointer<Utils::ProgressIndicator> m_progressIndicator;
-    Ui::SettingsWidget m_ui;
-    UpdateInfoPlugin *m_plugin;
 };
 
 } // namespace Internal

@@ -40,6 +40,7 @@
 #include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
+#include <QLabel>
 #include <QMenu>
 #include <QMetaEnum>
 #include <QPointer>

@@ -25,35 +25,29 @@
 
 #include "settingspage.h"
 
+#include "ui_settingspage.h"
+#include "updateinfoplugin.h"
+
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/progressindicator.h>
 
 #include <QDate>
 
-using namespace UpdateInfo;
-using namespace UpdateInfo::Internal;
+namespace UpdateInfo {
+namespace Internal {
 
-namespace {
+const char FILTER_OPTIONS_PAGE_ID[] = "Update";
 
-static const char FILTER_OPTIONS_PAGE_ID[] = "Update";
-static const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Update", "Update");
-
-}
-
-SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
-    : m_plugin(plugin)
+class UpdateInfoSettingsPageWidget final : public Core::IOptionsPageWidget
 {
-    setId(FILTER_OPTIONS_PAGE_ID);
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayName(QCoreApplication::translate("Update", FILTER_OPTIONS_PAGE));
-}
+    Q_DECLARE_TR_FUNCTIONS(UpdateInfo::Internal::UpdateInfoSettingsPage)
 
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new QWidget;
-        m_ui.setupUi(m_widget);
+public:
+    UpdateInfoSettingsPageWidget(UpdateInfoPlugin *plugin)
+            : m_plugin(plugin)
+    {
+        m_ui.setupUi(this);
         m_ui.m_checkIntervalComboBox->addItem(tr("Daily"), UpdateInfoPlugin::DailyCheck);
         m_ui.m_checkIntervalComboBox->addItem(tr("Weekly"), UpdateInfoPlugin::WeeklyCheck);
         m_ui.m_checkIntervalComboBox->addItem(tr("Monthly"), UpdateInfoPlugin::MonthlyCheck);
@@ -74,47 +68,51 @@ QWidget *SettingsPage::widget()
                 m_plugin, &UpdateInfoPlugin::startCheckForUpdates);
         connect(m_ui.m_checkIntervalComboBox,
                 QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this, &SettingsPage::updateNextCheckDate);
+                this, &UpdateInfoSettingsPageWidget::updateNextCheckDate);
         connect(m_plugin, &UpdateInfoPlugin::lastCheckDateChanged,
-                this, &SettingsPage::updateLastCheckDate);
+                this, &UpdateInfoSettingsPageWidget::updateLastCheckDate);
         connect(m_plugin, &UpdateInfoPlugin::checkForUpdatesRunningChanged,
-                this, &SettingsPage::checkRunningChanged);
+                this, &UpdateInfoSettingsPageWidget::checkRunningChanged);
         connect(m_plugin, &UpdateInfoPlugin::newUpdatesAvailable,
-                this, &SettingsPage::newUpdatesAvailable);
+                this, &UpdateInfoSettingsPageWidget::newUpdatesAvailable);
     }
-    return m_widget;
-}
 
-UpdateInfoPlugin::CheckUpdateInterval SettingsPage::currentCheckInterval() const
+    void apply() final;
+
+private:
+    void newUpdatesAvailable(bool available);
+    void checkRunningChanged(bool running);
+    void updateLastCheckDate();
+    void updateNextCheckDate();
+    UpdateInfoPlugin::CheckUpdateInterval currentCheckInterval() const;
+
+    QPointer<Utils::ProgressIndicator> m_progressIndicator;
+    Ui::SettingsWidget m_ui;
+    UpdateInfoPlugin *m_plugin;
+};
+
+UpdateInfoPlugin::CheckUpdateInterval UpdateInfoSettingsPageWidget::currentCheckInterval() const
 {
-    QTC_ASSERT(m_widget, return UpdateInfoPlugin::WeeklyCheck);
-
     return static_cast<UpdateInfoPlugin::CheckUpdateInterval>
             (m_ui.m_checkIntervalComboBox->itemData(m_ui.m_checkIntervalComboBox->currentIndex()).toInt());
 }
 
-void SettingsPage::newUpdatesAvailable(bool available)
+void UpdateInfoSettingsPageWidget::newUpdatesAvailable(bool available)
 {
-    if (!m_widget)
-        return;
-
     const QString message = available
             ? tr("New updates are available.")
             : tr("No new updates are available.");
     m_ui.m_messageLabel->setText(message);
 }
 
-void SettingsPage::checkRunningChanged(bool running)
+void UpdateInfoSettingsPageWidget::checkRunningChanged(bool running)
 {
-    if (!m_widget)
-        return;
-
     m_ui.m_checkNowButton->setDisabled(running);
 
     if (running) {
         if (!m_progressIndicator) {
             m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
-            m_progressIndicator->attachToWidget(m_widget);
+            m_progressIndicator->attachToWidget(this);
         }
         m_progressIndicator->show();
     } else {
@@ -128,11 +126,8 @@ void SettingsPage::checkRunningChanged(bool running)
     m_ui.m_messageLabel->setText(message);
 }
 
-void SettingsPage::updateLastCheckDate()
+void UpdateInfoSettingsPageWidget::updateLastCheckDate()
 {
-    if (!m_widget)
-        return;
-
     const QDate date = m_plugin->lastCheckDate();
     QString lastCheckDateString;
     if (date.isValid())
@@ -145,11 +140,8 @@ void SettingsPage::updateLastCheckDate()
     updateNextCheckDate();
 }
 
-void SettingsPage::updateNextCheckDate()
+void UpdateInfoSettingsPageWidget::updateNextCheckDate()
 {
-    if (!m_widget)
-        return;
-
     QDate date = m_plugin->nextCheckDate(currentCheckInterval());
     if (!date.isValid() || date < QDate::currentDate())
         date = QDate::currentDate();
@@ -157,16 +149,21 @@ void SettingsPage::updateNextCheckDate()
     m_ui.m_nextCheckDateLabel->setText(date.toString());
 }
 
-void SettingsPage::apply()
+void UpdateInfoSettingsPageWidget::apply()
 {
-    if (!m_widget)
-        return;
-
     m_plugin->setCheckUpdateInterval(currentCheckInterval());
     m_plugin->setAutomaticCheck(m_ui.m_updatesGroupBox->isChecked());
 }
 
-void SettingsPage::finish()
+// SettingsPage
+
+SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
 {
-    delete m_widget;
+    setId(FILTER_OPTIONS_PAGE_ID);
+    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
+    setDisplayName(UpdateInfoSettingsPageWidget::tr("Update", "Update"));
+    setWidgetCreator([plugin] { return new UpdateInfoSettingsPageWidget(plugin); });
 }
+
+} // Internal
+} // UpdateInfoPlugin
