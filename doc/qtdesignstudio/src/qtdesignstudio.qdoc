@@ -1,0 +1,119 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage{index.html}{Qt Design Studio}
+    \page index.html
+    \nextpage studio-getting-started.html
+
+    \title Qt Design Studio Manual
+
+    \QDS is a UI design and development environment for creating animated UIs
+    and previewing them on the desktop or on Android and embedded Linux devices.
+    It provides you with tools for accomplishing your tasks throughout the whole
+    process, from design to production.
+
+    \table
+        \row
+            \li \inlineimage studio-gs.png
+            \li \inlineimage studio-projects.png
+            \li \inlineimage studio-components.png
+            \li \inlineimage studio-animation.png
+        \row
+        \li \l{Getting Started}
+            \list
+                \li \l{Exporting Artwork from Design Tools}
+                \li \l{User Interface}
+                \li \l{Editing QML Files in Design Mode}
+                \li \l{Tutorials}
+            \endlist
+            \li \b {\l{Managing Projects}}
+                \list
+                    \li \l{Creating Projects}
+                    \li \l{Using Git}
+                    \li \l{Importing Designs}
+                    \li \l{Converting UI Projects to Applications}
+                \endlist
+            \li \b {\l{Creating UIs}}
+                \list
+                    \li \l{Creating Components}
+                    \li \l{Managing Item Hierarchy}
+                    \li \l{Specifying Item Properties}
+                    \li \l{Using Custom Fonts}
+                \endlist
+        \li \b {\l{Adding Dynamics}}
+            \list
+                \li \l{Creating Animations}
+                \li \l{Adding Connections}
+                \li \l{Adding States}
+                \li \l{Editing PathView Properties}
+            \endlist
+        \row
+            \li \inlineimage studio-3d-scenes.png
+            \li \inlineimage studio-preview.png
+            \li \inlineimage studio-settings.png
+            \li \inlineimage studio-help.png
+        \row
+            \li \b {\l{Editing 3D Scenes}}
+                \list
+                    \li \l{Editing 3D Assets in Design Mode}
+                    \li \l{Working in the 3D Editor}
+                    \li \l{Adding 3D Views}
+                    \li \l{Using 3D Components}
+                \endlist
+            \li \b {\l{Previewing}}
+                \list
+                    \li \l{Previewing on Desktop}
+                    \li \l{Previewing on Devices}
+                    \li \l{Previewing in Browsers}
+                \endlist
+            \li \b {\l{Advanced Topics}}
+                \list
+                    \li \l{Supported Platforms}
+                    \li \l{Keyboard Shortcuts}
+                    \li \l{Coding}
+                    \li \l{Simulating Application Logic}
+                    \li \l{Debugging and Profiling}
+                \endlist
+            \li \b {\l{Help}}
+                \list
+                    \li \l{Examples and Tutorials}
+                    \li \l{Using the Help Mode}
+                    \li \l{Frequently Asked Questions}
+                    \li \l{Concepts and Terms}
+                \endlist
+        \row
+            \li {4,1} \l{All Topics}
+        \row
+            \li {4,1} \note To report bugs and suggestions to the Qt Bug
+                Tracker, select \uicontrol {Help > Report Bug}.
+                To copy and paste detailed information about your system to the
+                bug report, select \uicontrol Help >
+                \uicontrol {System Information}.
+
+                For credits and a list of third-party libraries, see
+                \l {Acknowledgements}.
+    \endtable
+*/

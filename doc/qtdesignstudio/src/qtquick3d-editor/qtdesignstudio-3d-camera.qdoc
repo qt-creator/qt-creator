@@ -1,0 +1,113 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page studio-3d-camera.html
+    \previouspage studio-3d-lights.html
+    \nextpage studio-3d-scene-environment.html
+
+    \title Using Scene Camera
+
+    A camera is always necessary to view the content of a 3D scene. A camera
+    defines how to project the content of a 3D scene into a 2D coordinate space,
+    which can then be used on a 2D surface. When a camera is present in the
+    scene, it can be used to direct what is displayed in a 3D view.
+
+    You can use the following 3D QML types to determine camera projection:
+
+    \list
+        \li \l{PerspectiveCamera}{Camera Perspective} - is the standard camera
+            type, which uses field of view and near and far clip planes to
+            specify the projection.
+        \li \l{OrthographicCamera}{Camera Orthographic} - renders all contents
+            with no perspective. It is ideal for rendering 2D elements, because
+            your images are guaranteed to be the right size on the screen, and
+            you can use the z position of components to bring them closer to or
+            take them farther from the camera (\e z-sorting) with no
+            foreshortening artifacts.
+        \li \l{FrustumCamera}{Camera Frustum} - enables finer grain control of
+            how the frustum is defined, by setting the number of degrees between
+            the top and bottom or left and right edges of the camera frustum.
+            This is useful when creating asymmetrical frustums.
+        \li \l{CustomCamera}{Camera Custom} - provides  full control over how
+            the projection matrix is created.
+    \endlist
+
+    You can position the camera in the scene and set the direction it is facing.
+    The default direction of the camera is such that the forward vector is
+    looking up the +z axis, and the up direction vector is up the +y axis. You
+    can apply transforms to the camera and its parent types to define
+    exactly where your camera is located and in which direction it is facing.
+
+    The second part of determining the projection of the camera is defining the
+    field of view (\e frustum) of the camera that defines which parts of the
+    scene are visible, as well as how they are visible.
+
+    You can edit the camera properties in the \uicontrol Properties view.
+
+    \section1 Setting Camera Field of View
+
+    The camera frustum can be obtained by taking a frustum (that is, a
+    truncation with parallel planes) of the cone of vision that a camera or eye
+    would have to the rectangular viewports typically used in computer graphics.
+    The shape of the cone depends on the camera lens that is being simulated.
+    Typically, it is a rectangular pyramid with the top cut off.
+
+    The planes that cut the frustum perpendicular to the viewing direction are
+    called the \e {near plane} and the \e {far plane}. Components in front of
+    the near plane or behind the far plane are not drawn.
+
+    The \uicontrol {Clip near} and \uicontrol {Clip far} properties determine
+    the position of the near plane and the far plane. We recommend that
+    you place the near and far planes as close to each other as possible to
+    optimize depth accuracy. Components are clipped at pixel level instead of
+    element level. This means that a model crossing a plane may be only
+    partially rendered.
+
+    The \uicontrol {Field of view} (FOV) property specifies the number of
+    degrees between the edges of the camera frustum. The larger the value,
+    the stronger the sense of 3D in your scene. By default, the
+    \uicontrol {FOV orientation} property is set to use the vertical FOV.
+    This value is the number of degrees between the top and bottom edges
+    of the camera frustum.
+
+    The horizontal FOV determines the number of degrees between the left and
+    right edges of the camera frustum. It is automatically calculated based on
+    the aspect ratio of the scene when the FOV orientation is set to vertical.
+    You can set the orientation to horizontal to translate FOV values from
+    graphics tools such as Maya and Blender, which use horizontal FOV by
+    default.
+
+    The default values are intended to cause anything within the view
+    of the camera to be rendered. Aside from special clipping effects, you
+    may need to adjust these values to more closely contain your content for
+    better results with ambient occlusion or with effects that use the depth
+    buffer of the camera, such as the \e {depth of field} effect.
+
+    \note Orthographic cameras don't have the FOV property.
+*/

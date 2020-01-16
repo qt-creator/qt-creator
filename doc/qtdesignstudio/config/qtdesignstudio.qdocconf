@@ -1,0 +1,120 @@
+project     = "$IDE_DISPLAY_NAME"
+description = "$IDE_DISPLAY_NAME Manual"
+url         = https://doc.qt.io/qtdesignstudio
+
+moduleheader =
+
+headerdirs =
+sourcedirs = ../src \
+             ../examples/doc \
+             ../../src
+# The image folders also need to added by packaging scripts, so inform your
+# local release team about any changes you make.
+imagedirs = ../images \
+            ../examples/doc/images \
+            ../../images \
+            ../../../plugins/qmldesigner/qmlpreviewplugin/images \
+            ../../../share/qtcreator/qml/qmlpuppet/mockfiles/images \
+            ../../../share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images \
+            ../../../src/libs/qmleditorwidgets/images \
+            ../../../src/libs/utils/images \
+            ../../../src/plugins/debugger/images \
+            ../../../src/plugins/diffeditor/images \
+            ../../../src/plugins/help/images \
+            ../../../src/plugins/projectexplorer/images \
+            ../../../src/plugins/qmldesigner/components/componentcore/images \
+            ../../../src/plugins/qmldesigner/components/formeditor \
+            ../../../src/plugins/qmldesigner/components/navigator \
+            ../../../src/plugins/qmldesigner/components/timelineeditor/images \
+            ../../../src/plugins/qmldesigner/qmlpreviewplugin/images \
+            ../../../src/plugins/texteditor/images
+
+excludefiles += ../../src/qtcreator.qdoc \
+                ../../src/qtcreator-toc.qdoc
+
+excludedirs  += ../../examples/accelbubble \
+                ../../examples/textfinder \
+                ../../examples/transitions \
+                ../../src/analyze \
+                ../../src/android \
+                ../../src/baremetal \
+                ../../src/cmake \
+                ../../src/debugger/creator-only \
+                ../../src/editors/creator-only \
+                ../../src/howto/creator-only \
+                ../../src/ios \
+                ../../src/linux-mobile \
+                ../../src/mcu \
+                ../../src/overview/creator-only \
+                ../../src/projects \
+                ../../src/qnx \
+                ../../src/qtquick/creator-only \
+                ../../src/vcs/creator-only \
+                ../../src/widgets \
+                ../../src/webassembly
+
+exampledirs = ../examples/ \
+              ../../examples
+examples.fileextensions += *.qml *.svg *.ts *.qm
+
+HTML.extraimages         = ../../config/images/commercial.png
+qhp.QtCreator.extraFiles = ../../config/images/commercial.png
+
+depends +=    qtwidgets \
+              qtcore \
+              qtqml \
+              qtqmlmodels \
+              qtquick \
+              qmake \
+              qtdoc \
+              qtgraphicaleffects \
+              qtgui \
+              qthelp \
+              qtquick3d \
+              qtquickcontrols \
+              qtquickextras \
+              qtquicktimeline \
+              qtlinguist \
+              qtscxml \
+              qtsensors \
+              qttestlib \
+              qtuitools \
+              qtxml
+
+include(../../config/macros.qdocconf)
+include(../../config/qt-cpp-ignore.qdocconf)
+include(../../config/qt-defines.qdocconf)
+
+defines += qtdesignstudio
+
+sources.fileextensions = "*.qdoc" "*.qdocinc"
+
+#depends += qtcreator \
+#           qmake
+
+qhp.projects = qtdesignstudio
+qhp.qtdesignstudio.file = qtdesignstudio.qhp
+qhp.qtdesignstudio.namespace = org.qt-project.$IDE_ID.$QTC_VERSION_TAG
+qhp.qtdesignstudio.virtualFolder = doc
+qhp.qtdesignstudio.indexTitle       = $IDE_DISPLAY_NAME Manual $QTC_VERSION
+qhp.qtdesignstudio.filterAttributes = $IDE_ID $QTC_VERSION
+qhp.qtdesignstudio.customFilters.qtdesignstudio.name = $IDE_DISPLAY_NAME $QTC_VERSION
+qhp.qtdesignstudio.customFilters.qtdesignstudio.filterAttributes = $IDE_ID $QTC_VERSION
+qhp.qtdesignstudio.indexRoot =
+
+qhp.qtdesignstudio.subprojects = manual
+qhp.qtdesignstudio.subprojects.manual.title = $IDE_DISPLAY_NAME Manual
+qhp.qtdesignstudio.subprojects.manual.indexTitle = All Topics
+qhp.qtdesignstudio.subprojects.manual.type = manual
+
+
+# Doxygen compatibility commands
+macro.see                       = "\\sa"
+macro.function                  = "\\fn"
+macro.QB                        = "Qt Bridge"
+macro.QBPS                      = "Qt Bridge for Adobe Photoshop"
+macro.QBSK                      = "Qt Bridge for Sketch"
+macro.QDS                       = "Qt Design Studio"
+
+navigation.landingpage = "$IDE_DISPLAY_NAME Manual"
+buildversion = "$IDE_DISPLAY_NAME Manual $QTC_VERSION"

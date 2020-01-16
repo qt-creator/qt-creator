@@ -1,0 +1,8 @@
+include(config/license.qdocconf)
+include($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)
+include(config/html-online.qdocconf)
+include(config/qtdesignstudio.qdocconf)
+
+# Add an .html file with sidebar content, used in the online style
+HTML.stylesheets               += config/style/qt5-sidebar.html
+

@@ -1,0 +1,55 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+
+    \contentspage {Qt Design Studio}
+    \previouspage qtquick-properties.html
+    \page studio-fonts.html
+    \nextpage studio-adding-dynamics.html
+
+    \title Using Custom Fonts
+
+    For your UI to use custom fonts when you preview it on a device,
+    you have to import the fonts to the project folder. \QDS deploys them to
+    the device along with your UI.
+
+    \note Use fixed-width fonts if you plan to animate running numbers, so that
+    they do not appear to jump around the screen when they change.
+
+    To add fonts:
+
+    \list 1
+        \li Select \uicontrol Library > \uicontrol Resources >
+            \uicontrol {Add New Resources}.
+        \li Browse to the folder that contains the font files and select them.
+        \li Enter the name of the directory to save the fonts. By default, \QDS
+            suggests the project directory.
+        \li Select \uicontrol OK to save the fonts.
+    \endlist
+
+    The fonts are added to the list of fonts for the \uicontrol Font property
+    in \uicontrol Properties.
+*/

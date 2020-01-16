@@ -1,0 +1,57 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page exporting-from-maya.html
+    \previouspage qtbridge-sketch-using.html
+    \nextpage creator-quick-tour.html
+
+    \title Exporting from Maya
+
+    You can export graphics from Maya in the FBX format. The necessary plugin is
+    usually enabled by default, but you can check that in the plugin manager.
+
+    To export graphics from Maya:
+
+    \list 1
+        \li Select \uicontrol Window > \uicontrol Settings/Preferences >
+            \uicontrol {Plug-in Manager} and check that the fbxmaya.mll
+            plugin is enabled.
+        \li Select \uicontrol File > \uicontrol {Export All}.
+            \image maya-export-options.png "Export options in Maya"
+        \li In the \uicontrol {File name} field, enter a name for the export
+            file.
+        \li In the \uicontrol {Files of type} field, select
+            \uicontrol {FBX export}.
+        \li In \uicontrol Presets > \uicontrol {Current Preset}, select
+            \uicontrol {Autodesk Media & Entertainment}.
+        \li In \uicontrol Geometry > \uicontrol {Convert NURBS surface to},
+            select \uicontrol {Interactive Display Mesh}.
+        \li To export files, select \uicontrol {Export All}.
+    \endlist
+*/

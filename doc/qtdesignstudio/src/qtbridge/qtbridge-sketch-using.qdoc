@@ -1,0 +1,196 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Bridge documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \previouspage qtbridge-sketch-setup.html
+    \page qtbridge-sketch-using.html
+    \nextpage exporting-from-maya.html
+
+    \title Using \QBSK
+
+    \section1 Organizing Assets
+
+    To get the best results when you use \QBSK to export designs from Sketch
+    to \QDS, follow these guidelines when working with Sketch:
+
+    \list
+        \li Arrange your sketch document in artboards, layers, and groups. The
+            QML code generated in \QDS corresponds to the structure of your
+            Sketch document.
+        \li \QBSK supports document \e symbols and \e {symbol overrides}. Each
+            symbol is exported as a QML component, and each symbol instance is
+            generated as a respective \e component instance in the generated
+            QML. The symbol overrides are exported as values of properties for
+            the components. For example, if you use symbol overrides to specify
+            the text for each button instance, it is exported as a value of the
+            text property.
+        \li Store all assets in the scalable vector graphics (SVG) format
+            to be able to easily rescale them for different screen sizes
+            and resolutions.
+    \endlist
+
+    To use the fonts that you use in Sketch also in \QDS, you need to load
+    them to \QDS. \QDS deploys them to devices when you preview the UI. For more
+    information, see \l{Using Custom Fonts}.
+
+    \section2 Using Artboards
+
+    The relationships between artboards and layers are preserved when you export
+    designs from Sketch and import them into \QDS.
+
+    An artboard can only be exported as a component. That is, a separate
+    QML file that contains all the artwork on the artboard, except layers that
+    are set to be skipped or exported as child items.
+
+    A component is a single QML file that can contain other child items with
+    assets or text.
+
+    To use the contents of an artboard as a single image in the UI, you can
+    merge the groups and layers when you export them. During import, the
+    contents are flattened into one PNG file. The merge is done in a way that
+    enables you to change the groups and layers in Sketch and then export and
+    import the artboard again. This is an easy way to create a reference image
+    of how the final UI should look like, for example.
+
+    Place different parts of the UI, such as menus and pop-ups, on separate
+    artboards to be able to export them as components or children and to
+    import them as QML and PNG files that you can drag and drop to the working
+    area in \QDS Design mode while creating a UI.
+
+    \section2 Using Layer and Groups
+
+    When you use \QBSK to export your designs, you will determine how you want
+    each layer or group to be exported: as \e merged or as \e child. Each
+    layer or group represents a separate image in the UI when it is exported as
+    a \e child. The asset of the layer or group is merged to its parent
+    group or artboard if it is exported as \e merged.
+
+    You can select the asset format and DPI to use for each image in
+    \uicontrol Settings > \uicontrol {Asset Settings}.
+
+    \section1 Exporting Assets
+
+    By default, layers are exported as follows:
+
+    \list
+        \li Artboards are always exported as \e components or \e skipped.
+        \li Asset layers are exported as merged.
+        \li Text layers can only be exported as \e child or \e skipped.
+        \li A \e hotspot layer can only be exported as \e child or \e skipped.
+            It is always exported as an instance of the \l MouseArea QML type.
+        \li A symbol instance layer can only be exported as \e child or
+            \e skipped.
+    \endlist
+
+    You can export assets using the default settings and make all the changes
+    later in \QDS. If you are familiar with the \l{QML Syntax Basics}
+    {QML syntax}, you can modify the settings to tailor the generated QML to
+    a certain degree. For example, you can specify the QML type or
+    \l {Studio Components}{Qt Quick Studio Component} to use for a component or
+    layer. If you have drawn an arc that you mean to animate, you can export it
+    as an \l Arc component to avoid having to replace the arc image with an Arc
+    component in \QDS. Or you could export a button as a Qt Quick Controls
+    \l Button type.
+
+    \image qt-sketch-bridge.png
+
+    \section2 Specifying Settings for Exporting Assets
+
+    To export your design using \QBSK:
+
+    \list 1
+        \li \QBSK automatically proposes identifiers for all groups and layers
+            that you can change in the \uicontrol {QML ID} field. The ids will
+            be made unique when the layer and the respective artwork is imported
+            into \QDS.
+        \li In the \uicontrol {Export As} field, select the export type for the
+            group or layer:
+            \list
+                \li \uicontrol Component creates a separate QML file for the
+                    selected symbol that contains all the artwork in it, except
+                    layers or groups that are set to be skipped or exported as
+                    child items.
+                \li \uicontrol Child creates a separate PNG file for each asset
+                    of the selected group or layer, with references to the
+                    images in the component file.
+                \li \uicontrol Merged merges the selected groups and layers into
+                    the parent artboard or group as one item.
+                \li \uicontrol Skipped completely skips the selected layer.
+            \endlist
+        \li In the \uicontrol {QML Type} field, specify the QML type or
+            \l {Studio Components}{Qt Quick Studio Component} to morph this
+            layer into. The generated component will be of this type. For
+            example, if you drew a rectangle, you can export it as a
+            \l Rectangle component.
+            You can provide the import statement of the module where the QML
+            type is defined in the \uicontrol Imports field.
+        \li In the \uicontrol Imports field, enter
+            additional import statements to have them added to the generated QML
+            file. For example, to use Qt Quick Controls 2.3, you need the
+            import statement \c {QtQuick.Controls 2.3} and to use Qt Quick
+            Studio Components 1.0, you need the import statement
+            \c {QtQuick.Studio.Components 1.0}. You can also import a module as
+            an alias.
+        \li In the \uicontrol {Properties} field, specify properties for the QML
+             type. You can add and modify properties in \QDS.
+        \li Select the \uicontrol Alias check box to export the item generated
+            from this layer as an alias in the parent component.
+        \li Select the \uicontrol Clip check box to enable
+            clipping in the type generated from the layer. The generated type
+            will clip its own painting, as well as the painting of its children,
+            to its bounding rectangle.
+        \li Select the \uicontrol Visible check box to determine the visibility
+            of the layer.
+        \li Select \uicontrol Export to copy your assets to the export path you
+            specified.
+        \li When the exporting is done, select \uicontrol OK.
+    \endlist
+
+    All the assets and metadata are copied to the directory you specified. This
+    might take a little while depending on the complexity of your project.
+
+    You can now create a project in \QDS and import the assets to it, as
+    described in \l {Creating Projects} and \l{Importing Designs}.
+
+    \section1 Specifying Export Path and Asset Format
+
+    To specify export path and asset format, select \uicontrol Settings >
+    \uicontrol {Asset Settings}.
+
+    \image qt-sketch-bridge-settings.png
+
+    \list 1
+        \li By default, \QBSK exports assets to a directory named after your
+            Sketch file located inside the parent directory of the Sketch file
+            being exported. You can change the export path in the
+            \uicontrol {Export Path} field.
+        \li You can select the default asset format and DPI to use for each
+            layer. These settings are overridden by the layer export settings
+            from the Sketch app. That is, if the layer is made exportable in
+            the Sketch app, the respective asset format and DPI settings are
+            preserved.
+    \endlist
+*/

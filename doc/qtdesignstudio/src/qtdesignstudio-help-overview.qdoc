@@ -1,0 +1,59 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \page studio-help.html
+    \previouspage creator-editor-external.html
+    \nextpage {Examples and Tutorials}
+
+    \title Help
+
+    \list
+        \li \l{Examples and Tutorials}
+
+            A set of examples available in the Welcome mode illustrates how
+            to use \QDS features such as the timeline. If you would rather
+            be shown things than read about them, you can watch our extensive
+            video tutorials.
+
+        \li \l{Using the Help Mode}
+
+            \QDS comes fully integrated with documentation. You can use search
+            and index functions to find particular topics in the helps, or
+            request context-sensitive help by pressing \key F1 in the Design
+            mode.
+
+        \li \l{Frequently Asked Questions}
+
+            Contains answers to some frequently asked questions about \QDS.
+
+        \li \l{Concepts and Terms}
+
+            Describes main \QDS concepts and terms.
+
+    \endlist
+
+*/

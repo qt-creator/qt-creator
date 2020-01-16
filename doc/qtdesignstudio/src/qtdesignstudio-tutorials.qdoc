@@ -1,0 +1,53 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \previouspage creator-using-qt-quick-designer.html
+    \group gstutorials
+    \nextpage studio-projects-managing.html
+
+    \title Tutorials
+
+    \image loginui4.gif "Log In UI"
+
+    You can follow a set of hands-on tutorials that build on each other to
+    illustrate how to use the features of \QDS. In addition, the tutorials
+    provide additional information about the features of QML and Qt Quick
+    that are relevant to the task at hand. Even if you plan to export your
+    designs from a design tool, it is useful to first create a small UI from
+    scratch to learn the basic concepts of \QDS. In particular, Part 1
+    describes the terms and concepts that you will run into when exporting
+    designs with \QB.
+
+    Before you start, take a look at the following topics to familiarize
+    yourself with the parts of \QDS in general, and the Design mode in
+    particular: \l{User Interface} and \l{Editing QML Files in Design Mode}.
+
+    In addition to these entry-level tutorials, \QDS comes with examples
+    and video tutorials that you can open from the \uicontrol Examples and
+    \uicontrol Tutorials tabs in the \uicontrol Welcome mode. For more
+    information, see \l {Examples and Tutorials}.
+*/

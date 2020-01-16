@@ -1,0 +1,159 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+
+    \contentspage {Qt Design Studio Manual}
+    \previouspage studio-projects-managing.html
+    \page studio-projects.html
+    \nextpage creator-vcs-git.html
+
+    \title Creating Projects
+
+    Creating a project enables you to:
+
+    \list
+        \li Group files together
+        \li Include forms and resource files
+        \li Specify settings for previewing UIs
+    \endlist
+
+    Setting up a new project in \QDS is aided by a wizard that guides you
+    step-by-step through the project creation process. The wizards prompt you
+    to enter the settings needed for that particular type of project and create
+    the necessary files for you.
+
+    Studio projects are useful for creating UIs. You cannot use
+    them for application development, because they do not contain:
+
+    \list
+        \li C++ code
+        \li Resource files (.qrc)
+        \li Code needed for deploying applications to devices.
+    \endlist
+
+    Because the UIs do not contain any C++ code, you do not need
+    to build them. To test how well your designs work, you can preview the
+    UIs on the desktop or embedded Linux devices. For more
+    information, see \l{Previewing}.
+
+    \image studio-project-wizards.png "A list of project wizards"
+
+    You can export designs from other design tools and import them to projects
+    or create them from scratch using the following wizards:
+
+    \list
+        \li \uicontrol General generates projects that are suitable for all
+            target platforms.
+        \omit
+        \li \uicontrol Embedded generates projects that work well on embedded
+            Linux devices.
+        \endomit
+        \li \uicontrol Mobile generates projects that work well on mobile
+            devices.
+        \li \uicontrol Desktop generates projects that work well on the desktop.
+    \endlist
+
+    \section1 Using Project Wizards
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project}.
+        \li Select the type of your project, and then select \uicontrol Choose.
+        \li In the \uicontrol Name field, enter a name for the project.
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files, and then select \uicontrol Next (or \uicontrol Continue on
+            \macos).
+        \li In the \uicontrol {Screen resolution} field, select the screen
+            resolution for previewing the UI on the desktop or on a device.
+        \li In the \uicontrol {Qt Quick Controls Style} field, select one of
+            the predefined \l{Styling Qt Quick Controls}{UI styles} to use,
+            and then select \uicontrol Finish (or \uicontrol Done on \macos).
+    \endlist
+
+    \QDS creates the following files and folders:
+
+    \list
+        \li .qmlproject project file defines that all QML, JavaScript, and image
+            files in the project folder belong to the project. Therefore, you do
+            not need to individually list all the files in the project.
+        \li .qml file defines a UI item, such as a component, screen, or the
+            whole UI.
+        \li ui.qml file defines a form for the UI.
+        \li qtquickcontrols2.conf file specifies the preferred style and some
+            style-specific arguments.
+        \li \e imports folder contains a \e {Constants.qml} file that specifies
+            a font loader for the Arial font and a \e qmldir module definition
+            file that declares the Constant QML type. For more information, see
+            \l {Module Definition qmldir Files}. In addition, the \e QtQuick
+            subfolder contains the Studio components and effects QML types.
+    \endlist
+
+    To use JavaScript and image files in the UI, copy them to the
+    project folder.
+
+    \section1 Adding Files to Projects
+
+    You can use wizards also to add individual files to your projects.
+    You can create the following types of files:
+
+    \list
+        \li \uicontrol {Qt Quick Files}
+            \list
+                \li \uicontrol {Qt Quick File} generates a QML type with one
+                    of the following types as the root item: \l Item,
+                    \l Rectangle, \l Image, \l BorderImage, \l Flickable,
+                    \l Row, \l Column, \l Flow, or \li Grid.
+                \li \uicontrol {Qt Quick UI File} generates a UI form with one
+                    of the above types as the root item.
+                \li \uicontrol {Qt Quick Views} generates a \l GridView or a
+                    \l ListView.
+            \endlist
+        \li \uicontrol {Qt Quick Controls}
+            \list
+                \li \l [Qt Quick Controls 2] {Button}{Custom Button} creates a
+                    push button with a text label.
+                \li \l [Qt Quick Controls 2] {Switch}{Custom Switch} creates a
+                    switch with on and off states.
+                \li \l [Qt Quick Controls 2] {Pane} provides a background that
+                    matches the UI style and theme.
+                \li \l [Qt Quick Controls 2] { StackView} provides a stack-based
+                    navigation model.
+                \li \l [Qt Quick Controls 2] {SwipeView} enables users to
+                    navigate pages by swiping sideways.
+            \endlist
+        \li \uicontrol {QML Files}
+            \list
+                \li \l FontLoader imports custom fonts to the project for
+                    deployment to devices. For more information, see
+                    \l {Using Custom Fonts}.
+                \li \l ListModel adds a list model to the project.
+            \endlist
+        \li \uicontrol {JavaScript File} generates files that you can use to
+            write the application logic. This is useful for testing the
+            application before the developers implement the application logic
+            in C++, for example. For more information, see
+            \l {Simulating Application Logic}.
+        \endlist
+*/

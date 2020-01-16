@@ -1,0 +1,125 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \qmltype Flipable
+    \inqmlmodule QtQuick.Studio.Components
+    \since QtQuick.Studio.Components 1.0
+    \ingroup qtquickstudio-components
+
+    \brief Provides a surface that can be flipped.
+
+    A Flipable type can be visibly \e flipped between its front and back sides,
+    like a card. The front and back sides are specified by using any two types
+    inside the Flipable type. The type with the higher z-order is the front
+    side. The \l opacityFront and \l opacityBack properties are used to hide
+    and show either the front or back side of the flipable item at a time.
+
+    The \l flipAngle property is used to animate the angle of the type to
+    produce the flipping effect. The \l xAxis or \l yAxis property is set
+    to 1 to determine which axis the type is rotated around.
+
+    \section2 Example Usage
+
+    You can use the Flipable component in \QDS to create a flipable item. In
+    this example, the two sides of the flipable show ISO 7000 icons.
+
+    \image studio-flipable.png
+
+    The QML code looks as follows:
+
+    \code
+    FlipableItem {
+        id: flipable
+        width: 90
+        height: 89
+        opacityBack: 0
+
+        IsoItem {
+            id: arrowIsoIcon
+            color: "#808080"
+            anchors.fill: parent
+            source: "./iso-icons/iso_grs_7000_4_0251.dat"
+        }
+
+        IsoItem {
+            id: questionIsoIcon
+            color: "#808080"
+            anchors.fill: parent
+            source: "./iso-icons/iso_grs_7000_4_0435.dat"
+        }
+    }
+    \endcode
+*/
+
+/*!
+    \qmlproperty Rotation Flipable::flipAngle
+
+    The flip angle in degrees.
+
+    The minimum value is -360 and the maximum value is 360 degrees.
+*/
+
+/*!
+    \qmlproperty real Flipable::opacityBack
+
+    The opacity of the back side of the flipable type.
+
+    The opacity can be set between 0 and 1 to hide or show the items on the
+    back side of the flipable type.
+*/
+
+/*!
+    \qmlproperty real Flipable::opacityFront
+
+    The opacity of the front side of the flipable type.
+
+    The opacity can be set between 0 and 1 to hide or show the items on the
+    front side of the flipable type.
+*/
+
+/*!
+    \qmlproperty int Flipable::xAxis
+
+    Whether the type is rotated around the x-axis.
+
+    This property is set to 1 to rotate the flipable type around the x-axis.
+*/
+
+/*!
+    \qmlproperty int Flipable::yAxis
+
+    Whether the type is rotated around the y-axis.
+
+    This property is set to 1 to rotate the flipable type around the y-axis.
+*/
+
+/*!
+    \qmlproperty bool Flipable::flipped
+
+    Whether the flipable type has been flipped.
+
+    This property is set to \c true when the type is flipped.
+*/

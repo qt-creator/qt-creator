@@ -1,0 +1,54 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio}
+    \previouspage studio-3d-editor.html
+    \page studio-3d-view.html
+    \nextpage studio-3d-components.html
+
+    \title Adding 3D Views
+
+    To add a 3D view to the scene, drag and drop a \uicontrol {View 3D}
+    component from \uicontrol Library > \uicontrol {QML Types} >
+    \uicontrol {Qt Quick 3D} to the 3D editor or to the \uicontrol Navigator.
+    A 3D view contains a reference node that specifies a scene light, camera,
+    and model. A default material is attached to the model. You can attach
+    textures to materials.
+
+    By default, a directional light and a perspective camera are used.
+    To use other light and camera types, change the type of the component in
+    the \uicontrol Type field in the \uicontrol Properties view. For example,
+    to use a point light, enter \e {PointLight}.
+
+    \image studio-3d-properties-type.png "Type field in Properties view"
+
+    To edit component properties, select the component in the 3D editor
+    or in the \uicontrol Navigator and modify the property values in the
+    \uicontrol Properties view.
+
+    For more information about the available components and their properties,
+    see \l{Using 3D Components}.
+*/

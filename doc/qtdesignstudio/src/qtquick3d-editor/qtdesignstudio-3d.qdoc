@@ -1,0 +1,67 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page studio-3d.html
+    \previouspage qmldesigner-pathview-editor.html
+    \nextpage studio-3d-design-mode.html
+
+    \title Editing 3D Scenes
+
+    You can use the 3D editor in the Design mode to edit files you created
+    using 3D graphics applications and stored in one of the supported formats.
+    You cannot create 3D models or other assets in the editor, but you can
+    \l{Importing 3D Assets}{import} the assets you need and work with them to
+    create scenes and states, as well as the transitions between them.
+
+    When you import 3D scenes from files that you exported from 3D graphics
+    tools, you also import the camera, light, model, and materials as 3D
+    components. If your scene did not contain them, you can add predefined
+    Qt Quick 3D components to it and edit their properties to fit your needs.
+
+    The following topics contain information about working with Qt Quick 3D:
+
+    \list
+        \li \l {Editing 3D Assets in Design Mode}
+
+            \QDS opens QML files that contain 3D scenes in the Design mode and
+            the scenes in the 3D editor. You can add imported 3D assets as
+            resources to projects as 3D components.
+        \li \l {Working in the 3D Editor}
+
+            You can select 3D components in the 3D editor to move, rotate, and
+            scale them in the scene projected by the camera.
+        \li \l{Adding 3D Views}
+
+            You can drag and drop 3D components from the \uicontrol Library
+            to the scene or to the \uicontrol Navigator. You must add all
+            3D components into a 3D view.
+        \li \l {Using 3D Components}
+
+            You can speficy properties for 3D components, such as cameras,
+            lights, materials, and shaders, in the \uicontrol Properties view.
+     \endlist
+*/

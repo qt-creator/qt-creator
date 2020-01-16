@@ -1,0 +1,52 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page qtquickdesigner-components-overview.html
+
+    \title Qt Quick Studio Components
+
+    The Qt Quick Studio Components module provides sets of components and
+    effects enhanced for creating animated UIs. The components inherit
+    \l {Qt Quick Shapes QML Types}. The effects inherit the types in the
+    \l {Qt Graphical Effects} module.
+
+    \section1 Using Studio Components
+
+    A set of ready-made studio components are available for creating differently
+    shaped objects, such as arcs, pies, or triangles, as well as objects with
+    particular abilities, such as being visibly \e flipped between their front
+    and back sides, like a card. The studio components are built on top of
+    \l {Qt Quick Shapes QML Types}, with some additional properties.
+
+    The following table summarizes the available studio components and contains
+    links to their documentation.
+
+    \annotatedlist qtquickstudio-components
+
+    \include qtdesignstudio-visual-effects.qdocinc qml visual effects
+
+*/

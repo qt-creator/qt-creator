@@ -1,0 +1,59 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// Note: The \page value is hard-coded as a link in Qt Bridge for Adobe Photoshop.
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \previouspage qtbridge-overview.html
+    \page psqtbridge.html
+    \nextpage qtbridge-ps-setup.html
+
+    \title Exporting Designs from Adobe Photoshop
+
+    You can use \QBPS to export designs from Adobe Photoshop to .ui.qml files.
+
+    \image studio-ps-export.png
+
+    If you would rather use Adobe Illustrator for creating artwork, you can
+    copy-paste your assets to Adobe Photoshop as \e {smart objects}.
+
+    The following topics describe setting up and using \QBPS:
+
+    \list
+
+        \li \l{Setting Up Qt Bridge for Adobe Photoshop}
+
+            You must install and set up the \QBPS export tool before you can use
+            it to convert artwork into Qt Quick files that you can import to
+            projects in \QDS.
+
+        \li \l{Using Qt Bridge for Adobe Photoshop}
+
+            To get the best results when you use \QBPS to export designs from
+            Photoshop to Qt Quick files, you should follow the guidelines for
+            working with Photoshop and organizing your assets.
+    \endlist
+*/

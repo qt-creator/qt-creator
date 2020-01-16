@@ -1,0 +1,350 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \qmltype Arc
+    \inqmlmodule QtQuick.Studio.Components
+    \since QtQuick.Studio.Components 1.0
+    \inherits ShapePath
+    \ingroup qtquickstudio-components
+
+    \brief An arc that ends at the specified position and uses the specified
+    radius.
+
+    An arc is specified by setting values in degrees for the \l begin and
+    \l end properties. The arc can be just a line or a filled outline.
+    The \l strokeColor, \l strokeWidth, and \l strokeStyle properties specify
+    the appearance of the line or outline. The \l dashPattern and \l dashOffset
+    properties specify the appearance of dashed lines.
+
+    The area between the arc's start and end points or the area inside the
+    outline are painted using either a solid fill color, specified using the
+    \l fillColor property, or a gradient, defined using one of the
+    \l ShapeGradient subtypes and set using the \l gradient property.
+    If both a color and a gradient are specified, the gradient is used.
+
+    To create an arc with an outline, set the \l outlineArc property to \c true.
+    The \l arcWidth property specifies the width of the arc outline, including
+    the stroke. The \l arcWidthBegin and \l arcWidthEnd properties can be used
+    to specify the width of the start and end points of the outline separately.
+    The width of the outline between the start and end points is calculated
+    automatically. The inner and outer curves or the outline can be adjusted by
+    specifying values for the \l radiusInnerAdjust and \l radiusOuterAdjust
+    properties.
+
+    The \l round, \l roundBegin, and \l roundEnd properties specify whether the
+    end points of the arc outline have rounded caps. For an arc that does not
+    have an outline, the \l capStyle property specifies whether the line ends
+    are square or rounded.
+
+    Because an arc has curves, it may be appropriate to set the \l antialiasing
+    property to improve its appearance.
+
+    \section2 Example Usage
+
+    You can use the Arc component in \QDS to create different kinds of arcs.
+
+    \image studio-arc.png
+
+    The QML code looks as follows:
+
+    \code
+    ArcItem {
+        id: arc
+        x: 31
+        y: 31
+        capStyle: 32
+        end: 180
+        strokeWidth: 6
+        strokeColor: "#000000"
+    }
+
+    ArcItem {
+        id: arcOutline
+        strokeColor: "gray"
+        arcWidth: 13
+        end: 180
+        fillColor: "light gray"
+        antialiasing: true
+        round: true
+        outlineArc: true
+    }
+
+    ArcItem {
+        id: circle
+        end: 360
+        strokeWidth: 5
+        strokeColor: "#000000"
+    }
+
+    ArcItem {
+        id: circleOutline
+        outlineArc: true
+        round: true
+        strokeColor: "gray"
+        fillColor: "light gray"
+        strokeWidth: 1
+        end: 360
+    }
+    \endcode
+*/
+
+/*!
+    \qmlproperty enumeration Arc::capStyle
+
+    The cap style of the line if the arc does not have an outline.
+
+    \value ShapePath.FlatCap
+           A square line end that does not cover the end point of the line.
+    \value ShapePath.SquareCap
+           A square line end that covers the end point and extends beyond it
+           by half the line width. This is the default value.
+    \value ShapePath.RoundCap
+           A rounded line end.
+
+    \sa round, roundBegin, roundEnd, Qt::PenCapStyle
+*/
+
+/*!
+    \qmlproperty ShapePath Arc::dashOffset
+
+    The starting point of the dash pattern for the arc or arc outline.
+
+    The offset is measured in terms of the units used to specify the dash
+    pattern. For example, a pattern where each stroke is four units long,
+    followed by a gap of two units, will begin with the stroke when drawn
+    as a line. However, if the dash offset is set to 4.0, any line drawn
+    will begin with the gap. Values of the offset up to 4.0 will cause part
+    of the stroke to be drawn first, and values of the offset between 4.0 and
+    6.0 will cause the line to begin with part of the gap.
+
+    The default value is 0.
+
+    \sa QPen::setDashOffset()
+*/
+
+/*!
+    \qmlproperty ShapePath Arc::dashPattern
+
+    The dash pattern of the arc or arc outline specified as the dashes and the
+    gaps between them.
+
+    The dash pattern is specified in units of the pen's width. That is, a dash
+    with the length 5 and width 10 is 50 pixels long.
+
+    Each dash is also subject to cap styles, and therefore a dash of 1 with
+    square cap set will extend 0.5 pixels out in each direction resulting in
+    a total width of 2.
+
+    The default \l capStyle is \c {ShapePath.SquareCap}, meaning that a square
+    line end covers the end point and extends beyond it by half the line width.
+
+    The default value is (4, 2), meaning a dash of 4 * \l strokeWidth pixels
+    followed by a space of 2 * \l strokeWidth pixels.
+
+    \sa QPen::setDashPattern()
+*/
+
+/*!
+    \qmlproperty ShapePath Arc::fillColor
+
+    The arc fill color.
+
+    If the arc is just a line, the area between its \l begin and \l end
+    points is filled.
+
+    If the arc has an outline, the area within the outline is filled.
+
+    A gradient for the fill can be specified by using \l gradient. If both a
+    color and a gradient are specified, the gradient is used.
+
+    When set to \c transparent, no filling occurs.
+
+    The default value is \c white.
+*/
+
+/*!
+    \qmlproperty ShapePath Arc::gradient
+
+    The gradient of the arc fill color.
+
+    By default, no gradient is enabled and the value is null. In this case, the
+    fill uses a solid color based on the value of \l fillColor.
+
+    When set, \l fillColor is ignored and filling is done using one of the
+    \l ShapeGradient subtypes.
+
+    \note The \l Gradient type cannot be used here. Rather, prefer using one of
+    the advanced subtypes, like \l LinearGradient.
+*/
+
+/*!
+    \qmlproperty ShapePath Arc::strokeColor
+
+    The color of the arc line or outline.
+
+    When set to \c transparent, no line is drawn.
+
+    The default value is \c white.
+
+    \sa QColor
+*/
+
+/*!
+    \qmlproperty enumeration Arc::strokeStyle
+
+    The style of the arc line or outline.
+
+    \value ShapePath.SolidLine
+           A solid line. This is the default value.
+    \value ShapePath.DashLine
+           Dashes separated by a few pixels.
+           The \l dashPattern property specifies the dash pattern.
+
+    \sa Qt::PenStyle
+*/
+
+/*!
+    \qmlproperty ShapePath Arc::strokeWidth
+
+    The width of the arc line or outline.
+
+    When set to a negative value, no line is drawn.
+
+    The default value is 1.
+
+    The total width of an arc that has an outline (that is, the outline and the
+    fill) is specified by \l arcWidth.
+*/
+
+/*!
+    \qmlproperty real Arc::begin
+
+    The position in degrees where the arc begins.
+
+    The default value is 0.
+
+    To create a circle, set the value of this property to 0 and the value of the
+    \l end property to 360.
+*/
+
+/*!
+    \qmlproperty real Arc::end
+
+    The position in degrees where the arc ends.
+
+    To create a circle, set the value of this property to 360 and the value of
+    the \l begin property to 0.
+*/
+
+/*!
+    \qmlproperty real Arc::arcWidth
+
+    The total width of an arc that has an outline, including the outline and
+    fill.
+
+    \sa arcWidthBegin, arcWidthEnd, strokeWidth
+*/
+
+/*!
+    \qmlproperty real Arc::arcWidthBegin
+
+    The width of the beginning of an arc outline.
+
+    \sa arcWidthEnd, arcWidth
+*/
+
+/*!
+    \qmlproperty real Arc::arcWidthEnd
+
+    The width of the end of an arc outline.
+
+   \sa arcWidthBegin, arcWidth
+*/
+
+/*!
+    \qmlproperty real Arc::radiusInnerAdjust
+
+    The radius of the inside edge of the arc outline.
+
+    This property can be used to adjust the inner curve of the arc outline.
+*/
+
+/*!
+    \qmlproperty real Arc::radiusOuterAdjust
+
+    The radius of the outside edge of the arc outline.
+
+    This property can be used to adjust the outer curve of the arc outline.
+*/
+
+/*!
+    \qmlproperty real Arc::alpha
+
+    The area between the \l begin and \l end points of the arc.
+*/
+
+/*!
+    \qmlproperty bool Arc::antialiasing
+
+    Whether the arc should be antialiased.
+
+    Antialiasing might require more memory and slow down drawing the type.
+*/
+
+/*!
+    \qmlproperty bool Arc::outlineArc
+
+    Whether the arc has an outline.
+
+    \sa arcWidth, arcWidthBegin, arcWidthEnd, round, roundBegin, roundEnd,
+
+*/
+
+/*!
+    \qmlproperty bool Arc::round
+
+    Whether the arc outline end points have round caps.
+
+    The \l roundBegin and \l roundEnd properties can be used to specify the
+    caps separately for the end points.
+
+*/
+
+/*!
+    \qmlproperty bool Arc::roundBegin
+
+    Whether the arc outline begins with a round cap.
+
+    \sa Qt::PenCapStyle, round, roundEnd
+*/
+
+/*!
+    \qmlproperty bool Arc::roundEnd
+
+    Whether the arc outline ends with a round cap.
+
+    \sa Qt::PenCapStyle, round, roundBegin
+*/

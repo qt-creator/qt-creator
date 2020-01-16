@@ -1,0 +1,254 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \qmltype Pie
+    \inqmlmodule QtQuick.Studio.Components
+    \since QtQuick.Studio.Components 1.0
+    \inherits ShapePath
+    \ingroup qtquickstudio-components
+
+    \brief A pie.
+
+    The Pie type is used to create a pie slice, a pie that is missing slices,
+    or just the pie rind (similar to an \l Arc), depending on the \l begin and
+    \l end property values and the \l hideLine value.
+
+    The filling of the pie is painted using either a solid fill color, specified
+    using the \l fillColor property, or a gradient, defined using one of the
+    \l ShapeGradient subtypes and set using the \l gradient property.
+    If both a color and a gradient are specified, the gradient is used.
+
+    The \l strokeColor, \l strokeWidth, and \l strokeStyle, properties specify
+    the appearance of the pie outline. The \l dashPattern and \l dashOffset
+    properties specify the appearance of dashed lines.
+
+    The \l capStyle property specifies whether line ends are square or
+    rounded.
+
+    Because a pie has curved edges, it may be appropriate to set the
+    \l antialiasing property to improve its appearance.
+
+    \section2 Example Usage
+
+    You can use the Pie component in \QDS to create different kinds of pies.
+
+    \image studio-pie.png
+
+    The QML code looks as follows:
+
+    \code
+        PieItem {
+        id: pieSlice
+        antialiasing: true
+        strokeColor: "gray"
+        fillColor: "light gray"
+    }
+
+    PieItem {
+        id: pie
+        end: 300
+        fillColor: "#d3d3d3"
+        strokeColor: "#808080"
+        antialiasing: true
+    }
+
+    PieItem {
+        id: pieRind
+        strokeWidth: 4
+        capStyle: 32
+        hideLine: true
+        end: 300
+        strokeColor: "#808080"
+        antialiasing: true
+    }
+    \endcode
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::capStyle
+
+    The cap style of the line.
+
+    \value ShapePath.FlatCap
+           A square line end that does not cover the end point of the line.
+    \value ShapePath.SquareCap
+           A square line end that covers the end point and extends beyond it
+           by half the line width. This is the default value.
+    \value ShapePath.RoundCap
+           A rounded line end.
+
+    \sa Qt::PenCapStyle
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::dashOffset
+
+    The starting point of the dash pattern for the line.
+
+    The offset is measured in terms of the units used to specify the dash
+    pattern. For example, a pattern where each stroke is four units long,
+    followed by a gap of two units, will begin with the stroke when drawn
+    as a line. However, if the dash offset is set to 4.0, any line drawn
+    will begin with the gap. Values of the offset up to 4.0 will cause part
+    of the stroke to be drawn first, and values of the offset between 4.0 and
+    6.0 will cause the line to begin with part of the gap.
+
+    The default value is 0.
+
+    \sa QPen::setDashOffset()
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::dashPattern
+
+    The dash pattern of the line specified as the dashes and the gaps between
+    them.
+
+    The dash pattern is specified in units of the pen's width. That is, a dash
+    with the length 5 and width 10 is 50 pixels long.
+
+    Each dash is also subject to cap styles, and therefore a dash of 1 with
+    square cap set will extend 0.5 pixels out in each direction resulting in
+    a total width of 2.
+
+    The default \l capStyle is \c {ShapePath.SquareCap}, meaning that a square
+    line end covers the end point and extends beyond it by half the line width.
+
+    The default value is (4, 2), meaning a dash of 4 * \l strokeWidth pixels
+    followed by a space of 2 * \l strokeWidth pixels.
+
+    \sa QPen::setDashPattern()
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::fillColor
+
+    The pie fill color.
+
+    If \l hideLine is \c false, a pie slice is drawn using the values of the
+    \l begin and \l end properties and filled with this color.
+
+    If \l hideLine is \c true, just the pie rind is drawn and the area between
+    the \l begin and \l end points is filled.
+
+    A gradient for the fill can be specified by using \l gradient. If both a
+    color and a gradient are specified, the gradient is used.
+
+    When set to \c transparent, no filling occurs.
+
+    The default value is \c white.
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::gradient
+
+    The gradient of the pie fill color.
+
+    By default, no gradient is enabled and the value is null. In this case, the
+    fill uses a solid color based on the value of \l fillColor.
+
+    When set, \l fillColor is ignored and filling is done using one of the
+    \l ShapeGradient subtypes.
+
+    \note The \l Gradient type cannot be used here. Rather, prefer using one of
+    the advanced subtypes, like \l LinearGradient.
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::strokeColor
+
+    The color of the line.
+
+    When set to \c transparent, no line is drawn.
+
+    The default value is \c white.
+
+    \sa QColor
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::strokeStyle
+
+    The style of the border line.
+
+    \value ShapePath.SolidLine
+           A solid line. This is the default value.
+    \value ShapePath.DashLine
+           Dashes separated by a few pixels.
+           The \l dashPattern property specifies the dash pattern.
+
+    \sa Qt::PenStyle
+*/
+
+/*!
+    \qmlproperty ShapePath Pie::strokeWidth
+
+    The width of the line.
+
+    When set to a negative value, no line is drawn.
+
+    The default value is 1.
+*/
+
+/*!
+    \qmlproperty real Pie::begin
+
+    The position in degrees where the pie begins.
+
+    The default value is 0.
+
+    To create a circle, set the value of this property to 0 and the value of the
+    \l end property to 360.
+*/
+
+/*!
+    \qmlproperty real Pie::end
+
+    The position in degrees where the pie ends.
+
+    To create a circle, set the value of this property to 360 and the value of
+    the \l begin property to 0.
+*/
+
+/*!
+    \qmlproperty real Pie::alpha
+
+    The area between \l begin and \l end.
+*/
+
+/*!
+    \qmlproperty bool Pie::antialiasing
+
+    Whether the pie should be antialiased.
+
+    Antialiasing might require more memory and slow down drawing the type.
+*/
+
+/*!
+    \qmlproperty bool Pie::hideLine
+
+    Whether to draw a pie slice or just the pie rind (similar to an \l Arc).
+*/

@@ -1,0 +1,58 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \qmlmodule QtQuick.Studio.Components 1.0
+    \title Qt Quick Studio Components QML Types
+    \ingroup qmlmodules
+    \brief Provides components enhanced for creating animated UIs.
+
+    A set of ready-made studio components are available for creating differently
+    shaped objects, such as arcs, pies, or triangles, as well as objects with
+    particular abilities, such as being visibly \e flipped between their front
+    and back sides, like a card. The studio components are built on top of
+    \l {Qt Quick Shapes QML Types}, with some additional properties.
+
+    The QML types can be imported into your application using the following
+    import statements in your .qml file:
+
+    \badcode
+    import QtQuick.Studio.Components 1.0
+    \endcode
+
+    \omit
+    \\ TODO: Include the omitted text when the module becomes a Qt module.
+    Currently, the components are a part of Qt Design Studio.
+
+    To link against the module, add the following QT variable to your qmake .pro
+    file:
+
+    \badcode
+    QT += studiocomponents
+    \endcode
+    \endomit
+*/

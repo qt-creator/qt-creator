@@ -1,0 +1,156 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page studio-3d-scene-environment.html
+    \previouspage studio-3d-camera.html
+    \nextpage creator-live-preview.html
+
+    \title Setting Scene Environment
+
+    You can use the SceneEnvironment type to specify how the scene is rendered
+    globally. You can specify settings for antialiasing, scene background,
+    ambient occlusion, and image based lighting in the \uicontrol Properties
+    view.
+
+    \section1 Antialiasing
+
+    You can apply temporal, progressive, or multisample antialiasing to
+    scenes. Temporal and progressive antialiasing jiggle the camera very
+    slightly between frames and blend the result of each new frame with
+    the previous frames, while multisample antialiasing super-samples
+    the edges of geometry.
+
+    Temporal antialiasing finds real details that would otherwise be lost
+    and has a low impact on performance, but fast-moving objects cause
+    one-frame ghosting. To enable temporal antialiasing, select the
+    \uicontrol {Temporal AA} check box.
+
+    Progressive antialiasing jiggles the camera after all the content of the
+    scene has stopped moving. The more frames you accumulate, the better the
+    result looks. This provides detailed static images with no performance cost,
+    but does not take effect if any visual changes are occurring.
+
+    To apply progressive antialiasing, set the number of frames to use for the
+    final image in the \uicontrol {Progressive AA} field. Note that at the
+    value of 8x, progressive antialiasing takes one eighth of a second to finish
+    rendering at 60 FTPS, which may be noticeable.
+
+    Multisample antialiasing results in smoother silhouettes, but has no effect
+    on the materials inside geometry. It provides good results on geometry
+    silhouettes, where aliasing is often most noticeable and works smoothly with
+    fast animation. However, it can be expensive to use and does not help with
+    texture or reflection issues.
+
+    To apply multisample antialiasing, set the number of samples to use per
+    pixel in the \uicontrol {Multisample AA} field.
+
+    \section1 Clearing the Scene Background
+
+    To clear the background of the scene to be transparent, select
+    \uicontrol Transparent in the \uicontrol {Background mode} field.
+    To clear the background using a color, select \uicontrol Color,
+    and select the color in the \uicontrol {Clear Color} field.
+
+    To leave the scene uncleared, select \uicontrol {Unspecified}.
+
+    \section1 Blending Scene Colors
+
+    To determine how colors are blended, select a blend mode in the
+    \uicontrol {Blend mode} field. For more information on the options,
+    see \uicontrol {Blending Colors}.
+
+    \section1 Performing Depth Tests
+
+    You can perform depth tests to optimize the scene environment. To skip depth
+    tests, deselect the \uicontrol {Enable depth test} checkbox. Note that
+    skipping the tests can cause rendering errors.
+
+    To have the renderer write to the depth buffer as part of the color pass,
+    deselect the \uicontrol {Enable depth prepass} checkbox. Disable depth
+    prepass on GPU's that use a tiled rendering architecture.
+
+    \section1 Ambient Occlusion
+
+    Ambient occlusion is a form of approximated global illumination that causes
+    non-directional self-shadowing where objects are close together.
+
+    You can set the strength of the shadows in the \uicontrol {AO strength}
+    field. A value of 100 causes full darkness shadows, while lower values
+    cause the shadowing to appear lighter. A value of 0 disables ambient
+    occlusion entirely, improving performance at a cost to the visual realism
+    of 3D objects rendered in the scene. All values other than 0 have the same
+    impact on performance.
+
+    To specify roughly how far ambient occlusion shadows spread away from
+    objects, select the distance in \uicontrol {AO distance} field. Greater
+    distances cause increasing impact to performance.
+
+    To prevent components from exhibiting ambient occlusion at close distances,
+    set the cutoff distance in the \uicontrol {AO bias} field. The higher the
+    value, the greater the distance that is required between objects before
+    ambient occlusion occurs.
+
+    \note If you see ambient occlusion shadowing on objects where there should
+    be no shadowing, increase the value slightly to clip away close results.
+
+    To specify how smooth the edges of the ambient occlusion shading are, set
+    the softness in the \uicontrol {AO softness} field. To improve smoothness at
+    the risk of sometimes producing obvious patterned artifacts, you can scatter
+    the edges of the ambient occlusion shadow bands by selecting the
+    \uicontrol {AO dither} check box.
+
+    To specify the ambient occlusion quality, at the expense of performance,
+    select the number of shades of gray to use in the
+    \uicontrol {AO sample rate} field.
+
+    \note Large distances between the clipping planes of your camera may cause
+    problems with ambient occlusion. If you are seeing odd banding in ambient
+    occlusion, try adjusting the value in the \uicontrol {Clip far} field in
+    the \l{Using Scene Camera}{scene camera} properties.
+
+    \section1 Using Image-based Lighting
+
+    In the material properties, you can specify an image (preferably
+    a high-dynamic range image) to use to light the scene, either
+    instead of or in addition to \l{Using Lights}{scene lights}. In the
+    \uicontrol {Probe brightness} field, you can modify the amount of
+    light emitted by the light probe.
+
+    To take shortcuts to approximate the light contributes of the light
+    probe at the expense of quality, select the \uicontrol {Fast IBL}
+    check box.
+
+    To add darkness (black) to the bottom half of the environment, force
+    the lighting to come predominantly from the top of the image, and
+    remove specific reflections from the lower half, increase the value
+    of the \uicontrol {Probe horizon} field.
+
+    To specify the image source field of view when using a camera source as
+    the light probe, set the angle in the \uicontrol {Probe FOV} field.
+*/

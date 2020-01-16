@@ -1,0 +1,111 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page studio-3d-texture.html
+    \previouspage studio-3d-materials.html
+    \nextpage studio-3d-lights.html
+
+    \title Attaching Textures to Materials
+
+    You can use the Texture 3D QML type to attach textures to materials.
+    You specify an image and how it is mapped to meshes in a 3D scene.
+
+    \section1 Selecting the Mapping Method
+
+    To specify the method of mapping to use when sampling a texture, select
+    \uicontrol UV, \uicontrol Environment, or \uicontrol LightProbe in the
+    \uicontrol {Texture mapping} field.
+
+    UV mapping is the process of projecting 2D images to the surface of a
+    3D model for texture mapping. The letters \e U and \e V denote the axes
+    of the 2D texture, because x, y, and z are already used to denote the
+    axes of the 3D object in the model space. You can paint the polygons that
+    make up a 3D object with color and other surface attributes from a UV
+    texture map. Pixels in the image are assigned to surface mappings on the
+    polygon. Usually this is done by programmatically copying a triangular
+    piece of the image map and pasting it onto a triangle on the object.
+
+    UV mapping is used by default for diffuse and opacity maps. It sticks the
+    image to the mesh, so that a particular same portion of the image always
+    appears on a particular vertex, unless you animate the UV properties.
+
+    Environment mapping is used by default for specular reflection. It
+    \e projects the image onto the material as though it is being reflected
+    from the material. Using Environmental mapping for diffuse maps provides a
+    mirror effect.
+
+    Light probe mapping is used by default for HDRI sphere maps of
+    light probes. For more information about light probes, see
+    \l {Using Highlights and Reflections}.
+
+    To use image data from a file, specify the path to the file in the
+    \uicontrol Source field. To use a 2D Qt Quick QML type as the source,
+    specify the type in the \uicontrol {Source item} field. The type is
+    rendered as an offscreen layer. If you specify the source item, any
+    image you might specify as a source is ignored.
+
+    \note Currently, there is no way to forward input events to the Item
+    used as a texture source.
+
+    \section1 UV Scaling
+
+    The \uicontrol {U scale} and \uicontrol {V scale} properties define how
+    to scale the U and V texture coordinates when mapping to a mesh's UV
+    coordinates.
+
+    Scaling the U value when using horizontal tiling specifies how many times
+    the texture is repeated from left to right, while scaling the V value when
+    using vertical tiling specifies the repetition from bottom to top.
+
+    To control how the texture is mapped when the U scaling value is greater
+    than 1, set the horizontal tiling mode in the \uicontrol {U tiling} field.
+    To control how the texture is mapped when the V scaling value is greater
+    than 1, set the vertical tiling mode in the \uicontrol {V tiling} field.
+
+    To specify that the texture is not tiled, but the value on the edge is used
+    instead, select \uicontrol ClampToEdge. To repeat the texture and mirrored
+    it over the x or y axis, select \uicontrol MirroredRepeat. To repeat the
+    texture over the x or y axis, select \uicontrol Repeat.
+
+    \section1 Setting UV Transform Properties
+
+    To offset the U coordinate mapping from left to right, set the position of
+    the component in the \uicontrol {U position} field. To offset the mapping
+    from bottom to top, set it in the \uicontrol {V position} field.
+
+    Specify the U and V pivot point in the \uicontrol {U pivot} and
+    \uicontrol {V pivot} fields.
+
+    To rotate the texture around the pivot point, specify rotation as degrees
+    in the \uicontrol {UV rotation} field. A positive value indicates clockwise
+    rotation.
+
+    For more information about rotating and pivoting components in the local
+    coordinate space, see \l {Setting Transform Properties}.
+*/

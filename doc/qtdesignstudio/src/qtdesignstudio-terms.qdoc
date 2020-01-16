@@ -1,0 +1,90 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \page studio-terms.html
+    \previouspage studio-faq.html
+    \nextpage creator-acknowledgements.html
+
+    \title Concepts and Terms
+
+    This topic describes main \QDS concepts and terms.
+
+    \section1 Component
+    \target glossary-component
+
+    An instantiable QML definition, typically contained in a .qml file.
+    For example, a Button component may be defined in Button.qml. The
+    QML runtime may instantiate this Button component to create Button
+    objects. Alternatively, a component may be defined inside a
+    \l{Component} QML type.
+
+    \section1 Deploy Configuration
+    \target glossary-deploy-config
+
+    Handles the packaging and copying of the necessary files to a location
+    you want to preview the UI at. The files can be copied to a location in
+    the file system of the development PC or a \l{glossary-device}{device}.
+
+    \section1 Device
+    \target glossary-device
+
+    An embedded device or an Anroid device.
+
+    \section1 Kit
+    \target glossary-buildandrun-kit
+
+    \QDS groups run settings as kits to make cross-platform development easier.
+    Each kit consists of a set of values that define one environment, such as a
+    \l{glossary-device} {device} to preview the UI on.
+
+    \section1 Mode
+    \target glossary-mode
+
+    Adapts the \QDS UI to the different UI design
+    tasks at hand. Each mode has its own view that shows only the information
+    required for performing a particular task, and provides only the most
+    relevant features and functions related to it. As a result, the majority
+    of the \QDS window area is always dedicated to the actual task.
+
+    \section1 Project
+    \target glossary-project
+
+    Groups together a set of files, images, and other assets that you
+    can deploy and run on different desktop and \l{glossary-device}{device}
+    platforms, as specified by a \e {deploy configuration} and
+    \e {run configuration}.
+
+    \section1 Run Configuration
+    \target glossary-run-config
+
+    Starts the UI in the location where it was copied by the
+    \e {deploy configuration}. By default, when you run a project, \QDS
+    deploys it to the \l{glossary-device}{device} specified in the
+    selected \l{glossary-buildandrun-kit}{kit}, and runs it there. However,
+    if you have not made any changes to the project since you last deployed
+    it, \QC simply runs it again.
+*/

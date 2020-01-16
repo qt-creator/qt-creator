@@ -1,0 +1,67 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \qmltype Group
+    \inqmlmodule QtQuick.Studio.Components
+    \since QtQuick.Studio.Components 1.0
+    \inherits Item
+    \ingroup qtquickstudio-components
+
+    \brief A group item that gets its size from its children.
+
+    The Group type is an \l Item type extended with the size property. The value
+    of size is automatically calculated to fit the children of the group.
+
+    \section2 Example Usage
+
+    You can use the Group type to specify the size of one or several items.
+
+    \image studio-group.png
+
+    The QML code looks as follows:
+
+    \code
+    GroupItem {
+        id: group
+
+        Rectangle {
+        id: rectangle
+        width: 200
+        height: 200
+        color: "#c2c2c2"
+        }
+
+        Rectangle {
+        id: rectangle1
+        x: 140
+        y: 140
+        width: 200
+        height: 200
+        color: "#000000"
+        }
+    }
+    \endcode
+*/

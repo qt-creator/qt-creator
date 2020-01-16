@@ -1,0 +1,91 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \previouspage quick-converting-ui-projects.html
+    \page studio-prototyping.html
+    \nextpage quick-components.html
+
+    \title Creating UIs
+
+    When you install \QDS, everything you'll need to design UIs
+    using \l{Qt Quick} and to preview them on the desktop or on Android or
+    embedded Linux devices is automatically installed and configured correctly
+    for you.
+
+    Qt Quick enables you to build UIs around the behavior of
+    \e components and how they connect with one another. You
+    create components using Qt Quick and QML types that are available in
+    the Design mode. You can specify values for the \e properties of a
+    component to change its appearance and behavior. All QML types have a
+    set of predefined properties, some of which control things that are
+    visible to users, while others are used behind the scene.
+
+    While it is useful to learn the basics of Qt Quick, you can also rely on
+    \QDS to write the code for you when you drag-and-drop the ready-made
+    components to the working area and change them to your liking by modifying
+    their properties in the Design mode. You can always check up details in
+    the extensive Qt Quick documentation by pressing \key F1.
+
+    \list
+
+        \li \l {Creating Components}
+
+            In addition to your imported artwork, you can use the Design
+            mode to customize ready-made components or design any custom form
+            and shape directly as QML types. You can import visual assets in
+            various formats, such as PNG, JPG, and SVG for use in the
+            components.
+
+       \li \l {Managing Item Hierarchy}
+
+            You can manage the items in the current QML file and their
+            relationships in the \uicontrol Navigator.
+
+        \li \l {Specifying Item Properties}
+
+            You can specify values for the properties of a component to change
+            its appearance and behavior. All QML types have a set of predefined
+            properties. Some properties, such as position, size, and visibility,
+            are common to all QML types, whereas others are specific to the QML
+            type. You can specify properties for your components in the
+            \uicontrol Properties pane.
+
+        \li \l {Using Custom Fonts}
+
+            You can load custom fonts to \QDS and use them in your designs.
+    \endlist
+
+    \section1 Related Topics
+
+    \list
+        \li \l{Qt Quick UI Forms}
+
+            Some of the wizards create Qt Quick projects that contain UI forms
+            (.ui.qml files). The forms use a purely declarative subset of the
+            QML language and you can edit them in the Design mode.
+    \endlist
+*/

@@ -1,0 +1,274 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \example loginui3
+    \ingroup studioexamples
+    \ingroup gstutorials
+
+    \title Log In UI - Part 3
+    \brief Illustrates how to use states to create a second UI page.
+    \previouspage {Log In UI - Part 2}
+    \nextpage {Log In UI - Part 4}
+
+    \image loginui3.gif "Log In UI"
+
+    \e{Log In UI - Part 3} is the third in a series of examples that build
+    on each other to illustrate how to use \QDS to create a simple UI with
+    some basic UI components, such as pages, buttons, and entry fields. Part 3
+    describes how to use states to add a second page to the UI.
+
+    Because the second page will contain most of the same UI elements as the
+    login page, you will use \e states to show and hide UI elements as necessary
+    when a user selects the \uicontrol {Create Account} button.
+
+    These instructions build on:
+
+    \list
+        \li \l {Log In UI - Part 1}
+        \li \l {Log In UI - Part 2}
+    \endlist
+
+    The \e {Learn Qt Quick} sections provide additional information about the
+    features of QML and Qt Quick that are relevant to the task at hand.
+
+    \section1 Adding UI Components
+
+    You will add another text field for verifying the password that users
+    enter to create an account and a back button for returning to the login
+    page. You are already familiar with the tasks in this section from Part 1
+    of this example.
+
+    To preview the changes that you make to the UI while you make
+    them, select the \inlineimage live_preview.png
+    (\uicontrol {Show Live Preview}) button on the canvas toolbar
+    or press \key {Alt+P}.
+
+    To add the text field and a back button needed on the registration page:
+
+    \list 1
+        \li Open \e {Screen01.ui.qml} in the Design mode
+            \uicontrol {Form Editor} for editing.
+        \li Drag and drop a \uicontrol {Text Field} from \uicontrol Library
+            > \uicontrol {QML Types} > \uicontrol {Qt Quick Controls 2} to
+            \e fieldColumn in the \uicontrol Navigator.
+        \li In \uicontrol Properties, change the id of the text field to
+            \e verifyPasswordField.
+        \li In the \uicontrol Geometry group, \uicontrol Size field, set the
+            width of the field to \e 300 pixels.
+        \li In the \uicontrol Placeholder field, set the placeholder text to
+            \e {Verify password}.
+        \li In the \uicontrol Text field, delete the default text to make the
+            placeholder text visible on the canvas.
+        \li Drag and drop a PushButton type from the \uicontrol Library,
+            \uicontrol {My QML Components} tab, to \e loginPage in the
+            \uicontrol Navigator.
+        \li Select the button in the \uicontrol Navigator and change its id to
+            \e backButton in \uicontrol Properties.
+        \li In the \uicontrol Geometry group, \uicontrol Size field, set the
+            button width to \e 40 pixels.
+        \li In the \uicontrol Text field, enter \e <.
+        \li In the \uicontrol Font group, \uicontrol Size field, set the font
+            size to \e 24 pixels.
+        \li In the \uicontrol Layout tab, select the \inlineimage anchor-top.png
+            (\uicontrol Top) and \inlineimage anchor-right.png
+            (\uicontrol Right) anchor buttons to anchor \e backButton to
+            the top right corner of its parent (the \e loginPage) with 20-
+            and 10-pixel margins, respectively.
+        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+            to save your changes.
+    \endlist
+
+    Your page now should look something like this in the Design mode and live
+    preview:
+
+    \image loginui3-base-state.png "Login page with new UI components"
+
+    Next, you will add states for the login page and the registration page,
+    where you use the visibility property to hide the password verification
+    field and the back button on the login page and the login button on the
+    registration page.
+
+    \section1 Using States to Simulate Page Changes
+
+    You will now add \l{Adding States}{states} to the UI to show and hide UI
+    components on the canvas:
+
+    \list 1
+        \li In the \uicontrol States pane, select the \inlineimage plus.png
+            button.
+            \image loginui3-login-state.png "States pane"
+        \li Enter \e loginState as the state name.
+        \li Select \e verifyPasswordField in the \uicontrol Navigator,
+            and deselect the \uicontrol Visibility check box in
+            \uicontrol Properties to hide the verify password field in
+            the login state.
+            \image loginui3-visibility.png
+        \li Repeat the above step for \e backButton.
+        \li In the \uicontrol {Text Editor}, add the following line to the
+            definition of \e root to specify that the application should start
+            in \e loginState:
+                \quotefromfile loginui3/Screen01.ui.qml
+                \skipto Rectangle {
+                \printuntil state: "loginState"
+        \li Add another state and name it \e registerState.
+        \li In this state, reselect the \uicontrol Visibility check box in
+            \e verifyPasswordField and \e backButton properties to show them
+            again.
+        \li Select \e loginButton in the \uicontrol Navigator, and deselect
+            the \uicontrol Visibility check box to hide the login button in
+            the registration state.
+        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+            to save your changes.
+    \endlist
+
+    You can now see all the states in the \uicontrol States view. The live
+    preview displays the default state, \e loginState:
+
+    \image loginui3-states.png "States view"
+
+    \section2 Learn Qt Quick - States
+
+    In Qt Quick, the \e state of a particular visual item is the set of
+    information which describes how and where the individual component
+    parts of the visual item are displayed within it, and all the data
+    associated with that state. Most visual items in a UI will have a
+    limited number of states, each with well-defined properties.
+
+    For example, an element in a list may be either selected or not, and if
+    selected, it may either be the currently active single selection or it
+    may be part of a selection group. Each of those states may have certain
+    associated visual appearance (neutral, highlighted, expanded, and so on).
+
+    Qt Quick provides a \l State type with properties which define its
+    semantics and can be used to trigger behavior or animations. UI components
+    typically have a state property and a default state. The default state
+    contains all of an item's initial property values, and is therefore useful
+    for managing property values before state changes.
+
+    UI components can specify additional states by adding new State objects to
+    the state property. Each state within a component has a unique name. To
+    change the current state of an item, the state property is set to the name
+    of the state. State changes can be bound to conditions by using the \c when
+    property.
+
+    For more information, see \l{Qt Quick States}.
+
+    Next, you will create connections to specify that clicking the
+    \uicontrol {Create Account} button on the login page triggers a
+    transition to the registration page and that clicking the back
+    button on the registration page triggers a transition to the login
+    page.
+
+    \section1 Connecting Buttons to States
+
+    QML types have predefined signals that are emitted when users interact
+    with the UI. The \e PushButton QML type contains a \l{MouseArea} type
+    that has a \e clicked signal. The signal is emitted whenever the mouse
+    is clicked within the area.
+
+    You will now use the \uicontrol Connections view to
+    \l{Connecting Objects to Signals}{connect} the clicked signal of
+    \e registerButton to \e registerState and that of \e backButton
+    to \e loginState:
+
+    \list 1
+        \li Select \e registerButton in the \uicontrol Navigator.
+        \li In the \uicontrol Connections view, select the \inlineimage plus.png
+            button to add the action that the \c onClicked signal handler of
+            \e registerButton should apply.
+        \li Double-click the value \uicontrol Action column and select
+            \uicontrol {Change state to registerState} in the drop-down menu.
+        \li Repeat the steps above to connect \e backButton to \e loginState
+            by selecting \uicontrol {Change state to loginState} in the last
+            step.
+        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+            to save your changes.
+    \endlist
+
+    You can now see the following connections in the Design mode:
+
+    \image loginui3-connections.png "Connections view"
+
+    In the live preview, you can now click the \uicontrol {Create Account}
+    button to go to the registration page and the back button to return to
+    the login page.
+
+    \image loginui3.gif "Moving between login page and registration page"
+
+    The \e PushButton type also uses states to change the button background and
+    text color when the button is clicked. Now that clicking buttons performs
+    actions, you will change the background color for the button down state
+    from grey to green to match the color in the normal state that you changed
+    to green in Part 1.
+
+    \section2 Learn Qt Quick - Signal and Event Handlers
+
+    UI components need to communicate with each other. For example, a button
+    needs to know that the user has clicked on it. The button may change color
+    to indicate its state and perform an action.
+
+    QML has a signal and handler mechanism, where the signal is the event that
+    is responded to through a signal handler. When a signal is emitted, the
+    corresponding signal handler is invoked. Placing logic such as a script or
+    other operations in the handler allows the component to respond to the
+    event.
+
+    For more information, see \l{Signal and Handler Event System}.
+
+    Next, you will modify the properties of the \e PushButton type in the text
+    editor.
+
+    \section1 Changing Button Background Color
+
+    You will modify the button background color for the \e down state of the
+    \e PushButton type in the \e PushButton.ui.qml file.
+
+    \list 1
+        \li Right-click \e loginButton in the \uicontrol Navigator and select
+            \uicontrol {Go into Component} to open \e PushButton.ui.qml for
+            editing in the Design mode.
+        \li Open the \uicontrol {Text Editor} tab.
+        \li Edit the property values for the \e down state, to set the button
+            text color to white and the background and border colors to
+            darker shades of green by using the \c {Qt.darker()} function:
+            \quotefromfile loginui3/PushButton.ui.qml
+            \skipto states:
+            \printuntil ]
+            You could also specify all the colors here as fixed values.
+        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
+            to save your changes.
+    \endlist
+
+    \section1 Next Steps
+
+    For a more complicated UI, you would typically use QML types that specify
+    a view of items provided by a model, such as a \l ListView or \l StackView.
+    For more information, see \l{Using Data Models}.
+
+    To learn how to use a timeline to animate the transition between the login
+    and registration pages, see the next example in the series,
+    \l {Log In UI - Part 4}.
+*/

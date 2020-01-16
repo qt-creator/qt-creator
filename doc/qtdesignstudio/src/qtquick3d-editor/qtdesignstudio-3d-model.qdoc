@@ -1,0 +1,77 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page studio-3d-model.html
+    \previouspage studio-3d-node.html
+    \nextpage studio-3d-materials.html
+
+    \title Adding Models
+
+    A Model component loads mesh data from a file. You can modify how the
+    component is shaded by adding materials to the model.
+
+    A model can load static meshes from storage or one of the built-in primitive
+    types: cube, cone, cylinder, rectangle, or sphere. You can select the model
+    type in the \uicontrol Source field in the \uicontrol Properties field.
+    Select the \inlineimage plus.png
+    button to add custom model types to the list.
+
+    To enable picking the model against the scene, select the
+    \uicontrol Pickable check box. Picking transforms the screen
+    space x and y coordinates to a ray cast towards the specified
+    position in scene space.
+
+    To use the geometry of this model when rendering to shadow maps, select the
+    \uicontrol {Casts shadows} check box. To allow casting shadows on the model,
+    select the \uicontrol {Receives shadows} check box.
+
+    \section1 Tessellation
+
+    To dynamically generate additional geometry for the model, select the
+    tiling mode in the \uicontrol {Tessellation mode} filed. Tessellation
+    is useful when using a displacement map with geometry, or to generate a
+    smoother silhouette when zooming in. You can select either a Phong or
+    an NPatch tessellation generator.
+
+    Specify an edge multiplier to the tessellation generator in the
+    \uicontrol {Edge tessellation} field and an inner multiplier in
+    the \uicontrol {Inner tessellation} field.
+
+    To display a wireframe that highlights the additional geometry created by
+    the tessellation generator, select the \uicontrol {Enable wireframe mode}
+    check box.
+
+    \section1 Adding Materials to Sub-Meshes
+
+    A model can consist of several sub-meshes, each of which can have its own
+    material. Select the material from the list in the \uicontrol {Materials}
+    field. Select the \inlineimage plus.png
+    button to add materials to the list. For more information about materials,
+    see \l {Using Materials and Shaders}.
+*/

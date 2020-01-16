@@ -1,0 +1,82 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio}
+    \previouspage studio-3d-components.html
+    \page studio-3d-node.html
+    \nextpage studio-3d-model.html
+
+    \title Setting Node Properties
+
+    You can set the opacity, visibility, and transform properties of a 3D
+    component in the \uicontrol Properties view.
+
+    \section1 Setting Component Opacity and Visibility
+
+    All components have an \uicontrol Opacity value applied to them. The opacity
+    of 100 makes a component fully opaque, while the opacity of 0 prevents a
+    component from rendering at all.
+
+    Just as modifying the position or rotation of a parent component affects
+    all child components, opacity is multiplicatively cumulative through
+    the transform hierarchy. A cube that is 50\% opaque inside a group that
+    is 80\% opaque renders with an equivalent apperance of 40\% opacity
+    (\c{0.8 * 0.5 = 0.4}). Setting the opacity of a group to 0 prevents
+    any descendants within the group from rendering.
+
+    The \uicontrol Visibility property provides an alternative way to hide and
+    show components. It is useful when you want to show a component in a
+    particular state, but hide it in another state, for example.
+
+    \section1 Setting Transform Properties
+
+    The value of the \uicontrol Translation property contains the position
+    translation of the component in the local coordinate space established by
+    the parent component. The \uicontrol Orientation property specifies whether
+    the left-handed or right-handed coordinate system is used.
+
+    In the y-up left-handed coordinate system, increasing the value of x
+    moves the component to the right, as seen from the default camera location,
+    whereas increasing the value of y moves the component up. Increasing the
+    value of z moves the component away from the camera.
+
+    The value of the \uicontrol Rotation parameter sets the local rotation of
+    the component in the space established by the parent component. The
+    \uicontrol {Rotation order} property specifies whether the left-handed or
+    right-handed (the values with \e r) rotation about the x, y, and z axes
+    is applied, and the order in which the rotation is applied on each axis.
+
+    The value of the \uicontrol Scale property sets the local scale of the
+    component in the space established by the parent component. An odd number
+    of negative scale values causes the component to render \e {inside-out},
+    which cannot be seen due to backface-culling.
+
+    The value of the \uicontrol Pivot property sets the local pivot offset for
+    the component. You can think of the pivot as offsetting the geometry for the
+    component away from the origin, allowing a component to rotate and scale
+    around a point other than its local origin. Pivot values are applied before
+    scaling and rotation values.
+*/

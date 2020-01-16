@@ -1,0 +1,90 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio}
+    \previouspage qt-design-viewer.html
+    \page studio-advanced.html
+    \nextpage studio-platforms.html
+
+    \title Advanced Topics
+
+    \QDS attempts to meet your needs, whether you have previous experience with
+    QML, and coding or not. When you install \QDS, the default configuration
+    allows you to start designing and previewing UIs with very little effort.
+
+    However, you might want to use the \uicontrol {Text Editor} in the Design
+    mode sometimes to edit your QML files or write some JavaScript to simulate
+    application logic and bring your UI to life. If you use JavaScript, you
+    might also want to debug and profile you UIs to find and fix problems in
+    them.
+
+    You can also use special options to start \QC from the command line and use
+    it mainly from the keyboard.
+
+    \list
+        \li \l{Supported Platforms}
+
+            You can install and run \QC on several operating systems to design
+            UIs for multiple desktop, embedded, and mobile device platforms.
+        \li \l{Keyboard Shortcuts}
+
+            \QDS provides various keyboard shortcuts to speed up your
+            development process. You can change the keyboard shortcuts,
+            as well as import and export keyboard shortcut mapping schemes.
+        \li \l{Coding}
+
+            You can use the code editor in the Design mode
+            \uicontrol {Text Editor} view or in the Edit mode to modify QML
+            code. The code editor understands the QML language as code, not
+            just as plain text. This enables it to provide you with useful
+            features, such as semantic highlighting, checking code syntax,
+            code completion, and refactoring actions.
+        \li \l{Simulating Application Logic}
+
+            You can use JavaScript to simulate application logic to bring your
+            UI to life.
+        \li \l{Debugging and Profiling}
+
+            \QDS comes with a JavaScript debugger. In the Debug mode, you
+            can inspect the state of your UI while debugging.
+
+            The memory and CPU power available on devices are limited and
+            you should use them carefully. The QML Profiler enables you to
+            profile Qt Quick UIs.
+    \endlist
+
+    \section1 Related Topics
+
+    \list
+        \li \l{Using External Tools}
+
+            You can use external tools directly from \QC. lupdate and lrelease,
+            QML preview tools (QML Viewer and QML Scene), the default text
+            editor for your system, and the \c sort tool are preconfigured for
+            use. You can change their default configurations and configure new
+            tools.
+    \endlist
+*/

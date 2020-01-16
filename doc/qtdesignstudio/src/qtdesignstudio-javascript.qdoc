@@ -1,0 +1,152 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio}
+    \previouspage creator-editor-options-text.html
+    \page studio-javascript.html
+    \nextpage studio-debugging.html
+
+    \title Simulating Application Logic
+
+    You can use JavaScript to simulate application logic that brings your UI to
+    life.
+
+    You will need the following files:
+
+    \list
+        \li Qt Quick file that will specify the API of the UI
+        \li JavaScript file that generates mock data for the UI.
+            For more information about using JavaScript, see
+            \l{Integrating QML and JavaScript}.
+        \li Module definition file (\e qmldir) that declares the QML type
+            you specify in the Qt Quick file. For more information, see
+            \l {Module Definition qmldir Files}.
+    \endlist
+
+    Here, you will need to write some C++ code. Namely, the Qt Quick file will
+    contain a QObject-derived class that is registered with the QML type system
+    as a \e singleton type. This enables the use of global property values in
+    the UI.
+
+    You can find a video tutorial about creating JavaScript for generating mock
+    data for a UI
+    \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partfour}
+    {here}.
+
+    To create the necessary files:
+
+    \list 1
+        \li In the File Explorer, create a folder for the JavaScript files
+            (for example, \e backend) and another one for the mock data
+            (for example, \e Data) in your project folder.
+            \note Make sure to capitalize the data folder name, because you
+            will need to import it as a QML type later, and QML type names must
+            be capitalized.
+        \li In \QDS, open the project file (.qmlproject) to add the backend
+            folder to the list of plugin directories passed to the QML runtime:
+            \code
+            importPaths: [ "imports", "backend" ]
+            \endcode
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
+            \uicontrol {Qt Quick File} > \uicontrol Choose to add a Qt
+            Quick file that will specify the API of the UI.
+        \li Follow the instructions of the wizard to create the Qt Quick file
+            in the data folder. In these instructions, the file is called
+            \e Values.qml.
+            \note Make sure to capitalize the filename, because it will become
+            a custom QML type.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol {JavaScript} >
+            \uicontrol {JavaScript File} > \uicontrol Choose to create a
+            JavaScript file that generates mock data for the UI.
+        \li Follow the instructions of the wizard to create the JavaScript file
+            in the data folder. In these instructions, the file is called
+            \e {simulation.js}.
+        \li Delete the template text in JavaScript file and save the file.
+        \li In a text editor such as Notepad, create a module definition file
+            called \e qmldir with the following contents and place it in the
+            data directory:
+            \code
+            singleton Values 1.0 Values.qml
+            \endcode
+        \li Open \e Values.qml in the \uicontrol {Text Editor} tab for editing.
+        \li Add the following code to the top of the file to register the
+            QObject-derived class that you will use to expose the global
+            properties as a singleton type:
+            \code
+            pragma Singleton
+            \endcode
+        \li Add the following import statement to import the \e {simulation.js}
+            file to use the functionality that it provides:
+            \code
+            #import simulation.js as JS
+            \endcode
+        \li Add the following code to create a QObject-derived class that will
+            list the global properties you want to simulate and their default
+            values:
+            \code
+            QObject {
+                id: values
+
+                // property values to simulate
+                property int name1: default1
+                property string name2: default2
+                property real name3: default3
+
+            }
+            \endcode
+            \note You must export the properties as aliases by selecting
+            \uicontrol {Export Property as Alias} in the
+            \inlineimage icons/action-icon.png
+            (\uicontrol Actions) menu of the property in the
+            \uicontrol Properties view. Exported properties are listed in
+            \uicontrol Connections > \uicontrol Properties, where you can
+            change their names.
+        \li Add the following code to use a \l Timer type to specify a range of
+            values for the property:
+            \code
+            property Timer name1Timer: Timer{
+                running: true
+                repeat: true
+                onTriggered: JS.name1Timer()
+                interval: 10
+            \endcode
+            \note You must add the JavaScript method to the JavaScript file.
+        \li Open the main UI file of the project and add the following code to
+            import the data folder as a QML module:
+            \code
+            #import Data 1.0 as Data
+            \endcode
+        \li Select \uicontrol {Set Binding} in the \uicontrol Settings menu of the
+            property to bind the property value to the value defined in the
+            values file. For example, you would set the following expression for
+            \e name1:
+            \code
+            Data.Values.name1
+            \endcode
+    \endlist
+*/

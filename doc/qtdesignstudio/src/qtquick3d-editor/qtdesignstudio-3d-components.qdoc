@@ -1,0 +1,76 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \page studio-3d-components.html
+    \previouspage studio-3d-view.html
+    \nextpage studio-3d-node.html
+
+    \title Using 3D Components
+
+    To add 3D components to the scene, drag and drop a them from
+    \uicontrol Library > \uicontrol {QML Types} > \uicontrol {Qt Quick 3D} to
+    the scene or to a 3D view in the \uicontrol Navigator.
+
+    To edit 3D components, select the component in the 3D editor or in the
+    \uicontrol Navigator and set its properties in the \uicontrol Properties
+    view.
+
+    \list
+        \li \l {Setting Node Properties}
+
+            You can set the opacity, visibility, and transform properties
+            of all 3D components.
+        \li \l {Adding Models}
+
+            You can use the model component to load static mesh data from
+            storage or one of the built-in primitive types: cube, cone,
+            cylinder, rectangle, or sphere. You can attach materials to
+            meshes and sub-meshes.
+        \li \l {Using Materials and Shaders}
+
+            You can use materials and shaders to define how object surfaces
+            are rendered in a scene and during live preview.
+        \li \l {Attaching Textures to Materials}
+
+            You can use a Texture component to specify an image and how it is
+            mapped to meshes in a 3D scene. Texture components can use image
+            data either from a file or a Qt Quick QML type.
+        \li \l{Using Lights}
+
+            You can use several light types as the source of lighting in a
+            scene and set their properties.
+        \li \l {Using Scene Camera}
+
+            To project a 3D scene to a 2D viewport, it is necessary to view
+            the scene from a camera. You can select the camera type and set
+            its properties.
+        \li \l {Setting Scene Environment}
+
+            You can use the SceneEnvironment type to specify how the scene is
+            rendered globally.
+     \endlist
+*/

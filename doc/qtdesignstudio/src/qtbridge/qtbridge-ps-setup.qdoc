@@ -1,0 +1,116 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Bridge documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+
+    \contentspage {Qt Design Studio}
+    \previouspage psqtbridge.html
+    \page qtbridge-ps-setup.html
+    \nextpage qtbridge-ps-using.html
+
+    \title Setting Up \QBPS
+
+    \QBPS is delivered as an Adobe extension (ZXP) package and requires Adobe
+    Photoshop version 20.0.0, or later to be installed. The \QBPS installation
+    process differs depending on whether you use ZXPInstaller and whether you
+    are installing on Windows or \macos.
+
+    \section1 Installing with ZXPInstaller
+
+    To use ZXPInstaller to install \QBPS:
+
+    \list 1
+        \li Download and install \l{http://zxpinstaller.com/}{ZXPInstaller}.
+        \li Start ZXPInstaller.
+        \li Drag and drop the \QBPS ZXP package from the \c photoshop_bridge
+            directory in the installation directory of \QDS to ZXPInstaller.
+        \li Follow the instructions of the installation program.
+    \endlist
+
+    \section1 Installing Without ZXPInstaller
+
+    The \QBPS installation process differs depending on the platform you
+    are installing on.
+
+    \section2 Installing on Windows
+
+    To install \QBPS on Windows without using ZXPInstaller:
+
+    \list 1
+        \li Copy the \QBPS ZXP package from the \c photoshop_bridge directory
+            in the installation directory of \QDS to the \c Documents directory
+            in your user directory.
+        \li Open Windows PowerShell.
+        \li Enter the following commands:
+        \badcode
+            cd "$env:UserProfile\Documents"
+            mv .\io.qt.QtBridge.zxp .\io.qt.QtBridge.zip
+            expand-archive .\io.qt.QtBridge.zip
+            xcopy /E /I .\io.qt.QtBridge  "$env:APPDATA\Adobe\CEP\extensions\io.qt.QtBridge"
+        \endcode
+    \endlist
+
+    \section2 Installing on \macos
+
+    To install \QBPS on \macos without using ZXPInstaller:
+
+    \list 1
+        \li Copy the \QBPS ZXP package from the \c photoshop_bridge
+            directory in the installation directory of \QDS to your
+            \c Documents directory.
+        \li Open Terminal.
+        \li Enter the following commands:
+        \badcode
+            cd ~/Documents
+            unzip io.qt.QtBridge.zxp -d io.qt.QtBridge
+            sudo mkdir -p /Library/Application\ Support/Adobe/CEP/extensions
+            sudo cp -R ./io.qt.QtBridge /Library/Application\ Support/Adobe/CEP/extensions
+        \endcode
+    \endlist
+
+    \section1 Enabling Remote Connections
+
+    To set up \QBPS:
+
+    \list 1
+        \li Once the installation is completed, restart Adobe Photoshop to make
+            \QBPS appear in \uicontrol Window > \uicontrol Extensions.
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol General > \uicontrol Plug-ins to enable a remote
+            connection.
+        \li Select the \uicontrol {Enable Remote Connections} check box and
+            enter a password in the \uicontrol Password field.
+        \li To test that the connection is working properly, start \QBPS and
+            select the settings icon in the top right corner.
+            \image qt-bridge-settings.png
+        \li In the \uicontrol Password field, enter the password you entered in
+            Adobe Photoshop and select \uicontrol {Connect}.
+        \li In the \uicontrol {Export Path} group, select the browse button
+            (\uicontrol {...}) to specify the location where \QBPS copies the
+            exported files.
+    \endlist
+
+    Once the connection is successfully created, \QBPS is ready to use.
+*/
