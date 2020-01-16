@@ -115,9 +115,10 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Create the settings Page
     m_settings->fromSettings(ICore::settings());
-    auto settingsPage = new SettingsPage(m_settings, this);
 
     // Create the protocols and append them to the Settings
+    QStringList protocolNames;
+
     Protocol *protos[] =  {new PasteBinDotComProtocol,
                            new FileShareProtocol,
                            new PasteCodeDotXyzProtocol,
@@ -126,9 +127,11 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     for (int i = 0; i < count; ++i) {
         connect(protos[i], &Protocol::pasteDone, this, &CodepasterPlugin::finishPost);
         connect(protos[i], &Protocol::fetchDone, this, &CodepasterPlugin::finishFetch);
-        settingsPage->addProtocol(protos[i]->name());
+        protocolNames.append(protos[i]->name());
         m_protocols.append(protos[i]);
     }
+
+    (void) new SettingsPage(m_settings, protocolNames, this);
 
     m_urlOpen = new UrlOpenProtocol;
     connect(m_urlOpen, &Protocol::fetchDone, this, &CodepasterPlugin::finishFetch);

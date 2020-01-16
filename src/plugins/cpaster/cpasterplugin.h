@@ -30,7 +30,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QStringList>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -87,7 +86,7 @@ private:
     void fetchUrl();
 
     static CodepasterPlugin *m_instance;
-    const QSharedPointer<Settings> m_settings;
+    Settings *m_settings = nullptr;
     QAction *m_postEditorAction = nullptr;
     QAction *m_fetchAction = nullptr;
     QAction *m_fetchUrlAction = nullptr;
