@@ -150,7 +150,7 @@ private:
 // ToolChainOptionsWidget
 // --------------------------------------------------------------------------
 
-class ToolChainOptionsWidget : public QWidget
+class ToolChainOptionsWidget final : public Core::IOptionsPageWidget
 {
 public:
     ToolChainOptionsWidget()
@@ -571,27 +571,9 @@ ToolChainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 ToolChainOptionsPage::ToolChainOptionsPage()
 {
     setId(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
-    setDisplayName(tr("Compilers"));
+    setDisplayName(ToolChainOptionsWidget::tr("Compilers"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
-}
-
-QWidget *ToolChainOptionsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new ToolChainOptionsWidget;
-    return m_widget;
-}
-
-void ToolChainOptionsPage::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void ToolChainOptionsPage::finish()
-{
-    delete m_widget;
-    m_widget = nullptr;
+    setWidgetCreator([] { return new ToolChainOptionsWidget; });
 }
 
 } // namespace Internal
