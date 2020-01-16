@@ -25,12 +25,14 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+namespace Core { class IVersionControl; }
 
 namespace Mercurial {
 namespace Internal {
 
-class OptionsPage final : public VcsBase::VcsClientOptionsPage
+class OptionsPage final : public Core::IOptionsPage
 {
 public:
     OptionsPage(Core::IVersionControl *control, QObject *parent);
