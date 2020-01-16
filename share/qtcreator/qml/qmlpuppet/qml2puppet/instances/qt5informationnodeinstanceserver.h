@@ -61,6 +61,7 @@ private slots:
     void handleSelectionChanged(const QVariant &objs);
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
+    void handleToolStateChanged(const QString &tool, const QVariant &toolState);
     void updateViewPortRect();
 
 protected:
@@ -78,7 +79,8 @@ private:
     void handleObjectPropertyChangeTimeout();
     void handleSelectionChangeTimeout();
     QObject *createEditView3D(QQmlEngine *engine);
-    void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
+    void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
+                         const QVariantMap &toolStates);
     QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
     ServerNodeInstance findViewPort(const QList<ServerNodeInstance> &instanceList);

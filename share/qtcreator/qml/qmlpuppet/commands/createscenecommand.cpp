@@ -39,7 +39,8 @@ CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanc
                                        const QVector<PropertyValueContainer> &auxiliaryChangeVector,
                                        const QVector<AddImportContainer> &importVector,
                                        const QVector<MockupTypeContainer> &mockupTypeVector,
-                                       const QUrl &fileUrl)
+                                       const QUrl &fileUrl,
+                                       const QVariantMap &edit3dToolStates)
     : m_instanceVector(instanceContainer),
       m_reparentInstanceVector(reparentContainer),
       m_idVector(idVector),
@@ -48,7 +49,8 @@ CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanc
       m_auxiliaryChangeVector(auxiliaryChangeVector),
       m_importVector(importVector),
       m_mockupTypeVector(mockupTypeVector),
-      m_fileUrl(fileUrl)
+      m_fileUrl(fileUrl),
+      m_edit3dToolStates(edit3dToolStates)
 {
 }
 
@@ -97,6 +99,11 @@ QUrl CreateSceneCommand::fileUrl() const
     return m_fileUrl;
 }
 
+QVariantMap CreateSceneCommand::edit3dToolStates() const
+{
+    return m_edit3dToolStates;
+}
+
 QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
 {
     out << command.instances();
@@ -108,6 +115,7 @@ QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
     out << command.imports();
     out << command.mockupTypes();
     out << command.fileUrl();
+    out << command.edit3dToolStates();
 
     return out;
 }
@@ -123,6 +131,7 @@ QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command)
     in >> command.m_importVector;
     in >> command.m_mockupTypeVector;
     in >> command.m_fileUrl;
+    in >> command.m_edit3dToolStates;
 
     return in;
 }
@@ -138,7 +147,8 @@ QDebug operator <<(QDebug debug, const CreateSceneCommand &command)
                     << "auxiliaryChanges: " << command.auxiliaryChanges() << ", "
                     << "imports: " << command.imports() << ", "
                     << "mockupTypes: " << command.mockupTypes() << ", "
-                    << "fileUrl: " << command.fileUrl() << ")";
+                    << "fileUrl: " << command.fileUrl() << ", "
+                    << "edit3dToolStates: " << command.edit3dToolStates() << ")";
 }
 
 }

@@ -33,14 +33,30 @@ Rectangle {
     property string shortcut
     property string currentShortcut
     property string tool
-    property variant buttonsGroup: []
+    property string buttonGroup
     property bool togglable: true
+
+    property int _buttonGroupIndex: -1
+    property var _buttonGroupArray: []
 
     id: root
     width: img.width + 5
     height: img.height + 5
     color: root.selected ? "#aa000000" : (mouseArea.containsMouse ? "#44000000" : "#00000000")
     radius: 3
+
+    Component.onCompleted: {
+        var group = parent.buttonGroups[buttonGroup];
+        if (group) {
+            _buttonGroupArray = group;
+            for (var i = 0; i < _buttonGroupArray.length; ++i) {
+                if (_buttonGroupArray[i] === this) {
+                    _buttonGroupIndex = i;
+                    break;
+                }
+            }
+        }
+    }
 
     ToolTip {
         text: root.tooltip + " (" + root.shortcut + ")"
@@ -68,10 +84,12 @@ Rectangle {
 
         onClicked: {
             if (!root.selected) {
-                for (var i = 0; i < root.buttonsGroup.length; ++i)
-                    root.buttonsGroup[i].selected = false;
+                for (var i = 0; i < root._buttonGroupArray.length; ++i)
+                    root._buttonGroupArray[i].selected = false;
 
                 root.selected = true;
+                if (_buttonGroupIndex >= 0)
+                    _generalHelper.storeToolState(root.buttonGroup, root._buttonGroupIndex)
 
                 if (!root.togglable) {
                     // Deselect button after a short while (selection acts as simple click indicator)

@@ -113,7 +113,7 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
     case QEvent::KeyPress: {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         QPair<int, int> data = {keyEvent->key(), keyEvent->modifiers()};
-        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Key_Pressed,
+        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::KeyPressed,
                                                             QVariant::fromValue(data)});
     } break;
 
@@ -159,6 +159,8 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
 {
 #ifdef QUICK3D_MODULE
     auto helper = new QmlDesigner::Internal::GeneralHelper();
+    QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
+                     this, &Qt5InformationNodeInstanceServer::handleToolStateChanged);
     engine->rootContext()->setContextProperty("_generalHelper", helper);
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
@@ -306,6 +308,14 @@ void Qt5InformationNodeInstanceServer::handleObjectPropertyChange(const QVariant
     }
     m_changedNode = object;
     m_changedProperty = propertyName;
+}
+
+void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &tool,
+                                                              const QVariant &toolState)
+{
+    QPair<QString, QVariant> data = {tool, toolState};
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Edit3DToolState,
+                                                        QVariant::fromValue(data)});
 }
 
 void Qt5InformationNodeInstanceServer::updateViewPortRect()
@@ -476,7 +486,8 @@ ServerNodeInstance Qt5InformationNodeInstanceServer::findViewPort(
     return ServerNodeInstance();
 }
 
-void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList)
+void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList,
+                                                       const QVariantMap &toolStates)
 {
     ServerNodeInstance root = rootNodeInstance();
 
@@ -513,6 +524,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         }
 
         createCameraAndLightGizmos(instanceList);
+
+        QMetaObject::invokeMethod(m_editView3D, "updateToolStates", Q_ARG(QVariant, toolStates));
     }
 }
 
@@ -627,7 +640,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
     if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE"))
-        setup3DEditView(instanceList);
+        setup3DEditView(instanceList, command.edit3dToolStates());
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)

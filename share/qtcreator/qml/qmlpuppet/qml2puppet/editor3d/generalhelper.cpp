@@ -53,6 +53,10 @@ GeneralHelper::GeneralHelper()
     m_overlayUpdateTimer.setSingleShot(true);
     QObject::connect(&m_overlayUpdateTimer, &QTimer::timeout,
                      this, &GeneralHelper::overlayUpdateNeeded);
+
+    m_toolStateUpdateTimer.setSingleShot(true);
+    QObject::connect(&m_toolStateUpdateTimer, &QTimer::timeout,
+                     this, &GeneralHelper::handlePendingToolStateUpdate);
 }
 
 void GeneralHelper::requestOverlayUpdate()
@@ -222,6 +226,32 @@ QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
     return pickNode;
 }
 
+void GeneralHelper::storeToolState(const QString &tool, const QVariant &state, int delay)
+{
+    if (delay > 0) {
+        m_toolStatesPending.insert(tool, state);
+        m_toolStateUpdateTimer.start(delay);
+    } else {
+        if (m_toolStateUpdateTimer.isActive())
+            handlePendingToolStateUpdate();
+        QVariant theState;
+        // Convert JS arrays to QVariantLists for easier handling down the line
+        if (state.canConvert(QMetaType::QVariantList))
+            theState = state.value<QVariantList>();
+        else
+            theState = state;
+        if (m_toolStates[tool] != theState) {
+            m_toolStates.insert(tool, theState);
+            emit toolStateChanged(tool, theState);
+        }
+    }
+}
+
+void GeneralHelper::initToolStates(const QVariantMap &toolStates)
+{
+    m_toolStates = toolStates;
+}
+
 bool GeneralHelper::isMacOS() const
 {
 #ifdef Q_OS_MACOS
@@ -229,6 +259,17 @@ bool GeneralHelper::isMacOS() const
 #else
     return false;
 #endif
+}
+
+void GeneralHelper::handlePendingToolStateUpdate()
+{
+    m_toolStateUpdateTimer.stop();
+    auto it = m_toolStatesPending.constBegin();
+    while (it != m_toolStatesPending.constEnd()) {
+        storeToolState(it.key(), it.value());
+        ++it;
+    }
+    m_toolStatesPending.clear();
 }
 
 }

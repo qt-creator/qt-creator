@@ -69,15 +69,22 @@ public:
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
     Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
-
+    Q_INVOKABLE void storeToolState(const QString &tool, const QVariant &state, int delayEmit = 0);
+    Q_INVOKABLE void initToolStates(const QVariantMap &toolStates);
 
     bool isMacOS() const;
 
 signals:
     void overlayUpdateNeeded();
+    void toolStateChanged(const QString &tool, const QVariant &toolState);
 
 private:
+    void handlePendingToolStateUpdate();
+
     QTimer m_overlayUpdateTimer;
+    QTimer m_toolStateUpdateTimer;
+    QVariantMap m_toolStates;
+    QVariantMap m_toolStatesPending;
 };
 
 }

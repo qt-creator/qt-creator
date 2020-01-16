@@ -40,8 +40,10 @@ Window {
     flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
 
     property alias scene: editView.importScene
+
     property alias showEditLight: btnEditViewLight.toggled
     property alias usePerspective: btnPerspective.toggled
+    property alias globalOrientation: btnLocalGlobal.toggled
 
     property Node selectedNode: null // This is non-null only in single selection case
     property var selectedNodes: [] // All selected nodes
@@ -54,6 +56,41 @@ Window {
     signal selectionChanged(var selectedNodes)
     signal commitObjectProperty(var object, var propName)
     signal changeObjectProperty(var object, var propName)
+
+    onUsePerspectiveChanged: _generalHelper.storeToolState("usePerspective", usePerspective)
+    onShowEditLightChanged: _generalHelper.storeToolState("showEditLight", showEditLight)
+    onGlobalOrientationChanged: _generalHelper.storeToolState("globalOrientation", globalOrientation)
+
+    function updateToolStates(toolStates) {
+        // Init the stored state so we don't unnecessarily reflect changes back to creator
+        _generalHelper.initToolStates(toolStates);
+
+        if ("showEditLight" in toolStates)
+            showEditLight = toolStates.showEditLight;
+        if ("usePerspective" in toolStates)
+            usePerspective = toolStates.usePerspective;
+        if ("globalOrientation" in toolStates)
+            globalOrientation = toolStates.globalOrientation;
+
+        var groupIndex;
+        var group;
+        var i;
+        if ("groupSelect" in toolStates) {
+            groupIndex = toolStates.groupSelect;
+            group = toolbarButtons.buttonGroups["groupSelect"];
+            for (i = 0; i < group.length; ++i)
+                group[i].selected = (i === groupIndex);
+        }
+        if ("groupTransform" in toolStates) {
+            groupIndex = toolStates.groupTransform;
+            group = toolbarButtons.buttonGroups["groupTransform"];
+            for (i = 0; i < group.length; ++i)
+                group[i].selected = (i === groupIndex);
+        }
+
+        if ("editCamState" in toolStates)
+            cameraControl.restoreCameraState(toolStates.editCamState);
+    }
 
     function ensureSelectionBoxes(count) {
         var needMore = count - selectionBoxes.length
@@ -207,7 +244,7 @@ Window {
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
-            globalOrientation: btnLocalGlobal.toggled
+            globalOrientation: viewWindow.globalOrientation
             visible: viewWindow.selectedNode && btnMove.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
@@ -234,7 +271,7 @@ Window {
             scale: autoScale.getScale(Qt.vector3d(7, 7, 7))
             highlightOnHover: true
             targetNode: viewWindow.selectedNode
-            globalOrientation: btnLocalGlobal.toggled
+            globalOrientation: viewWindow.globalOrientation
             visible: viewWindow.selectedNode && btnRotate.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
@@ -422,16 +459,19 @@ Window {
         id: toolbar
         color: "#9F000000"
         width: 35
-        height: col.height
+        height: toolbarButtons.height
 
         Column {
-            id: col
+            id: toolbarButtons
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 5
             padding: 5
 
-            property var groupSelect: [btnSelectGroup, btnSelectItem]
-            property var groupTransform: [btnMove, btnRotate, btnScale]
+            // Button groups must be defined in parent object of buttons
+            property var buttonGroups: {
+                "groupSelect": [btnSelectGroup, btnSelectItem],
+                "groupTransform": [btnMove, btnRotate, btnScale]
+            }
 
             ToolBarButton {
                 id: btnSelectItem
@@ -440,7 +480,7 @@ Window {
                 shortcut: "Q"
                 currentShortcut: selected ? "" : shortcut
                 tool: "item_selection"
-                buttonsGroup: col.groupSelect
+                buttonGroup: "groupSelect"
             }
 
             ToolBarButton {
@@ -449,7 +489,7 @@ Window {
                 shortcut: "Q"
                 currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
                 tool: "group_selection"
-                buttonsGroup: col.groupSelect
+                buttonGroup: "groupSelect"
             }
 
             Rectangle { // separator
@@ -466,7 +506,7 @@ Window {
                 shortcut: "W"
                 currentShortcut: shortcut
                 tool: "move"
-                buttonsGroup: col.groupTransform
+                buttonGroup: "groupTransform"
             }
 
             ToolBarButton {
@@ -475,7 +515,7 @@ Window {
                 shortcut: "E"
                 currentShortcut: shortcut
                 tool: "rotate"
-                buttonsGroup: col.groupTransform
+                buttonGroup: "groupTransform"
             }
 
             ToolBarButton {
@@ -484,7 +524,7 @@ Window {
                 shortcut: "R"
                 currentShortcut: shortcut
                 tool: "scale"
-                buttonsGroup: col.groupTransform
+                buttonGroup: "groupTransform"
             }
 
             Rectangle { // separator

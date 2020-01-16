@@ -45,6 +45,25 @@ Item {
     property real _defaultCameraLookAtDistance: 0
     property Camera _prevCamera: null
 
+    function restoreCameraState(cameraState) {
+        _lookAtPoint = cameraState[0];
+        _zoomFactor = cameraState[1];
+        camera.position = cameraState[2];
+        camera.rotation = cameraState[3];
+        _generalHelper.zoomCamera(camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
+                                  _zoomFactor, false);
+    }
+
+    function storeCameraState(delay) {
+        var cameraState = [];
+        cameraState[0] = _lookAtPoint;
+        cameraState[1] = _zoomFactor;
+        cameraState[2] = camera.position;
+        cameraState[3] = camera.rotation;
+        _generalHelper.storeToolState("editCamState", cameraState, delay);
+    }
+
+
     function focusObject(targetObject, rotation, updateZoom)
     {
         camera.rotation = rotation;
@@ -52,6 +71,7 @@ Item {
                     camera, _defaultCameraLookAtDistance, targetObject, view3d, _zoomFactor, updateZoom);
         _lookAtPoint = newLookAtAndZoom.toVector3d();
         _zoomFactor = newLookAtAndZoom.w;
+        storeCameraState(0);
     }
 
     function zoomRelative(distance)
@@ -118,11 +138,18 @@ Item {
             }
         }
 
-        onReleased: cameraCtrl._dragging = false;
-        onCanceled: cameraCtrl._dragging = false;
+        function handleRelease() {
+            cameraCtrl._dragging = false;
+            cameraCtrl.storeCameraState(0);
+        }
+
+        onReleased: handleRelease()
+        onCanceled: handleRelease()
+
         onWheel: {
             // Emprically determined divisor for nice zoom
             cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
+            cameraCtrl.storeCameraState(500);
         }
     }
 }

@@ -216,6 +216,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<QPair<int, int>>("QPairIntInt");
     qRegisterMetaTypeStreamOperators<QPair<int, int>>("QPairIntInt");
+
+    qRegisterMetaType<QPair<QString, QVariant>>("QPairStringVariant");
+    qRegisterMetaTypeStreamOperators<QPair<QString, QVariant>>("QPairStringVariant");
 }
 
 }

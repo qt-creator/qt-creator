@@ -979,7 +979,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               auxiliaryContainerVector,
                               importVector,
                               mockupTypesVector,
-                              model()->fileUrl());
+                              model()->fileUrl(),
+                              m_edit3DToolStates);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
@@ -1451,12 +1452,17 @@ void NodeInstanceView::library3DItemDropped(const Drop3DLibraryItemCommand &comm
 
 void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)
 {
-    if (command.type() == PuppetToCreatorCommand::Key_Pressed) {
+    if (command.type() == PuppetToCreatorCommand::KeyPressed) {
         QPair<int, int> data = qvariant_cast<QPair<int, int>>(command.data());
         int key = data.first;
         Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(data.second);
 
         handlePuppetKeyPress(key, modifiers);
+    } else if (command.type() == PuppetToCreatorCommand::Edit3DToolState) {
+        if (!m_nodeInstanceServer.isNull()) {
+            auto data = qvariant_cast<QPair<QString, QVariant>>(command.data());
+            m_edit3DToolStates[data.first] = data.second;
+        }
     }
 }
 
