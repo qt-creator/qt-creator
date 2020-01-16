@@ -19,6 +19,10 @@ add_qtc_executable(qtcreator
   DESTINATION "${IDE_APP_PATH}"
 )
 
+if (NOT TARGET qtcreator)
+  return()
+endif()
+
 if (WIN32)
   set(RC_APPLICATION_NAME "${IDE_DISPLAY_NAME}")
   set(RC_VERSION "${IDE_VERSION}.0")
