@@ -30,6 +30,10 @@
 
 #include <utils/optional.h>
 
+#include <QElapsedTimer>
+#include <QPointer>
+#include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 #include <QTableView>
 
 namespace Utils { class FancyLineEdit; }
@@ -81,4 +85,96 @@ private:
     int m_columnCount = 1;
 };
 
+class CORE_EXPORT ListItem
+{
+public:
+    QString name;
+    QString description;
+    QString imageUrl;
+    QStringList tags;
+};
+
+class CORE_EXPORT ListModel : public QAbstractListModel
+{
+public:
+    enum ListDataRole {
+        ItemRole = Qt::UserRole,
+        ItemImageRole,
+        ItemTagsRole
+    };
+
+    explicit ListModel(QObject *parent);
+    ~ListModel() override;
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const final;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    virtual QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const = 0;
+
+    static const QSize defaultImageSize;
+
+protected:
+    QList<ListItem *> m_items;
+};
+
+class CORE_EXPORT ListModelFilter : public QSortFilterProxyModel
+{
+public:
+    ListModelFilter(ListModel *sourceModel, QObject *parent);
+
+    void setSearchString(const QString &arg);
+
+protected:
+    virtual bool leaveFilterAcceptsRowBeforeFiltering(const ListItem *item,
+                                                      bool *earlyExitResult) const;
+
+private:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final;
+    void timerEvent(QTimerEvent *event) final;
+
+    void delayedUpdateFilter();
+
+    QString m_searchString;
+    QStringList m_filterTags;
+    QStringList m_filterStrings;
+    int m_timerId = 0;
+};
+
+class CORE_EXPORT ListItemDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+public:
+    ListItemDelegate();
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+
+signals:
+    void tagClicked(const QString &tag);
+
+protected:
+    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option,
+                     const QModelIndex &index) override;
+
+    virtual void drawPixmapOverlay(const ListItem *item, QPainter *painter,
+                                   const QStyleOptionViewItem &option,
+                                   const QRect &currentPixmapRect) const;
+    virtual void clickAction(const ListItem *item) const;
+    virtual void adjustPixmapRect(QRect *pixmapRect) const;
+
+    void goon();
+
+    QColor lightColor;
+    QColor backgroundColor;
+    QColor foregroundColor1;
+    QColor foregroundColor2;
+
+private:
+    mutable QPersistentModelIndex m_previousIndex;
+    mutable QElapsedTimer m_startTime;
+    mutable QRect m_currentArea;
+    mutable QPointer<QAbstractItemView> m_currentWidget;
+    mutable QVector<QPair<QString, QRect>> m_currentTagRects;
+};
+
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::ListItem *)

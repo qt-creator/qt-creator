@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/welcomepagehelper.h>
+
 #include <qtsupport/baseqtversion.h>
 
 #include <QAbstractListModel>
@@ -98,17 +100,13 @@ enum InstructionalType
     Example = 0, Demo, Tutorial
 };
 
-class ExampleItem
+class ExampleItem : public Core::ListItem
 {
 public:
-    QString name;
     QString projectPath;
-    QString description;
-    QString imageUrl;
     QString docUrl;
     QStringList filesToOpen;
     QString mainFile; /* file to be visible after opening filesToOpen */
-    QStringList tags;
     QStringList dependencies;
     InstructionalType type;
     int difficulty = 0;
@@ -120,19 +118,12 @@ public:
     QStringList platforms;
 };
 
-class ExamplesListModel : public QAbstractListModel
+class ExamplesListModel : public Core::ListModel
 {
     Q_OBJECT
-
 public:
-    enum ExampleListDataRole {
-        ExampleItemRole = Qt::UserRole,
-        ExampleImageRole = Qt::UserRole + 1
-    };
-
     explicit ExamplesListModel(QObject *parent);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
 
     void updateExamples();
@@ -140,7 +131,7 @@ public:
     QStringList exampleSets() const;
     ExampleSetModel *exampleSetModel() { return &m_exampleSetModel; }
 
-    static const QSize exampleImageSize;
+    QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const override;
 
 signals:
     void selectedExampleSetChanged(int);
@@ -155,32 +146,21 @@ private:
     void parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
 
     ExampleSetModel m_exampleSetModel;
-    QList<ExampleItem> m_exampleItems;
 };
 
-class ExamplesListModelFilter : public QSortFilterProxyModel
+class ExamplesListModelFilter : public Core::ListModelFilter
 {
-    Q_OBJECT
-
 public:
     ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent);
 
-    void setSearchString(const QString &arg);
-
+protected:
+    bool leaveFilterAcceptsRowBeforeFiltering(const Core::ListItem *item,
+                                              bool *earlyExitResult) const override;
 private:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final;
-    void timerEvent(QTimerEvent *event) final;
-
-    void delayedUpdateFilter();
-
     const bool m_showTutorialsOnly;
-    QString m_searchString;
-    QStringList m_filterTags;
-    QStringList m_filterStrings;
-    int m_timerId = 0;
 };
 
 } // namespace Internal
 } // namespace QtSupport
 
-Q_DECLARE_METATYPE(QtSupport::Internal::ExampleItem)
+Q_DECLARE_METATYPE(QtSupport::Internal::ExampleItem *)

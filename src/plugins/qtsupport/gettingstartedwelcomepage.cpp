@@ -168,18 +168,18 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     return QString();
 }
 
-void ExamplesWelcomePage::openProject(const ExampleItem &item)
+void ExamplesWelcomePage::openProject(const ExampleItem *item)
 {
     using namespace ProjectExplorer;
-    QString proFile = item.projectPath;
+    QString proFile = item->projectPath;
     if (proFile.isEmpty())
         return;
 
-    QStringList filesToOpen = item.filesToOpen;
-    if (!item.mainFile.isEmpty()) {
+    QStringList filesToOpen = item->filesToOpen;
+    if (!item->mainFile.isEmpty()) {
         // ensure that the main file is opened on top (i.e. opened last)
-        filesToOpen.removeAll(item.mainFile);
-        filesToOpen.append(item.mainFile);
+        filesToOpen.removeAll(item->mainFile);
+        filesToOpen.append(item->mainFile);
     }
 
     QFileInfo proFileInfo(proFile);
@@ -195,7 +195,7 @@ void ExamplesWelcomePage::openProject(const ExampleItem &item)
                 || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */;
     });
     if (needsCopy)
-        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, item.dependencies);
+        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, item->dependencies);
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
@@ -204,7 +204,7 @@ void ExamplesWelcomePage::openProject(const ExampleItem &item)
     if (result) {
         ICore::openFiles(filesToOpen);
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
-        QUrl docUrl = QUrl::fromUserInput(item.docUrl);
+        QUrl docUrl = QUrl::fromUserInput(item->docUrl);
         if (docUrl.isValid())
             HelpManager::showHelpUrl(docUrl, HelpManager::ExternalHelpAlways);
         ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
@@ -213,217 +213,49 @@ void ExamplesWelcomePage::openProject(const ExampleItem &item)
     }
 }
 
-//////////////////////////////
-
-static QColor themeColor(Theme::Color role)
+class ExampleDelegate : public ListItemDelegate
 {
-    return Utils::creatorTheme()->color(role);
-}
-
-static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
-{
-    QFont f = widget->font();
-    f.setPixelSize(size);
-    f.setUnderline(underline);
-    return f;
-}
-
-class ExampleDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
 public:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const final
-    {
-        const ExampleItem item = index.data(ExamplesListModel::ExampleItemRole).value<ExampleItem>();
-        const QRect rc = option.rect;
-
-        // Quick hack for empty items in the last row.
-        if (item.name.isEmpty())
-            return;
-
-        const int d = 10;
-        const int x = rc.x() + d;
-        const int y = rc.y() + d;
-        const int w = rc.width() - 2 * d - GridProxyModel::GridItemGap;
-        const int h = rc.height() - 2 * d;
-        const bool hovered = option.state & QStyle::State_MouseOver;
-
-        const int tagsBase = GridProxyModel::TagsSeparatorY + 10;
-        const int shiftY = GridProxyModel::TagsSeparatorY - 20;
-        const int nameY = GridProxyModel::TagsSeparatorY - 20;
-
-        const QRect textRect = QRect(x, y + nameY, w, h);
-
-        QTextOption wrapped;
-        wrapped.setWrapMode(QTextOption::WordWrap);
-        int offset = 0;
-        if (hovered) {
-            if (index != m_previousIndex) {
-                m_previousIndex = index;
-                m_startTime.start();
-                m_currentArea = rc;
-                m_currentWidget = qobject_cast<QAbstractItemView *>(
-                    const_cast<QWidget *>(option.widget));
-            }
-            offset = m_startTime.elapsed() * GridProxyModel::GridItemHeight / 200; // Duration 200 ms.
-            if (offset < shiftY)
-                QTimer::singleShot(5, this, &ExampleDelegate::goon);
-            else if (offset > shiftY)
-                offset = shiftY;
-        } else {
-            m_previousIndex = QModelIndex();
-        }
-
-        const QFontMetrics fm(option.widget->font());
-        const QRect shiftedTextRect = textRect.adjusted(0, -offset, 0, -offset);
-
-        // The pixmap.
-        if (offset == 0) {
-            QPixmap pm = index.data(ExamplesListModel::ExampleImageRole).value<QPixmap>();
-            QRect inner(x + 11, y - offset, ExamplesListModel::exampleImageSize.width(),
-                        ExamplesListModel::exampleImageSize.height());
-            QRect pixmapRect = inner;
-            if (!pm.isNull()) {
-                painter->setPen(foregroundColor2);
-                if (!m_showExamples)
-                    pixmapRect = inner.adjusted(6, 20, -6, -15);
-                QPoint pixmapPos = pixmapRect.center();
-                pixmapPos.rx() -= pm.width() / pm.devicePixelRatio() / 2;
-                pixmapPos.ry() -= pm.height() / pm.devicePixelRatio() / 2;
-                painter->drawPixmap(pixmapPos, pm);
-                if (item.isVideo) {
-                    painter->setFont(sizedFont(13, option.widget));
-                    QString videoLen = item.videoLength;
-                    painter->drawText(pixmapRect.adjusted(0, 0, 0, painter->font().pixelSize() + 3),
-                                      videoLen, Qt::AlignBottom | Qt::AlignHCenter);
-                }
-            } else {
-                // The description text as fallback.
-                painter->setPen(foregroundColor2);
-                painter->setFont(sizedFont(11, option.widget));
-                painter->drawText(pixmapRect.adjusted(6, 10, -6, -10), item.description, wrapped);
-            }
-            painter->setPen(foregroundColor1);
-            painter->drawRect(pixmapRect.adjusted(-1, -1, -1, -1));
-        }
-
-        // The title of the example.
-        painter->setPen(foregroundColor1);
-        painter->setFont(sizedFont(13, option.widget));
-        QRectF nameRect;
-        if (offset) {
-            nameRect = painter->boundingRect(shiftedTextRect, item.name, wrapped);
-            painter->drawText(nameRect, item.name, wrapped);
-        } else {
-            nameRect = QRect(x, y + nameY, x + w, y + nameY + 20);
-            QString elidedName = fm.elidedText(item.name, Qt::ElideRight, w - 20);
-            painter->drawText(nameRect, elidedName);
-        }
-
-        // The separator line below the example title.
-        if (offset) {
-            int ll = nameRect.bottom() + 5;
-            painter->setPen(lightColor);
-            painter->drawLine(x, ll, x + w, ll);
-        }
-
-        // The description text.
-        if (offset) {
-            int dd = nameRect.height() + 10;
-            QRect descRect = shiftedTextRect.adjusted(0, dd, 0, dd);
-            painter->setPen(foregroundColor2);
-            painter->setFont(sizedFont(11, option.widget));
-            painter->drawText(descRect, item.description, wrapped);
-        }
-
-        // Separator line between text and 'Tags:' section
-        painter->setPen(lightColor);
-        painter->drawLine(x, y + GridProxyModel::TagsSeparatorY,
-                          x + w, y + GridProxyModel::TagsSeparatorY);
-
-        // The 'Tags:' section
-        const int tagsHeight = h - tagsBase;
-        const QFont tagsFont = sizedFont(10, option.widget);
-        const QFontMetrics tagsFontMetrics(tagsFont);
-        QRect tagsLabelRect = QRect(x, y + tagsBase, 30, tagsHeight - 2);
-        painter->setPen(foregroundColor2);
-        painter->setFont(tagsFont);
-        painter->drawText(tagsLabelRect, ExamplesWelcomePage::tr("Tags:"));
-
-        painter->setPen(themeColor(Theme::Welcome_LinkColor));
-        m_currentTagRects.clear();
-        int xx = 0;
-        int yy = y + tagsBase;
-        for (const QString &tag : item.tags) {
-            const int ww = tagsFontMetrics.horizontalAdvance(tag) + 5;
-            if (xx + ww > w - 30) {
-                yy += 15;
-                xx = 0;
-            }
-            const QRect tagRect(xx + x + 30, yy, ww, 15);
-            painter->drawText(tagRect, tag);
-            m_currentTagRects.append({ tag, tagRect });
-            xx += ww;
-        }
-
-        // Box it when hovered.
-        if (hovered) {
-            painter->setPen(lightColor);
-            painter->drawRect(rc.adjusted(0, 0, -1, -1));
-        }
-    }
-
-    void goon()
-    {
-        if (m_currentWidget)
-            m_currentWidget->viewport()->update(m_currentArea);
-    }
-
-    bool editorEvent(QEvent *ev, QAbstractItemModel *model,
-        const QStyleOptionViewItem &option, const QModelIndex &idx) final
-    {
-        if (ev->type() == QEvent::MouseButtonRelease) {
-            const ExampleItem item = idx.data(Qt::UserRole).value<ExampleItem>();
-            auto mev = static_cast<QMouseEvent *>(ev);
-            if (idx.isValid()) {
-                const QPoint pos = mev->pos();
-                if (pos.y() > option.rect.y() + GridProxyModel::TagsSeparatorY) {
-                    //const QStringList tags = idx.data(Tags).toStringList();
-                    for (const auto &it : m_currentTagRects) {
-                        if (it.second.contains(pos))
-                            emit tagClicked(it.first);
-                    }
-                } else {
-                    if (item.isVideo)
-                        QDesktopServices::openUrl(QUrl::fromUserInput(item.videoUrl));
-                    else if (item.hasSourceCode)
-                        ExamplesWelcomePage::openProject(item);
-                    else
-                        HelpManager::showHelpUrl(QUrl::fromUserInput(item.docUrl),
-                                                       HelpManager::ExternalHelpAlways);
-                }
-            }
-        }
-        return QStyledItemDelegate::editorEvent(ev, model, option, idx);
-    }
 
     void setShowExamples(bool showExamples) { m_showExamples = showExamples; goon(); }
 
-signals:
-    void tagClicked(const QString &tag);
+protected:
+    void clickAction(const ListItem *item) const override
+    {
+        QTC_ASSERT(item, return);
+        const auto exampleItem = static_cast<const ExampleItem *>(item);
 
-private:
-    const QColor lightColor = QColor(221, 220, 220); // color: "#dddcdc"
-    const QColor backgroundColor = themeColor(Theme::Welcome_BackgroundColor);
-    const QColor foregroundColor1 = themeColor(Theme::Welcome_ForegroundPrimaryColor); // light-ish.
-    const QColor foregroundColor2 = themeColor(Theme::Welcome_ForegroundSecondaryColor); // blacker.
+        if (exampleItem->isVideo)
+            QDesktopServices::openUrl(QUrl::fromUserInput(exampleItem->videoUrl));
+        else if (exampleItem->hasSourceCode)
+            ExamplesWelcomePage::openProject(exampleItem);
+        else
+            HelpManager::showHelpUrl(QUrl::fromUserInput(exampleItem->docUrl),
+                                     HelpManager::ExternalHelpAlways);
+    }
 
-    mutable QPersistentModelIndex m_previousIndex;
-    mutable QElapsedTimer m_startTime;
-    mutable QRect m_currentArea;
-    mutable QPointer<QAbstractItemView> m_currentWidget;
-    mutable QVector<QPair<QString, QRect>> m_currentTagRects;
+    void drawPixmapOverlay(const ListItem *item, QPainter *painter,
+                           const QStyleOptionViewItem &option,
+                           const QRect &currentPixmapRect) const override
+    {
+        QTC_ASSERT(item, return);
+        const auto exampleItem = static_cast<const ExampleItem *>(item);
+        if (exampleItem->isVideo) {
+            QFont f = option.widget->font();
+            f.setPixelSize(13);
+            painter->setFont(f);
+            QString videoLen = exampleItem->videoLength;
+            painter->drawText(currentPixmapRect.adjusted(0, 0, 0, painter->font().pixelSize() + 3),
+                              videoLen, Qt::AlignBottom | Qt::AlignHCenter);
+        }
+    }
+
+    void adjustPixmapRect(QRect *pixmapRect) const override
+    {
+        if (!m_showExamples)
+            *pixmapRect = pixmapRect->adjusted(6, 20, -6, -15);
+    }
+
     bool m_showExamples = true;
 };
 
@@ -514,5 +346,3 @@ QWidget *ExamplesWelcomePage::createWidget() const
 
 } // namespace Internal
 } // namespace QtSupport
-
-#include "gettingstartedwelcomepage.moc"

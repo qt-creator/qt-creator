@@ -49,7 +49,7 @@ public:
     Core::Id id() const final;
     QWidget *createWidget() const final;
 
-    static void openProject(const ExampleItem &item);
+    static void openProject(const ExampleItem *item);
 
 private:
     static QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen, const QStringList &dependencies);
