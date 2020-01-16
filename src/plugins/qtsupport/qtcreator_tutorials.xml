@@ -9,7 +9,7 @@
       <description><![CDATA[Using Qt Creator to create a small Qt application, Text Finder.]]></description>
       <tags>qt creator,qt designer,widgets,c++,text,help</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtdoc/qtwidgets-tutorials-notepad-example.html" projectPath="" name="Help: Getting Started Programming with Qt Widgets">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtwidgets/qtwidgets-tutorials-notepad-example.html" projectPath="" name="Help: Getting Started Programming with Qt Widgets">
       <description><![CDATA[Developing Qt applications using C++ and the Qt Widgets module.]]></description>
       <tags>qt,qt creator,qt designer,widgets,c++,help</tags>
     </tutorial>
@@ -21,9 +21,9 @@
       <description><![CDATA[Developing Qt Quick applications for Android and iOS devices using Qt Quick Controls.]]></description>
       <tags>qt creator,qt quick designer,qml,android,ios,controls,help</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtdoc/gettingstartedqml.html" projectPath="" name="Help: Getting Started Programming with Qt Quick">
-      <description><![CDATA[Developing Qt Quick applications using QML and C++.]]></description>
-      <tags>qt quick,qml,c++,help</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtdoc/qtdoc-tutorials-alarms-example.html" projectPath="" name="Help: Getting Started Programming with Qt Quick">
+      <description><![CDATA[Developing Qt Quick applications using Qt Quick and Qt Quick Controls.]]></description>
+      <tags>qt quick,controls,tumbler,help</tags>
     </tutorial>
 
     <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: Digital Instrument Cluster with Qt Quick Designer and Qt Safe Renderer" isVideo="true" videoUrl="https://www.youtube.com/watch?v=9RxxsOCeZHk" videoLength="4:06">
