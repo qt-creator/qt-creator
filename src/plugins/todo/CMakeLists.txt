@@ -1,5 +1,5 @@
 add_qtc_plugin(Todo
-  DEPENDS qmljs
+  DEPENDS QmlJS
   PLUGIN_DEPENDS Core CppTools ProjectExplorer
   SOURCES
     constants.h

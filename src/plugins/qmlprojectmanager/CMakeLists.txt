@@ -1,5 +1,5 @@
 add_qtc_plugin(QmlProjectManager
-  DEPENDS qmljs
+  DEPENDS QmlJS
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES
     fileformat/filefilteritems.cpp fileformat/filefilteritems.h

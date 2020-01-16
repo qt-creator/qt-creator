@@ -1,5 +1,5 @@
 add_qtc_test(tst_qml_qmljssimplereader
-  DEPENDS qmljs
+  DEPENDS QmlJS
   DEFINES
     QT_CREATOR
     QTCREATORDIR="${PROJECT_SOURCE_DIR}"

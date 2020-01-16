@@ -2,7 +2,7 @@
 return()
 
 add_qtc_test(tst_qml_testcore
-  DEPENDS qmljs Utils QmlEditorWidgets CPlusPlus Core QmlJSEditor
+  DEPENDS QmlJS Utils QmlEditorWidgets CPlusPlus Core QmlJSEditor
   INCLUDES
     "${PROJECT_SOURCE_DIR}/src/plugins/qmldesigner/designercore/include"
     "${PROJECT_SOURCE_DIR}/src/plugins/qmldesigner/designercore"

@@ -1,5 +1,5 @@
 add_qtc_test(tst_qml_importscheck
-  DEPENDS qmljs QmlJSTools Utils CPlusPlus
+  DEPENDS QmlJS QmlJSTools Utils CPlusPlus
   INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins"
   DEFINES
     QT_CREATOR

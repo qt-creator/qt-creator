@@ -1,5 +1,5 @@
 add_qtc_library(QmlEditorWidgets
-  DEPENDS qmljs Utils Qt5::Widgets
+  DEPENDS QmlJS Utils Qt5::Widgets
   SOURCES
     colorbox.cpp colorbox.h
     colorbutton.cpp colorbutton.h

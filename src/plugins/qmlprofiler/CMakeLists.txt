@@ -1,5 +1,5 @@
 add_qtc_plugin(QmlProfiler
-  DEPENDS QmlDebug qmljs Tracing Qt5::QuickWidgets
+  DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
   SOURCES
     debugmessagesmodel.cpp debugmessagesmodel.h

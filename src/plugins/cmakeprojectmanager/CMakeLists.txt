@@ -1,5 +1,5 @@
 add_qtc_plugin(CMakeProjectManager
-  DEPENDS qmljs
+  DEPENDS QmlJS
   PLUGIN_DEPENDS Core CppTools ProjectExplorer TextEditor QtSupport
   PLUGIN_RECOMMENDS Designer
   SOURCES

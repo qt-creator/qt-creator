@@ -1,5 +1,5 @@
 add_qtc_test(tst_qml_dependencies
-  DEPENDS qmljs QmlJSTools ExtensionSystem Utils
+  DEPENDS QmlJS QmlJSTools ExtensionSystem Utils
   INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins"
   DEFINES
     QT_CREATOR

@@ -1,5 +1,5 @@
 add_qtc_test(tst_qml_qmlcodeformatter
-  DEPENDS qmljs QmlJSTools TextEditor
+  DEPENDS QmlJS QmlJSTools TextEditor
   DEFINES
     QT_CREATOR
     QTCREATORDIR="${PROJECT_SOURCE_DIR}"

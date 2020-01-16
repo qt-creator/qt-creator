@@ -1,5 +1,5 @@
 add_qtc_plugin(Debugger
-  DEPENDS LanguageUtils QmlDebug qmljs QtcSsh registryaccess
+  DEPENDS LanguageUtils QmlDebug QmlJS QtcSsh registryaccess
   PLUGIN_DEPENDS Core CppTools ProjectExplorer QtSupport TextEditor
   PLUGIN_RECOMMENDS QmakeProjectManager
   SOURCES

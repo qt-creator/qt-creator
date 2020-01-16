@@ -1,4 +1,4 @@
-add_qtc_library(qmljs
+add_qtc_library(QmlJS
   DEPENDS ExtensionSystem Utils
   PUBLIC_DEPENDS CPlusPlus Qt5::Widgets Qt5::Xml LanguageUtils
   SOURCES
