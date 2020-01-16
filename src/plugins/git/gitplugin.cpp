@@ -81,6 +81,7 @@
 #include <QtPlugin>
 
 #include <QAction>
+#include <QApplication>
 #include <QFileDialog>
 #include <QMenu>
 #include <QScopedPointer>
