@@ -42,6 +42,16 @@
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include <CoreFoundation/CoreFoundation.h>
+
+// Work around issue with not being able to retrieve USB serial number.
+// See QTCREATORBUG-23460.
+// For an unclear reason USBSpec.h in macOS SDK 10.15 uses a different value if
+// MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_14, which just does not work.
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_14
+#undef kUSBSerialNumberString
+#define kUSBSerialNumberString "USB Serial Number"
+#endif
+
 #endif
 
 #include <exception>
