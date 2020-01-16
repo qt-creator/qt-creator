@@ -30,10 +30,8 @@
 namespace Macros {
 namespace Internal {
 
-class MacroOptionsPage : public Core::IOptionsPage
+class MacroOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     MacroOptionsPage();
 };

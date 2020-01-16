@@ -32,8 +32,6 @@ namespace Internal {
 
 class IosSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     IosSettingsPage();
 };

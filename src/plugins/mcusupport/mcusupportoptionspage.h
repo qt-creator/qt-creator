@@ -32,8 +32,6 @@ namespace Internal {
 
 class McuSupportOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     McuSupportOptionsPage();
 };

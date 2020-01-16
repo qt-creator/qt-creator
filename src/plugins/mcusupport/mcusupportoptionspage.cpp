@@ -55,6 +55,8 @@ static bool cMakeAvailable()
 
 class McuSupportOptionsWidget : public Core::IOptionsPageWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(McuSupport::Internal::McuSupportOptionsWidget)
+
 public:
     McuSupportOptionsWidget();
 
@@ -81,7 +83,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
     auto mainLayout = new QVBoxLayout(this);
 
     auto mcuTargetChooserlayout = new QHBoxLayout;
-    auto mcuTargetChooserLabel = new QLabel(McuSupportOptionsPage::tr("Target:"));
+    auto mcuTargetChooserLabel = new QLabel(tr("Target:"));
     mcuTargetChooserlayout->addWidget(mcuTargetChooserLabel);
     m_mcuTargetComboBox = new QComboBox;
     mcuTargetChooserLabel->setBuddy(m_mcuTargetComboBox);
@@ -93,7 +95,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
     mcuTargetChooserlayout->addWidget(m_mcuTargetComboBox);
     mainLayout->addLayout(mcuTargetChooserlayout);
 
-    auto m_packagesGroupBox = new QGroupBox(McuSupportOptionsPage::tr("Packages"));
+    auto m_packagesGroupBox = new QGroupBox(tr("Packages"));
     mainLayout->addWidget(m_packagesGroupBox);
     m_packagesLayout = new QFormLayout;
     m_packagesGroupBox->setLayout(m_packagesLayout);
@@ -199,7 +201,7 @@ void McuSupportOptionsWidget::apply()
 McuSupportOptionsPage::McuSupportOptionsPage()
 {
     setId(Core::Id(Constants::SETTINGS_ID));
-    setDisplayName(tr("MCU"));
+    setDisplayName(McuSupportOptionsWidget::tr("MCU"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new McuSupportOptionsWidget; });
 }

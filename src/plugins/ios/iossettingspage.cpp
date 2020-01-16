@@ -38,7 +38,7 @@ namespace Internal {
 IosSettingsPage::IosSettingsPage()
 {
     setId(Constants::IOS_SETTINGS_ID);
-    setDisplayName(tr("iOS"));
+    setDisplayName(IosSettingsWidget::tr("iOS"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new IosSettingsWidget; });
 }
