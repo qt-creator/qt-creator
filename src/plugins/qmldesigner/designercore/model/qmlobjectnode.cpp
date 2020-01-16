@@ -27,6 +27,7 @@
 #include "qmlitemnode.h"
 #include "qmlstate.h"
 #include "qmltimelinekeyframegroup.h"
+#include "qmlvisualnode.h"
 #include "variantproperty.h"
 #include "nodeproperty.h"
 #include <invalidmodelnodeexception.h>
@@ -652,6 +653,11 @@ QmlItemNode QmlObjectNode::instanceParentItem() const
     return QmlItemNode();
 }
 
+QmlItemNode QmlObjectNode::modelParentItem() const
+{
+    return modelNode().parentProperty().parentModelNode();
+}
+
 void QmlObjectNode::setId(const QString &id)
 {
     modelNode().setIdWithRefactoring(id);
@@ -686,6 +692,11 @@ void QmlObjectNode::setParent(const QmlObjectNode &newParent)
 QmlItemNode QmlObjectNode::toQmlItemNode() const
 {
     return QmlItemNode(modelNode());
+}
+
+QmlVisualNode QmlObjectNode::toQmlVisualNode() const
+{
+     return QmlVisualNode(modelNode());
 }
 
 uint qHash(const QmlObjectNode &node)

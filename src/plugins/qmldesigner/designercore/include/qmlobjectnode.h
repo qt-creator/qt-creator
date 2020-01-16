@@ -38,6 +38,7 @@ namespace QmlDesigner {
 class QmlItemNode;
 class QmlPropertyChanges;
 class MoveManipulator;
+class QmlVisualNode;
 
 class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
 {
@@ -58,6 +59,8 @@ public:
     void setParentProperty(const NodeAbstractProperty &parentProeprty);
     QmlObjectNode instanceParent() const;
     QmlItemNode instanceParentItem() const;
+
+    QmlItemNode modelParentItem() const;
 
     void setId(const QString &id);
     QString id() const;
@@ -105,6 +108,7 @@ public:
     void setParent(const QmlObjectNode &newParent);
 
     QmlItemNode toQmlItemNode() const;
+    QmlVisualNode toQmlVisualNode() const;
 
     bool isAncestorOf(const QmlObjectNode &objectNode) const;
 
