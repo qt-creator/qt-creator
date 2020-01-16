@@ -622,7 +622,7 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
         cursor.movePosition(QTextCursor::Start);
 
         if (d->m_storageSettings.m_cleanWhitespace)
-          cleanWhitespace(cursor, d->m_storageSettings.m_cleanIndentation, d->m_storageSettings.m_inEntireDocument);
+          cleanWhitespace(cursor, d->m_storageSettings);
         if (d->m_storageSettings.m_addFinalNewLine)
           ensureFinalNewLine(cursor);
         cursor.endEditBlock();
@@ -883,14 +883,22 @@ void TextDocument::cleanWhitespace(const QTextCursor &cursor)
     QTextCursor copyCursor = cursor;
     copyCursor.setVisualNavigation(false);
     copyCursor.beginEditBlock();
-    cleanWhitespace(copyCursor, true, true);
+
+    cleanWhitespace(copyCursor, d->m_storageSettings);
+
     if (!hasSelection)
         ensureFinalNewLine(copyCursor);
+
     copyCursor.endEditBlock();
 }
 
-void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
+void TextDocument::cleanWhitespace(QTextCursor &cursor, const StorageSettings &storageSettings)
 {
+    if (!d->m_storageSettings.m_cleanWhitespace)
+        return;
+
+    const QString fileName(filePath().fileName());
+
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     Q_ASSERT(cursor.visualNavigation() == false);
 
@@ -901,7 +909,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, b
 
     QVector<QTextBlock> blocks;
     while (block.isValid() && block != end) {
-        if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision)
+        if (storageSettings.m_inEntireDocument || block.revision() != documentLayout->lastSaveRevision)
             blocks.append(block);
         block = block.next();
     }
@@ -914,9 +922,12 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, b
 
     foreach (block, blocks) {
         QString blockText = block.text();
-        currentTabSettings.removeTrailingWhitespace(cursor, block);
+
+        if (storageSettings.removeTrailingWhitespace(fileName))
+            currentTabSettings.removeTrailingWhitespace(cursor, block);
+
         const int indent = indentations[block.blockNumber()];
-        if (cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
+        if (storageSettings.m_cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
             cursor.setPosition(block.position());
             int firstNonSpace = currentTabSettings.firstNonSpace(blockText);
             if (firstNonSpace == blockText.length()) {
@@ -934,6 +945,9 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, b
 
 void TextDocument::ensureFinalNewLine(QTextCursor& cursor)
 {
+    if (!d->m_storageSettings.m_addFinalNewLine)
+        return;
+
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     bool emptyFile = !cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
 

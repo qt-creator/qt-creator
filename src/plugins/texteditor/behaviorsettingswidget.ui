@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>801</width>
-    <height>547</height>
+    <height>693</height>
    </rect>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
@@ -169,13 +169,72 @@ Specifies how backspace interacts with indentation.
         <string>Cleanups Upon Saving</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0" colspan="2">
-         <widget class="QCheckBox" name="cleanWhitespace">
+        <item row="5" column="1">
+         <widget class="QWidget" name="widget" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="skipTrailingWhitespace">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>For the file patterns listed, do not trim trailing whitespace.</string>
+             </property>
+             <property name="text">
+              <string>Skip clean whitespace for file types:</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <property name="tristate">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="ignoreFileTypes">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="acceptDrops">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>List of wildcard-aware file patterns, separated by commas or semicolons.</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="2">
+         <widget class="QCheckBox" name="addFinalNewLine">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="toolTip">
-           <string>Removes trailing whitespace upon saving.</string>
+           <string>Always writes a newline character at the end of the file.</string>
           </property>
           <property name="text">
-           <string>&amp;Clean whitespace</string>
+           <string>&amp;Ensure newline at end of file</string>
           </property>
          </widget>
         </item>
@@ -195,6 +254,29 @@ Specifies how backspace interacts with indentation.
           </property>
          </spacer>
         </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QCheckBox" name="cleanWhitespace">
+          <property name="toolTip">
+           <string>Removes trailing whitespace upon saving.</string>
+          </property>
+          <property name="text">
+           <string>&amp;Clean whitespace</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QCheckBox" name="cleanIndentation">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Corrects leading whitespace according to tab settings.</string>
+          </property>
+          <property name="text">
+           <string>Clean indentation</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
          <widget class="QCheckBox" name="inEntireDocument">
           <property name="enabled">
@@ -211,29 +293,6 @@ Specifies how backspace interacts with indentation.
           </property>
           <property name="text">
            <string>In entire &amp;document</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QCheckBox" name="cleanIndentation">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Corrects leading whitespace according to tab settings.</string>
-          </property>
-          <property name="text">
-           <string>Clean indentation</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QCheckBox" name="addFinalNewLine">
-          <property name="toolTip">
-           <string>Always writes a newline character at the end of the file.</string>
-          </property>
-          <property name="text">
-           <string>&amp;Ensure newline at end of file</string>
           </property>
          </widget>
         </item>
@@ -518,6 +577,38 @@ Specifies how backspace interacts with indentation.
     <hint type="destinationlabel">
      <x>134</x>
      <y>384</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cleanWhitespace</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>skipTrailingWhitespace</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>530</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>548</x>
+     <y>144</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cleanWhitespace</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ignoreFileTypes</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>530</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>556</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>

@@ -46,12 +46,17 @@ public:
     void toMap(const QString &prefix, QVariantMap *map) const;
     void fromMap(const QString &prefix, const QVariantMap &map);
 
+    // calculated based on boolean setting plus file type blacklist examination
+    bool removeTrailingWhitespace(const QString &filePattern) const;
+
     bool equals(const StorageSettings &ts) const;
 
+    QString m_ignoreFileTypes;
     bool m_cleanWhitespace;
     bool m_inEntireDocument;
     bool m_addFinalNewLine;
     bool m_cleanIndentation;
+    bool m_skipTrailingWhitespace;
 };
 
 inline bool operator==(const StorageSettings &t1, const StorageSettings &t2) { return t1.equals(t2); }
