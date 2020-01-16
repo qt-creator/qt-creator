@@ -39,6 +39,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
+#include <utils/environment.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
@@ -429,11 +430,16 @@ static void findSystemQt()
 {
     FilePaths systemQMakes
             = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
-
     systemQMakes.append(gatherQmakePathsFromQtChooser());
-
-    const FilePaths uniqueSystemQmakes = Utils::filteredUnique(systemQMakes);
-    for (const FilePath &qmakePath : uniqueSystemQmakes) {
+    for (const FilePath &qmakePath : qAsConst(systemQMakes)) {
+        if (BuildableHelperLibrary::isQtChooser(qmakePath.toFileInfo()))
+            continue;
+        const auto isSameQmake = [qmakePath](const BaseQtVersion *version) {
+            return Environment::systemEnvironment().
+                    isSameExecutable(qmakePath.toString(), version->qmakeCommand().toString());
+        };
+        if (contains(m_versions, isSameQmake))
+            continue;
         BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qmakePath,
                                                                                 false,
                                                                                 "PATH");
