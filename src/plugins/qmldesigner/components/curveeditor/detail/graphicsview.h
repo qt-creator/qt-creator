@@ -59,6 +59,8 @@ public:
 
     bool hasActiveHandle() const;
 
+    bool hasSelectedKeyframe() const;
+
     int mapTimeToX(double time) const;
 
     int mapValueToY(double value) const;

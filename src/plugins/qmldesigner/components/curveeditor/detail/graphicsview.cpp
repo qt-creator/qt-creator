@@ -93,6 +93,18 @@ bool GraphicsView::hasActiveHandle() const
     return m_scene.hasActiveHandle();
 }
 
+bool GraphicsView::hasSelectedKeyframe() const
+{
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
+            if (curveItem->hasSelection())
+                return true;
+        }
+    }
+    return false;
+}
+
 double GraphicsView::minimumTime() const
 {
     bool check = m_model->minimumTime() < m_scene.minimumTime();
@@ -313,6 +325,13 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
     };
     QAction *insertKeyframeAction = menu.addAction(tr("Insert Keyframe"));
     connect(insertKeyframeAction, &QAction::triggered, insertKeyframes);
+
+    auto deleteKeyframes = [this, event] { deleteSelectedKeyframes(); };
+    QAction *deleteKeyframeAction = menu.addAction(tr("Delete Selected Keyframes"));
+    connect(deleteKeyframeAction, &QAction::triggered, deleteKeyframes);
+
+    if (!hasSelectedKeyframe())
+        deleteKeyframeAction->setEnabled(false);
 
     menu.exec(event->globalPos());
 }
