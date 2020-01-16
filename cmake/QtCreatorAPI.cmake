@@ -894,6 +894,12 @@ endfunction()
 function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST" "" "DEFINES;DEPENDS;INCLUDES;SOURCES" ${ARGN})
 
+  foreach(dependency ${_arg_DEPENDS})
+    if (NOT TARGET &{dependency})
+      return()
+    endif()
+  endforeach()
+
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
   endif()
