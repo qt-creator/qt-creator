@@ -36,13 +36,39 @@
 
 #include <QTextStream>
 
-using namespace CppTools;
-using namespace CppTools::Internal;
+namespace CppTools {
+namespace Internal {
 
-CppCodeModelSettingsWidget::CppCodeModelSettingsWidget()
+class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CppTools::Internal::CppCodeModelSettingsWidget)
+
+public:
+    CppCodeModelSettingsWidget(const QSharedPointer<CppCodeModelSettings> &s);
+    ~CppCodeModelSettingsWidget() override;
+
+private:
+    void apply() final;
+
+    void setupGeneralWidgets();
+    void setupClangCodeModelWidgets();
+
+    bool applyGeneralWidgetsToSettings() const;
+    bool applyClangCodeModelWidgetsToSettings() const;
+
+    Ui::CppCodeModelSettingsPage *m_ui = nullptr;
+    QSharedPointer<CppCodeModelSettings> m_settings;
+};
+
+CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const QSharedPointer<CppCodeModelSettings> &s)
     : m_ui(new Ui::CppCodeModelSettingsPage)
 {
     m_ui->setupUi(this);
+
+    m_settings = s;
+
+    setupGeneralWidgets();
+    setupClangCodeModelWidgets();
 }
 
 CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
@@ -50,15 +76,7 @@ CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
     delete m_ui;
 }
 
-void CppCodeModelSettingsWidget::setSettings(const QSharedPointer<CppCodeModelSettings> &s)
-{
-    m_settings = s;
-
-    setupGeneralWidgets();
-    setupClangCodeModelWidgets();
-}
-
-void CppCodeModelSettingsWidget::applyToSettings() const
+void CppCodeModelSettingsWidget::apply()
 {
     bool changed = false;
 
@@ -160,31 +178,14 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
 }
 
 CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings)
-    : m_settings(settings)
 {
     setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("CppTools",Constants::CPP_CODE_MODEL_SETTINGS_NAME));
+    setDisplayName(CppCodeModelSettingsWidget::tr("Code Model"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("CppTools", "C++"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
+    setWidgetCreator([settings] { return new CppCodeModelSettingsWidget(settings); });
 }
 
-QWidget *CppCodeModelSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new CppCodeModelSettingsWidget;
-        m_widget->setSettings(m_settings);
-    }
-    return m_widget;
-}
-
-void CppCodeModelSettingsPage::apply()
-{
-    if (m_widget)
-        m_widget->applyToSettings();
-}
-
-void CppCodeModelSettingsPage::finish()
-{
-    delete m_widget;
-}
+} // Internal
+} // CppTools
