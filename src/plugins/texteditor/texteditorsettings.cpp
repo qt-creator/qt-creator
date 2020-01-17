@@ -68,7 +68,7 @@ public:
     DisplaySettingsPage *m_displaySettingsPage;
     HighlighterSettingsPage *m_highlighterSettingsPage;
     SnippetsSettingsPage *m_snippetsSettingsPage;
-    CompletionSettingsPage *m_completionSettingsPage;
+    CompletionSettingsPage m_completionSettingsPage;
 
     QMap<Core::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
@@ -367,7 +367,6 @@ TextEditorSettings::TextEditorSettings()
         new HighlighterSettingsPage(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS, this);
     d->m_snippetsSettingsPage =
         new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
-    d->m_completionSettingsPage = new CompletionSettingsPage(this);
 
     auto updateGeneralMessagesFontSettings = []() {
         Core::MessageManager::setFont(d->m_fontSettingsPage->fontSettings().font());
@@ -396,10 +395,6 @@ TextEditorSettings::TextEditorSettings()
             this, &TextEditorSettings::marginSettingsChanged);
     connect(d->m_displaySettingsPage, &DisplaySettingsPage::displaySettingsChanged,
             this, &TextEditorSettings::displaySettingsChanged);
-    connect(d->m_completionSettingsPage, &CompletionSettingsPage::completionSettingsChanged,
-            this, &TextEditorSettings::completionSettingsChanged);
-    connect(d->m_completionSettingsPage, &CompletionSettingsPage::commentsSettingsChanged,
-            this, &TextEditorSettings::commentsSettingsChanged);
 
     auto updateCamelCaseNavigation = [] {
         Utils::FancyLineEdit::setCamelCaseNavigationEnabled(behaviorSettings().m_camelCaseNavigation);
@@ -453,7 +448,7 @@ const DisplaySettings &TextEditorSettings::displaySettings()
 
 const CompletionSettings &TextEditorSettings::completionSettings()
 {
-    return d->m_completionSettingsPage->completionSettings();
+    return d->m_completionSettingsPage.completionSettings();
 }
 
 const HighlighterSettings &TextEditorSettings::highlighterSettings()
@@ -468,7 +463,7 @@ const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()
 
 const CommentsSettings &TextEditorSettings::commentsSettings()
 {
-    return d->m_completionSettingsPage->commentsSettings();
+    return d->m_completionSettingsPage.commentsSettings();
 }
 
 void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *factory)
