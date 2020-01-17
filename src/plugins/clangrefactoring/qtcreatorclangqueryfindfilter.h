@@ -40,7 +40,7 @@ public:
                                   SearchInterface &m_searchInterface,
                                   RefactoringClient &m_refactoringClient);
 
-    void findAll(const QString &queryText, Core::FindFlags findFlags = nullptr) override;
+    void findAll(const QString &queryText, Core::FindFlags findFlags = {}) override;
 
     void handleQueryOrExampleTextChanged();
 

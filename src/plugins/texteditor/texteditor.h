@@ -592,7 +592,7 @@ signals:
     void tooltipOverrideRequested(TextEditor::TextEditorWidget *widget,
         const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
-    void activateEditor(Core::EditorManager::OpenEditorFlags flags = nullptr);
+    void activateEditor(Core::EditorManager::OpenEditorFlags flags = {});
 
 protected:
     virtual void slotCursorPositionChanged(); // Used in VcsBase

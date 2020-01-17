@@ -52,9 +52,9 @@ public:
     static ProgressManager *instance();
 
     static FutureProgress *addTask(const QFuture<void> &future, const QString &title,
-                                   Id type, ProgressFlags flags = nullptr);
+                                   Id type, ProgressFlags flags = {});
     static FutureProgress *addTimedTask(const QFutureInterface<void> &fi, const QString &title,
-                                   Id type, int expectedSeconds, ProgressFlags flags = nullptr);
+                                   Id type, int expectedSeconds, ProgressFlags flags = {});
     static void setApplicationLabel(const QString &text);
 
 public slots:

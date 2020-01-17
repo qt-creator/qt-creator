@@ -94,7 +94,7 @@ public:
     static IEditor *activateEditor(EditorView *view, IEditor *editor,
                                    EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
     static IEditor *activateEditorForDocument(EditorView *view, IDocument *document,
-                                              EditorManager::OpenEditorFlags flags = nullptr);
+                                              EditorManager::OpenEditorFlags flags = {});
     static bool activateEditorForEntry(EditorView *view, DocumentModel::Entry *entry,
                                        EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
     /* closes the document if there is no other editor on the document visible */

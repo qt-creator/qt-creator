@@ -88,7 +88,7 @@ public:
 
     QFile::Permissions permissions;
 
-    FileStatus(Status _status = Unknown, QFile::Permissions perm = nullptr)
+    FileStatus(Status _status = Unknown, QFile::Permissions perm = {})
         : status(_status), permissions(perm)
     { }
 };

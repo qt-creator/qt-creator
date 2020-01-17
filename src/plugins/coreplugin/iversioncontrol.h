@@ -160,7 +160,7 @@ public:
      * Returns settings.
      */
 
-    virtual SettingsFlags settingsFlags() const { return nullptr; }
+    virtual SettingsFlags settingsFlags() const { return {}; }
 
     /*!
      * Called after a file has been added to a project If the version control
