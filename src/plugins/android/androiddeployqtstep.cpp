@@ -143,7 +143,8 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent)
     : ProjectExplorer::BuildStep(parent, stepId())
 {
     setImmutable(true);
-    m_uninstallPreviousPackage = QtSupport::QtKitAspect::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
+    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    m_uninstallPreviousPackage = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
 
     //: AndroidDeployQtStep default display name
     setDefaultDisplayName(tr("Deploy to Android device"));
@@ -163,6 +164,10 @@ Core::Id AndroidDeployQtStep::stepId()
 
 bool AndroidDeployQtStep::init()
 {
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    if (!version) // TODO: Add error message
+        return false;
+
     m_androiddeployqtArgs = CommandLine();
 
     m_androidABIs = AndroidManager::applicationAbis(target());
@@ -213,10 +218,6 @@ bool AndroidDeployQtStep::init()
     AndroidManager::setDeviceAbis(target(), info.cpuAbi);
 
     emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::Stdout);
-
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
-    if (!version)
-        return false;
 
     m_uninstallPreviousPackageRun = m_uninstallPreviousPackage;
     if (m_uninstallPreviousPackageRun)
@@ -615,7 +616,8 @@ void AndroidDeployQtStep::setUninstallPreviousPackage(bool uninstall)
 
 AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage()
 {
-    if (QtSupport::QtKitAspect::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
+    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    if (qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
         return ForceUnintall;
     return m_uninstallPreviousPackage ? Uninstall : Keep;
 }
