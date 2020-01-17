@@ -75,7 +75,7 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
     // Run the formatter
     Overview overview;
     overview.showReturnTypes = true;
-    overview.starBindFlags = Overview::StarBindFlags(nullptr);
+    overview.starBindFlags = {};
 
     if (settings.bindStarToIdentifier)
         overview.starBindFlags |= Overview::BindToIdentifier;

@@ -1643,7 +1643,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
         QString parseInto;
-        LoadFlags flags = 0;
+        LoadFlags flags = {};
         if (m_cumulative)
             flags = LoadSilent;
         if (args.count() >= 2) {

@@ -148,7 +148,7 @@ public:
             } else {
                 result = NotFound;
                 m_contPos = -1;
-                m_widget->highlightSearchResults(QByteArray(), nullptr);
+                m_widget->highlightSearchResults(QByteArray(), {});
             }
         }
         return result;

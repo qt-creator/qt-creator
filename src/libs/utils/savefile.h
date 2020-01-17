@@ -52,7 +52,6 @@ private:
     const QString m_finalFileName;
     std::unique_ptr<QTemporaryFile> m_tempFile;
     bool m_finalized = true;
-    static QFile::Permissions m_umask;
 };
 
 } // namespace Utils

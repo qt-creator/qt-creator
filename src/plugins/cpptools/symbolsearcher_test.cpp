@@ -258,7 +258,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Enums
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("enum");
-    searchParameters.flags = nullptr;
+    searchParameters.flags = {};
     searchParameters.types = SymbolSearcher::Enums;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Enums")
@@ -273,7 +273,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Declarations
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("myvar");
-    searchParameters.flags = nullptr;
+    searchParameters.flags = {};
     searchParameters.types = SymbolSearcher::Declarations;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Declarations")

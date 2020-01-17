@@ -975,7 +975,7 @@ void HelpWidget::highlightSearchTerms()
     auto viewer = qobject_cast<HelpViewer *>(sender());
     QTC_ASSERT(viewer, return);
     foreach (const QString& term, m_searchTerms)
-        viewer->findText(term, nullptr, false, true);
+        viewer->findText(term, {}, false, true);
     m_searchTerms.clear();
 }
 

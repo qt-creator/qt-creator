@@ -36,7 +36,7 @@
 
 namespace Utils {
 
-QFile::Permissions SaveFile::m_umask = nullptr;
+static QFile::Permissions m_umask = {};
 
 SaveFile::SaveFile(const QString &filename) :
     m_finalFileName(filename)
@@ -207,15 +207,15 @@ void SaveFile::initializeUmask()
     mode_t mask = umask(0); // get current umask
     umask(mask); // set it back
 
-    m_umask = ((mask & S_IRUSR) ? QFile::ReadOwner  : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IWUSR) ? QFile::WriteOwner : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IXUSR) ? QFile::ExeOwner   : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IRGRP) ? QFile::ReadGroup  : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IWGRP) ? QFile::WriteGroup : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IXGRP) ? QFile::ExeGroup   : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IROTH) ? QFile::ReadOther  : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IWOTH) ? QFile::WriteOther : QFlags<QFile::Permission>(nullptr))
-            | ((mask & S_IXOTH) ? QFile::ExeOther   : QFlags<QFile::Permission>(nullptr));
+    m_umask = ((mask & S_IRUSR) ? QFile::ReadOwner  : QFlags<QFile::Permission>())
+            | ((mask & S_IWUSR) ? QFile::WriteOwner : QFlags<QFile::Permission>())
+            | ((mask & S_IXUSR) ? QFile::ExeOwner   : QFlags<QFile::Permission>())
+            | ((mask & S_IRGRP) ? QFile::ReadGroup  : QFlags<QFile::Permission>())
+            | ((mask & S_IWGRP) ? QFile::WriteGroup : QFlags<QFile::Permission>())
+            | ((mask & S_IXGRP) ? QFile::ExeGroup   : QFlags<QFile::Permission>())
+            | ((mask & S_IROTH) ? QFile::ReadOther  : QFlags<QFile::Permission>())
+            | ((mask & S_IWOTH) ? QFile::WriteOther : QFlags<QFile::Permission>())
+            | ((mask & S_IXOTH) ? QFile::ExeOther   : QFlags<QFile::Permission>());
 #endif
 }
 

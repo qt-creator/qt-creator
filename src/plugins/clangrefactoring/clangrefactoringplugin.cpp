@@ -88,7 +88,7 @@ public:
     ClangPchManager::ProgressManager progressManager{
         [] (QFutureInterface<void> &promise) {
             auto title = QCoreApplication::translate("ClangRefactoringProgressManager", "C++ Indexing");
-            Core::ProgressManager::addTask(promise.future(), title, "clang indexing", nullptr);}};
+            Core::ProgressManager::addTask(promise.future(), title, "clang indexing", {});}};
     RefactoringClient refactoringClient{progressManager};
     QtCreatorEditorManager editorManager{filePathCache};
     ClangBackEnd::RefactoringConnectionClient connectionClient{&refactoringClient};
