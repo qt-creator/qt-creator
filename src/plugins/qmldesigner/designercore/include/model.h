@@ -116,6 +116,8 @@ public:
     void setTextModifier(TextModifier *textModifier);
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 
+    QList<ModelNode> selectedNodes(AbstractView *view) const;
+
 protected:
     Model();
 

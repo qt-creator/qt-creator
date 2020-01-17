@@ -2024,6 +2024,14 @@ void Model::setDocumentMessages(const QList<DocumentMessage> &errors, const QLis
 }
 
 /*!
+ * \brief Returns list of selected nodes for a view
+ */
+QList<ModelNode> Model::selectedNodes(AbstractView *view) const
+{
+    return d->toModelNodeList(d->selectedNodes(), view);
+}
+
+/*!
   \brief Returns the URL against which relative URLs within the model should be resolved.
   \return The base URL.
   */

@@ -188,8 +188,10 @@ void NodeInstanceView::modelAttached(Model *model)
     m_lastCrashTime.start();
     connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
 
-    if (!isSkippedRootNode(rootModelNode()))
+    if (!isSkippedRootNode(rootModelNode())) {
         nodeInstanceServer()->createScene(createCreateSceneCommand());
+        nodeInstanceServer()->changeSelection(createChangeSelectionCommand(model->selectedNodes(this)));
+    }
 
     ModelNode stateNode = currentStateNode();
     if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
@@ -270,8 +272,10 @@ void NodeInstanceView::restartProcess()
         m_nodeInstanceServer = server;
         connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
 
-        if (!isSkippedRootNode(rootModelNode()))
+        if (!isSkippedRootNode(rootModelNode())) {
             nodeInstanceServer()->createScene(createCreateSceneCommand());
+            nodeInstanceServer()->changeSelection(createChangeSelectionCommand(model()->selectedNodes(this)));
+        }
 
         ModelNode stateNode = currentStateNode();
         if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
