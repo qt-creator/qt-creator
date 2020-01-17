@@ -401,6 +401,41 @@ static Utils::FilePath findLocalCompiler(const Utils::FilePath &compilerPath,
     return path.isEmpty() ? compilerPath : path;
 }
 
+// For querying operations such as -dM
+static QStringList filteredFlags(const QStringList &allFlags, bool considerSysroot)
+{
+    QStringList filtered;
+    for (int i = 0; i < allFlags.size(); ++i) {
+        const QString &a = allFlags.at(i);
+        if (a.startsWith("--gcc-toolchain=")) {
+            filtered << a;
+        } else if (a == "-arch") {
+            if (++i < allFlags.length() && !filtered.contains(a))
+                filtered << a << allFlags.at(i);
+        } else if ((considerSysroot && (a == "--sysroot" || a == "-isysroot"))
+                   || a == "-D" || a == "-U"
+                   || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm" || a == "-isystem") {
+            if (++i < allFlags.length())
+                filtered << a << allFlags.at(i);
+        } else if (a.startsWith("-m") || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2"
+                   || a == "-O3" || a == "-ffinite-math-only" || a == "-fshort-double"
+                   || a == "-fshort-wchar" || a == "-fsignaling-nans" || a == "-fno-inline"
+                   || a == "-fno-exceptions" || a == "-fstack-protector"
+                   || a == "-fstack-protector-all" || a == "-fsanitize=address"
+                   || a == "-fno-rtti" || a.startsWith("-std=") || a.startsWith("-stdlib=")
+                   || a.startsWith("-specs=") || a == "-ansi" || a == "-undef"
+                   || a.startsWith("-D") || a.startsWith("-U") || a == "-fopenmp"
+                   || a == "-Wno-deprecated" || a == "-fPIC" || a == "-fpic" || a == "-fPIE"
+                   || a == "-fpie" || a.startsWith("-stdlib=") || a.startsWith("-B")
+                   || a.startsWith("--target=")
+                   || (a.startsWith("-isystem") && a.length() > 8)
+                   || a == "-nostdinc" || a == "-nostdinc++") {
+            filtered << a;
+        }
+    }
+    return filtered;
+}
+
 ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
@@ -417,31 +452,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
     return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, macroCache, lang]
             (const QStringList &flags) {
         QStringList allFlags = platformCodeGenFlags + flags;  // add only cxxflags is empty?
-        QStringList arguments = gccPredefinedMacrosOptions(lang);
-        for (int iArg = 0; iArg < allFlags.length(); ++iArg) {
-            const QString &a = allFlags.at(iArg);
-            if (a.startsWith("--gcc-toolchain=")) {
-                arguments << a;
-            } else if (a == "-arch") {
-                if (++iArg < allFlags.length() && !arguments.contains(a))
-                    arguments << a << allFlags.at(iArg);
-            } else if (a == "--sysroot" || a == "-isysroot" || a == "-D" || a == "-U"
-                       || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm") {
-                if (++iArg < allFlags.length())
-                    arguments << a << allFlags.at(iArg);
-            } else if (a.startsWith("-m") || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2"
-                       || a == "-O3" || a == "-ffinite-math-only" || a == "-fshort-double"
-                       || a == "-fshort-wchar" || a == "-fsignaling-nans" || a == "-fno-inline"
-                       || a == "-fno-exceptions" || a == "-fstack-protector"
-                       || a == "-fstack-protector-all" || a == "-fsanitize=address"
-                       || a == "-fno-rtti" || a.startsWith("-std=") || a.startsWith("-stdlib=")
-                       || a.startsWith("-specs=") || a == "-ansi" || a == "-undef"
-                       || a.startsWith("-D") || a.startsWith("-U") || a == "-fopenmp"
-                       || a == "-Wno-deprecated" || a == "-fPIC" || a == "-fpic" || a == "-fPIE"
-                       || a == "-fpie")
-                arguments << a;
-        }
-
+        QStringList arguments = gccPredefinedMacrosOptions(lang) + filteredFlags(allFlags, true);
         arguments = reinterpretOptions(arguments);
         const Utils::optional<MacroInspectionReport> cachedMacros = macroCache->check(arguments);
         if (cachedMacros)
@@ -564,29 +575,7 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
 
     QStringList allFlags;
     allFlags << platformCodeGenFlags << flags;
-    for (int i = 0; i < allFlags.size(); ++i) {
-        const QString &flag = allFlags.at(i);
-        if (flag.startsWith("-stdlib=") || flag.startsWith("--gcc-toolchain=")
-            || flag.startsWith("-B") || flag.startsWith("--target=")
-            || (flag.startsWith("-isystem") && flag.length() > 8)
-            || flag == "-nostdinc" || flag == "-nostdinc++") {
-            arguments << flag;
-        } else if ((flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem"
-                    || flag == "-arch")
-                   && i < flags.size() - 1) {
-            arguments << flag << allFlags.at(i + 1);
-            ++i;
-        } else if (!hasKitSysroot) {
-            // pass build system's sysroot to compiler, if we didn't pass one from kit
-            if (flag.startsWith("--sysroot=")
-                || (flag.startsWith("-isysroot") && flag.length() > 9)) {
-                arguments << flag;
-            } else if (flag == "-isysroot" && i < flags.size() - 1) {
-                arguments << flag << allFlags.at(i + 1);
-                ++i;
-            }
-        }
-    }
+    arguments += filteredFlags(allFlags, !hasKitSysroot);
     arguments << languageOption(languageId) << "-E" << "-v" << "-";
     arguments = reinterpretOptions(arguments);
 
