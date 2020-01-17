@@ -6,5 +6,7 @@
         <file>no_snapping@2x.png</file>
         <file>snapping_and_anchoring.png</file>
         <file>snapping_and_anchoring@2x.png</file>
+        <file>annotationsIcon.png</file>
+        <file>annotationsIconActive.png</file>
     </qresource>
 </RCC>

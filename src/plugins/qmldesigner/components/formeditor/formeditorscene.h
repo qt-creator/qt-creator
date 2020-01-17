@@ -95,6 +95,9 @@ public:
     void setShowBoundingRects(bool show);
     bool showBoundingRects() const;
 
+    bool annotationVisibility() const;
+    void setAnnotationVisibility(bool status);
+
 protected:
     bool event(QEvent *event) override;
     void dropEvent(QGraphicsSceneDragDropEvent * event) override;
@@ -129,6 +132,7 @@ private:
     QPointer<LayerItem> m_manipulatorLayerItem;
     ModelNode m_dragNode;
     bool m_showBoundingRects;
+    bool m_annotationVisibility;
 };
 
 } // namespace QmlDesigner

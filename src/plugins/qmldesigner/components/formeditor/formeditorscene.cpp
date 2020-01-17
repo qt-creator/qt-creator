@@ -49,9 +49,10 @@
 namespace QmlDesigner {
 
 FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorView)
-        : QGraphicsScene(),
-        m_editorView(editorView),
-        m_showBoundingRects(false)
+        : QGraphicsScene()
+        , m_editorView(editorView)
+        , m_showBoundingRects(false)
+        , m_annotationVisibility(false)
 {
     setupScene();
     view->setScene(this);
@@ -429,6 +430,16 @@ void FormEditorScene::setShowBoundingRects(bool show)
 bool FormEditorScene::showBoundingRects() const
 {
     return m_showBoundingRects;
+}
+
+bool FormEditorScene::annotationVisibility() const
+{
+    return m_annotationVisibility;
+}
+
+void FormEditorScene::setAnnotationVisibility(bool status)
+{
+    m_annotationVisibility = status;
 }
 
 }

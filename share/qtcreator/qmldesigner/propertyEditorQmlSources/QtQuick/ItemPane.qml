@@ -107,8 +107,8 @@ Rectangle {
 
                         }
                         Item {
-                            Layout.preferredWidth: 16
-                            Layout.preferredHeight: 16
+                            Layout.preferredWidth: 20
+                            Layout.preferredHeight: 20
                         }
                     }
 
@@ -134,14 +134,120 @@ Rectangle {
 
                         Image {
                             visible: !modelNodeBackend.multiSelection
-                            Layout.preferredWidth: 16
-                            Layout.preferredHeight: 16
+                            Layout.preferredWidth: 20
+                            Layout.preferredHeight: 20
+                            horizontalAlignment: Image.AlignHCenter
+                            verticalAlignment: Image.AlignVCenter
                             source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
                             ToolTipArea {
                                 enabled: !modelNodeBackend.multiSelection
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()
                                 tooltip: qsTr("Toggles whether this item is exported as an alias property of the root item.")
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Custom id")
+                    }
+
+                    SecondColumnLayout {
+                        enabled: !modelNodeBackend.multiSelection
+                        visible: enabled
+                        spacing: 2
+
+                        LineEdit {
+                            id: annotationEdit
+                            enabled: annotationEditor.hasAuxData
+                            visible: enabled
+
+                            backendValue: backendValues.customId__AUX
+                            placeholderText: qsTr("customId")
+                            text: backendValue.value
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 240
+                            width: 240
+                            showTranslateCheckBox: false
+                            showExtendedFunctionButton: false
+
+                            onHoveredChanged: annotationEditor.checkAux()
+                        }
+
+                        StudioControls.AbstractButton {
+                            id: editAnnotationButton
+                            enabled: annotationEditor.hasAuxData
+                            visible: enabled
+                            Layout.preferredWidth: 22
+                            Layout.preferredHeight: 22
+                            width: 22
+
+                            buttonIcon: StudioTheme.Constants.edit
+
+                            onClicked: annotationEditor.showWidget()
+
+                            onHoveredChanged: annotationEditor.checkAux()
+                        }
+
+                        StudioControls.AbstractButton {
+                            id: removeAnnotationButton
+                            enabled: annotationEditor.hasAuxData
+                            visible: enabled
+                            Layout.preferredWidth: 22
+                            Layout.preferredHeight: 22
+                            width: 22
+
+                            buttonIcon: StudioTheme.Constants.closeCross
+
+                            onClicked: annotationEditor.removeFullAnnotation()
+
+                            onHoveredChanged: annotationEditor.checkAux()
+                        }
+
+                        StudioControls.AbstractButton {
+                            id: addAnnotationButton
+                            enabled: !annotationEditor.hasAuxData
+                            visible: enabled
+
+                            buttonIcon: qsTr("Add Annotation")
+                            iconFont: StudioTheme.Constants.font
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 240
+
+                            onClicked: annotationEditor.showWidget()
+
+                            onHoveredChanged: annotationEditor.checkAux()
+                        }
+
+                        Item {
+                            Layout.preferredWidth: 22
+                            Layout.preferredHeight: 22
+                            enabled: !annotationEditor.hasAuxData
+                            visible: enabled
+                        }
+
+                        AnnotationEditor {
+                            id: annotationEditor
+
+                            modelNodeBackendProperty: modelNodeBackend
+
+                            property bool hasAuxData: (annotationEditor.hasAnnotation || annotationEditor.hasCustomId)
+
+                            onModelNodeBackendChanged: checkAux()
+                            onCustomIdChanged: checkAux()
+                            onAnnotationChanged: checkAux()
+
+                            function checkAux() {
+                                hasAuxData = (annotationEditor.hasAnnotation || annotationEditor.hasCustomId)
+                                annotationEdit.update()
+                            }
+
+                            onAccepted: {
+                                hideWidget()
+                            }
+
+                            onCanceled: {
+                                hideWidget()
                             }
                         }
                     }

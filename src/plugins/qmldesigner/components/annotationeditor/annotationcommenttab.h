@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,46 +22,45 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
 
-#include "layeritem.h"
-#include "formeditoritem.h"
+#include <QWidget>
 
-#include <QCursor>
-#include <QPointer>
-#include <QGraphicsPolygonItem>
-
-#include <memory>
+#include "annotation.h"
 
 namespace QmlDesigner {
 
-class FormEditorAnnotationIcon;
+namespace Ui {
+class AnnotationCommentTab;
+}
 
-class SelectionIndicator
+class AnnotationCommentTab : public QWidget
 {
+    Q_OBJECT
+
 public:
-    SelectionIndicator(LayerItem *layerItem);
-    ~SelectionIndicator();
+    explicit AnnotationCommentTab(QWidget *parent = nullptr);
+    ~AnnotationCommentTab();
 
-    void show();
-    void hide();
+    Comment currentComment() const;
 
-    void clear();
+    Comment originalComment() const;
+    void setComment(const Comment &comment);
 
-    void setItems(const QList<FormEditorItem*> &itemList);
-    void updateItems(const QList<FormEditorItem*> &itemList);
+    void resetUI();
+    void resetComment();
 
-    void setCursor(const QCursor &cursor);
+signals:
+    void titleChanged(const QString &text, QWidget *widget);
+
+private slots:
+    void commentTitleChanged(const QString &text);
+
 private:
-    void adjustAnnotationPosition(const QRectF &itemRect, const QRectF &labelRect, qreal scaleFactor);
+    Ui::AnnotationCommentTab *ui;
 
-private:
-    QHash<FormEditorItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
-    FormEditorItem *m_selectedItem;
-    QPointer<LayerItem> m_layerItem;
-    QCursor m_cursor;
-    std::unique_ptr<QGraphicsPolygonItem> m_labelItem;
-    FormEditorAnnotationIcon *m_annotationItem; //handled by m_labelItem
+    Comment m_comment;
 };
 
-} // namespace QmlDesigner
+} //namespace QmlDesigner

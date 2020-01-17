@@ -461,6 +461,8 @@ Project {
                 "formeditor/dragtool.cpp",
                 "formeditor/dragtool.h",
                 "formeditor/formeditor.qrc",
+                "formeditor/formeditorannotationicon.cpp",
+                "formeditor/formeditorannotationicon.h",
                 "formeditor/formeditorgraphicsview.cpp",
                 "formeditor/formeditorgraphicsview.h",
                 "formeditor/formeditoritem.cpp",
@@ -636,6 +638,18 @@ Project {
             name: "extension"
             prefix: "components/"
             files: [
+                "annotationeditor/annotation.cpp",
+                "annotationeditor/annotation.h",
+                "annotationeditor/annotationcommenttab.cpp",
+                "annotationeditor/annotationcommenttab.h",
+                "annotationeditor/annotationcommenttab.ui",
+                "annotationeditor/annotationeditor.cpp",
+                "annotationeditor/annotationeditor.h",
+                "annotationeditor/annotationeditordialog.cpp",
+                "annotationeditor/annotationeditordialog.h",
+                "annotationeditor/annotationeditordialog.ui
+                "annotationeditor/annotationtool.cpp",
+                "annotationeditor/annotationtool.h",
                 "bindingeditor/bindingeditor.cpp",
                 "bindingeditor/bindingeditor.h",
                 "bindingeditor/actioneditor.cpp",

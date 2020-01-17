@@ -41,6 +41,7 @@
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include <rewriterview.h>
+#include "annotationeditor/annotation.h"
 
 #include <utils/algorithm.h>
 
@@ -1050,6 +1051,100 @@ QHash<PropertyName, QVariant> ModelNode::auxiliaryData() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     return internalNode()->auxiliaryData();
+}
+
+QString ModelNode::customId() const
+{
+    QString result;
+    if (hasCustomId())
+        result = auxiliaryData(customIdProperty).value<QString>();
+
+    return result;
+}
+
+bool ModelNode::hasCustomId() const
+{
+    return hasAuxiliaryData(customIdProperty);
+}
+
+void ModelNode::setCustomId(const QString &str)
+{
+    setAuxiliaryData(customIdProperty, QVariant::fromValue<QString>(str));
+}
+
+void ModelNode::removeCustomId()
+{
+    if (hasCustomId()) {
+        removeAuxiliaryData(customIdProperty);
+    }
+}
+
+QVector<Comment> ModelNode::comments() const
+{
+    return annotation().comments();
+}
+
+bool ModelNode::hasComments() const
+{
+    return annotation().hasComments();
+}
+
+void ModelNode::setComments(const QVector<Comment> &coms)
+{
+    Annotation anno = annotation();
+    anno.setComments(coms);
+
+    setAnnotation(anno);
+}
+
+void ModelNode::addComment(const Comment &com)
+{
+    Annotation anno = annotation();
+    anno.addComment(com);
+
+    setAnnotation(anno);
+}
+
+bool ModelNode::updateComment(const Comment &com, int position)
+{
+    bool result = false;
+    if (hasAnnotation()) {
+        Annotation anno = annotation();
+
+        if (anno.updateComment(com, position)) {
+            setAnnotation(anno);
+            result = true;
+        }
+    }
+
+    return result;
+}
+
+Annotation ModelNode::annotation() const
+{
+    Annotation result;
+
+    if (hasAnnotation())
+        result.fromQString(auxiliaryData(annotationProperty).value<QString>());
+
+    return result;
+}
+
+bool ModelNode::hasAnnotation() const
+{
+    return hasAuxiliaryData(annotationProperty);
+}
+
+void ModelNode::setAnnotation(const Annotation &annotation)
+{
+    setAuxiliaryData(annotationProperty, QVariant::fromValue<QString>(annotation.toQString()));
+}
+
+void ModelNode::removeAnnotation()
+{
+    if (hasAnnotation()) {
+        removeAuxiliaryData(annotationProperty);
+    }
 }
 
 void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
