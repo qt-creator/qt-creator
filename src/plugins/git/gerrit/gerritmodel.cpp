@@ -55,8 +55,6 @@ enum { debug = 0 };
 
 using namespace VcsBase;
 
-using namespace Qt;
-
 namespace Gerrit {
 namespace Internal {
 
@@ -124,7 +122,10 @@ QString GerritPatchSet::approvalsToHtml() const
         str << a.reviewer.fullName;
         if (!a.reviewer.email.isEmpty())
             str << " <a href=\"mailto:" << a.reviewer.email << "\">" << a.reviewer.email << "</a>";
-        str << ": " << forcesign << a.approval << noforcesign;
+        str << ": ";
+        if (a.approval >= 0)
+            str << '+';
+        str << a.approval;
     }
     str << "</tr>\n";
     return result;
@@ -166,7 +167,10 @@ QString GerritPatchSet::approvalsColumn() const
     for (TypeReviewMapConstIterator it = reviews.constBegin(); it != cend; ++it) {
         if (!result.isEmpty())
             str << ' ';
-        str << it.key() << ": " << forcesign << it.value() << noforcesign;
+        str << it.key() << ": ";
+        if (it.value() >= 0)
+            str << '+';
+        str << it.value();
     }
     return result;
 }

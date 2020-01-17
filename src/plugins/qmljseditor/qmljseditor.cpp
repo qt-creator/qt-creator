@@ -101,8 +101,6 @@ using namespace QmlJS::AST;
 using namespace QmlJSTools;
 using namespace TextEditor;
 
-using namespace Qt;
-
 namespace QmlJSEditor {
 
 //
@@ -559,24 +557,24 @@ public:
         *m_stream << m_indent;
         if (!propertyInfo.isWriteable())
             *m_stream << "readonly ";
-        *m_stream << "property " << type << " " << name << endl;
+        *m_stream << "property " << type << " " << name << '\n';
 
         return true;
     }
     bool processSignal(const QString &name, const Value *value) override
     {
-        *m_stream << m_indent << "signal " << name << stringifyFunctionParameters(value) << endl;
+        *m_stream << m_indent << "signal " << name << stringifyFunctionParameters(value) << '\n';
         return true;
     }
     bool processSlot(const QString &name, const Value *value) override
     {
-        *m_stream << m_indent << "function " << name << stringifyFunctionParameters(value) << endl;
+        *m_stream << m_indent << "function " << name << stringifyFunctionParameters(value) << '\n';
         return true;
     }
     bool processGeneratedSlot(const QString &name, const Value *value) override
     {
         *m_stream << m_indent << "/*generated*/ function " << name
-                  << stringifyFunctionParameters(value) << endl;
+                  << stringifyFunctionParameters(value) << '\n';
         return true;
     }
 
@@ -633,33 +631,33 @@ static QString inspectCppComponent(const CppComponentValue *cppValue)
     if (superClassName.isEmpty())
         superClassName = cppValue->metaObject()->className();
 
-    bufWriter << "import QtQuick " << cppValue->importVersion().toString() << endl
+    bufWriter << "import QtQuick " << cppValue->importVersion().toString() << '\n'
               << "// " << cppValue->metaObject()->className()
               << " imported as " << cppValue->moduleName()  << " "
-              << cppValue->importVersion().toString() << endl
-              << endl
-              << superClassName << " {" << endl;
+              << cppValue->importVersion().toString() << '\n'
+              << '\n'
+              << superClassName << " {" << '\n';
 
     CodeModelInspector insp(cppValue, &bufWriter);
     cppValue->processMembers(&insp);
 
-    bufWriter << endl;
+    bufWriter << '\n';
     const int enumeratorCount = cppValue->metaObject()->enumeratorCount();
     for (int index = cppValue->metaObject()->enumeratorOffset(); index < enumeratorCount; ++index) {
         LanguageUtils::FakeMetaEnum enumerator = cppValue->metaObject()->enumerator(index);
-        bufWriter << "    enum " << enumerator.name() << " {" << endl;
+        bufWriter << "    enum " << enumerator.name() << " {" << '\n';
         const QStringList keys = enumerator.keys();
         const int keysCount = keys.size();
         for (int i = 0; i < keysCount; ++i) {
             bufWriter << "        " << keys.at(i);
             if (i != keysCount - 1)
                 bufWriter << ',';
-            bufWriter << endl;
+            bufWriter << '\n';
         }
-        bufWriter << "    }" << endl;
+        bufWriter << "    }" << '\n';
     }
 
-    bufWriter << "}" << endl;
+    bufWriter << "}" << '\n';
     return result;
 }
 
