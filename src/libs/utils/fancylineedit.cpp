@@ -561,7 +561,8 @@ IconButton::IconButton(QWidget *parent)
 void IconButton::paintEvent(QPaintEvent *)
 {
     QWindow *window = this->window()->windowHandle();
-    const QPixmap iconPixmap = icon().pixmap(window, sizeHint());
+    const QPixmap iconPixmap = icon().pixmap(window, sizeHint(),
+                                             isEnabled() ? QIcon::Normal : QIcon::Disabled);
     QStylePainter painter(this);
     QRect pixmapRect(QPoint(), iconPixmap.size() / window->devicePixelRatio());
     pixmapRect.moveCenter(rect().center());
