@@ -28,6 +28,7 @@
 #include "idevice.h"
 #include "../runcontrol.h"
 
+#include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocess.h>
@@ -201,6 +202,7 @@ void SshDeviceProcess::handleConnected()
         connect(&d->consoleProcess, &ConsoleProcess::stubStopped,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
         d->consoleProcess.setAbortOnMetaChars(false);
+        d->consoleProcess.setSettings(Core::ICore::settings());
         d->consoleProcess.setCommand(d->process->fullLocalCommandLine());
         d->consoleProcess.start();
     } else {
