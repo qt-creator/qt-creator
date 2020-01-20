@@ -32,12 +32,10 @@ namespace Internal {
 
 class SnippetsSettingsPagePrivate;
 
-class SnippetsSettingsPage : public Core::IOptionsPage
+class SnippetsSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    SnippetsSettingsPage(Core::Id id, QObject *parent);
+    SnippetsSettingsPage();
     ~SnippetsSettingsPage() override;
 
     QWidget *widget() override;

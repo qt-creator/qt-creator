@@ -66,8 +66,8 @@ public:
     FontSettingsPage *m_fontSettingsPage;
     BehaviorSettingsPage *m_behaviorSettingsPage;
     DisplaySettingsPage *m_displaySettingsPage;
-    HighlighterSettingsPage *m_highlighterSettingsPage;
-    SnippetsSettingsPage *m_snippetsSettingsPage;
+    HighlighterSettingsPage m_highlighterSettingsPage;
+    SnippetsSettingsPage m_snippetsSettingsPage;
     CompletionSettingsPage m_completionSettingsPage;
 
     QMap<Core::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
@@ -363,11 +363,6 @@ TextEditorSettings::TextEditorSettings()
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
     d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
 
-    d->m_highlighterSettingsPage =
-        new HighlighterSettingsPage(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS, this);
-    d->m_snippetsSettingsPage =
-        new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
-
     auto updateGeneralMessagesFontSettings = []() {
         Core::MessageManager::setFont(d->m_fontSettingsPage->fontSettings().font());
     };
@@ -453,7 +448,7 @@ const CompletionSettings &TextEditorSettings::completionSettings()
 
 const HighlighterSettings &TextEditorSettings::highlighterSettings()
 {
-    return d->m_highlighterSettingsPage->highlighterSettings();
+    return d->m_highlighterSettingsPage.highlighterSettings();
 }
 
 const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()

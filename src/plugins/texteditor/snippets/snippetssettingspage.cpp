@@ -264,13 +264,12 @@ bool SnippetsTableModel::isValidTrigger(const QString &s)
 // SnippetsSettingsPagePrivate
 class SnippetsSettingsPagePrivate : public QObject
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::SnippetsSettingsPage)
+
 public:
-    SnippetsSettingsPagePrivate(Core::Id id);
+    SnippetsSettingsPagePrivate();
     ~SnippetsSettingsPagePrivate() override { delete m_model; }
 
-    Core::Id id() const { return m_id; }
-    const QString &displayName() const { return m_displayName; }
     void configureUi(QWidget *parent);
 
     void apply();
@@ -299,8 +298,6 @@ private:
     bool settingsChanged() const;
     void writeSettings();
 
-    const Core::Id m_id;
-    const QString m_displayName;
     const QString m_settingsPrefix;
     SnippetsTableModel *m_model;
     bool m_snippetsCollectionChanged;
@@ -308,9 +305,7 @@ private:
     Ui::SnippetsSettingsPage m_ui;
 };
 
-SnippetsSettingsPagePrivate::SnippetsSettingsPagePrivate(Core::Id id) :
-    m_id(id),
-    m_displayName(tr("Snippets")),
+SnippetsSettingsPagePrivate::SnippetsSettingsPagePrivate() :
     m_settingsPrefix(QLatin1String("Text")),
     m_model(new SnippetsTableModel(nullptr)),
     m_snippetsCollectionChanged(false)
@@ -548,12 +543,11 @@ void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings
 }
 
 // SnippetsSettingsPage
-SnippetsSettingsPage::SnippetsSettingsPage(Core::Id id, QObject *parent) :
-    Core::IOptionsPage(parent),
-    d(new SnippetsSettingsPagePrivate(id))
+SnippetsSettingsPage::SnippetsSettingsPage()
+    : d(new SnippetsSettingsPagePrivate)
 {
-    setId(d->id());
-    setDisplayName(d->displayName());
+    setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
+    setDisplayName(SnippetsSettingsPagePrivate::tr("Snippets"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);

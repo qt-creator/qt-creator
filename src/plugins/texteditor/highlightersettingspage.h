@@ -31,12 +31,10 @@ namespace TextEditor {
 
 class HighlighterSettings;
 
-class HighlighterSettingsPage : public Core::IOptionsPage
+class HighlighterSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    HighlighterSettingsPage(Core::Id id, QObject *parent);
+    HighlighterSettingsPage();
     ~HighlighterSettingsPage() override;
 
     QWidget *widget() override;

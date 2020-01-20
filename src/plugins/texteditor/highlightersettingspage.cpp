@@ -39,13 +39,14 @@ using namespace Internal;
 
 struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
 {
-    explicit HighlighterSettingsPagePrivate(Core::Id id);
+    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::HighlighterSettingsPage)
+
+public:
+    HighlighterSettingsPagePrivate();
     void ensureInitialized();
     void migrateGenericHighlighterFiles();
 
     bool m_initialized = false;
-    const Core::Id m_id;
-    const QString m_displayName;
     const QString m_settingsPrefix;
 
     HighlighterSettings m_settings;
@@ -54,11 +55,8 @@ struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
     Ui::HighlighterSettingsPage *m_page = nullptr;
 };
 
-HighlighterSettingsPage::HighlighterSettingsPagePrivate::
-HighlighterSettingsPagePrivate(Core::Id id)
-    : m_id(id)
-    , m_displayName(tr("Generic Highlighter"))
-    , m_settingsPrefix("Text")
+HighlighterSettingsPage::HighlighterSettingsPagePrivate::HighlighterSettingsPagePrivate()
+    : m_settingsPrefix("Text")
 {}
 
 void HighlighterSettingsPage::HighlighterSettingsPagePrivate::migrateGenericHighlighterFiles()
@@ -83,12 +81,11 @@ void HighlighterSettingsPage::HighlighterSettingsPagePrivate::ensureInitialized(
     migrateGenericHighlighterFiles();
 }
 
-HighlighterSettingsPage::HighlighterSettingsPage(Core::Id id, QObject *parent) :
-    Core::IOptionsPage(parent),
-    m_d(new HighlighterSettingsPagePrivate(id))
+HighlighterSettingsPage::HighlighterSettingsPage()
+    : m_d(new HighlighterSettingsPagePrivate)
 {
-    setId(m_d->m_id);
-    setDisplayName(m_d->m_displayName);
+    setId(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
+    setDisplayName(HighlighterSettingsPagePrivate::tr("Generic Highlighter"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
@@ -112,7 +109,7 @@ QWidget *HighlighterSettingsPage::widget()
                 [label = QPointer<QLabel>(m_d->m_page->updateStatus)]() {
                     Highlighter::downloadDefinitions([label](){
                         if (label)
-                            label->setText(tr("Download finished"));
+                            label->setText(HighlighterSettingsPagePrivate::tr("Download finished"));
                     });
                 });
         connect(m_d->m_page->reloadDefinitions, &QPushButton::pressed, []() {
