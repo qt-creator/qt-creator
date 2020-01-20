@@ -231,15 +231,19 @@ static GccToolChain::DetectedAbisResult guessGccAbi(const FilePath &path, const 
     return GccToolChain::DetectedAbisResult(guessGccAbi(machine, macros), machine);
 }
 
-static QString gccVersion(const FilePath &path, const QStringList &env)
+static QString gccVersion(const FilePath &path, const QStringList &env,
+                          const QStringList &extraArgs)
 {
-    QStringList arguments("-dumpversion");
+    QStringList arguments = extraArgs;
+    arguments << "-dumpversion";
     return QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
 }
 
-static Utils::FilePath gccInstallDir(const FilePath &path, const QStringList &env)
+static Utils::FilePath gccInstallDir(const FilePath &path, const QStringList &env,
+                                     const QStringList &extraArgs = {})
 {
-    const QStringList arguments("-print-search-dirs");
+    QStringList arguments = extraArgs;
+    arguments << "-print-search-dirs";
     QString output = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
     // Expected output looks like this:
     //   install: /usr/lib/gcc/x86_64-linux-gnu/7/
@@ -881,14 +885,16 @@ QString GccToolChain::detectVersion() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return gccVersion(findLocalCompiler(m_compilerCommand, env), env.toStringList());
+    return gccVersion(findLocalCompiler(m_compilerCommand, env), env.toStringList(),
+                      filteredFlags(platformCodeGenFlags(), true));
 }
 
 Utils::FilePath GccToolChain::detectInstallDir() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return gccInstallDir(findLocalCompiler(m_compilerCommand, env), env.toStringList());
+    return gccInstallDir(findLocalCompiler(m_compilerCommand, env), env.toStringList(),
+                         filteredFlags(platformCodeGenFlags(), true));
 }
 
 // --------------------------------------------------------------------------
