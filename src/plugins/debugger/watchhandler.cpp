@@ -1693,28 +1693,22 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     menu->addMenu(createBreakpointMenu(item, menu));
     menu->addSeparator();
 
-    addAction(menu, tr("Expand All Children"),
-              item,
-              [this, name = item->iname] {
-                m_expandedINames.insert(name);
-                if (auto item = findItem(name)) {
-                    item->forFirstLevelChildren([this](WatchItem *child) {
-                        m_expandedINames.insert(child->iname);
-                    });
-                    m_engine->updateLocals();
-                }
-              });
+    addAction(menu, tr("Expand All Children"), item, [this, name = item ? item->iname : QString()] {
+        m_expandedINames.insert(name);
+        if (auto item = findItem(name)) {
+            item->forFirstLevelChildren(
+                [this](WatchItem *child) { m_expandedINames.insert(child->iname); });
+            m_engine->updateLocals();
+        }
+    });
 
-    addAction(menu, tr("Collapse All Children"),
-              item,
-              [this, name = item->iname] {
-                if (auto item = findItem(name)) {
-                    item->forFirstLevelChildren([this](WatchItem *child) {
-                        m_expandedINames.remove(child->iname);
-                    });
-                    m_engine->updateLocals();
-                }
-              });
+    addAction(menu, tr("Collapse All Children"), item, [this, name = item ? item->iname : QString()] {
+        if (auto item = findItem(name)) {
+            item->forFirstLevelChildren(
+                [this](WatchItem *child) { m_expandedINames.remove(child->iname); });
+            m_engine->updateLocals();
+        }
+    });
 
     addAction(menu, tr("Close Editor Tooltips"),
               m_engine->toolTipManager()->hasToolTips(),
@@ -1724,16 +1718,17 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               true,
               [this] { copyToClipboard(editorContents()); });
 
-    addAction(menu, tr("Copy Current Value to Clipboard"),
+    addAction(menu,
+              tr("Copy Current Value to Clipboard"),
               item,
-              [this, name = item->iname] {
-                if (auto item = findItem(name))
-                    copyToClipboard(item->value);
+              [this, name = item ? item->iname : QString()] {
+                  if (auto item = findItem(name))
+                      copyToClipboard(item->value);
               });
 
-//    addAction(menu, tr("Copy Selected Rows to Clipboard"),
-//              selectionModel()->hasSelection(),
-//              [this] { copyToClipboard(editorContents(selectionModel()->selectedRows())); });
+    //    addAction(menu, tr("Copy Selected Rows to Clipboard"),
+    //              selectionModel()->hasSelection(),
+    //              [this] { copyToClipboard(editorContents(selectionModel()->selectedRows())); });
 
     addAction(menu, tr("Open View Contents in Editor"),
               m_engine->debuggerActionsEnabled(),
