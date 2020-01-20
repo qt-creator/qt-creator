@@ -40,6 +40,7 @@ class Task;
 class Project;
 
 enum class BuildForRunConfigStatus { Building, NotBuilding, BuildFailed };
+enum class ConfigSelection { All, Active };
 
 class PROJECTEXPLORER_EXPORT BuildManager : public QObject
 {
@@ -55,9 +56,12 @@ public:
     static void buildProjectWithoutDependencies(Project *project);
     static void cleanProjectWithoutDependencies(Project *project);
     static void rebuildProjectWithoutDependencies(Project *project);
-    static void buildProjectWithDependencies(Project *project);
-    static void cleanProjectWithDependencies(Project *project);
-    static void rebuildProjectWithDependencies(Project *project);
+    static void buildProjectWithDependencies(
+            Project *project,
+            ConfigSelection configSelection = ConfigSelection::Active
+            );
+    static void cleanProjectWithDependencies(Project *project, ConfigSelection configSelection);
+    static void rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection);
     static void buildProjects(const QList<Project *> &projects);
     static void cleanProjects(const QList<Project *> &projects);
     static void rebuildProjects(const QList<Project *> &projects);

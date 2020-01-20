@@ -78,6 +78,10 @@
 
     \section1 Additional Build Commands
 
+    To build the current project in all its configurations, that is, for
+    all build configurations in all enabled kits, select
+    \uicontrol Build > \uicontrol {Build Project for all Configurations}.
+
     To build all open projects, select \uicontrol Build > \uicontrol {Build All}.
     If building one application fails, \QC displays an error message and
     continues building the other applications.
