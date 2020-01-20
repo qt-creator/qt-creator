@@ -179,7 +179,7 @@ bool AndroidDeployQtStep::init()
     RunConfiguration *rc = target()->activeRunConfiguration();
     QTC_ASSERT(rc, return false);
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    QTC_ASSERT(rc, return false);
+    QTC_ASSERT(bc, return false);
 
     auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
     int minTargetApi = AndroidManager::minimumSDK(target());
