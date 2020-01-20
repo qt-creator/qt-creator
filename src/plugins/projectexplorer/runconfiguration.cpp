@@ -165,12 +165,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id)
 {
     QTC_CHECK(target && target == this->target());
-    connect(target, &Target::parsingFinished, this, &RunConfiguration::enabledChanged);
-
-    connect(this, &RunConfiguration::enabledChanged, this, [this] {
-        if (isActive() && project() == SessionManager::startupProject())
-            emit ProjectExplorerPlugin::instance()->updateRunActions();
-    });
+    connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Run Settings"));
@@ -309,6 +304,9 @@ void RunConfiguration::update()
         m_updater();
 
     emit enabledChanged();
+
+    if (isActive() && project() == SessionManager::startupProject())
+        emit ProjectExplorerPlugin::instance()->updateRunActions();
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
