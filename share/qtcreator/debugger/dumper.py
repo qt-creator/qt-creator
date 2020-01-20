@@ -3400,7 +3400,7 @@ class DumperBase:
                     return res
                 return thing
             if len(fields) != len(result):
-                error('STRUCT ERROR: %s %s' (fields, result))
+                error('STRUCT ERROR: %s %s' % (fields, result))
             return tuple(map(structFixer, fields, result))
 
     def checkPointer(self, p, align = 1):

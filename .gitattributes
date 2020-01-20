@@ -1,1 +1,4 @@
 dist/clang/patches/*.patch -diff -merge -text
+.tag                    export-subst
+.gitattributes          export-ignore
+.gitignore              export-ignore

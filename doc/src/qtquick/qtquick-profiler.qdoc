@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -74,6 +74,11 @@
     large, unexplained gaps in the timeline, check your custom QQuickItem
     implementations. You can use \l{Using Valgrind Code Analysis Tools}
     {Valgrind} or other general purpose profilers to analyze C++ code.
+
+    You can use \e {full stack tracing} to trace from the top level QML or
+    JavaScript down to the C++ and all the way to the kernel space. You can
+    view the collected data in the \l{Visualizing Chrome Trace Events}
+    {Chrome Trace Format Viewer}.
     \endif
 
     \section1 Using QML Profiler

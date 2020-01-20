@@ -42,6 +42,16 @@
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include <CoreFoundation/CoreFoundation.h>
+
+// Work around issue with not being able to retrieve USB serial number.
+// See QTCREATORBUG-23460.
+// For an unclear reason USBSpec.h in macOS SDK 10.15 uses a different value if
+// MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_14, which just does not work.
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_14
+#undef kUSBSerialNumberString
+#define kUSBSerialNumberString "USB Serial Number"
+#endif
+
 #endif
 
 #include <exception>
@@ -356,9 +366,14 @@ void deviceConnectedCallback(void *refCon, io_iterator_t iterator)
                                                              usbDevice,
                                                              CFSTR(kUSBSerialNumberString),
                                                              kCFAllocatorDefault, 0));
-            QString uid = CFStringRef2QString(cfUid);
-            CFRelease(cfUid);
-            IosDeviceManager::instance()->deviceConnected(uid, name);
+            if (cfUid) {
+                QString uid = CFStringRef2QString(cfUid);
+                CFRelease(cfUid);
+                qCDebug(detectLog) << "device UID is" << uid;
+                IosDeviceManager::instance()->deviceConnected(uid, name);
+            } else {
+                qCDebug(detectLog) << "failed to retrieve device's UID";
+            }
 
             // Done with this USB device; release the reference added by IOIteratorNext
             kr = IOObjectRelease(usbDevice);
@@ -385,18 +400,22 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
 
             // Get the USB device's name.
             kr = IORegistryEntryGetName(usbDevice, deviceName);
-            if (KERN_SUCCESS != kr)
-                deviceName[0] = '\0';
-            qCDebug(detectLog) << "ios device " << deviceName << " in deviceDisconnectedCallback";
+            QString name;
+            if (KERN_SUCCESS == kr)
+                name = QString::fromLocal8Bit(deviceName);
+            qCDebug(detectLog) << "ios device " << name << " in deviceDisconnectedCallback";
 
-            {
-                CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
-                                                                 usbDevice,
-                                                                 CFSTR(kUSBSerialNumberString),
-                                                                 kCFAllocatorDefault, 0));
+            CFStringRef cfUid = static_cast<CFStringRef>(
+                IORegistryEntryCreateCFProperty(usbDevice,
+                                                CFSTR(kUSBSerialNumberString),
+                                                kCFAllocatorDefault,
+                                                0));
+            if (cfUid) {
                 QString uid = CFStringRef2QString(cfUid);
                 CFRelease(cfUid);
                 IosDeviceManager::instance()->deviceDisconnected(uid);
+            } else {
+                qCDebug(detectLog) << "failed to retrieve device's UID";
             }
 
             // Done with this USB device; release the reference added by IOIteratorNext

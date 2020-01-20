@@ -112,7 +112,7 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
 
     case QEvent::KeyPress: {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        QPair<int, int> data = {keyEvent->key(), keyEvent->modifiers()};
+        QPair<int, int> data = {keyEvent->key(), int(keyEvent->modifiers())};
         nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::KeyPressed,
                                                             QVariant::fromValue(data)});
     } break;
