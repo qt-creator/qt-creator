@@ -41,20 +41,12 @@ class ExtraEncodingSettings;
 class ICodeStylePreferences;
 class CodeStylePool;
 
-class BehaviorSettingsPageParameters
-{
-public:
-    Core::Id id;
-    QString displayName;
-    QString settingsPrefix;
-};
-
 class BehaviorSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    BehaviorSettingsPage(const BehaviorSettingsPageParameters &p, QObject *parent);
+    BehaviorSettingsPage();
     ~BehaviorSettingsPage() override;
 
     // IOptionsPage

@@ -64,7 +64,7 @@ class TextEditorSettingsPrivate
 {
 public:
     FontSettingsPage *m_fontSettingsPage;
-    BehaviorSettingsPage *m_behaviorSettingsPage;
+    BehaviorSettingsPage m_behaviorSettingsPage;
     DisplaySettingsPage m_displaySettingsPage;
     HighlighterSettingsPage m_highlighterSettingsPage;
     SnippetsSettingsPage m_snippetsSettingsPage;
@@ -350,13 +350,6 @@ TextEditorSettings::TextEditorSettings()
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,
                                                    this);
 
-    // Add the GUI used to configure the tab, storage and interaction settings
-    BehaviorSettingsPageParameters behaviorSettingsPageParameters;
-    behaviorSettingsPageParameters.id = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
-    behaviorSettingsPageParameters.displayName = tr("Behavior");
-    behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
-    d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
-
     auto updateGeneralMessagesFontSettings = []() {
         Core::MessageManager::setFont(d->m_fontSettingsPage->fontSettings().font());
     };
@@ -365,20 +358,20 @@ TextEditorSettings::TextEditorSettings()
     connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
-    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
+    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
             this, &TextEditorSettings::typingSettingsChanged);
-    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::storageSettingsChanged,
+    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::storageSettingsChanged,
             this, &TextEditorSettings::storageSettingsChanged);
     auto updateGeneralMessagesBehaviorSettings = []() {
-        bool wheelZoom = d->m_behaviorSettingsPage->behaviorSettings().m_scrollWheelZooming;
+        bool wheelZoom = d->m_behaviorSettingsPage.behaviorSettings().m_scrollWheelZooming;
         Core::MessageManager::setWheelZoomEnabled(wheelZoom);
     };
-    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
             this, &TextEditorSettings::behaviorSettingsChanged);
-    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
             this, updateGeneralMessagesBehaviorSettings);
     updateGeneralMessagesBehaviorSettings();
-    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::extraEncodingSettingsChanged,
+    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::extraEncodingSettingsChanged,
             this, &TextEditorSettings::extraEncodingSettingsChanged);
     connect(&d->m_displaySettingsPage, &DisplaySettingsPage::marginSettingsChanged,
             this, &TextEditorSettings::marginSettingsChanged);
@@ -388,7 +381,7 @@ TextEditorSettings::TextEditorSettings()
     auto updateCamelCaseNavigation = [] {
         Utils::FancyLineEdit::setCamelCaseNavigationEnabled(behaviorSettings().m_camelCaseNavigation);
     };
-    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
             this, updateCamelCaseNavigation);
     updateCamelCaseNavigation();
 }
@@ -412,17 +405,17 @@ const FontSettings &TextEditorSettings::fontSettings()
 
 const TypingSettings &TextEditorSettings::typingSettings()
 {
-    return d->m_behaviorSettingsPage->typingSettings();
+    return d->m_behaviorSettingsPage.typingSettings();
 }
 
 const StorageSettings &TextEditorSettings::storageSettings()
 {
-    return d->m_behaviorSettingsPage->storageSettings();
+    return d->m_behaviorSettingsPage.storageSettings();
 }
 
 const BehaviorSettings &TextEditorSettings::behaviorSettings()
 {
-    return d->m_behaviorSettingsPage->behaviorSettings();
+    return d->m_behaviorSettingsPage.behaviorSettings();
 }
 
 const MarginSettings &TextEditorSettings::marginSettings()
@@ -447,7 +440,7 @@ const HighlighterSettings &TextEditorSettings::highlighterSettings()
 
 const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()
 {
-    return d->m_behaviorSettingsPage->extraEncodingSettings();
+    return d->m_behaviorSettingsPage.extraEncodingSettings();
 }
 
 const CommentsSettings &TextEditorSettings::commentsSettings()
@@ -477,7 +470,7 @@ ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Core::Id lang
 
 ICodeStylePreferences *TextEditorSettings::codeStyle()
 {
-    return d->m_behaviorSettingsPage->codeStyle();
+    return d->m_behaviorSettingsPage.codeStyle();
 }
 
 ICodeStylePreferences *TextEditorSettings::codeStyle(Core::Id languageId)
@@ -502,7 +495,7 @@ void TextEditorSettings::unregisterCodeStyle(Core::Id languageId)
 
 CodeStylePool *TextEditorSettings::codeStylePool()
 {
-    return d->m_behaviorSettingsPage->codeStylePool();
+    return d->m_behaviorSettingsPage.codeStylePool();
 }
 
 CodeStylePool *TextEditorSettings::codeStylePool(Core::Id languageId)
