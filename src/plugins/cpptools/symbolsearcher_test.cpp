@@ -164,7 +164,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check All Symbol Types
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("");
-    searchParameters.flags = nullptr;
+    searchParameters.flags = {};
     searchParameters.types = SearchSymbols::AllTypes;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::AllTypes")
@@ -218,7 +218,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Classes
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("myclass");
-    searchParameters.flags = nullptr;
+    searchParameters.flags = {};
     searchParameters.types = SymbolSearcher::Classes;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Classes")
@@ -233,7 +233,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     // Check Functions
     searchParameters = SymbolSearcher::Parameters();
     searchParameters.text = _("fun");
-    searchParameters.flags = nullptr;
+    searchParameters.flags = {};
     searchParameters.types = SymbolSearcher::Functions;
     searchParameters.scope = SymbolSearcher::SearchGlobal;
     QTest::newRow("BuiltinSymbolSearcher::Functions")

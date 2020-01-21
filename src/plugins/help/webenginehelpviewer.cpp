@@ -260,7 +260,7 @@ bool WebEngineHelpViewer::findText(const QString &text, Core::FindFlags flags, b
     Q_UNUSED(fromSearch)
     if (wrapped)
         *wrapped = false; // missing feature in QWebEngine
-    QWebEnginePage::FindFlags webEngineFlags = 0;
+    QWebEnginePage::FindFlags webEngineFlags;
     if (flags & Core::FindBackward)
         webEngineFlags |= QWebEnginePage::FindBackward;
     if (flags & Core::FindCaseSensitively)

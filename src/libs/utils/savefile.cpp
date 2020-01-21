@@ -36,7 +36,7 @@
 
 namespace Utils {
 
-static QFile::Permissions m_umask = {};
+static QFile::Permissions m_umask;
 
 SaveFile::SaveFile(const QString &filename) :
     m_finalFileName(filename)

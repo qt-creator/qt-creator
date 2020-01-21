@@ -660,7 +660,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
             return false;
     }
 
-    WizardFlags flags = {};
+    WizardFlags flags;
     if (data.value(QLatin1String(PLATFORM_INDEPENDENT_KEY), false).toBool())
         flags |= PlatformIndependent;
     setFlags(flags);

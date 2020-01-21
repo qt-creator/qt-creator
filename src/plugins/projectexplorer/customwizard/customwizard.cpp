@@ -213,7 +213,7 @@ static inline bool createFile(CustomWizardFile cwFile,
         generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 
-    Core::GeneratedFile::Attributes attributes = {};
+    Core::GeneratedFile::Attributes attributes;
     if (cwFile.openEditor)
         attributes |= Core::GeneratedFile::OpenEditorAttribute;
     if (cwFile.openProject)
