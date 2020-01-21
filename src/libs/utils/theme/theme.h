@@ -104,7 +104,7 @@ public:
         OutputPaneToggleButtonTextColorChecked,
         OutputPaneToggleButtonTextColorUnchecked,
         PanelStatusBarBackgroundColor,
-        PanelsWidgetSeparatorLineColor,
+        PanelsWidgetSeparatorLineColor, // TODO: Deprecate. Unused.
         PanelTextColorDark,
         PanelTextColorMid,
         PanelTextColorLight,

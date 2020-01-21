@@ -52,24 +52,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace {
-class OnePixelBlackLine : public QWidget
-{
-public:
-    OnePixelBlackLine(QWidget *parent)
-        : QWidget(parent)
-    {
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        setMinimumHeight(1);
-        setMaximumHeight(1);
-    }
-    void paintEvent(QPaintEvent *e) override
-    {
-        Q_UNUSED(e)
-        QPainter p(this);
-        QColor fillColor = creatorTheme()->color(Theme::PanelsWidgetSeparatorLineColor);
-        p.fillRect(contentsRect(), fillColor);
-    }
-};
 
 class RootWidget : public QWidget
 {
@@ -112,13 +94,6 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     // side of the screen.
     m_root->setMaximumWidth(900);
     m_root->setContentsMargins(0, 0, 40, 0);
-    QPalette pal;
-    QColor background = StyleHelper::mergedColors(
-                palette().window().color(), Qt::white, 85);
-    pal.setColor(QPalette::All, QPalette::Window, background.darker(102));
-    setPalette(pal);
-    pal.setColor(QPalette::All, QPalette::Window, background);
-    m_root->setPalette(pal);
 
     m_scroller = new QScrollArea(this);
     m_scroller->setWidget(m_root);
@@ -183,14 +158,6 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName, const QIcon &i
     // name:
     auto nameLabel = new QLabel(m_root);
     nameLabel->setText(displayName);
-    QPalette palette = nameLabel->palette();
-    for (int i = QPalette::Active; i < QPalette::NColorGroups; ++i ) {
-        // FIXME: theming
-        QColor foregroundColor = palette.color(QPalette::ColorGroup(i), QPalette::WindowText);
-        foregroundColor.setAlpha(110);
-        palette.setBrush(QPalette::ColorGroup(i), QPalette::WindowText, foregroundColor);
-    }
-    nameLabel->setPalette(palette);
     nameLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
     QFont f = nameLabel->font();
     f.setBold(true);
@@ -200,7 +167,10 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName, const QIcon &i
 
     // line:
     const int lineRow = headerRow + 1;
-    auto line = new OnePixelBlackLine(m_root);
+    auto line = new QFrame(m_root);
+    line->setFrameShape(QFrame::HLine);
+    line->setForegroundRole(QPalette::Midlight);
+    line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_layout->addWidget(line, lineRow, 1, 1, -1, Qt::AlignTop);
 
     // add the widget:
