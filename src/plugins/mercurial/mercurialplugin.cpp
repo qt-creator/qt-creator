@@ -122,7 +122,8 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
     m_client = new MercurialClient;
-    auto vc = initializeVcs<MercurialControl>(context, m_client);
+    auto vc = new MercurialControl(m_client);
+    initializeVcs(vc, context);
 
     new OptionsPage(vc, this);
 

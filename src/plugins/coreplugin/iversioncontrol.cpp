@@ -143,6 +143,12 @@ QString IVersionControl::vcsTopic(const QString &topLevel)
     return m_topicCache ? m_topicCache->topic(topLevel) : QString();
 }
 
+IVersionControl::IVersionControl(IVersionControl::TopicCache *topicCache)
+    : m_topicCache(topicCache)
+{
+    Core::VcsManager::addVersionControl(this);
+}
+
 IVersionControl::~IVersionControl()
 {
     delete m_topicCache;

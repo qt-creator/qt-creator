@@ -299,7 +299,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_gitClient = new GitClient;
 
-    auto vc = initializeVcs<GitVersionControl>(context, m_gitClient);
+    auto vc = new GitVersionControl(m_gitClient);
+    initializeVcs(vc, context);
 
     // Create the settings Page
     auto settingsPage = new SettingsPage(vc, this);

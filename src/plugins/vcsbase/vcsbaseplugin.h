@@ -130,14 +130,6 @@ class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
 protected:
     explicit VcsBasePlugin();
 
-    template<class T, typename... Args>
-    T *initializeVcs(const Core::Context &context, Args&&... args)
-    {
-        T *vc = Core::VcsManager::registerVersionControl<T>(std::forward<Args>(args)...);
-        initializeVcs(vc, context);
-        return vc;
-    }
-
     void extensionsInitialized() override;
 
 public:
@@ -216,11 +208,11 @@ protected:
     // Returns whether actions should be set up further.
     bool enableMenuAction(ActionState as, QAction *in) const;
 
+    void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
+
 private:
     void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
-
-    void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
 
     VcsBasePluginPrivate *d;
 };

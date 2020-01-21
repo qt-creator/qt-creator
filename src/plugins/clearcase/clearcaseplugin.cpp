@@ -411,7 +411,8 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 
     Context context(CLEARCASE_CONTEXT);
 
-    initializeVcs<ClearCaseControl>(context, this);
+    auto vcsCtrl = new ClearCaseControl(this);
+    initializeVcs(vcsCtrl, context);
 
     m_clearcasePluginInstance = this;
     connect(ICore::instance(), &ICore::coreAboutToClose, this, &ClearCasePlugin::closing);

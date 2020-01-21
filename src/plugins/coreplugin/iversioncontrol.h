@@ -86,7 +86,7 @@ public:
 
     };
 
-    explicit IVersionControl(TopicCache *topicCache = nullptr) : m_topicCache(topicCache) {}
+    explicit IVersionControl(TopicCache *topicCache = nullptr);
     ~IVersionControl() override;
 
     virtual QString displayName() const = 0;

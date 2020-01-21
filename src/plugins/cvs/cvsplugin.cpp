@@ -197,7 +197,8 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Context context(CVS_CONTEXT);
 
-    initializeVcs<CvsControl>(context, this);
+    auto vcsCtrl = new CvsControl(this);
+    initializeVcs(vcsCtrl, context);
 
     m_cvsPluginInstance = this;
 
