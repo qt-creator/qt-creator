@@ -65,7 +65,7 @@ class TextEditorSettingsPrivate
 public:
     FontSettingsPage *m_fontSettingsPage;
     BehaviorSettingsPage *m_behaviorSettingsPage;
-    DisplaySettingsPage *m_displaySettingsPage;
+    DisplaySettingsPage m_displaySettingsPage;
     HighlighterSettingsPage m_highlighterSettingsPage;
     SnippetsSettingsPage m_snippetsSettingsPage;
     CompletionSettingsPage m_completionSettingsPage;
@@ -357,12 +357,6 @@ TextEditorSettings::TextEditorSettings()
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
 
-    DisplaySettingsPageParameters displaySettingsPageParameters;
-    displaySettingsPageParameters.id = Constants::TEXT_EDITOR_DISPLAY_SETTINGS;
-    displaySettingsPageParameters.displayName = tr("Display");
-    displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
-    d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
-
     auto updateGeneralMessagesFontSettings = []() {
         Core::MessageManager::setFont(d->m_fontSettingsPage->fontSettings().font());
     };
@@ -386,9 +380,9 @@ TextEditorSettings::TextEditorSettings()
     updateGeneralMessagesBehaviorSettings();
     connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::extraEncodingSettingsChanged,
             this, &TextEditorSettings::extraEncodingSettingsChanged);
-    connect(d->m_displaySettingsPage, &DisplaySettingsPage::marginSettingsChanged,
+    connect(&d->m_displaySettingsPage, &DisplaySettingsPage::marginSettingsChanged,
             this, &TextEditorSettings::marginSettingsChanged);
-    connect(d->m_displaySettingsPage, &DisplaySettingsPage::displaySettingsChanged,
+    connect(&d->m_displaySettingsPage, &DisplaySettingsPage::displaySettingsChanged,
             this, &TextEditorSettings::displaySettingsChanged);
 
     auto updateCamelCaseNavigation = [] {
@@ -433,12 +427,12 @@ const BehaviorSettings &TextEditorSettings::behaviorSettings()
 
 const MarginSettings &TextEditorSettings::marginSettings()
 {
-    return d->m_displaySettingsPage->marginSettings();
+    return d->m_displaySettingsPage.marginSettings();
 }
 
 const DisplaySettings &TextEditorSettings::displaySettings()
 {
-    return d->m_displaySettingsPage->displaySettings();
+    return d->m_displaySettingsPage.displaySettings();
 }
 
 const CompletionSettings &TextEditorSettings::completionSettings()

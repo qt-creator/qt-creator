@@ -34,20 +34,12 @@ namespace TextEditor {
 class DisplaySettings;
 class MarginSettings;
 
-class DisplaySettingsPageParameters
-{
-public:
-    Core::Id id;
-    QString displayName;
-    QString settingsPrefix;
-};
-
 class DisplaySettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    DisplaySettingsPage(const DisplaySettingsPageParameters &p, QObject *parent);
+    DisplaySettingsPage();
     ~DisplaySettingsPage() override;
 
     // IOptionsPage

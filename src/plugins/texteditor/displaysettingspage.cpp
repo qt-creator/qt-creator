@@ -33,36 +33,32 @@
 #include <coreplugin/icore.h>
 
 #include <QPointer>
-#include <QTextStream>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 struct DisplaySettingsPage::DisplaySettingsPagePrivate
 {
-    explicit DisplaySettingsPagePrivate(const DisplaySettingsPageParameters &p);
+    DisplaySettingsPagePrivate();
 
-    const DisplaySettingsPageParameters m_parameters;
     QPointer<QWidget> m_widget;
     Internal::Ui::DisplaySettingsPage *m_page = nullptr;
     DisplaySettings m_displaySettings;
     MarginSettings m_marginSettings;
+    QString m_settingsPrefix;
 };
 
-DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate
-    (const DisplaySettingsPageParameters &p)
-    : m_parameters(p)
+DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate()
 {
-    m_displaySettings.fromSettings(m_parameters.settingsPrefix, Core::ICore::settings());
-    m_marginSettings.fromSettings(m_parameters.settingsPrefix, Core::ICore::settings());
+    m_settingsPrefix = QLatin1String("text");
+    m_displaySettings.fromSettings(m_settingsPrefix, Core::ICore::settings());
+    m_marginSettings.fromSettings(m_settingsPrefix, Core::ICore::settings());
 }
 
-DisplaySettingsPage::DisplaySettingsPage(const DisplaySettingsPageParameters &p,
-                                         QObject *parent)
-  : Core::IOptionsPage(parent),
-    d(new DisplaySettingsPagePrivate(p))
+DisplaySettingsPage::DisplaySettingsPage()
+  : d(new DisplaySettingsPagePrivate)
 {
-    setId(p.id);
-    setDisplayName(p.displayName);
+    setId(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
+    setDisplayName(tr("Display"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
@@ -180,15 +176,17 @@ void DisplaySettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySe
 {
     if (newDisplaySettings != d->m_displaySettings) {
         d->m_displaySettings = newDisplaySettings;
-        d->m_displaySettings.toSettings(d->m_parameters.settingsPrefix, Core::ICore::settings());
+        d->m_displaySettings.toSettings(d->m_settingsPrefix, Core::ICore::settings());
 
         emit displaySettingsChanged(newDisplaySettings);
     }
 
     if (newMarginSettings != d->m_marginSettings) {
         d->m_marginSettings = newMarginSettings;
-        d->m_marginSettings.toSettings(d->m_parameters.settingsPrefix, Core::ICore::settings());
+        d->m_marginSettings.toSettings(d->m_settingsPrefix, Core::ICore::settings());
 
         emit marginSettingsChanged(newMarginSettings);
     }
 }
+
+} // TextEditor
