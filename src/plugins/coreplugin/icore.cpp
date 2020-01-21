@@ -356,8 +356,26 @@ QString ICore::cacheResourcePath()
 
 QString ICore::installerResourcePath()
 {
-    return QFileInfo(settings(QSettings::SystemScope)->fileName()).path() + '/'
-           + Constants::IDE_ID;
+    return QFileInfo(settings(QSettings::SystemScope)->fileName()).path() + '/' + Constants::IDE_ID;
+}
+
+QString ICore::pluginPath()
+{
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_PLUGIN_PATH);
+}
+
+QString ICore::userPluginPath()
+{
+    QString pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost())
+        pluginPath += "/data";
+    pluginPath += '/' + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR) + '/';
+    pluginPath += QLatin1String(Utils::HostOsInfo::isMacHost() ? Core::Constants::IDE_DISPLAY_NAME
+                                                               : Core::Constants::IDE_ID);
+    pluginPath += "/plugins/";
+    pluginPath += QString::number(IDE_VERSION_MAJOR) + '.' + QString::number(IDE_VERSION_MINOR)
+                  + '.' + QString::number(IDE_VERSION_RELEASE);
+    return pluginPath;
 }
 
 /*!

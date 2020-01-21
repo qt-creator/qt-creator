@@ -53,11 +53,13 @@ private:
     void openDetails(ExtensionSystem::PluginSpec *spec);
     void openErrorDetails();
     void closeDialog();
+    void showInstallWizard();
 
     ExtensionSystem::PluginView *m_view;
 
     QPushButton *m_detailsButton;
     QPushButton *m_errorDetailsButton;
+    QPushButton *m_installButton;
     QPushButton *m_closeButton;
     QLabel *m_restartRequired;
 };
