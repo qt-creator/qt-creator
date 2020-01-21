@@ -33,7 +33,6 @@
 
 #include <utils/url.h>
 
-#include <QCoreApplication>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
@@ -45,9 +44,8 @@ AndroidDevice::AndroidDevice()
 {
     setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
-    setDefaultDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice",
-                                                      "Run on Android"));
-    setDisplayType(QCoreApplication::translate("Android::Internal::AndroidDevice", "Android"));
+    setDefaultDisplayName(tr("Run on Android"));
+    setDisplayType(tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeOtherUnix);
 
@@ -88,8 +86,7 @@ QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 AndroidDeviceFactory::AndroidDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::ANDROID_DEVICE_TYPE)
 {
-    setObjectName(QLatin1String("AndroidDeviceFactory"));
-    setDisplayName(tr("Android Device"));
+    setDisplayName(AndroidDevice::tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
     setConstructionFunction(&AndroidDevice::create);

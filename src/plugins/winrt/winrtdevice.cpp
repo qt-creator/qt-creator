@@ -40,7 +40,6 @@
 #include <utils/portlist.h>
 
 #include <QFileInfo>
-#include <QCoreApplication>
 #include <QIcon>
 #include <QLoggingCategory>
 #include <QWizard>

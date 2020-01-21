@@ -56,7 +56,7 @@ ProjectExplorer::IDevice::Ptr McuSupportDevice::create()
 McuSupportDeviceFactory::McuSupportDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::DEVICE_TYPE)
 {
-    setDisplayName(tr("MCU Device"));
+    setDisplayName(McuSupportDevice::tr("MCU Device"));
     setCombinedIcon(":/mcusupport/images/mcusupportdevicesmall.png",
                     ":/mcusupport/images/mcusupportdevice.png");
     setCanCreate(true);

@@ -32,7 +32,7 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbDevice : public RemoteLinux::LinuxDevice
+class QdbDevice final : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbDevice)
 
@@ -60,9 +60,8 @@ private:
     QString m_serialNumber;
 };
 
-class QdbLinuxDeviceFactory : public ProjectExplorer::IDeviceFactory
+class QdbLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
 public:
     QdbLinuxDeviceFactory();
 

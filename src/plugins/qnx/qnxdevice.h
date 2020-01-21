@@ -32,7 +32,7 @@
 namespace Qnx {
 namespace Internal {
 
-class QnxDevice : public RemoteLinux::LinuxDevice
+class QnxDevice final : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDevice)
 
@@ -66,10 +66,8 @@ private:
     mutable int m_versionNumber = 0;
 };
 
-class QnxDeviceFactory : public ProjectExplorer::IDeviceFactory
+class QnxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
-
 public:
     QnxDeviceFactory();
 

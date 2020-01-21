@@ -30,6 +30,8 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 
+#include <QApplication>
+
 namespace ProjectExplorer {
 class ProjectExplorerPlugin;
 
@@ -37,6 +39,8 @@ namespace Internal { class DesktopDeviceFactory; }
 
 class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::DesktopDevice)
+
 public:
     IDevice::DeviceInfo deviceInformation() const override;
 

@@ -31,7 +31,6 @@
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 
-#include <QApplication>
 #include <QStyle>
 
 namespace ProjectExplorer {
@@ -41,7 +40,7 @@ DesktopDeviceFactory::DesktopDeviceFactory()
     : IDeviceFactory(Constants::DESKTOP_DEVICE_TYPE)
 {
     setConstructionFunction([] { return IDevice::Ptr(new DesktopDevice); });
-    setDisplayName(tr("Desktop"));
+    setDisplayName(DesktopDevice::tr("Desktop"));
     setIcon(Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
             ? Utils::Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
                                          Icons::DESKTOP_DEVICE_SMALL.icon()})

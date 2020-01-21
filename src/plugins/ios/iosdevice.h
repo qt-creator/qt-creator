@@ -42,8 +42,10 @@ class IosConfigurations;
 namespace Internal {
 class IosDeviceManager;
 
-class IosDevice : public ProjectExplorer::IDevice
+class IosDevice final : public ProjectExplorer::IDevice
 {
+    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosDevice)
+
 public:
     using Dict = QMap<QString, QString>;
     using ConstPtr = QSharedPointer<const IosDevice>;
@@ -76,9 +78,8 @@ protected:
     mutable quint16 m_lastPort;
 };
 
-class IosDeviceFactory : public ProjectExplorer::IDeviceFactory
+class IosDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
 public:
     IosDeviceFactory();
 

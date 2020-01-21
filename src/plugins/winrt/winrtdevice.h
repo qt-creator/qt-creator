@@ -33,7 +33,7 @@
 namespace WinRt {
 namespace Internal {
 
-class WinRtDevice : public ProjectExplorer::IDevice
+class WinRtDevice final : public ProjectExplorer::IDevice
 {
 public:
     typedef QSharedPointer<WinRtDevice> Ptr;
@@ -56,7 +56,7 @@ private:
     int m_deviceId = -1;
 };
 
-class WinRtDeviceFactory : public ProjectExplorer::IDeviceFactory
+class WinRtDeviceFactory final : public QObject, public ProjectExplorer::IDeviceFactory
 {
     Q_OBJECT
 public:

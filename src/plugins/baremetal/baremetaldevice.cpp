@@ -31,11 +31,7 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
-#include <coreplugin/id.h>
-
 #include <utils/qtcassert.h>
-
-#include <QCoreApplication>
 
 using namespace ProjectExplorer;
 
@@ -48,8 +44,7 @@ const char debugServerProviderIdKeyC[] = "IDebugServerProviderId";
 
 BareMetalDevice::BareMetalDevice()
 {
-    setDisplayType(QCoreApplication::translate("BareMetal::Internal::BareMetalDevice",
-                                               "Bare Metal"));
+    setDisplayType(tr("Bare Metal"));
     setDefaultDisplayName(defaultDisplayName());
     setOsType(Utils::OsTypeOther);
 }
@@ -63,8 +58,7 @@ BareMetalDevice::~BareMetalDevice()
 
 QString BareMetalDevice::defaultDisplayName()
 {
-    return QCoreApplication::translate("BareMetal::Internal::BareMetalDevice",
-                                       "Bare Metal Device");
+    return tr("Bare Metal Device");
 }
 
 QString BareMetalDevice::debugServerProviderId() const
@@ -128,7 +122,7 @@ IDeviceWidget *BareMetalDevice::createWidget()
 BareMetalDeviceFactory::BareMetalDeviceFactory()
     : IDeviceFactory(Constants::BareMetalOsType)
 {
-    setDisplayName(tr("Bare Metal Device"));
+    setDisplayName(BareMetalDevice::tr("Bare Metal Device"));
     setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
                     ":/baremetal/images/baremetaldevice.png");
     setCanCreate(true);

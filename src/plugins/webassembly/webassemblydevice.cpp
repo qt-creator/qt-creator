@@ -56,7 +56,7 @@ ProjectExplorer::IDevice::Ptr WebAssemblyDevice::create()
 WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::WEBASSEMBLY_DEVICE_TYPE)
 {
-    setDisplayName(tr("WebAssembly Runtime"));
+    setDisplayName(WebAssemblyDevice::tr("WebAssembly Runtime"));
     setCombinedIcon(":/webassembly/images/webassemblydevicesmall.png",
                     ":/webassembly/images/webassemblydevice.png");
     setCanCreate(true);

@@ -27,12 +27,10 @@
 
 #include <projectexplorer/devicesupport/desktopdevice.h>
 
-#include <QCoreApplication>
-
 namespace WebAssembly {
 namespace Internal {
 
-class WebAssemblyDevice : public ProjectExplorer::DesktopDevice
+class WebAssemblyDevice final : public ProjectExplorer::DesktopDevice
 {
     Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyDevice)
 
@@ -43,10 +41,8 @@ private:
     WebAssemblyDevice();
 };
 
-class WebAssemblyDeviceFactory : public ProjectExplorer::IDeviceFactory
+class WebAssemblyDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
-
 public:
     WebAssemblyDeviceFactory();
 

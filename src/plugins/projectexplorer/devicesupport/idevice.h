@@ -31,6 +31,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QAbstractSocket>
+#include <QCoreApplication>
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>

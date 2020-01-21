@@ -176,7 +176,7 @@ DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
 QnxDeviceFactory::QnxDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
 {
-    setDisplayName(tr("QNX Device"));
+    setDisplayName(QnxDevice::tr("QNX Device"));
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
     setCanCreate(true);

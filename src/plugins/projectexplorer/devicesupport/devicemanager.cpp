@@ -425,7 +425,7 @@ private:
     }
 };
 
-class TestDeviceFactory : public IDeviceFactory
+class TestDeviceFactory final : public IDeviceFactory
 {
 public:
     TestDeviceFactory() : IDeviceFactory(TestDevice::testTypeId())

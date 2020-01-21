@@ -33,7 +33,6 @@
 #include <coreplugin/helpmanager.h>
 #include <utils/portlist.h>
 
-#include <QCoreApplication>
 #include <QVariant>
 #include <QVariantMap>
 #include <QMessageBox>
@@ -93,7 +92,7 @@ IosDevice::IosDevice(CtorHelper)
 {
     setType(Constants::IOS_DEVICE_TYPE);
     setDefaultDisplayName(IosDevice::name());
-    setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
+    setDisplayType(tr("iOS"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeMac);
     setDeviceState(DeviceDisconnected);
@@ -538,7 +537,6 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
 IosDeviceFactory::IosDeviceFactory()
     : IDeviceFactory(Constants::IOS_DEVICE_TYPE)
 {
-    setObjectName(QLatin1String("IosDeviceFactory"));
     setDisplayName(IosDevice::name());
     setCombinedIcon(":/ios/images/iosdevicesmall.png",
                      ":/ios/images/iosdevice.png");

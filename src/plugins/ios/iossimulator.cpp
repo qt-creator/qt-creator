@@ -51,9 +51,8 @@ IosSimulator::IosSimulator(Core::Id id)
     setType(Constants::IOS_SIMULATOR_TYPE);
     setMachineType(IDevice::Emulator);
     setOsType(Utils::OsTypeMac);
-    setDefaultDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator",
-                                                      "iOS Simulator"));
-    setDisplayType(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
+    setDefaultDisplayName(tr("iOS Simulator"));
+    setDisplayType(tr("iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
 }
 
@@ -242,8 +241,7 @@ QDebug operator <<(QDebug debug, const IosDeviceType &deviceType)
 IosSimulatorFactory::IosSimulatorFactory()
     : ProjectExplorer::IDeviceFactory(Constants::IOS_SIMULATOR_TYPE)
 {
-    setObjectName(QLatin1String("IosSimulatorFactory"));
-    setDisplayName(tr("iOS Simulator"));
+    setDisplayName(IosSimulator::tr("iOS Simulator"));
     setCombinedIcon(":/ios/images/iosdevicesmall.png",
                     ":/ios/images/iosdevice.png");
     setConstructionFunction([] { return ProjectExplorer::IDevice::Ptr(new IosSimulator()); });

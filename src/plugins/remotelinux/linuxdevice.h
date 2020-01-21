@@ -30,8 +30,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <QCoreApplication>
-
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
@@ -66,10 +64,8 @@ protected:
 
 namespace Internal {
 
-class LinuxDeviceFactory : public ProjectExplorer::IDeviceFactory
+class LinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
-
 public:
     LinuxDeviceFactory();
 

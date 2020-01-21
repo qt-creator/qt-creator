@@ -30,10 +30,8 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class DesktopDeviceFactory : public IDeviceFactory
+class DesktopDeviceFactory final : public IDeviceFactory
 {
-    Q_OBJECT
-
 public:
     DesktopDeviceFactory();
 };

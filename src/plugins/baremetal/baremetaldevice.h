@@ -38,6 +38,8 @@ class IDebugServerProvider;
 
 class BareMetalDevice final : public ProjectExplorer::IDevice
 {
+    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::BareMetalDevice)
+
 public:
     using Ptr = QSharedPointer<BareMetalDevice>;
     using ConstPtr = QSharedPointer<const BareMetalDevice>;
@@ -67,8 +69,6 @@ private:
 
 class BareMetalDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
-
 public:
    explicit BareMetalDeviceFactory();
 

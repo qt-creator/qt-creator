@@ -283,7 +283,7 @@ private:
 QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
     : IDeviceFactory(Constants::QdbLinuxOsType)
 {
-    setDisplayName(tr("Boot2Qt Device"));
+    setDisplayName(QdbDevice::tr("Boot2Qt Device"));
     setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
     setCanCreate(true);
     setConstructionFunction(&QdbDevice::create);

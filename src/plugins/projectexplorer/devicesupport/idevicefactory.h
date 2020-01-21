@@ -33,12 +33,10 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT IDeviceFactory : public QObject
+class PROJECTEXPLORER_EXPORT IDeviceFactory
 {
-    Q_OBJECT
-
 public:
-    ~IDeviceFactory() override;
+    virtual ~IDeviceFactory();
     static const QList<IDeviceFactory *> allDeviceFactories();
 
     Core::Id deviceType() const { return m_deviceType; }
@@ -55,6 +53,8 @@ public:
 
 protected:
     explicit IDeviceFactory(Core::Id deviceType);
+    IDeviceFactory(const IDeviceFactory &) = delete;
+    IDeviceFactory &operator=(const IDeviceFactory &) = delete;
 
     void setDisplayName(const QString &displayName);
     void setIcon(const QIcon &icon);

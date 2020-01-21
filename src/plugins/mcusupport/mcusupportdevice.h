@@ -27,12 +27,10 @@
 
 #include <projectexplorer/devicesupport/desktopdevice.h>
 
-#include <QCoreApplication>
-
 namespace McuSupport {
 namespace Internal {
 
-class McuSupportDevice : public ProjectExplorer::DesktopDevice
+class McuSupportDevice final : public ProjectExplorer::DesktopDevice
 {
     Q_DECLARE_TR_FUNCTIONS(McuSupport::Internal::McuSupportDevice)
 
@@ -43,10 +41,8 @@ private:
     McuSupportDevice();
 };
 
-class McuSupportDeviceFactory : public ProjectExplorer::IDeviceFactory
+class McuSupportDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    Q_OBJECT
-
 public:
     McuSupportDeviceFactory();
 

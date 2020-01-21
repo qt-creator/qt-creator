@@ -49,8 +49,6 @@
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 
-#include <QTimer>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -299,7 +297,7 @@ namespace Internal {
 LinuxDeviceFactory::LinuxDeviceFactory()
     : IDeviceFactory(Constants::GenericLinuxOsType)
 {
-    setDisplayName(tr("Generic Linux Device"));
+    setDisplayName(LinuxDevice::tr("Generic Linux Device"));
     setIcon(QIcon());
     setCanCreate(true);
     setConstructionFunction(&LinuxDevice::create);
