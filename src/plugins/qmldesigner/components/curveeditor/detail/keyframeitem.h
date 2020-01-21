@@ -65,6 +65,10 @@ public:
 
     Keyframe keyframe() const;
 
+    bool hasLeftHandle() const;
+
+    bool hasRightHandle() const;
+
     HandleSlot handleSlot(HandleItem *item) const;
 
     void setHandleVisibility(bool visible);

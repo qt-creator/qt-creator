@@ -82,6 +82,16 @@ Keyframe KeyframeItem::keyframe() const
     return m_frame;
 }
 
+bool KeyframeItem::hasLeftHandle() const
+{
+    return m_frame.hasLeftHandle();
+}
+
+bool KeyframeItem::hasRightHandle() const
+{
+    return m_frame.hasRightHandle();
+}
+
 HandleSlot KeyframeItem::handleSlot(HandleItem *item) const
 {
     if (item == m_left)

@@ -245,17 +245,24 @@ void CurveItem::restore()
     std::sort(m_keyframes.begin(), m_keyframes.end(), byTime);
 
     KeyframeItem *prevItem = m_keyframes[0];
+
+    if (prevItem->hasLeftHandle())
+        prevItem->setLeftHandle(QPointF());
+
     for (size_t i = 1; i < m_keyframes.size(); ++i) {
         KeyframeItem *currItem = m_keyframes[i];
 
-        Keyframe prev = prevItem->keyframe();
-        Keyframe curr = currItem->keyframe();
-        CurveSegment segment(prev, curr);
+        bool left = prevItem->hasRightHandle();
+        bool right = currItem->hasLeftHandle();
+        if (left != right) {
+            if (left)
+                prevItem->setRightHandle(QPointF());
 
-        prevItem->setRightHandle(segment.left().rightHandle());
+            if (right)
+                currItem->setLeftHandle(QPointF());
+        }
+        CurveSegment segment(prevItem->keyframe(), currItem->keyframe());
         currItem->setInterpolation(segment.interpolation());
-        currItem->setLeftHandle(segment.right().leftHandle());
-
         prevItem = currItem;
     }
 }
@@ -375,6 +382,8 @@ void CurveItem::deleteSelectedKeyframes()
     auto isNullptr = [](KeyframeItem *frame) { return frame == nullptr; };
     auto iter = std::remove_if(m_keyframes.begin(), m_keyframes.end(), isNullptr);
     m_keyframes.erase(iter, m_keyframes.end());
+    restore();
+
     emitCurveChanged();
 }
 
