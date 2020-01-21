@@ -1376,10 +1376,13 @@ public:
         const QString lockFilePath = LockFile::filePath(pm);
         if (QFile::exists(lockFilePath)) {
             QFile f(lockFilePath);
-            f.open(QIODevice::ReadOnly);
-            const auto pluginName = QString::fromUtf8(f.readLine()).trimmed();
-            f.close();
-            return pluginName;
+            if (f.open(QIODevice::ReadOnly)) {
+                const auto pluginName = QString::fromUtf8(f.readLine()).trimmed();
+                f.close();
+                return pluginName;
+            } else {
+                qCDebug(pluginLog) << "Lock file" << lockFilePath << "exists but is not readable";
+            }
         }
         return {};
     }
@@ -1387,11 +1390,15 @@ public:
     LockFile(PluginManagerPrivate *pm, PluginSpec *spec)
         : m_filePath(filePath(pm))
     {
+        QDir().mkpath(QFileInfo(m_filePath).absolutePath());
         QFile f(m_filePath);
-        f.open(QIODevice::WriteOnly);
-        f.write(spec->name().toUtf8());
-        f.write("\n");
-        f.close();
+        if (f.open(QIODevice::WriteOnly)) {
+            f.write(spec->name().toUtf8());
+            f.write("\n");
+            f.close();
+        } else {
+            qCDebug(pluginLog) << "Cannot write lock file" << m_filePath;
+        }
     }
 
     ~LockFile() { QFile::remove(m_filePath); }
