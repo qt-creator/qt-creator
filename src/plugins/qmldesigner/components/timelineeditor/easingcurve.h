@@ -135,6 +135,8 @@ public:
 
     NamedEasingCurve(const NamedEasingCurve &other);
 
+    NamedEasingCurve &operator=(const NamedEasingCurve &other) = default;
+
     virtual ~NamedEasingCurve();
 
     QString name() const;

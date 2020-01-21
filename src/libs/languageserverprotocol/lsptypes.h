@@ -123,7 +123,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT Location : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    using JsonObject::operator=;
+    Location &operator=(const Location &) = default;
 
     DocumentUri uri() const { return DocumentUri::fromProtocol(typedValue<QString>(uriKey)); }
     void setUri(const DocumentUri &uri) { insert(uriKey, uri); }
