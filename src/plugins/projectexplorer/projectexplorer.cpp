@@ -1458,10 +1458,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             = s->value(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.lowBuildPriority
             = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, false).toBool();
-    dd->m_projectExplorerSettings.buildDirectoryTemplate
+    dd->m_buildPropertiesSettings.buildDirectoryTemplate
             = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
-    if (dd->m_projectExplorerSettings.buildDirectoryTemplate.isEmpty())
-        dd->m_projectExplorerSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
+    if (dd->m_buildPropertiesSettings.buildDirectoryTemplate.isEmpty())
+        dd->m_buildPropertiesSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
 
     const auto loadTriStateValue = [&s](const QString &key) {
       return TriState::fromVariant(s->value(key, TriState::Default.toVariant()));
@@ -2074,7 +2074,8 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY, int(dd->m_projectExplorerSettings.stopBeforeBuild));
 
     // Store this in the Core directory scope for backward compatibility!
-    s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY, dd->m_projectExplorerSettings.buildDirectoryTemplate);
+    s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY,
+                dd->m_buildPropertiesSettings.buildDirectoryTemplate);
 
     s->setValue(Constants::SEPARATE_DEBUG_INFO_SETTINGS_KEY,
                 dd->m_buildPropertiesSettings.separateDebugInfo.toVariant());
@@ -3852,7 +3853,7 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
 */
 QString ProjectExplorerPlugin::buildDirectoryTemplate()
 {
-    return dd->m_projectExplorerSettings.buildDirectoryTemplate;
+    return dd->m_buildPropertiesSettings.buildDirectoryTemplate;
 }
 
 QString ProjectExplorerPlugin::defaultBuildDirectoryTemplate()

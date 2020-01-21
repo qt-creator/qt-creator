@@ -68,20 +68,6 @@
       <string>Build and Run</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="addLibraryPathsToRunEnvCheckBox">
-        <property name="text">
-         <string>Add linker library search paths to run environment</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="clearIssuesCheckBox">
-        <property name="text">
-         <string>Clear issues list on new build</string>
-        </property>
-       </widget>
-      </item>
       <item row="7" column="0">
        <widget class="QCheckBox" name="abortBuildAllOnErrorCheckBox">
         <property name="text">
@@ -122,6 +108,24 @@
         </item>
        </layout>
       </item>
+      <item row="3" column="0">
+       <widget class="QWidget" name="widget_1" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+      </item>
       <item row="8" column="0">
        <widget class="QCheckBox" name="lowBuildPriorityCheckBox">
         <property name="toolTip">
@@ -136,6 +140,47 @@
        <widget class="QCheckBox" name="deployProjectBeforeRunCheckBox">
         <property name="text">
          <string>Always deploy project before running it</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="addLibraryPathsToRunEnvCheckBox">
+        <property name="text">
+         <string>Add linker library search paths to run environment</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="saveAllFilesCheckBox">
+        <property name="text">
+         <string>Save all files before build</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="automaticallyCreateRunConfiguration">
+        <property name="toolTip">
+         <string>Creates suitable run configurations automatically when setting up a new kit.</string>
+        </property>
+        <property name="text">
+         <string>Create suitable run configurations automatically</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
+        <property name="toolTip">
+         <string>Asks before terminating the running application in response to clicking the stop button in Application Output.</string>
+        </property>
+        <property name="text">
+         <string>Always ask before stopping applications</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="clearIssuesCheckBox">
+        <property name="text">
+         <string>Clear issues list on new build</string>
         </property>
        </widget>
       </item>
@@ -239,75 +284,6 @@
          </layout>
         </item>
        </layout>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="saveAllFilesCheckBox">
-        <property name="text">
-         <string>Save all files before build</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="automaticallyCreateRunConfiguration">
-        <property name="toolTip">
-         <string>Creates suitable run configurations automatically when setting up a new kit.</string>
-        </property>
-        <property name="text">
-         <string>Create suitable run configurations automatically</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <property name="topMargin">
-         <number>12</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="buildDirectoryLabel">
-          <property name="text">
-           <string>Default build directory:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="buildDirectoryEdit"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="buildDirectoryResetButton">
-          <property name="text">
-           <string>Reset</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="0">
-       <widget class="QWidget" name="widget_1" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
-        <property name="toolTip">
-         <string>Asks before terminating the running application in response to clicking the stop button in Application Output.</string>
-        </property>
-        <property name="text">
-         <string>Always ask before stopping applications</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>

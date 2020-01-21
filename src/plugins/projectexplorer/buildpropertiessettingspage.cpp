@@ -28,8 +28,13 @@
 #include "buildpropertiessettings.h"
 #include "projectexplorer.h"
 
-#include <QFormLayout>
+#include <coreplugin/variablechooser.h>
+
 #include <QComboBox>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -55,6 +60,23 @@ public:
         m_qtQuickCompilerComboBox.setCurrentIndex(m_qtQuickCompilerComboBox
                                                 .findData(settings.qtQuickCompiler.toVariant()));
         const auto layout = new QFormLayout(this);
+        const auto buildDirLayout = new QHBoxLayout;
+        const auto resetButton = new QPushButton(tr("Reset"));
+        connect(resetButton, &QPushButton::clicked, this, [this] {
+            m_buildDirTemplateLineEdit.setText(
+                        ProjectExplorerPlugin::defaultBuildDirectoryTemplate());
+        });
+        connect(&m_buildDirTemplateLineEdit, &QLineEdit::textChanged,
+                this, [this, resetButton] {
+            resetButton->setEnabled(m_buildDirTemplateLineEdit.text()
+                                    != ProjectExplorerPlugin::defaultBuildDirectoryTemplate());
+        });
+        const auto chooser = new Core::VariableChooser(this);
+        chooser->addSupportedWidget(&m_buildDirTemplateLineEdit);
+        m_buildDirTemplateLineEdit.setText(settings.buildDirectoryTemplate);
+        buildDirLayout->addWidget(&m_buildDirTemplateLineEdit);
+        buildDirLayout->addWidget(resetButton);
+        layout->addRow(tr("Default build directory:"), buildDirLayout);
         layout->addRow(tr("Separate debug info:"), &m_separateDebugInfoComboBox);
         if (settings.showQtSettings) {
             layout->addRow(tr("QML debugging:"), &m_qmlDebuggingComboBox);
@@ -68,6 +90,7 @@ public:
     void apply() final
     {
         BuildPropertiesSettings s = ProjectExplorerPlugin::buildPropertiesSettings();
+        s.buildDirectoryTemplate = m_buildDirTemplateLineEdit.text();
         s.separateDebugInfo = TriState::fromVariant(m_separateDebugInfoComboBox.currentData());
         s.qmlDebugging = TriState::fromVariant(m_qmlDebuggingComboBox.currentData());
         s.qtQuickCompiler = TriState::fromVariant(m_qtQuickCompilerComboBox.currentData());
@@ -75,6 +98,7 @@ public:
     }
 
 private:
+    QLineEdit m_buildDirTemplateLineEdit;
     QComboBox m_separateDebugInfoComboBox;
     QComboBox m_qmlDebuggingComboBox;
     QComboBox m_qtQuickCompilerComboBox;

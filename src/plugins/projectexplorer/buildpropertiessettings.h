@@ -32,6 +32,7 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT BuildPropertiesSettings
 {
 public:
+    QString buildDirectoryTemplate;
     TriState separateDebugInfo;
     TriState qmlDebugging;
     TriState qtQuickCompiler;

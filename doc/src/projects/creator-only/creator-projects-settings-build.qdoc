@@ -72,7 +72,7 @@
 
     To make in-source builds the default option for all projects, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol General, and enter a period (.) in the
+    \uicontrol {Default Build Properties}, and enter a period (.) in the
     \uicontrol {Default build directory} field.
 
     You can create separate versions of project files to keep platform-dependent

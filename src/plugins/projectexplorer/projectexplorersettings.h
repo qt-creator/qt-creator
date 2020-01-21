@@ -55,7 +55,6 @@ public:
     bool lowBuildPriority = false;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::None;
     TerminalMode terminalMode = TerminalMode::Smart;
-    QString buildDirectoryTemplate;
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
@@ -79,8 +78,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.closeSourceFilesWithProject == p2.closeSourceFilesWithProject
             && p1.clearIssuesOnRebuild == p2.clearIssuesOnRebuild
             && p1.abortBuildAllOnError == p2.abortBuildAllOnError
-            && p1.lowBuildPriority == p2.lowBuildPriority
-            && p1.buildDirectoryTemplate == p2.buildDirectoryTemplate;
+            && p1.lowBuildPriority == p2.lowBuildPriority;
 }
 
 class AppOutputSettings

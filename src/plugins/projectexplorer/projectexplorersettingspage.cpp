@@ -30,7 +30,6 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/variablechooser.h>
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
@@ -59,12 +58,8 @@ public:
 
 private:
     void slotDirectoryButtonGroupChanged();
-    void resetBuildDirectoryTemplate();
-    void updateBuildDirectoryResetButton();
 
     void setJomVisible(bool);
-    QString buildDirectoryTemplate() const;
-    void setBuildDirectoryTemplate(const QString &bd);
 
     Ui::ProjectExplorerSettingsPageUi m_ui;
     mutable ProjectExplorerSettings m_settings;
@@ -93,13 +88,6 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 
     connect(m_ui.directoryButtonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked),
             this, &ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged);
-    connect(m_ui.buildDirectoryResetButton, &QAbstractButton::clicked,
-            this, &ProjectExplorerSettingsWidget::resetBuildDirectoryTemplate);
-    connect(m_ui.buildDirectoryEdit, &QLineEdit::textChanged,
-            this, &ProjectExplorerSettingsWidget::updateBuildDirectoryResetButton);
-
-    auto chooser = new Core::VariableChooser(this);
-    chooser->addSupportedWidget(m_ui.buildDirectoryEdit);
 }
 
 void ProjectExplorerSettingsWidget::setJomVisible(bool v)
@@ -125,7 +113,6 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.clearIssuesOnRebuild = m_ui.clearIssuesCheckBox->isChecked();
     m_settings.abortBuildAllOnError = m_ui.abortBuildAllOnErrorCheckBox->isChecked();
     m_settings.lowBuildPriority = m_ui.lowBuildPriorityCheckBox->isChecked();
-    m_settings.buildDirectoryTemplate = buildDirectoryTemplate();
     return m_settings;
 }
 
@@ -147,7 +134,6 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.clearIssuesCheckBox->setChecked(m_settings.clearIssuesOnRebuild);
     m_ui.abortBuildAllOnErrorCheckBox->setChecked(m_settings.abortBuildAllOnError);
     m_ui.lowBuildPriorityCheckBox->setChecked(m_settings.lowBuildPriority);
-    setBuildDirectoryTemplate(pes.buildDirectoryTemplate);
 }
 
 QString ProjectExplorerSettingsWidget::projectsDirectory() const
@@ -173,30 +159,10 @@ void ProjectExplorerSettingsWidget::setUseProjectsDirectory(bool b)
     }
 }
 
-QString ProjectExplorerSettingsWidget::buildDirectoryTemplate() const
-{
-    return m_ui.buildDirectoryEdit->text();
-}
-
-void ProjectExplorerSettingsWidget::setBuildDirectoryTemplate(const QString &bd)
-{
-    m_ui.buildDirectoryEdit->setText(bd);
-}
-
 void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
 {
     bool enable = useProjectsDirectory();
     m_ui.projectsDirectoryPathChooser->setEnabled(enable);
-}
-
-void ProjectExplorerSettingsWidget::resetBuildDirectoryTemplate()
-{
-    setBuildDirectoryTemplate(ProjectExplorerPlugin::defaultBuildDirectoryTemplate());
-}
-
-void ProjectExplorerSettingsWidget::updateBuildDirectoryResetButton()
-{
-    m_ui.buildDirectoryResetButton->setEnabled(buildDirectoryTemplate() != ProjectExplorerPlugin::defaultBuildDirectoryTemplate());
 }
 
 // ------------------ ProjectExplorerSettingsPage
