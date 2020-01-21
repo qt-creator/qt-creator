@@ -1502,7 +1502,7 @@ void NodeInstanceView::view3DClosed(const View3DClosedCommand &command)
 {
     Q_UNUSED(command)
 
-    rootModelNode().setAuxiliaryData("3d-view", false);
+    rootModelNode().removeAuxiliaryData("3d-view");
 }
 
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

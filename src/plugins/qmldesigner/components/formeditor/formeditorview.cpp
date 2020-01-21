@@ -86,7 +86,12 @@ void FormEditorView::modelAttached(Model *model)
         setupFormEditorItemTree(rootModelNode());
 
     m_formEditorWidget->updateActions();
-    setupOption3DAction();
+    m_formEditorWidget->option3DAction()->set3DEnabled(rootModelNode().hasAuxiliaryData("3d-view"));
+
+    // disable option3DAction if no View3D(s) exists in attached model
+    const QList<ModelNode> views3D = rootModelNode().subModelNodesOfType("QtQuick3D.View3D");
+    if (views3D.size() == 0)
+        m_formEditorWidget->option3DAction()->setEnabled(false);
 
     if (!rewriterView()->errors().isEmpty())
         formEditorWidget()->showErrorMessageBox(rewriterView()->errors());
@@ -182,28 +187,15 @@ void FormEditorView::temporaryBlockView()
     });
 }
 
-void FormEditorView::setupOption3DAction()
-{
-    QTC_ASSERT(m_formEditorWidget->option3DAction(), return);
-    auto import = Import::createLibraryImport("QtQuick3D", "1.0");
-    auto action = m_formEditorWidget->option3DAction();
-    if (model() && model()->hasImport(import, true, true)) {
-        bool enabled = true;
-        if (rootModelNode().hasAuxiliaryData("3d-view"))
-            enabled = rootModelNode().auxiliaryData("3d-view").toBool();
-        action->set3DEnabled(enabled);
-        action->setEnabled(true);
-    } else {
-        action->set3DEnabled(false);
-        action->setEnabled(false);
-    }
-}
-
 void FormEditorView::nodeCreated(const ModelNode &node)
 {
     //If the node has source for components/custom parsers we ignore it.
-    if (QmlItemNode::isValidQmlItemNode(node) && node.nodeSourceType() == ModelNode::NodeWithoutSource) //only setup QmlItems
+    if (QmlItemNode::isValidQmlItemNode(node) && node.nodeSourceType() == ModelNode::NodeWithoutSource) { //only setup QmlItems
         setupFormEditorItemTree(QmlItemNode(node));
+
+        if (node.isSubclassOf("QtQuick3D.View3D"))
+            m_formEditorWidget->option3DAction()->setEnabled(true);
+    }
 }
 
 void FormEditorView::modelAboutToBeDetached(Model *model)
@@ -235,6 +227,15 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     const QmlItemNode qmlItemNode(removedNode);
 
     removeNodeFromScene(qmlItemNode);
+
+    const QList<ModelNode> views3D = rootModelNode().subModelNodesOfType("QtQuick3D.View3D");
+
+    // if no more View3D(s) exist after the node removal, set option3DAction to 2D and disable it
+    bool hasView3D = views3D.size() > 1 || (views3D.size() == 1 && views3D[0] != removedNode);
+    if (!hasView3D) {
+        rootModelNode().removeAuxiliaryData("3d-view"); // this will cause option3DAction to select 2D option
+        m_formEditorWidget->option3DAction()->setEnabled(false);
+    }
 }
 
 void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
@@ -463,8 +464,7 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
                 newNode.deselectNode();
         }
     } else if (name == "3d-view") {
-        bool is3DEnabled = data.isNull() || data.toBool();
-        formEditorWidget()->option3DAction()->set3DEnabled(is3DEnabled);
+        m_formEditorWidget->option3DAction()->set3DEnabled(data.toBool());
     }
 }
 
@@ -596,9 +596,9 @@ void FormEditorView::toggle3DViewEnabled(bool enabled)
     QTC_ASSERT(model(), return);
     QTC_ASSERT(rootModelNode().isValid(), return);
     if (enabled)
-        rootModelNode().removeAuxiliaryData("3d-view");
+        rootModelNode().setAuxiliaryData("3d-view", true);
     else
-        rootModelNode().setAuxiliaryData("3d-view", false);
+        rootModelNode().removeAuxiliaryData("3d-view");
 
     nodeInstanceView()->enable3DView(enabled);
 }
@@ -665,8 +665,6 @@ void FormEditorView::delayedReset()
     m_scene->clearFormEditorItems();
     if (isAttached() && QmlItemNode::isValidQmlItemNode(rootModelNode()))
         setupFormEditorItemTree(rootModelNode());
-
-    setupOption3DAction();
 }
 
 }

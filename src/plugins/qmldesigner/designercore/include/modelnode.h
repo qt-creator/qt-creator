@@ -108,6 +108,7 @@ public:
 
     const QList<ModelNode> directSubModelNodes() const;
     const QList<ModelNode> directSubModelNodesOfType(const TypeName &typeName) const;
+    const QList<ModelNode> subModelNodesOfType(const TypeName &typeName) const;
 
     const QList<ModelNode> allSubModelNodes() const;
     const QList<ModelNode> allSubModelNodesAndThisNode() const;

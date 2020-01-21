@@ -478,12 +478,8 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick3D", "1.0");
     bool view3DEnabled = false;
 
-    if (m_model->hasImport(import, true, true)) {
-        if (view->rootModelNode().hasAuxiliaryData("3d-view"))
-            view3DEnabled = view->rootModelNode().auxiliaryData("3d-view").toBool();
-        else
-            view3DEnabled = true;
-    }
+    if (m_model->hasImport(import, true, true))
+        view3DEnabled = view->rootModelNode().hasAuxiliaryData("3d-view");
 
     if (view3DEnabled)
         environment.set("QMLDESIGNER_QUICK3D_MODE", "true");

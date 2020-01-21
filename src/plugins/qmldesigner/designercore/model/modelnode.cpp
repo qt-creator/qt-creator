@@ -794,6 +794,12 @@ const QList<ModelNode> ModelNode::directSubModelNodesOfType(const TypeName &type
     });
 }
 
+const QList<ModelNode> ModelNode::subModelNodesOfType(const TypeName &typeName) const
+{
+    return Utils::filtered(allSubModelNodes(), [typeName](const ModelNode &node){
+        return node.metaInfo().isValid() && node.metaInfo().typeName() == typeName;
+    });
+}
 
 /*!
 \brief returns all ModelNodes that are direct or indirect children of this ModelNode
