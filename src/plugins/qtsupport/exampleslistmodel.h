@@ -103,6 +103,8 @@ enum InstructionalType
 class ExampleItem : public Core::ListItem
 {
 public:
+    ~ExampleItem() override {}
+
     QString projectPath;
     QString docUrl;
     QStringList filesToOpen;

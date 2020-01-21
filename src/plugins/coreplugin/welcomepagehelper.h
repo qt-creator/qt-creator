@@ -88,6 +88,7 @@ private:
 class CORE_EXPORT ListItem
 {
 public:
+    virtual ~ListItem() {}
     QString name;
     QString description;
     QString imageUrl;
