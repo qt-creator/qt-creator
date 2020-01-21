@@ -538,6 +538,14 @@ CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
     return m_buildConfiguration;
 }
 
+static Utils::FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &buildKey)
+{
+    const CMakeBuildTarget cmakeBuildTarget
+        = Utils::findOrDefault(bs->buildTargets(), Utils::equal(&CMakeBuildTarget::title, buildKey));
+
+    return cmakeBuildTarget.libraryDirectories;
+}
+
 const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 {
     QList<BuildTargetInfo> appTargetList;
@@ -548,20 +556,21 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             continue;
 
         if (ct.targetType == ExecutableType || (forAndroid && ct.targetType == DynamicLibraryType)) {
+            const QString buildKey = ct.title;
+
             BuildTargetInfo bti;
             bti.displayName = ct.title;
             bti.targetFilePath = ct.executable;
             bti.projectFilePath = ct.sourceDirectory.stringAppended("/");
             bti.workingDirectory = ct.workingDirectory;
-            bti.buildKey = ct.title;
+            bti.buildKey = buildKey;
             bti.usesTerminal = !ct.linksToQtGui;
 
             // Workaround for QTCREATORBUG-19354:
-            bti.runEnvModifier = [this](Environment &env, bool) {
-                if (HostOsInfo::isWindowsHost()) {
-                    const Kit *k = target()->kit();
-                    if (const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k))
-                        env.prependOrSetPath(qt->binPath().toString());
+            bti.runEnvModifier = [this, buildKey](Environment &env, bool enabled) {
+                if (enabled) {
+                    const Utils::FilePaths paths = librarySearchPaths(this, buildKey);
+                    env.prependOrSetLibrarySearchPaths(Utils::transform(paths, &FilePath::toString));
                 }
             };
 

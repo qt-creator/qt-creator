@@ -80,9 +80,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     setUpdater([this] { updateTargetInformation(); });
 
-    if (m_kind == CMake)
-        libAspect->setVisible(false);
-
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
 }
 

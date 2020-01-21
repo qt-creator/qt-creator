@@ -57,6 +57,7 @@ public:
     Utils::FilePath workingDirectory;
     Utils::FilePath sourceDirectory;
     Utils::FilePath makeCommand;
+    Utils::FilePaths libraryDirectories;
 
     Backtrace backtrace;
 

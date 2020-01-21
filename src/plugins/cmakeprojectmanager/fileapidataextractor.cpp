@@ -147,6 +147,7 @@ PreprocessedData preprocess(FileApiData &data,
 
     // Simplify to only one configuration:
     result.codemodel = extractConfiguration(data.codemodel, errorMessage);
+
     if (!errorMessage.isEmpty()) {
         return result;
     }
@@ -208,6 +209,8 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
 
     const QList<CMakeBuildTarget> result = transform<QList>(
         input.targetDetails, [&sourceDir, &buildDir](const TargetDetails &t) -> CMakeBuildTarget {
+            const auto currentBuildDir = QDir(buildDir.absoluteFilePath(t.buildDir.toString()));
+
             CMakeBuildTarget ct;
             ct.title = t.name;
             ct.executable = t.artifacts.isEmpty()
@@ -226,9 +229,9 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
             else
                 type = UtilityType;
             ct.targetType = type;
-            ct.workingDirectory = ct.executable.isEmpty() ? FilePath::fromString(
-                                      buildDir.absoluteFilePath(t.buildDir.toString()))
-                                                          : ct.executable.parentDir();
+            ct.workingDirectory = ct.executable.isEmpty()
+                                      ? FilePath::fromString(currentBuildDir.absolutePath())
+                                      : ct.executable.parentDir();
             ct.sourceDirectory = FilePath::fromString(
                 QDir::cleanPath(sourceDir.absoluteFilePath(t.sourceDir.toString())));
 
@@ -258,15 +261,38 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
             }
 
             // Is this a terminal application?
+            Utils::FilePaths librarySeachPaths;
             if (ct.targetType == ExecutableType && t.link && t.link.value().language == "CXX") {
                 for (const FragmentInfo &f : t.link.value().fragments) {
-                    if (f.role != "libraries")
-                        continue;
-                    if (f.fragment.contains("QtGui") || f.fragment.contains("Qt5Gui")
-                        || f.fragment.contains("Qt6Gui"))
-                        ct.linksToQtGui = true;
+                    FilePath tmp;
+                    // Some projects abuse linking to libraries to pass random flags to the linker!
+                    if (f.role != "flags"
+                        && !(f.fragment.startsWith("-") || f.fragment.contains(" -"))) {
+                        tmp = FilePath::fromString(currentBuildDir.absoluteFilePath(
+                            QDir::fromNativeSeparators(f.fragment)));
+                    }
+
+                    if (f.role == "libraries") {
+                        tmp = tmp.parentDir();
+
+                        if (f.fragment.contains("QtGui") || f.fragment.contains("Qt5Gui")
+                            || f.fragment.contains("Qt6Gui"))
+                            ct.linksToQtGui = true;
+                    }
+
+                    if (!tmp.isEmpty()) {
+                        librarySeachPaths.append(tmp);
+                        // Libraries often have their import libs in ../lib and the
+                        // actual dll files in ../bin on windows. Qt is one example of that.
+                        if (tmp.fileName() == "lib" && HostOsInfo::isWindowsHost()) {
+                            const FilePath path = tmp.parentDir().pathAppended("bin");
+
+                            librarySeachPaths.append(path);
+                        }
+                    }
                 }
             }
+            ct.libraryDirectories = filteredUnique(librarySeachPaths);
 
             return ct;
         });
