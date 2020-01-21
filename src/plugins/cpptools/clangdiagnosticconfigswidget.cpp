@@ -61,7 +61,7 @@ public:
         : Utils::StaticTreeItem(text)
     {}
 
-    Qt::ItemFlags flags(int) const { return 0; }
+    Qt::ItemFlags flags(int) const { return {}; }
     QVariant data(int column, int role) const
     {
         if (role == Qt::ForegroundRole) {

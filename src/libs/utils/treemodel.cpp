@@ -1037,7 +1037,7 @@ bool BaseTreeModel::hasChildren(const QModelIndex &idx) const
 Qt::ItemFlags BaseTreeModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
-        return nullptr;
+        return {};
     TreeItem *item = itemForIndex(idx);
     return item ? item->flags(idx.column())
                 : (Qt::ItemIsEnabled|Qt::ItemIsSelectable);

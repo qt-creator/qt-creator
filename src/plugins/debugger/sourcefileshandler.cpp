@@ -78,7 +78,7 @@ QVariant SourceFilesHandler::headerData(int section,
 Qt::ItemFlags SourceFilesHandler::flags(const QModelIndex &index) const
 {
     if (index.row() >= m_fullNames.size())
-        return nullptr;
+        return {};
     QFileInfo fi(m_fullNames.at(index.row()));
     return fi.isReadable() ? QAbstractItemModel::flags(index) : Qt::ItemFlags({});
 }

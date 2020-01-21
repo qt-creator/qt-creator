@@ -99,13 +99,13 @@ public:
         auto title = QCoreApplication::translate("ClangPchProgressManager",
                                                  "Creating PCHs",
                                                  "PCH stands for precompiled header");
-        Core::ProgressManager::addTask(promise.future(), title, "pch creation", nullptr);
+        Core::ProgressManager::addTask(promise.future(), title, "pch creation", {});
     }};
     ClangPchManager::ProgressManager dependencyCreationProgressManager{
         [](QFutureInterface<void> &promise) {
             auto title = QCoreApplication::translate("ClangPchProgressManager",
                                                      "Creating Dependencies");
-            Core::ProgressManager::addTask(promise.future(), title, "dependency creation", nullptr);
+            Core::ProgressManager::addTask(promise.future(), title, "dependency creation", {});
         }};
     ClangBackEnd::ProjectPartsStorage<Sqlite::Database> projectPartsStorage{database};
     PchManagerClient pchManagerClient{pchCreationProgressManager, dependencyCreationProgressManager};

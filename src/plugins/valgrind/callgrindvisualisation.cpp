@@ -97,7 +97,7 @@ FunctionGraphicsTextItem::FunctionGraphicsTextItem(const QString &text,
     , m_previousViewportDimension(0)
 {
     setFlag(QGraphicsItem::ItemIgnoresTransformations);
-    setAcceptedMouseButtons(nullptr); // do not steal focus from parent item
+    setAcceptedMouseButtons({}); // do not steal focus from parent item
     setToolTip(text);
 }
 

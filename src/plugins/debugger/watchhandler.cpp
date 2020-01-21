@@ -1178,7 +1178,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
-        return nullptr;
+        return {};
 
     const WatchItem *item = nonRootItemForIndex(idx);
     if (!item)

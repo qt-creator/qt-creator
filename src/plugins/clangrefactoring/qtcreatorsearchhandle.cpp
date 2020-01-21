@@ -35,7 +35,7 @@ QtCreatorSearchHandle::QtCreatorSearchHandle(Core::SearchResult *searchResult)
     : searchResult(searchResult)
 {
     auto title = QCoreApplication::translate("QtCreatorSearchHandle", "Clang Query");
-    Core::ProgressManager::addTask(promise.future(), title, "clang query", nullptr);
+    Core::ProgressManager::addTask(promise.future(), title, "clang query", {});
 }
 
 void QtCreatorSearchHandle::addResult(const QString &fileName,

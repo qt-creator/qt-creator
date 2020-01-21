@@ -234,7 +234,7 @@ TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()
 static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview,
                                                    const CppCodeStyleSettings &settings)
 {
-    overview.starBindFlags = CPlusPlus::Overview::StarBindFlags(nullptr);
+    overview.starBindFlags = {};
     if (settings.bindStarToIdentifier)
         overview.starBindFlags |= CPlusPlus::Overview::BindToIdentifier;
     if (settings.bindStarToTypeName)
