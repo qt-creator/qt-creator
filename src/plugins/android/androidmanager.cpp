@@ -269,13 +269,13 @@ QStringList AndroidManager::applicationAbis(const Target *target)
 QString AndroidManager::archTriplet(const QString &abi)
 {
     if (abi == "x86") {
-        return "i686-linux-android";
+        return {"i686-linux-android"};
     } else if (abi == "x86_64") {
-        return "x86_64-linux-android";
+        return {"x86_64-linux-android"};
     } else if (abi == "arm64-v8a") {
-        return "aarch64-linux-android";
+        return {"aarch64-linux-android"};
     }
-    return "arm-linux-androideabi";
+    return {"arm-linux-androideabi"};
 }
 
 QJsonObject AndroidManager::deploymentSettings(const Target *target)
