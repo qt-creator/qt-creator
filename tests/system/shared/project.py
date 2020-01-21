@@ -215,7 +215,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl = "<None>"):
     template = "Qt Widgets Application"
-    available = __createProjectOrFileSelectType__("  Application", template)
+    available = __createProjectOrFileSelectType__("  Application (Qt)", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
     __handleBuildSystem__(None)
 
@@ -256,7 +256,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
 def createProject_Qt_Console(path, projectName, checks = True, buildSystem = None):
-    available = __createProjectOrFileSelectType__("  Application", "Qt Console Application")
+    available = __createProjectOrFileSelectType__("  Application (Qt)", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __handleBuildSystem__(buildSystem)
     __createProjectHandleTranslationSelection__()
@@ -281,7 +281,7 @@ def createNewQtQuickApplication(workingDir, projectName=None,
                                 targets=Targets.desktopTargetClasses(), minimumQtVersion="5.6",
                                 template="Qt Quick Application - Empty", fromWelcome=False,
                                 buildSystem=None):
-    available = __createProjectOrFileSelectType__("  Application", template, fromWelcome)
+    available = __createProjectOrFileSelectType__("  Application (Qt Quick)", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     __handleBuildSystem__(buildSystem)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
