@@ -37,6 +37,7 @@ QT_BEGIN_NAMESPACE
 class QQuick3DCamera;
 class QQuick3DNode;
 class QQuick3DViewport;
+class QQuickWindow;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -71,12 +72,17 @@ public:
     Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
     Q_INVOKABLE void storeToolState(const QString &tool, const QVariant &state, int delayEmit = 0);
     Q_INVOKABLE void initToolStates(const QVariantMap &toolStates);
+    Q_INVOKABLE void storeWindowState(QQuickWindow *w);
+    Q_INVOKABLE void restoreWindowState(QQuickWindow *w, const QVariantMap &toolStates);
 
     bool isMacOS() const;
 
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &tool, const QVariant &toolState);
+
+private slots:
+    void doRestoreWindowState(QQuickWindow *w, const QVariantMap &windowState);
 
 private:
     void handlePendingToolStateUpdate();

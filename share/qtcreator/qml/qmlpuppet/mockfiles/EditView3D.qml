@@ -34,6 +34,8 @@ Window {
     id: viewWindow
     width: 1024
     height: 768
+    minimumHeight: 200
+    minimumWidth: 200
     visible: true
     title: "3D Edit View"
     // need all those flags otherwise the title bar disappears after setting WindowStaysOnTopHint flag later
@@ -64,6 +66,8 @@ Window {
     function updateToolStates(toolStates) {
         // Init the stored state so we don't unnecessarily reflect changes back to creator
         _generalHelper.initToolStates(toolStates);
+
+        _generalHelper.restoreWindowState(viewWindow, toolStates);
 
         if ("showEditLight" in toolStates)
             showEditLight = toolStates.showEditLight;
@@ -211,8 +215,18 @@ Window {
         _generalHelper.requestOverlayUpdate();
     }
 
-    onWidthChanged: _generalHelper.requestOverlayUpdate();
-    onHeightChanged: _generalHelper.requestOverlayUpdate();
+    onWidthChanged: {
+        _generalHelper.requestOverlayUpdate();
+        _generalHelper.storeWindowState(viewWindow);
+    }
+    onHeightChanged: {
+        _generalHelper.requestOverlayUpdate();
+        _generalHelper.storeWindowState(viewWindow);
+
+    }
+    onXChanged: _generalHelper.storeWindowState(viewWindow);
+    onYChanged: _generalHelper.storeWindowState(viewWindow);
+    onWindowStateChanged: _generalHelper.storeWindowState(viewWindow);
 
     Node {
         id: overlayScene

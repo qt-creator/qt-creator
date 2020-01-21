@@ -42,6 +42,7 @@
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/qmath.h>
+#include <QtGui/qscreen.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -250,6 +251,70 @@ void GeneralHelper::storeToolState(const QString &tool, const QVariant &state, i
 void GeneralHelper::initToolStates(const QVariantMap &toolStates)
 {
     m_toolStates = toolStates;
+}
+
+void GeneralHelper::storeWindowState(QQuickWindow *w)
+{
+    QVariantMap windowState;
+    const QRect geometry = w->geometry();
+    const bool maximized = w->windowState() == Qt::WindowMaximized;
+    windowState.insert("maximized", maximized);
+    windowState.insert("geometry", geometry);
+
+    storeToolState("windowState", windowState, 500);
+}
+
+void GeneralHelper::restoreWindowState(QQuickWindow *w, const QVariantMap &toolStates)
+{
+    const QString stateKey = QStringLiteral("windowState");
+    if (toolStates.contains(stateKey)) {
+        QVariantMap windowState = toolStates[stateKey].value<QVariantMap>();
+
+        doRestoreWindowState(w, windowState);
+
+        // If the mouse cursor at puppet launch time is in a different screen than the one where the
+        // view geometry was saved on, the initial position and size can be incorrect, but if
+        // we reset the geometry again asynchronously, it should end up with correct geometry.
+        QTimer::singleShot(0, [this, w, windowState]() {
+            doRestoreWindowState(w, windowState);
+
+            QTimer::singleShot(0, [w]() {
+                // Make sure that the window is at least partially visible on the screen
+                QRect geo = w->geometry();
+                QRect sRect = w->screen()->geometry();
+                if (geo.left() > sRect.right() - 150)
+                    geo.moveRight(sRect.right());
+                if (geo.right() < sRect.left() + 150)
+                    geo.moveLeft(sRect.left());
+                if (geo.top() > sRect.bottom() - 150)
+                    geo.moveBottom(sRect.bottom());
+                if (geo.bottom() < sRect.top() + 150)
+                    geo.moveTop(sRect.top());
+                if (geo.width() > sRect.width())
+                    geo.setWidth(sRect.width());
+                if (geo.height() > sRect.height())
+                    geo.setHeight(sRect.height());
+                w->setGeometry(geo);
+            });
+        });
+    }
+}
+
+void GeneralHelper::doRestoreWindowState(QQuickWindow *w, const QVariantMap &windowState)
+{
+    const QString geoKey = QStringLiteral("geometry");
+    if (windowState.contains(geoKey)) {
+        bool maximized = false;
+        const QString maxKey = QStringLiteral("maximized");
+        if (windowState.contains(maxKey))
+            maximized = windowState[maxKey].toBool();
+
+        QRect rect = windowState[geoKey].value<QRect>();
+
+        w->setGeometry(rect);
+        if (maximized)
+            w->showMaximized();
+    }
 }
 
 bool GeneralHelper::isMacOS() const
