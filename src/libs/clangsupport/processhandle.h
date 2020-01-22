@@ -38,6 +38,7 @@ public:
   {
       process->kill();
       process->waitForFinished();
+      process->deleteLater();
   }
 };
 
