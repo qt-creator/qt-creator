@@ -72,6 +72,15 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
                     "PRECOMPILED_HEADER",
                     "PRE_TARGETDEPS",
                     "PWD",
+
+                    // IVI-specific variables
+                    "QFACE_ANNOTATIONS",
+                    "QFACE_FORMAT",
+                    "QFACE_IMPORT_PATH",
+                    "QFACE_MODULE_NAME",
+                    "QFACE_OUTPUT_DIR",
+                    "QFACE_SOURCES",
+
                     "QMAKE",
                     "QMAKESPEC",
                     "QMAKE_APP_FLAG",
