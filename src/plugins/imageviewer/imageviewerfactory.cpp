@@ -29,15 +29,12 @@
 #include "imageviewer.h"
 
 #include <QCoreApplication>
-#include <QMap>
 #include <QImageReader>
-#include <QDebug>
 
 namespace ImageViewer {
 namespace Internal {
 
-ImageViewerFactory::ImageViewerFactory(QObject *parent) :
-    Core::IEditorFactory(parent)
+ImageViewerFactory::ImageViewerFactory()
 {
     setId(Constants::IMAGEVIEWER_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME));

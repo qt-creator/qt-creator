@@ -28,14 +28,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QKeySequence>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
-namespace Core { class Id; }
-
 namespace ImageViewer {
 namespace Internal {
 
@@ -46,13 +38,13 @@ class ImageViewerPlugin : public ExtensionSystem::IPlugin
 
 public:
     ImageViewerPlugin() = default;
+    ~ImageViewerPlugin();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final;
+    void extensionsInitialized() final {}
 
-    QAction *registerNewAction(Core::Id id, const QString &title = QString(),
-                               const QKeySequence &key = QKeySequence());
+    class ImageViewerPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

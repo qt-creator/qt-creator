@@ -37,7 +37,7 @@ class ImageViewerFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 public:
-    explicit ImageViewerFactory(QObject *parent = nullptr);
+    ImageViewerFactory();
 
     Core::IEditor *createEditor() override;
 };
