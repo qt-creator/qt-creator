@@ -199,12 +199,14 @@ const char BUILDPROJECTONLY[]     = "ProjectExplorer.BuildProjectOnly";
 const char BUILDCM[]              = "ProjectExplorer.BuildCM";
 const char BUILDDEPENDCM[]        = "ProjectExplorer.BuildDependenciesCM";
 const char BUILDSESSION[]         = "ProjectExplorer.BuildSession";
+const char BUILDSESSIONALLCONFIGS[] = "ProjectExplorer.BuildSessionForAllConfigs";
 const char REBUILDPROJECTONLY[]   = "ProjectExplorer.RebuildProjectOnly";
 const char REBUILD[]              = "ProjectExplorer.Rebuild";
 const char REBUILDALLCONFIGS[]    = "ProjectExplorer.RebuildProjectForAllConfigs";
 const char REBUILDCM[]            = "ProjectExplorer.RebuildCM";
 const char REBUILDDEPENDCM[]      = "ProjectExplorer.RebuildDependenciesCM";
 const char REBUILDSESSION[]       = "ProjectExplorer.RebuildSession";
+const char REBUILDSESSIONALLCONFIGS[] = "ProjectExplorer.RebuildSessionForAllConfigs";
 const char DEPLOYPROJECTONLY[]    = "ProjectExplorer.DeployProjectOnly";
 const char DEPLOY[]               = "ProjectExplorer.Deploy";
 const char DEPLOYCM[]             = "ProjectExplorer.DeployCM";
@@ -215,6 +217,7 @@ const char CLEANALLCONFIGS[]      = "ProjectExplorer.CleanProjectForAllConfigs";
 const char CLEANCM[]              = "ProjectExplorer.CleanCM";
 const char CLEANDEPENDCM[]        = "ProjectExplorer.CleanDependenciesCM";
 const char CLEANSESSION[]         = "ProjectExplorer.CleanSession";
+const char CLEANSESSIONALLCONFIGS[] = "ProjectExplorer.CleanSessionForAllConfigs";
 const char CANCELBUILD[]          = "ProjectExplorer.CancelBuild";
 const char RUN[]                  = "ProjectExplorer.Run";
 const char RUNWITHOUTDEPLOY[]     = "ProjectExplorer.RunWithoutDeploy";
@@ -482,12 +485,14 @@ public:
     QAction *m_buildActionContextMenu;
     QAction *m_buildDependenciesActionContextMenu;
     QAction *m_buildSessionAction;
+    QAction *m_buildSessionForAllConfigsAction;
     QAction *m_rebuildProjectOnlyAction;
     Utils::ParameterAction *m_rebuildAction;
     Utils::ParameterAction *m_rebuildProjectForAllConfigsAction;
     QAction *m_rebuildActionContextMenu;
     QAction *m_rebuildDependenciesActionContextMenu;
     QAction *m_rebuildSessionAction;
+    QAction *m_rebuildSessionForAllConfigsAction;
     QAction *m_cleanProjectOnlyAction;
     QAction *m_deployProjectOnlyAction;
     Utils::ParameterAction *m_deployAction;
@@ -498,6 +503,7 @@ public:
     QAction *m_cleanActionContextMenu;
     QAction *m_cleanDependenciesActionContextMenu;
     QAction *m_cleanSessionAction;
+    QAction *m_cleanSessionForAllConfigsAction;
     QAction *m_runAction;
     QAction *m_runActionContextMenu;
     QAction *m_runWithoutDeployAction;
@@ -1078,27 +1084,51 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // build session action
     const QIcon sideBarIcon = Utils::Icon::sideBarIcon(Icons::BUILD, Icons::BUILD_FLAT);
     const QIcon buildIcon = Utils::Icon::combinedIcon({Icons::BUILD_SMALL.icon(), sideBarIcon});
-    dd->m_buildSessionAction = new QAction(buildIcon, tr("Build All"), this);
+    dd->m_buildSessionAction = new QAction(buildIcon, tr("Build All Projects"), this);
     cmd = ActionManager::registerAction(dd->m_buildSessionAction, Constants::BUILDSESSION);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
+    dd->m_buildSessionForAllConfigsAction
+            = new QAction(buildIcon, tr("Build All Projects For All Configurations"), this);
+    cmd = ActionManager::registerAction(dd->m_buildSessionForAllConfigsAction,
+                                        Constants::BUILDSESSIONALLCONFIGS);
+    mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
+    msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
+
     // deploy session
-    dd->m_deploySessionAction = new QAction(tr("Deploy All"), this);
+    dd->m_deploySessionAction = new QAction(tr("Deploy All Projects"), this);
     cmd = ActionManager::registerAction(dd->m_deploySessionAction, Constants::DEPLOYSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_DEPLOY);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // rebuild session action
-    dd->m_rebuildSessionAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild All"), this);
+    dd->m_rebuildSessionAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild All Projects"),
+                                             this);
     cmd = ActionManager::registerAction(dd->m_rebuildSessionAction, Constants::REBUILDSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
+    dd->m_rebuildSessionForAllConfigsAction
+            = new QAction(Icons::REBUILD.icon(), tr("Rebuild All Projects For All Configurations"),
+                          this);
+    cmd = ActionManager::registerAction(dd->m_rebuildSessionForAllConfigsAction,
+                                        Constants::REBUILDSESSIONALLCONFIGS);
+    mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
+    msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
+
     // clean session
-    dd->m_cleanSessionAction = new QAction(Utils::Icons::CLEAN.icon(), tr("Clean All"), this);
+    dd->m_cleanSessionAction = new QAction(Utils::Icons::CLEAN.icon(), tr("Clean All Projects"),
+                                           this);
     cmd = ActionManager::registerAction(dd->m_cleanSessionAction, Constants::CLEANSESSION);
+    mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
+    msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
+
+    dd->m_cleanSessionForAllConfigsAction = new QAction(Utils::Icons::CLEAN.icon(),
+            tr("Clean All Projects For All Configurations"), this);
+    cmd = ActionManager::registerAction(dd->m_cleanSessionForAllConfigsAction,
+                                        Constants::CLEANSESSIONALLCONFIGS);
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
@@ -1550,7 +1580,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         BuildManager::buildProjectWithDependencies(ProjectTree::currentProject());
     });
     connect(dd->m_buildSessionAction, &QAction::triggered, dd, [] {
-        BuildManager::buildProjects(SessionManager::projectOrder());
+        BuildManager::buildProjects(SessionManager::projectOrder(), ConfigSelection::Active);
+    });
+    connect(dd->m_buildSessionForAllConfigsAction, &QAction::triggered, dd, [] {
+        BuildManager::buildProjects(SessionManager::projectOrder(), ConfigSelection::All);
     });
     connect(dd->m_rebuildProjectOnlyAction, &QAction::triggered, dd, [] {
         BuildManager::rebuildProjectWithoutDependencies(SessionManager::startupProject());
@@ -1571,7 +1604,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                      ConfigSelection::Active);
     });
     connect(dd->m_rebuildSessionAction, &QAction::triggered, dd, [] {
-        BuildManager::rebuildProjects(SessionManager::projectOrder());
+        BuildManager::rebuildProjects(SessionManager::projectOrder(), ConfigSelection::Active);
+    });
+    connect(dd->m_rebuildSessionForAllConfigsAction, &QAction::triggered, dd, [] {
+        BuildManager::rebuildProjects(SessionManager::projectOrder(), ConfigSelection::All);
     });
     connect(dd->m_deployProjectOnlyAction, &QAction::triggered, dd, [] {
         BuildManager::deployProjects({SessionManager::startupProject()});
@@ -1604,7 +1640,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                    ConfigSelection::Active);
     });
     connect(dd->m_cleanSessionAction, &QAction::triggered, dd, [] {
-        BuildManager::cleanProjects(SessionManager::projectOrder());
+        BuildManager::cleanProjects(SessionManager::projectOrder(), ConfigSelection::Active);
+    });
+    connect(dd->m_cleanSessionForAllConfigsAction, &QAction::triggered, dd, [] {
+        BuildManager::cleanProjects(SessionManager::projectOrder(), ConfigSelection::All);
     });
     connect(dd->m_runAction, &QAction::triggered,
             dd, []() { m_instance->runStartupProject(Constants::NORMAL_RUN_MODE); });
@@ -2601,12 +2640,18 @@ void ProjectExplorerPluginPrivate::updateActions()
     aci->menu()->menuAction()->setVisible(SessionManager::projects().size() > 1);
 
     m_buildSessionAction->setEnabled(buildSessionState.first);
+    m_buildSessionForAllConfigsAction->setEnabled(buildSessionState.first);
     m_rebuildSessionAction->setEnabled(buildSessionState.first);
+    m_rebuildSessionForAllConfigsAction->setEnabled(buildSessionState.first);
     m_cleanSessionAction->setEnabled(buildSessionState.first);
+    m_cleanSessionForAllConfigsAction->setEnabled(buildSessionState.first);
 
     m_buildSessionAction->setToolTip(buildSessionState.second);
+    m_buildSessionForAllConfigsAction->setToolTip(buildSessionState.second);
     m_rebuildSessionAction->setToolTip(buildSessionState.second);
+    m_rebuildSessionForAllConfigsAction->setToolTip(buildSessionState.second);
     m_cleanSessionAction->setToolTip(buildSessionState.second);
+    m_cleanSessionForAllConfigsAction->setToolTip(buildSessionState.second);
 
     m_cancelBuildAction->setEnabled(BuildManager::isBuilding());
 

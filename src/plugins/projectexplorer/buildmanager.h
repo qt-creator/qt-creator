@@ -62,9 +62,9 @@ public:
             );
     static void cleanProjectWithDependencies(Project *project, ConfigSelection configSelection);
     static void rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection);
-    static void buildProjects(const QList<Project *> &projects);
-    static void cleanProjects(const QList<Project *> &projects);
-    static void rebuildProjects(const QList<Project *> &projects);
+    static void buildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
+    static void cleanProjects(const QList<Project *> &projects, ConfigSelection configSelection);
+    static void rebuildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
 
     static void deployProjects(const QList<Project *> &projects);
 

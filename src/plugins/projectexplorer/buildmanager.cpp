@@ -324,20 +324,21 @@ void BuildManager::rebuildProjectWithDependencies(Project *project, ConfigSelect
           configSelection);
 }
 
-void BuildManager::buildProjects(const QList<Project *> &projects)
+void BuildManager::buildProjects(const QList<Project *> &projects, ConfigSelection configSelection)
 {
-    queue(projects, {Id(Constants::BUILDSTEPS_BUILD)}, ConfigSelection::Active);
+    queue(projects, {Id(Constants::BUILDSTEPS_BUILD)}, configSelection);
 }
 
-void BuildManager::cleanProjects(const QList<Project *> &projects)
+void BuildManager::cleanProjects(const QList<Project *> &projects, ConfigSelection configSelection)
 {
-    queue(projects, {Id(Constants::BUILDSTEPS_CLEAN)}, ConfigSelection::Active);
+    queue(projects, {Id(Constants::BUILDSTEPS_CLEAN)}, configSelection);
 }
 
-void BuildManager::rebuildProjects(const QList<Project *> &projects)
+void BuildManager::rebuildProjects(const QList<Project *> &projects,
+                                   ConfigSelection configSelection)
 {
     queue(projects, {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)},
-          ConfigSelection::Active);
+          configSelection);
 }
 
 void BuildManager::deployProjects(const QList<Project *> &projects)
