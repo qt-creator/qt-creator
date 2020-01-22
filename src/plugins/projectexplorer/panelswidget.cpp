@@ -34,24 +34,17 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
-namespace {
-const int ICON_SIZE(64);
-
-const int ABOVE_HEADING_MARGIN(10);
-const int ABOVE_CONTENTS_MARGIN(4);
-const int BELOW_CONTENTS_MARGIN(16);
-const int PANEL_LEFT_MARGIN = 70;
-
-} // anonymous namespace
-///
-// OnePixelBlackLine
-///
-/// \brief The OnePixelBlackLine class
-
-using namespace ProjectExplorer;
 using namespace Utils;
 
+namespace ProjectExplorer {
 namespace {
+
+const int ICON_SIZE(64);
+
+const int ABOVE_HEADING_MARGIN = 10;
+const int ABOVE_CONTENTS_MARGIN = 4;
+const int BELOW_CONTENTS_MARGIN = 16;
+const int PANEL_LEFT_MARGIN = 70;
 
 class RootWidget : public QWidget
 {
@@ -182,3 +175,5 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName, const QIcon &i
     widget->setParent(m_root);
     m_layout->addWidget(widget, widgetRow, 0, 1, 2);
 }
+
+} // ProjectExplorer
