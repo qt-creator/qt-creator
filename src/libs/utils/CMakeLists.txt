@@ -103,7 +103,6 @@ add_qtc_library(Utils
     namevaluevalidator.cpp namevaluevalidator.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h
-    newclasswidget.cpp newclasswidget.h newclasswidget.ui
     optional.h
     osspecificaspects.h
     outputformat.h

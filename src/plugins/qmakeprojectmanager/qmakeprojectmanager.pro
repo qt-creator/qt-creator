@@ -19,7 +19,6 @@ HEADERS += \
     profilehighlighter.h \
     profilehoverhandler.h \
     wizards/qtprojectparameters.h \
-    wizards/filespage.h \
     wizards/qtwizard.h \
     wizards/subdirsprojectwizard.h \
     wizards/subdirsprojectwizarddialog.h \
@@ -50,7 +49,6 @@ SOURCES += \
     profilehighlighter.cpp \
     profilehoverhandler.cpp \
     wizards/qtprojectparameters.cpp \
-    wizards/filespage.cpp \
     wizards/qtwizard.cpp \
     wizards/subdirsprojectwizard.cpp \
     wizards/subdirsprojectwizarddialog.cpp \

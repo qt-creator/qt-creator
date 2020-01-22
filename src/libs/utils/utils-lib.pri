@@ -55,7 +55,6 @@ SOURCES += \
     $$PWD/projectintropage.cpp \
     $$PWD/filenamevalidatinglineedit.cpp \
     $$PWD/codegeneration.cpp \
-    $$PWD/newclasswidget.cpp \
     $$PWD/classnamevalidatinglineedit.cpp \
     $$PWD/fancylineedit.cpp \
     $$PWD/qtcolorbutton.cpp \
@@ -174,7 +173,6 @@ HEADERS += \
     $$PWD/projectintropage.h \
     $$PWD/filenamevalidatinglineedit.h \
     $$PWD/codegeneration.h \
-    $$PWD/newclasswidget.h \
     $$PWD/classnamevalidatinglineedit.h \
     $$PWD/fancylineedit.h \
     $$PWD/qtcolorbutton.h \
@@ -284,7 +282,6 @@ HEADERS += \
     $$PWD/infolabel.h
 
 FORMS += $$PWD/filewizardpage.ui \
-    $$PWD/newclasswidget.ui \
     $$PWD/projectintropage.ui \
     $$PWD/proxycredentialsdialog.ui \
     $$PWD/removefiledialog.ui
