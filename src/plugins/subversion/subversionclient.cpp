@@ -278,7 +278,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
                 DiffEditorController::controller(document));
     if (!controller)
         controller = new SubversionDiffEditorController(document, workingDirectory);
-    VcsBasePlugin::setSource(document, source);
+    VcsBase::setSource(document, source);
     EditorManager::activateEditorForDocument(document);
     return controller;
 }

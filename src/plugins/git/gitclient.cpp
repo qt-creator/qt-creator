@@ -534,7 +534,7 @@ void ShowController::reload()
     m_state = GettingDescription;
     const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
     runCommand(QList<QStringList>() << args, GitPlugin::client()->encoding(workingDirectory(), "i18n.commitEncoding"));
-    setStartupFile(VcsBasePlugin::source(document()));
+    setStartupFile(VcsBase::source(document()));
 }
 
 void ShowController::processCommandOutput(const QString &output)
@@ -955,7 +955,7 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     connect(controller, &DiffEditorController::chunkActionsRequested,
             this, &GitClient::chunkActionsRequested, Qt::DirectConnection);
 
-    VcsBasePlugin::setSource(document, sourceCopy);
+    VcsBase::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
     controller->requestReload();
 }

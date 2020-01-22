@@ -1025,7 +1025,7 @@ IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &
     }
     IDocument *document = submitEditor->document();
     document->setPreferredDisplayName(title);
-    VcsBasePlugin::setSource(document, m_submitRepository);
+    VcsBase::setSource(document, m_submitRepository);
     return editor;
 }
 

@@ -263,7 +263,7 @@ void StateListener::slotStateChanged()
     if (currentDocument) {
         state.currentFile = currentDocument->filePath().toString();
         if (state.currentFile.isEmpty() || currentDocument->isTemporary())
-            state.currentFile = VcsBasePlugin::source(currentDocument);
+            state.currentFile = VcsBase::source(currentDocument);
     }
 
     // Get the file and its control. Do not use the file unless we find one
@@ -728,8 +728,7 @@ bool VcsBasePlugin::raiseSubmitEditor() const
 // AutoFS is used (due its automatically creating mountpoints when querying
 // a directory). In addition, bail out when reaching the home directory
 // of the user or root (generally avoid '/', where mountpoints are created).
-QString VcsBasePlugin::findRepositoryForDirectory(const QString &dirS,
-                                                  const QString &checkFile)
+QString findRepositoryForDirectory(const QString &dirS, const QString &checkFile)
 {
     qCDebug(findRepoLog) << ">" << dirS << checkFile;
     QTC_ASSERT(!dirS.isEmpty() && !checkFile.isEmpty(), return QString());
@@ -753,32 +752,32 @@ QString VcsBasePlugin::findRepositoryForDirectory(const QString &dirS,
 }
 
 // Is SSH prompt configured?
-QString VcsBasePlugin::sshPrompt()
+QString sshPrompt()
 {
     return Internal::VcsPlugin::instance()->settings().sshPasswordPrompt;
 }
 
-bool VcsBasePlugin::isSshPromptConfigured()
+bool isSshPromptConfigured()
 {
     return !sshPrompt().isEmpty();
 }
 
 static const char SOURCE_PROPERTY[] = "qtcreator_source";
 
-void VcsBasePlugin::setSource(IDocument *document, const QString &source)
+void setSource(IDocument *document, const QString &source)
 {
     document->setProperty(SOURCE_PROPERTY, source);
     VcsBasePluginPrivate::m_listener->slotStateChanged();
 }
 
-QString VcsBasePlugin::source(IDocument *document)
+QString source(IDocument *document)
 {
     return document->property(SOURCE_PROPERTY).toString();
 }
 
-void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
-                                          bool forceCLocale,
-                                          const QString &sshPromptBinary)
+void setProcessEnvironment(QProcessEnvironment *e,
+                           bool forceCLocale,
+                           const QString &sshPromptBinary)
 {
     if (forceCLocale) {
         e->insert("LANG", "C");
@@ -790,12 +789,12 @@ void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
 
 // Run a process synchronously, returning Utils::SynchronousProcessResponse
 // response struct and using the VcsBasePlugin flags as applicable
-SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
-                                                 const CommandLine &cmd,
-                                                 int timeOutS,
-                                                 unsigned flags,
-                                                 QTextCodec *outputCodec,
-                                                 const QProcessEnvironment &env)
+SynchronousProcessResponse runVcs(const QString &workingDir,
+                                  const CommandLine &cmd,
+                                  int timeOutS,
+                                  unsigned flags,
+                                  QTextCodec *outputCodec,
+                                  const QProcessEnvironment &env)
 {
     VcsCommand command(workingDir, env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
     command.addFlags(flags);

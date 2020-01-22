@@ -73,7 +73,7 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
 const QProcessEnvironment VcsCommand::processEnvironment() const
 {
     QProcessEnvironment env = Core::ShellCommand::processEnvironment();
-    VcsBasePlugin::setProcessEnvironment(&env, flags() & ForceCLocale, VcsBasePlugin::sshPrompt());
+    VcsBase::setProcessEnvironment(&env, flags() & ForceCLocale, VcsBase::sshPrompt());
     return env;
 }
 
@@ -99,7 +99,7 @@ void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)
 unsigned VcsCommand::processFlags() const
 {
     unsigned processFlags = 0;
-    if (!VcsBasePlugin::sshPrompt().isEmpty() && (flags() & SshPasswordPrompt))
+    if (!VcsBase::sshPrompt().isEmpty() && (flags() & SshPasswordPrompt))
         processFlags |= SynchronousProcess::UnixTerminalDisabled;
     return processFlags;
 }

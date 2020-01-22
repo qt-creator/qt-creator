@@ -145,7 +145,7 @@ void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
 QProcessEnvironment VcsBaseClientImpl::processEnvironment() const
 {
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
-    VcsBasePlugin::setProcessEnvironment(&environment, false);
+    VcsBase::setProcessEnvironment(&environment, false);
     return environment;
 }
 
@@ -232,8 +232,8 @@ SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &
                                                                  unsigned flags,
                                                                  QTextCodec *outputCodec) const
 {
-    return VcsBasePlugin::runVcs(workingDir, {vcsBinary(), args}, vcsTimeoutS(), flags,
-                                 outputCodec, processEnvironment());
+    return VcsBase::runVcs(workingDir, {vcsBinary(), args}, vcsTimeoutS(), flags,
+                           outputCodec, processEnvironment());
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const

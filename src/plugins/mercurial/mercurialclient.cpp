@@ -231,7 +231,7 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
     // cause mercurial doesn`t understand LANG
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("LANGUAGE"), QLatin1String("C"));
-    const SynchronousProcessResponse resp = VcsBasePlugin::runVcs(
+    const SynchronousProcessResponse resp = VcsBase::runVcs(
                 workingDir, {vcsBinary(), args}, vcsTimeoutS(), flags, nullptr, env);
     const bool ok = resp.result == SynchronousProcessResponse::Finished;
 
@@ -459,8 +459,8 @@ QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
 {
     const QString repositoryCheckFile = QLatin1String(Constants::MERCURIALREPO) + QLatin1String("/requires");
     return file.isDir() ?
-                VcsBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
-                VcsBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
+                VcsBase::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
+                VcsBase::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
 }
 
 Core::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const
@@ -521,7 +521,7 @@ void MercurialClient::requestReload(const QString &documentId, const QString &so
     DiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);
 
-    VcsBasePlugin::setSource(document, sourceCopy);
+    VcsBase::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
     controller->requestReload();
 }

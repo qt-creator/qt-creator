@@ -123,6 +123,36 @@ inline bool operator==(const VcsBasePluginState &s1, const VcsBasePluginState &s
 inline bool operator!=(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
 { return !s1.equals(s2); }
 
+// Convenience that searches for the repository specifically for version control
+// systems that do not have directories like "CVS" in each managed subdirectory
+// but have a directory at the top of the repository like ".git" containing
+// a well known file. See implementation for gory details.
+VCSBASE_EXPORT QString findRepositoryForDirectory(const QString &dir, const QString &checkFile);
+
+// Returns SSH prompt configured in settings.
+VCSBASE_EXPORT QString sshPrompt();
+// Returns whether an SSH prompt is configured.
+VCSBASE_EXPORT bool isSshPromptConfigured();
+
+// Set up the environment for a version control command line call.
+// Sets up SSH graphical password prompting (note that the latter
+// requires a terminal-less process) and sets LANG to 'C' to force English
+// (suppress LOCALE warnings/parse commands output) if desired.
+VCSBASE_EXPORT void setProcessEnvironment(QProcessEnvironment *e,
+                                          bool forceCLocale,
+                                          const QString &sshPasswordPrompt = sshPrompt());
+// Sets the source of editor contents, can be directory or file.
+VCSBASE_EXPORT void setSource(Core::IDocument *document, const QString &source);
+// Returns the source of editor contents.
+VCSBASE_EXPORT QString source(Core::IDocument *document);
+
+VCSBASE_EXPORT Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
+                                                        const Utils::CommandLine &cmd,
+                                                        int timeOutS,
+                                                        unsigned flags = 0,
+                                                        QTextCodec *outputCodec = nullptr,
+                                                        const QProcessEnvironment &env = {});
+
 class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -137,36 +167,6 @@ public:
 
     const VcsBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
-
-    // Convenience that searches for the repository specifically for version control
-    // systems that do not have directories like "CVS" in each managed subdirectory
-    // but have a directory at the top of the repository like ".git" containing
-    // a well known file. See implementation for gory details.
-    static QString findRepositoryForDirectory(const QString &dir, const QString &checkFile);
-
-    // Set up the environment for a version control command line call.
-    // Sets up SSH graphical password prompting (note that the latter
-    // requires a terminal-less process) and sets LANG to 'C' to force English
-    // (suppress LOCALE warnings/parse commands output) if desired.
-    static void setProcessEnvironment(QProcessEnvironment *e,
-                                      bool forceCLocale,
-                                      const QString &sshPasswordPrompt = sshPrompt());
-    // Returns SSH prompt configured in settings.
-    static QString sshPrompt();
-    // Returns whether an SSH prompt is configured.
-    static bool isSshPromptConfigured();
-
-    // Sets the source of editor contents, can be directory or file.
-    static void setSource(Core::IDocument *document, const QString &source);
-    // Returns the source of editor contents.
-    static QString source(Core::IDocument *document);
-
-    static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
-                                                    const Utils::CommandLine &cmd,
-                                                    int timeOutS,
-                                                    unsigned flags = 0,
-                                                    QTextCodec *outputCodec = nullptr,
-                                                    const QProcessEnvironment &env = QProcessEnvironment());
 
     // Display name of the commit action
     virtual QString commitDisplayName() const;

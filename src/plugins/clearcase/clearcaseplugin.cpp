@@ -1453,7 +1453,7 @@ ClearCasePlugin::runCleartool(const QString &workingDir,
     }
 
     const SynchronousProcessResponse sp_resp =
-            VcsBasePlugin::runVcs(workingDir,
+                  VcsBase::runVcs(workingDir,
                                   {executable, arguments},
                                   timeOutS,
                                   flags, outputCodec);
