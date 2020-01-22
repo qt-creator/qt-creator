@@ -31,6 +31,9 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
 {
     static TextEditor::Keywords keywords(
                 QStringList{ // variables
+                    "ARGC",
+                    "ARGS",
+                    "BUILDS",
                     "CCFLAG",
                     "CLEAN_DEPS",
                     "CONFIG",
@@ -49,7 +52,9 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
                     "GUID",
                     "HEADERS",
                     "ICON",
+                    "IDLSOURCES",
                     "INCLUDEPATH",
+                    "INSTALLDEPS",
                     "INSTALLS",
                     "LEXIMPLS",
                     "LEXOBJECTS",
@@ -82,6 +87,8 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
                     "QFACE_SOURCES",
 
                     "QMAKE",
+                    "QMAKEFEATURES",
+                    "QMAKEPATH",
                     "QMAKESPEC",
                     "QMAKE_APP_FLAG",
                     "QMAKE_APP_OR_DLL",
@@ -213,6 +220,8 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
                     "RESOURCES",
                     "RES_FILE",
                     "RSS_RULES",
+                    "SCCLOCALPATH",
+                    "SCCPROJECTNAME",
                     "SIGNATURE_FILE",
                     "SOURCES",
                     "SRCMOC",
@@ -226,6 +235,7 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
                     "UI_DIR",
                     "UI_HEADERS_DIR",
                     "UI_SOURCES_DIR",
+                    "UNINSTALLDEPS",
                     "VERSION",
                     "VERSION_PE_HEADER",
                     "VER_MAJ",
@@ -235,6 +245,7 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
                     "YACCIMPLS",
                     "YACCOBJECTS",
                     "YACCSOURCES",
+                    "XQMAKESPEC",
                     "_PRO_FILE_",
                     "_PRO_FILE_PWD_"},
                 QStringList{ // functions
