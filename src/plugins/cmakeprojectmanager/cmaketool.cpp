@@ -28,6 +28,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -268,7 +269,13 @@ Utils::FilePath CMakeTool::cmakeExecutable(const Utils::FilePath &path)
                 return toTest.canonicalPath();
         }
     }
-    return path.canonicalPath();
+
+    const Utils::FilePath resolvedPath = path.canonicalPath();
+    // Evil hack to make snap-packages of CMake work. See QTCREATORBUG-23376
+    if (Utils::HostOsInfo::isLinuxHost() && resolvedPath.fileName() == "snap")
+        return path;
+
+    return resolvedPath;
 }
 
 bool CMakeTool::isAutoRun() const
