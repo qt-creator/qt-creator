@@ -29,10 +29,7 @@
 
 static inline QString properName(const QColor &color)
 {
-    if (color.alpha() == 255)
-        return QString::asprintf("#%02x%02x%02x", color.red(), color.green(), color.blue());
-    else
-        return QString::asprintf("#%02x%02x%02x%02x", color.alpha(), color.red(), color.green(), color.blue());
+    return color.name(color.alpha() == 255 ? QColor::HexRgb : QColor::HexArgb);
 }
 
 static inline QColor properColor(const QString &str)
@@ -61,11 +58,7 @@ static inline QColor properColor(const QString &str)
 
 static inline int clamp(int x, int lower, int upper)
 {
-    if (x < lower)
-        x = lower;
-    if (x > upper)
-        x = upper;
-    return x;
+    return qBound(lower, x, upper);
 }
 
 namespace QmlEditorWidgets {
@@ -85,10 +78,7 @@ void ColorBox::setHue(int newHue)
 
 int ColorBox::hue() const
 {
-    int retval = m_color.hsvHue();
-    if (retval<0) retval=0;
-    if (retval>359) retval=359;
-    return retval;
+    return clamp(m_color.hsvHue(), 0, 359);
 }
 
 void ColorBox::setAlpha(int newAlpha)
