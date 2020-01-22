@@ -122,6 +122,14 @@ void GridProxyModel::setSourceModel(QAbstractItemModel *newModel)
             beginResetModel();
         });
         connect(newModel, &QAbstractItemModel::rowsRemoved, this, [this] { endResetModel(); });
+        connect(newModel,
+                &QAbstractItemModel::dataChanged,
+                this,
+                [this] (const QModelIndex &topLeft,
+                        const QModelIndex &bottomRight,
+                        const QVector<int> &roles) {
+            QAbstractItemModel::dataChanged(mapFromSource(topLeft), mapFromSource(bottomRight), roles);
+        });
     }
 }
 
