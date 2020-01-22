@@ -592,7 +592,8 @@ bool ListItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
 {
     if (event->type() == QEvent::MouseButtonRelease) {
         const ListItem *item = index.data(ListModel::ItemRole).value<ListItem *>();
-        QTC_ASSERT(item, return false);
+        if (!item)
+            return false;
         auto mev = static_cast<QMouseEvent *>(event);
         if (index.isValid()) {
             const QPoint pos = mev->pos();
