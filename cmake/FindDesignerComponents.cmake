@@ -34,7 +34,7 @@ if (NOT _designer_location)
   get_target_property(_designer_location Qt5::Designer IMPORTED_LOCATION)
 endif()
 get_target_property(_designer_is_framework Qt5::Designer FRAMEWORK)
-find_library(DesignerComponents_LIBRARIES NAMES Qt5DesignerComponents QtDesignerComponents
+find_library(DesignerComponents_LIBRARIES NAMES Qt5DesignerComponents QtDesignerComponents Qt5DesignerComponentsd QtDesignerComponentsd
   HINTS "${_designer_location}/.." "${_designer_location}/../..")
 
 if (_designer_is_framework)
