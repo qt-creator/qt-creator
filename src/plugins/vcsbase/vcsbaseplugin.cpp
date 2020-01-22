@@ -543,6 +543,7 @@ VcsBasePlugin::VcsBasePlugin() :
 
 VcsBasePlugin::~VcsBasePlugin()
 {
+    delete d->m_versionControl;
     delete d;
 }
 
