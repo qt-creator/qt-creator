@@ -909,8 +909,10 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             QStyleOptionToolButton label = *toolbutton;
 
             label.palette = panelPalette(option->palette, lightColored(widget));
-            if (widget && widget->property("highlightWidget").toBool())
-                label.palette.setColor(QPalette::ButtonText, Qt::red);
+            if (widget && widget->property("highlightWidget").toBool()) {
+                label.palette.setColor(QPalette::ButtonText,
+                                       creatorTheme()->color(Theme::IconsWarningToolBarColor));
+            }
             int fw = pixelMetric(PM_DefaultFrameWidth, option, widget);
             label.rect = button.adjusted(fw, fw, -fw, -fw);
 
