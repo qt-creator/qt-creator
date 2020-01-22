@@ -30,6 +30,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <utils/completingtextedit.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QRegExpValidator>
@@ -66,11 +67,14 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
 {
     m_gitSubmitPanelUi.repositoryLabel->setText(QDir::toNativeSeparators(info.repository));
-    if (info.branch.contains("(no branch)"))
-        m_gitSubmitPanelUi.branchLabel->setText(QString::fromLatin1("<span style=\"color:red\">%1</span>")
-                                                .arg(tr("Detached HEAD")));
-    else
+    if (info.branch.contains("(no branch)")) {
+        const QString errorColor =
+                Utils::creatorTheme()->color(Utils::Theme::TextColorError).name();
+        m_gitSubmitPanelUi.branchLabel->setText(QString::fromLatin1("<span style=\"color:%1\">%2</span>")
+                                                .arg(errorColor, tr("Detached HEAD")));
+    } else {
         m_gitSubmitPanelUi.branchLabel->setText(info.branch);
+    }
 }
 
 QString GitSubmitEditorWidget::amendSHA1() const
