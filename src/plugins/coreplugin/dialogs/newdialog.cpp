@@ -256,10 +256,10 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
 
     QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
     projectKindItem->setData(IWizardFactory::ProjectWizard, Qt::UserRole);
-    projectKindItem->setFlags(nullptr); // disable item to prevent focus
+    projectKindItem->setFlags({}); // disable item to prevent focus
     QStandardItem *filesKindItem = new QStandardItem(tr("Files and Classes"));
     filesKindItem->setData(IWizardFactory::FileWizard, Qt::UserRole);
-    filesKindItem->setFlags(nullptr); // disable item to prevent focus
+    filesKindItem->setFlags({}); // disable item to prevent focus
 
     parentItem->appendRow(projectKindItem);
     parentItem->appendRow(filesKindItem);
@@ -267,13 +267,13 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
     if (m_dummyIcon.isNull())
         m_dummyIcon = QIcon(":/utils/images/wizardicon-file.png");
 
-    QSet<Id> availablePlatforms = IWizardFactory::allAvailablePlatforms();
+    const QSet<Id> availablePlatforms = IWizardFactory::allAvailablePlatforms();
 
     const bool allowAllTemplates = ICore::settings()->value(ALLOW_ALL_TEMPLATES, true).toBool();
     if (allowAllTemplates)
         m_ui->comboBox->addItem(tr("All Templates"), Id().toSetting());
 
-    foreach (Id platform, availablePlatforms) {
+    for (Id platform : availablePlatforms) {
         const QString displayNameForPlatform = IWizardFactory::displayNameForPlatform(platform);
         m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform.toSetting());
     }
@@ -285,7 +285,7 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
     if (!showPlatformFilter)
         m_ui->comboBox->hide();
 
-    foreach (IWizardFactory *factory, factories) {
+    for (IWizardFactory *factory : qAsConst(factories)) {
         QStandardItem *kindItem;
         switch (factory->kind()) {
         case IWizardFactory::ProjectWizard:
@@ -318,7 +318,7 @@ void NewDialog::showDialog()
     static_cast<PlatformFilterProxyModel*>(m_filterProxyModel)->manualReset();
 
     if (!lastCategory.isEmpty())
-        foreach (QStandardItem* item, m_categoryItems) {
+        for (QStandardItem *item : qAsConst(m_categoryItems)) {
             if (item->data(Qt::UserRole) == lastCategory)
                 idx = m_filterProxyModel->mapFromSource(m_model->indexFromItem(item));
     }
