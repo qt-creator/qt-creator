@@ -46,6 +46,7 @@
 #include <utils/stylehelper.h>
 
 #include <algorithm>
+#include <memory>
 
 namespace QtSupport {
 namespace Internal {
@@ -296,13 +297,13 @@ static bool isValidExampleOrDemo(ExampleItem *item)
 void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
     const QString &projectsOffset, const QString &examplesInstallPath)
 {
-    ExampleItem *item = nullptr;
+    std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
             if (reader->name() == QLatin1String("example")) {
-                item = new ExampleItem;
+                item = std::make_unique<ExampleItem>();
                 item->type = Example;
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
@@ -335,8 +336,8 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example")) {
-                if (isValidExampleOrDemo(item))
-                    m_items.append(item);
+                if (isValidExampleOrDemo(item.get()))
+                    m_items.push_back(item.release());
             } else if (reader->name() == QLatin1String("examples")) {
                 return;
             }
