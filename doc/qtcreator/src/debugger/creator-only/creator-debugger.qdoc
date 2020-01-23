@@ -818,7 +818,7 @@
 
     The \c personaltypes.py file contains one example implementation:
 
-    \quotefromfile ../../share/qtcreator/debugger/personaltypes.py
+    \quotefromfile ../../../share/qtcreator/debugger/personaltypes.py
     \skipto qdump__
     \printuntil d.putItem
 

@@ -7,12 +7,12 @@ moduleheader =
 headerdirs =
 sourcedirs = ../src \
              ../examples/doc \
-             ../../src
+             ../../qtcreator/src
 # The image folders also need to added by packaging scripts, so inform your
 # local release team about any changes you make.
 imagedirs = ../images \
             ../examples/doc/images \
-            ../../images \
+            ../../qtcreator/images \
             ../../../plugins/qmldesigner/qmlpreviewplugin/images \
             ../../../share/qtcreator/qml/qmlpuppet/mockfiles/images \
             ../../../share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images \
@@ -29,32 +29,32 @@ imagedirs = ../images \
             ../../../src/plugins/qmldesigner/qmlpreviewplugin/images \
             ../../../src/plugins/texteditor/images
 
-excludefiles += ../../src/qtcreator.qdoc \
-                ../../src/qtcreator-toc.qdoc
+excludefiles += ../../qtcreator/src/qtcreator.qdoc \
+                ../../qtcreator/src/qtcreator-toc.qdoc
 
-excludedirs  += ../../examples/accelbubble \
-                ../../examples/textfinder \
-                ../../examples/transitions \
-                ../../src/analyze \
-                ../../src/android \
-                ../../src/baremetal \
-                ../../src/cmake \
-                ../../src/debugger/creator-only \
-                ../../src/editors/creator-only \
-                ../../src/howto/creator-only \
-                ../../src/ios \
-                ../../src/linux-mobile \
-                ../../src/mcu \
-                ../../src/overview/creator-only \
-                ../../src/projects \
-                ../../src/qnx \
-                ../../src/qtquick/creator-only \
-                ../../src/vcs/creator-only \
-                ../../src/widgets \
-                ../../src/webassembly
+excludedirs  += ../../qtcreator/examples/accelbubble \
+                ../../qtcreator/examples/textfinder \
+                ../../qtcreator/examples/transitions \
+                ../../qtcreator/src/analyze \
+                ../../qtcreator/src/android \
+                ../../qtcreator/src/baremetal \
+                ../../qtcreator/src/cmake \
+                ../../qtcreator/src/debugger/creator-only \
+                ../../qtcreator/src/editors/creator-only \
+                ../../qtcreator/src/howto/creator-only \
+                ../../qtcreator/src/ios \
+                ../../qtcreator/src/linux-mobile \
+                ../../qtcreator/src/mcu \
+                ../../qtcreator/src/overview/creator-only \
+                ../../qtcreator/src/projects \
+                ../../qtcreator/src/qnx \
+                ../../qtcreator/src/qtquick/creator-only \
+                ../../qtcreator/src/vcs/creator-only \
+                ../../qtcreator/src/widgets \
+                ../../qtcreator/src/webassembly
 
 exampledirs = ../examples/ \
-              ../../examples
+              ../../qtcreator/examples
 examples.fileextensions += *.qml *.svg *.ts *.qm
 
 HTML.extraimages         = ../../config/images/commercial.png

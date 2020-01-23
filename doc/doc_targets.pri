@@ -30,7 +30,7 @@ QT_TOOL_ENV =
 
 !build_online_docs: qtPrepareTool(QHELPGENERATOR, qhelpgenerator)
 
-DOCS_BASE_OUTDIR = $$OUT_PWD/doc
+DOCS_BASE_OUTDIR = $$OUT_PWD/doc/html
 DOC_INDEXES += -indexdir $$shell_quote($$[QT_INSTALL_DOCS])
 for (index_path, DOC_INDEX_PATHS): \
     DOC_INDEXES += -indexdir $$shell_quote($$index_path)

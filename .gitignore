@@ -122,9 +122,9 @@ compile_commands.json
 /dist/gdb/source/
 /dist/gdb/staging/
 /doc/qbs/
-/doc/qtcreator/
-/doc/qtcreator-dev/
-/doc/pluginhowto/html/
+/doc/html/qtcreator/
+/doc/html/qtcreator-dev/
+/doc/html/qtdesignstudio/
 /lib/
 /lib64/
 /libexec/

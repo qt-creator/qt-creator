@@ -1,7 +1,7 @@
 build_online_docs: \
-    DOC_FILES += $$PWD/qtcreator-online.qdocconf $$PWD/api/qtcreator-dev-online.qdocconf
+    DOC_FILES += $$PWD/qtcreator/qtcreator-online.qdocconf $$PWD/qtcreatordev/qtcreator-dev-online.qdocconf
 else: \
-    DOC_FILES += $$PWD/qtcreator.qdocconf $$PWD/api/qtcreator-dev.qdocconf
+    DOC_FILES += $$PWD/qtcreator/qtcreator.qdocconf $$PWD/qtcreatordev/qtcreator-dev.qdocconf
 
 include(../docs.pri)
 

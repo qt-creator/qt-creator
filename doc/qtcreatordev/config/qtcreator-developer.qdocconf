@@ -4,32 +4,32 @@ description = "Extending Qt Creator Manual"
 language                = Cpp
 
 headerdirs              = . \
-                          ../api \
-                          ../../src/libs/aggregation \
-                          ../../src/libs/cplusplus \
-                          ../../src/libs/extensionsystem \
-                          ../../src/libs/utils \
-                          ../../src/libs/qmljs \
-                          ../../src/libs/qtcreatorcdbext \
-                          ../../src/plugins/coreplugin \
-                          ../../src/plugins/debugger \
-                          ../../src/plugins/vcsbase \
-                          ../../src/plugins/projectexplorer \
-                          ../../src/plugins/texteditor
+                          ../src \
+                          ../../../src/libs/aggregation \
+                          ../../../src/libs/cplusplus \
+                          ../../../src/libs/extensionsystem \
+                          ../../../src/libs/utils \
+                          ../../../src/libs/qmljs \
+                          ../../../src/libs/qtcreatorcdbext \
+                          ../../../src/plugins/coreplugin \
+                          ../../../src/plugins/debugger \
+                          ../../../src/plugins/vcsbase \
+                          ../../../src/plugins/projectexplorer \
+                          ../../../src/plugins/texteditor
 
 sourcedirs              = . \
-                          ../api \
-                          ../../src/libs/aggregation \
-                          ../../src/libs/cplusplus \
-                          ../../src/libs/extensionsystem \
-                          ../../src/libs/utils \
-                          ../../src/libs/qmljs \
-                          ../../src/libs/qtcreatorcdbext \
-                          ../../src/plugins/coreplugin \
-                          ../../src/plugins/debugger \
-                          ../../src/plugins/vcsbase \
-                          ../../src/plugins/projectexplorer\
-                          ../../src/plugins/texteditor
+                          ../src \
+                          ../../../src/libs/aggregation \
+                          ../../../src/libs/cplusplus \
+                          ../../../src/libs/extensionsystem \
+                          ../../../src/libs/utils \
+                          ../../../src/libs/qmljs \
+                          ../../../src/libs/qtcreatorcdbext \
+                          ../../../src/plugins/coreplugin \
+                          ../../../src/plugins/debugger \
+                          ../../../src/plugins/vcsbase \
+                          ../../../src/plugins/projectexplorer\
+                          ../../../src/plugins/texteditor
 
 # -- Uncomment following option to generate complete documentation
 #    instead of public API documentation only.
@@ -38,8 +38,9 @@ sourcedirs              = . \
 headers.fileextensions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"
 
-imagedirs = ../api/images ../images ../templates/images
-exampledirs = ../api/examples
+imagedirs = ../images \
+            ../../config/images
+exampledirs = ../examples
 
 depends +=    qtwidgets \
               qtcore \
@@ -57,9 +58,9 @@ depends +=    qtwidgets \
               qtwebkit \
               qtxml
 
-include(macros.qdocconf)
-include(qt-cpp-ignore.qdocconf)
-include(qt-defines.qdocconf)
+include(../../config/macros.qdocconf)
+include(../../config/qt-cpp-ignore.qdocconf)
+include(../../config/qt-defines.qdocconf)
 
 qhp.projects            = QtCreatorDev
 qhp.QtCreatorDev.file             = qtcreator-dev.qhp
