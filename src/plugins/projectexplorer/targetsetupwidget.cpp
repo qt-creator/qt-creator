@@ -224,24 +224,25 @@ void TargetSetupWidget::expandWidget()
     m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
 }
 
-void TargetSetupWidget::update(const Kit::Predicate &predicate)
+void TargetSetupWidget::update(const TasksGenerator &generator)
 {
-    m_detailsWidget->setSummaryText(kit()->displayName());
+    const Tasks tasks = generator(kit());
 
-    // Kits that we deem invalid get a warning icon, but users can still select them,
-    // e.g. in case we misdetected an ABI mismatch.
-    // Kits that don't fulfill the project predicate are not selectable, because we cannot
+    m_detailsWidget->setSummaryText(kit()->displayName());
+    m_detailsWidget->setIcon(kit()->isValid() ? kit()->icon() : Icons::CRITICAL.icon());
+
+    const Task errorTask = Utils::findOrDefault(tasks, Utils::equal(&Task::type, Task::Error));
+
+    // Kits that where the taskGenarator reports an error are not selectable, because we cannot
     // guarantee that we can handle the project sensibly (e.g. qmake project without Qt).
-    if (predicate && !predicate(kit())) {
+    if (!errorTask.isNull()) {
         toggleEnabled(false);
+        m_detailsWidget->setToolTip(kit()->toHtml(tasks, ""));
         m_infoStore.clear();
-        m_detailsWidget->setToolTip(tr("You cannot use this kit, because it does not fulfill "
-                                       "the project's prerequisites."));
         return;
     }
+
     toggleEnabled(true);
-    m_detailsWidget->setIcon(kit()->isValid() ? kit()->icon() : Icons::CRITICAL.icon());
-    m_detailsWidget->setToolTip(m_kit->toHtml());
     updateDefaultBuildDirectories();
 }
 

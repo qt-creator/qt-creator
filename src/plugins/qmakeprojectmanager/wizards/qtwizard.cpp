@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/targetsetuppage.h>
+#include <projectexplorer/task.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -178,14 +179,23 @@ BaseQmakeProjectWizardDialog::~BaseQmakeProjectWizardDialog()
 int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
 {
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
-    const Core::Id platform = selectedPlatform();
-    QSet<Core::Id> features = {QtSupport::Constants::FEATURE_DESKTOP};
-    if (!platform.isValid())
-        m_targetSetupPage->setPreferredKitPredicate(QtKitAspect::qtVersionPredicate(features));
-    else
-        m_targetSetupPage->setPreferredKitPredicate(QtKitAspect::platformPredicate(platform));
 
-    m_targetSetupPage->setRequiredKitPredicate(QtKitAspect::qtVersionPredicate(requiredFeatures()));
+    m_targetSetupPage->setTasksGenerator([this](const Kit *k) -> Tasks {
+        if (!QtKitAspect::qtVersionPredicate(requiredFeatures())(k))
+            return {
+                ProjectExplorer::CompileTask(Task::Error, tr("Required Qt features not present."))};
+
+        const Core::Id platform = selectedPlatform();
+        if (platform.isValid() && !QtKitAspect::platformPredicate(platform)(k))
+            return {ProjectExplorer::CompileTask(
+                ProjectExplorer::Task::Warning,
+                tr("Qt version does not target the expected platform."))};
+        QSet<Core::Id> features = {QtSupport::Constants::FEATURE_DESKTOP};
+        if (!QtKitAspect::qtVersionPredicate(features)(k))
+            return {ProjectExplorer::CompileTask(ProjectExplorer::Task::Unknown,
+                                                 tr("Qt version does not provide all features."))};
+        return {};
+    });
 
     resize(900, 450);
     if (id >= 0)

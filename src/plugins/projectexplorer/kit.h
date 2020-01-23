@@ -118,7 +118,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
     IOutputParser *createOutputParser() const;
 
-    QString toHtml(const Tasks &additional = Tasks()) const;
+    QString toHtml(const Tasks &additional = Tasks(), const QString &extraText = QString()) const;
     Kit *clone(bool keepName = false) const;
     void copyFrom(const Kit *k);
 
@@ -172,6 +172,8 @@ public:
 private:
     Kit *m_kit;
 };
+
+using TasksGenerator = std::function<Tasks(const Kit *)>;
 
 } // namespace ProjectExplorer
 

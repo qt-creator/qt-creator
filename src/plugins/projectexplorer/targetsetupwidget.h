@@ -70,7 +70,7 @@ public:
     const QList<BuildInfo> selectedBuildInfoList() const;
     void setProjectPath(const Utils::FilePath &projectPath);
     void expandWidget();
-    void update(const Kit::Predicate &predicate);
+    void update(const TasksGenerator &generator);
 
 signals:
     void selectedToggled() const;

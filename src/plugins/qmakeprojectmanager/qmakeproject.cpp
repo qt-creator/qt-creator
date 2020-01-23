@@ -117,16 +117,15 @@ private:
 /*!
   \class QmakeProject
 
-  QmakeProject manages information about an individual Qt 4 (.pro) project file.
+  QmakeProject manages information about an individual qmake project file (.pro).
   */
 
-static bool matchesKit(const Project *p, const Kit *kit)
+static QtSupport::BaseQtVersion *projectIsPartOfQt(const Project *p)
 {
     FilePath filePath = p->projectFilePath();
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
 
-    return QtSupport::QtVersionManager::version([&filePath, version](const QtSupport::BaseQtVersion *v) {
-        return v->isValid() && v->isSubProject(filePath) && v == version;
+    return QtSupport::QtVersionManager::version([&filePath](const QtSupport::BaseQtVersion *v) {
+        return v->isValid() && v->isSubProject(filePath);
     });
 }
 
@@ -138,8 +137,6 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
     setDisplayName(fileName.toFileInfo().completeBaseName());
     setCanBuildProducts();
     setHasMakeInstallEquivalent(true);
-
-    setPreferredKitPredicate([this](const Kit *kit) -> bool { return matchesKit(this, kit); });
 }
 
 QmakeProject::~QmakeProject()
@@ -603,12 +600,21 @@ void QmakeBuildSystem::buildFinished(bool success)
 Tasks QmakeProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-    if (!QtSupport::QtKitAspect::qtVersion(k))
+    const QtSupport::BaseQtVersion *const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
+    if (!qtFromKit)
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
-    else if (!QtSupport::QtKitAspect::qtVersion(k)->isValid())
+    else if (!qtFromKit->isValid())
         result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is invalid.")));
     if (!ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
         result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
+
+    const QtSupport::BaseQtVersion *const qtThatContainsProject = projectIsPartOfQt(this);
+    if (qtThatContainsProject && qtThatContainsProject != qtFromKit) {
+        result.append(CompileTask(Task::Warning,
+                                  tr("Project is part of Qt sources that do not match "
+                                     "the Qt defined in the Kit")));
+    }
+
     return result;
 }
 

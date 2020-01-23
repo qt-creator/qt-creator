@@ -30,6 +30,7 @@
 #include "kitinformation.h"
 #include "kitmanager.h"
 #include "projectimporter.h"
+#include "task.h"
 
 #include <utils/wizardpage.h>
 
@@ -66,8 +67,7 @@ public:
     void initializePage() override;
 
     // Call these before initializePage!
-    void setRequiredKitPredicate(const Kit::Predicate &predicate);
-    void setPreferredKitPredicate(const Kit::Predicate &predicate);
+    void setTasksGenerator(const TasksGenerator &tasksGenerator);
     void setProjectPath(const Utils::FilePath &dir);
     void setProjectImporter(ProjectImporter *importer);
     bool importLineEditHasFocus() const;
@@ -125,8 +125,7 @@ private:
     Internal::TargetSetupWidget *widget(const Core::Id kitId,
                                         Internal::TargetSetupWidget *fallback = nullptr) const;
 
-    Kit::Predicate m_requiredPredicate;
-    Kit::Predicate m_preferredPredicate;
+    TasksGenerator m_tasksGenerator;
     QPointer<ProjectImporter> m_importer;
     QLayout *m_baseLayout = nullptr;
     Utils::FilePath m_projectPath;

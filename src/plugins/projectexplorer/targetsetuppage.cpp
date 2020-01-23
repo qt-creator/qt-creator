@@ -26,14 +26,15 @@
 #include "targetsetuppage.h"
 #include "buildconfiguration.h"
 #include "buildinfo.h"
+#include "importwidget.h"
 #include "kit.h"
 #include "kitmanager.h"
-#include "importwidget.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "session.h"
 #include "target.h"
 #include "targetsetupwidget.h"
+#include "task.h"
 
 #include <coreplugin/icore.h>
 
@@ -159,13 +160,27 @@ public:
 
 } // namespace Internal
 
+static TasksGenerator defaultTasksGenerator(const TasksGenerator &childGenerator)
+{
+    return [childGenerator](const Kit *k) -> Tasks {
+        if (!k->isValid())
+            return {
+                CompileTask(Task::Error,
+                            QCoreApplication::translate("ProjectExplorer", "Kit is not valid."))};
+        if (childGenerator)
+            return childGenerator(k);
+        return {};
+    };
+}
+
 using namespace Internal;
 
-TargetSetupPage::TargetSetupPage(QWidget *parent) :
-    WizardPage(parent),
-    m_ui(new TargetSetupPageUi),
-    m_importWidget(new ImportWidget(this)),
-    m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding))
+TargetSetupPage::TargetSetupPage(QWidget *parent)
+    : WizardPage(parent)
+    , m_tasksGenerator(defaultTasksGenerator({}))
+    , m_ui(new TargetSetupPageUi)
+    , m_importWidget(new ImportWidget(this))
+    , m_spacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding))
 {
     m_importWidget->setVisible(false);
 
@@ -217,9 +232,9 @@ void TargetSetupPage::initializePage()
     }
 }
 
-void TargetSetupPage::setRequiredKitPredicate(const Kit::Predicate &predicate)
+void TargetSetupPage::setTasksGenerator(const TasksGenerator &tasksGenerator)
 {
-    m_requiredPredicate = predicate;
+    m_tasksGenerator = defaultTasksGenerator(tasksGenerator);
 }
 
 QList<Core::Id> TargetSetupPage::selectedKits() const
@@ -230,11 +245,6 @@ QList<Core::Id> TargetSetupPage::selectedKits() const
             result.append(w->kit()->id());
     }
     return result;
-}
-
-void TargetSetupPage::setPreferredKitPredicate(const Kit::Predicate &predicate)
-{
-    m_preferredPredicate = predicate;
 }
 
 TargetSetupPage::~TargetSetupPage()
@@ -396,8 +406,10 @@ void TargetSetupPage::selectAtLeastOneEnabledKit()
     TargetSetupWidget *toCheckWidget = nullptr;
 
     const Kit *defaultKit = KitManager::defaultKit();
+
     auto isPreferred = [this](const TargetSetupWidget *w) {
-        return w->isEnabled() && (!m_preferredPredicate || m_preferredPredicate(w->kit()));
+        const Tasks tasks = m_tasksGenerator(w->kit());
+        return w->isEnabled() && tasks.isEmpty();
     };
 
     // Use default kit if that is preferred:
@@ -620,12 +632,12 @@ void TargetSetupPage::removeAdditionalWidgets(QLayout *layout)
 void TargetSetupPage::updateWidget(TargetSetupWidget *widget)
 {
     QTC_ASSERT(widget, return );
-    widget->update(m_requiredPredicate);
+    widget->update(m_tasksGenerator);
 }
 
 bool TargetSetupPage::isUsable(const Kit *kit) const
 {
-    return kit->isValid() && (!m_requiredPredicate || m_requiredPredicate(kit));
+    return !containsType(m_tasksGenerator(kit), Task::Error);
 }
 
 bool TargetSetupPage::setupProject(Project *project)

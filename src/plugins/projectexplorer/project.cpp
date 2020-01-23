@@ -201,9 +201,6 @@ public:
 
     QString m_displayName;
 
-    Kit::Predicate m_requiredKitPredicate;
-    Kit::Predicate m_preferredKitPredicate;
-
     Utils::MacroExpander m_macroExpander;
     Utils::FilePath m_rootProjectDirectory;
     mutable QVector<const Node *> m_sortedNodeList;
@@ -229,10 +226,6 @@ Project::Project(const QString &mimeType,
 
     // Only set up containernode after d is set so that it will find the project directory!
     d->m_containerNode = std::make_unique<ContainerNode>(this);
-
-    setRequiredKitPredicate([this](const Kit *k) {
-        return !containsType(projectIssues(k), Task::TaskType::Error);
-    });
 }
 
 Project::~Project()
@@ -974,29 +967,9 @@ ProjectImporter *Project::projectImporter() const
     return nullptr;
 }
 
-Kit::Predicate Project::requiredKitPredicate() const
-{
-    return d->m_requiredKitPredicate;
-}
-
-void Project::setRequiredKitPredicate(const Kit::Predicate &predicate)
-{
-    d->m_requiredKitPredicate = predicate;
-}
-
 void Project::setCanBuildProducts()
 {
     d->m_canBuildProducts = true;
-}
-
-Kit::Predicate Project::preferredKitPredicate() const
-{
-    return d->m_preferredKitPredicate;
-}
-
-void Project::setPreferredKitPredicate(const Kit::Predicate &predicate)
-{
-    d->m_preferredKitPredicate = predicate;
 }
 
 void Project::setExtraData(const QString &key, const QVariant &data)

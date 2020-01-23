@@ -159,8 +159,8 @@ void TargetSetupPageWrapper::addTargetSetupPage()
     m_targetSetupPage = new TargetSetupPage(this);
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setProjectPath(m_project->projectFilePath());
-    m_targetSetupPage->setRequiredKitPredicate(m_project->requiredKitPredicate());
-    m_targetSetupPage->setPreferredKitPredicate(m_project->preferredKitPredicate());
+    m_targetSetupPage->setTasksGenerator(
+        [this](const Kit *k) { return m_project->projectIssues(k); });
     m_targetSetupPage->setProjectImporter(m_project->projectImporter());
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -322,14 +322,14 @@ public:
         case Qt::ToolTipRole: {
             Kit *k = KitManager::kit(m_kitId);
             QTC_ASSERT(k, return QVariant());
-            QString toolTip;
-            if (m_kitErrorsForProject)
-                toolTip = "<h3>" + tr("Kit is unsuited for project") + "</h3>";
-            else if (!isEnabled())
-                toolTip = "<h3>" + tr("Click to activate:") + "</h3>" + k->toHtml();
-            if (!m_kitIssues.isEmpty())
-                toolTip += toHtml(m_kitIssues);
-            return toolTip;
+            const QString extraText = [this]() {
+                if (m_kitErrorsForProject)
+                    return QString("<h3>" + tr("Kit is unsuited for project") + "</h3>");
+                if (!isEnabled())
+                    return QString("<h3>" + tr("Click to activate") + "</h3>");
+                return QString();
+            }();
+            return k->toHtml(m_kitIssues, extraText);
         }
 
         case PanelWidgetRole:

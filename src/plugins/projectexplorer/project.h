@@ -144,9 +144,6 @@ public:
 
     virtual ProjectImporter *projectImporter() const;
 
-    Kit::Predicate requiredKitPredicate() const;
-    Kit::Predicate preferredKitPredicate() const;
-
     // The build system is able to report all executables that can be built, independent
     // of configuration.
     bool knowsAllBuildExecutables() const;
@@ -207,12 +204,6 @@ protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     void createTargetFromMap(const QVariantMap &map, int index);
     virtual bool setupTarget(Target *t);
-
-    // Used to pre-check kits in the TargetSetupPage. RequiredKitPredicate
-    // is used to select kits available in the TargetSetupPage
-    void setPreferredKitPredicate(const Kit::Predicate &predicate);
-    // The predicate used to select kits available in TargetSetupPage.
-    void setRequiredKitPredicate(const Kit::Predicate &predicate);
 
     void setCanBuildProducts();
 

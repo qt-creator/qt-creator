@@ -567,12 +567,15 @@ IOutputParser *Kit::createOutputParser() const
     return first;
 }
 
-QString Kit::toHtml(const Tasks &additional) const
+QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
 {
     QString result;
     QTextStream str(&result);
     str << "<html><body>";
     str << "<h3>" << displayName() << "</h3>";
+
+    if (!extraText.isEmpty())
+        str << "<p>" << extraText << "</p>";
 
     if (!isValid() || hasWarning() || !additional.isEmpty())
         str << "<p>" << ProjectExplorer::toHtml(additional + validate()) << "</p>";
