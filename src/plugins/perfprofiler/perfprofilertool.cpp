@@ -138,6 +138,7 @@ PerfProfilerTool::PerfProfilerTool()
 
     m_tracePointsButton = new QToolButton;
     m_tracePointsButton->setDefaultAction(tracePointsAction);
+    m_objectsToDelete << m_tracePointsButton;
 
     auto action = new QAction(tr("Performance Analyzer"), this);
     action->setToolTip(tr("Finds performance bottlenecks."));
@@ -150,6 +151,7 @@ PerfProfilerTool::PerfProfilerTool()
 
     m_startAction = Debugger::createStartAction();
     m_stopAction = Debugger::createStopAction();
+    m_objectsToDelete << m_startAction << m_stopAction;
 
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
     QObject::connect(m_startAction, &QAction::changed, action, [action, tracePointsAction, this] {
@@ -169,13 +171,21 @@ PerfProfilerTool::PerfProfilerTool()
     m_recordedLabel->setProperty("panelwidget", true);
     m_delayLabel = new QLabel;
     m_delayLabel->setProperty("panelwidget", true);
+    m_objectsToDelete << m_recordButton << m_clearButton << m_filterButton << m_aggregateButton
+                      << m_recordedLabel << m_delayLabel;
 
     m_perspective.setAboutToActivateCallback([this]() { createViews(); });
     updateRunActions();
 }
 
+PerfProfilerTool::~PerfProfilerTool()
+{
+    qDeleteAll(m_objectsToDelete);
+}
+
 void PerfProfilerTool::createViews()
 {
+    m_objectsToDelete.clear();
     m_traceView = new PerfProfilerTraceView(nullptr, this);
     m_traceView->setWindowTitle(tr("Timeline"));
     connect(m_traceView, &PerfProfilerTraceView::gotoSourceLocation,

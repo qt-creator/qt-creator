@@ -49,6 +49,8 @@ class PerfProfilerTool  : public QObject
     Q_OBJECT
 public:
     PerfProfilerTool();
+    ~PerfProfilerTool();
+
     static PerfProfilerTool *instance();
 
     PerfProfilerTraceManager *traceManager() const;
@@ -115,6 +117,7 @@ private:
     QMenu *m_filterMenu = nullptr;
     QToolButton *m_aggregateButton = nullptr;
     QToolButton *m_tracePointsButton = nullptr;
+    QList<QObject *> m_objectsToDelete;
 
     PerfProfilerTraceView *m_traceView = nullptr;
     PerfProfilerStatisticsView *m_statisticsView = nullptr;
