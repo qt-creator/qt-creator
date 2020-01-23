@@ -86,8 +86,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     NamedWidget(tr("CMake")),
     m_buildConfiguration(bc),
     m_configModel(new ConfigModel(this)),
-    m_configFilterModel(new Utils::CategorySortFilterModel),
-    m_configTextFilterModel(new Utils::CategorySortFilterModel)
+    m_configFilterModel(new Utils::CategorySortFilterModel(this)),
+    m_configTextFilterModel(new Utils::CategorySortFilterModel(this))
 {
     QTC_CHECK(bc);
 
@@ -106,7 +106,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     auto project = bc->project();
 
-    auto buildDirChooser = new Utils::PathChooser;
+    auto buildDirChooser = new Utils::PathChooser(this);
     buildDirChooser->setBaseDirectory(project->projectDirectory());
     buildDirChooser->setFileName(bc->buildDirectory());
     connect(buildDirChooser, &Utils::PathChooser::rawPathChanged, this,
@@ -195,7 +195,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_addButton->setToolTip(tr("Add a new configuration value."));
     buttonLayout->addWidget(m_addButton);
     {
-        m_addButtonMenu = new QMenu;
+        m_addButtonMenu = new QMenu(this);
         m_addButtonMenu->addAction(tr("&Boolean"))->setData(
                     QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::BOOLEAN)));
         m_addButtonMenu->addAction(tr("&String"))->setData(
