@@ -24,7 +24,7 @@
   <customwidget>
    <class>Designer::Internal::NewClassWidget</class>
    <extends>QWidget</extends>
-   <header location="local">newclasswidget.h</header>
+   <header location="global">designer/cpp/newclasswidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
