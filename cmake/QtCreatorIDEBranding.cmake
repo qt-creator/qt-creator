@@ -12,3 +12,6 @@ set(IDE_DISPLAY_NAME "Qt Creator")                    # The IDE display name.
 set(IDE_ID "qtcreator")                               # The IDE id (no spaces, lowercase!)
 set(IDE_CASED_ID "QtCreator")                         # The cased IDE id (no spaces!)
 set(IDE_BUNDLE_IDENTIFIER "org.qt-project.${IDE_ID}") # The macOS application bundle identifier.
+
+set(IDE_REVISION_URL "https://code.qt.io/cgit/qt-creator/qt-creator.git/commit/?id=%1")
+                                                      # The revision url in the version dialog

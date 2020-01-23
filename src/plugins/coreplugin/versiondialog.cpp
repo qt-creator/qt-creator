@@ -59,7 +59,12 @@ VersionDialog::VersionDialog(QWidget *parent)
     QString ideRev;
 #ifdef IDE_REVISION
      //: This gets conditionally inserted as argument %8 into the description string.
-     ideRev = tr("<br/>From revision %1<br/>").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
+     const QString revUrl = QString::fromLatin1(Constants::IDE_REVISION_URL);
+     const QString revStr = QString::fromLatin1(Constants::IDE_REVISION_STR);
+     ideRev = tr("<br/>From revision %1<br/>")
+              .arg(revUrl.isEmpty() ? revStr.left(10)
+                                    : QString::fromLatin1("<a href=\"%1\">%2</a>")
+                                      .arg(revUrl.arg(revStr), revStr.left(10)));
 #endif
      QString buildDateInfo;
 #ifdef QTC_SHOW_BUILD_DATE
