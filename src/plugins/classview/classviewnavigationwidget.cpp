@@ -170,7 +170,7 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
     // full projects mode
     if (!fullProjectsModeButton) {
         // create a button
-        fullProjectsModeButton = new QToolButton();
+        fullProjectsModeButton = new QToolButton(this);
         fullProjectsModeButton->setIcon(
                     ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Class));
         fullProjectsModeButton->setCheckable(true);

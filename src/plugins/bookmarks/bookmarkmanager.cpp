@@ -216,15 +216,15 @@ BookmarkView::~BookmarkView()
     ICore::removeContextObject(m_bookmarkContext);
 }
 
-QList<QToolButton *> BookmarkView::createToolBarWidgets() const
+QList<QToolButton *> BookmarkView::createToolBarWidgets()
 {
     Command *prevCmd = ActionManager::command(Constants::BOOKMARKS_PREV_ACTION);
     Command *nextCmd = ActionManager::command(Constants::BOOKMARKS_NEXT_ACTION);
     QTC_ASSERT(prevCmd && nextCmd, return {});
-    auto prevButton = new QToolButton;
+    auto prevButton = new QToolButton(this);
     prevButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     prevButton->setDefaultAction(prevCmd->action());
-    auto nextButton = new QToolButton;
+    auto nextButton = new QToolButton(this);
     nextButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     nextButton->setDefaultAction(nextCmd->action());
     return {prevButton, nextButton};

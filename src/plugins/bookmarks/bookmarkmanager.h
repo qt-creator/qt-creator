@@ -130,7 +130,7 @@ public:
     explicit BookmarkView(BookmarkManager *manager);
     ~BookmarkView() final;
 
-    QList<QToolButton *> createToolBarWidgets() const;
+    QList<QToolButton *> createToolBarWidgets();
 
 public slots:
     void gotoBookmark(const QModelIndex &index);

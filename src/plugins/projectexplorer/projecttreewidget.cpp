@@ -296,7 +296,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_view, &QTreeView::collapsed,
             m_model, &FlatModel::onCollapsed);
 
-    m_toggleSync = new QToolButton;
+    m_toggleSync = new QToolButton(this);
     m_toggleSync->setIcon(Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
@@ -610,7 +610,7 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     auto ptw = new ProjectTreeWidget;
     n.widget = ptw;
 
-    auto filter = new QToolButton;
+    auto filter = new QToolButton(ptw);
     filter->setIcon(Icons::FILTER.icon());
     filter->setToolTip(tr("Filter Tree"));
     filter->setPopupMode(QToolButton::InstantPopup);

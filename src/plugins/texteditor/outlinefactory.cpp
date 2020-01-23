@@ -75,7 +75,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
 
     addWidget(label);
 
-    m_toggleSync = new QToolButton;
+    m_toggleSync = new QToolButton(this);
     m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(true);
