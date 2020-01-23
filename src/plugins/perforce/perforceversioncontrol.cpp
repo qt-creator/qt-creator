@@ -35,7 +35,7 @@
 namespace Perforce {
 namespace Internal {
 
-PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
+PerforceVersionControl::PerforceVersionControl(PerforcePluginPrivate *plugin) :
     m_plugin(plugin)
 { }
 

@@ -30,14 +30,14 @@
 namespace Subversion {
 namespace Internal {
 
-class SubversionPlugin;
+class SubversionPluginPrivate;
 
 // Just a proxy for SubversionPlugin
 class SubversionControl : public Core::IVersionControl
 {
     Q_OBJECT
 public:
-    explicit SubversionControl(SubversionPlugin *plugin);
+    explicit SubversionControl(SubversionPluginPrivate *plugin);
     QString displayName() const final;
     Core::Id id() const final;
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
@@ -64,7 +64,7 @@ public:
     void emitFilesChanged(const QStringList &);
 
 private:
-    SubversionPlugin *m_plugin;
+    SubversionPluginPrivate *m_plugin;
 };
 
 } // namespace Internal

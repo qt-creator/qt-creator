@@ -27,6 +27,7 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/icontext.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <extensionsystem/iplugin.h>
@@ -59,7 +60,7 @@ namespace Internal { class State; }
 class VcsBaseSubmitEditor;
 class VcsBasePluginPrivate;
 class VcsBasePluginStateData;
-class VcsBasePlugin;
+class VcsBasePluginPrivate;
 
 // Documentation inside.
 class VCSBASE_EXPORT VcsBasePluginState
@@ -109,7 +110,7 @@ public:
     friend VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state);
 
 private:
-    friend class VcsBasePlugin;
+    friend class VcsBasePluginPrivate;
     bool equals(const Internal::State &s) const;
     void setState(const Internal::State &s);
 
@@ -153,17 +154,17 @@ VCSBASE_EXPORT Utils::SynchronousProcessResponse runVcs(const QString &workingDi
                                                         QTextCodec *outputCodec = nullptr,
                                                         const QProcessEnvironment &env = {});
 
-class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
+class VCSBASE_EXPORT VcsBasePluginPrivate : public QObject
 {
     Q_OBJECT
 
 protected:
-    explicit VcsBasePlugin();
-
-    void extensionsInitialized() override;
+    explicit VcsBasePluginPrivate();
 
 public:
-    ~VcsBasePlugin() override;
+    ~VcsBasePluginPrivate() override;
+
+    void extensionsInitialized();
 
     const VcsBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
@@ -214,7 +215,13 @@ private:
     void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
 
-    VcsBasePluginPrivate *d;
+    bool supportsRepositoryCreation() const;
+
+    QPointer<VcsBaseSubmitEditor> m_submitEditor;
+    Core::IVersionControl *m_versionControl = nullptr;
+    Core::Context m_context;
+    VcsBasePluginState m_state;
+    int m_actionState = -1;
 };
 
 } // namespace VcsBase

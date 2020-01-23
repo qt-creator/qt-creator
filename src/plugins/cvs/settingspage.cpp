@@ -88,7 +88,7 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 }
 
 SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
-    VcsClientOptionsPage(control, CvsPlugin::instance()->client(), parent)
+    VcsClientOptionsPage(control, CvsPluginPrivate::instance()->client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(SettingsPageWidget::tr("CVS"));

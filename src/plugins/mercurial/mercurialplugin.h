@@ -49,30 +49,20 @@ namespace Internal {
 class OptionsPage;
 class MercurialClient;
 
-class MercurialPlugin : public VcsBase::VcsBasePlugin
+class MercurialPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Mercurial.json")
 
 public:
-    MercurialPlugin();
-    ~MercurialPlugin() override;
+    MercurialPluginPrivate();
+    ~MercurialPluginPrivate() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-
-    static MercurialPlugin *instance() { return m_instance; }
-    static MercurialClient *client() { return m_instance->m_client; }
+    static MercurialPluginPrivate *instance();
+    static MercurialClient *client();
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
-
-#ifdef WITH_TESTS
-private slots:
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-#endif
 
 private:
     // File menu action slots
@@ -121,7 +111,6 @@ private:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    static MercurialPlugin *m_instance;
     OptionsPage *optionsPage = nullptr;
     MercurialClient *m_client = nullptr;
 
@@ -146,6 +135,25 @@ private:
     QString m_submitRepository;
 
     bool m_submitActionTriggered = false;
+};
+
+class MercurialPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Mercurial.json")
+
+    ~MercurialPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+#ifdef WITH_TESTS
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
+
 };
 
 } // namespace Internal

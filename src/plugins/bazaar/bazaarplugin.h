@@ -51,29 +51,20 @@ class BazaarClient;
 class BazaarControl;
 class BazaarEditorWidget;
 
-class BazaarPlugin : public VcsBase::VcsBasePlugin
+class BazaarPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Bazaar.json")
 
 public:
-    BazaarPlugin();
-    ~BazaarPlugin() override;
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    BazaarPluginPrivate();
+    ~BazaarPluginPrivate() final;
 
-    static BazaarPlugin *instance();
+    static BazaarPluginPrivate *instance();
     BazaarClient *client() const;
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
-    bool submitEditorAboutToClose() override;
-
-#ifdef WITH_TESTS
-private slots:
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-#endif
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
+    bool submitEditorAboutToClose() final;
 
 private:
     // File menu action slots
@@ -107,8 +98,6 @@ private:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    static BazaarPlugin *m_instance;
-
     BazaarSettings m_bazaarSettings;
     BazaarClient *m_client = nullptr;
 
@@ -130,6 +119,24 @@ private:
 
     QString m_submitRepository;
     bool m_submitActionTriggered = false;
+};
+
+class BazaarPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Bazaar.json")
+
+    ~BazaarPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+#ifdef WITH_TESTS
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
 };
 
 } // namespace Internal

@@ -49,7 +49,7 @@ class RemoteAdditionDialog : public QDialog
 {
 public:
     RemoteAdditionDialog(const QStringList &remoteNames) :
-        m_invalidRemoteNameChars(GitPlugin::invalidBranchAndRemoteNamePattern()),
+        m_invalidRemoteNameChars(GitPluginPrivate::invalidBranchAndRemoteNamePattern()),
         m_remoteNames(remoteNames)
     {
         m_ui.setupUi(this);
@@ -157,7 +157,7 @@ void RemoteDialog::refresh(const QString &repository, bool force)
     if (m_remoteModel->workingDirectory() == repository && !force)
         return;
     // Refresh
-    m_ui->repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
+    m_ui->repositoryLabel->setText(GitPluginPrivate::msgRepositoryLabel(repository));
     if (repository.isEmpty()) {
         m_remoteModel->clear();
     } else {
@@ -205,7 +205,7 @@ void RemoteDialog::pushToRemote()
 
     const int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    GitPlugin::client()->push(m_remoteModel->workingDirectory(), {remoteName});
+    GitPluginPrivate::client()->push(m_remoteModel->workingDirectory(), {remoteName});
 }
 
 void RemoteDialog::fetchFromRemote()
@@ -216,7 +216,7 @@ void RemoteDialog::fetchFromRemote()
 
     int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    GitPlugin::client()->fetch(m_remoteModel->workingDirectory(), remoteName);
+    GitPluginPrivate::client()->fetch(m_remoteModel->workingDirectory(), remoteName);
 }
 
 void RemoteDialog::updateButtonState()

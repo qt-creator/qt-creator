@@ -516,113 +516,97 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
     the virtual submitEditorAboutToClose() to trigger the submit process.
 */
 
-class VcsBasePluginPrivate
-{
-public:
-    inline bool supportsRepositoryCreation() const;
-
-    QPointer<VcsBaseSubmitEditor> m_submitEditor;
-    IVersionControl *m_versionControl = nullptr;
-    Context m_context;
-    VcsBasePluginState m_state;
-    int m_actionState = -1;
-
-    static Internal::StateListener *m_listener;
-};
-
 bool VcsBasePluginPrivate::supportsRepositoryCreation() const
 {
     return m_versionControl && m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation);
 }
 
-Internal::StateListener *VcsBasePluginPrivate::m_listener = nullptr;
+static Internal::StateListener *m_listener = nullptr;
 
-VcsBasePlugin::VcsBasePlugin() :
-    d(new VcsBasePluginPrivate())
+VcsBasePluginPrivate::VcsBasePluginPrivate()
 { }
 
-VcsBasePlugin::~VcsBasePlugin()
+VcsBasePluginPrivate::~VcsBasePluginPrivate()
 {
-    delete d->m_versionControl;
-    delete d;
+    delete m_versionControl;
 }
 
-void VcsBasePlugin::initializeVcs(IVersionControl *vc, const Context &context)
+void VcsBasePluginPrivate::initializeVcs(IVersionControl *vc, const Context &context)
 {
     QTC_ASSERT(vc, return);
 
-    d->m_versionControl = vc;
-    d->m_context = context;
+    m_versionControl = vc;
+    m_context = context;
 
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
     connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,
-            this, &VcsBasePlugin::slotSubmitEditorAboutToClose);
+            this, &VcsBasePluginPrivate::slotSubmitEditorAboutToClose);
     // First time: create new listener
-    if (!VcsBasePluginPrivate::m_listener)
-        VcsBasePluginPrivate::m_listener = new Internal::StateListener(plugin);
-    connect(VcsBasePluginPrivate::m_listener, &Internal::StateListener::stateChanged,
-            this, &VcsBasePlugin::slotStateChanged);
+    if (!m_listener)
+        m_listener = new Internal::StateListener(plugin);
+    connect(m_listener, &Internal::StateListener::stateChanged,
+            this, &VcsBasePluginPrivate::slotStateChanged);
     // VCSes might have become (un-)available, so clear the VCS directory cache
     connect(vc, &IVersionControl::configurationChanged,
             VcsManager::instance(), &VcsManager::clearVersionControlCache);
     connect(vc, &IVersionControl::configurationChanged,
-            VcsBasePluginPrivate::m_listener, &Internal::StateListener::slotStateChanged);
+            m_listener, &Internal::StateListener::slotStateChanged);
 }
 
-void VcsBasePlugin::extensionsInitialized()
+void VcsBasePluginPrivate::extensionsInitialized()
 {
     // Initialize enable menus.
-    VcsBasePluginPrivate::m_listener->slotStateChanged();
+    m_listener->slotStateChanged();
 }
 
-void VcsBasePlugin::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result)
+void VcsBasePluginPrivate::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result)
 {
-    qCDebug(baseLog) << this << "plugin's submit editor" << d->m_submitEditor
-                     << (d->m_submitEditor ? d->m_submitEditor->document()->id().name() : QByteArray())
+    qCDebug(baseLog) << this << "plugin's submit editor" << m_submitEditor
+                     << (m_submitEditor ? m_submitEditor->document()->id().name() : QByteArray())
                      << "closing submit editor" << submitEditor
                      << (submitEditor ? submitEditor->document()->id().name() : QByteArray());
-    if (submitEditor == d->m_submitEditor)
+    if (submitEditor == m_submitEditor)
         *result = submitEditorAboutToClose();
 }
 
-IVersionControl *VcsBasePlugin::versionControl() const
+IVersionControl *VcsBasePluginPrivate::versionControl() const
 {
-    return d->m_versionControl;
+    return m_versionControl;
 }
 
-void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternalState, IVersionControl *vc)
+void VcsBasePluginPrivate::slotStateChanged(const VcsBase::Internal::State &newInternalState, IVersionControl *vc)
 {
-    if (vc == d->m_versionControl) {
+    if (vc == m_versionControl) {
         // We are directly affected: Change state
-        if (!d->m_state.equals(newInternalState)) {
-            d->m_state.setState(newInternalState);
+        if (!m_state.equals(newInternalState)) {
+            m_state.setState(newInternalState);
             updateActions(VcsEnabled);
-            ICore::addAdditionalContext(d->m_context);
+            ICore::addAdditionalContext(m_context);
         }
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
         const ActionState newActionState = vc ? OtherVcsEnabled : NoVcsEnabled;
-        if (d->m_actionState != newActionState || !d->m_state.isEmpty()) {
-            d->m_actionState = newActionState;
+        if (m_actionState != newActionState || !m_state.isEmpty()) {
+            m_actionState = newActionState;
             const VcsBasePluginState emptyState;
-            d->m_state = emptyState;
+            m_state = emptyState;
             updateActions(newActionState);
         }
-        ICore::removeAdditionalContext(d->m_context);
+        ICore::removeAdditionalContext(m_context);
     }
 }
 
-const VcsBasePluginState &VcsBasePlugin::currentState() const
+const VcsBasePluginState &VcsBasePluginPrivate::currentState() const
 {
-    return d->m_state;
+    return m_state;
 }
 
-bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
+bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction) const
 {
     qCDebug(baseLog) << "enableMenuAction" << menuAction->text() << as;
     switch (as) {
     case NoVcsEnabled: {
-        const bool supportsCreation = d->supportsRepositoryCreation();
+        const bool supportsCreation = supportsRepositoryCreation();
         menuAction->setVisible(supportsCreation);
         menuAction->setEnabled(supportsCreation);
         return supportsCreation;
@@ -638,18 +622,18 @@ bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
     return true;
 }
 
-QString VcsBasePlugin::commitDisplayName() const
+QString VcsBasePluginPrivate::commitDisplayName() const
 {
     return tr("Commit", "name of \"commit\" action of the VCS.");
 }
 
-bool VcsBasePlugin::promptBeforeCommit()
+bool VcsBasePluginPrivate::promptBeforeCommit()
 {
     return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?")
                                                      .arg(commitDisplayName().toLower()));
 }
 
-void VcsBasePlugin::promptToDeleteCurrentFile()
+void VcsBasePluginPrivate::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
@@ -668,9 +652,9 @@ static inline bool ask(QWidget *parent, const QString &title, const QString &que
     return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No, defaultButton) == QMessageBox::Yes;
 }
 
-void VcsBasePlugin::createRepository()
+void VcsBasePluginPrivate::createRepository()
 {
-    QTC_ASSERT(d->m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return);
+    QTC_ASSERT(m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
     QString directory;
     if (const Project *currentProject = ProjectTree::currentProject())
@@ -691,7 +675,7 @@ void VcsBasePlugin::createRepository()
             return;
     } while (true);
     // Create
-    const bool rc = d->m_versionControl->vcsCreateRepository(directory);
+    const bool rc = m_versionControl->vcsCreateRepository(directory);
     const QString nativeDir = QDir::toNativeSeparators(directory);
     if (rc) {
         QMessageBox::information(mw, tr("Repository Created"),
@@ -704,21 +688,21 @@ void VcsBasePlugin::createRepository()
     }
 }
 
-void VcsBasePlugin::setSubmitEditor(VcsBaseSubmitEditor *submitEditor)
+void VcsBasePluginPrivate::setSubmitEditor(VcsBaseSubmitEditor *submitEditor)
 {
-    d->m_submitEditor = submitEditor;
+    m_submitEditor = submitEditor;
 }
 
-VcsBaseSubmitEditor *VcsBasePlugin::submitEditor() const
+VcsBaseSubmitEditor *VcsBasePluginPrivate::submitEditor() const
 {
-    return d->m_submitEditor;
+    return m_submitEditor;
 }
 
-bool VcsBasePlugin::raiseSubmitEditor() const
+bool VcsBasePluginPrivate::raiseSubmitEditor() const
 {
-    if (!d->m_submitEditor)
+    if (!m_submitEditor)
         return false;
-    EditorManager::activateEditor(d->m_submitEditor, EditorManager::IgnoreNavigationHistory);
+    EditorManager::activateEditor(m_submitEditor, EditorManager::IgnoreNavigationHistory);
     return true;
 }
 
@@ -768,7 +752,7 @@ static const char SOURCE_PROPERTY[] = "qtcreator_source";
 void setSource(IDocument *document, const QString &source)
 {
     document->setProperty(SOURCE_PROPERTY, source);
-    VcsBasePluginPrivate::m_listener->slotStateChanged();
+    m_listener->slotStateChanged();
 }
 
 QString source(IDocument *document)

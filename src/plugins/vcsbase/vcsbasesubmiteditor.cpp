@@ -509,7 +509,7 @@ static QString withUnusedMnemonic(QString string, const QList<QPushButton *> &ot
 }
 
 VcsBaseSubmitEditor::PromptSubmitResult
-        VcsBaseSubmitEditor::promptSubmit(VcsBasePlugin *plugin,
+        VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin,
                                           bool *promptSetting,
                                           bool forcePrompt,
                                           bool canCommitOnFailure)

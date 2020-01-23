@@ -36,7 +36,7 @@ namespace Perforce {
 namespace Internal {
 
 class PerforceSubmitEditorWidget;
-class PerforcePlugin;
+class PerforcePluginPrivate;
 
 /* PerforceSubmitEditor: In p4, the file list is contained in the
  * submit message file (change list). On setting the file contents,

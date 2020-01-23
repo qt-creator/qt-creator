@@ -104,18 +104,14 @@ public:
     QString root;
 };
 
-class ClearCasePlugin : public VcsBase::VcsBasePlugin
+class ClearCasePluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
-
     enum { SilentRun = VcsBase::VcsCommand::NoOutput | VcsBase::VcsCommand::FullySynchronously };
 
 public:
-    ClearCasePlugin();
-    ~ClearCasePlugin() override;
-
-    bool initialize(const QStringList &arguments, QString *error_message) override;
+    ClearCasePluginPrivate();
+    ~ClearCasePluginPrivate() final;
 
     ClearCaseSubmitEditor *openClearCaseSubmitEditor(const QString &fileName, bool isUcm);
 
@@ -135,7 +131,7 @@ public:
     bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
 
-    static ClearCasePlugin *instance();
+    static ClearCasePluginPrivate *instance();
 
     QString ccGetCurrentActivity() const;
     QList<QStringPair> activities(int *current = nullptr) const;
@@ -168,29 +164,10 @@ public:
     void describe(const QString &source, const QString &changeNr);
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
     QString ccGet(const QString &workingDir, const QString &file, const QString &prefix = QString());
     QList<QStringPair> ccGetActivities() const;
-
-#ifdef WITH_TESTS
-private slots:
-    void initTestCase();
-    void cleanupTestCase();
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-    void testFileStatusParsing_data();
-    void testFileStatusParsing();
-    void testFileNotManaged();
-    void testFileCheckedOutDynamicView();
-    void testFileCheckedInDynamicView();
-    void testFileNotManagedDynamicView();
-    void testStatusActions_data();
-    void testStatusActions();
-    void testVcsStatusDynamicReadonlyNotManaged();
-    void testVcsStatusDynamicNotManaged();
-#endif
 
 private:
     void syncSlot();
@@ -287,10 +264,40 @@ private:
     QList<QStringPair> m_activities;
     QSharedPointer<StatusMap> m_statusMap;
 
-    static ClearCasePlugin *m_clearcasePluginInstance;
+    friend class ClearCasePlugin;
 #ifdef WITH_TESTS
     bool m_fakeClearTool = false;
     QString m_tempFile;
+#endif
+};
+
+class ClearCasePlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
+
+    ~ClearCasePlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *error_message) final;
+    void extensionsInitialized() final;
+
+#ifdef WITH_TESTS
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+    void testFileStatusParsing_data();
+    void testFileStatusParsing();
+    void testFileNotManaged();
+    void testFileCheckedOutDynamicView();
+    void testFileCheckedInDynamicView();
+    void testFileNotManagedDynamicView();
+    void testStatusActions_data();
+    void testStatusActions();
+    void testVcsStatusDynamicReadonlyNotManaged();
+    void testVcsStatusDynamicNotManaged();
 #endif
 };
 

@@ -62,16 +62,13 @@ const char FileConflictedC[] = "C";
 const char FileDeletedC[]    = "D";
 const char FileModifiedC[]   = "M";
 
-class SubversionPlugin : public VcsBase::VcsBasePlugin
+class SubversionPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Subversion.json")
 
 public:
-    SubversionPlugin();
-    ~SubversionPlugin() override;
-
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    SubversionPluginPrivate();
+    ~SubversionPluginPrivate() final;
 
     bool isVcsDirectory(const Utils::FilePath &fileName);
 
@@ -87,7 +84,7 @@ public:
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
 
-    static SubversionPlugin *instance();
+    static SubversionPluginPrivate *instance();
 
     QString monitorFile(const QString &repository) const;
     QString synchronousTopic(const QString &repository) const;
@@ -98,13 +95,8 @@ public:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
 
-#ifdef WITH_TESTS
-private slots:
-    void testLogResolving();
-#endif
-
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
 
 private:
@@ -173,8 +165,23 @@ private:
 
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
+};
 
-    static SubversionPlugin *m_subversionPluginInstance;
+class SubversionPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Subversion.json")
+
+    ~SubversionPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+#ifdef WITH_TESTS
+private slots:
+    void testLogResolving();
+#endif
+
 };
 
 } // namespace Subversion

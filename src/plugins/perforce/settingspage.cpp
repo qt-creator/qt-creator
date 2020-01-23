@@ -134,14 +134,14 @@ QWidget *SettingsPage::widget()
 {
     if (!m_widget) {
         m_widget = new SettingsPageWidget;
-        m_widget->setSettings(PerforcePlugin::settings());
+        m_widget->setSettings(PerforcePluginPrivate::settings());
     }
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
-    PerforcePlugin::setSettings(m_widget->settings());
+    PerforcePluginPrivate::setSettings(m_widget->settings());
 }
 
 void SettingsPage::finish()

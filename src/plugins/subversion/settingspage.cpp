@@ -97,7 +97,7 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 }
 
 SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
-    VcsClientOptionsPage(control, SubversionPlugin::instance()->client(), parent)
+    VcsClientOptionsPage(control, SubversionPluginPrivate::instance()->client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
     setDisplayName(SettingsPageWidget::tr("Subversion"));

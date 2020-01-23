@@ -62,17 +62,15 @@ public:
     QString message;
 };
 
-class CvsPlugin : public VcsBase::VcsBasePlugin
+class CvsPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CVS.json")
 
 public:
-    ~CvsPlugin() override;
+    CvsPluginPrivate();
+    ~CvsPluginPrivate() final;
 
     CvsClient *client() const;
-
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
@@ -84,20 +82,13 @@ public:
     // cvs 'edit' is used to implement 'open' (cvsnt).
     bool edit(const QString &topLevel, const QStringList &files);
 
-    static CvsPlugin *instance();
+    static CvsPluginPrivate *instance();
 
     void vcsAnnotate(const QString &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
 
-#ifdef WITH_TESTS
-private slots:
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-#endif
-
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
 
 private:
@@ -190,8 +181,24 @@ private:
 
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
+};
 
-    static CvsPlugin *m_cvsPluginInstance;
+class CvsPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CVS.json")
+
+    ~CvsPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+#ifdef WITH_TESTS
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
 };
 
 } // namespace Cvs

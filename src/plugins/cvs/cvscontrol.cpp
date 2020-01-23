@@ -41,7 +41,7 @@
 using namespace Cvs;
 using namespace Cvs::Internal;
 
-CvsControl::CvsControl(CvsPlugin *plugin) :
+CvsControl::CvsControl(CvsPluginPrivate *plugin) :
     m_plugin(plugin)
 { }
 
@@ -143,7 +143,7 @@ Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
 {
     QTC_ASSERT(localName == url, return nullptr);
 
-    const CvsSettings settings = CvsPlugin::instance()->client()->settings();
+    const CvsSettings settings = CvsPluginPrivate::instance()->client()->settings();
 
     QStringList args;
     args << QLatin1String("checkout") << url << extraArgs;

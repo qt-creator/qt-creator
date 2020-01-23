@@ -30,7 +30,7 @@
 namespace Cvs {
 namespace Internal {
 
-class CvsPlugin;
+class CvsPluginPrivate;
 
 // Just a proxy for CVSPlugin
 class CvsControl : public Core::IVersionControl
@@ -38,7 +38,7 @@ class CvsControl : public Core::IVersionControl
     Q_OBJECT
 
 public:
-    explicit CvsControl(CvsPlugin *plugin);
+    explicit CvsControl(CvsPluginPrivate *plugin);
     QString displayName() const final;
     Core::Id id() const final;
 
@@ -68,7 +68,7 @@ public:
     void emitFilesChanged(const QStringList &l);
 
 private:
-    CvsPlugin *const m_plugin;
+    CvsPluginPrivate *const m_plugin;
 };
 
 } // namespace Internal

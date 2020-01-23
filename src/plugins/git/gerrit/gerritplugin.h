@@ -55,7 +55,7 @@ public:
     explicit GerritPlugin(QObject *parent = nullptr);
     ~GerritPlugin() override;
 
-    bool initialize(Core::ActionContainer *ac);
+    void initialize(Core::ActionContainer *ac);
 
     static Utils::FilePath gitBinDirectory();
     static QString branch(const QString &repository);

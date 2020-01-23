@@ -168,7 +168,13 @@ PerforceResponse::PerforceResponse() :
 {
 }
 
-PerforcePlugin *PerforcePlugin::m_instance = nullptr;
+static PerforcePluginPrivate *dd = nullptr;
+
+PerforcePlugin::~PerforcePlugin()
+{
+    delete dd;
+    dd = nullptr;
+}
 
 static const VcsBaseSubmitEditorParameters submitParameters = {
     SUBMIT_MIMETYPE,
@@ -180,12 +186,18 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
+    dd = new PerforcePluginPrivate;
+    return true;
+}
+
+PerforcePluginPrivate::PerforcePluginPrivate()
+{
     Context context(PERFORCE_CONTEXT);
 
     auto vcsCtrl = new PerforceVersionControl(this);
     initializeVcs(vcsCtrl, context);
 
-    m_instance = this;
+    dd = this;
 
     m_settings.fromSettings(ICore::settings());
 
@@ -219,7 +231,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command = ActionManager::registerAction(m_diffFileAction, CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(tr("Diff Current File"));
-    connect(m_diffFileAction, &QAction::triggered, this, &PerforcePlugin::diffCurrentFile);
+    connect(m_diffFileAction, &QAction::triggered, this, &PerforcePluginPrivate::diffCurrentFile);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -227,7 +239,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command = ActionManager::registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(tr("Annotate Current File"));
-    connect(m_annotateCurrentAction, &QAction::triggered, this, &PerforcePlugin::annotateCurrentFile);
+    connect(m_annotateCurrentAction, &QAction::triggered, this, &PerforcePluginPrivate::annotateCurrentFile);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -236,7 +248,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+F") : tr("Alt+P,Alt+F")));
     command->setDescription(tr("Filelog Current File"));
-    connect(m_filelogCurrentAction, &QAction::triggered, this, &PerforcePlugin::filelogCurrentFile);
+    connect(m_filelogCurrentAction, &QAction::triggered, this, &PerforcePluginPrivate::filelogCurrentFile);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -247,7 +259,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+E") : tr("Alt+P,Alt+E")));
     command->setDescription(tr("Edit File"));
-    connect(m_editAction, &QAction::triggered, this, &PerforcePlugin::openCurrentFile);
+    connect(m_editAction, &QAction::triggered, this, &PerforcePluginPrivate::openCurrentFile);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -256,7 +268,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+A") : tr("Alt+P,Alt+A")));
     command->setDescription(tr("Add File"));
-    connect(m_addAction, &QAction::triggered, this, &PerforcePlugin::addCurrentFile);
+    connect(m_addAction, &QAction::triggered, this, &PerforcePluginPrivate::addCurrentFile);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -264,7 +276,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(tr("Delete File"));
-    connect(m_deleteAction, &QAction::triggered, this, &PerforcePlugin::promptToDeleteCurrentFile);
+    connect(m_deleteAction, &QAction::triggered, this, &PerforcePluginPrivate::promptToDeleteCurrentFile);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -273,7 +285,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+R") : tr("Alt+P,Alt+R")));
     command->setDescription(tr("Revert File"));
-    connect(m_revertFileAction, &QAction::triggered, this, &PerforcePlugin::revertCurrentFile);
+    connect(m_revertFileAction, &QAction::triggered, this, &PerforcePluginPrivate::revertCurrentFile);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -285,14 +297,14 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+D") : tr("Alt+P,Alt+D")));
     command->setDescription(diffProjectDefaultText);
-    connect(m_diffProjectAction, &QAction::triggered, this, &PerforcePlugin::diffCurrentProject);
+    connect(m_diffProjectAction, &QAction::triggered, this, &PerforcePluginPrivate::diffCurrentProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_logProjectAction = new ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_logProjectAction, &QAction::triggered, this, &PerforcePlugin::logProject);
+    connect(m_logProjectAction, &QAction::triggered, this, &PerforcePluginPrivate::logProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -300,7 +312,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command = ActionManager::registerAction(m_submitProjectAction, CMD_ID_SUBMIT, context);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+S") : tr("Alt+P,Alt+S")));
-    connect(m_submitProjectAction, &QAction::triggered, this, &PerforcePlugin::startSubmitProject);
+    connect(m_submitProjectAction, &QAction::triggered, this, &PerforcePluginPrivate::startSubmitProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -309,21 +321,21 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE_PROJECT, context);
     command->setDescription(updateProjectDefaultText);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_updateProjectAction, &QAction::triggered, this, &PerforcePlugin::updateCurrentProject);
+    connect(m_updateProjectAction, &QAction::triggered, this, &PerforcePluginPrivate::updateCurrentProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertUnchangedAction = new ParameterAction(tr("Revert Unchanged"), tr("Revert Unchanged Files of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertUnchangedAction, CMD_ID_REVERT_UNCHANGED_PROJECT, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_revertUnchangedAction, &QAction::triggered, this, &PerforcePlugin::revertUnchangedCurrentProject);
+    connect(m_revertUnchangedAction, &QAction::triggered, this, &PerforcePluginPrivate::revertUnchangedCurrentProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertProjectAction = new ParameterAction(tr("Revert Project"), tr("Revert Project \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertProjectAction, CMD_ID_REVERT_PROJECT, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_revertProjectAction, &QAction::triggered, this, &PerforcePlugin::revertCurrentProject);
+    connect(m_revertProjectAction, &QAction::triggered, this, &PerforcePluginPrivate::revertCurrentProject);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -331,32 +343,32 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_diffAllAction = new QAction(tr("Diff Opened Files"), this);
     command = ActionManager::registerAction(m_diffAllAction, CMD_ID_DIFF_ALL, context);
-    connect(m_diffAllAction, &QAction::triggered, this, &PerforcePlugin::diffAllOpened);
+    connect(m_diffAllAction, &QAction::triggered, this, &PerforcePluginPrivate::diffAllOpened);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_openedAction = new QAction(tr("Opened"), this);
     command = ActionManager::registerAction(m_openedAction, CMD_ID_OPENED, context);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+P,Meta+O") : tr("Alt+P,Alt+O")));
-    connect(m_openedAction, &QAction::triggered, this, &PerforcePlugin::printOpenedFileList);
+    connect(m_openedAction, &QAction::triggered, this, &PerforcePluginPrivate::printOpenedFileList);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_logRepositoryAction = new QAction(tr("Repository Log"), this);
     command = ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, context);
-    connect(m_logRepositoryAction, &QAction::triggered, this, &PerforcePlugin::logRepository);
+    connect(m_logRepositoryAction, &QAction::triggered, this, &PerforcePluginPrivate::logRepository);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_pendingAction = new QAction(tr("Pending Changes..."), this);
     command = ActionManager::registerAction(m_pendingAction, CMD_ID_PENDING_CHANGES, context);
-    connect(m_pendingAction, &QAction::triggered, this, &PerforcePlugin::printPendingChanges);
+    connect(m_pendingAction, &QAction::triggered, this, &PerforcePluginPrivate::printPendingChanges);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_updateAllAction = new QAction(tr("Update All"), this);
     command = ActionManager::registerAction(m_updateAllAction, CMD_ID_UPDATEALL, context);
-    connect(m_updateAllAction, &QAction::triggered, this, &PerforcePlugin::updateAll);
+    connect(m_updateAllAction, &QAction::triggered, this, &PerforcePluginPrivate::updateAll);
     perforceContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -364,42 +376,41 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_describeAction = new QAction(tr("Describe..."), this);
     command = ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, context);
-    connect(m_describeAction, &QAction::triggered, this, &PerforcePlugin::describeChange);
+    connect(m_describeAction, &QAction::triggered, this, &PerforcePluginPrivate::describeChange);
     perforceContainer->addAction(command);
 
     m_annotateAction = new QAction(tr("Annotate..."), this);
     command = ActionManager::registerAction(m_annotateAction, CMD_ID_ANNOTATE, context);
-    connect(m_annotateAction, &QAction::triggered, this, &PerforcePlugin::annotateFile);
+    connect(m_annotateAction, &QAction::triggered, this, &PerforcePluginPrivate::annotateFile);
     perforceContainer->addAction(command);
 
     m_filelogAction = new QAction(tr("Filelog..."), this);
     command = ActionManager::registerAction(m_filelogAction, CMD_ID_FILELOG, context);
-    connect(m_filelogAction, &QAction::triggered, this, &PerforcePlugin::filelogFile);
+    connect(m_filelogAction, &QAction::triggered, this, &PerforcePluginPrivate::filelogFile);
     perforceContainer->addAction(command);
-    return true;
 }
 
 void PerforcePlugin::extensionsInitialized()
 {
-    VcsBasePlugin::extensionsInitialized();
-    getTopLevel();
+    dd->extensionsInitialized();
+    dd->getTopLevel();
 }
 
-void PerforcePlugin::openCurrentFile()
+void PerforcePluginPrivate::openCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     vcsOpen(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void PerforcePlugin::addCurrentFile()
+void PerforcePluginPrivate::addCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void PerforcePlugin::revertCurrentFile()
+void PerforcePluginPrivate::revertCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
@@ -434,38 +445,38 @@ void PerforcePlugin::revertCurrentFile()
         perforceVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
 }
 
-void PerforcePlugin::diffCurrentFile()
+void PerforcePluginPrivate::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     p4Diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
-void PerforcePlugin::diffCurrentProject()
+void PerforcePluginPrivate::diffCurrentProject()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     p4Diff(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state));
 }
 
-void PerforcePlugin::diffAllOpened()
+void PerforcePluginPrivate::diffAllOpened()
 {
     p4Diff(m_settings.topLevel(), QStringList());
 }
 
-void PerforcePlugin::updateCurrentProject()
+void PerforcePluginPrivate::updateCurrentProject()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     updateCheckout(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state));
 }
 
-void PerforcePlugin::updateAll()
+void PerforcePluginPrivate::updateAll()
 {
     updateCheckout(m_settings.topLevel());
 }
 
-void PerforcePlugin::revertCurrentProject()
+void PerforcePluginPrivate::revertCurrentProject()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -476,7 +487,7 @@ void PerforcePlugin::revertCurrentProject()
     revertProject(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state), false);
 }
 
-void PerforcePlugin::revertUnchangedCurrentProject()
+void PerforcePluginPrivate::revertUnchangedCurrentProject()
 {
     // revert -a.
     const VcsBasePluginState state = currentState();
@@ -484,7 +495,7 @@ void PerforcePlugin::revertUnchangedCurrentProject()
     revertProject(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state), true);
 }
 
-bool PerforcePlugin::revertProject(const QString &workingDir, const QStringList &pathArgs, bool unchangedOnly)
+bool PerforcePluginPrivate::revertProject(const QString &workingDir, const QStringList &pathArgs, bool unchangedOnly)
 {
     QStringList args(QLatin1String("revert"));
     if (unchangedOnly)
@@ -495,7 +506,7 @@ bool PerforcePlugin::revertProject(const QString &workingDir, const QStringList 
     return !resp.error;
 }
 
-void PerforcePlugin::updateCheckout(const QString &workingDir, const QStringList &dirs)
+void PerforcePluginPrivate::updateCheckout(const QString &workingDir, const QStringList &dirs)
 {
     QStringList args(QLatin1String("sync"));
     args.append(dirs);
@@ -511,7 +522,7 @@ void PerforcePlugin::updateCheckout(const QString &workingDir, const QStringList
     }
 }
 
-void PerforcePlugin::printOpenedFileList()
+void PerforcePluginPrivate::printOpenedFileList()
 {
     const PerforceResponse perforceResponse
             = runP4Cmd(m_settings.topLevel(), QStringList(QLatin1String("opened")),
@@ -536,7 +547,7 @@ void PerforcePlugin::printOpenedFileList()
     VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 }
 
-void PerforcePlugin::startSubmitProject()
+void PerforcePluginPrivate::startSubmitProject()
 {
     if (!promptBeforeCommit())
         return;
@@ -600,19 +611,19 @@ void PerforcePlugin::startSubmitProject()
     openPerforceSubmitEditor(m_commitMessageFileName, depotFileNames);
 }
 
-IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
+IEditor *PerforcePluginPrivate::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
     IEditor *editor = EditorManager::openEditor(fileName, PERFORCE_SUBMIT_EDITOR_ID);
     auto submitEditor = static_cast<PerforceSubmitEditor*>(editor);
     setSubmitEditor(submitEditor);
     submitEditor->restrictToProjectFiles(depotFileNames);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
-            this, &PerforcePlugin::slotSubmitDiff);
+            this, &PerforcePluginPrivate::slotSubmitDiff);
     submitEditor->setCheckScriptWorkingDirectory(m_settings.topLevel());
     return editor;
 }
 
-void PerforcePlugin::printPendingChanges()
+void PerforcePluginPrivate::printPendingChanges()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     PendingChangesDialog dia(pendingChangesData(), ICore::mainWindow());
@@ -626,21 +637,21 @@ void PerforcePlugin::printPendingChanges()
     }
 }
 
-void PerforcePlugin::describeChange()
+void PerforcePluginPrivate::describeChange()
 {
     ChangeNumberDialog dia;
     if (dia.exec() == QDialog::Accepted && dia.number() > 0)
         describe(QString(), QString::number(dia.number()));
 }
 
-void PerforcePlugin::annotateCurrentFile()
+void PerforcePluginPrivate::annotateCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void PerforcePlugin::annotateFile()
+void PerforcePluginPrivate::annotateFile()
 {
     const QString file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("p4 annotate"));
     if (!file.isEmpty()) {
@@ -649,13 +660,13 @@ void PerforcePlugin::annotateFile()
     }
 }
 
-void PerforcePlugin::vcsAnnotate(const QString &workingDirectory, const QString &file,
+void PerforcePluginPrivate::vcsAnnotate(const QString &workingDirectory, const QString &file,
                                  const QString &revision, int lineNumber)
 {
     annotate(workingDirectory, file, revision, lineNumber);
 }
 
-void PerforcePlugin::annotate(const QString &workingDir,
+void PerforcePluginPrivate::annotate(const QString &workingDir,
                               const QString &fileName,
                               const QString &changeList /* = QString() */,
                               int lineNumber /* = -1 */)
@@ -683,14 +694,14 @@ void PerforcePlugin::annotate(const QString &workingDir,
     }
 }
 
-void PerforcePlugin::filelogCurrentFile()
+void PerforcePluginPrivate::filelogCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     filelog(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
-void PerforcePlugin::filelogFile()
+void PerforcePluginPrivate::filelogFile()
 {
     const QString file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("p4 filelog"));
     if (!file.isEmpty()) {
@@ -699,21 +710,21 @@ void PerforcePlugin::filelogFile()
     }
 }
 
-void PerforcePlugin::logProject()
+void PerforcePluginPrivate::logProject()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     changelists(state.currentProjectTopLevel(), perforceRelativeFileArguments(state.relativeCurrentProject()));
 }
 
-void PerforcePlugin::logRepository()
+void PerforcePluginPrivate::logRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     changelists(state.topLevel(), perforceRelativeFileArguments(QString()));
 }
 
-void PerforcePlugin::filelog(const QString &workingDir, const QString &fileName,
+void PerforcePluginPrivate::filelog(const QString &workingDir, const QString &fileName,
                              bool enableAnnotationContextMenu)
 {
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(fileName));
@@ -736,7 +747,7 @@ void PerforcePlugin::filelog(const QString &workingDir, const QString &fileName,
     }
 }
 
-void PerforcePlugin::changelists(const QString &workingDir, const QString &fileName)
+void PerforcePluginPrivate::changelists(const QString &workingDir, const QString &fileName)
 {
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(fileName));
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
@@ -757,7 +768,7 @@ void PerforcePlugin::changelists(const QString &workingDir, const QString &fileN
     }
 }
 
-void PerforcePlugin::updateActions(VcsBasePlugin::ActionState as)
+void PerforcePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
 {
     const bool menuActionEnabled = enableMenuAction(as, m_menuAction);
     const bool enableActions = currentState().hasTopLevel() && menuActionEnabled;
@@ -783,7 +794,7 @@ void PerforcePlugin::updateActions(VcsBasePlugin::ActionState as)
     m_revertUnchangedAction->setParameter(projectName);
 }
 
-bool PerforcePlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */)
+bool PerforcePluginPrivate::managesDirectory(const QString &directory, QString *topLevel /* = 0 */)
 {
     const bool rc = managesDirectoryFstat(directory);
     if (topLevel) {
@@ -795,7 +806,7 @@ bool PerforcePlugin::managesDirectory(const QString &directory, QString *topLeve
     return rc;
 }
 
-bool PerforcePlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+bool PerforcePluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
 {
     QStringList args;
     args << QLatin1String("fstat") << QLatin1String("-m1") << fileName;
@@ -803,7 +814,7 @@ bool PerforcePlugin::managesFile(const QString &workingDirectory, const QString 
     return result.stdOut.contains(QLatin1String("depotFile"));
 }
 
-bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
+bool PerforcePluginPrivate::managesDirectoryFstat(const QString &directory)
 {
     // Cached?
     const ManagedDirectoryCache::const_iterator cit = m_managedDirectoryCache.constFind(directory);
@@ -844,7 +855,7 @@ bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
     return managed;
 }
 
-bool PerforcePlugin::vcsOpen(const QString &workingDir, const QString &fileName, bool silently)
+bool PerforcePluginPrivate::vcsOpen(const QString &workingDir, const QString &fileName, bool silently)
 {
     QStringList args;
     args << QLatin1String("edit") << QDir::toNativeSeparators(fileName);
@@ -857,7 +868,7 @@ bool PerforcePlugin::vcsOpen(const QString &workingDir, const QString &fileName,
     return !result.error;
 }
 
-bool PerforcePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
+bool PerforcePluginPrivate::vcsAdd(const QString &workingDir, const QString &fileName)
 {
     QStringList args;
     args << QLatin1String("add") << fileName;
@@ -866,7 +877,7 @@ bool PerforcePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
     return !result.error;
 }
 
-bool PerforcePlugin::vcsDelete(const QString &workingDir, const QString &fileName)
+bool PerforcePluginPrivate::vcsDelete(const QString &workingDir, const QString &fileName)
 {
 
     QStringList args;
@@ -889,7 +900,7 @@ bool PerforcePlugin::vcsDelete(const QString &workingDir, const QString &fileNam
     return !deleteResult.error;
 }
 
-bool PerforcePlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)
+bool PerforcePluginPrivate::vcsMove(const QString &workingDir, const QString &from, const QString &to)
 {
     // TODO verify this works
     QStringList args;
@@ -907,16 +918,16 @@ bool PerforcePlugin::vcsMove(const QString &workingDir, const QString &from, con
 
 // Write extra args to temporary file
 QSharedPointer<TempFileSaver>
-PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
+PerforcePluginPrivate::createTemporaryArgumentFile(const QStringList &extraArgs,
                                             QString *errorString)
 {
     if (extraArgs.isEmpty())
         return QSharedPointer<TempFileSaver>();
     // create pattern
-    QString pattern = m_instance->m_tempFilePattern;
+    QString pattern = dd->m_tempFilePattern;
     if (pattern.isEmpty()) {
         pattern = Utils::TemporaryDirectory::masterDirectoryPath() + "/qtc_p4_XXXXXX.args";
-        m_instance->m_tempFilePattern = pattern;
+        dd->m_tempFilePattern = pattern;
     }
     QSharedPointer<TempFileSaver> rc(new TempFileSaver(pattern));
     rc->setAutoRemove(true);
@@ -935,26 +946,26 @@ PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
 
 static inline QString msgNotStarted(const QString &cmd)
 {
-    return PerforcePlugin::tr("Could not start perforce \"%1\". Please check your settings in the preferences.").arg(cmd);
+    return PerforcePluginPrivate::tr("Could not start perforce \"%1\". Please check your settings in the preferences.").arg(cmd);
 }
 
 static inline QString msgTimeout(int timeOutS)
 {
-    return PerforcePlugin::tr("Perforce did not respond within timeout limit (%1 s).").arg(timeOutS);
+    return PerforcePluginPrivate::tr("Perforce did not respond within timeout limit (%1 s).").arg(timeOutS);
 }
 
 static inline QString msgCrash()
 {
-    return PerforcePlugin::tr("The process terminated abnormally.");
+    return PerforcePluginPrivate::tr("The process terminated abnormally.");
 }
 
 static inline QString msgExitCode(int ex)
 {
-    return PerforcePlugin::tr("The process terminated with exit code %1.").arg(ex);
+    return PerforcePluginPrivate::tr("The process terminated with exit code %1.").arg(ex);
 }
 
 // Run using a SynchronousProcess, emitting signals to the message window
-PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
+PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workingDir,
                                                     const QStringList &args,
                                                     unsigned flags,
                                                     const QByteArray &stdInput,
@@ -1026,7 +1037,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
 }
 
 // Run using a QProcess, for short queries
-PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingDir,
+PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &workingDir,
                                                          const QStringList &args,
                                                          unsigned flags,
                                                          const QByteArray &stdInput,
@@ -1091,7 +1102,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     return response;
 }
 
-PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
+PerforceResponse PerforcePluginPrivate::runP4Cmd(const QString &workingDir,
                                           const QStringList &args,
                                           unsigned flags,
                                           const QStringList &extraArgs,
@@ -1136,7 +1147,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     return response;
 }
 
-IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
+IEditor *PerforcePluginPrivate::showOutputInEditor(const QString &title,
                                             const QString &output,
                                             int editorType,
                                             const QString &source,
@@ -1158,7 +1169,7 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
     auto e = qobject_cast<PerforceEditorWidget*>(editor->widget());
     if (!e)
         return nullptr;
-    connect(e, &VcsBaseEditorWidget::annotateRevisionRequested, this, &PerforcePlugin::annotate);
+    connect(e, &VcsBaseEditorWidget::annotateRevisionRequested, this, &PerforcePluginPrivate::annotate);
     e->setForceReadOnly(true);
     e->setSource(source);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
@@ -1168,7 +1179,7 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
     return editor;
 }
 
-void PerforcePlugin::slotSubmitDiff(const QStringList &files)
+void PerforcePluginPrivate::slotSubmitDiff(const QStringList &files)
 {
     p4Diff(m_settings.topLevel(), files);
 }
@@ -1210,12 +1221,12 @@ void PerforceDiffConfig::triggerReRun()
     emit reRunDiff(effectiveParameters);
 }
 
-QString PerforcePlugin::commitDisplayName() const
+QString PerforcePluginPrivate::commitDisplayName() const
 {
     return tr("Submit");
 }
 
-void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)
+void PerforcePluginPrivate::p4Diff(const QString &workingDir, const QStringList &files)
 {
     PerforceDiffParameters p;
     p.workingDir = workingDir;
@@ -1224,7 +1235,7 @@ void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)
     p4Diff(p);
 }
 
-void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
+void PerforcePluginPrivate::p4Diff(const PerforceDiffParameters &p)
 {
     QTextCodec *codec = VcsBaseEditor::getCodec(p.workingDir, p.files);
     const QString id = VcsBaseEditor::getTitleId(p.workingDir, p.files);
@@ -1268,7 +1279,7 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
     diffEditorWidget->setEditorConfig(pw);
 }
 
-void PerforcePlugin::describe(const QString & source, const QString &n)
+void PerforcePluginPrivate::describe(const QString & source, const QString &n)
 {
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(nullptr)
                                          : VcsBaseEditor::getCodec(source);
@@ -1280,14 +1291,14 @@ void PerforcePlugin::describe(const QString & source, const QString &n)
         showOutputInEditor(tr("p4 describe %1").arg(n), result.stdOut, VcsBase::DiffOutput, source, codec);
 }
 
-void PerforcePlugin::commitFromEditor()
+void PerforcePluginPrivate::commitFromEditor()
 {
     m_submitActionTriggered = true;
     QTC_ASSERT(submitEditor(), return);
     EditorManager::closeDocument(submitEditor()->document());
 }
 
-void PerforcePlugin::cleanCommitMessageFile()
+void PerforcePluginPrivate::cleanCommitMessageFile()
 {
     if (!m_commitMessageFileName.isEmpty()) {
         QFile::remove(m_commitMessageFileName);
@@ -1295,12 +1306,12 @@ void PerforcePlugin::cleanCommitMessageFile()
     }
 }
 
-bool PerforcePlugin::isCommitEditorOpen() const
+bool PerforcePluginPrivate::isCommitEditorOpen() const
 {
     return !m_commitMessageFileName.isEmpty();
 }
 
-bool PerforcePlugin::submitEditorAboutToClose()
+bool PerforcePluginPrivate::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
         return true;
@@ -1353,7 +1364,7 @@ bool PerforcePlugin::submitEditorAboutToClose()
     return true;
 }
 
-QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
+QString PerforcePluginPrivate::clientFilePath(const QString &serverFilePath)
 {
     QTC_ASSERT(m_settings.isValid(), return QString());
 
@@ -1369,7 +1380,7 @@ QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
     return r.indexIn(response.stdOut) != -1 ? r.cap(1).trimmed() : QString();
 }
 
-QString PerforcePlugin::pendingChangesData()
+QString PerforcePluginPrivate::pendingChangesData()
 {
     QTC_ASSERT(m_settings.isValid(), return QString());
 
@@ -1392,17 +1403,17 @@ QString PerforcePlugin::pendingChangesData()
     return dataResponse.error ? QString() : dataResponse.stdOut;
 }
 
-const PerforceSettings& PerforcePlugin::settings()
+const PerforceSettings& PerforcePluginPrivate::settings()
 {
-    return m_instance->m_settings;
+    return dd->m_settings;
 }
 
-void PerforcePlugin::setSettings(const Settings &newSettings)
+void PerforcePluginPrivate::setSettings(const Settings &newSettings)
 {
-    if (newSettings != m_instance->m_settings.settings()) {
-        m_instance->m_settings.setSettings(newSettings);
-        m_instance->m_managedDirectoryCache.clear();
-        m_instance->m_settings.toSettings(ICore::settings());
+    if (newSettings != dd->m_settings.settings()) {
+        dd->m_settings.setSettings(newSettings);
+        dd->m_managedDirectoryCache.clear();
+        dd->m_settings.toSettings(ICore::settings());
         getTopLevel();
         perforceVersionControl()->emitConfigurationChanged();
     }
@@ -1412,12 +1423,12 @@ static inline QString msgWhereFailed(const QString & file, const QString &why)
 {
     //: Failed to run p4 "where" to resolve a Perforce file name to a local
     //: file system name.
-    return PerforcePlugin::tr("Error running \"where\" on %1: %2").
+    return PerforcePluginPrivate::tr("Error running \"where\" on %1: %2").
             arg(QDir::toNativeSeparators(file), why);
 }
 
 // Map a perforce name "//xx" to its real name in the file system
-QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
+QString PerforcePluginPrivate::fileNameFromPerforceName(const QString& perforceName,
                                                  bool quiet,
                                                  QString *errorMessage)
 {
@@ -1448,15 +1459,15 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
         return QString();
     }
     const QString p4fileSpec = output.mid(output.lastIndexOf(QLatin1Char(' ')) + 1);
-    return m_instance->m_settings.mapToFileSystem(p4fileSpec);
+    return dd->m_settings.mapToFileSystem(p4fileSpec);
 }
 
-PerforceVersionControl *PerforcePlugin::perforceVersionControl()
+PerforceVersionControl *PerforcePluginPrivate::perforceVersionControl()
 {
-    return static_cast<PerforceVersionControl *>(m_instance->versionControl());
+    return static_cast<PerforceVersionControl *>(dd->versionControl());
 }
 
-void PerforcePlugin::setTopLevel(const QString &topLevel)
+void PerforcePluginPrivate::setTopLevel(const QString &topLevel)
 {
     if (m_settings.topLevel() == topLevel)
         return;
@@ -1467,20 +1478,20 @@ void PerforcePlugin::setTopLevel(const QString &topLevel)
     VcsOutputWindow::appendSilently(msg);
 }
 
-void PerforcePlugin::slotTopLevelFailed(const QString &errorMessage)
+void PerforcePluginPrivate::slotTopLevelFailed(const QString &errorMessage)
 {
     VcsOutputWindow::appendSilently(tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
 }
 
-void PerforcePlugin::getTopLevel(const QString &workingDirectory, bool isSync)
+void PerforcePluginPrivate::getTopLevel(const QString &workingDirectory, bool isSync)
 {
     // Run a new checker
-    if (m_instance->m_settings.p4BinaryPath().isEmpty())
+    if (dd->m_settings.p4BinaryPath().isEmpty())
         return;
-    auto checker = new PerforceChecker(m_instance);
-    connect(checker, &PerforceChecker::failed, m_instance, &PerforcePlugin::slotTopLevelFailed);
+    auto checker = new PerforceChecker(dd);
+    connect(checker, &PerforceChecker::failed, dd, &PerforcePluginPrivate::slotTopLevelFailed);
     connect(checker, &PerforceChecker::failed, checker, &QObject::deleteLater);
-    connect(checker, &PerforceChecker::succeeded, m_instance, &PerforcePlugin::setTopLevel);
+    connect(checker, &PerforceChecker::succeeded, dd, &PerforcePluginPrivate::setTopLevel);
     connect(checker, &PerforceChecker::succeeded,checker, &QObject::deleteLater);
 
     checker->start(settings().p4BinaryPath(), workingDirectory,

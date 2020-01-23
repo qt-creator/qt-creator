@@ -39,7 +39,7 @@ using namespace ClearCase;
 using namespace ClearCase::Internal;
 
 ActivitySelector::ActivitySelector(QWidget *parent) : QWidget(parent),
-    m_plugin(ClearCasePlugin::instance())
+    m_plugin(ClearCasePluginPrivate::instance())
 {
     QTC_ASSERT(m_plugin->isUcm(), return);
 

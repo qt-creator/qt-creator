@@ -54,7 +54,7 @@ private:
 
 void OptionsPageWidget::apply()
 {
-    VcsBaseClientSettings s = BazaarPlugin::instance()->client()->settings();
+    VcsBaseClientSettings s = BazaarPluginPrivate::instance()->client()->settings();
     s.setValue(BazaarSettings::binaryPathKey, m_ui.commandChooser->rawPath());
     s.setValue(BazaarSettings::userNameKey, m_ui.defaultUsernameLineEdit->text().trimmed());
     s.setValue(BazaarSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
@@ -68,7 +68,7 @@ void OptionsPageWidget::apply()
 }
 
 OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control)
-    : m_control(control), m_client(BazaarPlugin::instance()->client())
+    : m_control(control), m_client(BazaarPluginPrivate::instance()->client())
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);

@@ -34,7 +34,7 @@ class ClearCaseSync : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClearCaseSync(ClearCasePlugin *plugin, QSharedPointer<StatusMap> statusMap);
+    explicit ClearCaseSync(ClearCasePluginPrivate *plugin, QSharedPointer<StatusMap> statusMap);
     void run(QFutureInterface<void> &future, QStringList &files);
 
     QStringList updateStatusHotFiles(const QString &viewRoot, int &total);
@@ -55,7 +55,7 @@ signals:
     void updateStreamAndView();
 
 private:
-    ClearCasePlugin *const m_plugin;
+    ClearCasePluginPrivate *const m_plugin;
     QSharedPointer<StatusMap> m_statusMap;
 
 #ifdef WITH_TESTS

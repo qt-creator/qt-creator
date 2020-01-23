@@ -68,7 +68,7 @@ QString UnCommitDialog::revision() const
 
 void UnCommitDialog::dryRun()
 {
-    BazaarPlugin* bzrPlugin = BazaarPlugin::instance();
+    BazaarPluginPrivate *bzrPlugin = BazaarPluginPrivate::instance();
     QTC_ASSERT(bzrPlugin->currentState().hasTopLevel(), return);
     bzrPlugin->client()->synchronousUncommit(bzrPlugin->currentState().topLevel(),
                                              revision(),

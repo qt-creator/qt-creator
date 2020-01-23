@@ -88,7 +88,7 @@ CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const 
     CommitDataFetchResult result;
     result.commitData.commitType = commitType;
     QString commitTemplate;
-    result.success = GitPlugin::client()->getCommitData(workingDirectory, &commitTemplate,
+    result.success = GitPluginPrivate::client()->getCommitData(workingDirectory, &commitTemplate,
                                                         result.commitData, &result.errorMessage);
     return result;
 }
@@ -103,7 +103,7 @@ GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
 {
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::show, this, &GitSubmitEditor::showCommit);
-    connect(GitPlugin::instance()->versionControl(), &Core::IVersionControl::repositoryChanged,
+    connect(GitPluginPrivate::instance()->versionControl(), &Core::IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
     connect(&m_fetchWatcher, &QFutureWatcher<CommitDataFetchResult>::finished,
             this, &GitSubmitEditor::commitDataRetrieved);
@@ -202,15 +202,15 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
         }
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
-        GitPlugin::client()->diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
+        GitPluginPrivate::client()->diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
     if (!unmergedFiles.empty())
-        GitPlugin::client()->merge(m_workingDirectory, unmergedFiles);
+        GitPluginPrivate::client()->merge(m_workingDirectory, unmergedFiles);
 }
 
 void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
-        GitPlugin::client()->show(m_workingDirectory, commit);
+        GitPluginPrivate::client()->show(m_workingDirectory, commit);
 }
 
 void GitSubmitEditor::updateFileModel()
@@ -230,7 +230,7 @@ void GitSubmitEditor::updateFileModel()
     Core::ProgressManager::addTask(m_fetchWatcher.future(), tr("Refreshing Commit Data"),
                                    TASK_UPDATE_COMMIT);
 
-    GitPlugin::client()->addFuture(m_fetchWatcher.future());
+    GitPluginPrivate::client()->addFuture(m_fetchWatcher.future());
 }
 
 void GitSubmitEditor::forceUpdateFileModel()

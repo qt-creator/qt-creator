@@ -66,7 +66,7 @@ protected:
 };
 
 MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document, const QString &workingDirectory):
-    VcsBaseDiffEditorController(document, MercurialPlugin::client(), workingDirectory)
+    VcsBaseDiffEditorController(document, MercurialPluginPrivate::client(), workingDirectory)
 {
     setDisplayName("Hg Diff");
 }

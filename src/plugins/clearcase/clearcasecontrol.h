@@ -31,14 +31,14 @@
 namespace ClearCase {
 namespace Internal {
 
-class ClearCasePlugin;
+class ClearCasePluginPrivate;
 
 // Just a proxy for ClearCasePlugin
 class ClearCaseControl : public Core::IVersionControl
 {
     Q_OBJECT
 public:
-    explicit ClearCaseControl(ClearCasePlugin *plugin);
+    explicit ClearCaseControl(ClearCasePluginPrivate *plugin);
     QString displayName() const final;
     Core::Id id() const final;
 
@@ -69,7 +69,7 @@ public:
     void emitConfigurationChanged();
 
 private:
-    ClearCasePlugin *const m_plugin;
+    ClearCasePluginPrivate *const m_plugin;
 };
 
 } // namespace Internal

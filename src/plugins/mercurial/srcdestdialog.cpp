@@ -97,8 +97,7 @@ QString SrcDestDialog::workingDir() const
 
 QUrl SrcDestDialog::getRepoUrl() const
 {
-    MercurialPlugin *plugin = MercurialPlugin::instance();
-    const VcsBasePluginState state = plugin->currentState();
+    const VcsBasePluginState state = MercurialPluginPrivate::instance()->currentState();
     // Repo to use: Default to the project repo, but use the current
     const QString projectLoc = state.currentProjectPath();
     const QString fileLoc = state.currentFileTopLevel();

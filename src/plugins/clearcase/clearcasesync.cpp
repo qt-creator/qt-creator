@@ -41,7 +41,7 @@
 namespace ClearCase {
 namespace Internal {
 
-ClearCaseSync::ClearCaseSync(ClearCasePlugin *plugin, QSharedPointer<StatusMap> statusMap) :
+ClearCaseSync::ClearCaseSync(ClearCasePluginPrivate *plugin, QSharedPointer<StatusMap> statusMap) :
     m_plugin(plugin),
     m_statusMap(statusMap)
 { }

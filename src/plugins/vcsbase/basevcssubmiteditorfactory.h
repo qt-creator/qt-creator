@@ -36,7 +36,7 @@ namespace VcsBase {
 
 class VcsBaseSubmitEditor;
 class VcsBaseSubmitEditorParameters;
-class VcsBasePlugin;
+class VcsBasePluginPrivate;
 
 // Parametrizable base class for editor factories creating instances of
 // VcsBaseSubmitEditor subclasses.
@@ -49,7 +49,7 @@ public:
 
     VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters,
                            const EditorCreator &editorCreator,
-                           VcsBasePlugin *plugin);
+                           VcsBasePluginPrivate *plugin);
 
     Core::IEditor *createEditor() override;
 

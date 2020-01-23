@@ -67,19 +67,16 @@ class RemoteDialog;
 
 using GitClientMemberFunc = void (GitClient::*)(const QString &);
 
-class GitPlugin : public VcsBase::VcsBasePlugin
+class GitPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Git.json")
 
 public:
-    GitPlugin();
-    ~GitPlugin() override;
+    GitPluginPrivate();
+    ~GitPluginPrivate() final;
 
-    static GitPlugin *instance();
+    static GitPluginPrivate *instance();
     static GitClient *client();
-
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     GitVersionControl *gitVersionControl() const;
 
@@ -91,26 +88,13 @@ public:
     void updateBranches(const QString &repository);
     void updateCurrentBranch();
 
-    QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
-                           const QStringList &args) override;
     void manageRemotes();
     void initRepository();
     void startRebaseFromCommit(const QString &workingDirectory, QString commit);
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
-
-#ifdef WITH_TESTS
-private slots:
-    void testStatusParsing_data();
-    void testStatusParsing();
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-    void testGitRemote_data();
-    void testGitRemote();
-#endif
 
 private:
     void diffCurrentFile();
@@ -169,7 +153,7 @@ private:
     QAction *createProjectAction(Core::ActionContainer *ac,
                                  const QString &defaultText, const QString &parameterText,
                                  Core::Id id, const Core::Context &context, bool addToLocator,
-                                 void (GitPlugin::*func)(),
+                                 void (GitPluginPrivate::*func)(),
                                  const QKeySequence &keys = QKeySequence());
 
     QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Core::Id id,
@@ -220,6 +204,33 @@ private:
     QString m_submitRepository;
     QString m_commitMessageFileName;
     bool m_submitActionTriggered = false;
+};
+
+class GitPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Git.json")
+
+public:
+    ~GitPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+    QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
+                           const QStringList &args) final;
+
+#ifdef WITH_TESTS
+private slots:
+    void testStatusParsing_data();
+    void testStatusParsing();
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+    void testGitRemote_data();
+    void testGitRemote();
+#endif
+
 };
 
 } // namespace Internal

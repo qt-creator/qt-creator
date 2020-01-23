@@ -194,7 +194,7 @@ private:
 SubversionDiffEditorController::SubversionDiffEditorController(
         IDocument *document,
         const QString &workingDirectory)
-    : VcsBaseDiffEditorController(document, SubversionPlugin::instance()->client(), workingDirectory)
+    : VcsBaseDiffEditorController(document, SubversionPluginPrivate::instance()->client(), workingDirectory)
     , m_state(Idle)
 {
     forceContextLineCount(3); // SVN cannot change that when using internal diff

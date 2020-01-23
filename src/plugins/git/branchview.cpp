@@ -82,7 +82,7 @@ BranchView::BranchView() :
     m_refreshButton(new QToolButton(this)),
     m_repositoryLabel(new Utils::ElidingLabel(this)),
     m_branchView(new Utils::NavigationTreeView(this)),
-    m_model(new BranchModel(GitPlugin::client(), this)),
+    m_model(new BranchModel(GitPluginPrivate::client(), this)),
     m_filterModel(new BranchFilterModel(this))
 {
     m_addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
@@ -122,7 +122,7 @@ BranchView::BranchView() :
             this, &BranchView::setIncludeOldEntries);
     m_includeTagsAction->setCheckable(true);
     m_includeTagsAction->setChecked(
-                GitPlugin::client()->settings().boolValue(GitSettings::showTagsKey));
+                GitPluginPrivate::client()->settings().boolValue(GitSettings::showTagsKey));
     connect(m_includeTagsAction, &QAction::toggled,
             this, &BranchView::setIncludeTags);
 
@@ -138,7 +138,7 @@ BranchView::BranchView() :
             this, &BranchView::expandAndResize);
 
     m_branchView->selectionModel()->clear();
-    m_repository = GitPlugin::instance()->currentState().topLevel();
+    m_repository = GitPluginPrivate::instance()->currentState().topLevel();
     refreshCurrentRepository();
 }
 
@@ -160,7 +160,7 @@ void BranchView::refresh(const QString &repository, bool force)
         m_branchView->setEnabled(false);
     } else {
         m_repositoryLabel->setText(QDir::toNativeSeparators(m_repository));
-        m_repositoryLabel->setToolTip(GitPlugin::msgRepositoryLabel(m_repository));
+        m_repositoryLabel->setToolTip(GitPluginPrivate::msgRepositoryLabel(m_repository));
         m_addButton->setToolTip(tr("Add Branch..."));
         m_branchView->setEnabled(true);
     }
@@ -214,17 +214,17 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const Utils::optional<QString> remote = m_model->remoteName(index);
     if (remote.has_value()) {
         contextMenu.addAction(tr("&Fetch"), this, [this, &remote]() {
-            GitPlugin::client()->fetch(m_repository, *remote);
+            GitPluginPrivate::client()->fetch(m_repository, *remote);
         });
         contextMenu.addSeparator();
         if (!remote->isEmpty()) {
             contextMenu.addAction(tr("Remove &Stale Branches"), this, [this, &remote]() {
-                GitPlugin::client()->removeStaleRemoteBranches(m_repository, *remote);
+                GitPluginPrivate::client()->removeStaleRemoteBranches(m_repository, *remote);
             });
             contextMenu.addSeparator();
         }
-        contextMenu.addAction(tr("Manage &Remotes..."), GitPlugin::instance(),
-                              &GitPlugin::manageRemotes);
+        contextMenu.addAction(tr("Manage &Remotes..."), GitPluginPrivate::instance(),
+                              &GitPluginPrivate::manageRemotes);
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
@@ -237,7 +237,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         contextMenu.addAction(tr("&Diff"), this, [this] {
             const QString fullName = m_model->fullName(selectedIndex(), true);
             if (!fullName.isEmpty())
-                GitPlugin::client()->diffBranch(m_repository, fullName);
+                GitPluginPrivate::client()->diffBranch(m_repository, fullName);
         });
         contextMenu.addAction(tr("&Log"), this, [this] { log(selectedIndex()); });
         contextMenu.addSeparator();
@@ -287,7 +287,7 @@ void BranchView::setIncludeOldEntries(bool filter)
 
 void BranchView::setIncludeTags(bool includeTags)
 {
-    GitPlugin::client()->settings().setValue(GitSettings::showTagsKey, includeTags);
+    GitPluginPrivate::client()->settings().setValue(GitSettings::showTagsKey, includeTags);
     refreshCurrentRepository();
 }
 
@@ -302,7 +302,7 @@ QModelIndex BranchView::selectedIndex()
 bool BranchView::add()
 {
     if (m_repository.isEmpty()) {
-        GitPlugin::instance()->initRepository();
+        GitPluginPrivate::instance()->initRepository();
         return true;
     }
 
@@ -363,7 +363,7 @@ bool BranchView::checkout()
             ' ' + nextBranch + "-AutoStash ";
 
     BranchCheckoutDialog branchCheckoutDialog(this, currentBranch, nextBranch);
-    GitClient *client = GitPlugin::client();
+    GitClient *client = GitPluginPrivate::client();
 
     if (client->gitStatus(m_repository, StatusMode(NoUntracked | NoSubmodules)) != GitClient::StatusChanged)
         branchCheckoutDialog.foundNoLocalChanges();
@@ -498,7 +498,7 @@ bool BranchView::reset(const QByteArray &resetType)
     if (QMessageBox::question(this, tr("Git Reset"), tr("Reset branch \"%1\" to \"%2\"?")
                               .arg(currentName).arg(branchName),
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-        GitPlugin::client()->reset(m_repository, QLatin1String("--" + resetType), branchName);
+        GitPluginPrivate::client()->reset(m_repository, QLatin1String("--" + resetType), branchName);
         return true;
     }
     return false;
@@ -510,7 +510,7 @@ bool BranchView::isFastForwardMerge()
     QTC_CHECK(selected != m_model->currentBranch());
 
     const QString branch = m_model->fullName(selected, true);
-    return GitPlugin::client()->isFastForwardMerge(m_repository, branch);
+    return GitPluginPrivate::client()->isFastForwardMerge(m_repository, branch);
 }
 
 bool BranchView::merge(bool allowFastForward)
@@ -521,7 +521,7 @@ bool BranchView::merge(bool allowFastForward)
     QTC_CHECK(selected != m_model->currentBranch());
 
     const QString branch = m_model->fullName(selected, true);
-    GitClient *client = GitPlugin::client();
+    GitClient *client = GitPluginPrivate::client();
     if (client->beginStashScope(m_repository, "merge", AllowUnstashed))
         return client->synchronousMerge(m_repository, branch, allowFastForward);
 
@@ -536,7 +536,7 @@ void BranchView::rebase()
     QTC_CHECK(selected != m_model->currentBranch());
 
     const QString baseBranch = m_model->fullName(selected, true);
-    GitClient *client = GitPlugin::client();
+    GitClient *client = GitPluginPrivate::client();
     if (client->beginStashScope(m_repository, "rebase"))
         client->rebase(m_repository, baseBranch);
 }
@@ -549,14 +549,14 @@ bool BranchView::cherryPick()
     QTC_CHECK(selected != m_model->currentBranch());
 
     const QString branch = m_model->fullName(selected, true);
-    return GitPlugin::client()->synchronousCherryPick(m_repository, branch);
+    return GitPluginPrivate::client()->synchronousCherryPick(m_repository, branch);
 }
 
 void BranchView::log(const QModelIndex &idx)
 {
     const QString branchName = m_model->fullName(idx, true);
     if (!branchName.isEmpty())
-        GitPlugin::client()->log(m_repository, QString(), false, {branchName});
+        GitPluginPrivate::client()->log(m_repository, QString(), false, {branchName});
 }
 
 void BranchView::push()
@@ -572,7 +572,7 @@ void BranchView::push()
     const QString remoteBranch = fullTargetName.mid(pos + 1);
     const QStringList pushArgs = {remoteName, localBranch + ':' + remoteBranch};
 
-    GitPlugin::client()->push(m_repository, pushArgs);
+    GitPluginPrivate::client()->push(m_repository, pushArgs);
 }
 
 BranchViewFactory::BranchViewFactory()

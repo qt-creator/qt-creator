@@ -61,7 +61,7 @@ OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control)
     m_ui.commandChooser->setHistoryCompleter(QLatin1String("Mercurial.Command.History"));
     m_ui.commandChooser->setPromptDialogTitle(tr("Mercurial Command"));
 
-    const VcsBaseClientSettings &s = MercurialPlugin::client()->settings();
+    const VcsBaseClientSettings &s = MercurialPluginPrivate::client()->settings();
 
     m_ui.commandChooser->setPath(s.stringValue(MercurialSettings::binaryPathKey));
     m_ui.defaultUsernameLineEdit->setText(s.stringValue(MercurialSettings::userNameKey));
@@ -79,7 +79,7 @@ void OptionsPageWidget::apply()
     ms.setValue(MercurialSettings::logCountKey, m_ui.logEntriesCount->value());
     ms.setValue(MercurialSettings::timeoutKey, m_ui.timeout->value());
 
-    VcsBaseClientSettings &s = MercurialPlugin::client()->settings();
+    VcsBaseClientSettings &s = MercurialPluginPrivate::client()->settings();
     if (s != ms) {
         s = ms;
         m_control->configurationChanged();

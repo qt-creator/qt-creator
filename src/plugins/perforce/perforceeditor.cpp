@@ -106,7 +106,7 @@ VcsBase::BaseAnnotationHighlighter *PerforceEditorWidget::createAnnotationHighli
 QString PerforceEditorWidget::findDiffFile(const QString &f) const
 {
     QString errorMessage;
-    const QString fileName = PerforcePlugin::fileNameFromPerforceName(f.trimmed(), false, &errorMessage);
+    const QString fileName = PerforcePluginPrivate::fileNameFromPerforceName(f.trimmed(), false, &errorMessage);
     if (fileName.isEmpty())
         qWarning("%s", qPrintable(errorMessage));
     return fileName;

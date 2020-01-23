@@ -29,14 +29,14 @@
 
 namespace Perforce {
 namespace Internal {
-class PerforcePlugin;
+class PerforcePluginPrivate;
 
 // Just a proxy for PerforcePlugin
 class PerforceVersionControl : public Core::IVersionControl
 {
     Q_OBJECT
 public:
-    explicit PerforceVersionControl(PerforcePlugin *plugin);
+    explicit PerforceVersionControl(PerforcePluginPrivate *plugin);
 
     QString displayName() const final;
     Core::Id id() const final;
@@ -63,7 +63,7 @@ public:
     void emitConfigurationChanged();
 
 private:
-    PerforcePlugin *m_plugin;
+    PerforcePluginPrivate *m_plugin;
 };
 
 } // namespace Internal

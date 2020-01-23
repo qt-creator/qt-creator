@@ -158,7 +158,7 @@ public:
 
     void exec()
     {
-        GitClient *client = GitPlugin::client();
+        GitClient *client = GitPluginPrivate::client();
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
             "-c", "color.grep=always",
@@ -248,7 +248,7 @@ GitGrep::GitGrep(QObject *parent)
     const QRegularExpression refExpression("[\\S]*");
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
-    if (GitPlugin::client()->gitVersion() >= 0x021300) {
+    if (GitPluginPrivate::client()->gitVersion() >= 0x021300) {
         m_recurseSubmodules = new QCheckBox(tr("Recurse submodules"));
         layout->addWidget(m_recurseSubmodules);
     }
@@ -320,7 +320,7 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     QByteArray content;
     const QString topLevel = parameters.additionalParameters.toString();
     const QString relativePath = QDir(topLevel).relativeFilePath(path);
-    if (!GitPlugin::client()->synchronousShow(topLevel, params.ref + ":./" + relativePath,
+    if (!GitPluginPrivate::client()->synchronousShow(topLevel, params.ref + ":./" + relativePath,
                                               &content, nullptr)) {
         return nullptr;
     }

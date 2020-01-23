@@ -69,16 +69,12 @@ struct PerforceResponse
     QString message;
 };
 
-class PerforcePlugin : public VcsBase::VcsBasePlugin
+class PerforcePluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Perforce.json")
 
 public:
-    PerforcePlugin() = default;
-
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
+    PerforcePluginPrivate();
 
     bool managesDirectory(const QString &directory, QString *topLevel = nullptr);
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
@@ -103,14 +99,11 @@ public:
     void vcsAnnotate(const QString &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
 
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
-    bool submitEditorAboutToClose() override;
+    static void getTopLevel(const QString &workingDirectory = QString(), bool isSync = false);
 
-#ifdef WITH_TESTS
-private slots:
-    void testLogResolving();
-#endif
+protected:
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
+    bool submitEditorAboutToClose() override;
 
 private:
     QString commitDisplayName() const final;
@@ -203,7 +196,6 @@ private:
     static QSharedPointer<Utils::TempFileSaver> createTemporaryArgumentFile(const QStringList &extraArgs,
                                                                             QString *errorString);
 
-    static void getTopLevel(const QString &workingDirectory = QString(), bool isSync = false);
     QString pendingChangesData();
 
     void updateCheckout(const QString &workingDir = QString(),
@@ -240,10 +232,24 @@ private:
     mutable QString m_tempFilePattern;
     QAction *m_menuAction = nullptr;
 
-    static PerforcePlugin *m_instance;
-
     PerforceSettings m_settings;
     ManagedDirectoryCache m_managedDirectoryCache;
+};
+
+class PerforcePlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Perforce.json")
+
+    ~PerforcePlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+#ifdef WITH_TESTS
+private slots:
+    void testLogResolving();
+#endif
 };
 
 } // namespace Perforce

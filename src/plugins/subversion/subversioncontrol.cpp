@@ -44,7 +44,7 @@ namespace Internal {
 class SubversionTopicCache : public Core::IVersionControl::TopicCache
 {
 public:
-    SubversionTopicCache(SubversionPlugin *plugin) :
+    SubversionTopicCache(SubversionPluginPrivate *plugin) :
         m_plugin(plugin)
     { }
 
@@ -60,10 +60,10 @@ protected:
     }
 
 private:
-    SubversionPlugin *m_plugin;
+    SubversionPluginPrivate *m_plugin;
 };
 
-SubversionControl::SubversionControl(SubversionPlugin *plugin) :
+SubversionControl::SubversionControl(SubversionPluginPrivate *plugin) :
     Core::IVersionControl(new SubversionTopicCache(plugin)),
     m_plugin(plugin)
 { }
