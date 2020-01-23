@@ -37,6 +37,50 @@
 namespace QmlDesigner {
 namespace Internal {
 
+// Double precision vec3 for cases where float calculations can suffer from rounding errors
+class DoubleVec {
+public:
+    DoubleVec(const QVector3D &v)
+        : x(double(v.x())),
+          y(double(v.y())),
+          z(double(v.z()))
+    {}
+    DoubleVec(double xx, double yy, double zz)
+        : x(xx),
+          y(yy),
+          z(zz)
+    {}
+
+    static double dotProduct(const DoubleVec &v1, const DoubleVec &v2)
+    {
+        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    }
+
+    QVector3D toVec3()
+    {
+        return QVector3D(float(x), float(y), float(z));
+    }
+
+    double x;
+    double y;
+    double z;
+};
+
+DoubleVec operator*(double factor, const DoubleVec &v)
+{
+    return DoubleVec(v.x * factor, v.y * factor, v.z * factor);
+}
+
+DoubleVec operator+(const DoubleVec &v1, const DoubleVec &v2)
+{
+    return DoubleVec(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+}
+
+DoubleVec operator-(const DoubleVec &v1, const DoubleVec &v2)
+{
+    return DoubleVec(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+}
+
 MouseArea3D *MouseArea3D::s_mouseGrab = nullptr;
 
 MouseArea3D::MouseArea3D(QQuick3DNode *parent)
@@ -256,17 +300,21 @@ QVector3D MouseArea3D::rayIntersectsPlane(const QVector3D &rayPos0,
                                           const QVector3D &planePos,
                                           const QVector3D &planeNormal) const
 {
-    QVector3D rayDirection = rayPos1 - rayPos0;
-    QVector3D rayPos0RelativeToPlane = rayPos0 - planePos;
+    const DoubleVec rayPos0D(rayPos0);
+    const DoubleVec rayPos1D(rayPos1);
+    const DoubleVec planePosD(planePos);
+    const DoubleVec planeNormalD(planeNormal);
+    const DoubleVec rayDirectionD = rayPos1D - rayPos0D;
+    const DoubleVec rayPos0RelativeToPlaneD = rayPos0D - planePosD;
 
-    float dotPlaneRayDirection = QVector3D::dotProduct(planeNormal, rayDirection);
-    float dotPlaneRayPos0 = -QVector3D::dotProduct(planeNormal, rayPos0RelativeToPlane);
+    const double dotPlaneRayDirection = DoubleVec::dotProduct(planeNormalD, rayDirectionD);
+    const double dotPlaneRayPos0 = -DoubleVec::dotProduct(planeNormalD, rayPos0RelativeToPlaneD);
 
     if (qFuzzyIsNull(dotPlaneRayDirection)) {
         // The ray is is parallel to the plane. Note that if dotLinePos0 == 0, it
         // additionally means that the line lies in plane as well. In any case, we
         // signal that we cannot find a single intersection point.
-        return QVector3D(0, 0, -1);
+        return QVector3D(0.f, 0.f, -1.f);
     }
 
     // Since we work with a ray (that has a start), distanceFromLinePos0ToPlane
@@ -275,10 +323,10 @@ QVector3D MouseArea3D::rayIntersectsPlane(const QVector3D &rayPos0,
     // it has neither a start, nor an end). Then we wouldn't need to check the distance at all.
     // But that would also mean that the line could intersect the plane behind the camera, if
     // the line were directed away from the plane when looking forward.
-    float distanceFromRayPos0ToPlane = dotPlaneRayPos0 / dotPlaneRayDirection;
-    if (distanceFromRayPos0ToPlane <= 0)
-        return QVector3D(0, 0, -1);
-    return rayPos0 + distanceFromRayPos0ToPlane * rayDirection;
+    const double distanceFromRayPos0ToPlane = dotPlaneRayPos0 / dotPlaneRayDirection;
+    if (distanceFromRayPos0ToPlane <= 0.)
+        return QVector3D(0.f, 0.f, -1.f);
+    return (rayPos0D + distanceFromRayPos0ToPlane * rayDirectionD).toVec3();
 }
 
 // Get a new scale based on a relative scene distance along a drag axes.
@@ -423,9 +471,11 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
 {
     if (!helper)
         helper = this;
+
     const QVector3D mousePos1(float(mousePosInView.x()), float(mousePosInView.y()), 0);
-    const QVector3D mousePos2(float(mousePosInView.x()), float(mousePosInView.y()), 1);
     const QVector3D rayPos0 = m_view3D->mapTo3DScene(mousePos1);
+    const QVector3D mousePos2(float(mousePosInView.x()), float(mousePosInView.y()),
+                              rayPos0.length());
     const QVector3D rayPos1 = m_view3D->mapTo3DScene(mousePos2);
     const QVector3D globalPlanePosition = helper->mapPositionToScene(QVector3D(0, 0, 0));
     const QVector3D intersectGlobalPos = rayIntersectsPlane(rayPos0, rayPos1,
