@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "modeleditor_global.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace ModelEditor {
@@ -34,12 +32,10 @@ namespace Internal {
 
 class ModelsManager;
 
-class ModelEditorPlugin :
-        public ExtensionSystem::IPlugin
+class ModelEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ModelEditor.json")
-    class ModelEditorPluginPrivate;
 
 public:
     ModelEditorPlugin();
@@ -52,7 +48,7 @@ public:
     static ModelsManager *modelsManager();
 
 private:
-    ModelEditorPluginPrivate *d;
+    class ModelEditorPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

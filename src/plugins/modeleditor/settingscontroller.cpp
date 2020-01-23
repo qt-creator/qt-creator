@@ -32,8 +32,7 @@
 namespace ModelEditor {
 namespace Internal {
 
-SettingsController::SettingsController(QObject *parent)
-    : QObject(parent)
+SettingsController::SettingsController()
 {
 }
 

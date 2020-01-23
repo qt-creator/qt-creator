@@ -25,12 +25,13 @@
 
 #include "modeleditor_plugin.h"
 
+#include "jsextension.h"
+#include "modeleditor_constants.h"
 #include "modeleditorfactory.h"
+#include "modeleditor_global.h"
 #include "modelsmanager.h"
 #include "settingscontroller.h"
-#include "modeleditor_constants.h"
 #include "uicontroller.h"
-#include "jsextension.h"
 
 #include "qmt/infrastructure/uid.h"
 
@@ -45,32 +46,24 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QMessageBox>
-#include <QMainWindow>
-#include <QMenu>
 #include <QItemSelection>
 #include <QClipboard>
-#include <QFontDatabase>
-
-#include <QtPlugin>
 
 namespace ModelEditor {
 namespace Internal {
 
 ModelEditorPlugin *pluginInstance = nullptr;
 
-class ModelEditorPlugin::ModelEditorPluginPrivate
+class ModelEditorPluginPrivate final
 {
 public:
-    ModelsManager *modelsManager = nullptr;
-    UiController *uiController = nullptr;
-    ModelEditorFactory *modelFactory = nullptr;
-    SettingsController *settingsController = nullptr;
+    ModelsManager modelsManager;
+    UiController uiController;
+    ModelEditorFactory modelFactory{&uiController};
+    SettingsController settingsController;
 };
 
 ModelEditorPlugin::ModelEditorPlugin()
-    : ExtensionSystem::IPlugin(),
-      d(new ModelEditorPluginPrivate)
 {
     pluginInstance = this;
     qRegisterMetaType<QItemSelection>("QItemSelection");
@@ -86,18 +79,14 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-
-    d->modelsManager = new ModelsManager(this);
-    d->uiController = new UiController(this);
-    d->modelFactory = new ModelEditorFactory(d->uiController, this);
-    d->settingsController = new SettingsController(this);
+    d = new ModelEditorPluginPrivate;
 
     Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
 
-    connect(d->settingsController, &SettingsController::saveSettings,
-            d->uiController, &UiController::saveSettings);
-    connect(d->settingsController, &SettingsController::loadSettings,
-            d->uiController, &UiController::loadSettings);
+    connect(&d->settingsController, &SettingsController::saveSettings,
+            &d->uiController, &UiController::saveSettings);
+    connect(&d->settingsController, &SettingsController::loadSettings,
+            &d->uiController, &UiController::loadSettings);
 
     return true;
 }
@@ -107,20 +96,20 @@ void ModelEditorPlugin::extensionsInitialized()
     // Retrieve objects from the plugin manager's object pool
     // In the extensionsInitialized method, a plugin can be sure that all
     // plugins that depend on it are completely initialized.
-    d->modelFactory->extensionsInitialized();
-    d->settingsController->load(Core::ICore::settings());
+    d->modelFactory.extensionsInitialized();
+    d->settingsController.load(Core::ICore::settings());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ModelEditorPlugin::aboutToShutdown()
 {
-    d->settingsController->save(Core::ICore::settings());
+    d->settingsController.save(Core::ICore::settings());
     QApplication::clipboard()->clear();
     return SynchronousShutdown;
 }
 
 ModelsManager *ModelEditorPlugin::modelsManager()
 {
-    return pluginInstance->d->modelsManager;
+    return &pluginInstance->d->modelsManager;
 }
 
 } // namespace Internal

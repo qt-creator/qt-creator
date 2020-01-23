@@ -41,7 +41,7 @@ class UiController :
     class UiControllerPrivate;
 
 public:
-    explicit UiController(QObject *parent = nullptr);
+    UiController();
     ~UiController();
 
 signals:

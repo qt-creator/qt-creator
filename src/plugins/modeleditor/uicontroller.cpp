@@ -39,9 +39,8 @@ public:
     QByteArray rightHorizSplitterState;
 };
 
-UiController::UiController(QObject *parent)
-    : QObject(parent),
-      d(new UiControllerPrivate)
+UiController::UiController()
+    : d(new UiControllerPrivate)
 {
 }
 

@@ -41,9 +41,8 @@ public:
     ActionHandler *actionHandler = nullptr;
 };
 
-ModelEditorFactory::ModelEditorFactory(UiController *uiController, QObject *parent)
-    : Core::IEditorFactory(parent),
-      d(new ModelEditorFactoryPrivate())
+ModelEditorFactory::ModelEditorFactory(UiController *uiController)
+    : d(new ModelEditorFactoryPrivate())
 {
     setId(Constants::MODEL_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::MODEL_EDITOR_DISPLAY_NAME));
