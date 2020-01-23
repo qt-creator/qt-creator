@@ -470,7 +470,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
     const QString type = packet.value("type").toString();
     if (type == "hello") {
         QTC_CHECK(d->state == State::Initializing);
-        if (packet.value("api-compat-level").toInt() != 1) {
+        if (packet.value("api-compat-level").toInt() > 2) {
             setError(Error::VersionMismatch);
             return;
         }
