@@ -533,6 +533,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     abisLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
     abisListWidget = new QListWidget(this);
+    qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
 
     auto formLayout = new QFormLayout(this);
     formLayout->addRow(label_0, buildConfigurationWidget);
