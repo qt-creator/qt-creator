@@ -142,8 +142,13 @@ public:
 // Kit:
 // -------------------------------------------------------------------------
 
-Kit::Kit(Id id) :
-    d(std::make_unique<Internal::KitPrivate>(id, this))
+Kit::Predicate Kit::defaultPredicate()
+{
+    return [](const Kit *k) { return k->isValid(); };
+}
+
+Kit::Kit(Id id)
+    : d(std::make_unique<Internal::KitPrivate>(id, this))
 {
 }
 

@@ -59,6 +59,7 @@ class PROJECTEXPLORER_EXPORT Kit
 {
 public:
     using Predicate = std::function<bool(const Kit *)>;
+    static Predicate defaultPredicate();
 
     explicit Kit(Core::Id id = Core::Id());
     explicit Kit(const QVariantMap &data);
