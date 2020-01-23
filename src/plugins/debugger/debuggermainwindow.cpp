@@ -104,6 +104,8 @@ public:
 class PerspectivePrivate
 {
 public:
+    ~PerspectivePrivate();
+
     void showInnerToolBar();
     void hideInnerToolBar();
     void restoreLayout();
@@ -847,6 +849,12 @@ QWidget *Perspective::centralWidget() const
 Context PerspectivePrivate::context() const
 {
     return Context(Id::fromName(m_id.toUtf8()));
+}
+
+PerspectivePrivate::~PerspectivePrivate()
+{
+    for (const DockOperation &op : qAsConst(m_dockOperations))
+        delete op.widget;
 }
 
 void PerspectivePrivate::showInnerToolBar()
