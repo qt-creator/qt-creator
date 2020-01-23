@@ -220,7 +220,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     m_parseThread.start();
     QmlPreviewParser *parser = new QmlPreviewParser;
     parser->moveToThread(&m_parseThread);
-    connect(this, &QObject::destroyed, parser, &QObject::deleteLater);
+    connect(&m_parseThread, &QThread::finished, parser, &QObject::deleteLater);
     connect(q, &QmlPreviewPlugin::checkDocument, parser, &QmlPreviewParser::parse);
     connect(q, &QmlPreviewPlugin::previewedFileChanged, this, &QmlPreviewPluginPrivate::checkFile);
     connect(parser, &QmlPreviewParser::success, this, &QmlPreviewPluginPrivate::triggerPreview);
