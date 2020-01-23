@@ -143,6 +143,7 @@ GitPlugin::~GitPlugin()
 {
     cleanCommitMessageFile();
     delete m_gitClient;
+    delete m_branchViewFactory;
     m_instance = nullptr;
 }
 
