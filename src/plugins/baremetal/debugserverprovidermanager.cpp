@@ -32,6 +32,10 @@
 #include "debugservers/gdb/jlinkgdbserverprovider.h"
 #include "debugservers/gdb/eblinkgdbserverprovider.h"
 
+// UVSC debug servers.
+#include "debugservers/uvsc/simulatoruvscserverprovider.h"
+#include "debugservers/uvsc/stlinkuvscserverprovider.h"
+
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -59,7 +63,9 @@ DebugServerProviderManager::DebugServerProviderManager()
     , m_factories({new JLinkGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
                    new StLinkUtilGdbServerProviderFactory,
-                   new EBlinkGdbServerProviderFactory})
+                   new EBlinkGdbServerProviderFactory,
+                   new SimulatorUvscServerProviderFactory,
+                   new StLinkUvscServerProviderFactory})
 {
     m_instance = this;
     m_writer = new Utils::PersistentSettingsWriter(

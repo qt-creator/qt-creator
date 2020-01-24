@@ -92,6 +92,7 @@ public:
     void readDebuggers(const FilePath &fileName, bool isSystem);
     void autoDetectCdbDebuggers();
     void autoDetectGdbOrLldbDebuggers();
+    void autoDetectUvscDebuggers();
     QString uniqueDisplayName(const QString &base);
 
     PersistentSettingsWriter m_writer;
@@ -788,6 +789,47 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     }
 }
 
+void DebuggerItemManagerPrivate::autoDetectUvscDebuggers()
+{
+    if (!HostOsInfo::isWindowsHost())
+        return;
+
+    // Registry token for the "KEIL uVision" instance.
+    static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
+                                         "Windows\\CurrentVersion\\Uninstall\\Keil \u00B5Vision4";
+
+    QSettings registry(QLatin1String(kRegistryToken), QSettings::NativeFormat);
+    const auto productGroups = registry.childGroups();
+    for (const QString &productKey : productGroups) {
+        if (!productKey.startsWith("App"))
+            continue;
+        registry.beginGroup(productKey);
+        const QDir rootPath(registry.value("Directory").toString());
+        registry.endGroup();
+        const FilePath uVision = FilePath::fromString(
+                    rootPath.absoluteFilePath("UV4/UV4.exe"));
+        if (!uVision.exists())
+            continue;
+        if (DebuggerItemManager::findByCommand(uVision))
+            continue;
+
+        QString errorMsg;
+        const QString uVisionVersion = winGetDLLVersion(
+                    WinDLLFileVersion, uVision.toString(), &errorMsg);
+
+        DebuggerItem item;
+        item.createId();
+        item.setAutoDetected(true);
+        item.setCommand(uVision);
+        item.setVersion(uVisionVersion);
+        item.setEngineType(UvscEngineType);
+        item.setUnexpandedDisplayName(
+                    uniqueDisplayName(tr("Auto-detected uVision at %1")
+                                      .arg(uVision.toUserOutput())));
+        m_model->addDebugger(item);
+    }
+}
+
 static FilePath userSettingsFileName()
 {
     return FilePath::fromString(ICore::userResourcePath() + DEBUGGER_FILENAME);
@@ -894,6 +936,7 @@ void DebuggerItemManagerPrivate::restoreDebuggers()
     // Auto detect current.
     autoDetectCdbDebuggers();
     autoDetectGdbOrLldbDebuggers();
+    autoDetectUvscDebuggers();
 }
 
 void DebuggerItemManagerPrivate::saveDebuggers()

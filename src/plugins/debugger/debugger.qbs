@@ -127,6 +127,18 @@ Project {
         }
 
         Group {
+            name: "uvsc"
+            prefix: "uvsc/"
+            files: [
+                "uvscclient.cpp", "uvscclient.h",
+                "uvscdatatypes.h",
+                "uvscengine.cpp", "uvscengine.h",
+                "uvscfunctions.h",
+                "uvscutils.cpp", "uvscutils.h",
+            ]
+        }
+
+        Group {
             name: "Name Demangler"
             prefix: "namedemangler/"
             files: [

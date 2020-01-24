@@ -48,4 +48,27 @@ QtcPlugin {
             "eblinkgdbserverprovider.cpp", "eblinkgdbserverprovider.h",
         ]
     }
+
+    Group {
+        name: "UVSC Servers"
+        prefix: "debugservers/uvsc/"
+        files: [
+            "simulatoruvscserverprovider.cpp", "simulatoruvscserverprovider.h",
+            "stlinkuvscserverprovider.cpp", "stlinkuvscserverprovider.h",
+            "uvproject.cpp", "uvproject.h",
+            "uvprojectwriter.cpp", "uvprojectwriter.h",
+            "uvscserverprovider.cpp", "uvscserverprovider.h",
+            "uvtargetdevicemodel.cpp", "uvtargetdevicemodel.h",
+            "uvtargetdeviceselection.cpp", "uvtargetdeviceselection.h",
+            "uvtargetdeviceviewer.cpp", "uvtargetdeviceviewer.h",
+            "uvtargetdrivermodel.cpp", "uvtargetdrivermodel.h",
+            "uvtargetdriverselection.cpp", "uvtargetdriverselection.h",
+            "uvtargetdriverviewer.cpp", "uvtargetdriverviewer.h",
+            "xmlnodevisitor.h",
+            "xmlproject.cpp", "xmlproject.h",
+            "xmlprojectwriter.cpp", "xmlprojectwriter.h",
+            "xmlproperty.cpp", "xmlproperty.h",
+            "xmlpropertygroup.cpp", "xmlpropertygroup.h",
+        ]
+    }
 }

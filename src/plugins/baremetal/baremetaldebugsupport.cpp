@@ -29,8 +29,6 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
-#include "debugservers/gdb/gdbserverprovider.h"
-
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
 

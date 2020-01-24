@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
+#include <utils/winutils.h>
 
 #include <QFileInfo>
 #include <QProcess>
@@ -138,6 +139,14 @@ void DebuggerItem::createId()
     m_id = QUuid::createUuid().toString();
 }
 
+static bool isUVisionExecutable(const QFileInfo &fileInfo)
+{
+    if (!HostOsInfo::isWindowsHost())
+        return false;
+    const QString baseName = fileInfo.baseName();
+    return baseName == "UV4";
+}
+
 void DebuggerItem::reinitializeFromFile()
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
@@ -148,6 +157,18 @@ void DebuggerItem::reinitializeFromFile()
     m_lastModified = fileInfo.lastModified();
     if (fileInfo.baseName().toLower().contains("lldb-mi"))
         version = "--version";
+
+    // We don't need to start the uVision executable to
+    // determine its version.
+    if (isUVisionExecutable(fileInfo)) {
+        QString errorMessage;
+        m_version = winGetDLLVersion(WinDLLFileVersion,
+                                     fileInfo.absoluteFilePath(),
+                                     &errorMessage);
+        m_engineType = UvscEngineType;
+        m_abis.clear();
+        return;
+    }
 
     SynchronousProcess proc;
     SynchronousProcessResponse response = proc.runBlocking({m_command, {version}});
@@ -236,6 +257,8 @@ QString DebuggerItem::engineTypeName() const
         return QLatin1String("CDB");
     case LldbEngineType:
         return QLatin1String("LLDB");
+    case UvscEngineType:
+        return QLatin1String("UVSC");
     default:
         return QString();
     }

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
-** Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
+** Copyright (C) 2020 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,32 +23,37 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "xmlnodevisitor.h"
+#include "xmlproject.h"
 
 namespace BareMetal {
-namespace Constants {
+namespace Gen {
+namespace Xml {
 
-const char BareMetalOsType[] = "BareMetalOsType";
+// Project
 
-const char ACTION_ID[] = "BareMetal.Action";
-const char MENU_ID[] = "BareMetal.Menu";
+void Project::accept(INodeVisitor *visitor) const
+{
+    visitor->visitProjectStart(this);
 
-const char DEBUG_SERVER_PROVIDERS_SETTINGS_ID[] = "EE.BareMetal.DebugServerProvidersOptions";
+    for (const auto &child : children())
+        child->accept(visitor);
 
-// GDB Debugger Server Provider Ids.
-const char GDBSERVER_OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";
-const char GDBSERVER_JLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.JLink";
-const char GDBSERVER_STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
-const char GDBSERVER_EBLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.EBlink";
+    visitor->visitProjectEnd(this);
+}
 
-// uVision Debugger Server Provider Ids.
-const char UVSC_SIMULATOR_PROVIDER_ID[] = "BareMetal.UvscServerProvider.Simulator";
-const char UVSC_STLINK_PROVIDER_ID[] = "BareMetal.UvscServerProvider.StLink";
+// ProjectOptions
 
-// Toolchain types.
-const char IAREW_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Iar";
-const char KEIL_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Keil";
-const char SDCC_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Sdcc";
+void ProjectOptions::accept(INodeVisitor *visitor) const
+{
+    visitor->visitProjectOptionsStart(this);
 
+    for (const auto &child : children())
+        child->accept(visitor);
+
+    visitor->visitProjectOptionsEnd(this);
+}
+
+} // namespace Xml
+} // namespace Gen
 } // namespace BareMetal
-} // namespace Constants

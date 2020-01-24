@@ -3,6 +3,8 @@ include(../../qtcreatorplugin.pri)
 
 # GDB debug servers
 include(debugservers/gdb/gdbservers.pri)
+# UVSC debug servers
+include(debugservers/uvsc/uvscservers.pri)
 
 # BareMetal files
 

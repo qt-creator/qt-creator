@@ -25,14 +25,15 @@
 
 #pragma once
 
+#include <coreplugin/id.h>
+#include <debugger/debuggerconstants.h>
+#include <projectexplorer/abi.h>
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QSet>
 #include <QVariantMap>
 #include <QWidget>
-
-#include <coreplugin/id.h>
-#include <debugger/debuggerconstants.h>
-#include <utils/fileutils.h>
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
@@ -46,7 +47,6 @@ class DebuggerRunTool;
 }
 
 namespace ProjectExplorer {
-class IDevice;
 class RunControl;
 class RunWorker;
 }
@@ -97,6 +97,7 @@ public:
             ProjectExplorer::RunControl *runControl) const = 0;
 
     virtual bool isValid() const = 0;
+    virtual bool isSimulator() const { return false; }
 
     void registerDevice(BareMetalDevice *device);
     void unregisterDevice(BareMetalDevice *device);

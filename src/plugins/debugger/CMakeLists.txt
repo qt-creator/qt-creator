@@ -89,6 +89,11 @@ add_qtc_plugin(Debugger
     threaddata.h
     threadshandler.cpp threadshandler.h
     unstartedappwatcherdialog.cpp unstartedappwatcherdialog.h
+    uvsc/uvscclient.cpp uvsc/uvscclient.h
+    uvsc/uvscdatatypes.h
+    uvsc/uvscengine.cpp uvsc/uvscengine.h
+    uvsc/uvscfunctions.h
+    uvsc/uvscutils.cpp uvsc/uvscutils.h
     watchdata.cpp watchdata.h
     watchdelegatewidgets.cpp watchdelegatewidgets.h
     watchhandler.cpp watchhandler.h

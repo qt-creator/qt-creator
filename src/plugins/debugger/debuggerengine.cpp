@@ -2567,7 +2567,8 @@ bool DebuggerRunParameters::isCppDebugging() const
 {
     return cppEngineType == GdbEngineType
         || cppEngineType == LldbEngineType
-        || cppEngineType == CdbEngineType;
+        || cppEngineType == CdbEngineType
+        || cppEngineType == UvscEngineType;
 }
 
 bool DebuggerRunParameters::isNativeMixedDebugging() const

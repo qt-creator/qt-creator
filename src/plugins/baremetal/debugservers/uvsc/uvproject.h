@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
-** Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
+** Copyright (C) 2020 Denis Shienkov <denis.shienkov@gmail.com>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,30 +25,52 @@
 
 #pragma once
 
+#include "xmlproject.h"
+#include "xmlpropertygroup.h"
+
+#include <utils/fileutils.h>
+
+namespace Debugger { class DebuggerRunTool; }
+
 namespace BareMetal {
-namespace Constants {
+namespace Internal {
 
-const char BareMetalOsType[] = "BareMetalOsType";
+class UvscServerProvider;
 
-const char ACTION_ID[] = "BareMetal.Action";
-const char MENU_ID[] = "BareMetal.Menu";
+namespace Uv {
 
-const char DEBUG_SERVER_PROVIDERS_SETTINGS_ID[] = "EE.BareMetal.DebugServerProvidersOptions";
+// Helpers
 
-// GDB Debugger Server Provider Ids.
-const char GDBSERVER_OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";
-const char GDBSERVER_JLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.JLink";
-const char GDBSERVER_STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
-const char GDBSERVER_EBLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.EBlink";
+QString toolsFilePath(const QString &uVisionFilePath);
+QString targetUVisionPath();
 
-// uVision Debugger Server Provider Ids.
-const char UVSC_SIMULATOR_PROVIDER_ID[] = "BareMetal.UvscServerProvider.Simulator";
-const char UVSC_STLINK_PROVIDER_ID[] = "BareMetal.UvscServerProvider.StLink";
+// UvProject
 
-// Toolchain types.
-const char IAREW_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Iar";
-const char KEIL_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Keil";
-const char SDCC_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Sdcc";
+class Project final : public Gen::Xml::Project
+{
+public:
+    explicit Project(const UvscServerProvider *provider, Debugger::DebuggerRunTool *runTool);
 
+protected:
+    Gen::Xml::PropertyGroup *m_target = nullptr;
+
+private:
+    void fillAllFiles(const Utils::FilePaths &headers, const Utils::FilePaths &sources,
+                      const Utils::FilePaths &assemblers);
+};
+
+// ProjectOptions
+
+class ProjectOptions : public Gen::Xml::ProjectOptions
+{
+public:
+    explicit ProjectOptions(const UvscServerProvider *provider);
+
+protected:
+    Gen::Xml::PropertyGroup *m_targetOption = nullptr;
+    Gen::Xml::PropertyGroup *m_debugOpt = nullptr;
+};
+
+} // namespace Uv
+} // namespace Internal
 } // namespace BareMetal
-} // namespace Constants

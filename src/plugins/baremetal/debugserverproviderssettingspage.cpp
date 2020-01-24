@@ -72,6 +72,8 @@ static QString engineTypeName(DebuggerEngineType engineType)
         return DebugServerProviderModel::tr("Not recognized");
     case GdbEngineType:
         return DebugServerProviderModel::tr("GDB");
+    case UvscEngineType:
+        return DebugServerProviderModel::tr("UVSC");
     default:
         return {};
     }
@@ -85,6 +87,9 @@ static QString engineTypeDescription(DebuggerEngineType engineType)
     case GdbEngineType:
         return DebugServerProviderModel::tr("GDB compatible provider engine\n" \
                                             "(used together with the GDB debuggers).");
+    case UvscEngineType:
+        return DebugServerProviderModel::tr("UVSC compatible provider engine\n" \
+                                            "(used together with the KEIL uVision).");
     default:
         return {};
     }

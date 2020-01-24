@@ -37,6 +37,9 @@
 #include <QSpinBox>
 #include <QUuid>
 
+using namespace Debugger;
+using namespace ProjectExplorer;
+
 namespace BareMetal {
 namespace Internal {
 
@@ -123,12 +126,12 @@ void IDebugServerProvider::setTypeDisplayName(const QString &typeDisplayName)
     m_typeDisplayName = typeDisplayName;
 }
 
-Debugger::DebuggerEngineType IDebugServerProvider::engineType() const
+DebuggerEngineType IDebugServerProvider::engineType() const
 {
     return m_engineType;
 }
 
-void IDebugServerProvider::setEngineType(Debugger::DebuggerEngineType engineType)
+void IDebugServerProvider::setEngineType(DebuggerEngineType engineType)
 {
     if (m_engineType == engineType)
         return;
@@ -196,8 +199,8 @@ bool IDebugServerProvider::fromMap(const QVariantMap &data)
 {
     m_id = data.value(idKeyC).toString();
     m_displayName = data.value(displayNameKeyC).toString();
-    m_engineType = static_cast<Debugger::DebuggerEngineType>(
-                data.value(engineTypeKeyC, Debugger::NoEngineType).toInt());
+    m_engineType = static_cast<DebuggerEngineType>(
+                data.value(engineTypeKeyC, NoEngineType).toInt());
     m_channel.setHost(data.value(m_settingsBase + hostKeySuffixC).toString());
     m_channel.setPort(data.value(m_settingsBase + portKeySuffixC).toInt());
     return true;

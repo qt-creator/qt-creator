@@ -93,6 +93,7 @@ DebuggerEngine *createGdbEngine();
 DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine();
+DebuggerEngine *createUvscEngine();
 
 class LocalProcessRunner : public RunWorker
 {
@@ -597,6 +598,9 @@ void DebuggerRunTool::start()
             case PdbEngineType: // FIXME: Yes, Python counts as C++...
                 QTC_CHECK(false); // Called from DebuggerRunTool constructor already.
 //                m_engine = createPdbEngine();
+                break;
+            case UvscEngineType:
+                m_engine = createUvscEngine();
                 break;
             default:
                 if (!m_runParameters.isQmlDebugging) {

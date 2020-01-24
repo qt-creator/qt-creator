@@ -1,0 +1,206 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 Denis Shienkov <denis.shienkov@gmail.com>
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "uvproject.h" // for targetUVisionPath()
+#include "uvtargetdevicemodel.h"
+#include "uvtargetdeviceviewer.h"
+
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+namespace BareMetal {
+namespace Internal {
+namespace Uv {
+
+// DeviceSelectorToolPanel
+
+DeviceSelectorToolPanel::DeviceSelectorToolPanel(QWidget *parent)
+    : FadingPanel(parent)
+{
+    const auto layout = new QHBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    const auto button = new QPushButton(tr("Manage..."));
+    layout->addWidget(button);
+    setLayout(layout);
+    connect(button, &QPushButton::clicked, this, &DeviceSelectorToolPanel::clicked);
+}
+
+void DeviceSelectorToolPanel::fadeTo(qreal value)
+{
+    Q_UNUSED(value)
+}
+
+void DeviceSelectorToolPanel::setOpacity(qreal value)
+{
+    Q_UNUSED(value)
+}
+
+// DeviceSelectorDetailsPanel
+
+DeviceSelectorDetailsPanel::DeviceSelectorDetailsPanel(DeviceSelection &selection,
+                                                       QWidget *parent)
+    : QWidget(parent), m_selection(selection)
+{
+    const auto layout = new QFormLayout;
+    m_vendorEdit = new QLineEdit;
+    m_vendorEdit->setReadOnly(true);
+    layout->addRow(tr("Vendor:"), m_vendorEdit);
+    m_fimilyEdit = new QLineEdit;;
+    m_fimilyEdit->setReadOnly(true);
+    layout->addRow(tr("Family:"), m_fimilyEdit);
+    m_descEdit = new QPlainTextEdit;;
+    m_descEdit->setReadOnly(true);
+    layout->addRow(tr("Description:"), m_descEdit);
+    m_memoryView = new DeviceSelectionMemoryView(m_selection);
+    layout->addRow(tr("Memory:"), m_memoryView);
+    m_algorithmView = new DeviceSelectionAlgorithmView(m_selection);
+    layout->addRow(tr("Flash algorithm"), m_algorithmView);
+    setLayout(layout);
+
+    refresh();
+
+    connect(m_memoryView, &DeviceSelectionMemoryView::memoryChanged,
+            this, &DeviceSelectorDetailsPanel::selectionChanged);
+    connect(m_algorithmView, &DeviceSelectionAlgorithmView::algorithmChanged,
+            this, [this](int index) {
+        if (index >= 0)
+            m_selection.algorithmIndex = index;
+        emit selectionChanged();
+    });
+}
+
+static QString trimVendor(const QString &vendor)
+{
+    const int colonIndex = vendor.lastIndexOf(':');
+    return vendor.mid(0, colonIndex);
+}
+
+void DeviceSelectorDetailsPanel::refresh()
+{
+    m_vendorEdit->setText(trimVendor(m_selection.vendor));
+    m_fimilyEdit->setText(m_selection.family);
+    m_descEdit->setPlainText(m_selection.desc);
+    m_memoryView->refresh();
+    m_algorithmView->refresh();
+    m_algorithmView->setAlgorithm(m_selection.algorithmIndex);
+}
+
+// DeviceSelector
+
+DeviceSelector::DeviceSelector(QWidget *parent)
+    : DetailsWidget(parent)
+{
+    const auto toolPanel = new DeviceSelectorToolPanel;
+    setToolWidget(toolPanel);
+    const auto detailsPanel = new DeviceSelectorDetailsPanel(m_selection);
+    setWidget(detailsPanel);
+
+    connect(toolPanel, &DeviceSelectorToolPanel::clicked, this, [this]() {
+        const QString uVisionPath = targetUVisionPath();
+        if (uVisionPath.isEmpty()) {
+            QMessageBox::warning(this,
+                                 tr("uVision path not found"),
+                                 tr("Please open a configured project before\n"
+                                    "the target device selection."),
+                                 QMessageBox::Ok);
+        } else {
+            DeviceSelectionDialog dialog(uVisionPath, this);
+            const int result = dialog.exec();
+            if (result != QDialog::Accepted)
+                return;
+            DeviceSelection selection;
+            selection = dialog.selection();
+            setSelection(selection);
+        }
+    });
+
+    connect(detailsPanel, &DeviceSelectorDetailsPanel::selectionChanged,
+            this, &DeviceSelector::selectionChanged);
+}
+
+void DeviceSelector::setSelection(const DeviceSelection &selection)
+{
+    m_selection = selection;
+    const auto summary = m_selection.name.isEmpty()
+            ? tr("Target device not selected.") : m_selection.name;
+    setSummaryText(summary);
+    setExpandable(!m_selection.name.isEmpty());
+
+    if (const auto detailsPanel = qobject_cast<DeviceSelectorDetailsPanel *>(widget()))
+        detailsPanel->refresh();
+
+    emit selectionChanged();
+}
+
+DeviceSelection DeviceSelector::selection() const
+{
+    return m_selection;
+}
+
+// DeviceSelectionDialog
+
+DeviceSelectionDialog::DeviceSelectionDialog(const QString &uVisionPath, QWidget *parent)
+    : QDialog(parent), m_model(new DeviceSelectionModel(this)), m_view(new DeviceSelectionView(this))
+{
+    setWindowTitle(tr("Available target devices"));
+
+    const auto layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(m_view);
+    const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    layout->addWidget(buttonBox);
+    setLayout(layout);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &DeviceSelectionDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &DeviceSelectionDialog::reject);
+
+    connect(m_view, &DeviceSelectionView::deviceSelected, this,
+            [this](const DeviceSelection &selection) {
+        m_selection = selection;
+    });
+
+    m_model->fillAllPacks(uVisionPath);
+    m_view->setModel(m_model);
+}
+
+void DeviceSelectionDialog::setSelection(const DeviceSelection &selection)
+{
+    m_selection = selection;
+}
+
+DeviceSelection DeviceSelectionDialog::selection() const
+{
+    return m_selection;
+}
+
+} // namespace Uv
+} // namespace Internal
+} // namespace BareMetal

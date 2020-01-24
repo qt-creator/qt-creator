@@ -36,6 +36,11 @@ const char MODE_DEBUG[]             = "Mode.Debug";
 // Debug mode context
 const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
+// UVSC-specific debugger constants.
+const char kUVisionProjectFilePath[] = "UVisionProjectFilePath";
+const char kUVisionOptionsFilePath[] = "UVisionOptionsFilePath";
+const char kUVisionSimulator[] = "UVisionSimulator";
+
 } // namespace Constants
 
 // Keep in sync with dumper.py
@@ -120,7 +125,8 @@ enum DebuggerEngineType
     GdbEngineType     = 0x001,
     CdbEngineType     = 0x004,
     PdbEngineType     = 0x008,
-    LldbEngineType    = 0x100
+    LldbEngineType    = 0x100,
+    UvscEngineType    = 0x1000
 };
 
 enum DebuggerLanguage
