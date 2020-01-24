@@ -47,3 +47,7 @@ add_subdirectory(sdktool)
 add_subdirectory(valgrindfake)
 add_subdirectory(wininterrupt) ## windows only
 add_subdirectory(winrtdebughelper) ## windows only
+
+if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/perfparser/CMakeLists.txt)
+  add_subdirectory(perfparser)
+endif()

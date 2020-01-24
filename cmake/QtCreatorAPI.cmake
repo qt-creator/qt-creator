@@ -229,6 +229,10 @@ function(finalize_test_setup test_name)
         list(APPEND env_path $<TARGET_FILE_DIR:libclang>)
     endif()
 
+    if (TARGET elfutils::elf)
+        list(APPEND env_path $<TARGET_FILE_DIR:elfutils::elf>)
+    endif()
+
     string(REPLACE "/" "\\" env_path "${env_path}")
     string(REPLACE ";" "\\;" env_path "${env_path}")
 
@@ -391,9 +395,15 @@ endfunction()
 #
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT" "DESTINATION"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS"
+    "DESTINATION"
     "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
   )
+
+  set(default_defines_copy ${DEFAULT_DEFINES})
+  if (_arg_ALLOW_ASCII_CASTS)
+    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
+  endif()
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_library had unparsed arguments")
@@ -442,7 +452,7 @@ function(add_qtc_library name)
   set_public_includes(${name} "${_arg_PUBLIC_INCLUDES}")
 
   target_compile_definitions(${name}
-    PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
+    PRIVATE ${EXPORT_SYMBOL} ${default_defines_copy} ${_arg_DEFINES} ${TEST_DEFINES}
     PUBLIC ${_arg_PUBLIC_DEFINES}
   )
 
@@ -813,12 +823,17 @@ function(extend_qtc_plugin target_name)
 endfunction()
 
 function(add_qtc_executable name)
-  cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION"
+  cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS"
     "DESTINATION"
     "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
+  endif()
+
+  set(default_defines_copy ${DEFAULT_DEFINES})
+  if (_arg_ALLOW_ASCII_CASTS)
+    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
   endif()
 
   update_cached_list(__QTC_EXECUTABLES "${name}")
@@ -856,7 +871,7 @@ function(add_qtc_executable name)
 
   add_executable("${name}" ${_arg_SOURCES})
   target_include_directories("${name}" PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
-  target_compile_definitions("${name}" PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
+  target_compile_definitions("${name}" PRIVATE ${default_defines_copy} ${TEST_DEFINES} ${_arg_DEFINES} )
   target_link_libraries("${name}" PRIVATE ${_arg_DEPENDS} ${IMPLICIT_DEPENDS})
 
   set(skip_translation OFF)
@@ -895,7 +910,10 @@ function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST" "" "DEFINES;DEPENDS;INCLUDES;SOURCES" ${ARGN})
 
   foreach(dependency ${_arg_DEPENDS})
-    if (NOT TARGET dependency AND NOT _arg_GTEST)
+    if (NOT TARGET ${dependency} AND NOT _arg_GTEST)
+      if (WITH_DEBUG_CMAKE)
+        message(STATUS  "'${dependency}' is not a target")
+      endif()
       return()
     endif()
   endforeach()
@@ -931,6 +949,9 @@ function(add_qtc_test name)
 endfunction()
 
 function(finalize_qtc_gtest test_name)
+  if (NOT TARGET test_name)
+    return()
+  endif()
   get_target_property(test_sources ${test_name} SOURCES)
   include(GoogleTest)
   gtest_add_tests(TARGET ${test_name} SOURCES ${test_sources} TEST_LIST test_list)

@@ -121,6 +121,10 @@ endif()
 
 include(QtCreatorAPI)
 
+if (WITH_TESTS)
+  enable_testing()
+endif()
+
 if (UNIX)
   add_subdirectory(bin)
 endif()
@@ -129,7 +133,6 @@ add_subdirectory(src)
 add_subdirectory(share)
 
 if (WITH_TESTS)
-  enable_testing()
   add_subdirectory(tests)
 endif()
 
