@@ -212,6 +212,7 @@ void CvsPlugin::extensionsInitialized()
 CvsPluginPrivate::CvsPluginPrivate()
 {
     using namespace Core::Constants;
+    dd = this;
 
     Context context(CVS_CONTEXT);
 
