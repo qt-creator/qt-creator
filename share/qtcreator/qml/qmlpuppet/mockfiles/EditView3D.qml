@@ -308,7 +308,7 @@ Window {
             color: "#ddd600"
 
             function flipIfNeeded(vec) {
-                if (viewWindow.selectedNode.orientation === Node.LeftHanded)
+                if (!viewWindow.selectedNode || viewWindow.selectedNode.orientation === Node.LeftHanded)
                     return vec;
                 else
                     return Qt.vector3d(vec.x, vec.y, -vec.z);
