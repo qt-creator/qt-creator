@@ -35,13 +35,14 @@ namespace Subversion {
 namespace Internal {
 
 class SubversionDiffEditorController;
+class SubversionSettings;
 
 class SubversionClient : public VcsBase::VcsBaseClient
 {
     Q_OBJECT
 
 public:
-    SubversionClient();
+    SubversionClient(SubversionSettings *settings);
 
     bool doCommit(const QString &repositoryRoot,
                   const QStringList &files,

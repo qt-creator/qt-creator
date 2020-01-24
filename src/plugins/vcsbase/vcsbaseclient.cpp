@@ -81,11 +81,6 @@ VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
             this, &VcsBaseClientImpl::saveSettings);
 }
 
-VcsBaseClientImpl::~VcsBaseClientImpl()
-{
-    delete m_clientSettings;
-}
-
 VcsBaseClientSettings &VcsBaseClientImpl::settings() const
 {
     return *m_clientSettings;

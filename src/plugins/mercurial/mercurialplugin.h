@@ -111,6 +111,7 @@ private:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
+    MercurialSettings m_settings;
     OptionsPage *optionsPage = nullptr;
     MercurialClient *m_client = nullptr;
 

@@ -60,7 +60,7 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 
 public:
     explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
-    ~VcsBaseClientImpl() override;
+    ~VcsBaseClientImpl() override = default;
 
     VcsBaseClientSettings &settings() const;
 

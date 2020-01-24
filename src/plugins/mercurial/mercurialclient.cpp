@@ -141,7 +141,7 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-MercurialClient::MercurialClient() : VcsBaseClient(new MercurialSettings)
+MercurialClient::MercurialClient(MercurialSettings *settings) : VcsBaseClient(settings)
 {
 }
 

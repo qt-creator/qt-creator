@@ -73,10 +73,10 @@ QStringList CvsDiffConfig::arguments() const
     return args;
 }
 
-CvsClient::CvsClient() : VcsBaseClient(new CvsSettings)
+CvsClient::CvsClient(CvsSettings *settings) : VcsBaseClient(settings)
 {
-    setDiffConfigCreator([this](QToolBar *toolBar) {
-        return new CvsDiffConfig(settings(), toolBar);
+    setDiffConfigCreator([settings](QToolBar *toolBar) {
+        return new CvsDiffConfig(*settings, toolBar);
     });
 }
 

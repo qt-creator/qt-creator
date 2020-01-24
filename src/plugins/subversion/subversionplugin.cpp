@@ -229,7 +229,7 @@ SubversionPluginPrivate::SubversionPluginPrivate() :
     auto vcsCtrl = new SubversionControl(this);
     initializeVcs(vcsCtrl, context);
 
-    m_client = new SubversionClient;
+    m_client = new SubversionClient(&m_settings);
 
     new SettingsPage(versionControl(), this);
 

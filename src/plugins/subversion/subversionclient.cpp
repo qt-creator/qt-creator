@@ -69,10 +69,10 @@ public:
     }
 };
 
-SubversionClient::SubversionClient() : VcsBaseClient(new SubversionSettings)
+SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient(settings)
 {
-    setLogConfigCreator([this](QToolBar *toolBar) {
-        return new SubversionLogConfig(settings(), toolBar);
+    setLogConfigCreator([settings](QToolBar *toolBar) {
+        return new SubversionLogConfig(*settings, toolBar);
     });
 }
 

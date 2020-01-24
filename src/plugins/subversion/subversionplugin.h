@@ -138,6 +138,7 @@ private:
 
     const QStringList m_svnDirectories;
 
+    SubversionSettings m_settings;
     SubversionClient *m_client = nullptr;
     QString m_commitMessageFileName;
     QString m_commitRepository;

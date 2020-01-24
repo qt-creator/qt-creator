@@ -39,7 +39,7 @@ class CvsClient : public VcsBase::VcsBaseClient
     Q_OBJECT
 
 public:
-    CvsClient();
+    explicit CvsClient(CvsSettings *settings);
 
     CvsSettings &settings() const;
     void diff(const QString &workingDir, const QStringList &files,

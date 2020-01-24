@@ -218,7 +218,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     auto vcsCtrl = new CvsControl(this);
     initializeVcs(vcsCtrl, context);
 
-    m_client = new CvsClient;
+    m_client = new CvsClient(&m_settings);
 
     new SettingsPage(versionControl(), this);
 

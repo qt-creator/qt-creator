@@ -101,13 +101,13 @@ public:
     }
 };
 
-BazaarClient::BazaarClient() : VcsBaseClient(new BazaarSettings)
+BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(settings)
 {
-    setDiffConfigCreator([this](QToolBar *toolBar) {
-        return new BazaarDiffConfig(settings(), toolBar);
+    setDiffConfigCreator([settings](QToolBar *toolBar) {
+        return new BazaarDiffConfig(*settings, toolBar);
     });
-    setLogConfigCreator([this](QToolBar *toolBar) {
-        return new BazaarLogConfig(settings(), toolBar);
+    setLogConfigCreator([settings](QToolBar *toolBar) {
+        return new BazaarLogConfig(*settings, toolBar);
     });
 }
 

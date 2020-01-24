@@ -162,7 +162,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 
     Context context(Constants::BAZAAR_CONTEXT);
 
-    m_client = new BazaarClient;
+    m_client = new BazaarClient(&m_bazaarSettings);
     auto vcsCtrl = new BazaarControl(m_client);
     initializeVcs(vcsCtrl, context);
 

@@ -140,7 +140,7 @@ MercurialPluginPrivate::MercurialPluginPrivate()
     dd = this;
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
-    m_client = new MercurialClient;
+    m_client = new MercurialClient(&m_settings);
     auto vc = new MercurialControl(m_client);
     initializeVcs(vc, context);
 

@@ -40,7 +40,7 @@ class BazaarClient : public VcsBase::VcsBaseClient
     Q_OBJECT
 
 public:
-    BazaarClient();
+    explicit BazaarClient(BazaarSettings *settings);
 
     bool synchronousSetUserId();
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
