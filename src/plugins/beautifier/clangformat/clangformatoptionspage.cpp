@@ -102,8 +102,7 @@ void ClangFormatOptionsPageWidget::apply()
     ui.mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
-ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent) :
-    IOptionsPage(parent)
+ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings)
 {
     setId(Constants::ClangFormat::OPTION_ID);
     setDisplayName(ClangFormatOptionsPageWidget::tr("Clang Format"));

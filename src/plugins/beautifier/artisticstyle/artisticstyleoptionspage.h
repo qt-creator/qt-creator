@@ -36,7 +36,7 @@ class ArtisticStyleSettings;
 class ArtisticStyleOptionsPage final : public Core::IOptionsPage
 {
 public:
-    ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent);
+    explicit ArtisticStyleOptionsPage(ArtisticStyleSettings *settings);
 };
 
 } // namespace ArtisticStyle

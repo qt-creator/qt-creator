@@ -36,7 +36,7 @@ class UncrustifySettings;
 class UncrustifyOptionsPage final : public Core::IOptionsPage
 {
 public:
-    UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent);
+    explicit UncrustifyOptionsPage(UncrustifySettings *settings);
 };
 
 } // namespace Uncrustify

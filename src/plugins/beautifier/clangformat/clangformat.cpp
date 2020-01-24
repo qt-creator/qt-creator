@@ -86,8 +86,6 @@ ClangFormat::ClangFormat()
 
     connect(&m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
-
-    new ClangFormatOptionsPage(&m_settings, this);
 }
 
 QString ClangFormat::id() const

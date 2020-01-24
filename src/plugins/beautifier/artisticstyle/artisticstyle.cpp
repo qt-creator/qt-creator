@@ -71,8 +71,6 @@ ArtisticStyle::ArtisticStyle()
 
     connect(&m_settings, &ArtisticStyleSettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
-
-    new ArtisticStyleOptionsPage(&m_settings, this);
 }
 
 QString ArtisticStyle::id() const

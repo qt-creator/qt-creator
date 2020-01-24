@@ -36,7 +36,7 @@ class ClangFormatSettings;
 class ClangFormatOptionsPage final : public Core::IOptionsPage
 {
 public:
-    ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent);
+    explicit ClangFormatOptionsPage(ClangFormatSettings *settings);
 };
 
 } // namespace ClangFormat

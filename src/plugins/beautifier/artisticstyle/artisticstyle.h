@@ -27,9 +27,8 @@
 
 #include "../beautifierabstracttool.h"
 
+#include "artisticstyleoptionspage.h"
 #include "artisticstylesettings.h"
-
-QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
@@ -49,10 +48,12 @@ public:
 
 private:
     void formatFile();
-    QAction *m_formatFile = nullptr;
-    ArtisticStyleSettings m_settings;
     QString configurationFile() const;
     TextEditor::Command command(const QString &cfgFile) const;
+
+    QAction *m_formatFile = nullptr;
+    ArtisticStyleSettings m_settings;
+    ArtisticStyleOptionsPage m_page{&m_settings};
 };
 
 } // namespace ArtisticStyle

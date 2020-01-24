@@ -95,8 +95,7 @@ void UncrustifyOptionsPageWidget::apply()
     ui.mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
-UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent) :
-    IOptionsPage(parent)
+UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings)
 {
     setId(Constants::Uncrustify::OPTION_ID);
     setDisplayName(UncrustifyOptionsPageWidget::tr("Uncrustify"));

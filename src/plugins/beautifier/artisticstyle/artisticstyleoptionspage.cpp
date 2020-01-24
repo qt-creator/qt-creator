@@ -92,11 +92,10 @@ void ArtisticStyleOptionsPageWidget::apply()
     ui.mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
-ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent) :
-    IOptionsPage(parent)
+ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings)
 {
     setId(Constants::ArtisticStyle::OPTION_ID);
-    setDisplayName(tr("Artistic Style"));
+    setDisplayName(ArtisticStyleOptionsPageWidget::tr("Artistic Style"));
     setCategory(Constants::OPTION_CATEGORY);
     setWidgetCreator([settings] { return new ArtisticStyleOptionsPageWidget(settings); });
 }

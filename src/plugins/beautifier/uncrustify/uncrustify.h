@@ -27,9 +27,8 @@
 
 #include "../beautifierabstracttool.h"
 
+#include "uncrustifyoptionspage.h"
 #include "uncrustifysettings.h"
-
-QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
@@ -50,11 +49,13 @@ public:
 private:
     void formatFile();
     void formatSelectedText();
+    QString configurationFile() const;
+    TextEditor::Command command(const QString &cfgFile, bool fragment = false) const;
+
     QAction *m_formatFile = nullptr;
     QAction *m_formatRange = nullptr;
     UncrustifySettings m_settings;
-    QString configurationFile() const;
-    TextEditor::Command command(const QString &cfgFile, bool fragment = false) const;
+    UncrustifyOptionsPage m_page{&m_settings};
 };
 
 } // namespace Uncrustify

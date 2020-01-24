@@ -79,8 +79,6 @@ Uncrustify::Uncrustify()
 
     connect(&m_settings, &UncrustifySettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
-
-    new UncrustifyOptionsPage(&m_settings, this);
 }
 
 QString Uncrustify::id() const

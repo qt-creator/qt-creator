@@ -27,9 +27,8 @@
 
 #include "../beautifierabstracttool.h"
 
+#include "clangformatoptionspage.h"
 #include "clangformatsettings.h"
-
-QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
@@ -57,6 +56,7 @@ private:
     QAction *m_formatRange = nullptr;
     QAction *m_disableFormattingSelectedText = nullptr;
     ClangFormatSettings m_settings;
+    ClangFormatOptionsPage m_page{&m_settings};
 };
 
 } // namespace ClangFormat
