@@ -355,6 +355,7 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
                                 QFile file(outDir.path() + '/' + fi.baseName() + ".hints");
                                 file.open(QIODevice::WriteOnly | QIODevice::Text);
                                 QTextStream out(&file);
+                                out << "visibleInNavigator: true" << endl;
                                 out << "canBeDroppedInFormEditor: false" << endl;
                                 out << "canBeDroppedInView3D: true" << endl;
                                 file.close();
