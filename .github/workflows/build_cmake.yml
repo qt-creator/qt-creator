@@ -290,6 +290,8 @@ jobs:
               -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
               -D BUILD_WITH_PCH=OFF
               -D WITH_TESTS=ON
+              -D IDE_REVISION=TRUE
+              -D IDE_REVISION_STR=$ENV{GITHUB_SHA}
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
