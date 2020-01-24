@@ -35,7 +35,6 @@ class QTextCharFormat;
 QT_END_NAMESPACE
 
 namespace Core { class ICore; }
-namespace TextEditor { class FontSettingsPage; }
 
 namespace VcsBase {
 

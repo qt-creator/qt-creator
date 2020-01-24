@@ -327,11 +327,9 @@ bool FormatDescription::showControl(FormatDescription::ShowControls showControl)
 }
 
 //  ------------ FontSettingsPage
-FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
-                                   Core::Id id,
-                                   QObject *parent) :
-    Core::IOptionsPage(parent),
-    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY))
+FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd) :
+    d_ptr(new FontSettingsPagePrivate(fd, Constants::TEXT_EDITOR_FONT_SETTINGS,
+                                      tr("Font && Colors"), TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY))
 {
     setId(d_ptr->m_id);
     setDisplayName(d_ptr->m_displayName);

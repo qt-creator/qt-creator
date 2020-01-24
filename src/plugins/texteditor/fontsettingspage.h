@@ -123,8 +123,7 @@ class TEXTEDITOR_EXPORT FontSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    FontSettingsPage(const FormatDescriptions &fd, Core::Id id, QObject *parent = nullptr);
-
+    explicit FontSettingsPage(const FormatDescriptions &fd);
     ~FontSettingsPage() override;
 
     QWidget *widget() override;

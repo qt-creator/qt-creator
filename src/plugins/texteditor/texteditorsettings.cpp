@@ -53,7 +53,6 @@
 
 #include <QApplication>
 
-using namespace TextEditor;
 using namespace TextEditor::Constants;
 using namespace TextEditor::Internal;
 
@@ -62,8 +61,10 @@ namespace Internal {
 
 class TextEditorSettingsPrivate
 {
+    Q_DECLARE_TR_FUNCTIONS(TextEditor::TextEditorSettings)
+
 public:
-    FontSettingsPage *m_fontSettingsPage;
+    FontSettingsPage m_fontSettingsPage{initialFormats()};
     BehaviorSettingsPage m_behaviorSettingsPage;
     DisplaySettingsPage m_displaySettingsPage;
     HighlighterSettingsPage m_highlighterSettingsPage;
@@ -75,23 +76,13 @@ public:
     QMap<Core::Id, ICodeStylePreferences *> m_languageToCodeStyle;
     QMap<Core::Id, CodeStylePool *> m_languageToCodeStylePool;
     QMap<QString, Core::Id> m_mimeTypeToLanguage;
+
+private:
+    static std::vector<FormatDescription> initialFormats();
 };
 
-} // namespace Internal
-} // namespace TextEditor
-
-
-static TextEditorSettingsPrivate *d = nullptr;
-static TextEditorSettings *m_instance = nullptr;
-
-TextEditorSettings::TextEditorSettings()
+FormatDescriptions TextEditorSettingsPrivate::initialFormats()
 {
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
-    d = new Internal::TextEditorSettingsPrivate;
-
-    // Note: default background colors are coming from FormatDescription::background()
-
     // Add font preference page
     FormatDescriptions formatDescr;
     formatDescr.reserve(C_LAST_STYLE_SENTINEL);
@@ -346,16 +337,29 @@ TextEditorSettings::TextEditorSettings()
                              outputArgumentFormat,
                              FormatDescription::ShowAllControls);
 
-    d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
-                                                   Constants::TEXT_EDITOR_FONT_SETTINGS,
-                                                   this);
+    return formatDescr;
+}
+
+} // namespace Internal
+
+
+static TextEditorSettingsPrivate *d = nullptr;
+static TextEditorSettings *m_instance = nullptr;
+
+TextEditorSettings::TextEditorSettings()
+{
+    QTC_ASSERT(!m_instance, return);
+    m_instance = this;
+    d = new Internal::TextEditorSettingsPrivate;
+
+    // Note: default background colors are coming from FormatDescription::background()
 
     auto updateGeneralMessagesFontSettings = []() {
-        Core::MessageManager::setFont(d->m_fontSettingsPage->fontSettings().font());
+        Core::MessageManager::setFont(d->m_fontSettingsPage.fontSettings().font());
     };
-    connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
+    connect(&d->m_fontSettingsPage, &FontSettingsPage::changed,
             this, &TextEditorSettings::fontSettingsChanged);
-    connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
+    connect(&d->m_fontSettingsPage, &FontSettingsPage::changed,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
     connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
@@ -400,7 +404,7 @@ TextEditorSettings *TextEditorSettings::instance()
 
 const FontSettings &TextEditorSettings::fontSettings()
 {
-    return d->m_fontSettingsPage->fontSettings();
+    return d->m_fontSettingsPage.fontSettings();
 }
 
 const TypingSettings &TextEditorSettings::typingSettings()
@@ -525,19 +529,21 @@ Core::Id TextEditorSettings::languageId(const QString &mimeType)
 
 int TextEditorSettings::increaseFontZoom(int step)
 {
-    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
+    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage.fontSettings());
     const int previousZoom = fs.fontZoom();
     const int newZoom = qMax(10, previousZoom + step);
     if (newZoom != previousZoom) {
         fs.setFontZoom(newZoom);
-        d->m_fontSettingsPage->saveSettings();
+        d->m_fontSettingsPage.saveSettings();
     }
     return newZoom;
 }
 
 void TextEditorSettings::resetFontZoom()
 {
-    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
+    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage.fontSettings());
     fs.setFontZoom(100);
-    d->m_fontSettingsPage->saveSettings();
+    d->m_fontSettingsPage.saveSettings();
 }
+
+} // TextEditor
