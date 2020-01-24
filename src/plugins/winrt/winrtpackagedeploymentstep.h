@@ -31,6 +31,33 @@
 namespace WinRt {
 namespace Internal {
 
+class WinRtArgumentsAspect : public ProjectExplorer::ProjectConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    WinRtArgumentsAspect();
+    ~WinRtArgumentsAspect() override;
+
+    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
+
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+    void setValue(const QString &value);
+    QString value() const;
+
+    void setDefaultValue(const QString &value);
+    QString defaultValue() const;
+
+    void restoreDefaultValue();
+
+private:
+    Utils::FancyLineEdit *m_lineEdit = nullptr;
+    QString m_value;
+    QString m_defaultValue;
+};
+
 class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
@@ -48,11 +75,10 @@ private:
     void doRun() override;
     bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
     void stdOutput(const QString &line) override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     bool parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *items, QString *executable);
 
-    ProjectExplorer::BaseStringAspect *m_argsAspect = nullptr;
+    WinRtArgumentsAspect *m_argsAspect = nullptr;
     QString m_targetFilePath;
     QString m_targetDirPath;
     QString m_executablePathInManifest;

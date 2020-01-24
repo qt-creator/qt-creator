@@ -41,7 +41,9 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/fancylineedit.h>
 
+#include <QLabel>
 #include <QLayout>
 #include <QRegularExpression>
 #include <QToolButton>
@@ -52,16 +54,92 @@ using namespace Utils;
 namespace WinRt {
 namespace Internal {
 
+const char ARGUMENTS_KEY[] = "WinRt.BuildStep.Deploy.Arguments";
+const char DEFAULTARGUMENTS_KEY[] = "WinRt.BuildStep.Deploy.DefaultArguments";
+
+WinRtArgumentsAspect::WinRtArgumentsAspect() = default;
+
+WinRtArgumentsAspect::~WinRtArgumentsAspect() = default;
+
+void WinRtArgumentsAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
+{
+    QTC_CHECK(!m_lineEdit);
+    auto label = new QLabel(tr("Arguments:"));
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    builder.addItem(label);
+
+    auto *layout = new QHBoxLayout();
+    m_lineEdit = new Utils::FancyLineEdit();
+    if (!m_value.isEmpty())
+        m_lineEdit->setText(m_value);
+    else if (!m_defaultValue.isEmpty())
+        m_lineEdit->setText(m_defaultValue);
+    connect(m_lineEdit, &Utils::FancyLineEdit::textEdited,
+            this, &WinRtArgumentsAspect::setValue);
+    layout->addWidget(m_lineEdit);
+
+    auto restoreDefaultButton = new QToolButton();
+    restoreDefaultButton->setText(tr("Restore Default Arguments"));
+    connect(restoreDefaultButton, &QToolButton::clicked,
+            this, &WinRtArgumentsAspect::restoreDefaultValue);
+    layout->addWidget(restoreDefaultButton);
+    builder.addItem(layout);
+}
+
+void WinRtArgumentsAspect::fromMap(const QVariantMap &map)
+{
+    m_defaultValue = map.value(DEFAULTARGUMENTS_KEY).toString();
+    m_value = map.value(ARGUMENTS_KEY).toString();
+}
+
+void WinRtArgumentsAspect::toMap(QVariantMap &map) const
+{
+    map.insert(DEFAULTARGUMENTS_KEY, m_defaultValue);
+    map.insert(ARGUMENTS_KEY, m_value);
+}
+
+void WinRtArgumentsAspect::setValue(const QString &value)
+{
+    if (value == m_value)
+        return;
+
+    m_value = value;
+    if (m_lineEdit)
+        m_lineEdit->setText(value);
+    emit changed();
+}
+
+QString WinRtArgumentsAspect::value() const
+{
+    return m_value;
+}
+
+void WinRtArgumentsAspect::setDefaultValue(const QString &value)
+{
+    m_defaultValue = value;
+}
+
+QString WinRtArgumentsAspect::defaultValue() const
+{
+    return m_defaultValue;
+}
+
+void WinRtArgumentsAspect::restoreDefaultValue()
+{
+    if (m_defaultValue == m_value)
+        return;
+
+    setValue(m_defaultValue);
+}
+
 WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl, Core::Id id)
     : AbstractProcessStep(bsl, id)
 {
     setDisplayName(tr("Run windeployqt"));
 
-    m_argsAspect = addAspect<BaseStringAspect>();
-    m_argsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
-    m_argsAspect->setSettingsKey("WinRt.BuildStep.Deploy.Arguments");
+    m_argsAspect = addAspect<WinRtArgumentsAspect>();
+    m_argsAspect->setDefaultValue(defaultWinDeployQtArguments());
     m_argsAspect->setValue(defaultWinDeployQtArguments());
-    m_argsAspect->setLabelText(tr("Arguments:"));
 }
 
 bool WinRtPackageDeploymentStep::init()
@@ -219,23 +297,6 @@ void WinRtPackageDeploymentStep::stdOutput(const QString &line)
     if (m_createMappingFile)
         m_mappingFileContent += line;
     AbstractProcessStep::stdOutput(line);
-}
-
-BuildStepConfigWidget *WinRtPackageDeploymentStep::createConfigWidget()
-{
-    auto widget = AbstractProcessStep::createConfigWidget();
-
-    auto restoreDefaultButton = new QToolButton(widget);
-    restoreDefaultButton->setText(tr("Restore Default Arguments"));
-    connect(restoreDefaultButton, &QToolButton::clicked, this, [this] {
-        m_argsAspect->setValue(defaultWinDeployQtArguments());
-    });
-
-    // Smuggle in the extra button. We know that there's exactly one aspect.
-    QTC_ASSERT(widget->layout()->count() == 2, return widget);
-    widget->layout()->itemAt(1)->layout()->addWidget(restoreDefaultButton);
-
-    return widget;
 }
 
 QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
