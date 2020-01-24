@@ -29,7 +29,7 @@
 
 namespace ProjectExplorer {
 
-class Target;
+class DeployConfiguration;
 
 namespace Internal {
 
@@ -38,7 +38,7 @@ class DeploymentDataView : public QWidget
     Q_OBJECT
 
 public:
-    explicit DeploymentDataView(Target *target);
+    explicit DeploymentDataView(DeployConfiguration *dc);
 };
 
 } // Internal

@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include "buildsteplist.h"
+#include "deploymentdata.h"
 #include "projectconfiguration.h"
 
 namespace ProjectExplorer {
@@ -50,16 +51,25 @@ public:
     BuildStepList *stepList();
     const BuildStepList *stepList() const;
 
-    QWidget *createConfigWidget() const;
+    QWidget *createConfigWidget();
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
     bool isActive() const override;
 
+    bool usesCustomDeploymentData() const { return m_usesCustomDeploymentData; }
+    void setUseCustomDeploymentData(bool enabled) { m_usesCustomDeploymentData = enabled; }
+
+    DeploymentData customDeploymentData() const { return m_customDeploymentData; }
+    void setCustomDeploymentData(const DeploymentData &data) { m_customDeploymentData = data; }
+
 private:
     BuildStepList m_stepList;
-    std::function<QWidget *(Target *)> m_configWidgetCreator;
+    using WidgetCreator = std::function<QWidget *(DeployConfiguration *)>;
+    WidgetCreator m_configWidgetCreator;
+    DeploymentData m_customDeploymentData;
+    bool m_usesCustomDeploymentData = false;
 };
 
 class PROJECTEXPLORER_EXPORT DeployConfigurationFactory
@@ -90,7 +100,7 @@ public:
 
     bool canHandle(ProjectExplorer::Target *target) const;
 
-    void setConfigWidgetCreator(const std::function<QWidget *(Target *)> &configWidgetCreator);
+    void setConfigWidgetCreator(const DeployConfiguration::WidgetCreator &configWidgetCreator);
     void setUseDeploymentDataView();
 
     using PostRestore = std::function<void(DeployConfiguration *dc, const QVariantMap &)>;
@@ -108,7 +118,7 @@ private:
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QList<BuildStepList::StepCreationInfo> m_initialSteps;
     QString m_defaultDisplayName;
-    std::function<QWidget *(Target *)> m_configWidgetCreator;
+    DeployConfiguration::WidgetCreator m_configWidgetCreator;
     PostRestore m_postRestore;
 };
 

@@ -39,6 +39,8 @@ namespace ProjectExplorer {
 
 const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
+const char USES_DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomDataEnabled";
+const char DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomData";
 
 DeployConfiguration::DeployConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id),
@@ -67,11 +69,11 @@ const BuildStepList *DeployConfiguration::stepList() const
     return &m_stepList;
 }
 
-QWidget *DeployConfiguration::createConfigWidget() const
+QWidget *DeployConfiguration::createConfigWidget()
 {
     if (!m_configWidgetCreator)
         return nullptr;
-    return m_configWidgetCreator(target());
+    return m_configWidgetCreator(this);
 }
 
 QVariantMap DeployConfiguration::toMap() const
@@ -79,6 +81,13 @@ QVariantMap DeployConfiguration::toMap() const
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0'), m_stepList.toMap());
+    map.insert(USES_DEPLOYMENT_DATA, usesCustomDeploymentData());
+    QVariantMap deployData;
+    for (int i = 0; i < m_customDeploymentData.fileCount(); ++i) {
+        const DeployableFile &f = m_customDeploymentData.fileAt(i);
+        deployData.insert(f.localFilePath().toString(), f.remoteDirectory());
+    }
+    map.insert(DEPLOYMENT_DATA, deployData);
     return map;
 }
 
@@ -103,6 +112,10 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
         return false;
     }
 
+    m_usesCustomDeploymentData = map.value(USES_DEPLOYMENT_DATA, false).toBool();
+    const QVariantMap deployData = map.value(DEPLOYMENT_DATA).toMap();
+    for (auto it = deployData.begin(); it != deployData.end(); ++it)
+        m_customDeploymentData.addFile(it.key(), it.value().toString());
     return true;
 }
 
@@ -157,14 +170,16 @@ bool DeployConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
-void DeployConfigurationFactory::setConfigWidgetCreator(const std::function<QWidget *(Target *)> &configWidgetCreator)
+void DeployConfigurationFactory::setConfigWidgetCreator(const DeployConfiguration::WidgetCreator &configWidgetCreator)
 {
     m_configWidgetCreator = configWidgetCreator;
 }
 
 void DeployConfigurationFactory::setUseDeploymentDataView()
 {
-    m_configWidgetCreator = [](Target *target) { return new Internal::DeploymentDataView(target); };
+    m_configWidgetCreator = [](DeployConfiguration *dc) {
+        return new Internal::DeploymentDataView(dc);
+    };
 }
 
 void DeployConfigurationFactory::setConfigBaseId(Core::Id deployConfigBaseId)

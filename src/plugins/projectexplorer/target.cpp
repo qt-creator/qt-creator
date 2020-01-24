@@ -222,6 +222,14 @@ BuildSystem *Target::fallbackBuildSystem() const
 
 DeploymentData Target::deploymentData() const
 {
+    const DeployConfiguration * const dc = activeDeployConfiguration();
+    if (dc && dc->usesCustomDeploymentData())
+        return dc->customDeploymentData();
+    return buildSystemDeploymentData();
+}
+
+DeploymentData Target::buildSystemDeploymentData() const
+{
     QTC_ASSERT(buildSystem(), return {});
     return buildSystem()->deploymentData();
 }

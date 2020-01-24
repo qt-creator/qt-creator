@@ -115,6 +115,7 @@ public:
     BuildSystem *fallbackBuildSystem() const;
 
     DeploymentData deploymentData() const;
+    DeploymentData buildSystemDeploymentData() const;
     const QList<BuildTargetInfo> applicationTargets() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;
 
