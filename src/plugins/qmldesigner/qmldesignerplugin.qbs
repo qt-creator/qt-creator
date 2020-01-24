@@ -15,6 +15,7 @@ Project {
                 "core-private", "quickwidgets"
             ]
         }
+        Depends { name: "AdvancedDockingSystem" }
         Depends { name: "Core" }
         Depends { name: "QmlJS" }
         Depends { name: "QmlEditorWidgets" }

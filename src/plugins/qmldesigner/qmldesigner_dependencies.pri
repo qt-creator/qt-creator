@@ -2,7 +2,8 @@ QTC_PLUGIN_NAME = QmlDesigner
 QTC_LIB_DEPENDS += \
     utils \
     qmljs \
-    qmleditorwidgets
+    qmleditorwidgets \
+    advanceddockingsystem
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     texteditor \

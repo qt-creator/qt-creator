@@ -58,7 +58,8 @@ WidgetInfo ItemLibraryView::widgetInfo()
                             new WidgetInfo::ToolBarWidgetDefaultFactory<ItemLibraryWidget>(m_widget.data()),
                             QStringLiteral("Library"),
                             WidgetInfo::LeftPane,
-                            0);
+                            0,
+                            tr("Library"));
 }
 
 void ItemLibraryView::modelAttached(Model *model)

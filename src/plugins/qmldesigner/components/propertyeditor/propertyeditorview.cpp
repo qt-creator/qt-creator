@@ -760,7 +760,7 @@ bool PropertyEditorView::hasWidget() const
 
 WidgetInfo PropertyEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_stackedWidget, nullptr, QStringLiteral("Properties"), WidgetInfo::RightPane, 0);
+    return createWidgetInfo(m_stackedWidget, nullptr, QStringLiteral("Properties"), WidgetInfo::RightPane, 0, tr("Properties"));
 }
 
 void PropertyEditorView::currentStateChanged(const ModelNode &node)

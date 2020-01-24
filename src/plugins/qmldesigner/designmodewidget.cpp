@@ -37,6 +37,12 @@
 #include <itemlibrarywidget.h>
 #include <theme.h>
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actionmanager_p.h>
+#include <coreplugin/actionmanager/command.h>
+#include <qmldesigner/qmldesignerconstants.h>
+
 #include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
@@ -56,6 +62,10 @@
 #include <QToolBar>
 #include <QLayout>
 #include <QBoxLayout>
+#include <QDir>
+
+#include <advanceddockingsystem/dockareawidget.h>
+#include <advanceddockingsystem/docksplitter.h>
 
 using Core::MiniSplitter;
 using Core::IEditor;
@@ -67,13 +77,9 @@ enum {
     debug = false
 };
 
-const char SB_PROJECTS[] = "Projects";
-const char SB_FILESYSTEM[] = "FileSystem";
-const char SB_OPENDOCUMENTS[] = "OpenDocuments";
-
 static void hideToolButtons(QList<QToolButton*> &buttons)
 {
-    foreach (QToolButton *button, buttons)
+    for (QToolButton *button : buttons)
         button->hide();
 }
 
@@ -138,36 +144,12 @@ DesignModeWidget::DesignModeWidget()
 
 DesignModeWidget::~DesignModeWidget()
 {
-    m_leftSideBar.reset();
-    m_rightSideBar.reset();
-
-    foreach (QPointer<QWidget> widget, m_viewWidgets) {
+    for (QPointer<QWidget> widget : m_viewWidgets) {
         if (widget)
             widget.clear();
     }
-}
 
-void DesignModeWidget::restoreDefaultView()
-{
-    QSettings *settings = Core::ICore::settings();
-    m_leftSideBar->closeAllWidgets();
-    m_rightSideBar->closeAllWidgets();
-    m_leftSideBar->readSettings(settings,  "none.LeftSideBar");
-    m_rightSideBar->readSettings(settings, "none.RightSideBar");
-    m_leftSideBar->show();
-    m_rightSideBar->show();
-}
-
-void DesignModeWidget::toggleLeftSidebar()
-{
-    if (m_leftSideBar)
-        m_leftSideBar->setVisible(!m_leftSideBar->isVisible());
-}
-
-void DesignModeWidget::toggleRightSidebar()
-{
-    if (m_rightSideBar)
-        m_rightSideBar->setVisible(!m_rightSideBar->isVisible());
+    delete m_dockManager;
 }
 
 QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
@@ -178,7 +160,7 @@ QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
     Core::NavigationView navigationView;
     navigationView.widget = nullptr;
 
-    foreach (Core::INavigationWidgetFactory *factory, factories) {
+    for (Core::INavigationWidgetFactory *factory : factories) {
         if (factory->id() == "Projects") {
             navigationView = factory->createWidget();
             hideToolButtons(navigationView.dockToolBarWidgets);
@@ -196,29 +178,23 @@ QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
     return navigationView.widget;
 }
 
-void DesignModeWidget::readSettings()
+void DesignModeWidget::readSettings() // readPerspectives
 {
+    return;
+
     QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
-    m_leftSideBar->readSettings(settings, QStringLiteral("LeftSideBar"));
-    m_rightSideBar->readSettings(settings, QStringLiteral("RightSideBar"));
-    if (settings->contains("MainSplitter")) {
-        const QByteArray splitterState = settings->value("MainSplitter").toByteArray();
-        m_mainSplitter->restoreState(splitterState);
-        m_mainSplitter->setOpaqueResize(); // force opaque resize since it used to be off
-    }
     settings->endGroup();
 }
 
-void DesignModeWidget::saveSettings()
+void DesignModeWidget::saveSettings() // savePerspectives
 {
+    return;
+
     QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
-    m_leftSideBar->saveSettings(settings, QStringLiteral("LeftSideBar"));
-    m_rightSideBar->saveSettings(settings, QStringLiteral("RightSideBar"));
-    settings->setValue("MainSplitter", m_mainSplitter->saveState());
     settings->endGroup();
 }
 
@@ -240,12 +216,20 @@ void DesignModeWidget::disableWidgets()
     m_isDisabled = true;
 }
 
-void DesignModeWidget::switchTextOrForm()
+bool DesignModeWidget::eventFilter(QObject *obj, QEvent *event) // TODO
 {
-    if (m_centralTabWidget->currentWidget() == viewManager().widget("TextEditor"))
-        m_centralTabWidget->switchTo(viewManager().widget("FormEditor"));
-    else
-        m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
+    if (event->type() == QEvent::Hide) {
+        qDebug() << ">>> HIDE";
+        m_outputPaneDockWidget->toggleView(false);
+        return true;
+    } else if (event->type() == QEvent::Show) {
+        qDebug() << ">>> SHOW";
+        m_outputPaneDockWidget->toggleView(true);
+        return true;
+    } else {
+        // standard event processing
+        return QObject::eventFilter(obj, event);
+    }
 }
 
 void DesignModeWidget::setup()
@@ -255,42 +239,122 @@ void DesignModeWidget::setup()
     actionManager.createDefaultAddResourceHandler();
     actionManager.polishActions();
 
-    QList<Core::INavigationWidgetFactory *> factories =
-            Core::INavigationWidgetFactory::allNavigationFactories();
+    m_dockManager = new ADS::DockManager(this);
+    m_dockManager->setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);
+    m_dockManager->setSettings(Core::ICore::settings(QSettings::UserScope));
 
-    QWidget *openDocumentsWidget = nullptr;
-    QWidget *projectsExplorer = nullptr;
-    QWidget *fileSystemExplorer = nullptr;
+    QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
+    m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
-    foreach (Core::INavigationWidgetFactory *factory, factories) {
+    // Setup Actions and Menus
+    Core::ActionContainer *mwindow = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW);
+    // Window > Views
+    Core::ActionContainer *mviews = Core::ActionManager::createMenu(Core::Constants::M_WINDOW_VIEWS);
+    mviews->menu()->addSeparator();
+    // Window > Workspaces
+    Core::ActionContainer *mworkspaces = Core::ActionManager::createMenu(QmlDesigner::Constants::M_WINDOW_WORKSPACES);
+    mwindow->addMenu(mworkspaces, Core::Constants::G_WINDOW_VIEWS);
+    mworkspaces->menu()->setTitle(tr("&Workspaces"));
+    mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show); // TODO what does it exactly do?!
+
+    // Connect opening of the 'window' menu with creation of the workspaces menu
+    connect(mwindow->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
+
+    // Create a DockWidget for each QWidget and add them to the DockManager
+    const Core::Context designContext(Core::Constants::C_DESIGN_MODE);
+    static const Core::Id actionToggle("QmlDesigner.Toggle");
+
+    // First get all navigation views
+    QList<Core::INavigationWidgetFactory *> factories = Core::INavigationWidgetFactory::allNavigationFactories();
+
+    for (Core::INavigationWidgetFactory *factory : factories) {
         Core::NavigationView navigationView;
         navigationView.widget = nullptr;
+        QString uniqueId;
+        QString title;
+
         if (factory->id() == "Projects") {
             navigationView = factory->createWidget();
-            projectsExplorer = navigationView.widget;
             hideToolButtons(navigationView.dockToolBarWidgets);
-            projectsExplorer->setWindowTitle(tr("Projects"));
-        } else if (factory->id() == "File System") {
+            navigationView.widget->setWindowTitle(tr(factory->id().name()));
+            uniqueId = "Projects";
+            title = "Projects";
+        }
+        if (factory->id() == "File System") {
             navigationView = factory->createWidget();
-            fileSystemExplorer = navigationView.widget;
             hideToolButtons(navigationView.dockToolBarWidgets);
-            fileSystemExplorer->setWindowTitle(tr("File System"));
-        } else if (factory->id() == "Open Documents") {
+            navigationView.widget->setWindowTitle(tr(factory->id().name()));
+            uniqueId = "FileSystem";
+            title = "File System";
+        }
+        if (factory->id() == "Open Documents") {
             navigationView = factory->createWidget();
-            openDocumentsWidget = navigationView.widget;
             hideToolButtons(navigationView.dockToolBarWidgets);
-            openDocumentsWidget->setWindowTitle(tr("Open Documents"));
+            navigationView.widget->setWindowTitle(tr(factory->id().name()));
+            uniqueId = "OpenDocuments";
+            title = "Open Documents";
         }
 
         if (navigationView.widget) {
+            // Apply stylesheet to QWidget
             QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
             sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
             sheet += "QLabel { background-color: #4f4f4f; }";
             navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+
+            // Create DockWidget
+            ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
+            dockWidget->setWidget(navigationView.widget);
+            dockWidget->setWindowTitle(title);
+            m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+
+            // Create menu action
+            auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
+                                                               actionToggle.withSuffix(uniqueId + "Widget"),
+                                                               designContext);
+            command->setAttribute(Core::Command::CA_Hide);
+            mviews->addAction(command);
         }
     }
 
-    auto toolBar = new QToolBar;
+    // Afterwards get all the other widgets
+    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
+        // Create DockWidget
+        ADS::DockWidget *dockWidget = new ADS::DockWidget(widgetInfo.uniqueId);
+        dockWidget->setWidget(widgetInfo.widget);
+        dockWidget->setWindowTitle(widgetInfo.tabName);
+        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+
+        // Add to view widgets
+        m_viewWidgets.append(widgetInfo.widget);
+
+        // Create menu action
+        auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
+                                                           actionToggle.withSuffix(widgetInfo.uniqueId + "Widget"),
+                                                           designContext);
+        command->setAttribute(Core::Command::CA_Hide);
+        mviews->addAction(command);
+    }
+
+    // Finally the output pane
+    {
+        auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN);
+        m_outputPaneDockWidget = new ADS::DockWidget("OutputPane");
+        m_outputPaneDockWidget->setWidget(outputPanePlaceholder);
+        m_outputPaneDockWidget->setWindowTitle("Output Pane");
+        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
+        // Create menu action
+        auto command = Core::ActionManager::registerAction(m_outputPaneDockWidget->toggleViewAction(),
+                                                           actionToggle.withSuffix("OutputPaneWidget"),
+                                                           designContext);
+        command->setAttribute(Core::Command::CA_Hide);
+        mviews->addAction(command);
+
+        //outputPanePlaceholder->installEventFilter(this);
+    }
+
+    // Create toolbars
+    auto toolBar = new QToolBar();
     toolBar->addAction(viewManager().componentViewAction());
     toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
@@ -298,97 +362,162 @@ void DesignModeWidget::setup()
     designerToolBar->layout()->addWidget(toolBar);
 
     m_toolBar->addCenterToolBar(designerToolBar);
-
     m_toolBar->setMinimumWidth(320);
-
-    m_mainSplitter = new MiniSplitter(this);
-    m_mainSplitter->setObjectName("mainSplitter");
-
-    QList<Core::SideBarItem*> sideBarItems;
-    QList<Core::SideBarItem*> leftSideBarItems;
-    QList<Core::SideBarItem*> rightSideBarItems;
-
-    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
-        if (widgetInfo.placementHint == widgetInfo.LeftPane) {
-            Core::SideBarItem *sideBarItem = new DesignerSideBarItem(widgetInfo.widget, widgetInfo.toolBarWidgetFactory, widgetInfo.uniqueId);
-            sideBarItems.append(sideBarItem);
-            leftSideBarItems.append(sideBarItem);
-        }
-
-        if (widgetInfo.placementHint == widgetInfo.RightPane) {
-            Core::SideBarItem *sideBarItem = new DesignerSideBarItem(widgetInfo.widget, widgetInfo.toolBarWidgetFactory, widgetInfo.uniqueId);
-            sideBarItems.append(sideBarItem);
-            rightSideBarItems.append(sideBarItem);
-
-        }
-        m_viewWidgets.append(widgetInfo.widget);
-    }
-
-    if (projectsExplorer) {
-        Core::SideBarItem *projectExplorerItem = new Core::SideBarItem(projectsExplorer, QLatin1String(SB_PROJECTS));
-        sideBarItems.append(projectExplorerItem);
-    }
-
-    if (fileSystemExplorer) {
-        Core::SideBarItem *fileSystemExplorerItem = new Core::SideBarItem(fileSystemExplorer, QLatin1String(SB_FILESYSTEM));
-        sideBarItems.append(fileSystemExplorerItem);
-    }
-
-    if (openDocumentsWidget) {
-        Core::SideBarItem *openDocumentsItem = new Core::SideBarItem(openDocumentsWidget, QLatin1String(SB_OPENDOCUMENTS));
-        sideBarItems.append(openDocumentsItem);
-    }
-
-    m_leftSideBar.reset(new Core::SideBar(sideBarItems, leftSideBarItems));
-    m_rightSideBar.reset(new Core::SideBar(sideBarItems, rightSideBarItems));
-
-    connect(m_leftSideBar.data(), &Core::SideBar::availableItemsChanged, [=](){
-        // event comes from m_leftSidebar, so update right side.
-        m_rightSideBar->setUnavailableItemIds(m_leftSideBar->unavailableItemIds());
-    });
-
-    connect(m_rightSideBar.data(), &Core::SideBar::availableItemsChanged, [=](){
-        // event comes from m_rightSidebar, so update left side.
-        m_leftSideBar->setUnavailableItemIds(m_rightSideBar->unavailableItemIds());
-    });
-
-    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, [=](){
-        m_leftSideBar.reset();
-        m_rightSideBar.reset();
-    });
-
     m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     m_toolBar->setNavigationVisible(true);
 
     connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
     connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
 
+    QToolBar* toolBarWrapper = new QToolBar();
+    toolBarWrapper->addWidget(m_toolBar);
+    toolBarWrapper->addWidget(createCrumbleBarFrame());
+    toolBarWrapper->setMovable(false);
+    addToolBar(Qt::TopToolBarArea, toolBarWrapper);
+
     if (currentDesignDocument())
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
-    // m_mainSplitter area:
-    m_mainSplitter->addWidget(m_leftSideBar.data());
-    m_mainSplitter->addWidget(createCenterWidget());
-    m_mainSplitter->addWidget(m_rightSideBar.data());
+    // Get a list of all available workspaces
+    QStringList workspaces = m_dockManager->workspaces();
+    QString workspace = ADS::Constants::FACTORY_DEFAULT_NAME;
 
-    // Finishing touches:
-    m_mainSplitter->setStretchFactor(1, 1);
-    m_mainSplitter->setSizes({150, 300, 150});
+    // If there is no factory default workspace create one and write the xml file
+    if (!workspaces.contains(ADS::Constants::FACTORY_DEFAULT_NAME)) {
+        createFactoryDefaultWorkspace();
+        // List of workspaces needs to be updated
+        workspaces = m_dockManager->workspaces();
+    }
 
-    QLayout *mainLayout = new QBoxLayout(QBoxLayout::RightToLeft, this);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
-    mainLayout->addWidget(m_mainSplitter);
+    // Determine workspace to restore at startup
+    if (m_dockManager->autoRestorLastWorkspace()) {
+        QString lastWorkspace = m_dockManager->lastWorkspace();
+        if (!lastWorkspace.isEmpty() && workspaces.contains(lastWorkspace))
+            workspace = lastWorkspace;
+        else
+            qDebug() << "Couldn't restore last workspace!";
+    }
+
+    if (workspace.isNull() && workspaces.contains(ADS::Constants::DEFAULT_NAME)) {
+        workspace = ADS::Constants::DEFAULT_NAME;
+    }
+
+    m_dockManager->openWorkspace(workspace);
 
     viewManager().enableWidgets();
-    m_leftSideBar->setEnabled(true);
-    m_rightSideBar->setEnabled(true);
-    m_leftSideBar->setCloseWhenEmpty(false);
-    m_rightSideBar->setCloseWhenEmpty(false);
-
     readSettings();
-
     show();
+}
+
+void DesignModeWidget::aboutToShowWorkspaces()
+{
+    Core::ActionContainer *aci = Core::ActionManager::actionContainer(QmlDesigner::Constants::M_WINDOW_WORKSPACES);
+    QMenu *menu = aci->menu();
+    menu->clear();
+
+    auto *ag = new QActionGroup(menu);
+
+    connect(ag, &QActionGroup::triggered, this, [this](QAction *action) {
+        QString workspace = action->data().toString();
+        m_dockManager->openWorkspace(workspace);
+    });
+
+    QAction *action = menu->addAction("Manage...");
+    connect(action, &QAction::triggered,
+            m_dockManager, &ADS::DockManager::showWorkspaceMananger);
+
+    menu->addSeparator();
+
+    for (const auto &workspace : m_dockManager->workspaces())
+    {
+        QAction *action = ag->addAction(workspace);
+        action->setData(workspace);
+        action->setCheckable(true);
+        if (workspace == m_dockManager->activeWorkspace())
+            action->setChecked(true);
+    }
+    menu->addActions(ag->actions());
+}
+
+void DesignModeWidget::createFactoryDefaultWorkspace()
+{
+    ADS::DockAreaWidget* centerArea = nullptr;
+    ADS::DockAreaWidget* leftArea = nullptr;
+    ADS::DockAreaWidget* rightArea = nullptr;
+    ADS::DockAreaWidget* bottomArea = nullptr;
+
+    // Iterate over all widgets and only get the central once to start with creating the factory
+    // default workspace layout.
+    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
+        if (widgetInfo.placementHint == widgetInfo.CentralPane) {
+            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+            if (centerArea)
+                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, centerArea);
+            else
+                centerArea = m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget);
+        }
+    }
+
+    // Iterate over all widgets and get the remaining left, right and bottom widgets
+    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
+        if (widgetInfo.placementHint == widgetInfo.LeftPane) {
+            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+            if (leftArea)
+                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, leftArea);
+            else
+                leftArea = m_dockManager->addDockWidget(ADS::LeftDockWidgetArea, dockWidget, centerArea);
+        }
+
+        if (widgetInfo.placementHint == widgetInfo.RightPane) {
+            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+            if (rightArea)
+                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, rightArea);
+            else
+                rightArea = m_dockManager->addDockWidget(ADS::RightDockWidgetArea, dockWidget, centerArea);
+        }
+
+        if (widgetInfo.placementHint == widgetInfo.BottomPane) {
+            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+            if (bottomArea)
+                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, bottomArea);
+            else
+                bottomArea = m_dockManager->addDockWidget(ADS::BottomDockWidgetArea, dockWidget, centerArea);
+        }
+    }
+
+    // Iterate over all 'special' widgets
+    QStringList specialWidgets = {"Projects", "FileSystem", "OpenDocuments"};
+    ADS::DockAreaWidget* leftBottomArea = nullptr;
+    for (const QString &uniqueId : specialWidgets) {
+        ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(uniqueId);
+        if (leftBottomArea)
+            m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, leftBottomArea);
+        else
+            leftBottomArea = m_dockManager->addDockWidget(ADS::BottomDockWidgetArea, dockWidget, leftArea);
+    }
+
+    // Add the last widget 'OutputPane' as the bottom bottom area
+    ADS::DockWidget *dockWidget = m_dockManager->findDockWidget("OutputPane");
+    m_dockManager->addDockWidget(ADS::BottomDockWidgetArea, dockWidget, bottomArea);
+
+    // TODO This is just a test
+    auto splitter = centerArea->dockContainer()->rootSplitter();
+    splitter->setSizes({100, 800, 100});
+    // TODO
+
+    m_dockManager->createWorkspace(ADS::Constants::FACTORY_DEFAULT_NAME);
+
+    // Write the xml file
+    Utils::FilePath fileName = m_dockManager->workspaceNameToFileName(ADS::Constants::FACTORY_DEFAULT_NAME);
+    QString errorString;
+    Utils::FileSaver fileSaver(fileName.toString(), QIODevice::Text);
+    QByteArray data = m_dockManager->saveState();
+    if (!fileSaver.hasError()) {
+        fileSaver.write(data);
+    }
+    if (!fileSaver.finalize()) {
+        errorString = fileSaver.errorString();
+    }
 }
 
 void DesignModeWidget::toolBarOnGoBackClicked()
@@ -445,93 +574,6 @@ void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FilePath &fileName)
     ++m_navigatorHistoryCounter;
 }
 
-static QTabWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
-{
-    auto tabWidget = new QTabWidget;
-
-    foreach (const WidgetInfo &widgetInfo, widgetInfos)
-        tabWidget->addTab(widgetInfo.widget, widgetInfo.tabName);
-
-    return tabWidget;
-}
-
-static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
-{
-    //### we now own these here
-    QList<WidgetInfo> topWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
-        if (widgetInfo.placementHint == widgetInfo.BottomPane)
-            topWidgetInfos.append(widgetInfo);
-    }
-
-    QWidget *widget = topWidgetInfos.constFirst().widget;
-    if (topWidgetInfos.count() > 1) {
-        QWidget *background = new QWidget();
-        background->setProperty("designerBackgroundColor", true);
-
-        QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"));
-        sheet.prepend("QWidget[designerBackgroundColor=\"true\"] {background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;}");
-
-        background->setStyleSheet(Theme::replaceCssColors(sheet));
-        background->setLayout(new QVBoxLayout);
-        background->layout()->setContentsMargins(0, 0, 0, 0);
-
-        background->layout()->addWidget(createWidgetsInTabWidget(topWidgetInfos));
-        widget = background;
-    }
-    return widget;
-}
-
-static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfos)
-{
-    // editor and output panes
-    auto outputPlaceholderSplitter = new Core::MiniSplitter;
-    outputPlaceholderSplitter->setOrientation(Qt::Vertical);
-
-    auto switchSplitTabWidget = new SwitchSplitTabWidget();
-
-    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
-        if (widgetInfo.placementHint == widgetInfo.CentralPane)
-            switchSplitTabWidget->addTab(widgetInfo.widget, widgetInfo.tabName);
-    }
-
-    outputPlaceholderSplitter->addWidget(switchSplitTabWidget);
-
-    QWidget *bottomSideBar = createbottomSideBarWidget(widgetInfos);
-    bottomSideBar->setObjectName("bottomSideBar");
-    outputPlaceholderSplitter->addWidget(bottomSideBar);
-
-    auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
-    outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
-
-    outputPlaceholderSplitter->setStretchFactor(0, 10);
-    outputPlaceholderSplitter->setStretchFactor(1, 1);
-    return outputPlaceholderSplitter;
-}
-
-QWidget *DesignModeWidget::createCenterWidget()
-{
-    QWidget *centerWidget = new QWidget;
-
-    auto horizontalLayout = new QVBoxLayout(centerWidget);
-    horizontalLayout->setContentsMargins(0, 0, 0, 0);
-    horizontalLayout->setSpacing(0);
-
-    horizontalLayout->addWidget(m_toolBar);
-    horizontalLayout->addWidget(createCrumbleBarFrame());
-
-    Core::MiniSplitter *centralSplitter = createCentralSplitter(viewManager().widgetInfos());
-    m_centralTabWidget = centralSplitter->findChild<SwitchSplitTabWidget*>();
-    Q_ASSERT(m_centralTabWidget);
-    m_centralTabWidget->switchTo(viewManager().widget("FormEditor"));
-
-    m_bottomSideBar = centralSplitter->findChild<QWidget*>("bottomSideBar");
-    Q_ASSERT(m_bottomSideBar);
-    horizontalLayout->addWidget(centralSplitter);
-
-    return centerWidget;
-}
-
 QWidget *DesignModeWidget::createCrumbleBarFrame()
 {
     auto frame = new Utils::StyledBar(this);
@@ -551,7 +593,9 @@ CrumbleBar *DesignModeWidget::crumbleBar() const
 
 void DesignModeWidget::showInternalTextEditor()
 {
-    m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
+    auto dockWidget = m_dockManager->findDockWidget("TextEditor");
+    if (dockWidget)
+        dockWidget->toggleView(true);
 }
 
 void DesignModeWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

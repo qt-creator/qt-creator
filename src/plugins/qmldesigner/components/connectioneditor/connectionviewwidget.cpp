@@ -87,8 +87,6 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     QStyle *style = QStyleFactory::create("fusion");
     setStyle(style);
 
-    setStyleSheet(Theme::replaceCssColors(QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/connectionview/stylesheet.css")))));
-
     //ui->tabWidget->tabBar()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     ui->tabBar->setUsesScrollButtons(true);
@@ -105,13 +103,9 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     ui->tabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 
-    const QString themedScrollBarCss = Theme::replaceCssColors(
-                QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
-
-    ui->connectionView->setStyleSheet(themedScrollBarCss);
-    ui->bindingView->setStyleSheet(themedScrollBarCss);
-    ui->dynamicPropertiesView->setStyleSheet(themedScrollBarCss);
-    ui->backendView->setStyleSheet(themedScrollBarCss);
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/connectionview/stylesheet.css");
+    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
     connect(ui->tabBar, &QTabBar::currentChanged,
             ui->stackedWidget, &QStackedWidget::setCurrentIndex);

@@ -83,7 +83,7 @@ static QString propertyEditorResourcesPath() {
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
     m_itemIconSize(24, 24),
-    m_itemViewQuickWidget(new QQuickWidget),
+    m_itemViewQuickWidget(new QQuickWidget(this)),
     m_resourcesView(new ItemLibraryResourceView(this)),
     m_importTagsWidget(new QWidget(this)),
     m_addResourcesWidget(new QWidget(this)),
@@ -147,6 +147,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_stackedWidget = new QStackedWidget(this);
     m_stackedWidget->addWidget(m_itemViewQuickWidget.data());
     m_stackedWidget->addWidget(m_resourcesView.data());
+    m_stackedWidget->setMinimumHeight(30);
+    m_stackedWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
     QWidget *spacer = new QWidget(this);
     spacer->setObjectName(QStringLiteral("itemLibrarySearchInputSpacer"));

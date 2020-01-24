@@ -127,6 +127,12 @@ void StatesEditorWidget::toggleStatesViewExpanded()
     rootObject()->setProperty("expanded", !expanded);
 }
 
+void StatesEditorWidget::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event)
+    update();
+}
+
 void StatesEditorWidget::reloadQmlSource()
 {
     QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/StatesList.qml");

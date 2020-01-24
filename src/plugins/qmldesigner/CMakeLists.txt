@@ -1,6 +1,6 @@
 add_qtc_plugin(QmlDesigner
   DEPENDS
-    QmlJS LanguageUtils QmlEditorWidgets
+    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt5::QuickWidgets Qt5::CorePrivate
   DEFINES
     DESIGNER_CORE_LIBRARY

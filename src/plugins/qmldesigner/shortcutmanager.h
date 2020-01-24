@@ -63,8 +63,6 @@ private:
     void copySelected();
     void paste();
     void selectAll();
-    void toggleLeftSidebar();
-    void toggleRightSidebar();
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
     void goIntoComponent();
@@ -85,10 +83,6 @@ private:
     QAction m_pasteAction;
     QAction m_selectAllAction;
     QAction m_collapseExpandStatesAction;
-    QAction m_restoreDefaultViewAction;
-    QAction m_toggleLeftSidebarAction;
-    QAction m_toggleRightSidebarAction;
-    QAction m_switchTextFormAction;
     QAction m_escapeAction;
 };
 

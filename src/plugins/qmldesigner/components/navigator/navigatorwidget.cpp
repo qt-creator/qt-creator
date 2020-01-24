@@ -92,8 +92,9 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
 #ifndef QMLDESIGNER_TEST
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
-    m_treeView->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"))));
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 #endif
 }
 

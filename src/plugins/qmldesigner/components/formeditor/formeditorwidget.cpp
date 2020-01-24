@@ -59,8 +59,6 @@ namespace QmlDesigner {
 FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_formEditorView(view)
 {
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));
-
     auto fillLayout = new QVBoxLayout(this);
     fillLayout->setContentsMargins(0, 0, 0, 0);
     fillLayout->setSpacing(0);
@@ -168,7 +166,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_graphicsView = new FormEditorGraphicsView(this);
 
     fillLayout->addWidget(m_graphicsView.data());
-    m_graphicsView.data()->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)

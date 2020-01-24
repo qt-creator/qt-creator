@@ -1,0 +1,128 @@
+ADS--DockContainerWidget
+{
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+}
+
+ADS--DockContainerWidget QSplitter::handle
+{
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+}
+
+ADS--DockAreaWidget
+{
+    background-color: creatorTheme.BackgroundColorNormal;
+}
+
+ADS--DockAreaWidget #tabsMenuButton::menu-indicator
+{
+    image: none;
+}
+
+ADS--DockSplitter::handle:horizontal {
+    width: 1px;
+    background-color: creatorTheme.SplitterColor;
+}
+
+ADS--DockSplitter::handle:vertical {
+    height: 1px;
+    background-color: creatorTheme.SplitterColor;
+}
+
+ADS--DockWidgetTab
+{
+    background-color: creatorTheme.BackgroundColorDark;
+    border-color: creatorTheme.SplitterColor;
+    border-style: solid;
+    border-width: 0 1px 0 0;
+}
+
+ADS--DockWidgetTab[activeTab="true"]
+{
+    background-color: creatorTheme.QmlDesigner_TabLight;
+}
+
+ADS--DockWidgetTab QLabel
+{
+    color: creatorTheme.QmlDesigner_TabLight;
+}
+
+ADS--DockWidgetTab[activeTab="true"] QLabel
+{
+    color: creatorTheme.QmlDesigner_TabDark;
+}
+
+ADS--DockWidget
+{
+    background-color: palette(light);
+    border-color: red;
+    border-style: solid;
+    border-width: 0;
+}
+
+ADS--DockAreaTitleBar{ background-color: creatorTheme.BackgroundColorDark; }
+
+QWidget#tabsContainerWidget { background-color: creatorTheme.BackgroundColorDark; }
+
+ADS--TitleBarButton
+{
+    padding: 0px 0px;
+}
+
+QScrollArea#dockWidgetScrollArea
+{
+    padding: 0px;
+    border: none;
+}
+
+#tabCloseButton
+{
+    margin-top: 2px;
+    background: none;
+    border: none;
+    padding: 0px -2px;
+}
+
+#tabCloseButton:hover
+{
+    border: 1px solid rgba(0, 0, 0, 32);
+    background: rgba(0, 0, 0, 16);
+}
+
+#tabCloseButton:pressed
+{
+    background: rgba(0, 0, 0, 32);
+}
+
+QScrollBar {
+    background-color: creatorTheme.BackgroundColorDark;
+}
+
+QScrollBar:vertical {
+    width: 10px;
+}
+
+QScrollBar:horizontal {
+    height: 10px;
+}
+
+QScrollBar::handle {
+    background-color: creatorTheme.QmlDesigner_ScrollBarHandleColor;
+}
+
+QScrollBar::handle:vertical {
+    min-height: 30px;
+}
+
+QScrollBar::handle:horizontal {
+    min-width: 30px;
+}
+
+QScrollBar::add-line,
+QScrollBar::sub-line,
+QScrollBar::left-arrow,
+QScrollBar::right-arrow,
+QScrollBar::add-page,
+QScrollBar::sub-page {
+    height: 0px;
+    width: 0px;
+}
