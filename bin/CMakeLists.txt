@@ -1,1 +1,3 @@
-install(PROGRAMS qtcreator.sh DESTINATION bin)
+if (NOT APPLE)
+  install(PROGRAMS qtcreator.sh DESTINATION bin)
+endif()

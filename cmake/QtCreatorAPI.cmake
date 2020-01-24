@@ -28,9 +28,8 @@ endif()
 # Setup path handling
 #
 
-set(_IDE_APP_PATH "bin")
-
 if (APPLE)
+  set(_IDE_APP_PATH ".")
   set(_IDE_APP_TARGET "${IDE_DISPLAY_NAME}")
 
   set(_IDE_OUTPUT_PATH "${_IDE_APP_PATH}/${_IDE_APP_TARGET}.app/Contents")
@@ -43,6 +42,7 @@ if (APPLE)
   set(_IDE_DOC_PATH "${_IDE_OUTPUT_PATH}/Resources/doc")
   set(_IDE_BIN_PATH "${_IDE_OUTPUT_PATH}/MacOS")
 else ()
+  set(_IDE_APP_PATH "bin")
   set(_IDE_APP_TARGET "${IDE_ID}")
 
   set(_IDE_LIBRARY_BASE_PATH "lib")
