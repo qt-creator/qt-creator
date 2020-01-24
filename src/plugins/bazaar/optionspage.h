@@ -30,10 +30,12 @@
 namespace Bazaar {
 namespace Internal {
 
+class BazaarSettings;
+
 class OptionsPage final : public Core::IOptionsPage
 {
 public:
-    OptionsPage(Core::IVersionControl *control, QObject *parent);
+    OptionsPage(Core::IVersionControl *control, BazaarSettings *settings, QObject *parent);
 };
 
 } // namespace Internal

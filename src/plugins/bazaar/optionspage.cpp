@@ -42,53 +42,53 @@ class OptionsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::OptionsPageWidget)
 
 public:
-    OptionsPageWidget(Core::IVersionControl *control);
+    OptionsPageWidget(Core::IVersionControl *control, BazaarSettings *settings);
 
     void apply() final;
 
 private:
     Ui::OptionsPage m_ui;
     Core::IVersionControl *m_control;
-    BazaarClient *m_client;
+    BazaarSettings *m_settings;
 };
 
 void OptionsPageWidget::apply()
 {
-    VcsBaseClientSettings s = BazaarPluginPrivate::instance()->client()->settings();
+    BazaarSettings s = *m_settings;
     s.setValue(BazaarSettings::binaryPathKey, m_ui.commandChooser->rawPath());
     s.setValue(BazaarSettings::userNameKey, m_ui.defaultUsernameLineEdit->text().trimmed());
     s.setValue(BazaarSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
     s.setValue(BazaarSettings::logCountKey, m_ui.logEntriesCount->value());
     s.setValue(BazaarSettings::timeoutKey, m_ui.timeout->value());
 
-    const bool notify = m_client->settings() != s;
-    m_client->settings() = s;
-    if (notify)
-        emit m_control->configurationChanged();
+    if (*m_settings == s)
+        return;
+
+    *m_settings = s;
+    emit m_control->configurationChanged();
 }
 
-OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control)
-    : m_control(control), m_client(BazaarPluginPrivate::instance()->client())
+OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control, BazaarSettings *settings)
+    : m_control(control), m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.commandChooser->setPromptDialogTitle(tr("Bazaar Command"));
     m_ui.commandChooser->setHistoryCompleter(QLatin1String("Bazaar.Command.History"));
 
-    VcsBaseClientSettings s = m_client->settings();
-    m_ui.commandChooser->setPath(s.stringValue(BazaarSettings::binaryPathKey));
-    m_ui.defaultUsernameLineEdit->setText(s.stringValue(BazaarSettings::userNameKey));
-    m_ui.defaultEmailLineEdit->setText(s.stringValue(BazaarSettings::userEmailKey));
-    m_ui.logEntriesCount->setValue(s.intValue(BazaarSettings::logCountKey));
-    m_ui.timeout->setValue(s.intValue(BazaarSettings::timeoutKey));
+    m_ui.commandChooser->setPath(m_settings->stringValue(BazaarSettings::binaryPathKey));
+    m_ui.defaultUsernameLineEdit->setText(m_settings->stringValue(BazaarSettings::userNameKey));
+    m_ui.defaultEmailLineEdit->setText(m_settings->stringValue(BazaarSettings::userEmailKey));
+    m_ui.logEntriesCount->setValue(m_settings->intValue(BazaarSettings::logCountKey));
+    m_ui.timeout->setValue(m_settings->intValue(BazaarSettings::timeoutKey));
 }
 
-OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
+OptionsPage::OptionsPage(Core::IVersionControl *control, BazaarSettings *settings, QObject *parent) :
     Core::IOptionsPage(parent)
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(OptionsPageWidget::tr("Bazaar"));
-    setWidgetCreator([control] { return new OptionsPageWidget(control); });
+    setWidgetCreator([control, settings] { return new OptionsPageWidget(control, settings); });
     setCategory(Constants::VCS_SETTINGS_CATEGORY);
 }
 

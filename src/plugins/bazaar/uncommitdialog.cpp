@@ -35,7 +35,8 @@
 namespace Bazaar {
 namespace Internal {
 
-UnCommitDialog::UnCommitDialog(QWidget *parent) : QDialog(parent),
+UnCommitDialog::UnCommitDialog(BazaarPluginPrivate *bzrPlugin, QWidget *parent) :
+    QDialog(parent),
     m_ui(new Ui::UnCommitDialog)
 {
     m_ui->setupUi(this);
@@ -43,7 +44,12 @@ UnCommitDialog::UnCommitDialog(QWidget *parent) : QDialog(parent),
     auto dryRunBtn = new QPushButton(tr("Dry Run"));
     dryRunBtn->setToolTip(tr("Test the outcome of removing the last committed revision, without actually removing anything."));
     m_ui->buttonBox->addButton(dryRunBtn, QDialogButtonBox::ApplyRole);
-    connect(dryRunBtn, &QPushButton::clicked, this, &UnCommitDialog::dryRun);
+    connect(dryRunBtn, &QPushButton::clicked, this, [this, bzrPlugin] {
+        QTC_ASSERT(bzrPlugin->currentState().hasTopLevel(), return);
+        bzrPlugin->client()->synchronousUncommit(bzrPlugin->currentState().topLevel(),
+                                                 revision(),
+                                                 extraOptions() << QLatin1String("--dry-run"));
+    });
 }
 
 UnCommitDialog::~UnCommitDialog()
@@ -64,15 +70,6 @@ QStringList UnCommitDialog::extraOptions() const
 QString UnCommitDialog::revision() const
 {
     return m_ui->revisionLineEdit->text().trimmed();
-}
-
-void UnCommitDialog::dryRun()
-{
-    BazaarPluginPrivate *bzrPlugin = BazaarPluginPrivate::instance();
-    QTC_ASSERT(bzrPlugin->currentState().hasTopLevel(), return);
-    bzrPlugin->client()->synchronousUncommit(bzrPlugin->currentState().topLevel(),
-                                             revision(),
-                                             extraOptions() << QLatin1String("--dry-run"));
 }
 
 } // namespace Internal

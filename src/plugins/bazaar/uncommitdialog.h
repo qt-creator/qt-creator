@@ -32,20 +32,20 @@ namespace Internal {
 
 namespace Ui { class UnCommitDialog; }
 
+class BazaarPluginPrivate;
+
 class UnCommitDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit UnCommitDialog(QWidget *parent = nullptr);
+    explicit UnCommitDialog(BazaarPluginPrivate *plugin, QWidget *parent = nullptr);
     ~UnCommitDialog() override;
 
     QStringList extraOptions() const;
     QString revision() const;
 
 private:
-    void dryRun();
-
     Ui::UnCommitDialog *m_ui;
 };
 

@@ -59,7 +59,6 @@ public:
     BazaarPluginPrivate();
     ~BazaarPluginPrivate() final;
 
-    static BazaarPluginPrivate *instance();
     BazaarClient *client() const;
 
 protected:

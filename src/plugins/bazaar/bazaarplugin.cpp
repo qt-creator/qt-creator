@@ -168,7 +168,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 
     connect(m_client, &VcsBaseClient::changed, vcsCtrl, &BazaarControl::changed);
 
-    new OptionsPage(vcsCtrl, this);
+    new OptionsPage(vcsCtrl, &m_bazaarSettings, this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_client->view(source, id);
@@ -185,11 +185,6 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix, this);
 
     createMenu(context);
-}
-
-BazaarPluginPrivate *BazaarPluginPrivate::instance()
-{
-    return dd;
 }
 
 BazaarClient *BazaarPluginPrivate::client() const
@@ -635,7 +630,7 @@ void BazaarPluginPrivate::uncommit()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    UnCommitDialog dialog(ICore::dialogParent());
+    UnCommitDialog dialog(this, ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
         m_client->synchronousUncommit(state.topLevel(), dialog.revision(), dialog.extraOptions());
 }
