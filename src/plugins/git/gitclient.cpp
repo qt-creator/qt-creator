@@ -772,7 +772,7 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
 
 // ---------------- GitClient
 
-GitClient::GitClient() : VcsBase::VcsBaseClientImpl(new GitSettings),
+GitClient::GitClient(GitSettings *settings) : VcsBase::VcsBaseClientImpl(settings),
     m_cachedGitVersion(0),
     m_disableEditor(false)
 {

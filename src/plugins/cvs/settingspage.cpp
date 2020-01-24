@@ -87,8 +87,8 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.describeByCommitIdCheckBox->setChecked(s.boolValue(CvsSettings::describeByCommitIdKey));
 }
 
-SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
-    VcsClientOptionsPage(control, CvsPluginPrivate::instance()->client(), parent)
+SettingsPage::SettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent) :
+    VcsClientOptionsPage(control, settings, parent)
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(SettingsPageWidget::tr("CVS"));

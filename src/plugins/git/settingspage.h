@@ -30,10 +30,12 @@
 namespace Git {
 namespace Internal {
 
+class GitSettings;
+
 class SettingsPage final : public VcsBase::VcsClientOptionsPage
 {
 public:
-    SettingsPage(Core::IVersionControl *control, QObject *parent);
+    SettingsPage(Core::IVersionControl *control, GitSettings *settings, QObject *parent);
     void apply() final;
 };
 

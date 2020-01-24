@@ -30,10 +30,12 @@
 namespace Cvs {
 namespace Internal {
 
+class CvsSettings;
+
 class SettingsPage final : public VcsBase::VcsClientOptionsPage
 {
 public:
-    SettingsPage(Core::IVersionControl *control, QObject *parent);
+    SettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent);
 };
 
 } // namespace Cvs

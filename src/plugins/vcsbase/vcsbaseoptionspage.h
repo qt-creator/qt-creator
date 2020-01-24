@@ -31,15 +31,11 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QWidget>
-
 #include <functional>
 
 namespace Core { class IVersionControl; }
 
 namespace VcsBase {
-
-class VcsBaseClientImpl;
 
 class VCSBASE_EXPORT VcsClientOptionsPageWidget : public Core::IOptionsPageWidget
 {
@@ -61,7 +57,7 @@ class VCSBASE_EXPORT VcsClientOptionsPage : public Core::IOptionsPage
 public:
     using WidgetFactory = std::function<VcsClientOptionsPageWidget *()>;
 
-    explicit VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client, QObject *parent = nullptr);
+    explicit VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientSettings *settings, QObject *parent = nullptr);
 
     VcsClientOptionsPageWidget *widget() override;
     void apply() override;
@@ -76,7 +72,7 @@ protected:
 private:
     WidgetFactory m_factory;
     VcsClientOptionsPageWidget *m_widget = nullptr;
-    VcsBaseClientImpl *const m_client;
+    VcsBaseClientSettings *const m_settings;
 };
 
 } // namespace VcsBase

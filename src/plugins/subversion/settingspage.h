@@ -30,10 +30,12 @@
 namespace Subversion {
 namespace Internal {
 
+class SubversionSettings;
+
 class SettingsPage final : public VcsBase::VcsClientOptionsPage
 {
 public:
-    SettingsPage(Core::IVersionControl *control, QObject *parent);
+    SettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent);
 };
 
 } // namespace Subversion

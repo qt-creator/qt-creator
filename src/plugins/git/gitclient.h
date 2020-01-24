@@ -136,7 +136,7 @@ public:
         PushAction m_pushAction = NoPush;
     };
 
-    explicit GitClient();
+    explicit GitClient(GitSettings *settings);
 
     Utils::FilePath vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = nullptr) const;

@@ -96,8 +96,8 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.logCountSpinBox->setValue(s.intValue(SubversionSettings::logCountKey));
 }
 
-SettingsPage::SettingsPage(Core::IVersionControl *control, QObject *parent) :
-    VcsClientOptionsPage(control, SubversionPluginPrivate::instance()->client(), parent)
+SettingsPage::SettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent) :
+    VcsClientOptionsPage(control, settings, parent)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
     setDisplayName(SettingsPageWidget::tr("Subversion"));

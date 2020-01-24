@@ -46,12 +46,12 @@ namespace VcsBase {
 
 VcsClientOptionsPageWidget::VcsClientOptionsPageWidget() = default;
 
-VcsClientOptionsPage::VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client,
+VcsClientOptionsPage::VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientSettings *settings,
                                            QObject *parent) :
     Core::IOptionsPage(parent),
-    m_client(client)
+    m_settings(settings)
 {
-    QTC_CHECK(m_client);
+    QTC_CHECK(m_settings);
     connect(this, &VcsClientOptionsPage::settingsChanged,
             control, &Core::IVersionControl::configurationChanged);
 }
@@ -68,7 +68,7 @@ VcsClientOptionsPageWidget *VcsClientOptionsPage::widget()
     if (!m_widget)
         m_widget = m_factory();
     QTC_ASSERT(m_widget, return nullptr);
-    m_widget->setSettings(m_client->settings());
+    m_widget->setSettings(*m_settings);
     return m_widget;
 }
 
@@ -76,9 +76,8 @@ void VcsClientOptionsPage::apply()
 {
     QTC_ASSERT(m_widget, return);
     const VcsBaseClientSettings newSettings = m_widget->settings();
-    VcsBaseClientSettings &s = m_client->settings();
-    if (s != newSettings) {
-        s = newSettings;
+    if (*m_settings != newSettings) {
+        *m_settings = newSettings;
         emit settingsChanged();
     }
 }

@@ -197,6 +197,7 @@ private:
     Utils::ParameterAction *m_applyCurrentFilePatchAction = nullptr;
     Gerrit::Internal::GerritPlugin *m_gerritPlugin = nullptr;
 
+    GitSettings m_settings;
     GitClient *m_gitClient = nullptr;
     QPointer<StashDialog> m_stashDialog;
     QPointer<BranchViewFactory> m_branchViewFactory;

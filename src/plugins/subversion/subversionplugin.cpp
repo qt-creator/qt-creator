@@ -231,7 +231,7 @@ SubversionPluginPrivate::SubversionPluginPrivate() :
 
     m_client = new SubversionClient(&m_settings);
 
-    new SettingsPage(versionControl(), this);
+    new SettingsPage(versionControl(), &m_settings, this);
 
     new VcsSubmitEditorFactory(&submitParameters,
         []() { return new SubversionSubmitEditor(&submitParameters); }, this);

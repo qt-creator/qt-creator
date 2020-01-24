@@ -319,13 +319,13 @@ GitPluginPrivate::GitPluginPrivate()
 
     Context context(Constants::GIT_CONTEXT);
 
-    m_gitClient = new GitClient;
+    m_gitClient = new GitClient(&m_settings);
 
     auto vc = new GitVersionControl(m_gitClient);
     initializeVcs(vc, context);
 
     // Create the settings Page
-    auto settingsPage = new SettingsPage(vc, this);
+    auto settingsPage = new SettingsPage(vc, &m_settings, this);
     connect(settingsPage, &SettingsPage::settingsChanged,
             this, &GitPluginPrivate::updateRepositoryBrowserAction);
 

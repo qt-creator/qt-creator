@@ -220,7 +220,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     m_client = new CvsClient(&m_settings);
 
-    new SettingsPage(versionControl(), this);
+    new SettingsPage(versionControl(), &m_settings, this);
 
     new VcsSubmitEditorFactory(&submitParameters,
         []() { return new CvsSubmitEditor(&submitParameters); }, this);
