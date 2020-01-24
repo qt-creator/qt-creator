@@ -37,6 +37,7 @@ class QDomDocument;
 class QDomElement;
 class QComboBox;
 class QPushButton;
+class QHBoxLayout;
 class QLabel;
 class QLineEdit;
 class QListView;
@@ -118,6 +119,13 @@ private:
     void setLDPIIcon();
     void setMDPIIcon();
     void setHDPIIcon();
+    void clearLDPIIcon();
+    void clearMDPIIcon();
+    void clearHDPIIcon();
+    void createDPIButton(QHBoxLayout *layout,
+                         QWidget *parent,
+                         QToolButton *&button, QToolButton *&clearButton,
+                         const QString &title, const QString &tooltip);
     void defaultPermissionOrFeatureCheckBoxClicked();
     void addPermission();
     void removePermission();
@@ -173,8 +181,11 @@ private:
     QLineEdit *m_activityNameLineEdit;
     QComboBox *m_targetLineEdit;
     QToolButton *m_lIconButton;
+    QToolButton *m_lIconClearButton;
     QToolButton *m_mIconButton;
+    QToolButton *m_mIconClearButton;
     QToolButton *m_hIconButton;
+    QToolButton *m_hIconClearButton;
     QString m_lIconPath; // only set if the user changed the icon
     QString m_mIconPath;
     QString m_hIconPath;

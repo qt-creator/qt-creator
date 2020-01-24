@@ -232,29 +232,25 @@ void AndroidManifestEditorWidget::initializePage()
         formLayout->addRow(tr("Run:"), m_targetLineEdit);
 
         auto iconLayout = new QHBoxLayout();
-        m_lIconButton = new QToolButton(applicationGroupBox);
-        m_lIconButton->setMinimumSize(QSize(48, 48));
-        m_lIconButton->setMaximumSize(QSize(48, 48));
-        m_lIconButton->setToolTip(tr("Select low DPI icon."));
-        iconLayout->addWidget(m_lIconButton);
 
-        iconLayout->addItem(new QSpacerItem(28, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        createDPIButton(iconLayout,
+                        applicationGroupBox,
+                        m_lIconButton, m_lIconClearButton,
+                        tr("Low DPI icon"), tr("Select low DPI icon."));
 
-        m_mIconButton = new QToolButton(applicationGroupBox);
-        m_mIconButton->setMinimumSize(QSize(48, 48));
-        m_mIconButton->setMaximumSize(QSize(48, 48));
-        m_mIconButton->setToolTip(tr("Select medium DPI icon."));
-        iconLayout->addWidget(m_mIconButton);
+        createDPIButton(iconLayout,
+                        applicationGroupBox,
+                        m_mIconButton, m_mIconClearButton,
+                        tr("Medium DPI icon"), tr("Select medium DPI icon."));
 
-        iconLayout->addItem(new QSpacerItem(28, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        createDPIButton(iconLayout,
+                        applicationGroupBox,
+                        m_hIconButton, m_hIconClearButton,
+                        tr("High DPI icon"), tr("Select high DPI icon."));
 
-        m_hIconButton = new QToolButton(applicationGroupBox);
-        m_hIconButton->setMinimumSize(QSize(48, 48));
-        m_hIconButton->setMaximumSize(QSize(48, 48));
-        m_hIconButton->setToolTip(tr("Select high DPI icon."));
-        iconLayout->addWidget(m_hIconButton);
+        formLayout->addRow(tr("Application icon:"), new QLabel());
 
-        formLayout->addRow(tr("Application icon:"), iconLayout);
+        formLayout->addRow(QString(), iconLayout);
 
         applicationGroupBox->setLayout(formLayout);
 
@@ -271,6 +267,12 @@ void AndroidManifestEditorWidget::initializePage()
                 this, &AndroidManifestEditorWidget::setMDPIIcon);
         connect(m_hIconButton, &QAbstractButton::clicked,
                 this, &AndroidManifestEditorWidget::setHDPIIcon);
+        connect(m_lIconClearButton, &QAbstractButton::clicked,
+                this, &AndroidManifestEditorWidget::clearLDPIIcon);
+        connect(m_mIconClearButton, &QAbstractButton::clicked,
+                this, &AndroidManifestEditorWidget::clearMDPIIcon);
+        connect(m_hIconClearButton, &QAbstractButton::clicked,
+                this, &AndroidManifestEditorWidget::clearHDPIIcon);
     }
 
 
@@ -1276,6 +1278,58 @@ void AndroidManifestEditorWidget::setHDPIIcon()
     m_hIconPath = file;
     m_hIconButton->setIcon(QIcon(file));
     setDirty(true);
+}
+
+void AndroidManifestEditorWidget::clearLDPIIcon()
+{
+    m_lIconPath.clear();
+    m_lIconButton->setIcon(QIcon());
+}
+
+void AndroidManifestEditorWidget::clearMDPIIcon()
+{
+    m_mIconPath.clear();
+    m_mIconButton->setIcon(QIcon());
+}
+
+void AndroidManifestEditorWidget::clearHDPIIcon()
+{
+    m_hIconPath.clear();
+    m_hIconButton->setIcon(QIcon());
+}
+
+void AndroidManifestEditorWidget::createDPIButton(QHBoxLayout *layout,
+                                                  QWidget *parent,
+                                                  QToolButton *&button,
+                                                  QToolButton *&clearButton,
+                                                  const QString &title,
+                                                  const QString &tooltip)
+{
+    auto iconLayout = new QVBoxLayout();
+    auto iconTitle = new QLabel(title, parent);
+    auto iconButtonLayout = new QGridLayout();
+    button = new QToolButton(parent);
+    button->setMinimumSize(QSize(48, 48));
+    button->setMaximumSize(QSize(48, 48));
+    button->setToolTip(tooltip);
+    clearButton = new QToolButton(parent);
+    clearButton->setMinimumSize(QSize(16, 16));
+    clearButton->setMaximumSize(QSize(16, 16));
+    clearButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
+    auto label = new QLabel(tr("Click to select"), parent);
+    iconLayout->addWidget(iconTitle);
+    iconLayout->setAlignment(iconTitle, Qt::AlignHCenter);
+    iconButtonLayout->setColumnMinimumWidth(0, 16);
+    iconButtonLayout->addWidget(button, 0, 1, 1, 3);
+    iconButtonLayout->setAlignment(button, Qt::AlignVCenter);
+    iconButtonLayout->addWidget(clearButton, 0, 4, 1, 1);
+    iconButtonLayout->setAlignment(clearButton, Qt::AlignTop);
+    iconLayout->addLayout(iconButtonLayout);
+    iconLayout->setAlignment(iconButtonLayout, Qt::AlignHCenter);
+    iconLayout->addWidget(label);
+    iconLayout->setAlignment(label, Qt::AlignHCenter);
+
+    layout->addLayout(iconLayout);
 }
 
 void AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked()
