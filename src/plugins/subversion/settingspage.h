@@ -25,17 +25,19 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+namespace Core { class IVersionControl;  }
 
 namespace Subversion {
 namespace Internal {
 
 class SubversionSettings;
 
-class SettingsPage final : public VcsBase::VcsClientOptionsPage
+class SubversionSettingsPage final : public Core::IOptionsPage
 {
 public:
-    SettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent);
+    SubversionSettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent);
 };
 
 } // namespace Subversion

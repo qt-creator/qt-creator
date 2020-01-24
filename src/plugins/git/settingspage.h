@@ -25,18 +25,17 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Git {
 namespace Internal {
 
 class GitSettings;
 
-class SettingsPage final : public VcsBase::VcsClientOptionsPage
+class GitSettingsPage final : public Core::IOptionsPage
 {
 public:
-    SettingsPage(Core::IVersionControl *control, GitSettings *settings, QObject *parent);
-    void apply() final;
+    GitSettingsPage(GitSettings *settings, const std::function<void()> &onChange, QObject *parent);
 };
 
 } // namespace Internal

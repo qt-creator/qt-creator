@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+namespace Core { class IVersionControl; }
 
 namespace Bazaar {
 namespace Internal {

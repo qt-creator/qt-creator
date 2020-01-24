@@ -92,11 +92,5 @@ Utils::FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) cons
     return binPath;
 }
 
-GitSettings &GitSettings::operator = (const GitSettings &s)
-{
-    VcsBaseClientSettings::operator =(s);
-    return *this;
-}
-
 } // namespace Internal
 } // namespace Git

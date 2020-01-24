@@ -43,42 +43,30 @@ using namespace VcsBase;
 namespace Cvs {
 namespace Internal {
 
-class SettingsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+class CvsSettingsPageWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::SettingsPageWidget)
 
 public:
-    SettingsPageWidget();
+    CvsSettingsPageWidget(Core::IVersionControl *control, CvsSettings *settings);
 
-    VcsBase::VcsBaseClientSettings settings() const final;
-    void setSettings(const VcsBase::VcsBaseClientSettings &) final;
+    void apply() final;
 
 private:
     Ui::SettingsPage m_ui;
+    Core::IVersionControl *m_control;
+    CvsSettings *m_settings;
 };
 
-SettingsPageWidget::SettingsPageWidget()
+CvsSettingsPageWidget::CvsSettingsPageWidget(Core::IVersionControl *control, CvsSettings *settings)
+    : m_control(control), m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_ui.commandPathChooser->setHistoryCompleter(QLatin1String("Cvs.Command.History"));
     m_ui.commandPathChooser->setPromptDialogTitle(tr("CVS Command"));
-}
 
-VcsBaseClientSettings SettingsPageWidget::settings() const
-{
-    CvsSettings rc;
-    rc.setValue(CvsSettings::binaryPathKey, m_ui.commandPathChooser->rawPath());
-    rc.setValue(CvsSettings::cvsRootKey, m_ui.rootLineEdit->text());
-    rc.setValue(CvsSettings::diffOptionsKey, m_ui.diffOptionsLineEdit->text());
-    rc.setValue(CvsSettings::timeoutKey, m_ui.timeOutSpinBox->value());
-    rc.setValue(CvsSettings::promptOnSubmitKey, m_ui.promptToSubmitCheckBox->isChecked());
-    rc.setValue(CvsSettings::describeByCommitIdKey, m_ui.describeByCommitIdCheckBox->isChecked());
-    return rc;
-}
-
-void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
-{
+    const VcsBaseClientSettings &s = *settings;
     m_ui.commandPathChooser->setFileName(s.binaryPath());
     m_ui.rootLineEdit->setText(s.stringValue(CvsSettings::cvsRootKey));
     m_ui.diffOptionsLineEdit->setText(s.stringValue(CvsSettings::diffOptionsKey));
@@ -87,13 +75,30 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.describeByCommitIdCheckBox->setChecked(s.boolValue(CvsSettings::describeByCommitIdKey));
 }
 
-SettingsPage::SettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent) :
-    VcsClientOptionsPage(control, settings, parent)
+void CvsSettingsPageWidget::apply()
+{
+    CvsSettings rc = *m_settings;
+    rc.setValue(CvsSettings::binaryPathKey, m_ui.commandPathChooser->rawPath());
+    rc.setValue(CvsSettings::cvsRootKey, m_ui.rootLineEdit->text());
+    rc.setValue(CvsSettings::diffOptionsKey, m_ui.diffOptionsLineEdit->text());
+    rc.setValue(CvsSettings::timeoutKey, m_ui.timeOutSpinBox->value());
+    rc.setValue(CvsSettings::promptOnSubmitKey, m_ui.promptToSubmitCheckBox->isChecked());
+    rc.setValue(CvsSettings::describeByCommitIdKey, m_ui.describeByCommitIdCheckBox->isChecked());
+
+    if (rc == *m_settings)
+        return;
+
+    *m_settings = rc;
+    m_control->configurationChanged();
+}
+
+CvsSettingsPage::CvsSettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent) :
+    Core::IOptionsPage( parent)
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
-    setDisplayName(SettingsPageWidget::tr("CVS"));
+    setDisplayName(CvsSettingsPageWidget::tr("CVS"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetFactory([] { return new SettingsPageWidget; });
+    setWidgetCreator([control, settings] { return new CvsSettingsPageWidget(control, settings); });
 }
 
 } // Internal

@@ -25,17 +25,19 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+namespace Core { class IVersionControl; }
 
 namespace Cvs {
 namespace Internal {
 
 class CvsSettings;
 
-class SettingsPage final : public VcsBase::VcsClientOptionsPage
+class CvsSettingsPage final : public Core::IOptionsPage
 {
 public:
-    SettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent);
+    CvsSettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent);
 };
 
 } // namespace Cvs

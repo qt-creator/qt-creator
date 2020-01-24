@@ -61,7 +61,7 @@ public:
 
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 
-    GitSettings &operator = (const GitSettings &s);
+    GitSettings &operator=(const GitSettings &s) = default;
 };
 
 } // namespace Internal

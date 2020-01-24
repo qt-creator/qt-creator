@@ -325,9 +325,16 @@ GitPluginPrivate::GitPluginPrivate()
     initializeVcs(vc, context);
 
     // Create the settings Page
-    auto settingsPage = new SettingsPage(vc, &m_settings, this);
-    connect(settingsPage, &SettingsPage::settingsChanged,
-            this, &GitPluginPrivate::updateRepositoryBrowserAction);
+    auto onApply = [this, vc] {
+        vc->configurationChanged();
+        updateRepositoryBrowserAction();
+        bool gitFoundOk;
+        QString errorMessage;
+        m_settings.gitExecutable(&gitFoundOk, &errorMessage);
+        if (!gitFoundOk)
+            Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
+    };
+    new GitSettingsPage(&m_settings, onApply, this);
 
     new GitGrep(this);
     m_branchViewFactory = new BranchViewFactory;

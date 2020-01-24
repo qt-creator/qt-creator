@@ -221,7 +221,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     m_client = new CvsClient(&m_settings);
 
-    new SettingsPage(vcsCtrl, &m_settings, this);
+    new CvsSettingsPage(vcsCtrl, &m_settings, this);
 
     new VcsSubmitEditorFactory(&submitParameters,
         []() { return new CvsSubmitEditor(&submitParameters); }, this);

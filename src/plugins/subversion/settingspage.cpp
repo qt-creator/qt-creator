@@ -44,47 +44,30 @@ using namespace VcsBase;
 namespace Subversion {
 namespace Internal {
 
-class SettingsPageWidget final : public VcsBase::VcsClientOptionsPageWidget
+class SubversionSettingsPageWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SettingsPageWidget)
 
 public:
-    SettingsPageWidget();
+    SubversionSettingsPageWidget(Core::IVersionControl *control, SubversionSettings *settings);
 
-    VcsBase::VcsBaseClientSettings settings() const final;
-    void setSettings(const VcsBase::VcsBaseClientSettings &s) final;
+    void apply() final;
 
 private:
     Ui::SettingsPage m_ui;
+    Core::IVersionControl *m_control;
+    SubversionSettings *m_settings;
 };
 
-SettingsPageWidget::SettingsPageWidget()
+SubversionSettingsPageWidget::SubversionSettingsPageWidget(Core::IVersionControl *control, SubversionSettings *settings)
+    : m_control(control), m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.pathChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_ui.pathChooser->setHistoryCompleter(QLatin1String("Subversion.Command.History"));
     m_ui.pathChooser->setPromptDialogTitle(tr("Subversion Command"));
-}
 
-VcsBase::VcsBaseClientSettings SettingsPageWidget::settings() const
-{
-    SubversionSettings rc;
-    rc.setValue(SubversionSettings::binaryPathKey, m_ui.pathChooser->rawPath());
-    rc.setValue(SubversionSettings::useAuthenticationKey, m_ui.userGroupBox->isChecked());
-    rc.setValue(SubversionSettings::userKey, m_ui.usernameLineEdit->text());
-    rc.setValue(SubversionSettings::passwordKey, m_ui.passwordLineEdit->text());
-    rc.setValue(SubversionSettings::timeoutKey, m_ui.timeOutSpinBox->value());
-    if (rc.stringValue(SubversionSettings::userKey).isEmpty())
-        rc.setValue(SubversionSettings::useAuthenticationKey, false);
-    rc.setValue(SubversionSettings::promptOnSubmitKey, m_ui.promptToSubmitCheckBox->isChecked());
-    rc.setValue(SubversionSettings::spaceIgnorantAnnotationKey,
-                m_ui.spaceIgnorantAnnotationCheckBox->isChecked());
-    rc.setValue(SubversionSettings::logCountKey, m_ui.logCountSpinBox->value());
-    return rc;
-}
-
-void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
-{
+    SubversionSettings &s = *m_settings;
     m_ui.pathChooser->setFileName(s.binaryPath());
     m_ui.usernameLineEdit->setText(s.stringValue(SubversionSettings::userKey));
     m_ui.passwordLineEdit->setText(s.stringValue(SubversionSettings::passwordKey));
@@ -96,13 +79,35 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.logCountSpinBox->setValue(s.intValue(SubversionSettings::logCountKey));
 }
 
-SettingsPage::SettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent) :
-    VcsClientOptionsPage(control, settings, parent)
+void SubversionSettingsPageWidget::apply()
+{
+    SubversionSettings rc = *m_settings;
+    rc.setValue(SubversionSettings::binaryPathKey, m_ui.pathChooser->rawPath());
+    rc.setValue(SubversionSettings::useAuthenticationKey, m_ui.userGroupBox->isChecked());
+    rc.setValue(SubversionSettings::userKey, m_ui.usernameLineEdit->text());
+    rc.setValue(SubversionSettings::passwordKey, m_ui.passwordLineEdit->text());
+    rc.setValue(SubversionSettings::timeoutKey, m_ui.timeOutSpinBox->value());
+    if (rc.stringValue(SubversionSettings::userKey).isEmpty())
+        rc.setValue(SubversionSettings::useAuthenticationKey, false);
+    rc.setValue(SubversionSettings::promptOnSubmitKey, m_ui.promptToSubmitCheckBox->isChecked());
+    rc.setValue(SubversionSettings::spaceIgnorantAnnotationKey,
+                m_ui.spaceIgnorantAnnotationCheckBox->isChecked());
+    rc.setValue(SubversionSettings::logCountKey, m_ui.logCountSpinBox->value());
+
+    if (rc == *m_settings)
+        return;
+
+    *m_settings = rc;
+    m_control->configurationChanged();
+}
+
+SubversionSettingsPage::SubversionSettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent) :
+    Core::IOptionsPage(parent)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
-    setDisplayName(SettingsPageWidget::tr("Subversion"));
+    setDisplayName(SubversionSettingsPageWidget::tr("Subversion"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetFactory([] { return new SettingsPageWidget; });
+    setWidgetCreator([control, settings] { return new SubversionSettingsPageWidget(control, settings); });
 }
 
 } // Internal

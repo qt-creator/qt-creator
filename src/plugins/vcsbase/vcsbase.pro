@@ -20,7 +20,6 @@ HEADERS += vcsbase_global.h \
     nicknamedialog.h \
     vcsoutputwindow.h \
     cleandialog.h \
-    vcsbaseoptionspage.h \
     vcscommand.h \
     vcsbaseclient.h \
     vcsbaseclientsettings.h \
@@ -47,7 +46,6 @@ SOURCES += vcsplugin.cpp \
     nicknamedialog.cpp \
     vcsoutputwindow.cpp \
     cleandialog.cpp \
-    vcsbaseoptionspage.cpp \
     vcscommand.cpp \
     vcsbaseclient.cpp \
     vcsbaseclientsettings.cpp \
