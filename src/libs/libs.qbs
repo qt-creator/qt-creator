@@ -3,6 +3,7 @@ import qbs
 Project {
     name: "Libs"
     references: [
+        "advanceddockingsystem/advanceddockingsystem.qbs",
         "aggregation/aggregation.qbs",
         "clangsupport/clangsupport.qbs",
         "cplusplus/cplusplus.qbs",

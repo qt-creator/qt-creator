@@ -1,5 +1,6 @@
 add_subdirectory(3rdparty)
 
+add_subdirectory(advanceddockingsystem)
 add_subdirectory(aggregation)
 add_subdirectory(extensionsystem)
 add_subdirectory(utils)
