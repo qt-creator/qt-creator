@@ -30,9 +30,9 @@
 #include <utils/namevaluedictionary.h>
 #include <utils/qtcassert.h>
 
-#include <QBrush>
-#include <QColor>
 #include <QFont>
+#include <QGuiApplication>
+#include <QPalette>
 #include <QString>
 
 namespace Utils {
@@ -179,9 +179,11 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
         f.setStrikeOut(!d->m_resultNameValueDictionary.isEnabled(resultIterator));
         return f;
     }
-    case Qt::ForegroundRole:
-        return changes(d->m_resultNameValueDictionary.key(resultIterator))
-                ? QBrush(Qt::blue) : QBrush();
+    case Qt::ForegroundRole: {
+        const QPalette p = QGuiApplication::palette();
+        return p.color(changes(d->m_resultNameValueDictionary.key(resultIterator))
+                    ? QPalette::Link : QPalette::Text);
+    }
     }
     return QVariant();
 }
