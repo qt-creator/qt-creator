@@ -73,41 +73,22 @@ static Core::IEditor *locateEditor(const char *property, const QString &entry)
 
 namespace VcsBase {
 
-class VcsBaseClientImplPrivate
-{
-public:
-    VcsBaseClientImplPrivate(VcsBaseClientSettings *settings);
-    ~VcsBaseClientImplPrivate();
-
-    VcsBaseClientSettings *m_clientSettings;
-};
-
-VcsBaseClientImplPrivate::VcsBaseClientImplPrivate(VcsBaseClientSettings *settings) :
+VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
     m_clientSettings(settings)
 {
     m_clientSettings->readSettings(Core::ICore::settings());
-}
-
-VcsBaseClientImplPrivate::~VcsBaseClientImplPrivate()
-{
-    delete m_clientSettings;
-}
-
-VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseClientSettings *settings) :
-    d(new VcsBaseClientImplPrivate(settings))
-{
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
 }
 
 VcsBaseClientImpl::~VcsBaseClientImpl()
 {
-    delete d;
+    delete m_clientSettings;
 }
 
 VcsBaseClientSettings &VcsBaseClientImpl::settings() const
 {
-    return *d->m_clientSettings;
+    return *m_clientSettings;
 }
 
 FilePath VcsBaseClientImpl::vcsBinary() const

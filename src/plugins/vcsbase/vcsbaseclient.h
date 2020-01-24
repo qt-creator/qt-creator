@@ -129,7 +129,7 @@ protected:
 private:
     void saveSettings();
 
-    VcsBaseClientImplPrivate *d;
+    VcsBaseClientSettings *m_clientSettings;
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl
