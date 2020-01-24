@@ -1174,12 +1174,6 @@ IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QStrin
     return editor;
 }
 
-CvsPluginPrivate *CvsPluginPrivate::instance()
-{
-    QTC_ASSERT(dd, return dd);
-    return dd;
-}
-
 bool CvsPluginPrivate::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
     QStringList args;
