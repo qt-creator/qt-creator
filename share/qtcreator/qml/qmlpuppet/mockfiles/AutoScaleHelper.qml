@@ -64,27 +64,7 @@ Node {
         if (!autoScale) {
             target.scale = Qt.vector3d(1, 1, 1);
         } else {
-            // Calculate the distance independent scale by first mapping the targets position to
-            // the view. We then measure up a distance on the view (100px) that we use as an
-            // "anchor" distance. Map the two positions back to the target node, and measure the
-            // distance between them now, in the 3D scene. The difference of the two distances,
-            // view and scene, will tell us what the distance independent scale should be.
-
-            // Need to recreate vector as we need to adjust it and we can't do that on reference of
-            // scenePosition, which is read-only property
-            var scenePos = Qt.vector3d(scenePosition.x, scenePosition.y, scenePosition.z);
-            if (orientation === Node.RightHanded)
-                scenePos.z = -scenePos.z;
-
-            var posInView1 = view3D.mapFrom3DScene(scenePos);
-            var posInView2 = Qt.vector3d(posInView1.x + 100, posInView1.y, posInView1.z);
-
-            var rayPos1 = view3D.mapTo3DScene(Qt.vector3d(posInView2.x, posInView2.y, 0));
-            var rayPos2 = view3D.mapTo3DScene(Qt.vector3d(posInView2.x, posInView2.y, 10));
-
-            var planeNormal = camera.forward;
-            var rayHitPos = helper.rayIntersectsPlane(rayPos1, rayPos2, scenePos, planeNormal);
-            relativeScale = scenePos.minus(rayHitPos).length() / 100;
+            relativeScale = helper.getRelativeScale(overlayNode);
         }
     }
 

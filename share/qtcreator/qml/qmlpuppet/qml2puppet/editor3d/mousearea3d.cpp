@@ -33,52 +33,90 @@
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercamera_p.h>
 #include <QtQuick3DUtils/private/qssgutils_p.h>
+#include <QtCore/qmath.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-// Double precision vec3 for cases where float calculations can suffer from rounding errors
-class DoubleVec {
+// Double precision vector for cases where float calculations can suffer from rounding errors
+class DoubleVec3D {
 public:
-    DoubleVec(const QVector3D &v)
+    DoubleVec3D() = default;
+    DoubleVec3D(const QVector3D &v)
         : x(double(v.x())),
           y(double(v.y())),
           z(double(v.z()))
     {}
-    DoubleVec(double xx, double yy, double zz)
+    DoubleVec3D(double xx, double yy, double zz)
         : x(xx),
           y(yy),
           z(zz)
     {}
 
-    static double dotProduct(const DoubleVec &v1, const DoubleVec &v2)
+    static double dotProduct(const DoubleVec3D &v1, const DoubleVec3D &v2)
     {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    QVector3D toVec3()
+    QVector3D toVec3() const
     {
         return QVector3D(float(x), float(y), float(z));
     }
 
-    double x;
-    double y;
-    double z;
+    DoubleVec3D normalized() const
+    {
+        double len = x * x + y * y + z * z;
+        if (qFuzzyIsNull(len - 1.)) {
+            return *this;
+        } else if (!qFuzzyIsNull(len)) {
+            double sqrtLen = std::sqrt(len);
+            return DoubleVec3D(x / sqrtLen, y / sqrtLen, z / sqrtLen);
+        } else {
+            return {};
+        }
+    }
+
+    double length() const
+    {
+        double len = x * x + y * y + z * z;
+        return std::sqrt(len);
+    }
+
+    double x = 0.;
+    double y = 0.;
+    double z = 0.;
 };
 
-DoubleVec operator*(double factor, const DoubleVec &v)
+
+
+DoubleVec3D operator*(double factor, const DoubleVec3D &v)
 {
-    return DoubleVec(v.x * factor, v.y * factor, v.z * factor);
+    return DoubleVec3D(v.x * factor, v.y * factor, v.z * factor);
 }
 
-DoubleVec operator+(const DoubleVec &v1, const DoubleVec &v2)
+DoubleVec3D operator*(DoubleVec3D &v1, const DoubleVec3D &v2)
 {
-    return DoubleVec(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+    return DoubleVec3D(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
 }
 
-DoubleVec operator-(const DoubleVec &v1, const DoubleVec &v2)
+DoubleVec3D operator+(const DoubleVec3D &v1, const DoubleVec3D &v2)
 {
-    return DoubleVec(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+    return DoubleVec3D(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+}
+
+DoubleVec3D operator-(const DoubleVec3D &v1, const DoubleVec3D &v2)
+{
+    return DoubleVec3D(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+}
+
+DoubleVec3D operator/(const DoubleVec3D &v, double div)
+{
+    return DoubleVec3D(v.x / div, v.y / div, v.z / div);
+}
+
+DoubleVec3D operator/(const DoubleVec3D &v1, const DoubleVec3D &v2)
+{
+    return DoubleVec3D(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
 }
 
 MouseArea3D *MouseArea3D::s_mouseGrab = nullptr;
@@ -300,15 +338,15 @@ QVector3D MouseArea3D::rayIntersectsPlane(const QVector3D &rayPos0,
                                           const QVector3D &planePos,
                                           const QVector3D &planeNormal) const
 {
-    const DoubleVec rayPos0D(rayPos0);
-    const DoubleVec rayPos1D(rayPos1);
-    const DoubleVec planePosD(planePos);
-    const DoubleVec planeNormalD(planeNormal);
-    const DoubleVec rayDirectionD = rayPos1D - rayPos0D;
-    const DoubleVec rayPos0RelativeToPlaneD = rayPos0D - planePosD;
+    const DoubleVec3D rayPos0D(rayPos0);
+    const DoubleVec3D rayPos1D(rayPos1);
+    const DoubleVec3D planePosD(planePos);
+    const DoubleVec3D planeNormalD(planeNormal);
+    const DoubleVec3D rayDirectionD = rayPos1D - rayPos0D;
+    const DoubleVec3D rayPos0RelativeToPlaneD = rayPos0D - planePosD;
 
-    const double dotPlaneRayDirection = DoubleVec::dotProduct(planeNormalD, rayDirectionD);
-    const double dotPlaneRayPos0 = -DoubleVec::dotProduct(planeNormalD, rayPos0RelativeToPlaneD);
+    const double dotPlaneRayDirection = DoubleVec3D::dotProduct(planeNormalD, rayDirectionD);
+    const double dotPlaneRayPos0 = -DoubleVec3D::dotProduct(planeNormalD, rayPos0RelativeToPlaneD);
 
     if (qFuzzyIsNull(dotPlaneRayDirection)) {
         // The ray is is parallel to the plane. Note that if dotLinePos0 == 0, it
@@ -464,6 +502,29 @@ QVector3D MouseArea3D::pivotScenePosition(QQuick3DNode *node) const
     const QMatrix4x4 sceneTransform = parent->sceneTransform() * localTransform;
 
     return mat44::getPosition(sceneTransform);
+}
+
+double MouseArea3D::getRelativeScale(QQuick3DNode *node) const
+{
+    // Calculate the distance independent scale by first mapping the target's position to
+    // the view. We then measure up a distance on the view (100px) that we use as an
+    // "anchor" distance. Map the two positions back to the target node, and measure the
+    // distance between them now, in the 3D scene. The difference between the two distances,
+    // view and scene, will tell us what the distance independent scale should be.
+
+    QVector3D nodePos(node->scenePosition());
+    if (orientation() == QQuick3DNode::RightHanded)
+        nodePos.setZ(-nodePos.z());
+
+    DoubleVec3D posInView1(m_view3D->mapFrom3DScene(nodePos));
+
+    DoubleVec3D posInView2 = posInView1;
+    posInView2.x = posInView2.x + 100.;
+
+    DoubleVec3D scenePos1(m_view3D->mapTo3DScene(posInView1.toVec3()));
+    DoubleVec3D scenePos2(m_view3D->mapTo3DScene(posInView2.toVec3()));
+
+    return (scenePos1 - scenePos2).length() / 100.;
 }
 
 QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,

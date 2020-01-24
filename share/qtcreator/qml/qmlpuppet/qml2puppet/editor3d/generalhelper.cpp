@@ -126,7 +126,7 @@ float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float de
 {
     // Emprically determined divisor for nice zoom
     float multiplier = 1.f + (distance / 40.f);
-    float newZoomFactor = relative ? qBound(.0001f, zoomFactor * multiplier, 10000.f)
+    float newZoomFactor = relative ? qBound(.01f, zoomFactor * multiplier, 100.f)
                                    : zoomFactor;
 
     if (qobject_cast<QQuick3DOrthographicCamera *>(camera)) {
@@ -199,7 +199,7 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
 
     camera->setPosition(lookAt + newLookVector);
 
-    float newZoomFactor = updateZoom ? qBound(.0001f, float(maxExtent / 700.), 10000.f) : oldZoom;
+    float newZoomFactor = updateZoom ? qBound(.01f, float(maxExtent / 700.), 100.f) : oldZoom;
     float cameraZoomFactor = zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
 
     return QVector4D(lookAt, cameraZoomFactor);

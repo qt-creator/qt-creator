@@ -114,6 +114,7 @@ public slots:
     Q_INVOKABLE void applyFreeRotation(QQuick3DNode *node, const QVector3D &startRotation,
                                        const QVector3D &pressPos, const QVector3D &currentPos);
     Q_INVOKABLE QVector3D pivotScenePosition(QQuick3DNode *node) const;
+    Q_INVOKABLE double getRelativeScale(QQuick3DNode *node) const;
 
 signals:
     void view3DChanged();
@@ -148,6 +149,7 @@ private:
     void setHovering(bool enable);
     QVector3D getNormal() const;
     QVector3D getCameraToNodeDir(QQuick3DNode *node) const;
+    QVector3D getMousePosInPlane(const MouseArea3D *helper, const QPointF &mousePosInView) const;
 
     Q_DISABLE_COPY(MouseArea3D)
     QQuick3DViewport *m_view3D = nullptr;
@@ -161,8 +163,6 @@ private:
     bool m_hovering = false;
     bool m_dragging = false;
     bool m_active = false;
-
-    QVector3D getMousePosInPlane(const MouseArea3D *helper, const QPointF &mousePosInView) const;
 
     static MouseArea3D *s_mouseGrab;
     bool m_grabsMouse = false;
