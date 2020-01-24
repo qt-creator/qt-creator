@@ -42,6 +42,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/Token.h>
 #include <utils/qtcassert.h>
+#include <utils/fancylineedit.h>
 
 #include <QAbstractTableModel>
 #include <QLabel>
@@ -146,7 +147,7 @@ signals:
 
 private:
     QTreeView *view;
-    QLineEdit *lineEdit;
+    Utils::FancyLineEdit *lineEdit;
 };
 
 FilterableView::FilterableView(QWidget *parent)
@@ -157,20 +158,17 @@ FilterableView::FilterableView(QWidget *parent)
     view->setTextElideMode(Qt::ElideMiddle);
     view->setSortingEnabled(true);
 
-    lineEdit = new QLineEdit(this);
+    lineEdit = new Utils::FancyLineEdit(this);
+    lineEdit->setFiltering(true);
     lineEdit->setPlaceholderText(QLatin1String("File Path"));
     QObject::connect(lineEdit, &QLineEdit::textChanged, this, &FilterableView::filterChanged);
 
     QLabel *label = new QLabel(QLatin1String("&Filter:"), this);
     label->setBuddy(lineEdit);
 
-    QPushButton *clearButton = new QPushButton(QLatin1String("&Clear"), this);
-    QObject::connect(clearButton, &QAbstractButton::clicked, this, &FilterableView::clearFilter);
-
     auto filterBarLayout = new QHBoxLayout();
     filterBarLayout->addWidget(label);
     filterBarLayout->addWidget(lineEdit);
-    filterBarLayout->addWidget(clearButton);
 
     auto mainLayout = new QVBoxLayout();
     mainLayout->addWidget(view);
