@@ -29,29 +29,27 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace CodePaster {
-class Settings;
-class Protocol;
 
-class CodePasterServiceImpl : public QObject, public CodePaster::Service
+class CodePasterPluginPrivate;
+
+class CodePasterServiceImpl final : public QObject, public CodePaster::Service
 {
     Q_OBJECT
     Q_INTERFACES(CodePaster::Service)
-public:
-    explicit CodePasterServiceImpl(QObject *parent = nullptr);
 
-    void postText(const QString &text, const QString &mimeType) override;
-    void postCurrentEditor() override;
-    void postClipboard() override;
+public:
+    explicit CodePasterServiceImpl(CodePasterPluginPrivate *d);
+
+private:
+    void postText(const QString &text, const QString &mimeType) final;
+    void postCurrentEditor() final;
+    void postClipboard() final;
+
+    CodePasterPluginPrivate *d = nullptr;
 };
 
-class CodepasterPlugin : public ExtensionSystem::IPlugin
+class CodePasterPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CodePaster.json")
@@ -63,38 +61,17 @@ public:
     };
     Q_DECLARE_FLAGS(PasteSources, PasteSource)
 
-    CodepasterPlugin();
-    ~CodepasterPlugin() override;
-
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
-
-    static CodepasterPlugin *instance();
-
-    void post(PasteSources pasteSources);
-    void post(QString data, const QString &mimeType);
+    CodePasterPlugin() = default;
+    ~CodePasterPlugin() final;
 
 private:
-    void pasteSnippet();
-    void fetch();
-    void finishPost(const QString &link);
-    void finishFetch(const QString &titleDescription,
-                     const QString &content,
-                     bool error);
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {}
+    ShutdownFlag aboutToShutdown() final;
 
-    void fetchUrl();
-
-    static CodepasterPlugin *m_instance;
-    Settings *m_settings = nullptr;
-    QAction *m_postEditorAction = nullptr;
-    QAction *m_fetchAction = nullptr;
-    QAction *m_fetchUrlAction = nullptr;
-    QList<Protocol*> m_protocols;
-    QStringList m_fetchedSnippets;
-    Protocol *m_urlOpen = nullptr;
+    CodePasterPluginPrivate *d = nullptr;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(CodepasterPlugin::PasteSources)
+Q_DECLARE_OPERATORS_FOR_FLAGS(CodePasterPlugin::PasteSources)
 
 } // namespace CodePaster

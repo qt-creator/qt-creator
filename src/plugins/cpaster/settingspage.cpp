@@ -75,8 +75,7 @@ void SettingsWidget::apply()
     }
 }
 
-SettingsPage::SettingsPage(Settings *settings, const QStringList &protocolNames, QObject *parent)
-    : Core::IOptionsPage(parent)
+SettingsPage::SettingsPage(Settings *settings, const QStringList &protocolNames)
 {
     setId("A.CodePaster.General");
     setDisplayName(tr("General"));

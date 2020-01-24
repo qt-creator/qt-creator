@@ -38,7 +38,7 @@ class Settings;
 class SettingsPage final : public Core::IOptionsPage
 {
 public:
-    SettingsPage(Settings *settings, const QStringList &protocolNames, QObject *parent);
+    SettingsPage(Settings *settings, const QStringList &protocolNames);
 };
 
 } // namespace CodePaster
