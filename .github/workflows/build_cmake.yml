@@ -3,9 +3,9 @@ name: CMake Build Matrix
 on: [push, pull_request]
 
 env:
-  QT_VERSION: 5.14.0
+  QT_VERSION: 5.14.1
   CLANG_VERSION: 80
-  CMAKE_VERSION: 3.16.2
+  CMAKE_VERSION: 3.16.3
   NINJA_VERSION: 1.9.0
   BUILD_TYPE: Release
   CCACHE_VERSION: 3.7.7
