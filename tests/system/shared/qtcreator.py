@@ -55,7 +55,7 @@ source("../../shared/welcome.py")
 source("../../shared/workarounds.py") # include this at last
 
 # additionalParameters must be a list or tuple of strings or None
-def startQC(additionalParameters=None, withPreparedSettingsPath=True, cancelTour=True):
+def startQC(additionalParameters=None, withPreparedSettingsPath=True, closeLinkToQt=True, cancelTour=True):
     global SettingsPath
     appWithOptions = ['"Qt Creator"' if platform.system() == 'Darwin' else "qtcreator"]
     if withPreparedSettingsPath:
@@ -66,6 +66,8 @@ def startQC(additionalParameters=None, withPreparedSettingsPath=True, cancelTour
         appWithOptions.extend(('-platform', 'windows:dialogs=none'))
     test.log("Starting now: %s" % ' '.join(appWithOptions))
     appContext = startApplication(' '.join(appWithOptions))
+    if closeLinkToQt:
+        clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
     if cancelTour:
         clickButton(waitForObject(":*Qt Creator.Do Not Show Again_QToolButton"))
     return appContext;
