@@ -170,8 +170,8 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
                                "window=':Qt Creator_Core::Internal::MainWindow'} "
                   "type='QCheckBox' unnamed='1' visible='1' "
                   "window=':Qt Creator_Core::Internal::MainWindow'}", enableShadowBuild)
-    buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
-                                 "window=':Qt Creator_Core::Internal::MainWindow'}")
+    buildCfCombo = waitForObject("{leftWidget=':scrollArea.Edit build configuration:_QLabel' "
+                                 "type='QComboBox' unnamed='1' visible='1'}")
     if shouldBeDebug:
         test.compare(buildCfCombo.currentText, 'Debug', "Verifying whether it's a debug build")
     else:
@@ -184,9 +184,9 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
             pass
         # Since waitForObject waits for the object to be enabled,
         # it will wait here until compilation of the debug libraries has finished.
-        qmlDebugCheckbox = waitForObject(":scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox", 150000)
-        if qmlDebugCheckbox.checked != enableQmlDebug:
-            clickButton(qmlDebugCheckbox)
+        if currentTarget not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
+            qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
+            selectFromCombo(qmlDebuggingCombo, 'Enable')
             # Don't rebuild now
             clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
         try:
@@ -197,12 +197,12 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
         except:
             pass
     else:
-        qmlDebugCheckbox = findObject(":scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox")
-        if qmlDebugCheckbox.enabled and qmlDebugCheckbox.checked:
-            test.log("Qml debugging libraries are available - unchecking qml debugging.")
-            clickButton(qmlDebugCheckbox)
-            # Don't rebuild now
-            clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+        if currentTarget not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
+            qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
+            if selectFromCombo(qmlDebuggingCombo, "Disable"):
+                test.log("Qml debugging libraries are available - unchecked qml debugging.")
+                # Don't rebuild now
+                clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
 

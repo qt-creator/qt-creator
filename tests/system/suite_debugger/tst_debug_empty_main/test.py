@@ -36,8 +36,8 @@ def addFileToProject(projectPath, category, fileTemplate, fileName):
                         projectPath, "Verifying whether path is correct."):
         replaceEditorContent(pathLineEdit, projectPath)
     clickButton(waitForObject(":Next_QPushButton"))
-    projCombo = waitForObject("{buddy={name='projectLabel' text='Add to project:' type='QLabel' "
-                              "visible='1'} name='projectComboBox' type='QComboBox' visible='1'}")
+    projCombo = findObject("{buddy={name='projectLabel' text='Add to project:' type='QLabel' "
+                           "visible='1'} name='projectComboBox' type='QComboBox' visible='1'}")
     proFileName = os.path.basename(projectPath) + ".pro"
     test.verify(not selectFromCombo(projCombo, proFileName), "Verifying project is selected.")
     __createProjectHandleLastPage__()
@@ -51,6 +51,7 @@ def main():
     # empty Qt
     workingDir = tempDir()
     projectName = createEmptyQtProject(workingDir, "EmptyQtProj", targets)
+    waitForProjectParsing()
     addFileToProject(os.path.join(workingDir, projectName), "  C++", "C++ Source File", "main.cpp")
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     typeLines(editor, ["int main() {"])
@@ -65,6 +66,7 @@ def main():
             qtVersion = qtVersion.replace(".", "")
             projectName = createNewNonQtProject(workingDir, "Sample%s%s" % (name, qtVersion),
                                                 [singleTarget], isC)
+            waitForProjectParsing()
             if projectName == None:
                 test.fail("Failed to create Sample%s%s" % (name, qtVersion),
                           "Target: %s, plainC: %s" % (Targets.getStringForTargt(singleTarget), isC))
@@ -94,7 +96,7 @@ def performDebugging(projectName):
         test.log("Selecting '%s' as build config" % config)
         verifyBuildConfig(kit, config, True, True)
         waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton")
-        invokeMenuItem("Build", "Rebuild All")
+        invokeMenuItem("Build", "Rebuild All Projects")
         waitForCompile()
         isMsvc = isMsvcConfig(kit)
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
