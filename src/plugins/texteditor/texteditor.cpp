@@ -5658,7 +5658,7 @@ void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
     ToolTip::hide();
 
     // fake missing mouse move event from Qt
-    QMouseEvent me(QEvent::MouseMove, QPoint(-1, -1), Qt::NoButton, nullptr, nullptr);
+    QMouseEvent me(QEvent::MouseMove, QPoint(-1, -1), Qt::NoButton, {}, {});
     extraAreaMouseEvent(&me);
 }
 
