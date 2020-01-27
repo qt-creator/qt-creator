@@ -44,7 +44,7 @@ def main():
             continue
         test.log("Building project %s (%s)"
                  % (appTemplate, Targets.getStringForTarget(targ)))
-        invokeMenuItem("Build", "Build All")
+        invokeMenuItem("Build", "Build All Projects")
         waitForCompile()
         if not checkCompile():
             test.fatal("Compile failed")

@@ -51,7 +51,7 @@ def main():
         selectBuildConfig(kit, config)
         # try to build project
         test.log("Testing build configuration: " + config)
-        invokeMenuItem("Build", "Build All")
+        invokeMenuItem("Build", "Build All Projects")
         waitForCompile()
         # verify build successful
         ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))

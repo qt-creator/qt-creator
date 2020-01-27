@@ -201,7 +201,7 @@ def main():
     comboItems = performEditCombo()
     verifyPreview(menuItems, comboItems)
     invokeMenuItem("File", "Save All")
-    invokeMenuItem("Build", "Build All")
+    invokeMenuItem("Build", "Build All Projects")
     waitForCompile()
     checkCompile()
     invokeMenuItem("File", "Exit")

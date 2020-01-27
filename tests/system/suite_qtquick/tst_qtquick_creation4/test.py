@@ -36,7 +36,7 @@ def main():
         waitForProjectParsing()
         test.log("Building project Qt Quick 2 Extension Plugin (%s)"
                  % Targets.getStringForTarget(target))
-        invokeMenuItem("Build","Build All")
+        invokeMenuItem("Build","Build All Projects")
         waitForCompile()
         checkCompile()
         checkLastBuild()

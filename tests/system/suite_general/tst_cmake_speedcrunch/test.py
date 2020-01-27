@@ -69,7 +69,7 @@ def main():
     compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", treeFile)
 
     # Invoke a rebuild of the application
-    invokeMenuItem("Build", "Rebuild All")
+    invokeMenuItem("Build", "Rebuild All Projects")
 
     # Wait for, and test if the build succeeded
     waitForCompile(300000)
