@@ -25,38 +25,22 @@
 
 #pragma once
 
-#include "ui_optionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <vcsbase/vcsbaseoptionspage.h>
-
-namespace VcsBase { class VcsBaseClientSettings; } // namespace VcsBase
+namespace Core { class IVersionControl; }
+namespace VcsBase { class VcsBaseClientSettings; }
 
 namespace Fossil {
 namespace Internal {
 
 class FossilSettings;
 
-class OptionsPageWidget : public VcsBase::VcsClientOptionsPageWidget
+class OptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit OptionsPageWidget(QWidget *parent = 0);
-
-    VcsBase::VcsBaseClientSettings settings() const;
-    void setSettings(const VcsBase::VcsBaseClientSettings &s);
-
-private:
-    Ui::OptionsPage m_ui;
-};
-
-
-class OptionsPage : public VcsBase::VcsClientOptionsPage
-{
-    Q_OBJECT
-
-public:
-    OptionsPage(Core::IVersionControl *control, QObject *parent);
+    OptionsPage(Core::IVersionControl *control, FossilSettings *settings, QObject *parent);
 };
 
 } // namespace Internal

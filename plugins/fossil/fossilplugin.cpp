@@ -103,18 +103,18 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitEditorParameters = {
 };
 
 
-FossilPlugin *FossilPlugin::m_instance = nullptr;
+static FossilPluginPrivate *dd = nullptr;
 
-FossilPlugin::FossilPlugin()
+FossilPluginPrivate::~FossilPluginPrivate()
 {
-    m_instance = this;
+    delete m_client;
+    m_client = nullptr;
 }
 
 FossilPlugin::~FossilPlugin()
 {
-    delete m_client;
-    m_client = nullptr;
-    m_instance = nullptr;
+    delete dd;
+    dd = nullptr;
 }
 
 bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -122,13 +122,25 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
+    dd = new FossilPluginPrivate;
+    return true;
+}
+
+void FossilPlugin::extensionsInitialized()
+{
+    dd->extensionsInitialized();
+}
+
+FossilPluginPrivate::FossilPluginPrivate()
+{
     Core::Context context(Constants::FOSSIL_CONTEXT);
 
-    m_client = new FossilClient;
-    auto vcsCtrl = initializeVcs<FossilControl>(context, m_client);
+    m_client = new FossilClient(&m_fossilSettings);
+    auto vcsCtrl = new FossilControl(m_client);
+    initializeVcs(vcsCtrl, context);
     connect(m_client, &VcsBase::VcsBaseClient::changed, vcsCtrl, &FossilControl::changed);
 
-    new OptionsPage(vcsCtrl, this);
+    new OptionsPage(vcsCtrl, &m_fossilSettings, this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_client->view(source, id);
@@ -151,22 +163,20 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     Core::HelpManager::registerDocumentation({Core::HelpManager::documentationPath()
                                               + "/fossil.qch"});
-
-    return true;
 }
 
-FossilPlugin *FossilPlugin::instance()
+FossilPluginPrivate *FossilPluginPrivate::instance()
 {
-    return m_instance;
+    return dd;
 }
 
-FossilClient *FossilPlugin::client() const
+FossilClient *FossilPluginPrivate::client() const
 {
     return m_client;
 }
 
 
-void FossilPlugin::createMenu(const Core::Context &context)
+void FossilPluginPrivate::createMenu(const Core::Context &context)
 {
     // Create menu item for Fossil
     m_fossilContainer = Core::ActionManager::createMenu("Fossil.FossilMenu");
@@ -186,14 +196,14 @@ void FossilPlugin::createMenu(const Core::Context &context)
     m_menuAction = m_fossilContainer->menu()->menuAction();
 }
 
-void FossilPlugin::createFileActions(const Core::Context &context)
+void FossilPluginPrivate::createFileActions(const Core::Context &context)
 {
     Core::Command *command;
 
     m_annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_annotateFile, Constants::ANNOTATE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_annotateFile, &QAction::triggered, this, &FossilPlugin::annotateCurrentFile);
+    connect(m_annotateFile, &QAction::triggered, this, &FossilPluginPrivate::annotateCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -201,7 +211,7 @@ void FossilPlugin::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_diffFile, Constants::DIFF, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+D") : tr("ALT+I,Alt+D")));
-    connect(m_diffFile, &QAction::triggered, this, &FossilPlugin::diffCurrentFile);
+    connect(m_diffFile, &QAction::triggered, this, &FossilPluginPrivate::diffCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -209,7 +219,7 @@ void FossilPlugin::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_logFile, Constants::LOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+L") : tr("ALT+I,Alt+L")));
-    connect(m_logFile, &QAction::triggered, this, &FossilPlugin::logCurrentFile);
+    connect(m_logFile, &QAction::triggered, this, &FossilPluginPrivate::logCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -217,7 +227,7 @@ void FossilPlugin::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_statusFile, Constants::STATUS, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+S") : tr("ALT+I,Alt+S")));
-    connect(m_statusFile, &QAction::triggered, this, &FossilPlugin::statusCurrentFile);
+    connect(m_statusFile, &QAction::triggered, this, &FossilPluginPrivate::statusCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -226,38 +236,38 @@ void FossilPlugin::createFileActions(const Core::Context &context)
     m_addAction = new Utils::ParameterAction(tr("Add Current File"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_addAction, Constants::ADD, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_addAction, &QAction::triggered, this, &FossilPlugin::addCurrentFile);
+    connect(m_addAction, &QAction::triggered, this, &FossilPluginPrivate::addCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_deleteAction = new Utils::ParameterAction(tr("Delete Current File..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_deleteAction, Constants::DELETE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_deleteAction, &QAction::triggered, this, &FossilPlugin::deleteCurrentFile);
+    connect(m_deleteAction, &QAction::triggered, this, &FossilPluginPrivate::deleteCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertFile = new Utils::ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_revertFile, Constants::REVERT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_revertFile, &QAction::triggered, this, &FossilPlugin::revertCurrentFile);
+    connect(m_revertFile, &QAction::triggered, this, &FossilPluginPrivate::revertCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 }
 
-void FossilPlugin::addCurrentFile()
+void FossilPluginPrivate::addCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void FossilPlugin::deleteCurrentFile()
+void FossilPluginPrivate::deleteCurrentFile()
 {
     promptToDeleteCurrentFile();
 }
 
-void FossilPlugin::annotateCurrentFile()
+void FossilPluginPrivate::annotateCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
@@ -265,14 +275,14 @@ void FossilPlugin::annotateCurrentFile()
     m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), lineNumber);
 }
 
-void FossilPlugin::diffCurrentFile()
+void FossilPluginPrivate::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
-void FossilPlugin::logCurrentFile()
+void FossilPluginPrivate::logCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
@@ -290,7 +300,7 @@ void FossilPlugin::logCurrentFile()
                   extraOptions, enableAnnotationContextMenu);
 }
 
-void FossilPlugin::revertCurrentFile()
+void FossilPluginPrivate::revertCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
@@ -305,14 +315,14 @@ void FossilPlugin::revertCurrentFile()
                          revertUi.revisionLineEdit->text());
 }
 
-void FossilPlugin::statusCurrentFile()
+void FossilPluginPrivate::statusCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void FossilPlugin::createDirectoryActions(const Core::Context &context)
+void FossilPluginPrivate::createDirectoryActions(const Core::Context &context)
 {
     QAction *action;
     Core::Command *command;
@@ -320,7 +330,7 @@ void FossilPlugin::createDirectoryActions(const Core::Context &context)
     action = new QAction(tr("Diff"), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::DIFFMULTI, context);
-    connect(action, &QAction::triggered, this, &FossilPlugin::diffRepository);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::diffRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -328,34 +338,34 @@ void FossilPlugin::createDirectoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::LOGMULTI, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+T") : tr("ALT+I,Alt+T")));
-    connect(action, &QAction::triggered, this, &FossilPlugin::logRepository);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::logRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Revert..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::REVERTMULTI, context);
-    connect(action, &QAction::triggered, this, &FossilPlugin::revertAll);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::revertAll);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Status"), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::STATUSMULTI, context);
-    connect(action, &QAction::triggered, this, &FossilPlugin::statusMulti);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::statusMulti);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 }
 
 
-void FossilPlugin::diffRepository()
+void FossilPluginPrivate::diffRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_client->diff(state.topLevel());
 }
 
-void FossilPlugin::logRepository()
+void FossilPluginPrivate::logRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -369,7 +379,7 @@ void FossilPlugin::logRepository()
     m_client->log(state.topLevel(), QStringList(), extraOptions);
 }
 
-void FossilPlugin::revertAll()
+void FossilPluginPrivate::revertAll()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -382,14 +392,14 @@ void FossilPlugin::revertAll()
     m_client->revertAll(state.topLevel(), revertUi.revisionLineEdit->text());
 }
 
-void FossilPlugin::statusMulti()
+void FossilPluginPrivate::statusMulti()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_client->status(state.topLevel());
 }
 
-void FossilPlugin::createRepositoryActions(const Core::Context &context)
+void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
 {
     QAction *action = 0;
     Core::Command *command = 0;
@@ -397,14 +407,14 @@ void FossilPlugin::createRepositoryActions(const Core::Context &context)
     action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::PULL, context);
-    connect(action, &QAction::triggered, this, &FossilPlugin::pull);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::pull);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Push..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::PUSH, context);
-    connect(action, &QAction::triggered, this, &FossilPlugin::push);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::push);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -412,7 +422,7 @@ void FossilPlugin::createRepositoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::UPDATE, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+U") : tr("ALT+I,Alt+U")));
-    connect(action, &QAction::triggered, this, &FossilPlugin::update);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::update);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -420,14 +430,14 @@ void FossilPlugin::createRepositoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::COMMIT, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+C") : tr("ALT+I,Alt+C")));
-    connect(action, &QAction::triggered, this, &FossilPlugin::commit);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::commit);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Settings ..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::CONFIGURE_REPOSITORY, context);
-    connect(action, &QAction::triggered, this, &FossilPlugin::configureRepository);
+    connect(action, &QAction::triggered, this, &FossilPluginPrivate::configureRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -435,11 +445,11 @@ void FossilPlugin::createRepositoryActions(const Core::Context &context)
     // without active repository to allow creating a new one.
     m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
     command = Core::ActionManager::registerAction(m_createRepositoryAction, Constants::CREATE_REPOSITORY);
-    connect(m_createRepositoryAction, &QAction::triggered, this, &FossilPlugin::createRepository);
+    connect(m_createRepositoryAction, &QAction::triggered, this, &FossilPluginPrivate::createRepository);
     m_fossilContainer->addAction(command);
 }
 
-void FossilPlugin::pull()
+void FossilPluginPrivate::pull()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -467,7 +477,7 @@ void FossilPlugin::pull()
     m_client->synchronousPull(state.topLevel(), remoteLocation, extraOptions);
 }
 
-void FossilPlugin::push()
+void FossilPluginPrivate::push()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -495,7 +505,7 @@ void FossilPlugin::push()
     m_client->synchronousPush(state.topLevel(), remoteLocation, extraOptions);
 }
 
-void FossilPlugin::update()
+void FossilPluginPrivate::update()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -509,7 +519,7 @@ void FossilPlugin::update()
     m_client->update(state.topLevel(), revertUi.revisionLineEdit->text());
 }
 
-void FossilPlugin::configureRepository()
+void FossilPluginPrivate::configureRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -527,7 +537,7 @@ void FossilPlugin::configureRepository()
     m_client->synchronousConfigureRepository(state.topLevel(), newSettings, currentSettings);
 }
 
-void FossilPlugin::commit()
+void FossilPluginPrivate::commit()
 {
     if (!promptBeforeCommit())
         return;
@@ -541,17 +551,17 @@ void FossilPlugin::commit()
     m_submitRepository = state.topLevel();
 
     connect(m_client, &VcsBase::VcsBaseClient::parsedStatus,
-            this, &FossilPlugin::showCommitWidget);
+            this, &FossilPluginPrivate::showCommitWidget);
 
     QStringList extraOptions;
     m_client->emitParsedStatus(m_submitRepository, extraOptions);
 }
 
-void FossilPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status)
+void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status)
 {
     //Once we receive our data release the connection so it can be reused elsewhere
     disconnect(m_client, &VcsBase::VcsBaseClient::parsedStatus,
-               this, &FossilPlugin::showCommitWidget);
+               this, &FossilPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
         VcsBase::VcsOutputWindow::appendError(tr("There are no changes to commit."));
@@ -594,11 +604,11 @@ void FossilPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusIt
     commitEditor->setFields(m_submitRepository, currentBranch, tags, currentUser, status);
 
     connect(commitEditor, &VcsBase::VcsBaseSubmitEditor::diffSelectedFiles,
-            this, &FossilPlugin::diffFromEditorSelected);
+            this, &FossilPluginPrivate::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 }
 
-void FossilPlugin::diffFromEditorSelected(const QStringList &files)
+void FossilPluginPrivate::diffFromEditorSelected(const QStringList &files)
 {
     m_client->diff(m_submitRepository, files);
 }
@@ -610,7 +620,7 @@ static inline bool ask(QWidget *parent, const QString &title, const QString &que
     return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No, defaultButton) == QMessageBox::Yes;
 }
 
-void FossilPlugin::createRepository()
+void FossilPluginPrivate::createRepository()
 {
     // re-implemented from void VcsBasePlugin::createRepository()
 
@@ -647,7 +657,7 @@ void FossilPlugin::createRepository()
     }
 }
 
-void FossilPlugin::commitFromEditor()
+void FossilPluginPrivate::commitFromEditor()
 {
     // Close the submit editor
     m_submitActionTriggered = true;
@@ -655,7 +665,7 @@ void FossilPlugin::commitFromEditor()
     Core::EditorManager::closeDocument(submitEditor()->document());
 }
 
-bool FossilPlugin::submitEditorAboutToClose()
+bool FossilPluginPrivate::submitEditorAboutToClose()
 {
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);
@@ -718,7 +728,7 @@ bool FossilPlugin::submitEditorAboutToClose()
 }
 
 
-void FossilPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
+void FossilPluginPrivate::updateActions(VcsBase::VcsBasePluginPrivate::ActionState as)
 {
     m_createRepositoryAction->setEnabled(true);
 

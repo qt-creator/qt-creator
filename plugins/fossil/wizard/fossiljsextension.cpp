@@ -47,7 +47,7 @@ public:
         m_vscId(Constants::VCS_ID_FOSSIL) { }
 
     FossilClient *client() const {
-        return FossilPlugin::instance()->client();
+        return FossilPluginPrivate::instance()->client();
     }
 
     Core::Id m_vscId;

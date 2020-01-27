@@ -243,7 +243,7 @@ QString FossilClient::makeVersionString(unsigned version)
                     .arg(versionPart(version));
 }
 
-FossilClient::FossilClient() : VcsBase::VcsBaseClient(new FossilSettings)
+FossilClient::FossilClient(FossilSettings *settings) : VcsBase::VcsBaseClient(settings)
 {
     setDiffConfigCreator([this](QToolBar *toolBar) {
         return new FossilDiffConfig(this, toolBar);
@@ -825,10 +825,8 @@ QString FossilClient::findTopLevelForFile(const QFileInfo &file) const
 {
     const QString repositoryCheckFile = Constants::FOSSILREPO;
     return file.isDir() ?
-                VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(),
-                                                                   repositoryCheckFile) :
-                VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absolutePath(),
-                                                                   repositoryCheckFile);
+                VcsBase::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
+                VcsBase::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
 }
 
 bool FossilClient::managesFile(const QString &workingDirectory, const QString &fileName) const

@@ -51,21 +51,19 @@ class FossilClient;
 class FossilControl;
 class FossilEditorWidget;
 
-class FossilPlugin : public VcsBase::VcsBasePlugin
+class FossilPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Fossil.json")
 
 public:
-    FossilPlugin();
-    ~FossilPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    FossilPluginPrivate();
+    ~FossilPluginPrivate();
 
-    static FossilPlugin *instance();
+    static FossilPluginPrivate *instance();
     FossilClient *client() const;
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
 
 private:
@@ -102,7 +100,7 @@ private:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    static FossilPlugin *m_instance;
+    FossilSettings m_fossilSettings;
     FossilClient *m_client = nullptr;
 
     Core::CommandLocator *m_commandLocator = nullptr;
@@ -127,7 +125,17 @@ private:
 
     QString m_submitRepository;
     bool m_submitActionTriggered = false;
+};
 
+class FossilPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Fossil.json")
+
+    ~FossilPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
 #ifdef WITH_TESTS
 private slots:

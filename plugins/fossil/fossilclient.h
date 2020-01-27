@@ -61,7 +61,7 @@ public:
     static unsigned makeVersionNumber(int major, int minor, int patch);
     static QString makeVersionString(unsigned version);
 
-    FossilClient();
+    explicit FossilClient(FossilSettings *settings);
 
     unsigned int synchronousBinaryVersion() const;
     BranchInfo synchronousCurrentBranch(const QString &workingDirectory);
