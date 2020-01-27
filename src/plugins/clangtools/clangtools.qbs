@@ -106,7 +106,7 @@ QtcPlugin {
         name: "Other files"
         fileTags: []
         files: [
-            project.ide_source_tree + "/doc/src/analyze/creator-clang-static-analyzer.qdoc",
+            project.ide_source_tree + "/doc/qtcreator/src/analyze/creator-clang-static-analyzer.qdoc",
         ]
     }
 }

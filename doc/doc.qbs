@@ -7,7 +7,7 @@ Project {
     QtcDocumentation {
         name: "user doc online"
         isOnlineDoc: true
-        mainDocConfFile: "qtcreator-online.qdocconf"
+        mainDocConfFile: "qtcreator/qtcreator-online.qdocconf"
 
         files: [
             "src/**/*",
@@ -17,7 +17,7 @@ Project {
     QtcDocumentation {
         name: "user doc offline"
         isOnlineDoc: false
-        mainDocConfFile: "qtcreator.qdocconf"
+        mainDocConfFile: "qtcreator/qtcreator.qdocconf"
 
         files: [
             "src/**/*",
@@ -27,7 +27,7 @@ Project {
     QtcDocumentation {
         name: "API doc online"
         isOnlineDoc: true
-        mainDocConfFile: "api/qtcreator-dev-online.qdocconf"
+        mainDocConfFile: "qtcreatordev/qtcreator-dev-online.qdocconf"
 
         Group {
             name: "sources"
@@ -42,7 +42,7 @@ Project {
     QtcDocumentation {
         name: "API doc offline"
         isOnlineDoc: false
-        mainDocConfFile: "api/qtcreator-dev.qdocconf"
+        mainDocConfFile: "qtcreatordev/qtcreator-dev.qdocconf"
 
         Group {
             name: "sources"
