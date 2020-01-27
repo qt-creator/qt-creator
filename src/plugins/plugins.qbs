@@ -50,6 +50,7 @@ Project {
         "ios/ios.qbs",
         "languageclient/languageclient.qbs",
         "macros/macros.qbs",
+        "markdownviewer/markdownviewer.qbs",
         "marketplace/marketplace.qbs",
         "mcusupport/mcusupport.qbs",
         "mercurial/mercurial.qbs",
