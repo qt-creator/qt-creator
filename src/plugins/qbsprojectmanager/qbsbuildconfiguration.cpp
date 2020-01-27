@@ -458,7 +458,8 @@ BuildInfo QbsBuildConfigurationFactory::createBuildInfo(BuildConfiguration::Buil
 {
     BuildInfo info;
     info.buildType = type;
-    info.typeName = BuildConfiguration::tr("Build");
+    info.typeName = type == BuildConfiguration::Debug
+            ? BuildConfiguration::tr("Debug") : BuildConfiguration::tr("Release");
     QVariantMap config;
     config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
     info.extraInfo = config;
