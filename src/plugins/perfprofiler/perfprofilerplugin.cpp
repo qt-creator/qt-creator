@@ -73,7 +73,7 @@ public:
         {ProjectExplorer::Constants::PERFPROFILER_RUN_MODE}
     };
 
-    PerfOptionsPage optionsPage;
+    PerfOptionsPage optionsPage{perfGlobalSettings()};
     PerfProfilerTool profilerTool;
 };
 

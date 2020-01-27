@@ -62,9 +62,11 @@ public:
                               const QModelIndex &index) const override;
 };
 
-PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent) :
-    QWidget(parent), m_settings(settings), m_ui(new Ui::PerfConfigWidget)
+PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent)
+    : m_settings(settings), m_ui(new Ui::PerfConfigWidget)
 {
+    setParent(parent);
+
     m_ui->setupUi(this);
     m_ui->useTracePointsButton->setVisible(false);
 
@@ -176,6 +178,11 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
 void PerfConfigWidget::setTracePointsButtonVisible(bool visible)
 {
     m_ui->useTracePointsButton->setVisible(visible);
+}
+
+void PerfConfigWidget::apply()
+{
+    m_settings->writeGlobalSettings();
 }
 
 void PerfConfigWidget::readTracePoints()

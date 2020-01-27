@@ -27,24 +27,27 @@
 
 #include "perfsettings.h"
 
-#include <QWidget>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace PerfProfiler {
 namespace Internal {
 
 namespace Ui { class PerfConfigWidget; }
 
-class PerfConfigWidget : public QWidget
+class PerfConfigWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 public:
     explicit PerfConfigWidget(PerfSettings *settings, QWidget *parent = nullptr);
     ~PerfConfigWidget();
+
     void updateUi();
     void setTarget(ProjectExplorer::Target *target);
     void setTracePointsButtonVisible(bool visible);
 
 private:
+    void apply() final;
+
     void readTracePoints();
     void handleProcessFinished();
     void handleProcessError(QProcess::ProcessError error);
