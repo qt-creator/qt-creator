@@ -218,7 +218,11 @@ endfunction()
 
 function(finalize_test_setup test_name)
   # Never translate tests:
-  set_tests_properties(${name} PROPERTIES QT_SKIP_TRANSLATION ON)
+  set_tests_properties(${name}
+    PROPERTIES
+      QT_SKIP_TRANSLATION ON
+      TIMEOUT 5
+  )
 
   if (WIN32)
     list(APPEND env_path $ENV{PATH})
