@@ -107,11 +107,12 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
         }
 
         const QString kitName = kit->displayName();
-        const QByteArray kitHash = QCryptographicHash::hash(kitName.toUtf8(), QCryptographicHash::Sha1);
+        const QByteArray hash = QCryptographicHash::hash((kitName + info.displayName).toUtf8(),
+                                                         QCryptographicHash::Sha1);
 
         const QString uniqueConfigName = configName
                         + '_' + kit->fileSystemFriendlyName().left(8)
-                        + '_' + kitHash.toHex().left(16);
+                        + '_' + hash.toHex().left(16);
 
         m_configurationName->setValue(uniqueConfigName);
 
@@ -427,7 +428,6 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
         QList<BuildInfo> result;
 
         if (forSetup) {
-
             BuildInfo info = createBuildInfo(BuildConfiguration::Debug);
             //: The name of the debug build configuration created by default for a qbs project.
             info.displayName = BuildConfiguration::tr("Debug");
@@ -443,11 +443,9 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
             const QString rel = QbsBuildConfiguration::tr("Release", "Shadow build directory suffix");
             info.buildDirectory = defaultBuildDirectory(projectPath, k, rel, info.buildType);
             result << info;
-
         } else {
-
             result << createBuildInfo(BuildConfiguration::Debug);
-
+            result << createBuildInfo(BuildConfiguration::Release);
         }
 
         return result;
