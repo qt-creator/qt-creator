@@ -351,13 +351,13 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
 void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
     const QString &projectsOffset, const QString &demosInstallPath)
 {
-    ExampleItem *item = nullptr;
+    std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
             if (reader->name() == QLatin1String("demo")) {
-                item = new ExampleItem;
+                item = std::make_unique<ExampleItem>();
                 item->type = Demo;
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
@@ -381,8 +381,8 @@ void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("demo")) {
-                if (isValidExampleOrDemo(item))
-                    m_items.append(item);
+                if (isValidExampleOrDemo(item.get()))
+                    m_items.push_back(item.release());
             } else if (reader->name() == QLatin1String("demos")) {
                 return;
             }
@@ -395,13 +395,13 @@ void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
 
 void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
 {
-    ExampleItem *item = nullptr;
+    std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
             if (reader->name() == QLatin1String("tutorial")) {
-                item = new ExampleItem;
+                item = std::make_unique<ExampleItem>();
                 item->type = Tutorial;
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
@@ -428,7 +428,7 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("tutorial"))
-                m_items.append(item);
+                m_items.push_back(item.release());
             else if (reader->name() == QLatin1String("tutorials"))
                 return;
             break;
