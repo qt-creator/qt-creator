@@ -29,8 +29,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace CppTools {
 namespace Internal {
 

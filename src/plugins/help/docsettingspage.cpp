@@ -131,6 +131,8 @@ using namespace Help::Internal;
 
 class DocSettingsPageWidget : public Core::IOptionsPageWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Help::DocSettingsPage)
+
 public:
     DocSettingsPageWidget()
     {
@@ -324,7 +326,7 @@ QList<QModelIndex> DocSettingsPageWidget::currentSelection() const
 DocSettingsPage::DocSettingsPage()
 {
     setId("B.Documentation");
-    setDisplayName(tr("Documentation"));
+    setDisplayName(DocSettingsPageWidget::tr("Documentation"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setWidgetCreator([] { return new DocSettingsPageWidget; });
 }

@@ -29,12 +29,10 @@
 
 namespace Nim {
 
-class NimCodeStyleSettingsPage : public Core::IOptionsPage
+class NimCodeStyleSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     NimCodeStyleSettingsPage();
 };
 
-}
+} // Nim

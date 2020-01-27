@@ -44,7 +44,7 @@ namespace Internal {
 
 class SettingsPageWidget : public QWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::SettingsPage)
 
 public:
     explicit SettingsPageWidget(QWidget *parent = nullptr);
@@ -59,8 +59,6 @@ private:
 
 class SettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     SettingsPage();
 

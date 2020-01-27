@@ -132,7 +132,7 @@ private:
 QmakeSettingsPage::QmakeSettingsPage()
 {
     setId("K.QmakeProjectManager.QmakeSettings");
-    setDisplayName(tr("Qmake"));
+    setDisplayName(SettingsWidget::tr("Qmake"));
     setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
 }
 

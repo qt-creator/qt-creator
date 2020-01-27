@@ -244,7 +244,7 @@ SettingsPage::SettingsPage() :
     m_widget(nullptr)
 {
     setId("B.QmlDesigner");
-    setDisplayName(tr("Qt Quick Designer"));
+    setDisplayName(SettingsPageWidget::tr("Qt Quick Designer"));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
 }
 

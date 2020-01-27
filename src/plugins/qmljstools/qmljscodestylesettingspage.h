@@ -68,8 +68,6 @@ private:
 
 class QmlJSCodeStyleSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     QmlJSCodeStyleSettingsPage();
 

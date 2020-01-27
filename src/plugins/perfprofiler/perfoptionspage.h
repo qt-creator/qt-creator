@@ -33,9 +33,8 @@ class PerfSettings;
 
 namespace Internal {
 
-class PerfOptionsPage : public Core::IOptionsPage
+class PerfOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
     explicit PerfOptionsPage(PerfSettings *settings);
 };

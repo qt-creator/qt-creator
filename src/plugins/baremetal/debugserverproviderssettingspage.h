@@ -84,8 +84,6 @@ private:
 
 class DebugServerProvidersSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     DebugServerProvidersSettingsPage();
 };

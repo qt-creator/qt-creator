@@ -37,14 +37,8 @@ namespace Internal { class KitOptionsPageWidget; }
 
 class Kit;
 
-// --------------------------------------------------------------------------
-// KitOptionsPage:
-// --------------------------------------------------------------------------
-
 class PROJECTEXPLORER_EXPORT KitOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     KitOptionsPage();
 

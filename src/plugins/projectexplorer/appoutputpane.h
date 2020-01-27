@@ -159,10 +159,8 @@ private:
     AppOutputSettings m_settings;
 };
 
-class AppOutputSettingsPage : public Core::IOptionsPage
+class AppOutputSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     AppOutputSettingsPage();
 };

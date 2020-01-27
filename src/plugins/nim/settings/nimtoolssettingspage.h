@@ -40,7 +40,7 @@ namespace Ui { class NimToolsSettingsWidget; }
 
 class NimToolsSettingsWidget : public QWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Nim::ToolSettingsPage)
 
 public:
     explicit NimToolsSettingsWidget(NimSettings *settings);
@@ -55,12 +55,10 @@ private:
     NimSettings *m_settings = nullptr;
 };
 
-class NimToolsSettingsPage : public Core::IOptionsPage
+class NimToolsSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    NimToolsSettingsPage(NimSettings *settings);
+    explicit NimToolsSettingsPage(NimSettings *settings);
 
     ~NimToolsSettingsPage();
 

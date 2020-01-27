@@ -42,6 +42,8 @@ namespace Nim {
 
 class NimCodeStyleSettingsWidget : public Core::IOptionsPageWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Nim::CodeStyleSettings)
+
 public:
     NimCodeStyleSettingsWidget()
     {
@@ -72,7 +74,7 @@ NimCodeStyleSettingsPage::NimCodeStyleSettingsPage()
     setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
     setDisplayName(tr(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_DISPLAY));
     setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
-    setDisplayCategory(tr("Nim"));
+    setDisplayCategory(NimCodeStyleSettingsWidget::tr("Nim"));
     setCategoryIconPath(":/nim/images/settingscategory_nim.png");
     setWidgetCreator([] { return new NimCodeStyleSettingsWidget; });
 }

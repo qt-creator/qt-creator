@@ -411,7 +411,7 @@ private:
 CompileOutputSettingsPage::CompileOutputSettingsPage()
 {
     setId(OPTIONS_PAGE_ID);
-    setDisplayName(tr("Compile Output"));
+    setDisplayName(CompileOutputSettingsWidget::tr("Compile Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new CompileOutputSettingsWidget; });
 }

@@ -121,7 +121,7 @@ SettingsPage::SettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
     setId(VcsBase::Constants::VCS_ID_PERFORCE);
-    setDisplayName(tr("Perforce"));
+    setDisplayName(SettingsPageWidget::tr("Perforce"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 

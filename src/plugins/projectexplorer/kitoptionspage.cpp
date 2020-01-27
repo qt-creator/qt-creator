@@ -51,6 +51,8 @@ namespace Internal {
 
 class KitOptionsPageWidget : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjextExplorer::Internal::KitOptionsPage)
+
 public:
     KitOptionsPageWidget();
 
@@ -269,7 +271,7 @@ KitOptionsPage::KitOptionsPage()
 {
     theKitOptionsPage = this;
     setId(Constants::KITS_SETTINGS_PAGE_ID);
-    setDisplayName(tr("Kits"));
+    setDisplayName(Internal::KitOptionsPageWidget::tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Kits"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");

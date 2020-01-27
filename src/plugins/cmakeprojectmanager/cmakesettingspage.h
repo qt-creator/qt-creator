@@ -30,7 +30,7 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeSettingsPage : public Core::IOptionsPage
+class CMakeSettingsPage final : public Core::IOptionsPage
 {
 public:
     CMakeSettingsPage();

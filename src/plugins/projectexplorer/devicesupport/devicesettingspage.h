@@ -30,10 +30,8 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class DeviceSettingsPage : public Core::IOptionsPage
+class DeviceSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     DeviceSettingsPage();
 };

@@ -30,10 +30,8 @@
 namespace Help {
 namespace Internal {
 
-class DocSettingsPage : public Core::IOptionsPage
+class DocSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     DocSettingsPage();
 };

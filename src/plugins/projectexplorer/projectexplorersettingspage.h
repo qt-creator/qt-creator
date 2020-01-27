@@ -30,7 +30,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
-#include <QUuid>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -40,8 +39,6 @@ class ProjectExplorerSettingsWidget;
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     ProjectExplorerSettingsPage();
 

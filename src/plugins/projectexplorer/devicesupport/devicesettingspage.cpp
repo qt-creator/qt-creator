@@ -37,7 +37,7 @@ namespace Internal {
 DeviceSettingsPage::DeviceSettingsPage()
 {
     setId(Constants::DEVICE_SETTINGS_PAGE_ID);
-    setDisplayName(tr("Devices"));
+    setDisplayName(DeviceSettingsWidget::tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Devices"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");

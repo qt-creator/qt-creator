@@ -38,7 +38,7 @@ struct Settings;
 
 class SettingsPageWidget : public QWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
 
 public:
     explicit SettingsPageWidget(QWidget *parent = nullptr);
@@ -57,10 +57,8 @@ private:
     PerforceChecker *m_checker = nullptr;
 };
 
-class SettingsPage : public Core::IOptionsPage
+class SettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     explicit SettingsPage(QObject *parent);
     ~SettingsPage() override;

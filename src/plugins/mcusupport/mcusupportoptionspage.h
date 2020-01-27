@@ -30,7 +30,7 @@
 namespace McuSupport {
 namespace Internal {
 
-class McuSupportOptionsPage : public Core::IOptionsPage
+class McuSupportOptionsPage final : public Core::IOptionsPage
 {
 public:
     McuSupportOptionsPage();

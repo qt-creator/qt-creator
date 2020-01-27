@@ -30,7 +30,7 @@
 namespace Ios {
 namespace Internal {
 
-class IosSettingsPage : public Core::IOptionsPage
+class IosSettingsPage final : public Core::IOptionsPage
 {
 public:
     IosSettingsPage();

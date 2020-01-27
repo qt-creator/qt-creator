@@ -30,7 +30,7 @@
 namespace Qnx {
 namespace Internal {
 
-class QnxSettingsPage : public Core::IOptionsPage
+class QnxSettingsPage final : public Core::IOptionsPage
 {
 public:
     QnxSettingsPage();

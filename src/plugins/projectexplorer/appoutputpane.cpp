@@ -889,7 +889,7 @@ private:
 AppOutputSettingsPage::AppOutputSettingsPage()
 {
     setId(OPTIONS_PAGE_ID);
-    setDisplayName(tr("Application Output"));
+    setDisplayName(AppOutputSettingsWidget::tr("Application Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new AppOutputSettingsWidget; });
 }

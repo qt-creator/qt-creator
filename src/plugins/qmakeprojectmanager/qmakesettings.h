@@ -59,9 +59,8 @@ private:
     QmakeSettingsData m_settings;
 };
 
-class QmakeSettingsPage : public Core::IOptionsPage
+class QmakeSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
     QmakeSettingsPage();
 

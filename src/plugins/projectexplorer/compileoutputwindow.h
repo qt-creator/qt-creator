@@ -102,10 +102,8 @@ private:
     CompileOutputSettings m_settings;
 };
 
-class CompileOutputSettingsPage : public Core::IOptionsPage
+class CompileOutputSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     CompileOutputSettingsPage();
 };

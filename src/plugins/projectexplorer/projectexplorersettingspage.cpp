@@ -33,7 +33,6 @@
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
-#include <QWidget>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -42,7 +41,7 @@ namespace Internal {
 
 class ProjectExplorerSettingsWidget : public QWidget
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(ProjextExplorer::Internal::ProjectExplorerSettings)
 
 public:
     explicit ProjectExplorerSettingsWidget(QWidget *parent = nullptr);
@@ -169,7 +168,7 @@ void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
 ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
     setId(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
-    setDisplayName(tr("General"));
+    setDisplayName(ProjectExplorerSettingsWidget::tr("General"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Build & Run"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_buildrun.png");
@@ -203,5 +202,3 @@ void ProjectExplorerSettingsPage::finish()
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#include "projectexplorersettingspage.moc"
