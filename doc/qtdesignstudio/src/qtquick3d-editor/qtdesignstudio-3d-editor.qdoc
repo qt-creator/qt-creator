@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -63,6 +63,13 @@
     arrow for the move manipulator aligned with the screen (assuming an
     unrotated camera). Dragging on the red arrow may affect two or three of the
     position values for the selected item in order to move it in global space.
+
+    The \e pivot of the component is used as the origin for position, scale,
+    and rotation operations. You can set a \l{Setting Transform Properties}
+    {local pivot offset} for an item in the \uicontrol Properties view to
+    manipulate the component around a point other than its local origin. A
+    line is drawn in the 3D editor from the pivot point to the center of the
+    component to provide a visual connection between them.
 
     \section1 Controlling the Edit View Camera
 
