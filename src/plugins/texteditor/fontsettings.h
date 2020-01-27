@@ -57,11 +57,9 @@ public:
     void clear();
     inline bool isEmpty() const { return m_scheme.isEmpty(); }
 
-    void toSettings(const QString &category,
-                    QSettings *s) const;
+    void toSettings(QSettings *s) const;
 
-    bool fromSettings(const QString &category,
-                      const FormatDescriptions &descriptions,
+    bool fromSettings(const FormatDescriptions &descriptions,
                       const QSettings *s);
 
     QVector<QTextCharFormat> toTextCharFormats(const QVector<TextStyle> &categories) const;

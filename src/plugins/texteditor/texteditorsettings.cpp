@@ -64,7 +64,8 @@ class TextEditorSettingsPrivate
     Q_DECLARE_TR_FUNCTIONS(TextEditor::TextEditorSettings)
 
 public:
-    FontSettingsPage m_fontSettingsPage{initialFormats()};
+    FontSettings m_fontSettings;
+    FontSettingsPage m_fontSettingsPage{&m_fontSettings, initialFormats()};
     BehaviorSettingsPage m_behaviorSettingsPage;
     DisplaySettingsPage m_displaySettingsPage;
     HighlighterSettingsPage m_highlighterSettingsPage;
@@ -355,11 +356,9 @@ TextEditorSettings::TextEditorSettings()
     // Note: default background colors are coming from FormatDescription::background()
 
     auto updateGeneralMessagesFontSettings = []() {
-        Core::MessageManager::setFont(d->m_fontSettingsPage.fontSettings().font());
+        Core::MessageManager::setFont(d->m_fontSettings.font());
     };
-    connect(&d->m_fontSettingsPage, &FontSettingsPage::changed,
-            this, &TextEditorSettings::fontSettingsChanged);
-    connect(&d->m_fontSettingsPage, &FontSettingsPage::changed,
+    connect(this, &TextEditorSettings::fontSettingsChanged,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
     connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
@@ -404,7 +403,7 @@ TextEditorSettings *TextEditorSettings::instance()
 
 const FontSettings &TextEditorSettings::fontSettings()
 {
-    return d->m_fontSettingsPage.fontSettings();
+    return d->m_fontSettings;
 }
 
 const TypingSettings &TextEditorSettings::typingSettings()
@@ -529,21 +528,19 @@ Core::Id TextEditorSettings::languageId(const QString &mimeType)
 
 int TextEditorSettings::increaseFontZoom(int step)
 {
-    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage.fontSettings());
-    const int previousZoom = fs.fontZoom();
+    const int previousZoom = d->m_fontSettings.fontZoom();
     const int newZoom = qMax(10, previousZoom + step);
     if (newZoom != previousZoom) {
-        fs.setFontZoom(newZoom);
-        d->m_fontSettingsPage.saveSettings();
+        d->m_fontSettings.setFontZoom(newZoom);
+        d->m_fontSettingsPage.setFontZoom(newZoom);
     }
     return newZoom;
 }
 
 void TextEditorSettings::resetFontZoom()
 {
-    auto &fs = const_cast<FontSettings&>(d->m_fontSettingsPage.fontSettings());
-    fs.setFontZoom(100);
-    d->m_fontSettingsPage.saveSettings();
+    d->m_fontSettings.setFontZoom(100);
+    d->m_fontSettingsPage.setFontZoom(100);
 }
 
 } // TextEditor

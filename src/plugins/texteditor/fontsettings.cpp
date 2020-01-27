@@ -28,6 +28,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 #include <coreplugin/icore.h>
 
@@ -74,10 +75,14 @@ void FontSettings::clear()
     m_textCharFormatCache.clear();
 }
 
-void FontSettings::toSettings(const QString &category,
-                              QSettings *s) const
+static QString settingsGroup()
 {
-    s->beginGroup(category);
+    return Utils::settingsKey(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+}
+
+void FontSettings::toSettings(QSettings *s) const
+{
+    s->beginGroup(settingsGroup());
     if (m_family != defaultFixedFontFamily() || s->contains(QLatin1String(fontFamilyKey)))
         s->setValue(QLatin1String(fontFamilyKey), m_family);
 
@@ -99,16 +104,14 @@ void FontSettings::toSettings(const QString &category,
     s->endGroup();
 }
 
-bool FontSettings::fromSettings(const QString &category,
-                                const FormatDescriptions &descriptions,
-                                const QSettings *s)
+bool FontSettings::fromSettings(const FormatDescriptions &descriptions, const QSettings *s)
 {
     clear();
 
-    if (!s->childGroups().contains(category))
+    QString group = settingsGroup();
+    if (!s->childGroups().contains(group))
         return false;
 
-    QString group = category;
     group += QLatin1Char('/');
 
     m_family = s->value(group + QLatin1String(fontFamilyKey), defaultFixedFontFamily()).toString();

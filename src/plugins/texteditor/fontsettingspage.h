@@ -118,43 +118,12 @@ private:
 
 using FormatDescriptions = std::vector<FormatDescription>;
 
-class TEXTEDITOR_EXPORT FontSettingsPage : public Core::IOptionsPage
+class TEXTEDITOR_EXPORT FontSettingsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit FontSettingsPage(const FormatDescriptions &fd);
-    ~FontSettingsPage() override;
+    FontSettingsPage(FontSettings *fontSettings, const FormatDescriptions &fd);
 
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-    void saveSettings();
-
-    const FontSettings &fontSettings() const;
-
-signals:
-    void changed(const TextEditor::FontSettings&);
-
-private:
-    void delayedChange();
-    void fontSelected(const QFont &font);
-    void fontSizeSelected(const QString &sizeString);
-    void fontZoomChanged();
-    void antialiasChanged();
-    void colorSchemeSelected(int index);
-    void openCopyColorSchemeDialog();
-    void copyColorScheme(const QString &name);
-    void confirmDeleteColorScheme();
-    void deleteColorScheme();
-
-    void maybeSaveColorScheme();
-    void updatePointSizes();
-    QList<int> pointSizesForSelectedFont() const;
-    void refreshColorSchemeList();
-
-    Internal::FontSettingsPagePrivate *d_ptr;
+    void setFontZoom(int zoom);
 };
 
 } // namespace TextEditor
