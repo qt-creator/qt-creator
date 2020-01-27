@@ -28,6 +28,7 @@
 #include "client.h"
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
+#include "languageclientoutline.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
@@ -37,6 +38,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/textutils.h>
+#include <utils/treeviewcombobox.h>
 #include <utils/utilsicons.h>
 
 #include <QFile>
@@ -245,6 +247,27 @@ void updateEditorToolBar(Core::IEditor *editor)
         QObject::connect(widget, &QWidget::destroyed, [widget]() {
             actions.remove(widget);
         });
+    }
+
+    static QMap<QWidget *, QPair<Client *, QAction *>> outlines;
+
+    if (outlines.contains(widget)) {
+        auto outline = outlines[widget];
+        if (outline.first != client
+            || !LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(client,
+                                                                                  document)) {
+            auto oldAction = outline.second;
+            widget->toolBar()->removeAction(oldAction);
+            delete oldAction;
+            outlines.remove(widget);
+        }
+    }
+
+    if (!outlines.contains(widget)) {
+        if (QWidget *comboBox = LanguageClientOutlineWidgetFactory::createComboBox(client, editor)) {
+            outlines[widget] = {client,
+                                widget->insertExtraToolBarWidget(TextEditorWidget::Left, comboBox)};
+        }
     }
 }
 

@@ -27,13 +27,21 @@
 
 #include <texteditor/ioutlinewidget.h>
 
+namespace TextEditor { class TextDocument; }
+namespace Utils { class TreeViewComboBox; }
+
 namespace LanguageClient {
+
+class Client;
 
 class LanguageClientOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
 {
 public:
     using IOutlineWidgetFactory::IOutlineWidgetFactory;
 
+    static Utils::TreeViewComboBox *createComboBox(Client *client, Core::IEditor *editor);
+    static bool clientSupportsDocumentSymbols(const Client *client,
+                                              const TextEditor::TextDocument *doc);
     // IOutlineWidgetFactory interface
 public:
     bool supportsEditor(Core::IEditor *editor) const override;

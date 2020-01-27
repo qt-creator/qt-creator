@@ -36,6 +36,7 @@
 #include <utils/itemviews.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/treemodel.h>
+#include <utils/treeviewcombobox.h>
 #include <utils/utilsicons.h>
 
 #include <QBoxLayout>
@@ -218,7 +219,8 @@ void LanguageClientOutlineWidget::onItemActivated(const QModelIndex &index)
     m_editor->widget()->setFocus();
 }
 
-static bool clientSupportsDocumentSymbols(const Client *client, const TextEditor::TextDocument *doc)
+bool LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(
+    const Client *client, const TextEditor::TextDocument *doc)
 {
     if (!client)
         return false;
@@ -247,6 +249,96 @@ TextEditor::IOutlineWidget *LanguageClientOutlineWidgetFactory::createWidget(Cor
     if (!client || !clientSupportsDocumentSymbols(client, textEditor->textDocument()))
         return nullptr;
     return new LanguageClientOutlineWidget(client, textEditor);
+}
+
+class OutlineComboBox : public Utils::TreeViewComboBox
+{
+public:
+    OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
+
+private:
+    void updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result);
+    void updateEntry();
+    void activateEntry();
+    void requestSymbols();
+
+    LanguageClientOutlineModel m_model;
+    QPointer<Client> m_client;
+    TextEditor::TextEditorWidget *m_editorWidget;
+    const DocumentUri m_uri;
+};
+
+Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(Client *client,
+                                                                            Core::IEditor *editor)
+{
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    QTC_ASSERT(textEditor, return nullptr);
+    TextEditor::TextDocument *document = textEditor->textDocument();
+    if (!client || !clientSupportsDocumentSymbols(client, document))
+        return nullptr;
+
+    return new OutlineComboBox(client, textEditor);
+}
+
+OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
+    : m_client(client)
+    , m_editorWidget(editor->editorWidget())
+    , m_uri(DocumentUri::fromFilePath(editor->document()->filePath()))
+{
+    setModel(&m_model);
+    setMinimumContentsLength(13);
+    QSizePolicy policy = sizePolicy();
+    policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    setSizePolicy(policy);
+    setMaxVisibleItems(40);
+
+    connect(client->documentSymbolCache(), &DocumentSymbolCache::gotSymbols,
+            this, &OutlineComboBox::updateModel);
+    connect(editor->textDocument(), &TextEditor::TextDocument::contentsChanged,
+            this, &OutlineComboBox::requestSymbols);
+    connect(m_editorWidget, &TextEditor::TextEditorWidget::cursorPositionChanged,
+            this, &OutlineComboBox::updateEntry);
+    connect(this, QOverload<int>::of(&QComboBox::activated), this, &OutlineComboBox::activateEntry);
+}
+
+void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result)
+{
+    if (m_uri != resultUri)
+        return;
+    if (Utils::holds_alternative<QList<SymbolInformation>>(result))
+        m_model.setInfo(Utils::get<QList<SymbolInformation>>(result));
+    else if (Utils::holds_alternative<QList<DocumentSymbol>>(result))
+        m_model.setInfo(Utils::get<QList<DocumentSymbol>>(result));
+    else
+        m_model.clear();
+}
+
+void OutlineComboBox::updateEntry()
+{
+    const Position pos(m_editorWidget->textCursor());
+    LanguageClientOutlineItem *itemForCursor = m_model.findNonRootItem(
+        [&](const LanguageClientOutlineItem *item) { return item->contains(pos); });
+    if (itemForCursor)
+        setCurrentIndex(m_model.indexForItem(itemForCursor));
+}
+
+void OutlineComboBox::activateEntry()
+{
+    const QModelIndex modelIndex = view()->currentIndex();
+    if (modelIndex.isValid()) {
+        const Position &pos = m_model.itemForIndex(modelIndex)->pos();
+        Core::EditorManager::cutForwardNavigationHistory();
+        Core::EditorManager::addCurrentPositionToNavigationHistory();
+        // line has to be 1 based, column 0 based!
+        m_editorWidget->gotoLine(pos.line() + 1, pos.character(), true, true);
+        emit m_editorWidget->activateEditor();
+    }
+}
+
+void OutlineComboBox::requestSymbols()
+{
+    if (m_client)
+        m_client->documentSymbolCache()->requestSymbols(m_uri);
 }
 
 } // namespace LanguageClient
