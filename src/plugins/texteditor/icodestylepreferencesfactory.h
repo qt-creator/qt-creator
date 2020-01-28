@@ -46,11 +46,13 @@ public:
     virtual void apply() {}
 };
 
-class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory : public QObject
+class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory
 {
-    Q_OBJECT
+    ICodeStylePreferencesFactory(const ICodeStylePreferencesFactory &) = delete;
+    ICodeStylePreferencesFactory &operator=(const ICodeStylePreferencesFactory &) = delete;
+
 public:
-    explicit ICodeStylePreferencesFactory(QObject *parent = nullptr);
+    ICodeStylePreferencesFactory();
 
     virtual CodeStyleEditorWidget *createCodeStyleEditor(ICodeStylePreferences *codeStyle,
                                                          QWidget *parent = nullptr);

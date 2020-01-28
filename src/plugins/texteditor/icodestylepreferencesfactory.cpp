@@ -29,8 +29,7 @@
 
 using namespace TextEditor;
 
-ICodeStylePreferencesFactory::ICodeStylePreferencesFactory(QObject *parent) :
-    QObject(parent)
+ICodeStylePreferencesFactory::ICodeStylePreferencesFactory()
 {
 }
 

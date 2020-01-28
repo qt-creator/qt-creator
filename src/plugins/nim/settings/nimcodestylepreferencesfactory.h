@@ -31,7 +31,7 @@ namespace Nim {
 
 class NimCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimCodeStylePreferencesFactory)
 
 public:
     NimCodeStylePreferencesFactory();
