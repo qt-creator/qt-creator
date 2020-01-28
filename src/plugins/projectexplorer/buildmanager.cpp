@@ -81,7 +81,9 @@ static const QList<BuildConfiguration *> buildConfigsForSelection(const Target *
 {
     if (configSelection == ConfigSelection::All)
         return target->buildConfigurations();
-    return {target->activeBuildConfiguration()};
+    else if (target->activeBuildConfiguration())
+        return {target->activeBuildConfiguration()};
+    return {};
 }
 
 static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
