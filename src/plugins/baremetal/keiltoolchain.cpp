@@ -449,7 +449,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &al
 {
 #ifdef Q_OS_WIN64
     static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\" \
-                                        "Windows\\CurrentVersion\\Uninstall\\Keil µVision4"
+                                        "Windows\\CurrentVersion\\Uninstall\\Keil µVision4";
 #else
     static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
                                         "Windows\\CurrentVersion\\Uninstall\\Keil µVision4";
