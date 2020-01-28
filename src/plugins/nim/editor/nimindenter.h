@@ -27,13 +27,7 @@
 
 #include <texteditor/textindenter.h>
 
-namespace TextEditor {
-class SimpleCodeStylePreferences;
-}
-
 namespace Nim {
-
-class NimLexer;
 
 class NimIndenter : public TextEditor::TextIndenter
 {

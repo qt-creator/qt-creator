@@ -27,11 +27,11 @@
 
 using namespace CppTools;
 
-static const char settingsSuffixKey[] = "CodeStyleSettings";
-
 CppCodeStylePreferences::CppCodeStylePreferences(QObject *parent) :
     ICodeStylePreferences(parent)
 {
+    setSettingsSuffix("CodeStyleSettings");
+
     connect(this, &CppCodeStylePreferences::currentValueChanged,
             this, &CppCodeStylePreferences::slotCurrentValueChanged);
 }
@@ -87,11 +87,6 @@ void CppCodeStylePreferences::slotCurrentValueChanged(const QVariant &value)
         return;
 
     emit currentCodeStyleSettingsChanged(value.value<CppCodeStyleSettings>());
-}
-
-QString CppCodeStylePreferences::settingsSuffix() const
-{
-    return QLatin1String(settingsSuffixKey);
 }
 
 void CppCodeStylePreferences::toMap(const QString &prefix, QVariantMap *map) const

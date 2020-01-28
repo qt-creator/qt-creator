@@ -45,7 +45,7 @@ class NimCodeStyleSettingsWidget : public Core::IOptionsPageWidget
 public:
     NimCodeStyleSettingsWidget()
     {
-        auto originalTabPreferences = qobject_cast<SimpleCodeStylePreferences *>(NimSettings::globalCodeStyle());
+        auto originalTabPreferences = NimSettings::globalCodeStyle();
         m_nimCodeStylePreferences = new SimpleCodeStylePreferences(this);
         m_nimCodeStylePreferences->setDelegatingPool(originalTabPreferences->delegatingPool());
         m_nimCodeStylePreferences->setTabSettings(originalTabPreferences->tabSettings());

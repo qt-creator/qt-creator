@@ -57,9 +57,6 @@ signals:
     void codeStyleSettingsChanged(const CppTools::CppCodeStyleSettings &);
     void currentCodeStyleSettingsChanged(const CppTools::CppCodeStyleSettings &);
 
-protected:
-    QString settingsSuffix() const override;
-
 private:
     void slotCurrentValueChanged(const QVariant &);
 

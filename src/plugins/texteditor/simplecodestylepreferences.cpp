@@ -27,14 +27,12 @@
 
 #include <QVariant>
 
-using namespace TextEditor;
-
-static const char settingsSuffixKey[] = "TabPreferences";
-
+namespace TextEditor {
 
 SimpleCodeStylePreferences::SimpleCodeStylePreferences(QObject *parent)
     : ICodeStylePreferences(parent)
 {
+    setSettingsSuffix("TabPreferences");
 }
 
 
@@ -48,9 +46,4 @@ void SimpleCodeStylePreferences::setValue(const QVariant &value)
     Q_UNUSED(value)
 }
 
-QString SimpleCodeStylePreferences::settingsSuffix() const
-{
-    return QLatin1String(settingsSuffixKey);
-}
-
-
+} // TextEditor

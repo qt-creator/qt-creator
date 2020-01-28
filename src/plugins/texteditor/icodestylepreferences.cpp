@@ -46,9 +46,9 @@ public:
     QByteArray m_id;
     QString m_displayName;
     bool m_readOnly = false;
+    QString m_settingsSuffix;
 };
 
-}
 }
 
 ICodeStylePreferences::ICodeStylePreferences(QObject *parent) :
@@ -206,14 +206,19 @@ void ICodeStylePreferences::setCurrentDelegate(const QByteArray &id)
         setCurrentDelegate(d->m_pool->codeStyle(id));
 }
 
+void ICodeStylePreferences::setSettingsSuffix(const QString &suffix)
+{
+    d->m_settingsSuffix = suffix;
+}
+
 void ICodeStylePreferences::toSettings(const QString &category, QSettings *s) const
 {
-    Utils::toSettings(settingsSuffix(), category, s, this);
+    Utils::toSettings(d->m_settingsSuffix, category, s, this);
 }
 
 void ICodeStylePreferences::fromSettings(const QString &category, const QSettings *s)
 {
-    Utils::fromSettings(settingsSuffix(), category, s, this);
+    Utils::fromSettings(d->m_settingsSuffix, category, s, this);
 }
 
 void ICodeStylePreferences::toMap(const QString &prefix, QVariantMap *map) const
@@ -268,3 +273,4 @@ void ICodeStylePreferences::codeStyleRemoved(ICodeStylePreferences *preferences)
     }
 }
 
+} // TextEditor

@@ -27,14 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace TextEditor {
-class CodeStyleEditor;
-class SimpleCodeStylePreferences;
-}
-
 namespace Nim {
-
-class NimCodeStylePreferences;
 
 class NimCodeStyleSettingsPage : public Core::IOptionsPage
 {

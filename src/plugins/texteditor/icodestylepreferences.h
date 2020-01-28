@@ -79,6 +79,7 @@ public:
     QByteArray currentDelegateId() const;
     void setCurrentDelegate(const QByteArray &id);
 
+    void setSettingsSuffix(const QString &suffix);
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
 
@@ -94,9 +95,6 @@ signals:
     void currentDelegateChanged(TextEditor::ICodeStylePreferences *currentDelegate);
     void currentPreferencesChanged(TextEditor::ICodeStylePreferences *currentPreferences);
     void displayNameChanged(const QString &newName);
-
-protected:
-    virtual QString settingsSuffix() const = 0;
 
 private:
     void codeStyleRemoved(ICodeStylePreferences *preferences);

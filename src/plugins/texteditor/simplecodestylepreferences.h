@@ -31,16 +31,11 @@ namespace TextEditor {
 
 class TEXTEDITOR_EXPORT SimpleCodeStylePreferences : public ICodeStylePreferences
 {
-    Q_OBJECT
 public:
     explicit SimpleCodeStylePreferences(QObject *parentObject = nullptr);
 
     QVariant value() const override;
     void setValue(const QVariant &) override;
-
-protected:
-    QString settingsSuffix() const override;
-
 };
 
 } // namespace TextEditor
