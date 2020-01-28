@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -49,17 +49,11 @@
             You can use the \QBSK export tool in Sketch to convert artwork into
             Qt Quick files that you can import to projects in \QDS.
 
-        \li \l{Exporting from Maya}
-
-            You can export 3D graphics from Maya in the FBX format.
-            The necessary plugin is usually enabled by default.
-
-        \omit
         \li \l{Exporting 3D Assets}
 
             You can import files you created using 3D graphics applications and
             stored in several widely-used formats, such as .blend, .dae, .fbx,
             .glb, .gltf, .obj, .uia, or .uip.
-        \endomit
+
     \endlist
 */
