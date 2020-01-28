@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -37,9 +37,13 @@
     component is shaded by adding materials to the model.
 
     A model can load static meshes from storage or one of the built-in primitive
-    types: cube, cone, cylinder, rectangle, or sphere. You can select the model
-    type in the \uicontrol Source field in the \uicontrol Properties field.
-    Select the \inlineimage plus.png
+    types: cube, cone, cylinder, plane (rectangle) or sphere. You can drag and
+    drop a model from the \uicontrol Library to a 3D scene.
+
+    \image studio-qtquick-3d-components.png
+
+    You can change the model type in the \uicontrol Source field in the
+    \uicontrol Properties view. Select the \inlineimage plus.png
     button to add custom model types to the list.
 
     To enable picking the model against the scene, select the
