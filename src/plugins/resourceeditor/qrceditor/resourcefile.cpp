@@ -32,6 +32,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fileutils.h>
 #include <utils/removefiledialog.h>
+#include <utils/theme/theme.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -796,7 +797,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             // File node
             Q_ASSERT(file);
             if (!file->exists())
-                result = QBrush(QColor(Qt::red));
+                result = Utils::creatorTheme()->color(Utils::Theme::TextColorError);
         }
         break;
     default:
