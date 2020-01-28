@@ -46,6 +46,9 @@ Item {
     property Camera _prevCamera: null
 
     function restoreCameraState(cameraState) {
+        if (!camera)
+            return;
+
         _lookAtPoint = cameraState[0];
         _zoomFactor = cameraState[1];
         camera.position = cameraState[2];
@@ -55,6 +58,9 @@ Item {
     }
 
     function storeCameraState(delay) {
+        if (!camera)
+            return;
+
         var cameraState = [];
         cameraState[0] = _lookAtPoint;
         cameraState[1] = _zoomFactor;
@@ -66,6 +72,9 @@ Item {
 
     function focusObject(targetObject, rotation, updateZoom)
     {
+        if (!camera)
+            return;
+
         camera.rotation = rotation;
         var newLookAtAndZoom = _generalHelper.focusObjectToCamera(
                     camera, _defaultCameraLookAtDistance, targetObject, view3d, _zoomFactor, updateZoom);
@@ -76,16 +85,19 @@ Item {
 
     function zoomRelative(distance)
     {
+        if (!camera)
+            return;
+
         _zoomFactor = _generalHelper.zoomCamera(camera, distance, _defaultCameraLookAtDistance,
                                                 _lookAtPoint, _zoomFactor, true);
     }
 
     Component.onCompleted: {
-        cameraCtrl._defaultCameraLookAtDistance = cameraCtrl.camera.position.length();
+        cameraCtrl._defaultCameraLookAtDistance = Qt.vector3d(0, 600, -600).length();
     }
 
     onCameraChanged: {
-        if (_prevCamera) {
+        if (camera && _prevCamera) {
             // Reset zoom on previous camera to ensure it's properties are good to copy to new cam
             _generalHelper.zoomCamera(_prevCamera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
                                       1, false);
@@ -106,7 +118,7 @@ Item {
         hoverEnabled: false
         anchors.fill: parent
         onPositionChanged: {
-            if (mouse.modifiers === Qt.AltModifier && cameraCtrl._dragging) {
+            if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier && cameraCtrl._dragging) {
                 var currentPoint = Qt.vector3d(mouse.x, mouse.y, 0);
                 if (cameraCtrl._button == Qt.LeftButton) {
                     _generalHelper.orbitCamera(cameraCtrl.camera, cameraCtrl._startRotation,
@@ -124,7 +136,7 @@ Item {
             }
         }
         onPressed: {
-            if (mouse.modifiers === Qt.AltModifier) {
+            if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier) {
                 cameraCtrl._dragging = true;
                 cameraCtrl._startRotation = cameraCtrl.camera.rotation;
                 cameraCtrl._startPosition = cameraCtrl.camera.position;
@@ -147,9 +159,11 @@ Item {
         onCanceled: handleRelease()
 
         onWheel: {
-            // Emprically determined divisor for nice zoom
-            cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
-            cameraCtrl.storeCameraState(500);
+            if (cameraCtrl.camera) {
+                // Emprically determined divisor for nice zoom
+                cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
+                cameraCtrl.storeCameraState(500);
+            }
         }
     }
 }

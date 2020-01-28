@@ -27,6 +27,7 @@
         <file>mockfiles/ToggleButton.qml</file>
         <file>mockfiles/RotateGizmo.qml</file>
         <file>mockfiles/RotateRing.qml</file>
+        <file>mockfiles/SceneView3D.qml</file>
         <file>mockfiles/SelectionBox.qml</file>
         <file>mockfiles/AxisHelper.qml</file>
         <file>mockfiles/AxisHelperArm.qml</file>

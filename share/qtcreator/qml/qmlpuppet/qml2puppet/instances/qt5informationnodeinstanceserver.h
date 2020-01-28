@@ -62,7 +62,7 @@ private slots:
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
     void handleToolStateChanged(const QString &tool, const QVariant &toolState);
-    void updateViewPortRect();
+    void handleView3DSizeChange();
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -81,9 +81,10 @@ private:
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
                          const QVariantMap &toolStates);
-    QObject *findRootNodeOf3DViewport(const QList<ServerNodeInstance> &instanceList) const;
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
-    ServerNodeInstance findViewPort(const QList<ServerNodeInstance> &instanceList);
+    void addViewPorts(const QList<ServerNodeInstance> &instanceList);
+    ServerNodeInstance findView3DForInstance(const ServerNodeInstance &instance) const;
+    QObject *find3DSceneRoot(const ServerNodeInstance &instance) const;
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
                                                                const PropertyName &propertyName,
                                                                const QVariant &variant);
@@ -91,8 +92,13 @@ private:
                             const PropertyName &propertyName,
                             ValuesModifiedCommand::TransactionOption option);
     bool dropAcceptable(QDragMoveEvent *event) const;
+    void updateView3DRect(QObject *view3D);
+    void updateActiveSceneToEditView3D();
 
     QObject *m_editView3D = nullptr;
+    QVector<ServerNodeInstance> m_view3Ds;
+    ServerNodeInstance m_active3DView;
+    QObject *m_active3DScene = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;
@@ -100,8 +106,6 @@ private:
     QTimer m_selectionChangeTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
-    ServerNodeInstance m_viewPortInstance;
-    QObject *m_rootNode = nullptr;
     ChangeSelectionCommand m_pendingSelectionChangeCommand;
 };
 

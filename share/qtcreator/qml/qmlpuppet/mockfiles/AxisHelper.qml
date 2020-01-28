@@ -37,9 +37,9 @@ View3D {
     Node {
         OrthographicCamera {
             id: axisHelperCamera
-            rotation: editCameraCtrl.camera.rotation
-            position: editCameraCtrl.camera.position.minus(editCameraCtrl._lookAtPoint)
-                                                    .normalized().times(600)
+            rotation: editCameraCtrl.camera ? editCameraCtrl.camera.rotation : Qt.vector3d(0, 0, 0)
+            position: editCameraCtrl.camera ? editCameraCtrl.camera.position.minus(editCameraCtrl._lookAtPoint)
+                                              .normalized().times(600) : Qt.vector3d(0, 0, 0)
         }
 
         AutoScaleHelper {

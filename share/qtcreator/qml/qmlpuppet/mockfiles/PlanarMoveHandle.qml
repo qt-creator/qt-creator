@@ -40,7 +40,7 @@ PlanarDraggable {
                     _targetStartPos.x + sceneRelativeDistance.x,
                     _targetStartPos.y + sceneRelativeDistance.y,
                     _targetStartPos.z + sceneRelativeDistance.z);
-        return targetNode.parent.mapPositionFromScene(newScenePos);
+        return targetNode.parent ? targetNode.parent.mapPositionFromScene(newScenePos) : newScenePos;
     }
 
     onDragged: {

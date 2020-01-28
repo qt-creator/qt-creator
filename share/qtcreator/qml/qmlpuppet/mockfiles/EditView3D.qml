@@ -41,7 +41,8 @@ Window {
     // need all those flags otherwise the title bar disappears after setting WindowStaysOnTopHint flag later
     flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
 
-    property alias scene: editView.importScene
+    property Node activeScene: null
+    property View3D editView: null
 
     property alias showEditLight: btnEditViewLight.toggled
     property alias usePerspective: btnPerspective.toggled
@@ -62,6 +63,31 @@ Window {
     onUsePerspectiveChanged: _generalHelper.storeToolState("usePerspective", usePerspective)
     onShowEditLightChanged: _generalHelper.storeToolState("showEditLight", showEditLight)
     onGlobalOrientationChanged: _generalHelper.storeToolState("globalOrientation", globalOrientation)
+
+    onActiveSceneChanged: {
+        // importScene cannot be updated after initial set, so we need to reconstruct entire View3D
+        var component = Qt.createComponent("SceneView3D.qml");
+        if (component.status === Component.Ready) {
+            var oldView = editView;
+
+            if (editView)
+                editView.visible = false;
+
+            editView = component.createObject(viewRect,
+                                              {"usePerspective": usePerspective,
+                                               "showSceneLight": showEditLight,
+                                               "importScene": activeScene,
+                                               "z": 1});
+            editView.usePerspective = Qt.binding(function() {return usePerspective;});
+            editView.showSceneLight = Qt.binding(function() {return showEditLight;});
+
+            selectionBoxes.length = 0;
+            ensureSelectionBoxes(1);
+
+            if (oldView)
+                oldView.destroy();
+        }
+    }
 
     function updateToolStates(toolStates) {
         // Init the stored state so we don't unnecessarily reflect changes back to creator
@@ -103,9 +129,13 @@ Window {
             if (component.status === Component.Ready) {
                 for (var i = 0; i < needMore; ++i) {
                     var geometryName = _generalHelper.generateUniqueName("SelectionBoxGeometry");
-                    var box = component.createObject(mainSceneHelpers, {"view3D": editView,
+                    var boxParent = null;
+                    if (editView)
+                        boxParent = editView.sceneHelpers;
+                    var box = component.createObject(boxParent, {"view3D": editView,
                                                      "geometryName": geometryName});
                     selectionBoxes[selectionBoxes.length] = box;
+                    box.view3D = Qt.binding(function() {return editView;});
                 }
             }
         }
@@ -133,7 +163,7 @@ Window {
     function handleObjectClicked(object, multi) {
         var theObject = object;
         if (btnSelectGroup.selected) {
-            while (theObject && theObject.parent !== scene)
+            while (theObject && theObject.parent !== activeScene)
                 theObject = theObject.parent;
         }
         // Object selection logic:
@@ -162,11 +192,12 @@ Window {
         selectionChanged(newSelection);
     }
 
-    function addLightGizmo(obj)
+    function addLightGizmo(scene, obj)
     {
         // Insert into first available gizmo
         for (var i = 0; i < lightGizmos.length; ++i) {
             if (!lightGizmos[i].targetNode) {
+                lightGizmos[i].scene = scene;
                 lightGizmos[i].targetNode = obj;
                 return;
             }
@@ -177,18 +208,21 @@ Window {
         if (component.status === Component.Ready) {
             var gizmo = component.createObject(overlayScene,
                                                {"view3D": overlayView, "targetNode": obj,
-                                                "selectedNodes": selectedNodes});
+                                                "selectedNodes": selectedNodes, "scene": scene,
+                                                "activeScene": activeScene});
             lightGizmos[lightGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
+            gizmo.activeScene = Qt.binding(function() {return activeScene;});
         }
     }
 
-    function addCameraGizmo(obj)
+    function addCameraGizmo(scene, obj)
     {
         // Insert into first available gizmo
         for (var i = 0; i < cameraGizmos.length; ++i) {
             if (!cameraGizmos[i].targetNode) {
+                cameraGizmos[i].scene = scene;
                 cameraGizmos[i].targetNode = obj;
                 return;
             }
@@ -200,11 +234,13 @@ Window {
             var gizmo = component.createObject(
                         overlayScene,
                         {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
-                         "viewPortRect": viewPortRect, "selectedNodes": selectedNodes});
+                         "viewPortRect": viewPortRect, "selectedNodes": selectedNodes,
+                         "scene": scene, "activeScene": activeScene});
             cameraGizmos[cameraGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
+            gizmo.activeScene = Qt.binding(function() {return activeScene;});
         }
     }
 
@@ -233,19 +269,19 @@ Window {
 
         PerspectiveCamera {
             id: overlayPerspectiveCamera
-            clipFar: editPerspectiveCamera.clipFar
-            clipNear: editPerspectiveCamera.clipNear
-            position: editPerspectiveCamera.position
-            rotation: editPerspectiveCamera.rotation
+            clipFar: viewWindow.editView ? viewWindow.editView.perpectiveCamera.clipFar : 1000
+            clipNear: viewWindow.editView ? viewWindow.editView.perpectiveCamera.clipNear : 1
+            position: viewWindow.editView ? viewWindow.editView.perpectiveCamera.position : Qt.vector3d(0, 0, 0)
+            rotation: viewWindow.editView ? viewWindow.editView.perpectiveCamera.rotation : Qt.vector3d(0, 0, 0)
         }
 
         OrthographicCamera {
             id: overlayOrthoCamera
-            clipFar: editOrthoCamera.clipFar
-            clipNear: editOrthoCamera.clipNear
-            position: editOrthoCamera.position
-            rotation: editOrthoCamera.rotation
-            scale: editOrthoCamera.scale
+            clipFar: viewWindow.editView ? viewWindow.editView.orthoCamera.clipFar : 1000
+            clipNear: viewWindow.editView ? viewWindow.editView.orthoCamera.clipNear : 1
+            position: viewWindow.editView ? viewWindow.editView.orthoCamera.position : Qt.vector3d(0, 0, 0)
+            rotation: viewWindow.editView ? viewWindow.editView.orthoCamera.rotation : Qt.vector3d(0, 0, 0)
+            scale: viewWindow.editView ? viewWindow.editView.orthoCamera.scale : Qt.vector3d(0, 0, 0)
         }
 
         MouseArea3D {
@@ -349,6 +385,7 @@ Window {
     }
 
     Rectangle {
+        id: viewRect
         anchors.fill: parent
         focus: true
 
@@ -361,11 +398,13 @@ Window {
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton
             onClicked: {
-                var pickResult = editView.pick(mouse.x, mouse.y);
-                handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
-                                    mouse.modifiers & Qt.ControlModifier);
-                if (!pickResult.objectHit)
-                    mouse.accepted = false;
+                if (viewWindow.editView) {
+                    var pickResult = viewWindow.editView.pick(mouse.x, mouse.y);
+                    handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
+                                        mouse.modifiers & Qt.ControlModifier);
+                    if (!pickResult.objectHit)
+                        mouse.accepted = false;
+                }
             }
         }
 
@@ -374,56 +413,11 @@ Window {
         }
 
         View3D {
-            id: editView
-            anchors.fill: parent
-            camera: usePerspective ? editPerspectiveCamera : editOrthoCamera
-
-            Node {
-                id: mainSceneHelpers
-
-                HelperGrid {
-                    id: helperGrid
-                    lines: 50
-                    step: 50
-                }
-
-                PointLight {
-                    id: editLight
-                    visible: showEditLight
-                    position: usePerspective ? editPerspectiveCamera.position
-                                             : editOrthoCamera.position
-                    quadraticFade: 0
-                    linearFade: 0
-                }
-
-                // Initial camera position and rotation should be such that they look at origin.
-                // Otherwise EditCameraController._lookAtPoint needs to be initialized to correct
-                // point.
-                PerspectiveCamera {
-                    id: editPerspectiveCamera
-                    z: -600
-                    y: 600
-                    rotation.x: 45
-                    clipFar: 100000
-                    clipNear: 1
-                }
-
-                OrthographicCamera {
-                    id: editOrthoCamera
-                    z: -600
-                    y: 600
-                    rotation.x: 45
-                    clipFar: 100000
-                    clipNear: -10000
-                }
-            }
-        }
-
-        View3D {
             id: overlayView
             anchors.fill: parent
             camera: usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
             importScene: overlayScene
+            z: 2
         }
 
         Overlay2D {
@@ -431,6 +425,7 @@ Window {
             targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
             targetView: overlayView
             visible: targetNode.dragging
+            z: 3
 
             Rectangle {
                 color: "white"
@@ -463,9 +458,9 @@ Window {
 
         EditCameraController {
             id: cameraControl
-            camera: editView.camera
+            camera: viewWindow.editView ? viewWindow.editView.camera : null
             anchors.fill: parent
-            view3d: editView
+            view3d: viewWindow.editView
         }
     }
 
@@ -557,10 +552,10 @@ Window {
                 togglable: false
 
                 onSelectedChanged: {
-                    if (selected) {
+                    if (viewWindow.editView && selected) {
                         var targetNode = viewWindow.selectedNodes.length > 0
                                 ? selectionBoxes[0].model : null;
-                        cameraControl.focusObject(targetNode, editView.camera.rotation, true);
+                        cameraControl.focusObject(targetNode, viewWindow.editView.camera.rotation, true);
                     }
                 }
             }

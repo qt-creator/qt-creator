@@ -81,6 +81,12 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 
+#ifdef QUICK3D_MODULE
+#include <QtQuick3D/private/qquick3dnode_p.h>
+#include <QtQuick3D/private/qquick3dviewport_p.h>
+#include <QtQuick3D/private/qquick3dscenerootnode_p.h>
+#endif
+
 namespace QmlDesigner {
 
 static QVariant objectToVariant(QObject *object)
@@ -255,12 +261,12 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
     const PropertyName &propertyName,
     ValuesModifiedCommand::TransactionOption option)
 {
-    PropertyName targetPopertyName;
+    PropertyName targetPropertyName;
 
     // Position is a special case, because the position can be 'position.x 'or simply 'x'.
     // We prefer 'x'.
     if (propertyName != "position")
-        targetPopertyName = propertyName;
+        targetPropertyName = propertyName;
 
     auto *obj = node.value<QObject *>();
 
@@ -275,7 +281,7 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
         // We do have to split position into position.x, position.y, position.z
         ValuesModifiedCommand command = createValuesModifiedCommand(vectorToPropertyValue(
             instance,
-            targetPopertyName,
+            targetPropertyName,
             obj->property(propertyName)));
 
         command.transactionOption = option;
@@ -318,12 +324,30 @@ void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &too
                                                         QVariant::fromValue(data)});
 }
 
-void Qt5InformationNodeInstanceServer::updateViewPortRect()
+void Qt5InformationNodeInstanceServer::handleView3DSizeChange()
 {
-    QRectF viewPortrect(0, 0, m_viewPortInstance.internalObject()->property("width").toDouble(),
-                        m_viewPortInstance.internalObject()->property("height").toDouble());
+    QObject *view3D = sender();
+    if (view3D == m_active3DView.internalObject())
+        updateView3DRect(view3D);
+}
+
+void Qt5InformationNodeInstanceServer::updateView3DRect(QObject *view3D)
+{
+    QRectF viewPortrect(0., 0., 1000., 1000.);
+    if (view3D) {
+        viewPortrect = QRectF(0., 0., view3D->property("width").toDouble(),
+                              view3D->property("height").toDouble());
+    }
     QQmlProperty viewPortProperty(m_editView3D, "viewPortRect", context());
     viewPortProperty.write(viewPortrect);
+}
+
+void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
+{
+    QQmlProperty sceneProperty(m_editView3D, "activeScene", context());
+    sceneProperty.write(objectToVariant(m_active3DScene));
+    if (m_active3DView.isValid())
+        updateView3DRect(m_active3DView.internalObject());
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -425,65 +449,147 @@ void Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout()
     changeSelection(m_pendingSelectionChangeCommand);
 }
 
-QObject *Qt5InformationNodeInstanceServer::findRootNodeOf3DViewport(
-        const QList<ServerNodeInstance> &instanceList) const
-{
-    for (const ServerNodeInstance &instance : instanceList) {
-        if (instance.isSubclassOf("QQuick3DViewport")) {
-            QObject *rootObj = nullptr;
-            int viewChildCount = 0;
-            for (const ServerNodeInstance &child : instanceList) { /* Look for scene node */
-                /* The QQuick3DViewport always creates a root node.
-                 * This root node contains the complete scene. */
-                if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance) {
-                    // Implicit root node is not visible in editor, so there is often another node
-                    // added below it that serves as the actual scene root node.
-                    // If the found root is the only node child of the view, assume that is the case.
-                    ++viewChildCount;
-                    if (!rootObj)
-                        rootObj = child.internalObject();
-                }
-            }
-            if (viewChildCount == 1)
-                return rootObj;
-            else if (rootObj)
-                return rootObj->property("parent").value<QObject *>();
-        }
-    }
-    return nullptr;
-}
-
 void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
         const QList<ServerNodeInstance> &instanceList) const
 {
-    QObjectList cameras;
-    QObjectList lights;
+    QHash<QObject *, QObjectList> cameras;
+    QHash<QObject *, QObjectList> lights;
 
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DCamera"))
-            cameras << instance.internalObject();
+            cameras[find3DSceneRoot(instance)] << instance.internalObject();
         else if (instance.isSubclassOf("QQuick3DAbstractLight"))
-            lights << instance.internalObject();
+            lights[find3DSceneRoot(instance)] << instance.internalObject();
     }
 
-    for (auto &obj : qAsConst(cameras)) {
-        QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
-                Q_ARG(QVariant, objectToVariant(obj)));
+    auto cameraIt = cameras.constBegin();
+    while (cameraIt != cameras.constEnd()) {
+        const auto cameraObjs = cameraIt.value();
+        for (auto &obj : cameraObjs) {
+            QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
+                                      Q_ARG(QVariant, objectToVariant(cameraIt.key())),
+                                      Q_ARG(QVariant, objectToVariant(obj)));
+        }
+        ++cameraIt;
     }
-    for (auto &obj : qAsConst(lights)) {
-        QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
-                Q_ARG(QVariant, objectToVariant(obj)));
+    auto lightIt = lights.constBegin();
+    while (lightIt != lights.constEnd()) {
+        const auto lightObjs = lightIt.value();
+        for (auto &obj : lightObjs) {
+            QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
+                                      Q_ARG(QVariant, objectToVariant(lightIt.key())),
+                                      Q_ARG(QVariant, objectToVariant(obj)));
+        }
+        ++lightIt;
     }
 }
 
-ServerNodeInstance Qt5InformationNodeInstanceServer::findViewPort(
-        const QList<ServerNodeInstance> &instanceList)
+void Qt5InformationNodeInstanceServer::addViewPorts(const QList<ServerNodeInstance> &instanceList)
 {
     for (const ServerNodeInstance &instance : instanceList) {
-        if (instance.isSubclassOf("QQuick3DViewport"))
-            return instance;
+        if (instance.isSubclassOf("QQuick3DViewport")) {
+            m_view3Ds << instance;
+            QObject *obj = instance.internalObject();
+            QObject::connect(obj, SIGNAL(widthChanged()), this, SLOT(handleView3DSizeChange()));
+            QObject::connect(obj, SIGNAL(heightChanged()), this, SLOT(handleView3DSizeChange()));
+        }
     }
-    return ServerNodeInstance();
+}
+
+ServerNodeInstance Qt5InformationNodeInstanceServer::findView3DForInstance(const ServerNodeInstance &instance) const
+{
+#ifdef QUICK3D_MODULE
+    if (!instance.isValid())
+        return {};
+
+    // View3D of an instance is one of the following, in order of priority:
+    // - Any direct ancestor View3D of the instance
+    // - Any View3D that specifies the instance's scene as importScene
+    ServerNodeInstance checkInstance = instance;
+    while (checkInstance.isValid()) {
+        if (checkInstance.isSubclassOf("QQuick3DViewport"))
+            return checkInstance;
+        else
+            checkInstance = checkInstance.parent();
+    }
+
+    // If no ancestor View3D was found, check if the scene root is specified as importScene in
+    // some View3D.
+    QObject *sceneRoot = find3DSceneRoot(instance);
+    for (const auto &view3D : qAsConst(m_view3Ds)) {
+        auto view = qobject_cast<QQuick3DViewport *>(view3D.internalObject());
+        if (sceneRoot == view->importScene())
+            return view3D;
+    }
+#endif
+    return {};
+}
+
+QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(const ServerNodeInstance &instance) const
+{
+#ifdef QUICK3D_MODULE
+    // The root of a 3D scene is any QQuick3DNode that doesn't have QQuick3DNode as parent.
+    // One exception is QQuick3DSceneRootNode that has only a single child QQuick3DNode (not
+    // a subclass of one, but exactly QQuick3DNode). In that case we consider the single child node
+    // to be the scene root (as QQuick3DSceneRootNode is not visible in the navigator scene graph).
+
+    if (!instance.isValid())
+        return nullptr;
+
+    QQuick3DNode *childNode = nullptr;
+    auto countChildNodes = [&childNode](QQuick3DViewport *view) -> int {
+        QQuick3DNode *sceneNode = view->scene();
+        QList<QQuick3DObject *> children = sceneNode->childItems();
+        int nodeCount = 0;
+        for (const auto &child : children) {
+            auto nodeChild = qobject_cast<QQuick3DNode *>(child);
+            if (nodeChild) {
+                ++nodeCount;
+                childNode = nodeChild;
+            }
+        }
+        return nodeCount;
+    };
+
+    // In case of View3D is selected, the root scene is whatever is contained in View3D, or
+    // importScene, in case there is no content in View3D
+    QObject *obj = instance.internalObject();
+    auto view = qobject_cast<QQuick3DViewport *>(obj);
+    if (view) {
+        int nodeCount = countChildNodes(view);
+        if (nodeCount == 0)
+            return view->importScene();
+        else if (nodeCount == 1)
+            return childNode;
+        else
+            return view->scene();
+    }
+
+    ServerNodeInstance checkInstance = instance;
+    bool foundNode = checkInstance.isSubclassOf("QQuick3DNode");
+    while (checkInstance.isValid()) {
+        ServerNodeInstance parentInstance = checkInstance.parent();
+        if (parentInstance.isSubclassOf("QQuick3DViewport")) {
+            view = qobject_cast<QQuick3DViewport *>(parentInstance.internalObject());
+            int nodeCount = countChildNodes(view);
+            if (nodeCount == 1)
+                return checkInstance.internalObject();
+            else
+                return view->scene();
+        } else if (parentInstance.isSubclassOf("QQuick3DNode")) {
+            foundNode = true;
+            checkInstance = parentInstance;
+        } else {
+            if (!foundNode) {
+                // We haven't found any node yet, continue the search
+                checkInstance = parentInstance;
+            } else {
+                return checkInstance.internalObject();
+            }
+        }
+    }
+#endif
+    return nullptr;
 }
 
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList,
@@ -491,37 +597,27 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
 {
     ServerNodeInstance root = rootNodeInstance();
 
-    bool showCustomLight = false;
+    addViewPorts(instanceList);
 
-    if (root.isSubclassOf("QQuick3DNode")) {
-        m_rootNode = root.internalObject();
-        showCustomLight = true; // Pure node scene we should add a custom light
-    } else {
-        m_rootNode = findRootNodeOf3DViewport(instanceList);
+    // Find any scene to show
+    for (const auto &instance : instanceList) {
+        if (instance.isSubclassOf("QQuick3DNode")) {
+            m_active3DScene = find3DSceneRoot(instance);
+            m_active3DView = findView3DForInstance(instance);
+            break;
+        }
     }
 
-    if (m_rootNode) { // If we found a scene we create the edit view
+    if (m_active3DScene) {
         m_editView3D = createEditView3D(engine());
 
-        if (!m_editView3D)
+        if (!m_editView3D) {
+            m_active3DScene = nullptr;
+            m_active3DView = {};
             return;
-
-        QQmlProperty sceneProperty(m_editView3D, "scene", context());
-        m_rootNode->setParent(m_editView3D);
-        sceneProperty.write(objectToVariant(m_rootNode));
-        QQmlProperty parentProperty(m_rootNode, "parent", context());
-        parentProperty.write(objectToVariant(m_editView3D));
-        QQmlProperty showLightProperty(m_editView3D, "showLight", context());
-        showLightProperty.write(showCustomLight);
-
-        m_viewPortInstance = findViewPort(instanceList);
-        if (m_viewPortInstance.internalObject()) {
-            QObject::connect(m_viewPortInstance.internalObject(), SIGNAL(widthChanged()),
-                             this, SLOT(updateViewPortRect()));
-            QObject::connect(m_viewPortInstance.internalObject(), SIGNAL(heightChanged()),
-                             this, SLOT(updateViewPortRect()));
-            updateViewPortRect();
         }
+
+        updateActiveSceneToEditView3D();
 
         createCameraAndLightGizmos(instanceList);
 
@@ -711,17 +807,31 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
         return;
     }
 
+    // Find a scene root of the selection to update active scene shown
     const QVector<qint32> instanceIds = command.instanceIds();
     QVariantList selectedObjs;
+    QObject *firstSceneRoot = nullptr;
+    ServerNodeInstance firstInstance;
     for (qint32 id : instanceIds) {
         if (hasInstanceForId(id)) {
             ServerNodeInstance instance = instanceForId(id);
+            QObject *sceneRoot = find3DSceneRoot(instance);
+            if (!firstSceneRoot && sceneRoot) {
+                firstSceneRoot = sceneRoot;
+                firstInstance = instance;
+            }
             QObject *object = nullptr;
-            if (instance.isSubclassOf("QQuick3DNode"))
+            if (firstSceneRoot && sceneRoot == firstSceneRoot && instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
-            if (object && object != m_rootNode)
+            if (object && (firstSceneRoot != object || instance.isSubclassOf("QQuick3DModel")))
                 selectedObjs << objectToVariant(object);
         }
+    }
+
+    if (firstSceneRoot && m_active3DScene != firstSceneRoot) {
+        m_active3DScene = firstSceneRoot;
+        m_active3DView = findView3DForInstance(firstInstance);
+        updateActiveSceneToEditView3D();
     }
 
     // Ensure the UI has enough selection box items. If it doesn't yet have them, which can be the

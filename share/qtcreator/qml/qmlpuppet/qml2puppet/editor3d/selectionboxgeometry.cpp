@@ -154,8 +154,11 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
             // Explicitly set local transform of root node to target node parent's global transform
             // to avoid having to reparent the selection box. This has to be done directly on render
             // nodes.
-            targetRN->parent->calculateGlobalVariables();
-            QMatrix4x4 m = targetRN->parent->globalTransform;
+            QMatrix4x4 m;
+            if (targetRN->parent) {
+                targetRN->parent->calculateGlobalVariables();
+                m = targetRN->parent->globalTransform;
+            }
             rootRN->localTransform = m;
             rootRN->markDirty(QSSGRenderNode::TransformDirtyFlag::TransformNotDirty);
             rootRN->calculateGlobalVariables();

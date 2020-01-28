@@ -30,6 +30,8 @@ import QtGraphicalEffects 1.12
 Node {
     id: iconGizmo
 
+    property Node activeScene: null
+    property Node scene: null
     property View3D view3D
     property bool highlightOnHover: true
     property Node targetNode: null
@@ -50,7 +52,7 @@ Node {
 
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     rotation: targetNode ? targetNode.sceneRotation : Qt.vector3d(0, 0, 0)
-    visible: targetNode ? targetNode.visible : false
+    visible: activeScene === scene && (targetNode ? targetNode.visible : false)
 
     Overlay2D {
         id: iconOverlay
