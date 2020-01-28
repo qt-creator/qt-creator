@@ -414,7 +414,7 @@ void WelcomeMode::addPage(IWelcomePage *page)
     pageButton->setActiveChecker([this, pageId] { return m_activePage == pageId; });
 
     m_pluginList.insert(idx, page);
-    m_pageButtons.append(pageButton);
+    m_pageButtons.insert(idx, pageButton);
 
     m_sideBar->m_pluginButtons->insertWidget(idx, pageButton);
 
