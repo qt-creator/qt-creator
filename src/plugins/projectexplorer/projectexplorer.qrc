@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/projectexplorer">
-        <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start@2x.png</file>
         <file>images/debugger_beetle_mask.png</file>

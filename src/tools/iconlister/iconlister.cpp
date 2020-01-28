@@ -334,8 +334,6 @@ void IconLister::addProjectExplorerIcons()
 
         {QIcon(":/projectexplorer/images/category_buildrun.png"), "category_buildrun.png", prefix,
          ""},
-        {QIcon(":/projectexplorer/images/closetab.png"), "closetab.png", prefix,
-         ""},
         {QIcon(":/projectexplorer/images/projectexplorer.png"), "projectexplorer.png", prefix,
          ""},
         {QIcon(":/projectexplorer/images/session.png"), "session.png", prefix,
