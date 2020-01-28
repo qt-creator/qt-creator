@@ -75,7 +75,6 @@ def main():
             replaceEditorContent(editor, "")
             typeLines(editor, ["int main() {"])
             invokeMenuItem("File", "Save All")
-            progressBarWait(15000)
             setRunInTerminal(singleTarget, False)
             performDebugging(projectName)
             invokeMenuItem("File", "Close All Projects and Editors")
