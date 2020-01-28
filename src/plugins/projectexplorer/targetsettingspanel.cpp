@@ -405,6 +405,16 @@ public:
             m_project->addTargetForKit(kit);
         });
 
+        QAction * const enableForAllAction
+                = menu->addAction(tr("Enable Kit \"%1\" for All Projects").arg(kitName));
+        enableForAllAction->setEnabled(isSelectable);
+        QObject::connect(enableForAllAction, &QAction::triggered, [kit] {
+            for (Project * const p : SessionManager::projects()) {
+                if (!p->target(kit))
+                    p->addTargetForKit(kit);
+            }
+        });
+
         QAction *disableAction = menu->addAction(tr("Disable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
         disableAction->setEnabled(isSelectable && m_kitId.isValid() && isEnabled());
         QObject::connect(disableAction, &QAction::triggered, m_project, [this] {
@@ -428,6 +438,20 @@ public:
             QCoreApplication::processEvents();
 
             m_project->removeTarget(t);
+        });
+
+        QAction *disableForAllAction
+                = menu->addAction(tr("Disable Kit \"%1\" for All Projects").arg(kitName));
+        disableForAllAction->setEnabled(isSelectable);
+        QObject::connect(disableForAllAction, &QAction::triggered, [kit] {
+            for (Project * const p : SessionManager::projects()) {
+                Target * const t = p->target(kit);
+                if (!t)
+                    continue;
+                if (BuildManager::isBuilding(t))
+                    BuildManager::cancel();
+                p->removeTarget(t);
+            }
         });
 
         QMenu *copyMenu = menu->addMenu(tr("Copy Steps From Another Kit..."));
