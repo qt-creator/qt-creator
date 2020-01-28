@@ -37,9 +37,17 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 1,
+                        "index": 2,
                         "items":
                         [
+                            {
+                                "trKey": "PySide 5.14",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.14",
+                                    "QtQuickWindowVersion": "2.14"
+                                }
+                            },
                             {
                                 "trKey": "PySide 5.13",
                                 "value":
