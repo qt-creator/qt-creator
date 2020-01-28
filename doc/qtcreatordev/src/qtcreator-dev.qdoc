@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -58,9 +58,11 @@
     your own snippets.
 
     \list
-        \li \l{http://doc.qt.io/qtcreator/creator-completing-code.html#editing-code-snippets}
+        \li \l{https://doc.qt.io/qtcreator/creator-completing-code.html#editing-code-snippets}
             {Snippets User Interface}
-        \li \l{Snippets}{Adding Snippets Groups}
+        \omit
+        \li \l{Adding Snippets Groups}
+        \endomit
     \endlist
 
     \section2 File and Project Templates
@@ -69,7 +71,7 @@
     \uicontrol {New File or Project} with your own file and project templates by
     writing JSON definition files for them.
     \list
-        \li \l{http://doc.qt.io/qtcreator/creator-project-wizards.html}
+        \li \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}
             {Adding New Custom Wizards}
         \li \l{User Interface Text Guidelines}
     \endlist
@@ -103,7 +105,7 @@
     extensions and specifying magic headers.
 
     \list
-        \li \l{http://doc.qt.io/qtcreator/creator-mime-types.html}
+        \li \l{https://doc.qt.io/qtcreator/creator-mime-types.html}
             {Editing MIME Types}
         \li \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
             {MIME Type Specification Files}
@@ -118,7 +120,7 @@
     your own definition files.
 
     \list
-        \li \l{http://doc.qt.io/qtcreator/creator-editor-options.html#generic-highlighting}
+        \li \l{https://doc.qt.io/qtcreator/creator-highlighting.html#generic-highlighting}
             {Generic Highlighting}
         \li \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
             {Writing a Syntax Highlighting File}
@@ -136,8 +138,10 @@
     \list
         \li \l{Creating Plugins}
         \li \l{Qt Creator Coding Rules}
-        \li \l{Text Editors}
-        \li \l{CodeAssist} {Providing Code Assist}
+        \omit
+        \li Text Editors
+        \endomit
+        \li \l{CodeAssist}{Providing Code Assist}
     \endlist
 
     \section2 Other Custom Editors
@@ -148,7 +152,9 @@
     \list
         \li \l{Creating Plugins}
         \li \l{Qt Creator Coding Rules}
+        \omit
         \li \l{Editors}
+        \endomit
     \endlist
 
     \section1 Running External Tools
@@ -172,7 +178,7 @@
     can share.
 
     \list
-        \li \l{http://doc.qt.io/qtcreator/creator-editor-external.html}
+        \li \l{https://doc.qt.io/qtcreator/creator-editor-external.html}
             {Using External Tools}
         \li \l{External Tool Specification Files}
     \endlist
@@ -197,12 +203,14 @@
     configure the tool in \QC, you can add an \uicontrol Options page for it.
 
     \list
-        \li \l{http://doc.qt.io/qtcreator/creator-editor-external.html}{Using External Tools}
+        \li \l{https://doc.qt.io/qtcreator/creator-editor-external.html}{Using External Tools}
         \li \l{External Tool Specification Files}
         \li \l{Creating Plugins}
         \li \l{Qt Creator Coding Rules}
+        \omit
         \li \l{Menus and Menu Items}
         \li \l{Options Pages}
+        \endomit
     \endlist
 
     \section3 Interacting with Tool Output
@@ -220,14 +228,16 @@
     which are shown in the \uicontrol Issues output pane.
 
     \list
-        \li \l{http://doc.qt.io/qtcreator/creator-task-lists.html}
+        \li \l{https://doc.qt.io/qtcreator/creator-task-lists.html}
             {Showing Task List Files in the Issues Pane}
         \li \l{Creating Plugins}
         \li \l{Qt Creator Coding Rules}
+        \omit
         \li \l{Menus and Menu Items}
         \li \l{Options Pages}
         \li \l{Editors}
-    \endlist
+        \endomit
+        \endlist
 
     \section1 All Topics
 
@@ -235,11 +245,15 @@
         \li \l{Developing Qt Creator Plugins}
             \list
                 \li \l{Creating Plugins}
+                \omit
                 \li \l{Menus and Menu Items}
+                \endomit
                 \li \l{Creating Wizards in Code}
+                \omit
                 \li \l{Editors}
                 \li \l{Text Editors}
                 \li \l{Options Pages}
+                \endomit
             \endlist
         \li Reference
             \list
@@ -248,7 +262,8 @@
                 \li \l{External Tool Specification Files}
                 \li \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
                     {Highlight Definition Files}
-                \li \l{Qt Creator Variables}
+                \li \l{https://doc.qt.io/qtcreator/creator-build-settings.html#using-qt-creator-variables}
+                    {Qt Creator Variables}
                 \li \l{User Interface Text Guidelines}
                 \li \l{Writing Documentation}
                 \li \l{Qt Creator Coding Rules}

@@ -63,6 +63,7 @@
 
     \list
         \li \l{The Plugin Manager, the Object Pool, and Registered Objects}
+    \omit
         \li \l{Aggregations}
         \li \l{Extending and Providing Interfaces}
     \endlist
@@ -72,5 +73,6 @@
     \list
         \li \l{A Note on Binary Compatibility}
         \li \l{Creating User-Installable Plugins}
+    \endomit
     \endlist
 */
