@@ -123,28 +123,36 @@ void QmlJsEditingSettings::setAutoFormatOnlyCurrentProject(const bool autoFormat
     m_autoFormatOnlyCurrentProject = autoFormatOnlyCurrentProject;
 }
 
-QmlJsEditingSettignsPageWidget::QmlJsEditingSettignsPageWidget()
+class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 {
-    m_ui.setupUi(this);
-}
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::QmlJsEditingSettingsPage)
 
-QmlJsEditingSettings QmlJsEditingSettignsPageWidget::settings() const
-{
-    QmlJsEditingSettings s;
-    s.setEnableContextPane(m_ui.textEditHelperCheckBox->isChecked());
-    s.setPinContextPane(m_ui.textEditHelperCheckBoxPin->isChecked());
-    s.setAutoFormatOnSave(m_ui.autoFormatOnSave->isChecked());
-    s.setAutoFormatOnlyCurrentProject(m_ui.autoFormatOnlyCurrentProject->isChecked());
-    return s;
-}
+public:
+    QmlJsEditingSettingsPageWidget()
+    {
+        m_ui.setupUi(this);
 
-void QmlJsEditingSettignsPageWidget::setSettings(const QmlJsEditingSettings &s)
-{
-    m_ui.textEditHelperCheckBox->setChecked(s.enableContextPane());
-    m_ui.textEditHelperCheckBoxPin->setChecked(s.pinContextPane());
-    m_ui.autoFormatOnSave->setChecked(s.autoFormatOnSave());
-    m_ui.autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
-}
+        auto s = QmlJsEditingSettings::get();
+        m_ui.textEditHelperCheckBox->setChecked(s.enableContextPane());
+        m_ui.textEditHelperCheckBoxPin->setChecked(s.pinContextPane());
+        m_ui.autoFormatOnSave->setChecked(s.autoFormatOnSave());
+        m_ui.autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
+    }
+
+    void apply() final
+    {
+        QmlJsEditingSettings s;
+        s.setEnableContextPane(m_ui.textEditHelperCheckBox->isChecked());
+        s.setPinContextPane(m_ui.textEditHelperCheckBoxPin->isChecked());
+        s.setAutoFormatOnSave(m_ui.autoFormatOnSave->isChecked());
+        s.setAutoFormatOnlyCurrentProject(m_ui.autoFormatOnlyCurrentProject->isChecked());
+        s.set();
+    }
+
+private:
+    Ui::QmlJsEditingSettingsPage m_ui;
+};
+
 
 QmlJsEditingSettings QmlJsEditingSettings::get()
 {
@@ -156,27 +164,8 @@ QmlJsEditingSettings QmlJsEditingSettings::get()
 QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
 {
     setId("C.QmlJsEditing");
-    setDisplayName(tr("QML/JS Editing"));
+    setDisplayName(QmlJsEditingSettingsPageWidget::tr("QML/JS Editing"));
     setCategory(Constants::SETTINGS_CATEGORY_QML);
+    setWidgetCreator([] { return new QmlJsEditingSettingsPageWidget; });
 }
 
-QWidget *QmlJsEditingSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new QmlJsEditingSettignsPageWidget;
-        m_widget->setSettings(QmlJsEditingSettings::get());
-    }
-    return m_widget;
-}
-
-void QmlJsEditingSettingsPage::apply()
-{
-    if (!m_widget) // page was never shown
-        return;
-    m_widget->settings().set();
-}
-
-void QmlJsEditingSettingsPage::finish()
-{
-    delete m_widget;
-}
