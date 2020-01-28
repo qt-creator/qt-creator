@@ -15,5 +15,5 @@ add_qtc_plugin(Bazaar
     optionspage.cpp optionspage.h optionspage.ui
     pullorpushdialog.cpp pullorpushdialog.h pullorpushdialog.ui
     revertdialog.ui
-    uncommitdialog.cpp uncommitdialog.h uncommitdialog.ui
+    uncommitdialog.ui
 )

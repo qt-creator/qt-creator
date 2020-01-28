@@ -42,13 +42,13 @@ class OptionsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::OptionsPageWidget)
 
 public:
-    OptionsPageWidget(Core::IVersionControl *control, BazaarSettings *settings);
+    OptionsPageWidget(const std::function<void()> &onApply, BazaarSettings *settings);
 
     void apply() final;
 
 private:
     Ui::OptionsPage m_ui;
-    Core::IVersionControl *m_control;
+    const std::function<void()> m_onApply;
     BazaarSettings *m_settings;
 };
 
@@ -65,11 +65,11 @@ void OptionsPageWidget::apply()
         return;
 
     *m_settings = s;
-    emit m_control->configurationChanged();
+    m_onApply();
 }
 
-OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control, BazaarSettings *settings)
-    : m_control(control), m_settings(settings)
+OptionsPageWidget::OptionsPageWidget(const std::function<void(void)> &onApply, BazaarSettings *settings)
+    : m_onApply(onApply), m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
@@ -83,12 +83,11 @@ OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control, BazaarSetti
     m_ui.timeout->setValue(m_settings->intValue(BazaarSettings::timeoutKey));
 }
 
-OptionsPage::OptionsPage(Core::IVersionControl *control, BazaarSettings *settings, QObject *parent) :
-    Core::IOptionsPage(parent)
+OptionsPage::OptionsPage(const std::function<void(void)> &onApply, BazaarSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(OptionsPageWidget::tr("Bazaar"));
-    setWidgetCreator([control, settings] { return new OptionsPageWidget(control, settings); });
+    setWidgetCreator([onApply, settings] { return new OptionsPageWidget(onApply, settings); });
     setCategory(Constants::VCS_SETTINGS_CATEGORY);
 }
 

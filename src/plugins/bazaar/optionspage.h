@@ -27,8 +27,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Core { class IVersionControl; }
-
 namespace Bazaar {
 namespace Internal {
 
@@ -37,7 +35,7 @@ class BazaarSettings;
 class OptionsPage final : public Core::IOptionsPage
 {
 public:
-    OptionsPage(Core::IVersionControl *control, BazaarSettings *settings, QObject *parent);
+    OptionsPage(const std::function<void()> &onApply, BazaarSettings *settings);
 };
 
 } // namespace Internal

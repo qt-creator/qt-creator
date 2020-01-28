@@ -10,8 +10,8 @@ SOURCES += \
     bazaareditor.cpp \
     annotationhighlighter.cpp \
     pullorpushdialog.cpp \
-    branchinfo.cpp \
-    uncommitdialog.cpp
+    branchinfo.cpp
+
 HEADERS += \
     bazaarclient.h \
     constants.h \
@@ -24,8 +24,8 @@ HEADERS += \
     bazaareditor.h \
     annotationhighlighter.h \
     pullorpushdialog.h \
-    branchinfo.h \
-    uncommitdialog.h
+    branchinfo.h
+
 FORMS += \
     optionspage.ui \
     revertdialog.ui \
