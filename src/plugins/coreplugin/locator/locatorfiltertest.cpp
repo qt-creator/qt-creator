@@ -95,9 +95,9 @@ void ResultData::printFilterEntries(const ResultData::ResultDataList &entries, c
 {
     QTextStream out(stdout);
     if (!msg.isEmpty())
-        out << msg << endl;
+        out << msg << '\n';
     for (const ResultData &entry : entries) {
         out << "<< ResultData(_(\"" << entry.textColumn1 << "\"), _(\"" << entry.textColumn2
-            <<  "\"))" << endl;
+            <<  "\"))\n";
     }
 }

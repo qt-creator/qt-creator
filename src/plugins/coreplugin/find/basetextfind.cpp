@@ -140,7 +140,7 @@ void BaseTextFind::resetIncrementalSearch()
 
 void BaseTextFind::clearHighlights()
 {
-    highlightAll(QString(), nullptr);
+    highlightAll(QString(), {});
 }
 
 QString BaseTextFind::currentFindString() const
@@ -191,7 +191,7 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags
     if (found)
         highlightAll(txt, findFlags);
     else
-        highlightAll(QString(), nullptr);
+        highlightAll(QString(), {});
     return found ? Found : NotFound;
 }
 
