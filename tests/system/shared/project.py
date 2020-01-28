@@ -247,7 +247,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
         expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, pro_file]))
     __createProjectHandleLastPage__(expectedFiles, addToVersionControl)
 
-    progressBarWait(20000)
+    waitForProjectParsing()
     if checks:
         __verifyFileCreation__(path, expectedFiles)
 
@@ -273,7 +273,7 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
         expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, pro_file]))
     __createProjectHandleLastPage__(expectedFiles)
 
-    progressBarWait(10000)
+    waitForProjectParsing()
     if checks:
         __verifyFileCreation__(path, expectedFiles)
 
@@ -292,7 +292,7 @@ def createNewQtQuickApplication(workingDir, projectName=None,
     if len(checkedTargets):
         clickButton(waitForObject(":Next_QPushButton"))
         __createProjectHandleLastPage__()
-        progressBarWait(10000)
+        waitForProjectParsing()
     else:
         clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
 
@@ -310,7 +310,7 @@ def createNewQtQuickUI(workingDir, qtVersion = "5.6"):
     if len(checkedTargets):
         clickButton(waitForObject(":Next_QPushButton"))
         __createProjectHandleLastPage__()
-        progressBarWait(10000)
+        waitForProjectParsing(codemodelParsingTimeout=0)
     else:
         clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
 
