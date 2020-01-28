@@ -473,18 +473,16 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     }
 
 #ifndef QMLDESIGNER_TEST
-    AbstractView *view = nullptr;
-    view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
+    auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
     view->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
 
+    // set env var and aux data if 3d-view is enabled
     QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick3D", "1.0");
-    bool view3DEnabled = false;
-
-    if (m_model->hasImport(import, true, true))
-        view3DEnabled = view->rootModelNode().hasAuxiliaryData("3d-view");
-
-    if (view3DEnabled)
+    if (m_model->hasImport(import, true, true)
+        && DesignerSettings::getValue(DesignerSettingsKey::VIEW_3D_ACTIVE).toBool()) {
+        view->rootModelNode().setAuxiliaryData("3d-view", true);
         environment.set("QMLDESIGNER_QUICK3D_MODE", "true");
+     }
 #endif
 
     QStringList importPaths = m_model->importPaths();

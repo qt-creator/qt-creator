@@ -58,6 +58,7 @@ public:
     QAction *showBoundingRectAction() const;
     QAction *snappingAction() const;
     QAction *snappingAndAnchoringAction() const;
+    QAction *resetAction() const;
 
     void setScene(FormEditorScene *scene);
     ToolBox *toolBox() const;
@@ -97,9 +98,7 @@ private:
     void changeRootItemWidth(const QString &widthText);
     void changeRootItemHeight(const QString &heightText);
     void changeBackgound(const QColor &color);
-    void resetNodeInstanceView();
 
-private:
     QPointer<FormEditorView> m_formEditorView;
     QPointer<FormEditorGraphicsView> m_graphicsView;
     QPointer<ZoomAction> m_zoomAction;

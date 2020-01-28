@@ -41,7 +41,6 @@ public:
 
 signals:
     void enabledChanged(bool enabled);
-    void activated();
 
 protected:
     QWidget *createWidget(QWidget *parent) override;

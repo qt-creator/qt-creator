@@ -37,8 +37,11 @@ Option3DAction::Option3DAction(QObject *parent) :
 
 void Option3DAction::set3DEnabled(bool enabled)
 {
-    if (m_comboBox)
+    if (m_comboBox) {
+        m_comboBox->blockSignals(true);
         m_comboBox->setCurrentIndex(enabled ? 1 : 0);
+        m_comboBox->blockSignals(false);
+    }
 }
 
 QWidget *Option3DAction::createWidget(QWidget *parent)
@@ -50,17 +53,13 @@ QWidget *Option3DAction::createWidget(QWidget *parent)
     m_comboBox->addItem(tr("2D/3D"));
 
     m_comboBox->setCurrentIndex(0);
-    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this](){
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {
         emit enabledChanged(m_comboBox->currentIndex() != 0);
-    });
-    connect(m_comboBox, QOverload<int>::of(&QComboBox::activated),
-            this, [this](){
-        emit activated();
     });
 
     m_comboBox->setProperty("hideborder", true);
     m_comboBox->setToolTip(tr("Enable/Disable 3D edit mode."));
+
     return m_comboBox;
 }
 

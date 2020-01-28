@@ -121,22 +121,20 @@ public:
 
     void exportAsImage();
 
-    void toggle3DViewEnabled(bool enabled);
-    void setupOption3DAction();
-
 protected:
     void reset();
     void delayedReset();
     bool isMoveToolAvailable() const;
 
-private: //functions
+private:
     void setupFormEditorItemTree(const QmlItemNode &qmlItemNode);
     void removeNodeFromScene(const QmlItemNode &qmlItemNode);
     void hideNodeFromScene(const QmlItemNode &qmlItemNode);
     void createFormEditorWidget();
     void temporaryBlockView();
+    void resetNodeInstanceView();
+    void toggle3DViewEnabled(bool enabled);
 
-private: //variables
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;
     QList<AbstractCustomTool*> m_customToolList;

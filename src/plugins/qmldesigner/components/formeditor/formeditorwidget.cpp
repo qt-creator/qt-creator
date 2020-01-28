@@ -148,10 +148,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     addAction(m_option3DAction.data());
     upperActions.append(m_option3DAction.data());
     m_toolBox->addRightSideAction(m_option3DAction.data());
-    connect(m_option3DAction.data(), &Option3DAction::enabledChanged,
-            m_formEditorView.data(), &FormEditorView::toggle3DViewEnabled);
-    connect(m_option3DAction.data(), &Option3DAction::activated,
-            this, &FormEditorWidget::resetNodeInstanceView);
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,
@@ -164,7 +160,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_resetAction->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
-    connect(m_resetAction.data(), &QAction::triggered, this, &FormEditorWidget::resetNodeInstanceView);
+
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());
     m_toolBox->addRightSideAction(m_resetAction.data());
@@ -207,12 +203,6 @@ void FormEditorWidget::changeBackgound(const QColor &color)
         m_graphicsView->activateCheckboardBackground();
     else
         m_graphicsView->activateColoredBackground(color);
-}
-
-void FormEditorWidget::resetNodeInstanceView()
-{
-    m_formEditorView->setCurrentStateNode(m_formEditorView->rootModelNode());
-    m_formEditorView->resetPuppet();
 }
 
 void FormEditorWidget::wheelEvent(QWheelEvent *event)
@@ -297,6 +287,11 @@ ZoomAction *FormEditorWidget::zoomAction() const
 Option3DAction *FormEditorWidget::option3DAction() const
 {
     return m_option3DAction.data();
+}
+
+QAction *FormEditorWidget::resetAction() const
+{
+    return m_resetAction.data();
 }
 
 QAction *FormEditorWidget::showBoundingRectAction() const
