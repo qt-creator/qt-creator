@@ -178,8 +178,6 @@ Project {
                 "textdocument.h",
                 "themechooser.cpp",
                 "themechooser.h",
-                "toolsettings.cpp",
-                "toolsettings.h",
                 "variablechooser.cpp",
                 "variablechooser.h",
                 "vcsmanager.cpp",

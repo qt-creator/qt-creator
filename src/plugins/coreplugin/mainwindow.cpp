@@ -27,7 +27,6 @@
 
 #include "icore.h"
 #include "jsexpander.h"
-#include "toolsettings.h"
 #include "mimetypesettings.h"
 #include "fancytabwidget.h"
 #include "documentmanager.h"
@@ -56,6 +55,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actionmanager_p.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/dialogs/externaltoolconfig.h>
 #include <coreplugin/dialogs/newdialog.h>
 #include <coreplugin/dialogs/shortcutsettings.h>
 #include <coreplugin/editormanager/editormanager.h>

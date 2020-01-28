@@ -88,7 +88,6 @@ SOURCES += corejsextensions.cpp \
     externaltool.cpp \
     dialogs/externaltoolconfig.cpp \
     dialogs/filepropertiesdialog.cpp \
-    toolsettings.cpp \
     variablechooser.cpp \
     mimetypemagicdialog.cpp \
     mimetypesettings.cpp \
@@ -204,7 +203,6 @@ HEADERS += corejsextensions.h \
     externaltool.h \
     dialogs/externaltoolconfig.h \
     dialogs/filepropertiesdialog.h \
-    toolsettings.h \
     variablechooser.h \
     mimetypemagicdialog.h \
     mimetypesettings.h \

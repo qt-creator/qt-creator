@@ -25,92 +25,16 @@
 
 #pragma once
 
-#include "../externaltool.h"
-
-#include <utils/environmentfwd.h>
-
-#include <QAbstractItemModel>
-#include <QDialog>
-#include <QWidget>
-
-QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
+#include "ioptionspage.h"
 
 namespace Core {
 namespace Internal {
 
-namespace Ui { class ExternalToolConfig; }
-
-class ExternalToolModel : public QAbstractItemModel
+class ToolSettings final : public IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit ExternalToolModel(QObject *parent);
-    ~ExternalToolModel() override;
-
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    Qt::ItemFlags flags(const QModelIndex &modelIndex) const override;
-    bool setData(const QModelIndex &modelIndex, const QVariant &value, int role = Qt::EditRole) override;
-
-    QMimeData *mimeData(const QModelIndexList &indexes) const override;
-    bool dropMimeData(const QMimeData *data,
-                      Qt::DropAction action,
-                      int row,
-                      int column,
-                      const QModelIndex &parent) override;
-    QStringList mimeTypes() const override;
-
-    void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
-    QMap<QString, QList<ExternalTool *> > tools() const;
-
-    ExternalTool *toolForIndex(const QModelIndex &modelIndex) const;
-    QString categoryForIndex(const QModelIndex &modelIndex, bool *found) const;
-    void revertTool(const QModelIndex &modelIndex);
-    QModelIndex addCategory();
-    QModelIndex addTool(const QModelIndex &atIndex);
-    void removeTool(const QModelIndex &modelIndex);
-    Qt::DropActions supportedDropActions() const override;
-private:
-    QVariant data(ExternalTool *tool, int role = Qt::DisplayRole) const;
-    QVariant data(const QString &category, int role = Qt::DisplayRole) const;
-
-    QMap<QString, QList<ExternalTool *> > m_tools;
-};
-
-class ExternalToolConfig : public QWidget
-{
-    Q_OBJECT
-
-public:
-    ExternalToolConfig();
-    ~ExternalToolConfig() override;
-
-    void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
-    QMap<QString, QList<ExternalTool *> > tools() const;
-    void apply();
-
-private:
-    void handleCurrentChanged(const QModelIndex &now, const QModelIndex &previous);
-    void showInfoForItem(const QModelIndex &index);
-    void updateItem(const QModelIndex &index);
-    void revertCurrentItem();
-    void updateButtons(const QModelIndex &index);
-    void updateCurrentItem();
-    void addTool();
-    void removeTool();
-    void addCategory();
-    void updateEffectiveArguments();
-    void editEnvironmentChanges();
-    void updateEnvironmentLabel();
-
-    Ui::ExternalToolConfig *ui;
-    Utils::EnvironmentItems m_environment;
-    ExternalToolModel *m_model;
+    ToolSettings();
 };
 
 } // Internal
-} // namespace Core
+} // Core

@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "externaltoolconfig.h"
+
+#include "ioptionspage.h"
 #include "ui_externaltoolconfig.h"
 
 #include <utils/algorithm.h>
@@ -36,35 +38,74 @@
 #include <utils/qtcprocess.h>
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/externaltool.h>
+#include <coreplugin/externaltoolmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 
 #include <QDialogButtonBox>
+#include <QDir>
+#include <QFileInfo>
 #include <QMenu>
 #include <QMimeData>
 #include <QPlainTextEdit>
 #include <QTextStream>
 
-using namespace Core;
-using namespace Core::Internal;
+using namespace Utils;
 
-static const Qt::ItemFlags TOOLSMENU_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
-static const Qt::ItemFlags CATEGORY_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
-static const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
+namespace Core {
+namespace Internal {
 
-ExternalToolModel::ExternalToolModel(QObject *parent)
-    : QAbstractItemModel(parent)
+const Qt::ItemFlags TOOLSMENU_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+const Qt::ItemFlags CATEGORY_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
+const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
+
+class ExternalToolModel final : public QAbstractItemModel
 {
-}
+    Q_DECLARE_TR_FUNCTIONS(Core::ExternalToolConfig)
+
+public:
+    ExternalToolModel() = default;
+    ~ExternalToolModel() final;
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    Qt::ItemFlags flags(const QModelIndex &modelIndex) const override;
+    bool setData(const QModelIndex &modelIndex, const QVariant &value, int role = Qt::EditRole) override;
+
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
+    bool dropMimeData(const QMimeData *data,
+                      Qt::DropAction action,
+                      int row,
+                      int column,
+                      const QModelIndex &parent) override;
+    QStringList mimeTypes() const override;
+
+    void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
+    QMap<QString, QList<ExternalTool *> > tools() const { return m_tools; }
+
+    ExternalTool *toolForIndex(const QModelIndex &modelIndex) const;
+    QString categoryForIndex(const QModelIndex &modelIndex, bool *found) const;
+    void revertTool(const QModelIndex &modelIndex);
+    QModelIndex addCategory();
+    QModelIndex addTool(const QModelIndex &atIndex);
+    void removeTool(const QModelIndex &modelIndex);
+    Qt::DropActions supportedDropActions() const override { return Qt::MoveAction; }
+
+private:
+    QVariant data(ExternalTool *tool, int role = Qt::DisplayRole) const;
+    QVariant data(const QString &category, int role = Qt::DisplayRole) const;
+
+    QMap<QString, QList<ExternalTool *> > m_tools;
+};
 
 ExternalToolModel::~ExternalToolModel()
 {
     for (QList<ExternalTool *> &toolInCategory : m_tools)
         qDeleteAll(toolInCategory);
-}
-
-Qt::DropActions ExternalToolModel::supportedDropActions() const
-{
-    return Qt::MoveAction;
 }
 
 int ExternalToolModel::columnCount(const QModelIndex &parent) const
@@ -273,11 +314,6 @@ void ExternalToolModel::setTools(const QMap<QString, QList<ExternalTool *> > &to
     endResetModel();
 }
 
-QMap<QString, QList<ExternalTool *> > ExternalToolModel::tools() const
-{
-    return m_tools;
-}
-
 ExternalTool *ExternalToolModel::toolForIndex(const QModelIndex &index) const
 {
     return static_cast<ExternalTool *>(index.internalPointer());
@@ -341,7 +377,7 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
     tool->setDescription(tr("This tool prints a line of useful text"));
     //: Sample external tool text
     const QString text = tr("Useful text");
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         tool->setExecutables({"cmd"});
         tool->setArguments("/c echo " + text);
     } else {
@@ -388,64 +424,93 @@ static void fillBaseEnvironmentComboBox(QComboBox *box)
 {
     box->clear();
     box->addItem(ExternalTool::tr("System Environment"), QByteArray());
-    for (const Utils::EnvironmentProvider &provider : Utils::EnvironmentProvider::providers())
+    for (const EnvironmentProvider &provider : EnvironmentProvider::providers())
         box->addItem(provider.displayName, Id::fromName(provider.id).toSetting());
 }
 
-ExternalToolConfig::ExternalToolConfig() :
-    ui(new Ui::ExternalToolConfig),
-    m_model(new ExternalToolModel(this))
+class ExternalToolConfig final : public IOptionsPageWidget
 {
-    ui->setupUi(this);
-    ui->executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui->scrollArea->viewport()->setAutoFillBackground(false);
-    ui->scrollAreaWidgetContents->setAutoFillBackground(false);
-    ui->toolTree->setModel(m_model);
-    ui->toolTree->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+    Q_DECLARE_TR_FUNCTIONS(Core::ExternalToolConfig)
 
-    connect(ui->toolTree->selectionModel(), &QItemSelectionModel::currentChanged,
+public:
+    ExternalToolConfig();
+
+    void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
+    QMap<QString, QList<ExternalTool *> > tools() const { return m_model.tools(); }
+
+    void apply() final;
+
+private:
+    void handleCurrentChanged(const QModelIndex &now, const QModelIndex &previous);
+    void showInfoForItem(const QModelIndex &index);
+    void updateItem(const QModelIndex &index);
+    void revertCurrentItem();
+    void updateButtons(const QModelIndex &index);
+    void updateCurrentItem();
+    void addTool();
+    void removeTool();
+    void addCategory();
+    void updateEffectiveArguments();
+    void editEnvironmentChanges();
+    void updateEnvironmentLabel();
+
+    Ui::ExternalToolConfig m_ui;
+    EnvironmentItems m_environment;
+    ExternalToolModel m_model;
+};
+
+ExternalToolConfig::ExternalToolConfig()
+{
+    m_ui.setupUi(this);
+    m_ui.executable->setExpectedKind(PathChooser::ExistingCommand);
+    m_ui.scrollArea->viewport()->setAutoFillBackground(false);
+    m_ui.scrollAreaWidgetContents->setAutoFillBackground(false);
+    m_ui.toolTree->setModel(&m_model);
+    m_ui.toolTree->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+
+    connect(m_ui.toolTree->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &ExternalToolConfig::handleCurrentChanged);
 
     auto chooser = new VariableChooser(this);
-    chooser->addSupportedWidget(ui->executable->lineEdit());
-    chooser->addSupportedWidget(ui->arguments);
-    chooser->addSupportedWidget(ui->workingDirectory->lineEdit());
-    chooser->addSupportedWidget(ui->inputText);
+    chooser->addSupportedWidget(m_ui.executable->lineEdit());
+    chooser->addSupportedWidget(m_ui.arguments);
+    chooser->addSupportedWidget(m_ui.workingDirectory->lineEdit());
+    chooser->addSupportedWidget(m_ui.inputText);
 
-    fillBaseEnvironmentComboBox(ui->baseEnvironment);
+    fillBaseEnvironmentComboBox(m_ui.baseEnvironment);
 
-    connect(ui->description, &QLineEdit::editingFinished,
+    connect(m_ui.description, &QLineEdit::editingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->executable, &Utils::PathChooser::editingFinished,
+    connect(m_ui.executable, &PathChooser::editingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->executable, &Utils::PathChooser::browsingFinished,
+    connect(m_ui.executable, &PathChooser::browsingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->arguments, &QLineEdit::editingFinished,
+    connect(m_ui.arguments, &QLineEdit::editingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->arguments, &QLineEdit::editingFinished,
+    connect(m_ui.arguments, &QLineEdit::editingFinished,
             this, &ExternalToolConfig::updateEffectiveArguments);
-    connect(ui->workingDirectory, &Utils::PathChooser::editingFinished,
+    connect(m_ui.workingDirectory, &PathChooser::editingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->workingDirectory, &Utils::PathChooser::browsingFinished,
+    connect(m_ui.workingDirectory, &PathChooser::browsingFinished,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->environmentButton, &QAbstractButton::clicked,
+    connect(m_ui.environmentButton, &QAbstractButton::clicked,
             this, &ExternalToolConfig::editEnvironmentChanges);
-    connect(ui->outputBehavior, QOverload<int>::of(&QComboBox::activated),
+    connect(m_ui.outputBehavior, QOverload<int>::of(&QComboBox::activated),
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->errorOutputBehavior, QOverload<int>::of(&QComboBox::activated),
+    connect(m_ui.errorOutputBehavior, QOverload<int>::of(&QComboBox::activated),
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->modifiesDocumentCheckbox, &QAbstractButton::clicked,
+    connect(m_ui.modifiesDocumentCheckbox, &QAbstractButton::clicked,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(ui->inputText, &QPlainTextEdit::textChanged,
+    connect(m_ui.inputText, &QPlainTextEdit::textChanged,
             this, &ExternalToolConfig::updateCurrentItem);
 
-    connect(ui->revertButton, &QAbstractButton::clicked,
+    connect(m_ui.revertButton, &QAbstractButton::clicked,
             this, &ExternalToolConfig::revertCurrentItem);
-    connect(ui->removeButton, &QAbstractButton::clicked,
+    connect(m_ui.removeButton, &QAbstractButton::clicked,
             this, &ExternalToolConfig::removeTool);
 
-    auto menu = new QMenu(ui->addButton);
-    ui->addButton->setMenu(menu);
+    auto menu = new QMenu(m_ui.addButton);
+    m_ui.addButton->setMenu(menu);
     auto addTool = new QAction(tr("Add Tool"), this);
     menu->addAction(addTool);
     connect(addTool, &QAction::triggered, this, &ExternalToolConfig::addTool);
@@ -454,11 +519,8 @@ ExternalToolConfig::ExternalToolConfig() :
     connect(addCategory, &QAction::triggered, this, &ExternalToolConfig::addCategory);
 
     showInfoForItem(QModelIndex());
-}
 
-ExternalToolConfig::~ExternalToolConfig()
-{
-    delete ui;
+    setTools(ExternalToolManager::toolsByCategory());
 }
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
@@ -472,8 +534,8 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
     }
     if (!toolsCopy.contains(QString()))
         toolsCopy.insert(QString(), QList<ExternalTool *>());
-    m_model->setTools(toolsCopy);
-    ui->toolTree->expandAll();
+    m_model.setTools(toolsCopy);
+    m_ui.toolTree->expandAll();
 }
 
 void ExternalToolConfig::handleCurrentChanged(const QModelIndex &now, const QModelIndex &previous)
@@ -484,145 +546,265 @@ void ExternalToolConfig::handleCurrentChanged(const QModelIndex &now, const QMod
 
 void ExternalToolConfig::updateButtons(const QModelIndex &index)
 {
-    ExternalTool *tool = m_model->toolForIndex(index);
+    ExternalTool *tool = m_model.toolForIndex(index);
     if (!tool) {
-        ui->removeButton->setEnabled(false);
-        ui->revertButton->setEnabled(false);
+        m_ui.removeButton->setEnabled(false);
+        m_ui.revertButton->setEnabled(false);
         return;
     }
     if (!tool->preset()) {
-        ui->removeButton->setEnabled(true);
-        ui->revertButton->setEnabled(false);
+        m_ui.removeButton->setEnabled(true);
+        m_ui.revertButton->setEnabled(false);
     } else {
-        ui->removeButton->setEnabled(false);
-        ui->revertButton->setEnabled((*tool) != (*(tool->preset())));
+        m_ui.removeButton->setEnabled(false);
+        m_ui.revertButton->setEnabled((*tool) != (*(tool->preset())));
     }
 }
 
 void ExternalToolConfig::updateCurrentItem()
 {
-    QModelIndex index = ui->toolTree->selectionModel()->currentIndex();
+    const QModelIndex index = m_ui.toolTree->selectionModel()->currentIndex();
     updateItem(index);
     updateButtons(index);
 }
 
 void ExternalToolConfig::updateItem(const QModelIndex &index)
 {
-    ExternalTool *tool = m_model->toolForIndex(index);
+    ExternalTool *tool = m_model.toolForIndex(index);
     if (!tool)
         return;
-    tool->setDescription(ui->description->text());
+    tool->setDescription(m_ui.description->text());
     QStringList executables = tool->executables();
     if (executables.size() > 0)
-        executables[0] = ui->executable->rawPath();
+        executables[0] = m_ui.executable->rawPath();
     else
-        executables << ui->executable->rawPath();
+        executables << m_ui.executable->rawPath();
     tool->setExecutables(executables);
-    tool->setArguments(ui->arguments->text());
-    tool->setWorkingDirectory(ui->workingDirectory->rawPath());
-    tool->setBaseEnvironmentProviderId(Id::fromSetting(ui->baseEnvironment->currentData()));
+    tool->setArguments(m_ui.arguments->text());
+    tool->setWorkingDirectory(m_ui.workingDirectory->rawPath());
+    tool->setBaseEnvironmentProviderId(Id::fromSetting(m_ui.baseEnvironment->currentData()));
     tool->setEnvironmentUserChanges(m_environment);
-    tool->setOutputHandling(ExternalTool::OutputHandling(ui->outputBehavior->currentIndex()));
-    tool->setErrorHandling(ExternalTool::OutputHandling(ui->errorOutputBehavior->currentIndex()));
-    tool->setModifiesCurrentDocument(ui->modifiesDocumentCheckbox->checkState());
-    tool->setInput(ui->inputText->toPlainText());
+    tool->setOutputHandling(ExternalTool::OutputHandling(m_ui.outputBehavior->currentIndex()));
+    tool->setErrorHandling(ExternalTool::OutputHandling(m_ui.errorOutputBehavior->currentIndex()));
+    tool->setModifiesCurrentDocument(m_ui.modifiesDocumentCheckbox->checkState());
+    tool->setInput(m_ui.inputText->toPlainText());
 }
 
 void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 {
     updateButtons(index);
-    ExternalTool *tool = m_model->toolForIndex(index);
+    ExternalTool *tool = m_model.toolForIndex(index);
     if (!tool) {
-        ui->description->clear();
-        ui->executable->setPath(QString());
-        ui->arguments->clear();
-        ui->workingDirectory->setPath(QString());
-        ui->inputText->clear();
-        ui->infoWidget->setEnabled(false);
+        m_ui.description->clear();
+        m_ui.executable->setPath(QString());
+        m_ui.arguments->clear();
+        m_ui.workingDirectory->setPath(QString());
+        m_ui.inputText->clear();
+        m_ui.infoWidget->setEnabled(false);
         m_environment.clear();
         return;
     }
-    ui->infoWidget->setEnabled(true);
-    ui->description->setText(tool->description());
-    ui->executable->setPath(tool->executables().isEmpty() ? QString()
+    m_ui.infoWidget->setEnabled(true);
+    m_ui.description->setText(tool->description());
+    m_ui.executable->setPath(tool->executables().isEmpty() ? QString()
                                                           : tool->executables().constFirst());
-    ui->arguments->setText(tool->arguments());
-    ui->workingDirectory->setPath(tool->workingDirectory());
-    ui->outputBehavior->setCurrentIndex(int(tool->outputHandling()));
-    ui->errorOutputBehavior->setCurrentIndex(int(tool->errorHandling()));
-    ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
-    const int baseEnvironmentIndex = ui->baseEnvironment->findData(
+    m_ui.arguments->setText(tool->arguments());
+    m_ui.workingDirectory->setPath(tool->workingDirectory());
+    m_ui.outputBehavior->setCurrentIndex(int(tool->outputHandling()));
+    m_ui.errorOutputBehavior->setCurrentIndex(int(tool->errorHandling()));
+    m_ui.modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
+    const int baseEnvironmentIndex = m_ui.baseEnvironment->findData(
         tool->baseEnvironmentProviderId().toSetting());
-    ui->baseEnvironment->setCurrentIndex(std::max(0, baseEnvironmentIndex));
+    m_ui.baseEnvironment->setCurrentIndex(std::max(0, baseEnvironmentIndex));
     m_environment = tool->environmentUserChanges();
 
     {
-        QSignalBlocker blocker(ui->inputText);
-        ui->inputText->setPlainText(tool->input());
+        QSignalBlocker blocker(m_ui.inputText);
+        m_ui.inputText->setPlainText(tool->input());
     }
 
-    ui->description->setCursorPosition(0);
-    ui->arguments->setCursorPosition(0);
+    m_ui.description->setCursorPosition(0);
+    m_ui.arguments->setCursorPosition(0);
     updateEnvironmentLabel();
     updateEffectiveArguments();
 }
 
-QMap<QString, QList<ExternalTool *> > ExternalToolConfig::tools() const
+static QString getUserFilePath(const QString &proposalFileName)
 {
-    return m_model->tools();
+    const QDir resourceDir(ICore::userResourcePath());
+    if (!resourceDir.exists(QLatin1String("externaltools")))
+        resourceDir.mkpath(QLatin1String("externaltools"));
+    const QFileInfo fi(proposalFileName);
+    const QString &suffix = QLatin1Char('.') + fi.completeSuffix();
+    const QString &newFilePath = ICore::userResourcePath()
+            + QLatin1String("/externaltools/") + fi.baseName();
+    int count = 0;
+    QString tryPath = newFilePath + suffix;
+    while (QFile::exists(tryPath)) {
+        if (++count > 15)
+            return QString();
+        // add random number
+        const int number = qrand() % 1000;
+        tryPath = newFilePath + QString::number(number) + suffix;
+    }
+    return tryPath;
+}
+
+static QString idFromDisplayName(const QString &displayName)
+{
+    QString id = displayName;
+    id.remove(QRegExp(QLatin1String("&(?!&)")));
+    QChar *c = id.data();
+    while (!c->isNull()) {
+        if (!c->isLetterOrNumber())
+            *c = QLatin1Char('_');
+        ++c;
+    }
+    return id;
+}
+
+static QString findUnusedId(const QString &proposal, const QMap<QString, QList<ExternalTool *> > &tools)
+{
+    int number = 0;
+    QString result;
+    bool found = false;
+    do {
+        result = proposal + (number > 0 ? QString::number(number) : QString::fromLatin1(""));
+        ++number;
+        found = false;
+        for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it) {
+            foreach (ExternalTool *tool, it.value()) {
+                if (tool->id() == result) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+    } while (found);
+    return result;
 }
 
 void ExternalToolConfig::apply()
 {
-    QModelIndex index = ui->toolTree->selectionModel()->currentIndex();
+    QModelIndex index = m_ui.toolTree->selectionModel()->currentIndex();
     updateItem(index);
     updateButtons(index);
+
+    QMap<QString, ExternalTool *> originalTools = ExternalToolManager::toolsById();
+    QMap<QString, QList<ExternalTool *> > newToolsMap = tools();
+    QMap<QString, QList<ExternalTool *> > resultMap;
+    for (auto it = newToolsMap.cbegin(), end = newToolsMap.cend(); it != end; ++it) {
+        QList<ExternalTool *> items;
+        foreach (ExternalTool *tool, it.value()) {
+            ExternalTool *toolToAdd = nullptr;
+            if (ExternalTool *originalTool = originalTools.take(tool->id())) {
+                // check if it has different category and is custom tool
+                if (tool->displayCategory() != it.key() && !tool->preset())
+                    tool->setDisplayCategory(it.key());
+                // check if the tool has changed
+                if ((*originalTool) == (*tool)) {
+                    toolToAdd = originalTool;
+                } else {
+                    // case 1: tool is changed preset
+                    if (tool->preset() && (*tool) != (*(tool->preset()))) {
+                        // check if we need to choose a new file name
+                        if (tool->preset()->fileName() == tool->fileName()) {
+                            const QString &fileName = FilePath::fromString(tool->preset()->fileName()).fileName();
+                            const QString &newFilePath = getUserFilePath(fileName);
+                            // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
+                            tool->setFileName(newFilePath);
+                        }
+                        // TODO error handling
+                        tool->save();
+                    // case 2: tool is previously changed preset but now same as preset
+                    } else if (tool->preset() && (*tool) == (*(tool->preset()))) {
+                        // check if we need to delete the changed description
+                        if (originalTool->fileName() != tool->preset()->fileName()
+                                && QFile::exists(originalTool->fileName())) {
+                            // TODO error handling
+                            QFile::remove(originalTool->fileName());
+                        }
+                        tool->setFileName(tool->preset()->fileName());
+                        // no need to save, it's the same as the preset
+                    // case 3: tool is custom tool
+                    } else {
+                        // TODO error handling
+                        tool->save();
+                    }
+
+                     // 'tool' is deleted by config page, 'originalTool' is deleted by setToolsByCategory
+                    toolToAdd = new ExternalTool(tool);
+                }
+            } else {
+                // new tool. 'tool' is deleted by config page
+                QString id = idFromDisplayName(tool->displayName());
+                id = findUnusedId(id, newToolsMap);
+                tool->setId(id);
+                // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
+                tool->setFileName(getUserFilePath(id + QLatin1String(".xml")));
+                // TODO error handling
+                tool->save();
+                toolToAdd = new ExternalTool(tool);
+            }
+            items.append(toolToAdd);
+        }
+        if (!items.isEmpty())
+            resultMap.insert(it.key(), items);
+    }
+    // Remove tools that have been deleted from the settings (and are no preset)
+    foreach (ExternalTool *tool, originalTools) {
+        QTC_ASSERT(!tool->preset(), continue);
+        // TODO error handling
+        QFile::remove(tool->fileName());
+    }
+
+    ExternalToolManager::setToolsByCategory(resultMap);
 }
 
 void ExternalToolConfig::revertCurrentItem()
 {
-    QModelIndex index = ui->toolTree->selectionModel()->currentIndex();
-    m_model->revertTool(index);
+    QModelIndex index = m_ui.toolTree->selectionModel()->currentIndex();
+    m_model.revertTool(index);
     showInfoForItem(index);
 }
 
 void ExternalToolConfig::addTool()
 {
-    QModelIndex currentIndex = ui->toolTree->selectionModel()->currentIndex();
+    QModelIndex currentIndex = m_ui.toolTree->selectionModel()->currentIndex();
     if (!currentIndex.isValid()) // default to Uncategorized
-        currentIndex = m_model->index(0, 0);
-    QModelIndex index = m_model->addTool(currentIndex);
-    ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
-    ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
-    ui->toolTree->edit(index);
+        currentIndex = m_model.index(0, 0);
+    QModelIndex index = m_model.addTool(currentIndex);
+    m_ui.toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
+    m_ui.toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+    m_ui.toolTree->edit(index);
 }
 
 void ExternalToolConfig::removeTool()
 {
-    QModelIndex currentIndex = ui->toolTree->selectionModel()->currentIndex();
-    ui->toolTree->selectionModel()->setCurrentIndex(QModelIndex(), QItemSelectionModel::Clear);
-    m_model->removeTool(currentIndex);
+    QModelIndex currentIndex = m_ui.toolTree->selectionModel()->currentIndex();
+    m_ui.toolTree->selectionModel()->setCurrentIndex(QModelIndex(), QItemSelectionModel::Clear);
+    m_model.removeTool(currentIndex);
 }
 
 void ExternalToolConfig::addCategory()
 {
-    QModelIndex index = m_model->addCategory();
-    ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
-    ui->toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
-    ui->toolTree->edit(index);
+    QModelIndex index = m_model.addCategory();
+    m_ui.toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Clear);
+    m_ui.toolTree->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+    m_ui.toolTree->edit(index);
 }
 
 void ExternalToolConfig::updateEffectiveArguments()
 {
-    ui->arguments->setToolTip(Utils::globalMacroExpander()->expandProcessArgs(ui->arguments->text()));
+    m_ui.arguments->setToolTip(Utils::globalMacroExpander()->expandProcessArgs(m_ui.arguments->text()));
 }
 
 void ExternalToolConfig::editEnvironmentChanges()
 {
-    const QString placeholderText = Utils::HostOsInfo::isWindowsHost()
+    const QString placeholderText = HostOsInfo::isWindowsHost()
             ? tr("PATH=C:\\dev\\bin;${PATH}")
             : tr("PATH=/opt/bin:${PATH}");
-    const auto newItems = Utils::EnvironmentDialog::getEnvironmentItems(ui->environmentLabel,
+    const auto newItems = EnvironmentDialog::getEnvironmentItems(m_ui.environmentLabel,
                                                                         m_environment,
                                                                         placeholderText);
     if (newItems) {
@@ -633,8 +815,21 @@ void ExternalToolConfig::editEnvironmentChanges()
 
 void ExternalToolConfig::updateEnvironmentLabel()
 {
-    QString shortSummary = Utils::EnvironmentItem::toStringList(m_environment).join("; ");
-    QFontMetrics fm(ui->environmentLabel->font());
-    shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, ui->environmentLabel->width());
-    ui->environmentLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
+    QString shortSummary = EnvironmentItem::toStringList(m_environment).join("; ");
+    QFontMetrics fm(m_ui.environmentLabel->font());
+    shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_ui.environmentLabel->width());
+    m_ui.environmentLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
 }
+
+// ToolSettingsPage
+
+ToolSettings::ToolSettings()
+{
+    setId(Constants::SETTINGS_ID_TOOLS);
+    setDisplayName(ExternalToolConfig::tr("External Tools"));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setWidgetCreator([] { return new ExternalToolConfig; });
+}
+
+} // Internal
+} // Core
