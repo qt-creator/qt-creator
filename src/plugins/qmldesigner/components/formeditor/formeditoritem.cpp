@@ -26,6 +26,8 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 
+#include <bindingproperty.h>
+
 #include <modelnode.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
@@ -480,7 +482,6 @@ void FormEditorItem::updateSnappingLines(const QList<FormEditorItem*> &exception
     m_snappingLineCreator.update(exceptionList, transformationSpaceItem, this);
 }
 
-
 QList<FormEditorItem*> FormEditorItem::childFormEditorItems() const
 {
     QList<FormEditorItem*> formEditorItemList;
@@ -514,5 +515,486 @@ QmlItemNode FormEditorItem::qmlItemNode() const
     return m_qmlItemNode;
 }
 
+void FormEditorFlowItem::synchronizeOtherProperty(const QByteArray &)
+{
+    setContentVisible(true);
 }
 
+void FormEditorFlowItem::setDataModelPosition(const QPointF &position)
+{
+    qmlItemNode().setFlowItemPosition(position);
+    updateGeometry();
+    for (QGraphicsItem *item : scene()->items()) {
+        if (item == this)
+            continue;
+
+        auto formEditorItem = qgraphicsitem_cast<FormEditorItem*>(item);
+        if (formEditorItem)
+            formEditorItem->updateGeometry();
+    }
+
+}
+
+void FormEditorFlowItem::setDataModelPositionInBaseState(const QPointF &position)
+{
+    setDataModelPosition(position);
+}
+
+void FormEditorFlowItem::updateGeometry()
+{
+    FormEditorItem::updateGeometry();
+    const QPointF pos = qmlItemNode().flowPosition();
+    setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+
+    QmlFlowItemNode flowItem(qmlItemNode());
+
+    if (flowItem.isValid() && flowItem.flowView().isValid()) {
+        const auto nodes = flowItem.flowView().transitions();
+        for (const ModelNode &node : nodes) {
+            FormEditorItem *item = scene()->itemForQmlItemNode(node);
+            if (item)
+                item->updateGeometry();
+        }
+    }
+
+}
+
+QPointF FormEditorFlowItem::instancelPosition() const
+{
+    return qmlItemNode().flowPosition();
+}
+
+void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (!painter->isActive())
+        return;
+
+    if (!qmlItemNode().isValid())
+        return;
+
+    painter->save();
+
+    QPen pen;
+    pen.setCosmetic(true);
+    pen.setJoinStyle(Qt::MiterJoin);
+
+    QColor flowColor = "#e71919";
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
+        flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
+
+    int width = 4;
+
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
+        width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+
+    bool dash = false;
+
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
+        dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
+
+
+    pen.setColor(flowColor);
+    if (dash)
+        pen.setStyle(Qt::DashLine);
+    else
+        pen.setStyle(Qt::SolidLine);
+
+    pen.setWidth(width);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor")) {
+
+       const QColor fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
+       painter->fillRect(boundingRect(), fillColor);
+    }
+
+    painter->drawRect(boundingRect());
+
+
+    painter->restore();
+}
+
+QTransform FormEditorFlowActionItem::instanceSceneTransform() const
+{
+    return sceneTransform();
+}
+
+QTransform FormEditorFlowActionItem::instanceSceneContentItemTransform() const
+{
+    return sceneTransform();
+}
+
+void FormEditorTransitionItem::synchronizeOtherProperty(const QByteArray &)
+{
+    setContentVisible(true);
+}
+
+void FormEditorTransitionItem::setDataModelPosition(const QPointF &)
+{
+
+}
+
+void FormEditorTransitionItem::setDataModelPositionInBaseState(const QPointF &)
+{
+
+}
+
+void FormEditorTransitionItem::updateGeometry()
+{
+    FormEditorItem::updateGeometry();
+    const QPointF pos = qmlItemNode().flowPosition();
+
+    const ModelNode from = qmlItemNode().modelNode().bindingProperty("from").resolveToModelNode();
+    const ModelNode to = qmlItemNode().modelNode().bindingProperty("to").resolveToModelNode();
+
+    QPointF fromP = QmlItemNode(from).flowPosition();
+    QRectF sizeTo = QmlItemNode(to).instanceBoundingRect();
+
+    QPointF toP = QmlItemNode(to).flowPosition();
+
+    qreal x1 = fromP.x();
+    qreal x2 = toP.x();
+
+    if (x2 < x1) {
+        qreal s = x1;
+        x1 = x2;
+        x2 = s;
+    }
+
+    qreal y1 = fromP.y();
+    qreal y2 = toP.y();
+
+    if (y2 < y1) {
+        qreal s = y1;
+        y1 = y2;
+        y2 = s;
+    }
+
+    x2 += sizeTo.width();
+    y2 += sizeTo.height();
+
+    setX(x1);
+    setY(y1);
+    m_selectionBoundingRect = QRectF(0,0,x2-x1,y2-y1);
+    m_paintedBoundingRect = m_selectionBoundingRect;
+    m_boundingRect = m_selectionBoundingRect;
+    setZValue(10);
+}
+
+QPointF FormEditorTransitionItem::instancelPosition() const
+{
+    return qmlItemNode().flowPosition();
+}
+
+static bool verticalOverlap(const QRectF &from, const QRectF &to)
+{
+    if (from.top()  < to.bottom() && (from.top() + from.height()) > to.top())
+        return true;
+
+    if (to.top()  < from.bottom() && (to.top() + to.height()) > from.top())
+        return true;
+
+    return false;
+}
+
+
+static bool horizontalOverlap(const QRectF &from, const QRectF &to)
+{
+    if (from.left()  < to.right() && (from.left() + from.width()) > to.left())
+        return true;
+
+    if (to.left()  < from.right() && (to.left() + to.width()) > from.left())
+        return true;
+
+    return false;
+}
+
+static void paintConnection(QPainter *painter,
+                            const QRectF &from,
+                            const QRectF &to,
+                            int width,
+                            const QColor &color,
+                            bool dash,
+                            int startOffset,
+                            int endOffset,
+                            int breakOffset)
+{
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    QPen pen;
+    pen.setCosmetic(true);
+    pen.setJoinStyle(Qt::MiterJoin);
+    pen.setCapStyle(Qt::RoundCap);
+
+    pen.setColor(color);
+
+    if (dash)
+        pen.setStyle(Qt::DashLine);
+    else
+        pen.setStyle(Qt::SolidLine);
+    pen.setWidth(width);
+    painter->setPen(pen);
+
+    //const bool forceVertical = false;
+    //const bool forceHorizontal = false;
+
+    const int padding = 16;
+
+    const int arrowLength = 8;
+    const int arrowWidth = 16;
+
+    const bool boolExitRight = from.right() < to.center().x();
+    const bool boolExitBottom = from.bottom() < to.center().y();
+
+    bool horizontalFirst = horizontalOverlap(from, to) && !verticalOverlap(from, to);
+
+    const qreal middleFactor = breakOffset / 100.0;
+
+    QPointF startP;
+
+    bool extraLine = false;
+
+    if (horizontalFirst) {
+        if (to.center().x() > from.left() && to.center().x() < from.right()) {
+                horizontalFirst = false;
+                extraLine = true;
+            }
+
+    } else {
+        if (to.center().y() > from.top() && to.center().y() < from.bottom()) {
+            horizontalFirst = true;
+            extraLine = true;
+        }
+    }
+
+    if (horizontalFirst) {
+        const qreal startY = from.center().y() + startOffset;
+        qreal startX = from.x() - padding;
+        if (boolExitRight)
+            startX = from.right() + padding;
+
+        startP = QPointF(startX, startY);
+
+        qreal endY = to.top() - padding;
+
+        if (from.bottom() > to.y())
+            endY = to.bottom() + padding;
+
+        if (!extraLine) {
+
+
+            const qreal endX = to.center().x() + endOffset;
+
+            const QPointF midP(endX, startY);
+
+            const QPointF endP(endX, endY);
+
+            painter->drawLine(startP, midP);
+            painter->drawLine(midP, endP);
+
+            int flip = 1;
+
+            if (midP.y() < endP.y())
+                flip = -1;
+
+            pen.setStyle(Qt::SolidLine);
+            painter->setPen(pen);
+            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowLength), endP);
+            painter->drawLine(endP + flip * QPoint(-arrowWidth / 2, arrowLength), endP);
+        } else {
+
+            qreal endX = to.left() - padding;
+
+            if (from.right() > to.x())
+                endX = to.right() + padding;
+
+            const qreal midX = startX * middleFactor + endX * (1-middleFactor);
+            const QPointF midP(midX, startY);
+            const QPointF midP2(midX, to.center().y() + endOffset);
+            const QPointF endP(endX, to.center().y() + endOffset);
+            painter->drawLine(startP, midP);
+            painter->drawLine(midP, midP2);
+            painter->drawLine(midP2, endP);
+
+            int flip = 1;
+
+            if (midP2.x() < endP.x())
+                flip = -1;
+
+            pen.setStyle(Qt::SolidLine);
+            painter->setPen(pen);
+            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowWidth / 2), endP);
+            painter->drawLine(endP + flip * QPoint(arrowLength, -arrowWidth / 2), endP);
+        }
+
+    } else {
+        const qreal startX = from.center().x() + startOffset;
+
+        qreal startY = from.top() - padding;
+        if (boolExitBottom)
+            startY = from.bottom() + padding;
+
+        startP = QPointF(startX, startY);
+        qreal endX = to.left() - padding;
+
+        if (from.right() > to.x())
+            endX = to.right() + padding;
+
+        if (!extraLine) {
+            const qreal endY = to.center().y() + endOffset;
+
+            const QPointF midP(startX, endY);
+
+            const QPointF endP(endX, endY);
+
+            painter->drawLine(startP, midP);
+            painter->drawLine(midP, endP);
+
+            int flip = 1;
+
+            if (midP.x() < endP.x())
+                flip = -1;
+
+            pen.setStyle(Qt::SolidLine);
+            painter->setPen(pen);
+            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowWidth / 2), endP);
+            painter->drawLine(endP + flip * QPoint(arrowLength, -arrowWidth / 2), endP);
+        } else {
+
+            qreal endY = to.top() - padding;
+
+            if (from.bottom() > to.y())
+                endY = to.bottom() + padding;
+
+            const qreal midY = startY * middleFactor + endY * (1-middleFactor);
+            const QPointF midP(startX, midY);
+            const QPointF midP2(to.center().x() + endOffset, midY);
+            const QPointF endP(to.center().x() + endOffset, endY);
+
+            painter->drawLine(startP, midP);
+            painter->drawLine(midP, midP2);
+            painter->drawLine(midP2, endP);
+
+            int flip = 1;
+
+            if (midP2.y() < endP.y())
+                flip = -1;
+
+            pen.setStyle(Qt::SolidLine);
+            painter->setPen(pen);
+            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowLength), endP);
+            painter->drawLine(endP + flip * QPoint(-arrowWidth / 2, arrowLength), endP);
+        }
+    }
+
+    pen.setWidth(4);
+    pen.setStyle(Qt::SolidLine);
+    painter->setPen(pen);
+    painter->setBrush(Qt::white);
+    painter->drawEllipse(startP, arrowLength - 2, arrowLength - 2);
+
+    painter->restore();
+}
+
+void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (!painter->isActive())
+        return;
+
+    if (!qmlItemNode().modelNode().isValid())
+        return;
+
+    if (!(qmlItemNode().modelNode().hasBindingProperty("from")
+          && qmlItemNode().modelNode().hasBindingProperty("from")))
+        return;
+
+    painter->save();
+
+    const QmlFlowItemNode from = qmlItemNode().modelNode().bindingProperty("from").resolveToModelNode();
+    const QmlFlowItemNode to = qmlItemNode().modelNode().bindingProperty("to").resolveToModelNode();
+
+    QmlFlowActionAreaNode areaNode = ModelNode();
+
+    if (from.isValid())
+        for (const QmlFlowActionAreaNode &area : from.flowActionAreas()) {
+            if (area.targetTransition() ==  qmlItemNode().modelNode())
+                areaNode = area;
+        }
+
+    QRectF fromRect = QmlItemNode(from).instanceBoundingRect();
+    fromRect.translate(QmlItemNode(from).flowPosition());
+
+
+    if (areaNode.isValid()) {
+        fromRect = QmlItemNode(areaNode).instanceBoundingRect();
+        fromRect.translate(QmlItemNode(from).flowPosition());
+        fromRect.translate(areaNode.instancePosition());
+    }
+
+    QRectF toRect = QmlItemNode(to).instanceBoundingRect();
+    toRect.translate(QmlItemNode(to).flowPosition());
+
+    toRect.translate(-pos());
+    fromRect.translate(-pos());
+
+
+    int width = 4;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
+        width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+
+    if (qmlItemNode().modelNode().isSelected())
+        width += 2;
+    if (m_hitTest)
+        width += 4;
+
+    QColor color = "#e71919";
+
+    bool dash = false;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
+        color = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
+        dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
+
+    int outOffset = 0;
+    int inOffset = 0;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("outOffset"))
+        outOffset = qmlItemNode().modelNode().auxiliaryData("outOffset").toInt();
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("inOffset"))
+        inOffset = qmlItemNode().modelNode().auxiliaryData("inOffset").toInt();
+
+    int breakOffset = 50;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("break"))
+        breakOffset = qmlItemNode().modelNode().auxiliaryData("break").toInt();
+
+    paintConnection(painter, fromRect, toRect, width ,color, dash, outOffset, inOffset, breakOffset);
+
+    painter->restore();
+}
+
+bool FormEditorTransitionItem::flowHitTest(const QPointF &point) const
+{
+    QImage image(boundingRect().size().toSize(), QImage::Format_ARGB32);
+    image.fill(QColor("black"));
+
+    QPainter p(&image);
+
+    m_hitTest = true;
+    const_cast<FormEditorTransitionItem *>(this)->paint(&p, nullptr, nullptr);
+    m_hitTest = false;
+
+    QPoint pos = mapFromScene(point).toPoint();
+    return image.pixelColor(pos).value() > 0;
+}
+
+}

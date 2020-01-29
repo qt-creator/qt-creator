@@ -144,6 +144,56 @@ private: // variables
     bool m_isFormEditorVisible;
 };
 
+class FormEditorFlowItem : public FormEditorItem
+{
+    friend class QmlDesigner::FormEditorScene;
+public:
+    void synchronizeOtherProperty(const QByteArray &propertyName) override;
+    void setDataModelPosition(const QPointF &position) override;
+    void setDataModelPositionInBaseState(const QPointF &position) override;
+    void updateGeometry() override;
+    QPointF instancelPosition() const override;
+
+protected:
+    FormEditorFlowItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
+        : FormEditorItem(qmlItemNode, scene)
+    {}
+};
+
+class FormEditorFlowActionItem : public FormEditorItem
+{
+    friend class QmlDesigner::FormEditorScene;
+public:
+    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = nullptr ) override;
+    QTransform instanceSceneTransform() const override;
+    QTransform instanceSceneContentItemTransform() const override;
+
+protected:
+    FormEditorFlowActionItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
+        : FormEditorItem(qmlItemNode, scene)
+    {}
+};
+
+class FormEditorTransitionItem : public FormEditorItem
+{
+    friend class QmlDesigner::FormEditorScene;
+public:
+    void synchronizeOtherProperty(const QByteArray &propertyName) override;
+    void setDataModelPosition(const QPointF &position) override;
+    void setDataModelPositionInBaseState(const QPointF &position) override;
+    void updateGeometry() override;
+    QPointF instancelPosition() const override;
+    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = nullptr ) override;
+    bool flowHitTest(const QPointF &point) const override;
+
+protected:
+    FormEditorTransitionItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
+        : FormEditorItem(qmlItemNode, scene)
+    {}
+private:
+    mutable bool m_hitTest = false;
+};
+
 
 inline int FormEditorItem::type() const
 {
