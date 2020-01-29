@@ -73,9 +73,9 @@ void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
     if (m_resizeController.isValid()) {
         m_isActive = true;
         m_beginBoundingRect = m_resizeController.formEditorItem()->qmlItemNode().instanceBoundingRect();
-        m_beginFromContentItemToSceneTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceSceneContentItemTransform();
+        m_beginFromContentItemToSceneTransform = m_resizeController.formEditorItem()->instanceSceneContentItemTransform();
         m_beginFromSceneToContentItemTransform = m_beginFromContentItemToSceneTransform.inverted();
-        m_beginFromItemToSceneTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceSceneTransform();
+        m_beginFromItemToSceneTransform = m_resizeController.formEditorItem()->instanceSceneTransform();
         m_beginToParentTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceTransform();
         m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("ResizeManipulator::begin"));
         m_rewriterTransaction.ignoreSemanticChecks();

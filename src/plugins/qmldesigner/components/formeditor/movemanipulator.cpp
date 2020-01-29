@@ -146,7 +146,7 @@ void MoveManipulator::begin(const QPointF &beginPoint)
     QTransform fromContentItemToSceneTransform = m_snapper.containerFormEditorItem()->qmlItemNode().instanceSceneContentItemTransform();
     foreach (FormEditorItem* item, m_itemList) {
         if (item && item->qmlItemNode().isValid()) {
-            QPointF positionInScenesSpace = fromContentItemToSceneTransform.map(item->qmlItemNode().instancePosition());
+            QPointF positionInScenesSpace = fromContentItemToSceneTransform.map(item->instancelPosition());
             m_beginPositionInSceneSpaceHash.insert(item, positionInScenesSpace);
         }
     }
@@ -306,9 +306,9 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSn
                 if (anchors.instanceHasAnchor(AnchorLineVerticalCenter))
                     anchors.setMargin(AnchorLineVerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
 
-                item->qmlItemNode().setPosition(positionInContainerSpace);
+                item->setDataModelPosition(positionInContainerSpace);
             } else {
-                item->qmlItemNode().setPostionInBaseState(positionInContainerSpace);
+                item->setDataModelPositionInBaseState(positionInContainerSpace);
             }
         }
     }
@@ -426,8 +426,8 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
         if (anchors.instanceHasAnchor(AnchorLineVerticalCenter))
             anchors.setMargin(AnchorLineVerticalCenter, anchors.instanceMargin(AnchorLineVerticalCenter) + deltaY);
 
-        item->qmlItemNode().setPosition(QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
-                                                  item->qmlItemNode().instanceValue("y").toDouble() + deltaY));
+        item->setDataModelPosition(QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
+                                           item->qmlItemNode().instanceValue("y").toDouble() + deltaY));
     }
 }
 
