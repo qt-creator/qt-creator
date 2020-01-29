@@ -514,6 +514,7 @@ void FormEditorView::registerTool(AbstractCustomTool *tool)
 
 void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
 {
+    QmlItemNode item(node);
     AbstractView::auxiliaryDataChanged(node, name, data);
     if (name == "invisible") {
         if (FormEditorItem *item = scene()->itemForQmlItemNode(QmlItemNode(node))) {
@@ -526,6 +527,10 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
         }
     } else if (name == "3d-view") {
         m_formEditorWidget->option3DAction()->set3DEnabled(data.toBool());
+    } else if (item.isFlowTransition() || item.isFlowItem() || item.isFlowActionArea()) {
+        FormEditorItem *editorItem = m_scene->itemForQmlItemNode(item);
+        if (editorItem)
+            editorItem->update();
     }
 }
 
