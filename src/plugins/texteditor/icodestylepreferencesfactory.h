@@ -53,6 +53,7 @@ class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory
 
 public:
     ICodeStylePreferencesFactory();
+    virtual ~ICodeStylePreferencesFactory() = default;
 
     virtual CodeStyleEditorWidget *createCodeStyleEditor(ICodeStylePreferences *codeStyle,
                                                          QWidget *parent = nullptr);
