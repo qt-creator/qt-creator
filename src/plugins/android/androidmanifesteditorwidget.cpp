@@ -238,15 +238,21 @@ void AndroidManifestEditorWidget::initializePage()
                         m_lIconButton, m_lIconClearButton,
                         tr("Low DPI icon"), tr("Select low DPI icon."));
 
+        iconLayout->addStretch(1);
+
         createDPIButton(iconLayout,
                         applicationGroupBox,
                         m_mIconButton, m_mIconClearButton,
                         tr("Medium DPI icon"), tr("Select medium DPI icon."));
 
+        iconLayout->addStretch(1);
+
         createDPIButton(iconLayout,
                         applicationGroupBox,
                         m_hIconButton, m_hIconClearButton,
                         tr("High DPI icon"), tr("Select high DPI icon."));
+
+        iconLayout->addStretch(6);
 
         formLayout->addRow(tr("Application icon:"), new QLabel());
 
