@@ -114,13 +114,56 @@ public:
 
     void setPosition(const QPointF &position);
     void setPostionInBaseState(const QPointF &position);
+    void setFlowItemPosition(const QPointF &position);
+    QPointF flowPosition() const;
 
     void setSize(const QSizeF &size);
     bool isInLayout() const;
     bool canBereparentedTo(const ModelNode &potentialParent) const;
 
     bool isInStackedContainer() const;
+
+    bool isFlowView() const;
+    bool isFlowItem() const;
+    bool isFlowActionArea() const;
 };
+
+class QmlFlowItemNode;
+class QmlFlowViewNode;
+
+class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode : public QmlItemNode
+{
+public:
+    QmlFlowActionAreaNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
+    bool isValid() const override;
+    static bool isValidQmlFlowActionAreaNode(const ModelNode &modelNode);
+    ModelNode targetTransition() const;
+    void assignTargetFlowItem(const QmlFlowItemNode &flowItem);
+    QmlFlowItemNode flowItemParent() const;
+    void destroyTarget();
+};
+
+class QMLDESIGNERCORE_EXPORT QmlFlowItemNode : public QmlItemNode
+{
+public:
+    QmlFlowItemNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
+    bool isValid() const override;
+    static bool isValidQmlFlowItemNode(const ModelNode &modelNode);
+    QList<QmlFlowActionAreaNode> flowActionAreas() const;
+    QmlFlowViewNode flowView() const;
+};
+
+class QMLDESIGNERCORE_EXPORT QmlFlowViewNode : public QmlItemNode
+{
+public:
+    QmlFlowViewNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
+    bool isValid() const override;
+    static bool isValidQmlFlowViewNode(const ModelNode &modelNode);
+    QList<QmlFlowItemNode> flowItems() const;
+    ModelNode addTransition(const QmlFlowItemNode &from, const QmlFlowItemNode &to);
+    QList<ModelNode> transitions() const;
+};
+
 
 QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
 
