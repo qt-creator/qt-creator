@@ -106,12 +106,42 @@ void FormEditorView::modelAttached(Model *model)
 //This function does the setup of the initial FormEditorItem tree in the scene
 void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 {
-    m_scene->addFormEditorItem(qmlItemNode);
+    if (qmlItemNode.isFlowTransition()) {
+        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::FlowTransition);
+        if (qmlItemNode.hasNodeParent())
+            m_scene->reparentItem(qmlItemNode, qmlItemNode.modelParentItem());
+        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
+    } else if (qmlItemNode.isFlowActionArea()) {
+        m_scene->addFormEditorItem(qmlItemNode.toQmlItemNode(), FormEditorScene::FlowAction);
+        m_scene->synchronizeParent(qmlItemNode.toQmlItemNode());
+    } else if (qmlItemNode.isFlowItem() && !qmlItemNode.isRootNode()) {
+        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Flow);
+        m_scene->synchronizeParent(qmlItemNode);
+        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
+        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes())
+            if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.toQmlItemNode().isFlowActionArea()) {
+                setupFormEditorItemTree(nextNode.toQmlItemNode());
+            }
+    } else if (qmlItemNode.isFlowView() && qmlItemNode.isRootNode()) {
+        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Flow);
+        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
+            if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.toQmlItemNode().isFlowItem()) {
+                setupFormEditorItemTree(nextNode.toQmlItemNode());
+            }
+        }
 
-    foreach (const QmlObjectNode &nextNode, qmlItemNode.allDirectSubNodes()) //TODO instance children
-        //If the node has source for components/custom parsers we ignore it.
-        if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource)
-            setupFormEditorItemTree(nextNode.toQmlItemNode());
+        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
+            if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowTransition()) {
+                setupFormEditorItemTree(nextNode.toQmlItemNode());
+            }
+        }
+    } else {
+        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Default);
+        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) //TODO instance children
+            //If the node has source for components/custom parsers we ignore it.
+            if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource)
+                setupFormEditorItemTree(nextNode.toQmlItemNode());
+    }
 }
 
 static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
