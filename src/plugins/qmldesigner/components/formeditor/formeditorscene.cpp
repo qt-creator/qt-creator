@@ -87,7 +87,6 @@ void FormEditorScene::resetScene()
 
 FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNode) const
 {
-    QTC_ASSERT(qmlItemNode.isValid(), return nullptr);
     return m_qmlItemNodeItemHash.value(qmlItemNode);
 }
 
