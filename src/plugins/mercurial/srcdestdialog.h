@@ -26,6 +26,7 @@
 #pragma once
 
 #include <utils/pathchooser.h>
+#include <vcsbase/vcsbaseplugin.h>
 #include <QDialog>
 
 namespace Mercurial {
@@ -39,7 +40,7 @@ class SrcDestDialog : public QDialog
 
 public:
     enum Direction { outgoing, incoming };
-    explicit SrcDestDialog(Direction dir, QWidget *parent = nullptr);
+    explicit SrcDestDialog(const VcsBase::VcsBasePluginState &state, Direction dir, QWidget *parent = nullptr);
     ~SrcDestDialog() override;
 
     void setPathChooserKind(Utils::PathChooser::Kind kind);
@@ -53,6 +54,7 @@ private:
     Ui::SrcDestDialog *m_ui;
     Direction m_direction;
     mutable QString m_workingdir;
+    VcsBase::VcsBasePluginState m_state;
 };
 
 } // namespace Internal

@@ -32,11 +32,13 @@
 namespace Mercurial {
 namespace Internal {
 
+class MercurialClient;
+
 class MercurialEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 public:
-    MercurialEditorWidget();
+    explicit MercurialEditorWidget(MercurialClient *client);
 
 private:
     QSet<QString> annotationChanges() const override;
@@ -50,6 +52,8 @@ private:
     mutable QRegExp exactIdentifier40;
     mutable QRegExp changesetIdentifier12;
     const QRegExp changesetIdentifier40;
+
+    MercurialClient *m_client;
 };
 
 } // namespace Internal

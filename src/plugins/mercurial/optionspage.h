@@ -27,15 +27,15 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Core { class IVersionControl; }
-
 namespace Mercurial {
 namespace Internal {
+
+class MercurialSettings;
 
 class OptionsPage final : public Core::IOptionsPage
 {
 public:
-    OptionsPage(Core::IVersionControl *control, QObject *parent);
+    OptionsPage(const std::function<void()> &onApply, MercurialSettings *settings);
 };
 
 } // namespace Internal

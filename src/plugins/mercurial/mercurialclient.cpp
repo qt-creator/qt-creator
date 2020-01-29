@@ -58,15 +58,15 @@ namespace Internal  {
 class MercurialDiffEditorController : public VcsBaseDiffEditorController
 {
 public:
-    MercurialDiffEditorController(IDocument *document, const QString &workingDirectory);
+    MercurialDiffEditorController(IDocument *document, VcsBaseClientImpl *client, const QString &workingDirectory);
 
 protected:
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
     QStringList addConfigurationArguments(const QStringList &args) const;
 };
 
-MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document, const QString &workingDirectory):
-    VcsBaseDiffEditorController(document, MercurialPluginPrivate::client(), workingDirectory)
+MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document, VcsBaseClientImpl *client, const QString &workingDirectory):
+    VcsBaseDiffEditorController(document, client, workingDirectory)
 {
     setDisplayName("Hg Diff");
 }
@@ -90,8 +90,8 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 class FileDiffController : public MercurialDiffEditorController
 {
 public:
-    FileDiffController(IDocument *document, const QString &dir, const QString &fileName) :
-        MercurialDiffEditorController(document, dir),
+    FileDiffController(IDocument *document, VcsBaseClient *client, const QString &dir, const QString &fileName) :
+        MercurialDiffEditorController(document, client, dir),
         m_fileName(fileName)
     { }
 
@@ -108,8 +108,8 @@ private:
 class FileListDiffController : public MercurialDiffEditorController
 {
 public:
-    FileListDiffController(IDocument *document, const QString &dir, const QStringList &fileNames) :
-        MercurialDiffEditorController(document, dir),
+    FileListDiffController(IDocument *document, VcsBaseClient *client, const QString &dir, const QStringList &fileNames) :
+        MercurialDiffEditorController(document, client, dir),
         m_fileNames(fileNames)
     { }
 
@@ -128,8 +128,8 @@ private:
 class RepositoryDiffController : public MercurialDiffEditorController
 {
 public:
-    RepositoryDiffController(IDocument *document, const QString &dir) :
-        MercurialDiffEditorController(document, dir)
+    RepositoryDiffController(IDocument *document, VcsBaseClient *client, const QString &dir) :
+        MercurialDiffEditorController(document, client, dir)
     { }
 
     void reload() override
@@ -401,8 +401,8 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files,
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffRepo." + sourceFile;
         requestReload(documentId, sourceFile, title,
-                      [workingDir](IDocument *doc) {
-                          return new RepositoryDiffController(doc, workingDir);
+                      [this, workingDir](IDocument *doc) {
+                          return new RepositoryDiffController(doc, this, workingDir);
                       });
     } else if (files.size() == 1) {
         fileName = files.at(0);
@@ -411,8 +411,8 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files,
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + sourceFile;
         requestReload(documentId, sourceFile, title,
-                      [workingDir, fileName](IDocument *doc) {
-                          return new FileDiffController(doc, workingDir, fileName);
+                      [this, workingDir, fileName](IDocument *doc) {
+                          return new FileDiffController(doc, this, workingDir, fileName);
                       });
     } else {
         const QString title = tr("Mercurial Diff \"%1\"").arg(workingDir);
@@ -420,8 +420,8 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files,
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + workingDir;
         requestReload(documentId, sourceFile, title,
-                      [workingDir, files](IDocument *doc) {
-                          return new FileListDiffController(doc, workingDir, files);
+                      [this, workingDir, files](IDocument *doc) {
+                          return new FileListDiffController(doc, this, workingDir, files);
                       });
     }
 }

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "authenticationdialog.h"
-#include "mercurialplugin.h"
 #include "srcdestdialog.h"
 #include "ui_srcdestdialog.h"
 
@@ -36,10 +35,11 @@ using namespace VcsBase;
 namespace Mercurial {
 namespace Internal  {
 
-SrcDestDialog::SrcDestDialog(Direction dir, QWidget *parent) :
+SrcDestDialog::SrcDestDialog(const VcsBasePluginState &state, Direction dir, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::SrcDestDialog),
-    m_direction(dir)
+    m_direction(dir),
+    m_state(state)
 {
     m_ui->setupUi(this);
     m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
@@ -97,10 +97,9 @@ QString SrcDestDialog::workingDir() const
 
 QUrl SrcDestDialog::getRepoUrl() const
 {
-    const VcsBasePluginState state = MercurialPluginPrivate::instance()->currentState();
     // Repo to use: Default to the project repo, but use the current
-    const QString projectLoc = state.currentProjectPath();
-    const QString fileLoc = state.currentFileTopLevel();
+    const QString projectLoc = m_state.currentProjectPath();
+    const QString fileLoc = m_state.currentFileTopLevel();
     m_workingdir = projectLoc;
     if (!fileLoc.isEmpty())
         m_workingdir = fileLoc;

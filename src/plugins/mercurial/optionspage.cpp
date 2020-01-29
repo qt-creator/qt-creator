@@ -45,23 +45,24 @@ class OptionsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Mercurial::Internal::OptionsPageWidget)
 
 public:
-    explicit OptionsPageWidget(Core::IVersionControl *control);
+    OptionsPageWidget(const std::function<void()> &onApply, MercurialSettings *settings);
     void apply() final;
 
 private:
     Ui::OptionsPage m_ui;
-    Core::IVersionControl *m_control;
+    std::function<void()> m_onApply;
+    MercurialSettings *m_settings;
 };
 
-OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control)
-    : m_control(control)
+OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, MercurialSettings *settings)
+    : m_onApply(onApply), m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.commandChooser->setHistoryCompleter(QLatin1String("Mercurial.Command.History"));
     m_ui.commandChooser->setPromptDialogTitle(tr("Mercurial Command"));
 
-    const VcsBaseClientSettings &s = MercurialPluginPrivate::client()->settings();
+    const VcsBaseClientSettings &s = *settings;
 
     m_ui.commandChooser->setPath(s.stringValue(MercurialSettings::binaryPathKey));
     m_ui.defaultUsernameLineEdit->setText(s.stringValue(MercurialSettings::userNameKey));
@@ -79,20 +80,18 @@ void OptionsPageWidget::apply()
     ms.setValue(MercurialSettings::logCountKey, m_ui.logEntriesCount->value());
     ms.setValue(MercurialSettings::timeoutKey, m_ui.timeout->value());
 
-    VcsBaseClientSettings &s = MercurialPluginPrivate::client()->settings();
-    if (s != ms) {
-        s = ms;
-        m_control->configurationChanged();
+    if (*m_settings != ms) {
+        *m_settings = ms;
+        m_onApply();
     }
 }
 
-OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent)
-    : Core::IOptionsPage(parent)
+OptionsPage::OptionsPage(const std::function<void()> &onApply, MercurialSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(OptionsPageWidget::tr("Mercurial"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([control] { return new OptionsPageWidget(control); });
+    setWidgetCreator([onApply, settings] { return new OptionsPageWidget(onApply, settings); });
 }
 
 } // namespace Internal

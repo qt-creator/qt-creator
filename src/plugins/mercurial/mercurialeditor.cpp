@@ -42,11 +42,12 @@
 namespace Mercurial {
 namespace Internal  {
 
-MercurialEditorWidget::MercurialEditorWidget() :
+MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
         exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
         exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
         changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
-        changesetIdentifier40(QLatin1String(Constants::CHANGESETID40))
+        changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
+        m_client(client)
 {
     setDiffFilePattern(QRegExp(QLatin1String(Constants::DIFFIDENTIFIER)));
     setLogEntryPattern(QRegExp(QLatin1String("^changeset:\\s+(\\S+)$")));
@@ -94,7 +95,7 @@ QString MercurialEditorWidget::decorateVersion(const QString &revision) const
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Format with short summary
-    return MercurialPluginPrivate::client()->shortDescriptionSync(workingDirectory, revision);
+    return m_client->shortDescriptionSync(workingDirectory, revision);
 }
 
 QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &revision) const
@@ -102,7 +103,7 @@ QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &rev
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Retrieve parent revisions
-    return MercurialPluginPrivate::client()->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
+    return m_client->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
 }
 
 } // namespace Internal
