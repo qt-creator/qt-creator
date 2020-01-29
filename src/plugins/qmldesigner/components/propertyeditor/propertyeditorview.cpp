@@ -177,6 +177,11 @@ void PropertyEditorView::changeValue(const QString &name)
     if (value ==nullptr)
         return;
 
+    if (propertyName.endsWith( "__AUX")) {
+        commitAuxValueToModel(propertyName, value->value());
+        return;
+    }
+
     QmlObjectNode qmlObjectNode(m_selectedNode);
 
     QVariant castedValue;
@@ -512,6 +517,30 @@ void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyN
     m_locked = false;
 }
 
+void PropertyEditorView::commitAuxValueToModel(const PropertyName &propertyName, const QVariant &value)
+{
+    m_locked = true;
+
+    PropertyName name = propertyName;
+    name.chop(5);
+
+    try {
+        if (value.isValid()) {
+            for (const ModelNode &node : m_selectedNode.view()->selectedModelNodes()) {
+                node.setAuxiliaryData(name, value);
+            }
+        } else {
+            for (const ModelNode &node : m_selectedNode.view()->selectedModelNodes()) {
+                node.removeAuxiliaryData(name);
+            }
+        }
+    }
+    catch (const Exception &e) {
+        e.showException();
+    }
+    m_locked = false;
+}
+
 void PropertyEditorView::removePropertyFromModel(const PropertyName &propertyName)
 {
     m_locked = true;
@@ -658,6 +687,19 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
 
         }
     }
+}
+
+void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &)
+{
+
+    if (noValidSelection())
+        return;
+
+    if (!node.isSelected())
+        return;
+
+    m_qmlBackEndForCurrentType->setValueforAuxiliaryProperties(m_selectedNode, name);
+
 }
 
 void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
