@@ -74,34 +74,32 @@ void SingleSelectionManipulator::select(SelectionType selectionType)
     if (formEditorItem && formEditorItem->qmlItemNode().isValid())
         selectedNode = formEditorItem->qmlItemNode();
 
+    if (formEditorItem && formEditorItem->qmlItemNode().isFlowTransition())
+        selectedNode = formEditorItem->qmlItemNode();
+
     QList<QmlItemNode> nodeList;
 
     switch (selectionType) {
         case AddToSelection: {
                 nodeList.append(m_oldSelectionList);
-                if (selectedNode.isValid())
-                    nodeList.append(selectedNode);
+                nodeList.append(selectedNode);
         }
         break;
         case ReplaceSelection: {
-                if (selectedNode.isValid())
-                    nodeList.append(selectedNode);
+            nodeList.append(selectedNode);
         }
         break;
         case RemoveFromSelection: {
                 nodeList.append(m_oldSelectionList);
-                if (selectedNode.isValid())
-                    nodeList.removeAll(selectedNode);
+                nodeList.removeAll(selectedNode);
         }
         break;
         case InvertSelection: {
-                nodeList.append(m_oldSelectionList);
-                if (selectedNode.isValid()) {
-                    if (!m_oldSelectionList.contains(selectedNode))
-                        nodeList.append(selectedNode);
-                    else
-                        nodeList.removeAll(selectedNode);
-                }
+            nodeList.append(m_oldSelectionList);
+            if (!m_oldSelectionList.contains(selectedNode))
+                nodeList.append(selectedNode);
+            else
+                nodeList.removeAll(selectedNode);
         }
     }
 

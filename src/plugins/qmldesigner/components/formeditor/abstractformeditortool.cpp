@@ -191,6 +191,9 @@ FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &poi
     foreach (QGraphicsItem *item, itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
+        if (formEditorItem && formEditorItem->flowHitTest(point))
+            return formEditorItem;
+
         if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
             continue;
 
