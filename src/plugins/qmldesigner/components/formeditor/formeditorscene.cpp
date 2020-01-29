@@ -167,9 +167,19 @@ void FormEditorScene::synchronizeOtherProperty(FormEditorItem *item, const QByte
     item->synchronizeOtherProperty(propertyName);
 }
 
-FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNode)
+FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNode, ItemType type)
 {
-    auto formEditorItem = new FormEditorItem(qmlItemNode, this);
+    FormEditorItem *formEditorItem = nullptr;
+
+    if (type == Flow)
+        formEditorItem = new FormEditorFlowItem(qmlItemNode, this);
+    else if (type == FlowAction)
+        formEditorItem = new FormEditorFlowActionItem(qmlItemNode, this);
+    else if (type == FlowTransition)
+        formEditorItem = new FormEditorTransitionItem(qmlItemNode, this);
+    else
+        formEditorItem = new FormEditorItem(qmlItemNode, this);
+
     Q_ASSERT(!m_qmlItemNodeItemHash.contains(qmlItemNode));
 
     m_qmlItemNodeItemHash.insert(qmlItemNode, formEditorItem);

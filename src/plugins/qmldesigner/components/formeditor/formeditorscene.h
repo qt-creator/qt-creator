@@ -50,9 +50,17 @@ class QMLDESIGNERCORE_EXPORT FormEditorScene : public QGraphicsScene
     friend class QmlDesigner::FormEditorView;
 
 public:
+
+    enum ItemType {
+        Default,
+        Flow,
+        FlowAction,
+        FlowTransition
+    };
+
     FormEditorScene(FormEditorWidget *widget, FormEditorView *editorView);
     ~FormEditorScene() override;
-    FormEditorItem *addFormEditorItem(const QmlItemNode &qmlItemNode);
+    FormEditorItem *addFormEditorItem(const QmlItemNode &qmlItemNode, ItemType type = Default);
 
     FormEditorItem* itemForQmlItemNode(const QmlItemNode &qmlItemNode) const;
 
