@@ -67,7 +67,7 @@ public:
     StatusItem parseStatusLine(const QString &line) const override;
 
     // Add authorization options to the command line arguments.
-    static QStringList addAuthenticationOptions(const SubversionSettings &settings);
+    static QStringList addAuthenticationOptions(const VcsBase::VcsBaseClientSettings &settings);
 
     QString synchronousTopic(const QString &repository);
 

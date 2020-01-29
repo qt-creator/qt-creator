@@ -117,9 +117,9 @@ Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 }
 
 // Add authorization options to the command line arguments.
-QStringList SubversionClient::addAuthenticationOptions(const SubversionSettings &settings)
+QStringList SubversionClient::addAuthenticationOptions(const VcsBaseClientSettings &settings)
 {
-    if (!settings.hasAuthentication())
+    if (!static_cast<const SubversionSettings &>(settings).hasAuthentication())
         return QStringList();
 
     const QString userName = settings.stringValue(SubversionSettings::userKey);
