@@ -46,6 +46,11 @@ ModelNode SelectionContext::targetNode() const
     return m_targetNode;
 }
 
+ModelNode SelectionContext::rootNode() const
+{
+    return view()->rootModelNode();
+}
+
 bool SelectionContext::singleNodeIsSelected() const
 {
     return view()->hasSingleSelectedModelNode();
