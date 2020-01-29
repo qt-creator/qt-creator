@@ -144,7 +144,6 @@ private:
     void startCommit(const QString &workingDir, const QString &file = QString());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
-    inline CvsControl *cvsVersionControl() const;
 
     CvsSettings m_settings;
     CvsClient *m_client = nullptr;

@@ -164,13 +164,3 @@ bool CvsControl::managesFile(const QString &workingDirectory, const QString &fil
 {
     return m_plugin->managesFile(workingDirectory, fileName);
 }
-
-void CvsControl::emitRepositoryChanged(const QString &s)
-{
-    emit repositoryChanged(s);
-}
-
-void CvsControl::emitFilesChanged(const QStringList &l)
-{
-    emit filesChanged(l);
-}

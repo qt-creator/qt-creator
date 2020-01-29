@@ -559,7 +559,7 @@ void CvsPluginPrivate::revertAll()
             runCvs(state.topLevel(), args, m_client->vcsTimeoutS(),
                    VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (revertResponse.result == CvsResponse::Ok)
-        cvsVersionControl()->emitRepositoryChanged(state.topLevel());
+        emit versionControl()->repositoryChanged(state.topLevel());
     else
         Core::AsynchronousMessageBox::warning(title,
                                               tr("Revert failed: %1").arg(revertResponse.message));
@@ -597,7 +597,7 @@ void CvsPluginPrivate::revertCurrentFile()
             runCvs(state.currentFileTopLevel(), args, m_client->vcsTimeoutS(),
                    VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (revertResponse.result == CvsResponse::Ok)
-        cvsVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
+        emit versionControl()->filesChanged(QStringList(state.currentFile()));
 }
 
 void CvsPluginPrivate::diffProject()
@@ -788,7 +788,7 @@ bool CvsPluginPrivate::update(const QString &topLevel, const QString &file)
                    VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
-        cvsVersionControl()->emitRepositoryChanged(topLevel);
+        emit versionControl()->repositoryChanged(topLevel);
     return ok;
 }
 
@@ -1240,11 +1240,6 @@ bool CvsPluginPrivate::checkCVSDirectory(const QDir &directory) const
 {
     const QString cvsDir = directory.absoluteFilePath(QLatin1String("CVS"));
     return QFileInfo(cvsDir).isDir();
-}
-
-CvsControl *CvsPluginPrivate::cvsVersionControl() const
-{
-    return static_cast<CvsControl *>(versionControl());
 }
 
 #ifdef WITH_TESTS

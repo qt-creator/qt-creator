@@ -64,9 +64,6 @@ public:
                                                      const QString &localName,
                                                      const QStringList &extraArgs) final;
 
-    void emitRepositoryChanged(const QString &s);
-    void emitFilesChanged(const QStringList &l);
-
 private:
     CvsPluginPrivate *const m_plugin;
 };
