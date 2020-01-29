@@ -71,7 +71,7 @@ bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode)
 {
     return isValidQmlObjectNode(modelNode)
             && modelNode.metaInfo().isValid()
-            && isItemOr3DNode(modelNode);
+           && (isItemOr3DNode(modelNode) || modelNode.metaInfo().isSubclassOf("FlowView.FlowTransition"));
 }
 
 bool QmlVisualNode::isRootNode() const
@@ -318,6 +318,17 @@ NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view)
     const ModelNode node = nodes.first();
 
     return node.defaultNodeListProperty();
+}
+
+bool QmlVisualNode::isFlowTransition(const ModelNode &node)
+{
+    return node.metaInfo().isValid()
+           && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
+}
+
+bool QmlVisualNode::isFlowTransition() const
+{
+    return isFlowTransition(modelNode());
 }
 
 QList<ModelNode> toModelNodeList(const QList<QmlVisualNode> &qmlVisualNodeList)

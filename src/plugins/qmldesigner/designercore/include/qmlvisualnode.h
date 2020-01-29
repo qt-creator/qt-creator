@@ -108,6 +108,10 @@ public:
 
     static NodeListProperty findSceneNodeProperty(AbstractView *view);
 
+    static bool isFlowTransition(const ModelNode &node);
+
+    bool isFlowTransition() const;
+
 private:
     void setDoubleProperty(const PropertyName &name, double value);
 };
