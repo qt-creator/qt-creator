@@ -334,6 +334,69 @@ public:
     }
 };
 
+bool flowOptionVisible(const SelectionContext &context)
+{
+    return QmlFlowViewNode::isValidQmlFlowViewNode(context.rootNode());
+}
+
+bool isFlowItem(const SelectionContext &context)
+{
+    return context.singleNodeIsSelected()
+           && QmlFlowItemNode::isValidQmlFlowItemNode(context.currentSingleSelectedNode());
+}
+
+bool isFlowTransitionItem(const SelectionContext &context)
+{
+    return context.singleNodeIsSelected()
+           && QmlFlowItemNode::isFlowTransition(context.currentSingleSelectedNode());
+}
+
+bool isFlowActionItemItem(const SelectionContext &context)
+{
+    return context.singleNodeIsSelected()
+           && QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(context.currentSingleSelectedNode());
+}
+
+bool isFlowItemOrTransition(const SelectionContext &context)
+{
+    return isFlowItem(context) || isFlowTransitionItem(context);
+}
+
+class FlowActionConnectAction : public ActionGroup
+{
+public:
+    FlowActionConnectAction(const QString &displayName, const QByteArray &menuId, int priority) :
+        ActionGroup(displayName, menuId, priority,
+                    &isFlowActionItemItem, &flowOptionVisible)
+
+    {}
+
+    void updateContext() override
+    {
+        menu()->clear();
+        if (selectionContext().isValid()) {
+            action()->setEnabled(isEnabled(selectionContext()));
+            action()->setVisible(isVisible(selectionContext()));
+        } else {
+            return;
+        }
+        if (action()->isEnabled()) {
+            for (const QmlFlowItemNode &node : QmlFlowViewNode(selectionContext().rootNode()).flowItems()) {
+                if (node != selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode()) {
+                    QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect: %1")).arg(captionForModelNode(node));
+                    ActionTemplate *connectionAction = new ActionTemplate(what, &ModelNodeOperations::addTransition);
+
+                    SelectionContext nodeSelectionContext = selectionContext();
+                    nodeSelectionContext.setTargetNode(node);
+                    connectionAction->setSelectionContext(nodeSelectionContext);
+
+                    menu()->addAction(connectionAction);
+                }
+            }
+        }
+    }
+};
+
 const char xProperty[] = "x";
 const char yProperty[] = "y";
 const char zProperty[] = "z";
@@ -785,6 +848,47 @@ void DesignerActionManager::createDefaultDesignerActions()
                           priorityLayoutCategory,
                           &layoutOptionVisible));
 
+    //isFlowTransitionItem
+
+    addDesignerAction(new ActionGroup(
+        flowCategoryDisplayName,
+        flowCategory,
+        priorityFlowCategory,
+        &isFlowItemOrTransition,
+        &flowOptionVisible));
+
+    addDesignerAction(new ModelNodeFormEditorAction(
+        createFlowActionAreaCommandId,
+        createFlowActionAreaDisplayName,
+        addIcon.icon(),
+        addFlowActionToolTip,
+        flowCategory,
+        {},
+        priorityFirst,
+        &createFlowActionArea,
+        &isFlowItem,
+        &flowOptionVisible));
+
+    addDesignerAction(new FlowActionConnectAction(
+        flowConnectionCategoryDisplayName,
+        flowConnectionCategory,
+        priorityFlowCategory));
+
+
+    const QList<TypeName> types = {"FlowActionArea",
+                                   "FlowFadeEffect",
+                                   "FlowPushRightEffect",
+                                   "FlowPushLeftEffect",
+                                   "FlowPushUpEffect",
+                                   "FlowSlideDownEffect",
+                                   "FlowSlideLeftEffect",
+                                   "FlowSlideRightEffect",
+                                   "FlowSlideUpEffect",
+                                   "None"};
+
+    for (const TypeName &typeName : types)
+        addTransitionEffectAction(typeName);
+
     addDesignerAction(new ActionGroup(
                           stackedContainerCategoryDisplayName,
                           stackedContainerCategory,
@@ -1059,6 +1163,20 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
 }
 
 DesignerActionManager::~DesignerActionManager() = default;
+
+void DesignerActionManager::addTransitionEffectAction(const TypeName &typeName)
+{
+    addDesignerAction(new ModelNodeContextMenuAction(
+        QByteArray(ComponentCoreConstants::flowAssignEffectCommandId) + typeName,
+        QLatin1String(ComponentCoreConstants::flowAssignEffectDisplayName) + typeName,
+        {},
+        ComponentCoreConstants::flowCategory,
+        {},
+        typeName == "None" ? 100 : 140,
+        [typeName](const SelectionContext &context)
+        { ModelNodeOperations::addFlowEffect(context, typeName); },
+        &isFlowTransitionItem));
+}
 
 DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),
     m_toolBar(new QToolBar("ActionToolBar", this))

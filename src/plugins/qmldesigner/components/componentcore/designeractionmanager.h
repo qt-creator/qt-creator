@@ -103,6 +103,8 @@ public:
     void registerAddResourceHandler(const AddResourceHandler &handler);
 
 private:
+    void addTransitionEffectAction(const TypeName &typeName);
+
     QList<QSharedPointer<ActionInterface> > m_designerActions;
     DesignerActionManagerView *m_designerActionManagerView;
     QList<AddResourceHandler> m_addResourceHandler;
