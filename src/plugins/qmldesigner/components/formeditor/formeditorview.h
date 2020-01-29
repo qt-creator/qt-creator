@@ -76,6 +76,9 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList,
+                                  PropertyChangeFlags propertyChange) override;
+
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;

@@ -36,6 +36,7 @@
 #include "formeditorscene.h"
 #include "abstractcustomtool.h"
 
+#include <bindingproperty.h>
 #include <designersettings.h>
 #include <designmodecontext.h>
 #include <modelnode.h>
@@ -365,6 +366,32 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedNodeList)));
 
     m_scene->update();
+}
+
+void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
+{
+    for (const BindingProperty &property : propertyList) {
+        QmlVisualNode node(property.parentModelNode());
+        if (node.isFlowTransition()) {
+            qDebug() << "isflow" << node;
+            FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode());
+            if (item) {
+                m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
+                m_scene->synchronizeTransformation(item);
+                item->update();
+            }
+        } else if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(property.parentModelNode())) {
+            const QmlVisualNode target = property.resolveToModelNode();
+            if (target.modelNode().isValid() && target.isFlowTransition()) {
+                FormEditorItem *item = m_scene->itemForQmlItemNode(target.toQmlItemNode());
+                if (item) {
+                    m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
+                    m_scene->synchronizeTransformation(item);
+                    item->update();
+                }
+            }
+        }
+    }
 }
 
 void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
