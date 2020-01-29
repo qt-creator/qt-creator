@@ -96,9 +96,17 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
     MetaInfo metaInfo = MetaInfo::global();
 
     FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
-    QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
+    const QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
+    QPointF itemPos = positonInItemSpace;
 
-    m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, positonInItemSpace, parentNode);
+    const bool rootIsFlow = QmlItemNode(view()->rootModelNode()).isFlowView();
+
+    if (rootIsFlow)
+        itemPos = QPointF();
+
+    m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, parentNode);
+
+    m_dragNode.setFlowItemPosition(positonInItemSpace);
 
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);
@@ -223,8 +231,9 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSc
         end(generateUseSnapping(event->modifiers()));
 
         if (m_dragNode.isValid()) {
-            if (m_dragNode.instanceParentItem().isValid()
-                    && m_dragNode.instanceParent().modelNode().metaInfo().isLayoutable()) {
+            if ((m_dragNode.instanceParentItem().isValid()
+                 && m_dragNode.instanceParent().modelNode().metaInfo().isLayoutable())
+                || m_dragNode.isFlowItem()) {
                 m_dragNode.removeProperty("x");
                 m_dragNode.removeProperty("y");
                 view()->resetPuppet(); //Otherwise the layout might not reposition the item
