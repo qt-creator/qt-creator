@@ -228,6 +228,8 @@ void FormEditorView::nodeCreated(const ModelNode &node)
         if (node.isSubclassOf("QtQuick3D.View3D"))
             m_formEditorWidget->option3DAction()->setEnabled(true);
     }
+    else if (QmlVisualNode::isFlowTransition(node))
+        setupFormEditorItemTree(QmlItemNode(node));
 }
 
 void FormEditorView::modelAboutToBeDetached(Model *model)
