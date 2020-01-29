@@ -632,7 +632,13 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
     // copy the map to a temporary list
     for (const Project *pro : m_projects) {
         const QString proName = pro->projectFilePath().toString();
-        unordered << QPair<QString, QStringList>(proName, m_depMap.value(proName));
+        const QStringList depList = filtered(m_depMap.value(proName),
+                                             [this](const QString &proPath) {
+            return contains(m_projects, [proPath](const Project *p) {
+                return p->projectFilePath().toString() == proPath;
+            });
+        });
+        unordered << qMakePair(proName, depList);
     }
 
     while (!unordered.isEmpty()) {
@@ -710,31 +716,9 @@ void SessionManager::configureEditors(Project *project)
 
 void SessionManager::removeProjects(const QList<Project *> &remove)
 {
-    QMap<QString, QStringList> resMap;
-
     for (Project *pro : remove)
         emit m_instance->aboutToRemoveProject(pro);
 
-    // Refresh dependencies
-    QSet<QString> projectFiles;
-    for (Project *pro : projects()) {
-        if (!remove.contains(pro))
-            projectFiles.insert(pro->projectFilePath().toString());
-    }
-
-    auto  i = projectFiles.begin();
-    while (i != projectFiles.end()) {
-        QStringList dependencies;
-        foreach (const QString &dependency, d->m_depMap.value(*i)) {
-            if (projectFiles.contains(dependency))
-                dependencies << dependency;
-        }
-        if (!dependencies.isEmpty())
-            resMap.insert(*i, dependencies);
-        ++i;
-    }
-
-    d->m_depMap = resMap;
     bool changeStartupProject = false;
 
     // Delete projects
@@ -895,14 +879,10 @@ void SessionManagerPrivate::restoreDependencies(const PersistentSettingsReader &
     auto i = depMap.constBegin();
     while (i != depMap.constEnd()) {
         const QString &key = i.key();
-        if (!m_failedProjects.contains(key)) {
-            QStringList values;
-            foreach (const QString &value, i.value().toStringList()) {
-                if (!m_failedProjects.contains(value))
-                    values << value;
-            }
-            m_depMap.insert(key, values);
-        }
+        QStringList values;
+        foreach (const QString &value, i.value().toStringList())
+            values << value;
+        m_depMap.insert(key, values);
         ++i;
     }
 }
