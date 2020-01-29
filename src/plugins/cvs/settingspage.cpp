@@ -25,13 +25,10 @@
 
 #include "settingspage.h"
 
-#include "cvsclient.h"
 #include "cvssettings.h"
-#include "cvsplugin.h"
 #include "ui_settingspage.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <utils/pathchooser.h>
 
@@ -48,18 +45,18 @@ class CvsSettingsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::SettingsPageWidget)
 
 public:
-    CvsSettingsPageWidget(Core::IVersionControl *control, CvsSettings *settings);
+    CvsSettingsPageWidget(const std::function<void()> & onApply, CvsSettings *settings);
 
     void apply() final;
 
 private:
     Ui::SettingsPage m_ui;
-    Core::IVersionControl *m_control;
+    std::function<void()> m_onApply;
     CvsSettings *m_settings;
 };
 
-CvsSettingsPageWidget::CvsSettingsPageWidget(Core::IVersionControl *control, CvsSettings *settings)
-    : m_control(control), m_settings(settings)
+CvsSettingsPageWidget::CvsSettingsPageWidget(const std::function<void()> &onApply, CvsSettings *settings)
+    : m_onApply(onApply), m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
@@ -89,16 +86,16 @@ void CvsSettingsPageWidget::apply()
         return;
 
     *m_settings = rc;
-    m_control->configurationChanged();
+    m_onApply();
 }
 
-CvsSettingsPage::CvsSettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent) :
+CvsSettingsPage::CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings, QObject *parent) :
     Core::IOptionsPage( parent)
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(CvsSettingsPageWidget::tr("CVS"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([control, settings] { return new CvsSettingsPageWidget(control, settings); });
+    setWidgetCreator([onApply, settings] { return new CvsSettingsPageWidget(onApply, settings); });
 }
 
 } // Internal

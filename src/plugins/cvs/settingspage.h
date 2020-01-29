@@ -27,8 +27,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Core { class IVersionControl; }
-
 namespace Cvs {
 namespace Internal {
 
@@ -37,7 +35,7 @@ class CvsSettings;
 class CvsSettingsPage final : public Core::IOptionsPage
 {
 public:
-    CvsSettingsPage(Core::IVersionControl *control, CvsSettings *settings, QObject *parent);
+    CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings, QObject *parent);
 };
 
 } // namespace Cvs
