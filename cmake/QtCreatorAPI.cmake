@@ -97,8 +97,11 @@ else()
 endif ()
 
 set(__QTC_PLUGINS "" CACHE INTERNAL "*** Internal ***")
+set(__QTC_INSTALLED_PLUGINS "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_LIBRARIES "" CACHE INTERNAL "*** Internal ***")
+set(__QTC_INSTALLED_LIBRARIES "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_EXECUTABLES "" CACHE INTERNAL "*** Internal ***")
+set(__QTC_INSTALLED_EXECUTABLES "" CACHE INTERNAL "*** Internal ***")
 set(__QTC_TESTS "" CACHE INTERNAL "*** Internal ***")
 
 #
@@ -528,6 +531,24 @@ function(add_qtc_library name)
       OPTIONAL
   )
 
+  if (library_type STREQUAL "SHARED")
+    set(target_prefix ${CMAKE_SHARED_LIBRARY_PREFIX})
+    if (WIN32)
+      set(target_suffix ${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX})
+      set(target_prefix "")
+    elseif(APPLE)
+      set(target_suffix .${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    else()
+      set(target_suffix ${CMAKE_SHARED_LIBRARY_SUFFIX}.${PROJECT_VERSION_MAJOR})
+    endif()
+    set(lib_dir "${IDE_LIBRARY_PATH}")
+    if (WIN32)
+      set(lib_dir "${_DESTINATION}")
+    endif()
+    update_cached_list(__QTC_INSTALLED_LIBRARIES
+      "${lib_dir}/${target_prefix}${name}${target_suffix}")
+  endif()
+
   if (NAMELINK_OPTION)
     install(TARGETS ${name}
       LIBRARY
@@ -744,6 +765,16 @@ function(add_qtc_plugin target_name)
         COMPONENT Devel EXCLUDE_FROM_ALL
         OPTIONAL
     )
+    get_target_property(target_suffix ${target_name} SUFFIX)
+    get_target_property(target_prefix ${target_name} PREFIX)
+    if (target_suffix STREQUAL "target_suffix-NOTFOUND")
+      set(target_suffix ${CMAKE_SHARED_LIBRARY_SUFFIX})
+    endif()
+    if (target_prefix STREQUAL "target_prefix-NOTFOUND")
+      set(target_prefix ${CMAKE_SHARED_LIBRARY_PREFIX})
+    endif()
+    update_cached_list(__QTC_INSTALLED_PLUGINS
+      "${plugin_dir}/${target_prefix}${target_name}${target_suffix}")
   endif()
 endfunction()
 
@@ -898,6 +929,8 @@ function(add_qtc_executable name)
 
   if (NOT _arg_SKIP_INSTALL)
     install(TARGETS ${name} DESTINATION "${_DESTINATION}" OPTIONAL)
+    update_cached_list(__QTC_INSTALLED_EXECUTABLES
+      "${_DESTINATION}/${name}${CMAKE_EXECUTABLE_SUFFIX}")
   endif()
 endfunction()
 
