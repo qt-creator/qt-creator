@@ -163,21 +163,8 @@ void FormEditorScene::synchronizeParent(const QmlItemNode &qmlItemNode)
 void FormEditorScene::synchronizeOtherProperty(FormEditorItem *item, const QByteArray &propertyName)
 {
     Q_ASSERT(item);
-    const QmlItemNode qmlItemNode = item->qmlItemNode();
-    if (propertyName == "opacity")
-        item->setOpacity(qmlItemNode.instanceValue("opacity").toDouble());
 
-    if (propertyName == "clip")
-        item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode.instanceValue("clip").toBool());
-
-    if (NodeHints::fromModelNode(qmlItemNode).forceClip())
-        item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
-
-    if (propertyName == "z")
-        item->setZValue(qmlItemNode.instanceValue("z").toDouble());
-
-    if (propertyName == "visible")
-        item->setContentVisible(qmlItemNode.instanceValue("visible").toBool());
+    item->synchronizeOtherProperty(propertyName);
 }
 
 FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNode)
