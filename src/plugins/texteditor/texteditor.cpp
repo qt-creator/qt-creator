@@ -7801,10 +7801,16 @@ QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side
         d->m_stretchWidget = nullptr;
     }
 
-    if (side == Right)
+    if (side == Left) {
+        QAction *before = Utils::findOr(d->m_toolBar->actions(),
+                                        d->m_fileEncodingLabelAction,
+                                        [this](QAction *action) {
+                                            return d->m_toolBar->widgetForAction(action) != nullptr;
+                                        });
+        return d->m_toolBar->insertWidget(before, widget);
+    } else {
         return d->m_toolBar->insertWidget(d->m_fileEncodingLabelAction, widget);
-    else
-        return d->m_toolBar->insertWidget(d->m_toolBar->actions().constFirst(), widget);
+    }
 }
 
 void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)
