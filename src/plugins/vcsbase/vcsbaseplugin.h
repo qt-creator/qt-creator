@@ -218,7 +218,7 @@ private:
     bool supportsRepositoryCreation() const;
 
     QPointer<VcsBaseSubmitEditor> m_submitEditor;
-    Core::IVersionControl *m_versionControl = nullptr;
+    QPointer<Core::IVersionControl> m_versionControl;
     Core::Context m_context;
     VcsBasePluginState m_state;
     int m_actionState = -1;
