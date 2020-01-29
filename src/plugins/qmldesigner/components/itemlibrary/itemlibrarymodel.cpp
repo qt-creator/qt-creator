@@ -64,6 +64,13 @@ void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
         collapsedStateHash.insert(section, expanded);
 }
 
+void ItemLibraryModel::setFlowMode(bool b)
+{
+    m_flowMode = b;
+    bool changed;
+    updateVisibility(&changed);
+}
+
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
     : QAbstractListModel(parent)
 {
@@ -187,6 +194,12 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
         bool forceVisiblity = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
+        if (m_flowMode) {
+            forceVisiblity = false;
+            isItem = metaInfo.isSubclassOf("FlowView.FlowItem");
+        }
+
+
         if (valid
                 && (isItem || forceVisiblity) //We can change if the navigator does support pure QObjects
                 && (entry.requiredImport().isEmpty()
@@ -262,6 +275,10 @@ void ItemLibraryModel::updateVisibility(bool *changed)
         bool sectionChanged = false;
         bool sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
                                                                              &sectionChanged);
+
+        if (m_flowMode  && itemLibrarySection->sectionName() != "My QML Components")
+            sectionVisibility= false;
+
         *changed |= sectionChanged;
         *changed |= itemLibrarySection->setVisible(sectionVisibility);
     }

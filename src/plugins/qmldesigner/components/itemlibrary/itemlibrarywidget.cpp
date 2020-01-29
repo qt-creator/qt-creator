@@ -416,6 +416,11 @@ void ItemLibraryWidget::startDragAndDrop(QQuickItem *mouseArea, QVariant itemLib
     });
 }
 
+void ItemLibraryWidget::setFlowMode(bool b)
+{
+    m_itemLibraryModel->setFlowMode(b);
+}
+
 void ItemLibraryWidget::removeImport(const QString &name)
 {
     QTC_ASSERT(m_model, return);

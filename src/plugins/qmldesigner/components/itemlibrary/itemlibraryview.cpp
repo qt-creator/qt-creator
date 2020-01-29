@@ -27,6 +27,7 @@
 #include "itemlibrarywidget.h"
 #include <import.h>
 #include <importmanagerview.h>
+#include <qmlitemnode.h>
 #include <rewriterview.h>
 
 namespace QmlDesigner {
@@ -68,6 +69,7 @@ void ItemLibraryView::modelAttached(Model *model)
     updateImports();
     model->attachView(m_importManagerView);
     m_hasErrors = !rewriterView()->errors().isEmpty();
+    m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
 }
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)

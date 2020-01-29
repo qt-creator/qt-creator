@@ -73,6 +73,8 @@ public:
 
     void setExpanded(bool, const QString &section);
 
+    void setFlowMode(bool);
+
 signals:
     void qmlModelChanged();
     void searchTextChanged();
@@ -88,6 +90,7 @@ private: // variables
     QHash<int, QByteArray> m_roleNames;
 
     QString m_searchText;
+    bool m_flowMode = false;
 };
 
 } // namespace QmlDesigner

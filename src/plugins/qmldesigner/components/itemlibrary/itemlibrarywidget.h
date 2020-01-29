@@ -86,6 +86,8 @@ public:
 
     Q_INVOKABLE void startDragAndDrop(QQuickItem *mouseArea, QVariant itemLibId);
 
+    void setFlowMode(bool b);
+
 signals:
     void itemActivated(const QString& itemName);
 
