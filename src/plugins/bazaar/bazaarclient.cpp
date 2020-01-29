@@ -111,16 +111,6 @@ BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(settings)
     });
 }
 
-bool BazaarClient::synchronousSetUserId()
-{
-    QStringList args;
-    args << QLatin1String("whoami")
-         << (settings().stringValue(BazaarSettings::userNameKey) + QLatin1String(" <")
-             + settings().stringValue(BazaarSettings::userEmailKey) + QLatin1Char('>'));
-    return vcsFullySynchronousExec(QDir::currentPath(), args).result
-            == SynchronousProcessResponse::Finished;
-}
-
 BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) const
 {
     QFile branchConfFile(repositoryRoot + QLatin1Char('/') +

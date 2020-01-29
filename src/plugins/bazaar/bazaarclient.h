@@ -42,7 +42,6 @@ class BazaarClient : public VcsBase::VcsBaseClient
 public:
     explicit BazaarClient(BazaarSettings *settings);
 
-    bool synchronousSetUserId();
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
     bool synchronousUncommit(const QString &workingDir,
                              const QString& revision = QString(),
