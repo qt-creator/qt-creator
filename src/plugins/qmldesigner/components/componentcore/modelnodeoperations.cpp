@@ -44,6 +44,7 @@
 #include <documentmanager.h>
 #include <qmlanchors.h>
 #include <nodelistproperty.h>
+#include <nodeproperty.h>
 #include <signalhandlerproperty.h>
 
 #include <limits>
@@ -1012,6 +1013,88 @@ bool addImageToProject(const QStringList &fileNames, const QString &defaultDirec
     }
 
     return allSuccessful;
+}
+
+void createFlowActionArea(const SelectionContext &selectionContext)
+{
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode container = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(container.isValid(), return);
+    QTC_ASSERT(container.metaInfo().isValid(), return);
+
+    NodeMetaInfo actionAreaMetaInfo = view->model()->metaInfo("FlowView.FlowActionArea", -1, -1);
+    QTC_ASSERT(actionAreaMetaInfo.isValid(), return);
+
+    const QPointF pos = selectionContext.scenePosition().isNull() ? QPointF() : selectionContext.scenePosition() - QmlItemNode(container).flowPosition();
+
+    view->executeInTransaction("DesignerActionManager:createFlowActionArea",
+                               [view, container, actionAreaMetaInfo, pos](){
+
+                                   ModelNode flowActionNode =
+                                       view->createModelNode("FlowView.FlowActionArea",
+                                                             actionAreaMetaInfo.majorVersion(),
+                                                             actionAreaMetaInfo.minorVersion());
+
+                                   if (!pos.isNull()) {
+                                       flowActionNode.variantProperty("x").setValue(pos.x());
+                                       flowActionNode.variantProperty("y").setValue(pos.y());
+                                   }
+
+                                   container.defaultNodeListProperty().reparentHere(flowActionNode);
+                                   view->setSelectedModelNode(flowActionNode);
+                               });
+
+}
+
+void addTransition(const SelectionContext &selectionContext)
+{
+    if (selectionContext.view()) {
+        AbstractView *view = selectionContext.view();
+        QmlFlowItemNode targetItem = selectionContext.targetNode();
+        QmlFlowActionAreaNode actionArea = selectionContext.currentSingleSelectedNode();
+
+        QTC_ASSERT(targetItem.isValid(), return);
+        QTC_ASSERT(actionArea.isValid(), return);
+
+
+        view->executeInTransaction("DesignerActionManager:addTransition",
+                                   [view, targetItem, &actionArea](){
+                                       actionArea.assignTargetFlowItem(targetItem);
+                                   });
+    }
+}
+
+void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typeName)
+{
+   AbstractView *view = selectionContext.view();
+
+   QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+   ModelNode container = selectionContext.currentSingleSelectedNode();
+   QTC_ASSERT(container.isValid(), return);
+   QTC_ASSERT(container.metaInfo().isValid(), return);
+   QTC_ASSERT(QmlItemNode::isFlowTransition(container), return);
+
+   NodeMetaInfo effectMetaInfo = view->model()->metaInfo("FlowView." + typeName, -1, -1);
+   QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
+
+   view->executeInTransaction("DesignerActionManager:addFlowEffect",
+                              [view, container, effectMetaInfo](){
+
+                                  if (container.hasProperty("effect"))
+                                      container.removeProperty("effect");
+
+                                  if (effectMetaInfo.isValid()) {
+                                      ModelNode effectNode =
+                                          view->createModelNode(effectMetaInfo.typeName(),
+                                                                effectMetaInfo.majorVersion(),
+                                                                effectMetaInfo.minorVersion());
+
+                                      container.nodeProperty("effect").reparentHere(effectNode);
+                                      view->setSelectedModelNode(effectNode);
+                                  }
+                              });
 }
 
 } // namespace Mode
