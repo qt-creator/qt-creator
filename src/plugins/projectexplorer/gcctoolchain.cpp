@@ -1093,6 +1093,13 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
         searchPaths << gnuSearchPathsFromRegistry();
         searchPaths << atmelSearchPathsFromRegistry();
         searchPaths << renesasRl78SearchPathsFromRegistry();
+        if (HostOsInfo::isAnyUnixHost()) {
+            FilePath ccachePath = FilePath::fromString("/usr/lib/ccache/bin");
+            if (!ccachePath.exists())
+                ccachePath = FilePath::fromString("/usr/lib/ccache");
+            if (ccachePath.exists() && !searchPaths.contains(ccachePath))
+                searchPaths << ccachePath;
+        }
         for (const FilePath &dir : searchPaths) {
             static const QRegularExpression regexp(binaryRegexp);
             QDir binDir(dir.toString());
