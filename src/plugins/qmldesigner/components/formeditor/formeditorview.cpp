@@ -170,6 +170,8 @@ void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
         //We have to keep the children if they are not children in the model anymore.
         //Otherwise we delete the children explicitly anyway.
         deleteWithoutChildren(removedItemList);
+    } else if (qmlItemNode.isFlowTransition()) {
+        deleteWithoutChildren(scene()->itemsForQmlItemNodes({qmlItemNode}));
     }
 }
 
