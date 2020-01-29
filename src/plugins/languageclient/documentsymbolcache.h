@@ -30,6 +30,7 @@
 #include <languageserverprotocol/languagefeatures.h>
 
 #include <QObject>
+#include <QTimer>
 
 namespace LanguageClient {
 
@@ -48,11 +49,14 @@ signals:
                     const LanguageServerProtocol::DocumentSymbolsResult &symbols);
 
 private:
+    void requestSymbolsImpl();
     void handleResponse(const LanguageServerProtocol::DocumentUri &uri,
                         const LanguageServerProtocol::DocumentSymbolsRequest::Response &response);
 
     QMap<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::DocumentSymbolsResult> m_cache;
     Client *m_client = nullptr;
+    QTimer m_compressionTimer;
+    QSet<LanguageServerProtocol::DocumentUri> m_compressedUris;
 };
 
 } // namespace LanguageClient
