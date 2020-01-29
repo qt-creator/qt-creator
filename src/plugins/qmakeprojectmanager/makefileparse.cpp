@@ -520,7 +520,7 @@ void QmakeProjectManagerPlugin::testMakefileParser()
 
     QCOMPARE(Utils::QtcProcess::splitArgs(parser.unparsedArguments()),
              Utils::QtcProcess::splitArgs(unparsedArguments));
-    QCOMPARE(parser.effectiveBuildConfig(nullptr), effectiveBuildConfig);
+    QCOMPARE(parser.effectiveBuildConfig({}), effectiveBuildConfig);
 
     const QMakeStepConfig qmsc = parser.config();
     QCOMPARE(qmsc.archConfig, static_cast<QMakeStepConfig::TargetArchConfig>(archConfig));
