@@ -374,6 +374,9 @@ void QmlObjectNode::destroy()
         }
     }
 
+    if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(modelNode()))
+        QmlFlowActionAreaNode(modelNode()).destroyTarget();
+
     removeStateOperationsForChildren(modelNode());
     modelNode().destroy();
 }
