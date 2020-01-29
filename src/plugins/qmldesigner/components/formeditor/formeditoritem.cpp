@@ -279,7 +279,7 @@ static void paintTextInPlaceHolderForInvisbleItem(QPainter *painter,
 
 void paintDecorationInPlaceHolderForInvisbleItem(QPainter *painter, const QRectF &boundingRect)
 {
-    qreal stripesWidth = 12;
+    qreal stripesWidth = 8;
 
     QRegion innerRegion = QRegion(boundingRect.adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
     QRegion outerRegion  = QRegion(boundingRect.toRect()) - innerRegion;
