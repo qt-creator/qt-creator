@@ -191,6 +191,54 @@ qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
     return weight;
 }
 
+void FormEditorItem::synchronizeOtherProperty(const QByteArray &propertyName)
+{
+    if (propertyName == "opacity")
+        setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
+
+    if (propertyName == "clip")
+        setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());
+
+    if (NodeHints::fromModelNode(qmlItemNode()).forceClip())
+        setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
+
+    if (propertyName == "z")
+        setZValue(qmlItemNode().instanceValue("z").toDouble());
+
+    if (propertyName == "visible")
+        setContentVisible(qmlItemNode().instanceValue("visible").toBool());
+}
+
+void FormEditorItem::setDataModelPosition(const QPointF &position)
+{
+    qmlItemNode().setPosition(position);
+}
+
+void FormEditorItem::setDataModelPositionInBaseState(const QPointF &position)
+{
+    qmlItemNode().setPostionInBaseState(position);
+}
+
+QPointF FormEditorItem::instancelPosition() const
+{
+    return qmlItemNode().instancePosition();
+}
+
+QTransform FormEditorItem::instanceSceneTransform() const
+{
+    return qmlItemNode().instanceSceneTransform();
+}
+
+QTransform FormEditorItem::instanceSceneContentItemTransform() const
+{
+    return qmlItemNode().instanceSceneContentItemTransform();
+}
+
+bool FormEditorItem::flowHitTest(const QPointF &point) const
+{
+    return false;
+}
+
 FormEditorItem::~FormEditorItem()
 {
     scene()->removeItemFromHash(this);

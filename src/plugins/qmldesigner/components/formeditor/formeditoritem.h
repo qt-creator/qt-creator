@@ -88,7 +88,7 @@ public:
     QPainterPath shape() const override;
     bool contains(const QPointF &point) const override;
 
-    void updateGeometry();
+    virtual void updateGeometry();
     void updateVisibilty();
 
     void showAttention();
@@ -107,15 +107,28 @@ public:
     QPointF center() const;
     qreal selectionWeigth(const QPointF &point, int iteration);
 
+    virtual void synchronizeOtherProperty(const QByteArray &propertyName);
+    virtual void setDataModelPosition(const QPointF &position);
+    virtual void setDataModelPositionInBaseState(const QPointF &position);
+    virtual QPointF instancelPosition() const;
+    virtual QTransform instanceSceneTransform() const;
+    virtual QTransform instanceSceneContentItemTransform() const;
+
+    virtual bool flowHitTest(const QPointF &point) const;
+
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
     void paintPlaceHolderForInvisbleItem(QPainter *painter) const;
     void paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const;
     QList<FormEditorItem*> offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const;
+    FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);
+
+    QRectF m_boundingRect;
+    QRectF m_paintedBoundingRect;
+    QRectF m_selectionBoundingRect;
 
 private: // functions
-    FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);
     void setup();
 
 private: // variables
@@ -123,9 +136,7 @@ private: // variables
     QmlItemNode m_qmlItemNode;
     QPointer<QTimeLine> m_attentionTimeLine;
     QTransform m_inverseAttentionTransform;
-    QRectF m_boundingRect;
-    QRectF m_paintedBoundingRect;
-    QRectF m_selectionBoundingRect;
+
     double m_borderWidth;
     bool m_highlightBoundingRect;
     bool m_blurContent;
