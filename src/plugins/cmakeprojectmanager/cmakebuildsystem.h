@@ -46,7 +46,7 @@ class CMakeBuildConfiguration;
 // CMakeBuildSystem:
 // --------------------------------------------------------------------
 
-class CMakeBuildSystem : public ProjectExplorer::BuildSystem
+class CMakeBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 

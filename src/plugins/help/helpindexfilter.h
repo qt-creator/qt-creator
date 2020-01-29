@@ -33,7 +33,7 @@
 namespace Help {
 namespace Internal {
 
-class HelpIndexFilter : public Core::ILocatorFilter
+class HelpIndexFilter final : public Core::ILocatorFilter
 {
     Q_OBJECT
 

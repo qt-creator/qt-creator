@@ -29,7 +29,7 @@
 
 namespace Plugin2 {
 
-class MyPlugin2 : public ExtensionSystem::IPlugin
+class MyPlugin2 final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "plugin" FILE "plugin2.json")

@@ -67,7 +67,7 @@ private:
     bool m_isFunction;
 };
 
-class TEXTEDITOR_EXPORT KeywordsFunctionHintModel : public IFunctionHintProposalModel
+class TEXTEDITOR_EXPORT KeywordsFunctionHintModel final : public IFunctionHintProposalModel
 {
 public:
     KeywordsFunctionHintModel(const QStringList &functionSymbols);

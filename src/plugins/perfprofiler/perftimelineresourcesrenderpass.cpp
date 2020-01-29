@@ -36,7 +36,7 @@
 namespace PerfProfiler {
 namespace Internal {
 
-class ResourcesRenderPassState : public Timeline::TimelineRenderPass::State
+class ResourcesRenderPassState final : public Timeline::TimelineRenderPass::State
 {
 public:
     ResourcesRenderPassState();

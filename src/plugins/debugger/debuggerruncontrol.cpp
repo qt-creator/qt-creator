@@ -187,7 +187,7 @@ public:
     Utils::QtcProcess m_proc;
 };
 
-class CoreUnpacker : public RunWorker
+class CoreUnpacker final : public RunWorker
 {
 public:
     CoreUnpacker(RunControl *runControl, const QString &coreFileName)

@@ -47,7 +47,7 @@ namespace Internal {
 namespace Ui { class DeviceSettingsWidget; }
 class NameValidator;
 
-class DeviceSettingsWidget : public Core::IOptionsPageWidget
+class DeviceSettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 public:

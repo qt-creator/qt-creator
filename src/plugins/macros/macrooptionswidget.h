@@ -39,7 +39,7 @@ namespace Internal {
 
 namespace Ui { class MacroOptionsWidget; }
 
-class MacroOptionsWidget : public Core::IOptionsPageWidget
+class MacroOptionsWidget final : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 

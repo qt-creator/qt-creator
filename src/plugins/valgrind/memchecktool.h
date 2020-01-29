@@ -33,7 +33,7 @@ namespace Internal {
 
 class MemcheckToolRunner;
 
-class MemcheckTool : public QObject
+class MemcheckTool final : public QObject
 {
     Q_OBJECT
 

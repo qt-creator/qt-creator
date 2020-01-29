@@ -33,7 +33,7 @@
 
 namespace PerfProfiler {
 
-class PERFPROFILER_EXPORT PerfSettings : public ProjectExplorer::ISettingsAspect
+class PERFPROFILER_EXPORT PerfSettings final : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
     Q_PROPERTY(QStringList perfRecordArguments READ perfRecordArguments NOTIFY changed)

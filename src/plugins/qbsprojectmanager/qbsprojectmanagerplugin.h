@@ -37,7 +37,7 @@ namespace Internal {
 class QbsProject;
 class QbsProjectManagerPluginPrivate;
 
-class QbsProjectManagerPlugin : public ExtensionSystem::IPlugin
+class QbsProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QbsProjectManager.json")

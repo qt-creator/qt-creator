@@ -30,7 +30,7 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbPlugin : public ExtensionSystem::IPlugin
+class QdbPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Boot2Qt.json")

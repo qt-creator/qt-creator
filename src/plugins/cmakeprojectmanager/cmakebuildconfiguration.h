@@ -42,7 +42,7 @@ class BuildDirManager;
 class CMakeBuildSystem;
 class CMakeBuildSettingsWidget;
 
-class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
+class CMakeBuildConfiguration final : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 

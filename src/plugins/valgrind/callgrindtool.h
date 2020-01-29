@@ -32,7 +32,7 @@ namespace Internal {
 
 class ValgrindGlobalSettings;
 
-class CallgrindTool : public QObject
+class CallgrindTool final : public QObject
 {
     Q_OBJECT
 

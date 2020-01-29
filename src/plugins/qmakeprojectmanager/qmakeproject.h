@@ -51,7 +51,7 @@ namespace QmakeProjectManager {
 
 namespace Internal { class CentralizedFolderWatcher; }
 
-class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
+class  QMAKEPROJECTMANAGER_EXPORT QmakeProject final : public ProjectExplorer::Project
 {
     Q_OBJECT
 

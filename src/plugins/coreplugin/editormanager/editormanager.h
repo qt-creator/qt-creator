@@ -59,7 +59,7 @@ class EditorManagerPrivate;
 class MainWindow;
 } // namespace Internal
 
-class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
+class CORE_EXPORT EditorManagerPlaceHolder final : public QWidget
 {
     Q_OBJECT
 public:

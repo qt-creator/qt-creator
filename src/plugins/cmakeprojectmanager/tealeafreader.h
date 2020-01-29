@@ -37,7 +37,7 @@ namespace Utils { class QtcProcess; }
 namespace CMakeProjectManager {
 namespace Internal {
 
-class TeaLeafReader : public BuildDirReader
+class TeaLeafReader final : public BuildDirReader
 {
     Q_OBJECT
 

@@ -37,7 +37,7 @@ class IEditor;
   * to the main editor widget itself.
   */
 
-class CORE_EXPORT DesignMode : public IMode
+class CORE_EXPORT DesignMode final : public IMode
 {
     Q_OBJECT
 

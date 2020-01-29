@@ -45,7 +45,7 @@ class Bookmark;
 class BookmarksPlugin;
 class BookmarkContext;
 
-class BookmarkManager : public QAbstractItemModel
+class BookmarkManager final : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -122,7 +122,7 @@ private:
     QItemSelectionModel *m_selectionModel;
 };
 
-class BookmarkView : public Utils::ListView
+class BookmarkView final : public Utils::ListView
 {
     Q_OBJECT
 

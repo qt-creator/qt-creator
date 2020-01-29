@@ -51,7 +51,7 @@ class CMakeBuildConfiguration;
 class CMakeBuildSystem;
 class CMakeProjectNode;
 
-class BuildDirManager : public QObject
+class BuildDirManager final : public QObject
 {
     Q_OBJECT
 

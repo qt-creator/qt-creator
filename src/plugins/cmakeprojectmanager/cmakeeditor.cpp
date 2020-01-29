@@ -111,7 +111,7 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
 // CMakeEditorWidget
 //
 
-class CMakeEditorWidget : public TextEditorWidget
+class CMakeEditorWidget final : public TextEditorWidget
 {
 public:
     ~CMakeEditorWidget() final = default;

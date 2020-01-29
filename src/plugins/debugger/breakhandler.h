@@ -110,7 +110,7 @@ private:
 using GlobalBreakpoint = QPointer<GlobalBreakpointItem>;
 using GlobalBreakpoints = QList<GlobalBreakpoint>;
 
-class BreakpointItem : public QObject, public Utils::TypedTreeItem<SubBreakpointItem>
+class BreakpointItem final : public QObject, public Utils::TypedTreeItem<SubBreakpointItem>
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 

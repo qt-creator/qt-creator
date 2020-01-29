@@ -35,7 +35,7 @@ namespace Internal {
 
 class QmlJSQuickFixAssistProvider;
 
-class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
+class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSEditor.json")

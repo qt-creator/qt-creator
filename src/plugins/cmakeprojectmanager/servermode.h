@@ -41,7 +41,7 @@ namespace Utils { class QtcProcess; }
 namespace CMakeProjectManager {
 namespace Internal {
 
-class ServerMode : public QObject
+class ServerMode final : public QObject
 {
     Q_OBJECT
 

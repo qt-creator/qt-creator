@@ -42,7 +42,7 @@ namespace Internal {
 class QbsBuildStep;
 class QbsProject;
 
-class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
+class QbsBuildConfiguration final : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 

@@ -30,7 +30,7 @@
 namespace QmlJSTools {
 namespace Internal {
 
-class QmlJSToolsPlugin : public ExtensionSystem::IPlugin
+class QmlJSToolsPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSTools.json")

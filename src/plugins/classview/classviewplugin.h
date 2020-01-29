@@ -30,7 +30,7 @@
 namespace ClassView {
 namespace Internal {
 
-class ClassViewPlugin : public ExtensionSystem::IPlugin
+class ClassViewPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClassView.json")

@@ -68,7 +68,7 @@ private:
     mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;
 };
 
-class QbsBuildSystem : public ProjectExplorer::BuildSystem
+class QbsBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 

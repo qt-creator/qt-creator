@@ -38,7 +38,7 @@ namespace ProjectExplorer { class ProjectNode; }
 namespace CMakeProjectManager {
 namespace Internal {
 
-class ServerModeReader : public BuildDirReader
+class ServerModeReader final : public BuildDirReader
 {
     Q_OBJECT
 

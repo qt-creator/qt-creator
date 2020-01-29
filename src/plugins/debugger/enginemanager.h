@@ -34,7 +34,7 @@ namespace Internal {
 
 class DebuggerEngine;
 
-class EngineManager : public QObject
+class EngineManager final : public QObject
 {
     Q_OBJECT
 

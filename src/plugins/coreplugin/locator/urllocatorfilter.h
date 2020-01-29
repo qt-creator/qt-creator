@@ -36,7 +36,7 @@
 
 namespace Core {
 
-class CORE_EXPORT UrlLocatorFilter : public Core::ILocatorFilter
+class CORE_EXPORT UrlLocatorFilter final : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:

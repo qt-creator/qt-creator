@@ -30,7 +30,7 @@
 namespace Qnx {
 namespace Internal {
 
-class QnxPlugin : public ExtensionSystem::IPlugin
+class QnxPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")

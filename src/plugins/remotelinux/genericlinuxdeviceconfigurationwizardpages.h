@@ -83,7 +83,7 @@ private:
     Private * const d;
 };
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage : public QWizardPage
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage final : public QWizardPage
 {
     Q_OBJECT
 public:

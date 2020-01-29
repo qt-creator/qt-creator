@@ -30,7 +30,7 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeProjectManagerPlugin : public ExtensionSystem::IPlugin
+class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmakeProjectManager.json")

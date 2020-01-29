@@ -45,7 +45,7 @@ class DebuggerPane;
 class CombinedPane;
 class InputPane;
 
-class LogWindow : public QWidget
+class LogWindow final : public QWidget
 {
     Q_OBJECT
 
@@ -85,7 +85,7 @@ private:
     DebuggerEngine *m_engine;
 };
 
-class GlobalLogWindow : public QWidget
+class GlobalLogWindow final : public QWidget
 {
     Q_OBJECT
 

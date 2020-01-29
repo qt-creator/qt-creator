@@ -65,7 +65,7 @@ struct CoreInfo
                                                const QString &coreFile);
 };
 
-class GdbEngine : public CppDebuggerEngine
+class GdbEngine final : public CppDebuggerEngine
 {
     Q_OBJECT
 

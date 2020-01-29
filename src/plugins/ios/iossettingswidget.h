@@ -35,7 +35,7 @@ namespace Internal {
 
 namespace Ui { class IosSettingsWidget; }
 
-class IosSettingsWidget : public Core::IOptionsPageWidget
+class IosSettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosSettingsWidget)
 

@@ -62,7 +62,7 @@ namespace Internal {
  *   be executed in the build process)
  */
 
-class AutotoolsProjectPlugin : public ExtensionSystem::IPlugin
+class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutotoolsProjectManager.json")

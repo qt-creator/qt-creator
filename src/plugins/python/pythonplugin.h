@@ -30,7 +30,7 @@
 namespace Python {
 namespace Internal {
 
-class PythonPlugin : public ExtensionSystem::IPlugin
+class PythonPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Python.json")

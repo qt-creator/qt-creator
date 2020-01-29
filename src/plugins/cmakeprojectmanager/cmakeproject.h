@@ -39,7 +39,7 @@
 
 namespace CMakeProjectManager {
 
-class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
+class CMAKE_EXPORT CMakeProject final : public ProjectExplorer::Project
 {
     Q_OBJECT
 

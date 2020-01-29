@@ -237,7 +237,7 @@ public:
     std::vector<FileApiDetails::TargetDetails> targetDetails;
 };
 
-class FileApiParser : public QObject
+class FileApiParser final : public QObject
 {
     Q_OBJECT
 

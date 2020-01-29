@@ -48,7 +48,7 @@ namespace Internal {
 struct CppFileSettings;
 class CppToolsPluginPrivate;
 
-class CppToolsPlugin : public ExtensionSystem::IPlugin
+class CppToolsPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppTools.json")

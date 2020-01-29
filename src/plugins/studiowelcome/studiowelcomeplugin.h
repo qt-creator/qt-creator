@@ -30,7 +30,7 @@
 namespace StudioWelcome {
 namespace Internal {
 
-class StudioWelcomePlugin : public ExtensionSystem::IPlugin
+class StudioWelcomePlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "StudioWelcome.json")

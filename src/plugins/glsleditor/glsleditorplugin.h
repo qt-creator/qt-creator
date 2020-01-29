@@ -31,7 +31,7 @@
 namespace GlslEditor {
 namespace Internal {
 
-class GlslEditorPlugin : public ExtensionSystem::IPlugin
+class GlslEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GLSLEditor.json")

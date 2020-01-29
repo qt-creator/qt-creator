@@ -122,7 +122,7 @@ private:
     Id m_activePage;
 };
 
-class WelcomePlugin : public ExtensionSystem::IPlugin
+class WelcomePlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Welcome.json")

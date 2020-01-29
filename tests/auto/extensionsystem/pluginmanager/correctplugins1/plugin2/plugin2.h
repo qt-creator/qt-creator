@@ -35,7 +35,7 @@
 
 namespace Plugin2 {
 
-class PLUGIN2_EXPORT MyPlugin2 : public ExtensionSystem::IPlugin
+class PLUGIN2_EXPORT MyPlugin2 final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "plugin" FILE "plugin2.json")

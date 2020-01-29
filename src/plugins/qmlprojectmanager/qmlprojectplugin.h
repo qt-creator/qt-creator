@@ -30,7 +30,7 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlProjectPlugin: public ExtensionSystem::IPlugin
+class QmlProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProjectManager.json")
