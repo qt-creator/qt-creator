@@ -38,14 +38,18 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
     : QObject(client)
     , m_client(client)
 {
+    auto connectDocument = [this](Core::IDocument *document) {
+        connect(document, &Core::IDocument::contentsChanged, this, [document, this]() {
+            m_cache.remove(DocumentUri::fromFilePath(document->filePath()));
+        });
+    };
+
+    for (Core::IDocument *document : Core::DocumentModel::openedDocuments())
+        connectDocument(document);
     connect(Core::EditorManager::instance(),
             &Core::EditorManager::documentOpened,
             this,
-            [this](Core::IDocument *document) {
-                connect(document, &Core::IDocument::contentsChanged, this, [this, document]() {
-                    m_cache.remove(DocumentUri::fromFilePath(document->filePath()));
-                });
-            });
+            connectDocument);
 }
 
 void DocumentSymbolCache::requestSymbols(const DocumentUri &uri)
