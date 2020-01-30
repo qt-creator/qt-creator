@@ -186,9 +186,9 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
         # it will wait here until compilation of the debug libraries has finished.
         if currentTarget not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
             qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
-            selectFromCombo(qmlDebuggingCombo, 'Enable')
-            # Don't rebuild now
-            clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+            if selectFromCombo(qmlDebuggingCombo, 'Enable'):
+                # Don't rebuild now
+                clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
         try:
             problemFound = waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' "
                                          "type='QLabel' name='problemLabel' visible='1'}", 1000)
