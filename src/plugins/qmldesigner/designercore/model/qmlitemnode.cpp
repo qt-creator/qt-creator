@@ -118,7 +118,7 @@ bool QmlItemNode::isValid() const
 
 bool QmlItemNode::isValidQmlItemNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid() && isItemOrWindow(modelNode);
+    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid() && (isItemOrWindow(modelNode));
 }
 
 QList<QmlItemNode> QmlItemNode::children() const
@@ -388,8 +388,20 @@ QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList)
 {
     QList<QmlItemNode> qmlItemNodeList;
 
-    foreach (const ModelNode &modelNode, modelNodeList) {
+    for (const ModelNode &modelNode : modelNodeList) {
+        if (QmlItemNode::isValidQmlItemNode(modelNode))
             qmlItemNodeList.append(modelNode);
+    }
+
+    return qmlItemNodeList;
+}
+
+QList<QmlItemNode> toQmlItemNodeListKeppInvalid(const QList<ModelNode> &modelNodeList)
+{
+    QList<QmlItemNode> qmlItemNodeList;
+
+    for (const ModelNode &modelNode : modelNodeList) {
+        qmlItemNodeList.append(modelNode);
     }
 
     return qmlItemNodeList;

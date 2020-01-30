@@ -169,5 +169,6 @@ QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &fxItemNodeList);
 QMLDESIGNERCORE_EXPORT QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList);
+QMLDESIGNERCORE_EXPORT QList<QmlItemNode> toQmlItemNodeListKeppInvalid(const QList<ModelNode> &modelNodeList);
 
 } //QmlDesigner

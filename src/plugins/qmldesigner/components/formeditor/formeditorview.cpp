@@ -363,7 +363,7 @@ void FormEditorView::nodeIdChanged(const ModelNode& node, const QString &/*newId
 void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                           const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedNodeList)));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeListKeppInvalid(selectedNodeList)));
 
     m_scene->update();
 }
