@@ -261,6 +261,12 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     aspect<InterpreterAspect>()->setDefaultInterpreter(
         interpreters.isEmpty() ? PythonSettings::defaultInterpreter() : interpreters.first());
 
+    auto bufferedAspect = addAspect<BaseBoolAspect>();
+    bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
+    bufferedAspect->setLabel(tr("Buffered output"), BaseBoolAspect::LabelPlacement::AtCheckBox);
+    bufferedAspect->setToolTip(tr("Enabling improves output performance, "
+                                  "but results in delayed output."));
+
     auto scriptAspect = addAspect<MainScriptAspect>();
     scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
     scriptAspect->setLabelText(tr("Script:"));
@@ -273,8 +279,11 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
-    setCommandLineGetter([this, interpreterAspect, argumentsAspect] {
-        CommandLine cmd{interpreterAspect->currentInterpreter().command, {mainScript()}};
+    setCommandLineGetter([this, bufferedAspect, interpreterAspect, argumentsAspect] {
+        CommandLine cmd{interpreterAspect->currentInterpreter().command};
+        if (!bufferedAspect->value())
+            cmd.addArg("-u");
+        cmd.addArg(mainScript());
         cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
         return cmd;
     });
