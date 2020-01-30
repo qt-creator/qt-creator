@@ -33,7 +33,6 @@ namespace Bazaar {
 namespace Internal {
 
 class BazaarSettings;
-class BazaarControl;
 
 class BazaarClient : public VcsBase::VcsBaseClient
 {
@@ -57,7 +56,6 @@ public:
     void view(const QString &source, const QString &id,
               const QStringList &extraOptions = QStringList()) override;
 
-protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
     QString vcsCommandString(VcsCommandTag cmd) const override;
     Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override;
@@ -66,7 +64,6 @@ protected:
 
 private:
     friend class CloneWizard;
-    friend class BazaarControl;
 };
 
 } // namespace Internal

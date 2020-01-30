@@ -69,7 +69,7 @@ public:
     // Add authorization options to the command line arguments.
     static QStringList addAuthenticationOptions(const VcsBase::VcsBaseClientSettings &settings);
 
-    QString synchronousTopic(const QString &repository);
+    QString synchronousTopic(const QString &repository) const;
 
     static QString escapeFile(const QString &file);
     static QStringList escapeFiles(const QStringList &files);

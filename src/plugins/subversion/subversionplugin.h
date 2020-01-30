@@ -46,7 +46,6 @@ namespace Subversion {
 namespace Internal {
 
 class SubversionSubmitEditor;
-class SubversionControl;
 class SubversionClient;
 
 struct SubversionResponse
@@ -70,9 +69,33 @@ public:
     SubversionPluginPrivate();
     ~SubversionPluginPrivate() final;
 
-    bool isVcsDirectory(const Utils::FilePath &fileName);
+    // IVersionControl
+    QString displayName() const final;
+    Core::Id id() const final;
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
-    SubversionClient *client() const;
+    bool managesDirectory(const QString &directory, QString *topLevel) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+
+    bool vcsAnnotate(const QString &file, int line) final;
+
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FilePath &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) final;
+
+    bool isVcsDirectory(const Utils::FilePath &fileName) const;
+
+    ///
+    SubversionClient *client();
 
     SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
 
@@ -80,8 +103,6 @@ public:
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
-    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
 
     static SubversionPluginPrivate *instance();
@@ -92,7 +113,7 @@ public:
                               const QStringList &arguments, int timeOutS,
                               unsigned flags, QTextCodec *outputCodec = nullptr) const;
     void describe(const QString &source, const QString &changeNr);
-    void vcsAnnotate(const QString &workingDir, const QString &file,
+    void vcsAnnotateHelper(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
 
 protected:
@@ -134,7 +155,6 @@ private:
     void svnUpdate(const QString &workingDir, const QString &relativePath = QString());
     bool checkSVNSubDir(const QDir &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
-    inline SubversionControl *subVersionControl() const;
 
     const QStringList m_svnDirectories;
 

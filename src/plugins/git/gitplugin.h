@@ -57,7 +57,6 @@ namespace Internal { class GerritPlugin; }
 namespace Git {
 namespace Internal {
 
-class GitVersionControl;
 class GitClient;
 class CommitData;
 class StashDialog;
@@ -75,10 +74,42 @@ public:
     GitPluginPrivate();
     ~GitPluginPrivate() final;
 
+    // IVersionControl
+    QString displayName() const final;
+    Core::Id id() const final;
+
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+
+    bool managesDirectory(const QString &directory, QString *topLevel) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    QStringList unmanagedFiles(const QString &workingDir, const QStringList &filePaths) const final;
+
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+
+    bool vcsAnnotate(const QString &file, int line) final;
+    QString vcsTopic(const QString &directory) final;
+
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FilePath &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) final;
+
+    RepoUrl getRepoUrl(const QString &location) const override;
+
+    QStringList additionalToolsPath() const final;
+
+    void emitFilesChanged(const QStringList &);
+    void emitRepositoryChanged(const QString &);
+
+    ///
     static GitPluginPrivate *instance();
     static GitClient *client();
-
-    GitVersionControl *gitVersionControl() const;
 
     Gerrit::Internal::GerritPlugin *gerritPlugin() const;
     bool isCommitEditorOpen() const;

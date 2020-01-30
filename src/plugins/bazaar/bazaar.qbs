@@ -18,8 +18,6 @@ QtcPlugin {
         "bazaarcommitpanel.ui",
         "bazaarcommitwidget.cpp",
         "bazaarcommitwidget.h",
-        "bazaarcontrol.cpp",
-        "bazaarcontrol.h",
         "bazaareditor.cpp",
         "bazaareditor.h",
         "bazaarplugin.cpp",

@@ -5,7 +5,6 @@ add_qtc_plugin(ClearCase
     annotationhighlighter.cpp annotationhighlighter.h
     checkoutdialog.cpp checkoutdialog.h checkoutdialog.ui
     clearcaseconstants.h
-    clearcasecontrol.cpp clearcasecontrol.h
     clearcaseeditor.cpp clearcaseeditor.h
     clearcaseplugin.cpp clearcaseplugin.h
     clearcasesettings.cpp clearcasesettings.h

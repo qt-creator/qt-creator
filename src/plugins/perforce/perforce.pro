@@ -8,7 +8,6 @@ HEADERS += \
     changenumberdialog.h \
     perforcesubmiteditor.h \
     pendingchangesdialog.h \
-    perforceversioncontrol.h \
     perforcesettings.h \
     annotationhighlighter.h \
     perforcesubmiteditorwidget.h
@@ -20,7 +19,6 @@ SOURCES += perforceplugin.cpp \
     changenumberdialog.cpp \
     perforcesubmiteditor.cpp \
     pendingchangesdialog.cpp \
-    perforceversioncontrol.cpp \
     perforcesettings.cpp \
     annotationhighlighter.cpp \
     perforcesubmiteditorwidget.cpp

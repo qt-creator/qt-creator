@@ -31,7 +31,6 @@
 #include "giteditor.h"
 #include "gitplugin.h"
 #include "gitsubmiteditor.h"
-#include "gitversioncontrol.h"
 #include "mergetool.h"
 #include "branchadddialog.h"
 #include "gerrit/gerritplugin.h"
@@ -2520,7 +2519,7 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
     return success;
 }
 
-FilePath GitClient::gitBinDirectory()
+FilePath GitClient::gitBinDirectory() const
 {
     const QString git = vcsBinary().toString();
     if (git.isEmpty())
@@ -2945,7 +2944,7 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
     QString errorMessage;
     switch (revertI(files, &isDirectory, &errorMessage, revertStaging)) {
     case RevertOk:
-        GitPluginPrivate::instance()->gitVersionControl()->emitFilesChanged(files);
+        emit GitPluginPrivate::instance()->filesChanged(files);
         break;
     case RevertCanceled:
         break;

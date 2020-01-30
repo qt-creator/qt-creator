@@ -202,7 +202,7 @@ signals:
     // Passes on changed signals from VcsJob to Control
     void changed(const QVariant &v);
 
-protected:
+public:
     enum VcsCommandTag
     {
         CreateRepositoryCommand,
@@ -221,6 +221,7 @@ protected:
         LogCommand,
         StatusCommand
     };
+protected:
     virtual QString vcsCommandString(VcsCommandTag cmd) const;
     virtual Core::Id vcsEditorKind(VcsCommandTag cmd) const = 0;
     virtual Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const;

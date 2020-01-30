@@ -15,8 +15,6 @@ QtcPlugin {
         "annotationhighlighter.h",
         "cvsclient.cpp",
         "cvsclient.h",
-        "cvscontrol.cpp",
-        "cvscontrol.h",
         "cvseditor.cpp",
         "cvseditor.h",
         "cvsplugin.cpp",

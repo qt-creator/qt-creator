@@ -32,7 +32,6 @@
 
 #include "../gitplugin.h"
 #include "../gitclient.h"
-#include "../gitversioncontrol.h"
 #include "../gitconstants.h"
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -473,7 +472,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 // Try to find a matching repository for a project by asking the VcsManager.
 QString GerritPlugin::findLocalRepository(QString project, const QString &branch) const
 {
-    const QStringList gitRepositories = VcsManager::repositories(GitPluginPrivate::instance()->gitVersionControl());
+    const QStringList gitRepositories = VcsManager::repositories(GitPluginPrivate::instance());
     // Determine key (file name) to look for (qt/qtbase->'qtbase').
     const int slashPos = project.lastIndexOf('/');
     if (slashPos != -1)

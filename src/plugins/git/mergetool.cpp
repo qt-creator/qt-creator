@@ -26,7 +26,6 @@
 #include "mergetool.h"
 #include "gitclient.h"
 #include "gitplugin.h"
-#include "gitversioncontrol.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -265,7 +264,7 @@ void MergeTool::done()
                                   .arg(exitCode));
     }
     GitPluginPrivate::client()->continueCommandIfNeeded(workingDirectory, exitCode == 0);
-    GitPluginPrivate::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
+    GitPluginPrivate::instance()->emitRepositoryChanged(workingDirectory);
     deleteLater();
 }
 

@@ -27,7 +27,6 @@
 
 #include "bazaarclient.h"
 #include "bazaarcommitwidget.h"
-#include "bazaarcontrol.h"
 #include "bazaareditor.h"
 #include "bazaarsettings.h"
 #include "commiteditor.h"
@@ -40,6 +39,7 @@
 
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -140,6 +140,31 @@ class BazaarPluginPrivate final : public VcsBasePluginPrivate
 public:
     BazaarPluginPrivate();
 
+    QString displayName() const final;
+    Core::Id id() const final;
+
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+
+    bool managesDirectory(const QString &filename, QString *topLevel) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &filename) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsAnnotate(const QString &file, int line) final;
+
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FilePath &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) final;
+
+    // To be connected to the VCSTask's success signal to emit the repository/
+    // files changed signals according to the variant's type:
+    // String -> repository, StringList -> files
+    void changed(const QVariant &);
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
     bool submitEditorAboutToClose() final;
 
@@ -175,9 +200,8 @@ public:
     // Variables
     BazaarSettings m_bazaarSettings;
     BazaarClient m_client{&m_bazaarSettings};
-    BazaarControl m_control{&m_client};
 
-    OptionsPage m_optionsPage{[this] { m_control.configurationChanged(); }, &m_bazaarSettings};
+    OptionsPage m_optionsPage{[this] { configurationChanged(); }, &m_bazaarSettings};
 
     VcsSubmitEditorFactory m_submitEditorFactory {
         &submitEditorParameters,
@@ -264,11 +288,11 @@ void BazaarPlugin::extensionsInitialized()
 }
 
 BazaarPluginPrivate::BazaarPluginPrivate()
+    : VcsBasePluginPrivate(Context(Constants::BAZAAR_CONTEXT))
 {
     Context context(Constants::BAZAAR_CONTEXT);
-    initializeVcs(&m_control, context);
 
-    connect(&m_client, &VcsBaseClient::changed, &m_control, &BazaarControl::changed);
+    connect(&m_client, &VcsBaseClient::changed, this, &BazaarPluginPrivate::changed);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_client.view(source, id);
@@ -794,6 +818,132 @@ void BazaarPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
 
     foreach (QAction *repoAction, m_repositoryActionList)
         repoAction->setEnabled(repoEnabled);
+}
+
+QString BazaarPluginPrivate::displayName() const
+{
+    return tr("Bazaar");
+}
+
+Core::Id BazaarPluginPrivate::id() const
+{
+    return Core::Id(VcsBase::Constants::VCS_ID_BAZAAR);
+}
+
+bool BazaarPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+{
+    return m_client.isVcsDirectory(fileName);
+}
+
+bool BazaarPluginPrivate::managesDirectory(const QString &directory, QString *topLevel) const
+{
+    QFileInfo dir(directory);
+    const QString topLevelFound = m_client.findTopLevelForFile(dir);
+    if (topLevel)
+        *topLevel = topLevelFound;
+    return !topLevelFound.isEmpty();
+}
+
+bool BazaarPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_client.managesFile(workingDirectory, fileName);
+}
+
+bool BazaarPluginPrivate::isConfigured() const
+{
+    const Utils::FilePath binary = m_client.vcsBinary();
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi = binary.toFileInfo();
+    return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
+bool BazaarPluginPrivate::supportsOperation(Operation operation) const
+{
+    bool supported = isConfigured();
+
+    switch (operation) {
+    case Core::IVersionControl::AddOperation:
+    case Core::IVersionControl::DeleteOperation:
+    case Core::IVersionControl::MoveOperation:
+    case Core::IVersionControl::CreateRepositoryOperation:
+    case Core::IVersionControl::AnnotateOperation:
+    case Core::IVersionControl::InitialCheckoutOperation:
+        break;
+    case Core::IVersionControl::SnapshotOperations:
+        supported = false;
+        break;
+    }
+    return supported;
+}
+
+bool BazaarPluginPrivate::vcsOpen(const QString &filename)
+{
+    Q_UNUSED(filename)
+    return true;
+}
+
+bool BazaarPluginPrivate::vcsAdd(const QString &filename)
+{
+    const QFileInfo fi(filename);
+    return m_client.synchronousAdd(fi.absolutePath(), fi.fileName());
+}
+
+bool BazaarPluginPrivate::vcsDelete(const QString &filename)
+{
+    const QFileInfo fi(filename);
+    return m_client.synchronousRemove(fi.absolutePath(), fi.fileName());
+}
+
+bool BazaarPluginPrivate::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return m_client.synchronousMove(fromInfo.absolutePath(),
+                                           fromInfo.absoluteFilePath(),
+                                           toInfo.absoluteFilePath());
+}
+
+bool BazaarPluginPrivate::vcsCreateRepository(const QString &directory)
+{
+    return m_client.synchronousCreateRepository(directory);
+}
+
+bool BazaarPluginPrivate::vcsAnnotate(const QString &file, int line)
+{
+    const QFileInfo fi(file);
+    m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    return true;
+}
+
+Core::ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                                const Utils::FilePath &baseDirectory,
+                                                                const QString &localName,
+                                                                const QStringList &extraArgs)
+{
+    QStringList args;
+    args << m_client.vcsCommandString(BazaarClient::CloneCommand)
+         << extraArgs << url << localName;
+
+    QProcessEnvironment env = m_client.processEnvironment();
+    env.insert(QLatin1String("BZR_PROGRESS_BAR"), QLatin1String("text"));
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(), env);
+    command->addJob({m_client.vcsBinary(), args}, -1);
+    return command;
+}
+
+void BazaarPluginPrivate::changed(const QVariant &v)
+{
+    switch (v.type()) {
+    case QVariant::String:
+        emit repositoryChanged(v.toString());
+        break;
+    case QVariant::StringList:
+        emit filesChanged(v.toStringList());
+        break;
+    default:
+        break;
+    }
 }
 
 } // namespace Internal

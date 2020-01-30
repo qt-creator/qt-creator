@@ -20,8 +20,6 @@ QtcPlugin {
         "subversionclient.cpp",
         "subversionclient.h",
         "subversionconstants.h",
-        "subversioncontrol.cpp",
-        "subversioncontrol.h",
         "subversioneditor.cpp",
         "subversioneditor.h",
         "subversionplugin.cpp",

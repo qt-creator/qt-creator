@@ -32,7 +32,6 @@
 #include "gitconstants.h"
 #include "giteditor.h"
 #include "gitsubmiteditor.h"
-#include "gitversioncontrol.h"
 #include "remotedialog.h"
 #include "stashdialog.h"
 #include "settingspage.h"
@@ -71,6 +70,7 @@
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/cleandialog.h>
@@ -78,13 +78,11 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QtPlugin>
 
 #include <QAction>
 #include <QApplication>
 #include <QFileDialog>
 #include <QMenu>
-#include <QScopedPointer>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -99,6 +97,29 @@ using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
+
+class GitTopicCache : public Core::IVersionControl::TopicCache
+{
+public:
+    GitTopicCache(GitClient *client) :
+        m_client(client)
+    { }
+
+protected:
+    QString trackFile(const QString &repository) override
+    {
+        const QString gitDir = m_client->findGitDirForRepository(repository);
+        return gitDir.isEmpty() ? QString() : (gitDir + "/HEAD");
+    }
+
+    QString refreshTopic(const QString &repository) override
+    {
+        return m_client->synchronousTopic(repository);
+    }
+
+private:
+    GitClient *m_client;
+};
 
 const unsigned minimumRequiredVersion = 0x010900;
 
@@ -137,7 +158,6 @@ GitPluginPrivate::~GitPluginPrivate()
     delete m_gitClient;
     delete m_branchViewFactory;
 }
-
 
 GitPlugin::~GitPlugin()
 {
@@ -311,22 +331,22 @@ void GitPlugin::extensionsInitialized()
 }
 
 GitPluginPrivate::GitPluginPrivate()
+    : VcsBase::VcsBasePluginPrivate(Context(Constants::GIT_CONTEXT))
 {
     dd = this;
+
+    m_gitClient = new GitClient(&m_settings);
+    setTopicCache(new GitTopicCache(m_gitClient));
+
     m_fileActions.reserve(10);
     m_projectActions.reserve(10);
     m_repositoryActions.reserve(50);
 
     Context context(Constants::GIT_CONTEXT);
 
-    m_gitClient = new GitClient(&m_settings);
-
-    auto vc = new GitVersionControl(m_gitClient);
-    initializeVcs(vc, context);
-
     // Create the settings Page
-    auto onApply = [this, vc] {
-        vc->configurationChanged();
+    auto onApply = [this] {
+        configurationChanged();
         updateRepositoryBrowserAction();
         bool gitFoundOk;
         QString errorMessage;
@@ -689,11 +709,6 @@ GitPluginPrivate::GitPluginPrivate()
     m_gerritPlugin->initialize(remoteRepositoryMenu);
     m_gerritPlugin->updateActions(currentState());
     m_gerritPlugin->addToLocator(m_commandLocator);
-}
-
-GitVersionControl *GitPluginPrivate::gitVersionControl() const
-{
-    return static_cast<GitVersionControl *>(versionControl());
 }
 
 void GitPluginPrivate::diffCurrentFile()
@@ -1478,6 +1493,153 @@ void GitPluginPrivate::updateRepositoryBrowserAction()
 Gerrit::Internal::GerritPlugin *GitPluginPrivate::gerritPlugin() const
 {
     return m_gerritPlugin;
+}
+
+QString GitPluginPrivate::displayName() const
+{
+    return QLatin1String("Git");
+}
+
+Core::Id GitPluginPrivate::id() const
+{
+    return Core::Id(VcsBase::Constants::VCS_ID_GIT);
+}
+
+bool GitPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+{
+    if (fileName.fileName().compare(".git", Utils::HostOsInfo::fileNameCaseSensitivity()))
+        return false;
+    if (fileName.isDir())
+        return true;
+    QFile file(fileName.toString());
+    if (!file.open(QFile::ReadOnly))
+        return false;
+    return file.read(8) == "gitdir: ";
+}
+
+bool GitPluginPrivate::isConfigured() const
+{
+    return !m_gitClient->vcsBinary().isEmpty();
+}
+
+bool GitPluginPrivate::supportsOperation(Operation operation) const
+{
+    if (!isConfigured())
+        return false;
+
+    switch (operation) {
+    case AddOperation:
+    case DeleteOperation:
+    case MoveOperation:
+    case CreateRepositoryOperation:
+    case SnapshotOperations:
+    case AnnotateOperation:
+    case InitialCheckoutOperation:
+        return true;
+    }
+    return false;
+}
+
+bool GitPluginPrivate::vcsOpen(const QString & /*fileName*/)
+{
+    return false;
+}
+
+bool GitPluginPrivate::vcsAdd(const QString & fileName)
+{
+    const QFileInfo fi(fileName);
+    return m_gitClient->synchronousAdd(fi.absolutePath(), {fi.fileName()});
+}
+
+bool GitPluginPrivate::vcsDelete(const QString & fileName)
+{
+    const QFileInfo fi(fileName);
+    return m_gitClient->synchronousDelete(fi.absolutePath(), true, {fi.fileName()});
+}
+
+bool GitPluginPrivate::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return m_gitClient->synchronousMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
+}
+
+bool GitPluginPrivate::vcsCreateRepository(const QString &directory)
+{
+    return m_gitClient->synchronousInit(directory);
+}
+
+QString GitPluginPrivate::vcsTopic(const QString &directory)
+{
+    QString topic = Core::IVersionControl::vcsTopic(directory);
+    const QString commandInProgress = m_gitClient->commandInProgressDescription(directory);
+    if (!commandInProgress.isEmpty())
+        topic += " (" + commandInProgress + ')';
+    return topic;
+}
+
+Core::ShellCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                                    const Utils::FilePath &baseDirectory,
+                                                                    const QString &localName,
+                                                                    const QStringList &extraArgs)
+{
+    QStringList args = {"clone", "--progress"};
+    args << extraArgs << url << localName;
+
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(), m_gitClient->processEnvironment());
+    command->addFlags(VcsBase::VcsCommand::SuppressStdErr);
+    command->addJob({m_gitClient->vcsBinary(), args}, -1);
+    return command;
+}
+
+GitPluginPrivate::RepoUrl GitPluginPrivate::getRepoUrl(const QString &location) const
+{
+    return GitRemote(location);
+}
+
+QStringList GitPluginPrivate::additionalToolsPath() const
+{
+    QStringList res = m_gitClient->settings().searchPathList();
+    const QString binaryPath = m_gitClient->gitBinDirectory().toString();
+    if (!binaryPath.isEmpty() && !res.contains(binaryPath))
+        res << binaryPath;
+    return res;
+}
+
+bool GitPluginPrivate::managesDirectory(const QString &directory, QString *topLevel) const
+{
+    const QString topLevelFound = m_gitClient->findRepositoryForDirectory(directory);
+    if (topLevel)
+        *topLevel = topLevelFound;
+    return !topLevelFound.isEmpty();
+}
+
+bool GitPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_gitClient->managesFile(workingDirectory, fileName);
+}
+
+QStringList GitPluginPrivate::unmanagedFiles(const QString &workingDir,
+                                              const QStringList &filePaths) const
+{
+    return m_gitClient->unmanagedFiles(workingDir, filePaths);
+}
+
+bool GitPluginPrivate::vcsAnnotate(const QString &file, int line)
+{
+    const QFileInfo fi(file);
+    m_gitClient->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    return true;
+}
+
+void GitPluginPrivate::emitFilesChanged(const QStringList &l)
+{
+    emit filesChanged(l);
+}
+
+void GitPluginPrivate::emitRepositoryChanged(const QString &r)
+{
+    emit repositoryChanged(r);
 }
 
 #ifdef WITH_TESTS

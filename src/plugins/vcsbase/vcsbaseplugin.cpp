@@ -518,26 +518,14 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 
 bool VcsBasePluginPrivate::supportsRepositoryCreation() const
 {
-    return m_versionControl && m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation);
+    return supportsOperation(IVersionControl::CreateRepositoryOperation);
 }
 
 static Internal::StateListener *m_listener = nullptr;
 
-VcsBasePluginPrivate::VcsBasePluginPrivate()
-{ }
-
-VcsBasePluginPrivate::~VcsBasePluginPrivate()
+VcsBasePluginPrivate::VcsBasePluginPrivate(const Context &context)
+    : m_context(context)
 {
-    delete m_versionControl;
-}
-
-void VcsBasePluginPrivate::initializeVcs(IVersionControl *vc, const Context &context)
-{
-    QTC_ASSERT(vc, return);
-
-    m_versionControl = vc;
-    m_context = context;
-
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
     connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,
             this, &VcsBasePluginPrivate::slotSubmitEditorAboutToClose);
@@ -547,9 +535,9 @@ void VcsBasePluginPrivate::initializeVcs(IVersionControl *vc, const Context &con
     connect(m_listener, &Internal::StateListener::stateChanged,
             this, &VcsBasePluginPrivate::slotStateChanged);
     // VCSes might have become (un-)available, so clear the VCS directory cache
-    connect(vc, &IVersionControl::configurationChanged,
+    connect(this, &IVersionControl::configurationChanged,
             VcsManager::instance(), &VcsManager::clearVersionControlCache);
-    connect(vc, &IVersionControl::configurationChanged,
+    connect(this, &IVersionControl::configurationChanged,
             m_listener, &Internal::StateListener::slotStateChanged);
 }
 
@@ -569,14 +557,9 @@ void VcsBasePluginPrivate::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *sub
         *result = submitEditorAboutToClose();
 }
 
-IVersionControl *VcsBasePluginPrivate::versionControl() const
+void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalState, Core::IVersionControl *vc)
 {
-    return m_versionControl;
-}
-
-void VcsBasePluginPrivate::slotStateChanged(const VcsBase::Internal::State &newInternalState, IVersionControl *vc)
-{
-    if (vc == m_versionControl) {
+    if (vc == this) {
         // We are directly affected: Change state
         if (!m_state.equals(newInternalState)) {
             m_state.setState(newInternalState);
@@ -637,7 +620,7 @@ void VcsBasePluginPrivate::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    const bool rc = VcsManager::promptToDelete(versionControl(), state.currentFile());
+    const bool rc = VcsManager::promptToDelete(this, state.currentFile());
     if (!rc)
         QMessageBox::warning(ICore::dialogParent(), tr("Version Control"),
                              tr("The file \"%1\" could not be deleted.").
@@ -654,7 +637,7 @@ static inline bool ask(QWidget *parent, const QString &title, const QString &que
 
 void VcsBasePluginPrivate::createRepository()
 {
-    QTC_ASSERT(m_versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return);
+    QTC_ASSERT(supportsOperation(IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
     QString directory;
     if (const Project *currentProject = ProjectTree::currentProject())
@@ -675,7 +658,7 @@ void VcsBasePluginPrivate::createRepository()
             return;
     } while (true);
     // Create
-    const bool rc = m_versionControl->vcsCreateRepository(directory);
+    const bool rc = vcsCreateRepository(directory);
     const QString nativeDir = QDir::toNativeSeparators(directory);
     if (rc) {
         QMessageBox::information(mw, tr("Repository Created"),

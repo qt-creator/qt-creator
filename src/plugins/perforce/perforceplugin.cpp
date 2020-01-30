@@ -29,9 +29,9 @@
 #include "pendingchangesdialog.h"
 #include "perforceeditor.h"
 #include "perforcesubmiteditor.h"
-#include "perforceversioncontrol.h"
 #include "perforcechecker.h"
 #include "settingspage.h"
+#include "perforcesettings.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -49,6 +49,7 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
+
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -191,11 +192,9 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 }
 
 PerforcePluginPrivate::PerforcePluginPrivate()
+    : VcsBase::VcsBasePluginPrivate(Context(PERFORCE_CONTEXT))
 {
     Context context(PERFORCE_CONTEXT);
-
-    auto vcsCtrl = new PerforceVersionControl(this);
-    initializeVcs(vcsCtrl, context);
 
     dd = this;
 
@@ -442,7 +441,7 @@ void PerforcePluginPrivate::revertCurrentFile()
     PerforceResponse result2 = runP4Cmd(state.currentFileTopLevel(), args,
                                         CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (!result2.error)
-        perforceVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
+        emit filesChanged(QStringList(state.currentFile()));
 }
 
 void PerforcePluginPrivate::diffCurrentFile()
@@ -514,11 +513,11 @@ void PerforcePluginPrivate::updateCheckout(const QString &workingDir, const QStr
                                            CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (dirs.empty()) {
         if (!workingDir.isEmpty())
-            perforceVersionControl()->emitRepositoryChanged(workingDir);
+            emit repositoryChanged(workingDir);
     } else {
         const QChar slash = QLatin1Char('/');
         foreach (const QString &dir, dirs)
-            perforceVersionControl()->emitRepositoryChanged(workingDir + slash + dir);
+            emit repositoryChanged(workingDir + slash + dir);
     }
 }
 
@@ -794,9 +793,9 @@ void PerforcePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     m_revertUnchangedAction->setParameter(projectName);
 }
 
-bool PerforcePluginPrivate::managesDirectory(const QString &directory, QString *topLevel /* = 0 */)
+bool PerforcePluginPrivate::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
-    const bool rc = managesDirectoryFstat(directory);
+    const bool rc = const_cast<PerforcePluginPrivate *>(this)->managesDirectoryFstat(directory);
     if (topLevel) {
         if (rc)
             *topLevel = m_settings.topLevelSymLinkTarget();
@@ -940,6 +939,99 @@ PerforcePluginPrivate::createTemporaryArgumentFile(const QStringList &extraArgs,
     if (!rc->finalize(errorString))
         return QSharedPointer<TempFileSaver>();
     return rc;
+}
+
+bool PerforcePluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+{
+    Q_UNUSED(fileName)
+    return false; // Perforce does not seem to litter its files into the source tree.
+}
+
+bool PerforcePluginPrivate::isConfigured() const
+{
+    const QString binary = settings().p4BinaryPath();
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi(binary);
+    return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
+bool PerforcePluginPrivate::supportsOperation(Operation operation) const
+{
+    bool supported = isConfigured();
+    switch (operation) {
+    case AddOperation:
+    case DeleteOperation:
+    case MoveOperation:
+    case AnnotateOperation:
+        return supported;
+    case CreateRepositoryOperation:
+    case SnapshotOperations:
+    case InitialCheckoutOperation:
+        break;
+    }
+    return false;
+}
+
+Core::IVersionControl::OpenSupportMode PerforcePluginPrivate::openSupportMode(const QString &fileName) const
+{
+    Q_UNUSED(fileName)
+    return OpenOptional;
+}
+
+bool PerforcePluginPrivate::vcsOpen(const QString &fileName)
+{
+    const QFileInfo fi(fileName);
+    return vcsOpen(fi.absolutePath(), fi.fileName(), true);
+}
+
+Core::IVersionControl::SettingsFlags PerforcePluginPrivate::settingsFlags() const
+{
+    SettingsFlags rc;
+    if (m_settings.autoOpen())
+        rc|= AutoOpen;
+    return rc;
+}
+
+bool PerforcePluginPrivate::vcsAdd(const QString &fileName)
+{
+    const QFileInfo fi(fileName);
+    return vcsAdd(fi.absolutePath(), fi.fileName());
+}
+
+bool PerforcePluginPrivate::vcsDelete(const QString &fileName)
+{
+    const QFileInfo fi(fileName);
+    return vcsDelete(fi.absolutePath(), fi.fileName());
+}
+
+bool PerforcePluginPrivate::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return vcsMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
+}
+
+bool PerforcePluginPrivate::vcsCreateRepository(const QString &)
+{
+    return false;
+}
+
+bool PerforcePluginPrivate::vcsAnnotate(const QString &file, int line)
+{
+    const QFileInfo fi(file);
+    vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    return true;
+}
+
+QString PerforcePluginPrivate::vcsOpenText() const
+{
+    return tr("&Edit");
+}
+
+QString PerforcePluginPrivate::vcsMakeWritableText() const
+{
+    return tr("&Hijack");
 }
 
 // Run messages
@@ -1415,7 +1507,7 @@ void PerforcePluginPrivate::setSettings(const Settings &newSettings)
         dd->m_managedDirectoryCache.clear();
         dd->m_settings.toSettings(ICore::settings());
         getTopLevel();
-        perforceVersionControl()->emitConfigurationChanged();
+        emit dd->configurationChanged();
     }
 }
 
@@ -1460,11 +1552,6 @@ QString PerforcePluginPrivate::fileNameFromPerforceName(const QString& perforceN
     }
     const QString p4fileSpec = output.mid(output.lastIndexOf(QLatin1Char(' ')) + 1);
     return dd->m_settings.mapToFileSystem(p4fileSpec);
-}
-
-PerforceVersionControl *PerforcePluginPrivate::perforceVersionControl()
-{
-    return static_cast<PerforceVersionControl *>(dd->versionControl());
 }
 
 void PerforcePluginPrivate::setTopLevel(const QString &topLevel)

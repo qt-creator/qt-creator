@@ -28,7 +28,6 @@
 #include "cvseditor.h"
 #include "cvssubmiteditor.h"
 #include "cvsclient.h"
-#include "cvscontrol.h"
 #include "cvsutils.h"
 
 #include <vcsbase/basevcseditorfactory.h>
@@ -165,15 +164,39 @@ public:
     CvsPluginPrivate();
     ~CvsPluginPrivate() final;
 
-    CvsClient *client() const;
+    // IVersionControl
+    QString displayName() const final { return QLatin1String("cvs"); }
+    Core::Id id() const final;
 
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+
+    bool managesDirectory(const QString &directory, QString *topLevel) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    OpenSupportMode openSupportMode(const QString &fileName) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &, const QString &) final { return false; }
+    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsAnnotate(const QString &file, int line) final;
+
+    QString vcsOpenText() const final;
+
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FilePath &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) final;
+
+
+    ///
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
-    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     // cvs 'edit' is used to implement 'open' (cvsnt).
     bool edit(const QString &topLevel, const QStringList &files);
 
@@ -275,69 +298,29 @@ private:
     bool m_submitActionTriggered = false;
 };
 
-// Just a proxy for CVSPlugin
-class CvsControl : public Core::IVersionControl
-{
-    Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::CvsControl)
 
-public:
-    explicit CvsControl(CvsPluginPrivate *plugin) : m_plugin(plugin) {}
 
-    QString displayName() const final;
-    Core::Id id() const final;
-
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
-
-    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
-
-    bool isConfigured() const final;
-    bool supportsOperation(Operation operation) const final;
-    OpenSupportMode openSupportMode(const QString &fileName) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &fileName) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &from, const QString &to) final;
-    bool vcsCreateRepository(const QString &directory) final;
-    bool vcsAnnotate(const QString &file, int line) final;
-
-    QString vcsOpenText() const final;
-
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
-
-private:
-    CvsPluginPrivate *const m_plugin;
-};
-
-QString CvsControl::displayName() const
-{
-    return QLatin1String("cvs");
-}
-
-Core::Id CvsControl::id() const
+Core::Id CvsPluginPrivate::id() const
 {
     return Core::Id(VcsBase::Constants::VCS_ID_CVS);
 }
 
-bool CvsControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
+bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
     return fileName.isDir()
             && !fileName.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
-bool CvsControl::isConfigured() const
+bool CvsPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_plugin->client()->vcsBinary();
+    const Utils::FilePath binary = m_client->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
     return fi.exists() && fi.isFile() && fi.isExecutable();
 }
 
-bool CvsControl::supportsOperation(Operation operation) const
+bool CvsPluginPrivate::supportsOperation(Operation operation) const
 {
     bool rc = isConfigured();
     switch (operation) {
@@ -355,62 +338,55 @@ bool CvsControl::supportsOperation(Operation operation) const
     return rc;
 }
 
-Core::IVersionControl::OpenSupportMode CvsControl::openSupportMode(const QString &fileName) const
+Core::IVersionControl::OpenSupportMode CvsPluginPrivate::openSupportMode(const QString &fileName) const
 {
     Q_UNUSED(fileName)
     return OpenOptional;
 }
 
-bool CvsControl::vcsOpen(const QString &fileName)
+bool CvsPluginPrivate::vcsOpen(const QString &fileName)
 {
     const QFileInfo fi(fileName);
-    return m_plugin->edit(fi.absolutePath(), QStringList(fi.fileName()));
+    return edit(fi.absolutePath(), QStringList(fi.fileName()));
 }
 
-bool CvsControl::vcsAdd(const QString &fileName)
+bool CvsPluginPrivate::vcsAdd(const QString &fileName)
 {
     const QFileInfo fi(fileName);
-    return m_plugin->vcsAdd(fi.absolutePath(), fi.fileName());
+    return vcsAdd(fi.absolutePath(), fi.fileName());
 }
 
-bool CvsControl::vcsDelete(const QString &fileName)
+bool CvsPluginPrivate::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
-    return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
+    return vcsDelete(fi.absolutePath(), fi.fileName());
 }
 
-bool CvsControl::vcsMove(const QString &from, const QString &to)
-{
-    Q_UNUSED(from)
-    Q_UNUSED(to)
-    return false;
-}
-
-bool CvsControl::vcsCreateRepository(const QString &)
+bool CvsPluginPrivate::vcsCreateRepository(const QString &)
 {
     return false;
 }
 
-bool CvsControl::vcsAnnotate(const QString &file, int line)
+bool CvsPluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
-    m_plugin->vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
 }
 
-QString CvsControl::vcsOpenText() const
+QString CvsPluginPrivate::vcsOpenText() const
 {
     return tr("&Edit");
 }
 
-Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
+Core::ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
                                                              const Utils::FilePath &baseDirectory,
                                                              const QString &localName,
                                                              const QStringList &extraArgs)
 {
     QTC_ASSERT(localName == url, return nullptr);
 
-    const CvsSettings settings = m_plugin->client()->settings();
+    const CvsSettings settings = m_client->settings();
 
     QStringList args;
     args << QLatin1String("checkout") << url << extraArgs;
@@ -418,18 +394,8 @@ Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
                                            QProcessEnvironment::systemEnvironment());
     command->setDisplayName(tr("CVS Checkout"));
-    command->addJob({m_plugin->client()->vcsBinary(), settings.addOptions(args)}, -1);
+    command->addJob({m_client->vcsBinary(), settings.addOptions(args)}, -1);
     return command;
-}
-
-bool CvsControl::managesDirectory(const QString &directory, QString *topLevel) const
-{
-    return m_plugin->managesDirectory(directory, topLevel);
-}
-
-bool CvsControl::managesFile(const QString &workingDirectory, const QString &fileName) const
-{
-    return m_plugin->managesFile(workingDirectory, fileName);
 }
 
 // ------------- CVSPlugin
@@ -440,12 +406,6 @@ CvsPluginPrivate::~CvsPluginPrivate()
 {
     delete m_client;
     cleanCommitMessageFile();
-}
-
-CvsClient *CvsPluginPrivate::client() const
-{
-    QTC_CHECK(m_client);
-    return m_client;
 }
 
 void CvsPluginPrivate::cleanCommitMessageFile()
@@ -488,18 +448,15 @@ void CvsPlugin::extensionsInitialized()
 }
 
 CvsPluginPrivate::CvsPluginPrivate()
+    : VcsBasePluginPrivate(Context(CVS_CONTEXT))
 {
     using namespace Core::Constants;
     dd = this;
 
     Context context(CVS_CONTEXT);
-
-    auto vcsCtrl = new CvsControl(this);
-    initializeVcs(vcsCtrl, context);
-
     m_client = new CvsClient(&m_settings);
 
-    new CvsSettingsPage([vcsCtrl] { vcsCtrl->configurationChanged(); }, &m_settings, this);
+    new CvsSettingsPage([this] { configurationChanged(); }, &m_settings, this);
 
     new VcsSubmitEditorFactory(&submitParameters,
         []() { return new CvsSubmitEditor(&submitParameters); }, this);
@@ -837,7 +794,7 @@ void CvsPluginPrivate::revertAll()
             runCvs(state.topLevel(), args, m_client->vcsTimeoutS(),
                    VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (revertResponse.result == CvsResponse::Ok)
-        emit versionControl()->repositoryChanged(state.topLevel());
+        emit repositoryChanged(state.topLevel());
     else
         Core::AsynchronousMessageBox::warning(title,
                                               tr("Revert failed: %1").arg(revertResponse.message));
@@ -875,7 +832,7 @@ void CvsPluginPrivate::revertCurrentFile()
             runCvs(state.currentFileTopLevel(), args, m_client->vcsTimeoutS(),
                    VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (revertResponse.result == CvsResponse::Ok)
-        emit versionControl()->filesChanged(QStringList(state.currentFile()));
+        emit filesChanged(QStringList(state.currentFile()));
 }
 
 void CvsPluginPrivate::diffProject()
@@ -1066,7 +1023,7 @@ bool CvsPluginPrivate::update(const QString &topLevel, const QString &file)
                    VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
-        emit versionControl()->repositoryChanged(topLevel);
+        emit repositoryChanged(topLevel);
     return ok;
 }
 

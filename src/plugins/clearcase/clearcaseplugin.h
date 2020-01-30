@@ -61,7 +61,6 @@ namespace ClearCase {
 namespace Internal {
 
 class ClearCaseSubmitEditor;
-class ClearCaseControl;
 
 class ClearCaseResponse
 {
@@ -113,6 +112,33 @@ public:
     ClearCasePluginPrivate();
     ~ClearCasePluginPrivate() final;
 
+    // IVersionControl
+    QString displayName() const final;
+    Core::Id id() const final;
+
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+
+    bool managesDirectory(const QString &directory, QString *topLevel) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+
+    bool isConfigured() const final;
+
+    bool supportsOperation(Operation operation) const final;
+    OpenSupportMode openSupportMode(const QString &fileName) const final;
+    bool vcsOpen(const QString &fileName) final;
+    SettingsFlags settingsFlags() const final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+
+    bool vcsAnnotate(const QString &file, int line) final;
+
+    QString vcsOpenText() const final;
+    QString vcsMakeWritableText() const final;
+    QString vcsTopic(const QString &directory) final;
+
+    ///
     ClearCaseSubmitEditor *openClearCaseSubmitEditor(const QString &fileName, bool isUcm);
 
     const ClearCaseSettings &settings() const;
@@ -128,8 +154,6 @@ public:
     bool vcsUndoHijack(const QString &workingDir, const QString &fileName, bool keep);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
     bool vcsSetActivity(const QString &workingDir, const QString &title, const QString &activity);
-    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const;
-    bool vcsCheckout(const QString &directory, const QByteArray &url);
 
     static ClearCasePluginPrivate *instance();
 
@@ -151,14 +175,12 @@ public:
     void setStatus(const QString &file, FileStatus::Status status, bool update = true);
 
     bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 #ifdef WITH_TESTS
     inline void setFakeCleartool(const bool b = true) { m_fakeClearTool = b; }
-    inline bool isFakeCleartool() const { return m_fakeClearTool; }
 #endif
 
-    void vcsAnnotate(const QString &workingDir, const QString &file,
-                     const QString &revision = QString(), int lineNumber = -1) const;
+    void vcsAnnotateHelper(const QString &workingDir, const QString &file,
+                           const QString &revision = QString(), int lineNumber = -1) const;
     bool newActivity();
     void updateStreamAndView();
     void describe(const QString &source, const QString &changeNr);
@@ -216,7 +238,6 @@ private:
     void ccDiffWithPred(const QString &workingDir, const QStringList &files);
     void startCheckIn(const QString &workingDir, const QStringList &files = QStringList());
     void cleanCheckInMessageFile();
-    inline ClearCaseControl *clearCaseControl() const;
     QString ccGetFileActivity(const QString &workingDir, const QString &file);
     QStringList ccGetActivityVersions(const QString &workingDir, const QString &activity);
     void diffGraphical(const QString &file1, const QString &file2 = QString());

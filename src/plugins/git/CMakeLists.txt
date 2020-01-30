@@ -30,7 +30,6 @@ add_qtc_plugin(Git
     gitsubmiteditorwidget.cpp gitsubmiteditorwidget.h
     gitsubmitpanel.ui
     gitutils.cpp gitutils.h
-    gitversioncontrol.cpp gitversioncontrol.h
     logchangedialog.cpp logchangedialog.h
     mergetool.cpp mergetool.h
     remoteadditiondialog.ui

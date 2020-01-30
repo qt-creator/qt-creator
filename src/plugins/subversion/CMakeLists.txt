@@ -5,7 +5,6 @@ add_qtc_plugin(Subversion
     settingspage.cpp settingspage.h settingspage.ui
     subversionclient.cpp subversionclient.h
     subversionconstants.h
-    subversioncontrol.cpp subversioncontrol.h
     subversioneditor.cpp subversioneditor.h
     subversionplugin.cpp subversionplugin.h
     subversionsettings.cpp subversionsettings.h

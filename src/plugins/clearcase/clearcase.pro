@@ -4,7 +4,6 @@ HEADERS += activityselector.h \
     annotationhighlighter.h \
     checkoutdialog.h \
     clearcaseconstants.h \
-    clearcasecontrol.h \
     clearcaseeditor.h \
     clearcaseplugin.h \
     clearcasesettings.h \
@@ -17,7 +16,6 @@ HEADERS += activityselector.h \
 SOURCES += activityselector.cpp \
     annotationhighlighter.cpp \
     checkoutdialog.cpp \
-    clearcasecontrol.cpp \
     clearcaseeditor.cpp \
     clearcaseplugin.cpp \
     clearcasesettings.cpp \

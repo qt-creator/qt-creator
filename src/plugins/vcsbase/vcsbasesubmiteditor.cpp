@@ -535,8 +535,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
         return SubmitConfirmed;
     CheckableMessageBox mb(Core::ICore::dialogParent());
     const QString commitName = plugin->commitDisplayName();
-    mb.setWindowTitle(tr("Close %1 %2 Editor")
-                      .arg(plugin->versionControl()->displayName(), commitName));
+    mb.setWindowTitle(tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName));
     mb.setIcon(QMessageBox::Question);
     QString message;
     if (canCommit) {

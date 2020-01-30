@@ -12,7 +12,6 @@ HEADERS += gitplugin.h \
     annotationhighlighter.h \
     gitsubmiteditorwidget.h \
     gitsubmiteditor.h \
-    gitversioncontrol.h \
     gitsettings.h \
     branchmodel.h \
     stashdialog.h \
@@ -36,7 +35,6 @@ SOURCES += gitplugin.cpp \
     annotationhighlighter.cpp \
     gitsubmiteditorwidget.cpp \
     gitsubmiteditor.cpp \
-    gitversioncontrol.cpp \
     gitsettings.cpp \
     branchmodel.cpp \
     stashdialog.cpp \

@@ -138,7 +138,7 @@ QStringList SubversionClient::addAuthenticationOptions(const VcsBaseClientSettin
     return rc;
 }
 
-QString SubversionClient::synchronousTopic(const QString &repository)
+QString SubversionClient::synchronousTopic(const QString &repository) const
 {
     QStringList args;
 

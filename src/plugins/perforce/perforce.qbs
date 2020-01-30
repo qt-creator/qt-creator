@@ -31,8 +31,6 @@ QtcPlugin {
         "perforcesubmiteditor.h",
         "perforcesubmiteditorwidget.cpp",
         "perforcesubmiteditorwidget.h",
-        "perforceversioncontrol.cpp",
-        "perforceversioncontrol.h",
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",

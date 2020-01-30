@@ -1,7 +1,6 @@
 include(../../qtcreatorplugin.pri)
 SOURCES += \
     bazaarclient.cpp \
-    bazaarcontrol.cpp \
     bazaarplugin.cpp \
     optionspage.cpp \
     bazaarsettings.cpp \
@@ -15,7 +14,6 @@ SOURCES += \
 HEADERS += \
     bazaarclient.h \
     constants.h \
-    bazaarcontrol.h \
     bazaarplugin.h \
     optionspage.h \
     bazaarsettings.h \

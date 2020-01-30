@@ -1,7 +1,6 @@
 include(../../qtcreatorplugin.pri)
 SOURCES += mercurialplugin.cpp \
     optionspage.cpp \
-    mercurialcontrol.cpp \
     mercurialclient.cpp \
     annotationhighlighter.cpp \
     mercurialeditor.cpp \
@@ -14,7 +13,6 @@ SOURCES += mercurialplugin.cpp \
 HEADERS += mercurialplugin.h \
     constants.h \
     optionspage.h \
-    mercurialcontrol.h \
     mercurialclient.h \
     annotationhighlighter.h \
     mercurialeditor.h \

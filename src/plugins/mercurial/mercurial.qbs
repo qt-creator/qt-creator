@@ -25,8 +25,6 @@ QtcPlugin {
         "mercurialcommitpanel.ui",
         "mercurialcommitwidget.cpp",
         "mercurialcommitwidget.h",
-        "mercurialcontrol.cpp",
-        "mercurialcontrol.h",
         "mercurialeditor.cpp",
         "mercurialeditor.h",
         "mercurialplugin.cpp",

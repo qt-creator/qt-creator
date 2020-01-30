@@ -5,7 +5,6 @@ add_qtc_plugin(Bazaar
     bazaarclient.cpp bazaarclient.h
     bazaarcommitpanel.ui
     bazaarcommitwidget.cpp bazaarcommitwidget.h
-    bazaarcontrol.cpp bazaarcontrol.h
     bazaareditor.cpp bazaareditor.h
     bazaarplugin.cpp bazaarplugin.h
     bazaarsettings.cpp bazaarsettings.h

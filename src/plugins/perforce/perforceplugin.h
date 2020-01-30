@@ -29,6 +29,8 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/iversioncontrol.h>
+
+#include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <QObject>
@@ -76,8 +78,28 @@ class PerforcePluginPrivate final : public VcsBase::VcsBasePluginPrivate
 public:
     PerforcePluginPrivate();
 
-    bool managesDirectory(const QString &directory, QString *topLevel = nullptr);
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    // IVersionControl
+    QString displayName() const final { return {"perforce"}; }
+    Core::Id id() const final { return Core::Id(VcsBase::Constants::VCS_ID_PERFORCE); }
+
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+    bool managesDirectory(const QString &directory, QString *topLevel = nullptr) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    OpenSupportMode openSupportMode(const QString &fileName) const final;
+    bool vcsOpen(const QString &fileName) final;
+    SettingsFlags settingsFlags() const final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+    bool vcsAnnotate(const QString &file, int line) final;
+    QString vcsOpenText() const final;
+    QString vcsMakeWritableText() const final;
+
+    ///
     bool vcsOpen(const QString &workingDir, const QString &fileName, bool silently = false);
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &filename);
@@ -202,8 +224,6 @@ private:
                         const QStringList &dirs = QStringList());
     bool revertProject(const QString &workingDir, const QStringList &args, bool unchangedOnly);
     bool managesDirectoryFstat(const QString &directory);
-
-    static PerforceVersionControl *perforceVersionControl();
 
     Core::CommandLocator *m_commandLocator = nullptr;
     Utils::ParameterAction *m_editAction = nullptr;

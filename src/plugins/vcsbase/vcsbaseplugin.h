@@ -154,20 +154,17 @@ VCSBASE_EXPORT Utils::SynchronousProcessResponse runVcs(const QString &workingDi
                                                         QTextCodec *outputCodec = nullptr,
                                                         const QProcessEnvironment &env = {});
 
-class VCSBASE_EXPORT VcsBasePluginPrivate : public QObject
+class VCSBASE_EXPORT VcsBasePluginPrivate : public Core::IVersionControl
 {
     Q_OBJECT
 
 protected:
-    explicit VcsBasePluginPrivate();
+    explicit VcsBasePluginPrivate(const Core::Context &context);
 
 public:
-    ~VcsBasePluginPrivate() override;
-
     void extensionsInitialized();
 
     const VcsBasePluginState &currentState() const;
-    Core::IVersionControl *versionControl() const;
 
     // Display name of the commit action
     virtual QString commitDisplayName() const;
@@ -209,16 +206,13 @@ protected:
     // Returns whether actions should be set up further.
     bool enableMenuAction(ActionState as, QAction *in) const;
 
-    void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
-
 private:
     void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
-    void slotStateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
+    void slotStateChanged(const Internal::State &s, Core::IVersionControl *vc);
 
     bool supportsRepositoryCreation() const;
 
     QPointer<VcsBaseSubmitEditor> m_submitEditor;
-    QPointer<Core::IVersionControl> m_versionControl;
     Core::Context m_context;
     VcsBasePluginState m_state;
     int m_actionState = -1;

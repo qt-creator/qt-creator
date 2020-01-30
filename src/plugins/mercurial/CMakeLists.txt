@@ -8,7 +8,6 @@ add_qtc_plugin(Mercurial
     mercurialclient.cpp mercurialclient.h
     mercurialcommitpanel.ui
     mercurialcommitwidget.cpp mercurialcommitwidget.h
-    mercurialcontrol.cpp mercurialcontrol.h
     mercurialeditor.cpp mercurialeditor.h
     mercurialplugin.cpp mercurialplugin.h
     mercurialsettings.cpp mercurialsettings.h

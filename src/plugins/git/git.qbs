@@ -52,8 +52,6 @@ QtcPlugin {
         "gitsubmitpanel.ui",
         "gitutils.cpp",
         "gitutils.h",
-        "gitversioncontrol.cpp",
-        "gitversioncontrol.h",
         "logchangedialog.cpp",
         "logchangedialog.h",
         "mergetool.cpp",
