@@ -595,6 +595,12 @@ static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
             in.skipCurrentElement();
         }
     }
+
+    // Inherit the field access from the register access if the filed
+    // has not the access rights description.
+    if (fld.access == PeripheralRegisterAccess::Unknown)
+        fld.access = reg.access;
+
     reg.fields.push_back(fld);
 }
 
