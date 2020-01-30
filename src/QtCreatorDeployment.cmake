@@ -34,6 +34,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
       COMPONENT Dependencies EXCLUDE_FROM_ALL
       ${exclusion_mask}
     )
+    list(APPEND qt5_plugin_directories "${qt5_plugin_dest_dir}/${plugin}")
   endforeach()
 
   install(
@@ -85,6 +86,12 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
 
     get_filename_component(install_prefix \"\${CMAKE_INSTALL_PREFIX}\" ABSOLUTE)
 
+    # Get also the dependencies of Qt's plugins
+    foreach(plugin ${qt5_plugin_directories})
+      file(GLOB plugin_files \"\${install_prefix}/\${plugin}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+      list(APPEND qt5_plugin_files \"\${plugin_files}\")
+    endforeach()
+
     set(installed_EXECUTABLES_NOT_PREFIXED \"${__QTC_INSTALLED_EXECUTABLES}\")
     set(installed_LIBRARIES_NOT_PREFIXED \"${__QTC_INSTALLED_LIBRARIES}\")
     set(installed_MODULES_NOT_PREFIXED \"${__QTC_INSTALLED_PLUGINS}\")
@@ -124,7 +131,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
       # Clear for second step
       set(installed_EXECUTABLES \"\")
       set(installed_LIBRARIES \"\")
-      set(installed_MODULES \"\")
+      set(installed_MODULES \"\${qt5_plugin_files}\")
 
       list(REMOVE_DUPLICATES unresolved_deps)
 
