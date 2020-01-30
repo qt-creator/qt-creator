@@ -29,15 +29,20 @@
 
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/qtcassert.h>
+
+#include <QTimer>
+
+using namespace ProjectExplorer;
 
 namespace CppTools {
 namespace Internal {
 
 ProjectInfoGenerator::ProjectInfoGenerator(
     const QFutureInterface<void> &futureInterface,
-    const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo)
+    const ProjectUpdateInfo &projectUpdateInfo)
     : m_futureInterface(futureInterface)
     , m_projectUpdateInfo(projectUpdateInfo)
 {
@@ -47,7 +52,7 @@ ProjectInfo ProjectInfoGenerator::generate()
 {
     ProjectInfo projectInfo(m_projectUpdateInfo.project);
 
-    for (const ProjectExplorer::RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
+    for (const RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
         if (m_futureInterface.isCanceled())
             return ProjectInfo();
 
@@ -55,11 +60,26 @@ ProjectInfo ProjectInfoGenerator::generate()
             projectInfo.appendProjectPart(part);
     }
 
+    static const auto showWarning = [](const QString &message) {
+        QTimer::singleShot(0, TaskHub::instance(), [message] {
+            TaskHub::addTask(BuildSystemTask(Task::Warning, message));
+        });
+    };
+    if (m_cToolchainMissing) {
+        showWarning(QCoreApplication::translate("CppTools",
+                "The project contains C source files, but the currently active kit "
+                "has no C compiler. The code model will not be fully functional."));
+    }
+    if (m_cxxToolchainMissing) {
+        showWarning(QCoreApplication::translate("CppTools",
+                "The project contains C++ source files, but the currently active kit "
+                "has no C++ compiler. The code model will not be fully functional."));
+    }
     return projectInfo;
 }
 
 static ProjectPart::Ptr projectPartFromRawProjectPart(
-    const ProjectExplorer::RawProjectPart &rawProjectPart, ProjectExplorer::Project *project)
+    const RawProjectPart &rawProjectPart, Project *project)
 {
     ProjectPart::Ptr part(new ProjectPart);
     part->project = project;
@@ -73,7 +93,7 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(
     part->qtVersion = rawProjectPart.qtVersion;
     part->projectMacros = rawProjectPart.projectMacros;
     if (!part->projectConfigFile.isEmpty())
-        part->projectMacros += ProjectExplorer::Macro::toMacros(ProjectPart::readProjectConfigFile(part));
+        part->projectMacros += Macro::toMacros(ProjectPart::readProjectConfigFile(part));
     part->headerPaths = rawProjectPart.headerPaths;
     part->precompiledHeaders = rawProjectPart.precompiledHeaders;
     part->selectedForBuilding = rawProjectPart.selectedForBuilding;
@@ -82,7 +102,7 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(
 }
 
 QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
-    const ProjectExplorer::RawProjectPart &rawProjectPart)
+    const RawProjectPart &rawProjectPart)
 {
     using Utils::LanguageExtension;
 
@@ -114,6 +134,8 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
                                         Language::Cxx,
                                         LanguageExtension::ObjectiveC);
         }
+    } else if (cat.hasCxxSources() || cat.hasObjcxxSources()) {
+        m_cxxToolchainMissing = true;
     }
 
     if (m_projectUpdateInfo.cToolChain) {
@@ -134,21 +156,23 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
                                         Language::C,
                                         LanguageExtension::ObjectiveC);
         }
+    } else if (cat.hasCSources() || cat.hasObjcSources()) {
+        m_cToolchainMissing = true;
     }
 
     return result;
 }
 
 ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
-    const ProjectExplorer::RawProjectPart &rawProjectPart,
+    const RawProjectPart &rawProjectPart,
     const ProjectPart::Ptr &templateProjectPart,
     const ProjectFiles &projectFiles,
     const QString &partName,
     Language language,
     Utils::LanguageExtensions languageExtensions)
 {
-    ProjectExplorer::RawProjectPartFlags flags;
-    ProjectExplorer::ToolChainInfo tcInfo;
+    RawProjectPartFlags flags;
+    ToolChainInfo tcInfo;
     if (language == Language::C) {
         flags = rawProjectPart.flagsForC;
         tcInfo = m_projectUpdateInfo.cToolChainInfo;
@@ -158,7 +182,6 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
         flags = rawProjectPart.flagsForCxx;
         tcInfo = m_projectUpdateInfo.cxxToolChainInfo;
     }
-    // TODO: If no toolchain is set, show a warning
 
     ProjectPart::Ptr part(templateProjectPart->copy());
     part->displayName = partName;
@@ -189,14 +212,14 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
 
     // Header paths
     if (tcInfo.headerPathsRunner) {
-        const ProjectExplorer::HeaderPaths builtInHeaderPaths
+        const HeaderPaths builtInHeaderPaths
             = tcInfo.headerPathsRunner(flags.commandLineFlags,
                                        tcInfo.sysRootPath,
                                        tcInfo.targetTriple);
 
-        ProjectExplorer::HeaderPaths &headerPaths = part->headerPaths;
-        for (const ProjectExplorer::HeaderPath &header : builtInHeaderPaths) {
-            const ProjectExplorer::HeaderPath headerPath{header.path, header.type};
+        HeaderPaths &headerPaths = part->headerPaths;
+        for (const HeaderPath &header : builtInHeaderPaths) {
+            const HeaderPath headerPath{header.path, header.type};
             if (!headerPaths.contains(headerPath))
                 headerPaths.push_back(headerPath);
         }

@@ -54,6 +54,8 @@ private:
 private:
     const QFutureInterface<void> m_futureInterface;
     const ProjectExplorer::ProjectUpdateInfo &m_projectUpdateInfo;
+    bool m_cToolchainMissing = false;
+    bool m_cxxToolchainMissing = false;
 };
 } // namespace Internal
 } // namespace CppTools
