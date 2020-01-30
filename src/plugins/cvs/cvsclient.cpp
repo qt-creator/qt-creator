@@ -80,11 +80,6 @@ CvsClient::CvsClient(CvsSettings *settings) : VcsBaseClient(settings)
     });
 }
 
-CvsSettings &CvsClient::settings() const
-{
-    return static_cast<CvsSettings &>(VcsBaseClient::settings());
-}
-
 Core::Id CvsClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {

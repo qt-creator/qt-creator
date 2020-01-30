@@ -41,7 +41,6 @@ class CvsClient : public VcsBase::VcsBaseClient
 public:
     explicit CvsClient(CvsSettings *settings);
 
-    CvsSettings &settings() const;
     void diff(const QString &workingDir, const QStringList &files,
               const QStringList &extraOptions = QStringList()) override;
     QString findTopLevelForFile(const QFileInfo &file) const override;

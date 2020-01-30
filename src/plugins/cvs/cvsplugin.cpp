@@ -386,15 +386,13 @@ Core::ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString
 {
     QTC_ASSERT(localName == url, return nullptr);
 
-    const CvsSettings settings = m_client->settings();
-
     QStringList args;
     args << QLatin1String("checkout") << url << extraArgs;
 
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
                                            QProcessEnvironment::systemEnvironment());
     command->setDisplayName(tr("CVS Checkout"));
-    command->addJob({m_client->vcsBinary(), settings.addOptions(args)}, -1);
+    command->addJob({m_client->vcsBinary(), m_settings.addOptions(args)}, -1);
     return command;
 }
 
