@@ -221,7 +221,7 @@ void FormEditorItem::setDataModelPositionInBaseState(const QPointF &position)
     qmlItemNode().setPostionInBaseState(position);
 }
 
-QPointF FormEditorItem::instancelPosition() const
+QPointF FormEditorItem::instancePosition() const
 {
     return qmlItemNode().instancePosition();
 }
@@ -559,7 +559,7 @@ void FormEditorFlowItem::updateGeometry()
 
 }
 
-QPointF FormEditorFlowItem::instancelPosition() const
+QPointF FormEditorFlowItem::instancePosition() const
 {
     return qmlItemNode().flowPosition();
 }
@@ -685,7 +685,7 @@ void FormEditorTransitionItem::updateGeometry()
     setZValue(10);
 }
 
-QPointF FormEditorTransitionItem::instancelPosition() const
+QPointF FormEditorTransitionItem::instancePosition() const
 {
     return qmlItemNode().flowPosition();
 }

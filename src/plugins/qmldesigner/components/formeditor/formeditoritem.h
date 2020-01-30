@@ -110,7 +110,7 @@ public:
     virtual void synchronizeOtherProperty(const QByteArray &propertyName);
     virtual void setDataModelPosition(const QPointF &position);
     virtual void setDataModelPositionInBaseState(const QPointF &position);
-    virtual QPointF instancelPosition() const;
+    virtual QPointF instancePosition() const;
     virtual QTransform instanceSceneTransform() const;
     virtual QTransform instanceSceneContentItemTransform() const;
 
@@ -152,7 +152,7 @@ public:
     void setDataModelPosition(const QPointF &position) override;
     void setDataModelPositionInBaseState(const QPointF &position) override;
     void updateGeometry() override;
-    QPointF instancelPosition() const override;
+    QPointF instancePosition() const override;
 
 protected:
     FormEditorFlowItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
@@ -182,7 +182,7 @@ public:
     void setDataModelPosition(const QPointF &position) override;
     void setDataModelPositionInBaseState(const QPointF &position) override;
     void updateGeometry() override;
-    QPointF instancelPosition() const override;
+    QPointF instancePosition() const override;
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = nullptr ) override;
     bool flowHitTest(const QPointF &point) const override;
 

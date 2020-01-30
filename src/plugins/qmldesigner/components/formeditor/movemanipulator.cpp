@@ -146,7 +146,7 @@ void MoveManipulator::begin(const QPointF &beginPoint)
     QTransform fromContentItemToSceneTransform = m_snapper.containerFormEditorItem()->qmlItemNode().instanceSceneContentItemTransform();
     foreach (FormEditorItem* item, m_itemList) {
         if (item && item->qmlItemNode().isValid()) {
-            QPointF positionInScenesSpace = fromContentItemToSceneTransform.map(item->instancelPosition());
+            QPointF positionInScenesSpace = fromContentItemToSceneTransform.map(item->instancePosition());
             m_beginPositionInSceneSpaceHash.insert(item, positionInScenesSpace);
         }
     }
