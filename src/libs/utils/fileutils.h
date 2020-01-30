@@ -101,7 +101,6 @@ public:
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
 
-    bool isLocal() const;
     bool isDir() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
 

@@ -940,11 +940,6 @@ bool FilePath::endsWith(const QString &s) const
     return m_data.endsWith(s, HostOsInfo::fileNameCaseSensitivity());
 }
 
-bool FilePath::isLocal() const
-{
-    return m_url.isEmpty() || m_url.isLocalFile();
-}
-
 bool FilePath::isDir() const
 {
     QTC_CHECK(m_url.isEmpty()); // FIXME: Not implemented yet.
