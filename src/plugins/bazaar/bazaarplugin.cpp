@@ -198,10 +198,10 @@ public:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    BazaarSettings m_bazaarSettings;
-    BazaarClient m_client{&m_bazaarSettings};
+    BazaarSettings m_settings;
+    BazaarClient m_client{&m_settings};
 
-    OptionsPage m_optionsPage{[this] { configurationChanged(); }, &m_bazaarSettings};
+    OptionsPage m_optionsPage{[this] { configurationChanged(); }, &m_settings};
 
     VcsSubmitEditorFactory m_submitEditorFactory {
         &submitEditorParameters,
@@ -475,7 +475,7 @@ void BazaarPluginPrivate::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
-    extraOptions += QLatin1String("--limit=") + QString::number(m_client.settings().intValue(BazaarSettings::logCountKey));
+    extraOptions += QLatin1String("--limit=") + QString::number(m_settings.intValue(BazaarSettings::logCountKey));
     m_client.log(state.topLevel(), QStringList(), extraOptions);
 }
 
@@ -661,10 +661,9 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
-    const VcsBaseClientSettings &s = m_client.settings();
     commitEditor->setFields(m_submitRepository, branch,
-                            s.stringValue(BazaarSettings::userNameKey),
-                            s.stringValue(BazaarSettings::userEmailKey), status);
+                            m_settings.stringValue(BazaarSettings::userNameKey),
+                            m_settings.stringValue(BazaarSettings::userEmailKey), status);
 }
 
 void BazaarPluginPrivate::diffFromEditorSelected(const QStringList &files)
