@@ -373,7 +373,6 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &prop
     for (const BindingProperty &property : propertyList) {
         QmlVisualNode node(property.parentModelNode());
         if (node.isFlowTransition()) {
-            qDebug() << "isflow" << node;
             FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode());
             if (item) {
                 m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
