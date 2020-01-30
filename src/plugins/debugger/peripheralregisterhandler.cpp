@@ -52,6 +52,8 @@ constexpr char kBitRange[] = "bitRange";
 constexpr char kBitWidth[] = "bitWidth";
 constexpr char kDerivedFrom[] = "derivedFrom";
 constexpr char kDescription[] = "description";
+constexpr char kDevice[] = "device";
+constexpr char kDisplayName[] = "displayName";
 constexpr char kField[] = "field";
 constexpr char kFields[] = "fields";
 constexpr char kGroupName[] = "groupName";
@@ -559,135 +561,141 @@ PeripheralRegisterHandler::PeripheralRegisterHandler(DebuggerEngine *engine)
     setHeader({tr("Name"), tr("Value"), tr("Access")});
 }
 
-static PeripheralRegisterGroups availablePeripheralRegisterGroups(
-        const QString &filePath)
+static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
+{
+    PeripheralRegisterField fld;
+    while (in.readNextStartElement()) {
+        const auto elementName = in.name();
+        if (elementName == kName) {
+            fld.name = in.readElementText();
+        } else if (elementName == kDescription) {
+            fld.description = in.readElementText();
+        } else if (elementName == kAccess) {
+            fld.access = decodeAccess(in.readElementText());
+        } else if (elementName == kBitRange) {
+            const QString elementText = in.readElementText();
+            const int startBracket = elementText.indexOf('[');
+            const int endBracket = elementText.indexOf(']');
+            if (startBracket == -1 || endBracket == -1 || (endBracket - startBracket) <= 0)
+                continue;
+            const QString range = elementText.mid(startBracket + 1, endBracket - 1);
+            const QStringList items = range.split(':');
+            enum { MaxBit, MinBit, BitsCount };
+            if (items.count() != BitsCount)
+                continue;
+            const int from = int(decodeNumeric(items.at(MinBit)));
+            const int to = int(decodeNumeric(items.at(MaxBit)));
+            fld.bitOffset = from;
+            fld.bitWidth = to - from + 1;
+        } else if (elementName == kBitOffset) {
+            fld.bitOffset = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == kBitWidth) {
+            fld.bitWidth = int(decodeNumeric(in.readElementText()));
+        } else {
+            in.skipCurrentElement();
+        }
+    }
+    reg.fields.push_back(fld);
+}
+
+static void handleRegister(QXmlStreamReader &in, PeripheralRegisterGroup &group)
+{
+    PeripheralRegister reg;
+    while (in.readNextStartElement()) {
+        const auto elementName = in.name();
+        if (elementName == kName) {
+            reg.name = in.readElementText();
+        } else if (elementName == kDisplayName) {
+            reg.displayName = in.readElementText();
+        } else if (elementName == kDescription) {
+            reg.description = in.readElementText();
+        } else if (elementName == kAddressOffset) {
+            reg.addressOffset = decodeNumeric(in.readElementText());
+        } else if (elementName == kSize) {
+            reg.size = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == kAccess) {
+            reg.access = decodeAccess(in.readElementText());
+        } else if (elementName == kResetvalue) {
+            reg.resetValue = decodeNumeric(in.readElementText());
+        } else if (elementName == kFields) {
+            while (in.readNextStartElement()) {
+                const auto elementName = in.name();
+                if (elementName == kField)
+                    handleField(in, reg);
+                else
+                    in.skipCurrentElement();
+            }
+        } else {
+            in.skipCurrentElement();
+        }
+    }
+    group.registers.push_back(reg);
+}
+
+static void handleGroup(QXmlStreamReader &in, PeripheralRegisterGroups &groups)
+{
+    PeripheralRegisterGroup group;
+
+    const auto fromGroupName = in.attributes().value(kDerivedFrom);
+    if (!fromGroupName.isEmpty()) {
+        const auto groupEnd = groups.cend();
+        const auto groupIt = std::find_if(groups.cbegin(), groupEnd,
+                                          [fromGroupName](const PeripheralRegisterGroup &group) {
+            return fromGroupName == group.name;
+        });
+        if (groupIt != groupEnd)
+            group = *groupIt;
+    }
+
+    while (in.readNextStartElement()) {
+        const auto elementName = in.name();
+        if (elementName == kName) {
+            group.name = in.readElementText();
+        } else if (elementName == kDescription) {
+            group.description = in.readElementText();
+        } else if (elementName == kGroupName) {
+            group.displayName = in.readElementText();
+        } else if (elementName == kBaseAddress) {
+            group.baseAddress = decodeNumeric(in.readElementText());
+        } else if (elementName == kSize) {
+            group.size = int(decodeNumeric(in.readElementText()));
+        } else if (elementName == kAccess) {
+            group.access = decodeAccess(in.readElementText());
+        } else if (elementName == kRegisters) {
+            while (in.readNextStartElement()) {
+                const auto elementName = in.name();
+                if (elementName == kRegister)
+                    handleRegister(in, group);
+                else
+                    in.skipCurrentElement();
+            }
+        } else {
+            in.skipCurrentElement();
+        }
+    }
+    groups.push_back(group);
+}
+
+static PeripheralRegisterGroups availablePeripheralRegisterGroups(const QString &filePath)
 {
     QFile f(filePath);
     if (!f.open(QIODevice::ReadOnly))
         return {};
 
     QXmlStreamReader in(&f);
-
-    PeripheralRegisterGroups foundGroups;
-
-    while (!in.atEnd()) {
-        const auto token = in.readNext();
-        if (token == QXmlStreamReader::EndElement
-                && in.name() == QLatin1String(kPeripherals)) {
-            break;
-        } else if (token != QXmlStreamReader::StartElement
-                   || in.name() != QLatin1String(kPeripheral)) {
-            continue;
-        }
-
-        PeripheralRegisterGroup group;
-
-        const auto fromGroupName = in.attributes().value(
-                    QLatin1String(kDerivedFrom));
-        const auto foundGroupEnd = foundGroups.cend();
-        const auto foundGroupIt = std::find_if(
-                    foundGroups.cbegin(), foundGroupEnd,
-                    [fromGroupName](const PeripheralRegisterGroup &foundGroup) {
-            return fromGroupName == foundGroup.name;
-        });
-        if (foundGroupIt != foundGroupEnd)
-            group = *foundGroupIt;
-
-        while (!in.atEnd()) {
-            const auto token = in.readNext();
-            if (token == QXmlStreamReader::EndElement
-                    && in.name() == QLatin1String(kPeripheral)) {
-                foundGroups.push_back(group);
-                break;
-            } else if (token == QXmlStreamReader::StartElement) {
+    PeripheralRegisterGroups groups;
+    while (in.readNextStartElement()) {
+        const auto elementName = in.name();
+        if (elementName == kDevice) {
+            while (in.readNextStartElement()) {
                 const auto elementName = in.name();
-                if (elementName == QLatin1String(kName)) {
-                    group.name = in.readElementText();
-                } else if (elementName == QLatin1String(kDescription)) {
-                    group.description = in.readElementText();
-                } else if (elementName == QLatin1String(kGroupName)) {
-                    group.displayName = in.readElementText();
-                } else if (elementName == QLatin1String(kBaseAddress)) {
-                    group.baseAddress = decodeNumeric(in.readElementText());
-                } else if (elementName == QLatin1String(kSize)) {
-                    group.size = int(decodeNumeric(in.readElementText()));
-                } else if (elementName == QLatin1String(kAccess)) {
-                    group.access = decodeAccess(in.readElementText());
-                } else if (elementName == QLatin1String(kRegisters)
-                           || elementName == QLatin1String(kRegister)) {
-                    PeripheralRegister reg;
-                    while (!in.atEnd()) {
-                        const auto token = in.readNext();
-                        if (token == QXmlStreamReader::EndElement
-                                && in.name() == QLatin1String(kRegister)) {
-                            group.registers.push_back(reg);
-                            break;
-                        } else if (token == QXmlStreamReader::StartElement) {
-                            const auto elementName = in.name();
-                            if (elementName == QLatin1String(kRegister)) {
-                                continue;
-                            } else if (elementName == QLatin1String(kName)) {
-                                reg.name = in.readElementText();
-                            } else if (elementName == QLatin1String(kDescription)) {
-                                reg.description = in.readElementText();
-                            } else if (elementName == QLatin1String(kAddressOffset)) {
-                                reg.addressOffset = decodeNumeric(in.readElementText());
-                            } else if (elementName == QLatin1String(kSize)) {
-                                reg.size = int(decodeNumeric(in.readElementText()));
-                            } else if (elementName == QLatin1String(kAccess)) {
-                                reg.access = decodeAccess(in.readElementText());
-                            } else if (elementName == QLatin1String(kResetvalue)) {
-                                reg.resetValue = decodeNumeric(in.readElementText());
-                            } else if (elementName == QLatin1String(kFields)
-                                       || elementName == QLatin1String(kField)) {
-                                PeripheralRegisterField fld;
-                                while (!in.atEnd()) {
-                                    const auto token = in.readNext();
-                                    if (token == QXmlStreamReader::EndElement
-                                            && in.name() == QLatin1String(kField)) {
-                                        reg.fields.push_back(fld);
-                                        break;
-                                    } else if (token == QXmlStreamReader::StartElement) {
-                                        const auto elementName = in.name();
-                                        if (elementName == QLatin1String(kField)) {
-                                            continue;
-                                        } else if (elementName == QLatin1String(kName)) {
-                                            fld.name = in.readElementText();
-                                        } else if (elementName == QLatin1String(kDescription)) {
-                                            fld.description = in.readElementText();
-                                        } else if (elementName == QLatin1String(kAccess)) {
-                                            fld.access = decodeAccess(in.readElementText());
-                                        } else if (elementName == QLatin1String(kBitRange)) {
-                                            const QString elementText = in.readElementText();
-                                            const int startBracket = elementText.indexOf('[');
-                                            const int endBracket = elementText.indexOf(']');
-                                            if (startBracket == -1 || endBracket == -1
-                                                    || (endBracket - startBracket) <= 0) {
-                                                continue;
-                                            }
-                                            const QString range = elementText.mid(
-                                                        startBracket + 1, endBracket - 1);
-                                            const QStringList items = range.split(':');
-                                            enum { MaxBit, MinBit, BitsCount };
-                                            if (items.count() != BitsCount)
-                                                continue;
-                                            const int from = int(decodeNumeric(items.at(MinBit)));
-                                            const int to = int(decodeNumeric(items.at(MaxBit)));
-                                            fld.bitOffset = from;
-                                            fld.bitWidth = to - from + 1;
-                                        } else if (elementName == QLatin1String(kBitOffset)) {
-                                            fld.bitOffset = int(decodeNumeric(in.readElementText()));
-                                        } else if (elementName == QLatin1String(kBitWidth)) {
-                                            fld.bitWidth = int(decodeNumeric(in.readElementText()));
-                                        } else {
-                                            in.skipCurrentElement();
-                                        }
-                                    }
-                                }
-                            } else {
-                                in.skipCurrentElement();
-                            }
-                        }
+                if (elementName == kPeripherals) {
+                    while (in.readNextStartElement()) {
+                        const auto elementName = in.name();
+                        if (elementName == kPeripheral)
+                            handleGroup(in, groups);
+                        else
+                            in.skipCurrentElement();
                     }
                 } else {
                     in.skipCurrentElement();
@@ -695,8 +703,7 @@ static PeripheralRegisterGroups availablePeripheralRegisterGroups(
             }
         }
     }
-
-    return foundGroups;
+    return groups;
 }
 
 void PeripheralRegisterHandler::updateRegisterGroups()
