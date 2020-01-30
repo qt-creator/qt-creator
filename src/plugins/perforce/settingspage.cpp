@@ -35,11 +35,34 @@
 #include <QFileDialog>
 #include <QTextStream>
 
-using namespace Perforce::Internal;
 using namespace Utils;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
-    QWidget(parent)
+namespace Perforce {
+namespace Internal {
+
+class SettingsPageWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
+
+public:
+    SettingsPageWidget();
+    ~SettingsPageWidget() final;
+
+private:
+    void apply() final;
+
+    Settings settings() const;
+
+    void slotTest();
+    void setStatusText(const QString &);
+    void setStatusError(const QString &);
+    void testSucceeded(const QString &repo);
+
+    Ui::SettingsPage m_ui;
+    PerforceChecker *m_checker = nullptr;
+};
+
+SettingsPageWidget::SettingsPageWidget()
 {
     m_ui.setupUi(this);
     m_ui.errorLabel->clear();
@@ -47,6 +70,17 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.pathChooser->setHistoryCompleter(QLatin1String("Perforce.Command.History"));
     m_ui.pathChooser->setExpectedKind(PathChooser::Command);
     connect(m_ui.testPushButton, &QPushButton::clicked, this, &SettingsPageWidget::slotTest);
+
+    const PerforceSettings &s = PerforcePluginPrivate::settings();
+    m_ui.pathChooser->setPath(s.p4Command());
+    m_ui.environmentGroupBox->setChecked(!s.defaultEnv());
+    m_ui.portLineEdit->setText(s.p4Port());
+    m_ui.clientLineEdit->setText(s.p4Client());
+    m_ui.userLineEdit->setText(s.p4User());
+    m_ui.logCountSpinBox->setValue(s.logCount());
+    m_ui.timeOutSpinBox->setValue(s.timeOutS());
+    m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit());
+    m_ui.autoOpenCheckBox->setChecked(s.autoOpen());
 }
 
 SettingsPageWidget::~SettingsPageWidget()
@@ -92,17 +126,9 @@ Settings SettingsPageWidget::settings() const
     return settings;
 }
 
-void SettingsPageWidget::setSettings(const PerforceSettings &s)
+void SettingsPageWidget::apply()
 {
-    m_ui.pathChooser->setPath(s.p4Command());
-    m_ui.environmentGroupBox->setChecked(!s.defaultEnv());
-    m_ui.portLineEdit->setText(s.p4Port());
-    m_ui.clientLineEdit->setText(s.p4Client());
-    m_ui.userLineEdit->setText(s.p4User());
-    m_ui.logCountSpinBox->setValue(s.logCount());
-    m_ui.timeOutSpinBox->setValue(s.timeOutS());
-    m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit());
-    m_ui.autoOpenCheckBox->setChecked(s.autoOpen());
+    PerforcePluginPrivate::setSettings(settings());
 }
 
 void SettingsPageWidget::setStatusText(const QString &t)
@@ -123,29 +149,8 @@ SettingsPage::SettingsPage(QObject *parent)
     setId(VcsBase::Constants::VCS_ID_PERFORCE);
     setDisplayName(SettingsPageWidget::tr("Perforce"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new SettingsPageWidget; });
 }
 
-SettingsPage::~SettingsPage()
-{
-    delete m_widget;
-}
-
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new SettingsPageWidget;
-        m_widget->setSettings(PerforcePluginPrivate::settings());
-    }
-    return m_widget;
-}
-
-void SettingsPage::apply()
-{
-    PerforcePluginPrivate::setSettings(m_widget->settings());
-}
-
-void SettingsPage::finish()
-{
-    delete m_widget;
-    m_widget = nullptr;
-}
+} // Internal
+} // Perforce

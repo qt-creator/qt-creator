@@ -32,43 +32,10 @@
 namespace Perforce {
 namespace Internal {
 
-class PerforceSettings;
-class PerforceChecker;
-struct Settings;
-
-class SettingsPageWidget : public QWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
-
-public:
-    explicit SettingsPageWidget(QWidget *parent = nullptr);
-    ~SettingsPageWidget() override;
-
-    void setSettings(const PerforceSettings &);
-    Settings settings() const;
-
-private:
-    void slotTest();
-    void setStatusText(const QString &);
-    void setStatusError(const QString &);
-    void testSucceeded(const QString &repo);
-
-    Ui::SettingsPage m_ui;
-    PerforceChecker *m_checker = nullptr;
-};
-
 class SettingsPage final : public Core::IOptionsPage
 {
 public:
     explicit SettingsPage(QObject *parent);
-    ~SettingsPage() override;
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    SettingsPageWidget *m_widget = nullptr;
 };
 
 } // namespace Internal
