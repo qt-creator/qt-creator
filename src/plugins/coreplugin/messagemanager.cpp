@@ -31,6 +31,8 @@
 #include <utils/qtcassert.h>
 
 #include <QFont>
+#include <QThread>
+#include <QTimer>
 
 using namespace Core;
 
@@ -91,7 +93,20 @@ void MessageManager::setWheelZoomEnabled(bool enabled)
     m_messageOutputWindow->setWheelZoomEnabled(enabled);
 }
 
+void MessageManager::writeMessages(const QStringList &messages, PrintToOutputPaneFlags flags)
+{
+    write(messages.join('\n'), flags);
+}
+
 void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
+{
+    if (QThread::currentThread() == instance()->thread())
+        doWrite(text, flags);
+    else
+        QTimer::singleShot(0, instance(), [text, flags] { doWrite(text, flags); });
+}
+
+void MessageManager::doWrite(const QString &text, PrintToOutputPaneFlags flags)
 {
     QTC_ASSERT(m_messageOutputWindow, return);
 
