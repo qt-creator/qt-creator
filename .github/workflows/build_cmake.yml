@@ -374,23 +374,23 @@ jobs:
 
     - name: Pack
       working-directory: instdir
-      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cfv ../QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}.7z --format=7zip .
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cfv ../QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z --format=7zip .
 
     - name: Pack Devel
       working-directory: instdir-dev
-      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cfv ../QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}-dev.7z --format=7zip .
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar cfv ../QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}-dev.7z --format=7zip .
 
     - name: Upload
       uses: actions/upload-artifact@v1
       with:
-        path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}.7z
-        name: QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}.7z
+        path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+        name: QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
 
     - name: Upload Devel
       uses: actions/upload-artifact@v1
       with:
-        path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}-dev.7z
-        name: QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}-dev.7z
+        path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}-dev.7z
+        name: QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}-dev.7z
 
   release:
     if: contains(github.ref, 'tags/v')
@@ -448,13 +448,13 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v1
       with:
-        name: QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}.7z
+        name: QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
     - name: Download Devel artifact
       uses: actions/download-artifact@v1
       with:
-        name: QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}-dev.7z
+        name: QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}-dev.7z
         path: ./
 
     - name: Download URL
@@ -473,8 +473,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}.7z
-        asset_name: QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}.7z
+        asset_path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+        asset_name: QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         asset_content_type: application/x-gtar
 
     - name: Upload Devel to Release
@@ -483,6 +483,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}-dev.7z
-        asset_name: QtCreator-${{ matrix.config.artifact }}-${{ github.sha }}-dev.7z
+        asset_path: ./QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}-dev.7z
+        asset_name: QtCreator-${{ matrix.config.artifact }}-${{ github.run_id }}-dev.7z
         asset_content_type: application/x-gtar
