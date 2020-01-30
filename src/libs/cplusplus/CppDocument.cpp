@@ -44,6 +44,7 @@
 #include <cplusplus/TypeVisitor.h>
 #include <cplusplus/CoreTypes.h>
 
+#include <QStack>
 #include <QByteArray>
 #include <QBitArray>
 #include <QDir>
@@ -834,7 +835,23 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
 QSet<QString> Snapshot::allIncludesForDocument(const QString &fileName) const
 {
     QSet<QString> result;
-    allIncludesForDocument_helper(fileName, result);
+
+    QStack<QString> files;
+    files.push(fileName);
+
+    while (!files.isEmpty()) {
+        QString file = files.pop();
+        if (Document::Ptr doc = document(file)) {
+            const QStringList includedFiles = doc->includedFiles();
+            for (const QString &inc : includedFiles) {
+                if (!result.contains(inc)) {
+                    result.insert(inc);
+                    files.push(inc);
+                }
+            }
+        }
+    }
+
     return result;
 }
 
@@ -866,18 +883,6 @@ void Snapshot::updateDependencyTable() const
 bool Snapshot::operator==(const Snapshot &other) const
 {
     return _documents == other._documents;
-}
-
-void Snapshot::allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const
-{
-    if (Document::Ptr doc = document(fileName)) {
-        foreach (const QString &inc, doc->includedFiles()) {
-            if (!result.contains(inc)) {
-                result.insert(inc);
-                allIncludesForDocument_helper(inc, result);
-            }
-        }
-    }
 }
 
 Document::Ptr Snapshot::document(const Utils::FilePath &fileName) const

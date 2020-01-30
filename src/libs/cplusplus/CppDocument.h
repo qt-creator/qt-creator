@@ -450,8 +450,6 @@ public:
     bool operator==(const Snapshot &other) const;
 
 private:
-    void allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const;
-
     mutable DependencyTable m_deps;
     Base _documents;
 };
