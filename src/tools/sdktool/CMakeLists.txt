@@ -1,9 +1,37 @@
-get_target_property(UtilsSourcesDir Utils SOURCES_DIR)
+cmake_minimum_required(VERSION 3.9)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
+
+project(sdktool)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+include(QtCreatorIDEBranding)
+include(QtCreatorAPI)
+configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
+
+find_package(Qt5
+  COMPONENTS Core
+  REQUIRED
+)
+
+if (APPLE)
+  find_library(FWFoundation Foundation)
+endif()
+
+set(UtilsSourcesDir "../../libs/utils")
 
 add_qtc_executable(sdktool
   DEFINES DATA_PATH=\"${IDE_DATA_PATH}\"
-  DEPENDS Qt5::Core app_version
-  INCLUDES "${UtilsSourcesDir}/../"
+  DEPENDS Qt5::Core
+  INCLUDES
+    "${UtilsSourcesDir}/../"
+    ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES
     addabiflavor.cpp addabiflavor.h
     addcmakeoperation.cpp addcmakeoperation.h
