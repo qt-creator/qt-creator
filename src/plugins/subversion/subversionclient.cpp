@@ -172,7 +172,12 @@ class SubversionDiffEditorController : public VcsBaseDiffEditorController
     Q_OBJECT
 public:
     SubversionDiffEditorController(IDocument *document,
-                                   const QString &workingDirectory);
+                                   VcsBaseClient *client,
+                                   const QString &workingDirectory)
+        : VcsBaseDiffEditorController(document, client, workingDirectory)
+    {
+        forceContextLineCount(3); // SVN cannot change that when using internal diff
+    }
 
     void setFilesList(const QStringList &filesList);
     void setChangeNumber(int changeNumber);
@@ -186,19 +191,11 @@ private:
     void requestDiff();
 
     enum State { Idle, GettingDescription, GettingDiff };
-    State m_state;
+    State m_state = Idle;
     QStringList m_filesList;
     int m_changeNumber = 0;
 };
 
-SubversionDiffEditorController::SubversionDiffEditorController(
-        IDocument *document,
-        const QString &workingDirectory)
-    : VcsBaseDiffEditorController(document, SubversionPluginPrivate::instance()->client(), workingDirectory)
-    , m_state(Idle)
-{
-    forceContextLineCount(3); // SVN cannot change that when using internal diff
-}
 
 void SubversionDiffEditorController::setFilesList(const QStringList &filesList)
 {
@@ -271,13 +268,13 @@ void SubversionDiffEditorController::processCommandOutput(const QString &output)
 SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const QString &documentId,
                                                          const QString &source,
                                                          const QString &title,
-                                                         const QString &workingDirectory) const
+                                                         const QString &workingDirectory)
 {
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
     if (!controller)
-        controller = new SubversionDiffEditorController(document, workingDirectory);
+        controller = new SubversionDiffEditorController(document, this, workingDirectory);
     VcsBase::setSource(document, source);
     EditorManager::activateEditorForDocument(document);
     return controller;

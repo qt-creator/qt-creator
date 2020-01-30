@@ -31,6 +31,7 @@
 #include "subversionsubmiteditor.h"
 #include "subversionclient.h"
 #include "subversionconstants.h"
+#include "subversionsettings.h"
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcscommand.h>
@@ -38,6 +39,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsoutputwindow.h>
+#include <vcsbase/vcsbaseplugin.h>
 
 #include <texteditor/textdocument.h>
 
@@ -107,6 +109,14 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
+struct SubversionResponse
+{
+    bool error = false;
+    QString stdOut;
+    QString stdErr;
+    QString message;
+};
+
 const VcsBaseEditorParameters editorParameters[] = {
 {
     LogOutput,
@@ -167,6 +177,8 @@ static inline QStringList svnDirectories()
     return rc;
 }
 
+class SubversionPluginPrivate;
+
 class SubversionTopicCache : public Core::IVersionControl::TopicCache
 {
 public:
@@ -175,19 +187,141 @@ public:
     { }
 
 protected:
-    QString trackFile(const QString &repository) override
-    {
-        return m_plugin->monitorFile(repository);
-    }
+    QString trackFile(const QString &repository) override;
 
-    QString refreshTopic(const QString &repository) override
-    {
-        return m_plugin->synchronousTopic(repository);
-    }
+    QString refreshTopic(const QString &repository) override;
 
 private:
     SubversionPluginPrivate *m_plugin;
 };
+
+class SubversionPluginPrivate final : public VcsBase::VcsBasePluginPrivate
+{
+    Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SubversionPlugin)
+
+public:
+    SubversionPluginPrivate();
+    ~SubversionPluginPrivate() final;
+
+    // IVersionControl
+    QString displayName() const final;
+    Core::Id id() const final;
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+
+    bool managesDirectory(const QString &directory, QString *topLevel) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+
+    bool vcsAnnotate(const QString &file, int line) final;
+
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FilePath &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) final;
+
+    bool isVcsDirectory(const Utils::FilePath &fileName) const;
+
+    ///
+    SubversionClient *client();
+
+    SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
+
+    // IVersionControl
+    bool vcsAdd(const QString &workingDir, const QString &fileName);
+    bool vcsDelete(const QString &workingDir, const QString &fileName);
+    bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
+    bool vcsCheckout(const QString &directory, const QByteArray &url);
+
+    static SubversionPluginPrivate *instance();
+
+    QString monitorFile(const QString &repository) const;
+    QString synchronousTopic(const QString &repository) const;
+    SubversionResponse runSvn(const QString &workingDir,
+                              const QStringList &arguments, int timeOutS,
+                              unsigned flags, QTextCodec *outputCodec = nullptr) const;
+    void describe(const QString &source, const QString &changeNr);
+    void vcsAnnotateHelper(const QString &workingDir, const QString &file,
+                     const QString &revision = QString(), int lineNumber = -1);
+
+protected:
+    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
+    bool submitEditorAboutToClose() override;
+
+private:
+    void addCurrentFile();
+    void revertCurrentFile();
+    void diffProject();
+    void diffCurrentFile();
+    void cleanCommitMessageFile();
+    void startCommitAll();
+    void startCommitProject();
+    void startCommitCurrentFile();
+    void revertAll();
+    void filelogCurrentFile();
+    void annotateCurrentFile();
+    void projectStatus();
+    void slotDescribe();
+    void updateProject();
+    void commitFromEditor() override;
+    void diffCommitFiles(const QStringList &);
+    void logProject();
+    void logRepository();
+    void diffRepository();
+    void statusRepository();
+    void updateRepository();
+
+    inline bool isCommitEditorOpen() const;
+    Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
+                                      int editorType, const QString &source,
+                                      QTextCodec *codec);
+
+    void filelog(const QString &workingDir,
+                 const QString &file = QString(),
+                 bool enableAnnotationContextMenu = false);
+    void svnStatus(const QString &workingDir, const QString &relativePath = QString());
+    void svnUpdate(const QString &workingDir, const QString &relativePath = QString());
+    bool checkSVNSubDir(const QDir &directory) const;
+    void startCommit(const QString &workingDir, const QStringList &files = QStringList());
+
+    const QStringList m_svnDirectories;
+
+    SubversionSettings m_settings;
+    SubversionClient *m_client = nullptr;
+    QString m_commitMessageFileName;
+    QString m_commitRepository;
+
+    Core::CommandLocator *m_commandLocator = nullptr;
+    Utils::ParameterAction *m_addAction = nullptr;
+    Utils::ParameterAction *m_deleteAction = nullptr;
+    Utils::ParameterAction *m_revertAction = nullptr;
+    Utils::ParameterAction *m_diffProjectAction = nullptr;
+    Utils::ParameterAction *m_diffCurrentAction = nullptr;
+    Utils::ParameterAction *m_logProjectAction = nullptr;
+    QAction *m_logRepositoryAction = nullptr;
+    QAction *m_commitAllAction = nullptr;
+    QAction *m_revertRepositoryAction = nullptr;
+    QAction *m_diffRepositoryAction = nullptr;
+    QAction *m_statusRepositoryAction = nullptr;
+    QAction *m_updateRepositoryAction = nullptr;
+    Utils::ParameterAction *m_commitCurrentAction = nullptr;
+    Utils::ParameterAction *m_filelogCurrentAction = nullptr;
+    Utils::ParameterAction *m_annotateCurrentAction = nullptr;
+    Utils::ParameterAction *m_statusProjectAction = nullptr;
+    Utils::ParameterAction *m_updateProjectAction = nullptr;
+    Utils::ParameterAction *m_commitProjectAction = nullptr;
+    QAction *m_describeAction = nullptr;
+
+    QAction *m_menuAction = nullptr;
+    bool m_submitActionTriggered = false;
+};
+
 
 // ------------- SubversionPlugin
 
@@ -252,7 +386,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     using namespace Core::Constants;
     Context context(SUBVERSION_CONTEXT);
 
-    new SubversionSettingsPage(this, &m_settings, this);
+    new SubversionSettingsPage([this] { configurationChanged(); }, &m_settings, this);
 
     new VcsSubmitEditorFactory(&submitParameters,
         []() { return new SubversionSubmitEditor(&submitParameters); }, this);
@@ -1166,6 +1300,17 @@ Core::ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const 
     return command;
 }
 
+QString SubversionTopicCache::trackFile(const QString &repository)
+{
+    return m_plugin->monitorFile(repository);
+}
+
+QString SubversionTopicCache::refreshTopic(const QString &repository)
+{
+    return m_plugin->synchronousTopic(repository);
+}
+
+
 #ifdef WITH_TESTS
 void SubversionPlugin::testLogResolving()
 {
@@ -1187,6 +1332,7 @@ void SubversionPlugin::testLogResolving()
                 );
     VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "r1439551", "r1439540");
 }
+
 #endif
 
 } // Internal

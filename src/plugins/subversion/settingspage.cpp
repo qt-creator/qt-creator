@@ -49,18 +49,19 @@ class SubversionSettingsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SettingsPageWidget)
 
 public:
-    SubversionSettingsPageWidget(Core::IVersionControl *control, SubversionSettings *settings);
+    SubversionSettingsPageWidget(const std::function<void()> &onApply, SubversionSettings *settings);
 
     void apply() final;
 
 private:
     Ui::SettingsPage m_ui;
-    Core::IVersionControl *m_control;
+    std::function<void()> m_onApply;
     SubversionSettings *m_settings;
 };
 
-SubversionSettingsPageWidget::SubversionSettingsPageWidget(Core::IVersionControl *control, SubversionSettings *settings)
-    : m_control(control), m_settings(settings)
+SubversionSettingsPageWidget::SubversionSettingsPageWidget(const std::function<void()> &onApply,
+                                                           SubversionSettings *settings)
+    : m_onApply(onApply), m_settings(settings)
 {
     m_ui.setupUi(this);
     m_ui.pathChooser->setExpectedKind(PathChooser::ExistingCommand);
@@ -98,16 +99,16 @@ void SubversionSettingsPageWidget::apply()
         return;
 
     *m_settings = rc;
-    m_control->configurationChanged();
+    m_onApply();
 }
 
-SubversionSettingsPage::SubversionSettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent) :
+SubversionSettingsPage::SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings, QObject *parent) :
     Core::IOptionsPage(parent)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
     setDisplayName(SubversionSettingsPageWidget::tr("Subversion"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([control, settings] { return new SubversionSettingsPageWidget(control, settings); });
+    setWidgetCreator([onApply, settings] { return new SubversionSettingsPageWidget(onApply, settings); });
 }
 
 } // Internal

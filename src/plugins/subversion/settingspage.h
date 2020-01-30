@@ -27,8 +27,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Core { class IVersionControl;  }
-
 namespace Subversion {
 namespace Internal {
 
@@ -37,7 +35,7 @@ class SubversionSettings;
 class SubversionSettingsPage final : public Core::IOptionsPage
 {
 public:
-    SubversionSettingsPage(Core::IVersionControl *control, SubversionSettings *settings, QObject *parent);
+    SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings, QObject *parent);
 };
 
 } // namespace Subversion
