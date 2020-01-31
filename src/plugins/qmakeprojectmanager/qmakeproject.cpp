@@ -67,6 +67,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QDebug>
@@ -710,16 +711,19 @@ QString QmakeBuildSystem::qmakeSysroot()
 
 void QmakeBuildSystem::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
-    delete reader;
-    if (!--m_qmakeGlobalsRefCnt) {
-        QString dir = projectFilePath().toString();
-        if (!dir.endsWith(QLatin1Char('/')))
-            dir += QLatin1Char('/');
-        QtSupport::ProFileCacheManager::instance()->discardFiles(dir, qmakeVfs());
-        QtSupport::ProFileCacheManager::instance()->decRefCount();
-
-        m_qmakeGlobals.reset();
-    }
+    // The ProFileReader destructor is super expensive (but thread-safe).
+    const auto deleteFuture = runAsync(ProjectExplorerPlugin::sharedThreadPool(), QThread::LowestPriority,
+                    [reader] { delete reader; });
+    onFinished(deleteFuture, this, [this](const QFuture<void> &) {
+        if (!--m_qmakeGlobalsRefCnt) {
+            QString dir = projectFilePath().toString();
+            if (!dir.endsWith(QLatin1Char('/')))
+                dir += QLatin1Char('/');
+            QtSupport::ProFileCacheManager::instance()->discardFiles(dir, qmakeVfs());
+            QtSupport::ProFileCacheManager::instance()->decRefCount();
+            m_qmakeGlobals.reset();
+        }
+    });
 }
 
 void QmakeBuildSystem::activeTargetWasChanged(Target *t)

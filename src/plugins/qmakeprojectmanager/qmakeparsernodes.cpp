@@ -118,6 +118,8 @@ public:
     QtSupport::ProFileReader *readerCumulative;
     QMakeGlobals *qmakeGlobals;
     QMakeVfs *qmakeVfs;
+    QSet<FilePath> parentFilePaths;
+    bool includedInExcactParse;
 };
 
 class QmakePriFileEvalResult
@@ -146,6 +148,8 @@ public:
 class QmakeEvalResult
 {
 public:
+    ~QmakeEvalResult() { qDeleteAll(directChildren); }
+
     enum EvalResultState { EvalAbort, EvalFail, EvalPartial, EvalOk };
     EvalResultState state;
     ProjectType projectType;
@@ -158,23 +162,33 @@ public:
     QHash<Variable, QStringList> newVarValues;
     QStringList errors;
     QSet<QString> directoriesWithWildcards;
+    QList<QmakePriFile *> directChildren;
+    QList<QPair<QmakePriFile *, QmakePriFileEvalResult>> priFiles;
+    QList<QmakeProFile *> proFiles;
 };
 
 } // namespace Internal
 
 QmakePriFile::QmakePriFile(QmakeBuildSystem *buildSystem, QmakeProFile *qmakeProFile,
-                           const FilePath &filePath) :
-    m_buildSystem(buildSystem),
-    m_qmakeProFile(qmakeProFile)
+                           const FilePath &filePath) : m_filePath(filePath)
 {
-    Q_ASSERT(buildSystem);
-    m_priFileDocument = std::make_unique<QmakePriFileDocument>(this, filePath);
+    finishInitialization(buildSystem, qmakeProFile);
+}
+
+QmakePriFile::QmakePriFile(const FilePath &filePath) : m_filePath(filePath) { }
+
+void QmakePriFile::finishInitialization(QmakeBuildSystem *buildSystem, QmakeProFile *qmakeProFile)
+{
+    QTC_ASSERT(buildSystem, return);
+    m_buildSystem = buildSystem;
+    m_qmakeProFile = qmakeProFile;
+    m_priFileDocument = std::make_unique<QmakePriFileDocument>(this, filePath());
     Core::DocumentManager::addDocument(m_priFileDocument.get());
 }
 
 FilePath QmakePriFile::filePath() const
 {
-    return m_priFileDocument->filePath();
+    return m_filePath;
 }
 
 FilePath QmakePriFile::directoryPath() const
@@ -1180,21 +1194,28 @@ QByteArray QmakeProFile::cxxDefines() const
 QmakeProFile::QmakeProFile(QmakeBuildSystem *buildSystem, const FilePath &filePath) :
     QmakePriFile(buildSystem, this, filePath)
 {
-    // The lifetime of the m_parserFutureWatcher is shorter
-    // than of this, so this is all safe
-    QObject::connect(&m_parseFutureWatcher, &QFutureWatcherBase::finished,
-                     [this](){ applyAsyncEvaluate(); });
+    setupFutureWatcher();
 }
+
+QmakeProFile::QmakeProFile(const FilePath &filePath) : QmakePriFile(filePath) { }
 
 QmakeProFile::~QmakeProFile()
 {
     qDeleteAll(m_extraCompilers);
-    m_parseFutureWatcher.cancel();
-    m_parseFutureWatcher.waitForFinished();
+    m_parseFutureWatcher->cancel();
+    m_parseFutureWatcher->waitForFinished();
+    delete m_parseFutureWatcher;
     if (m_readerExact)
         applyAsyncEvaluate();
 
     cleanupProFileReaders();
+}
+
+void QmakeProFile::setupFutureWatcher()
+{
+    m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResult *>;
+    QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished,
+                     [this](){ applyAsyncEvaluate(); });
 }
 
 bool QmakeProFile::isParent(QmakeProFile *node)
@@ -1287,13 +1308,13 @@ void QmakeProFile::asyncUpdate()
     setupReader();
     if (!includedInExactParse())
         m_readerExact->setExact(false);
-    m_parseFutureWatcher.waitForFinished();
+    m_parseFutureWatcher->waitForFinished();
     QmakeEvalInput input = evalInput();
     QFuture<QmakeEvalResult *> future = Utils::runAsync(ProjectExplorerPlugin::sharedThreadPool(),
                                                         QThread::LowestPriority,
                                                         &QmakeProFile::asyncEvaluate,
                                                         this, input);
-    m_parseFutureWatcher.setFuture(future);
+    m_parseFutureWatcher->setFuture(future);
 }
 
 bool QmakeProFile::isFileFromWildcard(const QString &filePath) const
@@ -1315,6 +1336,9 @@ QmakeEvalInput QmakeProFile::evalInput() const
     input.readerCumulative = m_readerCumulative;
     input.qmakeGlobals = m_buildSystem->qmakeGlobals();
     input.qmakeVfs = m_buildSystem->qmakeVfs();
+    input.includedInExcactParse = includedInExactParse();
+    for (const QmakePriFile *pri = this; pri; pri = pri->parent())
+        input.parentFilePaths.insert(pri->filePath());
     return input;
 }
 
@@ -1580,6 +1604,47 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     if (cumulativeBuildPassReader && cumulativeBuildPassReader != input.readerCumulative)
         delete cumulativeBuildPassReader;
 
+    QList<QPair<QmakePriFile *, QmakeIncludedPriFile *>> toCompare;
+    toCompare.append(qMakePair(nullptr, &result->includedFiles));
+    while (!toCompare.isEmpty()) {
+        QmakePriFile *pn = toCompare.first().first;
+        QmakeIncludedPriFile *tree = toCompare.first().second;
+        toCompare.pop_front();
+
+        // Loop prevention: Make sure that exact same node is not in our parent chain
+        for (QmakeIncludedPriFile *priFile : tree->children) {
+            bool loop = input.parentFilePaths.contains(priFile->name);
+            for (const QmakePriFile *n = pn; n && !loop; n = n->parent()) {
+                if (n->filePath() == priFile->name)
+                    loop = true;
+            }
+            if (loop)
+                continue; // Do nothing
+
+            if (priFile->proFile) {
+                auto *qmakePriFileNode = new QmakePriFile(priFile->name);
+                if (pn)
+                    pn->addChild(qmakePriFileNode);
+                else
+                    result->directChildren << qmakePriFileNode;
+                qmakePriFileNode->setIncludedInExactParse(input.includedInExcactParse
+                        && result->state == QmakeEvalResult::EvalOk);
+                result->priFiles.append(qMakePair(qmakePriFileNode, priFile->result));
+                toCompare.append(qMakePair(qmakePriFileNode, priFile));
+            } else {
+                auto *qmakeProFileNode = new QmakeProFile(priFile->name);
+                if (pn)
+                    pn->addChild(qmakeProFileNode);
+                else
+                    result->directChildren << qmakeProFileNode;
+                qmakeProFileNode->setIncludedInExactParse(input.includedInExcactParse
+                            && result->exactSubdirs.contains(qmakeProFileNode->filePath()));
+                qmakeProFileNode->setParseInProgress(true);
+                result->proFiles << qmakeProFileNode;
+            }
+        }
+    }
+
     return result;
 }
 
@@ -1591,8 +1656,8 @@ void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResult *> &fi, QmakeE
 
 void QmakeProFile::applyAsyncEvaluate()
 {
-    if (m_parseFutureWatcher.isFinished())
-        applyEvaluate(m_parseFutureWatcher.result());
+    if (m_parseFutureWatcher->isFinished())
+        applyEvaluate(m_parseFutureWatcher->result());
     m_buildSystem->decrementPendingEvaluateFutures();
 }
 
@@ -1655,53 +1720,22 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
     //
     // Add/Remove pri files, sub projects
     //
-
     FilePath buildDirectory = buildDir();
-
-    QList<QPair<QmakePriFile *, QmakeIncludedPriFile *>> toCompare;
-
-    toCompare.append(qMakePair(this, &result->includedFiles));
-
     makeEmpty();
+    for (QmakePriFile * const toAdd : qAsConst(result->directChildren))
+        addChild(toAdd);
+    result->directChildren.clear();
 
-    while (!toCompare.isEmpty()) {
-        QmakePriFile *pn = toCompare.first().first;
-        QmakeIncludedPriFile *tree = toCompare.first().second;
-        toCompare.pop_front();
-
-        for (QmakeIncludedPriFile *priFile : tree->children) {
-            // Loop preventation, make sure that exact same node is not in our parent chain
-            bool loop = false;
-            QmakePriFile *n = pn;
-            while ((n = n->parent())) {
-                if (n->filePath() == priFile->name) {
-                    loop = true;
-                    break;
-                }
-            }
-
-            if (loop)
-                continue; // Do nothing
-
-            if (priFile->proFile) {
-                auto *qmakePriFileNode = new QmakePriFile(m_buildSystem, this, priFile->name);
-                pn->addChild(qmakePriFileNode);
-                qmakePriFileNode->setIncludedInExactParse(
-                            (result->state == QmakeEvalResult::EvalOk) && pn->includedInExactParse());
-                qmakePriFileNode->update(priFile->result);
-                toCompare.append(qMakePair(qmakePriFileNode, priFile));
-            } else {
-                auto *qmakeProFileNode = new QmakeProFile(m_buildSystem, priFile->name);
-                pn->addChild(qmakeProFileNode);
-                qmakeProFileNode->setIncludedInExactParse(
-                            result->exactSubdirs.contains(qmakeProFileNode->filePath())
-                            && pn->includedInExactParse());
-                qmakeProFileNode->setParseInProgress(true);
-                qmakeProFileNode->asyncUpdate();
-            }
-        }
+    for (const auto priFiles : qAsConst(result->priFiles)) {
+        priFiles.first->finishInitialization(m_buildSystem, this);
+        priFiles.first->update(priFiles.second);
     }
 
+    for (QmakeProFile * const proFile : qAsConst(result->proFiles)) {
+        proFile->finishInitialization(m_buildSystem, proFile);
+        proFile->setupFutureWatcher();
+        proFile->asyncUpdate();
+    }
     QmakePriFile::update(result->includedFiles.result);
 
     m_validParse = (result->state == QmakeEvalResult::EvalOk);

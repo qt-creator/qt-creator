@@ -125,8 +125,10 @@ class QMAKEPROJECTMANAGER_EXPORT QmakePriFile
 {
 public:
     QmakePriFile(QmakeBuildSystem *buildSystem, QmakeProFile *qmakeProFile, const Utils::FilePath &filePath);
+    explicit QmakePriFile(const Utils::FilePath &filePath);
     virtual ~QmakePriFile();
 
+    void finishInitialization(QmakeBuildSystem *buildSystem, QmakeProFile *qmakeProFile);
     Utils::FilePath filePath() const;
     Utils::FilePath directoryPath() const;
     virtual QString displayName() const;
@@ -241,6 +243,7 @@ private:
     QMap<ProjectExplorer::FileType, SourceFiles> m_files;
     QSet<Utils::FilePath> m_recursiveEnumerateFiles; // FIXME: Remove this?!
     QSet<QString> m_watchedFolders;
+    const Utils::FilePath m_filePath;
     bool m_includedInExactParse = true;
 
     friend class QmakeProFile;
@@ -294,7 +297,10 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeProFile : public QmakePriFile
 {
 public:
     QmakeProFile(QmakeBuildSystem *buildSystem, const Utils::FilePath &filePath);
+    explicit QmakeProFile(const Utils::FilePath &filePath);
     ~QmakeProFile() override;
+
+    void setupFutureWatcher();
 
     bool isParent(QmakeProFile *node);
     QString displayName() const final;
@@ -390,7 +396,7 @@ private:
     QMap<QString, QStringList> m_wildcardDirectoryContents;
 
     // Async stuff
-    QFutureWatcher<Internal::QmakeEvalResult *> m_parseFutureWatcher;
+    QFutureWatcher<Internal::QmakeEvalResult *> *m_parseFutureWatcher = nullptr;
     QtSupport::ProFileReader *m_readerExact = nullptr;
     QtSupport::ProFileReader *m_readerCumulative = nullptr;
 };
