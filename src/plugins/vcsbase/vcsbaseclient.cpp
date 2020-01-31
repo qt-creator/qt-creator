@@ -252,40 +252,14 @@ void VcsBaseClientImpl::saveSettings()
     settings().writeSettings(Core::ICore::settings());
 }
 
-class VcsBaseClientPrivate
-{
-public:
-    VcsBaseEditorConfig *createDiffEditor(VcsBaseEditorWidget *editor);
-    VcsBaseEditorConfig *createLogEditor(VcsBaseEditorWidget *editor);
-
-    VcsBaseClient::ConfigCreator m_diffConfigCreator;
-    VcsBaseClient::ConfigCreator m_logConfigCreator;
-};
-
-VcsBaseEditorConfig *VcsBaseClientPrivate::createDiffEditor(VcsBaseEditorWidget *editor)
-{
-    return m_diffConfigCreator ? m_diffConfigCreator(editor->toolBar()) : 0;
-}
-
-VcsBaseEditorConfig *VcsBaseClientPrivate::createLogEditor(VcsBaseEditorWidget *editor)
-{
-    return m_logConfigCreator ? m_logConfigCreator(editor->toolBar()) : 0;
-}
-
 VcsBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
     flags(s), file(f)
 { }
 
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
-    VcsBaseClientImpl(settings),
-    d(new VcsBaseClientPrivate)
+    VcsBaseClientImpl(settings)
 {
     qRegisterMetaType<QVariant>();
-}
-
-VcsBaseClient::~VcsBaseClient()
-{
-    delete d;
 }
 
 bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
@@ -412,7 +386,8 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
 
     VcsBaseEditorConfig *paramWidget = editor->editorConfig();
     if (!paramWidget) {
-        paramWidget = d->createDiffEditor(editor);
+        if (m_diffConfigCreator)
+            paramWidget = m_diffConfigCreator(editor->toolBar());
         if (paramWidget) {
             paramWidget->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
@@ -453,7 +428,8 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
 
     VcsBaseEditorConfig *paramWidget = editor->editorConfig();
     if (!paramWidget) {
-        paramWidget = d->createLogEditor(editor);
+        if (m_logConfigCreator)
+            paramWidget = m_logConfigCreator(editor->toolBar());
         if (paramWidget) {
             paramWidget->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
@@ -550,12 +526,12 @@ ExitCodeInterpreter VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd) const
 
 void VcsBaseClient::setDiffConfigCreator(ConfigCreator creator)
 {
-    d->m_diffConfigCreator = std::move(creator);
+    m_diffConfigCreator = std::move(creator);
 }
 
 void VcsBaseClient::setLogConfigCreator(ConfigCreator creator)
 {
-    d->m_logConfigCreator = std::move(creator);
+    m_logConfigCreator = std::move(creator);
 }
 
 void VcsBaseClient::import(const QString &repositoryRoot, const QStringList &files,

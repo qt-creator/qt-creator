@@ -51,7 +51,6 @@ class VcsBaseEditorWidget;
 class VcsBaseClientSettings;
 class VcsJob;
 class VcsBaseClientImplPrivate;
-class VcsBaseClientPrivate;
 class VcsBaseEditorConfig;
 
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
@@ -147,7 +146,7 @@ public:
     };
 
     explicit VcsBaseClient(VcsBaseClientSettings *settings);
-    ~VcsBaseClient() override;
+
     virtual bool synchronousCreateRepository(const QString &workingDir,
                                              const QStringList &extraOptions = QStringList());
     virtual bool synchronousClone(const QString &workingDir,
@@ -239,8 +238,8 @@ protected:
 private:
     void statusParser(const QString&);
 
-    friend class VcsBaseClientPrivate;
-    VcsBaseClientPrivate *d;
+    VcsBaseClient::ConfigCreator m_diffConfigCreator;
+    VcsBaseClient::ConfigCreator m_logConfigCreator;
 };
 
 } //namespace VcsBase
