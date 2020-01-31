@@ -449,6 +449,9 @@ void QmlItemNode::setFlowItemPosition(const QPointF &position)
 
 QPointF QmlItemNode::flowPosition() const
 {
+    if (!isValid())
+        return QPointF();
+
     return QPointF(modelNode().auxiliaryData("flowX").toInt(),
                    modelNode().auxiliaryData("flowY").toInt());
 }
