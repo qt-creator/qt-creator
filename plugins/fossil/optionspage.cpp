@@ -42,12 +42,12 @@ class OptionsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Fossil::Internal::OptionsPageWidget)
 
 public:
-    OptionsPageWidget(Core::IVersionControl *control, FossilSettings *settings);
+    OptionsPageWidget(const std::function<void()> &onApply, FossilSettings *settings);
     void apply() final;
 
 private:
     Ui::OptionsPage m_ui;
-    Core::IVersionControl *m_control;
+    const std::function<void()> m_onApply;
     FossilSettings *m_settings;
 };
 
@@ -66,11 +66,11 @@ void OptionsPageWidget::apply()
         return;
 
     *m_settings = s;
-    emit m_control->configurationChanged();
+    m_onApply();
 }
 
-OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control, FossilSettings *settings) :
-    m_control(control),
+OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, FossilSettings *settings) :
+    m_onApply(onApply),
     m_settings(settings)
 {
     m_ui.setupUi(this);
@@ -91,12 +91,12 @@ OptionsPageWidget::OptionsPageWidget(Core::IVersionControl *control, FossilSetti
     m_ui.disableAutosyncCheckBox->setChecked(m_settings->boolValue(FossilSettings::disableAutosyncKey));
 }
 
-OptionsPage::OptionsPage(Core::IVersionControl *control, FossilSettings *settings, QObject *parent) :
+OptionsPage::OptionsPage(const std::function<void()> &onApply, FossilSettings *settings, QObject *parent) :
     Core::IOptionsPage(parent)
 {
     setId(Constants::VCS_ID_FOSSIL);
     setDisplayName(OptionsPageWidget::tr("Fossil"));
-    setWidgetCreator([control, settings]() { return new OptionsPageWidget(control, settings); });
+    setWidgetCreator([onApply, settings]() { return new OptionsPageWidget(onApply, settings); });
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 

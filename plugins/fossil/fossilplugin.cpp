@@ -26,7 +26,6 @@
 #include "fossilplugin.h"
 #include "constants.h"
 #include "fossilclient.h"
-#include "fossilcontrol.h"
 #include "optionspage.h"
 #include "fossilcommitwidget.h"
 #include "fossileditor.h"
@@ -64,6 +63,7 @@
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QtPlugin>
@@ -77,6 +77,28 @@
 
 namespace Fossil {
 namespace Internal {
+
+class FossilTopicCache : public Core::IVersionControl::TopicCache
+{
+public:
+    FossilTopicCache(FossilClient *client) :
+        m_client(client)
+    { }
+
+protected:
+    QString trackFile(const QString &repository) final
+    {
+        return repository + "/" + Constants::FOSSILREPO;
+    }
+
+    QString refreshTopic(const QString &repository) final
+    {
+        return m_client->synchronousTopic(repository);
+    }
+
+private:
+    FossilClient *m_client;
+};
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     {   VcsBase::LogOutput,
@@ -105,12 +127,6 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitEditorParameters = {
 
 static FossilPluginPrivate *dd = nullptr;
 
-FossilPluginPrivate::~FossilPluginPrivate()
-{
-    delete m_client;
-    m_client = nullptr;
-}
-
 FossilPlugin::~FossilPlugin()
 {
     delete dd;
@@ -132,15 +148,15 @@ void FossilPlugin::extensionsInitialized()
 }
 
 FossilPluginPrivate::FossilPluginPrivate()
+    : VcsBase::VcsBasePluginPrivate(Core::Context(Constants::FOSSIL_CONTEXT))
 {
     Core::Context context(Constants::FOSSIL_CONTEXT);
 
     m_client = new FossilClient(&m_fossilSettings);
-    auto vcsCtrl = new FossilControl(m_client);
-    initializeVcs(vcsCtrl, context);
-    connect(m_client, &VcsBase::VcsBaseClient::changed, vcsCtrl, &FossilControl::changed);
+    setTopicCache(new FossilTopicCache(m_client));
+    connect(m_client, &VcsBase::VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
 
-    new OptionsPage(vcsCtrl, &m_fossilSettings, this);
+    new OptionsPage([this] { configurationChanged(); }, &m_fossilSettings, this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_client->view(source, id);
@@ -170,7 +186,7 @@ FossilPluginPrivate *FossilPluginPrivate::instance()
     return dd;
 }
 
-FossilClient *FossilPluginPrivate::client() const
+const FossilClient *FossilPluginPrivate::client() const
 {
     return m_client;
 }
@@ -644,7 +660,7 @@ void FossilPluginPrivate::createRepository()
             return;
     } while (true);
     // Create
-    const bool rc = static_cast<FossilControl *>(versionControl())->vcsCreateRepository(directory);
+    const bool rc = vcsCreateRepository(directory);
     const QString nativeDir = QDir::toNativeSeparators(directory);
     if (rc) {
         QMessageBox::information(mw, tr("Repository Created"),
@@ -750,6 +766,242 @@ void FossilPluginPrivate::updateActions(VcsBase::VcsBasePluginPrivate::ActionSta
 
     foreach (QAction *repoAction, m_repositoryActionList)
         repoAction->setEnabled(repoEnabled);
+}
+
+QString FossilPluginPrivate::displayName() const
+{
+    return tr("Fossil");
+}
+
+Core::Id FossilPluginPrivate::id() const
+{
+    return Core::Id(Constants::VCS_ID_FOSSIL);
+}
+
+bool FossilPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) const
+{
+    return m_client->isVcsFileOrDirectory(filePath);
+}
+
+bool FossilPluginPrivate::managesDirectory(const QString &directory, QString *topLevel) const
+{
+    QFileInfo dir(directory);
+    const QString topLevelFound = m_client->findTopLevelForFile(dir);
+    if (topLevel)
+        *topLevel = topLevelFound;
+    return !topLevelFound.isEmpty();
+}
+
+bool FossilPluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_client->managesFile(workingDirectory, fileName);
+}
+
+bool FossilPluginPrivate::isConfigured() const
+{
+    const Utils::FilePath binary = m_client->vcsBinary();
+    if (binary.isEmpty())
+        return false;
+
+    const QFileInfo fi = binary.toFileInfo();
+    if ( !(fi.exists() && fi.isFile() && fi.isExecutable()) )
+        return false;
+
+    // Local repositories default path must be set and exist
+    const QString repoPath = m_client->settings().stringValue(FossilSettings::defaultRepoPathKey);
+    if (repoPath.isEmpty())
+        return false;
+
+    const QDir dir(repoPath);
+    if (!dir.exists())
+        return false;
+
+    return true;
+}
+
+bool FossilPluginPrivate::supportsOperation(Operation operation) const
+{
+    bool supported = isConfigured();
+
+    switch (operation) {
+    case Core::IVersionControl::AddOperation:
+    case Core::IVersionControl::DeleteOperation:
+    case Core::IVersionControl::MoveOperation:
+    case Core::IVersionControl::CreateRepositoryOperation:
+    case Core::IVersionControl::AnnotateOperation:
+    case Core::IVersionControl::InitialCheckoutOperation:
+        break;
+    case Core::IVersionControl::SnapshotOperations:
+        supported = false;
+        break;
+    }
+    return supported;
+}
+
+bool FossilPluginPrivate::vcsOpen(const QString &filename)
+{
+    Q_UNUSED(filename)
+    return true;
+}
+
+bool FossilPluginPrivate::vcsAdd(const QString &filename)
+{
+    const QFileInfo fi(filename);
+    return m_client->synchronousAdd(fi.absolutePath(), fi.fileName());
+}
+
+bool FossilPluginPrivate::vcsDelete(const QString &filename)
+{
+    const QFileInfo fi(filename);
+    return m_client->synchronousRemove(fi.absolutePath(), fi.fileName());
+}
+
+bool FossilPluginPrivate::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return m_client->synchronousMove(fromInfo.absolutePath(),
+                                     fromInfo.absoluteFilePath(),
+                                     toInfo.absoluteFilePath());
+}
+
+bool FossilPluginPrivate::vcsCreateRepository(const QString &directory)
+{
+    return m_client->synchronousCreateRepository(directory);
+}
+
+bool FossilPluginPrivate::vcsAnnotate(const QString &file, int line)
+{
+    const QFileInfo fi(file);
+    m_client->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    return true;
+}
+
+Core::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
+                                                                const Utils::FilePath &baseDirectory,
+                                                                const QString &localName,
+                                                                const QStringList &extraArgs)
+{
+    QMap<QString, QString> options;
+    FossilJsExtension::parseArgOptions(extraArgs, options);
+
+    // Two operating modes:
+    //  1) CloneCheckout:
+    //  -- clone from remote-URL or a local-fossil a repository  into a local-clone fossil.
+    //  -- open/checkout the local-clone fossil
+    //  The local-clone fossil must not point to an existing repository.
+    //  Clone URL may be either schema-based (http, ssh, file) or an absolute local path.
+    //
+    //  2) LocalCheckout:
+    //  -- open/checkout an existing local fossil
+    //  Clone URL is an absolute local path and is the same as the local fossil.
+
+    const QString checkoutPath = baseDirectory.pathAppended(localName).toString();
+    const QString fossilFile = options.value("fossil-file");
+    const Utils::FilePath fossilFilePath = Utils::FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
+    const QString fossilFileNative = fossilFilePath.toUserOutput();
+    const QFileInfo cloneRepository(fossilFilePath.toString());
+
+    // Check when requested to clone a local repository and clone-into repository file is the same
+    // or not specified.
+    // In this case handle it as local fossil checkout request.
+    const QUrl url(sourceUrl);
+    bool isLocalRepository = (options.value("repository-type") == "localRepo");
+
+    if (url.isLocalFile() || url.isRelative()) {
+        const QFileInfo sourcePath(url.path());
+        isLocalRepository = (sourcePath.canonicalFilePath() == cloneRepository.canonicalFilePath());
+    }
+
+    // set clone repository admin user to configured user name
+    // OR override it with the specified user from clone panel
+    const QString adminUser = options.value("admin-user");
+    const bool disableAutosync = (options.value("settings-autosync") == "off");
+    const QString checkoutBranch = options.value("branch-tag");
+
+    // first create the checkout directory,
+    // as it needs to become a working directory for wizard command jobs
+
+    const QDir checkoutDir(checkoutPath);
+    checkoutDir.mkpath(checkoutPath);
+
+    // Setup the wizard page command job
+    auto command = new VcsBase::VcsCommand(checkoutDir.path(), m_client->processEnvironment());
+
+    if (!isLocalRepository
+        && !cloneRepository.exists()) {
+
+        const QString sslIdentityFile = options.value("ssl-identity");
+        const Utils::FilePath sslIdentityFilePath = Utils::FilePath::fromUserInput(QDir::fromNativeSeparators(sslIdentityFile));
+        const bool includePrivate = (options.value("include-private") == "true");
+
+        QStringList extraOptions;
+        if (includePrivate)
+            extraOptions << "--private";
+        if (!sslIdentityFile.isEmpty())
+            extraOptions << "--ssl-identity" << sslIdentityFilePath.toUserOutput();
+        if (!adminUser.isEmpty())
+            extraOptions << "--admin-user" << adminUser;
+
+        // Fossil allows saving the remote address and login. This is used to
+        // facilitate autosync (commit/update) functionality.
+        // When no password is given, it prompts for that.
+        // When both username and password are specified, it prompts whether to
+        // save them.
+        // NOTE: In non-interactive context, these prompts won't work.
+        // Fossil currently does not support SSH_ASKPASS way for login query.
+        //
+        // Alternatively, "--once" option does not save the remote details.
+        // In such case remote details must be provided on the command-line every
+        // time. This also precludes autosync.
+        //
+        // So here we want Fossil to save the remote details when specified.
+
+        QStringList args;
+        args << m_client->vcsCommandString(FossilClient::CloneCommand)
+             << extraOptions
+             << sourceUrl
+             << fossilFileNative;
+        command->addJob({m_client->vcsBinary(), args}, -1);
+    }
+
+    // check out the cloned repository file into the working copy directory;
+    // by default the latest revision is checked out
+
+    QStringList args({"open", fossilFileNative});
+    if (!checkoutBranch.isEmpty())
+        args << checkoutBranch;
+    command->addJob({m_client->vcsBinary(), args}, -1);
+
+    // set user default to admin user if specified
+    if (!isLocalRepository
+        && !adminUser.isEmpty()) {
+        const QStringList args({ "user", "default", adminUser, "--user", adminUser});
+        command->addJob({m_client->vcsBinary(), args}, -1);
+    }
+
+    // turn-off autosync if requested
+    if (!isLocalRepository
+        && disableAutosync) {
+        const QStringList args({"settings", "autosync", "off"});
+        command->addJob({m_client->vcsBinary(), args}, -1);
+    }
+
+    return command;
+}
+
+void FossilPluginPrivate::changed(const QVariant &v)
+{
+    switch (v.type()) {
+    case QVariant::String:
+        emit repositoryChanged(v.toString());
+        break;
+    case QVariant::StringList:
+        emit filesChanged(v.toStringList());
+        break;
+    default:
+        break;
+    }
 }
 
 } // namespace Internal

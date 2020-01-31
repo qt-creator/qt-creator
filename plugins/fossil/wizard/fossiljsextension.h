@@ -35,6 +35,7 @@ namespace Fossil {
 namespace Internal {
 
 class FossilJsExtensionPrivate;
+class FossilSettings;
 
 class FossilJsExtension : public QObject
 {

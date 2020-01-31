@@ -37,7 +37,7 @@ namespace Fossil {
 namespace Internal {
 
 class FossilSettings;
-class FossilControl;
+class FossilPluginPrivate;
 
 class FossilClient : public VcsBase::VcsBaseClient
 {
@@ -127,7 +127,7 @@ private:
     VcsBase::VcsBaseEditorConfig *createLogCurrentFileEditor(VcsBase::VcsBaseEditorWidget *editor);
     VcsBase::VcsBaseEditorConfig *createLogEditor(VcsBase::VcsBaseEditorWidget *editor);
 
-    friend class FossilControl;
+    friend class FossilPluginPrivate;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(FossilClient::SupportedFeatures)

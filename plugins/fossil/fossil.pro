@@ -7,7 +7,6 @@ isEmpty(IDE_BUILD_TREE): error("You need to set the environment variable QTC_BUI
 include($$IDE_SOURCE_TREE/src/qtcreatorplugin.pri)
 SOURCES += \
     fossilclient.cpp \
-    fossilcontrol.cpp \
     fossilplugin.cpp \
     optionspage.cpp \
     fossilsettings.cpp \
@@ -23,7 +22,6 @@ SOURCES += \
 HEADERS += \
     fossilclient.h \
     constants.h \
-    fossilcontrol.h \
     fossilplugin.h \
     optionspage.h \
     fossilsettings.h \

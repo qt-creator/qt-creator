@@ -40,7 +40,7 @@ class OptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    OptionsPage(Core::IVersionControl *control, FossilSettings *settings, QObject *parent);
+    OptionsPage(const std::function<void()> &onApply, FossilSettings *settings, QObject *parent);
 };
 
 } // namespace Internal

@@ -48,7 +48,7 @@ namespace Internal {
 
 class OptionsPage;
 class FossilClient;
-class FossilControl;
+class FossilPluginPrivate;
 class FossilEditorWidget;
 
 class FossilPluginPrivate final : public VcsBase::VcsBasePluginPrivate
@@ -57,10 +57,33 @@ class FossilPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 
 public:
     FossilPluginPrivate();
-    ~FossilPluginPrivate();
 
     static FossilPluginPrivate *instance();
-    FossilClient *client() const;
+    const FossilClient *client() const;
+
+    // IVersionControl
+    QString displayName() const final;
+    Core::Id id() const final;
+
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
+
+    bool managesDirectory(const QString &directory, QString *topLevel) const final;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
+
+    bool isConfigured() const final;
+    bool supportsOperation(Operation operation) const final;
+    bool vcsOpen(const QString &fileName) final;
+    bool vcsAdd(const QString &fileName) final;
+    bool vcsDelete(const QString &filename) final;
+    bool vcsMove(const QString &from, const QString &to) final;
+    bool vcsCreateRepository(const QString &directory) final;
+
+    bool vcsAnnotate(const QString &file, int line) final;
+
+    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FilePath &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs) final;
 
 protected:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
@@ -125,6 +148,11 @@ private:
 
     QString m_submitRepository;
     bool m_submitActionTriggered = false;
+
+    // To be connected to the VcsTask's success signal to emit the repository/
+    // files changed signals according to the variant's type:
+    // String -> repository, StringList -> files
+    void changed(const QVariant &);
 };
 
 class FossilPlugin final : public ExtensionSystem::IPlugin
