@@ -83,6 +83,9 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
     if (WIN32)
       set(pre_exclude_regexes PRE_EXCLUDE_REGEXES \"api-ms-.*|ext-ms-\.*\")
     endif()
+    if (APPLE)
+      set(pre_exclude_regexes PRE_EXCLUDE_REGEXES \"libiodbc\.*|libpq\.*\")
+    endif()
 
     get_filename_component(install_prefix \"\${CMAKE_INSTALL_PREFIX}\" ABSOLUTE)
 
