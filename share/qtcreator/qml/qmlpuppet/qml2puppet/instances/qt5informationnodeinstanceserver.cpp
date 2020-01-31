@@ -83,6 +83,8 @@
 
 #ifdef QUICK3D_MODULE
 #include <QtQuick3D/private/qquick3dnode_p.h>
+#include <QtQuick3D/private/qquick3dcamera_p.h>
+#include <QtQuick3D/private/qquick3dabstractlight_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3D/private/qquick3dscenerootnode_p.h>
 #endif
@@ -327,8 +329,33 @@ void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &too
 void Qt5InformationNodeInstanceServer::handleView3DSizeChange()
 {
     QObject *view3D = sender();
-    if (view3D == m_active3DView.internalObject())
+    if (view3D == m_active3DView)
         updateView3DRect(view3D);
+}
+
+void Qt5InformationNodeInstanceServer::handleView3DDestroyed(QObject *obj)
+{
+#ifdef QUICK3D_MODULE
+    auto view = qobject_cast<QQuick3DViewport *>(obj);
+    m_view3Ds.remove(obj);
+    removeNode3D(view->scene());
+    if (view && view == m_active3DView)
+        m_active3DView = nullptr;
+#endif
+}
+
+void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
+{
+#ifdef QUICK3D_MODULE
+    if (qobject_cast<QQuick3DCamera *>(obj)) {
+        QMetaObject::invokeMethod(m_editView3D, "releaseCameraGizmo",
+                                  Q_ARG(QVariant, objectToVariant(obj)));
+    } else if (qobject_cast<QQuick3DAbstractLight *>(obj)) {
+        QMetaObject::invokeMethod(m_editView3D, "releaseLightGizmo",
+                                  Q_ARG(QVariant, objectToVariant(obj)));
+    }
+    removeNode3D(obj);
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::updateView3DRect(QObject *view3D)
@@ -344,10 +371,79 @@ void Qt5InformationNodeInstanceServer::updateView3DRect(QObject *view3D)
 
 void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
 {
+    // Active scene change handling on qml side is async, so a deleted importScene would crash
+    // editView when it updates next. Disable/enable edit view update synchronously to avoid this.
+    QVariant activeSceneVar = objectToVariant(m_active3DScene);
+    QMetaObject::invokeMethod(m_editView3D, "enableEditViewUpdate",
+                              Q_ARG(QVariant, activeSceneVar));
+
     QQmlProperty sceneProperty(m_editView3D, "activeScene", context());
-    sceneProperty.write(objectToVariant(m_active3DScene));
-    if (m_active3DView.isValid())
-        updateView3DRect(m_active3DView.internalObject());
+    sceneProperty.write(activeSceneVar);
+
+    QString sceneId;
+    if (hasInstanceForObject(m_active3DScene))
+        sceneId = instanceForObject(m_active3DScene).id();
+    if (m_active3DView && sceneId.isEmpty() && hasInstanceForObject(m_active3DView))
+        sceneId = instanceForObject(m_active3DView).id();
+    updateView3DRect(m_active3DView);
+    QQmlProperty viewIdProperty(m_editView3D, "sceneId", context());
+    viewIdProperty.write(QVariant::fromValue(sceneId));
+}
+
+void Qt5InformationNodeInstanceServer::removeNode3D(QObject *node)
+{
+    m_3DSceneMap.remove(node);
+    const auto oldMap = m_3DSceneMap;
+    auto it = oldMap.constBegin();
+    while (it != oldMap.constEnd()) {
+        if (it.value() == node) {
+            m_3DSceneMap.remove(it.key(), node);
+            break;
+        }
+        ++it;
+    }
+    if (node == m_active3DScene) {
+        m_active3DScene = nullptr;
+        m_active3DView = nullptr;
+        updateActiveSceneToEditView3D();
+    }
+}
+
+void Qt5InformationNodeInstanceServer::resolveSceneRoots()
+{
+#ifdef QUICK3D_MODULE
+    const auto oldMap = m_3DSceneMap;
+    m_3DSceneMap.clear();
+    auto it = oldMap.begin();
+    bool updateActiveScene = !m_active3DScene;
+    while (it != oldMap.end()) {
+        QObject *node = it.value();
+        QObject *newRoot = find3DSceneRoot(node);
+        QObject *oldRoot = it.key();
+        if (!m_active3DScene || (newRoot != oldRoot && m_active3DScene == oldRoot)) {
+            m_active3DScene = newRoot;
+            updateActiveScene = true;
+        }
+        m_3DSceneMap.insert(newRoot, node);
+
+        if (newRoot != oldRoot) {
+            if (qobject_cast<QQuick3DCamera *>(node)) {
+                QMetaObject::invokeMethod(m_editView3D, "updateCameraGizmoScene",
+                                          Q_ARG(QVariant, objectToVariant(newRoot)),
+                                          Q_ARG(QVariant, objectToVariant(node)));
+            } else if (qobject_cast<QQuick3DAbstractLight *>(node)) {
+                QMetaObject::invokeMethod(m_editView3D, "updateLightGizmoScene",
+                                          Q_ARG(QVariant, objectToVariant(newRoot)),
+                                          Q_ARG(QVariant, objectToVariant(node)));
+            }
+        }
+        ++it;
+    }
+    if (updateActiveScene) {
+        m_active3DView = findView3DForSceneRoot(m_active3DScene);
+        updateActiveSceneToEditView3D();
+    }
+#endif
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -432,8 +528,11 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
 {
     const auto createdInstances = NodeInstanceServer::createInstances(container);
 
-    if (m_editView3D)
+    if (m_editView3D) {
+        add3DViewPorts(createdInstances);
+        add3DScenes(createdInstances);
         createCameraAndLightGizmos(createdInstances);
+    }
 
     return createdInstances;
 }
@@ -484,19 +583,38 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
     }
 }
 
-void Qt5InformationNodeInstanceServer::addViewPorts(const QList<ServerNodeInstance> &instanceList)
+void Qt5InformationNodeInstanceServer::add3DViewPorts(const QList<ServerNodeInstance> &instanceList)
 {
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DViewport")) {
-            m_view3Ds << instance;
             QObject *obj = instance.internalObject();
-            QObject::connect(obj, SIGNAL(widthChanged()), this, SLOT(handleView3DSizeChange()));
-            QObject::connect(obj, SIGNAL(heightChanged()), this, SLOT(handleView3DSizeChange()));
+            if (!m_view3Ds.contains(obj))  {
+                m_view3Ds << obj;
+                QObject::connect(obj, SIGNAL(widthChanged()), this, SLOT(handleView3DSizeChange()));
+                QObject::connect(obj, SIGNAL(heightChanged()), this, SLOT(handleView3DSizeChange()));
+                QObject::connect(obj, &QObject::destroyed,
+                                 this, &Qt5InformationNodeInstanceServer::handleView3DDestroyed);
+            }
         }
     }
 }
 
-ServerNodeInstance Qt5InformationNodeInstanceServer::findView3DForInstance(const ServerNodeInstance &instance) const
+void Qt5InformationNodeInstanceServer::add3DScenes(const QList<ServerNodeInstance> &instanceList)
+{
+    for (const ServerNodeInstance &instance : instanceList) {
+        if (instance.isSubclassOf("QQuick3DNode")) {
+            QObject *sceneRoot = find3DSceneRoot(instance);
+            QObject *obj = instance.internalObject();
+            if (!m_3DSceneMap.contains(sceneRoot, obj)) {
+                m_3DSceneMap.insert(sceneRoot, obj);
+                QObject::connect(obj, &QObject::destroyed,
+                                 this, &Qt5InformationNodeInstanceServer::handleNode3DDestroyed);
+            }
+        }
+    }
+}
+
+QObject *Qt5InformationNodeInstanceServer::findView3DForInstance(const ServerNodeInstance &instance) const
 {
 #ifdef QUICK3D_MODULE
     if (!instance.isValid())
@@ -508,7 +626,7 @@ ServerNodeInstance Qt5InformationNodeInstanceServer::findView3DForInstance(const
     ServerNodeInstance checkInstance = instance;
     while (checkInstance.isValid()) {
         if (checkInstance.isSubclassOf("QQuick3DViewport"))
-            return checkInstance;
+            return checkInstance.internalObject();
         else
             checkInstance = checkInstance.parent();
     }
@@ -517,9 +635,29 @@ ServerNodeInstance Qt5InformationNodeInstanceServer::findView3DForInstance(const
     // some View3D.
     QObject *sceneRoot = find3DSceneRoot(instance);
     for (const auto &view3D : qAsConst(m_view3Ds)) {
-        auto view = qobject_cast<QQuick3DViewport *>(view3D.internalObject());
-        if (sceneRoot == view->importScene())
+        auto view = qobject_cast<QQuick3DViewport *>(view3D);
+        if (view && sceneRoot == view->importScene())
             return view3D;
+    }
+#endif
+    return {};
+}
+
+QObject *Qt5InformationNodeInstanceServer::findView3DForSceneRoot(QObject *sceneRoot) const
+{
+#ifdef QUICK3D_MODULE
+    if (!sceneRoot)
+        return {};
+
+    if (hasInstanceForObject(sceneRoot)) {
+        return findView3DForInstance(instanceForObject(sceneRoot));
+    } else {
+        // No instance, so the scene root must be scene property of one of the views
+        for (const auto &view3D : qAsConst(m_view3Ds)) {
+            auto view = qobject_cast<QQuick3DViewport *>(view3D);
+            if (view && sceneRoot == view->scene())
+                return view3D;
+        }
     }
 #endif
     return {};
@@ -592,28 +730,41 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(const ServerNodeInsta
     return nullptr;
 }
 
+QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(QObject *obj) const
+{
+#ifdef QUICK3D_MODULE
+    if (hasInstanceForObject(obj))
+        return find3DSceneRoot(instanceForObject(obj));
+
+    // If there is no instance, obj could be a scene in a View3D
+    for (const auto &viewObj : qAsConst(m_view3Ds)) {
+        const auto view = qobject_cast<QQuick3DViewport *>(viewObj);
+        if (view && view->scene() == obj)
+            return obj;
+    }
+#endif
+    // Some other non-instance object, assume it's not part of any scene
+    return nullptr;
+}
+
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList,
                                                        const QVariantMap &toolStates)
 {
     ServerNodeInstance root = rootNodeInstance();
 
-    addViewPorts(instanceList);
+    add3DViewPorts(instanceList);
+    add3DScenes(instanceList);
 
     // Find any scene to show
-    for (const auto &instance : instanceList) {
-        if (instance.isSubclassOf("QQuick3DNode")) {
-            m_active3DScene = find3DSceneRoot(instance);
-            m_active3DView = findView3DForInstance(instance);
-            break;
-        }
+    if (!m_3DSceneMap.isEmpty()) {
+        m_active3DScene = m_3DSceneMap.begin().key();
+        m_active3DView = findView3DForSceneRoot(m_active3DScene);
     }
-
     if (m_active3DScene) {
         m_editView3D = createEditView3D(engine());
-
         if (!m_editView3D) {
             m_active3DScene = nullptr;
-            m_active3DView = {};
+            m_active3DView = nullptr;
             return;
         }
 
@@ -706,6 +857,9 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
     }
 
     Qt5NodeInstanceServer::reparentInstances(command);
+
+    if (m_editView3D)
+        resolveSceneRoots();
 }
 
 void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &command)
@@ -864,6 +1018,26 @@ void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCo
         refreshBindings();
 
     startRenderTimer();
+}
+
+void Qt5InformationNodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
+{
+    int nodeCount = m_3DSceneMap.size();
+
+    Qt5NodeInstanceServer::removeInstances(command);
+
+    if (nodeCount != m_3DSceneMap.size()) {
+        // Some nodes were removed, which can cause scene root to change for nodes under View3D
+        // objects, so re-resolve scene roots.
+        resolveSceneRoots();
+    }
+
+    if (m_editView3D && (!m_active3DScene || !m_active3DView)) {
+        if (!m_active3DScene && !m_3DSceneMap.isEmpty())
+            m_active3DScene = m_3DSceneMap.begin().key();
+        m_active3DView = findView3DForSceneRoot(m_active3DScene);
+        updateActiveSceneToEditView3D();
+    }
 }
 
 // update 3D view window state when the main app window state change

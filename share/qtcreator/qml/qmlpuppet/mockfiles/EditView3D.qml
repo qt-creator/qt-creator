@@ -37,12 +37,13 @@ Window {
     minimumHeight: 200
     minimumWidth: 200
     visible: true
-    title: "3D Edit View"
+    title: qsTr("3D Edit View [") + sceneId + qsTr("]")
     // need all those flags otherwise the title bar disappears after setting WindowStaysOnTopHint flag later
     flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
 
     property Node activeScene: null
     property View3D editView: null
+    property string sceneId
 
     property alias showEditLight: btnEditViewLight.toggled
     property alias usePerspective: btnPerspective.toggled
@@ -65,28 +66,33 @@ Window {
     onGlobalOrientationChanged: _generalHelper.storeToolState("globalOrientation", globalOrientation)
 
     onActiveSceneChanged: {
-        // importScene cannot be updated after initial set, so we need to reconstruct entire View3D
-        var component = Qt.createComponent("SceneView3D.qml");
-        if (component.status === Component.Ready) {
-            var oldView = editView;
-
-            if (editView)
-                editView.visible = false;
-
-            editView = component.createObject(viewRect,
-                                              {"usePerspective": usePerspective,
-                                               "showSceneLight": showEditLight,
-                                               "importScene": activeScene,
-                                               "z": 1});
-            editView.usePerspective = Qt.binding(function() {return usePerspective;});
-            editView.showSceneLight = Qt.binding(function() {return showEditLight;});
-
-            selectionBoxes.length = 0;
-            ensureSelectionBoxes(1);
-
-            if (oldView)
-                oldView.destroy();
+        if (editView) {
+            // Destroy is async, so make sure we don't get any more updates for the old editView
+            _generalHelper.enableItemUpdate(editView, false);
+            editView.destroy();
         }
+        if (activeScene) {
+            // importScene cannot be updated after initial set, so we need to reconstruct entire View3D
+            var component = Qt.createComponent("SceneView3D.qml");
+            if (component.status === Component.Ready) {
+                editView = component.createObject(viewRect,
+                                                  {"usePerspective": usePerspective,
+                                                   "showSceneLight": showEditLight,
+                                                   "importScene": activeScene,
+                                                   "z": 1});
+                editView.usePerspective = Qt.binding(function() {return usePerspective;});
+                editView.showSceneLight = Qt.binding(function() {return showEditLight;});
+
+                selectionBoxes.length = 0;
+            }
+        }
+    }
+
+    // Disables edit view update if scene doesn't match current activeScene.
+    // If it matches, updates are enabled.
+    function enableEditViewUpdate(scene) {
+        if (editView)
+            _generalHelper.enableItemUpdate(editView, (scene && scene === activeScene));
     }
 
     function updateToolStates(toolStates) {
@@ -163,7 +169,7 @@ Window {
     function handleObjectClicked(object, multi) {
         var theObject = object;
         if (btnSelectGroup.selected) {
-            while (theObject && theObject.parent !== activeScene)
+            while (theObject && theObject !== activeScene && theObject.parent !== activeScene)
                 theObject = theObject.parent;
         }
         // Object selection logic:
@@ -241,6 +247,48 @@ Window {
             gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
             gizmo.activeScene = Qt.binding(function() {return activeScene;});
+        }
+    }
+
+    function releaseLightGizmo(obj)
+    {
+        for (var i = 0; i < lightGizmos.length; ++i) {
+            if (lightGizmos[i].targetNode === obj) {
+                lightGizmos[i].scene = null;
+                lightGizmos[i].targetNode = null;
+                return;
+            }
+        }
+    }
+
+    function releaseCameraGizmo(obj)
+    {
+        for (var i = 0; i < cameraGizmos.length; ++i) {
+            if (cameraGizmos[i].targetNode === obj) {
+                cameraGizmos[i].scene = null;
+                cameraGizmos[i].targetNode = null;
+                return;
+            }
+        }
+    }
+
+    function updateLightGizmoScene(scene, obj)
+    {
+        for (var i = 0; i < lightGizmos.length; ++i) {
+            if (lightGizmos[i].targetNode === obj) {
+                lightGizmos[i].scene = scene;
+                return;
+            }
+        }
+    }
+
+    function updateCameraGizmoScene(scene, obj)
+    {
+        for (var i = 0; i < cameraGizmos.length; ++i) {
+            if (cameraGizmos[i].targetNode === obj) {
+                cameraGizmos[i].scene = scene;
+                return;
+            }
         }
     }
 

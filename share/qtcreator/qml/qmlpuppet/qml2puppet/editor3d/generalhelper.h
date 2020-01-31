@@ -38,6 +38,7 @@ class QQuick3DCamera;
 class QQuick3DNode;
 class QQuick3DViewport;
 class QQuickWindow;
+class QQuickItem;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -74,6 +75,7 @@ public:
     Q_INVOKABLE void initToolStates(const QVariantMap &toolStates);
     Q_INVOKABLE void storeWindowState(QQuickWindow *w);
     Q_INVOKABLE void restoreWindowState(QQuickWindow *w, const QVariantMap &toolStates);
+    Q_INVOKABLE void enableItemUpdate(QQuickItem *item, bool enable);
 
     bool isMacOS() const;
 

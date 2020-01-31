@@ -41,6 +41,7 @@
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
 #include <QtQuick/qquickwindow.h>
+#include <QtQuick/qquickitem.h>
 #include <QtCore/qmath.h>
 #include <QtGui/qscreen.h>
 
@@ -298,6 +299,12 @@ void GeneralHelper::restoreWindowState(QQuickWindow *w, const QVariantMap &toolS
             });
         });
     }
+}
+
+void GeneralHelper::enableItemUpdate(QQuickItem *item, bool enable)
+{
+    if (item)
+        item->setFlag(QQuickItem::ItemHasContents, enable);
 }
 
 void GeneralHelper::doRestoreWindowState(QQuickWindow *w, const QVariantMap &windowState)

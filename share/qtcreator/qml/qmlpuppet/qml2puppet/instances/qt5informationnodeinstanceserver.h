@@ -56,6 +56,7 @@ public:
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;
     void changePropertyValues(const ChangeValuesCommand &command) override;
+    void removeInstances(const RemoveInstancesCommand &command) override;
 
 private slots:
     void handleSelectionChanged(const QVariant &objs);
@@ -63,6 +64,8 @@ private slots:
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
     void handleToolStateChanged(const QString &tool, const QVariant &toolState);
     void handleView3DSizeChange();
+    void handleView3DDestroyed(QObject *obj);
+    void handleNode3DDestroyed(QObject *obj);
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
@@ -82,9 +85,12 @@ private:
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
                          const QVariantMap &toolStates);
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
-    void addViewPorts(const QList<ServerNodeInstance> &instanceList);
-    ServerNodeInstance findView3DForInstance(const ServerNodeInstance &instance) const;
+    void add3DViewPorts(const QList<ServerNodeInstance> &instanceList);
+    void add3DScenes(const QList<ServerNodeInstance> &instanceList);
+    QObject *findView3DForInstance(const ServerNodeInstance &instance) const;
+    QObject *findView3DForSceneRoot(QObject *sceneRoot) const;
     QObject *find3DSceneRoot(const ServerNodeInstance &instance) const;
+    QObject *find3DSceneRoot(QObject *obj) const;
     QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
                                                                const PropertyName &propertyName,
                                                                const QVariant &variant);
@@ -94,10 +100,13 @@ private:
     bool dropAcceptable(QDragMoveEvent *event) const;
     void updateView3DRect(QObject *view3D);
     void updateActiveSceneToEditView3D();
+    void removeNode3D(QObject *node);
+    void resolveSceneRoots();
 
     QObject *m_editView3D = nullptr;
-    QVector<ServerNodeInstance> m_view3Ds;
-    ServerNodeInstance m_active3DView;
+    QSet<QObject *> m_view3Ds;
+    QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node
+    QObject *m_active3DView;
     QObject *m_active3DScene = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;

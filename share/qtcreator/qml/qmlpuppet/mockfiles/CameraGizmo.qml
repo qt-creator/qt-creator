@@ -50,6 +50,6 @@ IconGizmo {
 
     CameraGeometry {
         id: cameraGeometry
-        camera: cameraGizmo.targetNode
+        camera: cameraGizmo.scene && cameraGizmo.targetNode ? cameraGizmo.targetNode : null
     }
 }

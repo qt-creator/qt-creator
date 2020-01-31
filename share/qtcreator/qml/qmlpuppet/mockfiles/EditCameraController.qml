@@ -160,7 +160,7 @@ Item {
 
         onWheel: {
             if (cameraCtrl.camera) {
-                // Emprically determined divisor for nice zoom
+                // Empirically determined divisor for nice zoom
                 cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
                 cameraCtrl.storeCameraState(500);
             }
