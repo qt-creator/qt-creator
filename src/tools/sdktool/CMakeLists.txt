@@ -11,8 +11,13 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(QtCreatorIDEBranding)
-include(QtCreatorAPI)
+if (NOT QT_CREATOR_API_DEFINED)
+  # standalone build
+  set(DESTINATION DESTINATION .)
+  include(QtCreatorIDEBranding)
+  include(QtCreatorAPI)
+endif()
+
 configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
 
 find_package(Qt5
@@ -27,6 +32,7 @@ endif()
 set(UtilsSourcesDir "../../libs/utils")
 
 add_qtc_executable(sdktool
+  ${DESTINATION}
   DEFINES DATA_PATH=\"${IDE_DATA_PATH}\"
   DEPENDS Qt5::Core
   INCLUDES
