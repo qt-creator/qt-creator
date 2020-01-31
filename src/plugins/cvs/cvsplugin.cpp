@@ -196,10 +196,6 @@ public:
         });
     }
 
-    QString findTopLevelForFile(const QFileInfo &) const override { return {}; }
-    QStringList revisionSpec(const QString &) const override { return {}; }
-    StatusItem parseStatusLine(const QString &) const override { return  {}; }
-
     ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override
     {
         if (cmd == DiffCommand) {

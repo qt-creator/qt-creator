@@ -325,24 +325,6 @@ void SubversionClient::describe(const QString &workingDirectory, int changeNumbe
     controller->requestReload();
 }
 
-QString SubversionClient::findTopLevelForFile(const QFileInfo &file) const
-{
-    Q_UNUSED(file)
-    return QString();
-}
-
-QStringList SubversionClient::revisionSpec(const QString &revision) const
-{
-    Q_UNUSED(revision)
-    return QStringList();
-}
-
-VcsBaseClient::StatusItem SubversionClient::parseStatusLine(const QString &line) const
-{
-    Q_UNUSED(line)
-    return VcsBaseClient::StatusItem();
-}
-
 } // namespace Internal
 } // namespace Subversion
 

@@ -62,9 +62,6 @@ public:
              bool enableAnnotationContextMenu = false) override;
 
     void describe(const QString &workingDirectory, int changeNumber, const QString &title);
-    QString findTopLevelForFile(const QFileInfo &file) const override;
-    QStringList revisionSpec(const QString &revision) const override;
-    StatusItem parseStatusLine(const QString &line) const override;
 
     // Add authorization options to the command line arguments.
     static QStringList addAuthenticationOptions(const VcsBase::VcsBaseClientSettings &settings);
