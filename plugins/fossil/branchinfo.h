@@ -40,7 +40,7 @@ public:
     };
     Q_DECLARE_FLAGS(BranchFlags, BranchFlag)
 
-    explicit BranchInfo(const QString &name = QString(), BranchFlags flags = 0);
+    explicit BranchInfo(const QString &name = QString(), BranchFlags flags = {});
 
 public:
     const QString &name() const;

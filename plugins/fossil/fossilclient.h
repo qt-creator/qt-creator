@@ -115,7 +115,7 @@ public:
               const QStringList &extraOptions = QStringList()) final;
 
 private:
-    static QList<BranchInfo> branchListFromOutput(const QString &output, const BranchInfo::BranchFlags defaultFlags = 0);
+    static QList<BranchInfo> branchListFromOutput(const QString &output, const BranchInfo::BranchFlags defaultFlags = {});
     static QStringList parseRevisionCommentLine(const QString &commentLine);
 
     QString sanitizeFossilOutput(const QString &output) const;
