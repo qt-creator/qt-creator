@@ -427,13 +427,15 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 {
     static const QString pathSep = Utils::HostOsInfo::pathListSeparator();
     Utils::Environment environment = Utils::Environment::systemEnvironment();
-    if (!useOnlyFallbackPuppet())
-        m_target->kit()->addToEnvironment(environment);
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
-    if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
-        // Update PATH to include QT_HOST_BINS
-        const Utils::FilePath qtBinPath = qt->hostBinPath();
-        environment.prependOrSetPath(qtBinPath.toString());
+    if (QTC_GUARD(m_target)) {
+        if (!useOnlyFallbackPuppet())
+            m_target->kit()->addToEnvironment(environment);
+        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+        if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
+            // Update PATH to include QT_HOST_BINS
+            const Utils::FilePath qtBinPath = qt->hostBinPath();
+            environment.prependOrSetPath(qtBinPath.toString());
+        }
     }
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
     environment.set("QML_PUPPET_MODE", "true");
