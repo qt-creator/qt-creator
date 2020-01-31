@@ -1171,7 +1171,7 @@ void Fossil::Internal::FossilPlugin::testDiffFileResolving_data()
 
 void Fossil::Internal::FossilPlugin::testDiffFileResolving()
 {
-    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(diffParameters.id);
+    VcsBase::VcsBaseEditorWidget::testDiffFileResolving(dd->diffFactory);
 }
 
 void Fossil::Internal::FossilPlugin::testLogResolving()
@@ -1184,6 +1184,6 @@ void Fossil::Internal::FossilPlugin::testLogResolving()
         "   EDITED src/core/scaler.cpp\n"
         "   EDITED src/core/scaler.h\n"
     );
-    VcsBase::VcsBaseEditorWidget::testLogResolving(fileLogParameters.id, data, "ac6d1129b8", "56d6917c3b");
+    VcsBase::VcsBaseEditorWidget::testLogResolving(dd->fileLogFactory, data, "ac6d1129b8", "56d6917c3b");
 }
 #endif

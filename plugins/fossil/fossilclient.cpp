@@ -150,11 +150,12 @@ public:
         // So we kludge this by coding it as a meta-option (pipe-separated),
         // then parse it out in arguments.
         // All-choice is a blank argument with no additional parameters
-        QList<ComboBoxItem> lineageFilterChoices;
-        lineageFilterChoices << ComboBoxItem(tr("Ancestors"), "ancestors")
-                        << ComboBoxItem(tr("Descendants"), "descendants")
-                        << ComboBoxItem(tr("Unfiltered"), "");
-        mapSetting(addComboBox(QStringList("|LINEAGE|%1|current"), lineageFilterChoices),
+        const QList<ChoiceItem> lineageFilterChoices = {
+            ChoiceItem(tr("Ancestors"), "ancestors"),
+            ChoiceItem(tr("Descendants"), "descendants"),
+            ChoiceItem(tr("Unfiltered"), "")
+        };
+        mapSetting(addChoices(tr("Lineage"), QStringList("|LINEAGE|%1|current"), lineageFilterChoices),
                    settings.stringPointer(FossilSettings::timelineLineageFilterKey));
     }
 
@@ -173,20 +174,20 @@ public:
         VcsBase::VcsBaseClientSettings &settings = m_client->settings();
 
         // option: -t <val>
-        const QList<ComboBoxItem> itemTypeChoices = {
-            ComboBoxItem(tr("All Items"), "all"),
-            ComboBoxItem(tr("File Commits"), "ci"),
-            ComboBoxItem(tr("Technical Notes"), "e"),
-            ComboBoxItem(tr("Tags"), "g"),
-            ComboBoxItem(tr("Tickets"), "t"),
-            ComboBoxItem(tr("Wiki Commits"), "w")
+        const QList<ChoiceItem> itemTypeChoices = {
+            ChoiceItem(tr("All Items"), "all"),
+            ChoiceItem(tr("File Commits"), "ci"),
+            ChoiceItem(tr("Technical Notes"), "e"),
+            ChoiceItem(tr("Tags"), "g"),
+            ChoiceItem(tr("Tickets"), "t"),
+            ChoiceItem(tr("Wiki Commits"), "w")
         };
 
         // here we setup the ComboBox to map to the "-t <val>", which will produce
         // the enquoted option-values (e.g "-t all").
         // Fossil expects separate arguments for option and value ( i.e. "-t" "all")
         // so we need to handle the splitting explicitly in arguments().
-        mapSetting(addComboBox(QStringList("-t %1"), itemTypeChoices),
+        mapSetting(addChoices(tr("Item Types"), QStringList("-t %1"), itemTypeChoices),
                    settings.stringPointer(FossilSettings::timelineItemTypeKey));
     }
 
