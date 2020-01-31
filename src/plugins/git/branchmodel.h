@@ -66,7 +66,6 @@ public:
     void renameTag(const QString &oldName, const QString &newName);
 
     QString workingDirectory() const;
-    GitClient *client() const;
 
     QModelIndex currentBranch() const;
     QString fullName(const QModelIndex &idx, bool includePrefix = false) const;

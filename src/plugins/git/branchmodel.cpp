@@ -509,11 +509,6 @@ QString BranchModel::workingDirectory() const
     return d->workingDirectory;
 }
 
-GitClient *BranchModel::client() const
-{
-    return d->client;
-}
-
 QModelIndex BranchModel::currentBranch() const
 {
     if (!d->currentBranch)
