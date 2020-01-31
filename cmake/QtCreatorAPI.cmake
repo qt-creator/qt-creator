@@ -1,3 +1,8 @@
+if(QT_CREATOR_API_DEFINED)
+  return()
+endif()
+set(QT_CREATOR_API_DEFINED TRUE)
+
 include(FeatureSummary)
 
 #
