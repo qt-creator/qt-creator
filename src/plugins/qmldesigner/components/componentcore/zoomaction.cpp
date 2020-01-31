@@ -74,6 +74,9 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
 
     if (m_comboBoxModel.isNull()) {
         m_comboBoxModel = comboBox->model();
+        comboBox->addItem(QLatin1String("1 %"), 0.01);
+        comboBox->addItem(QLatin1String("2 %"), 0.02);
+        comboBox->addItem(QLatin1String("5 %"), 0.05);
         comboBox->addItem(QLatin1String("6.25 %"), 0.0625);
         comboBox->addItem(QLatin1String("12.5 %"), 0.125);
         comboBox->addItem(QLatin1String("25 %"), 0.25);
