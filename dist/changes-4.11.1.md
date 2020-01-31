@@ -16,6 +16,10 @@ Editing
 * Fixed `Visualize Whitespace` for editors without specialized highlighter definition
   (QTCREATORBUG-23040)
 
+### Language Client
+
+* Fixed failure when restarting server (QTCREATORBUG-23497)
+
 ### C++
 
 * Fixed wrong warnings about C++98 incompatibility with MSVC (QTCREATORBUG-23118)
@@ -36,6 +40,14 @@ Projects
 ### CMake
 
 * Fixed subdirectory structure in project tree (QTCREATORBUG-23372)
+
+### Qbs
+
+* Fixed building Android projects (QTCREATORBUG-23489)
+
+### Generic
+
+* Fixed crash when updating deployment data (QTCREATORBUG-23501)
 
 Debugging
 ---------
@@ -60,6 +72,10 @@ Platforms
 ### Windows
 
 * Worked around issue with HiDPI in Qt (QTBUG-80934)
+
+### Remote Linux
+
+* Fixed that terminal setting was ignored (QTCREATORBUG-23470)
 
 ### WebAssembly
 
