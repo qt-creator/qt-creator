@@ -173,7 +173,9 @@ FossilPluginPrivate::FossilPluginPrivate()
     m_commandLocator = new Core::CommandLocator("Fossil", "fossil", "fossil", this);
 
     ProjectExplorer::JsonWizardFactory::addWizardPath(Utils::FilePath::fromString(Constants::WIZARD_PATH));
-    Core::JsExpander::registerGlobalObject<FossilJsExtension>("Fossil");
+    Core::JsExpander::registerGlobalObject("Fossil", [this] {
+        return new FossilJsExtension(&m_fossilSettings);
+    });
 
     createMenu(context);
 

@@ -41,9 +41,9 @@ namespace Internal {
 
 class FossilJsExtensionPrivate {
 public:
-    FossilJsExtensionPrivate() :
+    FossilJsExtensionPrivate(FossilSettings *settings) :
         m_vscId(Constants::VCS_ID_FOSSIL),
-        m_settings(&FossilPluginPrivate::instance()->client()->settings())
+        m_settings(settings)
     {
     }
 
@@ -64,8 +64,8 @@ void FossilJsExtension::parseArgOptions(const QStringList &args, QMap<QString, Q
     }
 }
 
-FossilJsExtension::FossilJsExtension() :
-    d(new FossilJsExtensionPrivate())
+FossilJsExtension::FossilJsExtension(FossilSettings *settings) :
+    d(new FossilJsExtensionPrivate(settings))
 { }
 
 FossilJsExtension::~FossilJsExtension()
