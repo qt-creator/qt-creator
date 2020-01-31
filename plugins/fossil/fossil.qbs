@@ -14,7 +14,6 @@ QtcPlugin {
     files: [
         "constants.h",
         "fossilclient.cpp", "fossilclient.h",
-        "fossilcontrol.cpp", "fossilcontrol.h",
         "fossilplugin.cpp", "fossilplugin.h",
         "optionspage.cpp", "optionspage.h", "optionspage.ui",
         "fossilsettings.cpp", "fossilsettings.h",
