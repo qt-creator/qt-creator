@@ -86,11 +86,15 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
 
     get_filename_component(install_prefix \"\${CMAKE_INSTALL_PREFIX}\" ABSOLUTE)
 
-    # Get also the dependencies of Qt's plugins
+    # Get the dependencies of Qt's plugins
     foreach(plugin ${qt5_plugin_directories})
       file(GLOB plugin_files \"\${install_prefix}/\${plugin}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
       list(APPEND qt5_plugin_files \"\${plugin_files}\")
     endforeach()
+
+    # Get the qml module dependencies
+    file(GLOB_RECURSE qml_plugin_files \"\${install_prefix}/\${qt5_qml_dest_dir}/*/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+    list(APPEND qt5_plugin_files \"\${qml_plugin_files}\")
 
     set(installed_EXECUTABLES_NOT_PREFIXED \"${__QTC_INSTALLED_EXECUTABLES}\")
     set(installed_LIBRARIES_NOT_PREFIXED \"${__QTC_INSTALLED_LIBRARIES}\")
