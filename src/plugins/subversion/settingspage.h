@@ -35,7 +35,7 @@ class SubversionSettings;
 class SubversionSettingsPage final : public Core::IOptionsPage
 {
 public:
-    SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings, QObject *parent);
+    SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings);
 };
 
 } // namespace Subversion

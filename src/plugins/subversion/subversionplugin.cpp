@@ -320,6 +320,8 @@ private:
 
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
+
+    SubversionSettingsPage m_settingsPage{[this] { configurationChanged(); }, &m_settings};
 };
 
 
@@ -385,8 +387,6 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     using namespace Constants;
     using namespace Core::Constants;
     Context context(SUBVERSION_CONTEXT);
-
-    new SubversionSettingsPage([this] { configurationChanged(); }, &m_settings, this);
 
     new VcsSubmitEditorFactory(&submitParameters,
         []() { return new SubversionSubmitEditor(&submitParameters); }, this);

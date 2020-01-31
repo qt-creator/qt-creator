@@ -102,8 +102,7 @@ void SubversionSettingsPageWidget::apply()
     m_onApply();
 }
 
-SubversionSettingsPage::SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings, QObject *parent) :
-    Core::IOptionsPage(parent)
+SubversionSettingsPage::SubversionSettingsPage(const std::function<void()> &onApply, SubversionSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
     setDisplayName(SubversionSettingsPageWidget::tr("Subversion"));
