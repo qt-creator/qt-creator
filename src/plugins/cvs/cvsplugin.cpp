@@ -27,13 +27,16 @@
 #include "settingspage.h"
 #include "cvseditor.h"
 #include "cvssubmiteditor.h"
-#include "cvsclient.h"
 #include "cvsutils.h"
+#include "cvssettings.h"
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
+#include <vcsbase/vcsbaseclient.h>
+#include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -155,6 +158,69 @@ static inline bool messageBoxQuestion(const QString &title, const QString &quest
     return QMessageBox::question(ICore::dialogParent(), title, question, QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes;
 }
 
+
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class CvsDiffConfig : public VcsBaseEditorConfig
+{
+public:
+    CvsDiffConfig(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        VcsBaseEditorConfig(toolBar),
+        m_settings(settings)
+    {
+        mapSetting(addToggleButton(QLatin1String("-w"), CvsPlugin::tr("Ignore Whitespace")),
+                   settings.boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
+        mapSetting(addToggleButton(QLatin1String("-B"), CvsPlugin::tr("Ignore Blank Lines")),
+                   settings.boolPointer(CvsSettings::diffIgnoreBlankLinesKey));
+    }
+
+    QStringList arguments() const override
+    {
+        QStringList args;
+        args = m_settings.stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '),
+                                                                         QString::SkipEmptyParts);
+        args += VcsBaseEditorConfig::arguments();
+        return args;
+    }
+
+private:
+    VcsBaseClientSettings &m_settings;
+};
+
+class CvsClient : public VcsBaseClient
+{
+public:
+    explicit CvsClient(CvsSettings *settings) : VcsBaseClient(settings)
+    {
+        setDiffConfigCreator([settings](QToolBar *toolBar) {
+            return new CvsDiffConfig(*settings, toolBar);
+        });
+    }
+
+    QString findTopLevelForFile(const QFileInfo &) const override { return {}; }
+    QStringList revisionSpec(const QString &) const override { return {}; }
+    StatusItem parseStatusLine(const QString &) const override { return  {}; }
+
+    ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override
+    {
+        if (cmd == DiffCommand) {
+            return [](int code) {
+                return (code < 0 || code > 2) ? SynchronousProcessResponse::FinishedError
+                                              : SynchronousProcessResponse::Finished;
+            };
+        }
+        return Utils::defaultExitCodeInterpreter;
+    }
+
+    Core::Id vcsEditorKind(VcsCommandTag cmd) const override
+    {
+        switch (cmd) {
+        case DiffCommand:
+            return "CVS Diff Editor"; // TODO: replace by string from cvsconstants.h
+        default:
+            return Core::Id();
+        }
+    }
+};
 
 class CvsPluginPrivate final : public VcsBasePluginPrivate
 {
