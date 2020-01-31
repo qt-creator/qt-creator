@@ -991,7 +991,7 @@ function(add_qtc_test name)
 endfunction()
 
 function(finalize_qtc_gtest test_name)
-  if (NOT TARGET test_name)
+  if (NOT TARGET ${test_name})
     return()
   endif()
   get_target_property(test_sources ${test_name} SOURCES)
