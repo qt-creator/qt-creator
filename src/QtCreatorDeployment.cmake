@@ -147,9 +147,14 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
         list(APPEND unresolved_deps libEGL.dll libGLESv2.dll)
       endif()
 
-      get_filename_component(compiler_dir \"${CMAKE_CXX_COMPILER}\" DIRECTORY)
       file(TO_CMAKE_PATH \"${CMAKE_PREFIX_PATH}\" prefix_path)
-      list(APPEND prefix_path \"\${compiler_dir}\")
+
+      # Add parent link directory paths. Needed for e.g. MinGW choco libstdc++-6.dll
+      foreach(path \"${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES}\")
+        get_filename_component(parent_path \"\${path}\" DIRECTORY)
+        list(APPEND prefix_path \"\${parent_path}\")
+      endforeach()
+
       foreach(so IN LISTS unresolved_deps)
         string(REPLACE \"@rpath/\" \"\" so \"\${so}\")
         get_filename_component(so_dir \"\${so}\" DIRECTORY)
