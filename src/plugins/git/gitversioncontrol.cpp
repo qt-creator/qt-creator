@@ -62,9 +62,10 @@ private:
 };
 
 GitVersionControl::GitVersionControl(GitClient *client) :
-    Core::IVersionControl(new GitTopicCache(client)),
     m_client(client)
-{ }
+{
+    setTopicCache(new GitTopicCache(client));
+}
 
 QString GitVersionControl::displayName() const
 {

@@ -138,13 +138,17 @@ IVersionControl::RepoUrl IVersionControl::getRepoUrl(const QString &location) co
     return RepoUrl(location);
 }
 
+void IVersionControl::setTopicCache(TopicCache *topicCache)
+{
+    m_topicCache = topicCache;
+}
+
 QString IVersionControl::vcsTopic(const QString &topLevel)
 {
     return m_topicCache ? m_topicCache->topic(topLevel) : QString();
 }
 
-IVersionControl::IVersionControl(IVersionControl::TopicCache *topicCache)
-    : m_topicCache(topicCache)
+IVersionControl::IVersionControl()
 {
     Core::VcsManager::addVersionControl(this);
 }

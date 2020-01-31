@@ -64,9 +64,10 @@ private:
 };
 
 SubversionControl::SubversionControl(SubversionPluginPrivate *plugin) :
-    Core::IVersionControl(new SubversionTopicCache(plugin)),
     m_plugin(plugin)
-{ }
+{
+    setTopicCache(new SubversionTopicCache(plugin));
+}
 
 QString SubversionControl::displayName() const
 {

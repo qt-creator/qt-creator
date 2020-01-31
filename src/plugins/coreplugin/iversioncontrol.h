@@ -86,7 +86,7 @@ public:
 
     };
 
-    explicit IVersionControl(TopicCache *topicCache = nullptr);
+    IVersionControl();
     ~IVersionControl() override;
 
     virtual QString displayName() const = 0;
@@ -239,13 +239,15 @@ public:
     };
     virtual RepoUrl getRepoUrl(const QString &location) const;
 
+    void setTopicCache(TopicCache *topicCache);
+
 signals:
     void repositoryChanged(const QString &repository);
     void filesChanged(const QStringList &files);
     void configurationChanged();
 
 private:
-    TopicCache *m_topicCache;
+    TopicCache *m_topicCache = nullptr;
 };
 
 } // namespace Core

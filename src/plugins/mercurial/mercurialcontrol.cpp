@@ -64,9 +64,10 @@ private:
 };
 
 MercurialControl::MercurialControl(MercurialClient *client) :
-    Core::IVersionControl(new MercurialTopicCache(client)),
     mercurialClient(client)
-{ }
+{
+    setTopicCache(new MercurialTopicCache(client));
+}
 
 QString MercurialControl::displayName() const
 {
