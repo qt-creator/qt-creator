@@ -54,6 +54,7 @@ def main():
     checkNavigator(0, "Verifying that no more project is opened.")
     checkOpenDocuments(0, "Verifying whether all files have been closed.")
     switchSession(sessionName)
+    waitForProjectParsing()
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
     checkNavigator(52, "Verifying whether all projects have been re-opened.")
