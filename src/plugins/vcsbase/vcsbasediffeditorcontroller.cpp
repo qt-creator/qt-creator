@@ -26,6 +26,7 @@
 #include "vcsbasediffeditorcontroller.h"
 #include "vcsbaseclient.h"
 #include "vcscommand.h"
+#include "vcsbaseclientsettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -272,9 +273,9 @@ void VcsBaseDiffEditorController::processCommandOutput(const QString &output)
     d->processDiff(output);
 }
 
-VcsBaseClientImpl *VcsBaseDiffEditorController::client() const
+const VcsBaseClientSettings &VcsBaseDiffEditorController::settings() const
 {
-    return d->m_client;
+    return d->m_client->settings();
 }
 
 QString VcsBaseDiffEditorController::workingDirectory() const

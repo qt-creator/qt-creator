@@ -218,7 +218,7 @@ void SubversionDiffEditorController::requestDescription()
     m_state = GettingDescription;
 
     QStringList args(QLatin1String("log"));
-    args << SubversionClient::addAuthenticationOptions(client()->settings());
+    args << SubversionClient::addAuthenticationOptions(settings());
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
     runCommand(QList<QStringList>() << args, VcsCommand::SshPasswordPrompt);
@@ -230,7 +230,7 @@ void SubversionDiffEditorController::requestDiff()
 
     QStringList args;
     args << QLatin1String("diff");
-    args << SubversionClient::addAuthenticationOptions(client()->settings());
+    args << SubversionClient::addAuthenticationOptions(settings());
     args << QLatin1String("--internal-diff");
     if (ignoreWhitespace())
         args << QLatin1String("-x") << QLatin1String("-uw");

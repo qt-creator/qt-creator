@@ -33,6 +33,7 @@ namespace Core { class IDocument; }
 namespace VcsBase {
 
 class VcsBaseClientImpl;
+class VcsBaseClientSettings;
 class VcsBaseDiffEditorControllerPrivate;
 
 class VCSBASE_EXPORT VcsBaseDiffEditorController : public DiffEditor::DiffEditorController
@@ -49,7 +50,7 @@ protected:
     void runCommand(const QList<QStringList> &args, unsigned flags, QTextCodec *codec = nullptr);
     virtual void processCommandOutput(const QString &output);
 
-    VcsBaseClientImpl *client() const;
+    const VcsBaseClientSettings &settings() const;
     QString workingDirectory() const;
     void setStartupFile(const QString &startupFile);
     QString startupFile() const;
