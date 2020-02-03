@@ -155,6 +155,7 @@ add_qtc_test(unittest GTEST
     symbolquery-test.cpp
     symbolsfindfilter-test.cpp
     symbolstorage-test.cpp
+    task.cpp
     taskscheduler-test.cpp
     testenvironment.h
     tokenprocessor-test.cpp

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,29 +25,27 @@
 
 #pragma once
 
-#include "target.h"
-#include "taskhub.h"
-
-#include <projectexplorer/kit.h>
-
-#include <utils/fileutils.h>
+#include <projectexplorer/task.h>
 
 namespace ProjectExplorer {
 
-class Project : public QObject {
+class TaskHub: public QObject
+{
 public:
-    Project() = default;
 
-    Utils::FilePath projectDirectory() const { return {}; }
+    static TaskHub *instance()
+    {
+        return nullptr;
+    }
 
-    Utils::FilePath rootProjectDirectory() const { return rootProjectDirectoryPath; }
+    static void addTask(Task::TaskType type, const QString &description,
+                        Core::Id category)
+    {
+    }
 
-    Target *activeTarget() const { return {}; }
-
-    QVariant namedSettings(const QString &name) const { return settings.at(name); }
-    void setNamedSettings(const QString &name, const QVariant &value) { settings[name] = value; }
-
-    Utils::FilePath rootProjectDirectoryPath;
-    mutable std::map<QString, QVariant> settings;
+    static void addTask(ProjectExplorer::Task task)
+    {
+    }
 };
+
 } // namespace ProjectExplorer

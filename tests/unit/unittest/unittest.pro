@@ -107,6 +107,7 @@ SOURCES += \
     symbolindexertaskqueue-test.cpp \
     refactoringprojectupdater-test.cpp \
     processormanager-test.cpp \
+    task.cpp \
     taskscheduler-test.cpp \
     compileroptionsbuilder-test.cpp \
     progresscounter-test.cpp \
