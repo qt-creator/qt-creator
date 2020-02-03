@@ -137,7 +137,6 @@ SOURCES += \
     clangdocumentprocessors-test.cpp \
     clangdocumentprocessor-test.cpp \
     clangdocuments-test.cpp \
-    clangdocumentsuspenderresumer-test.cpp \
     clangdocument-test.cpp \
     clangfixitoperation-test.cpp \
     clangfollowsymbol-test.cpp \
@@ -145,7 +144,6 @@ SOURCES += \
     clangjobqueue-test.cpp \
     clangjobs-test.cpp \
     clangparsesupportivetranslationunitjob-test.cpp \
-    clangreferencescollector-test.cpp \
     clangrequestannotationsjob-test.cpp \
     clangrequestreferencesjob-test.cpp \
     clangresumedocumentjob-test.cpp \
@@ -176,7 +174,6 @@ SOURCES += \
     sqlitetable-test.cpp \
     sqlstatementbuilder-test.cpp \
     token-test.cpp \
-    tokenprocessor-test.cpp \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
@@ -186,9 +183,11 @@ SOURCES += \
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
     gtest-llvm-printing.cpp \
+    clangdocumentsuspenderresumer-test.cpp \
     clangquerygatherer-test.cpp \
     clangqueryprojectfindfilter-test.cpp \
     clangquery-test.cpp \
+    clangreferencescollector-test.cpp \
     gtest-clang-printing.cpp \
     pchcreator-test.cpp \
     refactoringclientserverinprocess-test.cpp \
@@ -201,7 +200,8 @@ SOURCES += \
     symbolscollector-test.cpp \
     testclangtool.cpp \
     usedmacrocollector-test.cpp \
-    builddependencycollector-test.cpp
+    builddependencycollector-test.cpp \
+    tokenprocessor-test.cpp
 }
 
 !isEmpty(CLANGFORMAT_LIBS) {
