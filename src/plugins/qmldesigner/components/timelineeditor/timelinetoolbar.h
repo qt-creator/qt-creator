@@ -30,6 +30,8 @@
 
 #include <QToolBar>
 
+#include <QPointer>
+
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
 QT_FORWARD_DECLARE_CLASS(QObject)
@@ -102,10 +104,11 @@ private:
     void createRightControls();
     void addSpacing(int width);
     void setupCurrentFrameValidator();
+    void ensureAnimationCurveDialog();
 
     QList<QObject *> m_grp;
 
-    AnimationCurveDialog m_dialog;
+    QPointer<AnimationCurveDialog> m_animatioCurveDialog;
 
     AnimationCurveEditorModel *m_curveModel = nullptr;
 

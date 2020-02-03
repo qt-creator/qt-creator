@@ -104,10 +104,8 @@ QAction *createAction(const Core::Id &id,
 TimelineToolBar::TimelineToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
-    , m_dialog(Core::ICore::dialogParent())
     , m_curveModel(new AnimationCurveEditorModel(0., 500.))
 {
-    m_dialog.setModel(m_curveModel);
     connect(m_curveModel,
             &AnimationCurveEditorModel::currentFrameChanged,
             this,
@@ -128,7 +126,8 @@ void TimelineToolBar::reset()
     if (recording())
         m_recording->setChecked(false);
 
-    m_curveModel->reset({});
+    if (m_animatioCurveDialog)
+        m_curveModel->reset({});
 }
 
 bool TimelineToolBar::recording() const
@@ -173,7 +172,8 @@ void TimelineToolBar::setCurrentTimeline(const QmlTimeline &timeline)
         setStartFrame(timeline.startKeyframe());
         setEndFrame(timeline.endKeyframe());
         m_timelineLabel->setText(timeline.modelNode().id());
-        m_curveModel->setTimeline(timeline);
+        if (m_animatioCurveDialog)
+            m_curveModel->setTimeline(timeline);
     } else {
         m_timelineLabel->setText("");
     }
@@ -181,7 +181,8 @@ void TimelineToolBar::setCurrentTimeline(const QmlTimeline &timeline)
 
 void TimelineToolBar::setStartFrame(qreal frame)
 {
-    m_curveModel->setMinimumTime(frame);
+    if (m_animatioCurveDialog)
+        m_curveModel->setMinimumTime(frame);
 
     auto text = QString::number(frame, 'f', 0);
     m_firstFrame->setText(text);
@@ -190,7 +191,8 @@ void TimelineToolBar::setStartFrame(qreal frame)
 
 void TimelineToolBar::setCurrentFrame(qreal frame)
 {
-    m_curveModel->setCurrentFrame(std::round(frame));
+    if (m_animatioCurveDialog)
+        m_curveModel->setCurrentFrame(std::round(frame));
 
     auto text = QString::number(frame, 'f', 0);
     m_currentFrame->setText(text);
@@ -198,7 +200,8 @@ void TimelineToolBar::setCurrentFrame(qreal frame)
 
 void TimelineToolBar::setEndFrame(qreal frame)
 {
-    m_curveModel->setMaximumTime(frame);
+    if (m_animatioCurveDialog)
+        m_curveModel->setMaximumTime(frame);
 
     auto text = QString::number(frame, 'f', 0);
     m_lastFrame->setText(text);
@@ -232,9 +235,10 @@ void TimelineToolBar::openAnimationCurveEditor()
             timeline = tlv->timelineForState(tlv->currentState());
     }
 
-    m_dialog.refresh();
+    ensureAnimationCurveDialog();
+    m_animatioCurveDialog->refresh();
     m_curveModel->setTimeline(timeline);
-    m_dialog.show();
+    m_animatioCurveDialog->show();
 }
 
 void TimelineToolBar::updateCurve(DesignTools::PropertyTreeItem *item)
@@ -499,6 +503,15 @@ void TimelineToolBar::setupCurrentFrameValidator()
     auto validator = static_cast<const QIntValidator *>(m_currentFrame->validator());
     const_cast<QIntValidator *>(validator)->setRange(m_firstFrame->text().toInt(),
                                                      m_lastFrame->text().toInt());
+}
+
+void TimelineToolBar::ensureAnimationCurveDialog()
+{
+    if (!m_animatioCurveDialog) {
+        m_animatioCurveDialog = new AnimationCurveDialog(Core::ICore::dialogParent());
+        m_animatioCurveDialog->setAttribute(Qt::WA_DeleteOnClose);
+        m_animatioCurveDialog->setModel(m_curveModel);
+    }
 }
 
 void TimelineToolBar::resizeEvent(QResizeEvent *event)
