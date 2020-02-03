@@ -28,6 +28,7 @@
 #include "displaysettings.h"
 #include "marginsettings.h"
 #include "texteditorconstants.h"
+#include "texteditorsettings.h"
 #include "ui_displaysettingspage.h"
 
 #include <coreplugin/icore.h>
@@ -178,14 +179,14 @@ void DisplaySettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySe
         d->m_displaySettings = newDisplaySettings;
         d->m_displaySettings.toSettings(d->m_settingsPrefix, Core::ICore::settings());
 
-        emit displaySettingsChanged(newDisplaySettings);
+        emit TextEditorSettings::instance()->displaySettingsChanged(newDisplaySettings);
     }
 
     if (newMarginSettings != d->m_marginSettings) {
         d->m_marginSettings = newMarginSettings;
         d->m_marginSettings.toSettings(d->m_settingsPrefix, Core::ICore::settings());
 
-        emit marginSettingsChanged(newMarginSettings);
+        emit TextEditorSettings::instance()->marginSettingsChanged(newMarginSettings);
     }
 }
 

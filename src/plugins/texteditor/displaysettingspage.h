@@ -50,10 +50,6 @@ public:
     const DisplaySettings &displaySettings() const;
     const MarginSettings &marginSettings() const;
 
-signals:
-    void displaySettingsChanged(const TextEditor::DisplaySettings &);
-    void marginSettingsChanged(const TextEditor::MarginSettings &);
-
 private:
     void settingsFromUI(DisplaySettings &displaySettings, MarginSettings &marginSettings) const;
     void settingsToUI();

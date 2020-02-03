@@ -34,6 +34,7 @@
 #include "simplecodestylepreferences.h"
 #include "texteditorconstants.h"
 #include "codestylepool.h"
+#include "texteditorsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -159,7 +160,7 @@ void BehaviorSettingsPage::apply()
         if (s)
             d->m_typingSettings.toSettings(d->m_settingsPrefix, s);
 
-        emit typingSettingsChanged(newTypingSettings);
+        emit TextEditorSettings::instance()->typingSettingsChanged(newTypingSettings);
     }
 
     if (newStorageSettings != d->m_storageSettings) {
@@ -167,7 +168,7 @@ void BehaviorSettingsPage::apply()
         if (s)
             d->m_storageSettings.toSettings(d->m_settingsPrefix, s);
 
-        emit storageSettingsChanged(newStorageSettings);
+        emit TextEditorSettings::instance()->storageSettingsChanged(newStorageSettings);
     }
 
     if (newBehaviorSettings != d->m_behaviorSettings) {
@@ -175,7 +176,7 @@ void BehaviorSettingsPage::apply()
         if (s)
             d->m_behaviorSettings.toSettings(d->m_settingsPrefix, s);
 
-        emit behaviorSettingsChanged(newBehaviorSettings);
+        emit TextEditorSettings::instance()->behaviorSettingsChanged(newBehaviorSettings);
     }
 
     if (newExtraEncodingSettings != d->m_extraEncodingSettings) {
@@ -183,7 +184,7 @@ void BehaviorSettingsPage::apply()
         if (s)
             d->m_extraEncodingSettings.toSettings(d->m_settingsPrefix, s);
 
-        emit extraEncodingSettingsChanged(newExtraEncodingSettings);
+        emit TextEditorSettings::instance()->extraEncodingSettingsChanged(newExtraEncodingSettings);
     }
 
     if (s) {

@@ -61,12 +61,6 @@ public:
     const BehaviorSettings &behaviorSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;
 
-signals:
-    void typingSettingsChanged(const TextEditor::TypingSettings &);
-    void storageSettingsChanged(const TextEditor::StorageSettings &);
-    void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
-    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
-
 private:
     void openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink link);
 

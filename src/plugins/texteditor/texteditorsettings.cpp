@@ -361,30 +361,18 @@ TextEditorSettings::TextEditorSettings()
     connect(this, &TextEditorSettings::fontSettingsChanged,
             this, updateGeneralMessagesFontSettings);
     updateGeneralMessagesFontSettings();
-    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
-            this, &TextEditorSettings::typingSettingsChanged);
-    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::storageSettingsChanged,
-            this, &TextEditorSettings::storageSettingsChanged);
     auto updateGeneralMessagesBehaviorSettings = []() {
         bool wheelZoom = d->m_behaviorSettingsPage.behaviorSettings().m_scrollWheelZooming;
         Core::MessageManager::setWheelZoomEnabled(wheelZoom);
     };
-    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
-            this, &TextEditorSettings::behaviorSettingsChanged);
-    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+    connect(this, &TextEditorSettings::behaviorSettingsChanged,
             this, updateGeneralMessagesBehaviorSettings);
     updateGeneralMessagesBehaviorSettings();
-    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::extraEncodingSettingsChanged,
-            this, &TextEditorSettings::extraEncodingSettingsChanged);
-    connect(&d->m_displaySettingsPage, &DisplaySettingsPage::marginSettingsChanged,
-            this, &TextEditorSettings::marginSettingsChanged);
-    connect(&d->m_displaySettingsPage, &DisplaySettingsPage::displaySettingsChanged,
-            this, &TextEditorSettings::displaySettingsChanged);
 
     auto updateCamelCaseNavigation = [] {
         Utils::FancyLineEdit::setCamelCaseNavigationEnabled(behaviorSettings().m_camelCaseNavigation);
     };
-    connect(&d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+    connect(this, &TextEditorSettings::behaviorSettingsChanged,
             this, updateCamelCaseNavigation);
     updateCamelCaseNavigation();
 }
