@@ -749,7 +749,7 @@ bool MercurialPluginPrivate::managesFile(const QString &workingDirectory, const 
 
 bool MercurialPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_client.vcsBinary();
+    const Utils::FilePath binary = m_settings.binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -822,7 +822,7 @@ Core::ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const Q
     args << QLatin1String("clone") << extraArgs << url << localName;
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
                                            m_client.processEnvironment());
-    command->addJob({m_client.vcsBinary(), args}, -1);
+    command->addJob({m_settings.binaryPath(), args}, -1);
     return command;
 }
 

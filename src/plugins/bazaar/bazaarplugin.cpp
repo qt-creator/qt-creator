@@ -850,7 +850,7 @@ bool BazaarPluginPrivate::managesFile(const QString &workingDirectory, const QSt
 
 bool BazaarPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_client.vcsBinary();
+    const Utils::FilePath binary = m_settings.binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();

@@ -375,7 +375,7 @@ bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) con
 
 bool CvsPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_client->vcsBinary();
+    const Utils::FilePath binary = m_settings.binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -454,7 +454,7 @@ Core::ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
                                            QProcessEnvironment::systemEnvironment());
     command->setDisplayName(tr("CVS Checkout"));
-    command->addJob({m_client->vcsBinary(), m_settings.addOptions(args)}, -1);
+    command->addJob({m_settings.binaryPath(), m_settings.addOptions(args)}, -1);
     return command;
 }
 
@@ -1413,7 +1413,7 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
                               unsigned flags,
                               QTextCodec *outputCodec) const
 {
-    const FilePath executable = m_client->vcsBinary();
+    const FilePath executable = m_settings.binaryPath();
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;

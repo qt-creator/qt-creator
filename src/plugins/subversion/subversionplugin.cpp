@@ -1018,7 +1018,7 @@ SubversionResponse SubversionPluginPrivate::runSvn(const QString &workingDir,
                                             QTextCodec *outputCodec) const
 {
     SubversionResponse response;
-    if (m_client->vcsBinary().isEmpty()) {
+    if (m_settings.binaryPath().isEmpty()) {
         response.error = true;
         response.message =tr("No subversion executable specified.");
         return response;
@@ -1029,7 +1029,7 @@ SubversionResponse SubversionPluginPrivate::runSvn(const QString &workingDir,
 
     response.error = sp_resp.result != SynchronousProcessResponse::Finished;
     if (response.error)
-        response.message = sp_resp.exitMessage(m_client->vcsBinary().toString(), timeOutS);
+        response.message = sp_resp.exitMessage(m_settings.binaryPath().toString(), timeOutS);
     response.stdErr = sp_resp.stdErr();
     response.stdOut = sp_resp.stdOut();
     return response;
@@ -1222,7 +1222,7 @@ bool SubversionPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileNa
 
 bool SubversionPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_client->vcsBinary();
+    const Utils::FilePath binary = m_settings.binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -1296,7 +1296,7 @@ Core::ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const 
     args << extraArgs << url << localName;
 
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(), m_client->processEnvironment());
-    command->addJob({m_client->vcsBinary(), args}, -1);
+    command->addJob({m_settings.binaryPath(), args}, -1);
     return command;
 }
 
