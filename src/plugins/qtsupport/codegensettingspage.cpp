@@ -25,7 +25,9 @@
 
 #include "codegensettingspage.h"
 
+#include "codegensettings.h"
 #include "qtsupportconstants.h"
+#include "ui_codegensettingspagewidget.h"
 
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -36,6 +38,22 @@ namespace QtSupport {
 namespace Internal {
 
 // ---------- CodeGenSettingsPageWidget
+
+class CodeGenSettingsPageWidget : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(QtSupport::Internal::CodeGenSettingsPage)
+
+public:
+    CodeGenSettingsPageWidget();
+
+private:
+    void apply() final;
+
+    int uiEmbedding() const;
+    void setUiEmbedding(int);
+
+    Ui::CodeGenSettingsPageWidget m_ui;
+};
 
 CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
 {
