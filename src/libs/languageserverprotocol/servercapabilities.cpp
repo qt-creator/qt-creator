@@ -162,7 +162,7 @@ bool ServerCapabilities::isValid(QStringList *error) const
             && checkOptional<bool>(error, documentHighlightProviderKey)
             && checkOptional<bool>(error, documentSymbolProviderKey)
             && checkOptional<bool>(error, workspaceSymbolProviderKey)
-            && checkOptional<bool>(error, codeActionProviderKey)
+            && checkOptional<bool, CodeActionOptions>(error, codeActionProviderKey)
             && checkOptional<CodeLensOptions>(error, codeLensProviderKey)
             && checkOptional<bool>(error, documentFormattingProviderKey)
             && checkOptional<bool>(error, documentRangeFormattingProviderKey)
