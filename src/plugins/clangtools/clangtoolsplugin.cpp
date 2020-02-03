@@ -36,8 +36,6 @@
 #include "clangtoolsunittests.h"
 #endif
 
-#include <debugger/analyzer/analyzericons.h>
-
 #include <utils/qtcassert.h>
 
 #include <coreplugin/icore.h>
@@ -46,7 +44,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanager.h>
@@ -73,22 +70,6 @@ ProjectPanelFactory *projectPanelFactory()
 {
     return m_projectPanelFactoryInstance;
 }
-
-class ClangToolsOptionsPage : public IOptionsPage
-{
-public:
-    ClangToolsOptionsPage()
-    {
-        setId(Constants::SETTINGS_PAGE_ID);
-        setDisplayName(QCoreApplication::translate(
-                           "ClangTools::Internal::ClangToolsOptionsPage",
-                           "Clang Tools"));
-        setCategory("T.Analyzer");
-        setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
-        setWidgetCreator([] { return new SettingsWidget; });
-    }
-};
 
 class ClangToolsPluginPrivate
 {

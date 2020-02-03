@@ -33,6 +33,8 @@
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/clangdiagnosticconfigsselectionwidget.h>
 
+#include <debugger/analyzer/analyzericons.h>
+
 #include <utils/optional.h>
 
 namespace ClangTools {
@@ -145,6 +147,20 @@ QString SettingsWidget::clangTidyPath() const
 QString SettingsWidget::clazyStandalonePath() const
 {
     return m_ui->clazyStandalonePathChooser->rawPath();
+}
+
+// ClangToolsOptionsPage
+
+ClangToolsOptionsPage::ClangToolsOptionsPage()
+{
+    setId(Constants::SETTINGS_PAGE_ID);
+    setDisplayName(QCoreApplication::translate(
+                       "ClangTools::Internal::ClangToolsOptionsPage",
+                       "Clang Tools"));
+    setCategory("T.Analyzer");
+    setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+    setWidgetCreator([] { return new SettingsWidget; });
 }
 
 } // namespace Internal

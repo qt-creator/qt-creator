@@ -56,5 +56,11 @@ private:
     ClangToolsSettings *m_settings;
 };
 
+class ClangToolsOptionsPage final : public Core::IOptionsPage
+{
+public:
+    ClangToolsOptionsPage();
+};
+
 } // namespace Internal
 } // namespace ClangTools
