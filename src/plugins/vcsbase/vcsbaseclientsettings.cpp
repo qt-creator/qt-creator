@@ -361,6 +361,11 @@ FilePath VcsBaseClientSettings::binaryPath() const
     return d->m_binaryFullPath;
 }
 
+int VcsBaseClientSettings::vcsTimeoutS() const
+{
+    return intValue(VcsBaseClientSettings::timeoutKey);
+}
+
 QStringList VcsBaseClientSettings::searchPathList() const
 {
     return stringValue(pathKey).split(HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);

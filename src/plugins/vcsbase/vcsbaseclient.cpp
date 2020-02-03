@@ -214,7 +214,7 @@ SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &
 
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
-    return settings().intValue(VcsBaseClientSettings::timeoutKey);
+    return m_clientSettings->vcsTimeoutS();
 }
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Core::Id kind, QString title,

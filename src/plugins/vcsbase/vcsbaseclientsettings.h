@@ -80,6 +80,7 @@ public:
     Utils::FilePath binaryPath() const;
 
     QStringList searchPathList() const;
+    int vcsTimeoutS() const;
 
 protected:
     QString settingsGroup() const;
