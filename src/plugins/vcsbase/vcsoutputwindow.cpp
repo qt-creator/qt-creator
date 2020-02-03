@@ -37,6 +37,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/theme/theme.h>
+#include <vcsbase/vcsoutputformatter.h>
 
 #include <QAction>
 #include <QContextMenuEvent>
@@ -110,7 +111,7 @@ private:
     QString identifierUnderCursor(const QPoint &pos, QString *repository = nullptr) const;
 
     Utils::OutputFormat m_format;
-    OutputFormatter *m_formatter = nullptr;
+    VcsOutputFormatter *m_formatter = nullptr;
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
@@ -119,9 +120,9 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
-    m_formatter = new OutputFormatter;
+    m_formatter = new VcsOutputFormatter;
     m_formatter->setBoldFontEnabled(false);
-    m_formatter->setPlainTextEdit(this);
+    setFormatter(m_formatter);
     auto agg = new Aggregation::Aggregate;
     agg->add(this);
     agg->add(new Core::BaseTextFind(this));
