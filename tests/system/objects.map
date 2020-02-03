@@ -172,7 +172,7 @@
 :QtSupport__Internal__QtVersionManager.qmake_QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qmakePath' type='QLabel' visible='1'}
 :QtVersionLabel_KitPage	{container=':qt_tabwidget_stackedwidget_QWidget' text='Qt version:' type='QLabel' unnamed='1' visible='1'}
 :Remove_QPushButton	{container=':qt_tabwidget_stackedwidget_QScrollArea' text='Remove' type='QPushButton' unnamed='1' visible='1'}
-:Restart required.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Restart required_QMessageBox'}
+:Restart required.Later_QPushButton	{text='Later' type='QPushButton' unnamed='1' visible='1' window=':Restart required_QMessageBox'}
 :Restart required_QMessageBox	{text='The language change will take effect after restart.' type='QMessageBox' unnamed='1' visible='1'}
 :Revert to Saved.Proceed_QPushButton	{text='Proceed' type='QPushButton' unnamed='1' visible='1' window=':Revert to Saved_QMessageBox'}
 :Revert to Saved_QMessageBox	{text?='You will lose your current changes if you proceed reverting*' type='QMessageBox' unnamed='1' visible='1'}

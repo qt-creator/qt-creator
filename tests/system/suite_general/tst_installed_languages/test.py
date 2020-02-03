@@ -39,7 +39,7 @@ def main():
             languageName = languageName.replace("%1", country)
         selectFromCombo(":User Interface.languageBox_QComboBox", languageName)
         clickButton(waitForObject(":Options.OK_QPushButton"))
-        clickButton(waitForObject(":Restart required.OK_QPushButton"))
+        clickButton(waitForObject(":Restart required.Later_QPushButton"))
         test.verify(waitFor("not object.exists(':Options_Core::Internal::SettingsDialog')", 5000),
                     "Options dialog disappeared")
         invokeMenuItem("File", "Exit")
