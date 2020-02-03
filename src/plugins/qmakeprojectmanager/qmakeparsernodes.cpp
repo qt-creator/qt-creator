@@ -182,8 +182,6 @@ void QmakePriFile::finishInitialization(QmakeBuildSystem *buildSystem, QmakeProF
     QTC_ASSERT(buildSystem, return);
     m_buildSystem = buildSystem;
     m_qmakeProFile = qmakeProFile;
-    m_priFileDocument = std::make_unique<QmakePriFileDocument>(this, filePath());
-    Core::DocumentManager::addDocument(m_priFileDocument.get());
 }
 
 FilePath QmakePriFile::filePath() const

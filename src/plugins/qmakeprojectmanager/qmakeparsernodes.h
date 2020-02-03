@@ -236,7 +236,6 @@ private:
     QmakePriFile *m_parent = nullptr;
     QVector<QmakePriFile *> m_children;
 
-    std::unique_ptr<Core::IDocument> m_priFileDocument;
     Utils::TextFileFormat m_textFormat;
 
     // Memory is cheap...

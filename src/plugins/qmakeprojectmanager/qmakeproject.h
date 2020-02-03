@@ -151,6 +151,7 @@ public:
     bool wasEvaluateCanceled();
 
     void updateCodeModels();
+    void updateDocuments();
 
     void watchFolders(const QStringList &l, QmakePriFile *file);
     void unwatchFolders(const QStringList &l, QmakePriFile *file);

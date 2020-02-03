@@ -259,6 +259,15 @@ void QmakeBuildSystem::updateCodeModels()
     updateQmlJSCodeModel();
 }
 
+void QmakeBuildSystem::updateDocuments()
+{
+    QVector<FilePath> projectDocuments;
+    project()->rootProjectNode()->forEachProjectNode([&projectDocuments](const ProjectNode *n) {
+        projectDocuments << n->filePath();
+    });
+    project()->setExtraProjectFiles(projectDocuments);
+}
+
 void QmakeBuildSystem::updateCppCodeModel()
 {
     m_toolChainWarnings.clear();
@@ -528,6 +537,7 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
             m_asyncUpdateState = Base;
             updateBuildSystemData();
             updateCodeModels();
+            updateDocuments();
             target()->updateDefaultDeployConfigurations();
             m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
             m_guard = {}; // This triggers emitParsingFinished by destroying the previous guard.
