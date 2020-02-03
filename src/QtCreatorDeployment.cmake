@@ -11,15 +11,12 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
   if (WIN32)
     set(qt5_plugin_dest_dir ${IDE_BIN_PATH}/plugins)
     set(qt5_qml_dest_dir ${IDE_BIN_PATH}/qml)
-    set(qt_conf_dir ${IDE_APP_PATH})
   elseif(APPLE)
     set(qt5_plugin_dest_dir ${IDE_PLUGIN_PATH})
     set(qt5_qml_dest_dir ${IDE_DATA_PATH}/../Imports/qtquick2)
-    set(qt_conf_dir ${IDE_DATA_PATH})
   else()
     set(qt5_plugin_dest_dir ${IDE_LIBRARY_BASE_PATH}/Qt/plugins)
     set(qt5_qml_dest_dir ${IDE_LIBRARY_BASE_PATH}/Qt/qml)
-    set(qt_conf_dir ${IDE_APP_PATH})
   endif()
 
   foreach(plugin
@@ -46,29 +43,40 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
   )
 
   install(CODE "
-    get_filename_component(install_prefix \"\${CMAKE_INSTALL_PREFIX}\" ABSOLUTE)
-    file(RELATIVE_PATH qt_conf_binaries
-      \"\${install_prefix}/${qt_conf_dir}\"
-      \"\${install_prefix}/${IDE_BIN_PATH}\"
-    )
-    if (NOT qt_conf_binaries)
-      set(qt_conf_binaries .)
-    endif()
-    file(RELATIVE_PATH qt_conf_plugins
-      \"\${install_prefix}/${qt_conf_dir}\"
-      \"\${install_prefix}/${qt5_plugin_dest_dir}\"
-    )
-    file(RELATIVE_PATH qt_conf_qml
-      \"\${install_prefix}/${qt_conf_dir}\"
-      \"\${install_prefix}/${qt5_qml_dest_dir}\"
-    )
+    function(create_qt_conf location base_dir)
+      get_filename_component(install_prefix \"\${CMAKE_INSTALL_PREFIX}\" ABSOLUTE)
+      file(RELATIVE_PATH qt_conf_binaries
+        \"\${install_prefix}/\${base_dir}\"
+        \"\${install_prefix}/${IDE_BIN_PATH}\"
+      )
+      if (NOT qt_conf_binaries)
+        set(qt_conf_binaries .)
+      endif()
+      file(RELATIVE_PATH qt_conf_plugins
+        \"\${install_prefix}/\${base_dir}\"
+        \"\${install_prefix}/${qt5_plugin_dest_dir}\"
+      )
+      file(RELATIVE_PATH qt_conf_qml
+        \"\${install_prefix}/\${base_dir}\"
+        \"\${install_prefix}/${qt5_qml_dest_dir}\"
+      )
 
-    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${qt_conf_dir}/qt.conf\"
-      \"[Paths]\n\"
-      \"Binaries=\${qt_conf_binaries}\n\"
-      \"Plugins=\${qt_conf_plugins}\n\"
-      \"Qml2Imports=\${qt_conf_qml}\n\"
-     )
+      file(WRITE \"\${CMAKE_INSTALL_PREFIX}/\${location}/qt.conf\"
+        \"[Paths]\n\"
+        \"Binaries=\${qt_conf_binaries}\n\"
+        \"Plugins=\${qt_conf_plugins}\n\"
+        \"Qml2Imports=\${qt_conf_qml}\n\"
+      )
+    endfunction()
+
+    if(APPLE)
+      create_qt_conf(\"${IDE_DATA_PATH}\" \"${IDE_DATA_PATH}/..\")
+      create_qt_conf(\"${IDE_LIBEXEC_PATH}\" \"${IDE_DATA_PATH}/..\")
+    else()
+      create_qt_conf(\"${IDE_APP_PATH}\" \"${IDE_APP_PATH}\")
+      create_qt_conf(\"${IDE_LIBEXEC_PATH}\" \"${IDE_LIBEXEC_PATH}\")
+    endif()
+
     "
     COMPONENT Dependencies EXCLUDE_FROM_ALL
    )
