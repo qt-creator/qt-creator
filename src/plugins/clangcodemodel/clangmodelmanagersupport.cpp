@@ -103,7 +103,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, &ClangModelManagerSupport::onAboutToRemoveProject);
 
-    CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings().data();
+    CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings();
     connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
             this, &ClangModelManagerSupport::onDiagnosticConfigsInvalidated);
 }

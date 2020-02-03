@@ -81,14 +81,12 @@ class CppToolsPluginPrivate
 {
 public:
     CppToolsPluginPrivate()
-        : m_codeModelSettings(new CppCodeModelSettings)
     {
         StringTable::initialize();
         CppModelManager::createCppModelManager(m_instance);
         m_settings = new CppToolsSettings(m_instance); // force registration of cpp tools settings
-        m_codeModelSettings->fromSettings(ICore::settings());
+        m_codeModelSettings.fromSettings(ICore::settings());
         m_cppFileSettingsPage = new CppFileSettingsPage(m_instance->m_fileSettings);
-        m_cppCodeModelSettingsPage = new CppCodeModelSettingsPage(m_codeModelSettings);
         m_cppCodeStyleSettingsPage = new CppCodeStyleSettingsPage;
     }
 
@@ -96,16 +94,15 @@ public:
     {
         StringTable::destroy();
         delete m_cppFileSettingsPage;
-        delete m_cppCodeModelSettingsPage;
         if (m_cppCodeStyleSettingsPage)
             delete m_cppCodeStyleSettingsPage;
         ExtensionSystem::PluginManager::removeObject(&m_cppProjectUpdaterFactory);
     }
 
-    QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
+    CppCodeModelSettings m_codeModelSettings;
     CppToolsSettings *m_settings = nullptr;
     CppFileSettingsPage *m_cppFileSettingsPage = nullptr;
-    CppCodeModelSettingsPage *m_cppCodeModelSettingsPage = nullptr;
+    CppCodeModelSettingsPage m_cppCodeModelSettingsPage{&m_codeModelSettings};
     QPointer<CppCodeStyleSettingsPage> m_cppCodeStyleSettingsPage = nullptr;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
@@ -231,9 +228,9 @@ void CppToolsPlugin::extensionsInitialized()
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
 }
 
-QSharedPointer<CppCodeModelSettings> CppToolsPlugin::codeModelSettings() const
+CppCodeModelSettings *CppToolsPlugin::codeModelSettings()
 {
-    return d->m_codeModelSettings;
+    return &d->m_codeModelSettings;
 }
 
 void CppToolsPlugin::switchHeaderSource()

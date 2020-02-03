@@ -172,7 +172,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
 {
     using namespace Internal;
 
-    QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
+    const CppCodeModelSettings *cms = CppToolsPlugin::instance()->codeModelSettings();
 
     BaseEditorDocumentParser::Configuration config = m_parser->configuration();
     config.usePrecompiledHeaders = cms->pchUsage() != CppCodeModelSettings::PchUse_None;

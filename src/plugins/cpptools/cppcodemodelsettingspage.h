@@ -35,7 +35,7 @@ namespace Internal {
 class CppCodeModelSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings);
+    explicit CppCodeModelSettingsPage(CppCodeModelSettings *settings);
 };
 
 } // Internal namespace

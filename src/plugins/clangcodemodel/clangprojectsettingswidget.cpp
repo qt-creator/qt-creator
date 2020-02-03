@@ -88,7 +88,7 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 
     connect(&m_projectSettings, &ClangProjectSettings::changed,
             this, &ClangProjectSettingsWidget::syncWidgets);
-    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
+    connect(CppTools::codeModelSettings(), &CppTools::CppCodeModelSettings::changed,
             this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
 
     syncWidgets();

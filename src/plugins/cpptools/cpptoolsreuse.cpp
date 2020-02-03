@@ -294,14 +294,14 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
     return nullptr;
 }
 
-QSharedPointer<CppCodeModelSettings> codeModelSettings()
+CppCodeModelSettings *codeModelSettings()
 {
     return CppTools::Internal::CppToolsPlugin::instance()->codeModelSettings();
 }
 
 int indexerFileSizeLimitInMb()
 {
-    const QSharedPointer<CppCodeModelSettings> settings = codeModelSettings();
+    const CppCodeModelSettings *settings = codeModelSettings();
     QTC_ASSERT(settings, return -1);
 
     if (settings->skipIndexingBigFiles())
@@ -335,7 +335,7 @@ bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb)
 
 UsePrecompiledHeaders getPchUsage()
 {
-    const QSharedPointer<CppCodeModelSettings> cms = codeModelSettings();
+    const CppCodeModelSettings *cms = codeModelSettings();
     if (cms->pchUsage() == CppCodeModelSettings::PchUse_None)
         return UsePrecompiledHeaders::No;
     return UsePrecompiledHeaders::Yes;

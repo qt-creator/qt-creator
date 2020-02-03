@@ -70,7 +70,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;
 
-    QSharedPointer<CppCodeModelSettings> codeModelSettings() const;
+    CppCodeModelSettings *codeModelSettings();
 
 public slots:
     void switchHeaderSource();

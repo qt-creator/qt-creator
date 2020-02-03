@@ -44,7 +44,7 @@ class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(CppTools::Internal::CppCodeModelSettingsWidget)
 
 public:
-    CppCodeModelSettingsWidget(const QSharedPointer<CppCodeModelSettings> &s);
+    CppCodeModelSettingsWidget(CppCodeModelSettings *s);
     ~CppCodeModelSettingsWidget() override;
 
 private:
@@ -57,10 +57,10 @@ private:
     bool applyClangCodeModelWidgetsToSettings() const;
 
     Ui::CppCodeModelSettingsPage *m_ui = nullptr;
-    QSharedPointer<CppCodeModelSettings> m_settings;
+    CppCodeModelSettings *m_settings = nullptr;
 };
 
-CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const QSharedPointer<CppCodeModelSettings> &s)
+CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
     : m_ui(new Ui::CppCodeModelSettingsPage)
 {
     m_ui->setupUi(this);
@@ -177,7 +177,7 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     return settingsChanged;
 }
 
-CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings)
+CppCodeModelSettingsPage::CppCodeModelSettingsPage(CppCodeModelSettings *settings)
 {
     setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
     setDisplayName(CppCodeModelSettingsWidget::tr("Code Model"));

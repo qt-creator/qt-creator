@@ -127,8 +127,8 @@ void disableDiagnosticInConfig(ClangDiagnosticConfig &config,
     }
 }
 
-ClangDiagnosticConfig diagnosticConfig(ClangProjectSettings &projectSettings,
-                                       CppCodeModelSettings &globalSettings)
+ClangDiagnosticConfig diagnosticConfig(const ClangProjectSettings &projectSettings,
+                                       const CppCodeModelSettings &globalSettings)
 {
     ProjectExplorer::Project *project = projectForCurrentEditor();
     QTC_ASSERT(project, return {});
@@ -152,7 +152,7 @@ bool isDiagnosticConfigChangable(ProjectExplorer::Project *project,
 
     ClangProjectSettings &projectSettings = ClangModelManagerSupport::instance()->projectSettings(
         project);
-    const QSharedPointer<CppCodeModelSettings> globalSettings = codeModelSettings();
+    const CppCodeModelSettings *globalSettings = codeModelSettings();
     const ClangDiagnosticConfig config = diagnosticConfig(projectSettings, *globalSettings);
 
     if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseConfigFile
@@ -170,7 +170,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
     // Get settings
     ClangProjectSettings &projectSettings = ClangModelManagerSupport::instance()->projectSettings(
         project);
-    const QSharedPointer<CppCodeModelSettings> globalSettings = codeModelSettings();
+    CppCodeModelSettings *globalSettings = codeModelSettings();
 
     // Get config
     ClangDiagnosticConfig config = diagnosticConfig(projectSettings, *globalSettings);

@@ -75,7 +75,7 @@ QString CPPTOOLS_EXPORT correspondingHeaderOrSource(const QString &fileName, boo
 void CPPTOOLS_EXPORT switchHeaderSource();
 
 class CppCodeModelSettings;
-QSharedPointer<CppCodeModelSettings> CPPTOOLS_EXPORT codeModelSettings();
+CppCodeModelSettings CPPTOOLS_EXPORT *codeModelSettings();
 
 UsePrecompiledHeaders CPPTOOLS_EXPORT getPchUsage();
 
