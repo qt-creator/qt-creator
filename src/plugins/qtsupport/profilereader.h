@@ -38,13 +38,11 @@
 namespace QtSupport {
 namespace Internal { class QtSupportPlugin; }
 
-class QTSUPPORT_EXPORT ProMessageHandler : public QObject, public QMakeHandler
+class QTSUPPORT_EXPORT ProMessageHandler : public QMakeHandler
 {
-    Q_OBJECT
-
 public:
     ProMessageHandler(bool verbose = true, bool exact = true);
-    ~ProMessageHandler() override = default;
+    virtual ~ProMessageHandler();
 
     void aboutToEval(ProFile *, ProFile *, EvalFileType) override {}
     void doneWithEval(ProFile *) override {}
@@ -54,16 +52,16 @@ public:
     void setVerbose(bool on) { m_verbose = on; }
     void setExact(bool on) { m_exact = on; }
 
-signals:
-    void writeMessage(const QString &error, Core::MessageManager::PrintToOutputPaneFlags flag);
-
 private:
+    void appendMessage(const QString &msg);
+
     bool m_verbose;
     bool m_exact;
     QString m_prefix;
+    QStringList m_messages;
 };
 
-class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public QMakeParser, public ProFileEvaluator
+class QTSUPPORT_EXPORT ProFileReader : public QObject, public ProMessageHandler, public QMakeParser, public ProFileEvaluator
 {
     Q_OBJECT
 

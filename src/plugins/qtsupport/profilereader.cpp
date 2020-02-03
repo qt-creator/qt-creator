@@ -45,34 +45,36 @@ ProMessageHandler::ProMessageHandler(bool verbose, bool exact)
     : m_verbose(verbose)
     , m_exact(exact)
     //: Prefix used for output from the cumulative evaluation of project files.
-    , m_prefix(tr("[Inexact] "))
+    , m_prefix(QCoreApplication::translate("ProMessageHandler", "[Inexact] "))
 {
-    connect(this, &ProMessageHandler::writeMessage,
-            Core::MessageManager::instance(), &Core::MessageManager::write, Qt::QueuedConnection);
 }
+
+ProMessageHandler::~ProMessageHandler()
+{
+    if (!m_messages.isEmpty())
+        Core::MessageManager::writeMessages(m_messages);
+}
+
+
 
 void ProMessageHandler::message(int type, const QString &msg, const QString &fileName, int lineNo)
 {
     if ((type & CategoryMask) == ErrorMessage && ((type & SourceMask) == SourceParser || m_verbose)) {
-        QString fmsg = format(fileName, lineNo, msg);
-        if (m_exact)
-            emit writeMessage(fmsg, Core::MessageManager::NoModeSwitch);
-        else
-            emit writeMessage(m_prefix + fmsg, Core::MessageManager::NoModeSwitch);
+        appendMessage(format(fileName, lineNo, msg));
     }
 }
 
 void ProMessageHandler::fileMessage(int type, const QString &msg)
 {
     Q_UNUSED(type)
-    if (m_verbose) {
-        if (m_exact)
-            emit writeMessage(msg, Core::MessageManager::NoModeSwitch);
-        else
-            emit writeMessage(m_prefix + msg, Core::MessageManager::NoModeSwitch);
-    }
+    if (m_verbose)
+        appendMessage(msg);
 }
 
+void ProMessageHandler::appendMessage(const QString &msg)
+{
+    m_messages << (m_exact ? msg : m_prefix + msg);
+}
 
 ProFileReader::ProFileReader(QMakeGlobals *option, QMakeVfs *vfs)
     : QMakeParser(ProFileCacheManager::instance()->cache(), vfs, this)
