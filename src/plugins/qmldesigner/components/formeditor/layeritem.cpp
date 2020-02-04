@@ -27,6 +27,9 @@
 
 #include <formeditorscene.h>
 
+#include <utils/qtcassert.h>
+
+#include <QGraphicsView>
 
 namespace QmlDesigner {
 
@@ -52,6 +55,14 @@ QRectF LayerItem::boundingRect() const
 QList<QGraphicsItem*> LayerItem::findAllChildItems() const
 {
     return findAllChildItems(this);
+}
+
+QTransform LayerItem::viewportTransform() const
+{
+    QTC_ASSERT(scene(), return {});
+    QTC_ASSERT(!scene()->views().isEmpty(), return {});
+
+    return scene()->views().first()->viewportTransform();
 }
 
 QList<QGraphicsItem*> LayerItem::findAllChildItems(const QGraphicsItem *item) const

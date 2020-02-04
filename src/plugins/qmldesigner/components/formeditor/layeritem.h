@@ -25,6 +25,7 @@
 #pragma once
 
 #include <QGraphicsObject>
+#include <QTransform>
 
 namespace QmlDesigner {
 
@@ -44,6 +45,8 @@ public:
     int type() const override;
 
     QList<QGraphicsItem*> findAllChildItems() const;
+
+    QTransform viewportTransform() const;
 
 protected:
     QList<QGraphicsItem*> findAllChildItems(const QGraphicsItem *item) const;
