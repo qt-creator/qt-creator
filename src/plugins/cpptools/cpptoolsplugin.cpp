@@ -82,7 +82,6 @@ class CppToolsPluginPrivate
 public:
     CppToolsPluginPrivate()
     {
-        CppModelManager::createCppModelManager(m_instance);
         m_settings = new CppToolsSettings(m_instance); // force registration of cpp tools settings
         m_codeModelSettings.fromSettings(ICore::settings());
         m_cppCodeStyleSettingsPage = new CppCodeStyleSettingsPage;
@@ -96,6 +95,7 @@ public:
     }
 
     StringTable stringTable;
+    CppModelManager modelManager;
     CppCodeModelSettings m_codeModelSettings;
     CppToolsSettings *m_settings = nullptr;
     CppFileSettings m_fileSettings;

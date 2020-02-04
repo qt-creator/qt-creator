@@ -465,14 +465,6 @@ CppModelManager *CppModelManager::instance()
     return m_instance;
 }
 
-void CppModelManager::createCppModelManager(Internal::CppToolsPlugin *parent)
-{
-    QTC_ASSERT(!m_instance, return;);
-    m_instance = new CppModelManager();
-    m_instance->initCppTools();
-    m_instance->setParent(parent);
-}
-
 void CppModelManager::initCppTools()
 {
     // Objects
@@ -512,6 +504,8 @@ CppModelManager::CppModelManager()
     : CppModelManagerBase(nullptr)
     , d(new CppModelManagerPrivate)
 {
+    m_instance = this;
+
     // Used for weak dependency in VcsBaseSubmitEditor
     setObjectName("CppModelManager");
     ExtensionSystem::PluginManager::addObject(this);
@@ -562,6 +556,8 @@ CppModelManager::CppModelManager()
     initializeBuiltinModelManagerSupport();
 
     d->m_internalIndexingSupport = new BuiltinIndexingSupport;
+
+    initCppTools();
 }
 
 CppModelManager::~CppModelManager()

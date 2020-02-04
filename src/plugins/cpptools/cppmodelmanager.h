@@ -68,7 +68,7 @@ class WorkingCopy;
 namespace Internal {
 class CppSourceProcessor;
 class CppModelManagerPrivate;
-class CppToolsPlugin;
+class CppToolsPluginPrivate;
 }
 
 namespace Tests {
@@ -88,15 +88,15 @@ class CPPTOOLS_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerB
 {
     Q_OBJECT
 
-public:
-    using Document = CPlusPlus::Document;
-
-public:
+private:
+    friend class Internal::CppToolsPluginPrivate;
     CppModelManager();
     ~CppModelManager() override;
 
+public:
+    using Document = CPlusPlus::Document;
+
     static CppModelManager *instance();
-    static void createCppModelManager(Internal::CppToolsPlugin *parent);
 
      // Documented in source file.
      enum ProgressNotificationMode {
