@@ -27,6 +27,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QCoreApplication>
 #include <QDebug>
 
 using namespace QtSupport;
