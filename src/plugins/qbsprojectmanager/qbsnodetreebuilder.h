@@ -25,18 +25,29 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 #include <memory>
+
+QT_BEGIN_NAMESPACE
+class QJsonObject;
+class QString;
+QT_END_NAMESPACE
+
+namespace Utils { class FilePath; }
 
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsBuildSystem;
 class QbsProjectNode;
 
 class QbsNodeTreeBuilder
 {
 public:
-    static std::unique_ptr<QbsProjectNode> buildTree(const QbsBuildSystem *buildSystem);
+    static QbsProjectNode *buildTree(const QString &projectName,
+                                     const Utils::FilePath &projectFile,
+                                     const Utils::FilePath &projectDir,
+                                     const QJsonObject &projectData);
 };
 
 } // namespace Internal

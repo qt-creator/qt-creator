@@ -67,6 +67,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qtsupport/qtcppkitinfo.h>
@@ -214,8 +215,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsBuildSystem::triggerParsing);
 
     connect(bc->project(), &Project::projectFileIsDirty, this, &QbsBuildSystem::delayParsing);
-
-    rebuildProjectTree();
+    updateProjectNodes({});
 }
 
 QbsBuildSystem::~QbsBuildSystem()
@@ -447,6 +447,7 @@ bool QbsBuildSystem::checkCancelStatus()
     qCDebug(qbsPmLog) << "Cancel request while parsing, starting re-parse";
     m_qbsProjectParser->deleteLater();
     m_qbsProjectParser = nullptr;
+    m_treeCreationWatcher = nullptr;
     m_guard = {};
     parseCurrentBuildConfiguration();
     return true;
@@ -456,15 +457,18 @@ void QbsBuildSystem::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
     OpTimer opTimer("updateAfterParse");
-    updateProjectNodes();
-    updateDocuments();
-    updateBuildTargetData();
-    updateCppCodeModel();
-    updateExtraCompilers();
-    updateQmlJsCodeModel();
-    emit project()->fileListChanged();
-    m_envCache.clear();
-    emitBuildSystemUpdated();
+    updateProjectNodes([this] {
+        updateDocuments();
+        updateBuildTargetData();
+        updateCppCodeModel();
+        updateExtraCompilers();
+        updateQmlJsCodeModel();
+        emit project()->fileListChanged();
+        m_envCache.clear();
+        m_guard.markAsSuccess();
+        m_guard = {};
+        emitBuildSystemUpdated();
+    });
 }
 
 void QbsBuildSystem::delayedUpdateAfterParse()
@@ -472,10 +476,32 @@ void QbsBuildSystem::delayedUpdateAfterParse()
     QTimer::singleShot(0, this, &QbsBuildSystem::updateAfterParse);
 }
 
-void QbsBuildSystem::updateProjectNodes()
+void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuation)
 {
-    OpTimer opTimer("updateProjectNodes");
-    rebuildProjectTree();
+    m_treeCreationWatcher = new TreeCreationWatcher(this);
+    connect(m_treeCreationWatcher, &TreeCreationWatcher::finished, this,
+            [this, watcher = m_treeCreationWatcher, continuation] {
+        std::unique_ptr<QbsProjectNode> rootNode(m_treeCreationWatcher->result());
+        if (watcher != m_treeCreationWatcher) {
+            watcher->deleteLater();
+            return;
+        }
+        OpTimer("updateProjectNodes continuation");
+        m_treeCreationWatcher->deleteLater();
+        m_treeCreationWatcher = nullptr;
+        if (target() != project()->activeTarget()
+                || target()->activeBuildConfiguration()->buildSystem() != this) {
+            return;
+        }
+        project()->setDisplayName(rootNode->displayName());
+        setRootProjectNode(std::move(rootNode));
+        if (continuation)
+            continuation();
+    });
+    m_treeCreationWatcher->setFuture(runAsync(ProjectExplorerPlugin::sharedThreadPool(),
+            QThread::LowPriority, &QbsNodeTreeBuilder::buildTree,
+            project()->displayName(), project()->projectFilePath(), project()->projectDirectory(),
+            projectData()));
 }
 
 FilePath QbsBuildSystem::installRoot()
@@ -525,8 +551,10 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = nullptr;
 
-    if (dataChanged)
+    if (dataChanged) {
         updateAfterParse();
+        return;
+    }
     else if (envChanged)
         updateCppCodeModel();
     if (success)
@@ -537,13 +565,6 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     // in case the "install" check box in the build step is unchecked and then build
     // is triggered (which is otherwise a no-op).
     emitBuildSystemUpdated();
-}
-
-void QbsBuildSystem::rebuildProjectTree()
-{
-    std::unique_ptr<QbsProjectNode> newRoot = QbsNodeTreeBuilder::buildTree(this);
-    project()->setDisplayName(newRoot->displayName());
-    setRootProjectNode(std::move(newRoot));
 }
 
 void QbsBuildSystem::changeActiveTarget(Target *t)
@@ -609,6 +630,7 @@ void QbsBuildSystem::parseCurrentBuildConfiguration()
 
     QTC_ASSERT(!m_qbsProjectParser, return);
     m_qbsProjectParser = new QbsProjectParser(this, m_qbsUpdateFutureInterface);
+    m_treeCreationWatcher = nullptr;
     connect(m_qbsProjectParser, &QbsProjectParser::done,
             this, &QbsBuildSystem::handleQbsParsingDone);
 
@@ -636,10 +658,11 @@ void QbsBuildSystem::updateAfterBuild()
     }
     qCDebug(qbsPmLog) << "Updating data after build";
     m_projectData = projectData;
-    updateProjectNodes();
-    updateBuildTargetData();
-    updateExtraCompilers();
-    m_envCache.clear();
+    updateProjectNodes([this] {
+        updateBuildTargetData();
+        updateExtraCompilers();
+        m_envCache.clear();
+    });
 }
 
 void QbsBuildSystem::generateErrors(const ErrorInfo &e)

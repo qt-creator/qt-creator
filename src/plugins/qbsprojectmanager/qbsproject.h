@@ -36,9 +36,12 @@
 
 #include <utils/environment.h>
 
+#include <QFutureWatcher>
 #include <QHash>
 #include <QJsonObject>
 #include <QTimer>
+
+#include <functional>
 
 namespace CppTools { class CppProjectUpdater; }
 
@@ -125,11 +128,7 @@ private:
     friend class QbsProject;
 
     void handleQbsParsingDone(bool success);
-
-    void rebuildProjectTree();
-
     void changeActiveTarget(ProjectExplorer::Target *t);
-
     void prepareForParsing();
     void updateDocuments();
     void updateCppCodeModel();
@@ -141,7 +140,7 @@ private:
     bool checkCancelStatus();
     void updateAfterParse();
     void delayedUpdateAfterParse();
-    void updateProjectNodes();
+    void updateProjectNodes(const std::function<void()> &continuation);
     Utils::FilePath installRoot();
 
     static bool ensureWriteableQbsFile(const QString &file);
@@ -153,6 +152,8 @@ private:
     QTimer m_parsingDelay;
     QbsProjectParser *m_qbsProjectParser = nullptr;
     QFutureInterface<bool> *m_qbsUpdateFutureInterface = nullptr;
+    using TreeCreationWatcher = QFutureWatcher<QbsProjectNode *>;
+    TreeCreationWatcher *m_treeCreationWatcher = nullptr;
     Utils::Environment m_lastParseEnv;
     bool m_parsingScheduled = false;
 
