@@ -64,9 +64,8 @@ public:
 
 CppToolsSettings *CppToolsSettings::m_instance = nullptr;
 
-CppToolsSettings::CppToolsSettings(QObject *parent)
-    : QObject(parent)
-    , d(new Internal::CppToolsSettingsPrivate)
+CppToolsSettings::CppToolsSettings()
+    : d(new Internal::CppToolsSettingsPrivate)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
