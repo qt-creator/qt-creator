@@ -139,10 +139,12 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         QPointF pos = labelRect.topLeft();
         labelRect.moveTo(0, 0);
         m_labelItem->setPolygon(labelRect);
-        m_labelItem->setPos(pos + QPointF(0, -labelHeight));
+        const int scaledHeight = labelHeight / m_layerItem->viewportTransform().m11();
+        m_labelItem->setPos(pos + QPointF(0, -scaledHeight));
         const int offset = (labelHeight - textItem->boundingRect().height()) / 2;
         textItem->setPos(QPointF(toolbar->size().width(), offset));
         m_labelItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+        m_labelItem->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
         QPen pen;
         pen.setCosmetic(true);
         pen.setWidth(2);
@@ -170,7 +172,8 @@ void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
         QPolygonF labelPolygon = boundingRectInLayerItemSpaceForItem(selectedItem, m_layerItem.data());
         QRectF labelRect = labelPolygon.boundingRect();
         QPointF pos = labelRect.topLeft();
-        m_labelItem->setPos(pos + QPointF(0, -labelHeight));
+        const int scaledHeight = labelHeight / m_layerItem->viewportTransform().m11();
+        m_labelItem->setPos(pos + QPointF(0, -scaledHeight));
         m_layerItem->update();
     }
 }
