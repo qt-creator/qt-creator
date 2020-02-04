@@ -810,16 +810,13 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
     }
 }
 
-void QbsBuildSystem::updateCppCodeModel()
+static RawProjectParts generateProjectParts(
+        const QJsonObject &projectData,
+        const std::shared_ptr<const ToolChain> &cToolChain,
+        const std::shared_ptr<const ToolChain> &cxxToolChain,
+        QtVersion qtVersion
+        )
 {
-    OpTimer optimer("updateCppCodeModel");
-    const QJsonObject projectData = session()->projectData();
-    if (projectData.isEmpty())
-        return;
-
-    const QtSupport::CppKitInfo kitInfo(kit());
-    QTC_ASSERT(kitInfo.isValid(), return);
-
     RawProjectParts rpps;
     forAllProducts(projectData, [&](const QJsonObject &prd) {
         const QString productName = prd.value("full-display-name").toString();
@@ -843,7 +840,7 @@ void QbsBuildSystem::updateCppCodeModel()
         const Utils::QtVersion qtVersionForPart
             = prd.value("module-properties").toObject().value("Qt.core.version").isUndefined()
                   ? Utils::QtVersion::None
-                  : kitInfo.projectPartQtVersion;
+                  : qtVersion;
 
         const QJsonArray groups = prd.value("groups").toArray();
         for (const QJsonValue &g : groups) {
@@ -860,8 +857,8 @@ void QbsBuildSystem::updateCppCodeModel()
             QStringList cFlags;
             QStringList cxxFlags;
             getExpandedCompilerFlags(cFlags, cxxFlags, props);
-            rpp.setFlagsForC({kitInfo.cToolChain, cFlags});
-            rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxFlags});
+            rpp.setFlagsForC({cToolChain.get(), cFlags});
+            rpp.setFlagsForCxx({cxxToolChain.get(), cxxFlags});
 
             rpp.setMacros(transform<QVector>(arrayToStringList(props.value("cpp.defines")),
                     [](const QString &s) { return Macro::fromKeyValue(s); }));
@@ -946,8 +943,28 @@ void QbsBuildSystem::updateCppCodeModel()
             rpps.append(rpp);
         }
     });
+    return rpps;
+}
 
-    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps});
+void QbsBuildSystem::updateCppCodeModel()
+{
+    OpTimer optimer("updateCppCodeModel");
+    const QJsonObject projectData = session()->projectData();
+    if (projectData.isEmpty())
+        return;
+
+    const QtSupport::CppKitInfo kitInfo(kit());
+    QTC_ASSERT(kitInfo.isValid(), return);
+    const auto cToolchain = std::shared_ptr<ToolChain>(kitInfo.cToolChain
+            ? kitInfo.cToolChain->clone() : nullptr);
+    const auto cxxToolchain = std::shared_ptr<ToolChain>(kitInfo.cxxToolChain
+            ? kitInfo.cxxToolChain->clone() : nullptr);
+
+    m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {},
+            [projectData, kitInfo, cToolchain, cxxToolchain] {
+                    return generateProjectParts(projectData, cToolchain, cxxToolchain,
+                                                kitInfo.projectPartQtVersion);
+    }});
 }
 
 void QbsBuildSystem::updateExtraCompilers()

@@ -163,16 +163,20 @@ public:
 class PROJECTEXPLORER_EXPORT ProjectUpdateInfo
 {
 public:
+    using RppGenerator = std::function<RawProjectParts()>;
+
     ProjectUpdateInfo() = default;
     ProjectUpdateInfo(Project *project,
                       const KitInfo &kitInfo,
                       const Utils::Environment &env,
-                      const RawProjectParts &rawProjectParts);
+                      const RawProjectParts &rawProjectParts,
+                      const RppGenerator &rppGenerator = {});
     bool isValid() const;
 
 public:
     QPointer<Project> project;
     RawProjectParts rawProjectParts;
+    RppGenerator rppGenerator;
 
     const ToolChain *cToolChain = nullptr;
     const ToolChain *cxxToolChain = nullptr;
