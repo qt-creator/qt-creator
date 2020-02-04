@@ -260,7 +260,7 @@ void SystemSettingsWidget::showHelpForFileBrowser()
 SystemSettings::SystemSettings()
 {
     setId(Constants::SETTINGS_ID_SYSTEM);
-    setDisplayName(tr("System"));
+    setDisplayName(SystemSettingsWidget::tr("System"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([] { return new SystemSettingsWidget; });
 }

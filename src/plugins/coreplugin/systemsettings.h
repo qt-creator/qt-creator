@@ -30,10 +30,8 @@
 namespace Core {
 namespace Internal {
 
-class SystemSettings : public IOptionsPage
+class SystemSettings final : public IOptionsPage
 {
-    Q_OBJECT
-
 public:
     SystemSettings();
 };

@@ -30,7 +30,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class SshSettingsPage : public Core::IOptionsPage
+class SshSettingsPage final : public Core::IOptionsPage
 {
 public:
     SshSettingsPage();

@@ -31,7 +31,7 @@
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindOptionsPage : public Core::IOptionsPage
+class ValgrindOptionsPage final : public Core::IOptionsPage
 {
 public:
     ValgrindOptionsPage();
