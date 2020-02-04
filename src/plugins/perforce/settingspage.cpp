@@ -45,7 +45,7 @@ class SettingsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
 
 public:
-    SettingsPageWidget();
+    SettingsPageWidget(PerforceSettings *settings, const std::function<void()> &onApply);
     ~SettingsPageWidget() final;
 
 private:
@@ -60,9 +60,12 @@ private:
 
     Ui::SettingsPage m_ui;
     PerforceChecker *m_checker = nullptr;
+    PerforceSettings *m_settings = nullptr;
+    std::function<void()> m_onApply;
 };
 
-SettingsPageWidget::SettingsPageWidget()
+SettingsPageWidget::SettingsPageWidget(PerforceSettings *settings, const std::function<void()> &onApply)
+    : m_settings(settings), m_onApply(onApply)
 {
     m_ui.setupUi(this);
     m_ui.errorLabel->clear();
@@ -71,7 +74,7 @@ SettingsPageWidget::SettingsPageWidget()
     m_ui.pathChooser->setExpectedKind(PathChooser::Command);
     connect(m_ui.testPushButton, &QPushButton::clicked, this, &SettingsPageWidget::slotTest);
 
-    const PerforceSettings &s = PerforcePluginPrivate::settings();
+    const PerforceSettings &s = *settings;
     m_ui.pathChooser->setPath(s.p4Command());
     m_ui.environmentGroupBox->setChecked(!s.defaultEnv());
     m_ui.portLineEdit->setText(s.p4Port());
@@ -101,7 +104,7 @@ void SettingsPageWidget::slotTest()
         return;
 
     setStatusText(tr("Testing..."));
-    const Settings s = settings();
+    const Settings s = m_settings->settings();
     m_checker->start(s.p4BinaryPath, QString(), s.commonP4Arguments(), 10000);
 }
 
@@ -110,7 +113,7 @@ void SettingsPageWidget::testSucceeded(const QString &repo)
     setStatusText(tr("Test succeeded (%1).").arg(QDir::toNativeSeparators(repo)));
 }
 
-Settings SettingsPageWidget::settings() const
+void SettingsPageWidget::apply()
 {
     Settings  settings;
     settings.p4Command = m_ui.pathChooser->rawPath();
@@ -123,12 +126,12 @@ Settings SettingsPageWidget::settings() const
     settings.logCount = m_ui.logCountSpinBox->value();
     settings.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     settings.autoOpen = m_ui.autoOpenCheckBox->isChecked();
-    return settings;
-}
 
-void SettingsPageWidget::apply()
-{
-    PerforcePluginPrivate::setSettings(settings());
+    if (settings == m_settings->settings())
+        return;
+
+    m_settings->setSettings(settings);
+    m_onApply();
 }
 
 void SettingsPageWidget::setStatusText(const QString &t)
@@ -143,13 +146,12 @@ void SettingsPageWidget::setStatusError(const QString &t)
     m_ui.errorLabel->setText(t);
 }
 
-SettingsPage::SettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
+SettingsPage::SettingsPage(PerforceSettings *settings, const std::function<void ()> &onApply)
 {
     setId(VcsBase::Constants::VCS_ID_PERFORCE);
     setDisplayName(SettingsPageWidget::tr("Perforce"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new SettingsPageWidget; });
+    setWidgetCreator([settings, onApply] { return new SettingsPageWidget(settings, onApply); });
 }
 
 } // Internal

@@ -32,10 +32,12 @@
 namespace Perforce {
 namespace Internal {
 
+class PerforceSettings;
+
 class SettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit SettingsPage(QObject *parent);
+    SettingsPage(PerforceSettings *settings, const std::function<void()> &onApply);
 };
 
 } // namespace Internal
