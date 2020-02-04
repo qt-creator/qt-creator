@@ -44,11 +44,17 @@ VcsSubmitEditorFactory::VcsSubmitEditorFactory
         (const VcsBaseSubmitEditorParameters *parameters,
          const EditorCreator &editorCreator,
          VcsBasePluginPrivate *plugin)
-    : IEditorFactory(plugin), m_editorCreator(editorCreator)
+    : IEditorFactory(plugin)
 {
     setId(parameters->id);
     setDisplayName(QLatin1String(parameters->displayName));
     addMimeType(parameters->mimeType);
+
+    setEditorCreator([this, editorCreator] {
+        VcsBaseSubmitEditor *editor = editorCreator();
+        editor->registerActions(m_undoAction, m_redoAction, m_submitAction, m_diffAction);
+        return editor;
+    });
 
     Context context(parameters->id);
     m_undoAction = new QAction(tr("&Undo"), this);
@@ -66,13 +72,6 @@ VcsSubmitEditorFactory::VcsSubmitEditorFactory
 
     m_diffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
     ActionManager::registerAction(m_diffAction, DIFF_SELECTED, context);
-}
-
-Core::IEditor *VcsSubmitEditorFactory::createEditor()
-{
-    VcsBaseSubmitEditor *editor = m_editorCreator();
-    editor->registerActions(m_undoAction, m_redoAction, m_submitAction, m_diffAction);
-    return editor;
 }
 
 } // namespace VcsBase

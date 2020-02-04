@@ -30,24 +30,21 @@
 namespace ModelEditor {
 namespace Internal {
 
+class ActionHandler;
 class ModelEditor;
 class UiController;
 
-class ModelEditorFactory :
-        public Core::IEditorFactory
+class ModelEditorFactory : public Core::IEditorFactory
 {
-    Q_OBJECT
-    class ModelEditorFactoryPrivate;
-
 public:
     explicit ModelEditorFactory(UiController *uiController);
     ~ModelEditorFactory();
 
-    Core::IEditor *createEditor() override;
     void extensionsInitialized();
 
 private:
-    ModelEditorFactoryPrivate *d;
+    UiController *m_uiController = nullptr;
+    ActionHandler *m_actionHandler = nullptr;
 };
 
 } // namespace Internal

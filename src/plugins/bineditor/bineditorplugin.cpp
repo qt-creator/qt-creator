@@ -471,33 +471,32 @@ BinEditorFactory::BinEditorFactory()
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME));
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
-}
 
-IEditor *BinEditorFactory::createEditor()
-{
-    auto widget = new BinEditorWidget();
-    auto editor = new BinEditor(widget);
+    setEditorCreator([] {
+        auto widget = new BinEditorWidget();
+        auto editor = new BinEditor(widget);
 
-    connect(dd->m_undoAction, &QAction::triggered, widget, &BinEditorWidget::undo);
-    connect(dd->m_redoAction, &QAction::triggered, widget, &BinEditorWidget::redo);
-    connect(dd->m_copyAction, &QAction::triggered, widget, &BinEditorWidget::copy);
-    connect(dd->m_selectAllAction, &QAction::triggered, widget, &BinEditorWidget::selectAll);
+        connect(dd->m_undoAction, &QAction::triggered, widget, &BinEditorWidget::undo);
+        connect(dd->m_redoAction, &QAction::triggered, widget, &BinEditorWidget::redo);
+        connect(dd->m_copyAction, &QAction::triggered, widget, &BinEditorWidget::copy);
+        connect(dd->m_selectAllAction, &QAction::triggered, widget, &BinEditorWidget::selectAll);
 
-    auto updateActions = [widget] {
-        dd->m_selectAllAction->setEnabled(true);
-        dd->m_undoAction->setEnabled(widget->isUndoAvailable());
-        dd->m_redoAction->setEnabled(widget->isRedoAvailable());
-    };
+        auto updateActions = [widget] {
+            dd->m_selectAllAction->setEnabled(true);
+            dd->m_undoAction->setEnabled(widget->isUndoAvailable());
+            dd->m_redoAction->setEnabled(widget->isRedoAvailable());
+        };
 
-    connect(widget, &BinEditorWidget::undoAvailable, widget, updateActions);
-    connect(widget, &BinEditorWidget::redoAvailable, widget, updateActions);
+        connect(widget, &BinEditorWidget::undoAvailable, widget, updateActions);
+        connect(widget, &BinEditorWidget::redoAvailable, widget, updateActions);
 
-    auto aggregate = new Aggregation::Aggregate;
-    auto binEditorFind = new BinEditorFind(widget);
-    aggregate->add(binEditorFind);
-    aggregate->add(widget);
+        auto aggregate = new Aggregation::Aggregate;
+        auto binEditorFind = new BinEditorFind(widget);
+        aggregate->add(binEditorFind);
+        aggregate->add(widget);
 
-    return editor;
+        return editor;
+    });
 }
 
 ///////////////////////////////// BinEditor Services //////////////////////////////////

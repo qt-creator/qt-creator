@@ -38,17 +38,15 @@ using namespace Android::Internal;
 AndroidManifestEditorFactory::AndroidManifestEditorFactory()
 {
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
-    setDisplayName(tr("Android Manifest editor"));
+    setDisplayName(AndroidManifestEditorWidget::tr("Android Manifest editor"));
     addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
     auto actionHandler = new TextEditor::TextEditorActionHandler(
                 this, id(), Constants::ANDROID_MANIFEST_EDITOR_CONTEXT);
     actionHandler->setTextEditorWidgetResolver([](Core::IEditor *editor) {
         return static_cast<AndroidManifestEditor *>(editor)->textEditor();
     });
-}
-
-Core::IEditor *AndroidManifestEditorFactory::createEditor()
-{
-    auto androidManifestEditorWidget = new AndroidManifestEditorWidget();
-    return androidManifestEditorWidget->editor();
+    setEditorCreator([] {
+        auto androidManifestEditorWidget = new AndroidManifestEditorWidget;
+        return androidManifestEditorWidget->editor();
+    });
 }

@@ -30,14 +30,10 @@
 namespace Designer {
 namespace Internal {
 
-class FormEditorFactory : public Core::IEditorFactory
+class FormEditorFactory final : public Core::IEditorFactory
 {
-    Q_OBJECT
-
 public:
     FormEditorFactory();
-
-    Core::IEditor *createEditor() override;
 };
 
 } // namespace Internal

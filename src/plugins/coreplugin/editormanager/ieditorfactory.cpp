@@ -96,6 +96,17 @@ const EditorFactoryList IEditorFactory::preferredEditorFactories(const QString &
     return factories;
 }
 
+IEditor *IEditorFactory::createEditor() const
+{
+    QTC_ASSERT(m_creator, return nullptr);
+    return m_creator();
+}
+
+void IEditorFactory::setEditorCreator(const std::function<IEditor *()> &creator)
+{
+    m_creator = creator;
+}
+
 QHash<Utils::MimeType, Core::IEditorFactory *> Core::Internal::userPreferredEditorFactories()
 {
     return g_userPreferredEditorFactories;

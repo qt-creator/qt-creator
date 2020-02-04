@@ -25,22 +25,15 @@
 
 #pragma once
 
-#include "diffeditor_global.h"
-
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace DiffEditor {
-
 namespace Internal {
 
 class DiffEditorFactory : public Core::IEditorFactory
 {
-    Q_OBJECT
-
 public:
     explicit DiffEditorFactory(QObject *parent);
-
-    Core::IEditor *createEditor() override;
 };
 
 } // namespace Internal

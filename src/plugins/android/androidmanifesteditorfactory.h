@@ -30,14 +30,10 @@
 namespace Android {
 namespace Internal {
 
-class AndroidManifestEditorFactory : public Core::IEditorFactory
+class AndroidManifestEditorFactory final : public Core::IEditorFactory
 {
-    Q_OBJECT
-
 public:
     AndroidManifestEditorFactory();
-
-    Core::IEditor *createEditor() override;
 };
 
 } // namespace Internal

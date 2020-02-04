@@ -51,10 +51,7 @@ public:
                            const EditorCreator &editorCreator,
                            VcsBasePluginPrivate *plugin);
 
-    Core::IEditor *createEditor() override;
-
 private:
-    EditorCreator m_editorCreator;
     QAction *m_submitAction = nullptr;
     QAction *m_diffAction = nullptr;
     QAction *m_undoAction = nullptr;

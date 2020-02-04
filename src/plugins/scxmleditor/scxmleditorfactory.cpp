@@ -46,15 +46,14 @@ ScxmlEditorFactory::ScxmlEditorFactory(QObject *parent)
     addMimeType(ProjectExplorer::Constants::SCXML_MIMETYPE);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");
-}
 
-Core::IEditor *ScxmlEditorFactory::createEditor()
-{
-    if (!m_editorData) {
-        m_editorData = new ScxmlEditorData(this);
-        QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-        m_editorData->fullInit();
-        QGuiApplication::restoreOverrideCursor();
-    }
-    return m_editorData->createEditor();
+    setEditorCreator([this] {
+        if (!m_editorData) {
+            m_editorData = new ScxmlEditorData(this);
+            QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+            m_editorData->fullInit();
+            QGuiApplication::restoreOverrideCursor();
+        }
+        return m_editorData->createEditor();
+    });
 }

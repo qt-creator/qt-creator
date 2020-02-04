@@ -32,14 +32,10 @@ namespace Internal {
 
 class ScxmlEditorData;
 
-class ScxmlEditorFactory : public Core::IEditorFactory
+class ScxmlEditorFactory final : public Core::IEditorFactory
 {
-    Q_OBJECT
-
 public:
     explicit ScxmlEditorFactory(QObject *parent);
-
-    Core::IEditor *createEditor() override;
 
 private:
     ScxmlEditorData* m_editorData = nullptr;

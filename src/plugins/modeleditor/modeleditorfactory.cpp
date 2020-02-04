@@ -34,37 +34,24 @@
 namespace ModelEditor {
 namespace Internal {
 
-class ModelEditorFactory::ModelEditorFactoryPrivate
-{
-public:
-    UiController *uiController = nullptr;
-    ActionHandler *actionHandler = nullptr;
-};
-
 ModelEditorFactory::ModelEditorFactory(UiController *uiController)
-    : d(new ModelEditorFactoryPrivate())
 {
     setId(Constants::MODEL_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::MODEL_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::MIME_TYPE_MODEL);
-    d->uiController = uiController;
-    d->actionHandler = new ActionHandler(Core::Context(Constants::MODEL_EDITOR_ID), this);
+    m_uiController = uiController;
+    m_actionHandler = new ActionHandler(Core::Context(Constants::MODEL_EDITOR_ID), this);
+    setEditorCreator([this] { return new ModelEditor(m_uiController, m_actionHandler); });
 }
 
 ModelEditorFactory::~ModelEditorFactory()
 {
-    delete d->actionHandler;
-    delete d;
-}
-
-Core::IEditor *ModelEditorFactory::createEditor()
-{
-    return new ModelEditor(d->uiController, d->actionHandler);
+    delete m_actionHandler;
 }
 
 void ModelEditorFactory::extensionsInitialized()
 {
-    d->actionHandler->createActions();
+    m_actionHandler->createActions();
 }
 
 } // namespace Internal

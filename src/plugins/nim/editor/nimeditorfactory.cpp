@@ -71,11 +71,6 @@ NimEditorFactory::NimEditorFactory()
     setCodeFoldingSupported(true);
 }
 
-Core::IEditor *NimEditorFactory::createEditor()
-{
-    return TextEditorFactory::createEditor();
-}
-
 void NimEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
     editor->textDocument()->setSyntaxHighlighter(new NimHighlighter());

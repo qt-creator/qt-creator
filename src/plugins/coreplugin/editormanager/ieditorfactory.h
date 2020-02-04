@@ -52,22 +52,25 @@ public:
     static const EditorFactoryList defaultEditorFactories(const Utils::MimeType &mimeType);
     static const EditorFactoryList preferredEditorFactories(const QString &fileName);
 
-    QString displayName() const { return m_displayName; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-
     Id id() const { return m_id; }
-    void setId(Id id) { m_id = id; }
-
-    virtual IEditor *createEditor() = 0;
-
+    QString displayName() const { return m_displayName; }
     QStringList mimeTypes() const { return m_mimeTypes; }
+
+    IEditor *createEditor() const;
+
+protected:
+    void setId(Id id) { m_id = id; }
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
     void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
+    void setEditorCreator(const std::function<IEditor *()> &creator);
+
 private:
     Id m_id;
     QString m_displayName;
     QStringList m_mimeTypes;
+    std::function<IEditor *()> m_creator;
 };
 
 } // namespace Core

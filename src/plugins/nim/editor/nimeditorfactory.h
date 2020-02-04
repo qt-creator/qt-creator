@@ -36,7 +36,6 @@ class NimEditorFactory : public TextEditor::TextEditorFactory
 public:
     NimEditorFactory();
 
-    Core::IEditor *createEditor() override;
     static void decorateEditor(TextEditor::TextEditorWidget *editor);
 };
 

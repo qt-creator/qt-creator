@@ -44,14 +44,10 @@ class BinEditorPlugin : public ExtensionSystem::IPlugin
     void extensionsInitialized() final {}
 };
 
-class BinEditorFactory : public Core::IEditorFactory
+class BinEditorFactory final : public Core::IEditorFactory
 {
-    Q_OBJECT
-
 public:
     BinEditorFactory();
-
-    Core::IEditor *createEditor() final;
 };
 
 class FactoryServiceImpl : public QObject, public FactoryService

@@ -62,11 +62,8 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
     rightHandler->setTextEditorWidgetResolver([](Core::IEditor *e) {
         return static_cast<DiffEditor *>(e)->rightEditorWidget();
     });
-}
 
-Core::IEditor *DiffEditorFactory::createEditor()
-{
-    return new DiffEditor(new DiffEditorDocument);
+    setEditorCreator([] { return new DiffEditor(new DiffEditorDocument); });
 }
 
 } // namespace Internal

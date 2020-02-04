@@ -8506,8 +8506,7 @@ class TextEditorFactoryPrivate
 public:
     TextEditorFactoryPrivate(TextEditorFactory *parent) :
         q(parent),
-        m_widgetCreator([]() { return new TextEditorWidget; }),
-        m_editorCreator([]() { return new BaseTextEditor; })
+        m_widgetCreator([]() { return new TextEditorWidget; })
     {}
 
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *other)
@@ -8540,7 +8539,9 @@ public:
 
 TextEditorFactory::TextEditorFactory(QObject *parent)
     : IEditorFactory(parent), d(new TextEditorFactoryPrivate(this))
-{}
+{
+    setEditorCreator([]() { return new BaseTextEditor; });
+}
 
 TextEditorFactory::~TextEditorFactory()
 {
@@ -8562,6 +8563,21 @@ void TextEditorFactory::setEditorWidgetCreator(const EditorWidgetCreator &creato
 void TextEditorFactory::setEditorCreator(const EditorCreator &creator)
 {
     d->m_editorCreator = creator;
+    IEditorFactory::setEditorCreator([this] {
+        static DocumentContentCompletionProvider basicSnippetProvider;
+        TextDocumentPtr doc(d->m_documentCreator());
+
+        if (d->m_indenterCreator)
+            doc->setIndenter(d->m_indenterCreator(doc->document()));
+
+        if (d->m_syntaxHighlighterCreator)
+            doc->setSyntaxHighlighter(d->m_syntaxHighlighterCreator());
+
+        doc->setCompletionAssistProvider(d->m_completionAssistProvider ? d->m_completionAssistProvider
+                                                                       : &basicSnippetProvider);
+
+        return d->createEditorHelper(doc);
+    });
 }
 
 void TextEditorFactory::setIndenterCreator(const IndenterCreator &creator)
@@ -8627,23 +8643,6 @@ void TextEditorFactory::setCodeFoldingSupported(bool on)
 void TextEditorFactory::setParenthesesMatchingEnabled(bool on)
 {
     d->m_paranthesesMatchinEnabled = on;
-}
-
-IEditor *TextEditorFactory::createEditor()
-{
-    static DocumentContentCompletionProvider basicSnippetProvider;
-    TextDocumentPtr doc(d->m_documentCreator());
-
-    if (d->m_indenterCreator)
-        doc->setIndenter(d->m_indenterCreator(doc->document()));
-
-    if (d->m_syntaxHighlighterCreator)
-        doc->setSyntaxHighlighter(d->m_syntaxHighlighterCreator());
-
-    doc->setCompletionAssistProvider(d->m_completionAssistProvider ? d->m_completionAssistProvider
-                                                                   : &basicSnippetProvider);
-
-    return d->createEditorHelper(doc);
 }
 
 BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentPtr &document)

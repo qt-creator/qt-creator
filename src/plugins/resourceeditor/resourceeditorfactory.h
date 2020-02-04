@@ -26,26 +26,16 @@
 #pragma once
 
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icontext.h>
-
-#include <QStringList>
 
 namespace ResourceEditor {
 namespace Internal {
 
 class ResourceEditorPlugin;
 
-class ResourceEditorFactory : public Core::IEditorFactory
+class ResourceEditorFactory final : public Core::IEditorFactory
 {
-    Q_OBJECT
-
 public:
     explicit ResourceEditorFactory(ResourceEditorPlugin *plugin);
-
-    Core::IEditor *createEditor() override;
-
-private:
-    ResourceEditorPlugin *m_plugin;
 };
 
 } // namespace Internal

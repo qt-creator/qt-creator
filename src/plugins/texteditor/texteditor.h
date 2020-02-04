@@ -666,8 +666,6 @@ public:
     void setParenthesesMatchingEnabled(bool on);
     void setCodeFoldingSupported(bool on);
 
-    Core::IEditor *createEditor() override;
-
 private:
     friend class BaseTextEditor;
     friend class PlainTextEditorFactory;

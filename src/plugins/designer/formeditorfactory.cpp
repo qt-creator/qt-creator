@@ -45,13 +45,9 @@ FormEditorFactory::FormEditorFactory()
     setId(K_DESIGNER_XML_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("Designer", C_DESIGNER_XML_DISPLAY_NAME));
     addMimeType(FORM_MIMETYPE);
+    setEditorCreator([] { return  FormEditorW::createEditor(); });
 
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_UI, "ui");
-}
-
-IEditor *FormEditorFactory::createEditor()
-{
-    return FormEditorW::createEditor();
 }
 
 } // namespace Internal
