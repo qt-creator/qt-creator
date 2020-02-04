@@ -411,8 +411,11 @@ void QmakePriFile::watchFolders(const QSet<FilePath> &folders)
     QSet<QString> toWatch = folderStrings;
     toWatch.subtract(m_watchedFolders);
 
-    m_buildSystem->unwatchFolders(Utils::toList(toUnwatch), this);
-    m_buildSystem->watchFolders(Utils::toList(toWatch), this);
+    if (m_buildSystem) {
+        // Check needed on early exit of QmakeProFile::applyEvaluate?
+        m_buildSystem->unwatchFolders(Utils::toList(toUnwatch), this);
+        m_buildSystem->watchFolders(Utils::toList(toWatch), this);
+    }
 
     m_watchedFolders = folderStrings;
 }
