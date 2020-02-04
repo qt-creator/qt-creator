@@ -317,7 +317,7 @@ void QbsSession::requestFilesGeneratedFrom(const QHash<QString, QStringList> &so
     QJsonArray products;
     for (auto it = sourceFilesPerProduct.cbegin(); it != sourceFilesPerProduct.cend(); ++it) {
         QJsonObject product;
-        product.insert("full-display-name", it->first());
+        product.insert("full-display-name", it.key());
         QJsonArray requests;
         for (const QString &sourceFile : it.value())
             requests << QJsonObject({qMakePair(QString("source-file"), sourceFile)});
@@ -504,7 +504,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
         emit taskProgress(packet.value("progress").toInt());
     } else if (type == "new-max-progress") {
         emit maxProgressChanged(packet.value("max-progress").toInt());
-    } else if (type == "generated-files-for-source") {
+    } else if (type == "generated-files-for-sources") {
         QHash<QString, QStringList> generatedFiles;
         for (const QJsonValue &product : packet.value("products").toArray()) {
             for (const QJsonValue &r : product.toObject().value("results").toArray()) {

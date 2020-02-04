@@ -134,6 +134,7 @@ private:
     void updateDocuments();
     void updateCppCodeModel();
     void updateQmlJsCodeModel();
+    void updateExtraCompilers();
     void updateApplicationTargets();
     void updateDeploymentInfo();
     void updateBuildTargetData();

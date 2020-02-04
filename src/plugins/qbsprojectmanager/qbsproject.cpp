@@ -460,6 +460,7 @@ void QbsBuildSystem::updateAfterParse()
     updateDocuments();
     updateBuildTargetData();
     updateCppCodeModel();
+    updateExtraCompilers();
     updateQmlJsCodeModel();
     emit project()->fileListChanged();
     m_envCache.clear();
@@ -637,7 +638,7 @@ void QbsBuildSystem::updateAfterBuild()
     m_projectData = projectData;
     updateProjectNodes();
     updateBuildTargetData();
-    updateCppCodeModel(); // TODO: Should be updateExtraCompilers().
+    updateExtraCompilers();
     m_envCache.clear();
 }
 
@@ -809,7 +810,6 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
     }
 }
 
-// TODO: Factor out the part that deals with extra compilers.
 void QbsBuildSystem::updateCppCodeModel()
 {
     OpTimer optimer("updateCppCodeModel");
@@ -817,16 +817,11 @@ void QbsBuildSystem::updateCppCodeModel()
     if (projectData.isEmpty())
         return;
 
-    const QList<ExtraCompilerFactory *> factories =
-            ExtraCompilerFactory::extraCompilerFactories();
-    QHash<QString, QStringList> sourcesForGeneratedFiles;
-    m_sourcesForGeneratedFiles.clear();
-
     const QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
 
     RawProjectParts rpps;
-    forAllProducts(projectData, [&, this](const QJsonObject &prd) {
+    forAllProducts(projectData, [&](const QJsonObject &prd) {
         const QString productName = prd.value("full-display-name").toString();
         QString cPch;
         QString cxxPch;
@@ -903,7 +898,7 @@ void QbsBuildSystem::updateCppCodeModel()
             bool hasCxxFiles = false;
             bool hasObjcFiles = false;
             bool hasObjcxxFiles = false;
-            const auto artifactWorker = [&, this](const QJsonObject &source) {
+            const auto artifactWorker = [&](const QJsonObject &source) {
                 const QString filePath = source.value("file-path").toString();
                 filePathToSourceArtifact.insert(filePath, source);
                 for (const QJsonValue &tag : source.value("file-tags").toArray()) {
@@ -915,12 +910,6 @@ void QbsBuildSystem::updateCppCodeModel()
                         hasObjcFiles = true;
                     else if (tag == "objcpp")
                         hasObjcxxFiles = true;
-                    for (auto i = factories.cbegin(); i != factories.cend(); ++i) {
-                        if ((*i)->sourceTag() == tag.toString()) {
-                            m_sourcesForGeneratedFiles[*i] << filePath;
-                            sourcesForGeneratedFiles[productName] << filePath;
-                        }
-                    }
                 }
             };
             forAllArtifacts(grp, artifactWorker);
@@ -959,6 +948,34 @@ void QbsBuildSystem::updateCppCodeModel()
     });
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps});
+}
+
+void QbsBuildSystem::updateExtraCompilers()
+{
+    OpTimer optimer("updateExtraCompilers");
+    const QJsonObject projectData = session()->projectData();
+    if (projectData.isEmpty())
+        return;
+
+    const QList<ExtraCompilerFactory *> factories = ExtraCompilerFactory::extraCompilerFactories();
+    QHash<QString, QStringList> sourcesForGeneratedFiles;
+    m_sourcesForGeneratedFiles.clear();
+
+    forAllProducts(projectData, [&, this](const QJsonObject &prd) {
+        const QString productName = prd.value("full-display-name").toString();
+        forAllArtifacts(prd, ArtifactType::Source, [&, this](const QJsonObject &source) {
+            const QString filePath = source.value("file-path").toString();
+            for (const QJsonValue &tag : source.value("file-tags").toArray()) {
+                for (auto i = factories.cbegin(); i != factories.cend(); ++i) {
+                    if ((*i)->sourceTag() == tag.toString()) {
+                        m_sourcesForGeneratedFiles[*i] << filePath;
+                        sourcesForGeneratedFiles[productName] << filePath;
+                    }
+                }
+            }
+        });
+    });
+
     if (!sourcesForGeneratedFiles.isEmpty())
         session()->requestFilesGeneratedFrom(sourcesForGeneratedFiles);
 }
