@@ -111,12 +111,12 @@ void StringTable::scheduleGC()
     QMetaObject::invokeMethod(&m_instance->m_gcCountDown, "start", Qt::QueuedConnection);
 }
 
-void StringTable::initialize()
+StringTable::StringTable()
 {
     m_instance = new StringTablePrivate;
 }
 
-void StringTable::destroy()
+StringTable::~StringTable()
 {
     delete m_instance;
     m_instance = nullptr;

@@ -30,8 +30,6 @@
 namespace CppTools {
 namespace Internal {
 
-class CppToolsPluginPrivate;
-
 class StringTable
 {
 public:
@@ -40,8 +38,8 @@ public:
 
 private:
     friend class CppToolsPluginPrivate;
-    static void initialize();
-    static void destroy();
+    StringTable();
+    ~StringTable();
 };
 
 } // Internal
