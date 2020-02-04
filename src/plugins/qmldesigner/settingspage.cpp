@@ -28,6 +28,7 @@
 #include "qmldesignerplugin.h"
 #include "designersettings.h"
 #include "puppetcreator.h"
+#include "ui_settingspage.h"
 
 #include <app/app_version.h>
 
@@ -42,20 +43,32 @@
 #include <QTextStream>
 #include <QMessageBox>
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner {
+namespace Internal {
 
-namespace {
-    QStringList puppetModes()
-    {
-        static QStringList puppetModeList{QLatin1String(""), QLatin1String("all"),
-            QLatin1String("editormode"), QLatin1String("rendermode"), QLatin1String("previewmode")};
-        return puppetModeList;
-    }
+static QStringList puppetModes()
+{
+    static QStringList puppetModeList{"", "all", "editormode", "rendermode", "previewmode"};
+    return puppetModeList;
 }
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
-    QWidget(parent)
+class SettingsPageWidget final : public Core::IOptionsPageWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::SettingsPage)
+
+public:
+    explicit SettingsPageWidget();
+
+    void apply() final;
+
+    DesignerSettings settings() const;
+    void setSettings(const DesignerSettings &settings);
+
+private:
+    Ui::SettingsPage m_ui;
+};
+
+SettingsPageWidget::SettingsPageWidget()
 {
     m_ui.setupUi(this);
 
@@ -89,6 +102,8 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 
     m_ui.forwardPuppetOutputComboBox->addItems(puppetModes());
     m_ui.debugPuppetComboBox->addItems(puppetModes());
+
+    setSettings(QmlDesignerPlugin::instance()->settings());
 }
 
 DesignerSettings SettingsPageWidget::settings() const
@@ -240,42 +255,23 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     }
 }
 
-SettingsPage::SettingsPage() :
-    m_widget(nullptr)
+void SettingsPageWidget::apply()
 {
-    setId("B.QmlDesigner");
-    setDisplayName(SettingsPageWidget::tr("Qt Quick Designer"));
-    setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-}
-
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new SettingsPageWidget;
-        m_widget->setSettings(QmlDesignerPlugin::instance()->settings());
-    }
-    return m_widget;
-}
-
-void SettingsPage::apply()
-{
-    if (!m_widget) // page was never shown
-        return;
-
     DesignerSettings currentSettings(QmlDesignerPlugin::instance()->settings());
-    DesignerSettings newSettings(m_widget->settings());
+    DesignerSettings newSettings = settings();
 
-    QList<QByteArray> restartNecessaryKeys;
-    restartNecessaryKeys << DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY
-                         << DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY
-                         << DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT
-                         << DesignerSettingsKey::PUPPET_KILL_TIMEOUT
-                         << DesignerSettingsKey::FORWARD_PUPPET_OUTPUT
-                         << DesignerSettingsKey::DEBUG_PUPPET
-                         << DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT
-                         << DesignerSettingsKey::ENABLE_TIMELINEVIEW;
+    const auto restartNecessaryKeys = {
+      DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY,
+      DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
+      DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
+      DesignerSettingsKey::PUPPET_KILL_TIMEOUT,
+      DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
+      DesignerSettingsKey::DEBUG_PUPPET,
+      DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
+      DesignerSettingsKey::ENABLE_TIMELINEVIEW
+    };
 
-    foreach (const QByteArray &key, restartNecessaryKeys) {
+    for (const QByteArray &key : restartNecessaryKeys) {
         if (currentSettings.value(key) != newSettings.value(key)) {
             QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
                 tr("The made changes will take effect after a "
@@ -288,7 +284,13 @@ void SettingsPage::apply()
     QmlDesignerPlugin::instance()->setSettings(newSettings);
 }
 
-void SettingsPage::finish()
+SettingsPage::SettingsPage()
 {
-    delete m_widget;
+    setId("B.QmlDesigner");
+    setDisplayName(SettingsPageWidget::tr("Qt Quick Designer"));
+    setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
+    setWidgetCreator([] { return new SettingsPageWidget; });
 }
+
+} // Internal
+} // QmlDesigner

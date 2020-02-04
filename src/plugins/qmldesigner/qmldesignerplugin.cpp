@@ -74,6 +74,7 @@
 #include <QProcessEnvironment>
 #include <QScreen>
 #include <QWindow>
+#include <QApplication>
 
 static Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
 
