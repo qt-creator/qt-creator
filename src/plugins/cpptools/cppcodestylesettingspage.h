@@ -80,10 +80,8 @@ private:
 
 class CppCodeStyleSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit CppCodeStyleSettingsPage(QWidget *parent = nullptr);
+    CppCodeStyleSettingsPage();
 
     QWidget *widget() override;
     void apply() override;

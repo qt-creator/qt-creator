@@ -345,8 +345,7 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 
 // ------------------ CppCodeStyleSettingsPage
 
-CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(QWidget *parent)
-    : Core::IOptionsPage(parent)
+CppCodeStyleSettingsPage::CppCodeStyleSettingsPage()
 {
     setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_CODE_STYLE_SETTINGS_NAME));

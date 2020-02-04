@@ -83,13 +83,10 @@ public:
     CppToolsPluginPrivate()
     {
         m_codeModelSettings.fromSettings(ICore::settings());
-        m_cppCodeStyleSettingsPage = new CppCodeStyleSettingsPage;
     }
 
     ~CppToolsPluginPrivate()
     {
-        if (m_cppCodeStyleSettingsPage)
-            delete m_cppCodeStyleSettingsPage;
         ExtensionSystem::PluginManager::removeObject(&m_cppProjectUpdaterFactory);
     }
 
@@ -100,7 +97,7 @@ public:
     CppFileSettings m_fileSettings;
     CppFileSettingsPage m_cppFileSettingsPage{&m_fileSettings};
     CppCodeModelSettingsPage m_cppCodeModelSettingsPage{&m_codeModelSettings};
-    QPointer<CppCodeStyleSettingsPage> m_cppCodeStyleSettingsPage = nullptr;
+    CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
 
