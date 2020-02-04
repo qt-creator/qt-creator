@@ -221,8 +221,38 @@ void ShortcutButton::handleToggleChange(bool toogleState)
     }
 }
 
-ShortcutSettingsWidget::ShortcutSettingsWidget(QWidget *parent)
-    : CommandMappings(parent)
+class ShortcutSettingsWidget final : public CommandMappings
+{
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::ShortcutSettings)
+
+public:
+    ShortcutSettingsWidget();
+    ~ShortcutSettingsWidget() final;
+
+    void apply();
+
+private:
+    void importAction() final;
+    void exportAction() final;
+    void defaultAction() final;
+    bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const final;
+
+    void initialize();
+    void handleCurrentCommandChanged(QTreeWidgetItem *current);
+    void resetToDefault();
+    bool validateShortcutEdit() const;
+    bool markCollisions(ShortcutItem *);
+    void setKeySequence(const QKeySequence &key);
+    void showConflicts();
+    void clear();
+
+    QList<ShortcutItem *> m_scitems;
+    QGroupBox *m_shortcutBox;
+    Utils::FancyLineEdit *m_shortcutEdit;
+    QLabel *m_warningLabel;
+};
+
+ShortcutSettingsWidget::ShortcutSettingsWidget()
 {
     setPageTitle(tr("Keyboard Shortcuts"));
     setTargetHeader(tr("Shortcut"));
@@ -299,7 +329,7 @@ ShortcutSettingsWidget::~ShortcutSettingsWidget()
 ShortcutSettings::ShortcutSettings()
 {
     setId(Constants::SETTINGS_ID_SHORTCUTS);
-    setDisplayName(tr("Keyboard"));
+    setDisplayName(ShortcutSettingsWidget::tr("Keyboard"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
 }
 

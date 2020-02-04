@@ -46,6 +46,7 @@ class Command;
 namespace Internal {
 
 class ActionManagerPrivate;
+class ShortcutSettingsWidget;
 
 struct ShortcutItem
 {
@@ -79,42 +80,8 @@ private:
     int m_keyNum = 0;
 };
 
-class ShortcutSettingsWidget : public CommandMappings
+class ShortcutSettings final : public IOptionsPage
 {
-    Q_OBJECT
-
-public:
-    ShortcutSettingsWidget(QWidget *parent = nullptr);
-    ~ShortcutSettingsWidget() override;
-
-    void apply();
-
-protected:
-    void importAction() override;
-    void exportAction() override;
-    void defaultAction() override;
-    bool filterColumn(const QString &filterString, QTreeWidgetItem *item, int column) const override;
-
-private:
-    void initialize();
-    void handleCurrentCommandChanged(QTreeWidgetItem *current);
-    void resetToDefault();
-    bool validateShortcutEdit() const;
-    bool markCollisions(ShortcutItem *);
-    void setKeySequence(const QKeySequence &key);
-    void showConflicts();
-    void clear();
-
-    QList<ShortcutItem *> m_scitems;
-    QGroupBox *m_shortcutBox;
-    Utils::FancyLineEdit *m_shortcutEdit;
-    QLabel *m_warningLabel;
-};
-
-class ShortcutSettings : public IOptionsPage
-{
-    Q_OBJECT
-
 public:
     ShortcutSettings();
 
