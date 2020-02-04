@@ -113,6 +113,11 @@ QSSGRenderGraphObject *CameraGeometry::updateSpatialNode(QSSGRenderGraphObject *
     if (!m_camera)
         return node;
 
+    if (!m_camera->cameraNode()) {
+        // Force cameraNode creation by doing a dummy mapping call
+        m_camera->mapToViewport({}, m_viewPortRect.width(), m_viewPortRect.height());
+    }
+
     node = QQuick3DGeometry::updateSpatialNode(node);
     QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
 
@@ -154,10 +159,10 @@ void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexDat
         if (qobject_cast<QQuick3DOrthographicCamera *>(m_camera)) {
             // For some reason ortho cameras show double what projection suggests,
             // so give them doubled viewport to match visualization to actual camera view
-            camera->calculateProjection(QRectF(0, 0, m_viewPortRect.width() * 2.0,
+            camera->calculateGlobalVariables(QRectF(0, 0, m_viewPortRect.width() * 2.0,
                                                m_viewPortRect.height() * 2.0));
         } else {
-            camera->calculateProjection(m_viewPortRect);
+            camera->calculateGlobalVariables(m_viewPortRect);
         }
         m = camera->projection.inverted();
     }

@@ -34,6 +34,11 @@ IconGizmo {
     property alias geometryName: cameraGeometry.name // Name must be unique for each geometry
     property alias viewPortRect: cameraGeometry.viewPortRect
 
+    onActiveSceneChanged: {
+        if (activeScene == scene)
+            cameraGeometry.update();
+    }
+
     Model {
         id: gizmoModel
         geometry: cameraGeometry
