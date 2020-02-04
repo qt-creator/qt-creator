@@ -230,17 +230,6 @@ void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line, Ou
     appendLine(lr, line, charFormat(format));
 }
 
-static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
-{
-    QTextCharFormat result = inputFormat;
-    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
-    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    result.setAnchor(true);
-    result.setAnchorHref(href);
-
-    return result;
-}
-
 void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line,
                                    const QTextCharFormat &format)
 {
@@ -554,7 +543,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMessage_data()
             << "Object::Test in test.cpp:123"
             << "Object::Test in test.cpp:123"
             << QTextCharFormat()
-            << linkFormat(QTextCharFormat(), "test.cpp:123");
+            << OutputFormatter::linkFormat(QTextCharFormat(), "test.cpp:123");
     QTest::newRow("colored")
             << "blue da ba dee"
             << "blue da ba dee"
@@ -608,7 +597,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
 
     edit.moveCursor(QTextCursor::WordRight);
     edit.moveCursor(QTextCursor::Right);
-    QCOMPARE(edit.currentCharFormat(), linkFormat(QTextCharFormat(), "file://test.cpp:123"));
+    QCOMPARE(edit.currentCharFormat(), OutputFormatter::linkFormat(QTextCharFormat(), "file://test.cpp:123"));
 
     edit.moveCursor(QTextCursor::End);
     QCOMPARE(edit.currentCharFormat(), blueFormat());

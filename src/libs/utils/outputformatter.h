@@ -61,6 +61,7 @@ public:
     virtual QList<QWidget *> toolbarWidgets() const { return {}; }
     virtual void clear() {}
     void setBoldFontEnabled(bool enabled);
+    static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
 
 signals:
     void contentChanged();

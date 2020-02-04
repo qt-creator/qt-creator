@@ -112,6 +112,16 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
         d->cursor.insertText(text.mid(startPos), format);
 }
 
+QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, const QString &href)
+{
+    QTextCharFormat result = inputFormat;
+    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
+    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    result.setAnchor(true);
+    result.setAnchorHref(href);
+    return result;
+}
+
 void OutputFormatter::clearLastLine()
 {
     if (!d->cursor.atEnd())

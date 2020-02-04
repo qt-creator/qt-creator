@@ -60,16 +60,6 @@ using namespace Utils;
 namespace Python {
 namespace Internal {
 
-static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
-{
-    QTextCharFormat result = inputFormat;
-    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
-    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    result.setAnchor(true);
-    result.setAnchorHref(href);
-    return result;
-}
-
 class PythonOutputFormatter : public OutputFormatter
 {
 public:
