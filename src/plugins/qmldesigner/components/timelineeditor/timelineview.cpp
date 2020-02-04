@@ -84,7 +84,9 @@ void TimelineView::modelAttached(Model *model)
 void TimelineView::modelAboutToBeDetached(Model *model)
 {
     m_timelineWidget->reset();
-    setTimelineRecording(false);
+    const bool empty = getTimelines().isEmpty();
+    if (!empty)
+        setTimelineRecording(false);
     AbstractView::modelAboutToBeDetached(model);
 }
 

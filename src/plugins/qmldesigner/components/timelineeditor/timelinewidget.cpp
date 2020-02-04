@@ -486,11 +486,15 @@ void TimelineWidget::setupScrollbar(int min, int max, int current)
 
 void TimelineWidget::setTimelineId(const QString &id)
 {
-    setTimelineActive(!m_timelineView->getTimelines().isEmpty());
-    if (m_timelineView->isAttached()) {
+    const bool empty = m_timelineView->getTimelines().isEmpty();
+    setTimelineActive(!empty);
+    if (m_timelineView->isAttached() && !empty) {
         m_toolbar->setCurrentTimeline(m_timelineView->modelNodeForId(id));
         m_toolbar->setCurrentState(m_timelineView->currentState().name());
         m_timelineView->setTimelineRecording(false);
+    } else {
+        m_toolbar->setCurrentTimeline({});
+        m_toolbar->setCurrentState({});
     }
 }
 
