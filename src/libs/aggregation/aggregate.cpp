@@ -31,33 +31,36 @@
 /*!
     \namespace Aggregation
     \brief The Aggregation namespace contains support for bundling related components,
-           such that each component exposes the properties and behavior of the
+           so that each component exposes the properties and behavior of the
            other components to the outside.
 
-    Components that are bundled to an Aggregate can be "cast" to each other
+    Components that are bundled into an aggregate can be \e cast to each other
     and have a coupled life cycle. See the documentation of Aggregation::Aggregate for
     details and examples.
 */
 
 /*!
     \class Aggregation::Aggregate
-    \mainclass
+    \ingroup mainclasses
     \threadsafe
 
     \brief The Aggregate class defines a collection of related components that
     can be viewed as a unit.
 
-    An Aggregate is a collection of components that are handled as a unit,
+    An aggregate is a collection of components that are handled as a unit,
     such that each component exposes the properties and behavior of the
-    other components in the Aggregate to the outside.
+    other components in the aggregate to the outside.
     Specifically that means:
     \list
-    \li They can be "cast" to each other (using query and query_all functions).
-    \li Their life cycle is coupled, i.e. whenever one is deleted all of them are.
+    \li They can be \e cast to each other (using query() and query_all()
+        functions).
+    \li Their life cycle is coupled. That is, whenever one is deleted, all of
+        them are.
     \endlist
     Components can be of any QObject derived type.
 
-    You can use an Aggregate to simulate multiple inheritance by aggregation. Assume we have
+    You can use an aggregate to simulate multiple inheritance by aggregation.
+    Assuming we have the following code:
     \code
         using namespace Aggregation;
         class MyInterface : public QObject { ........ };
@@ -65,21 +68,21 @@
         [...]
         MyInterface *object = new MyInterface; // this is single inheritance
     \endcode
-    The query function works like a qobject_cast with normal objects:
+    The query function works like a qobject_cast() with normal objects:
     \code
         Q_ASSERT(query<MyInterface>(object) == object);
         Q_ASSERT(query<MyInterfaceEx>(object) == 0);
     \endcode
-    If we want 'object' to also implement the class MyInterfaceEx,
+    If we want \c object to also implement the class \c MyInterfaceEx,
     but don't want to or cannot use multiple inheritance, we can do it
-    at any point using an Aggregate:
+    at any point using an aggregate:
     \code
         MyInterfaceEx *objectEx = new MyInterfaceEx;
         Aggregate *aggregate = new Aggregate;
         aggregate->add(object);
         aggregate->add(objectEx);
     \endcode
-    The Aggregate bundles the two objects together.
+    The aggregate bundles the two objects together.
     If we have any part of the collection we get all parts:
     \code
         Q_ASSERT(query<MyInterface>(object) == object);
@@ -87,25 +90,24 @@
         Q_ASSERT(query<MyInterface>(objectEx) == object);
         Q_ASSERT(query<MyInterfaceEx>(objectEx) == objectEx);
     \endcode
-    The following deletes all three: object, objectEx and aggregate:
+    The following deletes all three: \c object, \c objectEx and \c aggregate:
     \code
         delete objectEx;
         // or delete object;
         // or delete aggregate;
     \endcode
 
-    Aggregation aware code never uses qobject_cast, but always uses
-    Aggregation::query which behaves like a qobject_cast as a fallback.
+    Aggregation-aware code never uses qobject_cast(). It always uses
+    Aggregation::query(), which behaves like a qobject_cast() as a fallback.
 */
 
 /*!
     \fn T *Aggregate::component()
 
     Template function that returns the component with the given type, if there is one.
-    If there are multiple components with that type a random one is returned.
+    If there are multiple components with that type, a random one is returned.
 
-    \sa Aggregate::components()
-    \sa Aggregate::add()
+    \sa Aggregate::components(), add()
 */
 
 /*!
@@ -113,8 +115,7 @@
 
     Template function that returns all components with the given type, if there are any.
 
-    \sa Aggregate::component()
-    \sa Aggregate::add()
+    \sa Aggregate::component(), add()
 */
 
 /*!
@@ -131,10 +132,10 @@
     \relates Aggregation::Aggregate
     \fn T *Aggregation::query<T *>(QObject *obj)
 
-    Performs a dynamic cast that is aware of a possible Aggregate that \a obj
-    might belong to. If \a obj itself is of the requested type then it is simply cast
-    and returned. Otherwise, if \a obj belongs to an Aggregate all its components are
-    checked, or if it doesn't belong to an Aggregate null is returned.
+    Performs a dynamic cast that is aware of a possible aggregate that \a obj
+    might belong to. If \a obj itself is of the requested type, it is simply cast
+    and returned. Otherwise, if \a obj belongs to an aggregate, all its components are
+    checked. If it doesn't belong to an aggregate, null is returned.
 
     \sa Aggregate::component()
 */
@@ -143,18 +144,25 @@
     \relates Aggregation::Aggregate
     \fn QList<T *> Aggregation::query_all<T *>(QObject *obj)
 
-    If \a obj belongs to an Aggregate, all components that can be cast to the given
+    If \a obj belongs to an aggregate, all components that can be cast to the given
     type are returned. Otherwise, \a obj is returned if it is of the requested type.
 
     \sa Aggregate::components()
 */
 
+/*!
+    \fn void Aggregation::Aggregate::changed()
+
+    This signal is emitted when a component is added to or removed from an
+    aggregate.
+
+    \sa add(), remove()
+*/
+
 using namespace Aggregation;
 
 /*!
-    \fn Aggregate *Aggregate::parentAggregate(QObject *obj)
-
-    Returns the Aggregate object of \a obj if there is one. Otherwise returns 0.
+    Returns the aggregate object of \a obj if there is one. Otherwise returns 0.
 */
 Aggregate *Aggregate::parentAggregate(QObject *obj)
 {
@@ -169,7 +177,6 @@ QHash<QObject *, Aggregate *> &Aggregate::aggregateMap()
 }
 
 /*!
-    \fn QReadWriteLock &Aggregate::lock()
     \internal
 */
 QReadWriteLock &Aggregate::lock()
@@ -179,10 +186,8 @@ QReadWriteLock &Aggregate::lock()
 }
 
 /*!
-    \fn Aggregate::Aggregate(QObject *parent)
-
-    Creates a new Aggregate with the given \a parent.
-    The \a parent is passed directly passed to the QObject part
+    Creates a new aggregate with the given \a parent.
+    The parent is directly passed to the QObject part
     of the class and is not used beside that.
 */
 Aggregate::Aggregate(QObject *parent)
@@ -193,8 +198,6 @@ Aggregate::Aggregate(QObject *parent)
 }
 
 /*!
-    \fn Aggregate::~Aggregate()
-
     Deleting the aggregate automatically deletes all its components.
 */
 Aggregate::~Aggregate()
@@ -224,13 +227,11 @@ void Aggregate::deleteSelf(QObject *obj)
 }
 
 /*!
-    \fn void Aggregate::add(QObject *component)
-
     Adds the \a component to the aggregate.
-    You can't add a component that is part of a different aggregate
+    You cannot add a component that is part of a different aggregate
     or an aggregate itself.
 
-    \sa Aggregate::remove()
+    \sa remove()
 */
 void Aggregate::add(QObject *component)
 {
@@ -253,11 +254,9 @@ void Aggregate::add(QObject *component)
 }
 
 /*!
-    \fn void Aggregate::remove(QObject *component)
-
     Removes the \a component from the aggregate.
 
-    \sa Aggregate::add()
+    \sa add()
 */
 void Aggregate::remove(QObject *component)
 {
