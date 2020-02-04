@@ -86,14 +86,12 @@ public:
         CppModelManager::createCppModelManager(m_instance);
         m_settings = new CppToolsSettings(m_instance); // force registration of cpp tools settings
         m_codeModelSettings.fromSettings(ICore::settings());
-        m_cppFileSettingsPage = new CppFileSettingsPage(m_instance->m_fileSettings);
         m_cppCodeStyleSettingsPage = new CppCodeStyleSettingsPage;
     }
 
     ~CppToolsPluginPrivate()
     {
         StringTable::destroy();
-        delete m_cppFileSettingsPage;
         if (m_cppCodeStyleSettingsPage)
             delete m_cppCodeStyleSettingsPage;
         ExtensionSystem::PluginManager::removeObject(&m_cppProjectUpdaterFactory);
@@ -101,14 +99,14 @@ public:
 
     CppCodeModelSettings m_codeModelSettings;
     CppToolsSettings *m_settings = nullptr;
-    CppFileSettingsPage *m_cppFileSettingsPage = nullptr;
+    CppFileSettings m_fileSettings;
+    CppFileSettingsPage m_cppFileSettingsPage{&m_fileSettings};
     CppCodeModelSettingsPage m_cppCodeModelSettingsPage{&m_codeModelSettings};
     QPointer<CppCodeStyleSettingsPage> m_cppCodeStyleSettingsPage = nullptr;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
 
 CppToolsPlugin::CppToolsPlugin()
-    : m_fileSettings(new CppFileSettings)
 {
     m_instance = this;
     CppToolsBridge::setCppToolsBridgeImplementation(std::make_unique<CppToolsBridgeQtCreatorImplementation>());
@@ -133,37 +131,37 @@ void CppToolsPlugin::clearHeaderSourceCache()
 
 Utils::FilePath CppToolsPlugin::licenseTemplatePath()
 {
-    return Utils::FilePath::fromString(m_instance->m_fileSettings->licenseTemplatePath);
+    return Utils::FilePath::fromString(m_instance->d->m_fileSettings.licenseTemplatePath);
 }
 
 QString CppToolsPlugin::licenseTemplate()
 {
-    return m_instance->m_fileSettings->licenseTemplate();
+    return m_instance->d->m_fileSettings.licenseTemplate();
 }
 
 bool CppToolsPlugin::usePragmaOnce()
 {
-    return m_instance->m_fileSettings->headerPragmaOnce;
+    return m_instance->d->m_fileSettings.headerPragmaOnce;
 }
 
 const QStringList &CppToolsPlugin::headerSearchPaths()
 {
-    return m_instance->m_fileSettings->headerSearchPaths;
+    return m_instance->d->m_fileSettings.headerSearchPaths;
 }
 
 const QStringList &CppToolsPlugin::sourceSearchPaths()
 {
-    return m_instance->m_fileSettings->sourceSearchPaths;
+    return m_instance->d->m_fileSettings.sourceSearchPaths;
 }
 
 const QStringList &CppToolsPlugin::headerPrefixes()
 {
-    return m_instance->m_fileSettings->headerPrefixes;
+    return m_instance->d->m_fileSettings.headerPrefixes;
 }
 
 const QStringList &CppToolsPlugin::sourcePrefixes()
 {
-    return m_instance->m_fileSettings->sourcePrefixes;
+    return m_instance->d->m_fileSettings.sourcePrefixes;
 }
 
 bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
@@ -223,14 +221,19 @@ void CppToolsPlugin::extensionsInitialized()
 {
     // The Cpp editor plugin, which is loaded later on, registers the Cpp mime types,
     // so, apply settings here
-    m_instance->m_fileSettings->fromSettings(ICore::settings());
-    if (!m_instance->m_fileSettings->applySuffixesToMimeDB())
+    d->m_fileSettings.fromSettings(ICore::settings());
+    if (!d->m_fileSettings.applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
 }
 
 CppCodeModelSettings *CppToolsPlugin::codeModelSettings()
 {
     return &d->m_codeModelSettings;
+}
+
+CppFileSettings *CppToolsPlugin::fileSettings()
+{
+    return &d->m_fileSettings;
 }
 
 void CppToolsPlugin::switchHeaderSource()

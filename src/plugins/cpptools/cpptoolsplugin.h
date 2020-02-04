@@ -29,24 +29,15 @@
 
 #include <projectexplorer/projectexplorer.h>
 
-#include <QSharedPointer>
-
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-class QDir;
-QT_END_NAMESPACE
-
 namespace Utils { class FilePath; }
 
 namespace CppTools {
 
-class CppToolsSettings;
 class CppCodeModelSettings;
 
 namespace Internal {
 
 struct CppFileSettings;
-class CppToolsPluginPrivate;
 
 class CppToolsPlugin final : public ExtensionSystem::IPlugin
 {
@@ -180,9 +171,8 @@ private slots:
 #endif
 
 private:
-    friend class CppToolsPluginPrivate;
-    CppToolsPluginPrivate *d = nullptr;
-    QSharedPointer<CppFileSettings> m_fileSettings;
+    CppFileSettings *fileSettings();
+    class CppToolsPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

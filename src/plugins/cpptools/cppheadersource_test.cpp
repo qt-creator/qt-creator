@@ -89,23 +89,25 @@ void CppToolsPlugin::test_headersource_data()
 void CppToolsPlugin::initTestCase()
 {
     QDir(baseTestDir()).mkpath(_("."));
-    m_fileSettings->headerSearchPaths.append(QLatin1String("include"));
-    m_fileSettings->headerSearchPaths.append(QLatin1String("../include"));
-    m_fileSettings->sourceSearchPaths.append(QLatin1String("src"));
-    m_fileSettings->sourceSearchPaths.append(QLatin1String("../src"));
-    m_fileSettings->headerPrefixes.append(QLatin1String("testh_"));
-    m_fileSettings->sourcePrefixes.append(QLatin1String("testc_"));
+    CppFileSettings *fs = fileSettings();
+    fs->headerSearchPaths.append(QLatin1String("include"));
+    fs->headerSearchPaths.append(QLatin1String("../include"));
+    fs->sourceSearchPaths.append(QLatin1String("src"));
+    fs->sourceSearchPaths.append(QLatin1String("../src"));
+    fs->headerPrefixes.append(QLatin1String("testh_"));
+    fs->sourcePrefixes.append(QLatin1String("testc_"));
 }
 
 void CppToolsPlugin::cleanupTestCase()
 {
     Utils::FileUtils::removeRecursively(Utils::FilePath::fromString(baseTestDir()));
-    m_fileSettings->headerSearchPaths.removeLast();
-    m_fileSettings->headerSearchPaths.removeLast();
-    m_fileSettings->sourceSearchPaths.removeLast();
-    m_fileSettings->sourceSearchPaths.removeLast();
-    m_fileSettings->headerPrefixes.removeLast();
-    m_fileSettings->sourcePrefixes.removeLast();
+    CppFileSettings *fs = fileSettings();
+    fs->headerSearchPaths.removeLast();
+    fs->headerSearchPaths.removeLast();
+    fs->sourceSearchPaths.removeLast();
+    fs->sourceSearchPaths.removeLast();
+    fs->headerPrefixes.removeLast();
+    fs->sourcePrefixes.removeLast();
 }
 
 } // namespace Internal
