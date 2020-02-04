@@ -86,6 +86,8 @@ list(APPEND DEFAULT_DEFINES
 )
 
 file(RELATIVE_PATH _PLUGIN_TO_LIB "/${IDE_PLUGIN_PATH}" "/${IDE_LIBRARY_PATH}")
+file(RELATIVE_PATH _PLUGIN_TO_QT "/${IDE_PLUGIN_PATH}" "/${IDE_LIBRARY_BASE_PATH}/Qt/lib")
+file(RELATIVE_PATH _LIB_TO_QT "/${IDE_LIBRARY_PATH}" "/${IDE_LIBRARY_BASE_PATH}/Qt/lib")
 
 if (APPLE)
   set(_RPATH_BASE "@executable_path")
@@ -97,8 +99,8 @@ elseif (WIN32)
   set(_PLUGIN_RPATH "")
 else()
   set(_RPATH_BASE "\$ORIGIN")
-  set(_LIB_RPATH "\$ORIGIN")
-  set(_PLUGIN_RPATH "\$ORIGIN;\$ORIGIN/${_PLUGIN_TO_LIB}")
+  set(_LIB_RPATH "\$ORIGIN;\$ORIGIN/${_LIB_TO_QT}")
+  set(_PLUGIN_RPATH "\$ORIGIN;\$ORIGIN/${_PLUGIN_TO_LIB};\$ORIGIN/${_PLUGIN_TO_QT}")
 endif ()
 
 set(__QTC_PLUGINS "" CACHE INTERNAL "*** Internal ***")
@@ -907,8 +909,6 @@ function(add_qtc_executable name)
     endif()
   endif()
 
-  file(RELATIVE_PATH _RELATIVE_LIB_PATH "/${_EXECUTABLE_PATH}" "/${IDE_LIBRARY_PATH}")
-
   add_executable("${name}" ${_arg_SOURCES})
   target_include_directories("${name}" PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
   target_compile_definitions("${name}" PRIVATE ${default_defines_copy} ${TEST_DEFINES} ${_arg_DEFINES} )
@@ -919,10 +919,20 @@ function(add_qtc_executable name)
     set(skip_translation ON)
   endif()
 
+  file(RELATIVE_PATH relative_lib_path "/${_EXECUTABLE_PATH}" "/${IDE_LIBRARY_PATH}")
+
+  set(build_rpath "${_RPATH_BASE}/${relative_lib_path}")
+  set(install_rpath "${_RPATH_BASE}/${relative_lib_path}")
+  if (NOT WIN32 AND NOT APPLE)
+    file(RELATIVE_PATH relative_qt_path "/${_EXECUTABLE_PATH}" "/${IDE_LIBRARY_BASE_PATH}/Qt/lib")
+    file(RELATIVE_PATH relative_plugins_path "/${_EXECUTABLE_PATH}" "/${IDE_PLUGIN_PATH}")
+    set(install_rpath "${install_rpath};${_RPATH_BASE}/${relative_qt_path};${_RPATH_BASE}/${relative_plugins_path}")
+  endif()
+
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties("${name}" PROPERTIES
-    BUILD_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
-    INSTALL_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
+    BUILD_RPATH "${build_rpath}"
+    INSTALL_RPATH "${install_rpath}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     QT_SKIP_TRANSLATION "${skip_translation}"
     CXX_VISIBILITY_PRESET hidden

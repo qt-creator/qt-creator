@@ -89,10 +89,9 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
       set(CMAKE_GET_RUNTIME_DEPENDENCIES_TOOL objdump)
     endif()
     if (WIN32)
-      set(pre_exclude_regexes PRE_EXCLUDE_REGEXES \"api-ms-.*|ext-ms-\.*\")
-    endif()
-    if (APPLE)
-      set(pre_exclude_regexes PRE_EXCLUDE_REGEXES \"libiodbc\.*|libpq\.*\")
+      set(filter_regex PRE_EXCLUDE_REGEXES \"api-ms-.*|ext-ms-\.*\")
+    elseif (APPLE)
+      set(filter_regex PRE_EXCLUDE_REGEXES \"libiodbc\.*|libpq\.*\")
     endif()
 
     get_filename_component(install_prefix \"\${CMAKE_INSTALL_PREFIX}\" ABSOLUTE)
@@ -133,14 +132,17 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
 
       file(GET_RUNTIME_DEPENDENCIES
         UNRESOLVED_DEPENDENCIES_VAR unresolved_deps
+        RESOLVED_DEPENDENCIES_VAR resolved_deps
+        CONFLICTING_DEPENDENCIES_PREFIX conflicts
         \${EXECUTABLES_TO_ANALYZE}
         \${LIBRARIES_TO_ANALYZE}
         \${MODULES_TO_ANALYZE}
         DIRECTORIES
+          \"\${install_prefix}/${IDE_BIN_PATH}\"
           \"\${install_prefix}/${IDE_PLUGIN_PATH}\"
-          \"\${install_prefix}/${IDE_LIBEXEC_PATH}\"
           \"\${install_prefix}/${IDE_LIBRARY_PATH}\"
-        \${pre_exclude_regexes}
+          \"\${install_prefix}/${IDE_LIBRARY_BASE_PATH}/Qt/lib\"
+        \${filter_regex}
       )
 
       # Clear for second step
@@ -149,6 +151,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
       set(installed_MODULES \"\${qt5_plugin_files}\")
 
       list(REMOVE_DUPLICATES unresolved_deps)
+      list(REMOVE_DUPLICATES resolved_deps)
 
       if (WIN32)
         # Needed by QmlDesigner, QmlProfiler, but they are not referenced directly.
@@ -158,40 +161,61 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
       file(TO_CMAKE_PATH \"${CMAKE_PREFIX_PATH}\" prefix_path)
 
       # Add parent link directory paths. Needed for e.g. MinGW choco libstdc++-6.dll
-      foreach(path \"${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES}\")
-        get_filename_component(parent_path \"\${path}\" DIRECTORY)
-        list(APPEND prefix_path \"\${parent_path}\")
-      endforeach()
+      if (WIN32)
+        foreach(path \"${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES}\")
+          get_filename_component(parent_path \"\${path}\" DIRECTORY)
+          list(APPEND prefix_path \"\${parent_path}\")
+        endforeach()
+      endif()
 
-      foreach(so IN LISTS unresolved_deps)
-        string(REPLACE \"@rpath/\" \"\" so \"\${so}\")
-        get_filename_component(so_dir \"\${so}\" DIRECTORY)
-        message(STATUS \"Unresolved dependency: \${so}\")
+      # On Linux the Qt libraries might exist in the system, and they are passed
+      # as resolved, therefore scan the resolved dependencies too
+      foreach(so IN LISTS unresolved_deps resolved_deps)
+
+        # Skip the installed dependencies
+        string(FIND \"\${so}\" \"\${install_prefix}\" found_prefix_path)
+        if (NOT found_prefix_path EQUAL -1)
+          continue()
+        endif()
+
+        # On Linux get the name of the resolved Qt dependency, this would come from ldconfig
+        # with the full path on the system
+        if (NOT APPLE AND NOT WIN32)
+          get_filename_component(so \"\${so}\" NAME)
+        endif()
+
+        if (APPLE)
+          string(REPLACE \"@rpath/\" \"\" so \"\${so}\")
+          get_filename_component(so_dir \"\${so}\" DIRECTORY)
+        endif()
+
+        message(STATUS \"Dependency: \${so}\")
         foreach(p IN LISTS prefix_path)
-          message(STATUS \"Trying: \${p}/\${so}\")
-          if (EXISTS \"\${p}/\${so}\")
-            file(INSTALL \"\${p}/\${so}\"
-              DESTINATION \"\${install_prefix}/${IDE_APP_PATH}/\${so_dir}\"
-              FOLLOW_SYMLINK_CHAIN)
-            list(APPEND installed_LIBRARIES \"\${install_prefix}/${IDE_APP_PATH}/\${so}\")
+          if (WIN32)
+            set(so_src \"\${p}/bin/\${so}\")
+            set(so_dest \"\${install_prefix}/${IDE_BIN_PATH}\")
+          elseif(APPLE)
+            set(so_src \"\${p}/lib/\${so}\")
+            set(so_dest \"\${install_prefix}/${IDE_LIBRARY_PATH}/\${so_dir}\")
+          else()
+            set(so_src \"\${p}/lib/\${so}\")
+            if (p STREQUAL \"${qt5_base_dir}\")
+              set(so_dest \"\${install_prefix}/${IDE_LIBRARY_BASE_PATH}/Qt/lib\")
+            else()
+              set(so_dest \"\${install_prefix}/${IDE_LIBRARY_PATH}\")
+            endif()
+          endif()
+
+          message(STATUS \"Looking at: \${so_src}\")
+          if (EXISTS \"\${so_src}\")
+            file(INSTALL \"\${so_src}\" DESTINATION \"\${so_dest}\" FOLLOW_SYMLINK_CHAIN)
+            if (APPLE)
+              get_filename_component(so \"\${so}\" NAME)
+            endif()
+            list(APPEND installed_LIBRARIES \"\${so_dest}/\${so}\")
             break()
           endif()
-          message(STATUS \"Trying: \${p}/bin/\${so}\")
-          if (EXISTS \"\${p}/bin/\${so}\")
-            file(INSTALL \"\${p}/bin/\${so}\"
-              DESTINATION \"\${install_prefix}/${IDE_BIN_PATH}/\${so_dir}\"
-              FOLLOW_SYMLINK_CHAIN)
-            list(APPEND installed_LIBRARIES \"\${install_prefix}/${IDE_BIN_PATH}/\${so}\")
-            break()
-          endif()
-          message(STATUS \"Trying: \${p}/lib/\${so}\")
-          if (EXISTS \"\${p}/lib/\${so}\")
-            file(INSTALL \"\${p}/lib/\${so}\"
-              DESTINATION \"\${install_prefix}/${IDE_LIBRARY_PATH}/\${so_dir}\"
-              FOLLOW_SYMLINK_CHAIN)
-            list(APPEND installed_LIBRARIES \"\${install_prefix}/${IDE_LIBRARY_PATH}/\${so}\")
-            break()
-          endif()
+
         endforeach()
       endforeach()
     endforeach()
