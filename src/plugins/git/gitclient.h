@@ -50,6 +50,7 @@ namespace Core { class ICore; }
 namespace VcsBase {
     class VcsCommand;
     class SubmitFileModel;
+    class VcsBaseDiffEditorController;
     class VcsBaseEditorWidget;
 }
 
@@ -361,8 +362,8 @@ private:
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     QTextCodec *codecFor(CodecType codecType, const QString &source = QString()) const;
 
-    void requestReload(const QString &documentId, const QString &source, const QString &title,
-                       std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
+    void requestReload(const QString &documentId, const QString &source, const QString &title, const QString &workingDirectory,
+           std::function<VcsBase::VcsBaseDiffEditorController *(Core::IDocument *)> factory) const;
 
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(QString *errorMessage = nullptr) const;

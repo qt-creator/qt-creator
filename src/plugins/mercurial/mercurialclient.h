@@ -29,9 +29,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <vcsbase/vcsbaseclient.h>
 
-namespace DiffEditor {
-class DiffEditorController;
-}
+namespace VcsBase { class VcsBaseDiffEditorController; }
 
 namespace Mercurial {
 namespace Internal {
@@ -90,8 +88,8 @@ signals:
     void needMerge();
 
 private:
-    void requestReload(const QString &documentId, const QString &source, const QString &title,
-                       std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
+    void requestReload(const QString &documentId, const QString &source, const QString &title, const QString &workingDirectory,
+           std::function<VcsBase::VcsBaseDiffEditorController *(Core::IDocument *)> factory);
     void parsePullOutput(const QString &output);
 };
 

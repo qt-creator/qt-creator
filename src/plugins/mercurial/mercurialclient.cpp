@@ -58,18 +58,16 @@ namespace Internal  {
 class MercurialDiffEditorController : public VcsBaseDiffEditorController
 {
 public:
-    MercurialDiffEditorController(IDocument *document, VcsBaseClientImpl *client, const QString &workingDirectory);
+    MercurialDiffEditorController(IDocument *document)
+        : VcsBaseDiffEditorController(document)
+    {
+        setDisplayName("Hg Diff");
+    }
 
 protected:
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
     QStringList addConfigurationArguments(const QStringList &args) const;
 };
-
-MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document, VcsBaseClientImpl *client, const QString &workingDirectory):
-    VcsBaseDiffEditorController(document, client, workingDirectory)
-{
-    setDisplayName("Hg Diff");
-}
 
 void MercurialDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
 {
@@ -90,8 +88,8 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 class FileDiffController : public MercurialDiffEditorController
 {
 public:
-    FileDiffController(IDocument *document, VcsBaseClient *client, const QString &dir, const QString &fileName) :
-        MercurialDiffEditorController(document, client, dir),
+    FileDiffController(IDocument *document, const QString &fileName) :
+        MercurialDiffEditorController(document),
         m_fileName(fileName)
     { }
 
@@ -108,8 +106,8 @@ private:
 class FileListDiffController : public MercurialDiffEditorController
 {
 public:
-    FileListDiffController(IDocument *document, VcsBaseClient *client, const QString &dir, const QStringList &fileNames) :
-        MercurialDiffEditorController(document, client, dir),
+    FileListDiffController(IDocument *document, const QStringList &fileNames) :
+        MercurialDiffEditorController(document),
         m_fileNames(fileNames)
     { }
 
@@ -128,8 +126,8 @@ private:
 class RepositoryDiffController : public MercurialDiffEditorController
 {
 public:
-    RepositoryDiffController(IDocument *document, VcsBaseClient *client, const QString &dir) :
-        MercurialDiffEditorController(document, client, dir)
+    RepositoryDiffController(IDocument *document) :
+        MercurialDiffEditorController(document)
     { }
 
     void reload() override
@@ -400,29 +398,23 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files,
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffRepo." + sourceFile;
-        requestReload(documentId, sourceFile, title,
-                      [this, workingDir](IDocument *doc) {
-                          return new RepositoryDiffController(doc, this, workingDir);
-                      });
+        requestReload(documentId, sourceFile, title, workingDir,
+                      [](IDocument *doc) { return new RepositoryDiffController(doc); });
     } else if (files.size() == 1) {
         fileName = files.at(0);
         const QString title = tr("Mercurial Diff \"%1\"").arg(fileName);
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + sourceFile;
-        requestReload(documentId, sourceFile, title,
-                      [this, workingDir, fileName](IDocument *doc) {
-                          return new FileDiffController(doc, this, workingDir, fileName);
-                      });
+        requestReload(documentId, sourceFile, title, workingDir,
+                      [fileName](IDocument *doc) { return new FileDiffController(doc, fileName); });
     } else {
         const QString title = tr("Mercurial Diff \"%1\"").arg(workingDir);
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + workingDir;
-        requestReload(documentId, sourceFile, title,
-                      [this, workingDir, files](IDocument *doc) {
-                          return new FileListDiffController(doc, this, workingDir, files);
-                      });
+        requestReload(documentId, sourceFile, title, workingDir,
+                      [files](IDocument *doc) { return new FileListDiffController(doc, files); });
     }
 }
 
@@ -511,15 +503,20 @@ MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line
 }
 
 void MercurialClient::requestReload(const QString &documentId, const QString &source, const QString &title,
-                   std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const
+                                    const QString &workingDirectory,
+                                    std::function<VcsBaseDiffEditorController *(Core::IDocument *)> factory)
 {
     // Creating document might change the referenced source. Store a copy and use it.
     const QString sourceCopy = source;
 
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
-    DiffEditorController *controller = factory(document);
+    VcsBaseDiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);
+    controller->setVcsBinary(settings().binaryPath());
+    controller->setVcsTimeoutS(settings().vcsTimeoutS());
+    controller->setProcessEnvironment(processEnvironment());
+    controller->setWorkingDirectory(workingDirectory);
 
     VcsBase::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);

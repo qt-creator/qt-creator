@@ -171,10 +171,8 @@ class SubversionDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
 public:
-    SubversionDiffEditorController(IDocument *document,
-                                   VcsBaseClient *client,
-                                   const QString &workingDirectory)
-        : VcsBaseDiffEditorController(document, client, workingDirectory)
+    SubversionDiffEditorController(IDocument *document, const QStringList &authOptions)
+        : VcsBaseDiffEditorController(document), m_authenticationOptions(authOptions)
     {
         forceContextLineCount(3); // SVN cannot change that when using internal diff
     }
@@ -194,6 +192,7 @@ private:
     State m_state = Idle;
     QStringList m_filesList;
     int m_changeNumber = 0;
+    QStringList m_authenticationOptions;
 };
 
 
@@ -218,7 +217,7 @@ void SubversionDiffEditorController::requestDescription()
     m_state = GettingDescription;
 
     QStringList args(QLatin1String("log"));
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << m_authenticationOptions;
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
     runCommand(QList<QStringList>() << args, VcsCommand::SshPasswordPrompt);
@@ -230,7 +229,7 @@ void SubversionDiffEditorController::requestDiff()
 
     QStringList args;
     args << QLatin1String("diff");
-    args << SubversionClient::addAuthenticationOptions(settings());
+    args << m_authenticationOptions;
     args << QLatin1String("--internal-diff");
     if (ignoreWhitespace())
         args << QLatin1String("-x") << QLatin1String("-uw");
@@ -273,8 +272,13 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
-    if (!controller)
-        controller = new SubversionDiffEditorController(document, this, workingDirectory);
+    if (!controller) {
+        controller = new SubversionDiffEditorController(document, addAuthenticationOptions(settings()));
+        controller->setVcsBinary(settings().binaryPath());
+        controller->setVcsTimeoutS(settings().vcsTimeoutS());
+        controller->setProcessEnvironment(processEnvironment());
+        controller->setWorkingDirectory(workingDirectory);
+    }
     VcsBase::setSource(document, source);
     EditorManager::activateEditorForDocument(document);
     return controller;

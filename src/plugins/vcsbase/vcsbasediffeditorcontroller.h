@@ -26,14 +26,16 @@
 #pragma once
 
 #include "vcsbase_global.h"
+
 #include <diffeditor/diffeditorcontroller.h>
 
+#include <QProcessEnvironment>
+
 namespace Core { class IDocument; }
+namespace Utils { class FilePath; }
 
 namespace VcsBase {
 
-class VcsBaseClientImpl;
-class VcsBaseClientSettings;
 class VcsBaseDiffEditorControllerPrivate;
 
 class VCSBASE_EXPORT VcsBaseDiffEditorController : public DiffEditor::DiffEditorController
@@ -41,16 +43,18 @@ class VCSBASE_EXPORT VcsBaseDiffEditorController : public DiffEditor::DiffEditor
     Q_OBJECT
 
 public:
-    VcsBaseDiffEditorController(Core::IDocument *document,
-                                VcsBaseClientImpl *client,
-                                const QString &workingDirectory);
+    explicit VcsBaseDiffEditorController(Core::IDocument *document);
     ~VcsBaseDiffEditorController() override;
+
+    void setProcessEnvironment(const QProcessEnvironment &value);
+    void setVcsBinary(const Utils::FilePath &path);
+    void setVcsTimeoutS(int value);
+    void setWorkingDirectory(const QString &workingDir);
 
 protected:
     void runCommand(const QList<QStringList> &args, unsigned flags, QTextCodec *codec = nullptr);
     virtual void processCommandOutput(const QString &output);
 
-    const VcsBaseClientSettings &settings() const;
     QString workingDirectory() const;
     void setStartupFile(const QString &startupFile);
     QString startupFile() const;

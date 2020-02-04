@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "vcsbasediffeditorcontroller.h"
-#include "vcsbaseclient.h"
 #include "vcscommand.h"
 #include "vcsbaseclientsettings.h"
 
@@ -83,9 +82,7 @@ private:
 class VcsBaseDiffEditorControllerPrivate
 {
 public:
-    VcsBaseDiffEditorControllerPrivate(VcsBaseDiffEditorController *controller,
-                                       VcsBaseClientImpl *client,
-                                       const QString &workingDirectory);
+    VcsBaseDiffEditorControllerPrivate(VcsBaseDiffEditorController *q) : q(q) {}
     ~VcsBaseDiffEditorControllerPrivate();
 
     void processingFinished();
@@ -95,8 +92,10 @@ public:
     void commandFinished(bool success);
 
     VcsBaseDiffEditorController *q;
-    VcsBaseClientImpl *m_client;
-    const QString m_directory;
+    QString m_directory;
+    QProcessEnvironment m_processEnvironment;
+    Utils::FilePath m_vcsBinary;
+    int m_vscTimeoutS;
     QString m_startupFile;
     QString m_output;
     QString m_displayName;
@@ -128,16 +127,6 @@ void VcsCommandResultProxy::storeOutput(const QString &output)
 void VcsCommandResultProxy::commandFinished(bool success)
 {
     m_target->commandFinished(success);
-}
-
-VcsBaseDiffEditorControllerPrivate::VcsBaseDiffEditorControllerPrivate(
-        VcsBaseDiffEditorController *controller,
-        VcsBaseClientImpl *client,
-        const QString &workingDirectory)
-    : q(controller)
-    , m_client(client)
-    , m_directory(workingDirectory)
-{
 }
 
 VcsBaseDiffEditorControllerPrivate::~VcsBaseDiffEditorControllerPrivate()
@@ -231,14 +220,10 @@ void VcsBaseDiffEditorControllerPrivate::commandFinished(bool success)
 
 /////////////////////
 
-VcsBaseDiffEditorController::VcsBaseDiffEditorController(IDocument *document,
-                                                         VcsBaseClientImpl *client,
-                                                         const QString &workingDirectory)
+VcsBaseDiffEditorController::VcsBaseDiffEditorController(Core::IDocument *document)
     : DiffEditorController(document)
-    , d(new VcsBaseDiffEditorControllerPrivate(this, client, workingDirectory))
-{
-    setBaseDirectory(workingDirectory);
-}
+    , d(new VcsBaseDiffEditorControllerPrivate(this))
+{}
 
 VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
 {
@@ -253,7 +238,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     // and "Waiting for data..." will be shown.
     d->cancelReload();
 
-    d->m_command = new VcsCommand(workingDirectory(), d->m_client->processEnvironment());
+    d->m_command = new VcsCommand(workingDirectory(), d->m_processEnvironment);
     d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     d->m_commandResultProxy = new VcsCommandResultProxy(d->m_command.data(), d);
@@ -262,7 +247,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     for (const QStringList &arg : args) {
         QTC_ASSERT(!arg.isEmpty(), continue);
 
-        d->m_command->addJob({d->m_client->vcsBinary(), arg}, d->m_client->vcsTimeoutS());
+        d->m_command->addJob({d->m_vcsBinary, arg}, d->m_vscTimeoutS);
     }
 
     d->m_command->execute();
@@ -271,11 +256,6 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
 void VcsBaseDiffEditorController::processCommandOutput(const QString &output)
 {
     d->processDiff(output);
-}
-
-const VcsBaseClientSettings &VcsBaseDiffEditorController::settings() const
-{
-    return d->m_client->settings();
 }
 
 QString VcsBaseDiffEditorController::workingDirectory() const
@@ -296,6 +276,27 @@ QString VcsBaseDiffEditorController::startupFile() const
 void VcsBaseDiffEditorController::setDisplayName(const QString &displayName)
 {
     d->m_displayName = displayName;
+}
+
+void VcsBase::VcsBaseDiffEditorController::setWorkingDirectory(const QString &workingDir)
+{
+    d->m_directory = workingDir;
+    setBaseDirectory(workingDir);
+}
+
+void VcsBaseDiffEditorController::setVcsTimeoutS(int value)
+{
+    d->m_vscTimeoutS = value;
+}
+
+void VcsBaseDiffEditorController::setVcsBinary(const Utils::FilePath &path)
+{
+    d->m_vcsBinary = path;
+}
+
+void VcsBaseDiffEditorController::setProcessEnvironment(const QProcessEnvironment &value)
+{
+    d->m_processEnvironment = value;
 }
 
 } // namespace VcsBase
