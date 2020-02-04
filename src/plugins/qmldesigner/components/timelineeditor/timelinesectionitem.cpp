@@ -46,15 +46,12 @@
 #include <QAction>
 #include <QApplication>
 #include <QColorDialog>
-#include <QComboBox>
-#include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QPainter>
-#include <QToolBar>
 
 #include <QGraphicsView>
 
@@ -541,19 +538,6 @@ TimelineRulerSectionItem *TimelineRulerSectionItem::create(QGraphicsScene *paren
 
     auto widget = new QWidget;
     widget->setFixedWidth(TimelineConstants::sectionWidth);
-
-    auto toolBar = new QToolBar;
-    toolBar->setFixedHeight(TimelineConstants::rulerHeight);
-
-    auto layout = new QHBoxLayout(widget);
-    layout->addWidget(toolBar);
-    layout->setContentsMargins(0, 0, 0, 0);
-
-    layout->addWidget(toolBar);
-    layout->setContentsMargins(0, 0, 0, 0);
-
-    QGraphicsProxyWidget *proxy = parentScene->addWidget(widget);
-    proxy->setParentItem(item);
 
     return item;
 }
