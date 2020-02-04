@@ -102,8 +102,7 @@ void CommonSettingsWidget::updatePath()
 }
 
 // --------------- VcsBaseSettingsPage
-CommonOptionsPage::CommonOptionsPage(QObject *parent) :
-    Core::IOptionsPage(parent)
+CommonOptionsPage::CommonOptionsPage()
 {
     m_settings.fromSettings(Core::ICore::settings());
 

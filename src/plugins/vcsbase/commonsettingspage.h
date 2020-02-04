@@ -58,7 +58,7 @@ class CommonOptionsPage final : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit CommonOptionsPage(QObject *parent = nullptr);
+    explicit CommonOptionsPage();
 
     QWidget *widget() override;
     void apply() override;
