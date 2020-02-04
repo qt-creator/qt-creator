@@ -354,6 +354,8 @@ void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int e
 
 Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
 {
+    if (fileName.isEmpty())
+        return nullptr;
     Node *bestNode = nullptr;
     int bestNodeExpandCount = INT_MAX;
 
