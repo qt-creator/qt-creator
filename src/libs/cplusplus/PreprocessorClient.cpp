@@ -36,34 +36,44 @@ using namespace CPlusPlus;
 /*!
     \fn void Client::macroAdded(const Macro &macro)
 
-    Called whenever a new macro is defined.
+    Called whenever a new \a macro is defined.
 */
 
 /*!
-    \fn void Client::passedMacroDefinitionCheck(int offset, int line, const Macro &macro)
+    \fn void Client::passedMacroDefinitionCheck(int bytesOffset,
+                                                int utf16charsOffset,
+                                                int line,
+                                                const Macro &macro)
 
-    Called when the preprocessor checks whether a macro is defined or not and the
-    result is positive.
+    Called when the preprocessor checks whether \a macro at \a line with
+    \a bytesOffset and \a utf16charsOffset is defined and the result is
+    positive.
 
     \sa failedMacroDefinitionCheck()
 */
 
 /*!
-    \fn void Client::failedMacroDefinitionCheck(int offset, const ByteArrayRef &name)
+    \fn void Client::failedMacroDefinitionCheck(int bytesOffset,
+                                                int utf16charsOffset,
+                                                const ByteArrayRef &name)
 
-    Called when the preprocessor checks whether a macro is defined or not and the
-    result is negative.
+    Called when the preprocessor checks whether the macro specified by \a name
+    is defined with \a bytesOffset and \a utf16charsOffset and the result is
+    negative.
 
     \sa passedMacroDefinitionCheck()
 */
 
 /*!
-    \fn void Client::startExpandingMacro(int offset,
-                                   int line,
-                                   const Macro &macro,
-                                   const QVector<MacroArgumentReference> &actuals
-                                            = QVector<MacroArgumentReference>())
-    Called when starting to expand a macro.
+    \fn void Client::startExpandingMacro(int bytesOffset,
+                                         int utf16charsOffset,
+                                         int line,
+                                         const Macro &macro,
+                                         const QVector<MacroArgumentReference> &actuals
+                                               = QVector<MacroArgumentReference>())
+
+    Called when starting to expand \a macro at \a line with \a bytesOffset,
+    \a utf16charsOffset, and \a actuals.
 
     \sa stopExpandingMacro()
 */
