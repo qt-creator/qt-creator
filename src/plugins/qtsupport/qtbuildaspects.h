@@ -38,10 +38,9 @@ public:
     QmlDebuggingAspect();
 
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
-
-private:
     void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
 
+private:
     const ProjectExplorer::Kit *m_kit = nullptr;
 };
 

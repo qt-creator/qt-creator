@@ -35,6 +35,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/generatedcodemodelsupport.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -699,6 +700,8 @@ void CMakeBuildSystem::updateQmlJSCodeModel()
     foreach (const QString &cmakeImport, CMakeConfigItem::cmakeSplitValue(cmakeImports))
         projectInfo.importPaths.maybeInsert(FilePath::fromString(cmakeImport), QmlJS::Dialect::Qml);
 
+    project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
+                                  !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo, p);
 }
 

@@ -47,6 +47,7 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
@@ -157,6 +158,12 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
 
         setConfigurationForCMake(config);
     });
+
+    const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
+    qmlDebuggingAspect->setKit(target->kit());
+    connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
+            this, &CMakeBuildConfiguration::configurationForCMakeChanged);
+
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -379,6 +386,11 @@ void CMakeBuildConfiguration::setWarning(const QString &message)
         return;
     m_warning = message;
     emit warningOccured(m_warning);
+}
+
+bool CMakeBuildConfiguration::isQmlDebuggingEnabled() const
+{
+    return aspect<QtSupport::QmlDebuggingAspect>()->setting() == TriState::Enabled;
 }
 
 

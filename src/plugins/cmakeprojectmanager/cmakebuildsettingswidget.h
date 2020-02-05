@@ -65,6 +65,7 @@ private:
     void updateButtonState();
     void updateAdvancedCheckBox();
     void updateFromKit();
+    void handleQmlDebugCxxFlags();
 
     void setConfigurationForCMake();
     void updateSelection(const QModelIndex &current, const QModelIndex &previous);
