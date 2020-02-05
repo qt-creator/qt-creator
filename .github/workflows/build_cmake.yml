@@ -365,9 +365,7 @@ jobs:
 
 
     - name: Install Strip
-      run: |
-        ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --install build --prefix instdir --strip
-        ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --install build --prefix instdir --component Dependencies
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --install build --prefix instdir --strip
 
     - name: Install Devel
       run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --install build --prefix instdir-dev --component Devel

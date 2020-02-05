@@ -74,5 +74,3 @@ install(
   DESTINATION lib/cmake/QtCreator
   COMPONENT Devel EXCLUDE_FROM_ALL
 )
-
-include(QtCreatorDeployment.cmake)
