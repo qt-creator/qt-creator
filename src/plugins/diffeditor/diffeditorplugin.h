@@ -30,10 +30,6 @@
 #include <coreplugin/diffservice.h>
 #include <extensionsystem/iplugin.h>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
-
-namespace Core { class IEditor; }
-
 namespace DiffEditor {
 namespace Internal {
 
@@ -41,31 +37,27 @@ class DiffEditorServiceImpl : public QObject, public Core::DiffService
 {
     Q_OBJECT
     Q_INTERFACES(Core::DiffService)
+
 public:
-    explicit DiffEditorServiceImpl(QObject *parent = nullptr);
+    DiffEditorServiceImpl();
 
     void diffFiles(const QString &leftFileName, const QString &rightFileName) override;
     void diffModifiedFiles(const QStringList &fileNames) override;
 };
 
-class DiffEditorPlugin : public ExtensionSystem::IPlugin
+class DiffEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
-    void extensionsInitialized() override;
+    ~DiffEditorPlugin() final;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {};
 
 private:
-    void updateDiffCurrentFileAction();
-    void updateDiffOpenFilesAction();
-    void diffCurrentFile();
-    void diffOpenFiles();
-    void diffExternalFiles();
-
-    QAction *m_diffCurrentFileAction = nullptr;
-    QAction *m_diffOpenFilesAction = nullptr;
+    class DiffEditorPluginPrivate *d = nullptr;
 
 #ifdef WITH_TESTS
 private slots:

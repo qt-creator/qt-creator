@@ -36,8 +36,7 @@
 namespace DiffEditor {
 namespace Internal {
 
-DiffEditorFactory::DiffEditorFactory(QObject *parent)
-    : IEditorFactory(parent)
+DiffEditorFactory::DiffEditorFactory()
 {
     setId(Constants::DIFF_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME));

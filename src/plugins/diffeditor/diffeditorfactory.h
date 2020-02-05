@@ -33,7 +33,7 @@ namespace Internal {
 class DiffEditorFactory : public Core::IEditorFactory
 {
 public:
-    explicit DiffEditorFactory(QObject *parent);
+    DiffEditorFactory();
 };
 
 } // namespace Internal
