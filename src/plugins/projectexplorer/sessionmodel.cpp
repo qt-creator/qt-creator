@@ -234,6 +234,7 @@ void SessionModel::deleteSessions(const QStringList &sessions)
         return;
     beginResetModel();
     SessionManager::deleteSessions(sessions);
+    m_sortedSessions = SessionManager::sessions();
     endResetModel();
 }
 

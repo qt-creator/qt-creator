@@ -108,6 +108,7 @@ private:
     QString m_command;
     QString m_argumentsPasswordConcealed;
     bool m_skipBuilding = false;
+    QString m_inputFile;
 };
 
 namespace Internal {

@@ -587,10 +587,12 @@ void GenericBuildSystem::updateDeploymentData()
         hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
     }
     if (hasDeploymentData) {
-        DeploymentData deploymentData;
-        deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
-                                                  projectDirectory().toString());
-        setDeploymentData(deploymentData);
+        if (target) {
+            DeploymentData deploymentData;
+            deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
+                                                      projectDirectory().toString());
+            setDeploymentData(deploymentData);
+        }
         if (m_deployFileWatcher.files() != QStringList(deploymentFilePath.toString())) {
             m_deployFileWatcher.removeFiles(m_deployFileWatcher.files());
             m_deployFileWatcher.addFile(deploymentFilePath.toString(),

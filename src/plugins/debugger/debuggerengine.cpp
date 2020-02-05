@@ -2286,6 +2286,12 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
 void DebuggerEngine::raiseWatchersWindow()
 {
     if (d->m_watchersView && d->m_watchersWindow) {
+        auto currentPerspective = DebuggerMainWindow::currentPerspective();
+        QTC_ASSERT(currentPerspective, return);
+        // if a companion engine has taken over - do not raise the watchers
+        if (currentPerspective->name() != d->m_engine->displayName())
+            return;
+
         if (auto dock = qobject_cast<QDockWidget *>(d->m_watchersWindow->parentWidget())) {
             if (QAction *act = dock->toggleViewAction()) {
                 if (!act->isChecked())

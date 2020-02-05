@@ -75,12 +75,9 @@ def generateMockTasksFile():
 def checkOrUncheckMyTasks():
     filterButton = waitForObject(toolButton % 'Filter by categories')
     clickButton(filterButton)
-    if platform.system() == 'Darwin':
-        waitFor("macHackActivateContextMenuItem('My Tasks')", 5000)
-    else:
-        activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
-                                       "window=':Qt Creator_Core::Internal::MainWindow'}",
-                                       "My Tasks"))
+    activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
+                                   "window=':Qt Creator_Core::Internal::MainWindow'}",
+                                   "My Tasks"))
 
 def getBuildIssuesTypeCounts(model):
     issueTypes = map(lambda x: x.data(Qt.UserRole + 5).toInt(), dumpIndices(model))
