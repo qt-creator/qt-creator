@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQuickView view;
-    view.engine->addImportPath("qrc:/qml/imports");
+    view.engine()->addImportPath("qrc:/qml/imports");
     view.setSource(QUrl("qrc:/qml/ProgressBar.ui.qml"));
     if (!view.errors().isEmpty())
         return -1;

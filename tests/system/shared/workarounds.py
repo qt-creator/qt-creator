@@ -25,33 +25,6 @@
 
 import urllib2
 
-############ functions not related to issues tracked inside jira ############
-
-def __checkWithoutWidget__(*args):
-    return className(args[0]) == 'QMenu' and args[0].visible
-
-def __checkWithWidget__(*args):
-    return (__checkWithoutWidget__(args[0])
-            and widgetContainsPoint(waitForObject(args[1]), args[0].mapToGlobal(QPoint(0 ,0))))
-
-# hack for activating context menus on Mac because of Squish5/Qt5.2 problems
-# param item a string holding the menu item to invoke (just the label)
-# param widget an object; if provided there will be an additional check if the menu's top left
-#              corner is placed on this widget
-def macHackActivateContextMenuItem(item, widget=None):
-    if widget:
-        func = __checkWithWidget__
-    else:
-        func = __checkWithoutWidget__
-    for obj in object.topLevelObjects():
-        try:
-            if func(obj, widget):
-                activateItem(waitForObjectItem(obj, item))
-                return True
-        except:
-            pass
-    return False
-
 ################ workarounds for issues tracked inside jira #################
 
 JIRA_URL='https://bugreports.qt.io/browse'

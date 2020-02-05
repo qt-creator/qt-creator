@@ -179,7 +179,8 @@ void MakeInstallStep::finish(bool success)
     if (success) {
         m_deploymentData = DeploymentData();
         m_deploymentData.setLocalInstallRoot(installRoot());
-        QDirIterator dit(installRoot().toString(), QDir::Files, QDirIterator::Subdirectories);
+        QDirIterator dit(installRoot().toString(), QDir::Files | QDir::Hidden,
+                         QDirIterator::Subdirectories);
         while (dit.hasNext()) {
             dit.next();
             const QFileInfo fi = dit.fileInfo();

@@ -181,4 +181,28 @@
     at each level. To include the checks from the lower levels automatically,
     select the \uicontrol {Enable lower levels automatically} check box.
 
+    \section2 Creating Clang-Tidy Configuration Files
+
+    Clang-Tidy reads the configuration for each source file from a .clang-tidy
+    file located in the closest parent directory of the source file. If any
+    configuration options have a corresponding command-line option, the
+    command-line option takes precedence. The effective configuration can be
+    inspected using \c {-dump-config}.
+
+    \QC creates the configuration for you based on the checks you select. To
+    store the checks in file format, you can create a .clang-tidy file, as
+    follows:
+
+    \list 1
+        \li Select \uicontrol {Edit Checks as String} and copy the contents of
+            the field.
+        \li Pipe the output of \c {clang-tidy -dump-config} into a file named
+            \c {.clang-tidy}. For example:
+            \c {clang-tidy -checks=-*,bugprone-*,cppcoreguidelines-avoid-* -dump-config > .clang-tidy}
+        \li Move the .clang-tidy file to the parent directory of the sources.
+    \endlist
+
+    To add more checks using \QC later on, copy the checks from your .clang-tidy
+    file into the \uicontrol {Edit Checks as String} field, select additional
+    checks, and copy-paste the contents of the field to the .clang-tidy file.
 */

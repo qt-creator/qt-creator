@@ -70,13 +70,6 @@ def placeCursorToLine(editor, line, isRegex=False):
 def menuVisibleAtEditor(editor, menuInList):
     menuInList[0] = None
     try:
-        # Hack for Squish 5.0.1 handling menus of Qt5.2 on Mac (avoids crash) - remove asap
-        if platform.system() == 'Darwin':
-            for obj in object.topLevelObjects():
-                if className(obj) == "QMenu" and obj.visible and widgetContainsPoint(editor, obj.mapToGlobal(QPoint(0, 0))):
-                    menuInList[0] = obj
-                    return True
-            return False
         menu = waitForObject("{type='QMenu' unnamed='1' visible='1'}", 500)
         topLeft = menu.mapToGlobal(QPoint(0, 0))
         bottomLeft = menu.mapToGlobal(QPoint(0, menu.height))
