@@ -576,23 +576,20 @@ void GenericBuildSystem::updateDeploymentData()
 {
     static const QString fileName("QtCreatorDeployment.txt");
     Utils::FilePath deploymentFilePath;
-    Target *target = project()->activeTarget();
-    if (target && target->activeBuildConfiguration()) {
-        deploymentFilePath = target->activeBuildConfiguration()->buildDirectory()
-                .pathAppended(fileName);
-    }
+    BuildConfiguration *bc = target()->activeBuildConfiguration();
+    if (bc)
+        deploymentFilePath = bc->buildDirectory().pathAppended(fileName);
+
     bool hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
     if (!hasDeploymentData) {
         deploymentFilePath = projectDirectory().pathAppended(fileName);
         hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
     }
     if (hasDeploymentData) {
-        if (target) {
-            DeploymentData deploymentData;
-            deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
-                                                      projectDirectory().toString());
-            setDeploymentData(deploymentData);
-        }
+        DeploymentData deploymentData;
+        deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
+                                                  projectDirectory().toString());
+        setDeploymentData(deploymentData);
         if (m_deployFileWatcher.files() != QStringList(deploymentFilePath.toString())) {
             m_deployFileWatcher.removeFiles(m_deployFileWatcher.files());
             m_deployFileWatcher.addFile(deploymentFilePath.toString(),
