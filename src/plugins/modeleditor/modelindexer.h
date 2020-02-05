@@ -34,6 +34,8 @@ class Project;
 class FolderNode;
 }
 
+namespace Utils { class MimeType; }
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -72,7 +74,8 @@ private:
 
 private:
     void scanProject(ProjectExplorer::Project *project);
-    QString findFirstModel(ProjectExplorer::FolderNode *folderNode);
+    QString findFirstModel(ProjectExplorer::FolderNode *folderNode,
+                           const Utils::MimeType &mimeType);
     void forgetProject(ProjectExplorer::Project *project);
     void removeModelFile(const QString &file, ProjectExplorer::Project *project);
     void removeDiagramReferenceFile(const QString &file, ProjectExplorer::Project *project);
