@@ -481,8 +481,6 @@ void CMakeBuildSystem::updateProjectData()
         updateQmlJSCodeModel();
     }
 
-    emit p->fileListChanged();
-
     emit m_buildConfiguration->emitBuildTypeChanged();
 
     m_buildDirManager.resetData();

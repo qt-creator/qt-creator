@@ -463,7 +463,6 @@ void QbsBuildSystem::updateAfterParse()
         updateCppCodeModel();
         updateExtraCompilers();
         updateQmlJsCodeModel();
-        emit project()->fileListChanged();
         m_envCache.clear();
         m_guard.markAsSuccess();
         m_guard = {};
