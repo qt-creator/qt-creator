@@ -85,7 +85,7 @@ enum { debugLeaks = 0 };
 
 /*!
     \class ExtensionSystem::PluginManager
-    \mainclass
+    \ingroup mainclasses
 
     \brief The PluginManager class implements the core plugin system that
     manages the plugins, their life cycle, and their registered objects.
@@ -93,13 +93,13 @@ enum { debugLeaks = 0 };
     The plugin manager is used for the following tasks:
     \list
     \li Manage plugins and their state
-    \li Manipulate a 'common object pool'
+    \li Manipulate a \e {common object pool}
     \endlist
 
     \section1 Plugins
-    Plugins consist of an XML descriptor file, and of a library that contains a Qt plugin
-    that must derive from the IPlugin class and has an IID of
+    Plugins must derive from the IPlugin class and have the IID
     \c "org.qt-project.Qt.QtCreatorPlugin".
+
     The plugin manager is used to set a list of file system directories to search for
     plugins, retrieve information about the state of these plugins, and to load them.
 
@@ -110,22 +110,22 @@ enum { debugLeaks = 0 };
         PluginManager::setPluginPaths(QStringList("plugins"));
         PluginManager::loadPlugins(); // try to load all the plugins
     \endcode
-    Additionally, it is possible to directly access the plugin specifications
-    (the information in the descriptor file), the plugin instances (via PluginSpec),
-    and their state.
+    Additionally, it is possible to directly access plugin meta data, instances,
+    and state.
 
     \section1 Object Pool
-    Plugins (and everybody else) can add objects to a common 'pool' that is located in
+    Plugins (and everybody else) can add objects to a common \e pool that is located in
     the plugin manager. Objects in the pool must derive from QObject, there are no other
     prerequisites. Objects can be retrieved from the object pool via the getObject()
     and getObjectByName() functions.
 
-    Whenever the state of the object pool changes a corresponding signal is emitted by the plugin manager.
+    Whenever the state of the object pool changes, a corresponding signal is
+    emitted by the plugin manager.
 
     A common usecase for the object pool is that a plugin (or the application) provides
-    an "extension point" for other plugins, which is a class / interface that can
+    an \e {extension point} for other plugins, which is a class or interface that can
     be implemented and added to the object pool. The plugin that provides the
-    extension point looks for implementations of the class / interface in the object pool.
+    extension point looks for implementations of the class or interface in the object pool.
     \code
         // Plugin A provides a "MimeTypeHandler" extension point
         // in plugin B:
@@ -137,15 +137,15 @@ enum { debugLeaks = 0 };
     \endcode
 
 
-    The \c{ExtensionSystem::Invoker} class template provides "syntactic sugar"
-    for using "soft" extension points that may or may not be provided by an
-    object in the pool. This approach does neither require the "user" plugin being
-    linked against the "provider" plugin nor a common shared
+    The ExtensionSystem::Invoker class template provides \e {syntactic sugar}
+    for using \e soft extension points that may or may not be provided by an
+    object in the pool. This approach neither requires the \e user plugin being
+    linked against the \e provider plugin nor a common shared
     header file. The exposed interface is implicitly given by the
-    invokable functions of the "provider" object in the object pool.
+    invokable functions of the provider object in the object pool.
 
-    The \c{ExtensionSystem::invoke} function template encapsulates
-    {ExtensionSystem::Invoker} construction for the common case where
+    The ExtensionSystem::invoke() function template encapsulates
+    ExtensionSystem::Invoker construction for the common case where
     the success of the call is not checked.
 
     \code
@@ -201,26 +201,9 @@ enum { debugLeaks = 0 };
     is deduced from the parameters themselves and must match the type of
     the arguments of the called functions \e{exactly}. No conversion or even
     integer promotions are applicable, so to invoke a function with a \c{long}
-    parameter explicitly use \c{long(43)} or such.
+    parameter explicitly, use \c{long(43)} or such.
 
     \note The object pool manipulating functions are thread-safe.
-*/
-
-/*!
-    \fn void PluginManager::objectAdded(QObject *obj)
-    Signals that \a obj has been added to the object pool.
-*/
-
-/*!
-    \fn void PluginManager::aboutToRemoveObject(QObject *obj)
-    Signals that \a obj will be removed from the object pool.
-*/
-
-/*!
-    \fn void PluginManager::pluginsChanged()
-    Signals that the list of available plugins has changed.
-
-    \sa plugins()
 */
 
 /*!
@@ -229,7 +212,7 @@ enum { debugLeaks = 0 };
     Retrieves the object of a given type from the object pool.
 
     This function uses \c qobject_cast to determine the type of an object.
-    If there are more than one object of the given type in
+    If there are more than one objects of the given type in
     the object pool, this function will arbitrarily choose one of them.
 
     \sa addObject()
@@ -289,10 +272,10 @@ PluginManager::~PluginManager()
     Adds the object \a obj to the object pool, so it can be retrieved
     again from the pool by type.
 
-    The plugin manager does not do any memory management - added objects
+    The plugin manager does not do any memory management. Added objects
     must be removed from the pool and deleted manually by whoever is responsible for the object.
 
-    Emits the objectAdded() signal.
+    Emits the \c objectAdded() signal.
 
     \sa PluginManager::removeObject()
     \sa PluginManager::getObject()
@@ -304,7 +287,8 @@ void PluginManager::addObject(QObject *obj)
 }
 
 /*!
-    Emits aboutToRemoveObject() and removes the object \a obj from the object pool.
+    Emits the \c aboutToRemoveObject() signal and removes the object \a obj
+    from the object pool.
     \sa PluginManager::addObject()
 */
 void PluginManager::removeObject(QObject *obj)
@@ -324,6 +308,9 @@ QVector<QObject *> PluginManager::allObjects()
     return d->allObjects;
 }
 
+/*!
+    \internal
+*/
 QReadWriteLock *PluginManager::listLock()
 {
     return &d->m_lock;
@@ -343,7 +330,7 @@ void PluginManager::loadPlugins()
 }
 
 /*!
-    Returns true if any plugin has errors even though it is enabled.
+    Returns \c true if any plugin has errors even though it is enabled.
     Most useful to call after loadPlugins().
 */
 bool PluginManager::hasError()
@@ -451,9 +438,8 @@ QStringList PluginManager::pluginPaths()
 }
 
 /*!
-    Sets the plugin search paths, i.e. the file system paths where the plugin manager
-    looks for plugin descriptions. All given \a paths and their sub directory trees
-    are searched for plugin xml description files.
+    Sets the plugin paths. All the specified \a paths and their subdirectory
+    trees are searched for plugins.
 
     \sa pluginPaths()
     \sa loadPlugins()
@@ -474,11 +460,14 @@ QString PluginManager::pluginIID()
 }
 
 /*!
-    Sets the IID that valid plugins must have. Only plugins with this IID are loaded, others are
-    silently ignored.
+    Sets the IID that valid plugins must have to \a iid. Only plugins with this
+    IID are loaded, others are silently ignored.
 
     At the moment this must be called before setPluginPaths() is called.
+
+    \omit
     // ### TODO let this + setPluginPaths read the plugin meta data lazyly whenever loadPlugins() or plugins() is called.
+    \endomit
 */
 void PluginManager::setPluginIID(const QString &iid)
 {
@@ -486,7 +475,7 @@ void PluginManager::setPluginIID(const QString &iid)
 }
 
 /*!
-    Defines the user specific settings to use for information about enabled and
+    Defines the user specific \a settings to use for information about enabled and
     disabled plugins.
     Needs to be set before the plugin search path is set with setPluginPaths().
 */
@@ -496,7 +485,7 @@ void PluginManager::setSettings(QSettings *settings)
 }
 
 /*!
-    Defines the global (user-independent) settings to use for information about
+    Defines the global (user-independent) \a settings to use for information about
     default disabled plugins.
     Needs to be set before the plugin search path is set with setPluginPaths().
 */
@@ -537,10 +526,10 @@ QStringList PluginManager::arguments()
 }
 
 /*!
-    List of all plugin specifications that have been found in the plugin search paths.
+    List of all plugins that have been found in the plugin search paths.
     This list is valid directly after the setPluginPaths() call.
-    The plugin specifications contain the information from the plugins' xml description files
-    and the current state of the plugins. If a plugin's library has been already successfully loaded,
+    The plugin specifications contain plugin metadata and the current state
+    of the plugins. If a plugin's library has been already successfully loaded,
     the plugin specification has a reference to the created plugin instance as well.
 
     \sa setPluginPaths()
@@ -616,7 +605,7 @@ static QStringList subList(const QStringList &in, const QString &key)
     and passes them on to the respective plugins along with the arguments.
 
     \a socket is passed for disconnecting the peer when the operation is done (for example,
-    document is closed) for supporting the -block flag.
+    document is closed) for supporting the \c -block flag.
 */
 
 void PluginManager::remoteArguments(const QString &serializedArgument, QObject *socket)
@@ -644,13 +633,17 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
 
 /*!
     Takes the list of command line options in \a args and parses them.
-    The plugin manager itself might process some options itself directly (-noload <plugin>), and
-    adds options that are registered by plugins to their plugin specs.
-    The caller (the application) may register itself for options via the \a appOptions list, containing pairs
-    of "option string" and a bool that indicates if the option requires an argument.
+    The plugin manager itself might process some options itself directly
+    (\c {-noload <plugin>}), and adds options that are registered by
+    plugins to their plugin specs.
+
+    The caller (the application) may register itself for options via the
+    \a appOptions list, containing pairs of \e {option string} and a bool
+    that indicates whether the option requires an argument.
     Application options always override any plugin's options.
 
-    \a foundAppOptions is set to pairs of ("option string", "argument") for any application options that were found.
+    \a foundAppOptions is set to pairs of (\e {option string}, \e argument)
+    for any application options that were found.
     The command line options that were not processed can be retrieved via the arguments() function.
     If an error occurred (like missing argument for an option that requires one), \a errorString contains
     a descriptive message of the error.
