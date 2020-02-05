@@ -104,20 +104,6 @@ void QActionPushButton::actionChanged()
     }
 }
 
-// A helper parented on a QAction,
-// making QAction::setText() a slot (which it currently is not).
-class QActionSetTextSlotHelper : public QObject
-{
-    Q_OBJECT
-public:
-    explicit QActionSetTextSlotHelper(QAction *a) : QObject(a) {}
-
-public slots:
-    void setText(const QString &t) {
-        if (auto action = qobject_cast<QAction *>(parent()))
-            action->setText(t);
-    }
-};
 
 // Helpers to retrieve model data
 // Convenience to extract a list of selected indexes
@@ -206,12 +192,8 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
         d->m_commitEnabled = !canSubmit();
         connect(this, &SubmitEditorWidget::submitActionEnabledChanged,
                 submitAction, &QAction::setEnabled);
-        // Wire setText via QActionSetTextSlotHelper.
-        auto actionSlotHelper = submitAction->findChild<QActionSetTextSlotHelper *>();
-        if (!actionSlotHelper)
-            actionSlotHelper = new QActionSetTextSlotHelper(submitAction);
         connect(this, &SubmitEditorWidget::submitActionTextChanged,
-                actionSlotHelper, &QActionSetTextSlotHelper::setText);
+                submitAction, &QAction::setText);
         d->m_submitButton = new QActionPushButton(submitAction);
         d->m_ui.buttonLayout->addWidget(d->m_submitButton);
         if (!d->m_submitShortcut)
