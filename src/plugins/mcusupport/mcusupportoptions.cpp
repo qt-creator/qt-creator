@@ -388,12 +388,8 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
 
     auto stmEvalPackages = {
         armGccPackage, stm32CubeProgrammerPackage, qtForMCUsSdkPackage};
-    auto stmEngPackages = {
-        armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, qtForMCUsSdkPackage};
     auto nxpEvalPackages = {
         armGccPackage, seggerJLinkPackage, qtForMCUsSdkPackage};
-    auto nxpEngPackages = {
-        armGccPackage, evkbImxrt1050SdkPackage, seggerJLinkPackage, qtForMCUsSdkPackage};
     auto desktopPackages = {
         qtForMCUsSdkPackage};
     packages = {
@@ -419,15 +415,9 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     mcuTarget->setToolChainFile("CMake/stm32f769i-discovery.cmake");
     mcuTargets.append(mcuTarget);
 
-    mcuTarget = new McuTarget(vendorStm, "Engineering", stmEngPackages);
-    mcuTargets.append(mcuTarget);
-
     // NXP
     mcuTarget = new McuTarget(vendorNxp, "evkbimxrt1050", nxpEvalPackages);
     mcuTarget->setToolChainFile("CMake/evkbimxrt1050-toolchain.cmake");
-    mcuTargets.append(mcuTarget);
-
-    mcuTarget = new McuTarget(vendorNxp, "Engineering",  nxpEngPackages);
     mcuTargets.append(mcuTarget);
 
     // Desktop
