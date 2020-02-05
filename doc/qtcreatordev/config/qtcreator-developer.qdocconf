@@ -56,7 +56,8 @@ depends +=    qtwidgets \
               qtsensors \
               qtuitools \
               qtwebkit \
-              qtxml
+              qtxml \
+              qttestlib
 
 include(../../config/macros.qdocconf)
 include(../../config/qt-cpp-ignore.qdocconf)
