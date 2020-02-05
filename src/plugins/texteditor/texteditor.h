@@ -653,8 +653,6 @@ public:
     void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
     void setUseGenericHighlighter(bool enabled);
     void setAutoCompleterCreator(const AutoCompleterCreator &creator);
-
-    void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
     void setEditorActionHandlers(uint optionalActions);
 
     void addHoverHandler(BaseHoverHandler *handler);

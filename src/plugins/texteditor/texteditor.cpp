@@ -8600,11 +8600,6 @@ void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &crea
     d->m_autoCompleterCreator = creator;
 }
 
-void TextEditorFactory::setEditorActionHandlers(Id contextId, uint optionalActions)
-{
-    new TextEditorActionHandler(this, id(), contextId, optionalActions);
-}
-
 void TextEditorFactory::setEditorActionHandlers(uint optionalActions)
 {
     new TextEditorActionHandler(this, id(), id(), optionalActions);
