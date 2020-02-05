@@ -160,16 +160,6 @@ enum { NExtraSelectionKinds = 12 };
 using TransformationMethod = QString(const QString &);
 using ListTransformationMethod = void(QStringList &);
 
-static QString QString_toUpper(const QString &str)
-{
-    return str.toUpper();
-}
-
-static QString QString_toLower(const QString &str)
-{
-    return str.toLower();
-}
-
 class LineColumnLabel : public FixedSizeClickLabel
 {
     Q_OBJECT
@@ -1880,12 +1870,12 @@ void TextEditorWidget::moveLineDown()
 
 void TextEditorWidget::uppercaseSelection()
 {
-    d->transformSelection(&QString_toUpper);
+    d->transformSelection([](const QString &str) { return str.toUpper(); });
 }
 
 void TextEditorWidget::lowercaseSelection()
 {
-    d->transformSelection(&QString_toLower);
+    d->transformSelection([](const QString &str) { return str.toLower(); });
 }
 
 void TextEditorWidget::sortSelectedLines()
