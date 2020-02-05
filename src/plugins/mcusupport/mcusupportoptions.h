@@ -100,14 +100,12 @@ class McuTarget : public QObject
     Q_OBJECT
 
 public:
-    McuTarget(const QString &vendor, const QString &model, const QVector<McuPackage *> &packages);
+    McuTarget(const QString &vendor, const QString &platform, const QVector<McuPackage *> &packages);
 
     QString vendor() const;
-    QString model() const;
     QVector<McuPackage *> packages() const;
     void setToolChainFile(const QString &toolChainFile);
     QString toolChainFile() const;
-    void setQulPlatform(const QString &qulPlatform);
     QString qulPlatform() const;
     void setColorDepth(int colorDepth);
     int colorDepth() const;
@@ -115,10 +113,9 @@ public:
 
 private:
     const QString m_vendor;
-    const QString m_model;
+    const QString m_qulPlatform;
     const QVector<McuPackage*> m_packages;
     QString m_toolChainFile;
-    QString m_qulPlatform;
     int m_colorDepth = -1;
 };
 

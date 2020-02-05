@@ -195,10 +195,10 @@ void McuPackage::updateStatus()
     m_infoLabel->setText(statusText);
 }
 
-McuTarget::McuTarget(const QString &vendor, const QString &model,
+McuTarget::McuTarget(const QString &vendor, const QString &platform,
                      const QVector<McuPackage*> &packages)
     : m_vendor(vendor)
-    , m_model(model)
+    , m_qulPlatform(platform)
     , m_packages(packages)
 {
 }
@@ -206,11 +206,6 @@ McuTarget::McuTarget(const QString &vendor, const QString &model,
 QString McuTarget::vendor() const
 {
     return m_vendor;
-}
-
-QString McuTarget::model() const
-{
-    return m_model;
 }
 
 QVector<McuPackage *> McuTarget::packages() const
@@ -226,11 +221,6 @@ void McuTarget::setToolChainFile(const QString &toolChainFile)
 QString McuTarget::toolChainFile() const
 {
     return m_toolChainFile;
-}
-
-void McuTarget::setQulPlatform(const QString &qulPlatform)
-{
-    m_qulPlatform = qulPlatform;
 }
 
 QString McuTarget::qulPlatform() const
@@ -400,29 +390,30 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     const QString vendorNxp = "NXP";
     const QString vendorQt = "Qt";
 
+    const QString armGccToochainFile = "CMake/toolchain/armgcc.cmake";
+
     // STM
-    auto mcuTarget = new McuTarget(vendorStm, "stm32f7508", stmEvalPackages);
-    mcuTarget->setToolChainFile("CMake/stm32f7508-discovery.cmake");
+    auto mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages);
+    mcuTarget->setToolChainFile(armGccToochainFile);
     mcuTarget->setColorDepth(32);
     mcuTargets.append(mcuTarget);
 
-    mcuTarget = new McuTarget(vendorStm, "stm32f7508", stmEvalPackages);
-    mcuTarget->setToolChainFile("CMake/stm32f7508-discovery.cmake");
+    mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages);
+    mcuTarget->setToolChainFile(armGccToochainFile);
     mcuTarget->setColorDepth(16);
     mcuTargets.append(mcuTarget);
 
-    mcuTarget = new McuTarget(vendorStm, "stm32f769i", stmEvalPackages);
-    mcuTarget->setToolChainFile("CMake/stm32f769i-discovery.cmake");
+    mcuTarget = new McuTarget(vendorStm, "STM32F769I-DISCOVERY", stmEvalPackages);
+    mcuTarget->setToolChainFile(armGccToochainFile);
     mcuTargets.append(mcuTarget);
 
     // NXP
-    mcuTarget = new McuTarget(vendorNxp, "evkbimxrt1050", nxpEvalPackages);
-    mcuTarget->setToolChainFile("CMake/evkbimxrt1050-toolchain.cmake");
+    mcuTarget = new McuTarget(vendorNxp, "MIMXRT1050-EVK", nxpEvalPackages);
+    mcuTarget->setToolChainFile(armGccToochainFile);
     mcuTargets.append(mcuTarget);
 
-    // Desktop
-    mcuTarget = new McuTarget(vendorQt, "Desktop", desktopPackages);
-    mcuTarget->setQulPlatform("Qt");
+    // Desktop (Qt)
+    mcuTarget = new McuTarget(vendorQt, "Qt", desktopPackages);
     mcuTarget->setColorDepth(32);
     mcuTargets.append(mcuTarget);
 
@@ -485,7 +476,7 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
 
     k->setUnexpandedDisplayName(kitName);
     k->setValue(Constants::KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
-    k->setValue(Constants::KIT_MCUTARGET_MODEL_KEY, mcuTarget->model());
+    k->setValue(Constants::KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTargetIsDesktop(mcuTarget)) {
@@ -576,9 +567,10 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
     if (!mcuTarget->toolChainFile().isEmpty())
         config.append(CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
                                       (qulDir + "/" + mcuTarget->toolChainFile()).toUtf8()));
-    if (!mcuTarget->qulPlatform().isEmpty())
-        config.append(CMakeConfigItem("QUL_PLATFORM",
-                                      mcuTarget->qulPlatform().toUtf8()));
+    config.append(CMakeConfigItem("QUL_GENERATORS",
+                                  (qulDir + "/CMake/QulGenerators.cmake").toUtf8()));
+    config.append(CMakeConfigItem("QUL_PLATFORM",
+                                  mcuTarget->qulPlatform().toUtf8()));
     if (mcuTargetIsDesktop(mcuTarget))
         config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
     if (mcuTarget->colorDepth() >= 0)
@@ -598,8 +590,8 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget) const
     const QString colorDepth = mcuTarget->colorDepth() > 0
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
-    return QString::fromLatin1("Qt for MCUs - %1 %2%3")
-            .arg(mcuTarget->vendor(), mcuTarget->model(), colorDepth);
+    return QString::fromLatin1("Qt for MCUs - %1%2")
+            .arg(mcuTarget->qulPlatform(), colorDepth);
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTargt)
