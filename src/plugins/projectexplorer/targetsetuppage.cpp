@@ -259,7 +259,6 @@ void TargetSetupPage::setupWidgets(const QString &filterText)
         if (!filterText.isEmpty() && !k->displayName().contains(filterText, Qt::CaseInsensitive))
             continue;
         const auto widget = new TargetSetupWidget(k, m_projectPath);
-        setInitialCheckState(widget);
         connect(widget, &TargetSetupWidget::selectedToggled,
                 this, &TargetSetupPage::kitSelectionChanged);
         connect(widget, &TargetSetupWidget::selectedToggled, this, &QWizardPage::completeChanged);
@@ -272,6 +271,7 @@ void TargetSetupPage::setupWidgets(const QString &filterText)
     // Setup import widget:
     m_importWidget->setCurrentDirectory(Internal::importDirectory(m_projectPath));
 
+    kitSelectionChanged();
     updateVisibility();
 }
 
@@ -289,12 +289,6 @@ void TargetSetupPage::reset()
     }
 
     m_ui->allKitsCheckBox->setChecked(false);
-}
-
-void TargetSetupPage::setInitialCheckState(TargetSetupWidget *widget)
-{
-    widget->setKitSelected(widget->isEnabled() && m_preferredPredicate
-                           && m_preferredPredicate(widget->kit()));
 }
 
 TargetSetupWidget *TargetSetupPage::widget(const Core::Id kitId,
@@ -357,6 +351,7 @@ void TargetSetupPage::handleKitAddition(Kit *k)
 
     Q_ASSERT(!widget(k));
     addWidget(k);
+    kitSelectionChanged();
     updateVisibility();
 }
 
@@ -391,31 +386,46 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
     updateVisibility();
 }
 
-void TargetSetupPage::selectAtLeastOneKit()
+void TargetSetupPage::selectAtLeastOneEnabledKit()
 {
-    bool atLeastOneKitSelected = anyOf(m_widgets, [](TargetSetupWidget *w) {
-            return w->isKitSelected();
+    if (anyOf(m_widgets, [](const TargetSetupWidget *w) { return w->isKitSelected(); })) {
+        // Something is already selected, we are done.
+        return;
+    }
+
+    TargetSetupWidget *toCheckWidget = nullptr;
+
+    const Kit *defaultKit = KitManager::defaultKit();
+    auto isPreferred = [this](const TargetSetupWidget *w) {
+        return w->isEnabled() && (!m_preferredPredicate || m_preferredPredicate(w->kit()));
+    };
+
+    // Use default kit if that is preferred:
+    toCheckWidget = findOrDefault(m_widgets, [defaultKit, isPreferred](const TargetSetupWidget *w) {
+        return isPreferred(w) && w->kit() == defaultKit;
     });
 
-    if (!atLeastOneKitSelected) {
-        Kit * const defaultKit = KitManager::defaultKit();
-        if (defaultKit && isUsable(defaultKit)) {
-            if (TargetSetupWidget * const w = widget(defaultKit)) {
-                w->setKitSelected(true);
-                atLeastOneKitSelected = true;
-            }
-        }
+    if (!toCheckWidget) {
+        // Use the first preferred widget:
+        toCheckWidget = findOrDefault(m_widgets, isPreferred);
     }
-    if (!atLeastOneKitSelected) {
-        for (TargetSetupWidget * const w : qAsConst(m_widgets)) {
-            if (isUsable(w->kit())) {
-                w->setKitSelected(true);
-                atLeastOneKitSelected = true;
-            }
-        }
+
+    if (!toCheckWidget) {
+        // Use default kit if it is enabled:
+        toCheckWidget = findOrDefault(m_widgets, [defaultKit](const TargetSetupWidget *w) {
+            return w->isEnabled() && w->kit() == defaultKit;
+        });
     }
-    if (atLeastOneKitSelected) {
-        kitSelectionChanged();
+
+    if (!toCheckWidget) {
+        // Use the first enabled widget:
+        toCheckWidget = findOrDefault(m_widgets,
+                                      [](const TargetSetupWidget *w) { return w->isEnabled(); });
+    }
+
+    if (toCheckWidget) {
+        toCheckWidget->setKitSelected(true);
+
         emit completeChanged(); // Is this necessary?
     }
 }
@@ -491,7 +501,6 @@ void TargetSetupPage::kitFilterChanged(const QString &filterText)
     // Reset currently shown kits
     reset();
     setupWidgets(filterText);
-    selectAtLeastOneKit();
 }
 
 void TargetSetupPage::doInitializePage()
@@ -499,7 +508,9 @@ void TargetSetupPage::doInitializePage()
     reset();
     setupWidgets();
     setupImports();
-    selectAtLeastOneKit();
+
+    selectAtLeastOneEnabledKit();
+
     updateVisibility();
 }
 
@@ -554,7 +565,6 @@ void TargetSetupPage::removeWidget(TargetSetupWidget *w)
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 {
     const auto widget = new TargetSetupWidget(k, m_projectPath);
-    setInitialCheckState(widget);
     updateWidget(widget);
     connect(widget, &TargetSetupWidget::selectedToggled,
             this, &TargetSetupPage::kitSelectionChanged);
@@ -575,6 +585,7 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
     } else {
         reLayout();
     }
+
     return widget;
 }
 

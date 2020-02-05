@@ -101,7 +101,7 @@ private:
     void kitSelectionChanged();
 
     bool isUpdating() const;
-    void selectAtLeastOneKit();
+    void selectAtLeastOneEnabledKit();
     void removeWidget(Kit *k) { removeWidget(widget(k)); }
     void removeWidget(Internal::TargetSetupWidget *w);
     Internal::TargetSetupWidget *addWidget(Kit *k);
@@ -116,10 +116,12 @@ private:
 
     void setupWidgets(const QString &filterText = QString());
     void reset();
-    void setInitialCheckState(Internal::TargetSetupWidget *widget);
 
-    Internal::TargetSetupWidget *widget(Kit *k, Internal::TargetSetupWidget *fallback = nullptr) const
-    { return widget(k->id(), fallback); }
+    Internal::TargetSetupWidget *widget(const Kit *k,
+                                        Internal::TargetSetupWidget *fallback = nullptr) const
+    {
+        return k ? widget(k->id(), fallback) : fallback;
+    }
     Internal::TargetSetupWidget *widget(const Core::Id kitId,
                                         Internal::TargetSetupWidget *fallback = nullptr) const;
 
