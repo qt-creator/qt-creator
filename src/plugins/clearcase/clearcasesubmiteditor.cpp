@@ -33,8 +33,8 @@
 
 using namespace ClearCase::Internal;
 
-ClearCaseSubmitEditor::ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
-    VcsBase::VcsBaseSubmitEditor(parameters, new ClearCaseSubmitEditorWidget)
+ClearCaseSubmitEditor::ClearCaseSubmitEditor() :
+    VcsBase::VcsBaseSubmitEditor(new ClearCaseSubmitEditorWidget)
 {
     document()->setPreferredDisplayName(tr("ClearCase Check In"));
 }

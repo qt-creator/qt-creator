@@ -204,8 +204,8 @@ public:
     OptionsPage m_optionsPage{[this] { configurationChanged(); }, &m_settings};
 
     VcsSubmitEditorFactory m_submitEditorFactory {
-        &submitEditorParameters,
-        [] { return new CommitEditor(&submitEditorParameters); },
+        submitEditorParameters,
+        [] { return new CommitEditor; },
         this
     };
     Core::CommandLocator *m_commandLocator = nullptr;

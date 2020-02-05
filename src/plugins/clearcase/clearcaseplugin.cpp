@@ -439,8 +439,7 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
 
     new ClearCaseSettingsPage(this);
 
-    new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new ClearCaseSubmitEditor(&submitParameters); }, this);
+    new VcsSubmitEditorFactory(submitParameters, [] { return new ClearCaseSubmitEditor; }, this);
 
     // any editor responds to describe (when clicking a version)
     const auto describeFunc = [this](const QString &source, const QString &changeNr) {

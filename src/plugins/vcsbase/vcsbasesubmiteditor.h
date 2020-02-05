@@ -68,8 +68,7 @@ class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
     Q_PROPERTY(bool emptyFileListEnabled READ isEmptyFileListEnabled WRITE setEmptyFileListEnabled DESIGNABLE true)
 
 protected:
-    explicit VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
-                                 SubmitEditorWidget *editorWidget);
+    explicit VcsBaseSubmitEditor(SubmitEditorWidget *editorWidget);
 
 public:
     // Register the actions with the submit editor widget.
@@ -144,6 +143,9 @@ protected:
     bool isDescriptionMandatory() const;
 
 private:
+    friend class VcsSubmitEditorFactory; // for setParameters()
+    void setParameters(const VcsBaseSubmitEditorParameters &parameters);
+
     void slotDiffSelectedVcsFiles(const QList<int> &rawList);
     void slotCheckSubmitMessage();
     void slotInsertNickName();
@@ -155,7 +157,7 @@ private:
     bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
     QString promptForNickName();
 
-    VcsBaseSubmitEditorPrivate *d;
+    VcsBaseSubmitEditorPrivate *d = nullptr;
 
     friend class Internal::SubmitEditorFile; // for the file contents
 };

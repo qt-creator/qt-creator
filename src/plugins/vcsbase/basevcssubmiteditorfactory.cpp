@@ -41,22 +41,23 @@ const char SUBMIT[] = "Vcs.Submit";
 const char DIFF_SELECTED[] = "Vcs.DiffSelectedFiles";
 
 VcsSubmitEditorFactory::VcsSubmitEditorFactory
-        (const VcsBaseSubmitEditorParameters *parameters,
+        (const VcsBaseSubmitEditorParameters &parameters,
          const EditorCreator &editorCreator,
          VcsBasePluginPrivate *plugin)
     : IEditorFactory(plugin)
 {
-    setId(parameters->id);
-    setDisplayName(QLatin1String(parameters->displayName));
-    addMimeType(parameters->mimeType);
+    setId(parameters.id);
+    setDisplayName(QLatin1String(parameters.displayName));
+    addMimeType(parameters.mimeType);
 
-    setEditorCreator([this, editorCreator] {
+    setEditorCreator([this, editorCreator, parameters] {
         VcsBaseSubmitEditor *editor = editorCreator();
+        editor->setParameters(parameters);
         editor->registerActions(m_undoAction, m_redoAction, m_submitAction, m_diffAction);
         return editor;
     });
 
-    Context context(parameters->id);
+    Context context(parameters.id);
     m_undoAction = new QAction(tr("&Undo"), this);
     ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
 

@@ -31,8 +31,8 @@
 using namespace Cvs::Internal;
 using namespace VcsBase;
 
-CvsSubmitEditor::CvsSubmitEditor(const VcsBaseSubmitEditorParameters *parameters) :
-    VcsBaseSubmitEditor(parameters, new SubmitEditorWidget),
+CvsSubmitEditor::CvsSubmitEditor() :
+    VcsBase::VcsBaseSubmitEditor(new SubmitEditorWidget),
     m_msgAdded(tr("Added")),
     m_msgRemoved(tr("Removed")),
     m_msgModified(tr("Modified"))

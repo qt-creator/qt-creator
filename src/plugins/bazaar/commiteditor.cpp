@@ -35,8 +35,8 @@
 
 using namespace Bazaar::Internal;
 
-CommitEditor::CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
-    VcsBase::VcsBaseSubmitEditor(parameters, new BazaarCommitWidget)
+CommitEditor::CommitEditor() :
+    VcsBase::VcsBaseSubmitEditor(new BazaarCommitWidget)
 {
     document()->setPreferredDisplayName(tr("Commit Editor"));
 }

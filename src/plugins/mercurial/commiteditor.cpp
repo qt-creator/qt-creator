@@ -36,8 +36,8 @@ using namespace VcsBase;
 namespace Mercurial {
 namespace Internal  {
 
-CommitEditor::CommitEditor(const VcsBaseSubmitEditorParameters *parameters) :
-    VcsBaseSubmitEditor(parameters, new MercurialCommitWidget)
+CommitEditor::CommitEditor() :
+    VcsBaseSubmitEditor(new MercurialCommitWidget)
 {
     document()->setPreferredDisplayName(tr("Commit Editor"));
 }

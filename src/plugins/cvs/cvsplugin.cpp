@@ -518,8 +518,7 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     new CvsSettingsPage([this] { configurationChanged(); }, &m_settings, this);
 
-    new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new CvsSubmitEditor(&submitParameters); }, this);
+    new VcsSubmitEditorFactory(submitParameters, [] { return new CvsSubmitEditor; }, this);
 
     const auto describeFunc = [this](const QString &source, const QString &changeNr) {
         QString errorMessage;

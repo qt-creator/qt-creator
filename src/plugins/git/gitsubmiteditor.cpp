@@ -98,8 +98,8 @@ CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const 
  * option for staged files. So, we sort apart the diff file lists
  * according to a type flag we add to the model. */
 
-GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters) :
-    VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget)
+GitSubmitEditor::GitSubmitEditor() :
+    VcsBaseSubmitEditor(new GitSubmitEditorWidget)
 {
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::show, this, &GitSubmitEditor::showCommit);

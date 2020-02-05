@@ -42,7 +42,7 @@ class CommitEditor : public VcsBase::VcsBaseSubmitEditor
     Q_OBJECT
 
 public:
-    explicit CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
+    CommitEditor();
 
     void setFields(const QFileInfo &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email,

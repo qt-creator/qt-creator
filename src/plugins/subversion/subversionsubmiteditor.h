@@ -36,7 +36,7 @@ class SubversionSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 public:
-    explicit SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
+    SubversionSubmitEditor();
 
     static QString fileFromStatusLine(const QString &statusLine);
 

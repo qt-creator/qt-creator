@@ -47,7 +47,7 @@ class VCSBASE_EXPORT VcsSubmitEditorFactory : public Core::IEditorFactory
 public:
     typedef std::function<VcsBaseSubmitEditor *()> EditorCreator;
 
-    VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters,
+    VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters &parameters,
                            const EditorCreator &editorCreator,
                            VcsBasePluginPrivate *plugin);
 

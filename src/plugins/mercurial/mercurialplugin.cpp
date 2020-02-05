@@ -256,8 +256,7 @@ MercurialPluginPrivate::MercurialPluginPrivate()
     for (auto &editor : editorParameters)
         new VcsEditorFactory(&editor, widgetCreator, describeFunc, this);
 
-    new VcsSubmitEditorFactory(&submitEditorParameters,
-        []() { return new CommitEditor(&submitEditorParameters); }, this);
+    new VcsSubmitEditorFactory(submitEditorParameters, [] { return new CommitEditor; }, this);
 
     const QString prefix = QLatin1String("hg");
     m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix, this);

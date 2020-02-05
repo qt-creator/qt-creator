@@ -38,7 +38,7 @@ class ClearCaseSubmitEditor : public VcsBase::VcsBaseSubmitEditor
     Q_OBJECT
 
 public:
-    explicit ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
+    ClearCaseSubmitEditor();
 
     static QString fileFromStatusLine(const QString &statusLine);
 

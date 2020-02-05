@@ -42,13 +42,10 @@ using namespace Utils;
     submit editor files.
 */
 
-SubmitEditorFile::SubmitEditorFile(const VcsBaseSubmitEditorParameters *parameters, VcsBaseSubmitEditor *parent) :
-    Core::IDocument(parent),
+SubmitEditorFile::SubmitEditorFile(VcsBaseSubmitEditor *editor) :
     m_modified(false),
-    m_editor(parent)
+    m_editor(editor)
 {
-    setId(parameters->id);
-    setMimeType(QLatin1String(parameters->mimeType));
     setTemporary(true);
     connect(m_editor, &VcsBaseSubmitEditor::fileContentsChanged,
             this, &Core::IDocument::contentsChanged);

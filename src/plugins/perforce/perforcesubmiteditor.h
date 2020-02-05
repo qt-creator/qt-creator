@@ -50,7 +50,7 @@ class PerforceSubmitEditor : public VcsBase::VcsBaseSubmitEditor
     Q_OBJECT
 
 public:
-    explicit PerforceSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
+    PerforceSubmitEditor();
 
     /* The p4 submit starts with all opened files. Restrict
      * it to the current project files in question. */

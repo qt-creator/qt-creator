@@ -388,8 +388,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     using namespace Core::Constants;
     Context context(SUBVERSION_CONTEXT);
 
-    new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new SubversionSubmitEditor(&submitParameters); }, this);
+    new VcsSubmitEditorFactory(submitParameters, [] { return new SubversionSubmitEditor; }, this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         describe(source, id);

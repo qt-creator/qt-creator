@@ -134,16 +134,15 @@ static inline QString submitMessageCheckScript()
 class VcsBaseSubmitEditorPrivate
 {
 public:
-    VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditorParameters *parameters,
-                               SubmitEditorWidget *editorWidget,
+    VcsBaseSubmitEditorPrivate(SubmitEditorWidget *editorWidget,
                                VcsBaseSubmitEditor *q);
 
     SubmitEditorWidget *m_widget;
     QToolBar *m_toolWidget = nullptr;
-    const VcsBaseSubmitEditorParameters *m_parameters;
+    VcsBaseSubmitEditorParameters m_parameters;
     QString m_displayName;
     QString m_checkScriptWorkingDirectory;
-    SubmitEditorFile *m_file;
+    SubmitEditorFile m_file;
 
     QPointer<QAction> m_diffAction;
     QPointer<QAction> m_submitAction;
@@ -151,12 +150,9 @@ public:
     NickNameDialog *m_nickNameDialog = nullptr;
 };
 
-VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditorParameters *parameters,
-                                                       SubmitEditorWidget *editorWidget,
+VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(SubmitEditorWidget *editorWidget,
                                                        VcsBaseSubmitEditor *q) :
-    m_widget(editorWidget),
-    m_parameters(parameters),
-    m_file(new SubmitEditorFile(parameters, q))
+    m_widget(editorWidget), m_file(q)
 {
     auto completer = new QCompleter(q);
     completer->setCaseSensitivity(Qt::CaseSensitive);
@@ -165,15 +161,22 @@ VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditor
     m_widget->descriptionEdit()->setCompletionLengthThreshold(4);
 }
 
-VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
-                                         SubmitEditorWidget *editorWidget) :
-    d(new VcsBaseSubmitEditorPrivate(parameters, editorWidget, this))
+VcsBaseSubmitEditor::VcsBaseSubmitEditor(SubmitEditorWidget *editorWidget)
 {
+    d = new VcsBaseSubmitEditorPrivate(editorWidget, this);
+}
+
+void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &parameters)
+{
+    d->m_parameters = parameters;
+    d->m_file.setId(parameters.id);
+    d->m_file.setMimeType(QLatin1String(parameters.mimeType));
+
     setWidget(d->m_widget);
-    document()->setPreferredDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
+    document()->setPreferredDisplayName(QCoreApplication::translate("VCS", d->m_parameters.displayName));
 
     // Message font according to settings
-    CompletingTextEdit *descriptionEdit = editorWidget->descriptionEdit();
+    CompletingTextEdit *descriptionEdit = d->m_widget->descriptionEdit();
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
     const QTextCharFormat tf = fs.toTextCharFormat(TextEditor::C_TEXT);
     descriptionEdit->setFont(tf.font());
@@ -187,7 +190,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     pal.setBrush(QPalette::HighlightedText, selectionFormat.foreground());
     descriptionEdit->setPalette(pal);
 
-    d->m_file->setModified(false);
+    d->m_file.setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
 
     connect(d->m_widget, &SubmitEditorWidget::diffSelected,
@@ -338,7 +341,7 @@ void VcsBaseSubmitEditor::setLineWrapWidth(int w)
 
 Core::IDocument *VcsBaseSubmitEditor::document() const
 {
-    return d->m_file;
+    return &d->m_file;
 }
 
 QString VcsBaseSubmitEditor::checkScriptWorkingDirectory() const
@@ -453,7 +456,7 @@ QStringList VcsBaseSubmitEditor::rowsToFiles(const QList<int> &rows) const
 
 void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QList<int> &rawList)
 {
-    if (d->m_parameters->diffType == VcsBaseSubmitEditorParameters::DiffRows)
+    if (d->m_parameters.diffType == VcsBaseSubmitEditorParameters::DiffRows)
         emit diffSelectedRows(rawList);
     else
         emit diffSelectedFiles(rowsToFiles(rawList));

@@ -38,12 +38,12 @@ class CvsSubmitEditor : public VcsBase::VcsBaseSubmitEditor
     Q_OBJECT
 
 public:
+    CvsSubmitEditor();
+
     enum State { LocallyAdded, LocallyModified, LocallyRemoved };
     // A list of state indicators and file names.
     typedef QPair<State, QString> StateFilePair;
     typedef QList<StateFilePair> StateFilePairs;
-
-    explicit CvsSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
 
     void setStateList(const StateFilePairs &statusOutput);
 
