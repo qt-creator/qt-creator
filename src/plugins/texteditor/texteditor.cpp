@@ -564,7 +564,7 @@ public:
 
     void transformSelectedLines(ListTransformationMethod method);
 
-    void slotUpdateExtraAreaWidth();
+    void slotUpdateExtraAreaWidth(Utils::optional<int> width = {});
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
     void updateTabStops();
@@ -4925,15 +4925,21 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 
     if (d->m_codeFoldingVisible)
         space += foldBoxWidth(fm);
+
+    if (viewportMargins() != QMargins{isLeftToRight() ? space : 0, 0, isLeftToRight() ? 0 : space, 0})
+        d->slotUpdateExtraAreaWidth(space);
+
     return space;
 }
 
-void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth()
+void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(optional<int> width)
 {
+    if (!width.has_value())
+        width = q->extraAreaWidth();
     if (q->isLeftToRight())
-        q->setViewportMargins(q->extraAreaWidth(), 0, 0, 0);
+        q->setViewportMargins(*width, 0, 0, 0);
     else
-        q->setViewportMargins(0, 0, q->extraAreaWidth(), 0);
+        q->setViewportMargins(0, 0, *width, 0);
 }
 
 struct Internal::ExtraAreaPaintEventData
