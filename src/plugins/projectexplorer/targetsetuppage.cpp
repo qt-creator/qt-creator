@@ -498,9 +498,21 @@ void TargetSetupPage::kitSelectionChanged()
 
 void TargetSetupPage::kitFilterChanged(const QString &filterText)
 {
+    // Remember selected kits:
+    const std::vector<TargetSetupWidget *> selectedWidgets
+        = filtered(m_widgets, &TargetSetupWidget::isKitSelected);
+    const QVector<Core::Id> selectedKitIds = transform<QVector>(selectedWidgets,
+                                                                [](const TargetSetupWidget *w) {
+                                                                    return w->kit()->id();
+                                                                });
+
     // Reset currently shown kits
     reset();
     setupWidgets(filterText);
+
+    // Re-select kits:
+    for (TargetSetupWidget *w : qAsConst(m_widgets))
+        w->setKitSelected(selectedKitIds.contains(w->kit()->id()));
 }
 
 void TargetSetupPage::doInitializePage()
