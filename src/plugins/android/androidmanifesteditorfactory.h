@@ -27,6 +27,8 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
+#include <texteditor/texteditoractionhandler.h>
+
 namespace Android {
 namespace Internal {
 
@@ -34,6 +36,9 @@ class AndroidManifestEditorFactory final : public Core::IEditorFactory
 {
 public:
     AndroidManifestEditorFactory();
+
+private:
+    TextEditor::TextEditorActionHandler m_actionHandler;
 };
 
 } // namespace Internal

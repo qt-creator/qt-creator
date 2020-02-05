@@ -8598,8 +8598,7 @@ void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &crea
 
 void TextEditorFactory::setEditorActionHandlers(uint optionalActions)
 {
-    d->m_textEditorActionHandler.reset(
-                new TextEditorActionHandler(nullptr, id(), id(), optionalActions));
+    d->m_textEditorActionHandler.reset(new TextEditorActionHandler(id(), id(), optionalActions));
 }
 
 void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)

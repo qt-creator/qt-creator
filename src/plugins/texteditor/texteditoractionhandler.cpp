@@ -190,15 +190,9 @@ public:
     Core::Id m_contextId;
 };
 
-static TextEditorWidget *castWidgetToTextEditorWidget(Core::IEditor *editor)
-{
-    return qobject_cast<TextEditorWidget *>(editor->widget());
-}
-
 TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
     (Core::Id editorId, Core::Id contextId, uint optionalActions)
-  : m_findTextWidget(castWidgetToTextEditorWidget)
-  , m_optionalActions(optionalActions)
+  : m_optionalActions(optionalActions)
   , m_editorId(editorId)
   , m_contextId(contextId)
 {
@@ -228,7 +222,7 @@ void TextEditorActionHandlerPrivate::createActions()
             QString locatorString = TextEditorPlugin::lineNumberFilter()->shortcutString();
             locatorString += QLatin1Char(' ');
             const int selectionStart = locatorString.size();
-            locatorString += TextEditorActionHandler::tr("<line>:<column>");
+            locatorString += tr("<line>:<column>");
             Core::LocatorManager::show(locatorString, selectionStart, locatorString.size() - selectionStart);
         });
     m_printAction = registerAction(PRINT,
@@ -589,21 +583,21 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
 
 } // namespace Internal
 
-TextEditorActionHandler::TextEditorActionHandler(QObject *parent, Core::Id editorId,
-                                                 Core::Id contextId, uint optionalActions)
-    : QObject(parent), d(new Internal::TextEditorActionHandlerPrivate(editorId, contextId,
-                                                                      optionalActions))
+TextEditorActionHandler::TextEditorActionHandler(Core::Id editorId,
+                                                 Core::Id contextId,
+                                                 uint optionalActions,
+                                                 const TextEditorWidgetResolver &resolver)
+    : d(new Internal::TextEditorActionHandlerPrivate(editorId, contextId, optionalActions))
 {
+    if (resolver)
+        d->m_findTextWidget = resolver;
+    else
+        d->m_findTextWidget = [](Core::IEditor *editor) { return qobject_cast<TextEditorWidget *>(editor->widget()); };
 }
 
 TextEditorActionHandler::~TextEditorActionHandler()
 {
     delete d;
-}
-
-void TextEditorActionHandler::setTextEditorWidgetResolver(const TextEditorWidgetResolver &resolver)
-{
-    d->m_findTextWidget = resolver;
 }
 
 } // namespace TextEditor

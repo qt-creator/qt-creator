@@ -27,6 +27,8 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
+#include <texteditor/texteditoractionhandler.h>
+
 namespace DiffEditor {
 namespace Internal {
 
@@ -34,6 +36,12 @@ class DiffEditorFactory : public Core::IEditorFactory
 {
 public:
     DiffEditorFactory();
+
+private:
+    TextEditor::TextEditorActionHandler descriptionHandler;
+    TextEditor::TextEditorActionHandler unifiedHandler;
+    TextEditor::TextEditorActionHandler leftHandler;
+    TextEditor::TextEditorActionHandler rightHandler;
 };
 
 } // namespace Internal

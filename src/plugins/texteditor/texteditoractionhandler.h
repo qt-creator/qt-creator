@@ -43,9 +43,10 @@ namespace Internal { class TextEditorActionHandlerPrivate; }
 
 // Redirects slots from global actions to the respective editor.
 
-class TEXTEDITOR_EXPORT TextEditorActionHandler : public QObject
+class TEXTEDITOR_EXPORT TextEditorActionHandler final
 {
-    Q_OBJECT
+    TextEditorActionHandler(const TextEditorActionHandler &) = delete;
+    TextEditorActionHandler &operator=(const TextEditorActionHandler &) = delete;
 
 public:
     enum OptionalActionsMask {
@@ -58,14 +59,14 @@ public:
     };
     using TextEditorWidgetResolver = std::function<TextEditorWidget *(Core::IEditor *)>;
 
-    explicit TextEditorActionHandler(QObject *parent, Core::Id editorId, Core::Id contextId,
-                                     uint optionalActions = None);
-    ~TextEditorActionHandler() override;
+    TextEditorActionHandler(Core::Id editorId,
+                            Core::Id contextId,
+                            uint optionalActions = None,
+                            const TextEditorWidgetResolver &resolver = {});
 
-    void setTextEditorWidgetResolver(const TextEditorWidgetResolver &resolver);
+    ~TextEditorActionHandler();
 
 private:
-    friend class Internal::TextEditorActionHandlerPrivate;
     Internal::TextEditorActionHandlerPrivate *d;
 };
 
