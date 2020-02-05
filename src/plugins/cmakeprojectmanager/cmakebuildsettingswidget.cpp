@@ -107,7 +107,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     auto project = bc->project();
 
-    auto buildDirChooser = new Utils::PathChooser(this);
+    auto buildDirChooser = new Utils::PathChooser;
     buildDirChooser->setBaseDirectory(project->projectDirectory());
     buildDirChooser->setFileName(bc->buildDirectory());
     connect(buildDirChooser, &Utils::PathChooser::rawPathChanged, this,
@@ -118,8 +118,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     int row = 0;
     mainLayout->addWidget(new QLabel(tr("Build directory:")), row, 0);
-    mainLayout->addWidget(buildDirChooser->lineEdit(), row, 1);
-    mainLayout->addWidget(buildDirChooser->buttonAtIndex(0), row, 2);
+    mainLayout->addWidget(buildDirChooser, row, 1, 1, 2);
     ++row;
 
     auto qmlDebugAspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
