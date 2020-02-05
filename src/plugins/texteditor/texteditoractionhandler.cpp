@@ -52,11 +52,9 @@ namespace Internal {
 class TextEditorActionHandlerPrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::TextEditorActionHandler)
+
 public:
-    TextEditorActionHandlerPrivate(TextEditorActionHandler *parent,
-                                   Core::Id editorId,
-                                   Core::Id contextId,
-                                   uint optionalActions);
+    TextEditorActionHandlerPrivate(Core::Id editorId, Core::Id contextId, uint optionalActions);
 
     QAction *registerActionHelper(Core::Id id, bool scriptable, const QString &title,
                             const QKeySequence &keySequence, Core::Id menueGroup,
@@ -121,7 +119,6 @@ public:
     void updateCurrentEditor(Core::IEditor *editor);
 
 public:
-    TextEditorActionHandler *q = nullptr;
     TextEditorActionHandler::TextEditorWidgetResolver m_findTextWidget;
     QAction *m_undoAction = nullptr;
     QAction *m_redoAction = nullptr;
@@ -199,9 +196,8 @@ static TextEditorWidget *castWidgetToTextEditorWidget(Core::IEditor *editor)
 }
 
 TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
-    (TextEditorActionHandler *parent, Core::Id editorId, Core::Id contextId, uint optionalActions)
-  : q(parent)
-  , m_findTextWidget(castWidgetToTextEditorWidget)
+    (Core::Id editorId, Core::Id contextId, uint optionalActions)
+  : m_findTextWidget(castWidgetToTextEditorWidget)
   , m_optionalActions(optionalActions)
   , m_editorId(editorId)
   , m_contextId(contextId)
@@ -595,7 +591,7 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
 
 TextEditorActionHandler::TextEditorActionHandler(QObject *parent, Core::Id editorId,
                                                  Core::Id contextId, uint optionalActions)
-    : QObject(parent), d(new Internal::TextEditorActionHandlerPrivate(this, editorId, contextId,
+    : QObject(parent), d(new Internal::TextEditorActionHandlerPrivate(editorId, contextId,
                                                                       optionalActions))
 {
 }
