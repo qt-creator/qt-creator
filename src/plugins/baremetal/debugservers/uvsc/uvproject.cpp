@@ -200,10 +200,10 @@ Project::Project(const UvscServerProvider *provider, DebuggerRunTool *runTool)
             QByteArray name;
             int type = -1;
         } entries[] = {
-            {"IROM1", "OCR_RVCT4",  1},
-            {"IROM2", "OCR_RVCT5",  1},
-            {"IRAM1", "OCR_RVCT9",  0},
-            {"IRAM2", "OCR_RVCT10", 0},
+            {{"IROM1"}, "OCR_RVCT4",  1},
+            {{"IROM2"}, "OCR_RVCT5",  1},
+            {{"IRAM1"}, "OCR_RVCT9",  0},
+            {{"IRAM2"}, "OCR_RVCT10", 0},
         };
 
         const auto entryBegin = std::cbegin(entries);
