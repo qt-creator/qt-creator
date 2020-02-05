@@ -8,5 +8,6 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif()
 
 add_qtc_executable(win${Arch}interrupt
+  COMPONENT wininterrupt
   SOURCES wininterrupt.c
 )

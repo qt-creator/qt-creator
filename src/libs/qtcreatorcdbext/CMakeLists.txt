@@ -33,6 +33,7 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif()
 
 add_qtc_library(qtcreatorcdbext
+  COMPONENT qtcreatorcdbext
   BUILD_BY_DEFAULT
   DEPENDS ${DbgEngLib}
   DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
@@ -53,48 +54,53 @@ add_qtc_library(qtcreatorcdbext
     symbolgroupvalue.cpp symbolgroupvalue.h
 )
 
-find_package(PythonLibs 3.5)
-if (NOT ${PYTHONLIBS_FOUND})
-  message(WARNING "PythonLibs (at least version 3.5) not found. qtcreatorcdbext will be built without Python support.")
-  return()
-endif()
-
-set(PythonRegex "^(.*)/(.*)/(python[0-9]+)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(PythonRegex "^(.*)/(.*)/(python[0-9]+_d)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
-endif()
-
-foreach(lib IN LISTS PYTHON_LIBRARIES)
-  if (lib MATCHES ${PythonRegex})
-    set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-    break()
+qtc_library_enabled(_library_enabled qtcreatorcdbext)
+if (_library_enabled)
+  find_package(PythonLibs 3.5)
+  if (NOT ${PYTHONLIBS_FOUND})
+    message(WARNING "PythonLibs (at least version 3.5) not found. qtcreatorcdbext will be built without Python support.")
+    return()
   endif()
-endforeach()
 
-if (NOT PythonDll)
+  set(PythonRegex "^(.*)/(.*)/(python[0-9]+)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(WARNING "The Debug build of Qt Creator requires Debug Python libraries. Please check your Python installation")
+    set(PythonRegex "^(.*)/(.*)/(python[0-9]+_d)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
   endif()
-  message(WARNING "PythonDll not found. qtcreatorcdbext will be built without Python support.")
-  return()
+
+  foreach(lib IN LISTS PYTHON_LIBRARIES)
+    if (lib MATCHES ${PythonRegex})
+      set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+      break()
+    endif()
+  endforeach()
+
+  if (NOT PythonDll)
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+      message(WARNING "The Debug build of Qt Creator requires Debug Python libraries. Please check your Python installation")
+    endif()
+    message(WARNING "PythonDll not found. qtcreatorcdbext will be built without Python support.")
+    return()
+  endif()
+
+  extend_qtc_target(qtcreatorcdbext
+    DEPENDS "${PYTHON_LIBRARIES}"
+    INCLUDES "${PYTHON_INCLUDE_DIR}"
+    DEFINES WITH_PYTHON=1
+    SOURCES
+      pycdbextmodule.cpp pycdbextmodule.h
+      pyfield.cpp pyfield.h
+      pystdoutredirect.cpp pystdoutredirect.h
+      pytype.cpp pytype.h
+      pyvalue.cpp pyvalue.h
+  )
+
+  install(FILES "${PythonDll}"
+          DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
+          COMPONENT qtcreatorcdbext)
+
+  add_custom_target(copy_python_dll ALL VERBATIM)
+  add_custom_command(TARGET copy_python_dll POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy "${PythonDll}" "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
+    VERBATIM
+  )
 endif()
-
-extend_qtc_target(qtcreatorcdbext
-  DEPENDS "${PYTHON_LIBRARIES}"
-  INCLUDES "${PYTHON_INCLUDE_DIR}"
-  DEFINES WITH_PYTHON=1
-  SOURCES
-    pycdbextmodule.cpp pycdbextmodule.h
-    pyfield.cpp pyfield.h
-    pystdoutredirect.cpp pystdoutredirect.h
-    pytype.cpp pytype.h
-    pyvalue.cpp pyvalue.h
-)
-
-install(FILES "${PythonDll}" DESTINATION lib/qtcreatorcdbext${ArchSuffix}/)
-
-add_custom_target(copy_python_dll ALL VERBATIM)
-add_custom_command(TARGET copy_python_dll POST_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy "${PythonDll}" "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
-  VERBATIM
-)

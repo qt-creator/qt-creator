@@ -322,6 +322,17 @@ function(qtc_plugin_enabled varName name)
   endif()
 endfunction()
 
+function(qtc_library_enabled varName name)
+  if (NOT (name IN_LIST __QTC_LIBRARIES))
+    message(FATAL_ERROR "extend_qtc_library: Unknown library target \"${name}\"")
+  endif()
+  if (TARGET ${name})
+    set(${varName} ON PARENT_SCOPE)
+  else()
+    set(${varName} OFF PARENT_SCOPE)
+  endif()
+endfunction()
+
 function(enable_pch target)
   if (BUILD_WITH_PCH)
     # Skip PCH for targets that do not use the expected visibility settings:
@@ -417,7 +428,7 @@ endfunction()
 
 function(add_qtc_library name)
   cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS"
-    "DESTINATION"
+    "DESTINATION;COMPONENT"
     "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
   )
 
@@ -431,6 +442,20 @@ function(add_qtc_library name)
   endif()
 
   update_cached_list(__QTC_LIBRARIES "${name}")
+
+  # special libraries can be turned off
+  if (_arg_BUILD_BY_DEFAULT)
+    string(TOUPPER "BUILD_LIBRARY_${name}" _build_library_var)
+    set(_build_library_default "ON")
+    if (DEFINED ENV{QTC_${_build_library_var}})
+      set(_build_library_default "$ENV{QTC_${_build_library_var}}")
+    endif()
+    set(${_build_library_var} "${_build_library_default}" CACHE BOOL "Build library ${name}.")
+
+    if (NOT ${_build_library_var})
+      return()
+    endif()
+  endif()
 
   compare_sources_with_existing_disk_files(${name} "${_arg_SOURCES}")
 
@@ -529,12 +554,21 @@ function(add_qtc_library name)
     set(NAMELINK_OPTION NAMELINK_SKIP)
   endif()
 
+  unset(COMPONENT_OPTION)
+  if (_arg_COMPONENT)
+    set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
+  endif()
+
   install(TARGETS ${name}
     EXPORT ${IDE_CASED_ID}
-    RUNTIME DESTINATION "${_DESTINATION}" OPTIONAL
+    RUNTIME
+      DESTINATION "${_DESTINATION}"
+      ${COMPONENT_OPTION}
+      OPTIONAL
     LIBRARY
       DESTINATION "${IDE_LIBRARY_PATH}"
       ${NAMELINK_OPTION}
+      ${COMPONENT_OPTION}
       OPTIONAL
     OBJECTS
       DESTINATION "${IDE_LIBRARY_PATH}"
@@ -871,9 +905,18 @@ function(extend_qtc_plugin target_name)
   extend_qtc_target(${target_name} ${ARGN})
 endfunction()
 
+function(extend_qtc_library target_name)
+  qtc_library_enabled(_library_enabled ${target_name})
+  if (NOT _library_enabled)
+    return()
+  endif()
+
+  extend_qtc_target(${target_name} ${ARGN})
+endfunction()
+
 function(add_qtc_executable name)
   cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS"
-    "DESTINATION"
+    "DESTINATION;COMPONENT"
     "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
@@ -950,7 +993,16 @@ function(add_qtc_executable name)
   enable_pch(${name})
 
   if (NOT _arg_SKIP_INSTALL)
-    install(TARGETS ${name} DESTINATION "${_DESTINATION}" OPTIONAL)
+    unset(COMPONENT_OPTION)
+    if (_arg_COMPONENT)
+      set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
+    endif()
+
+    install(TARGETS ${name}
+      DESTINATION "${_DESTINATION}"
+      ${COMPONENT_OPTION}
+      OPTIONAL
+    )
     update_cached_list(__QTC_INSTALLED_EXECUTABLES
       "${_DESTINATION}/${name}${CMAKE_EXECUTABLE_SUFFIX}")
 
