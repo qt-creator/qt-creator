@@ -8528,6 +8528,7 @@ public:
     CommentDefinition m_commentDefinition;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
     CompletionAssistProvider * m_completionAssistProvider = nullptr; // owned
+    std::unique_ptr<TextEditorActionHandler> m_textEditorActionHandler;
     bool m_useGenericHighlighter = false;
     bool m_duplicatedSupported = true;
     bool m_codeFoldingSupported = false;
@@ -8602,7 +8603,8 @@ void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &crea
 
 void TextEditorFactory::setEditorActionHandlers(uint optionalActions)
 {
-    new TextEditorActionHandler(this, id(), id(), optionalActions);
+    d->m_textEditorActionHandler.reset(
+                new TextEditorActionHandler(nullptr, id(), id(), optionalActions));
 }
 
 void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)
