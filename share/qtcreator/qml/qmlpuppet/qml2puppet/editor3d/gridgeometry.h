@@ -35,9 +35,11 @@ namespace Internal {
 class GridGeometry : public QQuick3DGeometry
 {
     Q_OBJECT
+
     Q_PROPERTY(int lines READ lines WRITE setLines NOTIFY linesChanged)
     Q_PROPERTY(float step READ step WRITE setStep NOTIFY stepChanged)
     Q_PROPERTY(bool isCenterLine READ isCenterLine WRITE setIsCenterLine NOTIFY isCenterLineChanged)
+    Q_PROPERTY(bool isSubdivision MEMBER m_isSubdivision)
 
 public:
     GridGeometry();
@@ -63,9 +65,10 @@ protected:
 private:
     void fillVertexData(QByteArray &vertexData);
 
-    int m_lines = 1000;
+    int m_lines = 20; // number of lines on 1 side of an axis (so total number of grid lines in 1 direction = 2 * m_lines + 1)
     float m_step = .1f;
     bool m_isCenterLine = false;
+    bool m_isSubdivision = false;
 };
 
 }

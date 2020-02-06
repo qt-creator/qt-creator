@@ -32,11 +32,13 @@ Node {
 
     property alias lines: gridGeometry.lines
     property alias step: gridGeometry.step
+    property alias subdivAlpha: subGridMaterial.opacity
 
     rotation.x: 90
 
     // Note: Only one instance of HelperGrid is supported, as the geometry names are fixed
-    Model {
+
+    Model { // Main grid lines
         geometry: GridGeometry {
             id: gridGeometry
             name: "3D Edit View Helper Grid"
@@ -45,13 +47,32 @@ Node {
         materials: [
             DefaultMaterial {
                 id: mainGridMaterial
-                emissiveColor: "#cccccc"
+                emissiveColor: "#aaaaaa"
                 lighting: DefaultMaterial.NoLighting
                 cullingMode: Material.DisableCulling
             }
         ]
     }
-    Model {
+
+    Model { // Subdivision lines
+        geometry: GridGeometry {
+            lines: gridGeometry.lines
+            step: gridGeometry.step
+            isSubdivision: true
+            name: "3D Edit View Helper Grid subdivisions"
+        }
+
+        materials: [
+            DefaultMaterial {
+                id: subGridMaterial
+                emissiveColor: mainGridMaterial.emissiveColor
+                lighting: DefaultMaterial.NoLighting
+                cullingMode: Material.DisableCulling
+            }
+        ]
+    }
+
+    Model { // Z Axis
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step
@@ -67,7 +88,7 @@ Node {
             }
         ]
     }
-    Model {
+    Model { // X Axis
         rotation.z: 90
         geometry: GridGeometry {
             lines: gridGeometry.lines
