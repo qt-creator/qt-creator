@@ -40,12 +40,6 @@ void DeploymentData::setLocalInstallRoot(const Utils::FilePath &installRoot)
 
 void DeploymentData::addFile(const DeployableFile &file)
 {
-    for (int i = 0; i < m_files.size(); ++i) {
-        if (m_files.at(i).localFilePath() == file.localFilePath()) {
-            m_files[i] = file;
-            return;
-        }
-    }
     m_files << file;
 }
 
