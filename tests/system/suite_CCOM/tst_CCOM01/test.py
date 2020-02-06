@@ -58,7 +58,7 @@ def main():
         compileOutput = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
         if not test.verify(compileSucceeded(compileOutput.plainText),
                            "Verifying building of existing complex qt application."):
-            test.log(compileOutput.plainText)
+            test.log(str(compileOutput.plainText))
     # exit
     invokeMenuItem("File", "Exit")
 # no cleanup needed, as whole testing directory gets properly removed after test finished

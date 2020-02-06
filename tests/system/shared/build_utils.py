@@ -57,7 +57,7 @@ def checkCompile():
     waitFor("len(str(output.plainText))>0",5000)
     if compileSucceeded(output.plainText):
         if os.getenv("SYSTEST_DEBUG") == "1":
-            test.log("Compile Output:\n%s" % output.plainText)
+            test.log("Compile Output:\n%s" % str(output.plainText))
         test.passes("Compile successful")
         return True
     else:

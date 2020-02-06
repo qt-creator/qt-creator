@@ -50,6 +50,6 @@ def main():
         compileOutput = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
         if not test.verify(compileSucceeded(compileOutput.plainText),
                            "Verifying building of simple qt quick application."):
-            test.log(compileOutput.plainText)
+            test.log(str(compileOutput.plainText))
     # exit qt creator
     invokeMenuItem("File", "Exit")
