@@ -65,7 +65,7 @@ SettingsPageWidget::SettingsPageWidget()
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_ui.commandPathChooser->setHistoryCompleter(QLatin1String("ClearCase.Command.History"));
 
-    ClearCaseSettings s = ClearCasePluginPrivate::instance()->settings();
+    const ClearCaseSettings &s = ClearCasePlugin::settings();
 
     m_ui.commandPathChooser->setPath(s.ccCommand);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
@@ -117,7 +117,7 @@ void SettingsPageWidget::apply()
     rc.indexOnlyVOBs = m_ui.indexOnlyVOBsEdit->text();
     rc.extDiffAvailable = m_ui.externalDiffRadioButton->isEnabled();
 
-    ClearCasePluginPrivate::instance()->setSettings(rc);
+    ClearCasePlugin::setSettings(rc);
 }
 
 ClearCaseSettingsPage::ClearCaseSettingsPage(QObject *parent)

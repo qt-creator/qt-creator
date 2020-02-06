@@ -41,8 +41,7 @@
 namespace ClearCase {
 namespace Internal {
 
-ClearCaseSync::ClearCaseSync(ClearCasePluginPrivate *plugin, QSharedPointer<StatusMap> statusMap) :
-    m_plugin(plugin),
+ClearCaseSync::ClearCaseSync(QSharedPointer<StatusMap> statusMap) :
     m_statusMap(statusMap)
 { }
 
@@ -65,19 +64,17 @@ QStringList ClearCaseSync::updateStatusHotFiles(const QString &viewRoot, int &to
 }
 
 // Set status for all files to unknown until we're done indexing
-void ClearCaseSync::invalidateStatus(const QDir &viewRootDir,
-                                 const QStringList &files)
+void ClearCaseSync::invalidateStatus(const QDir &viewRootDir, const QStringList &files)
 {
-    foreach (const QString &file, files) {
-            m_plugin->setStatus(viewRootDir.absoluteFilePath(file), FileStatus::Unknown, false);
-    }
+    for (const QString &file : files)
+        ClearCasePlugin::setStatus(viewRootDir.absoluteFilePath(file), FileStatus::Unknown, false);
 }
 
 void ClearCaseSync::invalidateStatusAllFiles()
 {
     const StatusMap::ConstIterator send = m_statusMap->constEnd();
     for (StatusMap::ConstIterator it = m_statusMap->constBegin(); it != send; ++it)
-        m_plugin->setStatus(it.key(), FileStatus::Unknown, false);
+        ClearCasePlugin::setStatus(it.key(), FileStatus::Unknown, false);
 }
 
 void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QString &buffer)
@@ -100,23 +97,23 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
     if (reState.indexIn(buffer, wspos + 1, QRegExp::CaretAtOffset) != -1) {
         ccState = reState.cap();
         if (ccState.indexOf(QLatin1String("hijacked")) != -1)
-            m_plugin->setStatus(absFile, FileStatus::Hijacked, true);
+            ClearCasePlugin::setStatus(absFile, FileStatus::Hijacked, true);
         else if (ccState.indexOf(QLatin1String("loaded but missing")) != -1)
-            m_plugin->setStatus(absFile, FileStatus::Missing, false);
+            ClearCasePlugin::setStatus(absFile, FileStatus::Missing, false);
     }
     else if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
-        m_plugin->setStatus(absFile, FileStatus::CheckedOut, true);
+        ClearCasePlugin::setStatus(absFile, FileStatus::CheckedOut, true);
     // don't care about checked-in files not listed in project
     else if (m_statusMap->contains(absFile))
-        m_plugin->setStatus(absFile, FileStatus::CheckedIn, true);
+        ClearCasePlugin::setStatus(absFile, FileStatus::CheckedIn, true);
 }
 
 void ClearCaseSync::updateTotalFilesCount(const QString &view, ClearCaseSettings settings,
                                           const int processed)
 {
-    settings = m_plugin->settings(); // Might have changed while task was running
+    settings = ClearCasePlugin::settings(); // Might have changed while task was running
     settings.totalFiles[view] = processed;
-    m_plugin->setSettings(settings);
+    ClearCasePlugin::setSettings(settings);
 }
 
 void ClearCaseSync::updateStatusForNotManagedFiles(const QStringList &files)
@@ -124,14 +121,14 @@ void ClearCaseSync::updateStatusForNotManagedFiles(const QStringList &files)
     foreach (const QString &file, files) {
        QString absFile = QFileInfo(file).absoluteFilePath();
        if (!m_statusMap->contains(absFile))
-           m_plugin->setStatus(absFile, FileStatus::NotManaged, false);
+           ClearCasePlugin::setStatus(absFile, FileStatus::NotManaged, false);
     }
 }
 
 void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList &files,
                                      const ClearCaseSettings &settings)
 {
-    QString view = m_plugin->currentView();
+    QString view = ClearCasePlugin::viewData().name;
 
     int totalFileCount = files.size();
     const bool hot = (totalFileCount < 10);
@@ -139,7 +136,7 @@ void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList
     if (!hot)
         totalFileCount = settings.totalFiles.value(view, totalFileCount);
 
-    const QString viewRoot = m_plugin->viewRoot();
+    const QString viewRoot = ClearCasePlugin::viewData().root;
     const QDir viewRootDir(viewRoot);
 
     QStringList args(QLatin1String("ls"));
@@ -154,7 +151,7 @@ void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList
         if (!settings.indexOnlyVOBs.isEmpty())
             vobs = settings.indexOnlyVOBs.split(QLatin1Char(','));
         else
-            vobs = m_plugin->ccGetActiveVobs();
+            vobs = ClearCasePlugin::ccGetActiveVobs();
 
         args << vobs;
     }
@@ -201,7 +198,7 @@ void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList
 void ClearCaseSync::processCleartoolLscheckoutLine(const QString &buffer)
 {
     QString absFile = buffer.trimmed();
-    m_plugin->setStatus(absFile, FileStatus::CheckedOut, true);
+    ClearCasePlugin::setStatus(absFile, FileStatus::CheckedOut, true);
 }
 
 ///
@@ -219,7 +216,7 @@ void ClearCaseSync::syncDynamicView(QFutureInterface<void> &future,
          << QLatin1String("-cview")
          << QLatin1String("-s");
 
-    const QString viewRoot = m_plugin->viewRoot();
+    const QString viewRoot = ClearCasePlugin::viewData().root;
 
     QProcess process;
     process.setWorkingDirectory(viewRoot);
@@ -252,7 +249,7 @@ void ClearCaseSync::syncDynamicView(QFutureInterface<void> &future,
 
 void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
 {
-    ClearCaseSettings settings = m_plugin->settings();
+    ClearCaseSettings settings = ClearCasePlugin::settings();
     if (settings.disableIndexer)
         return;
 
@@ -261,14 +258,14 @@ void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
         return;
 
     // refresh activities list
-    if (m_plugin->isUcm())
-        m_plugin->refreshActivities();
+    if (ClearCasePlugin::viewData().isUcm)
+        ClearCasePlugin::refreshActivities();
 
-    QString view = m_plugin->currentView();
+    QString view = ClearCasePlugin::viewData().name;
     if (view.isEmpty())
         emit updateStreamAndView();
 
-    if (m_plugin->isDynamic())
+    if (ClearCasePlugin::viewData().isDynamic)
         syncDynamicView(future, settings);
     else
         syncSnapshotView(future, files, settings);
@@ -311,7 +308,7 @@ void ClearCaseSync::verifyParseStatus(const QString &fileName,
         // The algorithm doesn't store checked in files in the index, unless it was there already
         QCOMPARE(m_statusMap->count(), 0);
         QCOMPARE(m_statusMap->contains(fileName), false);
-        m_plugin->setStatus(fileName, FileStatus::Unknown, false);
+        ClearCasePlugin::setStatus(fileName, FileStatus::Unknown, false);
         processCleartoolLsLine(QDir(QLatin1String("/")), cleartoolLsLine);
     }
 
