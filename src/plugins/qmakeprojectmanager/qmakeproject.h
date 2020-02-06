@@ -139,6 +139,7 @@ public:
     QString qmakeSysroot();
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
+    void deregisterFromCacheManager();
 
     /// \internal
     void scheduleAsyncUpdateFile(QmakeProFile *file,

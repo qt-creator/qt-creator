@@ -238,6 +238,10 @@ QmakeBuildSystem::~QmakeBuildSystem()
 
     // Make sure root node (and associated readers) are shut hown before proceeding
     m_rootProFile.reset();
+    if (m_qmakeGlobalsRefCnt > 0) {
+        m_qmakeGlobalsRefCnt = 0;
+        deregisterFromCacheManager();
+    }
 
     m_cancelEvaluate = true;
     QTC_CHECK(m_qmakeGlobalsRefCnt == 0);
@@ -733,14 +737,19 @@ void QmakeBuildSystem::destroyProFileReader(QtSupport::ProFileReader *reader)
                     [reader] { delete reader; });
     onFinished(deleteFuture, this, [this](const QFuture<void> &) {
         if (!--m_qmakeGlobalsRefCnt) {
-            QString dir = projectFilePath().toString();
-            if (!dir.endsWith(QLatin1Char('/')))
-                dir += QLatin1Char('/');
-            QtSupport::ProFileCacheManager::instance()->discardFiles(dir, qmakeVfs());
-            QtSupport::ProFileCacheManager::instance()->decRefCount();
+            deregisterFromCacheManager();
             m_qmakeGlobals.reset();
         }
     });
+}
+
+void QmakeBuildSystem::deregisterFromCacheManager()
+{
+    QString dir = projectFilePath().toString();
+    if (!dir.endsWith(QLatin1Char('/')))
+        dir += QLatin1Char('/');
+    QtSupport::ProFileCacheManager::instance()->discardFiles(dir, qmakeVfs());
+    QtSupport::ProFileCacheManager::instance()->decRefCount();
 }
 
 void QmakeBuildSystem::activeTargetWasChanged(Target *t)
