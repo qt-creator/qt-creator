@@ -122,7 +122,7 @@ public:
         Overview overview;
         overview.showReturnTypes = true;
         overview.showArgumentNames = true;
-        overview.starBindFlags = Overview::StarBindFlags(nullptr);
+        overview.starBindFlags = Overview::StarBindFlags();
 
         // Run the formatter
         PointerDeclarationFormatter formatter(cppRefactoringFile, overview, cursorHandling);
