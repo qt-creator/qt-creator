@@ -109,8 +109,16 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
     case QEvent::Drop: {
         QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
         QByteArray data = dropEvent->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
-        if (!data.isEmpty())
-            nodeInstanceClient()->library3DItemDropped(createDrop3DLibraryItemCommand(data));
+        if (!data.isEmpty()) {
+            ServerNodeInstance sceneInstance;
+            if (hasInstanceForObject(m_active3DScene))
+                sceneInstance = instanceForObject(m_active3DScene);
+            else if (hasInstanceForObject(m_active3DView))
+                sceneInstance = instanceForObject(m_active3DView);
+
+            nodeInstanceClient()->library3DItemDropped(createDrop3DLibraryItemCommand(
+                                                           data, sceneInstance.instanceId()));
+        }
 
     } break;
 

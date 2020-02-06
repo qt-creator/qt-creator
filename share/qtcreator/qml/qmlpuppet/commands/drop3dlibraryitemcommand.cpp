@@ -29,14 +29,16 @@
 
 namespace QmlDesigner {
 
-Drop3DLibraryItemCommand::Drop3DLibraryItemCommand(const QByteArray &itemData)
-    : m_itemData(itemData)
+Drop3DLibraryItemCommand::Drop3DLibraryItemCommand(const QByteArray &itemData, qint32 sceneRootId)
+    : m_itemData(itemData),
+      m_sceneRootId(sceneRootId)
 {
 }
 
 QDataStream &operator<<(QDataStream &out, const Drop3DLibraryItemCommand &command)
 {
     out << command.itemData();
+    out << command.sceneRootId();
 
     return out;
 }
@@ -44,13 +46,14 @@ QDataStream &operator<<(QDataStream &out, const Drop3DLibraryItemCommand &comman
 QDataStream &operator>>(QDataStream &in, Drop3DLibraryItemCommand &command)
 {
     in >> command.m_itemData;
+    in >> command.m_sceneRootId;
 
     return in;
 }
 
 bool operator==(const Drop3DLibraryItemCommand &first, const Drop3DLibraryItemCommand &second)
 {
-    return first.m_itemData == second.m_itemData;
+    return first.m_itemData == second.m_itemData && first.m_sceneRootId == second.m_sceneRootId;
 }
 
 } // namespace QmlDesigner

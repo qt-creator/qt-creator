@@ -183,7 +183,7 @@ protected:
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
     ComponentCompletedCommand createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList);
     ChangeSelectionCommand createChangeSelectionCommand(const QList<ServerNodeInstance> &instanceList);
-    Drop3DLibraryItemCommand createDrop3DLibraryItemCommand(const QByteArray &itemData);
+    Drop3DLibraryItemCommand createDrop3DLibraryItemCommand(const QByteArray &itemData, qint32 sceneRootId);
 
     void addChangedProperty(const InstancePropertyPair &property);
 

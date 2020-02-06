@@ -41,13 +41,15 @@ class Drop3DLibraryItemCommand
                            const Drop3DLibraryItemCommand &second);
 
 public:
-    explicit Drop3DLibraryItemCommand(const QByteArray &itemData);
+    explicit Drop3DLibraryItemCommand(const QByteArray &itemData, qint32 sceneRootId);
     Drop3DLibraryItemCommand() = default;
 
     QByteArray itemData() const { return m_itemData; }
+    qint32 sceneRootId() const { return m_sceneRootId; }
 
 private:
     QByteArray m_itemData;
+    qint32 m_sceneRootId;
 };
 
 QDataStream &operator<<(QDataStream &out, const Drop3DLibraryItemCommand &command);

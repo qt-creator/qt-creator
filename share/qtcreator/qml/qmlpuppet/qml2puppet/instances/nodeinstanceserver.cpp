@@ -1180,9 +1180,10 @@ ChangeSelectionCommand NodeInstanceServer::createChangeSelectionCommand(const QL
     return ChangeSelectionCommand(idVector);
 }
 
-Drop3DLibraryItemCommand NodeInstanceServer::createDrop3DLibraryItemCommand(const QByteArray &itemData)
+Drop3DLibraryItemCommand NodeInstanceServer::createDrop3DLibraryItemCommand(const QByteArray &itemData,
+                                                                            qint32 sceneRootId)
 {
-    return Drop3DLibraryItemCommand(itemData);
+    return Drop3DLibraryItemCommand(itemData, sceneRootId);
 }
 
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const
