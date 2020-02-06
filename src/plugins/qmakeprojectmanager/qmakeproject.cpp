@@ -661,18 +661,15 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
         m_qmakeGlobals = std::make_unique<QMakeGlobals>();
         m_qmakeGlobalsRefCnt = 0;
 
-        Environment env = Environment::systemEnvironment();
         QStringList qmakeArgs;
 
         Target *t = target();
         Kit *k = t->kit();
-        if (auto bc = static_cast<QmakeBuildConfiguration *>(t->activeBuildConfiguration())) {
-            env = bc->environment();
-            if (QMakeStep *qs = bc->qmakeStep())
-                qmakeArgs = qs->parserArguments();
-            else
-                qmakeArgs = bc->configCommandLineArguments();
-        }
+        Environment env = m_buildConfiguration->environment();
+        if (QMakeStep *qs = m_buildConfiguration->qmakeStep())
+            qmakeArgs = qs->parserArguments();
+        else
+            qmakeArgs = m_buildConfiguration->configCommandLineArguments();
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(k);
         m_qmakeSysroot = SysRootKitAspect::sysRoot(k).toString();
