@@ -33,6 +33,8 @@
 #include <QtQuick3D/private/qquick3dfrustumcamera_p.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
+#include <QtQuick3D/private/qquick3dutils_p.h>
+#include <QtCore/qmath.h>
 
 #include <limits>
 
@@ -114,8 +116,42 @@ QSSGRenderGraphObject *CameraGeometry::updateSpatialNode(QSSGRenderGraphObject *
         return node;
 
     if (!m_camera->cameraNode()) {
-        // Force cameraNode creation by doing a dummy mapping call
+#if QT_VERSION <= QT_VERSION_CHECK(5, 14, 1)
+        // 5.14.1 doesn't yet have function to force camera node creation, so we must do it
+        // the hard way
+        auto camera = new QSSGRenderCamera();
+        bool changed = false;
+        if (auto perspCamera = qobject_cast<QQuick3DPerspectiveCamera *>(m_camera)) {
+            changed |= qUpdateIfNeeded(camera->clipNear, perspCamera->clipNear());
+            changed |= qUpdateIfNeeded(camera->clipFar, perspCamera->clipFar());
+            changed |= qUpdateIfNeeded(camera->fov, qDegreesToRadians(perspCamera->fieldOfView()));
+            changed |= qUpdateIfNeeded(camera->fovHorizontal, perspCamera->fieldOfViewOrientation()
+                                       == QQuick3DCamera::FieldOfViewOrientation::Horizontal);
+            changed |= qUpdateIfNeeded(camera->enableFrustumClipping, perspCamera->frustumCullingEnabled());
+            if (auto frustCamera = qobject_cast<QQuick3DFrustumCamera *>(m_camera)) {
+                camera->flags.setFlag(QSSGRenderNode::Flag::CameraFrustumProjection, true);
+                changed |= qUpdateIfNeeded(camera->top, frustCamera->top());
+                changed |= qUpdateIfNeeded(camera->bottom, frustCamera->bottom());
+                changed |= qUpdateIfNeeded(camera->right, frustCamera->right());
+                changed |= qUpdateIfNeeded(camera->left, frustCamera->left());
+            }
+        } else if (auto orthoCamera = qobject_cast<QQuick3DOrthographicCamera *>(m_camera)) {
+            camera->flags.setFlag(QSSGRenderNode::Flag::Orthographic, true);
+            changed |= qUpdateIfNeeded(camera->clipNear, orthoCamera->clipNear());
+            changed |= qUpdateIfNeeded(camera->clipFar, orthoCamera->clipFar());
+            changed |= qUpdateIfNeeded(camera->enableFrustumClipping, orthoCamera->frustumCullingEnabled());
+        } else if (auto customCamera = qobject_cast<QQuick3DCustomCamera *>(m_camera)) {
+            camera->flags.setFlag(QSSGRenderNode::Flag::CameraCustomProjection, true);
+            changed |= qUpdateIfNeeded(camera->projection, customCamera->projection());
+            changed |= qUpdateIfNeeded(camera->enableFrustumClipping, customCamera->frustumCullingEnabled());
+        }
+        if (changed)
+            camera->flags.setFlag(QSSGRenderNode::Flag::CameraDirty);
+        m_camera->setCameraNode(camera);
+#else
+        // Doing explicit viewport mapping forces cameraNode creation
         m_camera->mapToViewport({}, m_viewPortRect.width(), m_viewPortRect.height());
+#endif
     }
 
     node = QQuick3DGeometry::updateSpatialNode(node);
