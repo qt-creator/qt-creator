@@ -30,24 +30,24 @@ locations. On Linux/macOS this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1
 use installations of the official opensource Qt packages. Just install the Qt version for the
 respective toolchain with the components (if available):
 - (Desktop) <toolchain> <bitness>, e.g. Desktop gcc 64-bit
-- Qt Quick Controls
+- Qt Quick Controls (if available)
 - Qt Script
 
 The exact versions and toolchains are:
 
 Linux:
 Qt 5.4.1 (gcc)
-Qt 5.6.1-1 (gcc)
 Qt 5.10.1 (gcc)
+Qt 5.14.1 (gcc)
 
 macOS:
-Qt 5.6.1-1 (clang)
 Qt 5.10.1 (clang)
+Qt 5.14.1 (clang)
 
 Windows:
 Qt 5.4.1 (gcc)
-Qt 5.6.1-1 (MSVC2013, 32 bit)
 Qt 5.10.1 (MSVC2015, 32 bit)
+Qt 5.14.1 (MSVC2017, 64 bit)
 
 Fourth - you'll have to provide some additional repositories.
 These additional repositories are located inside ~/squish-data or C:\Users\<user>\squish-data (depending on the OS you're on).

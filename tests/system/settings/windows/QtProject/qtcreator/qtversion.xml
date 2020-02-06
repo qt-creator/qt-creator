@@ -26,8 +26,8 @@
   <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">24</value>
-   <value type="QString" key="Name">Qt %{Qt:Version} (msvc2013)</value>
-   <value type="QString" key="QMakePath">C:/Qt/Qt5.6.1/5.6/msvc2013/bin/qmake.exe</value>
+   <value type="QString" key="Name">Qt %{Qt:Version} (msvc2017_64)</value>
+   <value type="QString" key="QMakePath">C:/Qt/Qt5.14.1/5.14.1/msvc2017_64/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>

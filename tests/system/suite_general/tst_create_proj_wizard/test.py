@@ -71,7 +71,7 @@ def main():
         with TestSection("Testing project template %s -> %s" % (category, template)):
             displayedPlatforms = __createProject__(category, template)
             if template.startswith("Qt Quick Application - "):
-                qtVersionsForQuick = ["5.6", "5.10"] if template == "Qt Quick Application - Empty" else ["5.10"]
+                qtVersionsForQuick = ["5.10", "5.14"]
                 for counter, qtVersion in enumerate(qtVersionsForQuick):
                     def additionalFunc(displayedPlatforms, qtVersion):
                         requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)

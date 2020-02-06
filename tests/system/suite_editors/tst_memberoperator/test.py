@@ -47,7 +47,8 @@ def main():
             if not startCreatorVerifyingClang(useClang):
                 continue
             createProject_Qt_Console(tempDir(), "SquishProject")
-            selectBuildConfig(Targets.DESKTOP_5_6_1_DEFAULT, "Debug") # do not use the default Qt4
+            # by default Qt4 is selected, use a Qt5 kit instead
+            selectBuildConfig(Targets.DESKTOP_5_10_1_DEFAULT, "Debug")
             checkCodeModelSettings(useClang)
             selectFromLocator("main.cpp")
             cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")

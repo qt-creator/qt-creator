@@ -67,7 +67,7 @@ def checkUsages(resultsView, expectedResults, directory):
 
 def main():
     # prepare example project
-    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
                                  "quick", "animation")
     proFile = "animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
@@ -80,7 +80,7 @@ def main():
     if not startedWithoutPluginError():
         return
     # open example project
-    openQmakeProject(examplePath, [Targets.DESKTOP_5_6_1_DEFAULT])
+    openQmakeProject(examplePath, [Targets.DESKTOP_5_14_1_DEFAULT])
     # open qml file
     openDocument("animation.Resources.animation\\.qrc./animation.basics.color-animation\\.qml")
     # get editor
@@ -94,10 +94,10 @@ def main():
         type(editorArea, "<Left>")
     invokeContextMenuItem(editorArea, "Find References to Symbol Under Cursor")
     # check if usage was properly found
-    expectedResults = [ExpectedResult("color-animation.qml", 49, "Rectangle {"),
-                       ExpectedResult("color-animation.qml", 109, "Rectangle {"),
-                       ExpectedResult("property-animation.qml", 48, "Rectangle {"),
-                       ExpectedResult("property-animation.qml", 57, "Rectangle {")]
+    expectedResults = [ExpectedResult("color-animation.qml", 59, "Rectangle {"),
+                       ExpectedResult("color-animation.qml", 119, "Rectangle {"),
+                       ExpectedResult("property-animation.qml", 58, "Rectangle {"),
+                       ExpectedResult("property-animation.qml", 67, "Rectangle {")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
     test.verify(checkUsages(resultsView, expectedResults, templateDir),
                 "Verifying if usages were properly found using context menu.")
@@ -113,10 +113,10 @@ def main():
         type(editorArea, "<Left>")
     invokeMenuItem("Tools", "QML/JS", "Find References to Symbol Under Cursor")
     # check if usage was properly found
-    expectedResults = [ExpectedResult("color-animation.qml", 50, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
-                       ExpectedResult("color-animation.qml", 110, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }"),
-                       ExpectedResult("property-animation.qml", 49, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
-                       ExpectedResult("property-animation.qml", 58, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }")]
+    expectedResults = [ExpectedResult("color-animation.qml", 60, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
+                       ExpectedResult("color-animation.qml", 120, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }"),
+                       ExpectedResult("property-animation.qml", 59, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
+                       ExpectedResult("property-animation.qml", 68, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
     test.verify(checkUsages(resultsView, expectedResults, templateDir),
                 "Verifying if usages were properly found using main menu.")
@@ -132,7 +132,7 @@ def main():
         type(editorArea, "<Left>")
     type(editorArea, "<Ctrl+Shift+u>")
     # check if usage was properly found
-    expectedResults = [ExpectedResult("color-animation.qml", 93, "SequentialAnimation on opacity {")]
+    expectedResults = [ExpectedResult("color-animation.qml", 103, "SequentialAnimation on opacity {")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
     test.verify(checkUsages(resultsView, expectedResults, templateDir),
                 "Verifying if usages were properly found using shortcut.")

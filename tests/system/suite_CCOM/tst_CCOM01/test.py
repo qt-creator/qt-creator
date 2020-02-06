@@ -28,7 +28,7 @@ source("../../shared/qtcreator.py")
 # entry of test
 def main():
     # prepare example project
-    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_6_1_DEFAULT),
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
                                  "quick", "animation")
     proFile = "animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
@@ -42,6 +42,7 @@ def main():
     # open example project, supports only Qt 5
     targets = Targets.desktopTargetClasses()
     targets.discard(Targets.DESKTOP_4_8_7_DEFAULT)
+    targets.discard(Targets.DESKTOP_5_4_1_GCC)
     openQmakeProject(examplePath, targets)
     # build and wait until finished - on all build configurations
     availableConfigs = iterateBuildConfigs()

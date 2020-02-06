@@ -29,7 +29,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    for target in [Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_10_1_DEFAULT]:
+    for target in [Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT]:
         # using a temporary directory won't mess up a potentially existing
         createNewQmlExtension(tempDir(), [target])
         # wait for parsing to complete

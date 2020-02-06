@@ -114,6 +114,8 @@ def testLoggingFeatures():
         clickButton(":*Qt Creator.Clear_QToolButton")
 
 def main():
+    test.xfail("Skipping test. This will not work correctly with Qt <= 5.15 (QTBUG-82150).")
+    return
     projName = "simpleQuickUI2.qmlproject"
     projFolder = os.path.dirname(findFile("testdata", "simpleQuickUI2/%s" % projName))
     if not neededFilePresent(os.path.join(projFolder, projName)):
