@@ -10,14 +10,15 @@ endif()
 get_filename_component(install_prefix "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 
 # Get the dependencies of Qt's plugins
-foreach(plugin @qt5_plugin_directories@)
+set(qt_plugin_directories "@QT_PLUGIN_DIRECTORIES@")
+foreach(plugin IN LISTS qt_plugin_directories)
   file(GLOB plugin_files "${install_prefix}/${plugin}/*@CMAKE_SHARED_LIBRARY_SUFFIX@")
-  list(APPEND qt5_plugin_files "${plugin_files}")
+  list(APPEND qt_plugin_files "${plugin_files}")
 endforeach()
 
 # Get the qml module dependencies
-file(GLOB_RECURSE qml_plugin_files "${install_prefix}/@qt5_qml_dest_dir@/*/*@CMAKE_SHARED_LIBRARY_SUFFIX@")
-list(APPEND qt5_plugin_files "${qml_plugin_files}")
+file(GLOB_RECURSE qml_plugin_files "${install_prefix}/@QT_DEST_QML_PATH@/*/*@CMAKE_SHARED_LIBRARY_SUFFIX@")
+list(APPEND qt_plugin_files "${qml_plugin_files}")
 
 set(installed_EXECUTABLES_NOT_PREFIXED "@__QTC_INSTALLED_EXECUTABLES@")
 set(installed_LIBRARIES_NOT_PREFIXED "@__QTC_INSTALLED_LIBRARIES@")
@@ -74,7 +75,7 @@ while(installed_libraries_size GREATER 0)
     endif()
 
     set(qt_plugins_installed TRUE)
-    set(installed_MODULES "${qt5_plugin_files}")
+    set(installed_MODULES "${qt_plugin_files}")
   endif()
 
   list(REMOVE_DUPLICATES unresolved_deps)
@@ -125,7 +126,7 @@ while(installed_libraries_size GREATER 0)
         set(so_dest "${install_prefix}/@IDE_LIBRARY_PATH@/${so_dir}")
       else()
         set(so_src "${p}/lib/${so}")
-        if (p STREQUAL "@qt5_base_dir@")
+        if (p STREQUAL "@QT_BASE_DIR@")
           set(so_dest "${install_prefix}/@IDE_LIBRARY_BASE_PATH@/Qt/lib")
         else()
           set(so_dest "${install_prefix}/@IDE_LIBRARY_PATH@")
