@@ -35,7 +35,7 @@ class ScxmlEditorData;
 class ScxmlEditorFactory final : public Core::IEditorFactory
 {
 public:
-    explicit ScxmlEditorFactory(QObject *parent);
+    ScxmlEditorFactory();
 
 private:
     ScxmlEditorData* m_editorData = nullptr;

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "scxmleditorplugin.h"
+
 #include "scxmleditorfactory.h"
 
 #include <coreplugin/designmode.h>
@@ -33,12 +34,23 @@ using namespace Core;
 namespace ScxmlEditor {
 namespace Internal {
 
+class ScxmlEditorPluginPrivate
+{
+public:
+    ScxmlEditorFactory editorFactory;
+};
+
+ScxmlEditorPlugin::~ScxmlEditorPlugin()
+{
+    delete d;
+}
+
 bool ScxmlEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    (void) new ScxmlEditorFactory(this);
+    d = new ScxmlEditorPluginPrivate;
 
     return true;
 }

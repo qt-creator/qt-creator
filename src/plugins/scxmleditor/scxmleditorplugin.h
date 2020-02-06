@@ -35,10 +35,13 @@ class ScxmlEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     ScxmlEditorPlugin() = default;
+    ~ScxmlEditorPlugin();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
     void extensionsInitialized() final;
+
+    class ScxmlEditorPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal
