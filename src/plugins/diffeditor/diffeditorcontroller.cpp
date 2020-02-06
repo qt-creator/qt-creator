@@ -123,6 +123,11 @@ void DiffEditorController::forceContextLineCount(int lines)
     m_document->forceContextLineCount(lines);
 }
 
+void DiffEditorController::setReloader(const std::function<void ()> &reloader)
+{
+    m_reloader = reloader;
+}
+
 Core::IDocument *DiffEditorController::document() const
 {
     return m_document;
@@ -135,7 +140,8 @@ void DiffEditorController::requestReload()
 {
     m_isReloading = true;
     m_document->beginReload();
-    reload();
+    QTC_ASSERT(m_reloader, reloadFinished(false); return);
+    m_reloader();
 }
 
 void DiffEditorController::reloadFinished(bool success)

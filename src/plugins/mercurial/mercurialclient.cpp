@@ -89,37 +89,27 @@ class FileDiffController : public MercurialDiffEditorController
 {
 public:
     FileDiffController(IDocument *document, const QString &fileName) :
-        MercurialDiffEditorController(document),
-        m_fileName(fileName)
-    { }
-
-    void reload() override
+        MercurialDiffEditorController(document)
     {
-        QStringList args = { "diff", m_fileName };
-        runCommand({ addConfigurationArguments(args) });
+        setReloader([this, fileName] {
+            QStringList args = { "diff", fileName };
+            runCommand({ addConfigurationArguments(args) });
+        });
     }
-
-private:
-    const QString m_fileName;
 };
 
 class FileListDiffController : public MercurialDiffEditorController
 {
 public:
     FileListDiffController(IDocument *document, const QStringList &fileNames) :
-        MercurialDiffEditorController(document),
-        m_fileNames(fileNames)
-    { }
-
-    void reload() override
+        MercurialDiffEditorController(document)
     {
-        QStringList args { "diff" };
-        args << m_fileNames;
-        runCommand({addConfigurationArguments(args)});
+        setReloader([this, fileNames] {
+            QStringList args { "diff" };
+            args << fileNames;
+            runCommand({addConfigurationArguments(args)});
+        });
     }
-
-private:
-    const QStringList m_fileNames;
 };
 
 
@@ -128,12 +118,11 @@ class RepositoryDiffController : public MercurialDiffEditorController
 public:
     RepositoryDiffController(IDocument *document) :
         MercurialDiffEditorController(document)
-    { }
-
-    void reload() override
     {
-        QStringList args = { "diff" };
-        runCommand({addConfigurationArguments(args)});
+        setReloader([this] {
+            QStringList args = { "diff" };
+            runCommand({addConfigurationArguments(args)});
+        });
     }
 };
 

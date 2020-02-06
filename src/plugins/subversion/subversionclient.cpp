@@ -175,13 +175,13 @@ public:
         : VcsBaseDiffEditorController(document), m_authenticationOptions(authOptions)
     {
         forceContextLineCount(3); // SVN cannot change that when using internal diff
+        setReloader([this] { m_changeNumber ? requestDescription() : requestDiff(); });
     }
 
     void setFilesList(const QStringList &filesList);
     void setChangeNumber(int changeNumber);
 
 protected:
-    void reload() override;
     void processCommandOutput(const QString &output) override;
 
 private:
@@ -240,15 +240,6 @@ void SubversionDiffEditorController::requestDiff()
         args << m_filesList;
     }
     runCommand(QList<QStringList>() << args, 0);
-}
-
-void SubversionDiffEditorController::reload()
-{
-    if (m_changeNumber) {
-        requestDescription();
-    } else {
-        requestDiff();
-    }
 }
 
 void SubversionDiffEditorController::processCommandOutput(const QString &output)

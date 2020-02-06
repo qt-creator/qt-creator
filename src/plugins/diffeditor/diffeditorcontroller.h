@@ -72,15 +72,15 @@ public:
     bool chunkExists(int fileIndex, int chunkIndex) const;
     Core::IDocument *document() const;
 
+    // reloadFinished() should be called inside the reloader (for synchronous reload)
+    // or later (for asynchronous reload)
+    void setReloader(const std::function<void ()> &reloader);
+
 signals:
     void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
                                const ChunkSelection &selection);
 
 protected:
-    // reloadFinished() should be called
-    // inside reload() (for synchronous reload)
-    // or later (for asynchronous reload)
-    virtual void reload() = 0;
     void reloadFinished(bool success);
 
     void setDiffFiles(const QList<FileData> &diffFileList,
@@ -93,6 +93,7 @@ protected:
 private:
     Internal::DiffEditorDocument *const m_document;
     bool m_isReloading = false;
+    std::function<void()> m_reloader;
 
     friend class Internal::DiffEditorDocument;
 };

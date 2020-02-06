@@ -130,11 +130,11 @@ class DiffFilesController : public DiffEditorController
     Q_OBJECT
 public:
     DiffFilesController(IDocument *document);
-    ~DiffFilesController() override;
+    ~DiffFilesController() override { cancelReload(); }
 
 protected:
-    void reload() final;
     virtual QList<ReloadInput> reloadInputList() const = 0;
+
 private:
     void reloaded();
     void cancelReload();
@@ -147,22 +147,16 @@ DiffFilesController::DiffFilesController(IDocument *document)
 {
     connect(&m_futureWatcher, &QFutureWatcher<FileData>::finished,
             this, &DiffFilesController::reloaded);
-}
 
-DiffFilesController::~DiffFilesController()
-{
-    cancelReload();
-}
+    setReloader([this] {
+        cancelReload();
+        m_futureWatcher.setFuture(Utils::map(reloadInputList(),
+                                             DiffFile(ignoreWhitespace(),
+                                                      contextLineCount())));
 
-void DiffFilesController::reload()
-{
-    cancelReload();
-    m_futureWatcher.setFuture(Utils::map(reloadInputList(),
-                                         DiffFile(ignoreWhitespace(),
-                                                  contextLineCount())));
-
-    Core::ProgressManager::addTask(m_futureWatcher.future(),
-                                   tr("Calculating diff"), "DiffEditor");
+        Core::ProgressManager::addTask(m_futureWatcher.future(),
+                                       tr("Calculating diff"), "DiffEditor");
+    });
 }
 
 void DiffFilesController::reloaded()
