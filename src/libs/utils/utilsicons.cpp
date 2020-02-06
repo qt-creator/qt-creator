@@ -152,6 +152,8 @@ const Icon CLEAN({
 const Icon CLEAN_TOOLBAR({
         {QLatin1String(":/utils/images/clean_pane_small.png"), Theme::IconsBaseColor}});
 const Icon RELOAD({
+        {QLatin1String(":/utils/images/reload_gray.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon RELOAD_TOOLBAR({
         {QLatin1String(":/utils/images/reload_gray.png"), Theme::IconsBaseColor}});
 const Icon TOGGLE_LEFT_SIDEBAR({
         {QLatin1String(":/utils/images/leftsidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);

@@ -367,7 +367,7 @@ void SerialOutputPane::createToolButtons()
 
     // Reset button
     m_resetButton = new QToolButton;
-    m_resetButton->setIcon(Utils::Icons::RELOAD.icon());
+    m_resetButton->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     m_resetButton->setToolTip(tr("Reset Board"));
     m_resetButton->setEnabled(false);
 

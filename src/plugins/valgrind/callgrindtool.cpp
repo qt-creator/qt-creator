@@ -396,7 +396,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     // reset action
     m_resetAction = action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Utils::Icons::RELOAD.icon());
+    action->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     //action->setText(CallgrindTool::tr("Reset"));
     action->setToolTip(CallgrindTool::tr("Reset all event counters."));
     connect(action, &QAction::triggered, this, &CallgrindToolPrivate::resetRequested);

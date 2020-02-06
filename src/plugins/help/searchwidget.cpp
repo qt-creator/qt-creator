@@ -277,7 +277,7 @@ SearchSideBarItem::SearchSideBarItem()
 QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
 {
     auto reindexButton = new QToolButton;
-    reindexButton->setIcon(Utils::Icons::RELOAD.icon());
+    reindexButton->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     reindexButton->setToolTip(tr("Regenerate Index"));
     connect(reindexButton, &QAbstractButton::clicked,
             static_cast<SearchWidget *>(widget()), &SearchWidget::reindexDocumentation);

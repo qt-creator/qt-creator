@@ -136,7 +136,7 @@ void VcsBaseEditorConfig::setBaseArguments(const QStringList &b)
 
 QAction *VcsBaseEditorConfig::addReloadButton()
 {
-    auto action = new QAction(Utils::Icons::RELOAD.icon(), tr("Reload"), d->m_toolBar);
+    auto action = new QAction(Utils::Icons::RELOAD_TOOLBAR.icon(), tr("Reload"), d->m_toolBar);
     connect(action, &QAction::triggered, this, &VcsBaseEditorConfig::argumentsChanged);
     addAction(action);
     return action;
