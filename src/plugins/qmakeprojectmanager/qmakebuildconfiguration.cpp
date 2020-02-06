@@ -249,9 +249,11 @@ void QmakeBuildConfiguration::updateProblemLabel()
     }
 
     const auto bs = qmakeBuildSystem();
-    if (bs->rootProFile()->parseInProgress() || !bs->rootProFile()->validParse()) {
-        buildDirectoryAspect()->setProblem({});
-        return;
+    if (QmakeProFile *rootProFile = bs->rootProFile()) {
+        if (rootProFile->parseInProgress() || !rootProFile->validParse()) {
+            buildDirectoryAspect()->setProblem({});
+            return;
+        }
     }
 
     bool targetMismatch = false;

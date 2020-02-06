@@ -231,6 +231,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
 
 QmakeBuildSystem::~QmakeBuildSystem()
 {
+    m_guard = {};
     delete m_cppCodeModelUpdater;
     m_cppCodeModelUpdater = nullptr;
     m_asyncUpdateState = ShuttingDown;
