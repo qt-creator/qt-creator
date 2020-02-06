@@ -167,8 +167,8 @@ FossilPluginPrivate::FossilPluginPrivate()
     for (int i = 0; i < editorCount; i++)
         new VcsBase::VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
-    new VcsBase::VcsSubmitEditorFactory(&submitEditorParameters,
-        []() { return new CommitEditor(&submitEditorParameters); }, this);
+    new VcsBase::VcsSubmitEditorFactory(submitEditorParameters,
+        [] { return new CommitEditor; }, this);
 
     m_commandLocator = new Core::CommandLocator("Fossil", "fossil", "fossil", this);
 
