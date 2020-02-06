@@ -25,7 +25,7 @@
 
 #include <utils/outputformatter.h>
 
-QT_FORWARD_DECLARE_CLASS(QRegularExpression);
+#include <QRegularExpression>
 
 namespace VcsBase {
 
@@ -38,7 +38,7 @@ public:
     void handleLink(const QString &href) override;
 
 private:
-    QRegularExpression *m_urlRegexp = nullptr;
+    const QRegularExpression m_urlRegexp;
 };
 
 }

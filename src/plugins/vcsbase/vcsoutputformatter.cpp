@@ -25,21 +25,17 @@
 
 #include <QDesktopServices>
 #include <QPlainTextEdit>
-#include <QRegularExpression>
 #include <QTextCursor>
 #include <QUrl>
 
 namespace VcsBase {
 
-VcsOutputFormatter::VcsOutputFormatter()
-{
-    m_urlRegexp = new QRegularExpression("https?://\\S*");
-}
+VcsOutputFormatter::VcsOutputFormatter() : m_urlRegexp("https?://\\S*") {}
 
 void VcsOutputFormatter::appendMessage(const QString &text, Utils::OutputFormat format)
 {
     QString out = text;
-    const QRegularExpressionMatch match = m_urlRegexp->match(text);
+    const QRegularExpressionMatch match = m_urlRegexp.match(text);
     if (match.hasMatch()) {
         const QTextCharFormat normalFormat = charFormat(format);
         OutputFormatter::appendMessage(text.left(match.capturedStart()), format);
