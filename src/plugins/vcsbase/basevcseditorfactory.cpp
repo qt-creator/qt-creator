@@ -59,7 +59,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
     setId(parameters->id);
     setDisplayName(QCoreApplication::translate("VCS", parameters->displayName));
     if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
-        addMimeType(parameters->mimeType);
+        addMimeType(QLatin1String(parameters->mimeType));
 
     setEditorActionHandlers(TextEditorActionHandler::None);
     setDuplicatedSupported(false);

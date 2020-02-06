@@ -48,7 +48,7 @@ VcsSubmitEditorFactory::VcsSubmitEditorFactory
 {
     setId(parameters.id);
     setDisplayName(QLatin1String(parameters.displayName));
-    addMimeType(parameters.mimeType);
+    addMimeType(QLatin1String(parameters.mimeType));
 
     setEditorCreator([this, editorCreator, parameters] {
         VcsBaseSubmitEditor *editor = editorCreator();

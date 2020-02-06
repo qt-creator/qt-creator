@@ -64,7 +64,6 @@ protected:
     void setId(Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
-    void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
     void setEditorCreator(const std::function<IEditor *()> &creator);
 

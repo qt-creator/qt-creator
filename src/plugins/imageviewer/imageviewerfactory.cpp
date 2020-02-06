@@ -42,7 +42,7 @@ ImageViewerFactory::ImageViewerFactory()
 
     const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
     for (const QByteArray &format : supportedMimeTypes)
-        addMimeType(format.constData());
+        addMimeType(QString::fromLatin1(format));
 }
 
 } // namespace Internal
