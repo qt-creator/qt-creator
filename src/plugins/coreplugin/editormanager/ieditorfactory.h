@@ -33,6 +33,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <functional>
+
 namespace Core {
 
 class IEditor;
