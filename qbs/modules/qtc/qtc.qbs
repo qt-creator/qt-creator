@@ -4,10 +4,10 @@ import qbs.FileInfo
 import "qtc.js" as HelperFunctions
 
 Module {
-    property string qtcreator_display_version: '4.11.1'
+    property string qtcreator_display_version: '4.11.2'
     property string ide_version_major: '4'
     property string ide_version_minor: '11'
-    property string ide_version_release: '1'
+    property string ide_version_release: '2'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
@@ -17,7 +17,7 @@ Module {
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
-    property string qtcreator_copyright_year: '2019'
+    property string qtcreator_copyright_year: '2020'
     property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
 
     property string ide_display_name: 'Qt Creator'
