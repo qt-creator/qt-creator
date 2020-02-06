@@ -120,8 +120,7 @@ void SettingsPageWidget::apply()
     ClearCasePlugin::setSettings(rc);
 }
 
-ClearCaseSettingsPage::ClearCaseSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
+ClearCaseSettingsPage::ClearCaseSettingsPage()
 {
     setId(ClearCase::Constants::VCS_ID_CLEARCASE);
     setDisplayName(tr("ClearCase"));

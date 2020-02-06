@@ -148,6 +148,13 @@ static const VcsBaseEditorParameters editorParameters[] = {
     "text/x-patch"}
 };
 
+static const VcsBaseSubmitEditorParameters submitParameters = {
+    Constants::CLEARCASE_SUBMIT_MIMETYPE,
+    Constants::CLEARCASECHECKINEDITOR_ID,
+    Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
+    VcsBaseSubmitEditorParameters::DiffFiles
+};
+
 // Utility to find a parameter set by type
 static const VcsBaseEditorParameters *findType(int ie)
 {
@@ -216,7 +223,7 @@ public:
     static ClearCasePluginPrivate *instance();
 
     QString ccGetCurrentActivity() const;
-    QList<QStringPair> activities(int *current = nullptr) const;
+    QList<QStringPair> activities(int *current = nullptr);
     QString ccGetPredecessor(const QString &version) const;
     QStringList ccGetActiveVobs() const;
     ViewData ccGetView(const QString &workingDir) const;
@@ -339,9 +346,17 @@ private:
 
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
-    QMutex *m_activityMutex;
+    QMutex m_activityMutex;
     QList<QStringPair> m_activities;
     QSharedPointer<StatusMap> m_statusMap;
+
+    ClearCaseSettingsPage m_settingsPage;
+
+    VcsSubmitEditorFactory m_submitEditorFactory {
+        submitParameters,
+        [] { return new ClearCaseSubmitEditor; },
+        this
+    };
 
     friend class ClearCasePlugin;
 #ifdef WITH_TESTS
@@ -357,9 +372,8 @@ ClearCasePluginPrivate::~ClearCasePluginPrivate()
 {
     cleanCheckInMessageFile();
     // wait for sync thread to finish reading activities
-    m_activityMutex->lock();
-    m_activityMutex->unlock();
-    delete m_activityMutex;
+    m_activityMutex.lock();
+    m_activityMutex.unlock();
 }
 
 void ClearCasePluginPrivate::cleanCheckInMessageFile()
@@ -583,13 +597,6 @@ QString ClearCasePluginPrivate::findTopLevel(const QString &directory) const
     return ccManagesDirectory(directory);
 }
 
-static const VcsBaseSubmitEditorParameters submitParameters = {
-    Constants::CLEARCASE_SUBMIT_MIMETYPE,
-    Constants::CLEARCASECHECKINEDITOR_ID,
-    Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -604,7 +611,6 @@ void ClearCasePlugin::extensionsInitialized()
 
 ClearCasePluginPrivate::ClearCasePluginPrivate()
     : VcsBase::VcsBasePluginPrivate(Context(CLEARCASE_CONTEXT)),
-      m_activityMutex(new QMutex),
       m_statusMap(new StatusMap)
 {
     dd = this;
@@ -630,10 +636,6 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     // update view name when changing active project
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &ClearCasePluginPrivate::projectChanged);
-
-    new ClearCaseSettingsPage(this);
-
-    new VcsSubmitEditorFactory(submitParameters, [] { return new ClearCaseSubmitEditor; }, this, this);
 
     // any editor responds to describe (when clicking a version)
     const auto describeFunc = [this](const QString &source, const QString &changeNr) {
@@ -2071,18 +2073,18 @@ QList<QStringPair> ClearCasePluginPrivate::ccGetActivities() const
 
 void ClearCasePluginPrivate::refreshActivities()
 {
-    QMutexLocker locker(m_activityMutex);
+    QMutexLocker locker(&m_activityMutex);
     m_activity = ccGetCurrentActivity();
     m_activities = ccGetActivities();
 }
 
-QList<QStringPair> ClearCasePluginPrivate::activities(int *current) const
+QList<QStringPair> ClearCasePluginPrivate::activities(int *current)
 {
     QList<QStringPair> activitiesList;
     QString curActivity;
     const VcsBasePluginState state = currentState();
     if (state.topLevel() == state.currentProjectTopLevel()) {
-        QMutexLocker locker(m_activityMutex);
+        QMutexLocker locker(&m_activityMutex);
         activitiesList = m_activities;
         curActivity = m_activity;
     } else {

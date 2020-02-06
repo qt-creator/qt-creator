@@ -34,7 +34,7 @@ namespace Internal {
 class ClearCaseSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit ClearCaseSettingsPage(QObject *parent);
+    ClearCaseSettingsPage();
 };
 
 } // namespace ClearCase
