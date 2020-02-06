@@ -43,8 +43,9 @@ const char DIFF_SELECTED[] = "Vcs.DiffSelectedFiles";
 VcsSubmitEditorFactory::VcsSubmitEditorFactory
         (const VcsBaseSubmitEditorParameters &parameters,
          const EditorCreator &editorCreator,
-         VcsBasePluginPrivate *plugin)
-    : IEditorFactory(plugin)
+         VcsBasePluginPrivate *plugin,
+         QObject *parent)
+    : IEditorFactory(parent)
 {
     setId(parameters.id);
     setDisplayName(QLatin1String(parameters.displayName));

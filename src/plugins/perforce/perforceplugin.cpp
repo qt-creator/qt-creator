@@ -381,7 +381,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     m_settings.fromSettings(ICore::settings());
 
     // Editor factories
-    new VcsSubmitEditorFactory(submitParameters, [] { return new PerforceSubmitEditor; }, this);
+    new VcsSubmitEditorFactory(submitParameters, [] { return new PerforceSubmitEditor; }, this, this);
 
     const auto describeFunc = [this](const QString &source, const QString &n) {
         describe(source, n);

@@ -367,7 +367,7 @@ GitPluginPrivate::GitPluginPrivate()
     for (int i = 0; i < editorCount; i++)
         new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
-    new VcsSubmitEditorFactory(submitParameters, [] { return new GitSubmitEditor; }, this);
+    new VcsSubmitEditorFactory(submitParameters, [] { return new GitSubmitEditor; }, this, this);
 
     const QString prefix = "git";
     m_commandLocator = new CommandLocator("Git", prefix, prefix, this);
