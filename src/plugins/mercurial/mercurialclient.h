@@ -34,6 +34,8 @@ namespace VcsBase { class VcsBaseDiffEditorController; }
 namespace Mercurial {
 namespace Internal {
 
+class MercurialDiffEditorController;
+
 class MercurialClient : public VcsBase::VcsBaseClient
 {
     Q_OBJECT
@@ -88,8 +90,9 @@ signals:
     void needMerge();
 
 private:
-    void requestReload(const QString &documentId, const QString &source, const QString &title, const QString &workingDirectory,
-           std::function<VcsBase::VcsBaseDiffEditorController *(Core::IDocument *)> factory);
+    void requestReload(const QString &documentId, const QString &source, const QString &title,
+                       const QString &workingDirectory,
+                       const QStringList &args);
     void parsePullOutput(const QString &output);
 };
 
