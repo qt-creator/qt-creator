@@ -26,41 +26,24 @@
 
 #pragma once
 
-#include "settings.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace Todo {
 namespace Internal {
 
-class TodoOutputPane;
-class OptionsPage;
-class TodoItemsProvider;
-class TodoItem;
-
-class TodoPlugin : public ExtensionSystem::IPlugin
+class TodoPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Todo.json")
 
 public:
     TodoPlugin();
-    ~TodoPlugin() override;
+    ~TodoPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    bool initialize(const QStringList &arguments, QString *errorString) final;
 
 private:
-    void settingsChanged(const Settings &settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
-
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane = nullptr;
-    OptionsPage *m_optionsPage = nullptr;
-    TodoItemsProvider *m_todoItemsProvider = nullptr;
+    class TodoPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

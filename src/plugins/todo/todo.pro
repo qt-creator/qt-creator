@@ -6,7 +6,6 @@ HEADERS += todoplugin.h \
     todooutputpane.h \
     todoitem.h \
     settings.h \
-    optionspage.h \
     optionsdialog.h\
     keyworddialog.h \
     todoitemsprovider.h \
@@ -23,7 +22,6 @@ HEADERS += todoplugin.h \
 SOURCES += todoplugin.cpp \
     keyword.cpp \
     todooutputpane.cpp \
-    optionspage.cpp \
     settings.cpp \
     optionsdialog.cpp \
     keyworddialog.cpp \

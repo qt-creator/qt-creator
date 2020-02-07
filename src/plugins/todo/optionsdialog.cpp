@@ -34,64 +34,72 @@
 namespace Todo {
 namespace Internal {
 
-OptionsDialog::OptionsDialog() :
-    ui(new Ui::OptionsDialog)
+class OptionsDialog final : public Core::IOptionsPageWidget
 {
-    ui->setupUi(this);
-    ui->keywordsList->setIconSize(QSize(16, 16));
+    Q_DECLARE_TR_FUNCTIONS(Todo::Internal::TodoOptionsPage)
+
+public:
+    OptionsDialog(Settings *settings, const std::function<void ()> &onApply);
+
+    void apply() final;
+
+    void setSettings(const Settings &settings);
+
+private:
+    void addKeywordButtonClicked();
+    void editKeywordButtonClicked();
+    void removeKeywordButtonClicked();
+    void resetKeywordsButtonClicked();
+    void setKeywordsButtonsEnabled();
+    Settings settingsFromUi();
+    void addToKeywordsList(const Keyword &keyword);
+    void editKeyword(QListWidgetItem *item);
+    QSet<QString> keywordNames();
+
+    Ui::OptionsDialog ui;
+    Settings *m_settings = nullptr;
+    std::function<void()> m_onApply;
+};
+
+OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &onApply)
+    : m_settings(settings), m_onApply(onApply)
+{
+    ui.setupUi(this);
+    ui.keywordsList->setIconSize(QSize(16, 16));
     setKeywordsButtonsEnabled();
-    connect(ui->addKeywordButton, &QAbstractButton::clicked,
+    connect(ui.addKeywordButton, &QAbstractButton::clicked,
             this, &OptionsDialog::addKeywordButtonClicked);
-    connect(ui->removeKeywordButton, &QAbstractButton::clicked,
+    connect(ui.removeKeywordButton, &QAbstractButton::clicked,
             this, &OptionsDialog::removeKeywordButtonClicked);
-    connect(ui->editKeywordButton, &QAbstractButton::clicked,
+    connect(ui.editKeywordButton, &QAbstractButton::clicked,
             this, &OptionsDialog::editKeywordButtonClicked);
-    connect(ui->resetKeywordsButton, &QAbstractButton::clicked,
+    connect(ui.resetKeywordsButton, &QAbstractButton::clicked,
             this, &OptionsDialog::resetKeywordsButtonClicked);
-    connect(ui->keywordsList, &QListWidget::itemDoubleClicked,
-            this, &OptionsDialog::keywordDoubleClicked);
-    connect(ui->keywordsList, &QListWidget::itemSelectionChanged,
+    connect(ui.keywordsList, &QListWidget::itemDoubleClicked,
+            this, &OptionsDialog::editKeyword);
+    connect(ui.keywordsList, &QListWidget::itemSelectionChanged,
             this, &OptionsDialog::setKeywordsButtonsEnabled);
-}
 
-OptionsDialog::~OptionsDialog()
-{
-    delete ui;
-}
-
-void OptionsDialog::keywordDoubleClicked(QListWidgetItem *item)
-{
-    editKeyword(item);
-}
-
-void OptionsDialog::setSettings(const Settings &settings)
-{
-    uiFromSettings(settings);
+    setSettings(*m_settings);
 }
 
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)
 {
-    QListWidgetItem *item = new QListWidgetItem(
-                icon(keyword.iconType), keyword.name);
+    auto item = new QListWidgetItem(icon(keyword.iconType), keyword.name);
     item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
     item->setForeground(keyword.color);
-    ui->keywordsList->addItem(item);
+    ui.keywordsList->addItem(item);
 }
 
 QSet<QString> OptionsDialog::keywordNames()
 {
-    KeywordList keywords = settingsFromUi().keywords;
+    const KeywordList keywords = settingsFromUi().keywords;
 
     QSet<QString> result;
-    foreach (const Keyword &keyword, keywords)
+    for (const Keyword &keyword : keywords)
         result << keyword.name;
 
     return result;
-}
-
-Settings OptionsDialog::settings()
-{
-    return settingsFromUi();
 }
 
 void OptionsDialog::addKeywordButtonClicked()
@@ -106,7 +114,7 @@ void OptionsDialog::addKeywordButtonClicked()
 
 void OptionsDialog::editKeywordButtonClicked()
 {
-    QListWidgetItem *item = ui->keywordsList->currentItem();
+    QListWidgetItem *item = ui.keywordsList->currentItem();
     editKeyword(item);
 }
 
@@ -132,31 +140,31 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
 
 void OptionsDialog::removeKeywordButtonClicked()
 {
-    delete ui->keywordsList->takeItem(ui->keywordsList->currentRow());
+    delete ui.keywordsList->takeItem(ui.keywordsList->currentRow());
 }
 
 void OptionsDialog::resetKeywordsButtonClicked()
 {
     Settings newSettings;
     newSettings.setDefault();
-    uiFromSettings(newSettings);
+    setSettings(newSettings);
 }
 
 void OptionsDialog::setKeywordsButtonsEnabled()
 {
-    const bool isSomethingSelected = !ui->keywordsList->selectedItems().isEmpty();
-    ui->removeKeywordButton->setEnabled(isSomethingSelected);
-    ui->editKeywordButton->setEnabled(isSomethingSelected);
+    const bool isSomethingSelected = !ui.keywordsList->selectedItems().isEmpty();
+    ui.removeKeywordButton->setEnabled(isSomethingSelected);
+    ui.editKeywordButton->setEnabled(isSomethingSelected);
 }
 
-void OptionsDialog::uiFromSettings(const Settings &settings)
+void OptionsDialog::setSettings(const Settings &settings)
 {
-    ui->scanInCurrentFileRadioButton->setChecked(settings.scanningScope == ScanningScopeCurrentFile);
-    ui->scanInProjectRadioButton->setChecked(settings.scanningScope == ScanningScopeProject);
-    ui->scanInSubprojectRadioButton->setChecked(settings.scanningScope == ScanningScopeSubProject);
+    ui.scanInCurrentFileRadioButton->setChecked(settings.scanningScope == ScanningScopeCurrentFile);
+    ui.scanInProjectRadioButton->setChecked(settings.scanningScope == ScanningScopeProject);
+    ui.scanInSubprojectRadioButton->setChecked(settings.scanningScope == ScanningScopeSubProject);
 
-    ui->keywordsList->clear();
-    foreach (const Keyword &keyword, settings.keywords)
+    ui.keywordsList->clear();
+    for (const Keyword &keyword : qAsConst(settings.keywords))
         addToKeywordsList(keyword);
 }
 
@@ -164,16 +172,16 @@ Settings OptionsDialog::settingsFromUi()
 {
     Settings settings;
 
-    if (ui->scanInCurrentFileRadioButton->isChecked())
+    if (ui.scanInCurrentFileRadioButton->isChecked())
         settings.scanningScope = ScanningScopeCurrentFile;
-    else if (ui->scanInSubprojectRadioButton->isChecked())
+    else if (ui.scanInSubprojectRadioButton->isChecked())
         settings.scanningScope = ScanningScopeSubProject;
     else
         settings.scanningScope = ScanningScopeProject;
 
     settings.keywords.clear();
-    for (int i = 0; i < ui->keywordsList->count(); ++i) {
-        QListWidgetItem *item = ui->keywordsList->item(i);
+    for (int i = 0; i < ui.keywordsList->count(); ++i) {
+        QListWidgetItem *item = ui.keywordsList->item(i);
 
         Keyword keyword;
         keyword.name = item->text();
@@ -184,6 +192,32 @@ Settings OptionsDialog::settingsFromUi()
     }
 
     return settings;
+}
+
+void OptionsDialog::apply()
+{
+    Settings newSettings = settingsFromUi();
+
+    // "apply" itself is interpreted as "use these keywords, also for other themes".
+    newSettings.keywordsEdited = true;
+
+    if (newSettings == *m_settings)
+        return;
+
+    *m_settings = newSettings;
+    m_onApply();
+}
+
+// TodoOptionsPage
+
+TodoOptionsPage::TodoOptionsPage(Settings *settings, const std::function<void ()> &onApply)
+{
+    setId("TodoSettings");
+    setDisplayName(OptionsDialog::tr("To-Do"));
+    setCategory("To-Do");
+    setDisplayCategory(OptionsDialog::tr("To-Do"));
+    setCategoryIconPath(":/todoplugin/images/settingscategory_todo.png");
+    setWidgetCreator([settings, onApply] { return new OptionsDialog(settings, onApply); });
 }
 
 } // namespace Internal

@@ -26,43 +26,17 @@
 
 #pragma once
 
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QListWidgetItem;
-QT_END_NAMESPACE
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Todo {
 namespace Internal {
 
-namespace Ui { class OptionsDialog; }
-
 class Settings;
-class Keyword;
 
-class OptionsDialog : public QWidget
+class TodoOptionsPage final : public Core::IOptionsPage
 {
 public:
-    OptionsDialog();
-    ~OptionsDialog() override;
-
-    void setSettings(const Settings &settings);
-    Settings settings();
-
-private:
-    void addKeywordButtonClicked();
-    void editKeywordButtonClicked();
-    void removeKeywordButtonClicked();
-    void resetKeywordsButtonClicked();
-    void setKeywordsButtonsEnabled();
-    void keywordDoubleClicked(QListWidgetItem *item);
-    void uiFromSettings(const Settings &settings);
-    Settings settingsFromUi();
-    void addToKeywordsList(const Keyword &keyword);
-    void editKeyword(QListWidgetItem *item);
-    QSet<QString> keywordNames();
-
-    Ui::OptionsDialog *ui;
+    TodoOptionsPage(Settings *settings, const std::function<void()> &onApply);
 };
 
 } // namespace Internal

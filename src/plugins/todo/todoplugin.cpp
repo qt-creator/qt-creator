@@ -26,7 +26,7 @@
 
 #include "todoplugin.h"
 #include "constants.h"
-#include "optionspage.h"
+#include "optionsdialog.h"
 #include "keyword.h"
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
@@ -38,28 +38,35 @@
 
 #include <projectexplorer/projectpanelfactory.h>
 
-#include <QtPlugin>
 #include <QFileInfo>
 #include <QSettings>
 
 namespace Todo {
 namespace Internal {
 
-TodoPlugin::TodoPlugin()
+class TodoPluginPrivate : public QObject
 {
-    qRegisterMetaType<TodoItem>("TodoItem");
-}
+    Q_DECLARE_TR_FUNCTIONS(Todo::Internal::TodoPlugin)
 
-TodoPlugin::~TodoPlugin() = default;
+public:
+    TodoPluginPrivate();
 
-bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
+    void settingsChanged(const Settings &settings);
+    void scanningScopeChanged(ScanningScope scanningScope);
+    void todoItemClicked(const TodoItem &item);
+    void createItemsProvider();
+    void createTodoOutputPane();
+
+    Settings m_settings;
+    TodoOutputPane *m_todoOutputPane = nullptr;
+    TodoOptionsPage m_optionsPage{&m_settings, [this] { settingsChanged(m_settings); }};
+    TodoItemsProvider *m_todoItemsProvider = nullptr;
+};
+
+TodoPluginPrivate::TodoPluginPrivate()
 {
-    Q_UNUSED(args)
-    Q_UNUSED(errMsg)
-
     m_settings.load(Core::ICore::settings());
 
-    createOptionsPage();
     createItemsProvider();
     createTodoOutputPane();
 
@@ -75,53 +82,63 @@ bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, [this] { m_settings.save(Core::ICore::settings()); });
-
-    return true;
 }
 
-void TodoPlugin::settingsChanged(const Settings &settings)
+void TodoPluginPrivate::settingsChanged(const Settings &settings)
 {
     settings.save(Core::ICore::settings());
     m_settings = settings;
 
     m_todoItemsProvider->settingsChanged(m_settings);
     m_todoOutputPane->setScanningScope(m_settings.scanningScope);
-    m_optionsPage->setSettings(m_settings);
 }
 
-void TodoPlugin::scanningScopeChanged(ScanningScope scanningScope)
+void TodoPluginPrivate::scanningScopeChanged(ScanningScope scanningScope)
 {
     Settings newSettings = m_settings;
     newSettings.scanningScope = scanningScope;
     settingsChanged(newSettings);
 }
 
-void TodoPlugin::todoItemClicked(const TodoItem &item)
+void TodoPluginPrivate::todoItemClicked(const TodoItem &item)
 {
     if (item.file.exists())
         Core::EditorManager::openEditorAt(item.file.toString(), item.line);
 }
 
-void TodoPlugin::createItemsProvider()
+void TodoPluginPrivate::createItemsProvider()
 {
     m_todoItemsProvider = new TodoItemsProvider(m_settings, this);
 }
 
-void TodoPlugin::createTodoOutputPane()
+void TodoPluginPrivate::createTodoOutputPane()
 {
     m_todoOutputPane = new TodoOutputPane(m_todoItemsProvider->todoItemsModel(), &m_settings, this);
     m_todoOutputPane->setScanningScope(m_settings.scanningScope);
     connect(m_todoOutputPane, &TodoOutputPane::scanningScopeChanged,
-            this, &TodoPlugin::scanningScopeChanged);
+            this, &TodoPluginPrivate::scanningScopeChanged);
     connect(m_todoOutputPane, &TodoOutputPane::todoItemClicked,
-            this, &TodoPlugin::todoItemClicked);
+            this, &TodoPluginPrivate::todoItemClicked);
 }
 
-void TodoPlugin::createOptionsPage()
+TodoPlugin::TodoPlugin()
 {
-    m_optionsPage = new OptionsPage(m_settings, this);
-    connect(m_optionsPage, &OptionsPage::settingsChanged,
-            this, &TodoPlugin::settingsChanged);
+    qRegisterMetaType<TodoItem>("TodoItem");
+}
+
+TodoPlugin::~TodoPlugin()
+{
+    delete d;
+}
+
+bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
+{
+    Q_UNUSED(args)
+    Q_UNUSED(errMsg)
+
+    d = new TodoPluginPrivate;
+
+    return true;
 }
 
 } // namespace Internal
