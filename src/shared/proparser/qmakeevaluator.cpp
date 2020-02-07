@@ -1954,7 +1954,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFileChecked(
         for (const ProFile *pf : ref->m_profileStack)
             if (pf->fileName() == fileName) {
                 evalError(fL1S("Circular inclusion of %1.").arg(fileName));
-                return ReturnFalse;
+                return ReturnError;
             }
     } while ((ref = ref->m_caller));
     return evaluateFile(fileName, type, flags);
