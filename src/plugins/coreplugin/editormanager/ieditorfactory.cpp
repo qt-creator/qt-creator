@@ -37,8 +37,7 @@ namespace Core {
 static QList<IEditorFactory *> g_editorFactories;
 static QHash<Utils::MimeType, IEditorFactory *> g_userPreferredEditorFactories;
 
-IEditorFactory::IEditorFactory(QObject *parent)
-    : QObject(parent)
+IEditorFactory::IEditorFactory()
 {
     g_editorFactories.append(this);
 }

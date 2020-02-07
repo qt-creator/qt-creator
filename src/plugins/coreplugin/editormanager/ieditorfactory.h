@@ -47,7 +47,7 @@ class CORE_EXPORT IEditorFactory : public QObject
     Q_OBJECT
 
 public:
-    IEditorFactory(QObject *parent = nullptr);
+    IEditorFactory();
     ~IEditorFactory() override;
 
     static const EditorFactoryList allEditorFactories();

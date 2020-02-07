@@ -49,8 +49,7 @@ public:
 
     VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters &parameters,
                            const EditorCreator &editorCreator,
-                           VcsBasePluginPrivate *plugin,
-                           QObject *parent = nullptr);
+                           VcsBasePluginPrivate *plugin);
 
 private:
     QAction *m_submitAction = nullptr;
