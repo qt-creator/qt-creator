@@ -39,8 +39,7 @@
 using namespace ResourceEditor::Internal;
 using namespace ResourceEditor::Constants;
 
-ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
-    Core::IEditorFactory(plugin)
+ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin)
 {
     setId(RESOURCEEDITOR_ID);
     setMimeTypes(QStringList(QLatin1String(C_RESOURCE_MIMETYPE)));

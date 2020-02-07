@@ -111,15 +111,59 @@ private:
     QLineEdit *m_langLineEdit;
 };
 
-ResourceEditorPlugin::ResourceEditorPlugin() = default;
-
-bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+class ResourceEditorPluginPrivate : public QObject
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+    Q_DECLARE_TR_FUNCTIONS(ResourceEditor::Internal::ResourceEditorPlugin)
 
-    (void) new ResourceEditorFactory(this);
+public:
+    explicit ResourceEditorPluginPrivate(ResourceEditorPlugin *q);
 
+    void onUndo();
+    void onRedo();
+    void onRefresh();
+
+    void addPrefixContextMenu();
+    void renamePrefixContextMenu();
+    void removePrefixContextMenu();
+    void renameFileContextMenu();
+    void removeFileContextMenu();
+    void removeNonExisting();
+
+    void openEditorContextMenu();
+
+    void copyPathContextMenu();
+    void copyUrlContextMenu();
+
+    void updateContextActions();
+
+    ResourceEditorW * currentEditor() const;
+
+    QAction *m_redoAction = nullptr;
+    QAction *m_undoAction = nullptr;
+    QAction *m_refreshAction = nullptr;
+
+    // project tree's folder context menu
+    QAction *m_addPrefix = nullptr;
+    QAction *m_removePrefix = nullptr;
+    QAction *m_renamePrefix = nullptr;
+    QAction *m_removeNonExisting = nullptr;
+
+    QAction *m_renameResourceFile = nullptr;
+    QAction *m_removeResourceFile = nullptr;
+
+    QAction *m_openInEditor = nullptr;
+    QMenu *m_openWithMenu = nullptr;
+
+    // file context menu
+    Utils::ParameterAction *m_copyPath = nullptr;
+    Utils::ParameterAction *m_copyUrl = nullptr;
+
+    ResourceEditorFactory m_editorFactory;
+};
+
+ResourceEditorPluginPrivate::ResourceEditorPluginPrivate(ResourceEditorPlugin *q)
+    : m_editorFactory(q)
+{
     // Register undo and redo
     const Core::Context context(Constants::C_RESOURCEEDITOR);
     m_undoAction = new QAction(tr("&Undo"), this);
@@ -128,9 +172,9 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     Core::ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
     Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
     Core::ActionManager::registerAction(m_refreshAction, Constants::REFRESH, context);
-    connect(m_undoAction, &QAction::triggered, this, &ResourceEditorPlugin::onUndo);
-    connect(m_redoAction, &QAction::triggered, this, &ResourceEditorPlugin::onRedo);
-    connect(m_refreshAction, &QAction::triggered, this, &ResourceEditorPlugin::onRefresh);
+    connect(m_undoAction, &QAction::triggered, this, &ResourceEditorPluginPrivate::onUndo);
+    connect(m_redoAction, &QAction::triggered, this, &ResourceEditorPluginPrivate::onRedo);
+    connect(m_refreshAction, &QAction::triggered, this, &ResourceEditorPluginPrivate::onRefresh);
 
     Core::Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
     Core::ActionContainer *folderContextMenu =
@@ -142,37 +186,37 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     m_addPrefix = new QAction(tr("Add Prefix..."), this);
     command = Core::ActionManager::registerAction(m_addPrefix, Constants::C_ADD_PREFIX, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_addPrefix, &QAction::triggered, this, &ResourceEditorPlugin::addPrefixContextMenu);
+    connect(m_addPrefix, &QAction::triggered, this, &ResourceEditorPluginPrivate::addPrefixContextMenu);
 
     m_renamePrefix = new QAction(tr("Change Prefix..."), this);
     command = Core::ActionManager::registerAction(m_renamePrefix, Constants::C_RENAME_PREFIX, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_renamePrefix, &QAction::triggered, this, &ResourceEditorPlugin::renamePrefixContextMenu);
+    connect(m_renamePrefix, &QAction::triggered, this, &ResourceEditorPluginPrivate::renamePrefixContextMenu);
 
     m_removePrefix = new QAction(tr("Remove Prefix..."), this);
     command = Core::ActionManager::registerAction(m_removePrefix, Constants::C_REMOVE_PREFIX, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removePrefix, &QAction::triggered, this, &ResourceEditorPlugin::removePrefixContextMenu);
+    connect(m_removePrefix, &QAction::triggered, this, &ResourceEditorPluginPrivate::removePrefixContextMenu);
 
     m_removeNonExisting = new QAction(tr("Remove Missing Files"), this);
     command = Core::ActionManager::registerAction(m_removeNonExisting, Constants::C_REMOVE_NON_EXISTING, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removeNonExisting, &QAction::triggered, this, &ResourceEditorPlugin::removeNonExisting);
+    connect(m_removeNonExisting, &QAction::triggered, this, &ResourceEditorPluginPrivate::removeNonExisting);
 
     m_renameResourceFile = new QAction(tr("Rename..."), this);
     command = Core::ActionManager::registerAction(m_renameResourceFile, Constants::C_RENAME_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_renameResourceFile, &QAction::triggered, this, &ResourceEditorPlugin::renameFileContextMenu);
+    connect(m_renameResourceFile, &QAction::triggered, this, &ResourceEditorPluginPrivate::renameFileContextMenu);
 
     m_removeResourceFile = new QAction(tr("Remove File..."), this);
     command = Core::ActionManager::registerAction(m_removeResourceFile, Constants::C_REMOVE_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removeResourceFile, &QAction::triggered, this, &ResourceEditorPlugin::removeFileContextMenu);
+    connect(m_removeResourceFile, &QAction::triggered, this, &ResourceEditorPluginPrivate::removeFileContextMenu);
 
     m_openInEditor = new QAction(tr("Open in Editor"), this);
     command = Core::ActionManager::registerAction(m_openInEditor, Constants::C_OPEN_EDITOR, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_openInEditor, &QAction::triggered, this, &ResourceEditorPlugin::openEditorContextMenu);
+    connect(m_openInEditor, &QAction::triggered, this, &ResourceEditorPluginPrivate::openEditorContextMenu);
 
     m_openWithMenu = new QMenu(tr("Open With"), folderContextMenu->menu());
     folderContextMenu->menu()->insertMenu(
@@ -183,13 +227,13 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     command = Core::ActionManager::registerAction(m_copyPath, Constants::C_COPY_PATH, projectTreeContext);
     command->setAttribute(Core::Command::CA_UpdateText);
     fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_copyPath, &QAction::triggered, this, &ResourceEditorPlugin::copyPathContextMenu);
+    connect(m_copyPath, &QAction::triggered, this, &ResourceEditorPluginPrivate::copyPathContextMenu);
 
     m_copyUrl = new Utils::ParameterAction(tr("Copy URL"), tr("Copy URL \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_copyUrl, Constants::C_COPY_URL, projectTreeContext);
     command->setAttribute(Core::Command::CA_UpdateText);
     fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_copyUrl, &QAction::triggered, this, &ResourceEditorPlugin::copyUrlContextMenu);
+    connect(m_copyUrl, &QAction::triggered, this, &ResourceEditorPluginPrivate::copyUrlContextMenu);
 
     m_addPrefix->setEnabled(false);
     m_removePrefix->setEnabled(false);
@@ -199,9 +243,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     m_removeResourceFile->setEnabled(false);
 
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
-            this, &ResourceEditorPlugin::updateContextActions);
-
-    return true;
+            this, &ResourceEditorPluginPrivate::updateContextActions);
 }
 
 void ResourceEditorPlugin::extensionsInitialized()
@@ -224,22 +266,22 @@ void ResourceEditorPlugin::extensionsInitialized()
     });
 }
 
-void ResourceEditorPlugin::onUndo()
+void ResourceEditorPluginPrivate::onUndo()
 {
     currentEditor()->onUndo();
 }
 
-void ResourceEditorPlugin::onRedo()
+void ResourceEditorPluginPrivate::onRedo()
 {
     currentEditor()->onRedo();
 }
 
-void ResourceEditorPlugin::onRefresh()
+void ResourceEditorPluginPrivate::onRefresh()
 {
     currentEditor()->onRefresh();
 }
 
-void ResourceEditorPlugin::addPrefixContextMenu()
+void ResourceEditorPluginPrivate::addPrefixContextMenu()
 {
     auto topLevel = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     QTC_ASSERT(topLevel, return);
@@ -252,7 +294,7 @@ void ResourceEditorPlugin::addPrefixContextMenu()
     topLevel->addPrefix(prefix, dialog.lang());
 }
 
-void ResourceEditorPlugin::removePrefixContextMenu()
+void ResourceEditorPluginPrivate::removePrefixContextMenu()
 {
     auto rfn = dynamic_cast<ResourceFolderNode *>(ProjectTree::currentNode());
     QTC_ASSERT(rfn, return);
@@ -265,19 +307,19 @@ void ResourceEditorPlugin::removePrefixContextMenu()
     }
 }
 
-void ResourceEditorPlugin::removeNonExisting()
+void ResourceEditorPluginPrivate::removeNonExisting()
 {
     auto topLevel = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     QTC_ASSERT(topLevel, return);
     topLevel->removeNonExistingFiles();
 }
 
-void ResourceEditorPlugin::renameFileContextMenu()
+void ResourceEditorPluginPrivate::renameFileContextMenu()
 {
     ProjectExplorerPlugin::initiateInlineRenaming();
 }
 
-void ResourceEditorPlugin::removeFileContextMenu()
+void ResourceEditorPluginPrivate::removeFileContextMenu()
 {
     auto rfn = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     QTC_ASSERT(rfn, return);
@@ -290,26 +332,26 @@ void ResourceEditorPlugin::removeFileContextMenu()
                              tr("Removing file %1 from the project failed.").arg(path));
 }
 
-void ResourceEditorPlugin::openEditorContextMenu()
+void ResourceEditorPluginPrivate::openEditorContextMenu()
 {
     Core::EditorManager::openEditor(ProjectTree::currentNode()->filePath().toString());
 }
 
-void ResourceEditorPlugin::copyPathContextMenu()
+void ResourceEditorPluginPrivate::copyPathContextMenu()
 {
     auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::currentNode());
     QTC_ASSERT(node, return);
     QApplication::clipboard()->setText(QLatin1String(resourcePrefix) + node->qrcPath());
 }
 
-void ResourceEditorPlugin::copyUrlContextMenu()
+void ResourceEditorPluginPrivate::copyUrlContextMenu()
 {
     auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::currentNode());
     QTC_ASSERT(node, return);
     QApplication::clipboard()->setText(QLatin1String(urlPrefix) + node->qrcPath());
 }
 
-void ResourceEditorPlugin::renamePrefixContextMenu()
+void ResourceEditorPluginPrivate::renamePrefixContextMenu()
 {
     auto node = dynamic_cast<ResourceFolderNode *>(ProjectTree::currentNode());
     QTC_ASSERT(node, return);
@@ -324,7 +366,7 @@ void ResourceEditorPlugin::renamePrefixContextMenu()
     node->renamePrefix(prefix, dialog.lang());
 }
 
-void ResourceEditorPlugin::updateContextActions()
+void ResourceEditorPluginPrivate::updateContextActions()
 {
     const Node *node = ProjectTree::currentNode();
     const bool isResourceNode = dynamic_cast<const ResourceTopLevelNode *>(node);
@@ -378,20 +420,37 @@ void ResourceEditorPlugin::updateContextActions()
     }
 }
 
-void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,
-        bool canUndo, bool canRedo)
-{
-    if (editor == currentEditor()) {
-        m_undoAction->setEnabled(canUndo);
-        m_redoAction->setEnabled(canRedo);
-    }
-}
-
-ResourceEditorW * ResourceEditorPlugin::currentEditor() const
+ResourceEditorW * ResourceEditorPluginPrivate::currentEditor() const
 {
     auto const focusEditor = qobject_cast<ResourceEditorW *>(Core::EditorManager::currentEditor());
     QTC_ASSERT(focusEditor, return nullptr);
     return focusEditor;
+}
+
+// ResourceEditorPlugin
+
+ResourceEditorPlugin::~ResourceEditorPlugin()
+{
+    delete d;
+}
+
+bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+{
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
+
+    d = new ResourceEditorPluginPrivate(this);
+
+    return true;
+}
+
+void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,
+        bool canUndo, bool canRedo)
+{
+    if (editor == d->currentEditor()) {
+        d->m_undoAction->setEnabled(canUndo);
+        d->m_redoAction->setEnabled(canRedo);
+    }
 }
 
 } // namespace Internal
