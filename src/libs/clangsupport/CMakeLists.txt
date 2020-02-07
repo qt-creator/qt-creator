@@ -5,8 +5,8 @@ add_qtc_library(ClangSupport
   PUBLIC_DEPENDS Utils Sqlite Qt5::Core Qt5::Network
   PUBLIC_DEFINES
     CLANG_VERSION="${CLANG_VERSION}"
-    CLANG_RESOURCE_DIR="${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
-    CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
+    CLANG_RESOURCE_DIR="${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
+    CLANG_BINDIR="${IDE_LIBEXEC_PATH}/clang/bin"
   DEFINES CLANGSUPPORT_BUILD_LIB
   SOURCES
     alivemessage.cpp alivemessage.h
@@ -139,4 +139,44 @@ add_qtc_library(ClangSupport
     updategeneratedfilesmessage.cpp updategeneratedfilesmessage.h
     updateprojectpartsmessage.cpp updateprojectpartsmessage.h
     writemessageblock.cpp writemessageblock.h
+)
+
+add_custom_target(copy_clang_to_builddir
+  COMMENT Copy Clang files into build directory
+)
+
+add_dependencies(ClangSupport copy_clang_to_builddir)
+
+add_custom_command(TARGET copy_clang_to_builddir PRE_BUILD
+  COMMAND "${CMAKE_COMMAND}"
+    -E make_directory
+      "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}"
+  COMMAND "${CMAKE_COMMAND}"
+    -E copy_directory
+      "${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
+      "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}"
+  VERBATIM
+)
+
+foreach(executable clang clang-cl clangd clang-tidy clazy-standalone)
+  if (EXISTS "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}")
+    add_custom_command(TARGET copy_clang_to_builddir PRE_BUILD
+      COMMAND "${CMAKE_COMMAND}"
+        -E make_directory
+          "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/bin/"
+      COMMAND "${CMAKE_COMMAND}"
+        -E copy
+          "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
+          "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/bin/"
+      VERBATIM
+    )
+    install(
+      FILES "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
+      DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin"
+     )
+  endif()
+endforeach()
+
+install(DIRECTORY ${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include
+  DESTINATION "${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}"
 )
