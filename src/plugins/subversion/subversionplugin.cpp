@@ -84,6 +84,7 @@
 using namespace Core;
 using namespace Utils;
 using namespace VcsBase;
+using namespace std::placeholders;
 
 namespace Subversion {
 namespace Internal {
@@ -117,25 +118,26 @@ struct SubversionResponse
     QString message;
 };
 
-const VcsBaseEditorParameters editorParameters[] = {
-{
+const VcsBaseSubmitEditorParameters submitParameters {
+    Constants::SUBVERSION_SUBMIT_MIMETYPE,
+    Constants::SUBVERSION_COMMIT_EDITOR_ID,
+    Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
+    VcsBaseSubmitEditorParameters::DiffFiles
+};
+
+const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     Constants::SUBVERSION_LOG_EDITOR_ID,
     Constants::SUBVERSION_LOG_EDITOR_DISPLAY_NAME,
-    Constants::SUBVERSION_LOG_MIMETYPE},
-{    AnnotateOutput,
-     Constants::SUBVERSION_BLAME_EDITOR_ID,
-     Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
-     Constants::SUBVERSION_BLAME_MIMETYPE}
+    Constants::SUBVERSION_LOG_MIMETYPE
 };
 
-// Utility to find a parameter set by type
-static const VcsBaseEditorParameters *findType(int ie)
-{
-    return VcsBaseEditor::findType(editorParameters,
-                                   sizeof(editorParameters)/sizeof(*editorParameters),
-                                   static_cast<EditorContentType>(ie));
-}
+const VcsBaseEditorParameters blameEditorParameters {
+    AnnotateOutput,
+    Constants::SUBVERSION_BLAME_EDITOR_ID,
+    Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
+    Constants::SUBVERSION_BLAME_MIMETYPE
+};
 
 static inline QString debugCodec(const QTextCodec *c)
 {
@@ -279,7 +281,7 @@ private:
 
     inline bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
-                                      int editorType, const QString &source,
+                                      Core::Id id, const QString &source,
                                       QTextCodec *codec);
 
     void filelog(const QString &workingDir,
@@ -322,6 +324,24 @@ private:
     bool m_submitActionTriggered = false;
 
     SubversionSettingsPage m_settingsPage{[this] { configurationChanged(); }, &m_settings};
+
+    VcsSubmitEditorFactory submitEditorFactory {
+        submitParameters,
+        [] { return new SubversionSubmitEditor; },
+        this
+    };
+
+    VcsEditorFactory logEditorFactory {
+        &logEditorParameters,
+        [] { return new SubversionEditorWidget; },
+        std::bind(&SubversionPluginPrivate::describe, this, _1, _2)
+    };
+
+    VcsEditorFactory blameEditorFactory {
+        &blameEditorParameters,
+        [] { return new SubversionEditorWidget; },
+        std::bind(&SubversionPluginPrivate::describe, this, _1, _2)
+    };
 };
 
 
@@ -355,13 +375,6 @@ bool SubversionPluginPrivate::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-const VcsBaseSubmitEditorParameters submitParameters = {
-    Constants::SUBVERSION_SUBMIT_MIMETYPE,
-    Constants::SUBVERSION_COMMIT_EDITOR_ID,
-    Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -387,16 +400,6 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     using namespace Constants;
     using namespace Core::Constants;
     Context context(SUBVERSION_CONTEXT);
-
-    new VcsSubmitEditorFactory(submitParameters, [] { return new SubversionSubmitEditor; }, this, this);
-
-    const auto describeFunc = [this](const QString &source, const QString &id) {
-        describe(source, id);
-    };
-    const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
-    const auto widgetCreator = []() { return new SubversionEditorWidget; };
-    for (int i = 0; i < editorCount; i++)
-        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString prefix = QLatin1String("svn");
     m_commandLocator = new CommandLocator("Subversion", prefix, prefix, this);
@@ -950,7 +953,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const QString &workingDir, const
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, response.stdOut, AnnotateOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, response.stdOut, blameEditorParameters.id, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1035,15 +1038,12 @@ SubversionResponse SubversionPluginPrivate::runSvn(const QString &workingDir,
 }
 
 IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const QString &output,
-                                                     int editorType, const QString &source,
+                                                     Id id, const QString &source,
                                                      QTextCodec *codec)
 {
-    const VcsBaseEditorParameters *params = findType(editorType);
-    QTC_ASSERT(params, return nullptr);
-    const Id id = params->id;
     if (Subversion::Constants::debug)
-        qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.name()
-                 <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+        qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.toString()
+                 <<  "Size= " << output.size() <<  " Type=" << id << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     auto e = qobject_cast<SubversionEditorWidget*>(editor->widget());
@@ -1329,7 +1329,7 @@ void SubversionPlugin::testLogResolving()
                 "   expectations, remove XFail.\n"
                 "\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "r1439551", "r1439540");
+    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data, "r1439551", "r1439540");
 }
 
 #endif

@@ -76,6 +76,7 @@
 using namespace Core;
 using namespace Utils;
 using namespace VcsBase;
+using namespace std::placeholders;
 
 namespace Bazaar {
 namespace Internal {
@@ -109,24 +110,28 @@ const char COMMIT[] = "Bazaar.Action.Commit";
 const char UNCOMMIT[] = "Bazaar.Action.UnCommit";
 const char CREATE_REPOSITORY[] = "Bazaar.Action.CreateRepository";
 
-const VcsBaseEditorParameters editorParameters[] = {
-    {   LogOutput, // type
-        Constants::FILELOG_ID, // id
-        Constants::FILELOG_DISPLAY_NAME, // display name
-        Constants::LOGAPP}, // mime type
-
-    {    AnnotateOutput,
-         Constants::ANNOTATELOG_ID,
-         Constants::ANNOTATELOG_DISPLAY_NAME,
-         Constants::ANNOTATEAPP},
-
-    {   DiffOutput,
-        Constants::DIFFLOG_ID,
-        Constants::DIFFLOG_DISPLAY_NAME,
-        Constants::DIFFAPP}
+const VcsBaseEditorParameters logEditorParameters {
+    LogOutput, // type
+    Constants::FILELOG_ID, // id
+    Constants::FILELOG_DISPLAY_NAME, // display name
+    Constants::LOGAPP // mime type
 };
 
-const VcsBaseSubmitEditorParameters submitEditorParameters = {
+const VcsBaseEditorParameters annotateEditorParameters {
+    AnnotateOutput,
+    Constants::ANNOTATELOG_ID,
+    Constants::ANNOTATELOG_DISPLAY_NAME,
+    Constants::ANNOTATEAPP
+};
+
+const VcsBaseEditorParameters diffEditorParameters {
+    DiffOutput,
+    Constants::DIFFLOG_ID,
+    Constants::DIFFLOG_DISPLAY_NAME,
+    Constants::DIFFAPP
+};
+
+const VcsBaseSubmitEditorParameters submitEditorParameters {
     COMMITMIMETYPE,
     COMMIT_ID,
     COMMIT_DISPLAY_NAME,
@@ -197,6 +202,8 @@ public:
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
 
+    void describe(const QString &source, const QString &id) { m_client.view(source, id); }
+
     // Variables
     BazaarSettings m_settings;
     BazaarClient m_client{&m_settings};
@@ -226,6 +233,24 @@ public:
 
     QString m_submitRepository;
     bool m_submitActionTriggered = false;
+
+    VcsEditorFactory logEditorFactory {
+        &logEditorParameters,
+        [] { return new BazaarEditorWidget; },
+        std::bind(&BazaarPluginPrivate::describe, this, _1, _2)
+    };
+
+    VcsEditorFactory annotateEditorFactory {
+        &annotateEditorParameters,
+        [] { return new BazaarEditorWidget; },
+        std::bind(&BazaarPluginPrivate::describe, this, _1, _2)
+    };
+
+    VcsEditorFactory diffEditorFactory {
+        &diffEditorParameters,
+        [] { return new BazaarEditorWidget; },
+        std::bind(&BazaarPluginPrivate::describe, this, _1, _2)
+    };
 };
 
 class UnCommitDialog : public QDialog
@@ -293,15 +318,6 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     Context context(Constants::BAZAAR_CONTEXT);
 
     connect(&m_client, &VcsBaseClient::changed, this, &BazaarPluginPrivate::changed);
-
-    const auto describeFunc = [this](const QString &source, const QString &id) {
-        m_client.view(source, id);
-    };
-
-    const int editorCount = sizeof(editorParameters) / sizeof(VcsBaseEditorParameters);
-    const auto widgetCreator = []() { return new BazaarEditorWidget; };
-    for (int i = 0; i < editorCount; i++)
-        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString prefix = QLatin1String("bzr");
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix, this);
@@ -700,7 +716,7 @@ void BazaarPlugin::testDiffFileResolving_data()
 
 void BazaarPlugin::testDiffFileResolving()
 {
-    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[2].id);
+    VcsBaseEditorWidget::testDiffFileResolving(diffEditorParameters.id);
 }
 
 void BazaarPlugin::testLogResolving()
@@ -723,7 +739,7 @@ void BazaarPlugin::testLogResolving()
                 "  (gz) Set approved revision and vote \"Approve\" when using lp-propose\n"
                 "   --approve (Jonathan Lange)\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "6572", "6571");
+    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data, "6572", "6571");
 }
 #endif
 

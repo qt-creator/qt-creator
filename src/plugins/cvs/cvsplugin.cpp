@@ -80,6 +80,7 @@
 using namespace Core;
 using namespace VcsBase;
 using namespace Utils;
+using namespace std::placeholders;
 
 namespace Cvs {
 namespace Internal {
@@ -125,33 +126,40 @@ public:
     QString message;
 };
 
-const VcsBaseEditorParameters editorParameters[] = {
-{
+const VcsBaseSubmitEditorParameters submitParameters {
+    CVS_SUBMIT_MIMETYPE,
+    CVSCOMMITEDITOR_ID,
+    CVSCOMMITEDITOR_DISPLAY_NAME,
+    VcsBaseSubmitEditorParameters::DiffFiles
+};
+
+const VcsBaseEditorParameters commandLogEditorParameters {
     OtherContent,
     "CVS Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
-    "text/vnd.qtcreator.cvs.commandlog"},
-{   LogOutput,
-    "CVS File Log Editor",   // id
-    QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
-    "text/vnd.qtcreator.cvs.log"},
-{    AnnotateOutput,
-    "CVS Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
-    "text/vnd.qtcreator.cvs.annotation"},
-{   DiffOutput,
-    "CVS Diff Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
-    "text/x-patch"}
+    "text/vnd.qtcreator.cvs.commandlog"
 };
 
-// Utility to find a parameter set by type
-static inline const VcsBaseEditorParameters *findType(int ie)
-{
-    return VcsBaseEditor::findType(editorParameters,
-                                   sizeof(editorParameters) / sizeof(*editorParameters),
-                                   static_cast<EditorContentType>(ie));
-}
+const VcsBaseEditorParameters logEditorParameters {
+    LogOutput,
+    "CVS File Log Editor",   // id
+    QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
+    "text/vnd.qtcreator.cvs.log"
+};
+
+const VcsBaseEditorParameters annotateEditorParameters {
+    AnnotateOutput,
+    "CVS Annotation Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
+    "text/vnd.qtcreator.cvs.annotation"
+};
+
+const VcsBaseEditorParameters diffEditorParameters {
+    DiffOutput,
+    "CVS Diff Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
+    "text/x-patch"
+};
 
 static inline bool messageBoxQuestion(const QString &title, const QString &question)
 {
@@ -297,7 +305,7 @@ private:
 
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      int editorType, const QString &source,
+                                      Core::Id id, const QString &source,
                                       QTextCodec *codec);
 
     CvsResponse runCvs(const QString &workingDirectory,
@@ -311,6 +319,7 @@ private:
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CvsLogEntry> entries, QString *errorMessage);
+    void describeHelper(const QString &source, const QString &changeNr);
     void filelog(const QString &workingDir,
                  const QString &file = QString(),
                  bool enableAnnotationContextMenu = false);
@@ -358,9 +367,39 @@ private:
 
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
+
+    CvsSettingsPage m_settingsPage{[this] { configurationChanged(); }, &m_settings};
+
+    VcsSubmitEditorFactory submitEditorFactory {
+        submitParameters,
+        [] { return new CvsSubmitEditor; },
+        this
+    };
+
+    VcsEditorFactory commandLogEditorFactory {
+        &commandLogEditorParameters,
+        [] { return new CvsEditorWidget; },
+        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+    };
+
+    VcsEditorFactory logEditorFactory {
+        &logEditorParameters,
+        [] { return new CvsEditorWidget; },
+        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+    };
+
+    VcsEditorFactory annotateEditorFactory {
+        &annotateEditorParameters,
+        [] { return new CvsEditorWidget; },
+        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+    };
+
+    VcsEditorFactory diffEditorFactory {
+        &diffEditorParameters,
+        [] { return new CvsEditorWidget; },
+        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+    };
 };
-
-
 
 Core::Id CvsPluginPrivate::id() const
 {
@@ -481,13 +520,6 @@ bool CvsPluginPrivate::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-static const VcsBaseSubmitEditorParameters submitParameters = {
-    CVS_SUBMIT_MIMETYPE,
-    CVSCOMMITEDITOR_ID,
-    CVSCOMMITEDITOR_DISPLAY_NAME,
-    VcsBaseSubmitEditorParameters::DiffFiles
-};
-
 CvsPlugin::~CvsPlugin()
 {
     delete dd;
@@ -515,20 +547,6 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     Context context(CVS_CONTEXT);
     m_client = new CvsClient(&m_settings);
-
-    new CvsSettingsPage([this] { configurationChanged(); }, &m_settings, this);
-
-    new VcsSubmitEditorFactory(submitParameters, [] { return new CvsSubmitEditor; }, this, this);
-
-    const auto describeFunc = [this](const QString &source, const QString &changeNr) {
-        QString errorMessage;
-        if (!describe(source, changeNr, &errorMessage))
-            VcsOutputWindow::appendError(errorMessage);
-    };
-    const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
-    const auto widgetCreator = []() { return new CvsEditorWidget; };
-    for (int i = 0; i < editorCount; i++)
-        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString prefix = QLatin1String("cvs");
     m_commandLocator = new CommandLocator("CVS", prefix, prefix, this);
@@ -722,6 +740,13 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 }
+
+void CvsPluginPrivate::describeHelper(const QString &source, const QString &changeNr)
+{
+    QString errorMessage;
+    if (!describe(source, changeNr, &errorMessage))
+        VcsOutputWindow::appendError(errorMessage);
+};
 
 bool CvsPluginPrivate::submitEditorAboutToClose()
 {
@@ -1050,7 +1075,7 @@ void CvsPluginPrivate::filelog(const QString &workingDir,
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, response.stdOut, LogOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, response.stdOut, logEditorParameters.id, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1201,7 +1226,7 @@ void CvsPluginPrivate::annotate(const QString &workingDir, const QString &file,
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, response.stdOut, AnnotateOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, response.stdOut, annotateEditorParameters.id, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1216,7 +1241,7 @@ bool CvsPluginPrivate::status(const QString &topLevel, const QString &file, cons
             runCvs(topLevel, args, m_settings.vcsTimeoutS(), 0);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
-        showOutputInEditor(title, response.stdOut, OtherContent, topLevel, nullptr);
+        showOutputInEditor(title, response.stdOut, commandLogEditorParameters.id, topLevel, nullptr);
     return ok;
 }
 
@@ -1390,7 +1415,7 @@ bool CvsPluginPrivate::describe(const QString &repositoryPath,
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
-        IEditor *newEditor = showOutputInEditor(title, output, DiffOutput, entries.front().file, codec);
+        IEditor *newEditor = showOutputInEditor(title, output, diffEditorParameters.id, entries.front().file, codec);
         VcsBaseEditor::tagEditor(newEditor, commitId);
         setDiffBaseDirectory(newEditor, repositoryPath);
     }
@@ -1447,12 +1472,9 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
 }
 
 IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QString &output,
-                                       int editorType, const QString &source,
-                                       QTextCodec *codec)
+                                              Core::Id id, const QString &source,
+                                              QTextCodec *codec)
 {
-    const VcsBaseEditorParameters *params = findType(editorType);
-    QTC_ASSERT(params, return nullptr);
-    const Id id = params->id;
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     auto e = qobject_cast<CvsEditorWidget*>(editor->widget());
@@ -1554,7 +1576,7 @@ void CvsPlugin::testDiffFileResolving_data()
 
 void CvsPlugin::testDiffFileResolving()
 {
-    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[3].id);
+    VcsBaseEditorWidget::testDiffFileResolving(diffEditorParameters.id);
 }
 
 void CvsPlugin::testLogResolving()
@@ -1580,7 +1602,7 @@ void CvsPlugin::testLogResolving()
                 "added latest commentary\n"
                 "----------------------------\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(editorParameters[1].id, data, "1.3", "1.2");
+    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data, "1.3", "1.2");
 }
 #endif
 

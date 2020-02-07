@@ -89,8 +89,7 @@ void CvsSettingsPageWidget::apply()
     m_onApply();
 }
 
-CvsSettingsPage::CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings, QObject *parent) :
-    Core::IOptionsPage( parent)
+CvsSettingsPage::CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(CvsSettingsPageWidget::tr("CVS"));

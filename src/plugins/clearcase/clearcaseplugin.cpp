@@ -102,6 +102,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace VcsBase;
 using namespace Utils;
+using namespace std::placeholders;
 
 namespace ClearCase {
 namespace Internal {
@@ -132,36 +133,33 @@ public:
     QString message;
 };
 
-static const VcsBaseEditorParameters editorParameters[] = {
-{
+const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     "ClearCase File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase File Log Editor"),   // display_name
-    "text/vnd.qtcreator.clearcase.log"},
-{    AnnotateOutput,
-    "ClearCase Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "ClearCase Annotation Editor"),   // display_name
-    "text/vnd.qtcreator.clearcase.annotation"},
-{   DiffOutput,
-    "ClearCase Diff Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "ClearCase Diff Editor"),   // display_name
-    "text/x-patch"}
+    "text/vnd.qtcreator.clearcase.log"
 };
 
-static const VcsBaseSubmitEditorParameters submitParameters = {
+const VcsBaseEditorParameters annotateEditorParameters {
+    AnnotateOutput,
+    "ClearCase Annotation Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "ClearCase Annotation Editor"),   // display_name
+    "text/vnd.qtcreator.clearcase.annotation"
+};
+
+const VcsBaseEditorParameters diffEditorParameters {
+    DiffOutput,
+    "ClearCase Diff Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "ClearCase Diff Editor"),   // display_name
+    "text/x-patch"
+};
+
+const VcsBaseSubmitEditorParameters submitParameters {
     Constants::CLEARCASE_SUBMIT_MIMETYPE,
     Constants::CLEARCASECHECKINEDITOR_ID,
     Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
-
-// Utility to find a parameter set by type
-static const VcsBaseEditorParameters *findType(int ie)
-{
-    return VcsBaseEditor::findType(editorParameters,
-                                   sizeof(editorParameters)/sizeof(*editorParameters),
-                                   static_cast<EditorContentType>(ie));
-}
 
 static QString debugCodec(const QTextCodec *c)
 {
@@ -287,7 +285,7 @@ private:
     QString ccViewRoot(const QString &directory) const;
     QString findTopLevel(const QString &directory) const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      int editorType, const QString &source,
+                                      Id id, const QString &source,
                                       QTextCodec *codec) const;
     QString runCleartoolSync(const QString &workingDir, const QStringList &arguments) const;
     ClearCaseResponse runCleartool(const QString &workingDir, const QStringList &arguments,
@@ -356,6 +354,24 @@ private:
         submitParameters,
         [] { return new ClearCaseSubmitEditor; },
         this
+    };
+
+    VcsEditorFactory logEditorFactory {
+        &logEditorParameters,
+        [] { return new ClearCaseEditorWidget; },
+        std::bind(&ClearCasePluginPrivate::describe, this, _1, _2)
+    };
+
+    VcsEditorFactory annotateEditorFactory {
+        &annotateEditorParameters,
+        [] { return new ClearCaseEditorWidget; },
+        std::bind(&ClearCasePluginPrivate::describe, this, _1, _2)
+    };
+
+    VcsEditorFactory diffEditorFactory {
+        &diffEditorParameters,
+        [] { return new ClearCaseEditorWidget; },
+        std::bind(&ClearCasePluginPrivate::describe, this, _1, _2)
     };
 
     friend class ClearCasePlugin;
@@ -636,15 +652,6 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     // update view name when changing active project
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &ClearCasePluginPrivate::projectChanged);
-
-    // any editor responds to describe (when clicking a version)
-    const auto describeFunc = [this](const QString &source, const QString &changeNr) {
-        describe(source, changeNr);
-    };
-    const int editorCount = sizeof(editorParameters)/sizeof(VcsBaseEditorParameters);
-    const auto widgetCreator = []() { return new ClearCaseEditorWidget; };
-    for (int i = 0; i < editorCount; i++)
-        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString description = QLatin1String("ClearCase");
     const QString prefix = QLatin1String("cc");
@@ -1224,7 +1231,7 @@ void ClearCasePluginPrivate::ccDiffWithPred(const QString &workingDir, const QSt
         diffname = QDir::toNativeSeparators(files.first());
     }
     const QString title = QString::fromLatin1("cc diff %1").arg(diffname);
-    IEditor *editor = showOutputInEditor(title, result, DiffOutput, source, codec);
+    IEditor *editor = showOutputInEditor(title, result, diffEditorParameters.id, source, codec);
     setWorkingDirectory(editor, workingDir);
     VcsBaseEditor::tagEditor(editor, tag);
     auto diffEditorWidget = qobject_cast<ClearCaseEditorWidget *>(editor->widget());
@@ -1320,7 +1327,7 @@ void ClearCasePluginPrivate::diffActivity()
     }
     m_diffPrefix.clear();
     const QString title = QString::fromLatin1("%1.patch").arg(activity);
-    IEditor *editor = showOutputInEditor(title, result, DiffOutput, activity, nullptr);
+    IEditor *editor = showOutputInEditor(title, result, diffEditorParameters.id, activity, nullptr);
     setWorkingDirectory(editor, topLevel);
 }
 
@@ -1483,7 +1490,7 @@ void ClearCasePluginPrivate::history(const QString &workingDir,
     } else {
         const QString title = QString::fromLatin1("cc history %1").arg(id);
         const QString source = VcsBaseEditor::getSource(workingDir, files);
-        IEditor *newEditor = showOutputInEditor(title, response.stdOut, LogOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, response.stdOut, logEditorParameters.id, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1588,7 +1595,7 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const QString &workingDir, const 
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc annotate %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, res, AnnotateOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, res, annotateEditorParameters.id, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1623,7 +1630,7 @@ void ClearCasePluginPrivate::describe(const QString &source, const QString &chan
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc describe %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, description, DiffOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, description, diffEditorParameters.id, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
     }
 }
@@ -1671,15 +1678,12 @@ ClearCasePluginPrivate::runCleartool(const QString &workingDir,
 }
 
 IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const QString &output,
-                                                   int editorType, const QString &source,
+                                                   Core::Id id, const QString &source,
                                                    QTextCodec *codec) const
 {
-    const VcsBaseEditorParameters *params = findType(editorType);
-    QTC_ASSERT(params, return nullptr);
-    const Id id = params->id;
     if (Constants::debug)
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
-                 <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+                 <<  "Size= " << output.size() << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     auto e = qobject_cast<ClearCaseEditorWidget*>(editor->widget());
@@ -2574,7 +2578,7 @@ void ClearCasePlugin::testDiffFileResolving_data()
 
 void ClearCasePlugin::testDiffFileResolving()
 {
-    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[2].id);
+    VcsBaseEditorWidget::testDiffFileResolving(diffEditorParameters.id);
 }
 
 void ClearCasePlugin::testLogResolving()
@@ -2583,7 +2587,7 @@ void ClearCasePlugin::testLogResolving()
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
                 "22-Aug.14:13   user2      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8\" (baseline3, baseline4, ...)\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data,
+    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data,
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9",
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8");
 }

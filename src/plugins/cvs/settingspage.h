@@ -35,7 +35,7 @@ class CvsSettings;
 class CvsSettingsPage final : public Core::IOptionsPage
 {
 public:
-    CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings, QObject *parent);
+    CvsSettingsPage(const std::function<void()> &onApply, CvsSettings *settings);
 };
 
 } // namespace Cvs
