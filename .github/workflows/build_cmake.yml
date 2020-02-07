@@ -292,7 +292,9 @@ jobs:
               -D WITH_TESTS=ON
               -D IDE_REVISION=TRUE
               -D IDE_REVISION_STR=$ENV{GITHUB_SHA}
+              -D IDE_REVISION_URL_STR=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
             RESULT_VARIABLE result
+            COMMAND_ECHO STDOUT
           )
           if (NOT result EQUAL 0)
             message(FATAL_ERROR "Bad exit status")
