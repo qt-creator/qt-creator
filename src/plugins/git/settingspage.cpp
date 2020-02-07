@@ -126,8 +126,7 @@ void GitSettingsPageWidget::updateNoteField()
 
 // -------- SettingsPage
 
-GitSettingsPage::GitSettingsPage(GitSettings *settings, const std::function<void()> &onChange, QObject *parent) :
-    Core::IOptionsPage(parent)
+GitSettingsPage::GitSettingsPage(GitSettings *settings, const std::function<void()> &onChange)
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(GitSettingsPageWidget::tr("Git"));

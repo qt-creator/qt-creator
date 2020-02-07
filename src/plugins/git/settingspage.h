@@ -35,7 +35,7 @@ class GitSettings;
 class GitSettingsPage final : public Core::IOptionsPage
 {
 public:
-    GitSettingsPage(GitSettings *settings, const std::function<void()> &onChange, QObject *parent);
+    GitSettingsPage(GitSettings *settings, const std::function<void()> &onChange);
 };
 
 } // namespace Internal
