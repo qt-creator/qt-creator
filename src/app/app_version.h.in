@@ -57,7 +57,7 @@ const char IDE_REVISION_STR[]      = \"\";
 #ifdef IDE_REVISION_URL
 const char IDE_REVISION_URL_STR[]  = STRINGIFY(IDE_REVISION_URL);
 #else
-const char IDE_REVISION_URL_STR[]  = \"https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=%1\";
+const char IDE_REVISION_URL_STR[]  = \"\";
 #endif
 
 // changes the path where the settings are saved to
