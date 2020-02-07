@@ -300,7 +300,7 @@ void GitDiffEditorController::updateBranchList()
         return;
 
     const QString workingDirectory = baseDirectory();
-    VcsCommand *command = GitPluginPrivate::client()->vcsExec(
+    VcsCommand *command = GitPlugin::client()->vcsExec(
                 workingDirectory, {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
                 false, 0, workingDirectory);
     connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
@@ -375,7 +375,7 @@ QStringList GitDiffEditorController::addHeadWhenCommandInProgress() const
     // This is workaround for lack of support for merge commits and resolving conflicts,
     // we compare the current state of working tree to the HEAD of current branch
     // instead of showing unsupported combined diff format.
-    GitClient::CommandInProgress commandInProgress = GitPluginPrivate::client()->checkCommandInProgress(workingDirectory());
+    GitClient::CommandInProgress commandInProgress = GitPlugin::client()->checkCommandInProgress(workingDirectory());
     if (commandInProgress != GitClient::NoCommand)
         return {HEAD};
     return QStringList();
@@ -478,7 +478,7 @@ public:
         setReloader([this] {
             m_state = GettingDescription;
             const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
-            runCommand({args}, GitPluginPrivate::client()->encoding(workingDirectory(), "i18n.commitEncoding"));
+            runCommand({args}, GitPlugin::client()->encoding(workingDirectory(), "i18n.commitEncoding"));
             setStartupFile(VcsBase::source(this->document()));
         });
     }
@@ -495,7 +495,7 @@ void ShowController::processCommandOutput(const QString &output)
 {
     QTC_ASSERT(m_state != Idle, return);
     if (m_state == GettingDescription) {
-        setDescription(GitPluginPrivate::client()->extendedShowDescription(workingDirectory(), output));
+        setDescription(GitPlugin::client()->extendedShowDescription(workingDirectory(), output));
         // stage 2
         m_state = GettingDiff;
         const QStringList args = {"show", "--format=format:", // omit header, already generated
@@ -634,14 +634,12 @@ private:
     {
         // If interactive rebase editor window is closed, plugin is terminated
         // but referenced here when the command ends
-        if (GitPluginPrivate *plugin = GitPluginPrivate::instance()) {
-            GitClient *client = plugin->client();
-            if (m_commit.isEmpty() && m_files.isEmpty()) {
-                if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
-                    client->endStashScope(m_workingDirectory);
-            } else {
-                client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_abortCommand);
-            }
+        GitClient *client = GitPlugin::client();
+        if (m_commit.isEmpty() && m_files.isEmpty()) {
+            if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
+                client->endStashScope(m_workingDirectory);
+        } else {
+            client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_abortCommand);
         }
     }
 
@@ -1267,7 +1265,7 @@ void GitClient::removeStaleRemoteBranches(const QString &workingDirectory, const
                                   VcsCommand::ShowSuccessMessage);
 
     connect(command, &VcsCommand::success,
-            this, [workingDirectory]() { GitPluginPrivate::instance()->updateBranches(workingDirectory); });
+            this, [workingDirectory]() { GitPlugin::updateBranches(workingDirectory); });
 }
 
 void GitClient::recoverDeletedFiles(const QString &workingDirectory)
@@ -2220,7 +2218,7 @@ GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &wo
 
 void GitClient::continueCommandIfNeeded(const QString &workingDirectory, bool allowContinue)
 {
-    if (GitPluginPrivate::instance()->isCommitEditorOpen())
+    if (GitPlugin::isCommitEditorOpen())
         return;
     CommandInProgress command = checkCommandInProgress(workingDirectory);
     ContinueCommandMode continueMode;
@@ -2293,7 +2291,7 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
         if (isRebase)
             rebase(workingDirectory, QLatin1String(hasChanges ? "--continue" : "--skip"));
         else
-            GitPluginPrivate::instance()->startCommit();
+            GitPlugin::startCommit();
     }
 }
 
@@ -2786,7 +2784,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     if (resp.result == SynchronousProcessResponse::Finished) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
         VcsOutputWindow::appendError(stdErr);
-        GitPluginPrivate::instance()->updateCurrentBranch();
+        GitPlugin::updateCurrentBranch();
         return true;
     } else {
         VcsOutputWindow::appendError(tr("Cannot commit %n files: %1\n", nullptr, commitCount).arg(stdErr));
@@ -2888,7 +2886,7 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
     QString errorMessage;
     switch (revertI(files, &isDirectory, &errorMessage, revertStaging)) {
     case RevertOk:
-        emit GitPluginPrivate::instance()->filesChanged(files);
+        GitPlugin::emitFilesChanged(files);
         break;
     case RevertCanceled:
         break;
@@ -2909,7 +2907,7 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
     VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
                                   VcsCommand::ShowSuccessMessage);
     connect(command, &VcsCommand::success,
-            this, [workingDirectory]() { GitPluginPrivate::instance()->updateBranches(workingDirectory); });
+            this, [workingDirectory] { GitPlugin::updateBranches(workingDirectory); });
 }
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
@@ -3123,7 +3121,7 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
                             QStringList({"push", "--force-with-lease"}) + pushArgs,
                             nullptr, true, VcsCommand::ShowSuccessMessage);
                     connect(rePushCommand, &VcsCommand::success,
-                            this, []() { GitPluginPrivate::instance()->updateCurrentBranch(); });
+                            this, []() { GitPlugin::updateCurrentBranch(); });
                 }
                 break;
             }
@@ -3144,13 +3142,13 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
                                                         fallbackCommandParts.mid(1),
                             nullptr, true, VcsCommand::ShowSuccessMessage);
                     connect(rePushCommand, &VcsCommand::success, this, [workingDirectory]() {
-                        GitPluginPrivate::instance()->updateBranches(workingDirectory);
+                        GitPlugin::updateBranches(workingDirectory);
                     });
                 }
                 break;
             }
         } else {
-            GitPluginPrivate::instance()->updateCurrentBranch();
+            GitPlugin::updateCurrentBranch();
         }
     });
 }
@@ -3412,7 +3410,7 @@ bool GitClient::StashInfo::init(const QString &workingDirectory, const QString &
     m_pushAction = pushAction;
     QString errorMessage;
     QString statusOutput;
-    switch (GitPluginPrivate::client()->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
+    switch (GitPlugin::client()->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
                                            &statusOutput, &errorMessage)) {
     case GitClient::StatusChanged:
         if (m_flags & NoPrompt)
@@ -3465,14 +3463,14 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     msgBox.exec();
 
     if (msgBox.clickedButton() == discardButton) {
-        m_stashResult = GitPluginPrivate::client()->synchronousReset(m_workingDir, QStringList(), errorMessage) ?
+        m_stashResult = GitPlugin::client()->synchronousReset(m_workingDir, QStringList(), errorMessage) ?
                     StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == ignoreButton) { // At your own risk, so.
         m_stashResult = NotStashed;
     } else if (msgBox.clickedButton() == cancelButton) {
         m_stashResult = StashCanceled;
     } else if (msgBox.clickedButton() == stashButton) {
-        const bool result = GitPluginPrivate::client()->executeSynchronousStash(
+        const bool result = GitPlugin::client()->executeSynchronousStash(
                     m_workingDir, creatorStashMessage(command), false, errorMessage);
         m_stashResult = result ? StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == stashAndPopButton) {
@@ -3483,7 +3481,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
 void GitClient::StashInfo::executeStash(const QString &command, QString *errorMessage)
 {
     m_message = creatorStashMessage(command);
-    if (!GitPluginPrivate::client()->executeSynchronousStash(m_workingDir, m_message, false, errorMessage))
+    if (!GitPlugin::client()->executeSynchronousStash(m_workingDir, m_message, false, errorMessage))
         m_stashResult = StashFailed;
     else
         m_stashResult = Stashed;
@@ -3506,14 +3504,14 @@ void GitClient::StashInfo::end()
 {
     if (m_stashResult == Stashed) {
         QString stashName;
-        if (GitPluginPrivate::client()->stashNameFromMessage(m_workingDir, m_message, &stashName))
-            GitPluginPrivate::client()->stashPop(m_workingDir, stashName);
+        if (GitPlugin::client()->stashNameFromMessage(m_workingDir, m_message, &stashName))
+            GitPlugin::client()->stashPop(m_workingDir, stashName);
     }
 
     if (m_pushAction == NormalPush)
-        GitPluginPrivate::client()->push(m_workingDir);
+        GitPlugin::client()->push(m_workingDir);
     else if (m_pushAction == PushToGerrit)
-        GitPluginPrivate::instance()->gerritPlugin()->push(m_workingDir);
+        GitPlugin::gerritPush(m_workingDir);
 
     m_pushAction = NoPush;
     m_stashResult = NotStashed;

@@ -139,7 +139,7 @@ void GerritDialog::setCurrentPath(const QString &path)
     if (path == m_repository)
         return;
     m_repository = path;
-    m_ui->repositoryLabel->setText(Git::Internal::GitPluginPrivate::msgRepositoryLabel(path));
+    m_ui->repositoryLabel->setText(Git::Internal::GitPlugin::msgRepositoryLabel(path));
     updateRemotes();
 }
 

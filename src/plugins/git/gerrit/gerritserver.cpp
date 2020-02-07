@@ -240,7 +240,7 @@ QStringList GerritServer::curlArguments() const
 
 int GerritServer::testConnection()
 {
-    static GitClient *const client = GitPluginPrivate::client();
+    static GitClient *const client = GitPlugin::client();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
     const SynchronousProcessResponse resp = client->vcsFullySynchronousExec(
                 QString(), {curlBinary, arguments},
@@ -332,7 +332,7 @@ bool GerritServer::resolveRoot()
 
 void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
 {
-    static GitClient *const client = GitPluginPrivate::client();
+    static GitClient *const client = GitPlugin::client();
     QSettings *settings = Core::ICore::settings();
     const QString fullVersionKey = "Gerrit/" + host + '/' + versionKey;
     version = settings->value(fullVersionKey).toString();

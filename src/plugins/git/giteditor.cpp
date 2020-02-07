@@ -126,7 +126,7 @@ static QString sanitizeBlameOutput(const QString &b)
     if (b.isEmpty())
         return b;
 
-    const bool omitDate = GitPluginPrivate::client()->settings().boolValue(
+    const bool omitDate = GitPlugin::client()->settings().boolValue(
                 GitSettings::omitAnnotationDateKey);
     const QChar space(' ');
     const int parenPos = b.indexOf(')');
@@ -192,7 +192,7 @@ void GitEditorWidget::setPlainText(const QString &text)
 
 void GitEditorWidget::resetChange(const QByteArray &resetType)
 {
-    GitPluginPrivate::client()->reset(
+    GitPlugin::client()->reset(
                 sourceWorkingDirectory(), QLatin1String("--" + resetType), m_currentChange);
 }
 
@@ -211,7 +211,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     if (revert)
         args << "--reverse";
     QString errorMessage;
-    if (GitPluginPrivate::client()->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
+    if (GitPlugin::client()->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
             VcsOutputWindow::append(tr("Chunk successfully staged"));
         else
@@ -260,14 +260,14 @@ void GitEditorWidget::aboutToOpen(const QString &fileName, const QString &realFi
         const QString gitPath = fi.absolutePath();
         setSource(gitPath);
         textDocument()->setCodec(
-                    GitPluginPrivate::client()->encoding(gitPath, "i18n.commitEncoding"));
+                    GitPlugin::client()->encoding(gitPath, "i18n.commitEncoding"));
     }
 }
 
 QString GitEditorWidget::decorateVersion(const QString &revision) const
 {
     // Format verbose, SHA1 being first token
-    return GitPluginPrivate::client()->synchronousShortDescription(sourceWorkingDirectory(), revision);
+    return GitPlugin::client()->synchronousShortDescription(sourceWorkingDirectory(), revision);
 }
 
 QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision) const
@@ -275,7 +275,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
     QStringList revisions;
     QString errorMessage;
     // Get the SHA1's of the file.
-    if (!GitPluginPrivate::client()->synchronousParentRevisions(sourceWorkingDirectory(),
+    if (!GitPlugin::client()->synchronousParentRevisions(sourceWorkingDirectory(),
                                                          revision, &revisions, &errorMessage)) {
         VcsOutputWindow::appendSilently(errorMessage);
         return QStringList();
@@ -285,7 +285,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
 
 bool GitEditorWidget::isValidRevision(const QString &revision) const
 {
-    return GitPluginPrivate::client()->isValidRevision(revision);
+    return GitPlugin::client()->isValidRevision(revision);
 }
 
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
@@ -295,25 +295,25 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
         return;
 
     menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, [this] {
-        GitPluginPrivate::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
+        GitPlugin::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
     });
     menu->addAction(tr("Re&vert Change %1").arg(change), this, [this] {
-        GitPluginPrivate::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
+        GitPlugin::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
     });
     menu->addAction(tr("C&heckout Change %1").arg(change), this, [this] {
-        GitPluginPrivate::client()->checkout(sourceWorkingDirectory(), m_currentChange);
+        GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
     });
     connect(menu->addAction(tr("&Interactive Rebase from Change %1...").arg(change)),
             &QAction::triggered, this, [this] {
-        GitPluginPrivate::instance()->startRebaseFromCommit(sourceWorkingDirectory(), m_currentChange);
+        GitPlugin::startRebaseFromCommit(sourceWorkingDirectory(), m_currentChange);
     });
     menu->addAction(tr("&Log for Change %1").arg(change), this, [this] {
-        GitPluginPrivate::client()->log(sourceWorkingDirectory(), QString(), false, {m_currentChange});
+        GitPlugin::client()->log(sourceWorkingDirectory(), QString(), false, {m_currentChange});
     });
     menu->addAction(tr("Add &Tag for Change %1...").arg(change), this, [this] {
         QString output;
         QString errorMessage;
-        GitPluginPrivate::client()->synchronousTagCmd(sourceWorkingDirectory(), QStringList(),
+        GitPlugin::client()->synchronousTagCmd(sourceWorkingDirectory(), QStringList(),
                                                &output, &errorMessage);
 
         const QStringList tags = output.split('\n');
@@ -322,7 +322,7 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
         if (dialog.exec() == QDialog::Rejected)
             return;
 
-        GitPluginPrivate::client()->synchronousTagCmd(sourceWorkingDirectory(),
+        GitPlugin::client()->synchronousTagCmd(sourceWorkingDirectory(),
                                                {dialog.branchName(), m_currentChange},
                                                &output, &errorMessage);
         VcsOutputWindow::append(output);
