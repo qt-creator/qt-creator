@@ -141,13 +141,16 @@ add_qtc_library(ClangSupport
     writemessageblock.cpp writemessageblock.h
 )
 
-add_custom_target(copy_clang_to_builddir
+if (NOT TARGET libclang)
+  return()
+endif()
+
+add_custom_target(copy_clang_to_builddir ALL
   COMMENT Copy Clang files into build directory
 )
 
-add_dependencies(ClangSupport copy_clang_to_builddir)
-
-add_custom_command(TARGET copy_clang_to_builddir PRE_BUILD
+# For the developer build directory
+add_custom_command(TARGET copy_clang_to_builddir POST_BUILD
   COMMAND "${CMAKE_COMMAND}"
     -E make_directory
       "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}"
@@ -170,10 +173,20 @@ foreach(executable clang clang-cl clangd clang-tidy clazy-standalone)
           "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/bin/"
       VERBATIM
     )
-    install(
-      FILES "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
-      DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin"
-     )
+
+    # For the install directory
+    install(PROGRAMS
+       "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
+       DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin"
+    )
+    if (IS_SYMLINK "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}")
+      file(READ_SYMLINK
+        "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}" real_executable)
+      install(PROGRAMS
+         "${LLVM_TOOLS_BINARY_DIR}/${real_executable}${CMAKE_EXECUTABLE_SUFFIX}"
+         DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin"
+      )
+    endif()
   endif()
 endforeach()
 
