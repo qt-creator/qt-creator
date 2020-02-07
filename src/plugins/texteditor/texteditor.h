@@ -636,7 +636,7 @@ class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    TextEditorFactory(QObject *parent = nullptr);
+    TextEditorFactory();
     ~TextEditorFactory() override;
 
     using EditorCreator = std::function<BaseTextEditor *()>;

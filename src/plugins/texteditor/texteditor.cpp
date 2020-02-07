@@ -8538,8 +8538,8 @@ public:
 
 } /// namespace Internal
 
-TextEditorFactory::TextEditorFactory(QObject *parent)
-    : IEditorFactory(parent), d(new TextEditorFactoryPrivate(this))
+TextEditorFactory::TextEditorFactory()
+    : d(new TextEditorFactoryPrivate(this))
 {
     setEditorCreator([]() { return new BaseTextEditor; });
 }
