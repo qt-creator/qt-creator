@@ -263,9 +263,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     return true;
 }
 
-void QbsProjectManagerPlugin::extensionsInitialized()
-{ }
-
 void QbsProjectManagerPlugin::targetWasAdded(Target *target)
 {
     if (!qobject_cast<QbsProject *>(target->project()))

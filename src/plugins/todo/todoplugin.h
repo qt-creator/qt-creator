@@ -47,7 +47,6 @@ public:
     TodoPlugin();
     ~TodoPlugin() override;
 
-    void extensionsInitialized() override;
     bool initialize(const QStringList &arguments, QString *errorString) override;
 
 private:

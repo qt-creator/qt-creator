@@ -41,7 +41,6 @@ public:
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final {}
 
     class IosPluginPrivate *d = nullptr;
 };

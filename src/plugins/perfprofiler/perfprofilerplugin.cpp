@@ -91,10 +91,6 @@ bool PerfProfilerPlugin::initialize(const QStringList &arguments, QString *error
     return true;
 }
 
-void PerfProfilerPlugin::extensionsInitialized()
-{
-}
-
 PerfSettings *PerfProfilerPlugin::globalSettings()
 {
     return perfGlobalSettings();

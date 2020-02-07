@@ -40,10 +40,6 @@ bool SilverSearcherPlugin::initialize(const QStringList &arguments, QString *err
     return true;
 }
 
-void SilverSearcherPlugin::extensionsInitialized()
-{
-}
-
 #ifdef WITH_TESTS
 QVector<QObject *> SilverSearcherPlugin::createTestObjects() const
 {

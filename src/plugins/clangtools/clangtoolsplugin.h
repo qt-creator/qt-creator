@@ -45,7 +45,6 @@ public:
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final {}
     QVector<QObject *> createTestObjects() const final;
 
     class ClangToolsPluginPrivate *d = nullptr;

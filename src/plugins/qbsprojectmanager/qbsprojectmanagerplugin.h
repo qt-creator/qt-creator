@@ -49,7 +49,6 @@ private:
     ~QbsProjectManagerPlugin() final;
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final;
 
     void targetWasAdded(ProjectExplorer::Target *target);
     void projectChanged();

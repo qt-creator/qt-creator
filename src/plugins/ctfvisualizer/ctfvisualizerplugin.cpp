@@ -50,9 +50,5 @@ bool CtfVisualizerPlugin::initialize(const QStringList &arguments, QString *erro
     return true;
 }
 
-void CtfVisualizerPlugin::extensionsInitialized()
-{
-}
-
 } // namespace Internal
 } // namespace CtfVisualizer

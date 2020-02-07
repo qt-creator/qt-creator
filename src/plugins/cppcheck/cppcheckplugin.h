@@ -45,7 +45,6 @@ public:
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final {}
 
     std::unique_ptr<CppcheckPluginPrivate> d;
 };

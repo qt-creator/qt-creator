@@ -41,7 +41,6 @@ public:
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final {}
 
     class QmlProjectPluginPrivate *d = nullptr;
 };

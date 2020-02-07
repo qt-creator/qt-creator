@@ -37,7 +37,7 @@ class SilverSearcherPlugin : public ExtensionSystem::IPlugin
 
 public:
     bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
+
 #ifdef WITH_TESTS
 private:
     QVector<QObject *> createTestObjects() const override;

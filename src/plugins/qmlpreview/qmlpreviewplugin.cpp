@@ -243,10 +243,6 @@ bool QmlPreviewPlugin::initialize(const QStringList &arguments, QString *errorSt
     return true;
 }
 
-void QmlPreviewPlugin::extensionsInitialized()
-{
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag QmlPreviewPlugin::aboutToShutdown()
 {
     d->m_parseThread.quit();

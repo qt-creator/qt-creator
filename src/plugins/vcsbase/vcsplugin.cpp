@@ -135,10 +135,6 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     return true;
 }
 
-void VcsPlugin::extensionsInitialized()
-{
-}
-
 VcsPlugin *VcsPlugin::instance()
 {
     return m_instance;

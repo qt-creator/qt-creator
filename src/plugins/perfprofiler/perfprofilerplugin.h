@@ -41,7 +41,6 @@ public:
     ~PerfProfilerPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final;
     QVector<QObject *> createTestObjects() const final;
 
     static PerfSettings *globalSettings();

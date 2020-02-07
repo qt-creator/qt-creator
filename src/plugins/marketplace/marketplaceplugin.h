@@ -40,7 +40,6 @@ public:
     MarketplacePlugin() = default;
 
     bool initialize(const QStringList &, QString *) final { return true; }
-    void extensionsInitialized() final {}
 
 private:
     Internal::QtMarketplaceWelcomePage welcomePage;

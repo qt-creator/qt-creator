@@ -33,8 +33,3 @@ bool MyPlugin1::initialize(const QStringList &arguments, QString *errorString)
     Q_UNUSED(errorString)
     return true;
 }
-
-void MyPlugin1::extensionsInitialized()
-{
-}
-

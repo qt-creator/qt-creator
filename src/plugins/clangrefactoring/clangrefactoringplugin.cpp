@@ -131,10 +131,6 @@ bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QStri
     return true;
 }
 
-void ClangRefactoringPlugin::extensionsInitialized()
-{
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
     CppTools::CppModelManager::removeRefactoringEngine(

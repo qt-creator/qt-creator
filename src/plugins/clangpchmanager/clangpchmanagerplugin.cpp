@@ -136,10 +136,6 @@ bool ClangPchManagerPlugin::initialize(const QStringList & /*arguments*/, QStrin
     return true;
 }
 
-void ClangPchManagerPlugin::extensionsInitialized()
-{
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag ClangPchManagerPlugin::aboutToShutdown()
 {
     d->connectionClient.finishProcess();

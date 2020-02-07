@@ -50,10 +50,6 @@ bool SerialTerminalPlugin::initialize(const QStringList &arguments, QString *err
     return true;
 }
 
-void SerialTerminalPlugin::extensionsInitialized()
-{
-}
-
 ExtensionSystem::IPlugin::ShutdownFlag SerialTerminalPlugin::aboutToShutdown()
 {
     m_serialOutputPane->closeTabs(SerialOutputPane::CloseTabNoPrompt);

@@ -184,10 +184,6 @@ void ClangCodeModelPlugin::createCompilationDBButton()
     });
 }
 
-void ClangCodeModelPlugin::extensionsInitialized()
-{
-}
-
 // For e.g. creation of profile-guided optimization builds.
 void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
 {

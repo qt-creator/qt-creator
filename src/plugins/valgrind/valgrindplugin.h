@@ -42,7 +42,6 @@ public:
     ~ValgrindPlugin() final;
 
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final {}
 
 private:
     QVector<QObject *> createTestObjects() const override;

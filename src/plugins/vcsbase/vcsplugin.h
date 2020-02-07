@@ -50,8 +50,6 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
-    void extensionsInitialized() override;
-
     static VcsPlugin *instance();
 
     CommonVcsSettings settings() const;

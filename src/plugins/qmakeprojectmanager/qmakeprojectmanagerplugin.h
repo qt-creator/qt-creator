@@ -48,7 +48,6 @@ private slots:
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final {}
 
     class QmakeProjectManagerPluginPrivate *d = nullptr;
 };

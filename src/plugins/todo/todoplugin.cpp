@@ -79,10 +79,6 @@ bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
     return true;
 }
 
-void TodoPlugin::extensionsInitialized()
-{
-}
-
 void TodoPlugin::settingsChanged(const Settings &settings)
 {
     settings.save(Core::ICore::settings());

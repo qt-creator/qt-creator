@@ -44,7 +44,6 @@ public:
     explicit SerialTerminalPlugin() = default;
 
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
 
 private:

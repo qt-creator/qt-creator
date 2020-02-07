@@ -38,7 +38,6 @@ class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IP
     ~CompilationDatabaseProjectManagerPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final {}
     QVector<QObject *> createTestObjects() const final;
 
     class CompilationDatabaseProjectManagerPluginPrivate *d = nullptr;

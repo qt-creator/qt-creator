@@ -66,7 +66,6 @@ public:
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final {}
     ShutdownFlag aboutToShutdown() final;
 
     CodePasterPluginPrivate *d = nullptr;

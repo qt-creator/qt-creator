@@ -38,7 +38,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     ~AndroidPlugin() final;
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final { }
 
     void kitsRestored();
 

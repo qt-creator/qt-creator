@@ -64,7 +64,6 @@ public:
     ~QmlPreviewPlugin() override;
 
     bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
     QVector<QObject *> createTestObjects() const override;
 

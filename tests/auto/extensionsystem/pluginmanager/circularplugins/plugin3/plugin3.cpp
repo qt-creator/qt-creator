@@ -38,7 +38,3 @@ bool MyPlugin3::initialize(const QStringList &, QString *)
     return true;
 }
 
-void MyPlugin3::extensionsInitialized()
-{
-}
-

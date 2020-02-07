@@ -44,7 +44,6 @@ public:
     MyPlugin1() = default;
 
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final;
 };
 
 } // namespace Plugin1

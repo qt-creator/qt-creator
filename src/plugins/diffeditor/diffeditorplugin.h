@@ -54,7 +54,6 @@ public:
     ~DiffEditorPlugin() final;
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final {};
 
 private:
     class DiffEditorPluginPrivate *d = nullptr;

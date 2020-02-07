@@ -40,7 +40,6 @@ public:
     ~CtfVisualizerPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorString) final;
-    void extensionsInitialized() final;
 
     class CtfVisualizerPluginPrivate *d = nullptr;
 };
