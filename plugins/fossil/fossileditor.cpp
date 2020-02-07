@@ -131,7 +131,7 @@ QString FossilEditorWidget::decorateVersion(const QString &revision) const
 
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
-    const FossilClient *client = FossilPluginPrivate::instance()->client();
+    const FossilClient *client = FossilPlugin::client();
     RevisionInfo revisionInfo =
             client->synchronousRevisionQuery(workingDirectory, revision, true);
 
@@ -153,7 +153,7 @@ QStringList FossilEditorWidget::annotationPreviousVersions(const QString &revisi
     QStringList revisions;
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
-    const FossilClient *client = FossilPluginPrivate::instance()->client();
+    const FossilClient *client = FossilPlugin::client();
     RevisionInfo revisionInfo =
             client->synchronousRevisionQuery(workingDirectory, revision);
     if (revisionInfo.parentId.isEmpty())

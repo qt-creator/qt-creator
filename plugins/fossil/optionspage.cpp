@@ -91,8 +91,7 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Fossi
     m_ui.disableAutosyncCheckBox->setChecked(m_settings->boolValue(FossilSettings::disableAutosyncKey));
 }
 
-OptionsPage::OptionsPage(const std::function<void()> &onApply, FossilSettings *settings, QObject *parent) :
-    Core::IOptionsPage(parent)
+OptionsPage::OptionsPage(const std::function<void()> &onApply, FossilSettings *settings)
 {
     setId(Constants::VCS_ID_FOSSIL);
     setDisplayName(OptionsPageWidget::tr("Fossil"));

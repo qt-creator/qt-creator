@@ -31,129 +31,18 @@
 #include <vcsbase/vcsbaseplugin.h>
 #include <coreplugin/icontext.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace Core {
 class ActionContainer;
 class CommandLocator;
 class Id;
 } // namespace Core
 
-namespace Utils { class ParameterAction; }
-
 namespace Fossil {
 namespace Internal {
 
 class OptionsPage;
 class FossilClient;
-class FossilPluginPrivate;
 class FossilEditorWidget;
-
-class FossilPluginPrivate final : public VcsBase::VcsBasePluginPrivate
-{
-    Q_OBJECT
-
-public:
-    FossilPluginPrivate();
-
-    static FossilPluginPrivate *instance();
-    const FossilClient *client() const;
-
-    // IVersionControl
-    QString displayName() const final;
-    Core::Id id() const final;
-
-    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
-
-    bool managesDirectory(const QString &directory, QString *topLevel) const final;
-    bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
-
-    bool isConfigured() const final;
-    bool supportsOperation(Operation operation) const final;
-    bool vcsOpen(const QString &fileName) final;
-    bool vcsAdd(const QString &fileName) final;
-    bool vcsDelete(const QString &filename) final;
-    bool vcsMove(const QString &from, const QString &to) final;
-    bool vcsCreateRepository(const QString &directory) final;
-
-    bool vcsAnnotate(const QString &file, int line) final;
-
-    Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs) final;
-
-protected:
-    void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
-    bool submitEditorAboutToClose() override;
-
-private:
-    // File menu action slots
-    void addCurrentFile();
-    void deleteCurrentFile();
-    void annotateCurrentFile();
-    void diffCurrentFile();
-    void logCurrentFile();
-    void revertCurrentFile();
-    void statusCurrentFile();
-
-    // Directory menu action slots
-    void diffRepository();
-    void logRepository();
-    void revertAll();
-    void statusMulti();
-
-    // Repository menu action slots
-    void pull();
-    void push();
-    void update();
-    void configureRepository();
-    void commit();
-    void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
-    void commitFromEditor() override;
-    void diffFromEditorSelected(const QStringList &files);
-    void createRepository();
-
-    // Methods
-    void createMenu(const Core::Context &context);
-    void createFileActions(const Core::Context &context);
-    void createDirectoryActions(const Core::Context &context);
-    void createRepositoryActions(const Core::Context &context);
-
-    // Variables
-    FossilSettings m_fossilSettings;
-    FossilClient *m_client = nullptr;
-
-    Core::CommandLocator *m_commandLocator = nullptr;
-    Core::ActionContainer *m_fossilContainer = nullptr;
-
-    QList<QAction *> m_repositoryActionList;
-
-    // Menu Items (file actions)
-    Utils::ParameterAction *m_addAction = nullptr;
-    Utils::ParameterAction *m_deleteAction = nullptr;
-    Utils::ParameterAction *m_annotateFile = nullptr;
-    Utils::ParameterAction *m_diffFile = nullptr;
-    Utils::ParameterAction *m_logFile = nullptr;
-    Utils::ParameterAction *m_renameFile = nullptr;
-    Utils::ParameterAction *m_revertFile = nullptr;
-    Utils::ParameterAction *m_statusFile = nullptr;
-
-    QAction *m_createRepositoryAction = nullptr;
-
-    // Submit editor actions
-    QAction *m_menuAction = nullptr;
-
-    QString m_submitRepository;
-    bool m_submitActionTriggered = false;
-
-    // To be connected to the VcsTask's success signal to emit the repository/
-    // files changed signals according to the variant's type:
-    // String -> repository, StringList -> files
-    void changed(const QVariant &);
-};
 
 class FossilPlugin final : public ExtensionSystem::IPlugin
 {
@@ -164,6 +53,12 @@ class FossilPlugin final : public ExtensionSystem::IPlugin
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;
+
+public:
+    static const FossilSettings &settings();
+    static FossilClient *client();
+
+    static void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
 
 #ifdef WITH_TESTS
 private slots:

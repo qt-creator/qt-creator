@@ -27,9 +27,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Core { class IVersionControl; }
-namespace VcsBase { class VcsBaseClientSettings; }
-
 namespace Fossil {
 namespace Internal {
 
@@ -37,10 +34,8 @@ class FossilSettings;
 
 class OptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    OptionsPage(const std::function<void()> &onApply, FossilSettings *settings, QObject *parent);
+    OptionsPage(const std::function<void()> &onApply, FossilSettings *settings);
 };
 
 } // namespace Internal
