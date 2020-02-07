@@ -30,6 +30,7 @@
 
 /*!
     \namespace Aggregation
+    \inmodule QtCreator
     \brief The Aggregation namespace contains support for bundling related components,
            so that each component exposes the properties and behavior of the
            other components to the outside.
@@ -41,6 +42,7 @@
 
 /*!
     \class Aggregation::Aggregate
+    \inmodule QtCreator
     \ingroup mainclasses
     \threadsafe
 
