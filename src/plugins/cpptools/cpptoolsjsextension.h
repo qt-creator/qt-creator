@@ -55,6 +55,14 @@ public:
     Q_INVOKABLE QString classToHeaderGuard(const QString &klass, const QString &extension) const;
     Q_INVOKABLE QString openNamespaces(const QString &klass) const;
     Q_INVOKABLE QString closeNamespaces(const QString &klass) const;
+
+    // Find header file for class.
+    Q_INVOKABLE QString includeStatement(
+            const QString &fullyQualifiedClassName,
+            const QString &suffix,
+            const QString &specialClasses,
+            const QString &pathOfIncludingFile
+            );
 };
 
 } // namespace Internal
