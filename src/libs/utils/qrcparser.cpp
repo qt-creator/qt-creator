@@ -45,27 +45,7 @@ static Q_LOGGING_CATEGORY(qrcParserLog, "qtc.qrcParser", QtWarningMsg)
 namespace Utils {
 
 namespace Internal {
-/*!
- * \class QrcParser
- * \brief Parses one or more qrc files, and keeps their content cached
- *
- * A Qrc resource contains files read from the filesystem but organized in a possibly different way.
- *
- * To easily describe that with a simple structure we use a map from qrc paths to the paths in the
- * filesystem.
- * By using a map we can easily find all qrc paths that start with a given prefix, and thus loop
- * on a qrc directory.
- *
- * Qrc files also support languages, those are mapped to a prefix of the qrc path.
- * For example the french /image/bla.png (lang=fr) will have the path "fr/image/bla.png".
- * The empty language represent the default resource.
- * Languages are looked up using the locale uiLanguages() property
- *
- * For a single qrc a given path maps to a single file, but when one has multiple
- * (platform specific exclusive) qrc files, then multiple files match, so QStringList are used.
- *
- * Especially the collect* functions are thought as low level interface.
- */
+
 class QrcParserPrivate
 {
     Q_DECLARE_TR_FUNCTIONS(QmlJS::QrcParser)
@@ -109,8 +89,44 @@ private:
 };
 } // namespace Internal
 
-/*! \brief normalizes the path to a file in a qrc resource by dropping the "qrc:/" or ":" and
- *         any extra slashes at the beginning
+/*!
+    \class Utils::QrcParser
+    \inmodule QtCreator
+    \brief The QrcParser class parses one or more QRC files and keeps their
+    content cached.
+
+    A \l{The Qt Resource System}{Qt resource collection (QRC)} contains files
+    read from the file system but organized in a possibly different way.
+    To easily describe that with a simple structure, we use a map from QRC paths
+    to the paths in the filesystem.
+    By using a map, we can easily find all QRC paths that start with a given
+    prefix, and thus loop on a QRC directory.
+
+    QRC files also support languages, which are mapped to a prefix of the QRC
+    path. For example, the French /image/bla.png (lang=fr) will have the path
+    \c {fr/image/bla.png}. The empty language represents the default resource.
+    Languages are looked up using the locale uiLanguages() property
+
+    For a single QRC, a given path maps to a single file, but when one has
+    multiple (platform-specific and mutually exclusive) QRC files, multiple
+    files match, so QStringList are used.
+
+    Especially, the \c collect* functions are thought of as low level interface.
+ */
+
+/*!
+    \typedef QrcParser::Ptr
+    Represents pointers.
+ */
+
+/*!
+    \typedef QrcParser::ConstPtr
+    Represents constant pointers.
+*/
+
+/*!
+    Normalizes the \a path to a file in a QRC resource by dropping the \c qrc:/
+    or \c : and any extra slashes in the beginning.
  */
 QString QrcParser::normalizedQrcFilePath(const QString &path) {
     QString normPath = path;
@@ -128,8 +144,10 @@ QString QrcParser::normalizedQrcFilePath(const QString &path) {
     return normPath;
 }
 
-/*! \brief normalizes the path to a directory in a qrc resource by dropping the "qrc:/" or ":" and
- *         any extra slashes at the beginning, and ensuring it ends with a slash
+/*!
+    Returns the path to a directory normalized to \a path in a QRC resource by
+    dropping the \c qrc:/ or \c : and any extra slashes at the beginning, and
+    by ensuring that the path ends with a slash
  */
 QString QrcParser::normalizedQrcDirectoryPath(const QString &path) {
     QString normPath = normalizedQrcFilePath(path);
@@ -138,6 +156,9 @@ QString QrcParser::normalizedQrcDirectoryPath(const QString &path) {
     return normPath;
 }
 
+/*!
+    Returns the QRC directory path for \a file.
+*/
 QString QrcParser::qrcDirectoryPathForQrcFilePath(const QString &file)
 {
     return file.left(file.lastIndexOf(QLatin1Char('/')));
@@ -148,45 +169,61 @@ QrcParser::QrcParser()
     d = new Internal::QrcParserPrivate(this);
 }
 
+/*!
+    Destructs the QRC parser.
+*/
 QrcParser::~QrcParser()
 {
     delete d;
 }
 
+/*!
+    Returns the \a contents of the file at \a path.
+*/
 bool QrcParser::parseFile(const QString &path, const QString &contents)
 {
     return d->parseFile(path, contents);
 }
 
-/*! \brief returns fs path of the first (active) file at the given qrc path
+/*!
+    Returns the file system path of the first (active) file at the given QRC
+    \a path and \a locale.
  */
 QString QrcParser::firstFileAtPath(const QString &path, const QLocale &locale) const
 {
     return d->firstFileAtPath(path, locale);
 }
 
-/*! \brief adds al the fs paths for the given qrc path to *res
- * If locale is null all possible files are added, otherwise just the first match
- * using that locale.
+/*!
+    Adds the file system paths for the given QRC \a path to \a res.
+
+    If \a locale is null, all possible files are added. Otherwise, just
+    the first one that matches the locale is added.
  */
 void QrcParser::collectFilesAtPath(const QString &path, QStringList *res, const QLocale *locale) const
 {
     d->collectFilesAtPath(path, res, locale);
 }
 
-/*! \brief returns true if the given path is a non empty directory
+/*!
+    Returns \c true if \a path is a non-empty directory and matches \a locale.
+
  */
 bool QrcParser::hasDirAtPath(const QString &path, const QLocale *locale) const
 {
     return d->hasDirAtPath(path, locale);
 }
 
-/*! \brief adds the directory contents of the given qrc path to res
- *
- * adds the qrcFileName => fs paths associations contained in the given qrc path
- * to res. If addDirs is true directories are also added.
- * If locale is null all possible files are added, otherwise just the first match
- * using that locale.
+/*!
+    Adds the directory contents of the given QRC \a path to \a res if \a addDirs
+    is set to \c true.
+
+    Adds the QRC filename to file system path associations contained in the
+    given \a path to \a res. If addDirs() is \c true, directories are also
+    added.
+
+    If \a locale is null, all possible files are added. Otherwise, just the
+    first file with a matching the locale is added.
  */
 void QrcParser::collectFilesInPath(const QString &path, QMap<QString,QStringList> *res, bool addDirs,
                                    const QLocale *locale) const
@@ -194,33 +231,47 @@ void QrcParser::collectFilesInPath(const QString &path, QMap<QString,QStringList
     d->collectFilesInPath(path, res, addDirs, locale);
 }
 
+/*!
+    Adds the resource files from the QRC file \a sourceFile to \a res.
+
+    If \a locale is null, all possible files are added. Otherwise, just
+    the first file with a matching the locale is added.
+ */
 void QrcParser::collectResourceFilesForSourceFile(const QString &sourceFile, QStringList *res,
                                                   const QLocale *locale) const
 {
     d->collectResourceFilesForSourceFile(sourceFile, res, locale);
 }
 
-/*! \brief returns the errors found while parsing
+/*!
+    Returns the errors found while parsing.
  */
 QStringList QrcParser::errorMessages() const
 {
     return d->errorMessages();
 }
 
-/*! \brief returns all languages used in this qrc resource
+/*!
+    Returns all languages used in this QRC.
  */
 QStringList QrcParser::languages() const
 {
     return d->languages();
 }
 
-/*! \brief if the contents are valid
+/*!
+    Indicates whether the QRC contents are valid.
+
+    Returns an error if the QRC is empty.
  */
 bool QrcParser::isValid() const
 {
     return errorMessages().isEmpty();
 }
 
+/*!
+    Returns the \a contents of the QRC file at \a path.
+*/
 QrcParser::Ptr QrcParser::parseQrcFile(const QString &path, const QString &contents)
 {
     Ptr res(new QrcParser);
@@ -231,36 +282,62 @@ QrcParser::Ptr QrcParser::parseQrcFile(const QString &path, const QString &conte
 
 // ----------------
 
+/*!
+    \class Utils::QrcCache
+    \inmodule QtCreator
+    \brief The QrcCache class caches the contents of parsed QRC files.
+
+    \sa Utils::QrcParser
+*/
+
 QrcCache::QrcCache()
 {
     d = new Internal::QrcCachePrivate(this);
 }
 
+/*!
+    \internal
+*/
 QrcCache::~QrcCache()
 {
     delete d;
 }
 
+/*!
+    Returns the \a contents of a file at \a path.
+*/
 QrcParser::ConstPtr QrcCache::addPath(const QString &path, const QString &contents)
 {
     return d->addPath(path, contents);
 }
 
+/*!
+    Removes \a path from the cache.
+*/
 void QrcCache::removePath(const QString &path)
 {
     d->removePath(path);
 }
 
+/*!
+    Returns updates to the \a contents of a file at \a path.
+*/
 QrcParser::ConstPtr QrcCache::updatePath(const QString &path, const QString &contents)
 {
     return d->updatePath(path, contents);
 }
 
+/*!
+    Returns the parsed \a path.
+*/
 QrcParser::ConstPtr QrcCache::parsedPath(const QString &path)
 {
     return d->parsedPath(path);
 }
 
+/*!
+    Clears the contents of the cache.
+*/
 void QrcCache::clear()
 {
     d->clear();

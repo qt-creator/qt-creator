@@ -94,13 +94,13 @@ void MimeTypePrivate::addGlobPattern(const QString &pattern)
 
 /*!
     \class MimeType
-    \inmodule QtCore
+    \inmodule QtCreator
     \ingroup shared
     \brief The MimeType class describes types of file or data, represented by a MIME type string.
 
     \since 5.0
 
-    For instance a file named "readme.txt" has the MIME type "text/plain".
+    For instance, a file named \c readme.txt has the MIME type \c text/plain.
     The MIME type can be determined from the file name, or from the file
     contents, or from both. MIME type determination can also be done on
     buffers of data not coming from files.
@@ -113,21 +113,10 @@ void MimeTypePrivate::addGlobPattern(const QString &pattern)
     To check if a file has the expected MIME type, you should use inherits()
     rather than a simple string comparison based on the name(). This is because
     MIME types can inherit from each other: for instance a C source file is
-    a specific type of plain text file, so text/x-csrc inherits text/plain.
-
-    \sa MimeDatabase
+    a specific type of plain text file, so \c text/x-csrc inherits \c text/plain.
  */
 
 /*!
-    \fn MimeType &MimeType::operator=(MimeType &&other)
-
-    Move-assigns \a other to this MimeType instance.
-
-    \since 5.2
-*/
-
-/*!
-    \fn MimeType::MimeType();
     Constructs this MimeType object initialized with default property values that indicate an invalid MIME type.
  */
 MimeType::MimeType() :
@@ -136,13 +125,11 @@ MimeType::MimeType() :
 }
 
 /*!
-    \fn MimeType::MimeType(const MimeType &other);
     Constructs this MimeType object as a copy of \a other.
  */
 MimeType::MimeType(const MimeType &other) = default;
 
 /*!
-    \fn MimeType &MimeType::operator=(const MimeType &other);
     Assigns the data of \a other to this MimeType object, and returns a reference to this object.
  */
 MimeType &MimeType::operator=(const MimeType &other)
@@ -153,8 +140,7 @@ MimeType &MimeType::operator=(const MimeType &other)
 }
 
 /*!
-    \fn MimeType::MimeType(const MimeTypePrivate &dd);
-    Assigns the data of the MimeTypePrivate \a dd to this MimeType object, and returns a reference to this object.
+    \fn MimeType::MimeType(const Internal::MimeTypePrivate &dd)
     \internal
  */
 MimeType::MimeType(const MimeTypePrivate &dd) :
@@ -163,28 +149,14 @@ MimeType::MimeType(const MimeTypePrivate &dd) :
 }
 
 /*!
-    \fn void MimeType::swap(MimeType &other);
-    Swaps MimeType \a other with this MimeType object.
-
-    This operation is very fast and never fails.
-
-    The swap() method helps with the implementation of assignment
-    operators in an exception-safe way. For more information consult
-    \l {http://en.wikibooks.org/wiki/More_C++_Idioms/Copy-and-swap}
-    {More C++ Idioms - Copy-and-swap}.
- */
-
-/*!
-    \fn MimeType::~MimeType();
     Destroys the MimeType object, and releases the d pointer.
  */
 MimeType::~MimeType() = default;
 
 /*!
-    \fn bool MimeType::operator==(const MimeType &other) const;
     Returns \c true if \a other equals this MimeType object, otherwise returns \c false.
-    The name is the unique identifier for a mimetype, so two mimetypes with
-    the same name, are equal.
+    The name is the unique identifier for a MIME type, so two  MIME types with
+    the same name are equal.
  */
 bool MimeType::operator==(const MimeType &other) const
 {
@@ -197,7 +169,11 @@ bool MimeType::operator==(const MimeType &other) const
  */
 
 /*!
-    \fn bool MimeType::isValid() const;
+    \fn inline uint Utils::qHash(const MimeType &mime)
+    \internal
+*/
+
+/*!
     Returns \c true if the MimeType object contains valid data, otherwise returns \c false.
     A valid MIME type has a non-empty name().
     The invalid MIME type is the default-constructed MimeType.
@@ -208,9 +184,8 @@ bool MimeType::isValid() const
 }
 
 /*!
-    \fn bool MimeType::isDefault() const;
     Returns \c true if this MIME type is the default MIME type which
-    applies to all files: application/octet-stream.
+    applies to all files: \c application/octet-stream.
  */
 bool MimeType::isDefault() const
 {
@@ -218,7 +193,6 @@ bool MimeType::isDefault() const
 }
 
 /*!
-    \fn QString MimeType::name() const;
     Returns the name of the MIME type.
  */
 QString MimeType::name() const
@@ -258,7 +232,6 @@ QString MimeType::comment() const
 }
 
 /*!
-    \fn QString MimeType::genericIconName() const;
     Returns the file name of a generic icon that represents the MIME type.
 
     This should be used if the icon returned by iconName() cannot be found on
@@ -287,7 +260,6 @@ QString MimeType::genericIconName() const
 }
 
 /*!
-    \fn QString MimeType::iconName() const;
     Returns the file name of an icon image that represents the MIME type.
 
     The icon name can be given to QIcon::fromTheme() in order to load the icon.
@@ -306,7 +278,6 @@ QString MimeType::iconName() const
 }
 
 /*!
-    \fn QStringList MimeType::globPatterns() const;
     Returns the list of glob matching patterns.
  */
 QStringList MimeType::globPatterns() const
@@ -317,14 +288,17 @@ QStringList MimeType::globPatterns() const
 
 /*!
     A type is a subclass of another type if any instance of the first type is
-    also an instance of the second. For example, all image/svg+xml files are also
-    text/xml, text/plain and application/octet-stream files. Subclassing is about
-    the format, rather than the category of the data (for example, there is no
-    'generic spreadsheet' class that all spreadsheets inherit from).
-    Conversely, the parent mimetype of image/svg+xml is text/xml.
+    also an instance of the second. For example, all \c image/svg+xml files are
+    also \c text/xml, \c text/plain and \c application/octet-stream files.
 
-    A mimetype can have multiple parents. For instance application/x-perl
-    has two parents: application/x-executable and text/plain. This makes
+    Subclassing is about the format, rather than the category of the data.
+    For example, there is no \e {generic spreadsheet} class that all
+    spreadsheets inherit from.
+
+    Conversely, the parent  MIME type of \c image/svg+xml is \c text/xml.
+
+    A  MIME type can have multiple parents. For instance, \c application/x-perl
+    has two parents: \c application/x-executable and \c text/plain. This makes
     it possible to both execute perl scripts, and to open them in text editors.
 */
 QStringList MimeType::parentMimeTypes() const
@@ -348,13 +322,13 @@ static void collectParentMimeTypes(const QString &mime, QStringList &allParents)
 }
 
 /*!
-    Return all the parent mimetypes of this mimetype, direct and indirect.
-    This includes the parent(s) of its parent(s), etc.
+    Returns all the parent MIME types of this type, direct and indirect.
+    This includes grandparents, and so on.
 
-    For instance, for image/svg+xml the list would be:
-    application/xml, text/plain, application/octet-stream.
+    For instance, for \c image/svg+xml the list would be:
+    \c application/xml, \c text/plain, \c application/octet-stream.
 
-    Note that application/octet-stream is the ultimate parent for all types
+    \note The \c application/octet-stream type is the ultimate parent for all types
     of files (but not directories).
 */
 QStringList MimeType::allAncestors() const
@@ -365,12 +339,12 @@ QStringList MimeType::allAncestors() const
 }
 
 /*!
-    Return the list of aliases of this mimetype.
+    Returns the list of aliases of this MIME type.
 
-    For instance, for text/csv, the returned list would be:
-    text/x-csv, text/x-comma-separated-values.
+    For instance, for \c text/csv, the returned list would be:
+    \c text/x-csv, \c text/x-comma-separated-values.
 
-    Note that all MimeType instances refer to proper mimetypes,
+    \note All MimeType instances refer to proper  MIME types,
     never to aliases directly.
 
     The order of the aliases in the list is undefined.
@@ -382,7 +356,8 @@ QStringList MimeType::aliases() const
 
 /*!
     Returns the known suffixes for the MIME type.
-    No leading dot is included, so for instance this would return "jpg", "jpeg" for image/jpeg.
+    No leading dot is included, so for instance this would return
+    \c {"jpg", "jpeg"} for \c image/jpeg.
  */
 QStringList MimeType::suffixes() const
 {
@@ -400,8 +375,9 @@ QStringList MimeType::suffixes() const
 
 /*!
     Returns the preferred suffix for the MIME type.
-    No leading dot is included, so for instance this would return "pdf" for application/pdf.
-    The return value can be empty, for mime types which do not have any suffixes associated.
+    No leading dot is included, so for instance this would return \c "pdf" for
+    \c application/pdf. The return value can be empty, for MIME types which do
+    not have any suffixes associated.
  */
 QString MimeType::preferredSuffix() const
 {
@@ -410,7 +386,6 @@ QString MimeType::preferredSuffix() const
 }
 
 /*!
-    \fn QString MimeType::filterString() const;
     Returns a filter string usable for a file dialog.
 */
 QString MimeType::filterString() const
@@ -431,6 +406,10 @@ QString MimeType::filterString() const
     return filter;
 }
 
+/*!
+    Returns \c true if the name or alias of the MIME type matches
+    \a nameOrAlias.
+*/
 bool MimeType::matchesName(const QString &nameOrAlias) const
 {
     if (d->name == nameOrAlias)
@@ -438,6 +417,9 @@ bool MimeType::matchesName(const QString &nameOrAlias) const
     return MimeDatabasePrivate::instance()->provider()->resolveAlias(nameOrAlias) == d->name;
 }
 
+/*!
+    Sets the preferred filename suffix for the MIME type to \a suffix.
+*/
 void MimeType::setPreferredSuffix(const QString &suffix)
 {
     MimeDatabasePrivate::instance()->provider()->loadMimeTypePrivate(*d);
@@ -452,10 +434,10 @@ void MimeType::setPreferredSuffix(const QString &suffix)
 }
 
 /*!
-    \fn bool MimeType::inherits(const QString &mimeTypeName) const;
-    Returns \c true if this mimetype is \a mimeTypeName,
-    or inherits \a mimeTypeName (see parentMimeTypes()),
-    or \a mimeTypeName is an alias for this mimetype.
+    Returns \c true if this MIME type is \a mimeTypeName or inherits it,
+    or if \a mimeTypeName is an alias for this mimetype.
+
+    \sa parentMimeTypes()
  */
 bool MimeType::inherits(const QString &mimeTypeName) const
 {

@@ -34,9 +34,10 @@
 #endif
 
 /*!
-   \class Utils::NetworkManager
+   \class Utils::NetworkAccessManager
+   \inmodule QtCreator
 
-    \brief The NetworkManager class provides a network access manager for use
+    \brief The NetworkAccessManager class provides a network access manager for use
     with \QC.
 
    Common initialization, \QC User Agent.
@@ -55,6 +56,10 @@ void cleanupNetworkAccessManager()
     namInstance = nullptr;
 }
 
+/*!
+    Returns a network access manager instance that should be used for the main
+    thread.
+*/
 NetworkAccessManager *NetworkAccessManager::instance()
 {
     if (!namInstance) {
@@ -64,12 +69,19 @@ NetworkAccessManager *NetworkAccessManager::instance()
     return namInstance;
 }
 
+/*!
+    Constructs a network access manager instance with the parent \a parent.
+*/
 NetworkAccessManager::NetworkAccessManager(QObject *parent)
     : QNetworkAccessManager(parent)
 {
 
 }
 
+/*!
+    Creates \a request for the network access manager to perform the operation
+    \a op on \a outgoingData.
+*/
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     QString agentStr = QString::fromLatin1("%1/%2 (QNetworkAccessManager %3; %4; %5; %6 bit)")
