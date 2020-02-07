@@ -32,6 +32,11 @@ Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
 
 namespace ExtensionSystem {
 
+/*!
+    \class ExtensionSystem::PluginErrorOverview
+    \internal
+*/
+
 PluginErrorOverview::PluginErrorOverview(QWidget *parent) :
     QDialog(parent),
     m_ui(new Internal::Ui::PluginErrorOverview)
