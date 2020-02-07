@@ -181,7 +181,8 @@ def is_not_debug(path, filenames):
 def codesign(app_path):
     signing_identity = os.environ.get('SIGNING_IDENTITY')
     if is_mac_platform() and signing_identity:
-        codesign_call = ['codesign', '--force', '--deep', '-s', signing_identity, '-v']
+        codesign_call = ['codesign', '-o', 'runtime', '--force', '--deep', '-s', signing_identity,
+                         '-v']
         signing_flags = os.environ.get('SIGNING_FLAGS')
         if signing_flags:
             codesign_call.extend(signing_flags.split())
