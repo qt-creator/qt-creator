@@ -44,6 +44,7 @@
 
 /*!
     \class ExtensionSystem::PluginView
+    \inmodule QtCreator
     \brief The PluginView class implements a widget that shows a list of all
     plugins and their state.
 
@@ -65,6 +66,11 @@
     \fn void PluginView::pluginActivated(ExtensionSystem::PluginSpec *spec)
     The plugin list entry corresponding to \a spec has been activated,
     for example by a double-click.
+*/
+
+/*!
+    \fn void PluginView::pluginSettingsChanged(ExtensionSystem::PluginSpec *spec)
+    The settings for the plugin list entry corresponding to \a spec changed.
 */
 
 Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
@@ -321,8 +327,8 @@ private:
 using namespace ExtensionSystem::Internal;
 
 /*!
-    Constructs a PluginView that gets the list of plugins from the
-    given plugin \a manager with a given \a parent widget.
+    Constructs a plugin view with \a parent that displays a list of plugins
+    from a plugin manager.
 */
 PluginView::PluginView(QWidget *parent)
     : QWidget(parent)
@@ -383,18 +389,27 @@ PluginSpec *PluginView::currentPlugin() const
     return pluginForIndex(m_categoryView->currentIndex());
 }
 
+/*!
+    Sets the \a filter for listing plugins.
+*/
 void PluginView::setFilter(const QString &filter)
 {
     m_sortModel->setFilterFixedString(filter);
     m_categoryView->expandAll();
 }
 
+/*!
+    Sets the list filtering to \a showHidden.
+*/
 void PluginView::setShowHidden(bool showHidden)
 {
     m_sortModel->setShowHidden(showHidden);
     m_categoryView->expandAll();
 }
 
+/*!
+    Returns whether hidden plugins are listed.
+*/
 bool PluginView::isShowingHidden() const
 {
     return m_sortModel->isShowingHidden();

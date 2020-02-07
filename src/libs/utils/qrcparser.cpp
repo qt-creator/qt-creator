@@ -170,7 +170,7 @@ QrcParser::QrcParser()
 }
 
 /*!
-    Destructs the QRC parser.
+    \internal
 */
 QrcParser::~QrcParser()
 {
@@ -178,7 +178,12 @@ QrcParser::~QrcParser()
 }
 
 /*!
-    Returns the \a contents of the file at \a path.
+    Parses the QRC file at \a path. If \a contents is not empty, it is used as
+    the file contents instead of reading it from the file system.
+
+    Returns whether the parsing succeeded.
+
+    \sa errorMessages(), parseQrcFile()
 */
 bool QrcParser::parseFile(const QString &path, const QString &contents)
 {
@@ -304,7 +309,13 @@ QrcCache::~QrcCache()
 }
 
 /*!
-    Returns the \a contents of a file at \a path.
+    Parses the QRC file at \a path and caches the parser. If \a contents is not
+    empty, it is used as the file contents instead of reading it from the file
+    system.
+
+    Returns whether the parsing succeeded.
+
+    \sa QrcParser::errorMessages(), QrcParser::parseQrcFile()
 */
 QrcParser::ConstPtr QrcCache::addPath(const QString &path, const QString &contents)
 {
@@ -320,7 +331,7 @@ void QrcCache::removePath(const QString &path)
 }
 
 /*!
-    Returns updates to the \a contents of a file at \a path.
+    Reparses the QRC file at \a path and returns the \a contents of the file.
 */
 QrcParser::ConstPtr QrcCache::updatePath(const QString &path, const QString &contents)
 {
@@ -328,7 +339,7 @@ QrcParser::ConstPtr QrcCache::updatePath(const QString &path, const QString &con
 }
 
 /*!
-    Returns the parsed \a path.
+    Returns the cached QRC parser for the QRC file at \a path.
 */
 QrcParser::ConstPtr QrcCache::parsedPath(const QString &path)
 {

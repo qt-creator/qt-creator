@@ -150,6 +150,7 @@ public:
     }
 };
 
+#ifndef Q_QDOC
 template <class Result>
 Result invokeHelper(InvokerBase &in, QObject *target, const char *slot)
 {
@@ -164,6 +165,7 @@ inline void invokeHelper<void>(InvokerBase &in, QObject *target, const char *slo
 {
     in.invoke(target, slot);
 }
+#endif
 
 template<class Result>
 Result invoke(QObject *target, const char *slot)

@@ -31,6 +31,7 @@
 
 /*!
     \class ExtensionSystem::PluginErrorView
+    \inmodule QtCreator
     \brief The PluginErrorView class implements a widget that displays the
     state and error message of a PluginSpec.
 

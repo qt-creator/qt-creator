@@ -30,47 +30,22 @@
 
 /*!
     \class ExtensionSystem::IPlugin
+    \inmodule QtCreator
     \ingroup mainclasses
-    \brief The IPlugin class is the base class for all plugins.
-
-    The IPlugin class is an abstract class that must be implemented
+    \brief The IPlugin class is an abstract base class that must be implemented
     once for each plugin.
-    A plugin consists of two parts: a description file, and a library
-    that at least contains the IPlugin implementation.
 
-    \section1 Plugin Specification
+    A plugin needs to provide meta data in addition to the actual plugin
+    library, so the plugin manager can find the plugin, resolve its
+    dependencies, and load it. For more information, see \l{Plugin Meta Data}.
 
-    A plugin needs to provide a plugin specification file in addition
-    to the actual plugin library, so the plugin manager can find the plugin,
-    resolve its dependencies, and load it. For more information,
-    see \l{Plugin Meta Data}.
-
-    \section1 Plugin Implementation
     Plugins must provide one implementation of the IPlugin class, located
     in a library that matches the \c name attribute given in their
-    XML description. The IPlugin implementation must be exported and
+    meta data. The IPlugin implementation must be exported and
     made known to Qt's plugin system, using the \c Q_PLUGIN_METADATA macro with
     an IID set to \c "org.qt-project.Qt.QtCreatorPlugin".
 
-
-    After the plugins' XML files have been read, and dependencies have been
-    found, the plugin loading is done in three phases:
-    \list 1
-    \li All plugin libraries are loaded in \e{root-to-leaf} order of the
-       dependency tree.
-    \li All plugins' initialize functions are called in \e{root-to-leaf} order
-       of the dependency tree. This is a good time to create objects
-       needed by other plugins and register them via appropriate core functions
-       or, if a weak dependency is neceessary to be implemented, to put
-       them into the global object pool.
-    \li All plugins' extensionsInitialized() functions are called in \e{leaf-to-root}
-       order of the dependency tree. At this point, plugins can
-       be sure that all plugins that depend on this plugin have
-       been initialized completely and objects these plugins wish to
-       share have been registered or are available in the global object pool.
-    \endlist
-    If library loading or initialization of a plugin fails, all plugins
-    that depend on that plugin also fail.
+    For more information, see \l{Plugin Life Cycle}.
 */
 
 /*!
@@ -183,8 +158,6 @@
 
     Returns a QObject that blocks the command until it is destroyed, if \c -block
     is used.
-
-    \sa PluginManager::serializedArguments()
 */
 
 /*!

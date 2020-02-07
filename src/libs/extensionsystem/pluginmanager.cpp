@@ -75,6 +75,7 @@ enum { debugLeaks = 0 };
 
 /*!
     \namespace ExtensionSystem
+    \inmodule QtCreator
     \brief The ExtensionSystem namespace provides classes that belong to the
            core plugin system.
 
@@ -89,6 +90,7 @@ enum { debugLeaks = 0 };
 
 /*!
     \class ExtensionSystem::PluginManager
+    \inmodule QtCreator
     \ingroup mainclasses
 
     \brief The PluginManager class implements the core plugin system that
