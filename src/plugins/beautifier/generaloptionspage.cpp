@@ -66,8 +66,7 @@ void GeneralOptionsPageWidget::apply()
     settings->save();
 }
 
-GeneralOptionsPage::GeneralOptionsPage(const QStringList &toolIds, QObject *parent) :
-    IOptionsPage(parent)
+GeneralOptionsPage::GeneralOptionsPage(const QStringList &toolIds)
 {
     setId(Constants::OPTION_GENERAL_ID);
     setDisplayName(tr("General"));

@@ -30,10 +30,10 @@
 namespace Beautifier {
 namespace Internal {
 
-class GeneralOptionsPage : public Core::IOptionsPage
+class GeneralOptionsPage final : public Core::IOptionsPage
 {
 public:
-    GeneralOptionsPage(const QStringList &toolIds, QObject *parent);
+    explicit GeneralOptionsPage(const QStringList &toolIds);
 };
 
 } // namespace Internal
