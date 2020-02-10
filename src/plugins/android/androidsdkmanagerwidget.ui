@@ -78,7 +78,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>SDK manger is not available with the current version of SDK tools. Use native SDK manager.</string>
+            <string>SDK manager is not available with the current version of SDK tools. Use native SDK manager.</string>
            </property>
           </widget>
          </item>
