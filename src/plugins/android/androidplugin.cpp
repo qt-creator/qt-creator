@@ -159,10 +159,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     d = new AndroidPluginPrivate;
 
-    if (!AndroidConfigurations::currentConfig().sdkFullyConfigured()) {
-        connect(Core::ICore::instance(), &Core::ICore::coreOpened, this,
-                &AndroidPlugin::askUserAboutAndroidSetup, Qt::QueuedConnection);
-    }
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);
 
@@ -171,6 +167,16 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
 void AndroidPlugin::kitsRestored()
 {
+    const bool qtForAndroidInstalled
+        = !QtSupport::QtVersionManager::versions([](const QtSupport::BaseQtVersion *v) {
+               return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
+           }).isEmpty();
+
+    if (!AndroidConfigurations::currentConfig().sdkFullyConfigured() && qtForAndroidInstalled) {
+        connect(Core::ICore::instance(), &Core::ICore::coreOpened, this,
+                &AndroidPlugin::askUserAboutAndroidSetup, Qt::QueuedConnection);
+    }
+
     AndroidConfigurations::updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::qtVersionsChanged,
             AndroidConfigurations::instance(), &AndroidConfigurations::updateAutomaticKitList);
