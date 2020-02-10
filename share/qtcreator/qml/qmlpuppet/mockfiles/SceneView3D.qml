@@ -39,7 +39,7 @@ View3D {
 
     // Empirical cameraZoomFactor values at which the grid zoom level is doubled. The values are
     // approximately uniformally distributed over the non-linear range of cameraZoomFactor.
-    readonly property var grid_thresholds: [0.1, 0.265, 0.55, 1.10, 2.35, 4.9, 10.0, 20.5, 42.0, 85.0, 999999.0]
+    readonly property var grid_thresholds: [0.55, 1.10, 2.35, 4.9, 10.0, 20.5, 42.0, 85.0, 999999.0]
     property var thresIdx: 1
     property var thresPerc: 1.0 // percentage of cameraZoomFactor to the current grid zoom threshold (0.0 - 1.0)
 
@@ -55,7 +55,7 @@ View3D {
 
         HelperGrid {
             id: helperGrid
-            lines: 20 + Math.round((1 - thresPerc) * 20);
+            lines: Math.pow(2, grid_thresholds.length - thresIdx - 1);
             step: 100 * grid_thresholds[0] * Math.pow(2, thresIdx - 1);
             subdivAlpha: thresPerc;
         }
