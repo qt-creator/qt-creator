@@ -25,37 +25,24 @@
 
 #pragma once
 
-#include "texteditor_global.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace TextEditor {
 
 class DisplaySettings;
 class MarginSettings;
+class DisplaySettingsPagePrivate;
 
 class DisplaySettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     DisplaySettingsPage();
     ~DisplaySettingsPage() override;
-
-    // IOptionsPage
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
 
     const DisplaySettings &displaySettings() const;
     const MarginSettings &marginSettings() const;
 
 private:
-    void settingsFromUI(DisplaySettings &displaySettings, MarginSettings &marginSettings) const;
-    void settingsToUI();
-    void setDisplaySettings(const DisplaySettings &, const MarginSettings &newMarginSettings);
-
-    struct DisplaySettingsPagePrivate;
     DisplaySettingsPagePrivate *d;
 };
 
