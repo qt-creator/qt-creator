@@ -65,9 +65,9 @@ private:
 #endif
 
     QNetworkAccessManager m_manager;
-    QNetworkReply *m_reply;
+    QNetworkReply *m_reply = nullptr;
     QString m_sdkFilename;
-    QProgressDialog *m_progressDialog;
+    QProgressDialog *m_progressDialog = nullptr;
     QUrl m_sdkUrl;
     QByteArray m_sha256;
 };

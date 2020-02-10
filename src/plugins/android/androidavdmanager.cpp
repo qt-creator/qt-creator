@@ -71,7 +71,7 @@ const int avdCreateTimeoutMs = 30000;
     \c true if the command is successfully executed. Output is copied into \a output. The function
     blocks the calling thread.
  */
-bool AndroidAvdManager::avdManagerCommand(const AndroidConfig config, const QStringList &args, QString *output)
+bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
     Utils::SynchronousProcess proc;
@@ -112,7 +112,7 @@ static bool checkForTimeout(const chrono::steady_clock::time_point &start,
     return timedOut;
 }
 
-static CreateAvdInfo createAvdCommand(const AndroidConfig config, const CreateAvdInfo &info)
+static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateAvdInfo &info)
 {
     CreateAvdInfo result = info;
 
