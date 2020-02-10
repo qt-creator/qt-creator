@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -143,7 +143,9 @@
     \endtable
 
     The \c executable tag allows the following subtags. You must specify at least
-    one \c path. All subtags can contain special \l{Qt Creator Variables}.
+    one \c path. All subtags can contain special
+    \l{https://doc.qt.io/qtcreator/creator-build-settings.html#using-qt-creator-variables}
+    {Qt Creator variables}.
 
     \table
     \header

@@ -6,30 +6,12 @@ language                = Cpp
 headerdirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
-                          ../../../src/libs/cplusplus \
-                          ../../../src/libs/extensionsystem \
-                          ../../../src/libs/utils \
-                          ../../../src/libs/qmljs \
-                          ../../../src/libs/qtcreatorcdbext \
-                          ../../../src/plugins/coreplugin \
-                          ../../../src/plugins/debugger \
-                          ../../../src/plugins/vcsbase \
-                          ../../../src/plugins/projectexplorer \
-                          ../../../src/plugins/texteditor
+                          ../../../src/libs/extensionsystem
 
 sourcedirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
-                          ../../../src/libs/cplusplus \
-                          ../../../src/libs/extensionsystem \
-                          ../../../src/libs/utils \
-                          ../../../src/libs/qmljs \
-                          ../../../src/libs/qtcreatorcdbext \
-                          ../../../src/plugins/coreplugin \
-                          ../../../src/plugins/debugger \
-                          ../../../src/plugins/vcsbase \
-                          ../../../src/plugins/projectexplorer\
-                          ../../../src/plugins/texteditor
+                          ../../../src/libs/extensionsystem
 
 # -- Uncomment following option to generate complete documentation
 #    instead of public API documentation only.
@@ -39,7 +21,8 @@ headers.fileextensions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"
 
 imagedirs = ../images \
-            ../../config/images
+            ../../config/images \
+            ../../qtcreator/images
 exampledirs = ../examples
 
 depends +=    qtwidgets \
@@ -55,7 +38,6 @@ depends +=    qtwidgets \
               qtlinguist \
               qtsensors \
               qtuitools \
-              qtwebkit \
               qtxml \
               qttestlib
 

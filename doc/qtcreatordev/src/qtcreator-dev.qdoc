@@ -52,8 +52,7 @@
     be plain text) that you regularly want to insert into a bigger body of code,
     but do not want to type each time. For example, \c while and \c for loops,
     \c if-else and \c try-catch constructs, and class skeletons. Snippets are
-    triggered in the same way as normal code completion (see
-    \l{Code Assist}{Providing Code Assist}).
+    triggered in the same way as normal code completion.
     \QC contains a set of preconfigured snippets groups to which you can add
     your own snippets.
 
@@ -140,8 +139,8 @@
         \li \l{Qt Creator Coding Rules}
         \omit
         \li Text Editors
-        \endomit
         \li \l{CodeAssist}{Providing Code Assist}
+        \endomit
     \endlist
 
     \section2 Other Custom Editors
@@ -242,7 +241,7 @@
     \section1 All Topics
 
     \list
-        \li \l{Developing Qt Creator Plugins}
+        \li Developing Qt Creator Plugins
             \list
                 \li \l{Creating Plugins}
                 \omit

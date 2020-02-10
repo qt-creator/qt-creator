@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -123,7 +123,7 @@
     For more information on binary compatibility, see
     \l{http://techbase.kde.org/Policies/Binary_Compatibility_Issues_With_C++}{Binary Compatibility Issues With C++}.
 
-    From the viewpoint of \l{Plugin Specifications} this means that
+    From the viewpoint of \l{Plugin Meta Data}{plugin metadata} this means that:
     \list
         \li \QC plugins in patch releases will have the minor release as \c {compatVersion}. For
             example the plugins from version 3.1.2 will have \c {compatVersion="3.1.0"}.
@@ -695,7 +695,7 @@
     You can add objects to the global object pool via
     \l{ExtensionSystem::PluginManager::addObject()}, and retrieve objects
     of a specific type again via
-    \l{ExtensionSystem::PluginManager::getObjects()}.  This should mostly
+    \l{ExtensionSystem::PluginManager::getObject()}.  This should mostly
     be used for implementations of \l{Plugin Extension Points}.
 
     \note Do not put a singleton into the pool, and do not retrieve

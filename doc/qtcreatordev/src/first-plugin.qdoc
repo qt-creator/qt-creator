@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -67,7 +67,7 @@
 
             \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
 
-        \li Select the \l{glossary-buildandrun-kit}{kit} to build and run your
+        \li Select the kit to build and run your
             project with. For a \QC plugin this needs to be a kit with
             \uicontrol Desktop device type, and a Qt version that is compatible
             with the Qt version that your \QC was built with (in the best case
@@ -316,7 +316,7 @@
 
     The base class defines basic functions that are called during the life cycle
     of a plugin, which are here implemented for your new plugin. These functions
-    and their roles are described in detail in \l{The Plugin Life Cycle}.
+    and their roles are described in detail in \l{Plugin Life Cycle}.
 
     \snippet exampleplugin/exampleplugin.h slot
 
@@ -347,14 +347,12 @@
     action manager provides a central place where the user can assign and change
     keyboard shortcuts, and manages cases where for example a menu item should
     be directed to different plugins under different circumstances, as well as a
-    few other things. This is described in more detail in
-    \l{Menus and Menu Items}.
+    few other things.
 
     \snippet exampleplugin/exampleplugin.cpp add menu
 
     Here a new menu item is created, the created command added to it, and the
-    menu added to the \uicontrol Tools menu in the menu bar. Again, this is
-    covered in more detail in \l{Menus and Menu Items}.
+    menu added to the \uicontrol Tools menu in the menu bar.
 
     \snippet exampleplugin/exampleplugin.cpp slot implementation
 

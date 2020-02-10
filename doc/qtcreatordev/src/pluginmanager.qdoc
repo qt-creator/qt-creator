@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,8 +32,7 @@
     There are occasions though, where using the plugin manager API is necessary.
     Plugins need to access the plugin manager's object pool to extend
     some aspects of \QC, for example to add pages to the options dialog. They
-    can also utilize the object pool to provide extension points for other plugins
-    (see \l{Extending and Providing Interfaces}).
+    can also utilize the object pool to provide extension points for other plugins.
 
     \section1 Plugin Manager
 
@@ -65,13 +64,13 @@
             \li Unregisters an object from the object pool.
                 Also available through ExtensionSystem::IPlugin::removeObject().
         \row
-            \li getObjects<T>()
-            \li Returns all objects of type T that are registered in the object pool.
-                This respects \l{Aggregations}.
+            \li allObjects()
+            \li Returns an unfiltered list of all objects that are registered
+                in the object pool.
         \row
             \li getObject<T>()
             \li Returns one object of type T that is registered in the object pool.
-                This respects \l{Aggregations}.
+                This respects \l{Aggregation}.
         \row
             \li getObjectByName(const QString &name)
             \li Returns one object with the given object name that is registered in the object pool.
@@ -100,24 +99,25 @@
     prerequisites.
 
     All objects of a specified type can be retrieved from the object pool
-    via the \l{ExtensionSystem::PluginManager::getObjects()}{getObjects()} and
-    \l{ExtensionSystem::PluginManager::getObject()}{getObject()} functions.
-    They are aware of Aggregation::Aggregate, so these functions use the Aggregation::query()
-    functions instead of qobject_cast to determine the matching objects.
+    via the \l{ExtensionSystem::PluginManager::getObject()}{getObject()} function.
+    It is aware of Aggregation::Aggregate, and uses the Aggregation::query()
+    function instead of \c qobject_cast to determine the matching objects.
+
+     An unfiltered list of all objects that are registered in the object pool
+     can be retrieved via the \l{ExtensionSystem::PluginManager::allObjects()}
+     {allObjects()} function.
 
     It is also possible to retrieve an object with a specific object name with
     \l{ExtensionSystem::PluginManager::getObjectByName()}{getObjectByName()}
     (see QObject::objectName()).
 
     Whenever the state of the object pool changes, a corresponding
-    \l{ExtensionSystem::PluginManager::objectAdded()}{objectAdded()} or
-    \l{ExtensionSystem::PluginManager::aboutToRemoveObject()}{aboutToRemoveObject()} signal is
-    emitted by the plugin manager.
+    \c objectAdded() or \c aboutToRemoveObject() signal is emitted
+    by the plugin manager.
 
     A common use case for the object pool is that a plugin (or the application) provides
     an \e{extension point} for other plugins, which is a class that can
     be implemented and added to the object pool to be retrieved by the providing plugin.
     It is also possible to use the object pool to provide access to an object without actually
-    linking against the providing plugin library. See \l{Extending and Providing Interfaces}
-    for details.
+    linking against the providing plugin library.
 */

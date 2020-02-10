@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -57,7 +57,7 @@
 
         \li Verifies that the dependencies of each plugin
             exist and are compatible. For more information about plugin dependencies,
-            see \l{Plugin Specifications}.
+            see \l{Plugin Meta Data}.
 
         \li Sets the plugins to \c Resolved state.
 
@@ -117,7 +117,7 @@
     that could unnecessarily delay showing the \QC UI if done during startup.
 
     After all delayed initializations are done the \l{ExtensionSystem::PluginManager}{PluginManager}
-    sends the \l{ExtensionSystem::PluginManager::initializationDone()}{initializationDone()} signal.
+    sends the \c initializationDone() signal.
 
     Before shutdown, the \c Core plugin \l{Core::ICore} sends the
     \l{Core::ICore::coreAboutToClose()}{coreAboutToClose()} signal. After that, the

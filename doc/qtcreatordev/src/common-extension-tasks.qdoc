@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -22,135 +22,6 @@
 ** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
 **
 ****************************************************************************/
-
-/*!
-    \page qtcreator-api.html
-
-    \title Qt Creator API Reference
-
-    The core of \QC is basically only a \l{ExtensionSystem}{plugin loader}. All
-    functionality is implemented in plugins. The basis of \QC is implemented in
-    the \l{Core}{Core} Plugin. The plugin manager provides simple means for
-    plugin cooperation that allow plugins to provide hooks for other plugin's
-    extensions.
-
-    \section1 Libraries
-
-    \section2 Core Libraries
-
-    There are a few core libraries used by many parts of Qt Creator.
-
-    \table
-        \header
-            \li Library Name
-            \li Description
-
-        \row
-            \li \l{Aggregation}
-            \li Adds functionality for "glueing" QObjects of different types
-                together, so you can "cast" between them.
-
-        \row
-            \li \l{ExtensionSystem}
-            \li Implements the plugin loader framework. Provides a base class
-                for plugins and basic mechanisms for plugin interaction like an
-                object pool.
-
-        \row
-            \li \l{Utils}
-            \li General utility library.
-
-        \row
-            \li \l{QmlJS}
-            \li QML and JavaScript language support library.
-
-    \endtable
-
-    \section2 Additional libraries
-
-    \table
-        \header
-            \li Library Name
-            \li Description
-
-        \row
-            \li \l{qtcreatorcdbext}
-            \li Windows CDB debugger extension
-    \endtable
-
-    \section1 Plugins
-
-    As already mentioned, \QC is basically only a plugin loader framework
-    which gets its IDE functionality through plugins. The most important plugin
-    is the \c Core plugin which provides all the basic functionality needed
-    later to integrate e.g. editors or mode windows.
-
-    \table
-        \header
-            \li Plugin Name
-            \li Description
-
-        \row
-            \li \l{Core}
-            \li The core plugin. Provides the main window and managers for
-                editors, actions, mode windows and files, just to mention the
-                most important ones.
-
-                This plugin also contains classes necessary to hook into the
-                \l{Locator} as well as support for searching text in arbitrary
-                widgets.
-
-        \row
-            \li \l{ProjectExplorer}
-            \li The project explorer plugin. Provides base classes for project
-                handling.
-
-        \row
-            \li \l{Debugger}
-            \li Debugging functionality.
-
-        \row
-            \li \l{VcsBase}
-            \li Base classes for version control support.
-
-        \row
-            \li \l{TextEditor}
-            \li This is where everything starts if you want to create a text
-                editor. Besides the base editor itself, this plugin contains
-                APIs for supporting functionality like \l{Snippets}{snippets},
-                highlighting, \l{CodeAssist}{code assist}, indentation and
-                style, and others.
-    \endtable
-*/
-
-/*!
-    \page classes.html
-    \title Qt Creator Classes
-
-    \generatelist classes
-*/
-
-/*!
-    \page namespaces.html
-    \title Qt Creator Namespaces
-
-    \generatelist namespaces
-*/
-
-/*!
-    \page mainclasses.html
-    \title Qt Creator Main Classes
-
-    \generatelist mainclasses
-
-*/
-
-/*!
-    \page functions.html
-    \title Qt Creator Functions
-
-    \generatelist functionindex
-*/
 
 /*!
     \page common_extension_tasks.html
@@ -223,6 +94,7 @@
                 search. You can add support for widgets under your control.
             \li \l{Core::IFindSupport}, \l{Find::BaseTextFind}
 
+        \omit
         \row
             \li Add a completely new project type.
             \li
@@ -232,6 +104,7 @@
             \li Add a new type of build step.
             \li
             \li
+        \endomit
 
         \row
             \li Add a new filter to the locator.
@@ -247,11 +120,6 @@
                 hand tool bar, and also in the application icon (on platforms
                 that support it).
             \li \l{Core::ProgressManager}, \l{Core::FutureProgress}
-
-        \row
-            \li
-            \li
-            \li
 
     \endtable
 */
