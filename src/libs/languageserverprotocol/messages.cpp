@@ -50,7 +50,7 @@ TelemetryNotification::TelemetryNotification()
     : Notification(methodName)
 { }
 
-bool ShowMessageRequestParams::isValid(QStringList *error) const
+bool ShowMessageRequestParams::isValid(ErrorHierarchy *error) const
 {
     return ShowMessageParams::isValid(error)
             && checkOptionalArray<MessageActionItem>(error, actionsKey);

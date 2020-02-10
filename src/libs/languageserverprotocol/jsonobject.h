@@ -58,7 +58,7 @@ public:
 
     operator const QJsonObject&() const { return m_jsonObject; }
 
-    virtual bool isValid(QStringList * /*errorHierarchy*/) const { return true; }
+    virtual bool isValid(ErrorHierarchy * /*errorHierarchy*/) const { return true; }
 
 protected:
     using iterator = QJsonObject::iterator;
@@ -100,27 +100,29 @@ protected:
     void insertArray(const QString &key, const QList<JsonObject> &array);
 
     // value checking
-    bool checkKey(QStringList *errorHierarchy, const QString &key,
+    bool checkKey(ErrorHierarchy *errorHierarchy, const QString &key,
                   const std::function<bool(const QJsonValue &val)> &predicate) const;
     static QString valueTypeString(QJsonValue::Type type);
     static QString errorString(QJsonValue::Type expected, QJsonValue::Type type2);
     static bool checkType(QJsonValue::Type type,
                           QJsonValue::Type expectedType,
-                          QStringList *errorHierarchy);
+                          ErrorHierarchy *errorHierarchy);
     template <typename T>
-    static bool checkVal(QStringList *errorHierarchy, const QJsonValue &val);
+    static bool checkVal(ErrorHierarchy *errorHierarchy, const QJsonValue &val);
+    template <typename T>
+    bool check(ErrorHierarchy *errorHierarchy, const QString &key) const;
     template <typename T1, typename T2, typename... Args>
-    bool check(QStringList *errorHierarchy, const QString &key) const;
+    bool checkVariant(ErrorHierarchy *errorHierarchy, const QString &key) const;
     template <typename T>
-    bool check(QStringList *errorHierarchy, const QString &key) const;
+    bool checkVariant(ErrorHierarchy *errorHierarchy, const QString &key) const;
     template <typename T>
-    bool checkArray(QStringList *errorHierarchy, const QString &key) const;
+    bool checkArray(ErrorHierarchy *errorHierarchy, const QString &key) const;
     template <typename T1, typename T2, typename... Args>
-    bool checkOptional(QStringList *errorHierarchy, const QString &key) const;
+    bool checkOptional(ErrorHierarchy *errorHierarchy, const QString &key) const;
     template <typename T>
-    bool checkOptional(QStringList *errorHierarchy, const QString &key) const;
+    bool checkOptional(ErrorHierarchy *errorHierarchy, const QString &key) const;
     template <typename T>
-    bool checkOptionalArray(QStringList *errorHierarchy, const QString &key) const;
+    bool checkOptionalArray(ErrorHierarchy *errorHierarchy, const QString &key) const;
 
 private:
     QJsonObject m_jsonObject;
@@ -198,35 +200,51 @@ void JsonObject::insertArray(const QString &key, const QList<JsonObject> &array)
 }
 
 template <typename T>
-bool JsonObject::checkVal(QStringList *errorHierarchy, const QJsonValue &val)
+bool JsonObject::checkVal(ErrorHierarchy *errorHierarchy, const QJsonValue &val)
 {
     return checkType(val.type(), QJsonValue::Object, errorHierarchy)
             && T(val).isValid(errorHierarchy);
 }
 
-template <typename T1, typename T2, typename... Args>
-bool JsonObject::check(QStringList *errorHierarchy, const QString &key) const
-{
-    const QStringList errorBackUp = errorHierarchy ? *errorHierarchy : QStringList();
-    if (check<T1>(errorHierarchy, key))
-        return true;
-
-    const bool ret = check<T2, Args...>(errorHierarchy, key);
-    if (ret && errorHierarchy)
-        *errorHierarchy = errorBackUp;
-    return ret;
-}
-
 template <typename T>
-bool JsonObject::check(QStringList *errorHierarchy, const QString &key) const
+bool JsonObject::check(ErrorHierarchy *errorHierarchy, const QString &key) const
 {
-    return checkKey(errorHierarchy, key, [errorHierarchy](const QJsonValue &val){
+    return checkKey(errorHierarchy, key, [errorHierarchy](const QJsonValue &val) {
         return checkVal<T>(errorHierarchy, val);
     });
 }
 
+template <typename T1, typename T2, typename... Args>
+bool JsonObject::checkVariant(ErrorHierarchy *errorHierarchy, const QString &key) const
+{
+    if (checkVariant<T1>(errorHierarchy, key))
+        return true;
+
+    if (checkVariant<T2, Args...>(errorHierarchy, key)) {
+        if (errorHierarchy)
+            errorHierarchy->clear();
+        return true;
+    }
+    errorHierarchy->setError(
+        QCoreApplication::translate("LanguageServerProtocol::JsonObject",
+                                    "None of the following variants could be correctly parsed:"));
+    return false;
+}
+
 template <typename T>
-bool JsonObject::checkArray(QStringList *errorHierarchy, const QString &key) const
+bool JsonObject::checkVariant(ErrorHierarchy *errorHierarchy, const QString &key) const
+{
+    if (!errorHierarchy)
+        return check<T>(nullptr, key);
+    ErrorHierarchy subError;
+    if (check<T>(&subError, key))
+        return true;
+    errorHierarchy->addVariantHierachy(subError);
+    return false;
+}
+
+template <typename T>
+bool JsonObject::checkArray(ErrorHierarchy *errorHierarchy, const QString &key) const
 {
     return checkKey(errorHierarchy, key, [errorHierarchy](const QJsonValue &val){
         return val.isArray() && Utils::allOf(val.toArray(), [&errorHierarchy](const QJsonValue &value){
@@ -236,20 +254,27 @@ bool JsonObject::checkArray(QStringList *errorHierarchy, const QString &key) con
 }
 
 template <typename T1, typename T2, typename... Args>
-bool JsonObject::checkOptional(QStringList *errorHierarchy, const QString &key) const
+bool JsonObject::checkOptional(ErrorHierarchy *errorHierarchy, const QString &key) const
 {
-    const QStringList errorBackUp = errorHierarchy ? *errorHierarchy : QStringList();
-    if (checkOptional<T1>(errorHierarchy, key))
+    if (!contains(key))
         return true;
 
-    const bool ret = checkOptional<T2, Args...>(errorHierarchy, key);
-    if (ret && errorHierarchy)
-        *errorHierarchy = errorBackUp;
-    return ret;
+    if (checkVariant<T1>(errorHierarchy, key))
+        return true;
+
+    if (checkVariant<T2, Args...>(errorHierarchy, key)) {
+        if (errorHierarchy)
+            errorHierarchy->clear();
+        return true;
+    }
+    errorHierarchy->setError(
+        QCoreApplication::translate("LanguageServerProtocol::JsonObject",
+                                    "None of the following variants could be correctly parsed:"));
+    return false;
 }
 
 template <typename T>
-bool JsonObject::checkOptional(QStringList *errorHierarchy, const QString &key) const
+bool JsonObject::checkOptional(ErrorHierarchy *errorHierarchy, const QString &key) const
 {
     if (contains(key))
         return check<T>(errorHierarchy, key);
@@ -257,7 +282,7 @@ bool JsonObject::checkOptional(QStringList *errorHierarchy, const QString &key) 
 }
 
 template <typename T>
-bool JsonObject::checkOptionalArray(QStringList *errorHierarchy, const QString &key) const
+bool JsonObject::checkOptionalArray(ErrorHierarchy *errorHierarchy, const QString &key) const
 {
     if (contains(key))
         return checkArray<T>(errorHierarchy, key);
@@ -265,31 +290,31 @@ bool JsonObject::checkOptionalArray(QStringList *errorHierarchy, const QString &
 }
 
 template <>
-LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<QString>(QStringList *errorHierarchy,
+LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<QString>(ErrorHierarchy *errorHierarchy,
                                                                  const QJsonValue &val);
 
 template <>
-LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<int>(QStringList *errorHierarchy,
+LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<int>(ErrorHierarchy *errorHierarchy,
                                                              const QJsonValue &val);
 
 template <>
-LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<double>(QStringList *errorHierarchy,
+LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<double>(ErrorHierarchy *errorHierarchy,
                                                                 const QJsonValue &val);
 
 template <>
-LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<bool>(QStringList *errorHierarchy,
+LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<bool>(ErrorHierarchy *errorHierarchy,
                                                               const QJsonValue &val);
 
 template <>
-LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<std::nullptr_t>(QStringList *errorHierarchy,
+LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<std::nullptr_t>(ErrorHierarchy *errorHierarchy,
                                                                         const QJsonValue &val);
 
 template<>
-LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<QJsonArray>(QStringList *errorHierarchy,
+LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<QJsonArray>(ErrorHierarchy *errorHierarchy,
                                                                     const QJsonValue &val);
 
 template<>
-LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<QJsonValue>(QStringList *errorHierarchy,
+LANGUAGESERVERPROTOCOL_EXPORT bool JsonObject::checkVal<QJsonValue>(ErrorHierarchy *errorHierarchy,
                                                                     const QJsonValue &val);
 
 } // namespace LanguageServerProtocol

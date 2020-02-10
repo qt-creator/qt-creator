@@ -570,13 +570,19 @@ void tst_LanguageServerProtocol::jsonObject()
     QCOMPARE(obj.optionalClientArray<QString>("strings").value().toList(),
              QList<QString>({"foo", "bar"}));
 
-    QStringList errorHierarchy;
+    ErrorHierarchy errorHierarchy;
     QVERIFY(!obj.check<int>(&errorHierarchy, "doesNotExist"));
-    QCOMPARE(errorHierarchy, QStringList({obj.errorString(QJsonValue::Double, QJsonValue::Undefined), "doesNotExist"}));
+    ErrorHierarchy errorDoesNotExists;
+    errorDoesNotExists.setError(obj.errorString(QJsonValue::Double, QJsonValue::Undefined));
+    errorDoesNotExists.prependMember("doesNotExist");
+    QCOMPARE(errorHierarchy, errorDoesNotExists);
     errorHierarchy.clear();
 
     QVERIFY(!obj.check<int>(&errorHierarchy, "bool"));
-    QCOMPARE(errorHierarchy, QStringList({obj.errorString(QJsonValue::Double, QJsonValue::Bool), "bool"}));
+    ErrorHierarchy errorWrongType;
+    errorWrongType.setError(obj.errorString(QJsonValue::Double, QJsonValue::Bool));
+    errorWrongType.prependMember("bool");
+    QCOMPARE(errorHierarchy, errorWrongType);
     errorHierarchy.clear();
 
     QVERIFY(obj.check<int>(&errorHierarchy, "integer"));

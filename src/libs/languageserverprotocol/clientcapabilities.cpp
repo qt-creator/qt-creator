@@ -42,7 +42,7 @@ void SymbolCapabilities::SymbolKindCapabilities::setValueSet(const QList<SymbolK
     insert(valueSetKey, enumArrayToJsonArray<SymbolKind>(valueSet));
 }
 
-bool ClientCapabilities::isValid(QStringList *error) const
+bool ClientCapabilities::isValid(ErrorHierarchy *error) const
 {
     return checkOptional<WorkspaceClientCapabilities>(error, workspaceKey)
             && checkOptional<TextDocumentClientCapabilities>(error, textDocumentKey);
@@ -53,7 +53,7 @@ WorkspaceClientCapabilities::WorkspaceClientCapabilities()
     setWorkspaceFolders(true);
 }
 
-bool WorkspaceClientCapabilities::isValid(QStringList *error) const
+bool WorkspaceClientCapabilities::isValid(ErrorHierarchy *error) const
 {
     return checkOptional<bool>(error,applyEditKey)
             && checkOptional<WorkspaceEditCapabilities>(error,workspaceEditKey)
@@ -65,7 +65,7 @@ bool WorkspaceClientCapabilities::isValid(QStringList *error) const
             && checkOptional<bool>(error,configurationKey);
 }
 
-bool TextDocumentClientCapabilities::SynchronizationCapabilities::isValid(QStringList *error) const
+bool TextDocumentClientCapabilities::SynchronizationCapabilities::isValid(ErrorHierarchy *error) const
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptional<bool>(error, willSaveKey)
@@ -73,7 +73,7 @@ bool TextDocumentClientCapabilities::SynchronizationCapabilities::isValid(QStrin
             && checkOptional<bool>(error, didSaveKey);
 }
 
-bool TextDocumentClientCapabilities::isValid(QStringList *error) const
+bool TextDocumentClientCapabilities::isValid(ErrorHierarchy *error) const
 {
     return checkOptional<SynchronizationCapabilities>(error, synchronizationKey)
            && checkOptional<CompletionCapabilities>(error, completionKey)
@@ -96,13 +96,13 @@ bool TextDocumentClientCapabilities::isValid(QStringList *error) const
            && checkOptional<SemanticHighlightingCapabilities>(error, semanticHighlightingCapabilitiesKey);
 }
 
-bool SymbolCapabilities::isValid(QStringList *error) const
+bool SymbolCapabilities::isValid(ErrorHierarchy *error) const
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptional<SymbolKindCapabilities>(error, symbolKindKey);
 }
 
-bool TextDocumentClientCapabilities::CompletionCapabilities::isValid(QStringList *error) const
+bool TextDocumentClientCapabilities::CompletionCapabilities::isValid(ErrorHierarchy *error) const
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptional<CompletionItemCapbilities>(error, completionItemKey)
@@ -110,19 +110,19 @@ bool TextDocumentClientCapabilities::CompletionCapabilities::isValid(QStringList
             && checkOptional<bool>(error, contextSupportKey);
 }
 
-bool TextDocumentClientCapabilities::HoverCapabilities::isValid(QStringList *error) const
+bool TextDocumentClientCapabilities::HoverCapabilities::isValid(ErrorHierarchy *error) const
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptionalArray<int>(error, contentFormatKey);
 }
 
-bool TextDocumentClientCapabilities::SignatureHelpCapabilities::isValid(QStringList *error) const
+bool TextDocumentClientCapabilities::SignatureHelpCapabilities::isValid(ErrorHierarchy *error) const
 {
     return DynamicRegistrationCapabilities::isValid(error)
             && checkOptional<SignatureHelpCapabilities>(error, signatureInformationKey);
 }
 
-bool TextDocumentClientCapabilities::CodeActionCapabilities::isValid(QStringList *errorHierarchy) const
+bool TextDocumentClientCapabilities::CodeActionCapabilities::isValid(ErrorHierarchy *errorHierarchy) const
 {
     return DynamicRegistrationCapabilities::isValid(errorHierarchy)
             && checkOptional<CodeActionLiteralSupport>(errorHierarchy, codeActionLiteralSupportKey);

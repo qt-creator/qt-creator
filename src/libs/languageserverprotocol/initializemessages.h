@@ -121,7 +121,7 @@ public:
     { insert(workSpaceFoldersKey, folders.toJson()); }
     void clearWorkSpaceFolders() { remove(workSpaceFoldersKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 using InitializedParams = JsonObject;
@@ -147,7 +147,7 @@ public:
     { insert(capabilitiesKey, capabilities); }
     void clearCapabilities() { remove(capabilitiesKey); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkOptional<ServerCapabilities>(error, capabilitiesKey); }
 };
 
@@ -166,7 +166,7 @@ public:
     void setRetry(bool retry) { insert(retryKey, retry); }
     void clearRetry() { remove(retryKey); }
 
-    bool isValid(QStringList *error) const override { return checkOptional<bool>(error, retryKey); }
+    bool isValid(ErrorHierarchy *error) const override { return checkOptional<bool>(error, retryKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeRequest : public Request<

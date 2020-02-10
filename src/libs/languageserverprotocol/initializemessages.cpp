@@ -140,9 +140,9 @@ Utils::optional<Trace> InitializeParams::trace() const
     return Utils::make_optional(Trace(traceValue.toString()));
 }
 
-bool InitializeParams::isValid(QStringList *error) const
+bool InitializeParams::isValid(ErrorHierarchy *error) const
 {
-    return check<int, std::nullptr_t>(error, processIdKey)
+    return checkVariant<int, std::nullptr_t>(error, processIdKey)
             && checkOptional<QString, std::nullptr_t>(error, rootPathKey)
             && checkOptional<QString, std::nullptr_t>(error, rootUriKey)
             && check<ClientCapabilities>(error, capabilitiesKey)

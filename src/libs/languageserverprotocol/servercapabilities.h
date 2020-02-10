@@ -38,7 +38,7 @@ public:
     void setResolveProvider(bool resolveProvider) { insert(resolveProviderKey, resolveProvider); }
     void clearResolveProvider() { remove(resolveProviderKey); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkOptional<bool>(error, resolveProviderKey); }
 };
 
@@ -55,7 +55,7 @@ public:
     bool filterApplies(const Utils::FilePath &fileName,
                        const Utils::MimeType &mimeType = Utils::MimeType()) const;
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkArray<DocumentFilter>(error, documentSelectorKey); }
 };
 
@@ -69,7 +69,7 @@ public:
     void setIncludeText(bool includeText) { insert(includeTextKey, includeText); }
     void clearIncludeText() { remove(includeTextKey); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkOptional<bool>(error, includeTextKey); }
 };
 
@@ -106,7 +106,7 @@ public:
     void setSave(const SaveOptions &save) { insert(saveKey, save); }
     void clearSave() { remove(saveKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 enum class TextDocumentSyncKind
@@ -129,7 +129,7 @@ public:
     void setCodeActionKinds(const QList<QString> &codeActionKinds)
     { insertArray(codeActionKindsKey, codeActionKinds); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkArray<QString>(error, codeActionKindsKey); }
 };
 
@@ -152,7 +152,7 @@ public:
         { insertArray(triggerCharactersKey, triggerCharacters); }
         void clearTriggerCharacters() { remove(triggerCharactersKey); }
 
-        bool isValid(QStringList *error) const override
+        bool isValid(ErrorHierarchy *error) const override
         { return checkOptionalArray<QString>(error, triggerCharactersKey); }
     };
 
@@ -188,7 +188,7 @@ public:
         { insertArray(moreTriggerCharacterKey, moreTriggerCharacter); }
         void clearMoreTriggerCharacter() { remove(moreTriggerCharacterKey); }
 
-        bool isValid(QStringList *error) const override
+        bool isValid(ErrorHierarchy *error) const override
         {
             return check<QString>(error, firstTriggerCharacterKey)
                     && checkOptionalArray<QString>(error, moreTriggerCharacterKey);
@@ -205,7 +205,7 @@ public:
         QList<QString> commands() const { return array<QString>(commandsKey); }
         void setCommands(const QList<QString> &commands) { insertArray(commandsKey, commands); }
 
-        bool isValid(QStringList *error) const override
+        bool isValid(ErrorHierarchy *error) const override
         { return checkArray<QString>(error, commandsKey); }
     };
 
@@ -231,7 +231,7 @@ public:
         Utils::optional<QList<QList<QString>>> scopes() const;
         void setScopes(const QList<QList<QString>> &scopes);
 
-        bool isValid(QStringList *) const override;
+        bool isValid(ErrorHierarchy *) const override;
     };
 
     // Defines how text documents are synced. Is either a detailed structure defining each
@@ -288,7 +288,7 @@ public:
         void setId(const QString &id) { insert(idKey, id); }
         void clearId() { remove(idKey); }
 
-        bool isValid(QStringList *error) const override
+        bool isValid(ErrorHierarchy *error) const override
         { return checkArray<DocumentFilter>(error, documentSelectorKey) && checkOptional<bool>(error, idKey); }
     };
 
@@ -367,7 +367,7 @@ public:
         void setPrepareProvider(bool prepareProvider) { insert(prepareProviderKey, prepareProvider); }
         void clearPrepareProvider() { remove(prepareProviderKey); }
 
-        bool isValid(QStringList * error) const override
+        bool isValid(ErrorHierarchy * error) const override
         { return checkOptional<bool>(error, prepareProviderKey); }
     };
 
@@ -414,7 +414,7 @@ public:
             void setChangeNotifications(Utils::variant<QString, bool> changeNotifications);
             void clearChangeNotifications() { remove(changeNotificationsKey); }
 
-            bool isValid(QStringList *error) const override;
+            bool isValid(ErrorHierarchy *error) const override;
         };
 
         Utils::optional<WorkspaceFoldersCapabilities> workspaceFolders() const
@@ -440,7 +440,7 @@ public:
     { insert(semanticHighlightingKey, semanticHighlighting); }
     void clearSemanticHighlighting() { remove(semanticHighlightingKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 } // namespace LanguageClient

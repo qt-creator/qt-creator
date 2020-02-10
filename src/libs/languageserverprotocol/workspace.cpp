@@ -66,23 +66,24 @@ ApplyWorkspaceEditRequest::ApplyWorkspaceEditRequest(const ApplyWorkspaceEditPar
     : Request(methodName, params)
 { }
 
-bool WorkspaceFoldersChangeEvent::isValid(QStringList *error) const
+bool WorkspaceFoldersChangeEvent::isValid(ErrorHierarchy *error) const
 {
     return checkArray<WorkSpaceFolder>(error, addedKey)
             && checkArray<WorkSpaceFolder>(error, removedKey);
 }
 
-bool ConfigurationParams::ConfigureationItem::isValid(QStringList *error) const
+bool ConfigurationParams::ConfigureationItem::isValid(ErrorHierarchy *error) const
 {
     return checkOptional<QString>(error, scopeUriKey)
             && checkOptional<QString>(error, sectionKey);
 }
 
-bool DidChangeConfigurationParams::isValid(QStringList *error) const
+bool DidChangeConfigurationParams::isValid(ErrorHierarchy *error) const
 {
     if (contains(settingsKey))
         return true;
-    *error << settingsKey;
+    if (error)
+        error->prependMember(settingsKey);
     return false;
 }
 

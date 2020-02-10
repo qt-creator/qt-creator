@@ -1054,7 +1054,7 @@ void Client::handleResponse(const MessageId &id, const QByteArray &content, QTex
 
 void Client::handleMethod(const QString &method, MessageId id, const IContent *content)
 {
-    QStringList error;
+    ErrorHierarchy error;
     bool paramsValid = true;
     if (method == PublishDiagnosticsNotification::methodName) {
         auto params = dynamic_cast<const PublishDiagnosticsNotification *>(content)->params().value_or(PublishDiagnosticsParams());
@@ -1130,9 +1130,8 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         response.setError(error);
         sendContent(response);
     }
-    std::reverse(error.begin(), error.end());
     if (!paramsValid) {
-        log(tr("Invalid parameter in \"%1\": %2").arg(method, error.join("->")),
+        log(tr("Invalid parameter in \"%1\": %2").arg(method, error.toString()),
             Core::MessageManager::Flash);
     }
     delete content;
@@ -1210,11 +1209,9 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
         log(tr("No initialize result."));
     } else {
         const InitializeResult &result = _result.value();
-        QStringList error;
-        if (!result.isValid(&error)) { // continue on ill formed result
-            std::reverse(error.begin(), error.end());
-            log(tr("Initialize result is not valid: ") + error.join("->"));
-        }
+        ErrorHierarchy error;
+        if (!result.isValid(&error)) // continue on ill formed result
+            log(tr("Initialize result is not valid: ") + error.toString());
 
         m_serverCapabilities = result.capabilities().value_or(ServerCapabilities());
     }

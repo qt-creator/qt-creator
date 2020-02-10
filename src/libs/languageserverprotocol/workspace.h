@@ -60,7 +60,7 @@ public:
     QList<WorkSpaceFolder> removed() const { return array<WorkSpaceFolder>(removedKey); }
     void setRemoved(const QList<WorkSpaceFolder> &removed) { insertArray(removedKey, removed); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWorkspaceFoldersParams : public JsonObject
@@ -72,7 +72,7 @@ public:
     { return typedValue<WorkspaceFoldersChangeEvent>(eventKey); }
     void setEvent(const WorkspaceFoldersChangeEvent &event) { insert(eventKey, event); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return check<WorkspaceFoldersChangeEvent>(error, eventKey); }
 };
 
@@ -94,7 +94,7 @@ public:
     QJsonValue settings() const { return typedValue<QJsonValue>(settingsKey); }
     void setSettings(QJsonValue settings) { insert(settingsKey, settings); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeConfigurationNotification : public Notification<
@@ -124,13 +124,13 @@ public:
         void setSection(const QString &section) { insert(sectionKey, section); }
         void clearSection() { remove(sectionKey); }
 
-        bool isValid(QStringList *error) const override;
+        bool isValid(ErrorHierarchy *error) const override;
     };
 
     QList<ConfigureationItem> items() const { return array<ConfigureationItem>(itemsKey); }
     void setItems(const QList<ConfigureationItem> &items) { insertArray(itemsKey, items); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkArray<ConfigureationItem>(error, itemsKey); }
 };
 
@@ -165,14 +165,14 @@ public:
             Deleted = 3
         };
 
-        bool isValid(QStringList *error) const override
+        bool isValid(ErrorHierarchy *error) const override
         { return check<QString>(error, uriKey) && check<int>(error, typeKey); }
     };
 
     QList<FileEvent> changes() const { return array<FileEvent>(changesKey); }
     void setChanges(const QList<FileEvent> &changes) { insertArray(changesKey, changes); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkArray<FileEvent>(error, changesKey); }
 };
 
@@ -193,7 +193,7 @@ public:
     QString query() const { return typedValue<QString>(queryKey); }
     void setQuery(const QString &query) { insert(queryKey, query); }
 
-    bool isValid(QStringList *error) const override { return check<QString>(error, queryKey); }
+    bool isValid(ErrorHierarchy *error) const override { return check<QString>(error, queryKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceSymbolRequest : public Request<
@@ -220,7 +220,7 @@ public:
     void setArguments(const QJsonArray &arguments) { insert(argumentsKey, arguments); }
     void clearArguments() { remove(argumentsKey); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     {
         return check<QString>(error, commandKey)
                 && checkOptionalArray<QJsonValue>(error, argumentsKey);
@@ -248,7 +248,7 @@ public:
     WorkspaceEdit edit() const { return typedValue<WorkspaceEdit>(editKey); }
     void setEdit(const WorkspaceEdit &edit) { insert(editKey, edit); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return check<WorkspaceEdit>(error, editKey) && checkOptional<QString>(error, labelKey); }
 };
 
@@ -260,7 +260,7 @@ public:
     bool applied() const { return typedValue<bool>(appliedKey); }
     void setApplied(bool applied) { insert(appliedKey, applied); }
 
-    bool isValid(QStringList *error) const override { return check<bool>(error, appliedKey); }
+    bool isValid(ErrorHierarchy *error) const override { return check<bool>(error, appliedKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditRequest : public Request<

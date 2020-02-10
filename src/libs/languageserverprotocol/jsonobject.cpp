@@ -30,31 +30,31 @@
 namespace LanguageServerProtocol {
 
 template <>
-bool JsonObject::checkVal<QString>(QStringList *errorHierarchy, const QJsonValue &val)
+bool JsonObject::checkVal<QString>(ErrorHierarchy *errorHierarchy, const QJsonValue &val)
 { return checkType(val.type(), QJsonValue::String, errorHierarchy); }
 
 template <>
-bool JsonObject::checkVal<int>(QStringList *errorHierarchy, const QJsonValue &val)
+bool JsonObject::checkVal<int>(ErrorHierarchy *errorHierarchy, const QJsonValue &val)
 { return checkType(val.type(), QJsonValue::Double, errorHierarchy); }
 
 template <>
-bool JsonObject::checkVal<double>(QStringList *errorHierarchy, const QJsonValue &val)
+bool JsonObject::checkVal<double>(ErrorHierarchy *errorHierarchy, const QJsonValue &val)
 { return checkType(val.type(), QJsonValue::Double, errorHierarchy); }
 
 template <>
-bool JsonObject::checkVal<bool>(QStringList *errorHierarchy, const QJsonValue &val)
+bool JsonObject::checkVal<bool>(ErrorHierarchy *errorHierarchy, const QJsonValue &val)
 { return checkType(val.type(), QJsonValue::Bool, errorHierarchy); }
 
 template <>
-bool JsonObject::checkVal<std::nullptr_t>(QStringList *errorHierarchy, const QJsonValue &val)
+bool JsonObject::checkVal<std::nullptr_t>(ErrorHierarchy *errorHierarchy, const QJsonValue &val)
 { return checkType(val.type(), QJsonValue::Null, errorHierarchy); }
 
 template<>
-bool JsonObject::checkVal<QJsonArray>(QStringList *errorHierarchy, const QJsonValue &val)
+bool JsonObject::checkVal<QJsonArray>(ErrorHierarchy *errorHierarchy, const QJsonValue &val)
 { return checkType(val.type(), QJsonValue::Array, errorHierarchy); }
 
 template<>
-bool JsonObject::checkVal<QJsonValue>(QStringList * /*errorHierarchy*/, const QJsonValue &/*val*/)
+bool JsonObject::checkVal<QJsonValue>(ErrorHierarchy * /*errorHierarchy*/, const QJsonValue &/*val*/)
 { return true; }
 
 JsonObject &JsonObject::operator=(const JsonObject &other) = default;
@@ -75,12 +75,12 @@ QJsonObject::iterator JsonObject::insert(const QString &key, const QJsonValue &v
     return m_jsonObject.insert(key, value);
 }
 
-bool JsonObject::checkKey(QStringList *errorHierarchy, const QString &key,
+bool JsonObject::checkKey(ErrorHierarchy *errorHierarchy, const QString &key,
                           const std::function<bool (const QJsonValue &)> &predicate) const
 {
     const bool valid = predicate(m_jsonObject.value(key));
     if (!valid && errorHierarchy)
-        errorHierarchy->append(key);
+        errorHierarchy->prependMember(key);
     return valid;
 }
 
@@ -106,11 +106,11 @@ QString JsonObject::errorString(QJsonValue::Type expected, QJsonValue::Type actu
 
 bool JsonObject::checkType(QJsonValue::Type type,
                            QJsonValue::Type expectedType,
-                           QStringList *errorHierarchy)
+                           ErrorHierarchy *errorHierarchy)
 {
     const bool ret = type == expectedType;
     if (!ret && errorHierarchy)
-        errorHierarchy->append(errorString(expectedType, type));
+        errorHierarchy->setError(errorString(expectedType, type));
     return ret;
 }
 

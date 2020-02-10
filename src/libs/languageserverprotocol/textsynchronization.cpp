@@ -74,7 +74,7 @@ DidChangeTextDocumentParams::DidChangeTextDocumentParams(
     setContentChanges({text});
 }
 
-bool DidChangeTextDocumentParams::isValid(QStringList *error) const
+bool DidChangeTextDocumentParams::isValid(ErrorHierarchy *error) const
 {
     return check<VersionedTextDocumentIdentifier>(error, textDocumentKey)
             && checkArray<TextDocumentContentChangeEvent>(error, contentChangesKey);
@@ -96,7 +96,7 @@ DidChangeTextDocumentParams::TextDocumentContentChangeEvent::TextDocumentContent
     setText(text);
 }
 
-bool DidChangeTextDocumentParams::TextDocumentContentChangeEvent::isValid(QStringList *error) const
+bool DidChangeTextDocumentParams::TextDocumentContentChangeEvent::isValid(ErrorHierarchy *error) const
 {
     return checkOptional<Range>(error, rangeKey)
             && checkOptional<int>(error, rangeLengthKey)
@@ -108,7 +108,7 @@ DidSaveTextDocumentParams::DidSaveTextDocumentParams(const TextDocumentIdentifie
     setTextDocument(document);
 }
 
-bool DidSaveTextDocumentParams::isValid(QStringList *error) const
+bool DidSaveTextDocumentParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && checkOptional<QString>(error, textKey);
@@ -122,13 +122,13 @@ WillSaveTextDocumentParams::WillSaveTextDocumentParams(
     setReason(reason);
 }
 
-bool WillSaveTextDocumentParams::isValid(QStringList *error) const
+bool WillSaveTextDocumentParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && check<int>(error, reasonKey);
 }
 
-bool TextDocumentSaveRegistrationOptions::isValid(QStringList *error) const
+bool TextDocumentSaveRegistrationOptions::isValid(ErrorHierarchy *error) const
 {
     return TextDocumentRegistrationOptions::isValid(error)
             && checkOptional<bool>(error, includeTextKey);

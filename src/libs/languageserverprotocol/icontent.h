@@ -26,6 +26,7 @@
 #pragma once
 
 #include "basemessage.h"
+#include "lsputils.h"
 
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
@@ -69,12 +70,12 @@ public:
         return QJsonValue();
     }
 
-    bool isValid(QStringList *error = nullptr) const
+    bool isValid(ErrorHierarchy *error = nullptr) const
     {
         if (Utils::holds_alternative<int>(*this) || Utils::holds_alternative<QString>(*this))
             return true;
         if (error)
-            error->append("Expected int or string as MessageId");
+            error->setError("Expected int or string as MessageId");
         return false;
     }
 
