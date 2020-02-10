@@ -110,14 +110,8 @@ bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
         QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
         QByteArray data = dropEvent->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
         if (!data.isEmpty()) {
-            ServerNodeInstance sceneInstance;
-            if (hasInstanceForObject(m_active3DScene))
-                sceneInstance = instanceForObject(m_active3DScene);
-            else if (hasInstanceForObject(m_active3DView))
-                sceneInstance = instanceForObject(m_active3DView);
-
             nodeInstanceClient()->library3DItemDropped(createDrop3DLibraryItemCommand(
-                                                           data, sceneInstance.instanceId()));
+                                                           data, active3DSceneInstance().instanceId()));
         }
 
     } break;
@@ -178,6 +172,7 @@ QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
                      this, &Qt5InformationNodeInstanceServer::handleToolStateChanged);
     engine->rootContext()->setContextProperty("_generalHelper", helper);
+    m_3dHelper = helper;
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");
@@ -326,10 +321,14 @@ void Qt5InformationNodeInstanceServer::handleObjectPropertyChange(const QVariant
     m_changedProperty = propertyName;
 }
 
-void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &tool,
+void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &sceneId,
+                                                              const QString &tool,
                                                               const QVariant &toolState)
 {
-    QPair<QString, QVariant> data = {tool, toolState};
+    QVariantList data;
+    data << sceneId;
+    data << tool;
+    data << toolState;
     nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Edit3DToolState,
                                                         QVariant::fromValue(data)});
 }
@@ -385,17 +384,17 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
     QMetaObject::invokeMethod(m_editView3D, "enableEditViewUpdate",
                               Q_ARG(QVariant, activeSceneVar));
 
+    ServerNodeInstance sceneInstance = active3DSceneInstance();
+    QVariant sceneInstanceVar;
+    QQmlProperty sceneIdProperty(m_editView3D, "sceneId", context());
+    if (sceneInstance.isValid())
+        sceneInstanceVar = QVariant::fromValue(sceneInstance.id());
+    sceneIdProperty.write(sceneInstanceVar);
+
     QQmlProperty sceneProperty(m_editView3D, "activeScene", context());
     sceneProperty.write(activeSceneVar);
 
-    QString sceneId;
-    if (hasInstanceForObject(m_active3DScene))
-        sceneId = instanceForObject(m_active3DScene).id();
-    if (m_active3DView && sceneId.isEmpty() && hasInstanceForObject(m_active3DView))
-        sceneId = instanceForObject(m_active3DView).id();
     updateView3DRect(m_active3DView);
-    QQmlProperty viewIdProperty(m_editView3D, "sceneId", context());
-    viewIdProperty.write(QVariant::fromValue(sceneId));
 }
 
 void Qt5InformationNodeInstanceServer::removeNode3D(QObject *node)
@@ -452,6 +451,16 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
         updateActiveSceneToEditView3D();
     }
 #endif
+}
+
+ServerNodeInstance Qt5InformationNodeInstanceServer::active3DSceneInstance() const
+{
+    ServerNodeInstance sceneInstance;
+    if (hasInstanceForObject(m_active3DScene))
+        sceneInstance = instanceForObject(m_active3DScene);
+    else if (hasInstanceForObject(m_active3DView))
+        sceneInstance = instanceForObject(m_active3DView);
+    return sceneInstance;
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -756,8 +765,9 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(QObject *obj) const
 }
 
 void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList,
-                                                       const QVariantMap &toolStates)
+                                                       const QHash<QString, QVariantMap> &toolStates)
 {
+#ifdef QUICK3D_MODULE
     ServerNodeInstance root = rootNodeInstance();
 
     add3DViewPorts(instanceList);
@@ -776,12 +786,21 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             return;
         }
 
+        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+        if (helper) {
+            auto it = toolStates.constBegin();
+            while (it != toolStates.constEnd()) {
+                helper->initToolStates(it.key(), it.value());
+                ++it;
+            }
+            helper->restoreWindowState(qobject_cast<QQuickWindow *>(m_editView3D));
+        }
+
         updateActiveSceneToEditView3D();
 
         createCameraAndLightGizmos(instanceList);
-
-        QMetaObject::invokeMethod(m_editView3D, "updateToolStates", Q_ARG(QVariant, toolStates));
     }
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()

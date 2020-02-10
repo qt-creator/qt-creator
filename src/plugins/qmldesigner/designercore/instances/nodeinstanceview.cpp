@@ -1464,8 +1464,11 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         handlePuppetKeyPress(key, modifiers);
     } else if (command.type() == PuppetToCreatorCommand::Edit3DToolState) {
         if (!m_nodeInstanceServer.isNull()) {
-            auto data = qvariant_cast<QPair<QString, QVariant>>(command.data());
-            m_edit3DToolStates[data.first] = data.second;
+            auto data = qvariant_cast<QVariantList>(command.data());
+            if (data.size() == 3) {
+                QString qmlId = data[0].toString();
+                m_edit3DToolStates[qmlId].insert(data[1].toString(), data[2]);
+            }
         }
     }
 }

@@ -61,9 +61,9 @@ Window {
     signal commitObjectProperty(var object, var propName)
     signal changeObjectProperty(var object, var propName)
 
-    onUsePerspectiveChanged: _generalHelper.storeToolState("usePerspective", usePerspective)
-    onShowEditLightChanged: _generalHelper.storeToolState("showEditLight", showEditLight)
-    onGlobalOrientationChanged: _generalHelper.storeToolState("globalOrientation", globalOrientation)
+    onUsePerspectiveChanged: _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
+    onShowEditLightChanged: _generalHelper.storeToolState(sceneId,"showEditLight", showEditLight)
+    onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
 
     onActiveSceneChanged: {
         if (editView) {
@@ -86,39 +86,57 @@ Window {
                 editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
                 selectionBoxes.length = 0;
+                updateToolStates();
             }
         }
     }
 
     // Disables edit view update if scene doesn't match current activeScene.
     // If it matches, updates are enabled.
-    function enableEditViewUpdate(scene) {
+    function enableEditViewUpdate(scene)
+    {
         if (editView)
             _generalHelper.enableItemUpdate(editView, (scene && scene === activeScene));
     }
 
-    function updateToolStates(toolStates) {
-        // Init the stored state so we don't unnecessarily reflect changes back to creator
-        _generalHelper.initToolStates(toolStates);
 
-        _generalHelper.restoreWindowState(viewWindow, toolStates);
+    function restoreWindowState()
+    {
+        // It is expected that tool states have been initialized before calling this
+        _generalHelper.restoreWindowState(viewWindow);
+    }
 
+    function updateToolStates()
+    {
+        var toolStates = _generalHelper.getToolStates(sceneId);
         if ("showEditLight" in toolStates)
             showEditLight = toolStates.showEditLight;
+        else
+            showEditLight = false;
         if ("usePerspective" in toolStates)
             usePerspective = toolStates.usePerspective;
+        else
+            usePerspective = false;
         if ("globalOrientation" in toolStates)
             globalOrientation = toolStates.globalOrientation;
+        else
+            globalOrientation = false;
 
         var groupIndex;
         var group;
         var i;
+        btnSelectItem.selected = false;
+        btnSelectGroup.selected = true;
         if ("groupSelect" in toolStates) {
             groupIndex = toolStates.groupSelect;
             group = toolbarButtons.buttonGroups["groupSelect"];
             for (i = 0; i < group.length; ++i)
                 group[i].selected = (i === groupIndex);
         }
+
+        btnRotate.selected = false;
+        btnScale.selected = false;
+        btnMove.selected = true;
         if ("groupTransform" in toolStates) {
             groupIndex = toolStates.groupTransform;
             group = toolbarButtons.buttonGroups["groupTransform"];
@@ -128,9 +146,12 @@ Window {
 
         if ("editCamState" in toolStates)
             cameraControl.restoreCameraState(toolStates.editCamState);
+        else
+            cameraControl.restoreDefaultState();
     }
 
-    function ensureSelectionBoxes(count) {
+    function ensureSelectionBoxes(count)
+    {
         var needMore = count - selectionBoxes.length
         if (needMore > 0) {
             var component = Qt.createComponent("SelectionBox.qml");
@@ -149,7 +170,8 @@ Window {
         }
     }
 
-    function selectObjects(objects) {
+    function selectObjects(objects)
+    {
         // Create selection boxes as necessary. One more box than is actually needed is created, so
         // that we always have a previously created box to use for new selection.
         // This fixes an occasional visual glitch when creating a new box.
@@ -168,7 +190,8 @@ Window {
             selectedNode = objects[0];
     }
 
-    function handleObjectClicked(object, multi) {
+    function handleObjectClicked(object, multi)
+    {
         var theObject = object;
         if (btnSelectGroup.selected) {
             while (theObject && theObject !== activeScene && theObject.parent !== activeScene)
@@ -511,6 +534,7 @@ Window {
             camera: viewWindow.editView ? viewWindow.editView.camera : null
             anchors.fill: parent
             view3d: viewWindow.editView
+            sceneId: viewWindow.sceneId
         }
     }
 
@@ -540,6 +564,7 @@ Window {
                 currentShortcut: selected ? "" : shortcut
                 tool: "item_selection"
                 buttonGroup: "groupSelect"
+                sceneId: viewWindow.sceneId
             }
 
             ToolBarButton {
@@ -549,6 +574,7 @@ Window {
                 currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
                 tool: "group_selection"
                 buttonGroup: "groupSelect"
+                sceneId: viewWindow.sceneId
             }
 
             Rectangle { // separator
@@ -566,6 +592,7 @@ Window {
                 currentShortcut: shortcut
                 tool: "move"
                 buttonGroup: "groupTransform"
+                sceneId: viewWindow.sceneId
             }
 
             ToolBarButton {
@@ -575,6 +602,7 @@ Window {
                 currentShortcut: shortcut
                 tool: "rotate"
                 buttonGroup: "groupTransform"
+                sceneId: viewWindow.sceneId
             }
 
             ToolBarButton {
@@ -584,6 +612,7 @@ Window {
                 currentShortcut: shortcut
                 tool: "scale"
                 buttonGroup: "groupTransform"
+                sceneId: viewWindow.sceneId
             }
 
             Rectangle { // separator

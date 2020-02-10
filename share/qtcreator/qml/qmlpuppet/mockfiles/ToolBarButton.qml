@@ -35,6 +35,7 @@ Rectangle {
     property string tool
     property string buttonGroup
     property bool togglable: true
+    property string sceneId
 
     property int _buttonGroupIndex: -1
     property var _buttonGroupArray: []
@@ -89,7 +90,7 @@ Rectangle {
 
                 root.selected = true;
                 if (_buttonGroupIndex >= 0)
-                    _generalHelper.storeToolState(root.buttonGroup, root._buttonGroupIndex)
+                    _generalHelper.storeToolState(sceneId, root.buttonGroup, root._buttonGroupIndex)
 
                 if (!root.togglable) {
                     // Deselect button after a short while (selection acts as simple click indicator)

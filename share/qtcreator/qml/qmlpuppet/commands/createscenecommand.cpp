@@ -40,7 +40,7 @@ CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanc
                                        const QVector<AddImportContainer> &importVector,
                                        const QVector<MockupTypeContainer> &mockupTypeVector,
                                        const QUrl &fileUrl,
-                                       const QVariantMap &edit3dToolStates)
+                                       const QHash<QString, QVariantMap> &edit3dToolStates)
     : m_instanceVector(instanceContainer),
       m_reparentInstanceVector(reparentContainer),
       m_idVector(idVector),
@@ -99,7 +99,7 @@ QUrl CreateSceneCommand::fileUrl() const
     return m_fileUrl;
 }
 
-QVariantMap CreateSceneCommand::edit3dToolStates() const
+QHash<QString, QVariantMap> CreateSceneCommand::edit3dToolStates() const
 {
     return m_edit3dToolStates;
 }

@@ -62,7 +62,8 @@ private slots:
     void handleSelectionChanged(const QVariant &objs);
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
-    void handleToolStateChanged(const QString &tool, const QVariant &toolState);
+    void handleToolStateChanged(const QString &sceneId, const QString &tool,
+                                const QVariant &toolState);
     void handleView3DSizeChange();
     void handleView3DDestroyed(QObject *obj);
     void handleNode3DDestroyed(QObject *obj);
@@ -83,7 +84,7 @@ private:
     void handleSelectionChangeTimeout();
     QObject *createEditView3D(QQmlEngine *engine);
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
-                         const QVariantMap &toolStates);
+                         const QHash<QString, QVariantMap> &toolStates);
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
     void add3DViewPorts(const QList<ServerNodeInstance> &instanceList);
     void add3DScenes(const QList<ServerNodeInstance> &instanceList);
@@ -102,6 +103,7 @@ private:
     void updateActiveSceneToEditView3D();
     void removeNode3D(QObject *node);
     void resolveSceneRoots();
+    ServerNodeInstance active3DSceneInstance() const;
 
     QObject *m_editView3D = nullptr;
     QSet<QObject *> m_view3Ds;
@@ -116,6 +118,7 @@ private:
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ChangeSelectionCommand m_pendingSelectionChangeCommand;
+    QObject *m_3dHelper = nullptr;
 };
 
 } // namespace QmlDesigner

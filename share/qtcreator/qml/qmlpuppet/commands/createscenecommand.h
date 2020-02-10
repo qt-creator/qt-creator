@@ -54,7 +54,7 @@ public:
                        const QVector<AddImportContainer> &importVector,
                        const QVector<MockupTypeContainer> &mockupTypeVector,
                        const QUrl &fileUrl,
-                       const QVariantMap &edit3dToolStates);
+                       const QHash<QString, QVariantMap> &edit3dToolStates);
 
     QVector<InstanceContainer> instances() const;
     QVector<ReparentContainer> reparentInstances() const;
@@ -65,7 +65,7 @@ public:
     QVector<AddImportContainer> imports() const;
     QVector<MockupTypeContainer> mockupTypes() const;
     QUrl fileUrl() const;
-    QVariantMap edit3dToolStates() const;
+    QHash<QString, QVariantMap> edit3dToolStates() const;
 
 private:
     QVector<InstanceContainer> m_instanceVector;
@@ -77,7 +77,7 @@ private:
     QVector<AddImportContainer> m_importVector;
     QVector<MockupTypeContainer> m_mockupTypeVector;
     QUrl m_fileUrl;
-    QVariantMap m_edit3dToolStates;
+    QHash<QString, QVariantMap> m_edit3dToolStates;
 };
 
 QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command);

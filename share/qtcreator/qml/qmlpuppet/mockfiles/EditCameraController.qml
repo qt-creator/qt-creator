@@ -31,7 +31,7 @@ Item {
 
     property Camera camera: null
     property View3D view3d: null
-
+    property string sceneId
     property vector3d _lookAtPoint
     property vector3d _pressPoint
     property vector3d _prevPoint
@@ -42,10 +42,13 @@ Item {
     property bool _dragging
     property int _button
     property real _zoomFactor: 1
-    property real _defaultCameraLookAtDistance: 0
     property Camera _prevCamera: null
+    readonly property vector3d _defaultCameraPosition: Qt.vector3d(0, 600, -600)
+    readonly property vector3d _defaultCameraRotation: Qt.vector3d(45, 0, 0)
+    readonly property real _defaultCameraLookAtDistance: _defaultCameraPosition.length()
 
-    function restoreCameraState(cameraState) {
+    function restoreCameraState(cameraState)
+    {
         if (!camera)
             return;
 
@@ -57,7 +60,21 @@ Item {
                                   _zoomFactor, false);
     }
 
-    function storeCameraState(delay) {
+    function restoreDefaultState()
+    {
+        if (!camera)
+            return;
+
+        _lookAtPoint = Qt.vector3d(0, 0, 0);
+        _zoomFactor = 1;
+        camera.position = _defaultCameraPosition;
+        camera.rotation = _defaultCameraRotation;
+        _generalHelper.zoomCamera(camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
+                                  _zoomFactor, false);
+    }
+
+    function storeCameraState(delay)
+    {
         if (!camera)
             return;
 
@@ -66,7 +83,7 @@ Item {
         cameraState[1] = _zoomFactor;
         cameraState[2] = camera.position;
         cameraState[3] = camera.rotation;
-        _generalHelper.storeToolState("editCamState", cameraState, delay);
+        _generalHelper.storeToolState(sceneId, "editCamState", cameraState, delay);
     }
 
 
@@ -90,10 +107,6 @@ Item {
 
         _zoomFactor = _generalHelper.zoomCamera(camera, distance, _defaultCameraLookAtDistance,
                                                 _lookAtPoint, _zoomFactor, true);
-    }
-
-    Component.onCompleted: {
-        cameraCtrl._defaultCameraLookAtDistance = Qt.vector3d(0, 600, -600).length();
     }
 
     onCameraChanged: {
