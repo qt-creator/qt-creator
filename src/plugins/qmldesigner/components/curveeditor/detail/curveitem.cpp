@@ -46,6 +46,8 @@ CurveItem::CurveItem(QGraphicsItem *parent)
     , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
+    , m_locked(false)
+    , m_pinned(false)
     , m_underMouse(false)
     , m_itemDirty(false)
 {}
@@ -58,6 +60,8 @@ CurveItem::CurveItem(unsigned int id, const AnimationCurve &curve, QGraphicsItem
     , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
+    , m_locked(false)
+    , m_pinned(false)
     , m_underMouse(false)
     , m_itemDirty(false)
 {
@@ -128,7 +132,9 @@ void CurveItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
             if (segment.interpolation() == Keyframe::Interpolation::Easing) {
                 pen.setColor(m_style.easingCurveColor);
             } else {
-                if (m_underMouse)
+                if (m_locked)
+                    pen.setColor(Qt::black);
+                else if (m_underMouse)
                     pen.setColor(Qt::red);
                 else if (hasSelection())
                     pen.setColor(m_style.selectionColor);
@@ -145,6 +151,16 @@ void CurveItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
 bool CurveItem::isDirty() const
 {
     return m_itemDirty;
+}
+
+bool CurveItem::locked() const
+{
+    return m_locked;
+}
+
+bool CurveItem::pinned() const
+{
+    return m_pinned;
 }
 
 bool CurveItem::hasSelection() const
@@ -267,6 +283,20 @@ void CurveItem::restore()
     }
 }
 
+void CurveItem::setLocked(bool locked)
+{
+    m_locked = locked;
+    for (auto frame : m_keyframes)
+        frame->setLocked(locked);
+
+    setHandleVisibility(!m_locked);
+}
+
+void CurveItem::setPinned(bool pinned)
+{
+    m_pinned = pinned;
+}
+
 void CurveItem::setDirty(bool dirty)
 {
     m_itemDirty = dirty;
@@ -294,6 +324,7 @@ void CurveItem::setCurve(const AnimationCurve &curve)
 
     for (auto frame : curve.keyframes()) {
         auto *item = new KeyframeItem(frame, this);
+        item->setLocked(m_locked);
         item->setComponentTransform(m_transform);
         m_keyframes.push_back(item);
         QObject::connect(item, &KeyframeItem::redrawCurve, this, &CurveItem::emitCurveChanged);

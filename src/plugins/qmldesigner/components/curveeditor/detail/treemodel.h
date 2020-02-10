@@ -53,6 +53,8 @@ public:
 
     static CurveItem *curveItem(const QModelIndex &index);
 
+    static CurveItem *curveItem(TreeItem *item);
+
     TreeModel(QObject *parent = nullptr);
 
     ~TreeModel() override;

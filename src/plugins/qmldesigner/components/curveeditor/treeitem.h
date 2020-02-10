@@ -122,6 +122,8 @@ public:
 
     QIcon icon() const override;
 
+    std::vector<PropertyTreeItem *> properties() const;
+
 private:
     QIcon m_icon;
 };

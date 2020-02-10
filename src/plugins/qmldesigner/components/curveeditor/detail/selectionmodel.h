@@ -46,6 +46,9 @@ signals:
 public:
     SelectionModel(QAbstractItemModel *model = nullptr);
 
+    void select(const QItemSelection &selection,
+                QItemSelectionModel::SelectionFlags command) override;
+
     std::vector<TreeItem::Path> selectedPaths() const;
 
     std::vector<CurveItem *> selectedCurveItems() const;

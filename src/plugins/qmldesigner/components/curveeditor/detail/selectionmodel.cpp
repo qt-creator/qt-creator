@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "selectionmodel.h"
+#include "curveitem.h"
 #include "treemodel.h"
 
 namespace DesignTools {
@@ -32,6 +33,17 @@ SelectionModel::SelectionModel(QAbstractItemModel *model)
     : QItemSelectionModel(model)
 {
     connect(this, &QItemSelectionModel::selectionChanged, this, &SelectionModel::changeSelection);
+}
+
+void SelectionModel::select(const QItemSelection &selection,
+                            QItemSelectionModel::SelectionFlags command)
+{
+    for (auto &&index : selection.indexes()) {
+        if (index.column() == 0) {
+            QItemSelectionModel::select(selection, command);
+            return;
+        }
+    }
 }
 
 std::vector<TreeItem::Path> SelectionModel::selectedPaths() const
@@ -90,9 +102,12 @@ void SelectionModel::select(const std::vector<TreeItem::Path> &selection)
 {
     for (auto &&path : selection) {
         if (auto *treeModel = qobject_cast<TreeModel *>(model())) {
-            QModelIndex index = treeModel->indexOf(path);
-            if (index.isValid())
-                QItemSelectionModel::select(index, QItemSelectionModel::Select);
+            QModelIndex left = treeModel->indexOf(path);
+            QModelIndex right = left.siblingAtColumn(2);
+            if (left.isValid() && right.isValid()) {
+                auto is = QItemSelection(left, right);
+                QItemSelectionModel::select(is, QItemSelectionModel::Select);
+            }
         }
     }
 }

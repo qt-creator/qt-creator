@@ -38,6 +38,7 @@ namespace DesignTools {
 class CurveItem;
 class CurveEditorModel;
 class Playhead;
+class PropertyTreeItem;
 
 class GraphicsView : public QGraphicsView
 {
@@ -92,6 +93,8 @@ public:
     QRectF valueScaleRect() const;
 
     QRectF defaultRasterRect() const;
+
+    void setLocked(PropertyTreeItem *item);
 
     void setStyle(const CurveEditorStyle &style);
 

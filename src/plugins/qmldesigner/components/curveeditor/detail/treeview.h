@@ -44,6 +44,10 @@ class TreeView : public QTreeView
 signals:
     void curvesSelected(const std::vector<CurveItem *> &curves);
 
+    void treeItemLocked(PropertyTreeItem *item);
+
+    void treeItemPinned(PropertyTreeItem *item);
+
 public:
     TreeView(CurveEditorModel *model, QWidget *parent = nullptr);
 
@@ -57,9 +61,6 @@ protected:
     QSize sizeHint() const override;
 
     void mousePressEvent(QMouseEvent *event) override;
-
-private:
-    void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
 };
 
 } // End namespace DesignTools.

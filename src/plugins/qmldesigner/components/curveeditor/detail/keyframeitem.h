@@ -63,6 +63,8 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
+    void setLocked(bool locked) override;
+
     Keyframe keyframe() const;
 
     bool hasLeftHandle() const;

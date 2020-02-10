@@ -32,6 +32,7 @@ SelectableItem::SelectableItem(QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , m_active(false)
     , m_selected(false)
+    , m_locked(false)
     , m_preSelected(SelectionMode::Undefined)
 {
     setFlag(QGraphicsItem::ItemIsSelectable, false);
@@ -42,6 +43,13 @@ SelectableItem::SelectableItem(QGraphicsItem *parent)
 }
 
 SelectableItem::~SelectableItem() {}
+
+void SelectableItem::setLocked(bool locked)
+{
+    setPreselected(SelectionMode::Clear);
+    applyPreselection();
+    m_locked = locked;
+}
 
 bool SelectableItem::activated() const
 {
@@ -68,6 +76,11 @@ bool SelectableItem::selected() const
     return false;
 }
 
+bool SelectableItem::locked() const
+{
+    return m_locked;
+}
+
 void SelectableItem::setActivated(bool active)
 {
     m_active = active;
@@ -75,6 +88,9 @@ void SelectableItem::setActivated(bool active)
 
 void SelectableItem::setPreselected(SelectionMode mode)
 {
+    if (m_locked)
+        return;
+
     m_preSelected = mode;
     selectionCallback();
 }
@@ -89,12 +105,18 @@ void SelectableItem::selectionCallback() {}
 
 void SelectableItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (m_locked)
+        return;
+
     m_active = true;
     QGraphicsObject::mousePressEvent(event);
 }
 
 void SelectableItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (m_locked)
+        return;
+
     if (type() == KeyframeItem::Type && !selected())
         return;
 
@@ -103,6 +125,9 @@ void SelectableItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void SelectableItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (m_locked)
+        return;
+
     m_active = false;
     QGraphicsObject::mouseReleaseEvent(event);
 }

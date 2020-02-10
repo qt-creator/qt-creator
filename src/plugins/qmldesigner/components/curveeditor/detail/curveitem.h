@@ -66,6 +66,10 @@ public:
 
     bool isDirty() const;
 
+    bool locked() const;
+
+    bool pinned() const;
+
     bool isUnderMouse() const;
 
     bool hasSelection() const;
@@ -83,6 +87,10 @@ public:
     std::vector<AnimationCurve> curves() const;
 
     void restore();
+
+    void setLocked(bool locked);
+
+    void setPinned(bool pinned);
 
     void setDirty(bool dirty);
 
@@ -122,6 +130,10 @@ private:
     QTransform m_transform;
 
     std::vector<KeyframeItem *> m_keyframes;
+
+    bool m_locked;
+
+    bool m_pinned;
 
     bool m_underMouse;
 

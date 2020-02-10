@@ -246,6 +246,17 @@ QIcon NodeTreeItem::icon() const
     return m_icon;
 }
 
+std::vector<PropertyTreeItem *> NodeTreeItem::properties() const
+{
+    std::vector<PropertyTreeItem *> out;
+    for (auto *child : m_children) {
+        if (auto *pti = child->asPropertyItem())
+            out.push_back(pti);
+    }
+
+    return out;
+}
+
 std::string toString(ValueType type)
 {
     switch (type) {

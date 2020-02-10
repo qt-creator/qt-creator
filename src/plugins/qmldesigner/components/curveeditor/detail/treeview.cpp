@@ -105,10 +105,15 @@ void TreeView::mousePressEvent(QMouseEvent *event)
     QModelIndex index = indexAt(event->pos());
     if (index.isValid()) {
         auto *treeItem = static_cast<TreeItem *>(index.internalPointer());
-        if (index.column() == 1)
+        if (index.column() == 1) {
             treeItem->setLocked(!treeItem->locked());
-        else if (index.column() == 2)
+            if (auto *propertyItem = treeItem->asPropertyItem())
+                emit treeItemLocked(propertyItem);
+        } else if (index.column() == 2) {
             treeItem->setPinned(!treeItem->pinned());
+            if (auto *propertyItem = treeItem->asPropertyItem())
+                emit treeItemPinned(propertyItem);
+        }
     }
     QTreeView::mousePressEvent(event);
 }

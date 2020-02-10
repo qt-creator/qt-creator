@@ -69,10 +69,21 @@ void KeyframeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     painter->save();
     painter->setPen(pen);
-    painter->setBrush(selected() ? Qt::red : m_style.color);
+    painter->setBrush(locked() ? Qt::black : (selected() ? Qt::red : m_style.color));
     painter->drawEllipse(boundingRect());
 
     painter->restore();
+}
+
+void KeyframeItem::setLocked(bool locked)
+{
+    SelectableItem::setLocked(locked);
+
+    if (m_left)
+        m_left->setLocked(locked);
+
+    if (m_right)
+        m_right->setLocked(locked);
 }
 
 KeyframeItem::~KeyframeItem() {}

@@ -26,6 +26,7 @@
 #include "graphicsview.h"
 #include "curveeditormodel.h"
 #include "curveitem.h"
+#include "treeitem.h"
 #include "utils.h"
 
 #include <QAction>
@@ -68,6 +69,9 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
     };
 
     connect(&m_scene, &GraphicsScene::curveChanged, itemSlot);
+
+    auto pinSlot = [this](PropertyTreeItem *pti) { m_scene.setPinned(pti->id(), pti->pinned()); };
+    connect(m_model, &CurveEditorModel::curveChanged, pinSlot);
 
     applyZoom(m_zoomX, m_zoomY);
     update();
@@ -185,6 +189,16 @@ void GraphicsView::setStyle(const CurveEditorStyle &style)
     viewport()->update();
 }
 
+void GraphicsView::setLocked(PropertyTreeItem *item)
+{
+    const auto itemList = items();
+    for (auto *gitem : itemList) {
+        if (auto *citem = qgraphicsitem_cast<CurveItem *>(gitem))
+            if (item->id() == citem->id())
+                citem->setLocked(item->locked());
+    }
+}
+
 void GraphicsView::setZoomX(double zoom, const QPoint &pivot)
 {
     applyZoom(zoom, m_zoomY, pivot);
@@ -217,8 +231,22 @@ void GraphicsView::scrollContent(double x, double y)
 
 void GraphicsView::reset(const std::vector<CurveItem *> &items)
 {
+    const std::vector<CurveItem *> pinnedItems = m_scene.takePinnedItems();
+    auto notPinned = [pinnedItems](CurveItem *item) {
+        for (auto *pinned : pinnedItems) {
+            if (pinned->id() == item->id())
+                return false;
+        }
+        return true;
+    };
+
     m_scene.clear();
-    for (auto *item : items)
+    for (auto *item : items) {
+        if (notPinned(item))
+            m_scene.addCurveItem(item);
+    }
+
+    for (auto *item : pinnedItems)
         m_scene.addCurveItem(item);
 
     applyZoom(m_zoomX, m_zoomY);

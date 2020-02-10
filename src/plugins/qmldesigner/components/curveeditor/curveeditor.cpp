@@ -52,7 +52,11 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     box->addWidget(splitter);
     setLayout(box);
 
+    connect(m_tree, &TreeView::treeItemLocked, m_view, &GraphicsView::setLocked);
     connect(m_tree->selectionModel(), &SelectionModel::curvesSelected, m_view, &GraphicsView::reset);
+
+    connect(m_tree, &TreeView::treeItemLocked, model, &CurveEditorModel::curveChanged);
+    connect(m_tree, &TreeView::treeItemPinned, model, &CurveEditorModel::curveChanged);
 }
 
 void CurveEditor::zoomX(double zoom)

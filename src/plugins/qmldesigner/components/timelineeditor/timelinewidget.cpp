@@ -328,6 +328,20 @@ void TimelineWidget::updateAnimationCurve(DesignTools::PropertyTreeItem *item)
     QmlTimelineKeyframeGroup group = timelineKeyframeGroup(currentTimeline, item);
 
     if (group.isValid()) {
+        ModelNode groupNode = group.modelNode();
+
+        if (groupNode.isValid()) {
+            if (item->locked())
+                groupNode.setAuxiliaryData("locked", true);
+            else
+                groupNode.removeAuxiliaryData("locked");
+
+            if (item->pinned())
+                groupNode.setAuxiliaryData("pinned", true);
+            else
+                groupNode.removeAuxiliaryData("pinned");
+        }
+
         auto replaceKeyframes = [&group, item, this]() {
             m_toolbar->setBlockReflection(true);
             for (auto frame : group.keyframes())
@@ -407,8 +421,8 @@ void TimelineWidget::init()
     QmlTimeline currentTimeline = m_timelineView->timelineForState(m_timelineView->currentState());
     if (currentTimeline.isValid()) {
         setTimelineId(currentTimeline.modelNode().id());
-        m_statusBar->setText(tr(TimelineConstants::statusBarPlayheadFrame)
-                             .arg(getcurrentFrame(currentTimeline)));
+        m_statusBar->setText(
+            tr(TimelineConstants::statusBarPlayheadFrame).arg(getcurrentFrame(currentTimeline)));
     } else {
         setTimelineId({});
         m_statusBar->clear();

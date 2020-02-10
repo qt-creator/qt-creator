@@ -59,10 +59,20 @@ PropertyTreeItem *TreeModel::propertyItem(const QModelIndex &index)
 
 CurveItem *TreeModel::curveItem(const QModelIndex &index)
 {
-    if (auto *pti = propertyItem(index)) {
+    if (auto *ti = treeItem(index))
+        return curveItem(ti);
+
+    return nullptr;
+}
+
+CurveItem *TreeModel::curveItem(TreeItem *item)
+{
+    if (auto *pti = item->asPropertyItem()) {
         auto *citem = new CurveItem(pti->id(), pti->curve());
         citem->setValueType(pti->valueType());
         citem->setComponent(pti->component());
+        citem->setLocked(pti->locked());
+        citem->setPinned(pti->pinned());
         return citem;
     }
 

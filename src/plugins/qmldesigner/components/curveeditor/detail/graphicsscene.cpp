@@ -121,6 +121,32 @@ void GraphicsScene::handleMoved(KeyframeItem *frame,
     }
 }
 
+void GraphicsScene::setPinned(int id, bool pinned)
+{
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
+            if (curveItem->id() == id)
+                curveItem->setPinned(pinned);
+        }
+    }
+}
+
+std::vector<CurveItem *> GraphicsScene::takePinnedItems()
+{
+    std::vector<CurveItem *> out;
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
+            if (curveItem->pinned()) {
+                removeItem(curveItem);
+                out.push_back(curveItem);
+            }
+        }
+    }
+    return out;
+}
+
 void GraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     QGraphicsScene::mouseMoveEvent(mouseEvent);

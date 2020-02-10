@@ -76,6 +76,9 @@ QRectF HandleItem::boundingRect() const
 
 void HandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    if (locked())
+        return;
+
     Q_UNUSED(option)
     Q_UNUSED(widget)
 

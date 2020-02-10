@@ -69,6 +69,10 @@ public:
 
     void handleMoved(KeyframeItem *frame, HandleSlot handle, double angle, double deltaLength);
 
+    void setPinned(int id, bool pinned);
+
+    std::vector<CurveItem *> takePinnedItems();
+
 protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 

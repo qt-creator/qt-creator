@@ -29,15 +29,13 @@
 
 namespace DesignTools {
 
-enum ItemType
-{
+enum ItemType {
     ItemTypeKeyframe = QGraphicsItem::UserType + 1,
     ItemTypeHandle = QGraphicsItem::UserType + 2,
     ItemTypeCurve = QGraphicsItem::UserType + 3
 };
 
-enum class SelectionMode : unsigned int
-{
+enum class SelectionMode : unsigned int {
     Undefined,
     Clear,
     New,
@@ -55,9 +53,13 @@ public:
 
     ~SelectableItem() override;
 
+    virtual void setLocked(bool locked);
+
     bool activated() const;
 
     bool selected() const;
+
+    bool locked() const;
 
     void setActivated(bool active);
 
@@ -78,6 +80,8 @@ private:
     bool m_active;
 
     bool m_selected;
+
+    bool m_locked;
 
     SelectionMode m_preSelected;
 };

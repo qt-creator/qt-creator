@@ -52,6 +52,15 @@ void CurveEditorModel::setCurve(unsigned int id, const AnimationCurve &curve)
     }
 }
 
+bool contains(const std::vector<TreeItem::Path> &selection, const TreeItem::Path &path)
+{
+    for (auto &&sel : selection)
+        if (path == sel)
+            return true;
+
+    return false;
+}
+
 void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
 {
     std::vector<TreeItem::Path> sel;
@@ -63,12 +72,23 @@ void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
     initialize();
 
     unsigned int counter = 0;
+    std::vector<CurveItem *> pinned;
+
     for (auto *item : items) {
         item->setId(++counter);
         root()->addChild(item);
+        if (auto *nti = item->asNodeItem()) {
+            for (auto *pti : nti->properties()) {
+                if (pti->pinned() && !contains(sel, pti->path()))
+                    pinned.push_back(TreeModel::curveItem(pti));
+            }
+        }
     }
 
     endResetModel();
+
+    if (!pinned.empty())
+        graphicsView()->reset(pinned);
 
     if (SelectionModel *sm = selectionModel())
         sm->select(sel);

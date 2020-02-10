@@ -94,9 +94,10 @@ void AnimationCurveEditorModel::setTimeline(const QmlTimeline &timeline)
     m_maxTime = timeline.endKeyframe();
 
     std::vector<DesignTools::TreeItem *> items;
-    for (auto &&target : timeline.allTargets())
+    for (auto &&target : timeline.allTargets()) {
         if (DesignTools::TreeItem *item = createTopLevelItem(timeline, target))
             items.push_back(item);
+    }
 
     reset(items);
 }
@@ -113,8 +114,7 @@ void AnimationCurveEditorModel::setMaximumTime(double time)
 
 DesignTools::ValueType typeFrom(const QmlTimelineKeyframeGroup &group)
 {
-    if (group.valueType() == TypeName("double")
-        || group.valueType() == TypeName("real")
+    if (group.valueType() == TypeName("double") || group.valueType() == TypeName("real")
         || group.valueType() == TypeName("float"))
         return DesignTools::ValueType::Double;
 
@@ -140,7 +140,16 @@ DesignTools::TreeItem *AnimationCurveEditorModel::createTopLevelItem(const QmlTi
             DesignTools::AnimationCurve curve = createAnimationCurve(grp);
             if (curve.isValid()) {
                 QString name = QString::fromUtf8(grp.propertyName());
-                nodeItem->addChild(new DesignTools::PropertyTreeItem(name, curve, typeFrom(grp)));
+                auto propertyItem = new DesignTools::PropertyTreeItem(name, curve, typeFrom(grp));
+
+                ModelNode target = grp.modelNode();
+                if (target.hasAuxiliaryData("locked"))
+                    propertyItem->setLocked(true);
+
+                if (target.hasAuxiliaryData("pinned"))
+                    propertyItem->setPinned(true);
+
+                nodeItem->addChild(propertyItem);
             }
         }
     }
