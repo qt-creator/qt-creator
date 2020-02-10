@@ -382,7 +382,7 @@ void AndroidBuildApkStep::doRun()
     }
 
     auto setup = [this] {
-        auto bc = target()->activeBuildConfiguration();
+        auto bc = buildConfiguration();
         const auto androidAbis = AndroidManager::applicationAbis(target());
         for (const auto &abi : androidAbis) {
             Utils::FilePath androidLibsDir = bc->buildDirectory()
