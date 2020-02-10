@@ -132,6 +132,7 @@ private:
     bool allEssentialsInstalled();
     bool sdkToolsOk() const;
     Utils::FilePath getDefaultSdkPath();
+    void showEvent(QShowEvent *event) override;
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
@@ -143,6 +144,7 @@ private:
     QString m_lastAddedAvd;
     std::unique_ptr<AndroidAvdManager> m_avdManager;
     std::unique_ptr<AndroidSdkManager> m_sdkManager;
+    bool m_isInitialReloadDone = false;
 };
 
 enum JavaValidation {
@@ -330,7 +332,21 @@ Utils::FilePath AndroidSettingsWidget::getDefaultSdkPath()
     }
 
     return Utils::FilePath::fromString(
-        QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/Sdk");
+                QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/Sdk");
+}
+
+void AndroidSettingsWidget::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event)
+    if (!m_isInitialReloadDone) {
+        QTimer::singleShot(0, this, &AndroidSettingsWidget::onSdkPathChanged);
+
+        // Reloading SDK packages (force) is still synchronous. Use zero timer
+        // to let settings dialog open first.
+        QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages,
+                                        m_sdkManager.get(), true));
+        m_isInitialReloadDone = true;
+    }
 }
 
 void AndroidSettingsWidget::updateNdkList()
@@ -398,8 +414,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui->OpenJDKLocationPathChooser->setFileName(currentJdkPath);
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
 
-    connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::onSdkPathChanged);
     Utils::FilePath currentSDKPath = m_androidConfig.sdkLocation();
     if (currentSDKPath.isEmpty())
         currentSDKPath = getDefaultSdkPath();
@@ -421,6 +435,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui->downloadOpenJDKToolButton->setIcon(downloadIcon);
     m_ui->sdkToolsAutoDownloadButton->setIcon(Utils::Icons::RELOAD.icon());
 
+    connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::onSdkPathChanged);
     connect(m_ui->ndkListComboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
             [this](const QString) { validateNdk(); });
     connect(&m_virtualDevicesWatcher, &QFutureWatcherBase::finished,
@@ -464,20 +480,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         }
         downloadSdk();
     });
-
-    auto startOneShot = QSharedPointer<QMetaObject::Connection>::create();
-    *startOneShot = connect(m_sdkManager.get(),
-                               &AndroidSdkManager::packageReloadFinished, [this, startOneShot] {
-                                   QObject::disconnect(*startOneShot);
-                                   if (!sdkToolsOk())
-                                       downloadSdk();
-    });
-
-    // Reloading SDK packages (force) is still synchronous. Use zero timer to let settings dialog open
-    // first.
-    QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages, m_sdkManager.get(), true));
-
-    startUpdateAvd();
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
@@ -648,6 +650,7 @@ void AndroidSettingsWidget::validateSdk()
         }
     }
 
+    startUpdateAvd();
     updateNdkList();
     validateNdk();
 }
@@ -769,9 +772,8 @@ void AndroidSettingsWidget::manageAVD()
 
 void AndroidSettingsWidget::downloadSdk()
 {
-    QString message(tr("Android SDK Tools package is not installed. Do you want to download it?\n"
-                       "The final location: ")
-                    + QDir::toNativeSeparators(m_ui->SDKLocationPathChooser->rawPath()));
+    QString message(tr("Do you want to download and install Android SDK Tools to: %1?")
+                        .arg(QDir::toNativeSeparators(m_ui->SDKLocationPathChooser->rawPath())));
     auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
                                               message, QMessageBox::Yes | QMessageBox::No);
     if (userInput == QMessageBox::Yes) {
