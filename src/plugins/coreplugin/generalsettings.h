@@ -26,44 +26,20 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <QPointer>
-
-QT_BEGIN_NAMESPACE
-class QMessageBox;
-QT_END_NAMESPACE
 
 namespace Core {
 namespace Internal {
 
-namespace Ui { class GeneralSettings; }
-
 class GeneralSettings : public IOptionsPage
 {
-    Q_OBJECT
-
 public:
     GeneralSettings();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
 
     bool showShortcutsInContextMenu() const;
     void setShowShortcutsInContextMenu(bool show);
 
 private:
-    void resetInterfaceColor();
-    void resetWarnings();
-    void resetLanguage();
-
-    bool canResetWarnings() const;
-    void fillLanguageBox() const;
-    QString language() const;
-    void setLanguage(const QString&);
-
-    Ui::GeneralSettings *m_page;
-    QPointer<QMessageBox> m_dialog;
-    QPointer<QWidget> m_widget;
+    friend class GeneralSettingsWidget;
     bool m_defaultShowShortcutsInContextMenu;
 };
 

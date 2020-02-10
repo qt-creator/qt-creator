@@ -28,6 +28,8 @@
 #include "icore.h"
 #include "infobar.h"
 
+#include "ui_generalsettings.h"
+
 #include <coreplugin/dialogs/restartdialog.h>
 
 #include <utils/checkablemessagebox.h>
@@ -41,8 +43,6 @@
 #include <QSettings>
 #include <QStyleHints>
 
-#include "ui_generalsettings.h"
-
 using namespace Utils;
 
 namespace Core {
@@ -51,17 +51,62 @@ namespace Internal {
 const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
 const char settingsKeyShortcutsInContextMenu[] = "General/ShowShortcutsInContextMenu";
 
-GeneralSettings::GeneralSettings()
-    : m_page(nullptr), m_dialog(nullptr)
+class GeneralSettingsWidget final : public IOptionsPageWidget
 {
-    setId(Constants::SETTINGS_ID_INTERFACE);
-    setDisplayName(tr("Interface"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", "Environment"));
-    setCategoryIconPath(":/core/images/settingscategory_core.png");
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::GeneralSettings)
 
-    m_defaultShowShortcutsInContextMenu = QGuiApplication::styleHints()
-                                              ->showShortcutsInContextMenus();
+public:
+    explicit GeneralSettingsWidget(GeneralSettings *q);
+
+    void apply() final;
+
+    void resetInterfaceColor();
+    void resetWarnings();
+    void resetLanguage();
+
+    bool canResetWarnings() const;
+    void fillLanguageBox() const;
+    QString language() const;
+    void setLanguage(const QString&);
+
+    GeneralSettings *q;
+    Ui::GeneralSettings m_ui;
+};
+
+GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
+    : q(q)
+{
+    m_ui.setupUi(this);
+
+    fillLanguageBox();
+
+    m_ui.colorButton->setColor(StyleHelper::requestedBaseColor());
+    m_ui.resetWarningsButton->setEnabled(canResetWarnings());
+
+    m_ui.showShortcutsInContextMenus->setText(
+                tr("Show keyboard shortcuts in context menus (default: %1)")
+                .arg(QLatin1String(q->m_defaultShowShortcutsInContextMenu ? "on" : "off")));
+    m_ui.showShortcutsInContextMenus->setChecked(q->showShortcutsInContextMenu());
+#if (QT_VERSION < QT_VERSION_CHECK(5, 13, 0))
+    m_ui.showShortcutsInContextMenus->setVisible(false);
+#endif
+
+    if (Utils::HostOsInfo().isMacHost()) {
+        m_ui.dpiCheckbox->setVisible(false);
+    } else {
+        const bool defaultValue = Utils::HostOsInfo().isWindowsHost();
+        m_ui.dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
+        connect(m_ui.dpiCheckbox, &QCheckBox::toggled, this, [](bool checked) {
+            ICore::settings()->setValue(settingsKeyDPI, checked);
+            QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
+                                     tr("The high DPI settings will take effect after restart."));
+        });
+    }
+
+    connect(m_ui.resetColorButton, &QAbstractButton::clicked,
+            this, &GeneralSettingsWidget::resetInterfaceColor);
+    connect(m_ui.resetWarningsButton, &QAbstractButton::clicked,
+            this, &GeneralSettingsWidget::resetWarnings);
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)
@@ -72,92 +117,43 @@ static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrP
     return QFile::exists(qtTrPath + trFile) || QFile::exists(creatorTrPath + trFile);
 }
 
-void GeneralSettings::fillLanguageBox() const
+void GeneralSettingsWidget::fillLanguageBox() const
 {
     const QString currentLocale = language();
 
-    m_page->languageBox->addItem(tr("<System Language>"), QString());
+    m_ui.languageBox->addItem(tr("<System Language>"), QString());
     // need to add this explicitly, since there is no qm file for English
-    m_page->languageBox->addItem(QLatin1String("English"), QLatin1String("C"));
+    m_ui.languageBox->addItem(QLatin1String("English"), QLatin1String("C"));
     if (currentLocale == QLatin1String("C"))
-        m_page->languageBox->setCurrentIndex(m_page->languageBox->count() - 1);
+        m_ui.languageBox->setCurrentIndex(m_ui.languageBox->count() - 1);
 
     const QString creatorTrPath = ICore::resourcePath() + QLatin1String("/translations");
     const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("qtcreator*.qm")));
 
-    foreach (const QString &languageFile, languageFiles) {
-        int start = languageFile.indexOf(QLatin1Char('_'))+1;
-        int end = languageFile.lastIndexOf(QLatin1Char('.'));
+    for (const QString &languageFile : languageFiles) {
+        int start = languageFile.indexOf('_') + 1;
+        int end = languageFile.lastIndexOf('.');
         const QString locale = languageFile.mid(start, end-start);
         // no need to show a language that creator will not load anyway
         if (hasQmFilesForLocale(locale, creatorTrPath)) {
             QLocale tmpLocale(locale);
             QString languageItem = QLocale::languageToString(tmpLocale.language()) + QLatin1String(" (")
                                    + QLocale::countryToString(tmpLocale.country()) + QLatin1Char(')');
-            m_page->languageBox->addItem(languageItem, locale);
+            m_ui.languageBox->addItem(languageItem, locale);
             if (locale == currentLocale)
-                m_page->languageBox->setCurrentIndex(m_page->languageBox->count() - 1);
+                m_ui.languageBox->setCurrentIndex(m_ui.languageBox->count() - 1);
         }
     }
 }
 
-QWidget *GeneralSettings::widget()
+void GeneralSettingsWidget::apply()
 {
-    if (!m_widget) {
-        m_page = new Ui::GeneralSettings();
-        m_widget = new QWidget;
-        m_page->setupUi(m_widget);
-
-        fillLanguageBox();
-
-        m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
-        m_page->resetWarningsButton->setEnabled(canResetWarnings());
-
-        m_page->showShortcutsInContextMenus->setText(
-            tr("Show keyboard shortcuts in context menus (default: %1)")
-                .arg(QLatin1String(m_defaultShowShortcutsInContextMenu ? "on" : "off")));
-        m_page->showShortcutsInContextMenus->setChecked(showShortcutsInContextMenu());
-#if (QT_VERSION < QT_VERSION_CHECK(5, 13, 0))
-        m_page->showShortcutsInContextMenus->setVisible(false);
-#endif
-
-        if (Utils::HostOsInfo().isMacHost()) {
-            m_page->dpiCheckbox->setVisible(false);
-        } else {
-            const bool defaultValue = Utils::HostOsInfo().isWindowsHost();
-            m_page->dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
-            connect(m_page->dpiCheckbox, &QCheckBox::toggled, this, [](bool checked) {
-                ICore::settings()->setValue(settingsKeyDPI, checked);
-                QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
-                                         tr("The high DPI settings will take effect after restart."));
-            });
-        }
-
-        connect(m_page->resetColorButton, &QAbstractButton::clicked,
-                this, &GeneralSettings::resetInterfaceColor);
-        connect(m_page->resetWarningsButton, &QAbstractButton::clicked,
-                this, &GeneralSettings::resetWarnings);
-    }
-    return m_widget;
-}
-
-void GeneralSettings::apply()
-{
-    if (!m_page) // wasn't shown, can't be changed
-        return;
-    int currentIndex = m_page->languageBox->currentIndex();
-    setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
-    setShowShortcutsInContextMenu(m_page->showShortcutsInContextMenus->isChecked());
+    int currentIndex = m_ui.languageBox->currentIndex();
+    setLanguage(m_ui.languageBox->itemData(currentIndex, Qt::UserRole).toString());
+    q->setShowShortcutsInContextMenu(m_ui.showShortcutsInContextMenus->isChecked());
     // Apply the new base color if accepted
-    StyleHelper::setBaseColor(m_page->colorButton->color());
-    m_page->themeChooser->apply();
-}
-
-void GeneralSettings::finish()
-{
-    delete m_widget;
-    delete m_page;
-    m_page = nullptr;
+    StyleHelper::setBaseColor(m_ui.colorButton->color());
+    m_ui.themeChooser->apply();
 }
 
 bool GeneralSettings::showShortcutsInContextMenu() const
@@ -168,37 +164,37 @@ bool GeneralSettings::showShortcutsInContextMenu() const
         .toBool();
 }
 
-void GeneralSettings::resetInterfaceColor()
+void GeneralSettingsWidget::resetInterfaceColor()
 {
-    m_page->colorButton->setColor(StyleHelper::DEFAULT_BASE_COLOR);
+    m_ui.colorButton->setColor(StyleHelper::DEFAULT_BASE_COLOR);
 }
 
-void GeneralSettings::resetWarnings()
+void GeneralSettingsWidget::resetWarnings()
 {
     InfoBar::clearGloballySuppressed();
     CheckableMessageBox::resetAllDoNotAskAgainQuestions(ICore::settings());
-    m_page->resetWarningsButton->setEnabled(false);
+    m_ui.resetWarningsButton->setEnabled(false);
 }
 
-bool GeneralSettings::canResetWarnings() const
+bool GeneralSettingsWidget::canResetWarnings() const
 {
     return InfoBar::anyGloballySuppressed()
         || CheckableMessageBox::hasSuppressedQuestions(ICore::settings());
 }
 
-void GeneralSettings::resetLanguage()
+void GeneralSettingsWidget::resetLanguage()
 {
     // system language is default
-    m_page->languageBox->setCurrentIndex(0);
+    m_ui.languageBox->setCurrentIndex(0);
 }
 
-QString GeneralSettings::language() const
+QString GeneralSettingsWidget::language() const
 {
     QSettings *settings = ICore::settings();
     return settings->value(QLatin1String("General/OverrideLanguage")).toString();
 }
 
-void GeneralSettings::setLanguage(const QString &locale)
+void GeneralSettingsWidget::setLanguage(const QString &locale)
 {
     QSettings *settings = ICore::settings();
     if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale) {
@@ -222,6 +218,19 @@ void GeneralSettings::setShowShortcutsInContextMenu(bool show)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
     QGuiApplication::styleHints()->setShowShortcutsInContextMenus(show);
 #endif
+}
+
+GeneralSettings::GeneralSettings()
+{
+    setId(Constants::SETTINGS_ID_INTERFACE);
+    setDisplayName(GeneralSettingsWidget::tr("Interface"));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setDisplayCategory(QCoreApplication::translate("Core", "Environment"));
+    setCategoryIconPath(":/core/images/settingscategory_core.png");
+    setWidgetCreator([this] { return new GeneralSettingsWidget(this); });
+
+    m_defaultShowShortcutsInContextMenu = QGuiApplication::styleHints()
+                                              ->showShortcutsInContextMenus();
 }
 
 } // namespace Internal
