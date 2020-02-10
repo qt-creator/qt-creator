@@ -1055,32 +1055,40 @@ void Client::handleResponse(const MessageId &id, const QByteArray &content, QTex
 void Client::handleMethod(const QString &method, MessageId id, const IContent *content)
 {
     ErrorHierarchy error;
-    bool paramsValid = true;
+    auto logError = [&](const JsonObject &content) {
+        log(QJsonDocument(content).toJson(QJsonDocument::Indented) + '\n'
+                + tr("Invalid parameter in \"%1\": %2").arg(method, error.toString()),
+            Core::MessageManager::Flash);
+    };
+
     if (method == PublishDiagnosticsNotification::methodName) {
         auto params = dynamic_cast<const PublishDiagnosticsNotification *>(content)->params().value_or(PublishDiagnosticsParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid)
+        if (params.isValid(&error))
             handleDiagnostics(params);
+        else
+            logError(params);
     } else if (method == LogMessageNotification::methodName) {
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid)
+        if (params.isValid(&error))
             log(params, Core::MessageManager::Flash);
+        else
+            logError(params);
     } else if (method == SemanticHighlightNotification::methodName) {
         auto params = dynamic_cast<const SemanticHighlightNotification *>(content)->params().value_or(SemanticHighlightingParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid)
+        if (params.isValid(&error))
             handleSemanticHighlight(params);
+        else
+            logError(params);
     } else if (method == ShowMessageNotification::methodName) {
         auto params = dynamic_cast<const ShowMessageNotification *>(content)->params().value_or(ShowMessageParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid)
+        if (params.isValid(&error))
             log(params);
+        else
+            logError(params);
     } else if (method == ShowMessageRequest::methodName) {
         auto request = dynamic_cast<const ShowMessageRequest *>(content);
         auto params = request->params().value_or(ShowMessageRequestParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid) {
+        if (params.isValid(&error)) {
             showMessageBox(params, request->id());
         } else {
             ShowMessageRequest::Response response(request->id());
@@ -1095,19 +1103,22 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         }
     } else if (method == RegisterCapabilityRequest::methodName) {
         auto params = dynamic_cast<const RegisterCapabilityRequest *>(content)->params().value_or(RegistrationParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid)
+        if (params.isValid(&error))
             m_dynamicCapabilities.registerCapability(params.registrations());
+        else
+            logError(params);
     } else if (method == UnregisterCapabilityRequest::methodName) {
         auto params = dynamic_cast<const UnregisterCapabilityRequest *>(content)->params().value_or(UnregistrationParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid)
+        if (params.isValid(&error))
             m_dynamicCapabilities.unregisterCapability(params.unregistrations());
+        else
+            logError(params);
     } else if (method == ApplyWorkspaceEditRequest::methodName) {
         auto params = dynamic_cast<const ApplyWorkspaceEditRequest *>(content)->params().value_or(ApplyWorkspaceEditParams());
-        paramsValid = params.isValid(&error);
-        if (paramsValid)
+        if (params.isValid(&error))
             applyWorkspaceEdit(params.edit());
+        else
+            logError(params);
     } else if (method == WorkSpaceFolderRequest::methodName) {
         WorkSpaceFolderRequest::Response response(dynamic_cast<const WorkSpaceFolderRequest *>(content)->id());
         const QList<ProjectExplorer::Project *> projects
@@ -1129,10 +1140,6 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         error.setCode(ResponseError<JsonObject>::MethodNotFound);
         response.setError(error);
         sendContent(response);
-    }
-    if (!paramsValid) {
-        log(tr("Invalid parameter in \"%1\": %2").arg(method, error.toString()),
-            Core::MessageManager::Flash);
     }
     delete content;
 }
@@ -1210,8 +1217,10 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
     } else {
         const InitializeResult &result = _result.value();
         ErrorHierarchy error;
-        if (!result.isValid(&error)) // continue on ill formed result
-            log(tr("Initialize result is not valid: ") + error.toString());
+        if (!result.isValid(&error)) { // continue on ill formed result
+            log(QJsonDocument(result).toJson(QJsonDocument::Indented) + '\n'
+                + tr("Initialize result is not valid: ") + error.toString());
+        }
 
         m_serverCapabilities = result.capabilities().value_or(ServerCapabilities());
     }
