@@ -1205,9 +1205,9 @@ QmakeProFile::~QmakeProFile()
     qDeleteAll(m_extraCompilers);
     m_parseFutureWatcher->cancel();
     m_parseFutureWatcher->waitForFinished();
-    delete m_parseFutureWatcher;
     if (m_readerExact)
         applyAsyncEvaluate();
+    delete m_parseFutureWatcher;
 
     cleanupProFileReaders();
 }
