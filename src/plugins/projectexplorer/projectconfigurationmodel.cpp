@@ -116,7 +116,7 @@ QVariant ProjectConfigurationModel::data(const QModelIndex &index, int role) con
     if (role == Qt::DisplayRole) {
         const int row = index.row();
         if (row < m_projectConfigurations.size())
-            return m_projectConfigurations.at(row)->displayName();
+            return m_projectConfigurations.at(row)->expandedDisplayName();
     }
 
     return QVariant();

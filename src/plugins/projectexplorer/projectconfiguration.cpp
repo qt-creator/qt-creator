@@ -144,3 +144,8 @@ Utils::Id ProjectExplorer::idFromMap(const QVariantMap &map)
 {
     return Utils::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
 }
+
+QString ProjectConfiguration::expandedDisplayName() const
+{
+    return m_target->macroExpander()->expand(m_displayName.value());
+}

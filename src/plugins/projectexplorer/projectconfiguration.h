@@ -56,6 +56,7 @@ public:
     Utils::Id id() const;
 
     QString displayName() const { return m_displayName.value(); }
+    QString expandedDisplayName() const;
     bool usesDefaultDisplayName() const { return m_displayName.usesDefaultValue(); }
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
