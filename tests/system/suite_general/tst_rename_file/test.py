@@ -58,11 +58,8 @@ def main():
         previous = filenames[-1]
         for filename in filenames:
             tempFiletype = filetype
-            if (filetype == "Resources" and previous in ("test", "TEST")
-                or filetype == "QML" and not previous.endswith(".qml")):
+            if filetype == "QML" and not previous.endswith(".qml"):
                 tempFiletype = "Other files"
-            elif filetype == "Sources" and previous in ("test", "TEST"):
-                tempFiletype = "Headers"
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        previous, filename)
             # QTCREATORBUG-13176 does update the navigator async
@@ -114,7 +111,7 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
                 "Verify that file with new name exists: %s" % newFilePath)
     test.compare(readFile(newFilePath), oldFileText,
                  "Comparing content of file before and after renaming")
-    test.verify(waitFor("newname in safeReadFile(proFile)", 2000),
+    test.verify(waitFor("' ' + newname in safeReadFile(proFile)", 2000),
                 "Verify that new filename '%s' was added to pro-file." % newname)
     if oldname not in newname:
         test.verify(oldname not in readFile(proFile),
