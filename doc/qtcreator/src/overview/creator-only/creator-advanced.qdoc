@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -96,6 +96,12 @@
             tools to the \uicontrol Issues output pane. You can navigate to the
             corresponding source code by clicking the error message or by using
             keyboard shortcuts.
+
+        \li \l{Managing Data Collection Settings}
+
+            If you agreed to pseudonymous data collection during \QC
+            installation, you can turn it on and determine what type
+            of data is collected and transmitted to the backend storage.
 
     \endlist
 

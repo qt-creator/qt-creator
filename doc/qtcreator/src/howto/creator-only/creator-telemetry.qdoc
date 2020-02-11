@@ -1,0 +1,79 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-task-lists.html
+    \page creator-telemetry.html
+    \nextpage creator-help-overview.html
+
+    \title Managing Data Collection Settings
+
+    When you install \QC as a part of Qt installation, you are asked whether
+    you allow it to collect pseudonymous information about your system and \QC
+    use. If you decline, the plugin is not installed and no analytics data is
+    collected.
+
+    If you accept, all collected and transmitted data is fully transparent to
+    you. You can change the settings for collecting and transmitting data any
+    time. By default, no data is collected and you have to select a telemetry
+    mode for data collection to begin.
+
+    \section1 Principles of Data Collection
+
+    The Telemetry plugin uses the
+    \l{https://api.kde.org/frameworks/kuserfeedback/html/index.html}
+    {KUserFeedback} framework to collect the usage data. The library
+    has been designed from the user data privacy point of view and
+    \QC respects the same privacy rules.
+
+    No personal data, such as names, IP addresses, MAC addresses, or project
+    and path names are collected. However, QUuid objects are used to identify
+    data records that belong to one user. The objects cannot be converted
+    back to the actual values from which they were generated.
+
+    The data is transmitted to the backend storage using an encrypted
+    connection. The storage is located in the same Heroku backend as the
+    Qt installer backend. Physically, data is stored in the Amazon cloud.
+
+    \section1 Specifying Telemetry Settings
+
+    To determine what data is transmitted to the backend storage:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Telemetry
+            > \uicontrol {Usage Statistics}.
+            \image qtcreator-telemetry-settings.png
+        \li In the \uicontrol {Telemetry mode} list, select the mode that
+            determines what kind of data is collected.
+        \li In the \uicontrol {Data sources} list, select entries to view
+            exactly what data is collected. Deselect check boxes for data
+            that you do not want to transmit to the backend storage.
+    \endlist
+
+    For more information about Qt privacy policy, select
+    \l{https://www.qt.io/terms-conditions/#privacy}
+    {Legal Notice and Privacy Policy}.
+*/

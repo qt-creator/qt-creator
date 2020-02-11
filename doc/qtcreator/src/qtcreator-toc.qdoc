@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -222,6 +222,7 @@
             \li \l{Keyboard Shortcuts}
             \li \l{Using External Tools}
             \li \l{Showing Task List Files in Issues Pane}
+            \li \l{Managing Data Collection Settings}
         \endlist
         \li  \l{Getting Help}
         \list
