@@ -45,7 +45,7 @@ namespace Internal {
 
 class ActionHandler::ActionHandlerPrivate {
 public:
-    Core::Context context;
+    Core::Context context{Constants::MODEL_EDITOR_ID};
     QAction *undoAction = nullptr;
     QAction *redoAction = nullptr;
     QAction *cutAction = nullptr;
@@ -60,11 +60,9 @@ public:
     QAction *exportSelectedElementsAction = nullptr;
 };
 
-ActionHandler::ActionHandler(const Core::Context &context, QObject *parent)
-    : QObject(parent),
-      d(new ActionHandlerPrivate)
+ActionHandler::ActionHandler()
+    : d(new ActionHandlerPrivate)
 {
-    d->context = context;
 }
 
 ActionHandler::~ActionHandler()

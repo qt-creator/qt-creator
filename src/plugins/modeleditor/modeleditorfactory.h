@@ -37,14 +37,7 @@ class UiController;
 class ModelEditorFactory : public Core::IEditorFactory
 {
 public:
-    explicit ModelEditorFactory(UiController *uiController);
-    ~ModelEditorFactory();
-
-    void extensionsInitialized();
-
-private:
-    UiController *m_uiController = nullptr;
-    ActionHandler *m_actionHandler = nullptr;
+    ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler);
 };
 
 } // namespace Internal
