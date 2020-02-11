@@ -61,20 +61,6 @@ NimbleRunConfiguration::NimbleRunConfiguration(ProjectExplorer::Target *target, 
     update();
 }
 
-bool NimbleRunConfiguration::isBuildTargetValid() const
-{
-    return Utils::anyOf(target()->applicationTargets(), [this](const BuildTargetInfo &bti) {
-        return bti.buildKey == buildKey();
-    });
-}
-
-QString NimbleRunConfiguration::disabledReason() const
-{
-    if (!isBuildTargetValid())
-        return tr("The project no longer builds the target associated with this run configuration.");
-    return RunConfiguration::disabledReason();
-}
-
 NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
     : RunConfigurationFactory()
 {

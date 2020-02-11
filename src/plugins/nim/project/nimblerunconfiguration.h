@@ -35,11 +35,6 @@ class NimbleRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     NimbleRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-    QString disabledReason() const override;
-
-private:
-    bool isBuildTargetValid() const;
 };
 
 class NimbleRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
