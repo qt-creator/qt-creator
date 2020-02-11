@@ -29,6 +29,7 @@
 #include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythonrunconfiguration.h"
+#include "pythonutils.h"
 
 #include <coreplugin/fileiconprovider.h>
 
@@ -105,6 +106,9 @@ void PythonPlugin::extensionsInitialized()
     Core::FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
     TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
+
+    connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
+            this, &PyLSConfigureAssistant::documentOpened);
 }
 
 } // namespace Internal

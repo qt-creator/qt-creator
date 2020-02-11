@@ -53,9 +53,6 @@ PythonEditorFactory::PythonEditorFactory()
     setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
-
-    connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
-            this, &PyLSConfigureAssistant::documentOpened);
 }
 
 } // namespace Internal

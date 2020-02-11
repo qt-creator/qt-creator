@@ -444,6 +444,7 @@ PyLSConfigureAssistant::PyLSConfigureAssistant(QObject *parent)
     : QObject(parent)
 {
     Core::EditorManager::instance();
+
     connect(Core::EditorManager::instance(),
             &Core::EditorManager::documentClosed,
             this,
