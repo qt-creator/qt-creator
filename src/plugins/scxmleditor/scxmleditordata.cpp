@@ -87,8 +87,7 @@ public:
     }
 };
 
-ScxmlEditorData::ScxmlEditorData(QObject *parent)
-    : QObject(parent)
+ScxmlEditorData::ScxmlEditorData()
 {
     m_contexts.add(ScxmlEditor::Constants::C_SCXMLEDITOR);
 
