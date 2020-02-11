@@ -47,8 +47,8 @@ def switchViewTo(view):
                              "window=':Qt Creator_Core::Internal::MainWindow'}"), 20, 20 + 52 * view, 0, Qt.LeftButton)
 
 def __kitIsActivated__(kit):
-    return not (str(kit.toolTip).startswith("<h3>Click to activate:</h3>")
-                or str(kit.toolTip).startswith("<h3>Kit is unsuited for project</h3>"))
+    return not ("<h3>Click to activate</h3>" in str(kit.toolTip)
+                or "<h3>Kit is unsuited for project</h3>" in str(kit.toolTip))
 
 # returns a list of the IDs (see class Targets) of all kits
 #        which are currently configured for the active project
