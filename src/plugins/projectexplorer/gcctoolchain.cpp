@@ -265,7 +265,7 @@ static Utils::FilePath gccInstallDir(const FilePath &path, const QStringList &en
 GccToolChain::GccToolChain(Core::Id typeId) :
     ToolChain(typeId)
 {
-    setTypeDisplayName(GccToolChainFactory::tr("GCC"));
+    setTypeDisplayName(tr("GCC"));
 }
 
 void GccToolChain::setCompilerCommand(const FilePath &path)
@@ -1045,7 +1045,7 @@ static Utils::FilePaths renesasRl78SearchPathsFromRegistry()
 
 GccToolChainFactory::GccToolChainFactory()
 {
-    setDisplayName(tr("GCC"));
+    setDisplayName(GccToolChain::tr("GCC"));
     setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new GccToolChain(Constants::GCC_TOOLCHAIN_TYPEID); });
@@ -1472,7 +1472,7 @@ ClangToolChain::ClangToolChain() :
 ClangToolChain::ClangToolChain(Core::Id typeId) :
     GccToolChain(typeId)
 {
-    setTypeDisplayName(ClangToolChainFactory::tr("Clang"));
+    setTypeDisplayName(tr("Clang"));
     syncAutodetectedWithParentToolchains();
 }
 
@@ -1639,7 +1639,7 @@ IOutputParser *ClangToolChain::outputParser() const
 
 ClangToolChainFactory::ClangToolChainFactory()
 {
-    setDisplayName(tr("Clang"));
+    setDisplayName(ClangToolChain::tr("Clang"));
     setSupportedToolChainType(Constants::CLANG_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new ClangToolChain; });
@@ -1798,7 +1798,7 @@ void ClangToolChainConfigWidget::makeReadOnlyImpl()
 MingwToolChain::MingwToolChain() :
     GccToolChain(Constants::MINGW_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(MingwToolChainFactory::tr("MinGW"));
+    setTypeDisplayName(MingwToolChain::tr("MinGW"));
 }
 
 QStringList MingwToolChain::suggestedMkspecList() const
@@ -1833,7 +1833,7 @@ FilePath MingwToolChain::makeCommand(const Environment &environment) const
 
 MingwToolChainFactory::MingwToolChainFactory()
 {
-    setDisplayName(tr("MinGW"));
+    setDisplayName(MingwToolChain::tr("MinGW"));
     setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new MingwToolChain; });
@@ -1873,7 +1873,7 @@ QList<ToolChain *> MingwToolChainFactory::detectForImport(const ToolChainDescrip
 LinuxIccToolChain::LinuxIccToolChain() :
     GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(LinuxIccToolChainFactory::tr("ICC"));
+    setTypeDisplayName(LinuxIccToolChain::tr("ICC"));
 }
 
 /**
@@ -1914,7 +1914,7 @@ QStringList LinuxIccToolChain::suggestedMkspecList() const
 
 LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 {
-    setDisplayName(tr("ICC"));
+    setDisplayName(LinuxIccToolChain::tr("ICC"));
     setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new LinuxIccToolChain; });

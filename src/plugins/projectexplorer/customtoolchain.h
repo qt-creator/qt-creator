@@ -135,8 +135,6 @@ namespace Internal {
 
 class CustomToolChainFactory : public ToolChainFactory
 {
-    Q_OBJECT
-
 public:
     CustomToolChainFactory();
 };

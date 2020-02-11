@@ -32,6 +32,8 @@ namespace Nim {
 
 class NimToolChain : public ProjectExplorer::ToolChain
 {
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimToolChain)
+
 public:
     NimToolChain();
     explicit NimToolChain(Core::Id typeId);

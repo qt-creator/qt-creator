@@ -106,7 +106,7 @@ QnxToolChain::QnxToolChain()
     : GccToolChain(Constants::QNX_TOOLCHAIN_ID)
 {
     setOptionsReinterpreter(&reinterpretOptions);
-    setTypeDisplayName(QnxToolChainFactory::tr("QCC"));
+    setTypeDisplayName(tr("QCC"));
 }
 
 std::unique_ptr<ToolChainConfigWidget> QnxToolChain::createConfigurationWidget()
@@ -204,7 +204,7 @@ bool QnxToolChain::operator ==(const ToolChain &other) const
 
 QnxToolChainFactory::QnxToolChainFactory()
 {
-    setDisplayName(tr("QCC"));
+    setDisplayName(QnxToolChain::tr("QCC"));
     setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});

@@ -85,7 +85,7 @@ CustomToolChain::CustomToolChain() :
     ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID),
     m_outputParserId(GccParser::id())
 {
-    setTypeDisplayName(Internal::CustomToolChainFactory::tr("Custom"));
+    setTypeDisplayName(tr("Custom"));
 }
 
 Abi CustomToolChain::targetAbi() const
@@ -405,7 +405,7 @@ namespace Internal {
 
 CustomToolChainFactory::CustomToolChainFactory()
 {
-    setDisplayName(tr("Custom"));
+    setDisplayName(CustomToolChain::tr("Custom"));
     setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
     setSupportsAllLanguages(true);
     setToolchainConstructor([] { return new CustomToolChain; });

@@ -97,8 +97,6 @@ private:
 
 class SdccToolChainFactory final : public ProjectExplorer::ToolChainFactory
 {
-    Q_OBJECT
-
 public:
     SdccToolChainFactory();
 

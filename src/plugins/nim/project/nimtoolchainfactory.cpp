@@ -42,7 +42,7 @@ namespace Nim {
 
 NimToolChainFactory::NimToolChainFactory()
 {
-    setDisplayName(tr("Nim"));
+    setDisplayName(NimToolChain::tr("Nim"));
     setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_NIMLANGUAGE_ID});
     setToolchainConstructor([] { return new NimToolChain; });

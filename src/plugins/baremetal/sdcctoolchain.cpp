@@ -217,7 +217,7 @@ static Utils::FilePath compilerPathFromEnvironment(const QString &compilerName)
 SdccToolChain::SdccToolChain() :
     ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(Internal::SdccToolChainFactory::tr("SDCC"));
+    setTypeDisplayName(Internal::SdccToolChain::tr("SDCC"));
 }
 
 void SdccToolChain::setTargetAbi(const Abi &abi)
@@ -368,7 +368,7 @@ FilePath SdccToolChain::makeCommand(const Environment &env) const
 
 SdccToolChainFactory::SdccToolChainFactory()
 {
-    setDisplayName(tr("SDCC"));
+    setDisplayName(SdccToolChain::tr("SDCC"));
     setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new SdccToolChain; });

@@ -53,6 +53,8 @@ namespace Internal {
 
 class MsvcToolChain : public ToolChain
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::MsvcToolChain)
+
 public:
     enum Type { WindowsSDK, VS };
     enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86 };
@@ -166,6 +168,8 @@ protected:
 
 class PROJECTEXPLORER_EXPORT ClangClToolChain : public MsvcToolChain
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::ClangClToolChain)
+
 public:
     ClangClToolChain();
 
@@ -202,8 +206,6 @@ private:
 
 class MsvcToolChainFactory : public ToolChainFactory
 {
-    Q_OBJECT
-
 public:
     MsvcToolChainFactory();
 
@@ -218,8 +220,6 @@ public:
 
 class ClangClToolChainFactory : public ToolChainFactory
 {
-    Q_OBJECT
-
 public:
     ClangClToolChainFactory();
 

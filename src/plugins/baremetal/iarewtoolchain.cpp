@@ -238,8 +238,7 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 {
     const auto archName = Abi::toString(arch);
     const auto langName = ToolChainManager::displayNameOfLanguageId(language);
-    return IarToolChain::tr("IAREW %1 (%2, %3)")
-            .arg(version, langName, archName);
+    return IarToolChain::tr("IAREW %1 (%2, %3)").arg(version, langName, archName);
 }
 
 // IarToolChain
@@ -247,7 +246,7 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 IarToolChain::IarToolChain() :
     ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(Internal::IarToolChainFactory::tr("IAREW"));
+    setTypeDisplayName(Internal::IarToolChain::tr("IAREW"));
 }
 
 void IarToolChain::setTargetAbi(const Abi &abi)
@@ -416,7 +415,7 @@ FilePath IarToolChain::makeCommand(const Environment &env) const
 
 IarToolChainFactory::IarToolChainFactory()
 {
-    setDisplayName(tr("IAREW"));
+    setDisplayName(IarToolChain::tr("IAREW"));
     setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});

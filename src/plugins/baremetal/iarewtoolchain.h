@@ -96,8 +96,6 @@ private:
 
 class IarToolChainFactory final : public ProjectExplorer::ToolChainFactory
 {
-    Q_OBJECT
-
 public:
     IarToolChainFactory();
 

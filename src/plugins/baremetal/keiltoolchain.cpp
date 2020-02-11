@@ -230,19 +230,19 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 {
     const auto archName = Abi::toString(arch);
     const auto langName = ToolChainManager::displayNameOfLanguageId(language);
-    return KeilToolchain::tr("KEIL %1 (%2, %3)")
+    return KeilToolChain::tr("KEIL %1 (%2, %3)")
             .arg(version, langName, archName);
 }
 
 // KeilToolchain
 
-KeilToolchain::KeilToolchain() :
+KeilToolChain::KeilToolChain() :
     ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(Internal::KeilToolchainFactory::tr("KEIL"));
+    setTypeDisplayName(tr("KEIL"));
 }
 
-void KeilToolchain::setTargetAbi(const Abi &abi)
+void KeilToolChain::setTargetAbi(const Abi &abi)
 {
     if (abi == m_targetAbi)
         return;
@@ -250,17 +250,17 @@ void KeilToolchain::setTargetAbi(const Abi &abi)
     toolChainUpdated();
 }
 
-Abi KeilToolchain::targetAbi() const
+Abi KeilToolChain::targetAbi() const
 {
     return m_targetAbi;
 }
 
-bool KeilToolchain::isValid() const
+bool KeilToolChain::isValid() const
 {
     return true;
 }
 
-ToolChain::MacroInspectionRunner KeilToolchain::createMacroInspectionRunner() const
+ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
@@ -282,23 +282,23 @@ ToolChain::MacroInspectionRunner KeilToolchain::createMacroInspectionRunner() co
     };
 }
 
-Macros KeilToolchain::predefinedMacros(const QStringList &cxxflags) const
+Macros KeilToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
     return createMacroInspectionRunner()(cxxflags).macros;
 }
 
-Utils::LanguageExtensions KeilToolchain::languageExtensions(const QStringList &) const
+Utils::LanguageExtensions KeilToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
 }
 
-WarningFlags KeilToolchain::warningFlags(const QStringList &cxxflags) const
+WarningFlags KeilToolChain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
     return WarningFlags::Default;
 }
 
-ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunner(
+ToolChain::BuiltInHeaderPathsRunner KeilToolChain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
     const Utils::FilePath compilerCommand = m_compilerCommand;
@@ -317,14 +317,14 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunne
     };
 }
 
-HeaderPaths KeilToolchain::builtInHeaderPaths(const QStringList &cxxFlags,
+HeaderPaths KeilToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
                                               const FilePath &fileName,
                                               const Environment &env) const
 {
     return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
 }
 
-void KeilToolchain::addToEnvironment(Environment &env) const
+void KeilToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {
         const FilePath path = m_compilerCommand.parentDir();
@@ -332,12 +332,12 @@ void KeilToolchain::addToEnvironment(Environment &env) const
     }
 }
 
-IOutputParser *KeilToolchain::outputParser() const
+IOutputParser *KeilToolChain::outputParser() const
 {
     return new KeilParser;
 }
 
-QVariantMap KeilToolchain::toMap() const
+QVariantMap KeilToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
     data.insert(compilerCommandKeyC, m_compilerCommand.toString());
@@ -345,7 +345,7 @@ QVariantMap KeilToolchain::toMap() const
     return data;
 }
 
-bool KeilToolchain::fromMap(const QVariantMap &data)
+bool KeilToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
@@ -354,23 +354,23 @@ bool KeilToolchain::fromMap(const QVariantMap &data)
     return true;
 }
 
-std::unique_ptr<ToolChainConfigWidget> KeilToolchain::createConfigurationWidget()
+std::unique_ptr<ToolChainConfigWidget> KeilToolChain::createConfigurationWidget()
 {
-    return std::make_unique<KeilToolchainConfigWidget>(this);
+    return std::make_unique<KeilToolChainConfigWidget>(this);
 }
 
-bool KeilToolchain::operator ==(const ToolChain &other) const
+bool KeilToolChain::operator ==(const ToolChain &other) const
 {
     if (!ToolChain::operator ==(other))
         return false;
 
-    const auto customTc = static_cast<const KeilToolchain *>(&other);
+    const auto customTc = static_cast<const KeilToolChain *>(&other);
     return m_compilerCommand == customTc->m_compilerCommand
             && m_targetAbi == customTc->m_targetAbi
             ;
 }
 
-void KeilToolchain::setCompilerCommand(const FilePath &file)
+void KeilToolChain::setCompilerCommand(const FilePath &file)
 {
     if (file == m_compilerCommand)
         return;
@@ -378,12 +378,12 @@ void KeilToolchain::setCompilerCommand(const FilePath &file)
     toolChainUpdated();
 }
 
-FilePath KeilToolchain::compilerCommand() const
+FilePath KeilToolChain::compilerCommand() const
 {
     return m_compilerCommand;
 }
 
-FilePath KeilToolchain::makeCommand(const Environment &env) const
+FilePath KeilToolChain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     return {};
@@ -391,13 +391,13 @@ FilePath KeilToolchain::makeCommand(const Environment &env) const
 
 // KeilToolchainFactory
 
-KeilToolchainFactory::KeilToolchainFactory()
+KeilToolChainFactory::KeilToolChainFactory()
 {
-    setDisplayName(tr("KEIL"));
+    setDisplayName(KeilToolChain::tr("KEIL"));
     setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-    setToolchainConstructor([] { return new KeilToolchain; });
+    setToolchainConstructor([] { return new KeilToolChain; });
     setUserCreatable(true);
 }
 
@@ -445,7 +445,7 @@ static QString extractVersion(const QString &toolsFile, const QString &section)
     return {};
 }
 
-QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
 #ifdef Q_OS_WIN64
     static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\" \
@@ -492,7 +492,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &al
     return autoDetectToolchains(candidates, alreadyKnown);
 }
 
-QList<ToolChain *> KeilToolchainFactory::autoDetectToolchains(
+QList<ToolChain *> KeilToolChainFactory::autoDetectToolchains(
         const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
 {
     QList<ToolChain *> result;
@@ -519,7 +519,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetectToolchains(
     return result;
 }
 
-QList<ToolChain *> KeilToolchainFactory::autoDetectToolchain(
+QList<ToolChain *> KeilToolChainFactory::autoDetectToolchain(
         const Candidate &candidate, Core::Id language) const
 {
     const auto env = Environment::systemEnvironment();
@@ -535,7 +535,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetectToolchain(
         return {};
     }
 
-    const auto tc = new KeilToolchain;
+    const auto tc = new KeilToolChain;
     tc->setDetection(ToolChain::AutoDetection);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
@@ -549,7 +549,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetectToolchain(
 
 // KeilToolchainConfigWidget
 
-KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
+KeilToolChainConfigWidget::KeilToolChainConfigWidget(KeilToolChain *tc) :
     ToolChainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
     m_abiWidget(new AbiWidget)
@@ -562,20 +562,20 @@ KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
     m_abiWidget->setEnabled(false);
 
     addErrorLabel();
-    setFromToolchain();
+    setFromToolChain();
 
     connect(m_compilerCommand, &PathChooser::rawPathChanged,
-            this, &KeilToolchainConfigWidget::handleCompilerCommandChange);
+            this, &KeilToolChainConfigWidget::handleCompilerCommandChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
             this, &ToolChainConfigWidget::dirty);
 }
 
-void KeilToolchainConfigWidget::applyImpl()
+void KeilToolChainConfigWidget::applyImpl()
 {
     if (toolChain()->isAutoDetected())
         return;
 
-    const auto tc = static_cast<KeilToolchain *>(toolChain());
+    const auto tc = static_cast<KeilToolChain *>(toolChain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
@@ -587,34 +587,34 @@ void KeilToolchainConfigWidget::applyImpl()
     const auto languageVersion = ToolChain::languageVersion(tc->language(), m_macros);
     tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
 
-    setFromToolchain();
+    setFromToolChain();
 }
 
-bool KeilToolchainConfigWidget::isDirtyImpl() const
+bool KeilToolChainConfigWidget::isDirtyImpl() const
 {
-    const auto tc = static_cast<KeilToolchain *>(toolChain());
+    const auto tc = static_cast<KeilToolChain *>(toolChain());
     return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
 }
 
-void KeilToolchainConfigWidget::makeReadOnlyImpl()
+void KeilToolChainConfigWidget::makeReadOnlyImpl()
 {
     m_compilerCommand->setReadOnly(true);
     m_abiWidget->setEnabled(false);
 }
 
-void KeilToolchainConfigWidget::setFromToolchain()
+void KeilToolChainConfigWidget::setFromToolChain()
 {
     const QSignalBlocker blocker(this);
-    const auto tc = static_cast<KeilToolchain *>(toolChain());
+    const auto tc = static_cast<KeilToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = compilerExists(m_compilerCommand->fileName());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
-void KeilToolchainConfigWidget::handleCompilerCommandChange()
+void KeilToolChainConfigWidget::handleCompilerCommandChange()
 {
     const FilePath compilerPath = m_compilerCommand->fileName();
     const bool haveCompiler = compilerExists(compilerPath);

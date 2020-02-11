@@ -193,13 +193,14 @@ private:
     friend class ToolChainFactory;
 };
 
-class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
+class PROJECTEXPLORER_EXPORT ToolChainFactory
 {
-    Q_OBJECT
+    ToolChainFactory(const ToolChainFactory &) = delete;
+    ToolChainFactory &operator=(const ToolChainFactory &) = delete;
 
 public:
     ToolChainFactory();
-    ~ToolChainFactory() override;
+    virtual ~ToolChainFactory();
 
     static const QList<ToolChainFactory *> allToolChainFactories();
 

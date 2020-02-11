@@ -76,7 +76,7 @@ static ToolChain *findToolChain(Utils::FilePath &compilerPath, Core::Id lang, co
 AndroidToolChain::AndroidToolChain()
     : ClangToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(AndroidToolChainFactory::tr("Android Clang"));
+    setTypeDisplayName(AndroidToolChain::tr("Android Clang"));
 }
 
 Utils::FilePath AndroidToolChain::ndkLocation() const
@@ -155,7 +155,7 @@ GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 
 AndroidToolChainFactory::AndroidToolChainFactory()
 {
-    setDisplayName(tr("Android Clang"));
+    setDisplayName(AndroidToolChain::tr("Android Clang"));
     setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new AndroidToolChain; });

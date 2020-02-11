@@ -862,7 +862,7 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId)
     : ToolChain(typeId)
 {
     setDisplayName("Microsoft Visual C++ Compiler");
-    setTypeDisplayName(MsvcToolChainFactory::tr("MSVC"));
+    setTypeDisplayName(tr("MSVC"));
 }
 
 void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
@@ -1784,7 +1784,7 @@ ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeader
 
 MsvcToolChainFactory::MsvcToolChainFactory()
 {
-    setDisplayName(tr("MSVC"));
+    setDisplayName(MsvcToolChain::tr("MSVC"));
     setSupportedToolChainType(Constants::MSVC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID); });
@@ -1966,7 +1966,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
 
 ClangClToolChainFactory::ClangClToolChainFactory()
 {
-    setDisplayName(tr("clang-cl"));
+    setDisplayName(ClangClToolChain::tr("clang-cl"));
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setSupportedToolChainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
     setToolchainConstructor([] { return new ClangClToolChain; });

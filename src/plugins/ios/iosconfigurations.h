@@ -95,8 +95,6 @@ using DevelopmentTeams = QList<DevelopmentTeamPtr>;
 
 class IosToolChainFactory : public ProjectExplorer::ToolChainFactory
 {
-    Q_OBJECT
-
 public:
     IosToolChainFactory();
 
