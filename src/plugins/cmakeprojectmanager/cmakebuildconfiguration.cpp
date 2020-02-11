@@ -171,12 +171,6 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
     delete m_buildSystem;
 }
 
-
-QString CMakeBuildConfiguration::disabledReason() const
-{
-    return error();
-}
-
 QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());

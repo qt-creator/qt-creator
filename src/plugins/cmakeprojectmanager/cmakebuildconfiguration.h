@@ -82,8 +82,6 @@ private:
     QVariantMap toMap() const override;
     BuildType buildType() const override;
 
-    QString disabledReason() const override;
-
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     bool fromMap(const QVariantMap &map) override;
