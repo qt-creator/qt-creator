@@ -45,8 +45,6 @@ public:
 
 class CMakeEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     CMakeEditorFactory();
 };

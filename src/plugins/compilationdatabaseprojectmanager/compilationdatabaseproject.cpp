@@ -510,7 +510,7 @@ static TextEditor::TextDocument *createCompilationDatabaseDocument()
 CompilationDatabaseEditorFactory::CompilationDatabaseEditorFactory()
 {
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
-    setDisplayName("Compilation Database");
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Compilation Database"));
     addMimeType(Constants::COMPILATIONDATABASEMIMETYPE);
 
     setEditorCreator([]() { return new TextEditor::BaseTextEditor; });

@@ -31,8 +31,6 @@ namespace TextEditor {
 
 class TEXTEDITOR_EXPORT PlainTextEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     PlainTextEditorFactory();
     static PlainTextEditorFactory *instance();

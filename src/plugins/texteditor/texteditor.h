@@ -634,7 +634,6 @@ private:
 
 class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory
 {
-    Q_OBJECT
 
 public:
     TextEditorFactory();

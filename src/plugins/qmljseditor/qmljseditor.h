@@ -142,8 +142,6 @@ public:
 
 class QMLJSEDITOR_EXPORT QmlJSEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     QmlJSEditorFactory();
     QmlJSEditorFactory(Core::Id id);
