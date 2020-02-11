@@ -25,40 +25,12 @@
 
 #pragma once
 
-#include "qmlprojectmanager_global.h"
-
 #include <projectexplorer/runconfiguration.h>
 
-namespace ProjectExplorer {
-class BaseStringAspect;
-}
 namespace QmlProjectManager {
-
-class QmlMainFileAspect;
-
-class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    QmlProjectRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-private:
-    ProjectExplorer::Runnable runnable() const final;
-    QString disabledReason() const final;
-    bool isEnabled() const final;
-
-    QString mainScript() const;
-    Utils::FilePath qmlScenePath() const;
-    QString commandLineArguments() const;
-
-    ProjectExplorer::BaseStringAspect *m_qmlViewerAspect = nullptr;
-    QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
-};
-
 namespace Internal {
 
-class QmlProjectRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+class QmlProjectRunConfigurationFactory final : public ProjectExplorer::FixedRunConfigurationFactory
 {
 public:
     QmlProjectRunConfigurationFactory();

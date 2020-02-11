@@ -82,7 +82,7 @@ void QmlMainFileAspect::addToLayout(LayoutBuilder &builder)
     connect(m_fileListCombo, QOverload<int>::of(&QComboBox::activated),
             this, &QmlMainFileAspect::setMainScript);
 
-    builder.addItems(QmlProjectRunConfiguration::tr("Main QML file:"), m_fileListCombo.data());
+    builder.addItems(tr("Main QML file:"), m_fileListCombo.data());
 }
 
 void QmlMainFileAspect::toMap(QVariantMap &map) const
@@ -92,8 +92,7 @@ void QmlMainFileAspect::toMap(QVariantMap &map) const
 
 void QmlMainFileAspect::fromMap(const QVariantMap &map)
 {
-    m_scriptFile = map.value(Constants::QML_MAINSCRIPT_KEY,
-                             M_CURRENT_FILE).toString();
+    m_scriptFile = map.value(Constants::QML_MAINSCRIPT_KEY, M_CURRENT_FILE).toString();
 
     if (m_scriptFile == M_CURRENT_FILE)
         setScriptSource(FileInEditor);

@@ -27,6 +27,7 @@
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
 #include "qmlmainfileaspect.h"
+#include "qmlmainfileaspect.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -58,8 +59,29 @@ using namespace QtSupport;
 using namespace Utils;
 
 namespace QmlProjectManager {
+namespace Internal {
 
 // QmlProjectRunConfiguration
+
+class QmlProjectRunConfiguration final : public RunConfiguration
+{
+    Q_DECLARE_TR_FUNCTIONS(QmlProjectManager::QmlProjectRunConfiguration)
+
+public:
+    QmlProjectRunConfiguration(Target *target, Core::Id id);
+
+private:
+    Runnable runnable() const final;
+    QString disabledReason() const final;
+    bool isEnabled() const final;
+
+    QString mainScript() const;
+    Utils::FilePath qmlScenePath() const;
+    QString commandLineArguments() const;
+
+    BaseStringAspect *m_qmlViewerAspect = nullptr;
+    QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
+};
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
@@ -203,7 +225,7 @@ QString QmlProjectRunConfiguration::mainScript() const
     return m_qmlMainFileAspect->mainScript();
 }
 
-namespace Internal {
+// QmlProjectRunConfigurationFactory
 
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
     : FixedRunConfigurationFactory(QmlProjectRunConfiguration::tr("QML Scene"), false)
