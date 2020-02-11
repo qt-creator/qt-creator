@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -88,6 +88,10 @@
             before you start debugging.
 
     \endlist
+
+    \note The \c qmltooling plugins that are required for debugging are
+    automatically installed during \QC and Qt installation. Do not delete
+    them if you plan to debug QML applications.
 
     \section1 Mixed C++/QML Debugging
 
