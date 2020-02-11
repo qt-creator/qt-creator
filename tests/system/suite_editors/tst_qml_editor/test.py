@@ -157,7 +157,7 @@ def testHovering():
     if JIRA.isBugStillOpen(20020):
         expectedValues[0] = {'text':'<table><tr><td valign=middle>Rectangle</td><td>&nbsp;&nbsp;'
                              '<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
-        alternativeValues[0] = {"text":"<p>Rectangle</p>"}
+        alternativeValues[0] = {"text":"Rectangle"}
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
     test.log("Testing hovering expressions")
     openDocument(focusDocumentPath % "focus\\.qml")
@@ -174,5 +174,5 @@ def testHovering():
     additionalKeyPresses = ["<Left>", "<Left>", "<Left>", "<Left>"]
     expectedTypes = ["ColorTip", "TextTip"]
     expectedValues = ["#D1DBBD", {"text":'<table><tr><td valign=middle>number</td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}]
-    alternativeValues = ["#D6DBBD", {"text":"<p>number</p>"}]
+    alternativeValues = ["#D6DBBD", {"text":"number"}]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
