@@ -107,8 +107,9 @@ void AndroidSdkDownloader::downloadAndExtractSdk(const QString &jdkPath, const Q
 
 bool AndroidSdkDownloader::extractSdk(const QString &jdkPath, const QString &sdkExtractPath)
 {
-    if (!QDir(sdkExtractPath).exists()) {
-        if (!QDir().mkdir(sdkExtractPath)) {
+    QDir sdkDir = QDir(sdkExtractPath);
+    if (!sdkDir.exists()) {
+        if (!sdkDir.mkpath(".")) {
             logError(QString(tr("Could not create the SDK folder %1.")).arg(sdkExtractPath));
             return false;
         }
