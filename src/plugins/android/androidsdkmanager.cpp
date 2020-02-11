@@ -488,6 +488,10 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
         if (outputLine.startsWith("        "))
             continue;
 
+        // We don't need to parse this because they would still be listed on available packages
+        if (m_currentSection == AvailableUpdatesMarker)
+            continue;
+
         MarkerTag marker = parseMarkers(outputLine.trimmed());
         if (marker & SectionMarkers) {
             // Section marker found. Update the current section being parsed.
