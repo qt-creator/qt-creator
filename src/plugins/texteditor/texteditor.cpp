@@ -265,6 +265,10 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override {
         textEdit->extraAreaContextMenuEvent(event);
     }
+    void changeEvent(QEvent *event) override {
+        if (event->type() == QEvent::PaletteChange)
+            QCoreApplication::sendEvent(textEdit, event);
+    }
     void wheelEvent(QWheelEvent *event) override {
         QCoreApplication::sendEvent(textEdit->viewport(), event);
     }
@@ -6720,6 +6724,8 @@ void TextEditorWidget::changeEvent(QEvent *e)
             d->slotUpdateExtraAreaWidth();
             d->m_extraArea->update();
         }
+    } else if (e->type() == QEvent::PaletteChange) {
+        applyFontSettings();
     }
 }
 
@@ -7265,18 +7271,23 @@ void TextEditorWidget::applyFontSettings()
 
     p.setBrush(QPalette::Inactive, QPalette::Highlight, p.highlight());
     p.setBrush(QPalette::Inactive, QPalette::HighlightedText, p.highlightedText());
-    setPalette(p);
-    setFont(font);
-    d->updateTabStops(); // update tab stops, they depend on the font
+    if (p != palette())
+        setPalette(p);
+    if (font != this->font()) {
+        setFont(font);
+        d->updateTabStops(); // update tab stops, they depend on the font
+    }
 
     // Line numbers
     QPalette ep;
     ep.setColor(QPalette::Dark, lineNumberFormat.foreground().color());
     ep.setColor(QPalette::Window, lineNumberFormat.background().style() != Qt::NoBrush ?
                 lineNumberFormat.background().color() : background);
-    d->m_extraArea->setPalette(ep);
+    if (ep != d->m_extraArea->palette()) {
+        d->m_extraArea->setPalette(ep);
+        d->slotUpdateExtraAreaWidth();   // Adjust to new font width
+    }
 
-    d->slotUpdateExtraAreaWidth();   // Adjust to new font width
     d->updateHighlights();
 }
 
