@@ -38,24 +38,65 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-// BareMetalRunConfiguration
+// RunConfigurations
 
-BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id)
-    : RunConfiguration(target, id)
+class BareMetalRunConfiguration final : public RunConfiguration
 {
-    const auto exeAspect = addAspect<ExecutableAspect>();
-    exeAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
-    exeAspect->setPlaceHolderText(tr("Unknown"));
+    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::BareMetalRunConfiguration)
 
-    addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
+public:
+    explicit BareMetalRunConfiguration(Target *target, Core::Id id)
+        : RunConfiguration(target, id)
+    {
+        const auto exeAspect = addAspect<ExecutableAspect>();
+        exeAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+        exeAspect->setPlaceHolderText(tr("Unknown"));
 
-    setUpdater([this, exeAspect] {
-        const BuildTargetInfo bti = buildTargetInfo();
-        exeAspect->setExecutable(bti.targetFilePath);
-    });
+        addAspect<ArgumentsAspect>();
+        addAspect<WorkingDirectoryAspect>();
 
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+        setUpdater([this, exeAspect] {
+            const BuildTargetInfo bti = buildTargetInfo();
+            exeAspect->setExecutable(bti.targetFilePath);
+        });
+
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    }
+};
+
+class BareMetalCustomRunConfiguration final : public RunConfiguration
+{
+    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::BareMetalCustomRunConfiguration)
+
+public:
+    explicit BareMetalCustomRunConfiguration(Target *target, Core::Id id)
+        : RunConfiguration(target, id)
+    {
+        const auto exeAspect = addAspect<ExecutableAspect>();
+        exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
+        exeAspect->setPlaceHolderText(tr("Unknown"));
+        exeAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+        exeAspect->setHistoryCompleter("BareMetal.CustomRunConfig.History");
+        exeAspect->setExpectedKind(PathChooser::Any);
+
+        addAspect<ArgumentsAspect>();
+        addAspect<WorkingDirectoryAspect>();
+
+        setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable"), target));
+    }
+
+public:
+    Tasks checkForIssues() const final;
+};
+
+Tasks BareMetalCustomRunConfiguration::checkForIssues() const
+{
+    Tasks tasks;
+    if (aspect<ExecutableAspect>()->executable().isEmpty()) {
+        tasks << createConfigurationIssue(tr("The remote executable must be set in order to run "
+                                             "a custom remote run configuration."));
+    }
+    return tasks;
 }
 
 // BareMetalRunConfigurationFactory
@@ -64,6 +105,15 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 {
     registerRunConfiguration<BareMetalRunConfiguration>("BareMetalCustom");
     setDecorateDisplayNames(true);
+    addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
+}
+
+// BaseMetalCustomRunConfigurationFactory
+
+BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory()
+    : FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable"), true)
+{
+    registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal");
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 
