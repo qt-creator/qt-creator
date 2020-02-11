@@ -1461,8 +1461,14 @@ TextDocumentPtr TextEditorWidget::textDocumentPtr() const
 
 TextEditorWidget *TextEditorWidget::currentTextEditorWidget()
 {
-    auto editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
-    return editor ? editor->editorWidget() : nullptr;
+    return fromEditor(EditorManager::currentEditor());
+}
+
+TextEditorWidget *TextEditorWidget::fromEditor(const IEditor *editor)
+{
+    if (editor)
+        return Aggregation::query<TextEditorWidget>(editor->widget());
+    return nullptr;
 }
 
 void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
@@ -8370,8 +8376,9 @@ QVector<BaseTextEditor *> BaseTextEditor::textEditorsForDocument(TextDocument *t
 
 TextEditorWidget *BaseTextEditor::editorWidget() const
 {
-    QTC_ASSERT(qobject_cast<TextEditorWidget *>(m_widget.data()), return nullptr);
-    return static_cast<TextEditorWidget *>(m_widget.data());
+    auto textEditorWidget = TextEditorWidget::fromEditor(this);
+    QTC_CHECK(textEditorWidget);
+    return textEditorWidget;
 }
 
 void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
@@ -8649,10 +8656,12 @@ void TextEditorFactory::setParenthesesMatchingEnabled(bool on)
 
 BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentPtr &document)
 {
-    TextEditorWidget *widget = m_widgetCreator();
-    widget->setMarksVisible(m_marksVisible);
-    widget->setParenthesesMatchingEnabled(m_paranthesesMatchinEnabled);
-    widget->setCodeFoldingSupported(m_codeFoldingSupported);
+    QWidget *widget = m_widgetCreator();
+    TextEditorWidget *textEditorWidget = Aggregation::query<TextEditorWidget>(widget);
+    QTC_ASSERT(textEditorWidget, return nullptr);
+    textEditorWidget->setMarksVisible(m_marksVisible);
+    textEditorWidget->setParenthesesMatchingEnabled(m_paranthesesMatchinEnabled);
+    textEditorWidget->setCodeFoldingSupported(m_codeFoldingSupported);
 
     BaseTextEditor *editor = m_editorCreator();
     editor->setDuplicateSupported(m_duplicatedSupported);
@@ -8663,25 +8672,25 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
 
     // Needs to go before setTextDocument as this copies the current settings.
     if (m_autoCompleterCreator)
-        widget->setAutoCompleter(m_autoCompleterCreator());
+        textEditorWidget->setAutoCompleter(m_autoCompleterCreator());
 
-    widget->setTextDocument(document);
-    widget->autoCompleter()->setTabSettings(document->tabSettings());
-    widget->d->m_hoverHandlers = m_hoverHandlers;
+    textEditorWidget->setTextDocument(document);
+    textEditorWidget->autoCompleter()->setTabSettings(document->tabSettings());
+    textEditorWidget->d->m_hoverHandlers = m_hoverHandlers;
 
-    widget->d->m_codeAssistant.configure(widget);
-    widget->d->m_commentDefinition = m_commentDefinition;
+    textEditorWidget->d->m_codeAssistant.configure(textEditorWidget);
+    textEditorWidget->d->m_commentDefinition = m_commentDefinition;
 
-    QObject::connect(widget,
+    QObject::connect(textEditorWidget,
                      &TextEditorWidget::activateEditor,
-                     widget,
+                     textEditorWidget,
                      [editor](EditorManager::OpenEditorFlags flags) {
                          EditorManager::activateEditor(editor, flags);
                      });
 
     if (m_useGenericHighlighter)
-        widget->setupGenericHighlighter();
-    widget->finalizeInitialization();
+        textEditorWidget->setupGenericHighlighter();
+    textEditorWidget->finalizeInitialization();
     editor->finalizeInitialization();
     return editor;
 }

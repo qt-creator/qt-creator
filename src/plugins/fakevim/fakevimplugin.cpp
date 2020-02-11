@@ -1267,7 +1267,7 @@ void FakeVimPluginPrivate::userActionTriggered(int key)
 
 void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 {
-    if (auto textEditor = qobject_cast<TextEditorWidget *>(editor->widget())) {
+    if (auto textEditor = TextEditorWidget::fromEditor(editor)) {
         auto relativeNumbers = new RelativeNumbersColumn(textEditor);
         connect(theFakeVimSetting(ConfigRelativeNumber), &SavedAction::valueChanged,
                 relativeNumbers, &QObject::deleteLater);
@@ -1532,10 +1532,14 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         return;
 
     // we can only handle QTextEdit and QPlainTextEdit
-    if (!qobject_cast<QTextEdit *>(widget) && !qobject_cast<QPlainTextEdit *>(widget))
+    if (auto edit = Aggregation::query<QTextEdit>(widget))
+        widget = edit;
+    else if (auto edit = Aggregation::query<QPlainTextEdit>(widget))
+        widget = edit;
+    else
         return;
 
-    auto tew = qobject_cast<TextEditorWidget *>(widget);
+    auto tew = TextEditorWidget::fromEditor(editor);
 
     //qDebug() << "OPENING: " << editor << editor->widget()
     //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();

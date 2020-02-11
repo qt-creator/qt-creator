@@ -190,7 +190,7 @@ void BookmarksPluginPrivate::updateActions(bool enableToggle, int state)
 
 void BookmarksPluginPrivate::editorOpened(IEditor *editor)
 {
-    if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+    if (auto widget = TextEditorWidget::fromEditor(editor)) {
         connect(widget, &TextEditorWidget::markRequested,
                 this, [this, editor](TextEditorWidget *, int line, TextMarkRequestKind kind) {
                     if (kind == BookmarkRequest && !editor->document()->isTemporary())
@@ -204,7 +204,7 @@ void BookmarksPluginPrivate::editorOpened(IEditor *editor)
 
 void BookmarksPluginPrivate::editorAboutToClose(IEditor *editor)
 {
-    if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+    if (auto widget = TextEditorWidget::fromEditor(editor)) {
         disconnect(widget, &TextEditorWidget::markContextMenuRequested,
                    this, &BookmarksPluginPrivate::requestContextMenu);
     }

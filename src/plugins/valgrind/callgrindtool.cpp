@@ -863,7 +863,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
 
 void CallgrindToolPrivate::editorOpened(IEditor *editor)
 {
-    if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+    if (auto widget = TextEditorWidget::fromEditor(editor)) {
         connect(widget, &TextEditorWidget::markContextMenuRequested,
                 this, &CallgrindToolPrivate::requestContextMenu);
     }

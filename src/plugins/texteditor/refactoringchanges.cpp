@@ -132,7 +132,7 @@ TextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool a
     IEditor *editor = EditorManager::openEditorAt(fileName, line, column, Id(), flags);
 
     if (editor)
-        return qobject_cast<TextEditorWidget *>(editor->widget());
+        return TextEditorWidget::fromEditor(editor);
     else
         return nullptr;
 }
@@ -163,7 +163,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
 {
     QList<IEditor *> editors = DocumentModel::editorsForFilePath(fileName);
     if (!editors.isEmpty()) {
-        auto editorWidget = qobject_cast<TextEditorWidget *>(editors.first()->widget());
+        auto editorWidget = TextEditorWidget::fromEditor(editors.first());
         if (editorWidget && !editorWidget->isReadOnly())
             m_editor = editorWidget;
     }

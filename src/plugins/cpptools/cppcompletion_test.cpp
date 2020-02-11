@@ -81,7 +81,7 @@ public:
         m_editor = EditorManager::openEditor(fileName);
         QVERIFY(m_editor);
         closeEditorAtEndOfTestCase(m_editor);
-        m_editorWidget = qobject_cast<TextEditorWidget *>(m_editor->widget());
+        m_editorWidget = TextEditorWidget::fromEditor(m_editor);
         QVERIFY(m_editorWidget);
 
         m_textDocument = m_editorWidget->document();

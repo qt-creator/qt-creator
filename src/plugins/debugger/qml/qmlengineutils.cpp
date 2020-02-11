@@ -230,7 +230,7 @@ void clearExceptionSelection()
     QList<QTextEdit::ExtraSelection> selections;
 
     foreach (IEditor *editor, DocumentModel::editorsForOpenedDocuments()) {
-        if (auto ed = qobject_cast<TextEditorWidget *>(editor->widget()))
+        if (auto ed = TextEditorWidget::fromEditor(editor))
             ed->setExtraSelections(TextEditorWidget::DebuggerExceptionSelection, selections);
     }
 }
@@ -244,7 +244,7 @@ QStringList highlightExceptionCode(int lineNumber, const QString &filePath, cons
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
     for (IEditor *editor : editors) {
-        auto ed = qobject_cast<TextEditorWidget *>(editor->widget());
+        auto ed = TextEditorWidget::fromEditor(editor);
         if (!ed)
             continue;
 
