@@ -270,9 +270,6 @@ DebuggerMainWindowPrivate::~DebuggerMainWindowPrivate()
 DebuggerMainWindow::DebuggerMainWindow()
     : d(new DebuggerMainWindowPrivate(this))
 {
-     qRegisterMetaType<PerspectiveState>("PerspectiveState");
-     qRegisterMetaTypeStreamOperators<PerspectiveState>("PerspectiveState");
-
     setDockNestingEnabled(true);
     setDockActionsVisible(false);
     setDocumentMode(true);

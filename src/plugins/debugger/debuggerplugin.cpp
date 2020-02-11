@@ -2159,6 +2159,9 @@ DebuggerPlugin::DebuggerPlugin()
 {
     setObjectName("DebuggerPlugin");
     m_instance = this;
+
+    qRegisterMetaType<PerspectiveState>("Utils::PerspectiveState");
+    qRegisterMetaTypeStreamOperators<PerspectiveState>("Utils::PerspectiveState");
 }
 
 DebuggerPlugin::~DebuggerPlugin()
