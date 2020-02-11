@@ -233,7 +233,7 @@ void CMakeBuildSystem::triggerParsing()
     qCDebug(cmakeBuildSystemLog) << "Parsing has been triggered";
     m_currentGuard = guardParsingRun();
 
-    QTC_CHECK(m_currentGuard.guardsProject());
+    QTC_ASSERT(m_currentGuard.guardsProject(), return );
 
     if (m_allFiles.isEmpty())
         m_buildDirManager.requestFilesystemScan();
