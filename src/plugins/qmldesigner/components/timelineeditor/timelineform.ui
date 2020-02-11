@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>627</width>
+    <width>641</width>
     <height>170</height>
    </rect>
   </property>
@@ -39,10 +39,10 @@
       </size>
      </property>
      <property name="minimum">
-      <number>-10000</number>
+      <number>-100000</number>
      </property>
      <property name="maximum">
-      <number>10000</number>
+      <number>100000</number>
      </property>
     </widget>
    </item>
@@ -61,10 +61,10 @@
       </size>
      </property>
      <property name="minimum">
-      <number>-10000</number>
+      <number>-100000</number>
      </property>
      <property name="maximum">
-      <number>10000</number>
+      <number>100000</number>
      </property>
     </widget>
    </item>
@@ -187,7 +187,7 @@
       <bool>true</bool>
      </property>
      <property name="maximum">
-      <number>20000</number>
+      <number>200000</number>
      </property>
     </widget>
    </item>
