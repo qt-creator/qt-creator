@@ -29,15 +29,7 @@
 
 namespace Nim {
 
-class NimRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    NimRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
-class NimRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+class NimRunConfigurationFactory final : public ProjectExplorer::FixedRunConfigurationFactory
 {
 public:
     NimRunConfigurationFactory();

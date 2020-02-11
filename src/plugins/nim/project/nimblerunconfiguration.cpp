@@ -37,29 +37,38 @@
 
 #include <QStandardPaths>
 
-using namespace Nim;
 using namespace ProjectExplorer;
 
-NimbleRunConfiguration::NimbleRunConfiguration(ProjectExplorer::Target *target, Core::Id id)
-    : RunConfiguration(target, id)
+namespace Nim {
+
+// NimbleRunConfiguration
+
+class NimbleRunConfiguration : public RunConfiguration
 {
-    addAspect<LocalEnvironmentAspect>(target);
-    addAspect<ExecutableAspect>();
-    addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
-    addAspect<TerminalAspect>();
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimbleRunConfiguration)
 
-    setUpdater([this] {
-        BuildTargetInfo bti = buildTargetInfo();
-        setDisplayName(bti.displayName);
-        setDefaultDisplayName(bti.displayName);
-        aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-    });
+public:
+    NimbleRunConfiguration(Target *target, Core::Id id)
+        : RunConfiguration(target, id)
+    {
+        addAspect<LocalEnvironmentAspect>(target);
+        addAspect<ExecutableAspect>();
+        addAspect<ArgumentsAspect>();
+        addAspect<WorkingDirectoryAspect>();
+        addAspect<TerminalAspect>();
 
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    update();
-}
+        setUpdater([this] {
+            BuildTargetInfo bti = buildTargetInfo();
+            setDisplayName(bti.displayName);
+            setDefaultDisplayName(bti.displayName);
+            aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+        });
+
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+        update();
+    }
+};
 
 NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
     : RunConfigurationFactory()
@@ -69,22 +78,26 @@ NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
 
-QList<RunConfigurationCreationInfo> NimbleRunConfigurationFactory::availableCreators(Target *parent) const
-{
-    return RunConfigurationFactory::availableCreators(parent);
-}
 
-NimbleTestConfiguration::NimbleTestConfiguration(Target *target, Core::Id id)
-    : RunConfiguration(target, id)
-{
-    addAspect<ExecutableAspect>()->setExecutable(Utils::FilePath::fromString(QStandardPaths::findExecutable("nimble")));
-    addAspect<ArgumentsAspect>()->setArguments("test");
-    addAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(project()->projectDirectory());
-    addAspect<TerminalAspect>();
+// NimbleTestConfiguration
 
-    setDisplayName(tr("Nimble Test"));
-    setDefaultDisplayName(tr("Nimble Test"));
-}
+class NimbleTestConfiguration : public RunConfiguration
+{
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimbleTestConfiguration)
+
+public:
+    NimbleTestConfiguration(ProjectExplorer::Target *target, Core::Id id)
+        : RunConfiguration(target, id)
+    {
+        addAspect<ExecutableAspect>()->setExecutable(Utils::FilePath::fromString(QStandardPaths::findExecutable("nimble")));
+        addAspect<ArgumentsAspect>()->setArguments("test");
+        addAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(project()->projectDirectory());
+        addAspect<TerminalAspect>();
+
+        setDisplayName(tr("Nimble Test"));
+        setDefaultDisplayName(tr("Nimble Test"));
+    }
+};
 
 NimbleTestConfigurationFactory::NimbleTestConfigurationFactory()
     : FixedRunConfigurationFactory(QString())
@@ -92,3 +105,5 @@ NimbleTestConfigurationFactory::NimbleTestConfigurationFactory()
     registerRunConfiguration<NimbleTestConfiguration>("Nim.NimbleTestConfiguration");
     addSupportedProjectType(Constants::C_NIMBLEPROJECT_ID);
 }
+
+} // Nim
