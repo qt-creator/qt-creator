@@ -28,6 +28,10 @@ QTabBar#centralTabBar::tab:selected {
     color: creatorTheme.QmlDesigner_TabDark;
 }
 
+QTabBar#centralTabBar::tab:disabled {
+    color: creatorTheme.QmlDesigner_ScrollBarHandleColor;
+}
+
 QToolButton#centralTabBar {
     background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     width: 08px;

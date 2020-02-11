@@ -39,6 +39,7 @@
 #include <QPointer>
 #include <QRectF>
 #include <QTime>
+#include <QtGui/qevent.h>
 
 namespace ProjectExplorer {
 class Target;
@@ -94,7 +95,6 @@ public:
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) override;
 
-
     void currentStateChanged(const ModelNode &node) override;
 
     QList<NodeInstance> instances() const;
@@ -136,7 +136,9 @@ public:
 
     void mainWindowStateChanged(Qt::WindowStates previousStates, Qt::WindowStates currentStates);
     void mainWindowActiveChanged(bool active, bool hasPopup);
-    void enable3DView(bool enable);
+    void sendInputEvent(QInputEvent *e) const;
+    void view3DAction(const View3DActionCommand &command);
+    void edit3DViewResized(const QSize &size) const;
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 

@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/edit3d">
+        <file>images/edit_light_off.png</file>
+        <file>images/edit_light_off@2x.png</file>
+        <file>images/edit_light_on.png</file>
+        <file>images/edit_light_on@2x.png</file>
+        <file>images/fit_active.png</file>
+        <file>images/fit_active@2x.png</file>
+        <file>images/global.png</file>
+        <file>images/global@2x.png</file>
+        <file>images/group_selection_selected.png</file>
+        <file>images/group_selection_selected@2x.png</file>
+        <file>images/item_selection_selected.png</file>
+        <file>images/item_selection_selected@2x.png</file>
+        <file>images/local.png</file>
+        <file>images/local@2x.png</file>
+        <file>images/move_active.png</file>
+        <file>images/move_active@2x.png</file>
+        <file>images/move_selected.png</file>
+        <file>images/move_selected@2x.png</file>
+        <file>images/ortho.png</file>
+        <file>images/ortho@2x.png</file>
+        <file>images/persp.png</file>
+        <file>images/persp@2x.png</file>
+        <file>images/rotate_active.png</file>
+        <file>images/rotate_active@2x.png</file>
+        <file>images/rotate_selected.png</file>
+        <file>images/rotate_selected@2x.png</file>
+        <file>images/scale_active.png</file>
+        <file>images/scale_active@2x.png</file>
+        <file>images/scale_selected.png</file>
+        <file>images/scale_selected@2x.png</file>
+    </qresource>
+</RCC>

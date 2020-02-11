@@ -30,7 +30,6 @@
 #include <createinstancescommand.h>
 #include <createscenecommand.h>
 #include <update3dviewstatecommand.h>
-#include <enable3dviewcommand.h>
 #include <changevaluescommand.h>
 #include <changebindingscommand.h>
 #include <changeauxiliarycommand.h>
@@ -47,6 +46,8 @@
 #include <drop3dlibraryitemcommand.h>
 #include <puppettocreatorcommand.h>
 #include <view3dclosedcommand.h>
+#include <inputeventcommand.h>
+#include <view3dactioncommand.h>
 
 #include <informationchangedcommand.h>
 #include <pixmapchangedcommand.h>
@@ -665,11 +666,6 @@ void NodeInstanceServerProxy::update3DViewState(const Update3dViewStateCommand &
     writeCommand(QVariant::fromValue(command));
 }
 
-void NodeInstanceServerProxy::enable3DView(const Enable3DViewCommand &command)
-{
-    writeCommand(QVariant::fromValue(command));
-}
-
 void NodeInstanceServerProxy::removeInstances(const RemoveInstancesCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
@@ -732,12 +728,22 @@ void NodeInstanceServerProxy::token(const TokenCommand &command)
 
 void NodeInstanceServerProxy::removeSharedMemory(const RemoveSharedMemoryCommand &command)
 {
-   writeCommand(QVariant::fromValue(command));
+    writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::benchmark(const QString &message)
 {
     qCInfo(instanceViewBenchmark) << message << m_benchmarkTimer.elapsed();
+}
+
+void NodeInstanceServerProxy::inputEvent(const InputEventCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::view3DAction(const View3DActionCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
 }
 
 } // namespace QmlDesigner

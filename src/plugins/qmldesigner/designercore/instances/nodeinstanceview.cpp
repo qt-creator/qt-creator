@@ -48,7 +48,6 @@
 #include "changefileurlcommand.h"
 #include "reparentinstancescommand.h"
 #include "update3dviewstatecommand.h"
-#include "enable3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
@@ -71,6 +70,9 @@
 #include "debugoutputcommand.h"
 #include "nodeinstanceserverproxy.h"
 #include "puppettocreatorcommand.h"
+#include "inputeventcommand.h"
+#include "view3dactioncommand.h"
+#include "edit3dview.h"
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -1470,6 +1472,13 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
                 m_edit3DToolStates[qmlId].insert(data[1].toString(), data[2]);
             }
         }
+    } else if (command.type() == PuppetToCreatorCommand::Render3DView) {
+        ImageContainer container = qvariant_cast<ImageContainer>(command.data());
+        if (!container.image().isNull())
+            emitRenderImage3DChanged(container.image());
+    } else if (command.type() == PuppetToCreatorCommand::ActiveSceneChanged) {
+        const auto sceneState = qvariant_cast<QVariantMap>(command.data());
+        emitUpdateActiveScene3D(sceneState);
     }
 }
 
@@ -1526,10 +1535,19 @@ void NodeInstanceView::mainWindowActiveChanged(bool active, bool hasPopup)
         nodeInstanceServer()->update3DViewState(Update3dViewStateCommand(active, hasPopup));
 }
 
-// enable / disable 3D edit View
-void NodeInstanceView::enable3DView(bool enable)
+void NodeInstanceView::sendInputEvent(QInputEvent *e) const
 {
-    nodeInstanceServer()->enable3DView(Enable3DViewCommand(enable));
+    nodeInstanceServer()->inputEvent(InputEventCommand(e));
+}
+
+void NodeInstanceView::view3DAction(const View3DActionCommand &command)
+{
+    nodeInstanceServer()->view3DAction(command);
+}
+
+void NodeInstanceView::edit3DViewResized(const QSize &size) const
+{
+    nodeInstanceServer()->update3DViewState(Update3dViewStateCommand(size));
 }
 
 void NodeInstanceView::timerEvent(QTimerEvent *event)

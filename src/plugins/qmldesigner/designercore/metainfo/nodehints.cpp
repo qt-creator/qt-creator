@@ -165,6 +165,11 @@ bool NodeHints::canBeDroppedInNavigator() const
     return evaluateBooleanExpression("canBeDroppedInNavigator", true);
 }
 
+bool NodeHints::canBeDroppedInView3D() const
+{
+    return evaluateBooleanExpression("canBeDroppedInView3D", false);
+}
+
 bool NodeHints::isMovable() const
 {
     if (!isValid())

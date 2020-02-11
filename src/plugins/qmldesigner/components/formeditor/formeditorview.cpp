@@ -676,9 +676,6 @@ void FormEditorView::toggle3DViewEnabled(bool enabled)
         rootModelNode().removeAuxiliaryData("3d-view");
 
     resetNodeInstanceView();
-
-    // TODO: the line below is not in use. It should replace the resetNodeInstanceView(); to have a clean API
-//    nodeInstanceView()->enable3DView(enabled);
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)

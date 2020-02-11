@@ -627,16 +627,18 @@ QList<QQuickItem *> ServerNodeInstance::allItemsRecursive() const
 
 QString ServerNodeInstance::id() const
 {
-    return m_nodeInstance->id();
+    if (isValid())
+        return m_nodeInstance->id();
+
+    return {};
 }
 
 qint32 ServerNodeInstance::instanceId() const
 {
-    if (isValid()) {
+    if (isValid())
         return m_nodeInstance->instanceId();
-    } else {
-        return -1;
-    }
+
+    return -1;
 }
 
 QList<ServerNodeInstance> ServerNodeInstance::stateInstances() const

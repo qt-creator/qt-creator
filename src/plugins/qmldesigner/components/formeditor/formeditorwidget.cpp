@@ -72,7 +72,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     layoutActionGroup->setExclusive(true);
 
     m_noSnappingAction = layoutActionGroup->addAction(tr("No snapping (T)."));
-    m_noSnappingAction->setShortcut(Qt::Key_W);
+    m_noSnappingAction->setShortcut(Qt::Key_T);
     m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
@@ -133,7 +133,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
 
-
     m_toolBox->setLeftSideActions(upperActions);
 
     m_backgroundAction = new BackgroundAction(m_toolActionGroup.data());
@@ -143,9 +142,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_toolBox->addRightSideAction(m_backgroundAction.data());
 
     m_option3DAction = new Option3DAction(m_toolActionGroup.data());
-    addAction(m_option3DAction.data());
-    upperActions.append(m_option3DAction.data());
-    m_toolBox->addRightSideAction(m_option3DAction.data());
+    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW")) {
+        addAction(m_option3DAction.data());
+        upperActions.append(m_option3DAction.data());
+        m_toolBox->addRightSideAction(m_option3DAction.data());
+    }
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,

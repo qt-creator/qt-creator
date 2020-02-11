@@ -16,6 +16,7 @@ QtcProduct {
         "..",
         "../components/componentcore",
         "../components/debugview",
+        "../components/edit3d",
         "../components/formeditor",
         "../components/importmanager",
         "../components/integration",

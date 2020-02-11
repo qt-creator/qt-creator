@@ -36,6 +36,7 @@
 #include <itemlibraryview.h>
 #include <navigatorview.h>
 #include <stateseditorview.h>
+#include <edit3dview.h>
 #include <formeditorview.h>
 #include <texteditorview.h>
 #include <propertyeditorview.h>
@@ -63,6 +64,7 @@ public:
     DesignerActionManagerView designerActionManagerView;
     NodeInstanceView nodeInstanceView;
     ComponentView componentView;
+    Edit3DView edit3DView;
     FormEditorView formEditorView;
     TextEditorView textEditorView;
     ItemLibraryView itemLibraryView;
@@ -72,7 +74,6 @@ public:
 
     QList<QPointer<AbstractView> > additionalViews;
 };
-
 
 static CrumbleBar *crumbleBar() {
     return QmlDesignerPlugin::instance()->mainWidget()->crumbleBar();
@@ -165,6 +166,7 @@ QList<QPointer<AbstractView> > ViewManager::views() const
 {
     auto list = d->additionalViews;
     list.append({
+                    &d->edit3DView,
                     &d->formEditorView,
                     &d->textEditorView,
                     &d->itemLibraryView,
@@ -195,6 +197,7 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     switchStateEditorViewToBaseState();
     detachAdditionalViews();
     currentModel()->detachView(&d->designerActionManagerView);
+    currentModel()->detachView(&d->edit3DView);
     currentModel()->detachView(&d->formEditorView);
     currentModel()->detachView(&d->textEditorView);
     currentModel()->detachView(&d->navigatorView);
@@ -264,9 +267,15 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     int last = time.elapsed();
     qCInfo(viewBenchmark) << "ActionManagerView:" << last << time.elapsed();
 
-    currentModel()->attachView(&d->formEditorView);
+    currentModel()->attachView(&d->edit3DView);
 
     int currentTime = time.elapsed();
+    qCInfo(viewBenchmark) << "Edit3DView:" << currentTime - last;
+    last = currentTime;
+
+    currentModel()->attachView(&d->formEditorView);
+
+    currentTime = time.elapsed();
     qCInfo(viewBenchmark) << "FormEditorView:" << currentTime - last;
     last = currentTime;
 
@@ -337,6 +346,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
 {
     QList<WidgetInfo> widgetInfoList;
 
+    widgetInfoList.append(d->edit3DView.widgetInfo());
     widgetInfoList.append(d->formEditorView.widgetInfo());
     widgetInfoList.append(d->textEditorView.widgetInfo());
     widgetInfoList.append(d->itemLibraryView.widgetInfo());

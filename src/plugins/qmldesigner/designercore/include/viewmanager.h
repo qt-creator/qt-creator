@@ -42,6 +42,7 @@ class AbstractCustomTool;
 class DesignerActionManager;
 class NodeInstanceView;
 class RewriterView;
+class Edit3DView;
 
 namespace Internal { class DesignModeWidget; }
 

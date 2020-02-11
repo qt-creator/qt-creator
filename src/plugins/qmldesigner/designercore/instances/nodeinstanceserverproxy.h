@@ -68,7 +68,6 @@ public:
     void changeFileUrl(const ChangeFileUrlCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;
     void update3DViewState(const Update3dViewStateCommand &command) override;
-    void enable3DView(const Enable3DViewCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
     void removeInstances(const RemoveInstancesCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;
@@ -84,6 +83,8 @@ public:
     void token(const TokenCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void benchmark(const QString &message) override;
+    void inputEvent(const InputEventCommand &command) override;
+    void view3DAction(const View3DActionCommand &command) override;
 
 protected:
     void writeCommand(const QVariant &command);

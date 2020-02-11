@@ -32,6 +32,7 @@
 
 #include <QTimer>
 #include <QVariant>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QDragMoveEvent;
@@ -49,7 +50,6 @@ public:
     void reparentInstances(const ReparentInstancesCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
     void update3DViewState(const Update3dViewStateCommand &command) override;
-    void enable3DView(const Enable3DViewCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;
     void completeComponent(const CompleteComponentCommand &command) override;
     void token(const TokenCommand &command) override;
@@ -57,6 +57,9 @@ public:
     void changeSelection(const ChangeSelectionCommand &command) override;
     void changePropertyValues(const ChangeValuesCommand &command) override;
     void removeInstances(const RemoveInstancesCommand &command) override;
+    void inputEvent(const InputEventCommand &command) override;
+    void view3DAction(const View3DActionCommand &command) override;
+    void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command) override;
 
 private slots:
     void handleSelectionChanged(const QVariant &objs);
@@ -82,7 +85,7 @@ protected:
 private:
     void handleObjectPropertyChangeTimeout();
     void handleSelectionChangeTimeout();
-    QObject *createEditView3D(QQmlEngine *engine);
+    void createEditView3D();
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
                          const QHash<QString, QVariantMap> &toolStates);
     void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
@@ -104,8 +107,13 @@ private:
     void removeNode3D(QObject *node);
     void resolveSceneRoots();
     ServerNodeInstance active3DSceneInstance() const;
+    void render3DEditView();
+    void doRender3DEditView();
 
-    QObject *m_editView3D = nullptr;
+    QPointer<QQuickView> m_editView3D;
+    QPointer<QQuickWindow> m_editWindow3D;
+    QQuickItem *m_editView3DRootItem = nullptr;
+    QQuickItem *m_editView3DContentItem = nullptr;
     QSet<QObject *> m_view3Ds;
     QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node
     QObject *m_active3DView;
@@ -115,10 +123,12 @@ private:
     QList<TokenCommand> m_tokenList;
     QTimer m_propertyChangeTimer;
     QTimer m_selectionChangeTimer;
+    QTimer m_renderTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ChangeSelectionCommand m_pendingSelectionChangeCommand;
     QObject *m_3dHelper = nullptr;
+    bool m_needRender = false;
 };
 
 } // namespace QmlDesigner

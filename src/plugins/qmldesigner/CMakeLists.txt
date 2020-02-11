@@ -141,9 +141,10 @@ extend_qtc_plugin(QmlDesigner
     changeselectioncommand.cpp changeselectioncommand.h
     drop3dlibraryitemcommand.cpp drop3dlibraryitemcommand.h
     update3dviewstatecommand.cpp update3dviewstatecommand.h
-    enable3dviewcommand.cpp enable3dviewcommand.h
     view3dclosedcommand.cpp view3dclosedcommand.h
     puppettocreatorcommand.cpp puppettocreatorcommand.h
+    inputeventcommand.cpp inputeventcommand.h
+    view3dactioncommand.cpp view3dactioncommand.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -192,6 +193,16 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     debugview.cpp debugview.h
     debugviewwidget.cpp debugviewwidget.h debugviewwidget.ui
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/edit3d
+  SOURCES
+  edit3dview.cpp edit3dview.h
+  edit3dwidget.cpp edit3dwidget.h
+  edit3dcanvas.cpp edit3dcanvas.h
+  edit3dactions.cpp edit3dactions.h
+  edit3d.qrc
 )
 
 extend_qtc_plugin(QmlDesigner
