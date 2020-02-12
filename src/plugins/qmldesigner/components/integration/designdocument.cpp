@@ -394,6 +394,9 @@ static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode
     if (targetNode.metaInfo().isValid() && targetNode.metaInfo().isLayoutable())
         return;
 
+    if (!(pastedNode.hasVariantProperty("x") && pastedNode.hasVariantProperty("y")))
+        return;
+
     bool scatter = false;
     foreach (const ModelNode &childNode, targetNode.directSubModelNodes()) {
         if ((childNode.variantProperty("x").value() == pastedNode.variantProperty("x").value()) &&
