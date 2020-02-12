@@ -1085,8 +1085,8 @@ void ProjectExplorerPlugin::testProject_parsingSuccess()
 {
     TestProject project;
 
-    QSignalSpy startSpy(project.target, &Target::parsingStarted);
-    QSignalSpy stopSpy(project.target, &Target::parsingFinished);
+    QSignalSpy startSpy(project.target->buildSystem(), &BuildSystem::parsingStarted);
+    QSignalSpy stopSpy(project.target->buildSystem(), &BuildSystem::parsingFinished);
 
     {
         BuildSystem::ParseGuard guard = project.target->buildSystem()->guardParsingRun();
@@ -1111,8 +1111,8 @@ void ProjectExplorerPlugin::testProject_parsingFail()
 {
     TestProject project;
 
-    QSignalSpy startSpy(project.target, &Target::parsingStarted);
-    QSignalSpy stopSpy(project.target, &Target::parsingFinished);
+    QSignalSpy startSpy(project.target->buildSystem(), &BuildSystem::parsingStarted);
+    QSignalSpy stopSpy(project.target->buildSystem(), &BuildSystem::parsingFinished);
 
     {
         BuildSystem::ParseGuard guard = project.target->buildSystem()->guardParsingRun();
