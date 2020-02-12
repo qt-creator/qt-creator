@@ -59,6 +59,7 @@
 #include <QDomDocument>
 #include <QFileSystemWatcher>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QList>
 #include <QLoggingCategory>
 #include <QMessageBox>

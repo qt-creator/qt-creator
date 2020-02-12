@@ -72,7 +72,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QTextCursor>
-#include <QtPlugin>
 
 #ifdef WITH_TESTS
 #include "autotestunittests.h"

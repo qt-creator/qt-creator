@@ -67,7 +67,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QTextCodec>
-#include <QtPlugin>
 #include <QAction>
 #include <QMainWindow>
 #include <QMenu>

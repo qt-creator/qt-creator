@@ -28,7 +28,6 @@
 #include "extensionsystem_global.h"
 
 #include <QObject>
-#include <QtPlugin>
 
 namespace ExtensionSystem {
 

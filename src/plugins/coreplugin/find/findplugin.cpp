@@ -50,8 +50,6 @@
 #include <QStringListModel>
 #include <QVector>
 #include <QAction>
-
-#include <QtPlugin>
 #include <QSettings>
 
 /*!

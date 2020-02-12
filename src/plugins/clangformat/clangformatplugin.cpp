@@ -66,8 +66,6 @@
 #include <QMessageBox>
 #include <QMenu>
 
-#include <QtPlugin>
-
 using namespace ProjectExplorer;
 
 namespace ClangFormat {

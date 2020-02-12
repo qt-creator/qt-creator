@@ -65,7 +65,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QTextCodec>
-#include <QtPlugin>
 #include <QProcessEnvironment>
 #include <QUrl>
 #include <QXmlStreamReader>

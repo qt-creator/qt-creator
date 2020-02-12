@@ -48,7 +48,6 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
-#include <QtPlugin>
 #include <QCoreApplication>
 #include <QAction>
 #include <QDebug>

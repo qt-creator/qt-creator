@@ -43,8 +43,6 @@
 #include <QClipboard>
 #include <QScrollBar>
 
-#include <QtPlugin>
-
 QT_BEGIN_NAMESPACE
 extern void qt_set_sequence_auto_mnemonic(bool enable);
 QT_END_NAMESPACE

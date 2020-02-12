@@ -58,7 +58,6 @@
 
 #include <QAction>
 #include <QSettings>
-#include <QtPlugin>
 
 #ifdef Q_OS_MACOS
 #include "spotlightlocatorfilter.h"

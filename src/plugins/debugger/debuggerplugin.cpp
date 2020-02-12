@@ -148,7 +148,6 @@
 #include <QVariant>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QtPlugin>
 
 #ifdef WITH_TESTS
 

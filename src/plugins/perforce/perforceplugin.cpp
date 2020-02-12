@@ -68,7 +68,6 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QTextCodec>
-#include <QtPlugin>
 
 using namespace Core;
 using namespace Utils;

@@ -145,7 +145,6 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QtPlugin>
 #include <QFileInfo>
 #include <QSettings>
 

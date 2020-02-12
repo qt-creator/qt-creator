@@ -56,7 +56,6 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcscommand.h>
 
-#include <QtPlugin>
 #include <QAction>
 #include <QMenu>
 #include <QDebug>
