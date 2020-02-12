@@ -3302,6 +3302,10 @@ void GdbEngine::handlePeripheralRegisterListValues(
 
 void GdbEngine::reloadLocals()
 {
+    // if the engine is not running - do nothing
+    if (state() == DebuggerState::DebuggerFinished || state() == DebuggerState::DebuggerNotReady)
+        return;
+
     setTokenBarrier();
     updateLocals();
 }

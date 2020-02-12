@@ -2138,6 +2138,10 @@ void DebuggerEngine::createSnapshot()
 
 void DebuggerEngine::updateLocals()
 {
+    // if the engine is not running - do nothing
+    if (state() == DebuggerState::DebuggerFinished || state() == DebuggerState::DebuggerNotReady)
+        return;
+
     watchHandler()->resetValueCache();
     doUpdateLocals(UpdateParameters());
 }
