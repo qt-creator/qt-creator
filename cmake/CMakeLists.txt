@@ -6,10 +6,7 @@
 #
 # This way we are sure that all the binaries have been installed before.
 
-option(DEPLOY_QTC_DEPENDENCIES
-  "Deployment of Qt, Clang, C++ Runtime libraries" ON)
-
-if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16 AND DEPLOY_QTC_DEPENDENCIES)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
   get_target_property(moc_binary Qt5::moc IMPORTED_LOCATION)
   get_filename_component(moc_dir "${moc_binary}" DIRECTORY)
   get_filename_component(QT_BASE_DIR "${moc_dir}/../" ABSOLUTE)
@@ -28,6 +25,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16 AND DEPLOY_QTC_DEPENDENCIES)
     install(
       DIRECTORY "${QT_BASE_DIR}/plugins/${plugin}"
       DESTINATION ${QT_DEST_PLUGIN_PATH}
+      COMPONENT Dependencies
       ${exclusion_mask}
     )
     list(APPEND QT_PLUGIN_DIRECTORIES "${QT_DEST_PLUGIN_PATH}/${plugin}")
@@ -36,6 +34,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16 AND DEPLOY_QTC_DEPENDENCIES)
   install(
     DIRECTORY "${QT_BASE_DIR}/qml/"
     DESTINATION ${QT_DEST_QML_PATH}
+    COMPONENT Dependencies
     PATTERN "qml/*"
     ${exclusion_mask}
   )
@@ -43,7 +42,10 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16 AND DEPLOY_QTC_DEPENDENCIES)
   # Analyze the binaries and install missing dependencies if they are
   # found the CMAKE_PREFIX_PATH e.g. Qt, Clang
   configure_file(InstallDependentSharedObjects.cmake.in InstallDependentSharedObjects.cmake @ONLY)
-  install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/InstallDependentSharedObjects.cmake)
+  install(
+    SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/InstallDependentSharedObjects.cmake
+    COMPONENT Dependencies
+  )
 
   if (MSVC)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
@@ -51,6 +53,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16 AND DEPLOY_QTC_DEPENDENCIES)
 
     install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
       DESTINATION ${IDE_APP_PATH}
+      COMPONENT Dependencies
     )
   endif()
 endif()
