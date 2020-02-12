@@ -181,10 +181,25 @@ def is_not_debug(path, filenames):
 def codesign(app_path):
     signing_identity = os.environ.get('SIGNING_IDENTITY')
     if is_mac_platform() and signing_identity:
-        codesign_call = ['codesign', '-o', 'runtime', '--force', '--deep', '-s', signing_identity,
+        codesign_call = ['codesign', '-o', 'runtime', '--force', '-s', signing_identity,
                          '-v']
         signing_flags = os.environ.get('SIGNING_FLAGS')
         if signing_flags:
             codesign_call.extend(signing_flags.split())
-        codesign_call.append(app_path)
-        subprocess.check_call(codesign_call)
+
+        def conditional_sign_recursive(path, filter):
+            for r, _, fs in os.walk(path):
+                for f in fs:
+                    ff = os.path.join(r, f)
+                    if filter(ff):
+                        print('codesign "' + ff + '"')
+                        subprocess.check_call(codesign_call + [ff])
+
+        # sign all executables in Resources
+        conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Resources'),
+                                   lambda ff: os.access(ff, os.X_OK))
+        # sign all libraries in Imports
+        conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Imports'),
+                                   lambda ff: ff.endswith('.dylib'))
+        # sign the whole bundle
+        subprocess.check_call(codesign_call + ['--deep', app_path])
