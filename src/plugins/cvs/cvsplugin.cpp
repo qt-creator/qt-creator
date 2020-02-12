@@ -369,6 +369,7 @@ private:
 
     CvsSettingsPage m_settingsPage{[this] { configurationChanged(); }, &m_settings};
 
+public:
     VcsSubmitEditorFactory submitEditorFactory {
         submitParameters,
         [] { return new CvsSubmitEditor; },
@@ -1575,7 +1576,7 @@ void CvsPlugin::testDiffFileResolving_data()
 
 void CvsPlugin::testDiffFileResolving()
 {
-    VcsBaseEditorWidget::testDiffFileResolving(diffEditorParameters.id);
+    VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
 void CvsPlugin::testLogResolving()
@@ -1601,7 +1602,7 @@ void CvsPlugin::testLogResolving()
                 "added latest commentary\n"
                 "----------------------------\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data, "1.3", "1.2");
+    VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data, "1.3", "1.2");
 }
 #endif
 

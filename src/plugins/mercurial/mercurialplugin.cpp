@@ -222,6 +222,7 @@ private:
 
     bool m_submitActionTriggered = false;
 
+public:
     VcsSubmitEditorFactory submitEditorFactory {
         submitEditorParameters,
         [] { return new CommitEditor; },
@@ -901,7 +902,7 @@ void MercurialPlugin::testDiffFileResolving_data()
 
 void MercurialPlugin::testDiffFileResolving()
 {
-    VcsBaseEditorWidget::testDiffFileResolving(diffEditorParameters.id);
+    VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
 void MercurialPlugin::testLogResolving()
@@ -921,7 +922,7 @@ void MercurialPlugin::testLogResolving()
                 "date:        Sat Jan 19 04:08:16 2013 +0100\n"
                 "summary:     test-rebase: add another test for rebase with multiple roots\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data, "18473:692cbda1eb50", "18472:37100f30590f");
+    VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data, "18473:692cbda1eb50", "18472:37100f30590f");
 }
 #endif
 

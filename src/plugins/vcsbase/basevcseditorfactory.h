@@ -43,8 +43,6 @@ public:
     VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                      const EditorWidgetCreator editorWidgetCreator,
                      std::function<void(const QString &, const QString &)> describeFunc);
-
-    static VcsBaseEditor *createEditorById(const char *id);
 };
 
 } // namespace VcsBase

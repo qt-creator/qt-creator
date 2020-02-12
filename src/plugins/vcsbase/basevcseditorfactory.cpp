@@ -82,15 +82,4 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
     setMarksVisible(false);
 }
 
-VcsBaseEditor *VcsEditorFactory::createEditorById(const char *id)
-{
-    for (IEditorFactory *factory : allEditorFactories()) {
-        if (auto vcsFactory = qobject_cast<VcsEditorFactory *>(factory)) {
-            if (vcsFactory->property("VcsEditorFactoryName").toByteArray() == id)
-                return qobject_cast<VcsBaseEditor *>(factory->createEditor());
-        }
-    }
-    return nullptr;
-}
-
 } // namespace VcsBase

@@ -1783,7 +1783,7 @@ void PerforcePlugin::testLogResolving()
                 "\n"
                 "        Comment\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data, "12345", "12344");
+    VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data, "12345", "12344");
 }
 #endif
 
