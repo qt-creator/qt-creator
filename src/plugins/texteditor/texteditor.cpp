@@ -741,7 +741,6 @@ public:
     QTimer m_highlightBlocksTimer;
 
     CodeAssistant m_codeAssistant;
-    bool m_assistRelevantContentAdded = false;
 
     QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
     HoverHandlerRunner m_hoverHandlerRunner;
@@ -1502,8 +1501,8 @@ void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemove
         snippetCheckCursor(cursor);
     }
 
-    if (charsAdded != 0 && q->document()->characterAt(position + charsAdded - 1).isPrint())
-        m_assistRelevantContentAdded = true;
+    if ((charsAdded != 0 && q->document()->characterAt(position + charsAdded - 1).isPrint()) || charsRemoved != 0)
+        m_codeAssistant.notifyChange();
 
     int newBlockCount = doc->blockCount();
     if (!q->hasFocus() && newBlockCount != m_blockCount) {

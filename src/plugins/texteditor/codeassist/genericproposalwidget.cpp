@@ -665,8 +665,6 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         }
 
         QApplication::sendEvent(const_cast<QWidget *>(d->m_underlyingWidget), e);
-        if (isVisible())
-            d->m_assistant->notifyChange();
 
         return true;
     }
