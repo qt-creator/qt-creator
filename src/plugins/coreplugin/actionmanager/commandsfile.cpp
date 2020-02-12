@@ -64,13 +64,15 @@ Context::Context() :
 }
 
 /*!
-    \class CommandsFile
+    \class Core::Internal::CommandsFile
+    \internal
+    \inmodule QtCreator
     \brief The CommandsFile class provides a collection of import and export commands.
     \inheaderfile commandsfile.h
 */
 
 /*!
-    ...
+    \internal
 */
 CommandsFile::CommandsFile(const QString &filename)
     : m_filename(filename)
@@ -79,7 +81,7 @@ CommandsFile::CommandsFile(const QString &filename)
 }
 
 /*!
-    ...
+    \internal
 */
 QMap<QString, QKeySequence> CommandsFile::importCommands() const
 {
@@ -123,7 +125,7 @@ QMap<QString, QKeySequence> CommandsFile::importCommands() const
 }
 
 /*!
-    ...
+    \internal
 */
 
 bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
