@@ -278,13 +278,14 @@ public:
     IAssistProposal *perform(const AssistInterface *interface) override;
     bool running() override;
     bool needsRestart() const override { return true; }
+    void cancel() override;
 
 private:
     void handleCompletionResponse(const CompletionRequest::Response &response);
 
     QPointer<QTextDocument> m_document;
     QPointer<Client> m_client;
-    bool m_running = false;
+    MessageId m_currentRequest;
     int m_pos = -1;
 };
 
@@ -336,7 +337,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     });
     completionRequest.setParams(params);
     m_client->sendContent(completionRequest);
-    m_running = true;
+    m_currentRequest = completionRequest.id();
     m_document = interface->textDocument();
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime()
                               << " : request completions at " << m_pos
@@ -346,14 +347,22 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
 
 bool LanguageClientCompletionAssistProcessor::running()
 {
-    return m_running;
+    return m_currentRequest.isValid();
+}
+
+void LanguageClientCompletionAssistProcessor::cancel()
+{
+    if (running()) {
+        m_client->cancelRequest(m_currentRequest);
+        m_currentRequest = MessageId();
+    }
 }
 
 void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     const CompletionRequest::Response &response)
 {
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : got completions";
-    m_running = false;
+    m_currentRequest = MessageId();
     QTC_ASSERT(m_client, return);
     if (auto error = response.error()) {
         m_client->log(error.value());

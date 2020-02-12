@@ -288,6 +288,8 @@ void CodeAssistantPrivate::cancelCurrentRequest()
         m_requestRunner->setDiscardProposal(true);
         disconnect(m_runnerConnection);
     }
+    if (m_asyncProcessor)
+        m_asyncProcessor->cancel();
     invalidateCurrentRequestData();
 }
 
