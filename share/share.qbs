@@ -11,6 +11,7 @@ Product {
         qbs.installSourceBase: "qtcreator"
         prefix: "qtcreator/"
         files: [
+            "android/**/*",
             "cplusplus/**/*",
             "debugger/**/*",
             "designer/**/*",
