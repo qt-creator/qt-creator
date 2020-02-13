@@ -77,8 +77,8 @@
             instructions of the wizard to create an empty project.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
-        \li Select \uicontrol Library > \uicontrol Resources >
-            \uicontrol {Add New Resources}.
+        \li Select \uicontrol Library > \uicontrol Assets >
+            \uicontrol {Add New Assets}.
         \li Select the folder where you exported the assets.
         \li Select \uicontrol {Exported Assets (*.metadata)} in the dropdown
             menu to filter \e .metadata files.
@@ -106,7 +106,7 @@
             might take a little while for complex projects.
     \endlist
 
-    The imported assets are displayed in the \uicontrol Resources tab in the
+    The imported assets are displayed in the \uicontrol Assets tab in the
     \uicontrol Library as PNG images. The components that you specified in
     the design tool are displayed in the \uicontrol {My QML Components} tab,
     as well as in the \uicontrol Project tab of the \uicontrol Navigator as
@@ -161,8 +161,8 @@
     To import 3D assets to \QDS projects:
 
     \list 1
-        \li In the Design mode, select \uicontrol Library > \uicontrol Resources
-            > \uicontrol {Add New Resources}.
+        \li In the Design mode, select \uicontrol Library > \uicontrol Assets
+            > \uicontrol {Add New Assets}.
         \li Select \uicontrol {3D Assets} in the dropdown menu to filter 3D
             graphics files.
         \li Select a file to import, and then select \uicontrol Open.
