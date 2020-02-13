@@ -58,11 +58,10 @@
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 
-#include <QtPlugin>
-
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
+#include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>

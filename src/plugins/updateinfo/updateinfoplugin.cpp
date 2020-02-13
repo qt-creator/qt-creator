@@ -46,7 +46,6 @@
 #include <QPointer>
 #include <QProcessEnvironment>
 #include <QTimer>
-#include <QtPlugin>
 
 namespace {
     static const char UpdaterGroup[] = "Updater";

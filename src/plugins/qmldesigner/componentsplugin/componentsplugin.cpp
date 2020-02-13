@@ -32,8 +32,6 @@
 #include <viewmanager.h>
 #include <qmldesignerplugin.h>
 
-#include <QtPlugin>
-
 namespace QmlDesigner {
 
 ComponentsPlugin::ComponentsPlugin()

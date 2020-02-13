@@ -287,7 +287,7 @@ Project {
                 "locator/locator_test.cpp"
             ]
 
-            cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
+            cpp.defines: outer.concat(['SRCDIR="' + path + "/locator" + '"'])
         }
 
         Group {

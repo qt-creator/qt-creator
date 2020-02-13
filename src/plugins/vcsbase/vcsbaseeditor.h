@@ -48,6 +48,7 @@ class BaseAnnotationHighlighter;
 class VcsBaseEditorWidget;
 class VcsBaseEditorConfig;
 class VcsCommand;
+class VcsEditorFactory;
 
 // Documentation inside
 enum EditorContentType
@@ -295,8 +296,11 @@ private:
 
 #ifdef WITH_TESTS
 public:
-    static void testDiffFileResolving(const char *id);
-    static void testLogResolving(const char *id, QByteArray &data, const QByteArray &entry1, const QByteArray &entry2);
+    static void testDiffFileResolving(const VcsEditorFactory &factory);
+    static void testLogResolving(const VcsEditorFactory &factory,
+                                 const QByteArray &data,
+                                 const QByteArray &entry1,
+                                 const QByteArray &entry2);
 #endif
 };
 

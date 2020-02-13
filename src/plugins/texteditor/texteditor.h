@@ -556,6 +556,7 @@ public:
     void setContextHelpItem(const Core::HelpItem &item);
 
     static TextEditorWidget *currentTextEditorWidget();
+    static TextEditorWidget *fromEditor(const Core::IEditor *editor);
 
 protected:
     /*!
@@ -641,7 +642,8 @@ public:
 
     using EditorCreator = std::function<BaseTextEditor *()>;
     using DocumentCreator = std::function<TextDocument *()>;
-    using EditorWidgetCreator = std::function<TextEditorWidget *()>;
+    // editor widget must be castable (qobject_cast or Aggregate::query) to TextEditorWidget
+    using EditorWidgetCreator = std::function<QWidget *()>;
     using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
     using IndenterCreator = std::function<Indenter *(QTextDocument *)>;
     using AutoCompleterCreator = std::function<AutoCompleter *()>;

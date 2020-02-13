@@ -65,7 +65,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QTextCodec>
-#include <QtPlugin>
 #include <QProcessEnvironment>
 #include <QUrl>
 #include <QXmlStreamReader>
@@ -325,6 +324,7 @@ private:
 
     SubversionSettingsPage m_settingsPage{[this] { configurationChanged(); }, &m_settings};
 
+public:
     VcsSubmitEditorFactory submitEditorFactory {
         submitParameters,
         [] { return new SubversionSubmitEditor; },
@@ -1329,7 +1329,7 @@ void SubversionPlugin::testLogResolving()
                 "   expectations, remove XFail.\n"
                 "\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data, "r1439551", "r1439540");
+    VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data, "r1439551", "r1439540");
 }
 
 #endif

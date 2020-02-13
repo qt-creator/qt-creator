@@ -244,7 +244,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     setError(bc->error());
     setWarning(bc->warning());
 
-    connect(bc->target(), &Target::parsingStarted, this, [this]() {
+    connect(bc->buildSystem(), &BuildSystem::parsingStarted, this, [this] {
         updateButtonState();
         m_configView->setEnabled(false);
         m_showProgressTimer.start();

@@ -101,6 +101,7 @@ void BuildSystem::emitParsingStarted()
 
     d->m_isParsing = true;
     d->m_hasParsingData = false;
+    emit parsingStarted();
     emit d->m_target->parsingStarted();
 }
 
@@ -112,6 +113,7 @@ void BuildSystem::emitParsingFinished(bool success)
 
     d->m_isParsing = false;
     d->m_hasParsingData = success;
+    emit parsingFinished(success);
     emit d->m_target->parsingFinished(success);
 }
 

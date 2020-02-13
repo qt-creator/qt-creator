@@ -36,6 +36,7 @@
 
 #include <QFile>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QSettings>

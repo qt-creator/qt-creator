@@ -125,6 +125,8 @@ public:
     virtual void triggerParsing() = 0;
 
 signals:
+    void parsingStarted();
+    void parsingFinished(bool success);
     void deploymentDataChanged();
     void applicationTargetsChanged();
 

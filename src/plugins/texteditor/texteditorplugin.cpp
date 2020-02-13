@@ -52,7 +52,6 @@
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
 
-#include <QtPlugin>
 #include <QAction>
 #include <QDir>
 

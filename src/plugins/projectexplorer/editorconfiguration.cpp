@@ -274,7 +274,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     d->m_useGlobal = use;
     d->m_defaultCodeStyle->setCurrentDelegate(use ? TextEditorSettings::codeStyle() : nullptr);
     foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
-        if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        if (auto widget = TextEditorWidget::fromEditor(editor)) {
             Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
                 switchSettings(widget);

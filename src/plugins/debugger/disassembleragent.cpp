@@ -266,7 +266,7 @@ void DisassemblerAgentPrivate::configureMimeType()
     Utils::MimeType mtype = Utils::mimeTypeForName(mimeType);
     if (mtype.isValid()) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
-            if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget()))
+            if (auto widget = TextEditorWidget::fromEditor(editor))
                 widget->configureGenericHighlighter();
     } else {
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
@@ -314,7 +314,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern);
         QTC_ASSERT(editor, return);
-        if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        if (auto widget = TextEditorWidget::fromEditor(editor)) {
             widget->setReadOnly(true);
             widget->setRequestMarkEnabled(true);
         }

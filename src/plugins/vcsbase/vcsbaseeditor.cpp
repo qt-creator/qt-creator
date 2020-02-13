@@ -35,6 +35,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/patchtool.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <cpaster/codepasterservice.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
@@ -1626,9 +1627,11 @@ Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
 #ifdef WITH_TESTS
 #include <QTest>
 
-void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(const char *id)
+namespace VcsBase {
+
+void VcsBaseEditorWidget::testDiffFileResolving(const VcsEditorFactory &factory)
 {
-    VcsBaseEditor *editor = VcsBase::VcsEditorFactory::createEditorById(id);
+    VcsBaseEditor *editor = qobject_cast<VcsBaseEditor *>(factory.createEditor());
     auto widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
 
     QFETCH(QByteArray, header);
@@ -1642,11 +1645,12 @@ void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(const char *id)
     delete editor;
 }
 
-void VcsBase::VcsBaseEditorWidget::testLogResolving(const char *id, QByteArray &data,
-                                                    const QByteArray &entry1,
-                                                    const QByteArray &entry2)
+void VcsBaseEditorWidget::testLogResolving(const VcsEditorFactory &factory,
+                                           const QByteArray &data,
+                                           const QByteArray &entry1,
+                                           const QByteArray &entry2)
 {
-    VcsBaseEditor *editor = VcsBase::VcsEditorFactory::createEditorById(id);
+    VcsBaseEditor *editor = qobject_cast<VcsBaseEditor *>(factory.createEditor());
     auto widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
 
     widget->textDocument()->setPlainText(QLatin1String(data));
@@ -1655,6 +1659,9 @@ void VcsBase::VcsBaseEditorWidget::testLogResolving(const char *id, QByteArray &
 
     delete editor;
 }
+
+} // VcsBase
+
 #endif
 
 #include "vcsbaseeditor.moc"

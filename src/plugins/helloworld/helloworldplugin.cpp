@@ -34,7 +34,6 @@
 #include <coreplugin/id.h>
 
 #include <QDebug>
-#include <QtPlugin>
 #include <QAction>
 #include <QMenu>
 #include <QMessageBox>

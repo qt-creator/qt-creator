@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "qtquickplugin.h"
-#include <QtPlugin>
 
 namespace QmlDesigner {
 

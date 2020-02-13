@@ -1973,7 +1973,7 @@ void GitPlugin::testDiffFileResolving_data()
 
 void GitPlugin::testDiffFileResolving()
 {
-    VcsBaseEditorWidget::testDiffFileResolving(commitTextEditorParameters.id);
+    VcsBaseEditorWidget::testDiffFileResolving(dd->commitTextEditorFactory);
 }
 
 void GitPlugin::testLogResolving()
@@ -1999,7 +1999,7 @@ void GitPlugin::testLogResolving()
                 "    Signed-off-by: Junio C Hamano <gitster@pobox.com>\n"
                 );
 
-    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data,
+    VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data,
                             "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
                             "3587b513 - Update draft release notes to 1.8.2");
 }

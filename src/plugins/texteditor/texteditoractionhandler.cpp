@@ -31,6 +31,8 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 
+#include <aggregation/aggregate.h>
+
 #include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -592,7 +594,7 @@ TextEditorActionHandler::TextEditorActionHandler(Core::Id editorId,
     if (resolver)
         d->m_findTextWidget = resolver;
     else
-        d->m_findTextWidget = [](Core::IEditor *editor) { return qobject_cast<TextEditorWidget *>(editor->widget()); };
+        d->m_findTextWidget = TextEditorWidget::fromEditor;
 }
 
 TextEditorActionHandler::~TextEditorActionHandler()

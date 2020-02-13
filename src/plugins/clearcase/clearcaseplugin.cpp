@@ -2578,7 +2578,7 @@ void ClearCasePlugin::testDiffFileResolving_data()
 
 void ClearCasePlugin::testDiffFileResolving()
 {
-    VcsBaseEditorWidget::testDiffFileResolving(diffEditorParameters.id);
+    VcsBaseEditorWidget::testDiffFileResolving(dd->diffEditorFactory);
 }
 
 void ClearCasePlugin::testLogResolving()
@@ -2587,7 +2587,7 @@ void ClearCasePlugin::testLogResolving()
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
                 "22-Aug.14:13   user2      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8\" (baseline3, baseline4, ...)\n"
                 );
-    VcsBaseEditorWidget::testLogResolving(logEditorParameters.id, data,
+    VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data,
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9",
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8");
 }
