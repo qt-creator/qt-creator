@@ -33,6 +33,7 @@
 #include <nodeabstractproperty.h>
 #include <exception.h>
 #include <nodemetainfo.h>
+#include <nodelistproperty.h>
 
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -210,6 +211,10 @@ void ConnectionModel::updateTargetNode(int rowNumber)
     ModelNode connectionNode = signalHandlerProperty.parentModelNode();
 
     if (!newTarget.isEmpty()) {
+        const ModelNode parent = connectionView()->modelNodeForId(newTarget);
+        if (parent.isValid() && QmlItemNode::isValidQmlItemNode(parent))
+            parent.nodeListProperty("data").reparentHere(connectionNode);
+
         connectionView()->executeInTransaction("ConnectionModel::updateTargetNode", [= ,&connectionNode](){
             connectionNode.bindingProperty("target").setExpression(newTarget);
         });
@@ -255,14 +260,21 @@ void ConnectionModel::addConnection()
                                                                       nodeMetaInfo.majorVersion(),
                                                                       nodeMetaInfo.minorVersion());
 
-                rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
                 newNode.signalHandlerProperty("onClicked").setSource(QLatin1String("print(\"clicked\")"));
 
-                if (connectionView()->selectedModelNodes().count() == 1
-                        && !connectionView()->selectedModelNodes().constFirst().id().isEmpty()) {
+                if (connectionView()->selectedModelNodes().count() == 1) {
                     const ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
+                    if (QmlItemNode::isValidQmlItemNode(selectedNode))
+                        selectedNode.nodeAbstractProperty("data").reparentHere(newNode);
+                    else
+                        rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
+
+                    if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
                     newNode.bindingProperty("target").setExpression(selectedNode.id());
+                    else
+                        newNode.bindingProperty("target").setExpression(QLatin1String("parent"));
                 } else {
+                    rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
                     newNode.bindingProperty("target").setExpression(QLatin1String("parent"));
                 }
             });
