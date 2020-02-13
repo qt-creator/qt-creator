@@ -275,4 +275,149 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 400; }
         }
     }
+
+    Type {
+        name: "QtQuick.PropertyAnimation"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Property Animation"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.PauseAnimation"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+    Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Pause Animation"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.SequentialAnimation"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Sequential Animation"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.ParallelAnimation"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Parallel Animation"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.PropertyAction"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Property Action"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.ScriptAction"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Script Action"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.ColorAnimation"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "ColorAnimation"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.NumberAnimation"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+        }
+
+        ItemLibraryEntry {
+            name: "Number Animation"
+            category: "Qt Quick - Animation"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+        }
+    }
+
 }
