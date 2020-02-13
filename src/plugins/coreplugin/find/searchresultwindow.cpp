@@ -53,6 +53,30 @@ static const int MAX_SEARCH_HISTORY = 12;
 
 namespace Core {
 
+/*!
+    \namespace Core::Search
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::Search::TextPosition
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::Search::TextRange
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::SearchResultItem
+    \inmodule QtCreator
+    \internal
+*/
+
 namespace Internal {
 
     class InternalScrollArea : public QScrollArea
@@ -236,6 +260,7 @@ using namespace Core::Internal;
 
 /*!
     \class Core::SearchResult
+    \inmodule QtCreator
     \brief The SearchResult class reports user interaction, such as the
     activation of a search result item.
 
@@ -251,51 +276,115 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void SearchResult::replaceButtonClicked(const QString &replaceText, const QList<Core::SearchResultItem> &checkedItems, bool preserveCase)
+    \fn void SearchResult::replaceButtonClicked(const QString &replaceText,
+                           const QList<Core::SearchResultItem> &checkedItems,
+                           bool preserveCase)
+
     Indicates that the user initiated a text replace by selecting
-    \gui {Replace All}, for example.
+    \uicontrol {Replace All}, for example.
 
     The signal reports the text to use for replacement in \a replaceText,
-    and the list of search result items that were selected by the user
-    in \a checkedItems.
+    the list of search result items that were selected by the user
+    in \a checkedItems, and whether a search and replace should preserve the
+    case of the replaced strings in \a preserveCase.
     The handler of this signal should apply the replace only on the selected
     items.
 */
 
 /*!
+    \enum Core::SearchResult::AddMode
+    This enum type specifies whether the search results should be sorted or
+    ordered:
+
+    \value AddSorted
+           The search results are sorted.
+    \value AddOrdered
+           The search results are ordered.
+*/
+
+/*!
+    \fn void SearchResult::cancelled()
+    This signal is emitted if the user cancels the search.
+*/
+
+/*!
+    \fn void SearchResult::countChanged(int count)
+    This signal is emitted when the number of search hits changes to \a count.
+*/
+
+/*!
+    \fn void SearchResult::paused(bool paused)
+    This signal is emitted when the search status is set to \a paused.
+*/
+
+/*!
+    \fn void SearchResult::requestEnabledCheck()
+
+    This signal is emitted when the enabled status of search results is
+    requested.
+*/
+
+/*!
+    \fn void SearchResult::searchAgainRequested()
+
+    This signal is emitted when the \uicontrol {Search Again} button is
+    selected.
+*/
+
+/*!
+    \fn void SearchResult::visibilityChanged(bool visible)
+
+    This signal is emitted when the visibility of the search results changes
+    to \a visible.
+*/
+
+/*!
     \class Core::SearchResultWindow
+    \inmodule QtCreator
     \brief The SearchResultWindow class is the implementation of a commonly
-    shared \gui{Search Results} output pane. Use it to show search results
-    to a user.
+    shared \uicontrol{Search Results} output pane.
+
+    \image qtcreator-searchresults.png
 
     Whenever you want to show the user a list of search results, or want
     to present UI for a global search and replace, use the single instance
     of this class.
 
-    Except for being an implementation of a output pane, the
-    SearchResultWindow has a few functions and one enum that allows other
+    In addition to being an implementation of an output pane, the
+    SearchResultWindow has functions and enums that enable other
     plugins to show their search results and hook into the user actions for
     selecting an entry and performing a global replace.
 
     Whenever you start a search, call startNewSearch(SearchMode) to initialize
-    the \gui {Search Results} output pane. The parameter determines if the GUI for
+    the \uicontrol {Search Results} output pane. The parameter determines if the GUI for
     replacing should be shown.
     The function returns a SearchResult object that is your
     hook into the signals from user interaction for this search.
-    When you produce search results, call addResults or addResult to add them
-    to the \gui {Search Results} output pane.
-    After the search has finished call finishSearch to inform the
-    \gui {Search Results} output pane about it.
+    When you produce search results, call addResults() or addResult() to add them
+    to the \uicontrol {Search Results} output pane.
+    After the search has finished call finishSearch() to inform the
+    \uicontrol {Search Results} output pane about it.
 
-    You will get activated signals via your SearchResult instance when
-    the user selects a search result item, and, if you started the search
-    with the SearchAndReplace option, the replaceButtonClicked signal
-    when the user requests a replace.
+    You will get activated() signals via your SearchResult instance when
+    the user selects a search result item. If you started the search
+    with the SearchAndReplace option, the replaceButtonClicked() signal
+    is emitted when the user requests a replace.
 */
 
 /*!
     \fn QString SearchResultWindow::displayName() const
     \internal
+*/
+
+/*!
+    \enum SearchResultWindow::PreserveCaseMode
+    This enum type specifies whether a search and replace should preserve the
+    case of the replaced strings:
+
+    \value PreserveCaseEnabled
+           The case is preserved when replacings strings.
+    \value PreserveCaseDisabled
+           The given case is used when replacing strings.
 */
 
 SearchResultWindow *SearchResultWindow::m_instance = nullptr;
@@ -322,7 +411,7 @@ SearchResultWindow::~SearchResultWindow()
 }
 
 /*!
-    Returns the single shared instance of the \gui {Search Results} output pane.
+    Returns the single shared instance of the \uicontrol {Search Results} output pane.
 */
 SearchResultWindow *SearchResultWindow::instance()
 {
@@ -356,24 +445,31 @@ QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 }
 
 /*!
-    Tells the \gui {Search Results} output pane to start a new search.
+    Tells the \uicontrol {Search Results} output pane to start a new search.
 
     The \a label should be a string that shortly describes the type of the
     search, that is, the search filter and possibly the most relevant search
-     option, followed by a colon ':'. For example: \c {Project 'myproject':}
+    option, followed by a colon (:). For example: \c {Project 'myproject':}
     The \a searchTerm is shown after the colon.
-    The \a toolTip should elaborate on the search parameters, like file patterns that are searched and
-    find flags.
-    If \a cfgGroup is not empty, it will be used for storing the "do not ask again"
-    setting of a "this change cannot be undone" warning (which is implicitly requested
+
+    The \a toolTip should elaborate on the search parameters, like file patterns
+    that are searched and find flags.
+
+    If \a cfgGroup is not empty, it will be used for storing the \e {do not ask again}
+    setting of a \e {this change cannot be undone} warning (which is implicitly requested
     by passing a non-empty group).
+
+    The \a searchOrSearchAndReplace parameter holds whether the search
+    results pane should show a UI for a global search and replace action.
+    The \a preserveCaseMode parameter holds whether the case of the search
+    string should be preserved when replacing strings.
+
     Returns a SearchResult object that is used for signaling user interaction
     with the results of this search.
     The search result window owns the returned SearchResult
-    and might delete it any time, even while the search is running
-    (for example, when the user clears the \gui {Search Results} pane, or when
-    the user opens so many other searches
-    that this search falls out of the history).
+    and might delete it any time, even while the search is running.
+    For example, when the user clears the \uicontrol {Search Results} pane, or when
+    the user opens so many other searches that this search falls out of the history.
 
 */
 SearchResult *SearchResultWindow::startNewSearch(const QString &label,
@@ -420,7 +516,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
 }
 
 /*!
-    Clears the current contents of the \gui {Search Results} output pane.
+    Clears the current contents of the \uicontrol {Search Results} output pane.
 */
 void SearchResultWindow::clearContents()
 {
@@ -495,13 +591,18 @@ void SearchResultWindow::setTextEditorFont(const QFont &font,
         widget->setTextEditorFont(font, color);
 }
 
+/*!
+    Sets the \uicontrol {Search Results} tab width to \a tabWidth.
+*/
 void SearchResultWindow::setTabWidth(int tabWidth)
 {
     d->m_tabWidth = tabWidth;
     foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
         widget->setTabWidth(tabWidth);
 }
-
+/*!
+    Opens a new search panel.
+*/
 void SearchResultWindow::openNewSearchPanel()
 {
     d->setCurrentIndexWithFocus(0);
@@ -644,23 +745,32 @@ QString SearchResult::textToReplace() const
     return m_widget->textToReplace();
 }
 
+/*!
+    Returns the number of search hits.
+*/
 int SearchResult::count() const
 {
     return m_widget->count();
 }
 
+/*!
+    Sets whether the \uicontrol {Seach Again} button is enabled to \a supported.
+*/
 void SearchResult::setSearchAgainSupported(bool supported)
 {
     m_widget->setSearchAgainSupported(supported);
 }
 
+/*!
+    Returns a UI for a global search and replace action.
+*/
 QWidget *SearchResult::additionalReplaceWidget() const
 {
     return m_widget->additionalReplaceWidget();
 }
 
 /*!
-    Adds a single result line to the \gui {Search Results} output pane.
+    Adds a single result line to the \uicontrol {Search Results} output pane.
 
     \a fileName, \a lineNumber, and \a lineText are shown on the result line.
     \a searchTermStart and \a searchTermLength specify the region that
@@ -683,6 +793,18 @@ void SearchResult::addResult(const QString &fileName, int lineNumber, const QStr
     m_widget->addResult(fileName, lineText, mainRange, userData);
 }
 
+/*!
+    Adds a single result line to the \uicontrol {Search Results} output pane.
+
+    \a mainRange specifies the region from the beginning of the search term
+    through its length that should be visually marked.
+    \a fileName and \a lineText are shown on the result line.
+    You can attach arbitrary \a userData to the search result, which can
+    be used, for example, when reacting to the signals of the search results
+    for your search.
+
+    \sa addResults()
+*/
 void SearchResult::addResult(const QString &fileName,
                              const QString &lineText,
                              Search::TextRange mainRange,
@@ -693,7 +815,8 @@ void SearchResult::addResult(const QString &fileName,
 }
 
 /*!
-    Adds the search result \a items to the \gui {Search Results} output pane.
+    Adds the search result \a items to the \uicontrol {Search Results} output
+    pane using \a mode.
 
     \sa addResult()
 */
@@ -704,8 +827,8 @@ void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode
 }
 
 /*!
-    Notifies the \gui {Search Results} output pane that the current search
-    has finished, and the UI should reflect that.
+    Notifies the \uicontrol {Search Results} output pane that the current search
+    has been \a canceled, and the UI should reflect that.
 */
 void SearchResult::finishSearch(bool canceled)
 {
@@ -729,13 +852,16 @@ void SearchResult::restart()
     m_widget->restart();
 }
 
+/*!
+    Sets whether the \uicontrol {Seach Again} button is enabled to \a enabled.
+*/
 void SearchResult::setSearchAgainEnabled(bool enabled)
 {
     m_widget->setSearchAgainEnabled(enabled);
 }
 
 /*!
- * Opens the \gui {Search Results} output pane with this search.
+ * Opens the \uicontrol {Search Results} output pane with this search.
  */
 void SearchResult::popup()
 {

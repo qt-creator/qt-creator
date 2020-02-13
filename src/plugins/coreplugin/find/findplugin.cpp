@@ -53,11 +53,13 @@
 #include <QSettings>
 
 /*!
-    \namespace Core::Internal
+    \namespace Core::Internal::ItemDataRoles
     \internal
 */
+
 /*!
-    \namespace Core::Internal::ItemDataRoles
+    \class Core::Find
+    \inmodule QtCreator
     \internal
 */
 

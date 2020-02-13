@@ -81,17 +81,54 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 {
 }
 
+/*!
+    \class Core::BaseTextFind
+    \inmodule QtCreator
+
+    \brief The BaseTextFind class implements a find filter for QPlainTextEdit
+    and QTextEdit based widgets.
+
+    \sa Core::IFindFilter
+*/
+
+/*!
+    \fn void BaseTextFind::findScopeChanged(const QTextCursor &start,
+                           const QTextCursor &end,
+                           int verticalBlockSelectionFirstColumn,
+                           int verticalBlockSelectionLastColumn)
+
+    This signal is emitted when the search
+    scope changes to \a start, \a end,
+    \a verticalBlockSelectionFirstColumn, and
+    \a verticalBlockSelectionLastColumn.
+*/
+
+/*!
+    \fn void BaseTextFind::highlightAllRequested(const QString &txt, Core::FindFlags findFlags)
+
+    This signal is emitted when the search results for \a txt using the given
+    \a findFlags should be highlighted in the editor widget.
+*/
+
+/*!
+    \internal
+*/
 BaseTextFind::BaseTextFind(QTextEdit *editor)
     : d(new BaseTextFindPrivate(editor))
 {
 }
 
-
+/*!
+    \internal
+*/
 BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
     : d(new BaseTextFindPrivate(editor))
 {
 }
 
+/*!
+    \internal
+*/
 BaseTextFind::~BaseTextFind()
 {
     delete d;
@@ -121,28 +158,43 @@ bool BaseTextFind::isReadOnly() const
     return d->m_editor ? d->m_editor->isReadOnly() : d->m_plaineditor->isReadOnly();
 }
 
+/*!
+    \reimp
+*/
 bool BaseTextFind::supportsReplace() const
 {
     return !isReadOnly();
 }
 
+/*!
+    \reimp
+*/
 FindFlags BaseTextFind::supportedFindFlags() const
 {
     return FindBackward | FindCaseSensitively | FindRegularExpression
             | FindWholeWords | FindPreserveCase;
 }
 
+/*!
+    \reimp
+*/
 void BaseTextFind::resetIncrementalSearch()
 {
     d->m_incrementalStartPos = -1;
     d->m_incrementalWrappedState = false;
 }
 
+/*!
+    \reimp
+*/
 void BaseTextFind::clearHighlights()
 {
     highlightAll(QString(), {});
 }
 
+/*!
+    \reimp
+*/
 QString BaseTextFind::currentFindString() const
 {
     QTextCursor cursor = textCursor();
@@ -168,6 +220,9 @@ QString BaseTextFind::currentFindString() const
     return QString();
 }
 
+/*!
+    \reimp
+*/
 QString BaseTextFind::completedFindString() const
 {
     QTextCursor cursor = textCursor();
@@ -176,6 +231,9 @@ QString BaseTextFind::completedFindString() const
     return cursor.selectedText();
 }
 
+/*!
+    \reimp
+*/
 IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
@@ -195,6 +253,9 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags
     return found ? Found : NotFound;
 }
 
+/*!
+    \reimp
+*/
 IFindSupport::Result BaseTextFind::findStep(const QString &txt, FindFlags findFlags)
 {
     bool wrapped = false;
@@ -208,6 +269,9 @@ IFindSupport::Result BaseTextFind::findStep(const QString &txt, FindFlags findFl
     return found ? Found : NotFound;
 }
 
+/*!
+    \reimp
+*/
 void BaseTextFind::replace(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor cursor = replaceInternal(before, after, findFlags);
@@ -259,6 +323,9 @@ QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &
     return cursor;
 }
 
+/*!
+    \reimp
+*/
 bool BaseTextFind::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor cursor = replaceInternal(before, after, findFlags);
@@ -269,6 +336,10 @@ bool BaseTextFind::replaceStep(const QString &before, const QString &after, Find
     return found;
 }
 
+/*!
+    \reimp
+    Returns the number of search hits replaced.
+*/
 int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor editCursor = textCursor();
@@ -408,6 +479,9 @@ bool BaseTextFind::inScope(int startPosition, int endPosition) const
             && d->m_findScopeEnd.position() >= endPosition);
 }
 
+/*!
+    \reimp
+*/
 void BaseTextFind::defineFindScope()
 {
     QTextCursor cursor = textCursor();
@@ -436,6 +510,9 @@ void BaseTextFind::defineFindScope()
     }
 }
 
+/*!
+    \reimp
+*/
 void BaseTextFind::clearFindScope()
 {
     d->m_findScopeStart = QTextCursor();
@@ -447,6 +524,10 @@ void BaseTextFind::clearFindScope()
                           d->m_findScopeVerticalBlockSelectionLastColumn);
 }
 
+/*!
+    \reimp
+    Emits highlightAllRequested().
+*/
 void BaseTextFind::highlightAll(const QString &txt, FindFlags findFlags)
 {
     emit highlightAllRequested(txt, findFlags);

@@ -30,6 +30,106 @@
 
 using namespace Core;
 
+/*!
+    \class Core::IFindSupport
+    \inmodule QtCreator
+    \brief The IFindSupport class provides functions for searching in a document
+     or widget.
+
+    \sa Core::BaseTextFind
+*/
+
+/*!
+    \enum IFindSupport::Result
+    This enum holds whether the search term was found within the search scope
+    using the find flags.
+
+    \value Found        The search term was found.
+    \value NotFound     The search term was not found.
+    \value NotYetFound  The search term has not been found yet.
+*/
+
+/*!
+    \fn IFindSupport::IFindSupport()
+    \internal
+*/
+
+/*!
+    \fn IFindSupport::~IFindSupport()
+    \internal
+*/
+
+/*!
+    \fn bool IFindSupport::supportsReplace() const
+    Returns whether the find filter supports search and replace.
+*/
+
+/*!
+    \fn FindFlags IFindSupport::supportedFindFlags() const
+    Returns the find flags, such as whole words or regular expressions,
+    that this find filter supports.
+
+    Depending on the returned value, the default find option widgets are
+    enabled or disabled.
+
+    The default is Core::FindBackward, Core::FindCaseSensitively,
+    Core::FindRegularExpression, Core::FindWholeWords, and
+    Core::FindPreserveCase.
+*/
+
+/*!
+    \fn void IFindSupport::resetIncrementalSearch()
+    Resets incremental search to start position.
+*/
+
+/*!
+    \fn void IFindSupport::clearHighlights()
+    Clears highlighting of search results in the searched widget.
+*/
+
+/*!
+    \fn QString IFindSupport::currentFindString() const
+    Returns the current search string.
+*/
+
+/*!
+    \fn QString IFindSupport::completedFindString() const
+    Returns the complete search string.
+*/
+
+/*!
+    \fn void IFindSupport::highlightAll(const QString &txt, FindFlags findFlags)
+    Highlights all search hits for \a txt when using \a findFlags.
+*/
+
+/*!
+    \fn Result IFindSupport::findIncremental(const QString &txt, FindFlags findFlags)
+    Performs an incremental search of the search term \a txt using \a findFlags.
+*/
+
+/*!
+    \fn Result IFindSupport::findStep(const QString &txt, FindFlags findFlags)
+    Searches for \a txt using \a findFlags.
+*/
+
+/*!
+    \fn void IFindSupport::defineFindScope()
+    Defines the find scope.
+*/
+
+/*!
+    \fn void IFindSupport::clearFindScope()
+    Clears the find scope.
+*/
+
+/*!
+    \fn void IFindSupport::changed()
+    This signal is emitted when the search changes.
+*/
+
+/*!
+    Replaces \a before with \a after as specified by \a findFlags.
+*/
 void IFindSupport::replace(const QString &before, const QString &after, FindFlags findFlags)
 {
     Q_UNUSED(before)
@@ -37,6 +137,12 @@ void IFindSupport::replace(const QString &before, const QString &after, FindFlag
     Q_UNUSED(findFlags)
 }
 
+/*!
+    Replaces \a before with \a after as specified by \a findFlags, and then
+    performs findStep().
+
+    Returns whether the find step found another match.
+*/
 bool IFindSupport::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
 {
     Q_UNUSED(before)
@@ -45,6 +151,10 @@ bool IFindSupport::replaceStep(const QString &before, const QString &after, Find
     return false;
 }
 
+/*!
+    Finds and replaces all instances of \a before with \a after as specified by
+    \a findFlags.
+*/
 int IFindSupport::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     Q_UNUSED(before)
@@ -53,6 +163,9 @@ int IFindSupport::replaceAll(const QString &before, const QString &after, FindFl
     return 0;
 }
 
+/*!
+    Shows \a parent overlayed with the wrap indicator.
+*/
 void IFindSupport::showWrapIndicator(QWidget *parent)
 {
     Utils::FadingIndicator::showPixmap(parent, Utils::StyleHelper::dpiSpecificImageFile(
