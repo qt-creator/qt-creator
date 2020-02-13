@@ -1045,6 +1045,7 @@ function(add_qtc_executable name)
         create_qt_conf(\"${_EXECUTABLE_PATH}\" \"${IDE_LIBRARY_BASE_PATH}/Qt\")
       endif()
       "
+      COMPONENT Dependencies
      )
 
   endif()

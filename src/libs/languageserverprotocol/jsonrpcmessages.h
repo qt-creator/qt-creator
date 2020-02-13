@@ -119,10 +119,8 @@ public:
 
     virtual bool parametersAreValid(QString *errorMessage) const
     {
-        if (auto parameter = params()) {
-            QStringList error;
-            return parameter.value().isValid(&error);
-        }
+        if (auto parameter = params())
+            return parameter.value().isValid(nullptr);
         if (errorMessage)
             *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Notification",
                                                         "No parameters in \"%1\".").arg(method());
@@ -180,7 +178,7 @@ public:
     void setData(const Error &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     {
         return check<int>(error, codeKey)
                 && check<QString>(error, messageKey)
@@ -332,12 +330,12 @@ public:
     MessageId id() const { return MessageId(value(idKey)); }
     void setId(const MessageId &id) { insert(idKey, id.toJson()); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     {
         if (MessageId(value(idKey)).isValid(error))
             return true;
         if (error)
-            error->append(idKey);
+            error->prependMember(idKey);
         return false;
     }
 };

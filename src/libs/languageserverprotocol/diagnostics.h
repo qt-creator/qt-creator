@@ -42,7 +42,7 @@ public:
     void setDiagnostics(const QList<Diagnostic> &diagnostics)
     { insertArray(diagnosticsKey, diagnostics); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkArray<Diagnostic>(error, diagnosticsKey); }
 };
 

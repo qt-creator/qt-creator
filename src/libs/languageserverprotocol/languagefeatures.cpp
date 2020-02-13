@@ -79,7 +79,7 @@ Utils::optional<MarkupOrString> ParameterInformation::documentation() const
     return MarkupOrString(documentation);
 }
 
-bool SignatureHelp::isValid(QStringList *error) const
+bool SignatureHelp::isValid(ErrorHierarchy *error) const
 {
     return checkArray<SignatureInformation>(error, signaturesKey);
 }
@@ -118,12 +118,12 @@ void CodeActionParams::CodeActionContext::setOnly(const QList<CodeActionKind> &o
     insertArray(onlyKey, only);
 }
 
-bool CodeActionParams::CodeActionContext::isValid(QStringList *error) const
+bool CodeActionParams::CodeActionContext::isValid(ErrorHierarchy *error) const
 {
     return checkArray<Diagnostic>(error, diagnosticsKey);
 }
 
-bool CodeActionParams::isValid(QStringList *error) const
+bool CodeActionParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && check<Range>(error, rangeKey)
@@ -154,7 +154,7 @@ DocumentColorRequest::DocumentColorRequest(const DocumentColorParams &params)
     : Request(methodName, params)
 { }
 
-bool Color::isValid(QStringList *error) const
+bool Color::isValid(ErrorHierarchy *error) const
 {
     return check<int>(error, redKey)
             && check<int>(error, greenKey)
@@ -162,7 +162,7 @@ bool Color::isValid(QStringList *error) const
             && check<int>(error, alphaKey);
 }
 
-bool ColorPresentationParams::isValid(QStringList *error) const
+bool ColorPresentationParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && check<Color>(error, colorInfoKey)
@@ -201,7 +201,7 @@ void FormattingOptions::setProperty(const QString &key, const DocumentFormatting
         insert(key, *val);
 }
 
-bool FormattingOptions::isValid(QStringList *error) const
+bool FormattingOptions::isValid(ErrorHierarchy *error) const
 {
     return Utils::allOf(keys(), [this, &error](auto key){
         return (key == tabSizeKey && this->check<int>(error, key))
@@ -210,7 +210,7 @@ bool FormattingOptions::isValid(QStringList *error) const
     });
 }
 
-bool DocumentFormattingParams::isValid(QStringList *error) const
+bool DocumentFormattingParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && check<FormattingOptions>(error, optionsKey);
@@ -220,7 +220,7 @@ DocumentFormattingRequest::DocumentFormattingRequest(const DocumentFormattingPar
     : Request(methodName, params)
 { }
 
-bool DocumentRangeFormattingParams::isValid(QStringList *error) const
+bool DocumentRangeFormattingParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && check<Range>(error, rangeKey)
@@ -232,7 +232,7 @@ DocumentRangeFormattingRequest::DocumentRangeFormattingRequest(
     : Request(methodName, params)
 { }
 
-bool DocumentOnTypeFormattingParams::isValid(QStringList *error) const
+bool DocumentOnTypeFormattingParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && check<Position>(error, positionKey)
@@ -245,7 +245,7 @@ DocumentOnTypeFormattingRequest::DocumentOnTypeFormattingRequest(
     : Request(methodName, params)
 { }
 
-bool RenameParams::isValid(QStringList *error) const
+bool RenameParams::isValid(ErrorHierarchy *error) const
 {
     return check<TextDocumentIdentifier>(error, textDocumentKey)
             && check<Position>(error, positionKey)
@@ -369,7 +369,7 @@ HoverContent::HoverContent(const QJsonValue &value)
     }
 }
 
-bool HoverContent::isValid(QStringList *errorHierarchy) const
+bool HoverContent::isValid(ErrorHierarchy *errorHierarchy) const
 {
     if (Utils::holds_alternative<MarkedString>(*this)
             || Utils::holds_alternative<MarkupContent>(*this)
@@ -377,10 +377,10 @@ bool HoverContent::isValid(QStringList *errorHierarchy) const
         return true;
     }
     if (errorHierarchy) {
-        *errorHierarchy << QCoreApplication::translate(
-                               "LanguageServerProtocol::HoverContent",
-                               "HoverContent should be either MarkedString, "
-                               "MarkupContent, or QList<MarkedString>.");
+        errorHierarchy->setError(
+            QCoreApplication::translate("LanguageServerProtocol::HoverContent",
+                                        "HoverContent should be either MarkedString, "
+                                        "MarkupContent, or QList<MarkedString>."));
     }
     return false;
 }
@@ -395,7 +395,7 @@ DocumentFormattingProperty::DocumentFormattingProperty(const QJsonValue &value)
         *this = value.toString();
 }
 
-bool DocumentFormattingProperty::isValid(QStringList *error) const
+bool DocumentFormattingProperty::isValid(ErrorHierarchy *error) const
 {
     if (Utils::holds_alternative<bool>(*this)
             || Utils::holds_alternative<double>(*this)
@@ -403,9 +403,9 @@ bool DocumentFormattingProperty::isValid(QStringList *error) const
         return true;
     }
     if (error) {
-        *error << QCoreApplication::translate(
-                      "LanguageServerProtocol::MarkedString",
-                      "DocumentFormattingProperty should be either bool, double, or QString.");
+        error->setError(QCoreApplication::translate(
+            "LanguageServerProtocol::MarkedString",
+            "DocumentFormattingProperty should be either bool, double, or QString."));
     }
     return false;
 }
@@ -433,7 +433,7 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
     emplace<std::nullptr_t>(nullptr);
 }
 
-bool CodeAction::isValid(QStringList *error) const
+bool CodeAction::isValid(ErrorHierarchy *error) const
 {
     return check<QString>(error, titleKey)
            && checkOptional<CodeActionKind>(error, codeActionKindKey)
@@ -491,7 +491,7 @@ void SemanticHighlightToken::appendToByteArray(QByteArray &byteArray) const
     byteArray.append(char((scope & 0x00ff)));
 }
 
-bool SemanticHighlightingParams::isValid(QStringList *error) const
+bool SemanticHighlightingParams::isValid(ErrorHierarchy *error) const
 {
     return check<VersionedTextDocumentIdentifier>(error, textDocumentKey)
             && checkArray<SemanticHighlightingInformation>(error, linesKey);

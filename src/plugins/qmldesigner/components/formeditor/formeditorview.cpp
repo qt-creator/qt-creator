@@ -661,6 +661,9 @@ void FormEditorView::toggle3DViewEnabled(bool enabled)
     QTC_ASSERT(model(), return);
     QTC_ASSERT(rootModelNode().isValid(), return);
 
+    if (enabled == rootModelNode().hasAuxiliaryData("3d-view"))
+        return;
+
     if (enabled)
         rootModelNode().setAuxiliaryData("3d-view", true);
     else

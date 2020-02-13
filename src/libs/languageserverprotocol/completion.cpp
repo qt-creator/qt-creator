@@ -49,7 +49,7 @@ Utils::optional<CompletionItem::InsertTextFormat> CompletionItem::insertTextForm
             : Utils::make_optional(CompletionItem::InsertTextFormat(value.value()));
 }
 
-bool CompletionItem::isValid(QStringList *error) const
+bool CompletionItem::isValid(ErrorHierarchy *error) const
 {
     return check<QString>(error, labelKey)
             && checkOptional<int>(error, kindKey)
@@ -70,14 +70,14 @@ CompletionItemResolveRequest::CompletionItemResolveRequest(const CompletionItem 
     : Request(methodName, params)
 { }
 
-bool CompletionList::isValid(QStringList *error) const
+bool CompletionList::isValid(ErrorHierarchy *error) const
 {
     return check<bool>(error, isIncompleteKey)
             && checkOptionalArray<CompletionItem>(error, itemsKey);
 
 }
 
-bool CompletionParams::isValid(QStringList *error) const
+bool CompletionParams::isValid(ErrorHierarchy *error) const
 {
     return TextDocumentPositionParams::isValid(error)
             && checkOptional<CompletionContext>(error, contextKey);

@@ -75,4 +75,34 @@ QJsonArray fromJsonValue<QJsonArray>(const QJsonValue &value)
     return value.toArray();
 }
 
+void ErrorHierarchy::clear()
+{
+    m_hierarchy.clear();
+    m_children.clear();
+    m_error.clear();
+}
+
+bool ErrorHierarchy::isEmpty() const
+{
+    return m_hierarchy.isEmpty() && m_children.isEmpty() && m_error.isEmpty();
+}
+
+QString ErrorHierarchy::toString() const
+{
+    if (m_error.isEmpty() && m_hierarchy.isEmpty())
+        return {};
+    QString error = m_hierarchy.join(" > ") + ": " + m_error;
+    if (!m_children.isEmpty()) {
+        error.append("\n\t");
+        error.append(Utils::transform(m_children, &ErrorHierarchy::toString).join("\n\t"));
+    }
+    return error;
+}
+
+bool ErrorHierarchy::operator==(const ErrorHierarchy &other) const
+{
+    return m_hierarchy == other.m_hierarchy && m_children == other.m_children
+           && m_error == other.m_error;
+}
+
 } // namespace LanguageServerProtocol

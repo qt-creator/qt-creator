@@ -71,7 +71,7 @@ public:
         { insert(triggerCharacterKey, triggerCharacter); }
         void clearTriggerCharacter() { remove(triggerCharacterKey); }
 
-        bool isValid(QStringList *error) const override
+        bool isValid(ErrorHierarchy *error) const override
         {
             return check<int>(error, triggerKindKey)
                     && checkOptional<QString>(error, triggerCharacterKey);
@@ -88,7 +88,7 @@ public:
     { insert(contextKey, context); }
     void clearContext() { remove(contextKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CompletionItem : public JsonObject
@@ -220,7 +220,7 @@ public:
     void setData(const QJsonValue &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CompletionList : public JsonObject
@@ -240,7 +240,7 @@ public:
     void setItems(const QList<CompletionItem> &items) { insertArray(itemsKey, items); }
     void clearItems() { remove(itemsKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 /// The result of a completion is CompletionItem[] | CompletionList | null

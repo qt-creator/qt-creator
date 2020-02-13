@@ -40,7 +40,7 @@ public:
     TextDocumentItem textDocument() const { return typedValue<TextDocumentItem>(textDocumentKey); }
     void setTextDocument(TextDocumentItem textDocument) { insert(textDocumentKey, textDocument); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return check<TextDocumentItem>(error, textDocumentKey); }
 };
 
@@ -67,7 +67,7 @@ public:
     void setSyncKind(TextDocumentSyncKind syncKind)
     { insert(syncKindKey, static_cast<int>(syncKind)); }
 
-    bool isValid(QStringList *error) const override { return check<int>(error, syncKindKey); }
+    bool isValid(ErrorHierarchy *error) const override { return check<int>(error, syncKindKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeTextDocumentParams : public JsonObject
@@ -108,7 +108,7 @@ public:
         QString text() const { return typedValue<QString>(textKey); }
         void setText(const QString &text) { insert(textKey, text); }
 
-        bool isValid(QStringList *error) const override;
+        bool isValid(ErrorHierarchy *error) const override;
     };
 
     QList<TextDocumentContentChangeEvent> contentChanges() const
@@ -116,7 +116,7 @@ public:
     void setContentChanges(const QList<TextDocumentContentChangeEvent> &contentChanges)
     { insertArray(contentChangesKey, contentChanges); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidChangeTextDocumentNotification : public Notification<
@@ -151,7 +151,7 @@ public:
     { return static_cast<TextDocumentSaveReason>(typedValue<int>(reasonKey)); }
     void setReason(TextDocumentSaveReason reason) { insert(reasonKey, static_cast<int>(reason)); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT WillSaveTextDocumentNotification : public Notification<
@@ -184,7 +184,7 @@ public:
     void setIncludeText(bool includeText) { insert(includeTextKey, includeText); }
     void clearIncludeText() { remove(includeTextKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidSaveTextDocumentParams : public JsonObject
@@ -203,7 +203,7 @@ public:
     void setText(const QString &text) { insert(textKey, text); }
     void clearText() { remove(textKey); }
 
-    bool isValid(QStringList *error) const override;
+    bool isValid(ErrorHierarchy *error) const override;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DidSaveTextDocumentNotification : public Notification<
@@ -228,7 +228,7 @@ public:
     void setTextDocument(const TextDocumentIdentifier &textDocument)
     { insert(textDocumentKey, textDocument); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return check<TextDocumentIdentifier>(error, textDocumentKey); }
 };
 

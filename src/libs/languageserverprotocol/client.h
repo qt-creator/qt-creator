@@ -50,7 +50,7 @@ public:
     void setRegisterOptions(const QJsonValue &registerOptions)
     { insert(registerOptionsKey, registerOptions); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return check<QString>(error, idKey) && check<QString>(error, methodKey); }
 };
 
@@ -65,7 +65,7 @@ public:
     void setRegistrations(const QList<Registration> &registrations)
     { insertArray(registrationsKey, registrations); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkArray<Registration>(error, registrationsKey); }
 };
 
@@ -89,7 +89,7 @@ public:
     QString method() const { return typedValue<QString>(methodKey); }
     void setMethod(const QString &method) { insert(methodKey, method); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return check<QString>(error, idKey) && check<QString>(error, methodKey); }
 };
 
@@ -103,7 +103,7 @@ public:
     void setUnregistrations(const QList<Unregistration> &unregistrations)
     { insertArray(unregistrationsKey, unregistrations); }
 
-    bool isValid(QStringList *error) const override
+    bool isValid(ErrorHierarchy *error) const override
     { return checkArray<Unregistration>(error, unregistrationsKey); }
 };
 
