@@ -182,7 +182,7 @@ void QbsInstallStep::installDone(const ErrorInfo &error)
     m_session = nullptr;
 
     for (const ErrorInfoItem &item : error.items)
-        createTaskAndOutput(Task::Error, item.description, item.filePath.toString(), item.line);
+        createTaskAndOutput(Task::Error, item.description, item.filePath, item.line);
 
     emit finished(!error.hasError());
 }
@@ -199,10 +199,10 @@ void QbsInstallStep::handleProgress(int value)
         emit progress(value * 100 / m_maxProgress, m_description);
 }
 
-void QbsInstallStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type,
-                                         const QString &message, const QString &file, int line)
+void QbsInstallStep::createTaskAndOutput(Task::TaskType type, const QString &message,
+                                         const Utils::FilePath &file, int line)
 {
-    const CompileTask task(type, message, Utils::FilePath::fromString(file), line);
+    const CompileTask task(type, message, file, line);
     emit addTask(task, 1);
     emit addOutput(message, OutputFormat::Stdout);
 }
