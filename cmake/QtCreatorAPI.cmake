@@ -1046,6 +1046,7 @@ function(add_qtc_executable name)
       endif()
       "
       COMPONENT Dependencies
+      EXCLUDE_FROM_ALL
      )
 
   endif()

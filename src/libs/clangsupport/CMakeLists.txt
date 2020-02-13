@@ -179,6 +179,7 @@ foreach(executable clang clang-cl clangd clang-tidy clazy-standalone)
       "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
       DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin"
       COMPONENT Dependencies
+      EXCLUDE_FROM_ALL
     )
     if (IS_SYMLINK "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}")
       file(READ_SYMLINK
@@ -187,6 +188,7 @@ foreach(executable clang clang-cl clangd clang-tidy clazy-standalone)
         "${LLVM_TOOLS_BINARY_DIR}/${real_executable}${CMAKE_EXECUTABLE_SUFFIX}"
         DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin"
         COMPONENT Dependencies
+        EXCLUDE_FROM_ALL
       )
     endif()
   endif()
@@ -195,4 +197,5 @@ endforeach()
 install(DIRECTORY ${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include
   DESTINATION "${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}"
   COMPONENT Dependencies
+  EXCLUDE_FROM_ALL
 )
