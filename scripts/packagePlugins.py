@@ -28,7 +28,6 @@
 import argparse
 import os
 import subprocess
-import sys
 
 import common
 
@@ -45,10 +44,16 @@ def parse_arguments():
 
 if __name__ == "__main__":
     arguments = parse_arguments()
+    qt_install_info = common.get_qt_install_info(arguments.qmake_binary)
     if common.is_linux_platform():
-        qt_install_info = common.get_qt_install_info(arguments.qmake_binary)
         common.fix_rpaths(arguments.source_directory,
                           os.path.join(arguments.source_directory, 'lib', 'Qt', 'lib'),
                           qt_install_info)
+    if common.is_mac_platform():
+        # remove Qt rpath
+        lib_path = qt_install_info['QT_INSTALL_LIBS']
+        common.os_walk(arguments.source_directory,
+                       lambda fp: fp.endswith('.dylib'),
+                       lambda fp: subprocess.call(['install_name_tool', '-delete_rpath', lib_path, fp]))
     subprocess.check_call([arguments.sevenzip, 'a', '-mx9', arguments.target_file,
         os.path.join(arguments.source_directory, '*')])
