@@ -67,8 +67,12 @@ QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Core::Id id)
     effectiveCommandAspect->setLabelText(tr("Equivalent command line:"));
 
     setSummaryUpdater([this, effectiveCommandAspect] {
+        QbsBuildStepData data;
+        data.command = "clean";
+        data.dryRun = m_dryRunAspect->value();
+        data.keepGoing = m_keepGoingAspect->value();
         QString command = static_cast<QbsBuildConfiguration *>(buildConfiguration())
-                 ->equivalentCommandLine(this);
+                 ->equivalentCommandLine(data);
         effectiveCommandAspect->setValue(command);
         return tr("<b>Qbs:</b> %1").arg(command);
     });

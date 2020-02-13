@@ -231,6 +231,21 @@ void QbsInstallStep::setKeepGoing(bool kg)
     emit changed();
 }
 
+QbsBuildStepData QbsInstallStep::stepData() const
+{
+    QbsBuildStepData data;
+    data.command = "install";
+    data.dryRun = dryRun();
+    data.keepGoing = keepGoing();
+    data.noBuild = true;
+    data.cleanInstallRoot = removeFirst();
+    data.isInstallStep = true;
+    auto bs = static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration())->qbsStep();
+    if (bs)
+        data.installRoot = bs->installRoot();
+    return data;
+};
+
 // --------------------------------------------------------------------
 // QbsInstallStepConfigWidget:
 // --------------------------------------------------------------------
@@ -320,7 +335,7 @@ void QbsInstallStepConfigWidget::updateState()
         m_keepGoingCheckBox->setChecked(m_step->keepGoing());
     }
 
-    QString command = m_step->buildConfig()->equivalentCommandLine(m_step);
+    QString command = m_step->buildConfig()->equivalentCommandLine(m_step->stepData());
 
     m_commandLineTextEdit->setPlainText(command);
 

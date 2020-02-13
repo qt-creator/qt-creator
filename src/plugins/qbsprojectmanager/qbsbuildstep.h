@@ -70,6 +70,7 @@ public:
     bool forceProbes() const { return m_forceProbes; }
 
     QbsBuildSystem *qbsBuildSystem() const;
+    QbsBuildStepData stepData() const;
 
 signals:
     void qbsConfigurationChanged();

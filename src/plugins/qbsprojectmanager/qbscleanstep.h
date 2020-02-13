@@ -44,8 +44,7 @@ public:
     QbsCleanStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     ~QbsCleanStep() override;
 
-    bool dryRun() const { return m_dryRunAspect->value(); }
-    bool keepGoing() const { return m_keepGoingAspect->value(); }
+    QbsBuildStepData stepData() const;
 
 private:
     bool init() override;

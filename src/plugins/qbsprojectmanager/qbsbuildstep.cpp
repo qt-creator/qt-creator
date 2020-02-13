@@ -523,6 +523,23 @@ void QbsBuildStep::finish()
     emit finished(m_lastWasSuccess);
 }
 
+QbsBuildStepData QbsBuildStep::stepData() const
+{
+    QbsBuildStepData data;
+    data.command = "build";
+    data.dryRun = false;
+    data.keepGoing = m_keepGoing;
+    data.forceProbeExecution = m_forceProbes;
+    data.showCommandLines = m_showCommandLines;
+    data.noInstall = !m_install;
+    data.noBuild = false;
+    data.cleanInstallRoot = m_cleanInstallDir;
+    data.jobCount = maxJobs();
+    data.installRoot = installRoot();
+    return data;
+}
+
+
 // --------------------------------------------------------------------
 // QbsBuildStepConfigWidget:
 // --------------------------------------------------------------------
@@ -674,7 +691,8 @@ void QbsBuildStepConfigWidget::updateState()
     const int idx = (buildVariant == Constants::QBS_VARIANT_DEBUG) ? 0 : 1;
     buildVariantComboBox->setCurrentIndex(idx);
     const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(step()->buildConfiguration());
-    QString command = qbsBuildConfig->equivalentCommandLine(qbsStep());
+
+    QString command = qbsBuildConfig->equivalentCommandLine(qbsStep()->stepData());
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
         command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;

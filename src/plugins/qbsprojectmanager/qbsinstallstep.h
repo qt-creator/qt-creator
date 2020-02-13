@@ -48,6 +48,7 @@ public:
     bool removeFirst() const { return m_cleanInstallRoot; }
     bool dryRun() const { return m_dryRun; }
     bool keepGoing() const { return m_keepGoing; }
+    QbsBuildStepData stepData() const;
 
 signals:
     void changed();
