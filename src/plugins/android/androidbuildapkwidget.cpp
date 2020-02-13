@@ -98,7 +98,7 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
 
     auto targetSDKComboBox = new QComboBox(group);
     targetSDKComboBox->addItems(targets);
-    targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::buildTargetSDK(step()->target())));
+    targetSDKComboBox->setCurrentIndex(targets.indexOf(m_step->buildTargetSdk()));
 
     const auto cbActivated = QOverload<int>::of(&QComboBox::activated);
     connect(targetSDKComboBox, cbActivated, this, [this, targetSDKComboBox](int idx) {
