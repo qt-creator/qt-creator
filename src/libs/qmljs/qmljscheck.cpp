@@ -603,16 +603,9 @@ public:
 class UnsupportedTypesByQmlUi : public QStringList
 {
 public:
-    UnsupportedTypesByQmlUi() : QStringList({"Binding",
-                                             "ShaderEffect",
-                                             "ShaderEffectSource",
+    UnsupportedTypesByQmlUi() : QStringList({"ShaderEffect",
                                              "Component",
                                              "Transition",
-                                             "PropertyAnimation",
-                                             "SequentialAnimation",
-                                             "PropertyAnimation",
-                                             "SequentialAnimation",
-                                             "ParallelAnimation",
                                              "Drawer"})
     {
         append(UnsupportedTypesByVisualDesigner());
