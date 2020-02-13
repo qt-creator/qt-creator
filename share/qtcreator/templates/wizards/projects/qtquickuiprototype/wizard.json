@@ -40,9 +40,18 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 2,
+                        "index": 3,
                         "items":
                         [
+                            {
+                                "trKey": "Qt 5.15",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.15",
+                                    "QtQuickWindowVersion": "2.15",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.15"
+                                }
+                            },
                             {
                                 "trKey": "Qt 5.14",
                                 "value":
