@@ -34,6 +34,7 @@
 #include <QUrl>
 
 #include <android/androidconstants.h>
+#include <ios/iosconstants.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
@@ -723,6 +724,12 @@ bool ExamplesListModelFilter::leaveFilterAcceptsRowBeforeFiltering(const Core::L
 
     if (m_examplesListModel->exampleSetModel()->selectedQtSupports(Android::Constants::ANDROID_DEVICE_TYPE)
         && !item->tags.contains("android")) {
+        *earlyExitResult = false;
+        return true;
+    }
+
+    if (m_examplesListModel->exampleSetModel()->selectedQtSupports(Ios::Constants::IOS_DEVICE_TYPE)
+        && !item->tags.contains("ios")) {
         *earlyExitResult = false;
         return true;
     }
