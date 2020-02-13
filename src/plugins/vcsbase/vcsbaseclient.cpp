@@ -252,10 +252,6 @@ void VcsBaseClientImpl::saveSettings()
     settings().writeSettings(Core::ICore::settings());
 }
 
-VcsBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
-    flags(s), file(f)
-{ }
-
 VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
     VcsBaseClientImpl(settings)
 {

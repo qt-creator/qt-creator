@@ -140,7 +140,6 @@ public:
     {
     public:
         StatusItem() = default;
-        StatusItem(const QString &s, const QString &f);
         QString flags;
         QString file;
     };
