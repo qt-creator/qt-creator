@@ -31,6 +31,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
@@ -80,13 +81,13 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
     label->setText(tr("Select the .pro file for which you want to create the Android template files."));
     fl->addRow(label);
 
-    Target *target = wizard->target();
+    BuildSystem *buildSystem = wizard->buildSystem();
     QString currentBuildTarget;
-    if (RunConfiguration *rc = target->activeRunConfiguration())
+    if (RunConfiguration *rc = buildSystem->target()->activeRunConfiguration())
         currentBuildTarget = rc->buildKey();
 
     m_comboBox = new QComboBox(this);
-    for (const BuildTargetInfo &bti : wizard->target()->applicationTargets()) {
+    for (const BuildTargetInfo &bti : buildSystem->applicationTargets()) {
         const QString displayName = bti.buildKey;
         m_comboBox->addItem(displayName, QVariant(bti.buildKey)); // TODO something more?
         if (bti.buildKey == currentBuildTarget)
@@ -147,7 +148,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 void ChooseDirectoryPage::checkPackageSourceDir()
 {
     const QString buildKey = m_wizard->buildKey();
-    const BuildTargetInfo bti = m_wizard->target()->buildTarget(buildKey);
+    const BuildTargetInfo bti = m_wizard->buildSystem()->buildTarget(buildKey);
     const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
 
     const QString newDir = m_androidPackageSourceDir->path();
@@ -168,7 +169,7 @@ bool ChooseDirectoryPage::isComplete() const
 
 void ChooseDirectoryPage::initializePage()
 {
-    const Target *target = m_wizard->target();
+    const Target *target = m_wizard->buildSystem()->target();
     const QString buildKey = m_wizard->buildKey();
     const BuildTargetInfo bti = target->buildTarget(buildKey);
     const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
@@ -198,13 +199,13 @@ void ChooseDirectoryPage::initializePage()
 //
 // CreateAndroidManifestWizard
 //
-CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target *target)
-    : m_target(target), m_copyState(Ask)
+CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSystem)
+    : m_buildSystem(buildSystem), m_copyState(Ask)
 {
     setWindowTitle(tr("Create Android Template Files Wizard"));
 
-    const QList<BuildTargetInfo> buildTargets = target->applicationTargets();
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+    const QList<BuildTargetInfo> buildTargets = buildSystem->applicationTargets();
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(buildSystem->kit());
     m_copyGradle = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     if (buildTargets.isEmpty()) {
@@ -308,7 +309,8 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         return;
 
     QStringList addedFiles;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+    Target *target = m_buildSystem->target();
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!version)
         return;
     if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
@@ -331,12 +333,12 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                                        nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
         }
 
-        AndroidManager::updateGradleProperties(m_target, m_buildKey);
+        AndroidManager::updateGradleProperties(target, m_buildKey);
     }
 
 
     QString androidPackageDir;
-    ProjectNode *node = m_target->project()->findNodeForBuildKey(m_buildKey);
+    ProjectNode *node = target->project()->findNodeForBuildKey(m_buildKey);
     if (node) {
         node->addFiles(addedFiles);
         androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
@@ -344,7 +346,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
     if (androidPackageDir.isEmpty()) {
         // and now time for some magic
-        const BuildTargetInfo bti = m_target->buildTarget(m_buildKey);
+        const BuildTargetInfo bti = target->buildTarget(m_buildKey);
         const QString value = "$$PWD/" + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(m_directory);
         bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
 
@@ -357,9 +359,9 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     Core::EditorManager::openEditor(m_directory + QLatin1String("/AndroidManifest.xml"));
 }
 
-ProjectExplorer::Target *CreateAndroidManifestWizard::target() const
+BuildSystem *CreateAndroidManifestWizard::buildSystem() const
 {
-    return m_target;
+    return m_buildSystem;
 }
 
 void CreateAndroidManifestWizard::accept()

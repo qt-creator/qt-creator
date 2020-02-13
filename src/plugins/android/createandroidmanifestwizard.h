@@ -41,7 +41,7 @@ namespace Utils {
 class InfoLabel;
 }
 
-namespace ProjectExplorer { class Target; }
+namespace ProjectExplorer { class BuildSystem; }
 
 namespace Android {
 
@@ -92,7 +92,7 @@ class ANDROID_EXPORT CreateAndroidManifestWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:
-    CreateAndroidManifestWizard(ProjectExplorer::Target *target);
+    CreateAndroidManifestWizard(ProjectExplorer::BuildSystem *buildSystem);
 
     QString buildKey() const;
     void setBuildKey(const QString &buildKey);
@@ -103,7 +103,7 @@ public:
     void setDirectory(const QString &directory);
     void setCopyGradle(bool copy);
 
-    ProjectExplorer::Target *target() const;
+    ProjectExplorer::BuildSystem *buildSystem() const;
 
 private:
     enum CopyState {
@@ -115,7 +115,7 @@ private:
 
     void createAndroidManifestFile();
     void createAndroidTemplateFiles();
-    ProjectExplorer::Target *m_target;
+    ProjectExplorer::BuildSystem *m_buildSystem;
     QString m_buildKey;
     QString m_directory;
     CopyState m_copyState;

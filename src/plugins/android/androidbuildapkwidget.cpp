@@ -256,7 +256,7 @@ QWidget *AndroidBuildApkWidget::createCreateTemplatesGroup()
 
     auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
     connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
-        CreateAndroidManifestWizard wizard(m_step->target());
+        CreateAndroidManifestWizard wizard(m_step->buildConfiguration()->buildSystem());
         wizard.exec();
     });
 
