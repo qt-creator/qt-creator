@@ -64,8 +64,30 @@ public:
 
 } // Internal
 
+/*!
+    \class Core::BaseFileFilter
+    \inmodule QtCreator
+
+    \brief The BaseFileFilter class is a base class for locator filter classes.
+*/
+
+/*!
+    \class Core::BaseFileFilter::Iterator
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::BaseFileFilter::ListIterator
+    \inmodule QtCreator
+    \internal
+*/
+
 BaseFileFilter::Iterator::~Iterator() = default;
 
+/*!
+    \internal
+*/
 BaseFileFilter::BaseFileFilter()
   : d(new Internal::BaseFileFilterPrivate)
 {
@@ -73,11 +95,17 @@ BaseFileFilter::BaseFileFilter()
     setFileIterator(new ListIterator({}));
 }
 
+/*!
+    \internal
+*/
 BaseFileFilter::~BaseFileFilter()
 {
     delete d;
 }
 
+/*!
+    \reimp
+*/
 void BaseFileFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
@@ -104,6 +132,9 @@ ILocatorFilter::MatchLevel BaseFileFilter::matchLevelFor(const QRegularExpressio
     return MatchLevel::Normal;
 }
 
+/*!
+    \reimp
+*/
 QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &origEntry)
 {
     QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
@@ -184,6 +215,9 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
 }
 
+/*!
+    \reimp
+*/
 void BaseFileFilter::accept(LocatorFilterEntry selection,
                             QString *newText, int *selectionStart, int *selectionLength) const
 {
@@ -206,6 +240,9 @@ void BaseFileFilter::setFileIterator(BaseFileFilter::Iterator *iterator)
     d->m_data.iterator.reset(iterator);
 }
 
+/*!
+    Returns the file iterator.
+*/
 QSharedPointer<BaseFileFilter::Iterator> BaseFileFilter::fileIterator()
 {
     return d->m_data.iterator;

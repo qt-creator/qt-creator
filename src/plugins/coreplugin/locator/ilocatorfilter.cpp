@@ -41,11 +41,23 @@ using namespace Core;
 
 /*!
     \class Core::ILocatorFilter
-    \inmodule Qt Creator
+    \inmodule QtCreator
 
     \brief The ILocatorFilter class adds a locator filter.
 
     The filter is added to \uicontrol Tools > \uicontrol Locate.
+*/
+
+/*!
+    \class Core::LocatorFilterEntry
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::LocatorFilterEntry::HighlightInfo
+    \inmodule QtCreator
+    \internal
 */
 
 static QList<ILocatorFilter *> g_locatorFilters;
@@ -64,6 +76,9 @@ ILocatorFilter::~ILocatorFilter()
     g_locatorFilters.removeOne(this);
 }
 
+/*!
+    Returns the list of all locator filters.
+*/
 const QList<ILocatorFilter *> ILocatorFilter::allLocatorFilters()
 {
     return g_locatorFilters;
@@ -207,11 +222,19 @@ Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
     return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
+/*!
+    Creates the search term \a text as a regular expression with case
+    sensitivity set to \a caseSensitivity.
+*/
 QRegularExpression ILocatorFilter::createRegExp(const QString &text, Qt::CaseSensitivity caseSensitivity)
 {
     return FuzzyMatcher::createRegExp(text, caseSensitivity);
 }
 
+/*!
+    Returns information for highlighting the results of matching the regular
+    expression, specified by \a match, for the data of the type \a dataType.
+*/
 LocatorFilterEntry::HighlightInfo ILocatorFilter::highlightInfo(
         const QRegularExpressionMatch &match, LocatorFilterEntry::HighlightInfo::DataType dataType)
 {
@@ -288,7 +311,9 @@ bool ILocatorFilter::isIncludedByDefault() const
 }
 
 /*!
-    Sets whether using the shortcut string is required to use this filter.
+    Sets whether using the shortcut string is required to use this filter
+    to \a includedByDefault.
+
     Call from the constructor of subclasses to change the default.
 
     \sa isIncludedByDefault()
@@ -312,8 +337,8 @@ bool ILocatorFilter::isHidden() const
 }
 
 /*!
-    Hides the filter in the \uicontrol {Locator filters} filter,
-    menus, and locator settings. Call in the constructor of subclasses.
+    Sets the filter in the \uicontrol {Locator filters} filter, menus, and
+    locator settings to \a hidden. Call in the constructor of subclasses.
 */
 void ILocatorFilter::setHidden(bool hidden)
 {
@@ -344,6 +369,9 @@ Id ILocatorFilter::id() const
     return m_id;
 }
 
+/*!
+    Returns the filter's action ID.
+*/
 Id ILocatorFilter::actionId() const
 {
     return m_id.withPrefix("Locator.");
@@ -373,7 +401,7 @@ ILocatorFilter::Priority ILocatorFilter::priority() const
 }
 
 /*!
-    Sets whether the filter is currently available.
+    Sets whether the filter is currently available to \a enabled.
 
     \sa isEnabled()
 */
@@ -383,7 +411,7 @@ void ILocatorFilter::setEnabled(bool enabled)
 }
 
 /*!
-    Sets the filter's unique ID.
+    Sets the filter's unique \a id.
     Subclasses must set the ID in their constructor.
 
     \sa id()
@@ -394,7 +422,7 @@ void ILocatorFilter::setId(Id id)
 }
 
 /*!
-    Sets the priority of results of this filter in the result list.
+    Sets the \a priority of results of this filter in the result list.
 
     \sa priority()
 */
@@ -404,7 +432,7 @@ void ILocatorFilter::setPriority(Priority priority)
 }
 
 /*!
-    Sets the translated display name of this filter.
+    Sets the translated display name of this filter to \a displayString.
 
     Subclasses must set the display name in their constructor.
 
@@ -416,7 +444,7 @@ void ILocatorFilter::setDisplayName(const QString &displayString)
 }
 
 /*!
-    Sets whether the filter provides a configuration dialog.
+    Sets whether the filter provides a configuration dialog to \a configurable.
     Most filters should at least provide the default dialog.
 
     \sa isConfigurable()
@@ -474,4 +502,20 @@ void ILocatorFilter::setConfigurable(bool configurable)
     \value  Low
             The results for this filter are placed below the results for filters
             that have other priorities.
+*/
+
+/*!
+    \enum ILocatorFilter::MatchLevel
+
+    This enum value holds the level for ordering the results based on how well
+    they match the search criteria.
+
+    \value Best
+           The result is the best match for the regular expression.
+    \value Better
+    \value Good
+    \value Normal
+    \value Count
+           The result has the highest number of matches for the regular
+           expression.
 */

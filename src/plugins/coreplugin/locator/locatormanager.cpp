@@ -40,6 +40,12 @@ using namespace Core::Internal;
 
 namespace Core {
 
+/*!
+    \class Core::LocatorManager
+    \inmodule QtCreator
+    \internal
+*/
+
 LocatorManager::LocatorManager()
 {
 }
