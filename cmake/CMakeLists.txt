@@ -26,6 +26,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
       DIRECTORY "${QT_BASE_DIR}/plugins/${plugin}"
       DESTINATION ${QT_DEST_PLUGIN_PATH}
       COMPONENT Dependencies
+      EXCLUDE_FROM_ALL
       ${exclusion_mask}
     )
     list(APPEND QT_PLUGIN_DIRECTORIES "${QT_DEST_PLUGIN_PATH}/${plugin}")
@@ -35,6 +36,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
     DIRECTORY "${QT_BASE_DIR}/qml/"
     DESTINATION ${QT_DEST_QML_PATH}
     COMPONENT Dependencies
+    EXCLUDE_FROM_ALL
     PATTERN "qml/*"
     ${exclusion_mask}
   )
@@ -45,6 +47,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
   install(
     SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/InstallDependentSharedObjects.cmake
     COMPONENT Dependencies
+    EXCLUDE_FROM_ALL
   )
 
   if (MSVC)
@@ -54,6 +57,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
     install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
       DESTINATION ${IDE_APP_PATH}
       COMPONENT Dependencies
+      EXCLUDE_FROM_ALL
     )
   endif()
 endif()

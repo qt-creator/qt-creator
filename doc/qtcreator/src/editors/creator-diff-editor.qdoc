@@ -63,6 +63,19 @@
 
     \endlist
 
+    To compare the currently opened file against another file in a project
+    or the filesystem:
+
+    \list 1
+
+        \li Open the first file in an editor.
+
+        \li Right click on the second file in the \uicontrol Projects
+            or \uicontrol {File System} view and select
+            \uicontrol {Diff Against Current File}.
+
+    \endlist
+
     \section1 Viewing the Changes
 
     \image creator-diff-editor.png "Diff editor output in the Edit mode"

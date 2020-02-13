@@ -27,7 +27,7 @@ find_path(ELFUTILS_INCLUDE_DIR
   NAMES libdwfl.h elfutils/libdwfl.h
   PATH_SUFFIXES include
   HINTS
-    "${ELFUTILS_INSTALL_DIR}" ENV ELFUTILS_INSTALL_DIR
+    "${ELFUTILS_INSTALL_DIR}" ENV ELFUTILS_INSTALL_DIR "${CMAKE_PREFIX_PATH}"
 )
 
 foreach(lib dw elf eu_compat)
@@ -35,7 +35,7 @@ foreach(lib dw elf eu_compat)
     NAMES ${lib}
     PATH_SUFFIXES lib
     HINTS
-      "${ELFUTILS_INSTALL_DIR}" ENV ELFUTILS_INSTALL_DIR
+      "${ELFUTILS_INSTALL_DIR}" ENV ELFUTILS_INSTALL_DIR "${CMAKE_PREFIX_PATH}"
   )
 endforeach()
 

@@ -4,7 +4,7 @@ import qbs.FileInfo
 import "qtc.js" as HelperFunctions
 
 Module {
-    property string qtcreator_display_version: '4.12.0-rc1'
+    property string qtcreator_display_version: '4.12.0-beta1'
     property string ide_version_major: '4'
     property string ide_version_minor: '11'
     property string ide_version_release: '82'

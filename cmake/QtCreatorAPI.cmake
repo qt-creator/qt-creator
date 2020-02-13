@@ -61,7 +61,7 @@ else ()
     set(QT_DEST_PLUGIN_PATH "bin/plugins")
     set(QT_DEST_QML_PATH "bin/qml")
   else ()
-    set(_IDE_LIBEXEC_PATH "libexec/${IDE_ID}/bin")
+    set(_IDE_LIBEXEC_PATH "libexec/${IDE_ID}")
     set(QT_DEST_PLUGIN_PATH  "lib/Qt/plugins")
     set(QT_DEST_QML_PATH "lib/Qt/qml")
   endif ()
@@ -1046,6 +1046,7 @@ function(add_qtc_executable name)
       endif()
       "
       COMPONENT Dependencies
+      EXCLUDE_FROM_ALL
      )
 
   endif()
