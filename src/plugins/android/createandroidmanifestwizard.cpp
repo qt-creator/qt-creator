@@ -40,6 +40,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/infolabel.h>
+#include <utils/pathchooser.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -54,24 +55,49 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android {
+namespace Internal {
 
 //
 // NoApplicationProFilePage
 //
-NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *wizard)
-    : m_wizard(wizard)
+
+class NoApplicationProFilePage : public QWizardPage
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::NoApplicationProFilePage)
+
+public:
+    NoApplicationProFilePage(CreateAndroidManifestWizard *wizard);
+};
+
+NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *)
 {
     auto layout = new QVBoxLayout(this);
-    QLabel *label = new QLabel(this);
+    auto label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("No application .pro file found in this project."));
     layout->addWidget(label);
     setTitle(tr("No Application .pro File"));
 }
 
+
 //
 // ChooseProFilePage
 //
+
+class ChooseProFilePage : public QWizardPage
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::ChooseProfilePage)
+
+public:
+    explicit ChooseProFilePage(CreateAndroidManifestWizard *wizard);
+
+private:
+    void nodeSelected(int index);
+
+    CreateAndroidManifestWizard *m_wizard;
+    QComboBox *m_comboBox;
+};
+
 ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
     : m_wizard(wizard)
 {
@@ -112,8 +138,29 @@ void ChooseProFilePage::nodeSelected(int index)
 //
 // ChooseDirectoryPage
 //
+
+class ChooseDirectoryPage : public QWizardPage
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::ChooseDirectoryPage)
+
+public:
+    ChooseDirectoryPage(CreateAndroidManifestWizard *wizard);
+
+private:
+    void initializePage();
+    bool isComplete() const;
+    void checkPackageSourceDir();
+
+    CreateAndroidManifestWizard *m_wizard;
+    PathChooser *m_androidPackageSourceDir = nullptr;
+    InfoLabel *m_sourceDirectoryWarning = nullptr;
+    QLabel *m_label;
+    QFormLayout *m_layout;
+    bool m_complete = true;
+};
+
 ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
-    : m_wizard(wizard), m_androidPackageSourceDir(nullptr), m_complete(true)
+    : m_wizard(wizard)
 {
     m_layout = new QFormLayout(this);
     m_label = new QLabel(this);
@@ -125,8 +172,8 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_layout->addRow(tr("Android package source directory:"), m_androidPackageSourceDir);
 
     m_sourceDirectoryWarning =
-            new Utils::InfoLabel(tr("The Android package source directory cannot be the same as "
-                                    "the project directory."), Utils::InfoLabel::Error, this);
+            new InfoLabel(tr("The Android package source directory cannot be the same as "
+                             "the project directory."), InfoLabel::Error, this);
     m_sourceDirectoryWarning->setVisible(false);
     m_sourceDirectoryWarning->setElideMode(Qt::ElideNone);
     m_sourceDirectoryWarning->setWordWrap(true);
@@ -370,4 +417,5 @@ void CreateAndroidManifestWizard::accept()
     Wizard::accept();
 }
 
+} // namespace Internal
 } // namespace Android
