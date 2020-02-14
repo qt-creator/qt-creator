@@ -105,26 +105,28 @@ DriverSelector::DriverSelector(const QStringList &supportedDrivers, QWidget *par
     setWidget(detailsPanel);
 
     connect(toolPanel, &DriverSelectorToolPanel::clicked, this, [=]() {
-        const QString uVisionPath = targetUVisionPath();
-        if (uVisionPath.isEmpty()) {
-            QMessageBox::warning(this,
-                                 tr("uVision path not found"),
-                                 tr("Please open a configured project before\n"
-                                    "the target driver selection."),
-                                 QMessageBox::Ok);
-        } else {
-            DriverSelectionDialog dialog(uVisionPath, supportedDrivers, this);
-            const int result = dialog.exec();
-            if (result != QDialog::Accepted)
-                return;
-            DriverSelection selection;
-            selection = dialog.selection();
-            setSelection(selection);
-        }
+        DriverSelectionDialog dialog(m_toolsIniFile, supportedDrivers, this);
+        const int result = dialog.exec();
+        if (result != QDialog::Accepted)
+            return;
+        DriverSelection selection;
+        selection = dialog.selection();
+        setSelection(selection);
     });
 
     connect(detailsPanel, &DriverSelectorDetailsPanel::selectionChanged,
             this, &DriverSelector::selectionChanged);
+}
+
+void DriverSelector::setToolsIniFile(const Utils::FilePath &toolsIniFile)
+{
+    m_toolsIniFile = toolsIniFile;
+    setEnabled(m_toolsIniFile.exists());
+}
+
+Utils::FilePath DriverSelector::toolsIniFile() const
+{
+    return m_toolsIniFile;
 }
 
 void DriverSelector::setSelection(const DriverSelection &selection)
@@ -148,7 +150,7 @@ DriverSelection DriverSelector::selection() const
 
 // DriverSelectionDialog
 
-DriverSelectionDialog::DriverSelectionDialog(const QString &uVisionPath,
+DriverSelectionDialog::DriverSelectionDialog(const Utils::FilePath &toolsIniFile,
                                              const QStringList &supportedDrivers,
                                              QWidget *parent)
     : QDialog(parent), m_model(new DriverSelectionModel(this)),
@@ -171,7 +173,7 @@ DriverSelectionDialog::DriverSelectionDialog(const QString &uVisionPath,
         m_selection = selection;
     });
 
-    m_model->fillDrivers(uVisionPath, supportedDrivers);
+    m_model->fillDrivers(toolsIniFile, supportedDrivers);
     m_view->setModel(m_model);
 }
 

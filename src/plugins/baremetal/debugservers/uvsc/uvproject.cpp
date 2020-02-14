@@ -49,28 +49,6 @@ namespace Uv {
 
 const char kProjectSchema[] = "2.1";
 
-// Helpers
-
-QString toolsFilePath(const QString &uVisionFilePath)
-{
-    const QFileInfo fi(uVisionFilePath);
-    QDir dir = fi.dir();
-    if (!dir.cdUp())
-        return {};
-    return dir.absoluteFilePath("tools.ini");
-}
-
-QString targetUVisionPath()
-{
-    if (const Target *target = SessionManager::startupTarget()) {
-        if (const Kit *kit = target->kit()) {
-            const Runnable runnable = DebuggerKitAspect::runnable(kit);
-            return runnable.executable.toString();
-        }
-    }
-    return {};
-}
-
 static QString buildToolsetNumber(int number)
 {
     return QStringLiteral("0x%1").arg(QString::number(number, 16));

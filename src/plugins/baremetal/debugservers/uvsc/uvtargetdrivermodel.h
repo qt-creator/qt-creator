@@ -28,6 +28,7 @@
 #include "uvtargetdriverselection.h"
 
 #include <utils/basetreeview.h>
+#include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
 namespace BareMetal {
@@ -43,7 +44,7 @@ class DriverSelectionModel final : public Utils::TreeModel<DriverSelectionItem>
 
 public:
     explicit DriverSelectionModel(QObject *parent = nullptr);
-    void fillDrivers(const QString &uVisionFilePath, const QStringList &supportedDrivers);
+    void fillDrivers(const Utils::FilePath &toolsIniFile, const QStringList &supportedDrivers);
 };
 
 // DriverSelectionView
