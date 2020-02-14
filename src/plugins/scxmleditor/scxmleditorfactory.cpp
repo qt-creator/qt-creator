@@ -48,11 +48,16 @@ ScxmlEditorFactory::ScxmlEditorFactory()
 
     setEditorCreator([this] {
         if (!m_editorData) {
-            m_editorData = new ScxmlEditorData(this);
+            m_editorData = new ScxmlEditorData;
             QGuiApplication::setOverrideCursor(Qt::WaitCursor);
             m_editorData->fullInit();
             QGuiApplication::restoreOverrideCursor();
         }
         return m_editorData->createEditor();
     });
+}
+
+ScxmlEditorFactory::~ScxmlEditorFactory()
+{
+    delete m_editorData;
 }

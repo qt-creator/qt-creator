@@ -68,7 +68,7 @@ JavaEditorFactory::JavaEditorFactory()
         "transient", "try", "void", "volatile", "while"
     };
     setId(Constants::JAVA_EDITOR_ID);
-    setDisplayName(tr("Java Editor"));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Java Editor"));
     addMimeType(Constants::JAVA_MIMETYPE);
 
     setDocumentCreator(createJavaDocument);

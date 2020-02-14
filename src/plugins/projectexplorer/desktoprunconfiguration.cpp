@@ -47,6 +47,23 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
+class DesktopRunConfiguration : public RunConfiguration
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::DesktopRunConfiguration)
+
+protected:
+    enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
+
+    DesktopRunConfiguration(Target *target, Core::Id id, Kind kind);
+
+private:
+    void updateTargetInformation();
+
+    Utils::FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
+
+    const Kind m_kind;
+};
+
 DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Kind kind)
     : RunConfiguration(target, id), m_kind(kind)
 {
@@ -148,7 +165,7 @@ Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &
 
 // Factory
 
-class DesktopQmakeRunConfiguration : public DesktopRunConfiguration
+class DesktopQmakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
     DesktopQmakeRunConfiguration(Target *target, Core::Id id)
@@ -156,7 +173,7 @@ public:
     {}
 };
 
-class QbsRunConfiguration : public DesktopRunConfiguration
+class QbsRunConfiguration final : public DesktopRunConfiguration
 {
 public:
     QbsRunConfiguration(Target *target, Core::Id id)
@@ -164,7 +181,7 @@ public:
     {}
 };
 
-class CMakeRunConfiguration : public DesktopRunConfiguration
+class CMakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
     CMakeRunConfiguration(Target *target, Core::Id id)

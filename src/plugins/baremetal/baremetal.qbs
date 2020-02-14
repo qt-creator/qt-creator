@@ -17,7 +17,6 @@ QtcPlugin {
         files: [
             "baremetal.qrc",
             "baremetalconstants.h",
-            "baremetalcustomrunconfiguration.cpp", "baremetalcustomrunconfiguration.h",
             "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
             "baremetaldevice.cpp", "baremetaldevice.h",
             "baremetaldeviceconfigurationwidget.cpp", "baremetaldeviceconfigurationwidget.h",

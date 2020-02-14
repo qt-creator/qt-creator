@@ -31,36 +31,19 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class DesktopRunConfiguration : public RunConfiguration
-{
-    Q_OBJECT
-
-protected:
-    enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
-
-    DesktopRunConfiguration(Target *target, Core::Id id, Kind kind);
-
-private:
-    void updateTargetInformation();
-
-    Utils::FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
-
-    const Kind m_kind;
-};
-
-class DesktopQmakeRunConfigurationFactory : public RunConfigurationFactory
+class DesktopQmakeRunConfigurationFactory final : public RunConfigurationFactory
 {
 public:
     DesktopQmakeRunConfigurationFactory();
 };
 
-class QbsRunConfigurationFactory : public RunConfigurationFactory
+class QbsRunConfigurationFactory final : public RunConfigurationFactory
 {
 public:
     QbsRunConfigurationFactory();
 };
 
-class CMakeRunConfigurationFactory : public RunConfigurationFactory
+class CMakeRunConfigurationFactory final : public RunConfigurationFactory
 {
 public:
     CMakeRunConfigurationFactory();

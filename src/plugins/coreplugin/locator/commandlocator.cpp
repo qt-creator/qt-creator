@@ -40,6 +40,12 @@ struct CommandLocatorPrivate
     QList<Command *> commands;
 };
 
+/*!
+    \class Core::CommandLocator
+    \inmodule QtCreator
+    \internal
+*/
+
 CommandLocator::CommandLocator(Id id,
                                const QString &displayName,
                                const QString &shortCutString,

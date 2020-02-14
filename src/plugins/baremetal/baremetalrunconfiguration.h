@@ -30,23 +30,18 @@
 namespace BareMetal {
 namespace Internal {
 
-// BareMetalRunConfiguration
-
-class BareMetalRunConfiguration final : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    explicit BareMetalRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
-// BareMetalRunConfigurationFactory
-
 class BareMetalRunConfigurationFactory final
         : public ProjectExplorer::RunConfigurationFactory
 {
 public:
-    explicit BareMetalRunConfigurationFactory();
+    BareMetalRunConfigurationFactory();
+};
+
+class BareMetalCustomRunConfigurationFactory final
+        : public ProjectExplorer::FixedRunConfigurationFactory
+{
+public:
+    BareMetalCustomRunConfigurationFactory();
 };
 
 } // namespace Internal

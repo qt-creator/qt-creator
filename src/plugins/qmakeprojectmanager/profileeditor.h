@@ -32,8 +32,6 @@ namespace Internal {
 
 class ProFileEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     ProFileEditorFactory();
 };

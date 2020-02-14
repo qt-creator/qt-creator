@@ -88,8 +88,6 @@ public:
 
 class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     CompilationDatabaseEditorFactory();
 };

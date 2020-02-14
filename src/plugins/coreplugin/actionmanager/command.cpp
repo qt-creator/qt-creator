@@ -40,9 +40,11 @@
 
 /*!
     \class Core::Command
-    \mainclass
+    \inmodule QtCreator
+    \ingroup mainclasses
 
     \brief The Command class represents an action, such as a menu item, tool button, or shortcut.
+
     You do not create Command objects directly, but use \l{ActionManager::registerAction()}
     to register an action and retrieve a Command. The Command object represents the user visible
     action and its properties. If multiple actions are registered with the same ID (but
@@ -69,13 +71,12 @@
     This enum defines how the user visible action is updated when the active action changes.
     The default is to update the enabled and visible state, and to disable the
     user visible action when there is no active action.
-    \omitvalue CA_Mask
     \value CA_UpdateText
         Also update the actions text.
     \value CA_UpdateIcon
         Also update the actions icon.
     \value CA_Hide
-        When there is no active action, hide the user "visible" action, instead of just
+        When there is no active action, hide the user-visible action, instead of just
         disabling it.
     \value CA_NonConfigurable
         Flag to indicate that the keyboard shortcut of this Command should not be
@@ -151,6 +152,12 @@
 */
 
 /*!
+    \fn Context Command::context() const
+
+    Returns the context for this command.
+*/
+
+/*!
     \fn void Command::setAttribute(CommandAttribute attribute)
     Adds \a attribute to the attributes of this Command.
     \sa CommandAttribute
@@ -187,18 +194,48 @@
 
 /*!
     \fn bool Command::isScriptable(const Context &) const
-    Returns whether the Command is scriptable for the given context.
-    A scriptable command can be called from a script without the need for the user to
-    interact with it.
+    \internal
+
+    Returns whether the Command is scriptable.
+*/
+
+/*!
+    \fn void Command::activeStateChanged()
+
+    This signal is emitted when the active state of the command changes.
+*/
+
+/*!
+    \fn virtual void Command::setTouchBarText(const QString &text)
+
+    Sets the text for the action on the touch bar to \a text.
+*/
+
+/*!
+    \fn virtual QString Command::touchBarText() const
+
+    Returns the text for the action on the touch bar.
+*/
+
+/*!
+    \fn virtual void Command::setTouchBarIcon(const QIcon &icon)
+
+    Sets the icon for the action on the touch bar to \a icon.
+*/
+
+/*! \fn virtual QIcon Command::touchBarIcon() const
+
+    Returns the icon for the action on the touch bar.
+*/
+
+/*! \fn virtual QAction *Command::touchBarAction() const
+
+    Adds an action to the touch bar.
 */
 
 namespace Core {
 namespace Internal {
 
-/*!
-  \class Action
-  \internal
-*/
 Action::Action(Id id)
     : m_attributes({}),
       m_id(id),
@@ -453,6 +490,10 @@ QAction *Action::touchBarAction() const
 
 } // namespace Internal
 
+/*!
+    Appends the keyboard shortcut that is currently assigned to the action \a a
+    to its tool tip.
+*/
 void Command::augmentActionWithShortcutToolTip(QAction *a) const
 {
     a->setToolTip(stringWithAppendedShortcut(a->text()));
@@ -464,6 +505,11 @@ void Command::augmentActionWithShortcutToolTip(QAction *a) const
     });
 }
 
+/*!
+    Returns a tool button for \a action.
+
+    Appends the keyboard shortcut \a cmd to the tool tip of the action.
+*/
 QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *cmd)
 {
     auto button = new QToolButton;

@@ -123,6 +123,12 @@ public:
 
 } // namespace Internal
 
+/*!
+    \class Core::CommandMappings
+    \inmodule QtCreator
+    \internal
+*/
+
 CommandMappings::CommandMappings(QWidget *parent)
     : QWidget(parent), d(new Internal::CommandMappingsPrivate(this))
 {

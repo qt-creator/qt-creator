@@ -2738,6 +2738,28 @@ static bool hasBuildSettings(const Project *pro)
     });
 }
 
+static QPair<bool, QString> subprojectEnabledState(const Project *pro)
+{
+    QPair<bool, QString> result;
+    result.first = true;
+
+    const QList<Project *> &projects = SessionManager::projectOrder(pro);
+    foreach (Project *project, projects) {
+        if (project && project->activeTarget()
+            && project->activeTarget()->activeBuildConfiguration()
+            && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
+            result.first = false;
+            result.second
+                += QCoreApplication::translate("ProjectExplorerPluginPrivate",
+                                               "Building \"%1\" is disabled: %2<br>")
+                       .arg(project->displayName(),
+                            project->activeTarget()->activeBuildConfiguration()->disabledReason());
+        }
+    }
+
+    return result;
+}
+
 QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabled(const Project *pro)
 {
     QPair<bool, QString> result;
@@ -2755,18 +2777,7 @@ QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabled(const Pr
         result.first = false;
         result.second = tr("Project has no build settings.");
     } else {
-        const QList<Project *> & projects = SessionManager::projectOrder(pro);
-        foreach (Project *project, projects) {
-            if (project
-                    && project->activeTarget()
-                    && project->activeTarget()->activeBuildConfiguration()
-                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
-                result.first = false;
-                result.second += tr("Building \"%1\" is disabled: %2<br>")
-                        .arg(project->displayName(),
-                             project->activeTarget()->activeBuildConfiguration()->disabledReason());
-            }
-        }
+        result = subprojectEnabledState(pro);
     }
     return result;
 }
@@ -2785,18 +2796,7 @@ QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabledForSessio
         result.first = false;
         result.second = tr("Project has no build settings.");
     } else {
-        foreach (Project *project, SessionManager::projectOrder(nullptr)) {
-            if (project
-                    && project->activeTarget()
-                    && project->activeTarget()->activeBuildConfiguration()
-                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
-                result.first = false;
-                result.second += tr("Building \"%1\" is disabled: %2")
-                        .arg(project->displayName(),
-                             project->activeTarget()->activeBuildConfiguration()->disabledReason());
-                result.second += QLatin1Char('\n');
-            }
-        }
+        result = subprojectEnabledState(nullptr);
     }
     return result;
 }

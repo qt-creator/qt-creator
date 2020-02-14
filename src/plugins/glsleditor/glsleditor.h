@@ -34,8 +34,6 @@ int languageVariant(const QString &mimeType);
 
 class GlslEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     GlslEditorFactory();
 };

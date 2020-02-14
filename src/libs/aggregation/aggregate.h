@@ -48,7 +48,7 @@ public:
 
     template <typename T> T *component() {
         QReadLocker locker(&lock());
-        foreach (QObject *component, m_components) {
+        for (QObject *component : qAsConst(m_components)) {
             if (T *result = qobject_cast<T *>(component))
                 return result;
         }
@@ -58,7 +58,7 @@ public:
     template <typename T> QList<T *> components() {
         QReadLocker locker(&lock());
         QList<T *> results;
-        foreach (QObject *component, m_components) {
+        for (QObject *component : qAsConst(m_components)) {
             if (T *result = qobject_cast<T *>(component)) {
                 results << result;
             }

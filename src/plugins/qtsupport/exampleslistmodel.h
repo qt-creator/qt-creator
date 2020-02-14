@@ -50,6 +50,7 @@ public:
     int selectedExampleSet() const { return m_selectedExampleSetIndex; }
     void selectExampleSet(int index);
     QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath);
+    bool selectedQtSupports(const Core::Id &target) const;
 
 signals:
     void selectedExampleSetChanged(int);
@@ -89,6 +90,7 @@ private:
     QList<ExtraExampleSet> m_extraExampleSets;
     QList<BaseQtVersion*> m_qtVersions;
     int m_selectedExampleSetIndex = -1;
+    QSet<Core::Id> m_selectedQtTypes;
 
     bool m_qtVersionManagerInitialized = false;
     bool m_helpManagerInitialized = false;
@@ -158,6 +160,7 @@ protected:
                                               bool *earlyExitResult) const override;
 private:
     const bool m_showTutorialsOnly;
+    ExamplesListModel *m_examplesListModel = nullptr;
 };
 
 } // namespace Internal

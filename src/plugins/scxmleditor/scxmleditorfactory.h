@@ -36,6 +36,7 @@ class ScxmlEditorFactory final : public Core::IEditorFactory
 {
 public:
     ScxmlEditorFactory();
+    ~ScxmlEditorFactory();
 
 private:
     ScxmlEditorData* m_editorData = nullptr;

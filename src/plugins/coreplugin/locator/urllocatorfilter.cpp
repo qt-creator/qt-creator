@@ -119,6 +119,12 @@ void UrlFilterOptions::updateActionButtons()
 
 // -- UrlLocatorFilter
 
+/*!
+    \class Core::UrlLocatorFilter
+    \inmodule QtCreator
+    \internal
+*/
+
 UrlLocatorFilter::UrlLocatorFilter(Id id)
     : UrlLocatorFilter(tr("URL Template"), id)
 {}

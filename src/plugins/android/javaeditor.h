@@ -32,8 +32,6 @@ namespace Internal {
 
 class JavaEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     JavaEditorFactory();
 };

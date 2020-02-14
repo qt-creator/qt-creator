@@ -45,7 +45,7 @@ namespace Nim {
 NimEditorFactory::NimEditorFactory()
 {
     setId(Constants::C_NIMEDITOR_ID);
-    setDisplayName(tr(Nim::Constants::C_EDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Nim Editor"));
     addMimeType(QLatin1String(Nim::Constants::C_NIM_MIMETYPE));
     addMimeType(QLatin1String(Nim::Constants::C_NIM_SCRIPT_MIMETYPE));
 

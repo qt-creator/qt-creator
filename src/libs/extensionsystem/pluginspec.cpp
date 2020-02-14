@@ -803,8 +803,8 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     if (!value.isUndefined() && !value.isArray())
         return reportError(msgValueIsNotAObjectArray(DEPENDENCIES));
     if (!value.isUndefined()) {
-        QJsonArray array = value.toArray();
-        foreach (const QJsonValue &v, array) {
+        const QJsonArray array = value.toArray();
+        for (const QJsonValue &v : array) {
             if (!v.isObject())
                 return reportError(msgValueIsNotAObjectArray(DEPENDENCIES));
             QJsonObject dependencyObject = v.toObject();
@@ -850,8 +850,8 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     if (!value.isUndefined() && !value.isArray())
         return reportError(msgValueIsNotAObjectArray(ARGUMENTS));
     if (!value.isUndefined()) {
-        QJsonArray array = value.toArray();
-        foreach (const QJsonValue &v, array) {
+        const QJsonArray array = value.toArray();
+        for (const QJsonValue &v : array) {
             if (!v.isObject())
                 return reportError(msgValueIsNotAObjectArray(ARGUMENTS));
             QJsonObject argumentObject = v.toObject();
@@ -946,7 +946,7 @@ bool PluginSpecPrivate::resolveDependencies(const QVector<PluginSpec *> &specs)
         return false;
     }
     QHash<PluginDependency, PluginSpec *> resolvedDependencies;
-    foreach (const PluginDependency &dependency, dependencies) {
+    for (const PluginDependency &dependency : qAsConst(dependencies)) {
         PluginSpec * const found = Utils::findOrDefault(specs, [&dependency](PluginSpec *spec) {
             return spec->provides(dependency.name, dependency.version);
         });

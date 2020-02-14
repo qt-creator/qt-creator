@@ -37,6 +37,12 @@
 
 namespace Core {
 
+/*!
+    \class Core::DirectoryFilter
+    \inmodule QtCreator
+    \internal
+*/
+
 DirectoryFilter::DirectoryFilter(Id id)
     : m_filters({"*.h", "*.cpp", "*.ui", "*.qrc"}),
       m_exclusionFilters({"*/.git/*", "*/.cvs/*", "*/.svn/*"})

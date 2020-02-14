@@ -37,6 +37,23 @@
 using namespace Core;
 using namespace Core::Tests;
 
+/*!
+    \class Core::Tests::BasicLocatorFilterTest
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::Tests::TestDataDir
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \namespace Core::Tests
+    \inmodule QtCreator
+    \internal
+*/
 BasicLocatorFilterTest::BasicLocatorFilterTest(ILocatorFilter *filter) : m_filter(filter)
 {
 }
@@ -54,6 +71,11 @@ QList<LocatorFilterEntry> BasicLocatorFilterTest::matchesFor(const QString &sear
     return locatorSearch.results();
 }
 
+/*!
+    \class Core::Tests::ResultData
+    \inmodule QtCreator
+    \internal
+*/
 ResultData::ResultData() = default;
 
 ResultData::ResultData(const QString &textColumn1, const QString &textColumn2,

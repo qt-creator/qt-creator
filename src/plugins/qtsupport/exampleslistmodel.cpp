@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "exampleslistmodel.h"
-
 #include "screenshotcropper.h"
 
 #include <QBuffer>
@@ -34,6 +33,8 @@
 #include <QPixmapCache>
 #include <QUrl>
 
+#include <android/androidconstants.h>
+#include <ios/iosconstants.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
@@ -214,6 +215,11 @@ int ExampleSetModel::getQtId(int i) const
     QTC_ASSERT(variant.isValid(), return -1);
     QTC_ASSERT(variant.canConvert<int>(), return -1);
     return variant.toInt();
+}
+
+bool ExampleSetModel::selectedQtSupports(const Core::Id &target) const
+{
+    return m_selectedQtTypes.contains(target);
 }
 
 int ExampleSetModel::getExtraExampleSetIndex(int i) const
@@ -651,6 +657,10 @@ void ExampleSetModel::selectExampleSet(int index)
     if (index != m_selectedExampleSetIndex) {
         m_selectedExampleSetIndex = index;
         writeCurrentIdToSettings(m_selectedExampleSetIndex);
+        if (getType(m_selectedExampleSetIndex) == ExampleSetModel::QtExampleSet) {
+            BaseQtVersion *selectedQtVersion = QtVersionManager::version(getQtId(m_selectedExampleSetIndex));
+            m_selectedQtTypes = selectedQtVersion->targetDeviceTypes();
+        }
         emit selectedExampleSetChanged(m_selectedExampleSetIndex);
     }
 }
@@ -690,7 +700,8 @@ void ExampleSetModel::tryToInitialize()
 
 ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent) :
     Core::ListModelFilter(sourceModel, parent),
-    m_showTutorialsOnly(showTutorialsOnly)
+    m_showTutorialsOnly(showTutorialsOnly),
+    m_examplesListModel(sourceModel)
 {
 }
 
@@ -699,16 +710,30 @@ bool ExamplesListModelFilter::leaveFilterAcceptsRowBeforeFiltering(const Core::L
 {
     QTC_ASSERT(earlyExitResult, return false);
 
-    const ExampleItem *exampleItem = static_cast<const ExampleItem *>(item);
-    if (m_showTutorialsOnly && exampleItem->type != Tutorial) {
+    const bool isTutorial = static_cast<const ExampleItem *>(item)->type == Tutorial;
+
+    if (m_showTutorialsOnly) {
+        *earlyExitResult = isTutorial;
+        return !isTutorial;
+    }
+
+    if (isTutorial) {
         *earlyExitResult = false;
         return true;
     }
 
-    if (!m_showTutorialsOnly && exampleItem->type != Example && exampleItem->type != Demo) {
+    if (m_examplesListModel->exampleSetModel()->selectedQtSupports(Android::Constants::ANDROID_DEVICE_TYPE)
+        && !item->tags.contains("android")) {
         *earlyExitResult = false;
         return true;
     }
+
+    if (m_examplesListModel->exampleSetModel()->selectedQtSupports(Ios::Constants::IOS_DEVICE_TYPE)
+        && !item->tags.contains("ios")) {
+        *earlyExitResult = false;
+        return true;
+    }
+
     return false;
 }
 

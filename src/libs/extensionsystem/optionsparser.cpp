@@ -170,7 +170,7 @@ bool OptionsParser::checkForLoadOption()
         return false;
     if (nextToken(RequiredToken)) {
         if (m_currentArg == QLatin1String("all")) {
-            foreach (PluginSpec *spec, m_pmPrivate->pluginSpecs)
+            for (PluginSpec *spec : qAsConst(m_pmPrivate->pluginSpecs))
                 spec->d->setForceEnabled(true);
             m_isDependencyRefreshNeeded = true;
         } else {
@@ -197,7 +197,7 @@ bool OptionsParser::checkForNoLoadOption()
         return false;
     if (nextToken(RequiredToken)) {
         if (m_currentArg == QLatin1String("all")) {
-            foreach (PluginSpec *spec, m_pmPrivate->pluginSpecs)
+            for (PluginSpec *spec : qAsConst(m_pmPrivate->pluginSpecs))
                 spec->d->setForceDisabled(true);
             m_isDependencyRefreshNeeded = true;
         } else {
@@ -210,7 +210,7 @@ bool OptionsParser::checkForNoLoadOption()
             } else {
                 spec->d->setForceDisabled(true);
                 // recursively disable all plugins that require this plugin
-                foreach (PluginSpec *dependantSpec, PluginManager::pluginsRequiringPlugin(spec))
+                for (PluginSpec *dependantSpec : PluginManager::pluginsRequiringPlugin(spec))
                     dependantSpec->d->setForceDisabled(true);
                 m_isDependencyRefreshNeeded = true;
             }
