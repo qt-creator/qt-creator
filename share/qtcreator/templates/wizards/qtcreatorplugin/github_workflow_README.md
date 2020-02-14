@@ -16,7 +16,10 @@ The value for `QT_VERSION` specifies the Qt version to use for building the plug
 
 The value for `QT_CREATOR_VERSION` specifies the Qt Creator version to use for building the plugin.
 
-You need to keep these two values updated for different versions of your plugin, and take care
+The value for `QT_CREATOR_SNAPSHOT` can either be `NO` or `latest` or the build ID of a specific
+snapshot build for the Qt Creator version that you specified.
+
+You need to keep these values updated for different versions of your plugin, and take care
 that the Qt version and Qt Creator version you specify are compatible.
 
 ## What it does
@@ -34,8 +37,5 @@ The build job consists of several steps:
 
 If your plugin requires additional resources besides the plugin library, you need to adapt the
 script accordingly.
-
-Only released versions of Qt and Qt Creator are supported. Building against Qt Creator snapshots
-is currently not supported.
 
 [1]: https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-github-actions
