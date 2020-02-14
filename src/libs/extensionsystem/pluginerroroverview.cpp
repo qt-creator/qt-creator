@@ -46,7 +46,7 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->buttonBox->addButton(tr("Continue"), QDialogButtonBox::AcceptRole);
 
-    foreach (PluginSpec *spec, PluginManager::plugins()) {
+    for (PluginSpec *spec : PluginManager::plugins()) {
         // only show errors on startup if plugin is enabled.
         if (spec->hasError() && spec->isEffectivelyEnabled()) {
             QListWidgetItem *item = new QListWidgetItem(spec->name());

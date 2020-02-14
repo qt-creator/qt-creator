@@ -44,7 +44,7 @@ bool MyPlugin1::initialize(const QStringList & /*arguments*/, QString *errorStri
 
     bool found2 = false;
     bool found3 = false;
-    foreach (QObject *object, ExtensionSystem::PluginManager::allObjects()) {
+    for (QObject *object : ExtensionSystem::PluginManager::allObjects()) {
         if (object->objectName() == QLatin1String("MyPlugin2"))
             found2 = true;
         else if (object->objectName() == QLatin1String("MyPlugin3"))

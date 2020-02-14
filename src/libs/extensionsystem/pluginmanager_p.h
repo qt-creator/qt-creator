@@ -69,7 +69,7 @@ public:
     void loadPlugins();
     void shutdown();
     void setPluginPaths(const QStringList &paths);
-    QVector<ExtensionSystem::PluginSpec *> loadQueue();
+    const QVector<ExtensionSystem::PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
     void enableDependenciesIndirectly();

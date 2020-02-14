@@ -218,12 +218,12 @@ public:
 class CollectionItem : public TreeItem
 {
 public:
-    CollectionItem(const QString &name, QVector<PluginSpec *> plugins, PluginView *view)
+    CollectionItem(const QString &name, const QVector<PluginSpec *> &plugins, PluginView *view)
         : m_name(name)
         , m_plugins(plugins)
         , m_view(view)
     {
-        foreach (PluginSpec *spec, plugins)
+        for (PluginSpec *spec : plugins)
             appendChild(new PluginItem(spec, view));
     }
 
@@ -243,7 +243,7 @@ public:
                 return PluginView::tr("Load on Startup");
             if (role == Qt::CheckStateRole || role == SortRole) {
                 int checkedCount = 0;
-                foreach (PluginSpec *spec, m_plugins) {
+                for (PluginSpec *spec : m_plugins) {
                     if (spec->isEnabledBySettings())
                         ++checkedCount;
                 }
@@ -284,7 +284,7 @@ public:
 
 public:
     QString m_name;
-    QVector<PluginSpec *> m_plugins;
+    const QVector<PluginSpec *> m_plugins;
     PluginView *m_view; // Not owned.
 };
 
@@ -437,7 +437,7 @@ void PluginView::updatePlugins()
     }
     Utils::sort(collections, &CollectionItem::m_name);
 
-    foreach (CollectionItem *collection, collections)
+    for (CollectionItem *collection : qAsConst(collections))
         m_model->rootItem()->appendChild(collection);
 
     emit m_model->layoutChanged();
@@ -455,8 +455,8 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
 {
     QSet<PluginSpec *> additionalPlugins;
     if (enable) {
-        foreach (PluginSpec *spec, plugins) {
-            foreach (PluginSpec *other, PluginManager::pluginsRequiredByPlugin(spec)) {
+        for (PluginSpec *spec : plugins) {
+            for (PluginSpec *other : PluginManager::pluginsRequiredByPlugin(spec)) {
                 if (!other->isEnabledBySettings())
                     additionalPlugins.insert(other);
             }
@@ -472,8 +472,8 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
                 return false;
         }
     } else {
-        foreach (PluginSpec *spec, plugins) {
-            foreach (PluginSpec *other, PluginManager::pluginsRequiringPlugin(spec)) {
+        for (PluginSpec *spec : plugins) {
+            for (PluginSpec *other : PluginManager::pluginsRequiringPlugin(spec)) {
                 if (other->isEnabledBySettings())
                     additionalPlugins.insert(other);
             }
@@ -490,8 +490,8 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         }
     }
 
-    QSet<PluginSpec *> affectedPlugins = plugins + additionalPlugins;
-    foreach (PluginSpec *spec, affectedPlugins) {
+    const QSet<PluginSpec *> affectedPlugins = plugins + additionalPlugins;
+    for (PluginSpec *spec : affectedPlugins) {
         PluginItem *item = m_model->findItemAtLevel<2>([spec](PluginItem *item) {
                 return item->m_spec == spec;
         });

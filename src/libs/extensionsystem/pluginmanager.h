@@ -62,8 +62,8 @@ public:
     template <typename T> static T *getObject()
     {
         QReadLocker lock(listLock());
-        QVector<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
+        const QVector<QObject *> all = allObjects();
+        for (QObject *obj : all) {
             if (T *result = qobject_cast<T *>(obj))
                 return result;
         }
@@ -72,8 +72,8 @@ public:
     template <typename T, typename Predicate> static T *getObject(Predicate predicate)
     {
         QReadLocker lock(listLock());
-        QVector<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
+        const QVector<QObject *> all = allObjects();
+        for (QObject *obj : all) {
             if (T *result = qobject_cast<T *>(obj))
                 if (predicate(result))
                     return result;
@@ -94,8 +94,8 @@ public:
     static QHash<QString, QVector<PluginSpec *>> pluginCollections();
     static bool hasError();
     static const QStringList allErrors();
-    static QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
-    static QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
+    static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
+    static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
 
     // Settings
