@@ -207,7 +207,7 @@ Aggregate::~Aggregate()
     QList<QObject *> components;
     {
         QWriteLocker locker(&lock());
-        foreach (QObject *component, m_components) {
+        for (QObject *component : qAsConst(m_components)) {
             disconnect(component, &QObject::destroyed, this, &Aggregate::deleteSelf);
             aggregateMap().remove(component);
         }
