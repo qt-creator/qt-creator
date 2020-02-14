@@ -133,15 +133,31 @@ ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
 using namespace Internal;
 
 /*!
- * \class ReadOnlyFilesDialog
+ * \class Core::ReadOnlyFilesDialog
+ * \inmodule QtCreator
+ * \internal
  * \brief The ReadOnlyFilesDialog class implements a dialog to show a set of
  * files that are classified as not writable.
  *
  * Automatically checks which operations are allowed to make the file writable. These operations
- * are Make Writable which tries to set the file permissions in the file system,
- * Open With Version Control System if the open operation is allowed by the version control system
- * and Save As which is used to save the changes to a document in another file.
+ * are \c MakeWritable (RO_MakeWritable), which tries to set the file permissions in the file system,
+ * \c OpenWithVCS (RO_OpenVCS) if the open operation is allowed by the version control system,
+ * and \c SaveAs (RO_SaveAs), which is used to save the changes to a document under another file
+ * name.
  */
+
+/*! \enum ReadOnlyFilesDialog::ReadOnlyResult
+    This enum holds the operations that are allowed to make the file writable.
+
+     \value RO_Cancel
+            Cancels the operation.
+     \value RO_OpenVCS
+            Opens the file under control of the version control system.
+     \value RO_MakeWritable
+            Sets the file permissions in the file system.
+     \value RO_SaveAs
+            Saves changes to a document under another file name.
+*/
 
 ReadOnlyFilesDialog::ReadOnlyFilesDialog(const Utils::FilePaths &filePaths, QWidget *parent)
     : QDialog(parent)

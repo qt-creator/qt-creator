@@ -39,7 +39,9 @@
 enum { FileNameRole = Qt::UserRole + 1 };
 
 /*!
-    \class Core::Internal::PromptOverwriteDialog
+    \class Core::PromptOverwriteDialog
+    \inmodule QtCreator
+    \internal
     \brief The PromptOverwriteDialog class implements a dialog that asks
     users whether they want to overwrite files.
 
