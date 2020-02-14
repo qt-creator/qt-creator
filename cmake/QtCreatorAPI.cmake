@@ -343,6 +343,12 @@ function(enable_pch target)
       return()
     endif()
 
+    # Skip PCH for targets that do not have QT_NO_CAST_TO_ASCII
+    get_target_property(target_defines "${target}" COMPILE_DEFINITIONS)
+    if (NOT "QT_NO_CAST_TO_ASCII" IN_LIST target_defines)
+      return()
+    endif()
+
     get_target_property(target_type ${target} TYPE)
     if (NOT ${target_type} STREQUAL "OBJECT_LIBRARY")
       function(_recursively_collect_dependencies input_target)
