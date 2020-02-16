@@ -31,14 +31,19 @@ namespace VcsBase {
 
 class VcsOutputFormatter : public Utils::OutputFormatter
 {
+    Q_OBJECT
 public:
     VcsOutputFormatter();
     ~VcsOutputFormatter() override = default;
     void appendMessage(const QString &text, Utils::OutputFormat format) override;
     void handleLink(const QString &href) override;
 
+signals:
+    void referenceClicked(const QString &reference);
+
 private:
     const QRegularExpression m_urlRegexp;
+    const QRegularExpression m_referenceRegexp;
 };
 
 }

@@ -102,6 +102,7 @@ public:
     void appendLines(const QString &s, const QString &repository = QString());
     void appendLinesWithStyle(const QString &s, VcsOutputWindow::MessageStyle style,
                               const QString &repository = QString());
+    VcsOutputFormatter *formatter();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
@@ -247,6 +248,11 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
     }
 }
 
+VcsOutputFormatter *OutputWindowPlainTextEdit::formatter()
+{
+    return m_formatter;
+}
+
 void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)
 {
     m_formatter->setBoldFontEnabled(style == VcsOutputWindow::Command);
@@ -305,6 +311,8 @@ VcsOutputWindow::VcsOutputWindow()
     connect(this, &IOutputPane::resetZoom, &d->widget, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
+    connect(d->widget.formatter(), &VcsOutputFormatter::referenceClicked,
+            VcsOutputWindow::instance(), &VcsOutputWindow::referenceClicked);
 }
 
 static QString filterPasswordFromUrls(const QString &input)

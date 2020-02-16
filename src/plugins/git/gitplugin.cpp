@@ -919,6 +919,14 @@ GitPluginPrivate::GitPluginPrivate()
     m_gerritPlugin->initialize(remoteRepositoryMenu);
     m_gerritPlugin->updateActions(currentState());
     m_gerritPlugin->addToLocator(m_commandLocator);
+
+    connect(VcsOutputWindow::instance(), &VcsOutputWindow::referenceClicked,
+            this, [this](const QString &name) {
+        const VcsBasePluginState state = currentState();
+        QTC_ASSERT(state.hasTopLevel(), return);
+        m_gitClient.show(state.topLevel(), name);
+    });
+
 }
 
 void GitPluginPrivate::diffCurrentFile()
