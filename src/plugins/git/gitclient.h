@@ -80,6 +80,7 @@ enum StashFlag {
 };
 
 enum PushFailure {
+    Unknown,
     NonFastForward,
     NoRemoteBranch
 };

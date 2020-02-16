@@ -3108,6 +3108,8 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
             this, [this, command, workingDirectory, pushArgs](bool success) {
         if (!success) {
             switch (static_cast<PushFailure>(command->cookie().toInt())) {
+            case Unknown:
+                break;
             case NonFastForward: {
                 const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
                 if (QMessageBox::question(
