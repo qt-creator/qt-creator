@@ -53,7 +53,7 @@ public:
 signals:
     void finished();
     void requestReparse();
-    void directoryChanged();
+    void directoryChanged(const QString &path);
     void fileChanged(const QString &path);
 
 private:

@@ -109,11 +109,6 @@ static NimbleMetadata parseMetadata(const QString &nimblePath, const QString &wo
 NimbleBuildSystem::NimbleBuildSystem(Target *target)
     : BuildSystem(target), m_projectScanner(target->project())
 {
-    // Not called in parseProject due to nimble behavior to create temporary
-    // files in project directory. This creation in turn stimulate the fs watcher
-    // that in turn causes project parsing (thus a loop if invoke in parseProject).
-    // For this reason we call this function manually during project creation
-    // See https://github.com/nim-lang/nimble/issues/720
     m_projectScanner.watchProjectFilePath();
 
     connect(&m_projectScanner, &NimProjectScanner::fileChanged, this, [this](const QString &path) {
@@ -126,8 +121,11 @@ NimbleBuildSystem::NimbleBuildSystem(Target *target)
 
     connect(&m_projectScanner, &NimProjectScanner::finished, this, &NimbleBuildSystem::updateProject);
 
-    connect(&m_projectScanner, &NimProjectScanner::directoryChanged, this, [this] {
-        if (!isWaitingForParse())
+    connect(&m_projectScanner, &NimProjectScanner::directoryChanged, this, [this] (const QString &directory){
+        // Workaround for nimble creating temporary files in project root directory
+        // when querying the list of tasks.
+        // See https://github.com/nim-lang/nimble/issues/720
+        if (directory != projectDirectory().toString())
             requestDelayedParse();
     });
 
