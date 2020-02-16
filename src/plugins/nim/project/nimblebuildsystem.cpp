@@ -149,8 +149,8 @@ void NimbleBuildSystem::updateProject()
     QList<BuildTargetInfo> targets = Utils::transform(m_metadata.bin, [&](const QString &bin){
         BuildTargetInfo info = {};
         info.displayName = bin;
-        info.targetFilePath = binDir.pathAppended(HostOsInfo::withExecutableSuffix(bin));
-        info.projectFilePath = srcDir.pathAppended(bin).stringAppended(".nim");
+        info.targetFilePath = binDir.pathAppended(bin);
+        info.projectFilePath = projectFilePath();
         info.workingDirectory = binDir;
         info.buildKey = bin;
         return info;
