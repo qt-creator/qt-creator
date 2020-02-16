@@ -169,8 +169,8 @@ public:
         return {};
     }
 
-    QString m_version;
     QString m_file;
+    QString m_version;
     QString m_desc;
     QString m_vendor;
     QString m_url;
@@ -497,7 +497,7 @@ DeviceSelection DeviceSelectionView::buildSelection(const DeviceSelectionItem *i
         default:
             break;
         }
-    } while (item = item->parentPackItem());
+    } while ((item = item->parentPackItem()));
     return selection;
 }
 

@@ -373,11 +373,6 @@ bool UvscClient::fetchStackFrames(quint32 taskId, quint64 address, GdbMi &data)
     if (!checkConnection())
         return false;
 
-    iSTKENUM istkenum = {};
-    istkenum.task = taskId;
-    istkenum.isFull = true;
-    istkenum.hasExtended = true;
-
     std::vector<STACKENUM> stackenums;
     const bool success = enumerateStack(taskId, stackenums);
     if (!success) {
