@@ -439,14 +439,13 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
         if (sameLine) {
             d->scrollToBottom = true;
 
-            int newline = -1;
             bool enforceNewline = d->enforceNewline;
             d->enforceNewline = false;
 
             if (enforceNewline) {
                 out.prepend('\n');
             } else {
-                newline = out.indexOf(QLatin1Char('\n'));
+                const int newline = out.indexOf(QLatin1Char('\n'));
                 moveCursor(QTextCursor::End);
                 if (newline != -1) {
                     if (d->formatter)
