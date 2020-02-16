@@ -122,13 +122,12 @@ void AndroidDebugSupport::start()
 
     qCDebug(androidDebugSupportLog) << "Start. Package name: " << packageName
                                     << "PID: " << m_runner->pid().pid();
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!Utils::HostOsInfo::isWindowsHost() &&
-            AndroidConfigurations::currentConfig().ndkVersion() >= QVersionNumber(11, 0, 0)) {
+            AndroidConfigurations::currentConfig().ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0)) {
         qCDebug(androidDebugSupportLog) << "UseTargetAsync: " << true;
         setUseTargetAsync(true);
     }
-
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
 
     if (isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
@@ -160,7 +159,7 @@ void AndroidDebugSupport::start()
         // TODO find a way to use the new sysroot layout
         // instead ~/android/ndk-bundle/platforms/android-29/arch-arm64
         // use ~/android/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/sysroot
-        Utils::FilePath sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
+        Utils::FilePath sysRoot = AndroidConfigurations::currentConfig().ndkLocation(qtVersion)
                 .pathAppended("platforms")
                 .pathAppended(QString("android-%1").arg(sdkVersion))
                 .pathAppended(devicePreferredAbi);

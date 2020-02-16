@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <qtsupport/baseqtversion.h>
+
 #include <projectexplorer/gcctoolchain.h>
 
 namespace Android {
@@ -44,6 +46,9 @@ public:
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
     bool fromMap(const QVariantMap &data) override;
 
+    void setNdkLocation(const Utils::FilePath &ndkLocation);
+    Utils::FilePath ndkLocation() const;
+
 protected:
     DetectedAbisResult detectSupportedAbis() const override;
 
@@ -51,6 +56,8 @@ private:
     explicit AndroidToolChain();
 
     friend class AndroidToolChainFactory;
+
+    Utils::FilePath m_ndkLocation;
 };
 
 class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory

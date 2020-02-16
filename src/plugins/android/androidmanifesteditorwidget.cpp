@@ -34,6 +34,8 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <qtsupport/qtkitinformation.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -612,8 +614,10 @@ void AndroidManifestEditorWidget::postSave()
     const Utils::FilePath docPath = m_textEditorWidget->textDocument()->filePath();
     if (Target *target = androidTarget(docPath)) {
         if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            QString androidNdkPlatform = AndroidConfigurations::currentConfig()
-                            .bestNdkPlatformMatch(AndroidManager::minimumSDK(target));
+            QString androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(
+                AndroidManager::minimumSDK(target),
+                QtSupport::QtKitAspect::qtVersion(
+                    androidTarget(m_textEditorWidget->textDocument()->filePath())->kit()));
             if (m_androidNdkPlatform != androidNdkPlatform) {
                 m_androidNdkPlatform = androidNdkPlatform;
                 bc->updateCacheAndEmitEnvironmentChanged();

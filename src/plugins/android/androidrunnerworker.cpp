@@ -225,10 +225,11 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << "Extra Start Args:" << m_amStartExtraArgs
                                  << "Before Start ADB cmds:" << m_beforeStartAdbCommands
                                  << "After finish ADB cmds:" << m_afterFinishAdbCommands;
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
     if (!preferredAbi.isEmpty())
-        m_gdbserverPath = AndroidConfigurations::instance()->currentConfig().gdbServer(preferredAbi).toString();
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+        m_gdbserverPath = AndroidConfigurations::instance()
+                              ->currentConfig().gdbServer(preferredAbi, version).toString();
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 

@@ -122,11 +122,11 @@ public:
     QStringList sdkManagerToolArgs() const;
     void setSdkManagerToolArgs(const QStringList &args);
 
-    Utils::FilePath ndkLocation() const;
+    Utils::FilePath ndkLocation(const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath defaultNdkLocation() const;
-    Utils::FilePath gdbServer(const QString &androidAbi) const;
-    QVersionNumber ndkVersion() const;
-    void setNdkLocation(const Utils::FilePath &ndkLocation);
+    Utils::FilePath gdbServer(const QString &androidAbi, const QtSupport::BaseQtVersion *qtVersion) const;
+    QVersionNumber ndkVersion(const QtSupport::BaseQtVersion *qtVersion) const;
+    QVersionNumber ndkVersion(const Utils::FilePath &ndkPath) const;
 
     QUrl sdkToolsUrl() const { return m_sdkToolsUrl; };
     QByteArray getSdkToolsSha256() const { return m_sdkToolsSha256; };
@@ -143,7 +143,8 @@ public:
     Utils::FilePath keystoreLocation() const;
     void setKeystoreLocation(const Utils::FilePath &keystoreLocation);
 
-    QString toolchainHost() const;
+    QString toolchainHost(const QtSupport::BaseQtVersion *qtVersion) const;
+    QString toolchainHostFromNdk(const Utils::FilePath &ndkPath) const;
 
     unsigned partitionSize() const;
     void setPartitionSize(unsigned partitionSize);
@@ -158,18 +159,19 @@ public:
     Utils::FilePath avdManagerToolPath() const;
     Utils::FilePath aaptToolPath() const;
 
-    Utils::FilePath toolchainPath() const;
-    Utils::FilePath clangPath() const;
+    Utils::FilePath toolchainPath(const QtSupport::BaseQtVersion *qtVersion) const;
+    Utils::FilePath clangPath(const QtSupport::BaseQtVersion *qtVersion) const;
 
-    Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi) const;
-    Utils::FilePath makePath() const;
+    Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi, const QtSupport::BaseQtVersion *qtVersion) const;
+    Utils::FilePath makePath(const QtSupport::BaseQtVersion *qtVersion) const;
+    Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation) const;
 
     Utils::FilePath keytoolPath() const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = nullptr) const;
     static QVector<AndroidDeviceInfo> connectedDevices(const Utils::FilePath &adbToolPath, QString *error = nullptr);
 
-    QString bestNdkPlatformMatch(int target) const;
+    QString bestNdkPlatformMatch(int target, const QtSupport::BaseQtVersion *qtVersion) const;
 
     static ProjectExplorer::Abi abiForToolChainPrefix(const QString &toolchainPrefix);
     static QLatin1String toolchainPrefix(const ProjectExplorer::Abi &abi);
@@ -199,12 +201,12 @@ private:
     bool isBootToQt(const QString &device) const;
     static QString getAvdName(const QString &serialnumber);
 
-    void updateNdkInformation() const;
     void parseDependenciesJson();
+
+    QVector<int> availableNdkPlatforms(const QtSupport::BaseQtVersion *qtVersion) const;
 
     Utils::FilePath m_sdkLocation;
     QStringList m_sdkManagerToolArgs;
-    Utils::FilePath m_ndkLocation;
     Utils::FilePath m_openJDKLocation;
     Utils::FilePath m_keystoreLocation;
     unsigned m_partitionSize = 1024;
@@ -217,10 +219,6 @@ private:
     bool m_sdkFullyConfigured = false;
 
     //caches
-    mutable bool m_NdkInformationUpToDate = false;
-    mutable QString m_toolchainHost;
-    mutable QVector<int> m_availableNdkPlatforms;
-
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 };
 
