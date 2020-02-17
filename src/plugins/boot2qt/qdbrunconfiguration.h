@@ -30,26 +30,6 @@
 namespace Qdb {
 namespace Internal {
 
-class FullCommandLineAspect : public ProjectExplorer::BaseStringAspect
-{
-    Q_OBJECT
-
-public:
-    explicit FullCommandLineAspect(ProjectExplorer::RunConfiguration *rc);
-};
-
-class QdbRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    QdbRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-private:
-    ProjectExplorer::Tasks checkForIssues() const override;
-    QString defaultDisplayName() const;
-};
-
 class QdbRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
 public:

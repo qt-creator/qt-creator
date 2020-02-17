@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,46 +22,58 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
 
-#include "layeritem.h"
-#include "formeditoritem.h"
+#include <QDialog>
 
-#include <QCursor>
-#include <QPointer>
-#include <QGraphicsPolygonItem>
-
-#include <memory>
+#include "annotation.h"
 
 namespace QmlDesigner {
 
-class FormEditorAnnotationIcon;
+namespace Ui {
+class AnnotationEditorDialog;
+}
 
-class SelectionIndicator
+class AnnotationEditorDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
-    SelectionIndicator(LayerItem *layerItem);
-    ~SelectionIndicator();
+    explicit AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation);
+    ~AnnotationEditorDialog();
 
-    void show();
-    void hide();
+    void setAnnotation(const Annotation &annotation);
+    Annotation annotation() const;
 
-    void clear();
+    void setCustomId(const QString &customId);
+    QString customId() const;
 
-    void setItems(const QList<FormEditorItem*> &itemList);
-    void updateItems(const QList<FormEditorItem*> &itemList);
+signals:
+    void accepted();
 
-    void setCursor(const QCursor &cursor);
+private slots:
+    void acceptedClicked();
+    void tabChanged(int index);
+    void commentTitleChanged(const QString &text, QWidget *tab);
+
 private:
-    void adjustAnnotationPosition(const QRectF &itemRect, const QRectF &labelRect, qreal scaleFactor);
+    void fillFields();
+    void setupComments();
+    void addComment(const Comment &comment);
+    void removeComment(int index);
+
+    void addCommentTab(const Comment &comment);
+    void removeCommentTab(int index);
+    void deleteAllTabs();
 
 private:
-    QHash<FormEditorItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
-    FormEditorItem *m_selectedItem;
-    QPointer<LayerItem> m_layerItem;
-    QCursor m_cursor;
-    std::unique_ptr<QGraphicsPolygonItem> m_labelItem;
-    FormEditorAnnotationIcon *m_annotationItem; //handled by m_labelItem
+    const QString titleString = {tr("Annotation Editor")};
+    const QString defaultTabName = {tr("Annotation")};
+    Ui::AnnotationEditorDialog *ui;
+
+    QString m_customId;
+    Annotation m_annotation;
 };
 
-} // namespace QmlDesigner
+} //namespace QmlDesigner

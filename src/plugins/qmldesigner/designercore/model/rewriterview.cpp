@@ -530,6 +530,14 @@ QString RewriterView::auxiliaryDataAsQML() const
 
                 if (metaType == QMetaType::QString
                         || metaType == QMetaType::QColor) {
+
+                    strValue.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
+                    strValue.replace(QStringLiteral("\""), QStringLiteral("\\\""));
+                    strValue.replace(QStringLiteral("\t"), QStringLiteral("\\t"));
+                    strValue.replace(QStringLiteral("\r"), QStringLiteral("\\r"));
+                    strValue.replace(QStringLiteral("\n"), QStringLiteral("\\n"));
+                    strValue.replace(QStringLiteral("*/"), QStringLiteral("*\\/"));
+
                     strValue = "\"" + strValue + "\"";
                 }
 

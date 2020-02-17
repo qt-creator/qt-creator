@@ -29,35 +29,16 @@
 
 namespace Nim {
 
-class NimbleRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    NimbleRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
-class NimbleRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class NimbleRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
 public:
     NimbleRunConfigurationFactory();
-
-protected:
-    QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::Target *parent) const override;
 };
 
-class NimbleTestConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    NimbleTestConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
-class NimbleTestConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+class NimbleTestConfigurationFactory final : public ProjectExplorer::FixedRunConfigurationFactory
 {
 public:
     NimbleTestConfigurationFactory();
 };
 
-}
+} // Nim

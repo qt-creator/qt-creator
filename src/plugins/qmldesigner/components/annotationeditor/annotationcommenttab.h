@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-** Contact: http://www.qt.io/licensing
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -25,14 +25,42 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include <QWidget>
 
-namespace Nim {
+#include "annotation.h"
 
-class NimRunConfigurationFactory final : public ProjectExplorer::FixedRunConfigurationFactory
+namespace QmlDesigner {
+
+namespace Ui {
+class AnnotationCommentTab;
+}
+
+class AnnotationCommentTab : public QWidget
 {
+    Q_OBJECT
+
 public:
-    NimRunConfigurationFactory();
+    explicit AnnotationCommentTab(QWidget *parent = nullptr);
+    ~AnnotationCommentTab();
+
+    Comment currentComment() const;
+
+    Comment originalComment() const;
+    void setComment(const Comment &comment);
+
+    void resetUI();
+    void resetComment();
+
+signals:
+    void titleChanged(const QString &text, QWidget *widget);
+
+private slots:
+    void commentTitleChanged(const QString &text);
+
+private:
+    Ui::AnnotationCommentTab *ui;
+
+    Comment m_comment;
 };
 
-} // Nim
+} //namespace QmlDesigner

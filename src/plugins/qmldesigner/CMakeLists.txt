@@ -208,6 +208,7 @@ extend_qtc_plugin(QmlDesigner
     controlelement.cpp controlelement.h
     dragtool.cpp dragtool.h
     formeditor.qrc
+    formeditorannotationicon.cpp formeditorannotationicon.h
     formeditorgraphicsview.cpp formeditorgraphicsview.h
     formeditoritem.cpp formeditoritem.h
     formeditorscene.cpp formeditorscene.h
@@ -536,6 +537,15 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/colortool
   SOURCES colortool.cpp colortool.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/annotationeditor
+  SOURCES annotation.cpp annotation.h
+  annotationcommenttab.cpp annotationcommenttab.h annotationcommenttab.ui
+  annotationeditordialog.cpp annotationeditordialog.h annotationeditordialog.ui
+  annotationeditor.cpp annotationeditor.h
+  annotationtool.cpp annotationtool.h
 )
 
 extend_qtc_plugin(QmlDesigner

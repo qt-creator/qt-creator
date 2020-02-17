@@ -44,26 +44,45 @@ namespace Internal {
 
 // FullCommandLineAspect
 
-FullCommandLineAspect::FullCommandLineAspect(RunConfiguration *rc)
+class FullCommandLineAspect : public BaseStringAspect
 {
-    setLabelText(QdbRunConfiguration::tr("Full command line:"));
+    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbRunConfiguration);
 
-    auto exeAspect = rc->aspect<ExecutableAspect>();
-    auto argumentsAspect = rc->aspect<ArgumentsAspect>();
+public:
+    explicit FullCommandLineAspect(RunConfiguration *rc)
+    {
+        setLabelText(tr("Full command line:"));
 
-    auto updateCommandLine = [this, rc, exeAspect, argumentsAspect] {
-        const QString usedExecutable = exeAspect->executable().toString();
-        const QString args = argumentsAspect->arguments(rc->macroExpander());
-        setValue(QString(Constants::AppcontrollerFilepath)
-                    + ' ' + usedExecutable + ' ' + args);
-    };
+        auto exeAspect = rc->aspect<ExecutableAspect>();
+        auto argumentsAspect = rc->aspect<ArgumentsAspect>();
 
-    connect(argumentsAspect, &ArgumentsAspect::argumentsChanged, this, updateCommandLine);
-    connect(exeAspect, &ExecutableAspect::changed, this, updateCommandLine);
-    updateCommandLine();
-}
+        auto updateCommandLine = [this, rc, exeAspect, argumentsAspect] {
+            const QString usedExecutable = exeAspect->executable().toString();
+            const QString args = argumentsAspect->arguments(rc->macroExpander());
+            setValue(QString(Constants::AppcontrollerFilepath)
+                     + ' ' + usedExecutable + ' ' + args);
+        };
+
+        connect(argumentsAspect, &ArgumentsAspect::argumentsChanged, this, updateCommandLine);
+        connect(exeAspect, &ExecutableAspect::changed, this, updateCommandLine);
+        updateCommandLine();
+    }
+};
+
 
 // QdbRunConfiguration
+
+class QdbRunConfiguration : public RunConfiguration
+{
+    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbRunConfiguration);
+
+public:
+    QdbRunConfiguration(Target *target, Core::Id id);
+
+private:
+    Tasks checkForIssues() const override;
+    QString defaultDisplayName() const;
+};
 
 QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)

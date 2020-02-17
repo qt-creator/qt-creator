@@ -501,6 +501,7 @@ void FormEditorView::changeCurrentToolTo(AbstractFormEditorTool *newTool)
     m_currentTool->clear();
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(
         selectedModelNodes())));
+
     m_currentTool->start();
 }
 
@@ -530,6 +531,10 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
         FormEditorItem *editorItem = m_scene->itemForQmlItemNode(item);
         if (editorItem)
             editorItem->update();
+    } else if (name == "annotation" || name == "customId") {
+        if (FormEditorItem *editorItem = scene()->itemForQmlItemNode(item)) {
+            editorItem->update();
+        }
     }
 }
 

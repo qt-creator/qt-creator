@@ -28,6 +28,7 @@
 #include "qmldesignercorelib_global.h"
 #include <QPointer>
 #include <QList>
+#include <QVector>
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE
@@ -56,6 +57,8 @@ class NodeListProperty;
 class NodeProperty;
 class NodeAbstractProperty;
 class ModelNode;
+class Comment;
+class Annotation;
 
 QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
 
@@ -182,6 +185,22 @@ public:
     void removeAuxiliaryData(const PropertyName &name) const;
     bool hasAuxiliaryData(const PropertyName &name) const;
     QHash<PropertyName, QVariant> auxiliaryData() const;
+
+    QString customId() const;
+    bool hasCustomId() const;
+    void setCustomId(const QString &str);
+    void removeCustomId();
+
+    QVector<Comment> comments() const;
+    bool hasComments() const;
+    void setComments(const QVector<Comment> &coms);
+    void addComment(const Comment &com);
+    bool updateComment(const Comment &com, int position);
+
+    Annotation annotation() const;
+    bool hasAnnotation() const;
+    void setAnnotation(const Annotation &annotation);
+    void removeAnnotation();
 
     qint32 internalId() const;
 
