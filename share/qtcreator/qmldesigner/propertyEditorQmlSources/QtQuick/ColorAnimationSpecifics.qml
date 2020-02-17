@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Jochen Becher
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,40 @@
 **
 ****************************************************************************/
 
-#pragma once
+import HelperWidgets 2.0
+import QtQuick 2.1
+import QtQuick.Layouts 1.1
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
-#include <coreplugin/editormanager/ieditorfactory.h>
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("To Color")
 
-namespace ModelEditor {
-namespace Internal {
+        ColorEditor {
+            backendValue: backendValues.to
+            supportGradient: false
+        }
+    }
 
-class ActionHandler;
-class ModelEditor;
-class UiController;
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("From Color")
 
-class ModelEditorFactory : public Core::IEditorFactory
-{
-public:
-    ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler);
-};
+        ColorEditor {
+            backendValue: backendValues.from
+            supportGradient: false
+        }
+    }
 
-} // namespace Internal
-} // namespace ModelEditor
+    AnimationTargetSection {
+
+    }
+
+    AnimationSection {
+    }
+}
+

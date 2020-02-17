@@ -62,7 +62,7 @@
 
     To use the \e qt-logo.png image in your application, you must copy it from
     the Qt examples directory to the project directory (same subdirectory as
-    the QML file). The image appears in \uicontrol Resources. You can also use
+    the QML file). The image appears in \uicontrol Assets. You can also use
     any other image or a QML type, instead.
 
     \list 1
@@ -78,7 +78,7 @@
         \li Select \uicontrol Page in the navigator, and enter \e page in the
             \uicontrol Id field.
 
-        \li In \uicontrol Library > \uicontrol Resources, select qt-logo.png and
+        \li In \uicontrol Library > \uicontrol Assets, select qt-logo.png and
             drag and drop it to the \e page in the navigator.
 
             \image qmldesigner-tutorial-user-icon.png "Image properties"

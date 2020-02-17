@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Jochen Becher
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,14 @@
 **
 ****************************************************************************/
 
-#pragma once
+import HelperWidgets 2.0
+import QtQuick 2.1
+import QtQuick.Layouts 1.1
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
-#include <coreplugin/editormanager/ieditorfactory.h>
+    AnimationSection {
+    }
+}
 
-namespace ModelEditor {
-namespace Internal {
-
-class ActionHandler;
-class ModelEditor;
-class UiController;
-
-class ModelEditorFactory : public Core::IEditorFactory
-{
-public:
-    ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler);
-};
-
-} // namespace Internal
-} // namespace ModelEditor

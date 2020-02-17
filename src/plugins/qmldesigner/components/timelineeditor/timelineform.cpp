@@ -47,8 +47,6 @@ TimelineForm::TimelineForm(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->duration->setVisible(false);
-
     connect(ui->expressionBindingLineEdit, &QLineEdit::editingFinished, [this]() {
         QTC_ASSERT(m_timeline.isValid(), return );
 
@@ -135,12 +133,9 @@ void TimelineForm::setTimeline(const QmlTimeline &timeline)
 
     if (m_timeline.isValid()) {
         ui->idLineEdit->setText(m_timeline.modelNode().displayName());
-        ui->duration->setValue(qRound(m_timeline.duration()));
         ui->startFrame->setValue(
             m_timeline.modelNode().variantProperty("startFrame").value().toInt());
         ui->endFrame->setValue(m_timeline.modelNode().variantProperty("endFrame").value().toInt());
-
-        ui->duration->setValue(qRound(m_timeline.duration()));
 
         if (m_timeline.modelNode().hasBindingProperty("currentFrame")) {
             ui->expressionBindingLineEdit->setText(
@@ -173,7 +168,6 @@ void TimelineForm::setProperty(const PropertyName &propertyName, const QVariant 
     } catch (const Exception &e) {
         e.showException();
     }
-    ui->duration->setValue(qRound(m_timeline.duration()));
 }
 
 void TimelineForm::connectSpinBox(QSpinBox *spinBox, const PropertyName &propertyName)

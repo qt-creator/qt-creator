@@ -52,7 +52,7 @@ class ActionHandler :
     class ActionHandlerPrivate;
 
 public:
-    ActionHandler(const Core::Context &context, QObject *parent = nullptr);
+    ActionHandler();
     ~ActionHandler();
 
 public:

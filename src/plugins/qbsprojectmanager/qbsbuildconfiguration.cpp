@@ -261,84 +261,7 @@ QString QbsBuildConfiguration::configurationName() const
     return m_configurationName->value();
 }
 
-class StepProxy
-{
-public:
-    StepProxy(const BuildStep *buildStep)
-        : m_qbsBuildStep(qobject_cast<const QbsBuildStep *>(buildStep))
-        , m_qbsCleanStep(qobject_cast<const QbsCleanStep *>(buildStep))
-        , m_qbsInstallStep(qobject_cast<const QbsInstallStep *>(buildStep))
-    {
-    }
-
-    QString command() const {
-        if (m_qbsBuildStep)
-            return QLatin1String("build");
-        if (m_qbsInstallStep)
-            return QLatin1String("install");
-        return QLatin1String("clean");
-    }
-
-    bool dryRun() const {
-        if (m_qbsBuildStep)
-            return false;
-        if (m_qbsInstallStep)
-            return m_qbsInstallStep->dryRun();
-        return m_qbsCleanStep->dryRun();
-    }
-
-    bool keepGoing() const {
-        if (m_qbsBuildStep)
-            return m_qbsBuildStep->keepGoing();
-        if (m_qbsInstallStep)
-            return m_qbsInstallStep->keepGoing();
-        return m_qbsCleanStep->keepGoing();
-    }
-
-    bool forceProbeExecution() const { return m_qbsBuildStep && m_qbsBuildStep->forceProbes(); }
-
-    bool showCommandLines() const {
-        return m_qbsBuildStep ? m_qbsBuildStep->showCommandLines() : false;
-    }
-
-    bool noInstall() const {
-        return m_qbsBuildStep ? !m_qbsBuildStep->install() : false;
-    }
-
-    bool noBuild() const { return m_qbsInstallStep; }
-
-    bool cleanInstallRoot() const {
-        if (m_qbsBuildStep)
-            return m_qbsBuildStep->cleanInstallRoot();
-        if (m_qbsInstallStep)
-            return m_qbsInstallStep->removeFirst();
-        return false;
-    }
-
-    int jobCount() const {
-        return m_qbsBuildStep ? m_qbsBuildStep->maxJobs() : 0;
-    }
-
-    Utils::FilePath installRoot() const {
-        const QbsBuildStep *bs = nullptr;
-        if (m_qbsBuildStep) {
-            bs = m_qbsBuildStep;
-        } else if (m_qbsInstallStep) {
-            bs = static_cast<QbsBuildConfiguration *>(m_qbsInstallStep->deployConfiguration()
-                    ->target()->activeBuildConfiguration())->qbsStep();
-        }
-        if (bs)
-            return bs->installRoot();
-        return Utils::FilePath();
-    }
-
-private:
-    const QbsBuildStep * const m_qbsBuildStep;
-    const QbsCleanStep * const m_qbsCleanStep;
-    const QbsInstallStep * const m_qbsInstallStep;
-};
-
-QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep) const
+QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &stepData) const
 {
     CommandLine commandLine;
     const QString qbsInstallDir = QString::fromLocal8Bit(qgetenv("QBS_INSTALL_DIR"));
@@ -346,42 +269,41 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
             ? qbsInstallDir + QLatin1String("/bin/qbs")
             : QCoreApplication::applicationDirPath() + QLatin1String("/qbs"));
     commandLine.addArg(QDir::toNativeSeparators(qbsFilePath));
-    const StepProxy stepProxy(buildStep);
-    commandLine.addArg(stepProxy.command());
+    commandLine.addArg(stepData.command);
     const QString buildDir = buildDirectory().toUserOutput();
     commandLine.addArgs({"-d", buildDir});
-    commandLine.addArgs({"-f", buildStep->project()->projectFilePath().toUserOutput()});
+    commandLine.addArgs({"-f", project()->projectFilePath().toUserOutput()});
     if (QbsSettings::useCreatorSettingsDirForQbs()) {
         commandLine.addArgs({"--settings-dir",
                              QDir::toNativeSeparators(QbsSettings::qbsSettingsBaseDir())});
     }
-    if (stepProxy.dryRun())
+    if (stepData.dryRun)
         commandLine.addArg("--dry-run");
-    if (stepProxy.keepGoing())
+    if (stepData.keepGoing)
         commandLine.addArg("--keep-going");
-    if (stepProxy.forceProbeExecution())
+    if (stepData.forceProbeExecution)
         commandLine.addArg("--force-probe-execution");
-    if (stepProxy.showCommandLines())
+    if (stepData.showCommandLines)
         commandLine.addArgs({"--command-echo-mode", "command-line"});
-    if (stepProxy.noInstall())
+    if (stepData.noInstall)
         commandLine.addArg("--no-install");
-    if (stepProxy.noBuild())
+    if (stepData.noBuild)
         commandLine.addArg("--no-build");
-    if (stepProxy.cleanInstallRoot())
+    if (stepData.cleanInstallRoot)
         commandLine.addArg("--clean-install-root");
-    const int jobCount = stepProxy.jobCount();
+    const int jobCount = stepData.jobCount;
     if (jobCount > 0)
         commandLine.addArgs({"--jobs", QString::number(jobCount)});
 
-    const QString profileName = QbsProfileManager::profileNameForKit(buildStep->target()->kit());
+    const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
     const QString buildVariant = qbsConfiguration()
             .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
     commandLine.addArg("config:" + configurationName());
     commandLine.addArg(QString(Constants::QBS_CONFIG_VARIANT_KEY) + ':' + buildVariant);
-    const FilePath installRoot = stepProxy.installRoot();
+    const FilePath installRoot = stepData.installRoot;
     if (!installRoot.isEmpty()) {
         commandLine.addArg(QString(Constants::QBS_INSTALL_ROOT_KEY) + ':' + installRoot.toUserOutput());
-        if (qobject_cast<const QbsInstallStep *>(buildStep))
+        if (stepData.isInstallStep)
             commandLine.addArgs({"--installRoot", installRoot.toUserOutput()});
     }
     commandLine.addArg("profile:" + profileName);

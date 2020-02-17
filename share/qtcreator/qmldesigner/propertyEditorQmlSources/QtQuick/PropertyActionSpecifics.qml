@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Jochen Becher
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,38 @@
 **
 ****************************************************************************/
 
-#pragma once
+import HelperWidgets 2.0
+import QtQuick 2.1
+import QtQuick.Layouts 1.1
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
-#include <coreplugin/editormanager/ieditorfactory.h>
+    Section {
+        id: section
+        caption: qsTr("Property Action")
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-namespace ModelEditor {
-namespace Internal {
+        SectionLayout {
+            Label {
+                text: qsTr("Value")
+                tooltip: qsTr("Sets the value of the property.")
+            }
+            LineEdit {
+                backendValue: backendValues.value
+                Layout.fillWidth: true
+            }
+        }
+    }
 
-class ActionHandler;
-class ModelEditor;
-class UiController;
 
-class ModelEditorFactory : public Core::IEditorFactory
-{
-public:
-    ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler);
-};
+    AnimationTargetSection {
 
-} // namespace Internal
-} // namespace ModelEditor
+    }
+
+    AnimationSection {
+        showDuration: false
+    }
+}
+

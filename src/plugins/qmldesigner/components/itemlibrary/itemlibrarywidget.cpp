@@ -120,7 +120,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     /* other widgets */
     auto tabBar = new QTabBar(this);
     tabBar->addTab(tr("QML Types", "Title of library QML types view"));
-    tabBar->addTab(tr("Resources", "Title of library resources view"));
+    tabBar->addTab(tr("Assets", "Title of library assets view"));
     tabBar->addTab(tr("Imports", "Title of library imports view"));
     tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(tabBar, &QTabBar::currentChanged, this, &ItemLibraryWidget::setCurrentIndexOfStackedWidget);
@@ -184,8 +184,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     font.setPixelSize(Theme::instance()->smallFontPixelSize());
     button->setFont(font);
     button->setIcon(Utils::Icons::PLUS.icon());
-    button->setText(tr("Add New Resources..."));
-    button->setToolTip(tr("Add new resources to project."));
+    button->setText(tr("Add New Assets..."));
+    button->setToolTip(tr("Add new assets to project."));
     button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     flowLayout->addWidget(button);
     connect(button, &QToolButton::clicked, this, &ItemLibraryWidget::addResources);
@@ -511,7 +511,7 @@ void ItemLibraryWidget::addResources()
     const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
 
     const auto fileNames = QFileDialog::getOpenFileNames(Core::ICore::mainWindow(),
-                                                   tr("Add Resources"),
+                                                   tr("Add Assets"),
                                                    currentDir,
                                                    filters.join(";;"));
 

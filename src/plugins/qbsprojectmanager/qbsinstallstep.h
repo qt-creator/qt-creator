@@ -48,6 +48,7 @@ public:
     bool removeFirst() const { return m_cleanInstallRoot; }
     bool dryRun() const { return m_dryRun; }
     bool keepGoing() const { return m_keepGoing; }
+    QbsBuildStepData stepData() const;
 
 signals:
     void changed();
@@ -66,7 +67,7 @@ private:
     void handleProgress(int value);
 
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
-                             const QString &message, const QString &file, int line);
+                             const QString &message, const Utils::FilePath &file, int line);
 
     void setRemoveFirst(bool rf);
     void setDryRun(bool dr);

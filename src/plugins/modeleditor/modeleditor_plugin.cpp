@@ -32,6 +32,7 @@
 #include "modelsmanager.h"
 #include "settingscontroller.h"
 #include "uicontroller.h"
+#include "actionhandler.h"
 
 #include "qmt/infrastructure/uid.h"
 
@@ -59,7 +60,8 @@ class ModelEditorPluginPrivate final
 public:
     ModelsManager modelsManager;
     UiController uiController;
-    ModelEditorFactory modelFactory{&uiController};
+    ActionHandler actionHandler;
+    ModelEditorFactory modelFactory{&uiController, &actionHandler};
     SettingsController settingsController;
 };
 
@@ -93,10 +95,7 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
 
 void ModelEditorPlugin::extensionsInitialized()
 {
-    // Retrieve objects from the plugin manager's object pool
-    // In the extensionsInitialized method, a plugin can be sure that all
-    // plugins that depend on it are completely initialized.
-    d->modelFactory.extensionsInitialized();
+    d->actionHandler.createActions();
     d->settingsController.load(Core::ICore::settings());
 }
 

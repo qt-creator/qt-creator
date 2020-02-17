@@ -34,24 +34,12 @@
 namespace ModelEditor {
 namespace Internal {
 
-ModelEditorFactory::ModelEditorFactory(UiController *uiController)
+ModelEditorFactory::ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler)
 {
     setId(Constants::MODEL_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::MODEL_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::MIME_TYPE_MODEL);
-    m_uiController = uiController;
-    m_actionHandler = new ActionHandler(Core::Context(Constants::MODEL_EDITOR_ID), this);
-    setEditorCreator([this] { return new ModelEditor(m_uiController, m_actionHandler); });
-}
-
-ModelEditorFactory::~ModelEditorFactory()
-{
-    delete m_actionHandler;
-}
-
-void ModelEditorFactory::extensionsInitialized()
-{
-    m_actionHandler->createActions();
+    setEditorCreator([uiController, actionHandler] { return new ModelEditor(uiController, actionHandler); });
 }
 
 } // namespace Internal

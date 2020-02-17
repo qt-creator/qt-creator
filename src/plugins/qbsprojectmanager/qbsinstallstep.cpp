@@ -182,7 +182,7 @@ void QbsInstallStep::installDone(const ErrorInfo &error)
     m_session = nullptr;
 
     for (const ErrorInfoItem &item : error.items)
-        createTaskAndOutput(Task::Error, item.description, item.filePath.toString(), item.line);
+        createTaskAndOutput(Task::Error, item.description, item.filePath, item.line);
 
     emit finished(!error.hasError());
 }
@@ -199,10 +199,10 @@ void QbsInstallStep::handleProgress(int value)
         emit progress(value * 100 / m_maxProgress, m_description);
 }
 
-void QbsInstallStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type,
-                                         const QString &message, const QString &file, int line)
+void QbsInstallStep::createTaskAndOutput(Task::TaskType type, const QString &message,
+                                         const Utils::FilePath &file, int line)
 {
-    const CompileTask task(type, message, Utils::FilePath::fromString(file), line);
+    const CompileTask task(type, message, file, line);
     emit addTask(task, 1);
     emit addOutput(message, OutputFormat::Stdout);
 }
@@ -230,6 +230,21 @@ void QbsInstallStep::setKeepGoing(bool kg)
     m_keepGoing = kg;
     emit changed();
 }
+
+QbsBuildStepData QbsInstallStep::stepData() const
+{
+    QbsBuildStepData data;
+    data.command = "install";
+    data.dryRun = dryRun();
+    data.keepGoing = keepGoing();
+    data.noBuild = true;
+    data.cleanInstallRoot = removeFirst();
+    data.isInstallStep = true;
+    auto bs = static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration())->qbsStep();
+    if (bs)
+        data.installRoot = bs->installRoot();
+    return data;
+};
 
 // --------------------------------------------------------------------
 // QbsInstallStepConfigWidget:
@@ -320,7 +335,7 @@ void QbsInstallStepConfigWidget::updateState()
         m_keepGoingCheckBox->setChecked(m_step->keepGoing());
     }
 
-    QString command = m_step->buildConfig()->equivalentCommandLine(m_step);
+    QString command = m_step->buildConfig()->equivalentCommandLine(m_step->stepData());
 
     m_commandLineTextEdit->setPlainText(command);
 

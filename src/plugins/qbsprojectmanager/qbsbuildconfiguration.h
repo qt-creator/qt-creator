@@ -40,7 +40,22 @@ namespace QbsProjectManager {
 namespace Internal {
 
 class QbsBuildStep;
-class QbsProject;
+
+class QbsBuildStepData
+{
+public:
+    QString command;
+    bool dryRun = false;
+    bool keepGoing = false;
+    bool forceProbeExecution = false;
+    bool showCommandLines = false;
+    bool noInstall = false;
+    bool noBuild = false;
+    bool cleanInstallRoot = false;
+    bool isInstallStep = false;
+    int jobCount = 0;
+    Utils::FilePath installRoot;
+};
 
 class QbsBuildConfiguration final : public ProjectExplorer::BuildConfiguration
 {
@@ -73,7 +88,7 @@ public:
     QStringList products() const;
 
     QString configurationName() const;
-    QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
+    QString equivalentCommandLine(const QbsBuildStepData &stepData) const;
 
     bool isQmlDebuggingEnabled() const;
     ProjectExplorer::TriState qmlDebuggingSetting() const;
