@@ -392,8 +392,10 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     hideDiagnostics(document);
     resetAssistProviders(document);
     document->setFormatter(nullptr);
-    if (TextEditor::SyntaxHighlighter *highlighter = document->syntaxHighlighter())
-        highlighter->clearAllExtraFormats();
+    if (m_serverCapabilities.semanticHighlighting().has_value()) {
+        if (TextEditor::SyntaxHighlighter *highlighter = document->syntaxHighlighter())
+            highlighter->clearAllExtraFormats();
+    }
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
             textEditor->editorWidget()->removeHoverHandler(&m_hoverHandler);
