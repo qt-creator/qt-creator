@@ -357,7 +357,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     deactivateDocument(document);
     const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
     m_highlights[uri].clear();
-    if (m_openedDocument.remove(document) != 0) {
+    if (m_openedDocument.remove(document) != 0 && m_state == Initialized) {
         DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
         sendContent(DidCloseTextDocumentNotification(params));
     }
