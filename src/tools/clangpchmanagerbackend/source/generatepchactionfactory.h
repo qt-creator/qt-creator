@@ -68,10 +68,17 @@ public:
         , m_fileContent(fileContent)
     {}
 
+#if LLVM_VERSION_MAJOR >= 10
+    std::unique_ptr<clang::FrontendAction> create() override
+    {
+        return std::make_unique<GeneratePCHAction>(m_filePath, m_fileContent);
+    }
+#else
     clang::FrontendAction *create() override
     {
         return new GeneratePCHAction{m_filePath, m_fileContent};
     }
+#endif
 
 private:
     llvm::StringRef m_filePath;

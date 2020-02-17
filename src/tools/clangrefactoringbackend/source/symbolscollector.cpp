@@ -74,7 +74,11 @@ std::unique_ptr<clang::tooling::FrontendActionFactory> newFrontendActionFactory(
             : m_action(consumerFactory)
         {}
 
+#if LLVM_VERSION_MAJOR >= 10
+        std::unique_ptr<clang::FrontendAction> create() override { return std::make_unique<AdaptorAction>(m_action); }
+#else
         clang::FrontendAction *create() override { return new AdaptorAction(m_action); }
+#endif
 
     private:
         class AdaptorAction : public clang::ASTFrontendAction

@@ -118,11 +118,16 @@ bool IndexDataConsumer::isAlreadyParsed(clang::FileID fileId, SourcesManager &so
     return sourcesManager.alreadyParsed(filePathId(fileEntry), fileEntry->getModificationTime());
 }
 
-bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
-                                            clang::index::SymbolRoleSet symbolRoles,
-                                            llvm::ArrayRef<clang::index::SymbolRelation> /*symbolRelations*/,
-                                            clang::SourceLocation sourceLocation,
-                                            IndexDataConsumer::ASTNodeInfo /*astNodeInfo*/)
+#if LLVM_VERSION_MAJOR >= 10
+    bool IndexDataConsumer::handleDeclOccurrence(
+#else
+    bool IndexDataConsumer::handleDeclOccurence(
+#endif
+        const clang::Decl *declaration,
+        clang::index::SymbolRoleSet symbolRoles,
+        llvm::ArrayRef<clang::index::SymbolRelation> /*symbolRelations*/,
+        clang::SourceLocation sourceLocation,
+        IndexDataConsumer::ASTNodeInfo /*astNodeInfo*/)
 {
     const auto *namedDeclaration = clang::dyn_cast<clang::NamedDecl>(declaration);
     if (namedDeclaration) {
@@ -175,10 +180,15 @@ SourceLocationKind macroSymbolType(clang::index::SymbolRoleSet roles)
 
 } // namespace
 
-bool IndexDataConsumer::handleMacroOccurence(const clang::IdentifierInfo *identifierInfo,
-                                             const clang::MacroInfo *macroInfo,
-                                             clang::index::SymbolRoleSet roles,
-                                             clang::SourceLocation sourceLocation)
+#if LLVM_VERSION_MAJOR >= 10
+bool IndexDataConsumer::handleMacroOccurrence(
+#else
+bool IndexDataConsumer::handleMacroOccurence(
+#endif
+        const clang::IdentifierInfo *identifierInfo,
+        const clang::MacroInfo *macroInfo,
+        clang::index::SymbolRoleSet roles,
+        clang::SourceLocation sourceLocation)
 {
     if (macroInfo && sourceLocation.isFileID()
         && !isAlreadyParsed(m_sourceManager->getFileID(sourceLocation), m_macroSourcesManager)

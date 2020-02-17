@@ -78,7 +78,8 @@ void ClangQuery::findLocations()
                    std::make_move_iterator(asts.end()),
                    [&] (std::unique_ptr<clang::ASTUnit> &&ast) {
         Diagnostics diagnostics;
-        auto optionalMatcher = Parser::parseMatcherExpression({m_query.data(), m_query.size()},
+        llvm::StringRef query{m_query.data(), m_query.size()};
+        auto optionalMatcher = Parser::parseMatcherExpression(query,
                                                               nullptr,
                                                               &diagnostics);
         parseDiagnostics(diagnostics);
