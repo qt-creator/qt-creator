@@ -71,10 +71,11 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         return document;
     });
 
-    setEditorWidgetCreator([parameters, editorWidgetCreator, describeFunc]() -> TextEditorWidget * {
-        auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidgetCreator());
-        widget->setDescribeFunc(describeFunc);
-        widget->setParameters(parameters);
+    setEditorWidgetCreator([parameters, editorWidgetCreator, describeFunc]() {
+        auto widget = editorWidgetCreator();
+        auto editorWidget = Aggregation::query<VcsBaseEditorWidget>(widget);
+        editorWidget->setDescribeFunc(describeFunc);
+        editorWidget->setParameters(parameters);
         return widget;
     });
 

@@ -538,7 +538,7 @@ Utils::FilePath AndroidSettingsWidget::findJdkInCommonPaths()
 {
     QString jdkFromEnvVar = QString::fromLocal8Bit(getenv("JAVA_HOME"));
     if (!jdkFromEnvVar.isEmpty())
-        return Utils::FilePath::fromString(jdkFromEnvVar);
+        return Utils::FilePath::fromUserInput(jdkFromEnvVar);
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         QString jdkRegisteryPath = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\JDK\\";
@@ -549,7 +549,7 @@ Utils::FilePath AndroidSettingsWidget::findJdkInCommonPaths()
 
         for (const QString &version : jdkVersions) {
             jdkSettings.beginGroup(version);
-            jdkHome = Utils::FilePath::fromString(jdkSettings.value("JavaHome").toString());
+            jdkHome = Utils::FilePath::fromUserInput(jdkSettings.value("JavaHome").toString());
             jdkSettings.endGroup();
             if (version.startsWith("1.8"))
                 return jdkHome;
@@ -583,7 +583,7 @@ Utils::FilePath AndroidSettingsWidget::findJdkInCommonPaths()
 
 void AndroidSettingsWidget::validateNdk()
 {
-    auto ndkPath = Utils::FilePath::fromString(m_ui->ndkListComboBox->currentText());
+    auto ndkPath = Utils::FilePath::fromUserInput(m_ui->ndkListComboBox->currentText());
     m_androidConfig.setNdkLocation(ndkPath);
 
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
@@ -612,7 +612,7 @@ void AndroidSettingsWidget::onSdkPathChanged()
 
 void AndroidSettingsWidget::validateSdk()
 {
-    auto sdkPath = Utils::FilePath::fromString(m_ui->SDKLocationPathChooser->rawPath());
+    auto sdkPath = Utils::FilePath::fromUserInput(m_ui->SDKLocationPathChooser->rawPath());
     m_androidConfig.setSdkLocation(sdkPath);
 
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());

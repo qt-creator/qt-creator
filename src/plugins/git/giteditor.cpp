@@ -35,10 +35,11 @@
 #include "githighlighters.h"
 
 #include <coreplugin/icore.h>
-#include <utils/qtcassert.h>
-#include <vcsbase/vcsoutputwindow.h>
 #include <texteditor/textdocument.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
+#include <vcsbase/vcsoutputwindow.h>
 
+#include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 
 #include <QMenu>
@@ -378,6 +379,46 @@ QString GitEditorWidget::sourceWorkingDirectory() const
     while (!path.isEmpty() && !path.exists())
         path = path.parentDir();
     return path.toString();
+}
+
+void GitEditorWidget::lineEditChanged()
+{
+    if (VcsBaseEditorConfig *config = editorConfig())
+        config->handleArgumentsChanged();
+}
+
+void GitEditorWidget::refreshOnLineEdit(Utils::FancyLineEdit *lineEdit)
+{
+    connect(lineEdit, &QLineEdit::returnPressed,
+            this, &GitEditorWidget::lineEditChanged);
+    connect(lineEdit, &Utils::FancyLineEdit::rightButtonClicked,
+            this, &GitEditorWidget::lineEditChanged);
+}
+
+void GitEditorWidget::setGrepLineEdit(Utils::FancyLineEdit *lineEdit)
+{
+    m_grepLineEdit = lineEdit;
+    refreshOnLineEdit(lineEdit);
+}
+
+void GitEditorWidget::setPickaxeLineEdit(Utils::FancyLineEdit *lineEdit)
+{
+    m_pickaxeLineEdit = lineEdit;
+    refreshOnLineEdit(lineEdit);
+}
+
+QString GitEditorWidget::grepValue() const
+{
+    if (!m_grepLineEdit)
+        return QString();
+    return m_grepLineEdit->text();
+}
+
+QString GitEditorWidget::pickaxeValue() const
+{
+    if (!m_pickaxeLineEdit)
+        return QString();
+    return m_pickaxeLineEdit->text();
 }
 
 } // namespace Internal

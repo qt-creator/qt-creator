@@ -45,12 +45,29 @@
 */
 
 /*!
+    \enum Core::FindFlag
+    This enum holds the find flags.
+
+    \value FindBackward
+           Searches backwards.
+    \value FindCaseSensitively
+           Considers case when searching.
+    \value FindWholeWords
+           Finds only whole words.
+    \value FindRegularExpression
+           Uses a regular epression as a search term.
+    \value FindPreserveCase
+           Preserves the case when replacing search terms.
+*/
+
+/*!
     \namespace Core::Internal
     \internal
 */
 
 /*!
     \class Core::ICore
+    \inmodule QtCreator
     \brief The ICore class allows access to the different parts that make up
     the basic functionality of \QC.
 
@@ -58,7 +75,7 @@
     instance is created by the Core plugin. You can access this instance
     from your plugin through \c{Core::instance()}.
 
-    \mainclass
+    \ingroup mainclasses
 */
 
 /*!
@@ -81,7 +98,7 @@
 /*!
     \fn bool ICore::showOptionsDialog(Id group, Id page, QWidget *parent = 0);
 
-    Opens the application \gui Options (or \gui Preferences) dialog with preselected
+    Opens the application \uicontrol Options (or \uicontrol Preferences) dialog with preselected
     \a page in the specified \a group.
 
     The arguments refer to the string IDs of the corresponding IOptionsPage.
@@ -230,7 +247,7 @@
     \fn void ICore::openFiles(const QStringList &fileNames, OpenFilesFlags flags = None)
     Opens all files from a list of \a fileNames like it would be
     done if they were given to \QC on the command line, or
-    they were opened via \gui File > \gui Open.
+    they were opened via \uicontrol File > \uicontrol Open.
 */
 
 /*!
@@ -253,12 +270,12 @@
     Signals that the user has requested that the global settings
     should be saved to disk.
 
-    At the moment that happens when the application is closed, and on \gui{Save All}.
+    At the moment that happens when the application is closed, and on \uicontrol{Save All}.
 */
 
 /*!
     \fn void ICore::optionsDialogRequested()
-    Enables plugins to perform actions just before the \gui Tools > \gui Options
+    Enables plugins to perform actions just before the \uicontrol Tools > \uicontrol Options
     dialog is shown.
 */
 

@@ -348,6 +348,8 @@ void Qt5InformationNodeInstanceServer::handleView3DDestroyed(QObject *obj)
     removeNode3D(view->scene());
     if (view && view == m_active3DView)
         m_active3DView = nullptr;
+#else
+    Q_UNUSED(obj)
 #endif
 }
 
@@ -362,6 +364,8 @@ void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
                                   Q_ARG(QVariant, objectToVariant(obj)));
     }
     removeNode3D(obj);
+#else
+    Q_UNUSED(obj)
 #endif
 }
 
@@ -656,6 +660,8 @@ QObject *Qt5InformationNodeInstanceServer::findView3DForInstance(const ServerNod
         if (view && sceneRoot == view->importScene())
             return view3D;
     }
+#else
+    Q_UNUSED(instance)
 #endif
     return {};
 }
@@ -676,6 +682,8 @@ QObject *Qt5InformationNodeInstanceServer::findView3DForSceneRoot(QObject *scene
                 return view3D;
         }
     }
+#else
+    Q_UNUSED(sceneRoot)
 #endif
     return {};
 }
@@ -743,6 +751,8 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(const ServerNodeInsta
             }
         }
     }
+#else
+    Q_UNUSED(instance)
 #endif
     return nullptr;
 }
@@ -759,6 +769,8 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(QObject *obj) const
         if (view && view->scene() == obj)
             return obj;
     }
+#else
+    Q_UNUSED(obj)
 #endif
     // Some other non-instance object, assume it's not part of any scene
     return nullptr;
@@ -800,6 +812,9 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
 
         createCameraAndLightGizmos(instanceList);
     }
+#else
+    Q_UNUSED(instanceList)
+    Q_UNUSED(toolStates)
 #endif
 }
 

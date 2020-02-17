@@ -35,6 +35,12 @@
 
 namespace Core {
 
+/*!
+    \class Core::ItemViewFind
+    \inmodule QtCreator
+    \internal
+*/
+
 class ItemModelFindPrivate
 {
 public:

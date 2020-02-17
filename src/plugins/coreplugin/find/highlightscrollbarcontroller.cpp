@@ -36,6 +36,18 @@
 using namespace Utils;
 namespace Core {
 
+/*!
+    \class Core::Highlight
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::HighlightScrollBarController
+    \inmodule QtCreator
+    \internal
+*/
+
 class HighlightScrollBarOverlay : public QWidget
 {
 public:

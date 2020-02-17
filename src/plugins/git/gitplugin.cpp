@@ -54,11 +54,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <coreplugin/messagebox.h>
+#include <aggregation/aggregate.h>
+#include <utils/fancylineedit.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -83,7 +85,9 @@
 #include <QAction>
 #include <QApplication>
 #include <QFileDialog>
+#include <QHBoxLayout>
 #include <QMenu>
+#include <QVBoxLayout>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -123,6 +127,52 @@ protected:
 
 private:
     GitClient *m_client;
+};
+
+class GitLogEditorWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Git::Internal::GitLogEditorWidget);
+public:
+    GitLogEditorWidget()
+    {
+        auto gitEditor = new GitEditorWidget;
+        auto vlayout = new QVBoxLayout;
+        auto hlayout = new QHBoxLayout;
+        vlayout->setSpacing(0);
+        vlayout->setContentsMargins(0, 0, 0, 0);
+        auto grepLineEdit = addLineEdit(tr("Filter by message"),
+                                        tr("Filter log entries by text in the commit message."));
+        auto pickaxeLineEdit = addLineEdit(tr("Filter by content"),
+                                           tr("Filter log entries by added or removed string."));
+        hlayout->setSpacing(20);
+        hlayout->setContentsMargins(0, 0, 0, 0);
+        hlayout->addWidget(new QLabel(tr("Filter:")));
+        hlayout->addWidget(grepLineEdit);
+        hlayout->addWidget(pickaxeLineEdit);
+        hlayout->addStretch();
+        vlayout->addLayout(hlayout);
+        vlayout->addWidget(gitEditor);
+        setLayout(vlayout);
+        gitEditor->setGrepLineEdit(grepLineEdit);
+        gitEditor->setPickaxeLineEdit(pickaxeLineEdit);
+
+        auto textAgg = Aggregation::Aggregate::parentAggregate(gitEditor);
+        auto agg = textAgg ? textAgg : new Aggregation::Aggregate;
+        agg->add(this);
+        agg->add(gitEditor);
+        setFocusProxy(gitEditor);
+    }
+
+private:
+    FancyLineEdit *addLineEdit(const QString &placeholder, const QString &tooltip)
+    {
+        auto lineEdit = new FancyLineEdit;
+        lineEdit->setFiltering(true);
+        lineEdit->setToolTip(tooltip);
+        lineEdit->setPlaceholderText(placeholder);
+        lineEdit->setMaximumWidth(200);
+        return lineEdit;
+    }
 };
 
 const unsigned minimumRequiredVersion = 0x010900;
@@ -346,7 +396,7 @@ public:
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
-        [] { return new GitEditorWidget; },
+        [] { return new GitLogEditorWidget; },
         std::bind(&GitPluginPrivate::describe, this, _1, _2)
     };
 

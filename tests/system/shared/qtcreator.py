@@ -212,7 +212,7 @@ def __guessABI__(supportedABIs, use64Bit):
     if platform.system() == 'Linux':
         supportedABIs = filter(lambda x: 'linux' in x, supportedABIs)
     elif platform.system() == 'Darwin':
-        supportedABIs = filter(lambda x: 'macos' in x, supportedABIs)
+        supportedABIs = filter(lambda x: 'darwin' in x, supportedABIs)
     if use64Bit:
         searchFor = "64bit"
     else:

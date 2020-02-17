@@ -999,8 +999,9 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
-    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile,
-                                                  codecFor(CodecLogOutput), "logTitle", msgArg);
+    GitEditorWidget *editor = static_cast<GitEditorWidget *>(
+                createVcsEditor(editorId, title, sourceFile,
+                                codecFor(CodecLogOutput), "logTitle", msgArg));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
         argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor->toolBar());
@@ -1018,6 +1019,13 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
         arguments << "-n" << QString::number(logCount);
 
     arguments << argWidget->arguments();
+    const QString grepValue = editor->grepValue();
+    if (!grepValue.isEmpty())
+        arguments << "--grep=" + grepValue;
+
+    const QString pickaxeValue = editor->pickaxeValue();
+    if (!pickaxeValue.isEmpty())
+        arguments << "-S" << pickaxeValue;
 
     if (!fileName.isEmpty())
         arguments << "--" << fileName;

@@ -37,6 +37,12 @@
 
 namespace Core {
 
+/*!
+    \class Core::OptionsPopup
+    \inmodule QtCreator
+    \internal
+*/
+
 OptionsPopup::OptionsPopup(QWidget *parent, const QVector<Id> &commands)
     : QWidget(parent, Qt::Popup)
 {

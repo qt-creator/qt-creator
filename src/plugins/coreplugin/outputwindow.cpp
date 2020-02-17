@@ -49,7 +49,7 @@ namespace Internal {
 class OutputWindowPrivate
 {
 public:
-    OutputWindowPrivate(QTextDocument *document)
+    explicit OutputWindowPrivate(QTextDocument *document)
         : cursor(document)
     {
     }
@@ -159,7 +159,7 @@ OutputWindow::~OutputWindow()
     delete d;
 }
 
-void OutputWindow::mousePressEvent(QMouseEvent * e)
+void OutputWindow::mousePressEvent(QMouseEvent *e)
 {
     d->mouseButtonPressed = e->button();
     QPlainTextEdit::mousePressEvent(e);
@@ -369,11 +369,11 @@ QString OutputWindow::doNewlineEnforcement(const QString &out)
     d->scrollToBottom = true;
     QString s = out;
     if (d->enforceNewline) {
-        s.prepend(QLatin1Char('\n'));
+        s.prepend('\n');
         d->enforceNewline = false;
     }
 
-    if (s.endsWith(QLatin1Char('\n'))) {
+    if (s.endsWith('\n')) {
         d->enforceNewline = true; // make appendOutputInline put in a newline next time
         s.chop(1);
     }
@@ -439,14 +439,13 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
         if (sameLine) {
             d->scrollToBottom = true;
 
-            int newline = -1;
             bool enforceNewline = d->enforceNewline;
             d->enforceNewline = false;
 
             if (enforceNewline) {
                 out.prepend('\n');
             } else {
-                newline = out.indexOf(QLatin1Char('\n'));
+                const int newline = out.indexOf('\n');
                 moveCursor(QTextCursor::End);
                 if (newline != -1) {
                     if (d->formatter)
@@ -458,7 +457,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
             if (out.isEmpty()) {
                 d->enforceNewline = true;
             } else {
-                if (out.endsWith(QLatin1Char('\n'))) {
+                if (out.endsWith('\n')) {
                     d->enforceNewline = true;
                     out.chop(1);
                 }
@@ -501,7 +500,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
         tmp.setFontWeight(QFont::Bold);
         d->cursor.insertText(doNewlineEnforcement(tr("Additional output omitted. You can increase "
                                                      "the limit in the \"Build & Run\" settings.")
-                                                  + QLatin1Char('\n')), tmp);
+                                                  + '\n'), tmp);
     }
 
     d->cursor.endEditBlock();

@@ -109,7 +109,7 @@ private:
     QString doNewlineEnforcement(const QString &out);
     void filterNewContent();
 
-    Internal::OutputWindowPrivate *d;
+    Internal::OutputWindowPrivate *d = nullptr;
 };
 
 } // namespace Core
