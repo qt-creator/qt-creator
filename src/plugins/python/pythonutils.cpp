@@ -44,6 +44,7 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
@@ -144,19 +145,18 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
     using namespace LanguageClient;
     SynchronousProcess pythonProcess;
     const CommandLine pythonLShelpCommand(python, {"-m", "pyls", "-h"});
-    SynchronousProcessResponse response = pythonProcess.runBlocking(pythonLShelpCommand);
-    if (response.allOutput().contains("Python Language Server")) {
-        const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
-        for (const StdIOSettings *serverSetting : configuredPythonLanguageServer()) {
-            if (modulePath == getPylsModulePath(serverSetting->command())) {
-                return {serverSetting->m_enabled ? PythonLanguageServerState::AlreadyConfigured
-                                                 : PythonLanguageServerState::ConfiguredButDisabled,
-                        FilePath()};
-            }
+    const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
+    for (const StdIOSettings *serverSetting : configuredPythonLanguageServer()) {
+        if (modulePath == getPylsModulePath(serverSetting->command())) {
+            return {serverSetting->m_enabled ? PythonLanguageServerState::AlreadyConfigured
+                                             : PythonLanguageServerState::ConfiguredButDisabled,
+                    FilePath()};
         }
-
-        return {PythonLanguageServerState::AlreadyInstalled, modulePath};
     }
+
+    SynchronousProcessResponse response = pythonProcess.runBlocking(pythonLShelpCommand);
+    if (response.allOutput().contains("Python Language Server"))
+        return {PythonLanguageServerState::AlreadyInstalled, modulePath};
 
     const CommandLine pythonPipVersionCommand(python, {"-m", "pip", "-V"});
     response = pythonProcess.runBlocking(pythonPipVersionCommand);
@@ -368,11 +368,38 @@ void PyLSConfigureAssistant::documentOpened(Core::IDocument *document)
 void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                                                     TextEditor::TextDocument *document)
 {
-    const PythonLanguageServerState &lsState = checkPythonLanguageServer(python);
+    using CheckPylsWatcher = QFutureWatcher<PythonLanguageServerState>;
 
-    if (lsState.state == PythonLanguageServerState::CanNotBeInstalled)
+    QPointer<CheckPylsWatcher> watcher = new CheckPylsWatcher();
+    watcher->setFuture(Utils::runAsync(&checkPythonLanguageServer, python));
+
+    // cancel and delete watcher after a 10 second timeout
+    QTimer::singleShot(10000, this, [watcher]() {
+        if (watcher) {
+            watcher->cancel();
+            watcher->deleteLater();
+        }
+    });
+
+    connect(
+        watcher,
+        &CheckPylsWatcher::resultReadyAt,
+        this,
+        [=, document = QPointer<TextEditor::TextDocument>(document)]() {
+            if (!document || !watcher)
+                return;
+            handlePyLSState(python, watcher->result(), document);
+            watcher->deleteLater();
+        });
+}
+
+void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
+                                             const PythonLanguageServerState &state,
+                                             TextEditor::TextDocument *document)
+{
+    if (state.state == PythonLanguageServerState::CanNotBeInstalled)
         return;
-    if (lsState.state == PythonLanguageServerState::AlreadyConfigured) {
+    if (state.state == PythonLanguageServerState::AlreadyConfigured) {
         if (const StdIOSettings *setting = languageServerForPython(python)) {
             if (Client *client = LanguageClientManager::clientForSetting(setting).value(0))
                 LanguageClientManager::reOpenDocumentWithClient(document, client);
@@ -382,12 +409,11 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
 
     resetEditorInfoBar(document);
     Core::InfoBar *infoBar = document->infoBar();
-    if (lsState.state == PythonLanguageServerState::CanBeInstalled
+    if (state.state == PythonLanguageServerState::CanBeInstalled
         && infoBar->canInfoBeAdded(installPylsInfoBarId)) {
-        auto message
-            = tr("Install and set up Python language server (PyLS) for %1 (%2). "
-                 "The language server provides Python specific completion and annotation.")
-                  .arg(pythonName(python), python.toUserOutput());
+        auto message = tr("Install and set up Python language server (PyLS) for %1 (%2). "
+                          "The language server provides Python specific completion and annotation.")
+                           .arg(pythonName(python), python.toUserOutput());
         Core::InfoBarEntry info(installPylsInfoBarId,
                                 message,
                                 Core::InfoBarEntry::GlobalSuppression::Enabled);
@@ -395,7 +421,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                                  [=]() { installPythonLanguageServer(python, document); });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;
-    } else if (lsState.state == PythonLanguageServerState::AlreadyInstalled
+    } else if (state.state == PythonLanguageServerState::AlreadyInstalled
                && infoBar->canInfoBeAdded(startPylsInfoBarId)) {
         auto message = tr("Found a Python language server for %1 (%2). "
                           "Set it up for this document?")
@@ -407,7 +433,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                                  [=]() { setupPythonLanguageServer(python, document); });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;
-    } else if (lsState.state == PythonLanguageServerState::ConfiguredButDisabled
+    } else if (state.state == PythonLanguageServerState::ConfiguredButDisabled
                && infoBar->canInfoBeAdded(enablePylsInfoBarId)) {
         auto message = tr("Enable Python language server for %1 (%2)?")
                            .arg(pythonName(python), python.toUserOutput());
