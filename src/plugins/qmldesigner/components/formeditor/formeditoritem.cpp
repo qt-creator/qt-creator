@@ -236,7 +236,7 @@ QTransform FormEditorItem::instanceSceneContentItemTransform() const
     return qmlItemNode().instanceSceneContentItemTransform();
 }
 
-bool FormEditorItem::flowHitTest(const QPointF &point) const
+bool FormEditorItem::flowHitTest(const QPointF & ) const
 {
     return false;
 }
@@ -564,7 +564,7 @@ QPointF FormEditorFlowItem::instancePosition() const
     return qmlItemNode().flowPosition();
 }
 
-void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     if (!painter->isActive())
         return;
@@ -901,7 +901,7 @@ static void paintConnection(QPainter *painter,
     painter->restore();
 }
 
-void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     if (!painter->isActive())
         return;

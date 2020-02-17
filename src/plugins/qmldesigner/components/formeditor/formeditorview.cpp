@@ -369,6 +369,7 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
 
 void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
 {
+    Q_UNUSED(propertyChange)
     for (const BindingProperty &property : propertyList) {
         QmlVisualNode node(property.parentModelNode());
         if (node.isFlowTransition()) {

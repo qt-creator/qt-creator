@@ -530,7 +530,7 @@ static void drawCenteredText(QPainter *p, int x, int y, const QString &text)
     p->drawText(rect, Qt::AlignCenter, text);
 }
 
-TimelineRulerSectionItem *TimelineRulerSectionItem::create(QGraphicsScene *parentScene,
+TimelineRulerSectionItem *TimelineRulerSectionItem::create(QGraphicsScene * ,
                                                            TimelineItem *parent)
 {
     auto item = new TimelineRulerSectionItem(parent);
