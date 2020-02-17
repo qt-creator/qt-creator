@@ -13,6 +13,8 @@ sourcedirs              = . \
                           ../../../src/libs/aggregation \
                           ../../../src/libs/extensionsystem
 
+excludedirs             = ../../../src/libs/aggregation/examples
+
 # -- Uncomment following option to generate complete documentation
 #    instead of public API documentation only.
 #showinternal = true
