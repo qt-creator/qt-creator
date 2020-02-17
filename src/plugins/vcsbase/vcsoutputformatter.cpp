@@ -30,17 +30,24 @@
 
 namespace VcsBase {
 
-VcsOutputFormatter::VcsOutputFormatter() : m_urlRegexp("https?://\\S*") {}
+VcsOutputFormatter::VcsOutputFormatter() :
+    m_urlRegexp("https?://\\S*"),
+    m_referenceRegexp("(v[0-9]+\\.[0-9]+\\.[0-9]+[\\-A-Za-z0-9]*)" // v0.1.2-beta3
+                      "|([0-9a-f]{6,}(?:\\.\\.[0-9a-f]{6,})?)")    // 789acf or 123abc..456cde
+{
+}
 
 void VcsOutputFormatter::appendMessage(const QString &text, Utils::OutputFormat format)
 {
-    QString out = text;
-    const QRegularExpressionMatch match = m_urlRegexp.match(text);
-    if (match.hasMatch()) {
+    const QRegularExpressionMatch urlMatch = m_urlRegexp.match(text);
+    const QRegularExpressionMatch referenceMatch = m_referenceRegexp.match(text);
+
+    auto append = [this](const QRegularExpressionMatch &match,
+                         QString text, Utils::OutputFormat format) {
         const QTextCharFormat normalFormat = charFormat(format);
         OutputFormatter::appendMessage(text.left(match.capturedStart()), format);
         QTextCursor tc = plainTextEdit()->textCursor();
-        QStringRef url = match.capturedRef();
+        QStringView url = match.capturedView();
         int end = match.capturedEnd();
         while (url.rbegin()->isPunct()) {
             url.chop(1);
@@ -50,14 +57,22 @@ void VcsOutputFormatter::appendMessage(const QString &text, Utils::OutputFormat 
         tc.insertText(url.toString(), linkFormat(normalFormat, url.toString()));
         tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         OutputFormatter::appendMessage(text.mid(end), format);
-    } else {
+    };
+
+    if (urlMatch.hasMatch())
+        append(urlMatch, text, format);
+    else if (referenceMatch.hasMatch())
+        append(referenceMatch, text, format);
+    else
         OutputFormatter::appendMessage(text, format);
-    }
 }
 
 void VcsOutputFormatter::handleLink(const QString &href)
 {
-    QDesktopServices::openUrl(QUrl(href));
+    if (href.startsWith("http://") || href.startsWith("https://"))
+        QDesktopServices::openUrl(QUrl(href));
+    else if (!href.isEmpty())
+        emit referenceClicked(href);
 }
 
 }

@@ -1486,14 +1486,19 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
     return true;
 }
 
-// Short SHA1, author, subject
-static const char defaultShortLogFormatC[] = "%h (%an \"%s";
-static const int maxShortLogLength = 120;
-
 QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision) const
 {
+    // HACK: The hopefully rare "_-_" will be replaced by quotes in the output,
+    // leaving it in breaks command line quoting on Windows, see QTCREATORBUG-23208.
+    const QString quoteReplacement = "_-_";
+
+    // Short SHA1, author, subject
+    const QString defaultShortLogFormat = "%h (%an " + quoteReplacement + "%s";
+    const int maxShortLogLength = 120;
+
     // Short SHA 1, author, subject
-    QString output = synchronousShortDescription(workingDirectory, revision, defaultShortLogFormatC);
+    QString output = synchronousShortDescription(workingDirectory, revision, defaultShortLogFormat);
+    output.replace(quoteReplacement, "\"");
     if (output != revision) {
         if (output.length() > maxShortLogLength) {
             output.truncate(maxShortLogLength);
@@ -3108,6 +3113,8 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
             this, [this, command, workingDirectory, pushArgs](bool success) {
         if (!success) {
             switch (static_cast<PushFailure>(command->cookie().toInt())) {
+            case Unknown:
+                break;
             case NonFastForward: {
                 const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
                 if (QMessageBox::question(
