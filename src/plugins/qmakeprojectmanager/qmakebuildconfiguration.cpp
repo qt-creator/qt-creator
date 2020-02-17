@@ -427,11 +427,6 @@ TriState QmakeBuildConfiguration::qmlDebugging() const
     return aspect<QmlDebuggingAspect>()->setting();
 }
 
-bool QmakeBuildConfiguration::linkQmlDebuggingLibrary() const
-{
-    return qmlDebugging() == TriState::Enabled;
-}
-
 void QmakeBuildConfiguration::forceQmlDebugging(bool enable)
 {
     aspect<QmlDebuggingAspect>()->setSetting(enable ? TriState::Enabled : TriState::Disabled);

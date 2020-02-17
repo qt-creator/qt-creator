@@ -195,12 +195,6 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-
-
-
-
-
-
 FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
                                                        const Kit *k,
                                                        const QString &bcName,
@@ -381,12 +375,6 @@ void CMakeBuildConfiguration::setWarning(const QString &message)
     m_warning = message;
     emit warningOccured(m_warning);
 }
-
-bool CMakeBuildConfiguration::isQmlDebuggingEnabled() const
-{
-    return aspect<QtSupport::QmlDebuggingAspect>()->setting() == TriState::Enabled;
-}
-
 
 QString CMakeBuildConfiguration::error() const
 {

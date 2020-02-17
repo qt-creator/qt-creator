@@ -311,11 +311,6 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     return commandLine.arguments();
 }
 
-bool QbsBuildConfiguration::isQmlDebuggingEnabled() const
-{
-    return qmlDebuggingSetting() == TriState::Enabled;
-}
-
 TriState QbsBuildConfiguration::qmlDebuggingSetting() const
 {
     return aspect<QtSupport::QmlDebuggingAspect>()->setting();

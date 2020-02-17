@@ -27,17 +27,18 @@
 
 #include "debuggerconstants.h"
 
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/helpmanager.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildstep.h>
-#include <projectexplorer/buildsteplist.h>
+#include <qtsupport/qtbuildaspects.h>
 
 #include <QCheckBox>
 #include <QDebug>
@@ -242,12 +243,9 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 
         //
         // Try to find a build configuration to check whether qml debugging is enabled there
-        // (Using the Qt metatype system to avoid a hard build system dependency)
-        //
         if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
-            const QVariant linkProperty = bc->property("linkQmlDebuggingLibrary");
-            if (linkProperty.isValid() && linkProperty.canConvert(QVariant::Bool))
-                return linkProperty.toBool();
+            const auto aspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
+            return aspect && aspect->setting() == TriState::Enabled;
         }
 
         return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
