@@ -55,7 +55,8 @@ Project {
              "components/navigator",
              "components/pluginmanager",
              "components/stateseditor",
-             "components/texteditor"
+             "components/texteditor",
+             "components/timelineeditor",
         ])
 
         Properties {
@@ -647,7 +648,7 @@ Project {
                 "annotationeditor/annotationeditor.h",
                 "annotationeditor/annotationeditordialog.cpp",
                 "annotationeditor/annotationeditordialog.h",
-                "annotationeditor/annotationeditordialog.ui
+                "annotationeditor/annotationeditordialog.ui",
                 "annotationeditor/annotationtool.cpp",
                 "annotationeditor/annotationtool.h",
                 "bindingeditor/bindingeditor.cpp",
