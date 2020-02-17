@@ -31,25 +31,31 @@ namespace Core {
 
 /*!
     \class Core::IExternalEditor
-    \mainclass
+    \inmodule QtCreator
+    \ingroup mainclasses
 
     \brief The IExternalEditor class enables registering an external
-    editor in the \gui{Open With} dialog.
+    editor in the \uicontrol{Open With} dialog.
 */
 
 /*!
-    \fn IExternalEditor::IExternalEditor(QObject *parent)
-    \internal
+    \fn QString Core::IExternalEditor::displayName() const
+    Returns a user-visible description of the editor type.
 */
 
 /*!
-    \fn QStringList IExternalEditor::mimeTypes() const
-    Returns the mime type the editor supports
+    \fn Core::Id Core::IExternalEditor::id() const
+    Returns the ID of the factory or editor type.
+*/
+
+/*!
+    \fn QStringList Core::IExternalEditor::mimeTypes() const
+    Returns a list of MIME types that the editor supports
 */
 
 /*!
 
-    \fn bool IExternalEditor::startEditor(const QString &fileName, QString *errorMessage) = 0;
+    \fn bool Core::IExternalEditor::startEditor(const QString &fileName, QString *errorMessage) = 0;
 
     Opens the editor with \a fileName. Returns \c true on success or \c false
     on failure along with the error in \a errorMessage.
@@ -57,22 +63,35 @@ namespace Core {
 
 static QList<IExternalEditor *> g_externalEditors;
 
+/*!
+    \internal
+*/
 IExternalEditor::IExternalEditor(QObject *parent)
     : QObject(parent)
 {
     g_externalEditors.append(this);
 }
 
+/*!
+    \internal
+*/
 IExternalEditor::~IExternalEditor()
 {
     g_externalEditors.removeOne(this);
 }
 
+/*!
+    Returns all available external editors.
+*/
 const ExternalEditorList IExternalEditor::allExternalEditors()
 {
     return g_externalEditors;
 }
 
+/*!
+    Returns all external editors available for this \a mimeType in the default
+    order (editors ordered by MIME type hierarchy).
+*/
 const ExternalEditorList IExternalEditor::externalEditors(const Utils::MimeType &mimeType)
 {
     ExternalEditorList rc;
