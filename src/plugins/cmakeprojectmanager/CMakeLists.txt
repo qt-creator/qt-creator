@@ -43,5 +43,4 @@ add_qtc_plugin(CMakeProjectManager
     projecttreehelper.cpp projecttreehelper.h
     servermode.cpp servermode.h
     servermodereader.cpp servermodereader.h
-    tealeafreader.cpp tealeafreader.h
 )

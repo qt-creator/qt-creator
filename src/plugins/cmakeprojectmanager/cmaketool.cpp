@@ -60,7 +60,6 @@ bool CMakeTool::Generator::matches(const QString &n, const QString &ex) const
 
 namespace Internal {
 
-const char READER_TYPE_TEALEAF[] = "tealeaf";
 const char READER_TYPE_SERVERMODE[] = "servermode";
 const char READER_TYPE_FILEAPI[] = "fileapi";
 
@@ -72,8 +71,6 @@ static bool ignoreFileApi()
 
 static Utils::optional<CMakeTool::ReaderType> readerTypeFromString(const QString &input)
 {
-    if (input == READER_TYPE_TEALEAF)
-        return CMakeTool::TeaLeaf;
     if (input == READER_TYPE_SERVERMODE)
         return CMakeTool::ServerMode;
     if (input == READER_TYPE_FILEAPI)
@@ -84,14 +81,12 @@ static Utils::optional<CMakeTool::ReaderType> readerTypeFromString(const QString
 static QString readerTypeToString(const CMakeTool::ReaderType &type)
 {
     switch (type) {
-    case CMakeTool::TeaLeaf:
-        return QString(READER_TYPE_TEALEAF);
     case CMakeTool::ServerMode:
         return QString(READER_TYPE_SERVERMODE);
     case CMakeTool::FileApi:
         return QString(READER_TYPE_FILEAPI);
     }
-    return QString();
+    return "<INVALID>";
 }
 
 // --------------------------------------------------------------------
@@ -205,7 +200,7 @@ bool CMakeTool::isValid() const
     if (!m_introspection->m_didAttemptToRun)
         supportedGenerators();
 
-    return m_introspection->m_didRun;
+    return m_introspection->m_didRun && (hasFileApi() || hasServerMode());
 }
 
 Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, int timeoutS) const
@@ -386,7 +381,6 @@ CMakeTool::ReaderType CMakeTool::readerType() const
         }
         if (hasServerMode())
             return ServerMode;
-        return TeaLeaf;
     }
     return m_readerType.value();
 }

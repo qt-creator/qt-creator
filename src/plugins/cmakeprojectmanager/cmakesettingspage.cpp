@@ -110,6 +110,7 @@ public:
         , m_isAutoRun(item->isAutoRun())
         , m_autoCreateBuildDirectory(item->autoCreateBuildDirectory())
         , m_autodetected(item->isAutoDetected())
+        , m_isSupported(item->hasFileApi() || item->hasServerMode())
         , m_changed(changed)
     {
         updateErrorFlags();
@@ -186,6 +187,10 @@ public:
                 error = QCoreApplication::translate(
                     "CMakeProjectManager::Internal::CMakeToolTreeItem",
                     "CMake executable path is not executable.");
+            } else if (!m_isSupported) {
+                error = QCoreApplication::translate(
+                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
+                    "CMake executable does not provided required IDE integration features.");
             }
             if (result.isEmpty() || error.isEmpty())
                 return QString("%1%2").arg(result).arg(error);
@@ -216,6 +221,7 @@ public:
     bool m_pathIsExecutable = false;
     bool m_autoCreateBuildDirectory = false;
     bool m_autodetected = false;
+    bool m_isSupported = false;
     bool m_changed = true;
 };
 

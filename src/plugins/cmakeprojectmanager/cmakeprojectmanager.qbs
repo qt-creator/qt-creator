@@ -95,8 +95,6 @@ QtcPlugin {
         "servermode.cpp",
         "servermode.h",
         "servermodereader.cpp",
-        "servermodereader.h",
-        "tealeafreader.cpp",
-        "tealeafreader.h"
+        "servermodereader.h"
     ]
 }
