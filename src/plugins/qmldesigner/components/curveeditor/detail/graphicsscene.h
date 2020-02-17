@@ -69,7 +69,7 @@ public:
 
     void handleMoved(KeyframeItem *frame, HandleSlot handle, double angle, double deltaLength);
 
-    void setPinned(int id, bool pinned);
+    void setPinned(uint id, bool pinned);
 
     std::vector<CurveItem *> takePinnedItems();
 

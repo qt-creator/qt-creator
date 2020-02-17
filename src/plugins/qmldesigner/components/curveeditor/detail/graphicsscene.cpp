@@ -121,7 +121,7 @@ void GraphicsScene::handleMoved(KeyframeItem *frame,
     }
 }
 
-void GraphicsScene::setPinned(int id, bool pinned)
+void GraphicsScene::setPinned(uint id, bool pinned)
 {
     const auto itemList = items();
     for (auto *item : itemList) {
