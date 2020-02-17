@@ -646,7 +646,6 @@ void FormEditorTransitionItem::setDataModelPositionInBaseState(const QPointF &)
 void FormEditorTransitionItem::updateGeometry()
 {
     FormEditorItem::updateGeometry();
-    const QPointF pos = qmlItemNode().flowPosition();
 
     const ModelNode from = qmlItemNode().modelNode().bindingProperty("from").resolveToModelNode();
     const ModelNode to = qmlItemNode().modelNode().bindingProperty("to").resolveToModelNode();
