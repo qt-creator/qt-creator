@@ -91,7 +91,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
 
 def get_qt_install_info(qmake_bin):
     output = subprocess.check_output([qmake_bin, '-query'])
-    lines = output.decode(encoding).strip().split('\n')
+    decoded_output = output.decode(encoding) if encoding else output
+    lines = decoded_output.strip().split('\n')
     info = {}
     for line in lines:
         (var, sep, value) = line.partition(':')
@@ -178,28 +179,37 @@ def is_not_debug(path, filenames):
     files = [fn for fn in filenames if os.path.isfile(os.path.join(path, fn))]
     return [fn for fn in files if not is_debug_file(os.path.join(path, fn))]
 
-def codesign(app_path):
+def codesign_call():
     signing_identity = os.environ.get('SIGNING_IDENTITY')
-    if is_mac_platform() and signing_identity:
-        codesign_call = ['codesign', '-o', 'runtime', '--force', '-s', signing_identity,
-                         '-v']
-        signing_flags = os.environ.get('SIGNING_FLAGS')
-        if signing_flags:
-            codesign_call.extend(signing_flags.split())
+    if not signing_identity:
+        return None
+    codesign_call = ['codesign', '-o', 'runtime', '--force', '-s', signing_identity,
+                     '-v']
+    signing_flags = os.environ.get('SIGNING_FLAGS')
+    if signing_flags:
+        codesign_call.extend(signing_flags.split())
+    return codesign_call
 
-        def conditional_sign_recursive(path, filter):
-            for r, _, fs in os.walk(path):
-                for f in fs:
-                    ff = os.path.join(r, f)
-                    if filter(ff):
-                        print('codesign "' + ff + '"')
-                        subprocess.check_call(codesign_call + [ff])
+def os_walk(path, filter, function):
+    for r, _, fs in os.walk(path):
+        for f in fs:
+            ff = os.path.join(r, f)
+            if filter(ff):
+                function(ff)
 
-        # sign all executables in Resources
-        conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Resources'),
-                                   lambda ff: os.access(ff, os.X_OK))
-        # sign all libraries in Imports
-        conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Imports'),
-                                   lambda ff: ff.endswith('.dylib'))
+def conditional_sign_recursive(path, filter):
+    codesign = codesign_call()
+    if is_mac_platform() and codesign:
+        os_walk(path, filter, lambda fp: subprocess.check_call(codesign + [fp]))
+
+def codesign(app_path):
+    # sign all executables in Resources
+    conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Resources'),
+                               lambda ff: os.access(ff, os.X_OK))
+    # sign all libraries in Imports
+    conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Imports'),
+                               lambda ff: ff.endswith('.dylib'))
+    codesign = codesign_call()
+    if is_mac_platform() and codesign:
         # sign the whole bundle
-        subprocess.check_call(codesign_call + ['--deep', app_path])
+        subprocess.check_call(codesign + ['--deep', app_path])
