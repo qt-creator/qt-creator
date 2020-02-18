@@ -33,6 +33,7 @@
 #include "task.h"
 
 #include <utils/environment.h>
+#include <utils/macroexpander.h>
 #include <utils/port.h>
 
 #include <QWidget>
@@ -170,6 +171,8 @@ public:
 
     void update();
 
+    const Utils::MacroExpander *macroExpander() const { return &m_expander; }
+
 signals:
     void enabledChanged();
 
@@ -199,6 +202,7 @@ private:
     QString m_buildKey;
     CommandLineGetter m_commandLineGetter;
     Updater m_updater;
+    Utils::MacroExpander m_expander;
 };
 
 class RunConfigurationCreationInfo

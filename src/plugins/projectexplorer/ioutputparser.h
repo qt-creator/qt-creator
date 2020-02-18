@@ -28,7 +28,7 @@
 #include "projectexplorer_export.h"
 #include "buildstep.h"
 
-#include <QString>
+namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 class Task;

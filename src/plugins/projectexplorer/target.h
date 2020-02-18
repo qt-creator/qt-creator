@@ -32,6 +32,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
+namespace Utils { class MacroExpander; }
+
 namespace ProjectExplorer {
 class BuildConfiguration;
 class BuildTargetInfo;

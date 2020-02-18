@@ -322,7 +322,7 @@ public:
     IDevice::ConstPtr device;
     Core::Id runMode;
     Utils::Icon icon;
-    MacroExpander *macroExpander;
+    const MacroExpander *macroExpander;
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
     QString buildKey;
     QMap<Core::Id, QVariantMap> settingsData;
@@ -896,7 +896,7 @@ Kit *RunControl::kit() const
     return d->kit;
 }
 
-MacroExpander *RunControl::macroExpander() const
+const MacroExpander *RunControl::macroExpander() const
 {
     return d->macroExpander;
 }

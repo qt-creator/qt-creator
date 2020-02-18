@@ -127,10 +127,6 @@ BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     ProjectConfiguration(bsl, id)
 {
     QTC_CHECK(bsl->target() && bsl->target() == this->target());
-    Utils::MacroExpander *expander = macroExpander();
-    expander->setDisplayName(tr("Build Step"));
-    expander->setAccumulating(true);
-    expander->registerSubProvider([this] { return projectConfiguration()->macroExpander(); });
 }
 
 void BuildStep::run()
@@ -218,6 +214,13 @@ BuildSystem *BuildStep::buildSystem() const
     if (auto bc = buildConfiguration())
         return bc->buildSystem();
     return target()->buildSystem();
+}
+
+Utils::MacroExpander *BuildStep::macroExpander() const
+{
+    if (auto bc = buildConfiguration())
+        return bc->macroExpander();
+    return Utils::globalMacroExpander();
 }
 
 void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)

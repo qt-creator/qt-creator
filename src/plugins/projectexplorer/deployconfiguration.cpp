@@ -47,14 +47,6 @@ DeployConfiguration::DeployConfiguration(Target *target, Core::Id id)
       m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
 {
     QTC_CHECK(target && target == this->target());
-    Utils::MacroExpander *expander = macroExpander();
-    expander->setDisplayName(tr("Deploy Settings"));
-    expander->setAccumulating(true);
-    expander->registerSubProvider([target] {
-        BuildConfiguration *bc = target->activeBuildConfiguration();
-        return bc ? bc->macroExpander() : target->macroExpander();
-    });
-
     //: Default DeployConfiguration display name
     setDefaultDisplayName(tr("Deploy locally"));
 }

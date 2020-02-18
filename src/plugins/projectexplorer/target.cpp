@@ -150,17 +150,16 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
     connect(km, &KitManager::kitRemoved, this, &Target::handleKitRemoval);
 
-    Utils::MacroExpander *expander = macroExpander();
-    expander->setDisplayName(tr("Target Settings"));
-    expander->setAccumulating(true);
+    d->m_macroExpander.setDisplayName(tr("Target Settings"));
+    d->m_macroExpander.setAccumulating(true);
 
-    expander->registerSubProvider([this] { return kit()->macroExpander(); });
+    d->m_macroExpander.registerSubProvider([this] { return kit()->macroExpander(); });
 
-    expander->registerVariable("sourceDir", tr("Source directory"),
+    d->m_macroExpander.registerVariable("sourceDir", tr("Source directory"),
             [project] { return project->projectDirectory().toUserOutput(); });
 
     // Legacy support.
-    expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+    d->m_macroExpander.registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
             QCoreApplication::translate("ProjectExplorer", "Name of current project"),
             [project] { return project->displayName(); },
             false);

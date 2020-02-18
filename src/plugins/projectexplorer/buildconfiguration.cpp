@@ -86,6 +86,7 @@ public:
     bool m_configWidgetHasFrame = false;
     QList<Core::Id> m_initialBuildSteps;
     QList<Core::Id> m_initialCleanSteps;
+    Utils::MacroExpander m_macroExpander;
 
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
@@ -202,6 +203,11 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
 
     if (d->m_initializer)
         d->m_initializer(info);
+}
+
+MacroExpander *BuildConfiguration::macroExpander() const
+{
+    return &d->m_macroExpander;
 }
 
 void BuildConfiguration::setInitializer(const std::function<void(const BuildInfo &)> &initializer)

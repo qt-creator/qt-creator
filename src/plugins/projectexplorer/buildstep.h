@@ -38,6 +38,8 @@
 #include <functional>
 #include <memory>
 
+namespace Utils { class MacroExpander; }
+
 namespace ProjectExplorer {
 
 class BuildConfiguration;
@@ -77,6 +79,7 @@ public:
     ProjectConfiguration *projectConfiguration() const;
 
     BuildSystem *buildSystem() const;
+    Utils::MacroExpander *macroExpander() const;
 
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools
