@@ -142,7 +142,7 @@ bool IosDeployStep::init()
 void IosDeployStep::doRun()
 {
     QTC_CHECK(m_transferStatus == NoTransfer);
-    if (device().isNull()) {
+    if (m_device.isNull()) {
         TaskHub::addTask(
                     DeploymentTask(Task::Error, tr("Deployment failed. No iOS device found.")));
         emit finished(!iossimulator().isNull());
@@ -283,9 +283,9 @@ void IosDeployStep::checkProvisioningProfile()
 
     if (!provisionPlist.contains(QLatin1String("ProvisionedDevices")))
         return;
-    QStringList deviceIds = provisionPlist.value(QLatin1String("ProvisionedDevices")).toStringList();
-    QString targetId = device->uniqueDeviceID();
-    foreach (const QString &deviceId, deviceIds) {
+    const QStringList deviceIds = provisionPlist.value("ProvisionedDevices").toStringList();
+    const QString targetId = device->uniqueDeviceID();
+    for (const QString &deviceId : deviceIds) {
         if (deviceId == targetId)
             return;
     }
@@ -299,11 +299,6 @@ void IosDeployStep::checkProvisioningProfile()
               .arg(provisioningProfile, provisioningUid, device->displayName(),
                    targetId));
     emit addTask(task);
-}
-
-IDevice::ConstPtr IosDeployStep::device() const
-{
-    return m_device;
 }
 
 IosDevice::ConstPtr IosDeployStep::iosdevice() const
