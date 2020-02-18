@@ -58,6 +58,7 @@ public:
     static const QLatin1String firstParentKey;
     static const QLatin1String followRenamesKey;
     static const QLatin1String lastResetIndexKey;
+    static const QLatin1String refLogShowDateKey;
 
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 

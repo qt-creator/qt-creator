@@ -560,12 +560,12 @@ public:
     }
 };
 
-class GitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
+class BaseGitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
 {
     Q_OBJECT
 
 public:
-    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, QToolBar *toolBar) :
+    BaseGitLogArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
         BaseGitDiffArgumentsWidget(settings, toolBar)
     {
         QAction *diffButton = addToggleButton("--patch", tr("Diff"),
@@ -575,6 +575,17 @@ public:
         connect(diffButton, &QAction::toggled, m_ignoreWSButton, &QAction::setVisible);
         m_patienceButton->setVisible(diffButton->isChecked());
         m_ignoreWSButton->setVisible(diffButton->isChecked());
+    }
+};
+
+class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
+{
+    Q_OBJECT
+
+public:
+    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, QToolBar *toolBar) :
+        BaseGitLogArgumentsWidget(settings, toolBar)
+    {
         QAction *firstParentButton =
                 addToggleButton({"-m", "--first-parent"},
                                 tr("First Parent"),
@@ -594,6 +605,24 @@ public:
                         tr("Show log also for previous names of the file."));
             mapSetting(followButton, settings.boolPointer(GitSettings::followRenamesKey));
         }
+
+        addReloadButton();
+    }
+};
+
+class GitRefLogArgumentsWidget : public BaseGitLogArgumentsWidget
+{
+    Q_OBJECT
+
+public:
+    GitRefLogArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
+        BaseGitLogArgumentsWidget(settings, toolBar)
+    {
+        QAction *showDateButton =
+                addToggleButton("--date=iso",
+                                tr("Show Date"),
+                                tr("Show date instead of sequence"));
+        mapSetting(showDateButton, settings.boolPointer(GitSettings::refLogShowDateKey));
 
         addReloadButton();
     }
@@ -1039,9 +1068,17 @@ void GitClient::reflog(const QString &workingDirectory)
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, workingDirectory, codecFor(CodecLogOutput),
                                                   "reflogRepository", workingDirectory);
+    VcsBaseEditorConfig *argWidget = editor->editorConfig();
+    if (!argWidget) {
+        argWidget = new GitRefLogArgumentsWidget(settings(), editor->toolBar());
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                [=] { this->reflog(workingDirectory); });
+        editor->setEditorConfig(argWidget);
+    }
     editor->setWorkingDirectory(workingDirectory);
 
     QStringList arguments = {"reflog", noColorOption, decorateOption};
+    arguments << argWidget->arguments();
     int logCount = settings().intValue(GitSettings::logCountKey);
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
