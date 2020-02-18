@@ -561,8 +561,10 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
             const Core::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigBaseId.name())) {
                 RunConfiguration *rc = factory->create(parent);
-                if (rc->fromMap(map))
+                if (rc->fromMap(map)) {
+                    rc->update();
                     return rc;
+                }
                 delete rc;
                 return nullptr;
             }
