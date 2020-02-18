@@ -184,11 +184,11 @@ const VcsBaseSubmitEditorParameters submitParameters {
     VcsBaseSubmitEditorParameters::DiffRows
 };
 
-const VcsBaseEditorParameters commandLogEditorParameters {
+const VcsBaseEditorParameters svnLogEditorParameters {
     OtherContent,
-    Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
-    Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.commandlog"
+    Git::Constants::GIT_SVN_LOG_EDITOR_ID,
+    Git::Constants::GIT_SVN_LOG_EDITOR_DISPLAY_NAME,
+    "text/vnd.qtcreator.git.svnlog"
 };
 
 const VcsBaseEditorParameters logEditorParameters {
@@ -389,8 +389,8 @@ public:
 
     GitGrep gitGrep{&m_gitClient};
 
-    VcsEditorFactory commandLogEditorFactory {
-        &commandLogEditorParameters,
+    VcsEditorFactory svnLogEditorFactory {
+        &svnLogEditorParameters,
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::describe, this, _1, _2)
     };
