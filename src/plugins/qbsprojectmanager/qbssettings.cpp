@@ -103,6 +103,11 @@ void QbsSettings::setSettingsData(const QbsSettingsData &settings)
     }
 }
 
+QbsSettingsData QbsSettings::rawSettingsData()
+{
+    return instance().m_settings;
+}
+
 QbsSettings::QbsSettings()
 {
     loadSettings();
@@ -148,8 +153,8 @@ public:
 
     void apply()
     {
-        QbsSettingsData settings;
-        if (m_qbsExePathChooser.isValid())
+        QbsSettingsData settings = QbsSettings::rawSettingsData();
+        if (m_qbsExePathChooser.fileName() != QbsSettings::qbsExecutableFilePath())
             settings.qbsExecutableFilePath = m_qbsExePathChooser.fileName();
         settings.defaultInstallDirTemplate = m_defaultInstallDirLineEdit.text();
         settings.useCreatorSettings = m_settingsDirCheckBox.isChecked();

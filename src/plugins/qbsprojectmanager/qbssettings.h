@@ -54,6 +54,7 @@ public:
     static QString qbsSettingsBaseDir();
 
     static void setSettingsData(const QbsSettingsData &settings);
+    static QbsSettingsData rawSettingsData();
 
 signals:
     void settingsChanged();
