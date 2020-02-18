@@ -159,13 +159,6 @@ def addAndActivateKit(kit):
             mouseClick(index)
             test.verify(waitFor("not str(index.toolTip).startswith(clickToActivate)", 1500),
                         "Kit added for this project")
-            try:
-                findObject(":Projects.ProjectNavigationTreeView")
-            except:
-                test.warning("Squish issue - QC switches automatically to Edit view after enabling "
-                             "a new kit when running tst_opencreator_qbs - works as expected when "
-                             "running without Squish")
-                switchViewTo(ViewConstants.PROJECTS)
         else:
             test.warning("Kit is already added for this project.")
         mouseClick(index)
