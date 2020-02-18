@@ -287,7 +287,7 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
     if (!qt)
         return {};
 
-    auto tc = ProjectExplorer::ToolChainKitAspect::toolChain(target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    auto tc = ToolChainKitAspect::cxxToolChain(target->kit());
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return {};
     QJsonObject settings;

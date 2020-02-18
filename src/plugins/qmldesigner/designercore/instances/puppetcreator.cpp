@@ -68,6 +68,8 @@
 static Q_LOGGING_CATEGORY(puppetStart, "qtc.puppet.start", QtWarningMsg)
 static Q_LOGGING_CATEGORY(puppetBuild, "qtc.puppet.build", QtWarningMsg)
 
+using namespace ProjectExplorer;
+
 namespace QmlDesigner {
 
 class EventFilter : public QObject {
@@ -525,11 +527,7 @@ QString PuppetCreator::buildCommand() const
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     m_target->kit()->addToEnvironment(environment);
 
-    ProjectExplorer::ToolChain *toolChain
-            = ProjectExplorer::ToolChainKitAspect::toolChain(m_target->kit(),
-                                                                  ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-    if (toolChain)
+    if (ToolChain *toolChain = ToolChainKitAspect::cxxToolChain(m_target->kit()))
         return toolChain->makeCommand(environment).toString();
 
     return QString();

@@ -219,8 +219,9 @@ void QtKitAspect::fix(ProjectExplorer::Kit *k)
     }
 
     // Set a matching toolchain if we don't have one.
-    if (ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+    if (ToolChainKitAspect::cxxToolChain(k))
         return;
+
     const QString spec = version->mkspec();
     const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
                 [version](const ToolChain *t) {

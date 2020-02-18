@@ -141,16 +141,14 @@ QString QMakeStep::allArguments(const BaseQtVersion *v, ArgumentFlags flags) con
 
 QMakeStepConfig QMakeStep::deducedArguments() const
 {
-    ProjectExplorer::Kit *kit = target()->kit();
+    Kit *kit = target()->kit();
     QMakeStepConfig config;
-    ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    ProjectExplorer::Abi targetAbi;
-    if (tc) {
+    Abi targetAbi;
+    if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit)) {
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-            config.sysRoot = ProjectExplorer::SysRootKitAspect::sysRoot(kit).toString();
+            config.sysRoot = SysRootKitAspect::sysRoot(kit).toString();
             config.targetTriple = tc->originalTargetTriple();
         }
     }

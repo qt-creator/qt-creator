@@ -155,8 +155,8 @@ KitInfo::KitInfo(Kit *kit)
 {
     // Toolchains
     if (kit) {
-        cToolChain = ToolChainKitAspect::toolChain(kit, Constants::C_LANGUAGE_ID);
-        cxxToolChain = ToolChainKitAspect::toolChain(kit, Constants::CXX_LANGUAGE_ID);
+        cToolChain = ToolChainKitAspect::cToolChain(kit);
+        cxxToolChain = ToolChainKitAspect::cxxToolChain(kit);
     }
 
     // Sysroot

@@ -476,8 +476,7 @@ bool BuildConfiguration::isActive() const
 
 void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Environment &env)
 {
-    const ToolChain *tc
-            = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    const ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
 
     if (!tc)
         return;

@@ -66,8 +66,7 @@ bool AndroidPackageInstallationStep::init()
         if (bc->environment().searchInPath("sh.exe").isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);
 
-    ToolChain *tc = ToolChainKitAspect::toolChain(target()->kit(),
-                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
     QTC_ASSERT(tc, return false);
 
     CommandLine cmd{tc->makeCommand(bc->environment())};

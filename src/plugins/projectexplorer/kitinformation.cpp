@@ -511,19 +511,19 @@ KitAspectWidget *ToolChainKitAspect::createConfigWidget(Kit *k) const
 
 QString ToolChainKitAspect::displayNamePostfix(const Kit *k) const
 {
-    ToolChain *tc = toolChain(k, Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = cxxToolChain(k);
     return tc ? tc->displayName() : QString();
 }
 
 KitAspect::ItemList ToolChainKitAspect::toUserOutput(const Kit *k) const
 {
-    ToolChain *tc = toolChain(k, Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = cxxToolChain(k);
     return {{tr("Compiler"), tc ? tc->displayName() : tr("None")}};
 }
 
 void ToolChainKitAspect::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
-    ToolChain *tc = toolChain(k, Constants::CXX_LANGUAGE_ID);
+    ToolChain *tc = cxxToolChain(k);
     if (tc)
         tc->addToEnvironment(env);
 }
@@ -534,24 +534,24 @@ void ToolChainKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expa
 
     // Compatibility with Qt Creator < 4.2:
     expander->registerVariable("Compiler:Name", tr("Compiler"),
-                               [kit]() -> QString {
-                                   const ToolChain *tc = toolChain(kit, Constants::CXX_LANGUAGE_ID);
+                               [kit] {
+                                   const ToolChain *tc = cxxToolChain(kit);
                                    return tc ? tc->displayName() : tr("None");
                                });
 
     expander->registerVariable("Compiler:Executable", tr("Path to the compiler executable"),
-                               [kit]() -> QString {
-                                   const ToolChain *tc = toolChain(kit, Constants::CXX_LANGUAGE_ID);
+                               [kit] {
+                                   const ToolChain *tc = cxxToolChain(kit);
                                    return tc ? tc->compilerCommand().toString() : QString();
                                });
 
     expander->registerPrefix("Compiler:Name", tr("Compiler for different languages"),
-                             [kit](const QString &ls) -> QString {
+                             [kit](const QString &ls) {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
                                  return tc ? tc->displayName() : tr("None");
                              });
     expander->registerPrefix("Compiler:Executable", tr("Compiler executable for different languages"),
-                             [kit](const QString &ls) -> QString {
+                             [kit](const QString &ls) {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
                                  return tc ? tc->compilerCommand().toString() : QString();
                              });
@@ -593,6 +593,17 @@ ToolChain *ToolChainKitAspect::toolChain(const Kit *k, Core::Id language)
 {
     return ToolChainManager::findToolChain(toolChainId(k, language));
 }
+
+ToolChain *ToolChainKitAspect::cToolChain(const Kit *k)
+{
+    return ToolChainManager::findToolChain(toolChainId(k, ProjectExplorer::Constants::C_LANGUAGE_ID));
+}
+
+ToolChain *ToolChainKitAspect::cxxToolChain(const Kit *k)
+{
+    return ToolChainManager::findToolChain(toolChainId(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+}
+
 
 QList<ToolChain *> ToolChainKitAspect::toolChains(const Kit *k)
 {

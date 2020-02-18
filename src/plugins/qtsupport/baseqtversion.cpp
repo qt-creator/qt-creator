@@ -504,8 +504,7 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
     if (!tdt.isEmpty() && !tdt.contains(dt))
         result << BuildSystemTask(Task::Warning, tr("Device type is not supported by Qt version."));
 
-    ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (tc) {
+    if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
         Abi targetAbi = tc->targetAbi();
         bool fuzzyMatch = false;
         bool fullMatch = false;
@@ -532,7 +531,7 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
                                   version->displayName(), qtAbiString);
             result << BuildSystemTask(fuzzyMatch ? Task::Warning : Task::Error, message);
         }
-    } else if (ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID)) {
+    } else if (ToolChainKitAspect::cToolChain(k)) {
         const QString message = tr("The kit has a Qt version, but no C++ compiler.");
         result << BuildSystemTask(Task::Warning, message);
     }

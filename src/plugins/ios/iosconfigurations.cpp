@@ -288,8 +288,8 @@ void IosConfigurations::updateAutomaticKitList()
                     // we do not compare the sdk (thus automatically upgrading it in place if a
                     // new Xcode is used). Change?
                     return DeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
-                            && ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID) == platformToolchains.second
-                            && ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID) == platformToolchains.first
+                            && ToolChainKitAspect::cxxToolChain(kit) == platformToolchains.second
+                            && ToolChainKitAspect::cToolChain(kit) == platformToolchains.first
                             && QtKitAspect::qtVersion(kit) == qtVersion;
                 });
                 QTC_ASSERT(!resultingKits.contains(kit), continue);

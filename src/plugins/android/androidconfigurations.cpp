@@ -1186,9 +1186,9 @@ void AndroidConfigurations::updateAutomaticKitList()
                 if (qt != QtSupport::QtKitAspect::qtVersion(b))
                     return false;
                 return matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::CXX_LANGUAGE_ID],
-                                      ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+                                      ToolChainKitAspect::cxxToolChain(b))
                         && matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::C_LANGUAGE_ID],
-                                          ToolChainKitAspect::toolChain(b, ProjectExplorer::Constants::C_LANGUAGE_ID));
+                                          ToolChainKitAspect::cToolChain(b));
             });
 
             const auto initializeKit = [allLanguages, device, tc, qt](Kit *k) {

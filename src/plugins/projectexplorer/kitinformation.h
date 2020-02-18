@@ -90,6 +90,8 @@ public:
     static Core::Id id();
     static QByteArray toolChainId(const Kit *k, Core::Id language);
     static ToolChain *toolChain(const Kit *k, Core::Id language);
+    static ToolChain *cToolChain(const Kit *k);
+    static ToolChain *cxxToolChain(const Kit *k);
     static QList<ToolChain *> toolChains(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);
     static void setAllToolChainsToMatch(Kit *k, ToolChain *tc);

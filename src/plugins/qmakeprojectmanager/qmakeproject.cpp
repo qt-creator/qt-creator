@@ -218,7 +218,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
 
     connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
             this, [this](ToolChain *tc) {
-        if (ToolChainKitAspect::toolChain(kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID) == tc)
+        if (ToolChainKitAspect::cxxToolChain(kit()) == tc)
             scheduleUpdateAllNowOrLater();
     });
 
@@ -610,7 +610,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
     else if (!qtFromKit->isValid())
         result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is invalid.")));
-    if (!ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+    if (!ToolChainKitAspect::cxxToolChain(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
 
     const QtSupport::BaseQtVersion *const qtThatContainsProject = projectIsPartOfQt(this);
@@ -1122,7 +1122,7 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
     if (targetPath.isEmpty())
         return;
     const Kit * const kit = target()->kit();
-    const ToolChain * const toolchain = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    const ToolChain * const toolchain = ToolChainKitAspect::cxxToolChain(kit);
     if (!toolchain)
         return;
 
@@ -1272,16 +1272,16 @@ void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
     if (!bc)
         return;
 
-    testToolChain(ToolChainKitAspect::toolChain(t->kit(), ProjectExplorer::Constants::C_LANGUAGE_ID),
+    testToolChain(ToolChainKitAspect::cToolChain(t->kit()),
                   getFullPathOf(pro, Variable::QmakeCc, bc));
-    testToolChain(ToolChainKitAspect::toolChain(t->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID),
+    testToolChain(ToolChainKitAspect::cxxToolChain(t->kit()),
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
 QString QmakeBuildSystem::executableFor(const QmakeProFile *file)
 {
     const Kit *const kit = target()->kit();
-    const ToolChain *const tc = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    const ToolChain *const tc = ToolChainKitAspect::cxxToolChain(kit);
     if (!tc)
         return QString();
 

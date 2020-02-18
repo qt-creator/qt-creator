@@ -88,9 +88,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
         const QString sysRoot = SysRootKitAspect::sysRoot(k).toString();
         if (!sysRoot.isEmpty()) {
             config.append(CMakeConfigItem("CMAKE_SYSROOT", sysRoot.toUtf8()));
-            ToolChain *tc = ToolChainKitAspect::toolChain(k,
-                                  ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-            if (tc) {
+            if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
                 const QByteArray targetTriple = tc->originalTargetTriple().toUtf8();
                 config.append(CMakeConfigItem("CMAKE_C_COMPILER_TARGET", targetTriple));
                 config.append(CMakeConfigItem("CMAKE_CXX_COMPILER_TARGET ", targetTriple));

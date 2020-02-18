@@ -69,10 +69,10 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
 
-    auto tc = ToolChainKitAspect::toolChain(k, Constants::CXX_LANGUAGE_ID);
+    auto tc = ToolChainKitAspect::cxxToolChain(k);
     if (tc)
         cxxToolChainId = tc->id();
-    tc = ToolChainKitAspect::toolChain(k, Constants::C_LANGUAGE_ID);
+    tc = ToolChainKitAspect::cToolChain(k);
     if (tc)
         cToolChainId = tc->id();
     sysRoot = SysRootKitAspect::sysRoot(k);

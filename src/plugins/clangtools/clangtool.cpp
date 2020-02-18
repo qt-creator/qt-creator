@@ -867,7 +867,7 @@ static bool canAnalyzeProject(Project *project)
                                              || project->projectLanguages().contains(cxx);
         return projectSupportsLanguage
                && CppModelManager::instance()->projectInfo(project).isValid()
-               && ToolChainKitAspect::toolChain(target->kit(), cxx);
+               && ToolChainKitAspect::cxxToolChain(target->kit());
     }
     return false;
 }
