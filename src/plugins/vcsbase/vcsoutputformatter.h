@@ -42,8 +42,7 @@ signals:
     void referenceClicked(const QString &reference);
 
 private:
-    const QRegularExpression m_urlRegexp;
-    const QRegularExpression m_referenceRegexp;
+    const QRegularExpression m_regexp;
 };
 
 }
