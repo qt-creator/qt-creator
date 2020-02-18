@@ -51,12 +51,10 @@ namespace ProjectExplorer {
 
 class BuildInfo;
 class BuildSystem;
-class BuildConfiguration;
 class ContainerNode;
 class EditorConfiguration;
 class FolderNode;
 class Node;
-class ProjectConfiguration;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
@@ -182,9 +180,6 @@ signals:
 
     // Note: activeTarget can be 0 (if no targets are defined).
     void activeTargetChanged(ProjectExplorer::Target *target);
-
-    void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-    void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
 
     void aboutToRemoveTarget(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);

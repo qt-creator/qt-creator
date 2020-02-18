@@ -2365,6 +2365,11 @@ QThreadPool *ProjectExplorerPlugin::sharedThreadPool()
     return &(dd->m_threadPool);
 }
 
+MiniProjectTargetSelector *ProjectExplorerPlugin::targetSelector()
+{
+    return dd->m_targetSelector;
+}
+
 /*!
     This function is connected to the ICore::coreOpened signal.  If
     there was no session explicitly loaded, it creates an empty new

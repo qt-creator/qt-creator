@@ -37,6 +37,7 @@
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
+#include "miniprojecttargetselector.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorericons.h"
@@ -45,8 +46,6 @@
 #include "session.h"
 
 #include <coreplugin/coreconstants.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
@@ -279,7 +278,7 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
     // add it
     d->m_buildConfigurations.push_back(bc);
 
-    project()->addedProjectConfiguration(bc);
+    ProjectExplorerPlugin::targetSelector()->addedBuildConfiguration(bc);
     emit addedBuildConfiguration(bc);
     d->m_buildConfigurationModel.addProjectConfiguration(bc);
 
@@ -306,14 +305,14 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
     }
 
     emit removedBuildConfiguration(bc);
-    project()->removedProjectConfiguration(bc);
+    ProjectExplorerPlugin::targetSelector()->removedBuildConfiguration(bc);
     d->m_buildConfigurationModel.removeProjectConfiguration(bc);
 
     delete bc;
     return true;
 }
 
-QList<BuildConfiguration *> Target::buildConfigurations() const
+const QList<BuildConfiguration *> Target::buildConfigurations() const
 {
     return d->m_buildConfigurations;
 }
@@ -347,7 +346,7 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     // add it
     d->m_deployConfigurations.push_back(dc);
 
-    project()->addedProjectConfiguration(dc);
+    ProjectExplorerPlugin::targetSelector()->addedDeployConfiguration(dc);
     d->m_deployConfigurationModel.addProjectConfiguration(dc);
     emit addedDeployConfiguration(dc);
 
@@ -375,7 +374,7 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
                                                          SetActive::Cascade);
     }
 
-    project()->removedProjectConfiguration(dc);
+    ProjectExplorerPlugin::targetSelector()->removedDeployConfiguration(dc);
     d->m_deployConfigurationModel.removeProjectConfiguration(dc);
     emit removedDeployConfiguration(dc);
 
@@ -383,7 +382,7 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
     return true;
 }
 
-QList<DeployConfiguration *> Target::deployConfigurations() const
+const QList<DeployConfiguration *> Target::deployConfigurations() const
 {
     return d->m_deployConfigurations;
 }
@@ -404,7 +403,7 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
     updateDeviceState();
 }
 
-QList<RunConfiguration *> Target::runConfigurations() const
+const QList<RunConfiguration *> Target::runConfigurations() const
 {
     return d->m_runConfigurations;
 }
@@ -426,7 +425,7 @@ void Target::addRunConfiguration(RunConfiguration *rc)
 
     d->m_runConfigurations.push_back(rc);
 
-    project()->addedProjectConfiguration(rc);
+    ProjectExplorerPlugin::targetSelector()->addedRunConfiguration(rc);
     d->m_runConfigurationModel.addProjectConfiguration(rc);
     emit addedRunConfiguration(rc);
 
@@ -448,7 +447,7 @@ void Target::removeRunConfiguration(RunConfiguration *rc)
     }
 
     emit removedRunConfiguration(rc);
-    project()->removedProjectConfiguration(rc);
+    ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
     d->m_runConfigurationModel.removeProjectConfiguration(rc);
 
     delete rc;

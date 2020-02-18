@@ -59,6 +59,7 @@ class FileNode;
 
 namespace Internal {
 class AppOutputSettings;
+class MiniProjectTargetSelector;
 class ProjectExplorerSettings;
 }
 
@@ -166,6 +167,7 @@ public:
     static QStringList projectFileGlobs();
 
     static QThreadPool *sharedThreadPool();
+    static Internal::MiniProjectTargetSelector *targetSelector();
 
     static void showSessionManager();
     static void openNewProjectDialog();

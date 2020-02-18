@@ -41,6 +41,8 @@
 
 #include <memory>
 
+namespace ProjectExplorer { class BuildConfiguration; }
+
 namespace Utils {
 class FilePath;
 class FileSystemWatcher;
@@ -49,7 +51,6 @@ class FileSystemWatcher;
 namespace QtSupport { class ProFileReader; }
 
 namespace QmakeProjectManager {
-class QmakeBuildConfiguration;
 class QmakeBuildSystem;
 class QmakeProFile;
 class QmakeProject;

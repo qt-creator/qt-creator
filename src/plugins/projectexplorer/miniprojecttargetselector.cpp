@@ -990,13 +990,8 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
 
 void MiniProjectTargetSelector::projectAdded(Project *project)
 {
-    connect(project, &Project::addedProjectConfiguration,
-            this, &MiniProjectTargetSelector::handleNewProjectConfiguration);
     connect(project, &Project::addedTarget,
             this, &MiniProjectTargetSelector::handleNewTarget);
-
-    connect(project, &Project::removedProjectConfiguration,
-            this, &MiniProjectTargetSelector::handleRemovalOfProjectConfiguration);
     connect(project, &Project::removedTarget,
             this, &MiniProjectTargetSelector::handleRemovalOfTarget);
 
@@ -1012,13 +1007,8 @@ void MiniProjectTargetSelector::projectAdded(Project *project)
 
 void MiniProjectTargetSelector::projectRemoved(Project *project)
 {
-    disconnect(project, &Project::addedProjectConfiguration,
-               this, &MiniProjectTargetSelector::handleNewProjectConfiguration);
     disconnect(project, &Project::addedTarget,
                this, &MiniProjectTargetSelector::handleNewTarget);
-
-    disconnect(project, &Project::removedProjectConfiguration,
-               this, &MiniProjectTargetSelector::handleRemovalOfProjectConfiguration);
     disconnect(project, &Project::removedTarget,
                this, &MiniProjectTargetSelector::handleRemovalOfTarget);
 
@@ -1041,25 +1031,6 @@ void MiniProjectTargetSelector::handleNewTarget(Target *target)
     updateRunListVisible();
 }
 
-void MiniProjectTargetSelector::handleNewProjectConfiguration(ProjectConfiguration *pc)
-{
-    if (auto bc = qobject_cast<BuildConfiguration *>(pc)) {
-        if (addedBuildConfiguration(bc))
-            updateBuildListVisible();
-        return;
-    }
-    if (auto dc = qobject_cast<DeployConfiguration *>(pc)) {
-        if (addedDeployConfiguration(dc))
-            updateDeployListVisible();
-        return;
-    }
-    if (auto rc = qobject_cast<RunConfiguration *>(pc)) {
-        if (addedRunConfiguration(rc))
-            updateRunListVisible();
-        return;
-    }
-}
-
 void MiniProjectTargetSelector::handleRemovalOfTarget(Target *target)
 {
     removedTarget(target);
@@ -1070,25 +1041,6 @@ void MiniProjectTargetSelector::handleRemovalOfTarget(Target *target)
     updateRunListVisible();
 }
 
-void MiniProjectTargetSelector::handleRemovalOfProjectConfiguration(ProjectConfiguration *pc)
-{
-    if (auto bc = qobject_cast<BuildConfiguration *>(pc)) {
-        if (removedBuildConfiguration(bc))
-            updateBuildListVisible();
-        return;
-    }
-    if (auto dc = qobject_cast<DeployConfiguration *>(pc)) {
-        if (removedDeployConfiguration(dc))
-            updateDeployListVisible();
-        return;
-    }
-    if (auto rc = qobject_cast<RunConfiguration *>(pc)) {
-        if (removedRunConfiguration(rc))
-            updateRunListVisible();
-        return;
-    }
-}
-
 void MiniProjectTargetSelector::addedTarget(Target *target)
 {
     if (target->project() != m_project)
@@ -1096,12 +1048,12 @@ void MiniProjectTargetSelector::addedTarget(Target *target)
 
     m_listWidgets[TARGET]->addProjectConfiguration(target);
 
-    foreach (BuildConfiguration *bc, target->buildConfigurations())
-        addedBuildConfiguration(bc);
-    foreach (DeployConfiguration *dc, target->deployConfigurations())
-        addedDeployConfiguration(dc);
-    foreach (RunConfiguration *rc, target->runConfigurations())
-        addedRunConfiguration(rc);
+    for (BuildConfiguration *bc : target->buildConfigurations())
+        addedBuildConfiguration(bc, false);
+    for (DeployConfiguration *dc : target->deployConfigurations())
+        addedDeployConfiguration(dc, false);
+    for (RunConfiguration *rc : target->runConfigurations())
+        addedRunConfiguration(rc, false);
 }
 
 void MiniProjectTargetSelector::removedTarget(Target *target)
@@ -1111,65 +1063,72 @@ void MiniProjectTargetSelector::removedTarget(Target *target)
 
     m_listWidgets[TARGET]->removeProjectConfiguration(target);
 
-    foreach (BuildConfiguration *bc, target->buildConfigurations())
-        removedBuildConfiguration(bc);
-    foreach (DeployConfiguration *dc, target->deployConfigurations())
-        removedDeployConfiguration(dc);
-    foreach (RunConfiguration *rc, target->runConfigurations())
-        removedRunConfiguration(rc);
+    for (BuildConfiguration *bc : target->buildConfigurations())
+        removedBuildConfiguration(bc, false);
+    for (DeployConfiguration *dc : target->deployConfigurations())
+        removedDeployConfiguration(dc, false);
+    for (RunConfiguration *rc : target->runConfigurations())
+        removedRunConfiguration(rc, false);
 }
 
-bool MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc)
+void MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc, bool update)
 {
-    if (bc->target() != m_project->activeTarget())
-        return false;
+    if (!m_project || bc->target() != m_project->activeTarget())
+        return;
 
     m_listWidgets[BUILD]->addProjectConfiguration(bc);
-    return true;
+    if (update)
+        updateBuildListVisible();
 }
 
-bool MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc)
+void MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc, bool update)
 {
-    if (bc->target() != m_project->activeTarget())
-        return false;
+    if (!m_project || bc->target() != m_project->activeTarget())
+        return;
 
     m_listWidgets[BUILD]->removeProjectConfiguration(bc);
-    return true;
+    if (update)
+        updateBuildListVisible();
 }
 
-bool MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc)
+void MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc, bool update)
 {
     if (!m_project || dc->target() != m_project->activeTarget())
-        return false;
+        return;
 
     m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
-    return true;
+    if (update)
+        updateDeployListVisible();
 }
 
-bool MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *dc)
+void MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *dc, bool update)
 {
     if (!m_project || dc->target() != m_project->activeTarget())
-        return false;
+        return;
 
     m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
-    return true;
+    if (update)
+        updateDeployListVisible();
 }
-bool MiniProjectTargetSelector::addedRunConfiguration(RunConfiguration *rc)
+
+void MiniProjectTargetSelector::addedRunConfiguration(RunConfiguration *rc, bool update)
 {
     if (!m_project || rc->target() != m_project->activeTarget())
-        return false;
+        return;
 
     m_listWidgets[RUN]->addProjectConfiguration(rc);
-    return true;
+    if (update)
+        updateRunListVisible();
 }
 
-bool MiniProjectTargetSelector::removedRunConfiguration(RunConfiguration *rc)
+void MiniProjectTargetSelector::removedRunConfiguration(RunConfiguration *rc, bool update)
 {
     if (!m_project || rc->target() != m_project->activeTarget())
-        return false;
+        return;
 
     m_listWidgets[RUN]->removeProjectConfiguration(rc);
-    return true;
+    if (update)
+        updateRunListVisible();
 }
 
 void MiniProjectTargetSelector::updateProjectListVisible()

@@ -48,6 +48,7 @@ namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
 namespace QmakeProjectManager {
+class QmakeBuildConfiguration;
 
 namespace Internal { class CentralizedFolderWatcher; }
 
