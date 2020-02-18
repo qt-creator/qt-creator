@@ -1065,7 +1065,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
 void GitClient::reflog(const QString &workingDirectory, const QString &ref)
 {
     const QString title = tr("Git Reflog \"%1\"").arg(workingDirectory);
-    const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_REFLOG_EDITOR_ID;
     // Creating document might change the referenced workingDirectory. Store a copy and use it.
     const QString workingDir = workingDirectory;
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, workingDir, codecFor(CodecLogOutput),

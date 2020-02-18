@@ -129,13 +129,27 @@ private:
     GitClient *m_client;
 };
 
+class GitReflogEditorWidget : public GitEditorWidget
+{
+public:
+    GitReflogEditorWidget()
+    {
+        setLogEntryPattern(QRegExp("^([0-9a-f]{8,}) [^}]*\\}: .*$"));
+    }
+
+    QString revisionSubject(const QTextBlock &inBlock) const override
+    {
+        const QString text = inBlock.text();
+        return text.mid(text.indexOf(' ') + 1);
+    }
+};
+
 class GitLogEditorWidget : public QWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Git::Internal::GitLogEditorWidget);
 public:
-    GitLogEditorWidget()
+    GitLogEditorWidget(GitEditorWidget *gitEditor)
     {
-        auto gitEditor = new GitEditorWidget;
         auto vlayout = new QVBoxLayout;
         auto hlayout = new QHBoxLayout;
         vlayout->setSpacing(0);
@@ -175,6 +189,13 @@ private:
     }
 };
 
+template<class Editor>
+class GitLogEditorWidgetT : public GitLogEditorWidget
+{
+public:
+    GitLogEditorWidgetT() : GitLogEditorWidget(new Editor) {}
+};
+
 const unsigned minimumRequiredVersion = 0x010900;
 
 const VcsBaseSubmitEditorParameters submitParameters {
@@ -196,6 +217,13 @@ const VcsBaseEditorParameters logEditorParameters {
     Git::Constants::GIT_LOG_EDITOR_ID,
     Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.log"
+};
+
+const VcsBaseEditorParameters reflogEditorParameters {
+    LogOutput,
+    Git::Constants::GIT_REFLOG_EDITOR_ID,
+    Git::Constants::GIT_REFLOG_EDITOR_DISPLAY_NAME,
+    "text/vnd.qtcreator.git.reflog"
 };
 
 const VcsBaseEditorParameters blameEditorParameters {
@@ -397,7 +425,13 @@ public:
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
-        [] { return new GitLogEditorWidget; },
+        [] { return new GitLogEditorWidgetT<GitEditorWidget>; },
+        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+    };
+
+    VcsEditorFactory reflogEditorFactory {
+        &reflogEditorParameters,
+                [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
         std::bind(&GitPluginPrivate::describe, this, _1, _2)
     };
 
