@@ -433,7 +433,7 @@ endfunction()
 #
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS;UNVERSIONED"
     "DESTINATION;COMPONENT"
     "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
   )
@@ -547,7 +547,7 @@ function(add_qtc_library name)
   )
   enable_pch(${name})
 
-  if (WIN32 AND library_type STREQUAL "SHARED")
+  if (WIN32 AND library_type STREQUAL "SHARED" AND NOT _arg_UNVERSIONED)
     # Match qmake naming scheme e.g. Library4.dll
     set_target_properties(${name} PROPERTIES
       SUFFIX "${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
