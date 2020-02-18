@@ -278,6 +278,7 @@ public:
     void blameFile();
     void logProject();
     void logRepository();
+    void reflogRepository();
     void undoFileChanges(bool revertStaging);
     void resetRepository();
     void recoverDeletedFiles();
@@ -707,7 +708,7 @@ GitPluginPrivate::GitPluginPrivate()
                            context, true, std::bind(&GitPluginPrivate::logRepository, this));
 
     createRepositoryAction(localRepositoryMenu, tr("Reflog"), "Git.ReflogRepository",
-                           context, true, &GitClient::reflog);
+                           context, true, std::bind(&GitPluginPrivate::reflogRepository, this));
 
     createRepositoryAction(localRepositoryMenu, tr("Clean..."), "Git.CleanRepository",
                            context, true, [this] { cleanRepository(); });
@@ -1055,6 +1056,13 @@ void GitPluginPrivate::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_gitClient.log(state.topLevel());
+}
+
+void GitPluginPrivate::reflogRepository()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient.reflog(state.topLevel());
 }
 
 void GitPluginPrivate::undoFileChanges(bool revertStaging)

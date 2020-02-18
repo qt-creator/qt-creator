@@ -240,6 +240,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 GitPlugin::client()->diffBranch(m_repository, fullName);
         });
         contextMenu.addAction(tr("&Log"), this, [this] { log(selectedIndex()); });
+        contextMenu.addAction(tr("&Reflog"), this, [this] { reflog(selectedIndex()); });
         contextMenu.addSeparator();
         if (!currentSelected) {
             auto resetMenu = new QMenu(tr("Re&set"), &contextMenu);
@@ -557,6 +558,13 @@ void BranchView::log(const QModelIndex &idx)
     const QString branchName = m_model->fullName(idx, true);
     if (!branchName.isEmpty())
         GitPlugin::client()->log(m_repository, QString(), false, {branchName});
+}
+
+void BranchView::reflog(const QModelIndex &idx)
+{
+    const QString branchName = m_model->fullName(idx, true);
+    if (!branchName.isEmpty())
+        GitPlugin::client()->reflog(m_repository, branchName);
 }
 
 void BranchView::push()
