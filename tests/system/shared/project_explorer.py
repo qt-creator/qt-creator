@@ -147,9 +147,9 @@ def invokeContextMenuOnProject(projectName, menuItem):
     return projItem
 
 def addAndActivateKit(kit):
-    clickToActivate = "<h3>Click to activate:</h3>"
     bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
     kitString = Targets.getStringForTarget(kit)
+    clickToActivate = "<html><body><h3>%s</h3><p><h3>Click to activate</h3>" % kitString
     switchViewTo(ViewConstants.PROJECTS)
     try:
         waitForObject(":Projects.ProjectNavigationTreeView")
