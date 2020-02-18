@@ -67,6 +67,7 @@ public:
 
     void toggleAutoSynchronization();
     void editCurrentItem();
+    void expandCurrentNodeRecursively();
     void collapseAll();
     void expandAll();
 
@@ -86,6 +87,8 @@ private:
     void renamed(const Utils::FilePath &oldPath, const Utils::FilePath &newPath);
 
     void syncFromDocumentManager();
+
+    void expandNodeRecursively(const QModelIndex &index);
 
     QTreeView *m_view = nullptr;
     FlatModel *m_model = nullptr;
