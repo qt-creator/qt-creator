@@ -35,7 +35,6 @@
 #include <coreplugin/icore.h>
 #include <utils/theme/theme.h>
 #include <utils/stylehelper.h>
-#include <annotationeditor/annotation.h>
 #include <annotationeditor/annotationeditordialog.h>
 #include <formeditorscene.h>
 

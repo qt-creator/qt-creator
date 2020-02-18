@@ -41,7 +41,7 @@
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
 #include <rewriterview.h>
-#include "annotationeditor/annotation.h"
+#include "annotation.h"
 
 #include <utils/algorithm.h>
 

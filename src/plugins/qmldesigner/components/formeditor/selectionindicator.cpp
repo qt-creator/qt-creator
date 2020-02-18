@@ -25,8 +25,8 @@
 
 #include "selectionindicator.h"
 
+#include "annotation.h"
 #include <designeractionmanager.h>
-#include "annotationeditor/annotation.h"
 #include <formeditorannotationicon.h>
 
 #include <QPen>

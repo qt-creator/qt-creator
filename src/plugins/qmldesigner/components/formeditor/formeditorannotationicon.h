@@ -25,17 +25,13 @@
 
 #pragma once
 
-#include <annotationeditor/annotation.h>
+#include <annotation.h>
+#include <modelnode.h>
 
 #include <QGraphicsItem>
 #include <QGraphicsObject>
 #include <QIcon>
 #include <QObject>
-#include <modelnode.h>
-
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
-
 
 namespace QmlDesigner {
 

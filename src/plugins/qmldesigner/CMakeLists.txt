@@ -386,6 +386,7 @@ extend_qtc_plugin(QmlDesigner
     include/abstractproperty.h
     include/abstractview.h
     include/anchorline.h
+    include/annotation.h
     include/basetexteditmodifier.h
     include/bindingproperty.h
     include/bytearraymodifier.h
@@ -475,6 +476,7 @@ extend_qtc_plugin(QmlDesigner
     model/abstractproperty.cpp
     model/abstractview.cpp
     model/anchorline.cpp
+    model/annotation.cpp
     model/basetexteditmodifier.cpp
     model/bindingproperty.cpp
     model/componenttextmodifier.cpp
@@ -541,8 +543,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/annotationeditor
-  SOURCES annotation.cpp annotation.h
-  annotationcommenttab.cpp annotationcommenttab.h annotationcommenttab.ui
+  SOURCES annotationcommenttab.cpp annotationcommenttab.h annotationcommenttab.ui
   annotationeditordialog.cpp annotationeditordialog.h annotationeditordialog.ui
   annotationeditor.cpp annotationeditor.h
   annotationtool.cpp annotationtool.h
