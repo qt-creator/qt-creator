@@ -54,8 +54,21 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
     include(InstallRequiredsystemLibraries)
 
+    # For Qt Creator
     install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
       DESTINATION ${IDE_APP_PATH}
+      COMPONENT Dependencies
+      EXCLUDE_FROM_ALL
+    )
+
+    # For qtcreatorcdbext
+    set(ArchSuffix 32)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(ArchSuffix 64)
+    endif()
+
+    install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
+      DESTINATION lib/qtcreatorcdbext${ArchSuffix}
       COMPONENT Dependencies
       EXCLUDE_FROM_ALL
     )
