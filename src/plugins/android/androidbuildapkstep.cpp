@@ -234,8 +234,7 @@ bool AndroidBuildApkStep::init()
         return true;
     }
 
-    QString buildTargetSdk = AndroidManager::buildTargetSDK(target());
-    if (buildTargetSdk.isEmpty()) {
+    if (m_buildTargetSdk.isEmpty()) {
         emit addOutput(tr("Android build SDK not defined. Check Android settings."),
                        OutputFormat::Stderr);
         return false;
@@ -243,7 +242,7 @@ bool AndroidBuildApkStep::init()
 
     QStringList arguments = {"--input", m_inputFile,
                              "--output", outputDir,
-                             "--android-platform", AndroidManager::buildTargetSDK(target()),
+                             "--android-platform", m_buildTargetSdk,
                              "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().toString()};
 
     if (m_verbose)

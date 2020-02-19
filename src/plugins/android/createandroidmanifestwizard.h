@@ -28,71 +28,19 @@
 #include "android_global.h"
 
 #include <utils/fileutils.h>
-#include <utils/pathchooser.h>
 #include <utils/wizard.h>
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QLabel;
-class QFormLayout;
-QT_END_NAMESPACE
-
-namespace Utils {
-class InfoLabel;
-}
-
-namespace ProjectExplorer { class Target; }
+namespace ProjectExplorer { class BuildSystem; }
 
 namespace Android {
+namespace Internal {
 
-class CreateAndroidManifestWizard;
-
-class NoApplicationProFilePage : public QWizardPage
+class CreateAndroidManifestWizard : public Utils::Wizard
 {
-    Q_OBJECT
-public:
-    NoApplicationProFilePage(CreateAndroidManifestWizard *wizard);
-private:
-    CreateAndroidManifestWizard *m_wizard;
-};
+    Q_DECLARE_TR_FUNCTIONS(Android::CreateAndroidManifestWizard)
 
-class ChooseProFilePage : public QWizardPage
-{
-    Q_OBJECT
 public:
-    explicit ChooseProFilePage(CreateAndroidManifestWizard *wizard);
-
-private:
-    void nodeSelected(int index);
-private:
-    CreateAndroidManifestWizard *m_wizard;
-    QComboBox *m_comboBox;
-};
-
-class ChooseDirectoryPage : public QWizardPage
-{
-    Q_OBJECT
-public:
-    ChooseDirectoryPage(CreateAndroidManifestWizard *wizard);
-    void initializePage();
-protected:
-    bool isComplete() const;
-private:
-    void checkPackageSourceDir();
-private:
-    CreateAndroidManifestWizard *m_wizard;
-    Utils::PathChooser *m_androidPackageSourceDir;
-    Utils::InfoLabel *m_sourceDirectoryWarning;
-    QLabel *m_label;
-    QFormLayout *m_layout;
-    bool m_complete;
-};
-
-class ANDROID_EXPORT CreateAndroidManifestWizard : public Utils::Wizard
-{
-    Q_OBJECT
-public:
-    CreateAndroidManifestWizard(ProjectExplorer::Target *target);
+    CreateAndroidManifestWizard(ProjectExplorer::BuildSystem *buildSystem);
 
     QString buildKey() const;
     void setBuildKey(const QString &buildKey);
@@ -103,7 +51,7 @@ public:
     void setDirectory(const QString &directory);
     void setCopyGradle(bool copy);
 
-    ProjectExplorer::Target *target() const;
+    ProjectExplorer::BuildSystem *buildSystem() const;
 
 private:
     enum CopyState {
@@ -115,11 +63,12 @@ private:
 
     void createAndroidManifestFile();
     void createAndroidTemplateFiles();
-    ProjectExplorer::Target *m_target;
+    ProjectExplorer::BuildSystem *m_buildSystem;
     QString m_buildKey;
     QString m_directory;
     CopyState m_copyState;
     bool m_copyGradle;
 };
 
+} // namespace Internal
 } // namespace Android
