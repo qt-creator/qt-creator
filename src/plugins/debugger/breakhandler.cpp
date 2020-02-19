@@ -874,7 +874,6 @@ private:
 MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned int enabledParts, QWidget *parent) :
     QDialog(parent)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Edit Breakpoint Properties"));
 
     m_lineEditCondition = new QLineEdit(this);

@@ -320,7 +320,6 @@ Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
     setOption(QWizard::NoBackButtonOnStartPage, true);
     if (!Utils::creatorTheme()->preferredStyles().isEmpty())
         setWizardStyle(QWizard::ModernStyle);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     if (HostOsInfo::isMacHost()) {
         setButtonLayout(QList<QWizard::WizardButton>()

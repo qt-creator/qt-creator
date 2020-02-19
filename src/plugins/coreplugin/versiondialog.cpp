@@ -52,7 +52,6 @@ VersionDialog::VersionDialog(QWidget *parent)
         setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
 
     setWindowTitle(tr("About %1").arg(Core::Constants::IDE_DISPLAY_NAME));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     auto layout = new QGridLayout(this);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 

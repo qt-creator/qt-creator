@@ -102,7 +102,6 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
 {
     m_timelineSettingsModel = new TimelineSettingsModel(this, view);
 
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     ui->setupUi(this);
 
     auto *timelineCornerWidget = new QToolBar;

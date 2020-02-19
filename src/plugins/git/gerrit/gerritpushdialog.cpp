@@ -128,7 +128,6 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_workingDir(workingDir),
     m_ui(new Ui::GerritPushDialog)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->repositoryLabel->setText(QDir::toNativeSeparators(workingDir));
     m_ui->remoteComboBox->setRepository(workingDir);

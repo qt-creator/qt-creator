@@ -63,8 +63,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_model(new GerritModel(p, this))
     , m_queryModel(new QStringListModel(this))
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
     m_ui->setupUi(this);
     m_ui->remoteComboBox->setParameters(m_parameters);
     m_ui->remoteComboBox->setFallbackEnabled(true);

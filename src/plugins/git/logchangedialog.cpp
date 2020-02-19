@@ -227,7 +227,6 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
 
     connect(m_widget, &LogChangeWidget::activated, okButton, [okButton] { okButton->animateClick(); });
 
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     resize(600, 400);
 }
 

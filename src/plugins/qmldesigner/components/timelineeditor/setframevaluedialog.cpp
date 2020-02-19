@@ -36,7 +36,6 @@ SetFrameValueDialog::SetFrameValueDialog(qreal frame, const QVariant &value,
     , ui(new Ui::SetFrameValueDialog)
 {
     ui->setupUi(this);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Edit Keyframe"));
     setFixedSize(size());
 

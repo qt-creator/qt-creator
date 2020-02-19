@@ -87,7 +87,6 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Attach to Process Not Yet Started"));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     m_kitChooser = new KitChooser(this);
     m_kitChooser->setKitPredicate([](const Kit *k) {

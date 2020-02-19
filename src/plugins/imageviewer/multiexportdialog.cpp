@@ -184,8 +184,6 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
     , m_pathChooser(new Utils::PathChooser(this))
     , m_sizesLineEdit(new QLineEdit)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
     auto formLayout = new QFormLayout(this);
 
     m_pathChooser->setMinimumWidth(QApplication::desktop()->availableGeometry(this).width() / 5);

@@ -53,7 +53,6 @@ public:
         m_remoteNames(remoteNames)
     {
         m_ui.setupUi(this);
-        setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
         m_ui.nameEdit->setValidationFunction([this](Utils::FancyLineEdit *edit, QString *errorMessage) {
             if (!edit)
                 return false;
@@ -127,7 +126,6 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_remoteModel(new RemoteModel(this))
 {
     setModal(false);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setAttribute(Qt::WA_DeleteOnClose, true); // Do not update unnecessarily
 
     m_ui->setupUi(this);

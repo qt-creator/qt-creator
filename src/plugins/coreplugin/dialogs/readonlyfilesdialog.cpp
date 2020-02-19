@@ -163,7 +163,6 @@ ReadOnlyFilesDialog::ReadOnlyFilesDialog(const Utils::FilePaths &filePaths, QWid
     : QDialog(parent)
     , d(new ReadOnlyFilesDialogPrivate(this))
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     d->initDialog(filePaths);
 }
 

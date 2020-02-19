@@ -48,7 +48,6 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &t
 {
     ui->setupUi(this);
 
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowFlag(Qt::Tool, true);
     setWindowTitle(titleString);
     setModal(true);

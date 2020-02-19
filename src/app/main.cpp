@@ -546,6 +546,7 @@ int main(int argc, char **argv)
 #endif
 
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
+    app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
     PluginManager pluginManager;
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));

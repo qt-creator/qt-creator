@@ -145,7 +145,6 @@ CleanDialog::CleanDialog(QWidget *parent) :
     d(new Internal::CleanDialogPrivate)
 {
     setModal(true);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     d->ui.setupUi(this);
     d->ui.buttonBox->addButton(tr("Delete..."), QDialogButtonBox::AcceptRole);

@@ -45,7 +45,6 @@ BindingEditorDialog::BindingEditorDialog(QWidget *parent, DialogType type)
     : QDialog(parent)
     , m_dialogType(type)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowFlag(Qt::Tool, true);
     setWindowTitle(defaultTitle());
     setModal(false);

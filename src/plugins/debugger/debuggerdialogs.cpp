@@ -206,7 +206,6 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
 StartApplicationDialog::StartApplicationDialog(QWidget *parent)
   : QDialog(parent), d(new StartApplicationDialogPrivate)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
     d->kitChooser = new KitChooser(this);
@@ -515,7 +514,6 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
   : QDialog(parent),
     d(new AttachToQmlPortDialogPrivate)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
     d->kitChooser = new KitChooser(this);
@@ -599,7 +597,6 @@ StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :
     QDialog(parent), m_lineEdit(new QLineEdit)
 {
     setWindowTitle(tr("Start a CDB Remote Session"));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     auto groupBox = new QGroupBox;
 
@@ -671,7 +668,6 @@ AddressDialog::AddressDialog(QWidget *parent) :
         m_box(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel))
 {
     setWindowTitle(tr("Select Start Address"));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     auto hLayout = new QHBoxLayout;
     hLayout->addWidget(new QLabel(tr("Enter an address:") + ' '));
@@ -749,7 +745,6 @@ public:
 StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
     : QDialog(parent), d(new StartRemoteEngineDialogPrivate)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Remote Engine"));
 
     d->host = new FancyLineEdit(this);
@@ -903,7 +898,6 @@ TypeFormatsDialog::TypeFormatsDialog(QWidget *parent)
    : QDialog(parent), m_ui(new TypeFormatsDialogUi(this))
 {
     setWindowTitle(tr("Type Formats"));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->addPage(tr("Qt Types"));
     m_ui->addPage(tr("Standard Types"));
     m_ui->addPage(tr("Misc Types"));

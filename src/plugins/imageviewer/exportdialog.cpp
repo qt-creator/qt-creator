@@ -88,8 +88,6 @@ ExportDialog::ExportDialog(QWidget *parent)
     , m_heightSpinBox(new QSpinBox(this))
     , m_aspectRatio(1)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
     auto formLayout = new QFormLayout(this);
 
     m_pathChooser->setMinimumWidth(QApplication::desktop()->availableGeometry(this).width() / 5);

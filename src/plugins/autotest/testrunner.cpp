@@ -746,7 +746,6 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
                                                                  QWidget *parent)
     : QDialog(parent)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Select Run Configuration"));
 
     QString details = tr("Could not determine which run configuration to choose for running tests");

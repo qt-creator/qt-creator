@@ -124,7 +124,6 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     , buttonBox(new QDialogButtonBox(parent))
 {
     q->setWindowTitle(DeviceProcessesDialog::tr("List of Processes"));
-    q->setWindowFlags(q->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     q->setMinimumHeight(500);
 
     processList = nullptr;

@@ -677,7 +677,7 @@ public:
             }
             QInputDialog dialog; // Create wide input dialog.
             dialog.setWindowFlags(dialog.windowFlags()
-              & ~(Qt::WindowContextHelpButtonHint|Qt::MSWindowsFixedSizeDialogHint));
+              & ~(Qt::MSWindowsFixedSizeDialogHint));
             dialog.resize(600, dialog.height());
             dialog.setWindowTitle(tr("Add Message Tracepoint"));
             dialog.setLabelText (tr("Message:"));

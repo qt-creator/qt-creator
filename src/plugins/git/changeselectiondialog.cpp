@@ -57,7 +57,6 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
                                              QWidget *parent) :
     QDialog(parent), m_ui(new Ui::ChangeSelectionDialog)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_gitExecutable = GitPlugin::client()->vcsBinary();
     m_ui->setupUi(this);
     m_ui->workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);

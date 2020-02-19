@@ -51,7 +51,6 @@ CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
 {
     setWindowTitle(tr("Select Local Cache Folder"));
     setModal(true);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     auto formLayout = new QFormLayout;
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);

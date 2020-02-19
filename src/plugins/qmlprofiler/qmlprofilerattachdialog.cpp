@@ -51,7 +51,6 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     QDialog(parent),
     d(new QmlProfilerAttachDialogPrivate)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start QML Profiler"));
 
     d->kitChooser = new KitChooser(this);

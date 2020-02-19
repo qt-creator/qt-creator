@@ -49,7 +49,6 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     : QDialog(parent)
 {
     m_ui.setupUi(this);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     // QDialogButtonBox's behavior for "destructive" is wrong, the "do not save" should be left-aligned
     const QDialogButtonBox::ButtonRole discardButtonRole = Utils::HostOsInfo::isMacHost()
