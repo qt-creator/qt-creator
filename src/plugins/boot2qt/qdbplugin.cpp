@@ -71,7 +71,7 @@ static void startFlashingWizard()
     if (Utils::HostOsInfo::isWindowsHost()) {
         if (QProcess::startDetached(QLatin1String("explorer.exe"), {filePath}))
             return;
-    } else if (QProcess::startDetached(filePath)) {
+    } else if (QProcess::startDetached(filePath, {})) {
         return;
     }
     const QString message =
