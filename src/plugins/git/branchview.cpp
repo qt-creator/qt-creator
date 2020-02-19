@@ -240,7 +240,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 GitPlugin::client()->diffBranch(m_repository, fullName);
         });
         contextMenu.addAction(tr("&Log"), this, [this] { log(selectedIndex()); });
-        contextMenu.addAction(tr("&Reflog"), this, [this] { reflog(selectedIndex()); });
+        contextMenu.addAction(tr("Reflo&g"), this, [this] { reflog(selectedIndex()); });
         contextMenu.addSeparator();
         if (!currentSelected) {
             auto resetMenu = new QMenu(tr("Re&set"), &contextMenu);
