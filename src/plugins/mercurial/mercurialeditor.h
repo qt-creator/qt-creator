@@ -27,7 +27,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Mercurial {
 namespace Internal {
@@ -47,9 +47,9 @@ private:
     QString decorateVersion(const QString &revision) const override;
     QStringList annotationPreviousVersions(const QString &revision) const override;
 
-    mutable QRegExp exactIdentifier12;
-    mutable QRegExp exactIdentifier40;
-    const QRegExp changesetIdentifier40;
+    const QRegularExpression exactIdentifier12;
+    const QRegularExpression exactIdentifier40;
+    const QRegularExpression changesetIdentifier40;
 
     MercurialClient *m_client;
 };

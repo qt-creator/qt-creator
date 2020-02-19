@@ -27,7 +27,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Cvs {
 namespace Internal {
@@ -45,8 +45,8 @@ private:
             const QSet<QString> &changes) const override;
     QStringList annotationPreviousVersions(const QString &revision) const override;
 
-    mutable QRegExp m_revisionAnnotationPattern;
-    mutable QRegExp m_revisionLogPattern;
+    const QRegularExpression m_revisionAnnotationPattern;
+    const QRegularExpression m_revisionLogPattern;
     QString m_diffBaseDir;
 };
 

@@ -117,8 +117,8 @@ GitEditorWidget::GitEditorWidget() :
         --- a/src/plugins/git/giteditor.cpp
         +++ b/src/plugins/git/giteditor.cpp
     */
-    setDiffFilePattern(QRegExp("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))"));
-    setLogEntryPattern(QRegExp("^commit ([0-9a-f]{8})[0-9a-f]{32}"));
+    setDiffFilePattern("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))");
+    setLogEntryPattern("^commit ([0-9a-f]{8})[0-9a-f]{32}");
     setAnnotateRevisionTextFormat(tr("&Blame %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Blame &Parent Revision %1"));
     setAnnotationEntryPattern("^(" CHANGE_PATTERN ") ");

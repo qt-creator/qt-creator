@@ -27,7 +27,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Perforce {
 namespace Internal {
@@ -46,7 +46,7 @@ private:
     QString findDiffFile(const QString &f) const override;
     QStringList annotationPreviousVersions(const QString &v) const override;
 
-    mutable QRegExp m_changeNumberPattern;
+    const QRegularExpression m_changeNumberPattern;
 };
 
 } // namespace Perforce

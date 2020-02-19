@@ -132,7 +132,7 @@ class GitReflogEditorWidget : public GitEditorWidget
 public:
     GitReflogEditorWidget()
     {
-        setLogEntryPattern(QRegExp("^([0-9a-f]{8,}) [^}]*\\}: .*$"));
+        setLogEntryPattern("^([0-9a-f]{8,}) [^}]*\\}: .*$");
     }
 
     QString revisionSubject(const QTextBlock &inBlock) const override

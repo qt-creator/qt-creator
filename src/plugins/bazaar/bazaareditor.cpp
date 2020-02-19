@@ -29,7 +29,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QRegExp>
 #include <QString>
 #include <QTextCursor>
 
@@ -46,8 +45,8 @@ BazaarEditorWidget::BazaarEditorWidget() :
     setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
     // Diff format:
     // === <change> <file|dir> 'mainwindow.cpp'
-    setDiffFilePattern(QRegExp(QLatin1String("^=== [a-z]+ [a-z]+ '(.+)'\\s*")));
-    setLogEntryPattern(QRegExp(QLatin1String("^revno: (\\d+)")));
+    setDiffFilePattern("^=== [a-z]+ [a-z]+ '(.+)'\\s*");
+    setLogEntryPattern("^revno: (\\d+)");
     setAnnotationEntryPattern("^(" BZR_CHANGE_PATTERN ") ");
 }
 

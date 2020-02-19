@@ -35,7 +35,6 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QProcess>
-#include <QRegExp>
 #include <QSet>
 #include <QTextStream>
 
@@ -52,7 +51,7 @@ namespace Internal {
 
 // ------------ PerforceEditor
 PerforceEditorWidget::PerforceEditorWidget() :
-    m_changeNumberPattern(QLatin1String("^\\d+$"))
+    m_changeNumberPattern("^\\d+$")
 {
     QTC_CHECK(m_changeNumberPattern.isValid());
     // Diff format:
@@ -60,8 +59,8 @@ PerforceEditorWidget::PerforceEditorWidget() :
     // 2) "==== //depot/.../mainwindow.cpp#15 (text) ====" (created by p4 describe)
     // 3) --- //depot/XXX/closingkit/trunk/source/cui/src/cui_core.cpp<tab>2012-02-08 13:54:01.000000000 0100
     //    +++ P:/XXX\closingkit\trunk\source\cui\src\cui_core.cpp<tab>2012-02-08 13:54:01.000000000 0100
-    setDiffFilePattern(QRegExp(QLatin1String("^(?:={4}|\\+{3}) (.+)(?:\\t|#\\d)")));
-    setLogEntryPattern(QRegExp(QLatin1String("^... #\\d change (\\d+) ")));
+    setDiffFilePattern("^(?:={4}|\\+{3}) (.+)(?:\\t|#\\d)");
+    setLogEntryPattern("^... #\\d change (\\d+) ");
     setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
     setAnnotationEntryPattern("^(\\d+):");
 }
@@ -74,7 +73,7 @@ QString PerforceEditorWidget::changeUnderCursor(const QTextCursor &c) const
     if (!cursor.hasSelection())
         return QString();
     const QString change = cursor.selectedText();
-    return m_changeNumberPattern.exactMatch(change) ? change : QString();
+    return m_changeNumberPattern.match(change).hasMatch() ? change : QString();
 }
 
 VcsBase::BaseAnnotationHighlighter *PerforceEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const

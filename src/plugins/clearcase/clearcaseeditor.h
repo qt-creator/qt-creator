@@ -28,7 +28,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace ClearCase {
 namespace Internal {
@@ -45,7 +45,7 @@ private:
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
             const QSet<QString> &changes) const override;
 
-    QRegExp m_versionNumberPattern;
+    const QRegularExpression m_versionNumberPattern;
 };
 
 } // namespace Internal

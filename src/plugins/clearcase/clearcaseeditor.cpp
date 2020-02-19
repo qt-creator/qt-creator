@@ -47,10 +47,8 @@ ClearCaseEditorWidget::ClearCaseEditorWidget() :
     // Diff formats:
     // "+++ D:\depot\...\mainwindow.cpp@@\main\3" (versioned)
     // "+++ D:\depot\...\mainwindow.cpp[TAB]Sun May 01 14:22:37 2011" (local)
-    QRegExp diffFilePattern(QLatin1String("^[-+]{3} ([^\\t]+)(?:@@|\\t)"));
-    diffFilePattern.setMinimal(true);
-    setDiffFilePattern(diffFilePattern);
-    setLogEntryPattern(QRegExp(QLatin1String("version \"([^\"]+)\"")));
+    setDiffFilePattern("^[-+]{3} ([^\\t]+?)(?:@@|\\t)");
+    setLogEntryPattern("version \"([^\"]+)\"");
     setAnnotateRevisionTextFormat(tr("Annotate version \"%1\""));
     setAnnotationEntryPattern("([^|]*)\\|[^\\n]*\\n");
     setAnnotationSeparatorPattern("\\n-{30}");
@@ -66,8 +64,9 @@ QString ClearCaseEditorWidget::changeUnderCursor(const QTextCursor &c) const
     QString change = cursor.selectedText();
     // Annotation output has number, log output has revision numbers
     // as r1, r2...
-    if (m_versionNumberPattern.indexIn(change) != -1)
-        return m_versionNumberPattern.cap();
+    const QRegularExpressionMatch match = m_versionNumberPattern.match(change);
+    if (match.hasMatch())
+        return match.captured();
     return QString();
 }
 

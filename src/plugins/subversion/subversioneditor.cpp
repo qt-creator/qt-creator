@@ -34,7 +34,6 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <QRegExp>
 #include <QTextCursor>
 #include <QTextBlock>
 
@@ -42,8 +41,8 @@ using namespace Subversion;
 using namespace Subversion::Internal;
 
 SubversionEditorWidget::SubversionEditorWidget() :
-    m_changeNumberPattern(QLatin1String("^\\s*(?<area>(?<rev>\\d+))\\s+.*$")),
-    m_revisionNumberPattern(QLatin1String("\\b(?<area>(r|[rR]evision )(?<rev>\\d+))\\b"))
+    m_changeNumberPattern("^\\s*(?<area>(?<rev>\\d+))\\s+.*$"),
+    m_revisionNumberPattern("\\b(?<area>(r|[rR]evision )(?<rev>\\d+))\\b")
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     QTC_ASSERT(m_revisionNumberPattern.isValid(), return);
@@ -56,8 +55,8 @@ SubversionEditorWidget::SubversionEditorWidget() :
     @@ -6,6 +6,5 @@
     \endcode
     */
-    setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$")));
-    setLogEntryPattern(QRegExp(QLatin1String("^(r\\d+) \\|")));
+    setDiffFilePattern("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$");
+    setLogEntryPattern("^(r\\d+) \\|");
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
     setAnnotationEntryPattern("^(\\d+):");
 }

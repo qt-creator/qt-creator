@@ -32,7 +32,6 @@
 #include <QSet>
 
 QT_BEGIN_NAMESPACE
-class QRegExp;
 class QTextCodec;
 class QTextCursor;
 QT_END_NAMESPACE
@@ -145,9 +144,9 @@ protected:
     // virtual functions).
     VcsBaseEditorWidget();
     // Pattern for diff header. File name must be in the first capture group
-    void setDiffFilePattern(const QRegExp &pattern);
+    void setDiffFilePattern(const QString &pattern);
     // Pattern for log entry. hash/revision number must be in the first capture group
-    void setLogEntryPattern(const QRegExp &pattern);
+    void setLogEntryPattern(const QString &pattern);
     // Pattern for annotation entry. hash/revision number must be in the first capture group
     void setAnnotationEntryPattern(const QString &pattern);
     // Pattern for annotation separator. Lookup will stop on match.
