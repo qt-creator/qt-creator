@@ -42,17 +42,15 @@
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 
-#include <QMenu>
-
+#include <QDir>
 #include <QFileInfo>
+#include <QHBoxLayout>
+#include <QMenu>
 #include <QRegExp>
 #include <QSet>
-#include <QTextCodec>
-#include <QDir>
-
-#include <QTextCursor>
 #include <QTextBlock>
-#include <QMessageBox>
+#include <QTextCodec>
+#include <QTextCursor>
 
 #define CHANGE_PATTERN "[a-f0-9]{7,40}"
 
@@ -60,6 +58,45 @@ using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
+
+class GitLogFilterWidget : public QToolBar
+{
+    Q_DECLARE_TR_FUNCTIONS(Git::Internal::GitLogFilterWidget);
+
+public:
+    GitLogFilterWidget(GitEditorWidget *editor)
+    {
+        auto addLineEdit = [](const QString &placeholder,
+                const QString &tooltip,
+                GitEditorWidget *editor)
+        {
+            auto lineEdit = new Utils::FancyLineEdit;
+            lineEdit->setFiltering(true);
+            lineEdit->setToolTip(tooltip);
+            lineEdit->setPlaceholderText(placeholder);
+            lineEdit->setMaximumWidth(200);
+            connect(lineEdit, &QLineEdit::returnPressed,
+                    editor, &GitEditorWidget::refresh);
+            connect(lineEdit, &Utils::FancyLineEdit::rightButtonClicked,
+                    editor, &GitEditorWidget::refresh);
+            return lineEdit;
+        };
+        grepLineEdit = addLineEdit(tr("Filter by message"),
+                                   tr("Filter log entries by text in the commit message."),
+                                   editor);
+        pickaxeLineEdit = addLineEdit(tr("Filter by content"),
+                                      tr("Filter log entries by added or removed string."),
+                                      editor);
+        addWidget(new QLabel(tr("Filter:")));
+        addSeparator();
+        addWidget(grepLineEdit);
+        addSeparator();
+        addWidget(pickaxeLineEdit);
+    }
+
+    Utils::FancyLineEdit *grepLineEdit;
+    Utils::FancyLineEdit *pickaxeLineEdit;
+};
 
 GitEditorWidget::GitEditorWidget() :
     m_changeNumberPattern(CHANGE_PATTERN)
@@ -360,44 +397,31 @@ QString GitEditorWidget::sourceWorkingDirectory() const
     return path.toString();
 }
 
-void GitEditorWidget::lineEditChanged()
+void GitEditorWidget::refresh()
 {
     if (VcsBaseEditorConfig *config = editorConfig())
         config->handleArgumentsChanged();
 }
 
-void GitEditorWidget::refreshOnLineEdit(Utils::FancyLineEdit *lineEdit)
+QWidget *GitEditorWidget::addFilterWidget()
 {
-    connect(lineEdit, &QLineEdit::returnPressed,
-            this, &GitEditorWidget::lineEditChanged);
-    connect(lineEdit, &Utils::FancyLineEdit::rightButtonClicked,
-            this, &GitEditorWidget::lineEditChanged);
-}
-
-void GitEditorWidget::setGrepLineEdit(Utils::FancyLineEdit *lineEdit)
-{
-    m_grepLineEdit = lineEdit;
-    refreshOnLineEdit(lineEdit);
-}
-
-void GitEditorWidget::setPickaxeLineEdit(Utils::FancyLineEdit *lineEdit)
-{
-    m_pickaxeLineEdit = lineEdit;
-    refreshOnLineEdit(lineEdit);
+    if (!m_logFilterWidget)
+        m_logFilterWidget = new GitLogFilterWidget(this);
+    return m_logFilterWidget;
 }
 
 QString GitEditorWidget::grepValue() const
 {
-    if (!m_grepLineEdit)
+    if (!m_logFilterWidget)
         return QString();
-    return m_grepLineEdit->text();
+    return m_logFilterWidget->grepLineEdit->text();
 }
 
 QString GitEditorWidget::pickaxeValue() const
 {
-    if (!m_pickaxeLineEdit)
+    if (!m_logFilterWidget)
         return QString();
-    return m_pickaxeLineEdit->text();
+    return m_logFilterWidget->pickaxeLineEdit->text();
 }
 
 } // namespace Internal

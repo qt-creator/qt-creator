@@ -34,6 +34,8 @@ namespace Utils { class FancyLineEdit; }
 namespace Git {
 namespace Internal {
 
+class GitLogFilterWidget;
+
 class GitEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
@@ -42,10 +44,11 @@ public:
     GitEditorWidget();
 
     void setPlainText(const QString &text) override;
-    void setGrepLineEdit(Utils::FancyLineEdit *lineEdit);
+    QWidget *addFilterWidget();
     void setPickaxeLineEdit(Utils::FancyLineEdit *lineEdit);
     QString grepValue() const;
     QString pickaxeValue() const;
+    void refresh();
 
 private:
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
@@ -64,13 +67,10 @@ private:
     bool supportChangeLinks() const override;
     QString fileNameForLine(int line) const override;
     QString sourceWorkingDirectory() const;
-    void refreshOnLineEdit(Utils::FancyLineEdit *lineEdit);
-    void lineEditChanged();
 
     mutable QRegExp m_changeNumberPattern;
     QString m_currentChange;
-    Utils::FancyLineEdit *m_grepLineEdit = nullptr;
-    Utils::FancyLineEdit *m_pickaxeLineEdit = nullptr;
+    GitLogFilterWidget *m_logFilterWidget = nullptr;
 };
 
 } // namespace Git
