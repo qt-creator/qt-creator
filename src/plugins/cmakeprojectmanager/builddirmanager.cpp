@@ -427,8 +427,8 @@ void BuildDirManager::clearCache()
     QTC_ASSERT(m_parameters.isValid(), return);
     QTC_ASSERT(!m_isHandlingError, return);
 
-    const FilePath cmakeCache = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
-    const FilePath cmakeFiles = m_parameters.workDirectory.pathAppended("CMakeFiles");
+    const FilePath cmakeCache = m_parameters.workDirectory / "CMakeCache.txt";
+    const FilePath cmakeFiles = m_parameters.workDirectory / "CMakeFiles";
 
     const bool mustCleanUp = cmakeCache.exists() || cmakeFiles.exists();
     if (!mustCleanUp)

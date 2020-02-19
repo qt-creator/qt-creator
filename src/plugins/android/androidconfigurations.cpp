@@ -430,7 +430,7 @@ QString AndroidConfig::apiLevelNameFor(const SdkPlatform *platform)
 
 FilePath AndroidConfig::adbToolPath() const
 {
-    return m_sdkLocation.pathAppended("platform-tools/adb" QTC_HOST_EXE_SUFFIX);
+    return m_sdkLocation / "platform-tools/adb" QTC_HOST_EXE_SUFFIX;
 }
 
 FilePath AndroidConfig::androidToolPath() const
@@ -438,12 +438,12 @@ FilePath AndroidConfig::androidToolPath() const
     if (HostOsInfo::isWindowsHost()) {
         // I want to switch from using android.bat to using an executable. All it really does is call
         // Java and I've made some progress on it. So if android.exe exists, return that instead.
-        const FilePath path = m_sdkLocation.pathAppended("tools/android" QTC_HOST_EXE_SUFFIX);
+        const FilePath path = m_sdkLocation / "tools/android" QTC_HOST_EXE_SUFFIX;
         if (path.exists())
             return path;
-        return m_sdkLocation.pathAppended("tools/android" ANDROID_BAT_SUFFIX);
+        return m_sdkLocation / "tools/android" ANDROID_BAT_SUFFIX;
     }
-    return m_sdkLocation.pathAppended("tools/android");
+    return m_sdkLocation / "tools/android";
 }
 
 FilePath AndroidConfig::emulatorToolPath() const
@@ -451,7 +451,7 @@ FilePath AndroidConfig::emulatorToolPath() const
     QString relativePath = "emulator/emulator";
     if (sdkToolsVersion() < QVersionNumber(25, 3, 0))
         relativePath = "tools/emulator";
-    return m_sdkLocation.pathAppended(relativePath + QTC_HOST_EXE_SUFFIX);
+    return m_sdkLocation / (relativePath + QTC_HOST_EXE_SUFFIX);
 }
 
 FilePath AndroidConfig::sdkManagerToolPath() const
@@ -459,7 +459,7 @@ FilePath AndroidConfig::sdkManagerToolPath() const
     QString toolPath = "tools/bin/sdkmanager";
     if (HostOsInfo::isWindowsHost())
         toolPath += ANDROID_BAT_SUFFIX;
-    return m_sdkLocation.pathAppended(toolPath);
+    return m_sdkLocation / toolPath;
 }
 
 FilePath AndroidConfig::avdManagerToolPath() const
@@ -467,21 +467,21 @@ FilePath AndroidConfig::avdManagerToolPath() const
     QString toolPath = "tools/bin/avdmanager";
     if (HostOsInfo::isWindowsHost())
         toolPath += ANDROID_BAT_SUFFIX;
-    return m_sdkLocation.pathAppended(toolPath);
+    return m_sdkLocation / toolPath;
 }
 
 FilePath AndroidConfig::aaptToolPath() const
 {
-    const Utils::FilePath aaptToolPath = m_sdkLocation.pathAppended("build-tools");
+    const FilePath aaptToolPath = m_sdkLocation / "build-tools";
     QString toolPath = QString("%1/aapt").arg(buildToolsVersion().toString());
     if (HostOsInfo::isWindowsHost())
         toolPath += QTC_HOST_EXE_SUFFIX;
-    return aaptToolPath.pathAppended(toolPath);
+    return aaptToolPath / toolPath;
 }
 
 FilePath AndroidConfig::toolchainPathFromNdk(const Utils::FilePath &ndkLocation) const
 {
-    const FilePath toolchainPath = ndkLocation.pathAppended("toolchains/llvm/prebuilt/");
+    const FilePath toolchainPath = ndkLocation / "toolchains/llvm/prebuilt/";
 
     // detect toolchain host
     QStringList hostPatterns;
@@ -501,7 +501,7 @@ FilePath AndroidConfig::toolchainPathFromNdk(const Utils::FilePath &ndkLocation)
     QDirIterator iter(toolchainPath.toString(), hostPatterns, QDir::Dirs);
     if (iter.hasNext()) {
         iter.next();
-        return toolchainPath.pathAppended(iter.fileName());
+        return toolchainPath / iter.fileName();
     }
 
     return {};
@@ -517,7 +517,7 @@ FilePath AndroidConfig::clangPathFromNdk(const Utils::FilePath &ndkLocation) con
     const FilePath path = toolchainPathFromNdk(ndkLocation);
     if (path.isEmpty())
         return {};
-    return path.pathAppended(HostOsInfo::withExecutableSuffix("bin/clang"));
+    return path / HostOsInfo::withExecutableSuffix("bin/clang");
 }
 
 FilePath AndroidConfig::clangPath(const BaseQtVersion *qtVersion) const
@@ -849,8 +849,7 @@ QVersionNumber AndroidConfig::sdkToolsVersion() const
 {
     QVersionNumber version;
     if (m_sdkLocation.exists()) {
-        const Utils::FilePath sdkToolsPropertiesPath
-                = m_sdkLocation.pathAppended("tools/source.properties");
+        const FilePath sdkToolsPropertiesPath = m_sdkLocation / "tools/source.properties";
         QSettings settings(sdkToolsPropertiesPath.toString(), QSettings::IniFormat);
         auto versionStr = settings.value(sdkToolsVersionKey).toString();
         version = QVersionNumber::fromString(versionStr);

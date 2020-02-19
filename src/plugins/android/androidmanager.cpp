@@ -293,10 +293,10 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
     if (qt->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
         const QStringList abis = applicationAbis(target);
         QTC_ASSERT(abis.size() == 1, return {});
-        settings["stdcpp-path"] = AndroidConfigurations::currentConfig().toolchainPath(qt)
-                                      .pathAppended("sysroot/usr/lib/")
-                                      .pathAppended(archTriplet(abis.first()))
-                                      .pathAppended("libc++_shared.so").toString();
+        settings["stdcpp-path"] = (AndroidConfigurations::currentConfig().toolchainPath(qt)
+                                      / "sysroot/usr/lib/"
+                                      / archTriplet(abis.first())
+                                      / "libc++_shared.so").toString();
     } else {
         settings["stdcpp-path"] = AndroidConfigurations::currentConfig()
                                       .toolchainPath(qt)
@@ -321,7 +321,7 @@ bool AndroidManager::isQtCreatorGenerated(const FilePath &deploymentFile)
 Utils::FilePath AndroidManager::dirPath(const ProjectExplorer::Target *target)
 {
     if (auto *bc = target->activeBuildConfiguration())
-        return bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
+        return bc->buildDirectory() / Constants::ANDROID_BUILDDIRECTORY;
     return Utils::FilePath();
 }
 
@@ -342,7 +342,7 @@ Utils::FilePath AndroidManager::apkPath(const ProjectExplorer::Target *target)
     else
         apkPath += QLatin1String("debug.apk");
 
-    return dirPath(target).pathAppended(apkPath);
+    return dirPath(target) / apkPath;
 }
 
 bool AndroidManager::matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis)
@@ -738,7 +738,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target, con
     if (!packageSourceDir.exists())
         return false;
 
-    const FilePath wrapperProps = packageSourceDir.pathAppended("gradle/wrapper/gradle-wrapper.properties");
+    const FilePath wrapperProps = packageSourceDir / "gradle/wrapper/gradle-wrapper.properties";
     if (wrapperProps.exists()) {
         GradleProperties wrapperProperties = readGradleProperties(wrapperProps.toString());
         QString distributionUrl = QString::fromLocal8Bit(wrapperProperties["distributionUrl"]);
@@ -751,7 +751,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target, con
 
     GradleProperties localProperties;
     localProperties["sdk.dir"] = AndroidConfigurations::currentConfig().sdkLocation().toString().toLocal8Bit();
-    const FilePath localPropertiesFile = packageSourceDir.pathAppended("local.properties");
+    const FilePath localPropertiesFile = packageSourceDir / "local.properties";
     if (!mergeGradleProperties(localPropertiesFile.toString(), localProperties))
         return false;
 
@@ -773,7 +773,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target, con
 int AndroidManager::findApiLevel(const Utils::FilePath &platformPath)
 {
     int apiLevel = -1;
-    const Utils::FilePath propertiesPath = platformPath.pathAppended("/source.properties");
+    const Utils::FilePath propertiesPath = platformPath / "/source.properties";
     if (propertiesPath.exists()) {
         QSettings sdkProperties(propertiesPath.toString(), QSettings::IniFormat);
         bool validInt = false;

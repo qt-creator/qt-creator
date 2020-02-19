@@ -163,7 +163,7 @@ bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
         QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
                                               | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (const QString &fileName, fileNames) {
-            if (!removeRecursively(filePath.pathAppended(fileName), error))
+            if (!removeRecursively(filePath / fileName, error))
                 return false;
         }
         if (!QDir::root().rmdir(dir.path())) {
@@ -222,8 +222,8 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgt
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot
                                                     | QDir::Hidden | QDir::System);
         foreach (const QString &fileName, fileNames) {
-            const FilePath newSrcFilePath = srcFilePath.pathAppended(fileName);
-            const FilePath newTgtFilePath = tgtFilePath.pathAppended(fileName);
+            const FilePath newSrcFilePath = srcFilePath / fileName;
+            const FilePath newTgtFilePath = tgtFilePath / fileName;
             if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
                 return false;
         }
@@ -302,6 +302,11 @@ FilePath FilePath::canonicalPath() const
     if (result.isEmpty())
         return *this;
     return FilePath::fromString(result);
+}
+
+FilePath FilePath::operator/(const QString &str) const
+{
+    return pathAppended(str);
 }
 
 /*!

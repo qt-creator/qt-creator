@@ -376,9 +376,7 @@ void AndroidBuildApkStep::doRun()
     auto setup = [this] {
         const auto androidAbis = AndroidManager::applicationAbis(target());
         for (const auto &abi : androidAbis) {
-            Utils::FilePath androidLibsDir = buildDirectory()
-                    .pathAppended("android-build/libs")
-                    .pathAppended(abi);
+            FilePath androidLibsDir = buildDirectory() / "android-build/libs" / abi;
             if (!androidLibsDir.exists() && !QDir{buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
                 return false;
         }
@@ -404,7 +402,7 @@ void AndroidBuildApkStep::doRun()
         if (version->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
             applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
-            Utils::FilePath androidLibsDir = buildDirectory().pathAppended("android-build/libs").pathAppended(androidAbis.first());
+            FilePath androidLibsDir = buildDirectory() / "android-build/libs" / androidAbis.first();
             for (const auto &target : targets) {
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
                     return false;
@@ -422,9 +420,7 @@ void AndroidBuildApkStep::doRun()
                     applicationBinary.remove(0, 3).chop(targetSuffix.size());
                 }
 
-                Utils::FilePath androidLibsDir = buildDirectory()
-                                                     .pathAppended("android-build/libs")
-                                                     .pathAppended(abi);
+                FilePath androidLibsDir = buildDirectory() / "android-build/libs" / abi;
                 for (const auto &target : targets) {
                     if (target.endsWith(targetSuffix)) {
                         if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))

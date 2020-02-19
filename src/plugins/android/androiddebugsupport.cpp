@@ -161,11 +161,10 @@ void AndroidDebugSupport::start()
         // instead ~/android/ndk-bundle/platforms/android-29/arch-arm64
         // use ~/android/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/sysroot
         if (qtVersion) {
-            Utils::FilePath sysRoot = AndroidConfigurations::currentConfig()
-                                          .ndkLocation(qtVersion)
-                                          .pathAppended("platforms")
-                                          .pathAppended(QString("android-%1").arg(sdkVersion))
-                                          .pathAppended(devicePreferredAbi);
+            Utils::FilePath sysRoot = AndroidConfigurations::currentConfig().ndkLocation(qtVersion)
+                    / "platforms"
+                    / QString("android-%1").arg(sdkVersion)
+                    / devicePreferredAbi;
             setSysRoot(sysRoot);
             qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;
         }

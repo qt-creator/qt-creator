@@ -241,9 +241,7 @@ void CMakeManager::buildFile(Node *node)
     if (generator == "Ninja") {
         const Utils::FilePath relativeBuildDir = targetNode->buildDirectory().relativeChildPath(
                     bc->buildDirectory());
-        targetBase = relativeBuildDir
-                .pathAppended("CMakeFiles")
-                .pathAppended(targetNode->displayName() + ".dir");
+        targetBase = relativeBuildDir / "CMakeFiles" / (targetNode->displayName() + ".dir");
     } else if (!generator.contains("Makefiles")) {
         Core::MessageManager::write(tr("Build File is not supported for generator \"%1\"")
                                     .arg(generator));

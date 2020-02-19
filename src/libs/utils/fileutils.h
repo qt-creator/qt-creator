@@ -111,6 +111,8 @@ public:
 
     FilePath canonicalPath() const;
 
+    FilePath operator/(const QString &str) const;
+
     void clear() { m_data.clear(); }
     bool isEmpty() const { return m_data.isEmpty(); }
 
