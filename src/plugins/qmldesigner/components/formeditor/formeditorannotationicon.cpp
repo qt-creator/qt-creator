@@ -261,7 +261,6 @@ void FormEditorAnnotationIcon::drawReader()
                 ++currentColumn;
 
                 newPos = commentsStartPosition + QPointF(currentColumn * (offset + width), 0);
-
             } else {
                 //few normal comments, lets stack them
             }
