@@ -38,6 +38,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <QHash>
 #include <QObject>
 #include <QSet>
 #include <QStringList>
@@ -1295,6 +1296,16 @@ QList<T> toList(const QSet<T> &set)
     return set.toList();
 #else
     return QList<T>(set.begin(), set.end());
+#endif
+}
+
+template <class Key, class T>
+void addToHash(QHash<Key, T> *result, const QHash<Key, T> &additionalContents)
+{
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
+    result->unite(additionalContents);
+#else
+    result->insert(additionalContents);
 #endif
 }
 

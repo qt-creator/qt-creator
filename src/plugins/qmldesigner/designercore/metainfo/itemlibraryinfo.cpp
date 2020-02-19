@@ -28,6 +28,7 @@
 
 #include <QSharedData>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 namespace QmlDesigner {
@@ -193,7 +194,7 @@ void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
 
 void ItemLibraryEntry::addHints(const QHash<QString, QString> &hints)
 {
-    m_data->hints.unite(hints);
+    Utils::addToHash(&m_data->hints, hints);
 }
 
 void ItemLibraryEntry::addProperty(PropertyName &name, QString &type, QVariant &value)

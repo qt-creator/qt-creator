@@ -312,7 +312,7 @@ QVariant FlameGraphModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> FlameGraphModel::roleNames() const
 {
-    static QHash<int, QByteArray> extraRoles{
+    static const QHash<int, QByteArray> extraRoles{
         {TypeIdRole, "typeId"},
         {TypeRole, "type"},
         {DurationRole, "duration"},
@@ -328,7 +328,9 @@ QHash<int, QByteArray> FlameGraphModel::roleNames() const
         {AllocationsRole, "allocations" },
         {MemoryRole, "memory" }
     };
-    return QAbstractItemModel::roleNames().unite(extraRoles);
+    QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
+    Utils::addToHash(&roles, extraRoles);
+    return roles;
 }
 
 QmlProfilerModelManager *FlameGraphModel::modelManager() const
