@@ -1121,7 +1121,7 @@ static TestPlan generateCustomTestPlan(IPlugin *plugin,
                 << "\".\nAvailable functions:\n";
             for (const QString &f : testFunctionsOfPluginObject)
                 out << "  " << f << '\n';
-            out << endl;
+            out << '\n';
         }
     }
 
