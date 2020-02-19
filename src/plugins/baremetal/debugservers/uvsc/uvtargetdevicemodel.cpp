@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "uvproject.h" // for toolsFilePath()
 #include "uvtargetdevicemodel.h"
 
 #include <QDirIterator>
@@ -37,9 +36,9 @@ namespace BareMetal {
 namespace Internal {
 namespace Uv {
 
-static QString extractPacksPath(const QString &uVisionFilePath)
+static QString extractPacksPath(const FilePath &toolsIniFile)
 {
-    QFile f(toolsFilePath(uVisionFilePath));
+    QFile f(toolsIniFile.toString());
     if (!f.open(QIODevice::ReadOnly))
         return {};
     QTextStream in(&f);
@@ -258,15 +257,15 @@ DeviceSelectionModel::DeviceSelectionModel(QObject *parent)
     setHeader({tr("Name"), tr("Version"), tr("Vendor")});
 }
 
-void DeviceSelectionModel::fillAllPacks(const QString &uVisionFilePath)
+void DeviceSelectionModel::fillAllPacks(const FilePath &toolsIniFile)
 {
-    if (m_uVisionFilePath == uVisionFilePath)
+    if (m_toolsIniFile == toolsIniFile)
         return;
 
     clear();
 
-    m_uVisionFilePath = uVisionFilePath;
-    const QString packsPath = extractPacksPath(m_uVisionFilePath);
+    m_toolsIniFile = toolsIniFile;
+    const QString packsPath = extractPacksPath(m_toolsIniFile);
     if (packsPath.isEmpty())
         return;
 

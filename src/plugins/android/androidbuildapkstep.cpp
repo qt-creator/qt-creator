@@ -531,10 +531,14 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 
 QVariant AndroidBuildApkStep::data(Core::Id id) const
 {
-    if (id == Constants::AndroidNdkPlatform)
-        return AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target())).mid(8);
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target()->kit());
+
+    if (id == Constants::AndroidNdkPlatform) {
+        return AndroidConfigurations::currentConfig()
+            .bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion).mid(8);
+    }
     if (id == Constants::NdkLocation)
-        return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation());
+        return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation(qtVersion));
     if (id == Constants::SdkLocation)
         return QVariant::fromValue(AndroidConfigurations::currentConfig().sdkLocation());
     if (id == Constants::AndroidABIs)

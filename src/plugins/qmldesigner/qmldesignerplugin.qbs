@@ -55,7 +55,8 @@ Project {
              "components/navigator",
              "components/pluginmanager",
              "components/stateseditor",
-             "components/texteditor"
+             "components/texteditor",
+             "components/timelineeditor",
         ])
 
         Properties {
@@ -245,6 +246,7 @@ Project {
                 "include/abstractproperty.h",
                 "include/abstractview.h",
                 "include/anchorline.h",
+                "include/annotation.h",
                 "include/basetexteditmodifier.h",
                 "include/bindingproperty.h",
                 "include/componenttextmodifier.h",
@@ -321,6 +323,7 @@ Project {
                 "model/abstractproperty.cpp",
                 "model/abstractview.cpp",
                 "model/anchorline.cpp",
+                "model/annotation.cpp",
                 "model/basetexteditmodifier.cpp",
                 "model/bindingproperty.cpp",
                 "model/componenttextmodifier.cpp",
@@ -638,8 +641,6 @@ Project {
             name: "extension"
             prefix: "components/"
             files: [
-                "annotationeditor/annotation.cpp",
-                "annotationeditor/annotation.h",
                 "annotationeditor/annotationcommenttab.cpp",
                 "annotationeditor/annotationcommenttab.h",
                 "annotationeditor/annotationcommenttab.ui",
@@ -647,7 +648,7 @@ Project {
                 "annotationeditor/annotationeditor.h",
                 "annotationeditor/annotationeditordialog.cpp",
                 "annotationeditor/annotationeditordialog.h",
-                "annotationeditor/annotationeditordialog.ui
+                "annotationeditor/annotationeditordialog.ui",
                 "annotationeditor/annotationtool.cpp",
                 "annotationeditor/annotationtool.h",
                 "bindingeditor/bindingeditor.cpp",

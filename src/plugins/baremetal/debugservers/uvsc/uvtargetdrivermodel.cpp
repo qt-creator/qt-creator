@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "uvproject.h" // for toolsFilePath()
 #include "uvtargetdrivermodel.h"
 
 #include <QFile>
@@ -132,12 +131,12 @@ DriverSelectionModel::DriverSelectionModel(QObject *parent)
     setHeader({tr("Path")});
 }
 
-void DriverSelectionModel::fillDrivers(const QString &uVisionFilePath,
+void DriverSelectionModel::fillDrivers(const FilePath &toolsIniFile,
                                        const QStringList &supportedDrivers)
 {
     clear();
 
-    QFile f(toolsFilePath(uVisionFilePath));
+    QFile f(toolsIniFile.toString());
     if (!f.open(QIODevice::ReadOnly))
         return;
 

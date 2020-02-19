@@ -419,7 +419,7 @@ def __chooseTargets__(targets, availableTargets=None, additionalFunc=None):
                 if additionalFunc:
                     detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' "
                                                   "window=':Qt Creator_Core::Internal::MainWindow' "
-                                                  "toolTip?='<html><body><h3>%s</h3>*' visible='1'}"
+                                                  "summaryText='%s' visible='1'}"
                                                   % Targets.getStringForTarget(current))
                     detailsButton = getChildByClass(detailsWidget, "Utils::DetailsButton")
                     clickButton(detailsButton)

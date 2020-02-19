@@ -178,6 +178,7 @@ void AndroidPlugin::kitsRestored()
     }
 
     AndroidConfigurations::updateAutomaticKitList();
+    AndroidConfigurations::registerNewToolChains();
     connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::qtVersionsChanged,
             AndroidConfigurations::instance(), &AndroidConfigurations::updateAutomaticKitList);
     disconnect(KitManager::instance(), &KitManager::kitsLoaded,

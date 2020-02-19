@@ -29,6 +29,7 @@
 
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 
 #include <QDialog>
 
@@ -55,6 +56,9 @@ class DeviceSelector final : public Utils::DetailsWidget
 public:
     explicit DeviceSelector(QWidget *parent = nullptr);
 
+    void setToolsIniFile(const Utils::FilePath &toolsIniFile);
+    Utils::FilePath toolsIniFile() const;
+
     void setSelection(const DeviceSelection &selection);
     DeviceSelection selection() const;
 
@@ -62,6 +66,7 @@ signals:
     void selectionChanged();
 
 private:
+    Utils::FilePath m_toolsIniFile;
     DeviceSelection m_selection;
 };
 
@@ -111,7 +116,7 @@ class DeviceSelectionDialog final : public QDialog
     Q_OBJECT
 
 public:
-    explicit DeviceSelectionDialog(const QString &uVisionPath, QWidget *parent = nullptr);
+    explicit DeviceSelectionDialog(const Utils::FilePath &toolsIniFile, QWidget *parent = nullptr);
     DeviceSelection selection() const;
 
 private:

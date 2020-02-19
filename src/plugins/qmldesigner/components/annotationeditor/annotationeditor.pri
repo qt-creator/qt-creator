@@ -1,10 +1,8 @@
-HEADERS += $$PWD/annotation.h
 HEADERS += $$PWD/annotationtool.h
 HEADERS += $$PWD/annotationcommenttab.h
 HEADERS += $$PWD/annotationeditordialog.h
 HEADERS += $$PWD/annotationeditor.h
 
-SOURCES += $$PWD/annotation.cpp
 SOURCES += $$PWD/annotationtool.cpp
 SOURCES += $$PWD/annotationcommenttab.cpp
 SOURCES += $$PWD/annotationeditordialog.cpp

@@ -104,7 +104,7 @@
 */
 
 /*!
-    \fn T *Aggregate::component()
+    \fn template <typename T> T *Aggregation::Aggregate::component()
 
     Template function that returns the component with the given type, if there is one.
     If there are multiple components with that type, a random one is returned.
@@ -113,7 +113,7 @@
 */
 
 /*!
-    \fn QList<T *> Aggregate::components()
+    \fn template <typename T> QList<T *> Aggregation::Aggregate::components()
 
     Template function that returns all components with the given type, if there are any.
 
@@ -121,18 +121,8 @@
 */
 
 /*!
-    \fn T *Aggregation::query<T *>(Aggregate *obj)
-    \internal
-*/
-
-/*!
-    \fn QList<T *> Aggregation::query_all<T *>(Aggregate *obj)
-    \internal
-*/
-
-/*!
     \relates Aggregation::Aggregate
-    \fn T *Aggregation::query<T *>(QObject *obj)
+    \fn template <typename T> T *Aggregation::query<T *>(QObject *obj)
 
     Performs a dynamic cast that is aware of a possible aggregate that \a obj
     might belong to. If \a obj itself is of the requested type, it is simply cast
@@ -144,7 +134,7 @@
 
 /*!
     \relates Aggregation::Aggregate
-    \fn QList<T *> Aggregation::query_all<T *>(QObject *obj)
+    \fn template <typename T> QList<T *> Aggregation::query_all<T *>(QObject *obj)
 
     If \a obj belongs to an aggregate, all components that can be cast to the given
     type are returned. Otherwise, \a obj is returned if it is of the requested type.

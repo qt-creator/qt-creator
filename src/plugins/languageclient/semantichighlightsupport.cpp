@@ -151,10 +151,12 @@ void applyHighlight(TextEditor::TextDocument *doc,
         }
     }
 
-    TextEditor::SemanticHighlighter::setExtraAdditionalFormats(
-        doc->syntaxHighlighter(),
-        results,
-        scopesToFormatHash(highlightScopes(capabilities), doc->fontSettings()));
+    if (capabilities.semanticHighlighting().has_value()) {
+        TextEditor::SemanticHighlighter::setExtraAdditionalFormats(
+            doc->syntaxHighlighter(),
+            results,
+            scopesToFormatHash(highlightScopes(capabilities), doc->fontSettings()));
+    }
 }
 
 } // namespace SemanticHighligtingSupport

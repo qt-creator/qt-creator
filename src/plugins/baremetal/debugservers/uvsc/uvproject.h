@@ -39,11 +39,6 @@ class UvscServerProvider;
 
 namespace Uv {
 
-// Helpers
-
-QString toolsFilePath(const QString &uVisionFilePath);
-QString targetUVisionPath();
-
 // UvProject
 
 class Project final : public Gen::Xml::Project

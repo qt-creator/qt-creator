@@ -293,22 +293,25 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
     QJsonObject settings;
     settings["_description"] = qtcSignature;
     settings["qt"] = qt->prefix().toString();
-    settings["ndk"] = AndroidConfigurations::currentConfig().ndkLocation().toString();
+    settings["ndk"] = AndroidConfigurations::currentConfig().ndkLocation(qt).toString();
     settings["sdk"] = AndroidConfigurations::currentConfig().sdkLocation().toString();
     if (qt->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
         const QStringList abis = applicationAbis(target);
         QTC_ASSERT(abis.size() == 1, return {});
-        settings["stdcpp-path"] = AndroidConfigurations::currentConfig().toolchainPath()
+        settings["stdcpp-path"] = AndroidConfigurations::currentConfig().toolchainPath(qt)
                                       .pathAppended("sysroot/usr/lib/")
                                       .pathAppended(archTriplet(abis.first()))
                                       .pathAppended("libc++_shared.so").toString();
     } else {
-        settings["stdcpp-path"] = AndroidConfigurations::currentConfig().toolchainPath().pathAppended("sysroot/usr/lib/").toString();
+        settings["stdcpp-path"] = AndroidConfigurations::currentConfig()
+                                      .toolchainPath(qt)
+                                      .pathAppended("sysroot/usr/lib/")
+                                      .toString();
     }
     settings["toolchain-prefix"] =  "llvm";
     settings["tool-prefix"] = "llvm";
     settings["useLLVM"] = true;
-    settings["ndk-host"] = AndroidConfigurations::currentConfig().toolchainHost();
+    settings["ndk-host"] = AndroidConfigurations::currentConfig().toolchainHost(qt);
     return settings;
 }
 

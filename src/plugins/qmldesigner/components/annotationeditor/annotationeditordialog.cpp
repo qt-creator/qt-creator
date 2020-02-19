@@ -30,13 +30,12 @@
 
 #include "ui_annotationcommenttab.h"
 
+#include <timelineicons.h> //replace timeline icons with our own?
+
 #include <QObject>
 #include <QToolBar>
 #include <QAction>
 #include <QMessageBox>
-
-
-#include "timelineicons.h" //replace timeline icons with our own?
 
 namespace QmlDesigner {
 

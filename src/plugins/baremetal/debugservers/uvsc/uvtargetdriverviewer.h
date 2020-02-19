@@ -29,6 +29,7 @@
 
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 
 #include <QDialog>
 
@@ -52,6 +53,10 @@ class DriverSelector final : public Utils::DetailsWidget
 
 public:
     explicit DriverSelector(const QStringList &supportedDrivers, QWidget *parent = nullptr);
+
+    void setToolsIniFile(const Utils::FilePath &toolsIniFile);
+    Utils::FilePath toolsIniFile() const;
+
     void setSelection(const DriverSelection &selection);
     DriverSelection selection() const;
 
@@ -59,6 +64,7 @@ signals:
     void selectionChanged();
 
 private:
+    Utils::FilePath m_toolsIniFile;
     DriverSelection m_selection;
 };
 
@@ -105,7 +111,7 @@ class DriverSelectionDialog final : public QDialog
     Q_OBJECT
 
 public:
-    explicit DriverSelectionDialog(const QString &uVisionPath,
+    explicit DriverSelectionDialog(const Utils::FilePath &toolsIniFile,
                                    const QStringList &supportedDrivers,
                                    QWidget *parent = nullptr);
     DriverSelection selection() const;

@@ -31,40 +31,33 @@
 namespace VcsBase {
 
 VcsOutputFormatter::VcsOutputFormatter() :
-    m_urlRegexp("https?://\\S*"),
-    m_referenceRegexp("(v[0-9]+\\.[0-9]+\\.[0-9]+[\\-A-Za-z0-9]*)" // v0.1.2-beta3
-                      "|([0-9a-f]{6,}(?:\\.\\.[0-9a-f]{6,})?)")    // 789acf or 123abc..456cde
+    m_regexp(
+        "(https?://\\S*)"                             // https://codereview.org/c/1234
+        "|(v[0-9]+\\.[0-9]+\\.[0-9]+[\\-A-Za-z0-9]*)" // v0.1.2-beta3
+        "|([0-9a-f]{6,}(?:\\.\\.[0-9a-f]{6,})?)")     // 789acf or 123abc..456cde
 {
 }
 
 void VcsOutputFormatter::appendMessage(const QString &text, Utils::OutputFormat format)
 {
-    const QRegularExpressionMatch urlMatch = m_urlRegexp.match(text);
-    const QRegularExpressionMatch referenceMatch = m_referenceRegexp.match(text);
-
-    auto append = [this](const QRegularExpressionMatch &match,
-                         QString text, Utils::OutputFormat format) {
+    QRegularExpressionMatchIterator it = m_regexp.globalMatch(text);
+    int begin = 0;
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
         const QTextCharFormat normalFormat = charFormat(format);
-        OutputFormatter::appendMessage(text.left(match.capturedStart()), format);
+        OutputFormatter::appendMessage(text.mid(begin, match.capturedStart() - begin), format);
         QTextCursor tc = plainTextEdit()->textCursor();
         QStringView url = match.capturedView();
-        int end = match.capturedEnd();
+        begin = match.capturedEnd();
         while (url.rbegin()->isPunct()) {
             url.chop(1);
-            --end;
+            --begin;
         }
-        tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+        tc.movePosition(QTextCursor::End);
         tc.insertText(url.toString(), linkFormat(normalFormat, url.toString()));
-        tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-        OutputFormatter::appendMessage(text.mid(end), format);
-    };
-
-    if (urlMatch.hasMatch())
-        append(urlMatch, text, format);
-    else if (referenceMatch.hasMatch())
-        append(referenceMatch, text, format);
-    else
-        OutputFormatter::appendMessage(text, format);
+        tc.movePosition(QTextCursor::End);
+    }
+    OutputFormatter::appendMessage(text.mid(begin), format);
 }
 
 void VcsOutputFormatter::handleLink(const QString &href)

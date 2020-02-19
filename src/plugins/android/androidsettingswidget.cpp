@@ -336,10 +336,8 @@ Utils::FilePath AndroidSettingsWidget::getDefaultSdkPath()
 void AndroidSettingsWidget::updateNdkList()
 {
     m_ui->ndkListComboBox->clear();
-    QString currentNdk = m_androidConfig.ndkLocation().toString();
     for (const Ndk *ndk : m_sdkManager->installedNdkPackages())
         m_ui->ndkListComboBox->addItem(ndk->installedLocation().toString());
-    m_ui->ndkListComboBox->setCurrentText(currentNdk);
 }
 
 AndroidSettingsWidget::AndroidSettingsWidget()
@@ -584,7 +582,6 @@ Utils::FilePath AndroidSettingsWidget::findJdkInCommonPaths()
 void AndroidSettingsWidget::validateNdk()
 {
     auto ndkPath = Utils::FilePath::fromUserInput(m_ui->ndkListComboBox->currentText());
-    m_androidConfig.setNdkLocation(ndkPath);
 
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
     summaryWidget->setPointValid(NdkPathExistsRow, ndkPath.exists());
@@ -745,9 +742,10 @@ void AndroidSettingsWidget::updateUI()
     m_ui->sdkManagerTab->setEnabled(sdkToolsOk);
     m_sdkManagerWidget->setSdkManagerControlsEnabled(!m_androidConfig.useNativeUiTools());
 
+    Utils::FilePath currentNdk = Utils::FilePath::fromString(m_ui->ndkListComboBox->currentText());
     auto infoText = tr("(SDK Version: %1, NDK Bundle Version: %2)")
-            .arg(m_androidConfig.sdkToolsVersion().toString())
-            .arg(m_androidConfig.ndkVersion().toString());
+                        .arg(m_androidConfig.sdkToolsVersion().toString())
+                        .arg(currentNdk.isEmpty() ? "" : m_androidConfig.ndkVersion(currentNdk).toString());
     androidSummaryWidget->setInfoText(androidSetupOk ? infoText : "");
 
     m_ui->javaDetailsWidget->setState(javaSetupOk ? Utils::DetailsWidget::Collapsed :

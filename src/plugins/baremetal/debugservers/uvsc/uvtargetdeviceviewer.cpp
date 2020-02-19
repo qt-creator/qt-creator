@@ -124,26 +124,28 @@ DeviceSelector::DeviceSelector(QWidget *parent)
     setWidget(detailsPanel);
 
     connect(toolPanel, &DeviceSelectorToolPanel::clicked, this, [this]() {
-        const QString uVisionPath = targetUVisionPath();
-        if (uVisionPath.isEmpty()) {
-            QMessageBox::warning(this,
-                                 tr("uVision path not found"),
-                                 tr("Please open a configured project before\n"
-                                    "the target device selection."),
-                                 QMessageBox::Ok);
-        } else {
-            DeviceSelectionDialog dialog(uVisionPath, this);
-            const int result = dialog.exec();
-            if (result != QDialog::Accepted)
-                return;
-            DeviceSelection selection;
-            selection = dialog.selection();
-            setSelection(selection);
-        }
+        DeviceSelectionDialog dialog(m_toolsIniFile, this);
+        const int result = dialog.exec();
+        if (result != QDialog::Accepted)
+            return;
+        DeviceSelection selection;
+        selection = dialog.selection();
+        setSelection(selection);
     });
 
     connect(detailsPanel, &DeviceSelectorDetailsPanel::selectionChanged,
             this, &DeviceSelector::selectionChanged);
+}
+
+void DeviceSelector::setToolsIniFile(const Utils::FilePath &toolsIniFile)
+{
+    m_toolsIniFile = toolsIniFile;
+    setEnabled(m_toolsIniFile.exists());
+}
+
+Utils::FilePath DeviceSelector::toolsIniFile() const
+{
+    return m_toolsIniFile;
 }
 
 void DeviceSelector::setSelection(const DeviceSelection &selection)
@@ -167,7 +169,7 @@ DeviceSelection DeviceSelector::selection() const
 
 // DeviceSelectionDialog
 
-DeviceSelectionDialog::DeviceSelectionDialog(const QString &uVisionPath, QWidget *parent)
+DeviceSelectionDialog::DeviceSelectionDialog(const Utils::FilePath &toolsIniFile, QWidget *parent)
     : QDialog(parent), m_model(new DeviceSelectionModel(this)), m_view(new DeviceSelectionView(this))
 {
     setWindowTitle(tr("Available target devices"));
@@ -187,7 +189,7 @@ DeviceSelectionDialog::DeviceSelectionDialog(const QString &uVisionPath, QWidget
         m_selection = selection;
     });
 
-    m_model->fillAllPacks(uVisionPath);
+    m_model->fillAllPacks(toolsIniFile);
     m_view->setModel(m_model);
 }
 

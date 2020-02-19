@@ -39,6 +39,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
@@ -57,6 +58,7 @@ namespace Internal {
 using namespace Uv;
 
 // Whole software package selection keys.
+constexpr char toolsIniKeyC[] = "BareMetal.UvscServerProvider.ToolsIni";
 constexpr char deviceSelectionKeyC[] = "BareMetal.UvscServerProvider.DeviceSelection";
 constexpr char driverSelectionKeyC[] = "BareMetal.UvscServerProvider.DriverSelection";
 
@@ -76,6 +78,16 @@ UvscServerProvider::UvscServerProvider(const UvscServerProvider &other)
     : IDebugServerProvider(other.id())
 {
     setEngineType(UvscEngineType);
+}
+
+void UvscServerProvider::setToolsIniFile(const Utils::FilePath &toolsIniFile)
+{
+    m_toolsIniFile = toolsIniFile;
+}
+
+Utils::FilePath UvscServerProvider::toolsIniFile() const
+{
+    return m_toolsIniFile;
 }
 
 void UvscServerProvider::setDeviceSelection(const DeviceSelection &deviceSelection)
@@ -123,7 +135,8 @@ bool UvscServerProvider::operator==(const IDebugServerProvider &other) const
     if (!IDebugServerProvider::operator==(other))
         return false;
     const auto p = static_cast<const UvscServerProvider *>(&other);
-    return m_deviceSelection == p->m_deviceSelection
+    return m_toolsIniFile == p->m_toolsIniFile
+            && m_deviceSelection == p->m_deviceSelection
             && m_driverSelection == p->m_driverSelection
             && m_toolsetNumber == p->m_toolsetNumber;
 }
@@ -147,6 +160,7 @@ FilePath UvscServerProvider::buildOptionsFilePath(DebuggerRunTool *runTool) cons
 QVariantMap UvscServerProvider::toMap() const
 {
     QVariantMap data = IDebugServerProvider::toMap();
+    data.insert(toolsIniKeyC, m_toolsIniFile.toVariant());
     data.insert(deviceSelectionKeyC, m_deviceSelection.toMap());
     data.insert(driverSelectionKeyC, m_driverSelection.toMap());
     return data;
@@ -217,6 +231,7 @@ bool UvscServerProvider::fromMap(const QVariantMap &data)
 {
     if (!IDebugServerProvider::fromMap(data))
         return false;
+    m_toolsIniFile = FilePath::fromVariant(data.value(toolsIniKeyC));
     m_deviceSelection.fromMap(data.value(deviceSelectionKeyC).toMap());
     m_driverSelection.fromMap(data.value(driverSelectionKeyC).toMap());
     return true;
@@ -257,6 +272,11 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
 {
     m_hostWidget = new HostWidget;
     m_mainLayout->addRow(tr("Host:"), m_hostWidget);
+    m_toolsIniChooser = new PathChooser;
+    m_toolsIniChooser->setExpectedKind(PathChooser::File);
+    m_toolsIniChooser->setPromptDialogFilter("tools.ini");
+    m_toolsIniChooser->setPromptDialogTitle(tr("Choose a Keil toolset configuration file"));
+    m_mainLayout->addRow(tr("Tools file path:"), m_toolsIniChooser);
     m_deviceSelector = new DeviceSelector;
     m_mainLayout->addRow(tr("Target device:"), m_deviceSelector);
     m_driverSelector = new DriverSelector(provider->supportedDrivers());
@@ -266,15 +286,27 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
 
     connect(m_hostWidget, &HostWidget::dataChanged,
             this, &UvscServerProviderConfigWidget::dirty);
+    connect(m_toolsIniChooser, &PathChooser::pathChanged,
+            this, &UvscServerProviderConfigWidget::dirty);
     connect(m_deviceSelector, &DeviceSelector::selectionChanged,
             this, &UvscServerProviderConfigWidget::dirty);
     connect(m_driverSelector, &DriverSelector::selectionChanged,
             this, &UvscServerProviderConfigWidget::dirty);
+
+    auto updateSelectors = [this]() {
+        const FilePath toolsIniFile = m_toolsIniChooser->fileName();
+        m_deviceSelector->setToolsIniFile(toolsIniFile);
+        m_driverSelector->setToolsIniFile(toolsIniFile);
+    };
+
+    connect(m_toolsIniChooser, &PathChooser::pathChanged, updateSelectors);
+    updateSelectors();
 }
 
 void UvscServerProviderConfigWidget::apply()
 {
     const auto p = static_cast<UvscServerProvider *>(m_provider);
+    p->setToolsIniFile(toolsIniFile());
     p->setDeviceSelection(deviceSelection());
     p->setDriverSelection(driverSelection());
     IDebugServerProviderConfigWidget::apply();
@@ -284,6 +316,16 @@ void UvscServerProviderConfigWidget::discard()
 {
     setFromProvider();
     IDebugServerProviderConfigWidget::discard();
+}
+
+void UvscServerProviderConfigWidget::setToolsIniFile(const Utils::FilePath &toolsIniFile)
+{
+    m_toolsIniChooser->setFileName(toolsIniFile);
+}
+
+Utils::FilePath UvscServerProviderConfigWidget::toolsIniFile() const
+{
+    return m_toolsIniChooser->fileName();
 }
 
 void UvscServerProviderConfigWidget::setDeviceSelection(const DeviceSelection &deviceSelection)
@@ -310,6 +352,7 @@ void UvscServerProviderConfigWidget::setFromProvider()
 {
     const auto p = static_cast<UvscServerProvider *>(m_provider);
     m_hostWidget->setChannel(p->channel());
+    m_toolsIniChooser->setFileName(p->toolsIniFile());
     m_deviceSelector->setSelection(p->deviceSelection());
     m_driverSelector->setSelection(p->driverSelection());
 }

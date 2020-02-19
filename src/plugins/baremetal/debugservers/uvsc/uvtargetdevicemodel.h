@@ -28,6 +28,7 @@
 #include "uvtargetdeviceselection.h"
 
 #include <utils/basetreeview.h>
+#include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE
@@ -47,7 +48,7 @@ class DeviceSelectionModel final : public Utils::TreeModel<DeviceSelectionItem>
 
 public:
     explicit DeviceSelectionModel(QObject *parent = nullptr);
-    void fillAllPacks(const QString &uVisionFilePath);
+    void fillAllPacks(const Utils::FilePath &toolsIniFile);
 
 private:
     void parsePackage(const QString &packageFile);
@@ -59,7 +60,7 @@ private:
                      DeviceSelection::Cpu &cpu, DeviceSelection::Memories &memories);
     void parseDeviceVariant(QXmlStreamReader &in, DeviceSelectionItem *parent);
 
-    QString m_uVisionFilePath;
+    Utils::FilePath m_toolsIniFile;
 };
 
 // DeviceSelectionView
