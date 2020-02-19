@@ -92,12 +92,19 @@ public:
         addWidget(grepLineEdit);
         addSeparator();
         addWidget(pickaxeLineEdit);
+        addSeparator();
+        caseAction = new QAction(tr("Case sensitive"), this);
+        caseAction->setCheckable(true);
+        caseAction->setChecked(true);
+        connect(caseAction, &QAction::toggled, editor, &GitEditorWidget::refresh);
+        addAction(caseAction);
         hide();
         connect(editor, &GitEditorWidget::toggleFilters, this, &QWidget::setVisible);
     }
 
     Utils::FancyLineEdit *grepLineEdit;
     Utils::FancyLineEdit *pickaxeLineEdit;
+    QAction *caseAction;
 };
 
 GitEditorWidget::GitEditorWidget() :
@@ -424,6 +431,11 @@ QString GitEditorWidget::pickaxeValue() const
     if (!m_logFilterWidget)
         return QString();
     return m_logFilterWidget->pickaxeLineEdit->text();
+}
+
+bool GitEditorWidget::caseSensitive() const
+{
+    return m_logFilterWidget && m_logFilterWidget->caseAction->isChecked();
 }
 
 } // namespace Internal

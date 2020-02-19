@@ -48,6 +48,7 @@ public:
     void setPickaxeLineEdit(Utils::FancyLineEdit *lineEdit);
     QString grepValue() const;
     QString pickaxeValue() const;
+    bool caseSensitive() const;
     void refresh();
 
 signals:

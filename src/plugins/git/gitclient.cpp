@@ -1062,6 +1062,9 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (!pickaxeValue.isEmpty())
         arguments << "-S" << pickaxeValue;
 
+    if ((!grepValue.isEmpty() || !pickaxeValue.isEmpty()) && !editor->caseSensitive())
+        arguments << "-i";
+
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
 
