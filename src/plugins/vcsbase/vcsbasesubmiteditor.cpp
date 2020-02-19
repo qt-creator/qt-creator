@@ -163,6 +163,7 @@ VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(SubmitEditorWidget *edito
 
 VcsBaseSubmitEditor::VcsBaseSubmitEditor(SubmitEditorWidget *editorWidget)
 {
+    setWidget(editorWidget);
     d = new VcsBaseSubmitEditorPrivate(editorWidget, this);
 }
 
