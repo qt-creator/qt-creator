@@ -163,19 +163,20 @@ void AnnotationTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList
     if (!itemList.isEmpty()) {
         m_formEditorItem = itemList.constFirst();
 
-        m_oldCustomId = m_formEditorItem->qmlItemNode().modelNode().customId();
-        m_oldAnnotation = m_formEditorItem->qmlItemNode().modelNode().annotation();
+        ModelNode itemModelNode = m_formEditorItem->qmlItemNode().modelNode();
+        m_oldCustomId = itemModelNode.customId();
+        m_oldAnnotation = itemModelNode.annotation();
 
         if (m_annotationEditor.isNull()) {
             m_annotationEditor = new AnnotationEditorDialog(view()->formEditorWidget()->parentWidget(),
-                                                            m_formEditorItem->qmlItemNode().modelNode().displayName(),
+                                                            itemModelNode.displayName(),
                                                             m_oldCustomId, m_oldAnnotation);
 
             connect(m_annotationEditor, &AnnotationEditorDialog::accepted, this, &AnnotationTool::annotationDialogAccepted);
             connect(m_annotationEditor, &QDialog::rejected, this, &AnnotationTool::annotationDialogRejected);
-//            connect(m_colorDialog.data(), &QColorDialog::currentColorChanged, this, &ColorTool::currentColorChanged);
 
-            m_annotationEditor->exec();
+            m_annotationEditor->show();
+            m_annotationEditor->raise();
         }
     } else {
         view()->changeToSelectionTool();

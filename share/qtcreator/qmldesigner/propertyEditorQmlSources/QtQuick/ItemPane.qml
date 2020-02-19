@@ -213,6 +213,7 @@ Rectangle {
                             iconFont: StudioTheme.Constants.font
                             Layout.fillWidth: true
                             Layout.preferredWidth: 240
+                            width: 240
 
                             onClicked: annotationEditor.showWidget()
 

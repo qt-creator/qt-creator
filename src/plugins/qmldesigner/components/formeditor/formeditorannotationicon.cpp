@@ -96,7 +96,7 @@ void FormEditorAnnotationIcon::paint(QPainter *painter, const QStyleOptionGraphi
         if (scene)
             m_readerIsActive = scene->annotationVisibility();
 
-        QPixmap icon( (m_readerIsActive ? m_activeIconStr : m_normalIconStr) );
+        QPixmap icon(m_readerIsActive ? m_activeIconStr : m_normalIconStr);
 
         painter->drawPixmap(0, 0,
                             static_cast<int>(m_iconW), static_cast<int>(m_iconH),
@@ -277,11 +277,8 @@ void FormEditorAnnotationIcon::drawReader()
 
 void FormEditorAnnotationIcon::hideReader()
 {
-    if (!childItems().isEmpty()) {
-        for (QGraphicsItem *item : childItems()) {
-            delete item;
-        }
-    }
+    if (!childItems().isEmpty())
+        qDeleteAll(childItems());
 }
 
 QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(const QRectF &rect, const QString &title,
@@ -398,7 +395,8 @@ void FormEditorAnnotationIcon::createAnnotationEditor()
     connect(m_annotationEditor, &QDialog::rejected,
             this, &FormEditorAnnotationIcon::annotationDialogRejected);
 
-    m_annotationEditor->open();
+    m_annotationEditor->show();
+    m_annotationEditor->raise();
 }
 
 void FormEditorAnnotationIcon::removeAnnotationDialog()

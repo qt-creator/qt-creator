@@ -30,7 +30,8 @@
 
 #include "ui_annotationcommenttab.h"
 
-#include <timelineicons.h> //replace timeline icons with our own?
+#include <timelineicons.h>
+#include <utils/qtcassert.h>
 
 #include <QObject>
 #include <QToolBar>
@@ -50,6 +51,7 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &t
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowFlag(Qt::Tool, true);
     setWindowTitle(titleString);
+    setModal(true);
 
     connect(this, &QDialog::accepted, this, &AnnotationEditorDialog::acceptedClicked);
 
@@ -67,8 +69,10 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &t
 
     connect(commentRemoveAction, &QAction::triggered, this, [this]() {
 
-        if (ui->tabWidget->count() == 0) //it is not even supposed to happen but lets be sure
+        if (ui->tabWidget->count() == 0) { //it is not even supposed to happen but lets be sure
+            QTC_ASSERT(true, return);
             return;
+        }
 
         int currentIndex = ui->tabWidget->currentIndex();
         QString currentTitle = ui->tabWidget->tabText(currentIndex);
@@ -202,11 +206,18 @@ void AnnotationEditorDialog::addCommentTab(const Comment &comment)
 {
     auto commentTab = new AnnotationCommentTab();
     commentTab->setComment(comment);
-    int tabIndex = ui->tabWidget->addTab(commentTab, comment.title());
 
-    if (comment.title().isEmpty())
-        ui->tabWidget->setTabText(tabIndex,
-                                  (defaultTabName + " " + QString::number(tabIndex+1)));
+    QString tabTitle(comment.title());
+    int tabIndex = ui->tabWidget->addTab(commentTab, tabTitle);
+    ui->tabWidget->setCurrentIndex(tabIndex);
+
+    if (tabTitle.isEmpty()) {
+        const QString appendix = ((tabIndex > 0) ? QString::number(tabIndex+1) : "");
+
+        tabTitle = QString("%1 %2").arg(defaultTabName).arg(appendix);
+
+        ui->tabWidget->setTabText(tabIndex, tabTitle);
+    }
 
     connect(commentTab, &AnnotationCommentTab::titleChanged,
             this, &AnnotationEditorDialog::commentTitleChanged);
@@ -230,18 +241,7 @@ void AnnotationEditorDialog::deleteAllTabs()
 
 void AnnotationEditorDialog::tabChanged(int index)
 {
-    QWidget *w = ui->tabWidget->widget(index);
-    AnnotationCommentTab *tab = nullptr;
-    if (w)
-        tab = reinterpret_cast<AnnotationCommentTab*>(w);
-
-    if (tab) {
-        //this tab order resetting doesn't work
-        QWidget::setTabOrder(ui->targetIdEdit, ui->customIdEdit);
-        QWidget::setTabOrder(ui->customIdEdit, ui->tabWidget);
-        QWidget::setTabOrder(ui->tabWidget, tab);
-        QWidget::setTabOrder(tab, ui->buttonBox);
-    }
+    (void) index;
 }
 
 } //namespace QmlDesigner
