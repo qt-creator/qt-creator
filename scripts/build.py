@@ -83,6 +83,10 @@ def get_arguments():
                         action='store_true', default=(not common.is_windows_platform()))
     parser.add_argument('--no-docs', help='Skip documentation generation',
                         action='store_true', default=False)
+    parser.add_argument('--no-dmg', help='Skip disk image creation (macOS)',
+                        action='store_true', default=False)
+    parser.add_argument('--no-zip', help='Skip creation of 7zip files for install and developer package',
+                        action='store_true', default=False)
     return parser.parse_args()
 
 def build_qtcreator(args, paths):
@@ -124,8 +128,7 @@ def build_qtcreator(args, paths):
                                '-DPYTHON_INCLUDE_DIR=' + os.path.join(args.python_path, 'include')]
 
     # TODO this works around a CMake bug https://gitlab.kitware.com/cmake/cmake/issues/20119
-    if common.is_linux_platform():
-        cmake_args += ['-DBUILD_WITH_PCH=OFF']
+    cmake_args += ['-DBUILD_WITH_PCH=OFF']
 
     ide_revision = common.get_commit_SHA(paths.src)
     if ide_revision:
@@ -191,30 +194,32 @@ def deploy_qt(args, paths):
                                 paths.build)
 
 def package_qtcreator(args, paths):
-    common.check_print_call(['7z', 'a', '-mmt2', os.path.join(paths.result, 'qtcreator.7z'), '*'],
-                            paths.install)
-    common.check_print_call(['7z', 'a', '-mmt2',
-                             os.path.join(paths.result, 'qtcreator_dev.7z'), '*'],
-                            paths.dev_install)
-    if common.is_windows_platform():
+    if not args.no_zip:
+        common.check_print_call(['7z', 'a', '-mmt2', os.path.join(paths.result, 'qtcreator.7z'), '*'],
+                                paths.install)
         common.check_print_call(['7z', 'a', '-mmt2',
-                                 os.path.join(paths.result, 'wininterrupt.7z'), '*'],
-                                paths.wininterrupt_install)
-        if not args.no_cdb:
+                                 os.path.join(paths.result, 'qtcreator_dev.7z'), '*'],
+                                paths.dev_install)
+        if common.is_windows_platform():
             common.check_print_call(['7z', 'a', '-mmt2',
-                                     os.path.join(paths.result, 'qtcreatorcdbext.7z'), '*'],
-                                    paths.qtcreatorcdbext_install)
+                                     os.path.join(paths.result, 'wininterrupt.7z'), '*'],
+                                    paths.wininterrupt_install)
+            if not args.no_cdb:
+                common.check_print_call(['7z', 'a', '-mmt2',
+                                         os.path.join(paths.result, 'qtcreatorcdbext.7z'), '*'],
+                                        paths.qtcreatorcdbext_install)
 
     if common.is_mac_platform():
         if args.keychain_unlock_script:
             common.check_print_call([args.keychain_unlock_script], paths.install)
-        common.check_print_call(['python', '-u',
-                                 os.path.join(paths.src, 'scripts', 'makedmg.py'),
-                                 'qt-creator.dmg',
-                                 'Qt Creator',
-                                 paths.src,
-                                 paths.install],
-                                paths.result)
+        if not args.no_dmg:
+            common.check_print_call(['python', '-u',
+                                     os.path.join(paths.src, 'scripts', 'makedmg.py'),
+                                     'qt-creator.dmg',
+                                     'Qt Creator',
+                                     paths.src,
+                                     paths.install],
+                                    paths.result)
 
 def get_paths(args):
     Paths = collections.namedtuple('Paths',
