@@ -26,22 +26,22 @@
 #include "buildconfiguration.h"
 
 #include "buildaspects.h"
-#include "buildenvironmentwidget.h"
 #include "buildinfo.h"
 #include "buildsteplist.h"
 #include "buildstepspage.h"
 #include "buildsystem.h"
-#include "namedwidget.h"
+#include "environmentwidget.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
-#include "project.h"
-#include "projectexplorer.h"
+#include "namedwidget.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorer.h"
+#include "project.h"
 #include "projectmacroexpander.h"
 #include "projecttree.h"
-#include "target.h"
 #include "session.h"
+#include "target.h"
 #include "toolchain.h"
 
 #include <coreplugin/idocument.h>
@@ -54,8 +54,10 @@
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QDebug>
 #include <QFormLayout>
+#include <QVBoxLayout>
 
 using namespace Utils;
 
@@ -66,6 +68,45 @@ const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.
 
 namespace ProjectExplorer {
 namespace Internal {
+
+class BuildEnvironmentWidget : public NamedWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::BuildEnvironmentWidget)
+
+public:
+    explicit BuildEnvironmentWidget(BuildConfiguration *bc)
+        : NamedWidget(tr("Build Environment"))
+    {
+        auto clearBox = new QCheckBox(tr("Clear system environment"), this);
+        clearBox->setChecked(!bc->useSystemEnvironment());
+
+        auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal, clearBox);
+        envWidget->setBaseEnvironment(bc->baseEnvironment());
+        envWidget->setBaseEnvironmentText(bc->baseEnvironmentText());
+        envWidget->setUserChanges(bc->userEnvironmentChanges());
+
+        connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [bc, envWidget] {
+            bc->setUserEnvironmentChanges(envWidget->userChanges());
+        });
+
+        connect(clearBox, &QAbstractButton::toggled, this, [bc, envWidget](bool checked) {
+            bc->setUseSystemEnvironment(!checked);
+            envWidget->setBaseEnvironment(bc->baseEnvironment());
+            envWidget->setBaseEnvironmentText(bc->baseEnvironmentText());
+        });
+
+        connect(bc, &BuildConfiguration::environmentChanged, this, [bc, envWidget] {
+            envWidget->setBaseEnvironment(bc->baseEnvironment());
+            envWidget->setBaseEnvironmentText(bc->baseEnvironmentText());
+        });
+
+        auto vbox = new QVBoxLayout(this);
+        vbox->setContentsMargins(0, 0, 0, 0);
+        vbox->addWidget(clearBox);
+        vbox->addWidget(envWidget);
+    }
+};
+
 
 class BuildConfigurationPrivate
 {
@@ -245,7 +286,7 @@ NamedWidget *BuildConfiguration::createConfigWidget()
 
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
-    return {new BuildEnvironmentWidget(this)};
+    return {new Internal::BuildEnvironmentWidget(this)};
 }
 
 BuildSystem *BuildConfiguration::buildSystem() const

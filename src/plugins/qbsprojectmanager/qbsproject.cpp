@@ -49,8 +49,6 @@
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/generatedcodemodelsupport.h>
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>

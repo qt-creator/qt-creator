@@ -105,7 +105,6 @@ HEADERS += projectexplorer.h \
     projectexplorersettingspage.h \
     baseprojectwizarddialog.h \
     miniprojecttargetselector.h \
-    buildenvironmentwidget.h \
     ldparser.h \
     lldparser.h \
     linuxiccparser.h \
@@ -258,7 +257,6 @@ SOURCES += projectexplorer.cpp \
     projectexplorersettingspage.cpp \
     baseprojectwizarddialog.cpp \
     miniprojecttargetselector.cpp \
-    buildenvironmentwidget.cpp \
     ldparser.cpp \
     lldparser.cpp \
     linuxiccparser.cpp \

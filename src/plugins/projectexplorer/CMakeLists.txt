@@ -16,7 +16,6 @@ add_qtc_plugin(ProjectExplorer
     buildpropertiessettings.h
     buildpropertiessettingspage.cpp buildpropertiessettingspage.h
     buildconfiguration.cpp buildconfiguration.h
-    buildenvironmentwidget.cpp buildenvironmentwidget.h
     buildinfo.cpp buildinfo.h
     buildmanager.cpp buildmanager.h
     buildprogress.cpp buildprogress.h
