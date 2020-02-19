@@ -45,7 +45,6 @@ namespace Internal  {
 MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
         exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
         exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
-        changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
         changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
         m_client(client)
 {
@@ -53,22 +52,7 @@ MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
     setLogEntryPattern(QRegExp(QLatin1String("^changeset:\\s+(\\S+)$")));
     setAnnotateRevisionTextFormat(tr("&Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
-}
-
-QSet<QString> MercurialEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString data = toPlainText();
-    if (data.isEmpty())
-        return changes;
-
-    int position = 0;
-    while ((position = changesetIdentifier12.indexIn(data, position)) != -1) {
-        changes.insert(changesetIdentifier12.cap(1));
-        position += changesetIdentifier12.matchedLength();
-    }
-
-    return changes;
+    setAnnotationEntryPattern(Constants::CHANGESETID12);
 }
 
 QString MercurialEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const

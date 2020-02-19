@@ -41,7 +41,6 @@ public:
     explicit MercurialEditorWidget(MercurialClient *client);
 
 private:
-    QSet<QString> annotationChanges() const override;
     QString changeUnderCursor(const QTextCursor &cursor) const override;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
             const QSet<QString> &changes) const override;
@@ -50,7 +49,6 @@ private:
 
     mutable QRegExp exactIdentifier12;
     mutable QRegExp exactIdentifier40;
-    mutable QRegExp changesetIdentifier12;
     const QRegExp changesetIdentifier40;
 
     MercurialClient *m_client;

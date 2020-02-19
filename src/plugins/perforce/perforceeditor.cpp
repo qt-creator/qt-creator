@@ -63,28 +63,7 @@ PerforceEditorWidget::PerforceEditorWidget() :
     setDiffFilePattern(QRegExp(QLatin1String("^(?:={4}|\\+{3}) (.+)(?:\\t|#\\d)")));
     setLogEntryPattern(QRegExp(QLatin1String("^... #\\d change (\\d+) ")));
     setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
-}
-
-QSet<QString> PerforceEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-    // Hunt for first change number in annotation: "<change>:"
-    QRegExp r(QLatin1String("^(\\d+):"));
-    QTC_ASSERT(r.isValid(), return changes);
-    if (r.indexIn(txt) != -1) {
-        changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n(\\d+):"));
-        QTC_ASSERT(r.isValid(), return changes);
-        int pos = 0;
-        while ((pos = r.indexIn(txt, pos)) != -1) {
-            pos += r.matchedLength();
-            changes.insert(r.cap(1));
-        }
-    }
-    return changes;
+    setAnnotationEntryPattern("^(\\d+):");
 }
 
 QString PerforceEditorWidget::changeUnderCursor(const QTextCursor &c) const

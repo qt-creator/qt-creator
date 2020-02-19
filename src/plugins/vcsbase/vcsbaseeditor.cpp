@@ -50,6 +50,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QFile>
+#include <QRegularExpression>
 #include <QRegExp>
 #include <QSet>
 #include <QTextCodec>
@@ -556,6 +557,8 @@ public:
 
     QRegExp m_diffFilePattern;
     QRegExp m_logEntryPattern;
+    QRegularExpression m_annotationEntryPattern;
+    QRegularExpression m_annotationSeparatorPattern;
     QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine = -1;
     int m_firstLineNumber = -1;
@@ -659,6 +662,20 @@ void VcsBaseEditorWidget::setLogEntryPattern(const QRegExp &pattern)
 {
     QTC_ASSERT(pattern.isValid() && pattern.captureCount() >= 1, return);
     d->m_logEntryPattern = pattern;
+}
+
+void VcsBaseEditorWidget::setAnnotationEntryPattern(const QString &pattern)
+{
+    const QRegularExpression re(pattern, QRegularExpression::MultilineOption);
+    QTC_ASSERT(re.isValid() && re.captureCount() >= 1, return);
+    d->m_annotationEntryPattern = re;
+}
+
+void VcsBaseEditorWidget::setAnnotationSeparatorPattern(const QString &pattern)
+{
+    const QRegularExpression re(pattern);
+    QTC_ASSERT(re.isValid() && re.captureCount() >= 1, return);
+    d->m_annotationSeparatorPattern = re;
 }
 
 bool VcsBaseEditorWidget::supportChangeLinks() const
@@ -1535,6 +1552,26 @@ QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inB
 
 void VcsBaseEditorWidget::addChangeActions(QMenu *, const QString &)
 {
+}
+
+QSet<QString> VcsBaseEditorWidget::annotationChanges() const
+{
+    QSet<QString> changes;
+    QString text = toPlainText();
+    QStringRef txt(&text);
+    if (txt.isEmpty())
+        return changes;
+    if (d->m_annotationSeparatorPattern.isValid()) {
+        const QRegularExpressionMatch match = d->m_annotationSeparatorPattern.match(txt);
+        if (match.hasMatch())
+            txt.truncate(match.capturedStart());
+    }
+    QRegularExpressionMatchIterator i = d->m_annotationEntryPattern.globalMatch(txt);
+    while (i.hasNext()) {
+        const QRegularExpressionMatch match = i.next();
+        changes.insert(match.captured(1));
+    }
+    return changes;
 }
 
 QString VcsBaseEditorWidget::decorateVersion(const QString &revision) const

@@ -59,30 +59,7 @@ SubversionEditorWidget::SubversionEditorWidget() :
     setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$")));
     setLogEntryPattern(QRegExp(QLatin1String("^(r\\d+) \\|")));
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
-}
-
-QSet<QString> SubversionEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-    // Hunt for first change number in annotation: "<change>:"
-    QRegExp r(QLatin1String("^(\\d+):"));
-    QTC_ASSERT(r.isValid(), return changes);
-    if (r.indexIn(txt) != -1) {
-        changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n(\\d+):"));
-        QTC_ASSERT(r.isValid(), return changes);
-        int pos = 0;
-        while ((pos = r.indexIn(txt, pos)) != -1) {
-            pos += r.matchedLength();
-            changes.insert(r.cap(1));
-        }
-    }
-    if (Subversion::Constants::debug)
-        qDebug() << "SubversionEditor::annotationChanges() returns #" << changes.size();
-    return changes;
+    setAnnotationEntryPattern("^(\\d+):");
 }
 
 QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const

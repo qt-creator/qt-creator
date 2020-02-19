@@ -75,28 +75,7 @@ GitEditorWidget::GitEditorWidget() :
     setLogEntryPattern(QRegExp("^commit ([0-9a-f]{8})[0-9a-f]{32}"));
     setAnnotateRevisionTextFormat(tr("&Blame %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Blame &Parent Revision %1"));
-}
-
-QSet<QString> GitEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-    // Hunt for first change number in annotation: "<change>:"
-    QRegExp r("^(" CHANGE_PATTERN ") ");
-    QTC_ASSERT(r.isValid(), return changes);
-    if (r.indexIn(txt) != -1) {
-        changes.insert(r.cap(1));
-        r.setPattern("\n(" CHANGE_PATTERN ") ");
-        QTC_ASSERT(r.isValid(), return changes);
-        int pos = 0;
-        while ((pos = r.indexIn(txt, pos)) != -1) {
-            pos += r.matchedLength();
-            changes.insert(r.cap(1));
-        }
-    }
-    return changes;
+    setAnnotationEntryPattern("^(" CHANGE_PATTERN ") ");
 }
 
 QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const

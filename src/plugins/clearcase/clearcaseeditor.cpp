@@ -52,24 +52,8 @@ ClearCaseEditorWidget::ClearCaseEditorWidget() :
     setDiffFilePattern(diffFilePattern);
     setLogEntryPattern(QRegExp(QLatin1String("version \"([^\"]+)\"")));
     setAnnotateRevisionTextFormat(tr("Annotate version \"%1\""));
-}
-
-QSet<QString> ClearCaseEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-    // search until header
-    int separator = txt.indexOf(QRegExp(QLatin1String("\n-{30}")));
-    QRegExp r(QLatin1String("([^|]*)\\|[^\n]*\n"));
-    QTC_ASSERT(r.isValid(), return changes);
-    int pos = r.indexIn(txt, 0);
-    while (pos != -1 && pos < separator) {
-        changes.insert(r.cap(1));
-        pos = r.indexIn(txt, pos + r.matchedLength());
-    }
-    return changes;
+    setAnnotationEntryPattern("([^|]*)\\|[^\\n]*\\n");
+    setAnnotationSeparatorPattern("\\n-{30}");
 }
 
 QString ClearCaseEditorWidget::changeUnderCursor(const QTextCursor &c) const

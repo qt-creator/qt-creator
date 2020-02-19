@@ -59,28 +59,7 @@ CvsEditorWidget::CvsEditorWidget() :
     setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)")));
     setLogEntryPattern(QRegExp(QLatin1String("^revision (.+)$")));
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
-}
-
-QSet<QString> CvsEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-    // Hunt for first change number in annotation: "1.1 (author)"
-    QRegExp r(QLatin1String(CVS_REVISION_AT_START_PATTERN));
-    QTC_ASSERT(r.isValid(), return changes);
-    if (r.indexIn(txt) != -1) {
-        changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n(" CVS_REVISION_PATTERN ") "));
-        QTC_ASSERT(r.isValid(), return changes);
-        int pos = 0;
-        while ((pos = r.indexIn(txt, pos)) != -1) {
-            pos += r.matchedLength();
-            changes.insert(r.cap(1));
-        }
-    }
-    return changes;
+    setAnnotationEntryPattern("^(" CVS_REVISION_PATTERN ") ");
 }
 
 QString CvsEditorWidget::changeUnderCursor(const QTextCursor &c) const

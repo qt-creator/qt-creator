@@ -148,6 +148,10 @@ protected:
     void setDiffFilePattern(const QRegExp &pattern);
     // Pattern for log entry. hash/revision number must be in the first capture group
     void setLogEntryPattern(const QRegExp &pattern);
+    // Pattern for annotation entry. hash/revision number must be in the first capture group
+    void setAnnotationEntryPattern(const QString &pattern);
+    // Pattern for annotation separator. Lookup will stop on match.
+    void setAnnotationSeparatorPattern(const QString &pattern);
     virtual bool supportChangeLinks() const;
     virtual QString fileNameForLine(int line) const;
 
@@ -246,7 +250,7 @@ protected:
 
     // Implement to return a set of change identifiers in
     // annotation mode
-    virtual QSet<QString> annotationChanges() const = 0;
+    QSet<QString> annotationChanges() const;
     // Implement to identify a change number at the cursor position
     virtual QString changeUnderCursor(const QTextCursor &) const = 0;
     // Factory functions for highlighters
