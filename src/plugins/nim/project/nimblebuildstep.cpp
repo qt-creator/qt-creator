@@ -111,8 +111,8 @@ bool NimbleBuildStep::init()
     setOutputParser(parser);
 
     ProcessParameters* params = processParameters();
-    params->setEnvironment(buildConfiguration()->environment());
-    params->setMacroExpander(buildConfiguration()->macroExpander());
+    params->setEnvironment(buildEnvironment());
+    params->setMacroExpander(macroExpander());
     params->setWorkingDirectory(project()->projectDirectory());
     params->setCommandLine({QStandardPaths::findExecutable("nimble"), {"build", m_arguments}});
     return AbstractProcessStep::init();
@@ -156,13 +156,12 @@ QVariantMap NimbleBuildStep::toMap() const
 
 QString NimbleBuildStep::defaultArguments() const
 {
-    QTC_ASSERT(buildConfiguration(), return {}; );
-    switch (buildConfiguration()->buildType()) {
-    case ProjectExplorer::BuildConfiguration::Debug:
+    switch (buildType()) {
+    case BuildConfiguration::Debug:
         return {"--debugger:native"};
-    case ProjectExplorer::BuildConfiguration::Unknown:
-    case ProjectExplorer::BuildConfiguration::Profile:
-    case ProjectExplorer::BuildConfiguration::Release:
+    case BuildConfiguration::Unknown:
+    case BuildConfiguration::Profile:
+    case BuildConfiguration::Release:
     default:
         return {};
     }

@@ -106,7 +106,7 @@ NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList, Core::Id i
             this, &NimCompilerBuildStep::updateProcessParameters);
     connect(this, &NimCompilerBuildStep::outFilePathChanged,
             bc, &NimBuildConfiguration::outFilePathChanged);
-    connect(bc->target()->project(), &ProjectExplorer::Project::fileListChanged,
+    connect(project(), &ProjectExplorer::Project::fileListChanged,
             this, &NimCompilerBuildStep::updateTargetNimFile);
     updateProcessParameters();
 }
@@ -208,17 +208,13 @@ void NimCompilerBuildStep::updateProcessParameters()
 
 void NimCompilerBuildStep::updateOutFilePath()
 {
-    auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
-    QTC_ASSERT(bc, return);
     const QString targetName = Utils::HostOsInfo::withExecutableSuffix(m_targetNimFile.toFileInfo().baseName());
-    setOutFilePath(bc->buildDirectory().pathAppended(targetName));
+    setOutFilePath(buildDirectory().pathAppended(targetName));
 }
 
 void NimCompilerBuildStep::updateWorkingDirectory()
 {
-    auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
-    QTC_ASSERT(bc, return);
-    processParameters()->setWorkingDirectory(bc->buildDirectory());
+    processParameters()->setWorkingDirectory(buildDirectory());
 }
 
 void NimCompilerBuildStep::updateCommand()
@@ -257,9 +253,7 @@ void NimCompilerBuildStep::updateCommand()
 
 void NimCompilerBuildStep::updateEnvironment()
 {
-    auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
-    QTC_ASSERT(bc, return);
-    processParameters()->setEnvironment(bc->environment());
+    processParameters()->setEnvironment(buildEnvironment());
 }
 
 void NimCompilerBuildStep::updateTargetNimFile()

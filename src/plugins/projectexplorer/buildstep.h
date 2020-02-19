@@ -26,6 +26,8 @@
 #pragma once
 
 #include "projectconfiguration.h"
+
+#include "buildconfiguration.h"
 #include "projectexplorer_export.h"
 
 #include <utils/optional.h>
@@ -38,7 +40,11 @@
 #include <functional>
 #include <memory>
 
-namespace Utils { class MacroExpander; }
+namespace Utils {
+class Environment;
+class FilePath;
+class MacroExpander;
+} // Utils
 
 namespace ProjectExplorer {
 
@@ -79,7 +85,11 @@ public:
     ProjectConfiguration *projectConfiguration() const;
 
     BuildSystem *buildSystem() const;
+    Utils::Environment buildEnvironment() const;
+    Utils::FilePath buildDirectory() const;
+    BuildConfiguration::BuildType buildType() const;
     Utils::MacroExpander *macroExpander() const;
+    QString fallbackWorkingDirectory() const;
 
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools

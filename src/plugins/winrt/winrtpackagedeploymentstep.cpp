@@ -187,7 +187,7 @@ bool WinRtPackageDeploymentStep::init()
         return false;
     }
     params->setCommandLine(windeployqt);
-    params->setEnvironment(buildConfiguration()->environment());
+    params->setEnvironment(buildEnvironment());
 
     return AbstractProcessStep::init();
 }

@@ -86,12 +86,10 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(
     });
 
     setSummaryUpdater([this] {
-        BuildConfiguration *bc = buildConfiguration();
-
         ProcessParameters param;
-        param.setMacroExpander(bc->macroExpander());
-        param.setEnvironment(bc->environment());
-        param.setWorkingDirectory(bc->target()->project()->projectDirectory());
+        param.setMacroExpander(macroExpander());
+        param.setEnvironment(buildEnvironment());
+        param.setWorkingDirectory(project()->projectDirectory());
         param.setCommandLine({FilePath::fromString("./autogen.sh"),
                               m_additionalArgumentsAspect->value(),
                               CommandLine::Raw});
@@ -102,12 +100,10 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(
 
 bool AutogenStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->target()->project()->projectDirectory());
+    pp->setMacroExpander(macroExpander());
+    pp->setEnvironment(buildEnvironment());
+    pp->setWorkingDirectory(project()->projectDirectory());
     pp->setCommandLine({FilePath::fromString("./autogen.sh"),
                         m_additionalArgumentsAspect->value(),
                         CommandLine::Raw});
@@ -117,10 +113,8 @@ bool AutogenStep::init()
 
 void AutogenStep::doRun()
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     // Check whether we need to run autogen.sh
-    const QString projectDir = bc->target()->project()->projectDirectory().toString();
+    const QString projectDir = project()->projectDirectory().toString();
     const QFileInfo configureInfo(projectDir + "/configure");
     const QFileInfo configureAcInfo(projectDir + "/configure.ac");
     const QFileInfo makefileAmInfo(projectDir + "/Makefile.am");

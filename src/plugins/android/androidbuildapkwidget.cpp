@@ -256,7 +256,7 @@ QWidget *AndroidBuildApkWidget::createCreateTemplatesGroup()
 
     auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
     connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
-        CreateAndroidManifestWizard wizard(m_step->buildConfiguration()->buildSystem());
+        CreateAndroidManifestWizard wizard(m_step->buildSystem());
         wizard.exec();
     });
 
@@ -348,7 +348,7 @@ void AndroidBuildApkWidget::setCertificates()
 
 void AndroidBuildApkWidget::updateSigningWarning()
 {
-    bool nonRelease = m_step->buildConfiguration()->buildType() != BuildConfiguration::Release;
+    bool nonRelease = m_step->buildType() != BuildConfiguration::Release;
     bool visible = m_step->signPackage() && nonRelease;
     m_signingDebugWarningLabel->setVisible(visible);
 }

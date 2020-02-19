@@ -213,11 +213,11 @@ void CMakeBuildStep::doRun()
     QTC_ASSERT(bc, return);
 
     m_waiting = false;
-    auto bs = static_cast<CMakeBuildSystem *>(buildConfiguration()->buildSystem());
+    auto bs = static_cast<CMakeBuildSystem *>(buildSystem());
     if (bs->persistCMakeState()) {
         emit addOutput(tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
         m_waiting = true;
-    } else if (buildConfiguration()->buildSystem()->isWaitingForParse()) {
+    } else if (buildSystem()->isWaitingForParse()) {
         emit addOutput(tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
         m_waiting = true;
     }
@@ -359,7 +359,7 @@ Utils::CommandLine CMakeBuildStep::cmakeCommand(RunConfiguration *rc) const
 
 QStringList CMakeBuildStep::knownBuildTargets()
 {
-    auto bc = qobject_cast<CMakeBuildSystem *>(buildConfiguration()->buildSystem());
+    auto bc = qobject_cast<CMakeBuildSystem *>(buildSystem());
     return bc ? bc->buildTargetTitles() : QStringList();
 }
 
@@ -535,9 +535,9 @@ void CMakeBuildStepConfigWidget::updateDetails()
     }
 
     ProcessParameters param;
-    param.setMacroExpander(bc->macroExpander());
-    param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory());
+    param.setMacroExpander(m_buildStep->macroExpander());
+    param.setEnvironment(m_buildStep->buildEnvironment());
+    param.setWorkingDirectory(m_buildStep->buildDirectory());
     param.setCommandLine(m_buildStep->cmakeCommand(nullptr));
 
     setSummaryText(param.summary(displayName()));

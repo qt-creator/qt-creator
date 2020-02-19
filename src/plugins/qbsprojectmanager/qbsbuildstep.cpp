@@ -234,7 +234,7 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
           Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
 
     if (variableHandling == ExpandVariables) {
-        const MacroExpander * const expander = buildConfiguration()->macroExpander();
+        const MacroExpander * const expander = macroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
             const QString rawString = it.value().toString();
             const QString expandedString = expander->expand(rawString);
@@ -273,7 +273,7 @@ Utils::FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) con
         return Utils::FilePath::fromString(root);
     QString defaultInstallDir = QbsSettings::defaultInstallDirTemplate();
     if (variableHandling == VariableHandling::ExpandVariables)
-        defaultInstallDir = buildConfiguration()->macroExpander()->expand(defaultInstallDir);
+        defaultInstallDir = macroExpander()->expand(defaultInstallDir);
     return FilePath::fromString(defaultInstallDir);
 }
 
@@ -411,7 +411,7 @@ QString QbsBuildStep::buildVariant() const
 
 QbsBuildSystem *QbsBuildStep::qbsBuildSystem() const
 {
-    return static_cast<QbsBuildSystem *>(buildConfiguration()->buildSystem());
+    return static_cast<QbsBuildSystem *>(buildSystem());
 }
 
 void QbsBuildStep::setBuildVariant(const QString &variant)
@@ -644,9 +644,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(propertyEdit);
     chooser->addSupportedWidget(installDirChooser->lineEdit());
-    chooser->addMacroExpanderProvider([step] {
-        return step->buildConfiguration()->macroExpander();
-    });
+    chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
     propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
         return validateProperties(edit, errorMessage);
     });
@@ -868,7 +866,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     }
 
     QList<Property> properties;
-    const MacroExpander * const expander = step()->buildConfiguration()->macroExpander();
+    const MacroExpander * const expander = step()->macroExpander();
     foreach (const QString &rawArg, argList) {
         int pos = rawArg.indexOf(':');
         if (pos > 0) {

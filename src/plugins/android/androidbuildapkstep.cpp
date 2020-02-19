@@ -86,13 +86,13 @@ const char VerboseOutputKey[] = "VerboseOutput";
 const char UseMinistroKey[] = "UseMinistro";
 
 static void setupProcessParameters(ProcessParameters *pp,
-                                   BuildConfiguration *bc,
+                                   BuildStep *step,
                                    const QStringList &arguments,
                                    const QString &command)
 {
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory());
-    Utils::Environment env = bc->environment();
+    pp->setMacroExpander(step->macroExpander());
+    pp->setWorkingDirectory(step->buildDirectory());
+    Utils::Environment env = step->buildEnvironment();
     pp->setEnvironment(env);
     pp->setCommandLine({command, arguments});
 }
@@ -152,8 +152,6 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Core::Id id)
 
 bool AndroidBuildApkStep::init()
 {
-    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-
     if (m_signPackage) {
         qCDebug(buildapkstepLog) << "Signing enabled";
         // check keystore and certificate passwords
@@ -162,7 +160,7 @@ bool AndroidBuildApkStep::init()
             return false;
         }
 
-        if (bc->buildType() != ProjectExplorer::BuildConfiguration::Release)
+        if (buildType() != BuildConfiguration::Release)
             emit addOutput(tr("Warning: Signing a debug or profile package."),
                            OutputFormat::ErrorMessage);
     }
@@ -208,7 +206,7 @@ bool AndroidBuildApkStep::init()
 
     QFileInfo sourceDirInfo(sourceDirName);
     parser->setSourceDirectory(Utils::FilePath::fromString(sourceDirInfo.canonicalFilePath()));
-    parser->setBuildDirectory(bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
+    parser->setBuildDirectory(buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
@@ -224,7 +222,7 @@ bool AndroidBuildApkStep::init()
         command += '/';
     command += Utils::HostOsInfo::withExecutableSuffix("androiddeployqt");
 
-    QString outputDir = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
+    QString outputDir = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
     if (node)
         m_inputFile = node->data(Constants::AndroidDeploySettingsFile).toString();
@@ -273,18 +271,18 @@ bool AndroidBuildApkStep::init()
     // Must be the last option, otherwise androiddeployqt might use the other
     // params (e.g. --sign) to choose not to add gdbserver
     if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0)) {
-        if (m_addDebugger || bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
+        if (m_addDebugger || buildType() == ProjectExplorer::BuildConfiguration::Debug)
             arguments << "--gdbserver";
         else
             arguments << "--no-gdbserver";
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp, bc, arguments, command);
+    setupProcessParameters(pp, this, arguments, command);
 
     // Generate arguments with keystore password concealed
     ProjectExplorer::ProcessParameters pp2;
-    setupProcessParameters(&pp2, bc, argumentsPasswordConcealed, command);
+    setupProcessParameters(&pp2, this, argumentsPasswordConcealed, command);
     m_command = pp2.effectiveCommand().toString();
     m_argumentsPasswordConcealed = pp2.prettyArguments();
 
@@ -381,13 +379,12 @@ void AndroidBuildApkStep::doRun()
     }
 
     auto setup = [this] {
-        auto bc = buildConfiguration();
         const auto androidAbis = AndroidManager::applicationAbis(target());
         for (const auto &abi : androidAbis) {
-            Utils::FilePath androidLibsDir = bc->buildDirectory()
+            Utils::FilePath androidLibsDir = buildDirectory()
                     .pathAppended("android-build/libs")
                     .pathAppended(abi);
-            if (!androidLibsDir.exists() && !QDir{bc->buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
+            if (!androidLibsDir.exists() && !QDir{buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
                 return false;
         }
 
@@ -416,7 +413,7 @@ void AndroidBuildApkStep::doRun()
         if (version->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
             applicationBinary = target()->activeRunConfiguration()->buildTargetInfo().targetFilePath.toString();
-            Utils::FilePath androidLibsDir = bc->buildDirectory().pathAppended("android-build/libs").pathAppended(androidAbis.first());
+            Utils::FilePath androidLibsDir = buildDirectory().pathAppended("android-build/libs").pathAppended(androidAbis.first());
             for (const auto &target : targets) {
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
                     return false;
@@ -434,7 +431,7 @@ void AndroidBuildApkStep::doRun()
                     applicationBinary.remove(0, 3).chop(targetSuffix.size());
                 }
 
-                Utils::FilePath androidLibsDir = bc->buildDirectory()
+                Utils::FilePath androidLibsDir = buildDirectory()
                                                      .pathAppended("android-build/libs")
                                                      .pathAppended(abi);
                 for (const auto &target : targets) {

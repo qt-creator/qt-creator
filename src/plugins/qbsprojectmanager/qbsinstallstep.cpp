@@ -109,7 +109,7 @@ QbsInstallStep::~QbsInstallStep()
 
 bool QbsInstallStep::init()
 {
-    QTC_ASSERT(!buildConfiguration()->buildSystem()->isParsing() && !m_session, return false);
+    QTC_ASSERT(!buildSystem()->isParsing() && !m_session, return false);
     return true;
 }
 

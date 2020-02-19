@@ -349,10 +349,7 @@ void AbstractProcessStep::processReadyReadStdOutput()
     if (!d->m_process)
         return;
     d->m_process->setReadChannel(QProcess::StandardOutput);
-    BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
-    const bool utf8Output = bc && bc->environment().hasKey("VSLANG");
+    const bool utf8Output = buildEnvironment().hasKey("VSLANG");
     d->readData(&AbstractProcessStep::stdOutput, utf8Output);
 }
 

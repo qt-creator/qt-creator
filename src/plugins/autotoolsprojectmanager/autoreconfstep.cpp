@@ -84,12 +84,10 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id)
     });
 
     setSummaryUpdater([this] {
-        BuildConfiguration *bc = buildConfiguration();
-
         ProcessParameters param;
-        param.setMacroExpander(bc->macroExpander());
-        param.setEnvironment(bc->environment());
-        param.setWorkingDirectory(bc->target()->project()->projectDirectory());
+        param.setMacroExpander(macroExpander());
+        param.setEnvironment(buildEnvironment());
+        param.setWorkingDirectory(project()->projectDirectory());
         param.setCommandLine({Utils::FilePath::fromString("autoreconf"),
                               m_additionalArgumentsAspect->value(),
                               Utils::CommandLine::Raw});
@@ -100,12 +98,10 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id)
 
 bool AutoreconfStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->target()->project()->projectDirectory());
+    pp->setMacroExpander(macroExpander());
+    pp->setEnvironment(buildEnvironment());
+    pp->setWorkingDirectory(project()->projectDirectory());
     pp->setCommandLine({Utils::FilePath::fromString("autoreconf"),
                         m_additionalArgumentsAspect->value(), Utils::CommandLine::Raw});
 
@@ -114,10 +110,8 @@ bool AutoreconfStep::init()
 
 void AutoreconfStep::doRun()
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     // Check whether we need to run autoreconf
-    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    const QString projectDir(project()->projectDirectory().toString());
 
     if (!QFileInfo::exists(projectDir + "/configure"))
         m_runAutoreconf = true;

@@ -92,19 +92,13 @@ bool ProcessStep::init()
 
 void ProcessStep::setupProcessParameters(ProcessParameters *pp)
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     QString workingDirectory = m_workingDirectory->value();
-    if (workingDirectory.isEmpty()) {
-        if (bc)
-            workingDirectory = Constants::DEFAULT_WORKING_DIR;
-        else
-            workingDirectory = Constants::DEFAULT_WORKING_DIR_ALTERNATE;
-    }
+    if (workingDirectory.isEmpty())
+        workingDirectory = fallbackWorkingDirectory();
 
-    pp->setMacroExpander(bc ? bc->macroExpander() : Utils::globalMacroExpander());
-    pp->setEnvironment(bc ? bc->environment() : Utils::Environment::systemEnvironment());
-    pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
+    pp->setMacroExpander(macroExpander());
+    pp->setEnvironment(buildEnvironment());
+    pp->setWorkingDirectory(FilePath::fromString(workingDirectory));
     pp->setCommandLine({m_command->filePath(), m_arguments->value(), CommandLine::Raw});
     pp->resolveAll();
 }

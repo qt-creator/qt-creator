@@ -51,14 +51,14 @@ NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Core::Id i
     workingDirectory->setDisplayStyle(BaseStringAspect::LineEditDisplay);
 
     setSummaryUpdater([this, workingDirectory] {
-        workingDirectory->setFilePath(buildConfiguration()->buildDirectory());
+        workingDirectory->setFilePath(buildDirectory());
         return displayName();
     });
 }
 
 bool NimCompilerCleanStep::init()
 {
-    FilePath buildDir = buildConfiguration()->buildDirectory();
+    FilePath buildDir = buildDirectory();
     bool result = buildDir.exists();
     if (result)
         m_buildDir = buildDir;

@@ -107,7 +107,7 @@ bool QmakeMakeStep::init()
         // for file builds, since the rules for that are
         // only in those files.
         if (subProFile->isDebugAndRelease() && bc->fileNodeBuild()) {
-            if (bc->buildType() == QmakeBuildConfiguration::Debug)
+            if (buildType() == QmakeBuildConfiguration::Debug)
                 makefile += ".Debug";
             else
                 makefile += ".Release";
@@ -162,7 +162,7 @@ bool QmakeMakeStep::init()
         makeCmd.addArg(objectFile);
     }
 
-    pp->setEnvironment(environment(bc));
+    pp->setEnvironment(makeEnvironment());
     pp->setCommandLine(makeCmd);
     pp->resolveAll();
 
@@ -177,7 +177,7 @@ bool QmakeMakeStep::init()
     appendOutputParser(new QMakeParser); // make may cause qmake to be run, add last to make sure
                                          // it has a low priority.
 
-    auto rootNode = dynamic_cast<QmakeProFileNode *>(bc->project()->rootProjectNode());
+    auto rootNode = dynamic_cast<QmakeProFileNode *>(project()->rootProjectNode());
     QTC_ASSERT(rootNode, return false);
     m_scriptTarget = rootNode->projectType() == ProjectType::ScriptTemplate;
     m_unalignedBuildDir = !bc->isBuildDirAtSafeLocation();

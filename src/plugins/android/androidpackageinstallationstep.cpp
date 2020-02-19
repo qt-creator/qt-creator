@@ -60,24 +60,23 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
 
 bool AndroidPackageInstallationStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-    QString dirPath = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
+    QString dirPath = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
     if (HostOsInfo::isWindowsHost())
-        if (bc->environment().searchInPath("sh.exe").isEmpty())
+        if (buildEnvironment().searchInPath("sh.exe").isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);
 
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
     QTC_ASSERT(tc, return false);
 
-    CommandLine cmd{tc->makeCommand(bc->environment())};
+    CommandLine cmd{tc->makeCommand(buildEnvironment())};
     const QString innerQuoted = QtcProcess::quoteArg(dirPath);
     const QString outerQuoted = QtcProcess::quoteArg("INSTALL_ROOT=" + innerQuoted);
     cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
 
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory());
-    Environment env = bc->environment();
+    pp->setMacroExpander(macroExpander());
+    pp->setWorkingDirectory(buildDirectory());
+    Environment env = buildEnvironment();
     Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
     pp->setCommandLine(cmd);

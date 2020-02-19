@@ -145,12 +145,10 @@ private:
 
     void updateDetails()
     {
-        BuildConfiguration *bc = m_buildStep->buildConfiguration();
-
         ProcessParameters param;
-        param.setMacroExpander(bc->macroExpander());
-        param.setWorkingDirectory(bc->buildDirectory());
-        param.setEnvironment(bc->environment());
+        param.setMacroExpander(m_buildStep->macroExpander());
+        param.setWorkingDirectory(m_buildStep->buildDirectory());
+        param.setEnvironment(m_buildStep->buildEnvironment());
         param.setCommandLine({m_buildStep->buildCommand(), m_buildStep->allArguments()});
 
         setSummaryText(param.summary(displayName()));
@@ -252,8 +250,7 @@ QStringList IosBuildStep::defaultArguments() const
     case BuildConfiguration::Unknown :
         break;
     default:
-        qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
-                          << buildConfiguration()->buildType();
+        qCWarning(iosLog) << "IosBuildStep had an unknown buildType " << buildType();
     }
     if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
             || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
@@ -262,7 +259,7 @@ QStringList IosBuildStep::defaultArguments() const
     }
     if (!SysRootKitAspect::sysRoot(kit).isEmpty())
         res << "-sdk" << SysRootKitAspect::sysRoot(kit).toString();
-    res << "SYMROOT=" + buildConfiguration()->buildDirectory().toString();
+    res << "SYMROOT=" + buildDirectory().toString();
     return res;
 }
 

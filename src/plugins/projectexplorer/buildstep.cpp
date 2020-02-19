@@ -30,6 +30,7 @@
 #include "deployconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
+#include "projectexplorerconstants.h"
 #include "target.h"
 
 #include <coreplugin/variablechooser.h>
@@ -116,6 +117,8 @@
     \fn  void ProjectExplorer::BuildStep::finished()
     This signal needs to be emitted if the build step runs in the GUI thread.
 */
+
+using namespace Utils;
 
 static const char buildStepEnabledKey[] = "ProjectExplorer.BuildStep.Enabled";
 
@@ -216,11 +219,39 @@ BuildSystem *BuildStep::buildSystem() const
     return target()->buildSystem();
 }
 
+Environment BuildStep::buildEnvironment() const
+{
+    if (auto bc = buildConfiguration())
+        return bc->environment();
+    return Environment::systemEnvironment();
+}
+
+FilePath BuildStep::buildDirectory() const
+{
+    if (auto bc = buildConfiguration())
+        return bc->buildDirectory();
+    return {};
+}
+
+BuildConfiguration::BuildType BuildStep::buildType() const
+{
+    if (auto bc = buildConfiguration())
+        return bc->buildType();
+    return BuildConfiguration::Unknown;
+}
+
 Utils::MacroExpander *BuildStep::macroExpander() const
 {
     if (auto bc = buildConfiguration())
         return bc->macroExpander();
     return Utils::globalMacroExpander();
+}
+
+QString BuildStep::fallbackWorkingDirectory() const
+{
+    if (auto bc = buildConfiguration())
+        return Constants::DEFAULT_WORKING_DIR;
+    return Constants::DEFAULT_WORKING_DIR_ALTERNATE;
 }
 
 void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)

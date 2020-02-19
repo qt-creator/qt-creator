@@ -67,12 +67,10 @@ IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, Id id) :
 
 bool IosDsymBuildStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory());
-    Utils::Environment env = bc->environment();
+    pp->setMacroExpander(macroExpander());
+    pp->setWorkingDirectory(buildDirectory());
+    Utils::Environment env = buildEnvironment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
     pp->setCommandLine({command(), arguments()});
@@ -255,12 +253,10 @@ IosDsymBuildStepConfigWidget::~IosDsymBuildStepConfigWidget()
 
 void IosDsymBuildStepConfigWidget::updateDetails()
 {
-    BuildConfiguration *bc = m_buildStep->buildConfiguration();
-
     ProcessParameters param;
-    param.setMacroExpander(bc->macroExpander());
-    param.setWorkingDirectory(bc->buildDirectory());
-    param.setEnvironment(bc->environment());
+    param.setMacroExpander(m_buildStep->macroExpander());
+    param.setWorkingDirectory(m_buildStep->buildDirectory());
+    param.setEnvironment(m_buildStep->buildEnvironment());
     param.setCommandLine({m_buildStep->command(), m_buildStep->arguments()});
 
     setSummaryText(param.summary(displayName()));

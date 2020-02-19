@@ -87,7 +87,7 @@ public:
     bool enabledForSubDirs() const { return m_enabledForSubDirs; }
     void setEnabledForSubDirs(bool enabled) { m_enabledForSubDirs = enabled; }
 
-    Utils::Environment environment(BuildConfiguration *bc) const;
+    Utils::Environment makeEnvironment() const;
 
 protected:
     bool fromMap(const QVariantMap &map) override;

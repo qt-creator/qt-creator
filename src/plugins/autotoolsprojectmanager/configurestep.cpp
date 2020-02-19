@@ -109,9 +109,9 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Core::Id id)
         BuildConfiguration *bc = buildConfiguration();
 
         ProcessParameters param;
-        param.setMacroExpander(bc->macroExpander());
-        param.setEnvironment(bc->environment());
-        param.setWorkingDirectory(bc->buildDirectory());
+        param.setMacroExpander(macroExpander());
+        param.setEnvironment(buildEnvironment());
+        param.setWorkingDirectory(buildDirectory());
         param.setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
                               m_additionalArgumentsAspect->value(),
                               CommandLine::Raw});
@@ -125,9 +125,9 @@ bool ConfigureStep::init()
     BuildConfiguration *bc = buildConfiguration();
 
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setMacroExpander(macroExpander());
+    pp->setEnvironment(buildEnvironment());
+    pp->setWorkingDirectory(buildDirectory());
     pp->setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
                         m_additionalArgumentsAspect->value(),
                         CommandLine::Raw});
@@ -137,12 +137,10 @@ bool ConfigureStep::init()
 
 void ConfigureStep::doRun()
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     //Check whether we need to run configure
-    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    const QString projectDir(project()->projectDirectory().toString());
     const QFileInfo configureInfo(projectDir + "/configure");
-    const QFileInfo configStatusInfo(bc->buildDirectory().toString() + "/config.status");
+    const QFileInfo configStatusInfo(buildDirectory().toString() + "/config.status");
 
     if (!configStatusInfo.exists()
         || configStatusInfo.lastModified() < configureInfo.lastModified()) {
