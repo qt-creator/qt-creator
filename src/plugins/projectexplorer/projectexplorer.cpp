@@ -2845,8 +2845,7 @@ static bool hasDeploySettings(Project *pro)
 {
     return Utils::anyOf(SessionManager::projectOrder(pro), [](Project *project) {
         return project->activeTarget()
-                && project->activeTarget()->activeDeployConfiguration()
-                && !project->activeTarget()->activeDeployConfiguration()->stepList()->isEmpty();
+                && project->activeTarget()->activeDeployConfiguration();
     });
 }
 
