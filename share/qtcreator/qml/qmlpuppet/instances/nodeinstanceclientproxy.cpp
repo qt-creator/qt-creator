@@ -76,6 +76,13 @@
 
 namespace QmlDesigner {
 
+constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    = &QLocalSocket::error;
+#else
+    = &QLocalSocket::errorOccurred;
+#endif
+
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
       m_inputIoDevice(nullptr),
@@ -93,7 +100,7 @@ void NodeInstanceClientProxy::initializeSocket()
 {
     QLocalSocket *localSocket = new QLocalSocket(this);
     connect(localSocket, &QIODevice::readyRead, this, &NodeInstanceClientProxy::readDataStream);
-    connect(localSocket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
+    connect(localSocket, LocalSocketErrorFunction,
             QCoreApplication::instance(), &QCoreApplication::quit);
     connect(localSocket, &QLocalSocket::disconnected, QCoreApplication::instance(), &QCoreApplication::quit);
     localSocket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);

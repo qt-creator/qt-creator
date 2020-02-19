@@ -387,8 +387,14 @@ void QmlDebugConnection::newConnection()
     connect(socket, &QLocalSocket::disconnected, this, &QmlDebugConnection::socketDisconnected,
             Qt::QueuedConnection);
 
-    connect(socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
-            this, [this](QLocalSocket::LocalSocketError error) {
+    constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                = &QLocalSocket::error;
+#else
+                = &QLocalSocket::errorOccurred;
+#endif
+
+    connect(socket, LocalSocketErrorFunction, this, [this](QLocalSocket::LocalSocketError error) {
         emit logError(socketErrorToString(static_cast<QAbstractSocket::SocketError>(error)));
         socketDisconnected();
     }, Qt::QueuedConnection);

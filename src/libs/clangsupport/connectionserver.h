@@ -81,8 +81,15 @@ public:
 private:
     void connectToLocalServer(const QString &connectionName)
     {
+        constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                = &QLocalSocket::error;
+#else
+                = &QLocalSocket::errorOccurred;
+#endif
+
         QObject::connect(&m_localSocket,
-                         QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
+                         LocalSocketErrorFunction,
                          [&] (QLocalSocket::LocalSocketError) {
             qWarning() << "ConnectionServer error:" << m_localSocket.errorString() << connectionName;
         });
