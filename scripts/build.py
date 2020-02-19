@@ -87,7 +87,6 @@ def build_qtcreator(args, paths):
     if not os.path.exists(paths.build):
         os.makedirs(paths.build)
     prefix_paths = [paths.qt]
-    # TODO should be passed via argument, but this is for compatibility with old script
     if args.llvm_path:
         prefix_paths += [args.llvm_path]
     if args.elfutils_path:
@@ -218,8 +217,8 @@ def package_qtcreator(args, paths):
 def get_paths(args):
     Paths = collections.namedtuple('Paths',
                                    ['qt', 'src', 'build',
-                                    'install', 'dev_install', 'wininterrupt_install', 'qtcreatorcdbext_install',
-                                    'temp', 'result'])
+                                    'install', 'dev_install', 'wininterrupt_install',
+                                    'qtcreatorcdbext_install', 'result'])
     build_path = os.path.abspath(args.build)
     install_path = os.path.join(build_path, 'install')
     return Paths(qt=os.path.abspath(args.qt_path),
@@ -229,7 +228,6 @@ def get_paths(args):
                  dev_install=os.path.join(install_path, 'qt-creator-dev'),
                  wininterrupt_install=os.path.join(install_path, 'wininterrupt'),
                  qtcreatorcdbext_install=os.path.join(install_path, 'qtcreatorcdbext'),
-                 temp=os.path.join(build_path, 'temp'),
                  result=build_path)
 
 def main():
