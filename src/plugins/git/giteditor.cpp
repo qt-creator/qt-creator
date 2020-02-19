@@ -92,6 +92,8 @@ public:
         addWidget(grepLineEdit);
         addSeparator();
         addWidget(pickaxeLineEdit);
+        hide();
+        connect(editor, &GitEditorWidget::toggleFilters, this, &QWidget::setVisible);
     }
 
     Utils::FancyLineEdit *grepLineEdit;

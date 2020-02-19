@@ -50,6 +50,9 @@ public:
     QString pickaxeValue() const;
     void refresh();
 
+signals:
+    void toggleFilters(bool value);
+
 private:
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 

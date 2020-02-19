@@ -565,9 +565,10 @@ class BaseGitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
     Q_OBJECT
 
 public:
-    BaseGitLogArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        BaseGitDiffArgumentsWidget(settings, toolBar)
+    BaseGitLogArgumentsWidget(VcsBaseClientSettings &settings, GitEditorWidget *editor) :
+        BaseGitDiffArgumentsWidget(settings, editor->toolBar())
     {
+        QToolBar *toolBar = editor->toolBar();
         QAction *diffButton = addToggleButton("--patch", tr("Diff"),
                                               tr("Show difference."));
         mapSetting(diffButton, settings.boolPointer(GitSettings::logDiffKey));
@@ -575,6 +576,11 @@ public:
         connect(diffButton, &QAction::toggled, m_ignoreWSButton, &QAction::setVisible);
         m_patienceButton->setVisible(diffButton->isChecked());
         m_ignoreWSButton->setVisible(diffButton->isChecked());
+        auto filterAction = new QAction(tr("Filter"), toolBar);
+        filterAction->setToolTip(tr("Filter commits by message or content."));
+        filterAction->setCheckable(true);
+        connect(filterAction, &QAction::toggled, editor, &GitEditorWidget::toggleFilters);
+        toolBar->addAction(filterAction);
     }
 };
 
@@ -583,8 +589,8 @@ class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
     Q_OBJECT
 
 public:
-    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, QToolBar *toolBar) :
-        BaseGitLogArgumentsWidget(settings, toolBar)
+    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, GitEditorWidget *editor) :
+        BaseGitLogArgumentsWidget(settings, editor)
     {
         QAction *firstParentButton =
                 addToggleButton({"-m", "--first-parent"},
@@ -615,8 +621,8 @@ class GitRefLogArgumentsWidget : public BaseGitLogArgumentsWidget
     Q_OBJECT
 
 public:
-    GitRefLogArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar) :
-        BaseGitLogArgumentsWidget(settings, toolBar)
+    GitRefLogArgumentsWidget(VcsBaseClientSettings &settings, GitEditorWidget *editor) :
+        BaseGitLogArgumentsWidget(settings, editor)
     {
         QAction *showDateButton =
                 addToggleButton("--date=iso",
@@ -1033,7 +1039,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
                                 codecFor(CodecLogOutput), "logTitle", msgArg));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
-        argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor->toolBar());
+        argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor);
         argWidget->setBaseArguments(args);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
                 [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
@@ -1068,11 +1074,12 @@ void GitClient::reflog(const QString &workingDirectory, const QString &ref)
     const Id editorId = Git::Constants::GIT_REFLOG_EDITOR_ID;
     // Creating document might change the referenced workingDirectory. Store a copy and use it.
     const QString workingDir = workingDirectory;
-    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, workingDir, codecFor(CodecLogOutput),
-                                                  "reflogRepository", workingDir);
+    GitEditorWidget *editor = static_cast<GitEditorWidget *>(
+                createVcsEditor(editorId, title, workingDir, codecFor(CodecLogOutput),
+                                "reflogRepository", workingDir));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
-        argWidget = new GitRefLogArgumentsWidget(settings(), editor->toolBar());
+        argWidget = new GitRefLogArgumentsWidget(settings(), editor);
         if (!ref.isEmpty())
             argWidget->setBaseArguments({ref});
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
