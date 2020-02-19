@@ -536,6 +536,7 @@ function(add_qtc_library name)
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     VERSION "${IDE_VERSION}"
     SOVERSION "${PROJECT_VERSION_MAJOR}"
+    CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_LIB_RPATH}"
@@ -781,6 +782,7 @@ function(add_qtc_plugin target_name)
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${target_name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+    CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     _arg_DEPENDS "${_arg_PLUGIN_DEPENDS}"
@@ -991,6 +993,7 @@ function(add_qtc_executable name)
     INSTALL_RPATH "${install_rpath}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     QT_SKIP_TRANSLATION "${skip_translation}"
+    CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     ${_arg_PROPERTIES}
