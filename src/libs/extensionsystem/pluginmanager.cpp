@@ -213,7 +213,7 @@ enum { debugLeaks = 0 };
 */
 
 /*!
-    \fn T *PluginManager::getObject()
+    \fn template <typename T> *ExtensionSystem::PluginManager::getObject()
 
     Retrieves the object of a given type from the object pool.
 
@@ -225,7 +225,7 @@ enum { debugLeaks = 0 };
 */
 
 /*!
-    \fn T *PluginManager::getObject(Predicate predicate)
+    \fn template <typename T, typename Predicate> *ExtensionSystem::PluginManager::getObject(Predicate predicate)
 
     Retrieves the object of a given type from the object pool that matches
     the \a predicate.
@@ -618,7 +618,7 @@ static QStringList subList(const QStringList &in, const QString &key)
 }
 
 /*!
-    Parses the options encoded by serializedArguments() const
+    Parses the options encoded in \a serializedArgument
     and passes them on to the respective plugins along with the arguments.
 
     \a socket is passed for disconnecting the peer when the operation is done (for example,
@@ -704,7 +704,9 @@ static inline void formatOption(QTextStream &str,
 }
 
 /*!
-    Formats the startup options of the plugin manager for command line help.
+    Formats the startup options of the plugin manager for command line help with the specified
+    \a optionIndentation and \a descriptionIndentation.
+    Adds the result to \a str.
 */
 
 void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
@@ -741,7 +743,9 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
 }
 
 /*!
-    Formats the plugin options of the plugin specs for command line help.
+    Formats the plugin options of the plugin specs for command line help with the specified
+    \a optionIndentation and \a descriptionIndentation.
+    Adds the result to \a str.
 */
 
 void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
@@ -758,7 +762,7 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 }
 
 /*!
-    Formats the version of the plugin specs for command line help.
+    Formats the version of the plugin specs for command line help and adds it to \a str.
 */
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
@@ -767,7 +771,7 @@ void PluginManager::formatPluginVersions(QTextStream &str)
 }
 
 /*!
- * \internal
+    \internal
  */
 bool PluginManager::testRunRequested()
 {
@@ -775,8 +779,7 @@ bool PluginManager::testRunRequested()
 }
 
 /*!
-    Creates a profiling entry showing the elapsed time if profiling is
-    activated.
+    \internal
 */
 
 void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
