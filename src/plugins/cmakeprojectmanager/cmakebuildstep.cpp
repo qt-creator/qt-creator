@@ -60,16 +60,36 @@
 #include <QListWidget>
 #include <QRadioButton>
 
-using namespace CMakeProjectManager;
-using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-namespace {
+namespace CMakeProjectManager {
+namespace Internal {
+
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char TOOL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
 const char ADD_RUNCONFIGURATION_ARGUMENT_KEY[] = "CMakeProjectManager.MakeStep.AddRunConfigurationArgument";
 const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
-}
+
+class CMakeBuildStepConfigWidget : public BuildStepConfigWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeBuildStepConfigWidget)
+
+public:
+    explicit CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep);
+
+private:
+    void itemChanged(QListWidgetItem *);
+    void toolArgumentsEdited();
+    void updateDetails();
+    void buildTargetsChanged();
+    void updateBuildTarget();
+
+    QRadioButton *itemWidget(QListWidgetItem *item);
+
+    CMakeBuildStep *m_buildStep;
+    QLineEdit *m_toolArguments;
+    QListWidget *m_buildTargetsList;
+};
 
 static bool isCurrentExecutableTarget(const QString &target)
 {
@@ -554,3 +574,6 @@ void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
     AbstractProcessStep::processFinished(exitCode, status);
     emit progress(100, QString());
 }
+
+} // Internal
+} // CMakeProjectManager
