@@ -786,6 +786,7 @@ void AndroidSettingsWidget::downloadSdk()
 
             connect(sdkDownloader, &AndroidSdkDownloader::sdkExtracted, this, [this]() {
                 m_sdkManager->reloadPackages(true);
+                updateUI();
                 apply();
             });
 
