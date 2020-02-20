@@ -81,7 +81,9 @@ def main():
             try:
                 proposalListView = waitForObject(":popupFrame_Proposal_QListView")
                 waitForObjectItem(proposalListView, "unsigned")
-                test.compare(proposalListView.model().rowCount(), 1, 'Only one proposal for "unsi"?')
+                if useClang and platform.system() == 'Linux':    # QTCREATORBUG-23159
+                    test.compare(proposalListView.model().rowCount(), 1,
+                                 'Only one proposal for "unsi"?')
                 type(proposalListView, "<Tab>")
                 test.compare(str(lineUnderCursor(editorWidget)).strip(), "unsigned",
                              "Step 4: Verifying if: Word 'unsigned' is completed because only one option is available.")
