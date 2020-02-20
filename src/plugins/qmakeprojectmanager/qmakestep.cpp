@@ -738,14 +738,9 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         abisChanged();
     }
 
-    // We don't want the full path to the .pro file
-    const QString args = m_step->allArguments(
-                qtVersion,
-                QMakeStep::ArgumentFlag::OmitProjectPath
-                | QMakeStep::ArgumentFlag::Expand);
-    // And we only use the .pro filename not the full path
     const QString program = qtVersion->qmakeCommand().fileName();
-    setSummaryText(tr("<b>qmake:</b> %1 %2").arg(program, args));
+    setSummaryText(tr("<b>qmake:</b> %1 %2").arg(program,
+                                                 m_step->project()->projectFilePath().fileName()));
 }
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
