@@ -24,12 +24,14 @@
 ****************************************************************************/
 
 #include "iosdeploystep.h"
-#include "iosbuildstep.h"
-#include "iosconstants.h"
-#include "iosrunconfiguration.h"
-#include "iostoolhandler.h"
 
-#include <coreplugin/messagemanager.h>
+#include "iosbuildstep.h"
+#include "iosconfigurations.h"
+#include "iosconstants.h"
+#include "iosdevice.h"
+#include "iosrunconfiguration.h"
+#include "iossimulator.h"
+#include "iostoolhandler.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -39,21 +41,63 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 
-#include <qtsupport/qtkitinformation.h>
-
 #include <utils/temporaryfile.h>
 
 #include <QDir>
 #include <QFile>
 #include <QSettings>
 
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Ios {
 namespace Internal {
+
+class IosDeployStep final : public BuildStep
+{
+    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosDeployStep)
+
+public:
+    enum TransferStatus {
+        NoTransfer,
+        TransferInProgress,
+        TransferOk,
+        TransferFailed
+    };
+
+    IosDeployStep(BuildStepList *bc, Core::Id id);
+
+private:
+    void cleanup();
+
+    void doRun() final;
+    void doCancel() final;
+
+    void handleIsTransferringApp(IosToolHandler *handler, const QString &bundlePath,
+                                 const QString &deviceId, int progress, int maxProgress,
+                                 const QString &info);
+    void handleDidTransferApp(IosToolHandler *handler, const QString &bundlePath, const QString &deviceId,
+                              IosToolHandler::OpStatus status);
+    void handleFinished(IosToolHandler *handler);
+    void handleErrorMsg(IosToolHandler *handler, const QString &msg);
+    void updateDisplayNames();
+
+    bool init() final;
+    BuildStepConfigWidget *createConfigWidget() final;
+    IDevice::ConstPtr device() const;
+    IosDevice::ConstPtr iosdevice() const;
+    IosSimulator::ConstPtr iossimulator() const;
+
+    QString deviceId() const;
+    void checkProvisioningProfile();
+
+    TransferStatus m_transferStatus = NoTransfer;
+    IosToolHandler *m_toolHandler = nullptr;
+    IDevice::ConstPtr m_device;
+    FilePath m_bundlePath;
+    IosDeviceType m_deviceType;
+    bool m_expectFail = false;
+};
 
 IosDeployStep::IosDeployStep(BuildStepList *parent, Core::Id id)
     : BuildStep(parent, id)
@@ -66,15 +110,9 @@ IosDeployStep::IosDeployStep(BuildStepList *parent, Core::Id id)
             this, &IosDeployStep::updateDisplayNames);
 }
 
-Core::Id IosDeployStep::stepId()
-{
-    return "Qt4ProjectManager.IosDeployStep";
-}
-
 void IosDeployStep::updateDisplayNames()
 {
-    IDevice::ConstPtr dev =
-            DeviceKitAspect::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Deploy to %1").arg(devName));
     setDisplayName(tr("Deploy to %1").arg(devName));
@@ -95,7 +133,7 @@ bool IosDeployStep::init()
         m_deviceType = runConfig->deviceType();
     } else {
         emit addOutput(tr("Error: no device available, deploy failed."),
-                       BuildStep::OutputFormat::ErrorMessage);
+                       OutputFormat::ErrorMessage);
         return false;
     }
     return true;
@@ -190,7 +228,7 @@ void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
     if (msg.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
         TaskHub::addTask(DeploymentTask(Task::Warning, tr("The Info.plist might be incorrect.")));
 
-    emit addOutput(msg, BuildStep::OutputFormat::ErrorMessage);
+    emit addOutput(msg, OutputFormat::ErrorMessage);
 }
 
 BuildStepConfigWidget *IosDeployStep::createConfigWidget()
@@ -236,7 +274,7 @@ void IosDeployStep::checkProvisioningProfile()
         return;
     end += 8;
 
-    Utils::TemporaryFile f("iosdeploy");
+    TemporaryFile f("iosdeploy");
     if (!f.open())
         return;
     f.write(provisionData.mid(start, end - start));
@@ -276,6 +314,22 @@ IosDevice::ConstPtr IosDeployStep::iosdevice() const
 IosSimulator::ConstPtr IosDeployStep::iossimulator() const
 {
     return m_device.dynamicCast<const IosSimulator>();
+}
+
+// IosDeployStepFactory
+
+IosDeployStepFactory::IosDeployStepFactory()
+{
+    registerStep<IosDeployStep>(stepId());
+    setDisplayName(IosDeployStep::tr("Deploy to iOS device or emulator"));
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
+    setRepeatable(false);
+}
+
+Core::Id IosDeployStepFactory::stepId()
+{
+    return "Qt4ProjectManager.IosDeployStep";
 }
 
 } // namespace Internal

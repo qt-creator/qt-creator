@@ -25,64 +25,17 @@
 
 #pragma once
 
-#include "iosconfigurations.h"
-#include "iosdevice.h"
-#include "iossimulator.h"
-
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/devicesupport/idevice.h>
-
-#include <QProcess>
 
 namespace Ios {
-class IosToolHandler;
 namespace Internal {
 
-class IosDeployStep : public ProjectExplorer::BuildStep
+class IosDeployStepFactory final : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
 public:
-    enum TransferStatus {
-        NoTransfer,
-        TransferInProgress,
-        TransferOk,
-        TransferFailed
-    };
+    IosDeployStepFactory();
 
-    friend class IosDeployStepFactory;
-    IosDeployStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
     static Core::Id stepId();
-
-    void cleanup();
-private:
-    void doRun() override;
-    void doCancel() override;
-
-    void handleIsTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,
-                           const QString &deviceId, int progress, int maxProgress,
-                           const QString &info);
-    void handleDidTransferApp(Ios::IosToolHandler *handler, const QString &bundlePath, const QString &deviceId,
-                        Ios::IosToolHandler::OpStatus status);
-    void handleFinished(Ios::IosToolHandler *handler);
-    void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
-    void updateDisplayNames();
-
-    bool init() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    ProjectExplorer::IDevice::ConstPtr device() const;
-    IosDevice::ConstPtr iosdevice() const;
-    IosSimulator::ConstPtr iossimulator() const;
-
-    QString deviceId() const;
-    void checkProvisioningProfile();
-
-    TransferStatus m_transferStatus = NoTransfer;
-    IosToolHandler *m_toolHandler = nullptr;
-    ProjectExplorer::IDevice::ConstPtr m_device;
-    Utils::FilePath m_bundlePath;
-    IosDeviceType m_deviceType;
-    static const Core::Id Id;
-    bool m_expectFail = false;
 };
 
 } // namespace Internal

@@ -53,19 +53,6 @@ namespace Internal {
 
 Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common", QtWarningMsg)
 
-class IosDeployStepFactory : public BuildStepFactory
-{
-public:
-    IosDeployStepFactory()
-    {
-        registerStep<IosDeployStep>(IosDeployStep::stepId());
-        setDisplayName(IosDeployStep::tr("Deploy to iOS device or emulator"));
-        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
-        setRepeatable(false);
-    }
-};
-
 class IosDeployConfigurationFactory : public DeployConfigurationFactory
 {
 public:
@@ -76,7 +63,7 @@ public:
         addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
         addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
         setDefaultDisplayName(QCoreApplication::translate("Ios::Internal", "Deploy on iOS"));
-        addInitialStep(IosDeployStep::stepId());
+        addInitialStep(IosDeployStepFactory::stepId());
     }
 };
 
