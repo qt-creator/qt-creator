@@ -358,13 +358,18 @@ jobs:
           COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/ctest -j ${N}
           WORKING_DIRECTORY build
           RESULT_VARIABLE result
+          OUTPUT_VARIABLE stdout
+          ERROR_VARIABLE stdout
         )
 
-        # Do not fail on ctest failure
-        #if (NOT result EQUAL 0)
-        #  message(FATAL_ERROR "Running tests failed!")
-        #endif()
+        message("${stdout}")
 
+        if (NOT result EQUAL 0)
+          string(REGEX MATCH "[0-9]+% tests.*[0-9.]+ sec" pass_rate "${stdout}")
+
+          # Do not fail on ctest failure
+          message("::warning::${pass_rate}")
+        endif()
 
     - name: Install Strip
       run: |
