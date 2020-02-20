@@ -32,6 +32,7 @@
 
 #include <QFont>
 #include <QThread>
+#include <QTime>
 #include <QTimer>
 
 using namespace Core;
@@ -104,6 +105,12 @@ void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
         doWrite(text, flags);
     else
         QTimer::singleShot(0, instance(), [text, flags] { doWrite(text, flags); });
+}
+
+void MessageManager::writeWithTime(const QString &text, PrintToOutputPaneFlags flags)
+{
+    const QString timeStamp = QTime::currentTime().toString("HH:mm:ss ");
+    write(timeStamp + text, flags);
 }
 
 void MessageManager::doWrite(const QString &text, PrintToOutputPaneFlags flags)
