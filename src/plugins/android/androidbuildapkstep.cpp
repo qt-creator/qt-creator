@@ -65,6 +65,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include <memory>
@@ -296,7 +297,7 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
 {
     AbstractProcessStep::processFinished(exitCode, status);
     if (m_openPackageLocationForRun && status == QProcess::NormalExit && exitCode == 0)
-        QMetaObject::invokeMethod(this, "showInGraphicalShell", Qt::QueuedConnection);
+        QTimer::singleShot(0, this, &AndroidBuildApkStep::showInGraphicalShell);
 }
 
 bool AndroidBuildApkStep::verifyKeystorePassword()

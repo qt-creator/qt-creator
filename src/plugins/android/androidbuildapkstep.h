@@ -79,7 +79,7 @@ public:
 
     QVariant data(Core::Id id) const override;
 private:
-    Q_INVOKABLE void showInGraphicalShell();
+    void showInGraphicalShell();
 
     bool init() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
