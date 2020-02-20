@@ -223,8 +223,9 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             });
             contextMenu.addSeparator();
         }
-        QAction *act = contextMenu.addAction(tr("Manage &Remotes..."));
-        connect(act, &QAction::triggered, [this] { GitPlugin::manageRemotes(); });
+        contextMenu.addAction(tr("Manage &Remotes..."), this, [] {
+            GitPlugin::manageRemotes();
+        });
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
