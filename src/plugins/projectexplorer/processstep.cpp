@@ -24,27 +24,41 @@
 ****************************************************************************/
 
 #include "processstep.h"
+
+#include "abstractprocessstep.h"
 #include "buildconfiguration.h"
-#include "buildstep.h"
 #include "kit.h"
 #include "processparameters.h"
+#include "projectconfigurationaspects.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorer_export.h"
 #include "target.h"
 
-#include <coreplugin/variablechooser.h>
-
 #include <utils/fileutils.h>
-#include <utils/macroexpander.h>
-
-#include <QFormLayout>
 
 using namespace Utils;
 
 namespace ProjectExplorer {
+namespace Internal {
 
 const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
 const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.WorkingDirectory";
 const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
+
+class ProcessStep final : public AbstractProcessStep
+{
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ProcessStep)
+
+public:
+    ProcessStep(BuildStepList *bsl, Core::Id id);
+
+    bool init() final;
+    void setupProcessParameters(ProcessParameters *pp);
+
+    BaseStringAspect *m_command;
+    BaseStringAspect *m_arguments;
+    BaseStringAspect *m_workingDirectory;
+};
 
 ProcessStep::ProcessStep(BuildStepList *bsl, Core::Id id)
     : AbstractProcessStep(bsl, id)
@@ -103,9 +117,7 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
     pp->resolveAll();
 }
 
-//*******
 // ProcessStepFactory
-//*******
 
 ProcessStepFactory::ProcessStepFactory()
 {
@@ -113,4 +125,5 @@ ProcessStepFactory::ProcessStepFactory()
     setDisplayName(ProcessStep::tr("Custom Process Step", "item in combobox"));
 }
 
+} // Internal
 } // ProjectExplorer

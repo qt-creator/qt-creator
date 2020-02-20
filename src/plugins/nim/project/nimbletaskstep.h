@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/processstep.h>
+#include <projectexplorer/abstractprocessstep.h>
 
 namespace Nim {
 

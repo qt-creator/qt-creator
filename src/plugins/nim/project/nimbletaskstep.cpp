@@ -31,6 +31,8 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/fileutils.h>
 
 #include <QStandardPaths>

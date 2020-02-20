@@ -25,33 +25,16 @@
 
 #pragma once
 
-#include "abstractprocessstep.h"
-#include "projectconfigurationaspects.h"
-#include "projectexplorer_export.h"
+#include "buildstep.h"
 
 namespace ProjectExplorer {
+namespace Internal {
 
-class ProcessStepFactory : public BuildStepFactory
+class ProcessStepFactory final : public BuildStepFactory
 {
 public:
     ProcessStepFactory();
 };
 
-class PROJECTEXPLORER_EXPORT ProcessStep : public AbstractProcessStep
-{
-    Q_OBJECT
-    friend class ProcessStepFactory;
-
-public:
-    ProcessStep(BuildStepList *bsl, Core::Id id);
-
-private:
-    bool init() override;
-    void setupProcessParameters(ProcessParameters *pp);
-
-    ProjectExplorer::BaseStringAspect *m_command;
-    ProjectExplorer::BaseStringAspect *m_arguments;
-    ProjectExplorer::BaseStringAspect *m_workingDirectory;
-};
-
+} // namespace Internal
 } // namespace ProjectExplorer
