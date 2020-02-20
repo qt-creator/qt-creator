@@ -40,7 +40,7 @@ namespace TextEditor { class TextDocument; }
 namespace Python {
 namespace Internal {
 
-class PythonLanguageServerState;
+struct PythonLanguageServerState;
 
 class PyLSConfigureAssistant : public QObject
 {
