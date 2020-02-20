@@ -247,8 +247,8 @@ void Client::initialize()
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
-    auto initRequest = new InitializeRequest();
-    auto params = initRequest->params().value_or(InitializeParams());
+    InitializeRequest initRequest;
+    auto params = initRequest.params().value_or(InitializeParams());
     params.setCapabilities(generateClientCapabilities());
     if (m_project) {
         params.setRootUri(DocumentUri::fromFilePath(m_project->projectDirectory()));
@@ -256,13 +256,13 @@ void Client::initialize()
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
         }));
     }
-    initRequest->setParams(params);
-    initRequest->setResponseCallback([this](const InitializeRequest::Response &initResponse){
+    initRequest.setParams(params);
+    initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
         initializeCallback(initResponse);
     });
     // directly send data otherwise the state check would fail;
-    initRequest->registerResponseHandler(&m_responseHandlers);
-    m_clientInterface->sendMessage(initRequest->toBaseMessage());
+    initRequest.registerResponseHandler(&m_responseHandlers);
+    m_clientInterface->sendMessage(initRequest.toBaseMessage());
     m_state = InitializeRequested;
 }
 
