@@ -34,6 +34,12 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
+class GenericMakeStep : public ProjectExplorer::MakeStep
+{
+public:
+    explicit GenericMakeStep(BuildStepList *parent, Core::Id id);
+};
+
 GenericMakeStep::GenericMakeStep(BuildStepList *parent, Core::Id id)
     : MakeStep(parent, id)
 {

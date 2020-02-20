@@ -27,20 +27,10 @@
 
 #include <projectexplorer/makestep.h>
 
-QT_FORWARD_DECLARE_CLASS(QListWidgetItem);
-
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericMakeStep : public ProjectExplorer::MakeStep
-{
-    Q_OBJECT
-
-public:
-    explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-};
-
-class GenericMakeStepFactory : public ProjectExplorer::BuildStepFactory
+class GenericMakeStepFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
     GenericMakeStepFactory();
