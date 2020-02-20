@@ -149,7 +149,7 @@ void AndroidSdkDownloader::cancel()
         m_reply->deleteLater();
     }
     if (m_progressDialog)
-        m_progressDialog->hide();
+        m_progressDialog->cancel();
 }
 
 void AndroidSdkDownloader::cancelWithError(const QString &error)
