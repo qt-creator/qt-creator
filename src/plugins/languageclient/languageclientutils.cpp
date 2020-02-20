@@ -239,6 +239,9 @@ void updateEditorToolBar(Core::IEditor *editor)
                     QObject::connect(action, &QAction::triggered, reopen);
                 }
                 menu->addActions(clientsGroup->actions());
+                menu->addAction("Language Client Logs", []() {
+                    LanguageClientManager::showLogger();
+                });
                 menu->addAction("Manage...", []() {
                     Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
                 });

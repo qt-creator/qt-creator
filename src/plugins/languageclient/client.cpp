@@ -262,6 +262,9 @@ void Client::initialize()
     });
     // directly send data otherwise the state check would fail;
     initRequest.registerResponseHandler(&m_responseHandlers);
+    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage,
+                                          name(),
+                                          initRequest.toBaseMessage());
     m_clientInterface->sendMessage(initRequest.toBaseMessage());
     m_state = InitializeRequested;
 }
@@ -334,6 +337,9 @@ void Client::sendContent(const IContent &content)
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
         Core::MessageManager::write(error);
+    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage,
+                                          name(),
+                                          content.toBaseMessage());
     m_clientInterface->sendMessage(content.toBaseMessage());
 }
 
@@ -931,6 +937,7 @@ void Client::setError(const QString &message)
 
 void Client::handleMessage(const BaseMessage &message)
 {
+    LanguageClientManager::logBaseMessage(LspLogMessage::ServerMessage, name(), message);
     if (auto handler = m_contentHandler[message.mimeType]) {
         QString parseError;
         handler(message.content, message.codec, parseError,

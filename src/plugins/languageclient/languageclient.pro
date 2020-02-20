@@ -19,6 +19,7 @@ HEADERS += \
     languageclientsettings.h \
     languageclientutils.h \
     locatorfilter.h \
+    lsplogger.h \
     semantichighlightsupport.h
 
 
@@ -38,6 +39,7 @@ SOURCES += \
     languageclientsettings.cpp \
     languageclientutils.cpp \
     locatorfilter.cpp \
+    lsplogger.cpp \
     semantichighlightsupport.cpp
 
 RESOURCES += \
