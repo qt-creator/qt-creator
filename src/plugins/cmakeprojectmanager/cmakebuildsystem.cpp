@@ -26,6 +26,7 @@
 #include "cmakebuildsystem.h"
 
 #include "cmakebuildconfiguration.h"
+#include "cmakekitinformation.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
@@ -204,10 +205,13 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
 
     connect(project(), &Project::projectFileIsDirty, this, [this]() {
         if (m_buildConfiguration->isActive()) {
-            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
-            m_buildDirManager
-                .setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
-                                              BuildDirManager::REPARSE_DEFAULT);
+            const auto cmake = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
+            if (cmake && cmake->isAutoRun()) {
+                qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
+                m_buildDirManager.setParametersAndRequestParse(BuildDirParameters(
+                                                                   m_buildConfiguration),
+                                                               BuildDirManager::REPARSE_DEFAULT);
+            }
         }
     });
 
