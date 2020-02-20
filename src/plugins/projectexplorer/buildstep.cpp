@@ -250,8 +250,8 @@ Utils::MacroExpander *BuildStep::macroExpander() const
 QString BuildStep::fallbackWorkingDirectory() const
 {
     if (auto bc = buildConfiguration())
-        return Constants::DEFAULT_WORKING_DIR;
-    return Constants::DEFAULT_WORKING_DIR_ALTERNATE;
+        return {Constants::DEFAULT_WORKING_DIR};
+    return {Constants::DEFAULT_WORKING_DIR_ALTERNATE};
 }
 
 void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)
