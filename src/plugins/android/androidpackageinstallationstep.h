@@ -25,39 +25,12 @@
 
 #pragma once
 
-#include "android_global.h"
-
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/abstractprocessstep.h>
 
 namespace Android {
-
-class ANDROID_EXPORT AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-
-public:
-    AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
-private:
-    bool init() override;
-    void doRun() override;
-
-    QStringList m_androidDirsToClean;
-};
-
 namespace Internal {
 
-class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
-};
-
-class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactory
+class AndroidPackageInstallationFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
     AndroidPackageInstallationFactory();

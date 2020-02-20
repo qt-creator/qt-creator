@@ -28,13 +28,14 @@
 #include "androidconstants.h"
 #include "androidmanager.h"
 
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/hostosinfo.h>
@@ -44,9 +45,38 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Android::Internal;
 
 namespace Android {
+namespace Internal {
+
+class AndroidPackageInstallationStep final : public AbstractProcessStep
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::AndroidPackageInstallationStep)
+
+public:
+    AndroidPackageInstallationStep(BuildStepList *bsl, Core::Id id);
+
+    BuildStepConfigWidget *createConfigWidget() final;
+
+private:
+    bool init() final;
+    void doRun() final;
+
+    QStringList m_androidDirsToClean;
+};
+
+class AndroidPackageInstallationStepWidget final : public BuildStepConfigWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Android::AndroidPackageInstallationStepWidget)
+
+public:
+    AndroidPackageInstallationStepWidget(BuildStep *step)
+        : BuildStepConfigWidget(step)
+    {
+        setDisplayName(tr("Make install"));
+        setSummaryText("<b>" + tr("Make install") + "</b>");
+    }
+};
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Core::Id id)
     : AbstractProcessStep(bsl, id)
@@ -115,20 +145,6 @@ void AndroidPackageInstallationStep::doRun()
 BuildStepConfigWidget *AndroidPackageInstallationStep::createConfigWidget()
 {
     return new AndroidPackageInstallationStepWidget(this);
-}
-
-
-//
-// AndroidPackageInstallationStepWidget
-//
-
-namespace Internal {
-
-AndroidPackageInstallationStepWidget::AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step)
-    : BuildStepConfigWidget(step)
-{
-    setDisplayName(tr("Make install"));
-    setSummaryText("<b>" + tr("Make install") + "</b>");
 }
 
 //
