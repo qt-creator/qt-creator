@@ -7165,7 +7165,7 @@ void TextEditorWidget::rewrapParagraph()
     QString currentWord;
 
     for (const QChar &ch : qAsConst(selectedText)) {
-        if (ch.isSpace()) {
+        if (ch.isSpace() && ch != QChar::Nbsp) {
             if (!currentWord.isEmpty()) {
                 currentLength += currentWord.length() + 1;
 
