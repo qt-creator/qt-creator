@@ -472,8 +472,6 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QStringList &abis,
 
     connect(m_ui->lookingForDeviceCancel, &QPushButton::clicked,
             this, &AndroidDeviceDialog::defaultDeviceClear);
-
-    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath());
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
