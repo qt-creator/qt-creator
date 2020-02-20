@@ -168,8 +168,8 @@
             example, if you drew a rectangle, you can export it as a
             \l Rectangle component.
             You can provide the import statement of the module where the QML
-            type is defined in the \uicontrol Imports field.
-        \li In the \uicontrol Imports field, enter
+            type is defined in the \uicontrol {QML Imports} field.
+        \li In the \uicontrol {QML Imports} field, enter
             additional import statements to have them added to the generated QML
             file. For example, to use Qt Quick Controls 2.3, you need the
             import statement \c {QtQuick.Controls 2.3} and to use Qt Quick

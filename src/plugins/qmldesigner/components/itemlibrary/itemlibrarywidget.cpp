@@ -121,7 +121,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     auto tabBar = new QTabBar(this);
     tabBar->addTab(tr("QML Types", "Title of library QML types view"));
     tabBar->addTab(tr("Assets", "Title of library assets view"));
-    tabBar->addTab(tr("Imports", "Title of library imports view"));
+    tabBar->addTab(tr("QML Imports", "Title of QML imports view"));
     tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(tabBar, &QTabBar::currentChanged, this, &ItemLibraryWidget::setCurrentIndexOfStackedWidget);
     connect(tabBar, &QTabBar::currentChanged, this, &ItemLibraryWidget::updateSearch);

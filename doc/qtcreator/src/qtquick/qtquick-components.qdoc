@@ -48,7 +48,7 @@
     applications.
 
     The \uicontrol {Library} pane lists the available QML types, UI
-    components, assets, and imports.
+    components, assets, and QML imports.
 
     \image qmldesigner-qml-components.png "QML Components"
 
@@ -60,11 +60,11 @@
     Quick Controls, Dialogs, and Layouts are available for creating user
     interfaces using Qt Quick 2. The components and controls are based on
     standard QML types. To view the components and controls in the
-    \uicontrol {Library}, import the component sets in \uicontrol Imports.
+    \uicontrol {Library}, import the component sets in \uicontrol {QML Imports}.
 
     The \uicontrol {Qt Quick Application} wizards for a particular platform add
     the import statements automatically. You can remove import statements in
-    \uicontrol Imports
+    \uicontrol {QML Imports}
 
     \uicontrol {Assets} displays the images and other files that you copy
     to the project folder (to the same subfolder as the QML files).

@@ -48,7 +48,7 @@
 
         \li Open the Qt Quick UI form in the \uicontrol Design mode.
 
-        \li In the \uicontrol Library, select \uicontrol Imports >
+        \li In the \uicontrol Library, select \uicontrol {QML Imports} >
             \uicontrol {Add Import} > \uicontrol {QtQuick.Extras} to import the
             \l {Qt Quick Extras} module.
 
