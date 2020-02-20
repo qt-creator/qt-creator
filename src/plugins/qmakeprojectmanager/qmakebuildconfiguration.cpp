@@ -319,16 +319,13 @@ void QmakeBuildConfiguration::updateProblemLabel()
             return;
         }
     } else if (targetMismatch) {
-        buildDirectoryAspect()->setProblem(tr("A build for a different project exists in %1, "
-                                              "which will be overwritten.",
-                                              "%1 build directory")
-                                           .arg(buildDirectory().toUserOutput()));
+        buildDirectoryAspect()->setProblem(tr("The build directory contains a build for "
+                                              "a different project, which will be overwritten."));
         return;
     } else if (incompatibleBuild) {
-        buildDirectoryAspect()->setProblem(tr("%1 The build in %2 will be overwritten.",
-                                              "%1 error message, %2 build directory")
-                                           .arg(errorString)
-                                           .arg(buildDirectory().toUserOutput()));
+        buildDirectoryAspect()->setProblem(tr("%1 The build will be overwritten.",
+                                              "%1 error message")
+                                           .arg(errorString));
         return;
     } else if (unalignedBuildDir) {
         buildDirectoryAspect()->setProblem(unalignedBuildDirWarning());
