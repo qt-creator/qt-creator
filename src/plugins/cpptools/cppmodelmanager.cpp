@@ -971,8 +971,6 @@ void CppModelManager::recalculateProjectPartMappings()
 void CppModelManager::watchForCanceledProjectIndexer(const QVector<QFuture<void>> &futures,
                                                      ProjectExplorer::Project *project)
 {
-    d->m_projectToIndexerCanceled.insert(project, false);
-
     for (const QFuture<void> &future : futures) {
         if (future.isCanceled() || future.isFinished())
             continue;
@@ -983,7 +981,8 @@ void CppModelManager::watchForCanceledProjectIndexer(const QVector<QFuture<void>
                 d->m_projectToIndexerCanceled.insert(project, true);
             watcher->deleteLater();
         });
-        connect(watcher, &QFutureWatcher<void>::finished, this, [watcher]() {
+        connect(watcher, &QFutureWatcher<void>::finished, this, [this, project, watcher]() {
+            d->m_projectToIndexerCanceled.remove(project);
             watcher->deleteLater();
         });
         watcher->setFuture(future);
@@ -1114,6 +1113,9 @@ QFuture<void> CppModelManager::updateProjectInfo(QFutureInterface<void> &futureI
     // Trigger reindexing
     const QFuture<void> indexingFuture = updateSourceFiles(futureInterface, filesToReindex,
                                                            ForcedProgressNotification);
+    if (!filesToReindex.isEmpty()) {
+        d->m_projectToIndexerCanceled.insert(project, false);
+    }
     watchForCanceledProjectIndexer({futureInterface.future(), indexingFuture}, project);
     return indexingFuture;
 }
