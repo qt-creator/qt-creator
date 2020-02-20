@@ -131,15 +131,10 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
     return BuildStep::fromMap(map);
 }
 
-
 bool CMakeBuildStep::init()
 {
     bool canInit = true;
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
-    if (!bc) {
-        emit addTask(Task::buildConfigurationMissingTask());
-        canInit = false;
-    }
     if (bc && !bc->isEnabled()) {
         emit addTask(BuildSystemTask(Task::Error,
                           tr("CMakeProjectManager::CMakeBuildStep")));
@@ -528,12 +523,6 @@ QRadioButton *CMakeBuildStepConfigWidget::itemWidget(QListWidgetItem *item)
 
 void CMakeBuildStepConfigWidget::updateDetails()
 {
-    BuildConfiguration *bc = m_buildStep->buildConfiguration();
-    if (!bc) {
-        setSummaryText(tr("<b>No build configuration found on this kit.</b>"));
-        return;
-    }
-
     ProcessParameters param;
     param.setMacroExpander(m_buildStep->macroExpander());
     param.setEnvironment(m_buildStep->buildEnvironment());

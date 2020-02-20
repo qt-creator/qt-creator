@@ -81,15 +81,11 @@ void MakeStep::setAvailableBuildTargets(const QStringList &buildTargets)
 
 bool MakeStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        emit addTask(Task::buildConfigurationMissingTask());
-
     const CommandLine make = effectiveMakeCommand(Execution);
     if (make.executable().isEmpty())
         emit addTask(makeCommandMissingTask());
 
-    if (!bc || make.executable().isEmpty()) {
+    if (make.executable().isEmpty()) {
         emitFaultyConfigurationMessage();
         return false;
     }

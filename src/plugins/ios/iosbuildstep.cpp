@@ -175,8 +175,6 @@ IosBuildStep::IosBuildStep(BuildStepList *parent, Id id)
 bool IosBuildStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        emit addTask(Task::buildConfigurationMissingTask());
 
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
     if (!tc)

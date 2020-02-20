@@ -81,14 +81,6 @@ Task Task::compilerMissingTask()
                            .arg(Core::Constants::IDE_DISPLAY_NAME));
 }
 
-Task Task::buildConfigurationMissingTask()
-{
-    return BuildSystemTask(Task::Error,
-                           tr("%1 needs a build configuration set up to build. "
-                              "Configure a build configuration in the project settings.")
-                           .arg(Core::Constants::IDE_DISPLAY_NAME));
-}
-
 void Task::setMark(TextEditor::TextMark *mark)
 {
     QTC_ASSERT(mark, return);

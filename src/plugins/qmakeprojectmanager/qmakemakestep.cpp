@@ -65,8 +65,6 @@ QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Core::Id id)
 bool QmakeMakeStep::init()
 {
     const auto bc = static_cast<QmakeBuildConfiguration *>(buildConfiguration());
-    if (!bc)
-        emit addTask(Task::buildConfigurationMissingTask());
 
     const Utils::CommandLine unmodifiedMake = effectiveMakeCommand(Execution);
     const Utils::FilePath makeExecutable = unmodifiedMake.executable();

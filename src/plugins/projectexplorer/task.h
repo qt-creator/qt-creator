@@ -68,7 +68,6 @@ public:
          Options options = AddTextMark | FlashWorthy);
 
     static Task compilerMissingTask();
-    static Task buildConfigurationMissingTask();
 
     bool isNull() const;
     void clear();
