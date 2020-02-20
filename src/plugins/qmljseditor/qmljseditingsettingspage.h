@@ -60,11 +60,15 @@ namespace QmlJSEditor {
         bool autoFormatOnlyCurrentProject() const;
         void setAutoFormatOnlyCurrentProject(const bool autoFormatOnlyCurrentProject);
 
+        bool foldAuxData() const;
+        void setFoldAuxData(const bool foldAuxData);
+
     private:
         bool m_enableContextPane;
         bool m_pinContextPane;
         bool m_autoFormatOnSave;
         bool m_autoFormatOnlyCurrentProject;
+        bool m_foldAuxData;
     };
 
     inline bool operator==(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
