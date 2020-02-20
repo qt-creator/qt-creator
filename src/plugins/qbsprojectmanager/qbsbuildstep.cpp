@@ -671,6 +671,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(forceProbesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeForceProbes);
     updateState();
+    setSummaryText(tr("<b>Qbs:</b> %1").arg("build"));
 }
 
 void QbsBuildStepConfigWidget::updateState()
@@ -716,8 +717,6 @@ void QbsBuildStepConfigWidget::updateState()
                  Constants::QBS_CONFIG_QUICK_COMPILER_KEY);
 
     commandLineTextEdit->setPlainText(command);
-
-    setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
 }
 
 

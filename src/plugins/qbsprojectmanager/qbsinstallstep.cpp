@@ -324,6 +324,7 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
             this, &QbsInstallStepConfigWidget::updateState);
 
     updateState();
+    setSummaryText(QbsInstallStep::tr("<b>Qbs:</b> %1").arg("install"));
 }
 
 void QbsInstallStepConfigWidget::updateState()
@@ -338,8 +339,6 @@ void QbsInstallStepConfigWidget::updateState()
     QString command = m_step->buildConfig()->equivalentCommandLine(m_step->stepData());
 
     m_commandLineTextEdit->setPlainText(command);
-
-    setSummaryText(QbsInstallStep::tr("<b>Qbs:</b> %1").arg(command));
 }
 
 // --------------------------------------------------------------------
