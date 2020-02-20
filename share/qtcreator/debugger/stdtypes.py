@@ -1183,7 +1183,7 @@ def qdump__std__byte(d, value):
 
 def qdump__std__optional(d, value):
     innerType = value.type[0]
-    (initialized, pad, payload) = d.split('b@{%s}' % innerType.name, value)
+    (payload, pad, initialized) = d.split('{%s}@b' % innerType.name, value)
     if initialized:
         d.putItem(payload)
         d.putBetterType(value.type)
