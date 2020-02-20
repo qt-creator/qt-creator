@@ -38,6 +38,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
+#include <projectexplorer/abstractprocessstep.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
@@ -61,18 +62,41 @@ namespace Ios {
 namespace Internal {
 
 const char IOS_BUILD_STEP_ID[] = "Ios.IosBuildStep";
-const char IOS_BUILD_STEP_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("Ios::Internal::IosBuildStep",
-                                                             "xcodebuild");
-
 const char BUILD_USE_DEFAULT_ARGS_KEY[] = "Ios.IosBuildStep.XcodeArgumentsUseDefault";
 const char BUILD_ARGUMENTS_KEY[] = "Ios.IosBuildStep.XcodeArguments";
 const char CLEAN_KEY[] = "Ios.IosBuildStep.Clean";
+
+class IosBuildStep final : public AbstractProcessStep
+{
+    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosBuildStep)
+
+public:
+    IosBuildStep(BuildStepList *parent, Core::Id id);
+
+    BuildStepConfigWidget *createConfigWidget() final;
+    void setBaseArguments(const QStringList &args);
+    void setExtraArguments(const QStringList &extraArgs);
+    QStringList baseArguments() const;
+    QStringList allArguments() const;
+    QStringList defaultArguments() const;
+    Utils::FilePath buildCommand() const;
+
+    bool init() final;
+    void doRun() final;
+    bool fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
+
+    QStringList m_baseBuildArguments;
+    QStringList m_extraArguments;
+    bool m_useDefaultArguments = true;
+    bool m_clean = false;
+};
 
 //
 // IosBuildStepConfigWidget
 //
 
-class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+class IosBuildStepConfigWidget final : public BuildStepConfigWidget
 {
 public:
     IosBuildStepConfigWidget(IosBuildStep *buildStep)
@@ -164,8 +188,8 @@ private:
 IosBuildStep::IosBuildStep(BuildStepList *parent, Id id)
     : AbstractProcessStep(parent, id)
 {
-    setDefaultDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
-                                                      IOS_BUILD_STEP_DISPLAY_NAME));
+    setDefaultDisplayName(tr("xcodebuild"));
+
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         m_clean = true;
         setExtraArguments(QStringList("clean"));
@@ -305,8 +329,7 @@ IosBuildStepFactory::IosBuildStepFactory()
                              Constants::IOS_SIMULATOR_TYPE});
     setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
                            ProjectExplorer::Constants::BUILDSTEPS_BUILD});
-    setDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
-                                               IOS_BUILD_STEP_DISPLAY_NAME));
+    setDisplayName(IosBuildStep::tr("xcodebuild"));
 }
 
 } // namespace Internal
