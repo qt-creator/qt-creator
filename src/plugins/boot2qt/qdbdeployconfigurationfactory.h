@@ -30,7 +30,7 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+class QdbDeployConfigurationFactory final : public ProjectExplorer::DeployConfigurationFactory
 {
 public:
     QdbDeployConfigurationFactory();

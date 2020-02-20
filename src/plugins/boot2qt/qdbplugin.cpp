@@ -27,7 +27,8 @@
 
 #include "device-detection/devicedetector.h"
 #include "qdbdeployconfigurationfactory.h"
-#include "qdbdeploystepfactory.h"
+#include "qdbstopapplicationstep.h"
+#include "qdbmakedefaultappstep.h"
 #include "qdbdevicedebugsupport.h"
 #include "qdbqtversion.h"
 #include "qdbrunconfiguration.h"

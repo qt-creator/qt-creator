@@ -58,7 +58,7 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
                 && prj->hasMakeInstallEquivalent();
     });
     addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
-    addInitialStep(QdbStopApplicationStep::stepId());
+    addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
     addInitialStep(GenericDirectUploadStep::stepId());
 }
 
