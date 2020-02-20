@@ -25,6 +25,7 @@
 
 #include "storagesettings.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/settingsutils.h>
 
 #include <QRegularExpression>
@@ -107,7 +108,13 @@ bool StorageSettings::removeTrailingWhitespace(const QString &fileName) const
         QRegularExpressionMatch match = iter.next();
         QString pattern = match.captured(1);
 
-        QString wildcardRegExp = QRegularExpression::wildcardToRegularExpression(pattern);
+        QString wildcardRegExp
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+                = QRegularExpression::wildcardToRegularExpression(pattern);
+#else
+                = QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(),
+                          QRegExp::Wildcard).pattern();
+#endif
         QRegularExpression patternRegExp(wildcardRegExp);
         QRegularExpressionMatch patternMatch = patternRegExp.match(fileName);
         if (patternMatch.hasMatch()) {
