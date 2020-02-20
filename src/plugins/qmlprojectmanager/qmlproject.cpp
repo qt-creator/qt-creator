@@ -205,6 +205,13 @@ QString QmlBuildSystem::mainFile() const
     return QString();
 }
 
+bool QmlBuildSystem::qtForMCUs() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->qtForMCUs();
+    return false;
+}
+
 void QmlBuildSystem::setMainFile(const QString &mainFilePath)
 {
     if (m_projectItem)
@@ -393,6 +400,8 @@ QVariant QmlBuildSystem::additionalData(Id id) const
         return customFileSelectors();
     if (id == Constants::customForceFreeTypeData)
         return forceFreeType();
+    if (id == Constants::customQtForMCUs)
+        return qtForMCUs();
     return {};
 }
 

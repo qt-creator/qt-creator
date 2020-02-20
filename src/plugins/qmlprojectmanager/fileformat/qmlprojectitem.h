@@ -51,6 +51,9 @@ public:
     QString targetDirectory() const { return m_targetDirectory; }
     void setTargetDirectory(const QString &directoryPath);
 
+    bool qtForMCUs() const { return m_qtForMCUs; }
+    void setQtForMCUs(bool qtForMCUs);
+
     QStringList importPaths() const { return m_importPaths; }
     void setImportPaths(const QStringList &paths);
 
@@ -83,6 +86,7 @@ protected:
     Utils::EnvironmentItems m_environment;
     QVector<QmlProjectContentItem *> m_content; // content property
     bool m_forceFreeType = false;
+    bool m_qtForMCUs = false;
 };
 
 } // namespace QmlProjectManager
