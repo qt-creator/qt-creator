@@ -27,15 +27,17 @@
 
 #include "winrtconstants.h"
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -57,11 +59,62 @@ namespace Internal {
 const char ARGUMENTS_KEY[] = "WinRt.BuildStep.Deploy.Arguments";
 const char DEFAULTARGUMENTS_KEY[] = "WinRt.BuildStep.Deploy.DefaultArguments";
 
-WinRtArgumentsAspect::WinRtArgumentsAspect() = default;
+class WinRtArgumentsAspect final : public ProjectConfigurationAspect
+{
+    Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtArgumentsAspect)
 
-WinRtArgumentsAspect::~WinRtArgumentsAspect() = default;
+public:
+    WinRtArgumentsAspect() = default;
 
-void WinRtArgumentsAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
+    void addToLayout(LayoutBuilder &builder) final;
+
+    void fromMap(const QVariantMap &map) final;
+    void toMap(QVariantMap &map) const final;
+
+    void setValue(const QString &value);
+    QString value() const { return m_value; }
+
+    void setDefaultValue(const QString &value) { m_defaultValue = value; }
+    QString defaultValue() const { return m_defaultValue; }
+
+    void restoreDefaultValue();
+
+private:
+    FancyLineEdit *m_lineEdit = nullptr;
+    QString m_value;
+    QString m_defaultValue;
+};
+
+class WinRtPackageDeploymentStep final : public AbstractProcessStep
+{
+    Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtPackageDeploymentStep)
+
+public:
+    WinRtPackageDeploymentStep(BuildStepList *bsl, Core::Id id);
+
+    QString defaultWinDeployQtArguments() const;
+
+    void raiseError(const QString &errorMessage);
+    void raiseWarning(const QString &warningMessage);
+
+private:
+    bool init() override;
+    void doRun() override;
+    bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
+    void stdOutput(const QString &line) override;
+
+    bool parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *items, QString *executable);
+
+    WinRtArgumentsAspect *m_argsAspect = nullptr;
+    QString m_targetFilePath;
+    QString m_targetDirPath;
+    QString m_executablePathInManifest;
+    QString m_mappingFileContent;
+    QString m_manifestFileName;
+    bool m_createMappingFile = false;
+};
+
+void WinRtArgumentsAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_lineEdit);
     auto label = new QLabel(tr("Arguments:"));
@@ -107,21 +160,6 @@ void WinRtArgumentsAspect::setValue(const QString &value)
     if (m_lineEdit)
         m_lineEdit->setText(value);
     emit changed();
-}
-
-QString WinRtArgumentsAspect::value() const
-{
-    return m_value;
-}
-
-void WinRtArgumentsAspect::setDefaultValue(const QString &value)
-{
-    m_defaultValue = value;
-}
-
-QString WinRtArgumentsAspect::defaultValue() const
-{
-    return m_defaultValue;
 }
 
 void WinRtArgumentsAspect::restoreDefaultValue()
@@ -344,6 +382,20 @@ bool WinRtPackageDeploymentStep::parseIconsAndExecutableFromManifest(QString man
     *executable = match.captured(1);
 
     return true;
+}
+
+// WinRtDeployStepFactory
+
+WinRtDeployStepFactory::WinRtDeployStepFactory()
+{
+    registerStep<WinRtPackageDeploymentStep>(Constants::WINRT_BUILD_STEP_DEPLOY);
+    setDisplayName(QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory", "Run windeployqt"));
+    setFlags(BuildStepInfo::Unclonable);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceTypes({Constants::WINRT_DEVICE_TYPE_LOCAL,
+                             Constants::WINRT_DEVICE_TYPE_EMULATOR,
+                             Constants::WINRT_DEVICE_TYPE_PHONE});
+    setRepeatable(false);
 }
 
 } // namespace Internal

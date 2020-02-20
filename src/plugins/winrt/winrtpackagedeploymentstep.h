@@ -25,66 +25,15 @@
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/projectconfigurationaspects.h>
+#include <projectexplorer/buildstep.h>
 
 namespace WinRt {
 namespace Internal {
 
-class WinRtArgumentsAspect : public ProjectExplorer::ProjectConfigurationAspect
+class WinRtDeployStepFactory final : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    WinRtArgumentsAspect();
-    ~WinRtArgumentsAspect() override;
-
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
-    void setValue(const QString &value);
-    QString value() const;
-
-    void setDefaultValue(const QString &value);
-    QString defaultValue() const;
-
-    void restoreDefaultValue();
-
-private:
-    Utils::FancyLineEdit *m_lineEdit = nullptr;
-    QString m_value;
-    QString m_defaultValue;
-};
-
-class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-
-public:
-    WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-
-    QString defaultWinDeployQtArguments() const;
-
-    void raiseError(const QString &errorMessage);
-    void raiseWarning(const QString &warningMessage);
-
-private:
-    bool init() override;
-    void doRun() override;
-    bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
-    void stdOutput(const QString &line) override;
-
-    bool parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *items, QString *executable);
-
-    WinRtArgumentsAspect *m_argsAspect = nullptr;
-    QString m_targetFilePath;
-    QString m_targetDirPath;
-    QString m_executablePathInManifest;
-    QString m_mappingFileContent;
-    QString m_manifestFileName;
-    bool m_createMappingFile = false;
+    WinRtDeployStepFactory();
 };
 
 } // namespace Internal

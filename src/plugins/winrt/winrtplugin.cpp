@@ -24,14 +24,16 @@
 ****************************************************************************/
 
 #include "winrtplugin.h"
+
 #include "winrtconstants.h"
-#include "winrtdevice.h"
+#include "winrtdebugsupport.h"
 #include "winrtdeployconfiguration.h"
-#include "winrtqtversion.h"
+#include "winrtdevice.h"
+#include "winrtpackagedeploymentstep.h"
 #include "winrtphoneqtversion.h"
+#include "winrtqtversion.h"
 #include "winrtrunconfiguration.h"
 #include "winrtruncontrol.h"
-#include "winrtdebugsupport.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
