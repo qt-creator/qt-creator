@@ -23,10 +23,11 @@
 #
 ############################################################################
 
+from utils import DisplayFormat
 from dumper import *
 
 def qform__std__array():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__std__array(d, value):
     size = value.type[1]
@@ -36,7 +37,7 @@ def qdump__std__array(d, value):
 
 
 def qform__std____1__array():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__std____1__array(d, value):
     qdump__std__array(d, value)
@@ -260,7 +261,7 @@ def qdump__std____1__list(d, value):
                 d.putSubItem(i, val)
 
 def qform__std__map():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__std__map(d, value):
     if d.isQnxTarget() or d.isMsvcTarget():
@@ -334,7 +335,7 @@ def qdump__std____cxx1998__map(d, value):
     qdump__std__map(d, value)
 
 def qform__std__multimap():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__std__multimap(d, value):
     return qdump__std__map(d, value)
@@ -537,7 +538,7 @@ def qdump__std____1__multiset(d, value):
     qdump__std____1__set(d, value)
 
 def qform__std____1__map():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__std____1__map(d, value):
     try:
@@ -574,7 +575,7 @@ def qdump__std____1__map(d, value):
                 d.putPairItem(i, pair, 'key', 'value')
 
 def qform__std____1__multimap():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__std____1__multimap(d, value):
     qdump__std____1__map(d, value)
@@ -620,8 +621,8 @@ def qdump__std____1__stack(d, value):
     d.putBetterType(value.type)
 
 def qform__std__string():
-    return [Latin1StringFormat, SeparateLatin1StringFormat,
-            Utf8StringFormat, SeparateUtf8StringFormat ]
+    return [DisplayFormat.Latin1StringFormat, DisplayFormat.SeparateLatin1StringFormat,
+            DisplayFormat.Utf8StringFormat, DisplayFormat.SeparateUtf8StringFormat ]
 
 def qdump__std__string(d, value):
     qdumpHelper_std__string(d, value, d.createType("char"), d.currentItemFormat())
@@ -760,10 +761,10 @@ def qdump__std__pair(d, value):
     d.putValue(value.value, value.encoding)
 
 def qform__std__unordered_map():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qform__std____debug__unordered_map():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__std__unordered_map(d, value):
     if d.isQnxTarget() or d.isMsvcTarget():
@@ -861,7 +862,7 @@ def qdump__std__unordered_set(d, value):
                 p = d.extractPointer(p + offset)
 
 def qform__std____1__unordered_map():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__std____1__unordered_map(d, value):
     (size, _) = value["__table_"]["__p2_"].split("pp")
@@ -916,7 +917,7 @@ def qdump__std____debug__unordered_multiset(d, value):
 
 
 def qform__std__valarray():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__std__valarray(d, value):
     if d.isMsvcTarget():
@@ -928,7 +929,7 @@ def qdump__std__valarray(d, value):
 
 
 def qform__std____1__valarray():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__std____1__valarray(d, value):
     innerType = value.type[0]
@@ -939,7 +940,7 @@ def qdump__std____1__valarray(d, value):
 
 
 def qform__std__vector():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qedit__std__vector(d, value, data):
     import gdb
@@ -1036,13 +1037,13 @@ def qdumpHelper__std__vector__QNX(d, value):
             d.putPlotData(start, size, innerType)
 
 def qform__std____1__vector():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__std____1__vector(d, value):
     qdumpHelper__std__vector(d, value, True)
 
 def qform__std____debug__vector():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__std____debug__vector(d, value):
     qdump__std__vector(d, value)
@@ -1088,7 +1089,7 @@ def qdump__string(d, value):
     qdump__std__string(d, value)
 
 def qform__std__wstring():
-    return [SimpleFormat, SeparateFormat]
+    return [DisplayFormat.SimpleFormat, DisplayFormat.SeparateFormat]
 
 def qdump__std__wstring(d, value):
     qdumpHelper_std__string(d, value, d.createType('wchar_t'), d.currentItemFormat())
@@ -1131,7 +1132,7 @@ def qdump__std____1__basic_string(d, value):
     elif innerType == "wchar_t":
         qdump__std____1__wstring(d, value)
     else:
-        warn("UNKNOWN INNER TYPE %s" % innerType)
+        d.warn("UNKNOWN INNER TYPE %s" % innerType)
 
 def qdump__wstring(d, value):
     qdump__std__wstring(d, value)

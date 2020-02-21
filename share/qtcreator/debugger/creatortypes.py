@@ -234,7 +234,7 @@ def qdump__CPlusPlus__Internal__PPToken(d, value):
     data, size, alloc = d.byteArrayData(value["m_src"])
     length = value["f"]["utf16chars"].integer()
     offset = value["utf16charOffset"].integer()
-    #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
+    #DumperBase.warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
     d.putValue(d.readMemory(data + offset, min(100, length)), "latin1")
     d.putPlainChildren(value)

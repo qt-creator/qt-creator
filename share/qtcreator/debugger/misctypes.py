@@ -24,6 +24,7 @@
 ############################################################################
 
 from dumper import *
+from utils import TypeCode
 import re
 
 #######################################################################
@@ -100,7 +101,7 @@ def qdump____m512i(d, value):
 #######################################################################
 
 def qform__std__array():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__gsl__span(d, value):
     size, pointer = value.split('pp')
@@ -186,7 +187,7 @@ def qdump__NimStringDesc(d, value):
 
 def qdump__NimGenericSequence__(d, value, regex = '^TY[\d]+$'):
     code = value.type.stripTypedefs().code
-    if code == TypeCodeStruct:
+    if code == TypeCode.TypeCodeStruct:
         size, reserved = d.split('pp', value)
         data = value.address() + 2 * d.ptrSize()
         typeobj = value['data'].type.dereference()

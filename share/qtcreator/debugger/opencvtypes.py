@@ -24,13 +24,14 @@
 ############################################################################
 
 from dumper import *
+from utils import TypeCode
 
 def qdump__cv__Size_(d, value):
     d.putValue('(%s, %s)' % (value[0].display(), value[1].display()))
     d.putPlainChildren(value)
 
 def qform__cv__Mat():
-    return [SeparateFormat]
+    return [DisplayFormat.SeparateFormat]
 
 def qdump__cv__Mat(d, value):
     (flag, dims, rows, cols, data, refcount, datastart, dataend,
@@ -43,7 +44,7 @@ def qdump__cv__Mat(d, value):
         d.putPlainChildren(value)
         return
 
-    if d.currentItemFormat() == SeparateFormat:
+    if d.currentItemFormat() == DisplayFormat.SeparateFormat:
         rs = steps[0] * innerSize
         cs = cols * innerSize
         dform = 'arraydata:separate:int:%d::2:%d:%d' % (innerSize, cols, rows)
@@ -53,7 +54,7 @@ def qdump__cv__Mat(d, value):
     d.putValue('(%s x %s)' % (rows, cols))
     if d.isExpanded():
         with Children(d):
-            innerType = d.createType(TypeCodeIntegral, innerSize)
+            innerType = d.createType(TypeCode.TypeCodeIntegral, innerSize)
             for i in range(rows):
                 for j in range(cols):
                     with SubItem(d, None):

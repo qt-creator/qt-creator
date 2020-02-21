@@ -1552,10 +1552,10 @@ class QtcInternalDumper:
         self.put('name="%s",' % name)
 
     def isExpanded(self, iname):
-        # self.warn('IS EXPANDED: %s in %s' % (iname, self.expandedINames))
+        # DumperBase.warn('IS EXPANDED: %s in %s' % (iname, self.expandedINames))
         if iname.startswith('None'):
             raise "Illegal iname '%s'" % iname
-        # self.warn('   --> %s' % (iname in self.expandedINames))
+        # DumperBase.warn('   --> %s' % (iname in self.expandedINames))
         return iname in self.expandedINames
 
     def isExpandedIName(self, iname):

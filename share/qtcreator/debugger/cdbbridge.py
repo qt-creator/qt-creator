@@ -28,6 +28,7 @@ import os
 import sys
 import cdbext
 import re
+from utils import TypeCode
 
 sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
@@ -47,19 +48,19 @@ class FakeVoidType(cdbext.Type):
 
     def code(self):
         if self.typeName.endswith('*'):
-            return TypeCodePointer
+            return TypeCode.TypeCodePointer
         if self.typeName.endswith(']'):
-            return TypeCodeArray
-        return TypeCodeVoid
+            return TypeCode.TypeCodeArray
+        return TypeCode.TypeCodeVoid
 
     def unqualified(self):
         return self
 
     def target(self):
         code = self.code()
-        if code == TypeCodePointer:
+        if code == TypeCode.TypeCodePointer:
             return FakeVoidType(self.typeName[:-1], self.dumper)
-        if code == TypeCodeVoid:
+        if code == TypeCode.TypeCodeVoid:
             return self
         try:
             return FakeVoidType(self.typeName[:self.typeName.rindex('[')], self.dumper)
@@ -105,7 +106,7 @@ class Dumper(DumperBase):
         val.type = self.fromNativeType(nativeValue.type())
         # There is no cdb api for the size of bitfields.
         # Workaround this issue by parsing the native debugger text for integral types.
-        if val.type.code == TypeCodeIntegral:
+        if val.type.code == TypeCode.TypeCodeIntegral:
             integerString = nativeValue.nativeDebuggerValue()
             if integerString == 'true':
                 val.ldata = int(1).to_bytes(1, byteorder='little')
@@ -128,7 +129,7 @@ class Dumper(DumperBase):
                 except:
                     # read raw memory in case the integerString can not be interpreted
                     pass
-        if val.type.code == TypeCodeEnum:
+        if val.type.code == TypeCode.TypeCodeEnum:
             val.ldisplay = self.enumValue(nativeValue)
         val.isBaseClass = val.name == val.type.name
         val.nativeValue = nativeValue
@@ -159,21 +160,21 @@ class Dumper(DumperBase):
             nativeType = FakeVoidType(nativeType.name(), self)
 
         code = nativeType.code()
-        if code == TypeCodePointer:
+        if code == TypeCode.TypeCodePointer:
             if not nativeType.name().startswith('<function>'):
                 targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
                 if targetType is not None:
                     return self.createPointerType(targetType)
-            code = TypeCodeFunction
+            code = TypeCode.TypeCodeFunction
 
-        if code == TypeCodeArray:
+        if code == TypeCode.TypeCodeArray:
             # cdb reports virtual function tables as arrays those ar handled separetly by
             # the DumperBase. Declare those types as structs prevents a lookup to a none existing type
             if not nativeType.name().startswith('__fptr()') and not nativeType.name().startswith('<gentype '):
                 targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
                 if targetType is not None:
                     return self.createArrayType(targetType, nativeType.arrayElements())
-            code = TypeCodeStruct
+            code = TypeCode.TypeCodeStruct
 
         tdata = self.TypeData(self)
         tdata.name = nativeType.name()
@@ -182,12 +183,12 @@ class Dumper(DumperBase):
         tdata.code = code
         tdata.moduleName = nativeType.module()
         self.registerType(typeId, tdata) # Prevent recursion in fields.
-        if  code == TypeCodeStruct:
+        if  code == TypeCode.TypeCodeStruct:
             tdata.lfields = lambda value : \
                 self.listFields(nativeType, value)
             tdata.lalignment = lambda : \
                 self.nativeStructAlignment(nativeType)
-        if code == TypeCodeEnum:
+        if code == TypeCode.TypeCodeEnum:
             tdata.enumDisplay = lambda intval, addr, form : \
                 self.nativeTypeEnumDisplay(nativeType, intval, form)
         tdata.templateArguments = self.listTemplateParameters(nativeType.name())
@@ -206,7 +207,7 @@ class Dumper(DumperBase):
             nativeMember = nativeValue.childFromIndex(index)
 
     def nativeStructAlignment(self, nativeType):
-        #warn("NATIVE ALIGN FOR %s" % nativeType.name)
+        #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
         def handleItem(nativeFieldType, align):
             a = self.fromNativeType(nativeFieldType).alignment()
             return a if a > align else align
