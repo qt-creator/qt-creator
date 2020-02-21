@@ -30,19 +30,6 @@ def switchViewTo(view):
     waitFor("not QToolTip.isVisible()", 15000)
     if view < ViewConstants.FIRST_AVAILABLE or view > ViewConstants.LAST_AVAILABLE:
         return
-    tabBar = waitForObject("{name='ModeSelector' type='Core::Internal::FancyTabBar' visible='1' "
-                           "window=':Qt Creator_Core::Internal::MainWindow'}")
-    mouseMove(tabBar, 20, 20 + 52 * view)
-    if waitFor("QToolTip.isVisible()", 10000):
-        text = str(QToolTip.text())
-    else:
-        test.warning("Waiting for ToolTip timed out.")
-        text = ""
-    pattern = ViewConstants.getToolTipForViewTab(view)
-    if re.match(pattern, unicode(text), re.UNICODE):
-        test.passes("ToolTip verified")
-    else:
-        test.warning("ToolTip does not match", "Expected pattern: %s\nGot: %s" % (pattern, text))
     mouseClick(waitForObject("{name='ModeSelector' type='Core::Internal::FancyTabBar' visible='1' "
                              "window=':Qt Creator_Core::Internal::MainWindow'}"), 20, 20 + 52 * view, 0, Qt.LeftButton)
 
