@@ -194,8 +194,6 @@ public:
     Target *target() const;
     Project *project() const;
 
-    virtual bool isActive() const = 0;
-
     static QString settingsIdKey();
 
     template<class Aspect, typename ...Args>

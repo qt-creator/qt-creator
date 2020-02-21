@@ -56,7 +56,7 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    bool isActive() const override;
+    bool isActive() const;
 
     bool usesCustomDeploymentData() const { return m_usesCustomDeploymentData; }
     void setUseCustomDeploymentData(bool enabled) { m_usesCustomDeploymentData = enabled; }
