@@ -86,7 +86,7 @@ static QString readerTypeToString(const CMakeTool::ReaderType &type)
     case CMakeTool::FileApi:
         return QString(READER_TYPE_FILEAPI);
     }
-    return "<INVALID>";
+    return QString("<INVALID>");
 }
 
 // --------------------------------------------------------------------
