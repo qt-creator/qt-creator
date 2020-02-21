@@ -56,7 +56,7 @@
 #include <QToolBar>
 #include <QXmlStreamWriter>
 
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtDebugMsg)
+static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
 namespace ADS
 {

@@ -40,7 +40,7 @@
 #include <QChildEvent>
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtDebugMsg)
+static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
 namespace ADS
 {
