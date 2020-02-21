@@ -46,6 +46,7 @@
 
 #include "workspacedialog.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <algorithm>
@@ -613,7 +614,7 @@ namespace ADS
     QStringList DockManager::workspaces()
     {
         if (d->m_workspaces.isEmpty() || d->m_workspaceListDirty) {
-            auto tmp = QSet<QString>::fromList(d->m_workspaces);
+            auto tmp = Utils::toSet(d->m_workspaces);
 
             QTC_ASSERT(d->m_settings, return {});
             QDir workspaceDir(QFileInfo(d->m_settings->fileName()).path() + QLatin1Char('/')
@@ -632,7 +633,7 @@ namespace ADS
             //d->m_workspaces.prepend(QLatin1String(Constants::DEFAULT_NAME));
 
             d->m_workspaceListDirty = false;
-            d->m_workspaces = tmp.toList();
+            d->m_workspaces = Utils::toList(tmp);
         }
         return d->m_workspaces;
     }
