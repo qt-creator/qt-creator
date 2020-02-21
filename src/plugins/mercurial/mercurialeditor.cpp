@@ -42,9 +42,10 @@
 namespace Mercurial {
 namespace Internal  {
 
+// use QRegularExpression::anchoredPattern() when minimum Qt is raised to 5.12+
 MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
-        exactIdentifier12(QRegularExpression::anchoredPattern(Constants::CHANGEIDEXACT12)),
-        exactIdentifier40(QRegularExpression::anchoredPattern(Constants::CHANGEIDEXACT40)),
+        exactIdentifier12(QString("\\A(?:") + Constants::CHANGEIDEXACT12 + QString(")\\z")),
+        exactIdentifier40(QString("\\A(?:") + Constants::CHANGEIDEXACT40 + QString(")\\z")),
         changesetIdentifier40(Constants::CHANGESETID40),
         m_client(client)
 {
