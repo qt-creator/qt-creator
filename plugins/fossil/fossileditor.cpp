@@ -63,14 +63,8 @@ FossilEditorWidget::FossilEditorWidget() :
 {
     setAnnotateRevisionTextFormat(tr("&Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate &Parent Revision %1"));
-
-    const QRegularExpression exactDiffFileIdPattern(Constants::DIFFFILE_ID_EXACT);
-    QTC_ASSERT(exactDiffFileIdPattern.isValid(), return);
-    setDiffFilePattern(exactDiffFileIdPattern);
-
-    const QRegularExpression logChangePattern("^.*\\[([0-9a-f]{5,40})\\]");
-    QTC_ASSERT(logChangePattern.isValid(), return);
-    setLogEntryPattern(logChangePattern);
+    setDiffFilePattern(Constants::DIFFFILE_ID_EXACT);
+    setLogEntryPattern("^.*\\[([0-9a-f]{5,40})\\]");
     setAnnotationEntryPattern(QString("^") + Constants::CHANGESET_ID + " ");
 }
 
