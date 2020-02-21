@@ -61,32 +61,7 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    auto tabBar = new QTabBar(this);
-    tabBar->addTab(tr("Navigator"));
-    tabBar->addTab(tr("Project"));
-    tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-    QWidget *spacer = new QWidget(this);
-    spacer->setObjectName(QStringLiteral("itemLibrarySearchInputSpacer"));
-    spacer->setFixedHeight(4);
-
-    layout->addWidget(tabBar);
-    layout->addWidget(spacer);
-
-    auto stackedWidget = new QStackedWidget(this);
-    stackedWidget->addWidget(m_treeView);
-
-#ifndef QMLDESIGNER_TEST
-    auto projectManager = QmlDesignerPlugin::instance()->createProjectExplorerWidget(this);
-
-    QTC_ASSERT(projectManager, ;);
-    if (projectManager)
-        stackedWidget->addWidget(projectManager);
-#endif
-
-    connect(tabBar, &QTabBar::currentChanged, stackedWidget, &QStackedWidget::setCurrentIndex);
-
-    layout->addWidget(stackedWidget);
+    layout->addWidget(m_treeView);
     setLayout(layout);
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
