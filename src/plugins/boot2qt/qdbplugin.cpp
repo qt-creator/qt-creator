@@ -45,9 +45,10 @@
 
 #include <qtsupport/qtversionfactory.h>
 
-#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/makeinstallstep.h>
+#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
+#include <remotelinux/remotelinux_constants.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
@@ -154,9 +155,9 @@ template <class Step>
 class QdbDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
 public:
-    QdbDeployStepFactory()
+    explicit QdbDeployStepFactory(Core::Id id)
     {
-        registerStep<Step>(Step::stepId());
+        registerStep<Step>(id);
         setDisplayName(Step::displayName());
         setSupportedConfiguration(Constants::QdbDeployConfigurationId);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
@@ -176,9 +177,11 @@ public:
     QdbMakeDefaultAppStepFactory m_makeDefaultAppStepFactory;
 
     QdbDeployStepFactory<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep>
-        m_checkForFreeDiskSpaceStepFactory;
-    QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep> m_directUploadStepFactory;
-    QdbDeployStepFactory<RemoteLinux::MakeInstallStep> m_makeInstallStepFactory;
+        m_checkForFreeDiskSpaceStepFactory{RemoteLinux::Constants::CheckForFreeDiskSpaceId};
+    QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep>
+        m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
+    QdbDeployStepFactory<RemoteLinux::MakeInstallStep>
+        m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
     const QList<Core::Id> supportedRunConfigs {
         m_runConfigFactory.id(),

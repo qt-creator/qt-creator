@@ -25,6 +25,8 @@
 
 #include "makeinstallstep.h"
 
+#include "remotelinux_constants.h"
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
@@ -112,7 +114,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Core::Id id) : MakeStep(
 
 Core::Id MakeInstallStep::stepId()
 {
-    return "RemoteLinux.MakeInstall";
+    return Constants::MakeInstallStepId;
 }
 
 QString MakeInstallStep::displayName()

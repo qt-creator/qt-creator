@@ -26,20 +26,15 @@
 #include "qdbdeployconfigurationfactory.h"
 
 #include "qdbconstants.h"
-#include "qdbstopapplicationstep.h"
 
 #include <projectexplorer/deploymentdataview.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <remotelinux/genericdirectuploadstep.h>
-#include <remotelinux/makeinstallstep.h>
-#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
-#include <remotelinux/remotelinuxdeployconfiguration.h>
+#include <remotelinux/remotelinux_constants.h>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
 
 namespace Qdb {
 namespace Internal {
@@ -52,14 +47,14 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
                                                       "Deploy to Boot2Qt target"));
     setUseDeploymentDataView();
 
-    addInitialStep(RemoteLinux::MakeInstallStep::stepId(), [](Target *target) {
+    addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](Target *target) {
         const Project * const prj = target->project();
         return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                 && prj->hasMakeInstallEquivalent();
     });
-    addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
+    addInitialStep(RemoteLinux::Constants::CheckForFreeDiskSpaceId);
     addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
-    addInitialStep(GenericDirectUploadStep::stepId());
+    addInitialStep(RemoteLinux::Constants::DirectUploadStepId);
 }
 
 } // namespace Internal
