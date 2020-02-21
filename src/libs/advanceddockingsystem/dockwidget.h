@@ -39,8 +39,10 @@
 
 #include <QFrame>
 
+QT_BEGIN_NAMESPACE
 class QToolBar;
 class QXmlStreamWriter;
+QT_END_NAMESPACE
 
 namespace ADS {
 

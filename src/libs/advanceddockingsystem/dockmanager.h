@@ -52,8 +52,10 @@
 #include <QtGui/QIcon>
 #include <qobjectdefs.h>
 
-class QSettings;
+QT_BEGIN_NAMESPACE
 class QMenu;
+class QSettings;
+QT_END_NAMESPACE
 
 namespace ADS {
 

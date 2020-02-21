@@ -40,7 +40,9 @@
 #include <QFrame>
 #include <QToolButton>
 
+QT_BEGIN_NAMESPACE
 class QAbstractButton;
+QT_END_NAMESPACE
 
 namespace ADS {
 

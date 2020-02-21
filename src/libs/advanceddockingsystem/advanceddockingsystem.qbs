@@ -14,7 +14,7 @@ QtcLibrary {
         name: "General"
         files: [
             "ads_globals.cpp", "ads_globals.h",
-            "dockareaareatabbar.cpp", "dockareatabbar.h",
+            "dockareatabbar.cpp", "dockareatabbar.h",
             "dockareatitlebar.cpp", "dockareatitlebar.h",
             "dockareawidget.cpp", "dockareawidget.h",
             "dockcomponentsfactory.cpp", "dockcomponentsfactory.h",

@@ -42,7 +42,10 @@
 #include <QWidget>
 #include <QtCore/QtGlobal>
 
+QT_BEGIN_NAMESPACE
 class QAbstractButton;
+class QSplitter;
+QT_END_NAMESPACE
 
 #ifndef ADS_STATIC
 #ifdef ADVANCEDDOCKINGSYSTEM_LIBRARY
@@ -66,8 +69,6 @@ class QAbstractButton;
 // Set ADS_DEBUG_LEVEL to enable additional debug output and to enable layout
 // dumps to qDebug and std::cout after layout changes
 #define ADS_DEBUG_LEVEL 0
-
-class QSplitter;
 
 namespace ADS {
 

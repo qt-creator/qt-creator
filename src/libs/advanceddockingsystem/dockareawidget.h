@@ -40,8 +40,10 @@
 
 #include <QFrame>
 
-class QXmlStreamWriter;
+QT_BEGIN_NAMESPACE
 class QAbstractButton;
+class QXmlStreamWriter;
+QT_END_NAMESPACE
 
 namespace ADS {
 

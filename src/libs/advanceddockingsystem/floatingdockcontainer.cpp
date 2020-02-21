@@ -388,10 +388,10 @@ namespace ADS
                 d->setState(DraggingMousePressed);
             }
 #else
-            if (e->type() == QEvent::NonClientAreaMouseButtonPress
+            if (event->type() == QEvent::NonClientAreaMouseButtonPress
                 && QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)) {
                 qCInfo(adsLog) << Q_FUNC_INFO << "QEvent::NonClientAreaMouseButtonPress"
-                               << e->type();
+                               << event->type();
                 d->setState(DraggingMousePressed);
             }
 #endif
