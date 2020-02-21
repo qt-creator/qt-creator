@@ -35,9 +35,7 @@
 namespace QmlDesigner {
 
 AnimationCurveEditorModel::AnimationCurveEditorModel(double minTime, double maxTime)
-    : CurveEditorModel()
-    , m_minTime(minTime)
-    , m_maxTime(maxTime)
+    : CurveEditorModel(minTime, maxTime)
 {}
 
 AnimationCurveEditorModel::~AnimationCurveEditorModel() {}
@@ -100,16 +98,6 @@ void AnimationCurveEditorModel::setTimeline(const QmlTimeline &timeline)
     }
 
     reset(items);
-}
-
-void AnimationCurveEditorModel::setMinimumTime(double time)
-{
-    m_minTime = time;
-}
-
-void AnimationCurveEditorModel::setMaximumTime(double time)
-{
-    m_maxTime = time;
 }
 
 DesignTools::ValueType typeFrom(const QmlTimelineKeyframeGroup &group)

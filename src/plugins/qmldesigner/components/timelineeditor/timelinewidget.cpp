@@ -459,6 +459,8 @@ void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
     if (timelineView() && timelineView()->model()) {
         QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
+            m_toolbar->setStartFrame(timeline.startKeyframe());
+            m_toolbar->setEndFrame(timeline.endKeyframe());
             graphicsScene()->setTimeline(timeline);
 
             qreal playHeadFrame = getcurrentFrame(timeline);

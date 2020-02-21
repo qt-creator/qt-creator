@@ -108,6 +108,8 @@ public:
 
     void reset(const std::vector<CurveItem *> &items);
 
+    void updateSelection(const std::vector<CurveItem *> &items);
+
     void setInterpolation(Keyframe::Interpolation interpol);
 
 protected:
@@ -148,7 +150,13 @@ private:
 
     void drawValueScale(QPainter *painter, const QRectF &rect);
 
+    void drawRangeBar(QPainter *painter, const QRectF &rect);
+
     double timeLabelInterval(QPainter *painter, double maxTime);
+
+    QRectF rangeMinHandle(const QRectF &rect);
+
+    QRectF rangeMaxHandle(const QRectF &rect);
 
 private:
     double m_zoomX;

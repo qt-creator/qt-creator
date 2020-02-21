@@ -48,6 +48,14 @@ class CurveEditorModel : public TreeModel
 signals:
     void currentFrameChanged(int frame);
 
+    void startFrameChanged(int frame);
+
+    void endFrameChanged(int frame);
+
+    void updateStartFrame(int frame);
+
+    void updateEndFrame(int frame);
+
     void curveChanged(PropertyTreeItem *item);
 
 public:
@@ -58,15 +66,24 @@ public:
     virtual CurveEditorStyle style() const = 0;
 
 public:
-    CurveEditorModel(QObject *parent = nullptr);
+    CurveEditorModel(double minTime, double maxTime, QObject *parent = nullptr);
 
     ~CurveEditorModel() override;
 
     void setCurrentFrame(int frame);
 
+    void setMinimumTime(double time, bool internal);
+
+    void setMaximumTime(double time, bool internal);
+
     void setCurve(unsigned int id, const AnimationCurve &curve);
 
     void reset(const std::vector<TreeItem *> &items);
+
+protected:
+    double m_minTime = 0.;
+
+    double m_maxTime = 0.;
 };
 
 } // End namespace DesignTools.

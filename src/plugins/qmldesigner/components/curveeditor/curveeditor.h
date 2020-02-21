@@ -48,7 +48,7 @@ public:
     void clearCanvas();
 
 private:
-    QToolBar *createToolBar();
+    QToolBar *createToolBar(CurveEditorModel *model);
 
     TreeView *m_tree;
 
