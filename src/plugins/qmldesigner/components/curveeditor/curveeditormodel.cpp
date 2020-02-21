@@ -25,13 +25,16 @@
 
 #include "curveeditormodel.h"
 #include "treeitem.h"
+
 #include "detail/graphicsview.h"
 #include "detail/selectionmodel.h"
 
 namespace DesignTools {
 
-CurveEditorModel::CurveEditorModel(QObject *parent)
+CurveEditorModel::CurveEditorModel(double minTime, double maxTime, QObject *parent)
     : TreeModel(parent)
+    , m_minTime(minTime)
+    , m_maxTime(maxTime)
 {}
 
 CurveEditorModel::~CurveEditorModel() {}
@@ -40,6 +43,24 @@ void CurveEditorModel::setCurrentFrame(int frame)
 {
     if (graphicsView())
         graphicsView()->setCurrentFrame(frame);
+}
+
+void CurveEditorModel::setMinimumTime(double time, bool internal)
+{
+    m_minTime = time;
+    if (internal)
+        emit updateStartFrame(m_minTime);
+    else
+        emit startFrameChanged(m_minTime);
+}
+
+void CurveEditorModel::setMaximumTime(double time, bool internal)
+{
+    m_maxTime = time;
+    if (internal)
+        emit updateEndFrame(m_maxTime);
+    else
+        emit endFrameChanged(m_maxTime);
 }
 
 void CurveEditorModel::setCurve(unsigned int id, const AnimationCurve &curve)

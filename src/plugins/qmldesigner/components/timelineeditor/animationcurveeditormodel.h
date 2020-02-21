@@ -49,20 +49,12 @@ public:
 
     void setTimeline(const QmlTimeline &timeline);
 
-    void setMinimumTime(double time);
-
-    void setMaximumTime(double time);
-
 private:
     DesignTools::TreeItem *createTopLevelItem(const QmlTimeline &timeline, const ModelNode &node);
 
     DesignTools::AnimationCurve createAnimationCurve(const QmlTimelineKeyframeGroup &group);
 
     DesignTools::AnimationCurve createDoubleCurve(const QmlTimelineKeyframeGroup &group);
-
-    double m_minTime;
-
-    double m_maxTime;
 };
 
 } // namespace QmlDesigner
