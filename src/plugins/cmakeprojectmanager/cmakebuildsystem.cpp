@@ -273,7 +273,7 @@ QStringList CMakeBuildSystem::filesGeneratedFrom(const QString &sourceFile) cons
 
     QDir srcDirRoot = QDir(project.toString());
     QString relativePath = srcDirRoot.relativeFilePath(baseDirectory.toString());
-    QDir buildDir = QDir(target()->activeBuildConfiguration()->buildDirectory().toString());
+    QDir buildDir = QDir(buildConfiguration()->buildDirectory().toString());
     QString generatedFilePath = buildDir.absoluteFilePath(relativePath);
 
     if (fi.suffix() == "ui") {
