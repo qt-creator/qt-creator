@@ -40,7 +40,7 @@ using namespace Core;
 */
 
 /*!
-    \enum IFindSupport::Result
+    \enum Core::IFindSupport::Result
     This enum holds whether the search term was found within the search scope
     using the find flags.
 
@@ -50,22 +50,22 @@ using namespace Core;
 */
 
 /*!
-    \fn IFindSupport::IFindSupport()
+    \fn Core::IFindSupport::IFindSupport()
     \internal
 */
 
 /*!
-    \fn IFindSupport::~IFindSupport()
+    \fn Core::IFindSupport::~IFindSupport()
     \internal
 */
 
 /*!
-    \fn bool IFindSupport::supportsReplace() const
+    \fn bool Core::IFindSupport::supportsReplace() const
     Returns whether the find filter supports search and replace.
 */
 
 /*!
-    \fn FindFlags IFindSupport::supportedFindFlags() const
+    \fn Core::FindFlags Core::IFindSupport::supportedFindFlags() const
     Returns the find flags, such as whole words or regular expressions,
     that this find filter supports.
 
@@ -78,52 +78,52 @@ using namespace Core;
 */
 
 /*!
-    \fn void IFindSupport::resetIncrementalSearch()
+    \fn void Core::IFindSupport::resetIncrementalSearch()
     Resets incremental search to start position.
 */
 
 /*!
-    \fn void IFindSupport::clearHighlights()
+    \fn void Core::IFindSupport::clearHighlights()
     Clears highlighting of search results in the searched widget.
 */
 
 /*!
-    \fn QString IFindSupport::currentFindString() const
+    \fn QString Core::IFindSupport::currentFindString() const
     Returns the current search string.
 */
 
 /*!
-    \fn QString IFindSupport::completedFindString() const
+    \fn QString Core::IFindSupport::completedFindString() const
     Returns the complete search string.
 */
 
 /*!
-    \fn void IFindSupport::highlightAll(const QString &txt, FindFlags findFlags)
+    \fn void Core::IFindSupport::highlightAll(const QString &txt, Core::FindFlags findFlags)
     Highlights all search hits for \a txt when using \a findFlags.
 */
 
 /*!
-    \fn Result IFindSupport::findIncremental(const QString &txt, FindFlags findFlags)
+    \fn Core::IFindSupport::Result Core::IFindSupport::findIncremental(const QString &txt, Core::FindFlags findFlags)
     Performs an incremental search of the search term \a txt using \a findFlags.
 */
 
 /*!
-    \fn Result IFindSupport::findStep(const QString &txt, FindFlags findFlags)
+    \fn Core::IFindSupport::Result Core::IFindSupport::findStep(const QString &txt, Core::FindFlags findFlags)
     Searches for \a txt using \a findFlags.
 */
 
 /*!
-    \fn void IFindSupport::defineFindScope()
+    \fn void Core::IFindSupport::defineFindScope()
     Defines the find scope.
 */
 
 /*!
-    \fn void IFindSupport::clearFindScope()
+    \fn void Core::IFindSupport::clearFindScope()
     Clears the find scope.
 */
 
 /*!
-    \fn void IFindSupport::changed()
+    \fn void Core::IFindSupport::changed()
     This signal is emitted when the search changes.
 */
 

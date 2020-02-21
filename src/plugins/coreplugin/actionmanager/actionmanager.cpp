@@ -70,7 +70,7 @@ using namespace Core::Internal;
 
     All actions that are registered with the same Id (but different context lists)
     are considered to be overloads of the same command, represented by an instance
-    of the Command class.
+    of the Core::Command class.
     Exactly only one of the registered actions with the same ID is active at any time.
     Which action this is, is defined by the context list that the actions were registered
     with:
@@ -141,13 +141,13 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionManager::commandListChanged()
+    \fn void Core::ActionManager::commandListChanged()
 
     Emitted when the command list has changed.
 */
 
 /*!
-    \fn void ActionManager::commandAdded(Core::Id id)
+    \fn void Core::ActionManager::commandAdded(Core::Id id)
 
     Emitted when a command (with the \a id) is added.
 */

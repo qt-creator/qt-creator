@@ -62,26 +62,26 @@ using namespace Utils;
 
 /*!
 
-    \fn Id IOptionsPage::id() const
+    \fn Core::Id Core::IOptionsPage::id() const
 
     Returns a unique identifier for referencing the options page.
 */
 
 /*!
-    \fn QString IOptionsPage::displayName() const
+    \fn QString Core::IOptionsPage::displayName() const
 
     Returns the translated display name of the options page.
 */
 
 /*!
-    \fn Id IOptionsPage::category() const
+    \fn Core::Id Core::IOptionsPage::category() const
 
     Returns the unique id for the category that the options page should be displayed in. This id is
     used for sorting the list on the left side of the \uicontrol Options dialog.
 */
 
 /*!
-    \fn QString IOptionsPage::displayCategory() const
+    \fn QString Core::IOptionsPage::displayCategory() const
 
     Returns the translated category name of the options page. This name is displayed in the list on
     the left side of the \uicontrol Options dialog.
@@ -168,31 +168,31 @@ void Core::IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
 }
 
 /*!
-    \fn void IOptionsPage::setId(Id id)
+    \fn void Core::IOptionsPage::setId(Core::Id id)
 
     Sets the \a id of the options page.
 */
 
 /*!
-    \fn void IOptionsPage::setDisplayName(const QString &displayName)
+    \fn void Core::IOptionsPage::setDisplayName(const QString &displayName)
 
     Sets \a displayName as the display name of the options page.
 */
 
 /*!
-    \fn void IOptionsPage::setCategory(Id category)
+    \fn void Core::IOptionsPage::setCategory(Core::Id category)
 
     Uses \a category to sort the options pages.
 */
 
 /*!
-    \fn void IOptionsPage::setDisplayCategory(const QString &displayCategory)
+    \fn void Core::IOptionsPage::setDisplayCategory(const QString &displayCategory)
 
     Sets \a displayCategory as the display category of the options page.
 */
 
 /*!
-    \fn void IOptionsPage::setCategoryIcon(const Utils::Icon &categoryIcon)
+    \fn void Core::IOptionsPage::setCategoryIcon(const Utils::Icon &categoryIcon)
 
     Sets \a categoryIcon as the category icon of the options page.
 */
