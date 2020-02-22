@@ -63,7 +63,6 @@ public:
     ~MsvcToolChain() override;
 
     Abi targetAbi() const override;
-    Abis supportedAbis() const override;
     void setTargetAbi(const Abi &abi);
 
     bool isValid() const override;
@@ -148,7 +147,6 @@ protected:
 private:
     void updateEnvironmentModifications(Utils::EnvironmentItems modifications);
     void rescanForCompiler();
-    void detectInstalledAbis();
 
     mutable Utils::EnvironmentItems m_environmentModifications;
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
@@ -160,7 +158,6 @@ private:
 
 protected:
     Abi m_abi;
-    Abis m_supportedAbis;
 
     QString m_vcvarsBat;
     QString m_varsBatArg; // Argument
@@ -271,6 +268,7 @@ private:
 
     void setFromMsvcToolChain();
 
+    void updateAbis();
     void handleVcVarsChange(const QString &vcVars);
     void handleVcVarsArchChange(const QString &arch);
 

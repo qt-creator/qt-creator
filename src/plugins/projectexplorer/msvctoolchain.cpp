@@ -67,7 +67,6 @@ using namespace Utils;
 static const char varsBatKeyC[] = KEY_ROOT "VarsBat";
 static const char varsBatArgKeyC[] = KEY_ROOT "VarsBatArg";
 static const char supportedAbiKeyC[] = KEY_ROOT "SupportedAbi";
-static const char supportedAbisKeyC[] = KEY_ROOT "SupportedAbis";
 static const char environModsKeyC[] = KEY_ROOT "environmentModifications";
 
 enum { debug = 0 };
@@ -775,55 +774,6 @@ void MsvcToolChain::updateEnvironmentModifications(Utils::EnvironmentItems modif
     }
 }
 
-void MsvcToolChain::detectInstalledAbis()
-{
-    static QMap<QString, Abis> abiCache;
-    const QString vcVarsBase
-            = QDir::fromNativeSeparators(m_vcvarsBat).left(m_vcvarsBat.lastIndexOf('/'));
-    if (abiCache.contains(vcVarsBase)) {
-        m_supportedAbis = abiCache.value(vcVarsBase);
-    } else {
-        // Clear previously detected m_supportedAbis to repopulate it.
-        m_supportedAbis.clear();
-        const Abi baseAbi = targetAbi();
-        for (MsvcPlatform platform : platforms) {
-            bool toolchainInstalled = false;
-            QString perhapsVcVarsPath = vcVarsBase + QLatin1Char('/') + QLatin1String(platform.bat);
-            const Platform p = platform.platform;
-            if (QFileInfo(perhapsVcVarsPath).isFile()) {
-                toolchainInstalled = true;
-            } else {
-                // MSVC 2015 and below had various versions of vcvars scripts in subfolders. Try these
-                // as fallbacks.
-                perhapsVcVarsPath = vcVarsBase + platform.prefix + QLatin1Char('/')
-                                    + QLatin1String(platform.bat);
-                toolchainInstalled = QFileInfo(perhapsVcVarsPath).isFile();
-            }
-            if (hostSupportsPlatform(platform.platform) && toolchainInstalled) {
-                Abi newAbi(archForPlatform(p),
-                           baseAbi.os(),
-                           baseAbi.osFlavor(),
-                           baseAbi.binaryFormat(),
-                           wordWidthForPlatform(p));
-                if (!m_supportedAbis.contains(newAbi))
-                    m_supportedAbis.append(newAbi);
-            }
-        }
-
-        abiCache.insert(vcVarsBase, m_supportedAbis);
-    }
-
-    // Always add targetAbi in supportedAbis if it is empty.
-    // targetAbi is the abi with which the toolchain was detected.
-    // This is necessary for toolchains that don't have vcvars32.bat and the like in their
-    // vcVarsBase path, like msvc2010.
-    // Also, don't include that one in abiCache to avoid polluting it with values specific
-    // to one toolchain as the cache is global for a vcVarsBase path. For this reason, the
-    // targetAbi needs to be added manually.
-    if (m_supportedAbis.empty())
-        m_supportedAbis.append(targetAbi());
-}
-
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment &env) const
 {
     Utils::Environment resultEnv = env;
@@ -892,11 +842,6 @@ MsvcToolChain::~MsvcToolChain()
 Abi MsvcToolChain::targetAbi() const
 {
     return m_abi;
-}
-
-Abis MsvcToolChain::supportedAbis() const
-{
-    return m_supportedAbis;
 }
 
 void MsvcToolChain::setTargetAbi(const Abi &abi)
@@ -978,7 +923,6 @@ QVariantMap MsvcToolChain::toMap() const
     if (!m_varsBatArg.isEmpty())
         data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
     data.insert(QLatin1String(supportedAbiKeyC), m_abi.toString());
-    data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
     Utils::EnvironmentItem::sort(&m_environmentModifications);
     data.insert(QLatin1String(environModsKeyC),
                 Utils::EnvironmentItem::toVariantList(m_environmentModifications));
@@ -994,14 +938,6 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
 
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi::fromString(abiString);
-    const QStringList abiList = data.value(supportedAbisKeyC).toStringList();
-    m_supportedAbis.clear();
-    for (const QString &a : abiList) {
-        Abi abi = Abi::fromString(a);
-        if (!abi.isValid())
-            continue;
-        m_supportedAbis.append(abi);
-    }
     m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
         data.value(QLatin1String(environModsKeyC)).toList());
     rescanForCompiler();
@@ -1011,11 +947,7 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
                                       m_vcvarsBat,
                                       m_varsBatArg));
 
-    // supported Abis were not stored in the map in previous versions of the settings. Re-detect
-    if (m_supportedAbis.isEmpty())
-        detectInstalledAbis();
-
-    const bool valid = !m_vcvarsBat.isEmpty() && m_abi.isValid() && !m_supportedAbis.isEmpty();
+    const bool valid = !m_vcvarsBat.isEmpty() && m_abi.isValid();
     if (valid)
         addToAvailableMsvcToolchains(this);
 
@@ -1250,7 +1182,6 @@ void MsvcToolChain::setupVarsBat(const Abi &abi, const QString &varsBat, const Q
     m_varsBatArg = varsBatArg;
 
     if (!varsBat.isEmpty()) {
-        detectInstalledAbis();
         initEnvModWatcher(Utils::runAsync(envModThreadPool(),
                                           &MsvcToolChain::environmentModifications,
                                           varsBat,
@@ -1410,34 +1341,66 @@ void MsvcToolChainConfigWidget::setFromMsvcToolChain()
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
 }
 
-void MsvcToolChainConfigWidget::handleVcVarsChange(const QString &vcVars)
+void MsvcToolChainConfigWidget::updateAbis()
 {
-    const QString normalizedVcVars = QDir::fromNativeSeparators(vcVars);
+    const QString normalizedVcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
     const auto *currentTc = static_cast<const MsvcToolChain *>(toolChain());
     QTC_ASSERT(currentTc, return );
     const MsvcToolChain::Platform platform = m_varsBatArchCombo->currentData().value<MsvcToolChain::Platform>();
     const Abi::Architecture arch = archForPlatform(platform);
     const unsigned char wordWidth = wordWidthForPlatform(platform);
 
+    // Search the selected vcVars bat file in already detected MSVC compilers.
+    // For each variant of MSVC found, add its supported ABIs to the ABI widget so the user can
+    // choose one appropriately.
+    Abis supportedAbis;
+    Abi targetAbi;
     for (const MsvcToolChain *tc : g_availableMsvcToolchains) {
         if (tc->varsBat() == normalizedVcVars && tc->targetAbi().wordWidth() == wordWidth
-                && tc->targetAbi().architecture() == arch) {
-            m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
-            break;
+            && tc->targetAbi().architecture() == arch && tc->language() == currentTc->language()) {
+            // We need to filter out duplicates as there might be multiple toolchains with
+            // same abi (like x86, amd64_x86 for example).
+            for (const Abi &abi : tc->supportedAbis()) {
+                if (!supportedAbis.contains(abi))
+                    supportedAbis.append(abi);
+            }
+            targetAbi = tc->targetAbi();
         }
     }
+
+    // If we didn't find an exact match, try to find a fallback according to varsBat only.
+    // This can happen when the toolchain does not support user-selected arch/wordWidth.
+    if (!targetAbi.isValid()) {
+        const MsvcToolChain *tc = Utils::findOrDefault(g_availableMsvcToolchains,
+                                                       [normalizedVcVars](const MsvcToolChain *tc) {
+                                                           return tc->varsBat() == normalizedVcVars;
+                                                       });
+        if (tc) {
+            targetAbi = Abi(arch,
+                            tc->targetAbi().os(),
+                            tc->targetAbi().osFlavor(),
+                            tc->targetAbi().binaryFormat(),
+                            wordWidth);
+        }
+    }
+
+    // Always set ABIs, even if none was found, to prevent stale data in the ABI widget.
+    // In that case, a custom ABI will be selected according to targetAbi.
+    m_abiWidget->setAbis(supportedAbis, targetAbi);
+
     emit dirty();
+}
+
+void MsvcToolChainConfigWidget::handleVcVarsChange(const QString &)
+{
+    updateAbis();
 }
 
 void MsvcToolChainConfigWidget::handleVcVarsArchChange(const QString &)
 {
-    Abi currentAbi = m_abiWidget->currentAbi();
-    const MsvcToolChain::Platform platform = m_varsBatArchCombo->currentData().value<MsvcToolChain::Platform>();
-    Abi newAbi(archForPlatform(platform), currentAbi.os(), currentAbi.osFlavor(),
-               currentAbi.binaryFormat(), wordWidthForPlatform(platform));
-    if (currentAbi != newAbi)
-        m_abiWidget->setAbis(m_abiWidget->supportedAbis(), newAbi);
-    emit dirty();
+    // supportedAbi list in the widget only contains matching ABIs to whatever arch was selected.
+    // We need to reupdate it from scratch with new arch parameters
+    updateAbis();
 }
 
 QString MsvcToolChainConfigWidget::vcVarsArguments() const
