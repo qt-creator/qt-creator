@@ -1,0 +1,6 @@
+<!-- This file is the CMake equivalent of "RESOURCES = $$files(qml/*)" in studiowelcome.pro -->
+<RCC>
+    <qresource>
+        <file>qml/</file>
+    </qresource>
+</RCC>
