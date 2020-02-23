@@ -982,7 +982,10 @@ GitPluginPrivate::GitPluginPrivate()
             this, [this](const QString &name) {
         const VcsBasePluginState state = currentState();
         QTC_ASSERT(state.hasTopLevel(), return);
-        m_gitClient.show(state.topLevel(), name);
+        if (name.contains(".."))
+            m_gitClient.log(state.topLevel(), {}, false, {name});
+        else
+            m_gitClient.show(state.topLevel(), name);
     });
 
 }
