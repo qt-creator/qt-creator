@@ -33,7 +33,7 @@ def qdump__cv__Size_(d, value):
 
 
 def qform__cv__Mat():
-    return [DisplayFormat.SeparateFormat]
+    return [DisplayFormat.Separate]
 
 
 def qdump__cv__Mat(d, value):
@@ -47,7 +47,7 @@ def qdump__cv__Mat(d, value):
         d.putPlainChildren(value)
         return
 
-    if d.currentItemFormat() == DisplayFormat.SeparateFormat:
+    if d.currentItemFormat() == DisplayFormat.Separate:
         rs = steps[0] * innerSize
         cs = cols * innerSize
         dform = 'arraydata:separate:int:%d::2:%d:%d' % (innerSize, cols, rows)
@@ -57,7 +57,7 @@ def qdump__cv__Mat(d, value):
     d.putValue('(%s x %s)' % (rows, cols))
     if d.isExpanded():
         with Children(d):
-            innerType = d.createType(TypeCode.TypeCodeIntegral, innerSize)
+            innerType = d.createType(TypeCode.Integral, innerSize)
             for i in range(rows):
                 for j in range(cols):
                     with SubItem(d, None):

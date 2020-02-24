@@ -28,7 +28,7 @@ from dumper import Children, SubItem
 
 
 def qform__std__array():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qdump__std__array(d, value):
@@ -39,7 +39,7 @@ def qdump__std__array(d, value):
 
 
 def qform__std____1__array():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qdump__std____1__array(d, value):
@@ -274,7 +274,7 @@ def qdump__std____1__list(d, value):
 
 
 def qform__std__map():
-    return [DisplayFormat.CompactMapFormat]
+    return [DisplayFormat.CompactMap]
 
 
 def qdump__std__map(d, value):
@@ -357,7 +357,7 @@ def qdump__std____cxx1998__map(d, value):
 
 
 def qform__std__multimap():
-    return [DisplayFormat.CompactMapFormat]
+    return [DisplayFormat.CompactMap]
 
 
 def qdump__std__multimap(d, value):
@@ -581,7 +581,7 @@ def qdump__std____1__multiset(d, value):
 
 
 def qform__std____1__map():
-    return [DisplayFormat.CompactMapFormat]
+    return [DisplayFormat.CompactMap]
 
 
 def qdump__std____1__map(d, value):
@@ -620,7 +620,7 @@ def qdump__std____1__map(d, value):
 
 
 def qform__std____1__multimap():
-    return [DisplayFormat.CompactMapFormat]
+    return [DisplayFormat.CompactMap]
 
 
 def qdump__std____1__multimap(d, value):
@@ -675,8 +675,8 @@ def qdump__std____1__stack(d, value):
 
 
 def qform__std__string():
-    return [DisplayFormat.Latin1StringFormat, DisplayFormat.SeparateLatin1StringFormat,
-            DisplayFormat.Utf8StringFormat, DisplayFormat.SeparateUtf8StringFormat]
+    return [DisplayFormat.Latin1String, DisplayFormat.SeparateLatin1String,
+            DisplayFormat.Utf8String, DisplayFormat.SeparateUtf8String]
 
 
 def qdump__std__string(d, value):
@@ -826,11 +826,11 @@ def qdump__std__pair(d, value):
 
 
 def qform__std__unordered_map():
-    return [DisplayFormat.CompactMapFormat]
+    return [DisplayFormat.CompactMap]
 
 
 def qform__std____debug__unordered_map():
-    return [DisplayFormat.CompactMapFormat]
+    return [DisplayFormat.CompactMap]
 
 
 def qdump__std__unordered_map(d, value):
@@ -934,7 +934,7 @@ def qdump__std__unordered_set(d, value):
 
 
 def qform__std____1__unordered_map():
-    return [DisplayFormat.CompactMapFormat]
+    return [DisplayFormat.CompactMap]
 
 
 def qdump__std____1__unordered_map(d, value):
@@ -992,7 +992,7 @@ def qdump__std____debug__unordered_multiset(d, value):
 
 
 def qform__std__valarray():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qdump__std__valarray(d, value):
@@ -1005,7 +1005,7 @@ def qdump__std__valarray(d, value):
 
 
 def qform__std____1__valarray():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qdump__std____1__valarray(d, value):
@@ -1017,7 +1017,7 @@ def qdump__std____1__valarray(d, value):
 
 
 def qform__std__vector():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qedit__std__vector(d, value, data):
@@ -1119,7 +1119,7 @@ def qdumpHelper__std__vector__QNX(d, value):
 
 
 def qform__std____1__vector():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qdump__std____1__vector(d, value):
@@ -1127,7 +1127,7 @@ def qdump__std____1__vector(d, value):
 
 
 def qform__std____debug__vector():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qdump__std____debug__vector(d, value):
@@ -1182,7 +1182,7 @@ def qdump__string(d, value):
 
 
 def qform__std__wstring():
-    return [DisplayFormat.SimpleFormat, DisplayFormat.SeparateFormat]
+    return [DisplayFormat.Simple, DisplayFormat.Separate]
 
 
 def qdump__std__wstring(d, value):

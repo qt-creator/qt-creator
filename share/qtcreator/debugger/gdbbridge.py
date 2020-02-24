@@ -365,29 +365,29 @@ class Dumper(DumperBase):
             tdata.typeId = typeId
             tdata.lbitsize = nativeType.sizeof * 8
             tdata.code = {
-                #gdb.TYPE_CODE_TYPEDEF : TypeCodeTypedef, # Handled above.
-                gdb.TYPE_CODE_METHOD: TypeCode.TypeCodeFunction,
-                gdb.TYPE_CODE_VOID: TypeCode.TypeCodeVoid,
-                gdb.TYPE_CODE_FUNC: TypeCode.TypeCodeFunction,
-                gdb.TYPE_CODE_METHODPTR: TypeCode.TypeCodeFunction,
-                gdb.TYPE_CODE_MEMBERPTR: TypeCode.TypeCodeFunction,
-                #gdb.TYPE_CODE_PTR : TypeCode.TypeCodePointer,  # Handled above.
-                #gdb.TYPE_CODE_REF : TypeCode.TypeCodeReference,  # Handled above.
-                gdb.TYPE_CODE_BOOL: TypeCode.TypeCodeIntegral,
-                gdb.TYPE_CODE_CHAR: TypeCode.TypeCodeIntegral,
-                gdb.TYPE_CODE_INT: TypeCode.TypeCodeIntegral,
-                gdb.TYPE_CODE_FLT: TypeCode.TypeCodeFloat,
-                gdb.TYPE_CODE_ENUM: TypeCode.TypeCodeEnum,
-                #gdb.TYPE_CODE_ARRAY : TypeCode.TypeCodeArray,
-                gdb.TYPE_CODE_STRUCT: TypeCode.TypeCodeStruct,
-                gdb.TYPE_CODE_UNION: TypeCode.TypeCodeStruct,
-                gdb.TYPE_CODE_COMPLEX: TypeCode.TypeCodeComplex,
-                gdb.TYPE_CODE_STRING: TypeCode.TypeCodeFortranString,
+                #gdb.TYPE_CODE_TYPEDEF : TypeCode.Typedef, # Handled above.
+                gdb.TYPE_CODE_METHOD: TypeCode.Function,
+                gdb.TYPE_CODE_VOID: TypeCode.Void,
+                gdb.TYPE_CODE_FUNC: TypeCode.Function,
+                gdb.TYPE_CODE_METHODPTR: TypeCode.Function,
+                gdb.TYPE_CODE_MEMBERPTR: TypeCode.Function,
+                #gdb.TYPE_CODE_PTR : TypeCode.Pointer,  # Handled above.
+                #gdb.TYPE_CODE_REF : TypeCode.Reference,  # Handled above.
+                gdb.TYPE_CODE_BOOL: TypeCode.Integral,
+                gdb.TYPE_CODE_CHAR: TypeCode.Integral,
+                gdb.TYPE_CODE_INT: TypeCode.Integral,
+                gdb.TYPE_CODE_FLT: TypeCode.Float,
+                gdb.TYPE_CODE_ENUM: TypeCode.Enum,
+                #gdb.TYPE_CODE_ARRAY : TypeCode.Array,
+                gdb.TYPE_CODE_STRUCT: TypeCode.Struct,
+                gdb.TYPE_CODE_UNION: TypeCode.Struct,
+                gdb.TYPE_CODE_COMPLEX: TypeCode.Complex,
+                gdb.TYPE_CODE_STRING: TypeCode.FortranString,
             }[code]
-            if tdata.code == TypeCode.TypeCodeEnum:
+            if tdata.code == TypeCode.Enum:
                 tdata.enumDisplay = lambda intval, addr, form: \
                     self.nativeTypeEnumDisplay(nativeType, intval, form)
-            if tdata.code == TypeCode.TypeCodeStruct:
+            if tdata.code == TypeCode.Struct:
                 tdata.lalignment = lambda: \
                     self.nativeStructAlignment(nativeType)
                 tdata.lfields = lambda value: \

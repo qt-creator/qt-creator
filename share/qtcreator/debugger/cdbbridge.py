@@ -50,19 +50,19 @@ class FakeVoidType(cdbext.Type):
 
     def code(self):
         if self.typeName.endswith('*'):
-            return TypeCode.TypeCodePointer
+            return TypeCode.Pointer
         if self.typeName.endswith(']'):
-            return TypeCode.TypeCodeArray
-        return TypeCode.TypeCodeVoid
+            return TypeCode.Array
+        return TypeCode.Void
 
     def unqualified(self):
         return self
 
     def target(self):
         code = self.code()
-        if code == TypeCode.TypeCodePointer:
+        if code == TypeCode.Pointer:
             return FakeVoidType(self.typeName[:-1], self.dumper)
-        if code == TypeCode.TypeCodeVoid:
+        if code == TypeCode.Void:
             return self
         try:
             return FakeVoidType(self.typeName[:self.typeName.rindex('[')], self.dumper)
@@ -109,7 +109,7 @@ class Dumper(DumperBase):
         val.type = self.fromNativeType(nativeValue.type())
         # There is no cdb api for the size of bitfields.
         # Workaround this issue by parsing the native debugger text for integral types.
-        if val.type.code == TypeCode.TypeCodeIntegral:
+        if val.type.code == TypeCode.Integral:
             integerString = nativeValue.nativeDebuggerValue()
             if integerString == 'true':
                 val.ldata = int(1).to_bytes(1, byteorder='little')
@@ -132,7 +132,7 @@ class Dumper(DumperBase):
                 except:
                     # read raw memory in case the integerString can not be interpreted
                     pass
-        if val.type.code == TypeCode.TypeCodeEnum:
+        if val.type.code == TypeCode.Enum:
             val.ldisplay = self.enumValue(nativeValue)
         val.isBaseClass = val.name == val.type.name
         val.nativeValue = nativeValue
@@ -164,14 +164,14 @@ class Dumper(DumperBase):
             nativeType = FakeVoidType(nativeType.name(), self)
 
         code = nativeType.code()
-        if code == TypeCode.TypeCodePointer:
+        if code == TypeCode.Pointer:
             if not nativeType.name().startswith('<function>'):
                 targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
                 if targetType is not None:
                     return self.createPointerType(targetType)
-            code = TypeCode.TypeCodeFunction
+            code = TypeCode.Function
 
-        if code == TypeCode.TypeCodeArray:
+        if code == TypeCode.Array:
             # cdb reports virtual function tables as arrays those ar handled separetly by
             # the DumperBase. Declare those types as structs prevents a lookup to a
             # none existing type
@@ -179,7 +179,7 @@ class Dumper(DumperBase):
                 targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
                 if targetType is not None:
                     return self.createArrayType(targetType, nativeType.arrayElements())
-            code = TypeCode.TypeCodeStruct
+            code = TypeCode.Struct
 
         tdata = self.TypeData(self)
         tdata.name = nativeType.name()
@@ -188,12 +188,12 @@ class Dumper(DumperBase):
         tdata.code = code
         tdata.moduleName = nativeType.module()
         self.registerType(typeId, tdata)  # Prevent recursion in fields.
-        if code == TypeCode.TypeCodeStruct:
+        if code == TypeCode.Struct:
             tdata.lfields = lambda value: \
                 self.listFields(nativeType, value)
             tdata.lalignment = lambda: \
                 self.nativeStructAlignment(nativeType)
-        if code == TypeCode.TypeCodeEnum:
+        if code == TypeCode.Enum:
             tdata.enumDisplay = lambda intval, addr, form: \
                 self.nativeTypeEnumDisplay(nativeType, intval, form)
         tdata.templateArguments = self.listTemplateParameters(nativeType.name())

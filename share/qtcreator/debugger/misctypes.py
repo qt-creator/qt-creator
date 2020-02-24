@@ -111,7 +111,7 @@ def qdump____m512i(d, value):
 
 
 def qform__std__array():
-    return [DisplayFormat.ArrayPlotFormat]
+    return [DisplayFormat.ArrayPlot]
 
 
 def qdump__gsl__span(d, value):
@@ -201,7 +201,7 @@ def qdump__NimStringDesc(d, value):
 
 def qdump__NimGenericSequence__(d, value, regex=r'^TY[\d]+$'):
     code = value.type.stripTypedefs().code
-    if code == TypeCode.TypeCodeStruct:
+    if code == TypeCode.Struct:
         size, reserved = d.split('pp', value)
         data = value.address() + 2 * d.ptrSize()
         typeobj = value['data'].type.dereference()

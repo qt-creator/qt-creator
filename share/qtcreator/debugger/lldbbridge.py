@@ -436,32 +436,32 @@ class Dumper(DumperBase):
             tdata.lbitsize = nativeType.GetByteSize() * 8
             if code == lldb.eTypeClassBuiltin:
                 if utils.isFloatingPointTypeName(typeName):
-                    tdata.code = TypeCode.TypeCodeFloat
+                    tdata.code = TypeCode.Float
                 elif utils.isIntegralTypeName(typeName):
-                    tdata.code = TypeCode.TypeCodeIntegral
+                    tdata.code = TypeCode.Integral
                 elif typeName in ('__int128', 'unsigned __int128'):
-                    tdata.code = TypeCode.TypeCodeIntegral
+                    tdata.code = TypeCode.Integral
                 elif typeName == 'void':
-                    tdata.code = TypeCode.TypeCodeVoid
+                    tdata.code = TypeCode.Void
                 else:
                     self.warn('UNKNOWN TYPE KEY: %s: %s' % (typeName, code))
             elif code == lldb.eTypeClassEnumeration:
-                tdata.code = TypeCode.TypeCodeEnum
+                tdata.code = TypeCode.Enum
                 tdata.enumDisplay = lambda intval, addr, form: \
                     self.nativeTypeEnumDisplay(nativeType, intval, form)
             elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
-                tdata.code = TypeCode.TypeCodeComplex
+                tdata.code = TypeCode.Complex
             elif code in (lldb.eTypeClassClass, lldb.eTypeClassStruct, lldb.eTypeClassUnion):
-                tdata.code = TypeCode.TypeCodeStruct
+                tdata.code = TypeCode.Struct
                 tdata.lalignment = lambda: \
                     self.nativeStructAlignment(nativeType)
                 tdata.lfields = lambda value: \
                     self.listMembers(value, nativeType)
                 tdata.templateArguments = self.listTemplateParametersHelper(nativeType)
             elif code == lldb.eTypeClassFunction:
-                tdata.code = TypeCode.TypeCodeFunction
+                tdata.code = TypeCode.Function
             elif code == lldb.eTypeClassMemberPointer:
-                tdata.code = TypeCode.TypeCodeMemberPointer
+                tdata.code = TypeCode.MemberPointer
 
             self.registerType(typeId, tdata)  # Fix up fields and template args
         #    warn('CREATE TYPE: %s' % typeId)
