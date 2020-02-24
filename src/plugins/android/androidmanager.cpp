@@ -205,11 +205,6 @@ void AndroidManager::apkInfo(const Utils::FilePath &apkPath,
     }
 }
 
-QString AndroidManager::intentName(ProjectExplorer::Target *target)
-{
-    return packageName(target) + QLatin1Char('/') + activityName(target);
-}
-
 QString AndroidManager::activityName(ProjectExplorer::Target *target)
 {
     QDomDocument doc;

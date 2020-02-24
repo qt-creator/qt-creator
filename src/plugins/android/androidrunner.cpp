@@ -132,7 +132,10 @@ AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     m_checkAVDTimer.setInterval(2000);
     connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);
 
-    QString intent = intentName.isEmpty() ? AndroidManager::intentName(m_target) : intentName;
+    QString intent = intentName;
+    if (intent.isEmpty())
+        intent = AndroidManager::packageName(m_target) + '/' + AndroidManager::activityName(m_target);
+
     m_packageName = intent.left(intent.indexOf('/'));
     qCDebug(androidRunnerLog) << "Intent name:" << intent << "Package name" << m_packageName;
 

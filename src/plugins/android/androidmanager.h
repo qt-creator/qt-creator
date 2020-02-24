@@ -78,7 +78,6 @@ public:
                         QString *packageName = nullptr,
                         int *version = nullptr,
                         QString *activityPath = nullptr);
-    static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);
 
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
