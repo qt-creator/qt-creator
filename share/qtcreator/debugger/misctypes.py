@@ -23,8 +23,8 @@
 #
 ############################################################################
 
-from dumper import *
-from utils import TypeCode
+from dumper import Children, SubItem
+from utils import TypeCode, DisplayFormat
 import re
 
 #######################################################################
@@ -323,7 +323,7 @@ def qdump__KDSoapValue1(d, value):
     d.putPlainChildren(inner)
 
 def qdump__KDSoapValue(d, value):
-    p = (value.cast(lookupType('char*')) + 4).dereference().cast(lookupType('QString'))
+    p = (value.cast(d.lookupType('char*')) + 4).dereference().cast(d.lookupType('QString'))
     d.putStringValue(p)
     d.putPlainChildren(value['d']['d'].dereference())
 

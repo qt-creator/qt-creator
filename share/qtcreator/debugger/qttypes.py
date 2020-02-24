@@ -25,7 +25,7 @@
 
 import platform
 import re
-from dumper import *
+from dumper import Children, SubItem, UnnamedSubItem, toInteger
 from utils import DisplayFormat
 
 def qdump__QAtomicInt(d, value):

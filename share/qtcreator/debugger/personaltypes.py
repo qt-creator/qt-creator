@@ -56,6 +56,6 @@
 # for more details or look at qttypes.py, stdtypes.py, boosttypes.py
 # for more complex examples.
 
-from dumper import *
+import dumper
 
 ######################## Your code below #######################

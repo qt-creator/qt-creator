@@ -23,8 +23,8 @@
 #
 ############################################################################
 
-from dumper import *
-from utils import TypeCode
+from dumper import Children, SubItem
+from utils import TypeCode, DisplayFormat
 
 def qdump__cv__Size_(d, value):
     d.putValue('(%s, %s)' % (value[0].display(), value[1].display()))

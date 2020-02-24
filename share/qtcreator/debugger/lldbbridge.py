@@ -42,7 +42,7 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.curre
 if 'dumper' in sys.modules:
     reload(sys.modules['dumper'])
 
-from dumper import *
+from dumper import DumperBase, SubItem, Children, TopLevelItem
 
 #######################################################################
 #
@@ -1897,8 +1897,8 @@ class Tester(Dumper):
                             break
 
             else:
-                d.warn('TIMEOUT')
-                d.warn('Cannot determined stopped thread')
+                self.warn('TIMEOUT')
+                self.warn('Cannot determined stopped thread')
 
         lldb.SBDebugger.Destroy(self.debugger)
 
@@ -1984,7 +1984,7 @@ class SummaryDumper(Dumper, LogMixin):
         return # Don't mess up lldb output
 
     def lookupNativeTypeInAllModules(self, name):
-        d.warn('Failed to resolve type %s' % name)
+        self.warn('Failed to resolve type %s' % name)
         return None
 
     def dump_summary(self, valobj, expanded = False):

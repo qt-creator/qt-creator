@@ -23,8 +23,6 @@
 #
 ############################################################################
 
-from dumper import *
-
 def typeTarget(type):
     target = type.target()
     if target:

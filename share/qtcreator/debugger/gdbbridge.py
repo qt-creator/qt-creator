@@ -37,7 +37,7 @@ import struct
 import tempfile
 import types
 
-from dumper import *
+from dumper import DumperBase, Children, toInteger, TopLevelItem
 from utils import TypeCode
 
 #######################################################################

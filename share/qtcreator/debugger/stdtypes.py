@@ -24,7 +24,7 @@
 ############################################################################
 
 from utils import DisplayFormat
-from dumper import *
+from dumper import Children, SubItem
 
 def qform__std__array():
     return [DisplayFormat.ArrayPlotFormat]

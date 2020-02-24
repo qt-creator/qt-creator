@@ -164,11 +164,11 @@ class DumperBase:
 
     @staticmethod
     def showException(msg, exType, exValue, exTraceback):
-        self.warn('**** CAUGHT EXCEPTION: %s ****' % msg)
+        DumperBase.warn('**** CAUGHT EXCEPTION: %s ****' % msg)
         try:
             import traceback
             for line in traceback.format_exception(exType, exValue, exTraceback):
-                self.warn('%s' % line)
+                DumperBase.warn('%s' % line)
         except:
             pass
 
@@ -335,7 +335,7 @@ class DumperBase:
         # (self.currentIName, self.currentValue, self.currentType))
         if not exType is None:
             if self.passExceptions:
-                showException('SUBITEM', exType, exValue, exTraceBack)
+                self.showException('SUBITEM', exType, exValue, exTraceBack)
             self.putSpecialValue('notaccessible')
             self.putNumChild(0)
         if not self.isCli:

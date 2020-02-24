@@ -28,11 +28,12 @@ import os
 import sys
 import cdbext
 import re
+import threading
 from utils import TypeCode
 
 sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
-from dumper import *
+from dumper import DumperBase, SubItem
 
 class FakeVoidType(cdbext.Type):
     def __init__(self, name , dumper):
