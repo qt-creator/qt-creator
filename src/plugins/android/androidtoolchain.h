@@ -78,7 +78,10 @@ public:
         QString version;
     };
 
-    static ToolChainList autodetectToolChainsForNdk(const ToolChainList &alreadyKnown);
+    static ToolChainList autodetectToolChains(const ToolChainList &alreadyKnown);
+    static ToolChainList autodetectToolChainsFromNdks(const ToolChainList &alreadyKnown,
+                                                      const QList<Utils::FilePath> &ndkLocations,
+                                                      const bool isCustom = false);
 };
 
 } // namespace Internal

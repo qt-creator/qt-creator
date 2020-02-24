@@ -100,6 +100,7 @@ namespace {
 
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
+    const QLatin1String CustomNdkLocationsKey("CustomNdkLocations");
     const QLatin1String SdkFullyConfiguredKey("AllEssentialsInstalled");
     const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
@@ -235,6 +236,7 @@ void AndroidConfig::load(const QSettings &settings)
     // user settings
     m_partitionSize = settings.value(PartitionSizeKey, 1024).toInt();
     m_sdkLocation = FilePath::fromString(settings.value(SDKLocationKey).toString());
+    m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
     m_openJDKLocation = FilePath::fromString(settings.value(OpenJDKLocationKey).toString());
     m_keystoreLocation = FilePath::fromString(settings.value(KeystoreLocationKey).toString());
@@ -246,12 +248,14 @@ void AndroidConfig::load(const QSettings &settings)
             && settings.value(changeTimeStamp).toInt() != QFileInfo(sdkSettingsFileName()).lastModified().toMSecsSinceEpoch() / 1000) {
         // persisten settings
         m_sdkLocation = FilePath::fromString(reader.restoreValue(SDKLocationKey, m_sdkLocation.toString()).toString());
+        m_customNdkList = reader.restoreValue(CustomNdkLocationsKey).toStringList();
         m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_openJDKLocation = FilePath::fromString(reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toString()).toString());
         m_automaticKitCreation = reader.restoreValue(AutomaticKitCreationKey, m_automaticKitCreation).toBool();
         m_sdkFullyConfigured = reader.restoreValue(SdkFullyConfiguredKey, m_sdkFullyConfigured).toBool();
         // persistent settings
     }
+    m_customNdkList.removeAll("");
     parseDependenciesJson();
 }
 
@@ -263,6 +267,7 @@ void AndroidConfig::save(QSettings &settings) const
 
     // user settings
     settings.setValue(SDKLocationKey, m_sdkLocation.toString());
+    settings.setValue(CustomNdkLocationsKey, m_customNdkList);
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toString());
     settings.setValue(KeystoreLocationKey, m_keystoreLocation.toString());
@@ -353,6 +358,22 @@ QVector<int> AndroidConfig::availableNdkPlatforms(const BaseQtVersion *qtVersion
     return availableNdkPlatforms;
 }
 
+QStringList AndroidConfig::getCustomNdkList() const
+{
+    return m_customNdkList;
+}
+
+void AndroidConfig::addCustomNdk(const QString &customNdk)
+{
+    if (!m_customNdkList.contains(customNdk))
+        m_customNdkList.append(customNdk);
+}
+
+void AndroidConfig::removeCustomNdk(const QString &customNdk)
+{
+    m_customNdkList.removeAll(customNdk);
+}
+
 QStringList AndroidConfig::apiLevelNamesFor(const SdkPlatformList &platforms)
 {
     return Utils::transform(platforms, AndroidConfig::apiLevelNameFor);
@@ -415,9 +436,9 @@ FilePath AndroidConfig::aaptToolPath() const
     return aaptToolPath.pathAppended(toolPath);
 }
 
-FilePath AndroidConfig::toolchainPath(const BaseQtVersion *qtVersion) const
+FilePath AndroidConfig::toolchainPathFromNdk(const Utils::FilePath &ndkLocation) const
 {
-    const FilePath toolchainPath = ndkLocation(qtVersion).pathAppended("toolchains/llvm/prebuilt/");
+    const FilePath toolchainPath = ndkLocation.pathAppended("toolchains/llvm/prebuilt/");
 
     // detect toolchain host
     QStringList hostPatterns;
@@ -443,23 +464,41 @@ FilePath AndroidConfig::toolchainPath(const BaseQtVersion *qtVersion) const
     return {};
 }
 
-FilePath AndroidConfig::clangPath(const BaseQtVersion *qtVersion) const
+FilePath AndroidConfig::toolchainPath(const BaseQtVersion *qtVersion) const
 {
-    const FilePath path = toolchainPath(qtVersion);
+    return toolchainPathFromNdk(ndkLocation(qtVersion));
+}
+
+FilePath AndroidConfig::clangPathFromNdk(const Utils::FilePath &ndkLocation) const
+{
+    const FilePath path = toolchainPathFromNdk(ndkLocation);
     if (path.isEmpty())
         return {};
     return path.pathAppended(HostOsInfo::withExecutableSuffix("bin/clang"));
 }
 
+FilePath AndroidConfig::clangPath(const BaseQtVersion *qtVersion) const
+{
+    return clangPathFromNdk(ndkLocation(qtVersion));
+}
+
 FilePath AndroidConfig::gdbPath(const ProjectExplorer::Abi &abi, const BaseQtVersion *qtVersion) const
 {
-    const FilePath path = ndkLocation(qtVersion).pathAppended(
-                QString("prebuilt/%1/bin/gdb%2").arg(toolchainHost(qtVersion), QTC_HOST_EXE_SUFFIX));
+    return gdbPathFromNdk(abi, ndkLocation(qtVersion));
+}
+
+FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocation) const
+{
+    const FilePath path = ndkLocation.pathAppended(
+        QString("prebuilt/%1/bin/gdb%2").arg(toolchainHostFromNdk(ndkLocation), QTC_HOST_EXE_SUFFIX));
     if (path.exists())
         return path;
     // fallback for old NDKs (e.g. 10e)
-    return ndkLocation(qtVersion).pathAppended(QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
-            .arg(toolchainPrefix(abi), toolchainHost(qtVersion), toolsPrefix(abi), QTC_HOST_EXE_SUFFIX));
+    return ndkLocation.pathAppended(QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
+                                                   .arg(toolchainPrefix(abi),
+                                                        toolchainHostFromNdk(ndkLocation),
+                                                        toolsPrefix(abi),
+                                                        QTC_HOST_EXE_SUFFIX));
 }
 
 FilePath AndroidConfig::makePath(const BaseQtVersion *qtVersion) const
@@ -731,6 +770,16 @@ bool AndroidConfig::useNativeUiTools() const
 {
     const QVersionNumber version = sdkToolsVersion();
     return !version.isNull() && version <= QVersionNumber(25, 3 ,0);
+}
+
+bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
+{
+    auto ndkPath = Utils::FilePath::fromUserInput(ndkLocation);
+    const Utils::FilePath ndkPlatformsDir = ndkPath.pathAppended("platforms");
+
+    return ndkPath.exists() && ndkPath.pathAppended("toolchains").exists()
+           && ndkPlatformsDir.exists() && !ndkPlatformsDir.toString().contains(' ')
+           && !ndkVersion(ndkPath).isNull();
 }
 
 QString AndroidConfig::bestNdkPlatformMatch(int target, const BaseQtVersion *qtVersion) const
@@ -1076,10 +1125,53 @@ void AndroidConfigurations::registerNewToolChains()
     const QList<ToolChain *> existingAndroidToolChains
             = ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId,
                                                         Core::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
-    const QList<ToolChain *> newToolchains
-            = AndroidToolChainFactory::autodetectToolChainsForNdk(existingAndroidToolChains);
+    QList<ToolChain *> newToolchains = AndroidToolChainFactory::autodetectToolChains(
+        existingAndroidToolChains);
+
     foreach (ToolChain *tc, newToolchains)
         ToolChainManager::registerToolChain(tc);
+
+    registerCustomToolChainsAndDebuggers();
+}
+
+void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
+{
+    const QList<ToolChain *> existingAndroidToolChains = ToolChainManager::toolChains(
+        Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
+    QList<FilePath> customNdks = Utils::transform(currentConfig().getCustomNdkList(),
+                                                  FilePath::fromString);
+    QList<ToolChain *> customToolchains
+        = AndroidToolChainFactory::autodetectToolChainsFromNdks(existingAndroidToolChains,
+                                                                customNdks,
+                                                                true);
+    for (ToolChain *tc : customToolchains) {
+        ToolChainManager::registerToolChain(tc);
+
+        const FilePath ndk = static_cast<AndroidToolChain *>(tc)->ndkLocation();
+        const FilePath command = AndroidConfigurations::currentConfig()
+                                     .gdbPathFromNdk(tc->targetAbi(), ndk);
+
+        const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(
+            command);
+        QString abiStr
+            = static_cast<AndroidToolChain *>(tc)->platformLinkerFlags().at(1).split('-').first();
+        Abi abi = Abi::abiFromTargetTriplet(abiStr);
+        if (existing && existing->abis().contains(abi))
+            continue;
+
+        Debugger::DebuggerItem debugger;
+        debugger.setCommand(command);
+        debugger.setEngineType(Debugger::GdbEngineType);
+        debugger.setUnexpandedDisplayName(
+            AndroidConfigurations::tr("Custom Android Debugger (%1, NDK %2)")
+                .arg(abiStr,
+                     AndroidConfigurations::currentConfig().ndkVersion(ndk).toString()));
+        debugger.setAutoDetected(true);
+        debugger.setAbi(abi);
+        debugger.reinitializeFromFile();
+
+        Debugger::DebuggerItemManager::registerDebugger(debugger);
+    }
 }
 
 void AndroidConfigurations::removeOldToolChains()
@@ -1103,6 +1195,8 @@ void AndroidConfigurations::removeUnusedDebuggers()
         if (!uniqueNdks.contains(ndkLocation))
             uniqueNdks.append(ndkLocation);
     }
+
+    uniqueNdks.append(Utils::transform(currentConfig().getCustomNdkList(), FilePath::fromString));
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {

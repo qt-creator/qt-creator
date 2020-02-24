@@ -171,7 +171,7 @@ AndroidToolChainFactory::AndroidToolChainFactory()
 
 ToolChainList AndroidToolChainFactory::autoDetect(const ToolChainList &alreadyKnown)
 {
-    return autodetectToolChainsForNdk(alreadyKnown);
+    return autodetectToolChains(alreadyKnown);
 }
 
 static FilePath clangPlusPlusPath(const FilePath &clangPath)
@@ -181,7 +181,7 @@ static FilePath clangPlusPlusPath(const FilePath &clangPath)
                     QFileInfo(clangPath.toString()).baseName() + "++"));
 }
 
-static QList<QtSupport::BaseQtVersion *> androidQtVersionsWithUniqueNdk()
+static QList<FilePath> uniqueNdksForCurrentQtVersions()
 {
     AndroidConfig config = AndroidConfigurations::currentConfig();
 
@@ -190,35 +190,39 @@ static QList<QtSupport::BaseQtVersion *> androidQtVersionsWithUniqueNdk()
             return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
         });
 
-    auto shouldRemove = [config](const QtSupport::BaseQtVersion *first,
-                                 const QtSupport::BaseQtVersion *second) {
-        return config.ndkLocation(first) == config.ndkLocation(second);
-    };
+    QList<FilePath> uniqueNdks;
+    for (const QtSupport::BaseQtVersion *version : androidQtVersions) {
+        FilePath ndk = config.ndkLocation(version);
+        if (!uniqueNdks.contains(ndk))
+            uniqueNdks.append(ndk);
+    }
 
-    QList<QtSupport::BaseQtVersion *>::iterator it = std::unique(androidQtVersions.begin(),
-                                                                 androidQtVersions.end(),
-                                                                 shouldRemove);
-    androidQtVersions.erase(it, androidQtVersions.end());
-
-    return androidQtVersions;
+    return uniqueNdks;
 }
 
-ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(const ToolChainList &alreadyKnown)
+ToolChainList AndroidToolChainFactory::autodetectToolChains(const ToolChainList &alreadyKnown)
+{
+    const QList<Utils::FilePath> uniqueNdks = uniqueNdksForCurrentQtVersions();
+    return autodetectToolChainsFromNdks(alreadyKnown, uniqueNdks);
+}
+
+ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
+    const ToolChainList &alreadyKnown,
+    const QList<Utils::FilePath> &ndkLocations,
+    const bool isCustom)
 {
     QList<ToolChain *> result;
-    const QList<QtSupport::BaseQtVersion *> androidQtVersions = androidQtVersionsWithUniqueNdk();
     const AndroidConfig config = AndroidConfigurations::currentConfig();
 
-    for (const QtSupport::BaseQtVersion *qtVersion : androidQtVersions) {
-        FilePath clangPath = config.clangPath(qtVersion);
+    for (const Utils::FilePath &ndkLocation : ndkLocations) {
+        qCDebug(androidTCLog) << "Detecting toolchains from Android NDK:" << ndkLocation;
+
+        FilePath clangPath = config.clangPathFromNdk(ndkLocation);
         if (!clangPath.exists()) {
             qCDebug(androidTCLog) << "Clang toolchains detection fails. Can not find Clang"
                                   << clangPath;
-            return result;
+            continue;
         }
-
-        qCDebug(androidTCLog) << "Detecting toolchains from Android NDK:"
-                              << config.ndkLocation(qtVersion);
 
         for (const Core::Id &lang : LanguageIds) {
             FilePath compilerCommand = clangPath;
@@ -237,10 +241,11 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(const ToolChai
                 const QString target = targetItr.key();
                 ToolChain *tc = findToolChain(compilerCommand, lang, target, alreadyKnown);
 
-                const QString displayName(QString("Android Clang (%1, %2, NDK %3)")
+                QLatin1String customStr = isCustom ? QLatin1String("Custom ") : QLatin1String();
+                const QString displayName(customStr + QString("Android Clang (%1, %2, NDK %3)")
                                               .arg(ToolChainManager::displayNameOfLanguageId(lang),
                                                    AndroidConfig::displayName(abi),
-                                                   config.ndkVersion(qtVersion).toString()));
+                                                   config.ndkVersion(ndkLocation).toString()));
                 if (tc) {
                     qCDebug(androidTCLog) << "Tool chain already known" << abi.toString() << lang;
                     // make sure to update the toolchain with current name format
@@ -249,7 +254,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(const ToolChai
                 } else {
                     qCDebug(androidTCLog) << "New Clang toolchain found" << abi.toString() << lang;
                     auto atc = new AndroidToolChain();
-                    atc->setNdkLocation(config.ndkLocation(qtVersion));
+                    atc->setNdkLocation(ndkLocation);
                     atc->setOriginalTargetTriple(target);
                     atc->setLanguage(lang);
                     atc->setTargetAbi(ClangTargets[target]);
