@@ -365,11 +365,11 @@ void AbstractView::currentTimelineChanged(const ModelNode & /*node*/)
 {
 }
 
-void AbstractView::renderImage3DChanged(const QImage &image)
+void AbstractView::renderImage3DChanged(const QImage & /*image*/)
 {
 }
 
-void AbstractView::updateActiveScene3D(const QVariantMap &sceneState)
+void AbstractView::updateActiveScene3D(const QVariantMap & /*sceneState*/)
 {
 }
 
