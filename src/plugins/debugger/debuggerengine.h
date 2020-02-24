@@ -392,9 +392,8 @@ public:
     void handleReverseDirection(bool);
 
     // Convenience
-    Q_SLOT virtual void showMessage(const QString &msg, int channel = LogDebug,
-        int timeout = -1) const;
-    Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
+    void showStatusMessage(const QString &msg, int timeout = -1) const;
 
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
