@@ -389,18 +389,21 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     if (node) {
         node->addFiles(addedFiles);
         androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
-    }
 
-    if (androidPackageDir.isEmpty()) {
-        // and now time for some magic
-        const BuildTargetInfo bti = target->buildTarget(m_buildKey);
-        const QString value = "$$PWD/" + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(m_directory);
-        bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
+        if (androidPackageDir.isEmpty()) {
+            // and now time for some magic
+            const BuildTargetInfo bti = target->buildTarget(m_buildKey);
+            const QString value = "$$PWD/"
+                                  + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(
+                                      m_directory);
+            bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
 
-        if (!result) {
-            QMessageBox::warning(this, tr("Project File not Updated"),
-                                 tr("Could not update the project file %1.")
-                                 .arg(bti.projectFilePath.toUserOutput()));
+            if (!result) {
+                QMessageBox::warning(this,
+                                     tr("Project File not Updated"),
+                                     tr("Could not update the project file %1.")
+                                         .arg(bti.projectFilePath.toUserOutput()));
+            }
         }
     }
     Core::EditorManager::openEditor(m_directory + QLatin1String("/AndroidManifest.xml"));
