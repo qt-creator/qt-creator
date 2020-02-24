@@ -26,7 +26,7 @@
 # Debugger start modes. Keep in sync with DebuggerStartMode in debuggerconstants.h
 
 
-class DebuggerStartMode:
+class DebuggerStartMode():
     (
         NoStartMode,
         StartInternal,
@@ -41,7 +41,7 @@ class DebuggerStartMode:
 
 
 # Known special formats. Keep in sync with DisplayFormat in debuggerprotocol.h
-class DisplayFormat:
+class DisplayFormat():
     (
         AutomaticFormat,
         RawFormat,
@@ -67,7 +67,7 @@ class DisplayFormat:
 
 
 # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
-class BreakpointType:
+class BreakpointType():
     (
         UnknownType,
         BreakpointByFileAndLine,
@@ -87,7 +87,7 @@ class BreakpointType:
 
 
 # Internal codes for types keep in sync with cdbextensions pytype.cpp
-class TypeCode:
+class TypeCode():
     (
         TypeCodeTypedef,
         TypeCodeStruct,

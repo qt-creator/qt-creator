@@ -41,7 +41,7 @@ class QuitException(Exception):
     pass
 
 
-class QtcInternalBreakpoint:
+class QtcInternalBreakpoint():
     """Breakpoint class.
     Breakpoints are indexed by number through bpbynumber and by
     the file,line tuple using bplist. The former points to a
@@ -52,9 +52,9 @@ class QtcInternalBreakpoint:
 
     next = 1        # Next bp to be assigned
     bplist = {}     # indexed by (file, lineno) tuple
-    bpbynumber = [None] # Each entry is None or an instance of Bpt
-                # index 0 is unused, except for marking an
-                # effective break .... see effective()
+    bpbynumber = [None]  # Each entry is None or an instance of Bpt
+    # index 0 is unused, except for marking an
+    # effective break .... see effective()
 
     def __init__(self, filepath, line, temporary=False, cond=None, funcname=None):
         self.funcname = funcname
@@ -115,7 +115,7 @@ def checkfuncname(b, frame):
         # The function is entered for the 1st time.
         b.func_first_executable_line = frame.f_lineno
 
-    if  b.func_first_executable_line != frame.f_lineno:
+    if b.func_first_executable_line != frame.f_lineno:
         # But we are not at the first line number: don't break.
         return False
     return True
@@ -193,7 +193,7 @@ class _rstr(str):
         return self
 
 
-class QtcInternalDumper:
+class QtcInternalDumper():
     identchars = string.ascii_letters + string.digits + '_'
     lastcmd = ''
     use_rawinput = 1
@@ -387,7 +387,7 @@ class QtcInternalDumper:
         # (CT) stopframe may now also be None, see dispatch_call.
         # (CT) the former test for None is therefore removed from here.
         if self.skip and \
-               self.is_skipped_module(frame.f_globals.get('__name__')):
+                self.is_skipped_module(frame.f_globals.get('__name__')):
             return False
         if frame is self.stopframe:
             if self.stoplineno == -1:
@@ -696,7 +696,7 @@ class QtcInternalDumper:
                 return None, None, line
         i, length = 0, len(line)
         while i < length and line[i] in self.identchars:
-            i = i+1
+            i = i + 1
         cmd, arg = line[:i], line[i:].strip()
         return cmd, arg, line
 
@@ -745,10 +745,10 @@ class QtcInternalDumper:
 
                 import __main__
                 # __main__.__dict__.clear()
-                __main__.__dict__.update({'__name__'    : '__main__',
-                                          '__file__'    : mainpyfile,
-                #                           '__builtins__': __builtins__,
-                                         })
+                __main__.__dict__.update({'__name__': '__main__',
+                                          '__file__': mainpyfile,
+                                          #'__builtins__': __builtins__,
+                                          })
 
                 # When bdb sets tracing, a number of call and line events happens
                 # BEFORE debugger even reaches user's code (and the exact sequence of
@@ -966,7 +966,7 @@ class QtcInternalDumper:
         comma = arg.find(',')
         if comma > 0:
             # parse stuff after comma: 'condition'
-            cond = arg[comma+1:].lstrip()
+            cond = arg[comma + 1:].lstrip()
             arg = arg[:comma].rstrip()
         # parse stuff before comma: [filename:]lineno | function
         colon = arg.rfind(':')
@@ -979,7 +979,7 @@ class QtcInternalDumper:
                 return
             else:
                 filename = f
-            arg = arg[colon+1:].lstrip()
+            arg = arg[colon + 1:].lstrip()
             try:
                 lineno = int(arg)
             except ValueError:
@@ -1212,7 +1212,7 @@ class QtcInternalDumper:
             # Make sure it works for 'clear C:\foo\bar.py:12'
             i = arg.rfind(':')
             filename = arg[:i]
-            arg = arg[i+1:]
+            arg = arg[i + 1:]
             try:
                 lineno = int(arg)
             except ValueError:

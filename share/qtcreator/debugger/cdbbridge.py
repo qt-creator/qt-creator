@@ -35,8 +35,9 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.curre
 
 from dumper import DumperBase, SubItem
 
+
 class FakeVoidType(cdbext.Type):
-    def __init__(self, name , dumper):
+    def __init__(self, name, dumper):
         cdbext.Type.__init__(self)
         self.typeName = name.strip()
         self.dumper = dumper
@@ -89,6 +90,7 @@ class FakeVoidType(cdbext.Type):
     def templateArguments(self):
         return []
 
+
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
@@ -114,7 +116,7 @@ class Dumper(DumperBase):
             elif integerString == 'false':
                 val.ldata = int(0).to_bytes(1, byteorder='little')
             else:
-                integerString = integerString.replace('`','')
+                integerString = integerString.replace('`', '')
                 integerString = integerString.split(' ')[0]
                 if integerString.startswith('0n'):
                     integerString = integerString[2:]
@@ -125,8 +127,8 @@ class Dumper(DumperBase):
                     base = 10
                 signed = not val.type.name.startswith('unsigned')
                 try:
-                    val.ldata = int(integerString, base).to_bytes(val.type.size(), \
-                            byteorder='little', signed=signed)
+                    val.ldata = int(integerString, base).to_bytes(val.type.size(),
+                                                                  byteorder='little', signed=signed)
                 except:
                     # read raw memory in case the integerString can not be interpreted
                     pass
@@ -148,7 +150,8 @@ class Dumper(DumperBase):
             c = 'u'
         else:
             return name
-        typeId = c + ''.join(['{%s:%s}' % (f.name(), self.nativeTypeId(f.type())) for f in nativeType.fields()])
+        typeId = c + ''.join(['{%s:%s}' % (f.name(), self.nativeTypeId(f.type()))
+                              for f in nativeType.fields()])
         return typeId
 
     def fromNativeType(self, nativeType):
@@ -170,7 +173,8 @@ class Dumper(DumperBase):
 
         if code == TypeCode.TypeCodeArray:
             # cdb reports virtual function tables as arrays those ar handled separetly by
-            # the DumperBase. Declare those types as structs prevents a lookup to a none existing type
+            # the DumperBase. Declare those types as structs prevents a lookup to a
+            # none existing type
             if not nativeType.name().startswith('__fptr()') and not nativeType.name().startswith('<gentype '):
                 targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
                 if targetType is not None:
@@ -183,17 +187,17 @@ class Dumper(DumperBase):
         tdata.lbitsize = nativeType.bitsize()
         tdata.code = code
         tdata.moduleName = nativeType.module()
-        self.registerType(typeId, tdata) # Prevent recursion in fields.
-        if  code == TypeCode.TypeCodeStruct:
-            tdata.lfields = lambda value : \
+        self.registerType(typeId, tdata)  # Prevent recursion in fields.
+        if code == TypeCode.TypeCodeStruct:
+            tdata.lfields = lambda value: \
                 self.listFields(nativeType, value)
-            tdata.lalignment = lambda : \
+            tdata.lalignment = lambda: \
                 self.nativeStructAlignment(nativeType)
         if code == TypeCode.TypeCodeEnum:
-            tdata.enumDisplay = lambda intval, addr, form : \
+            tdata.enumDisplay = lambda intval, addr, form: \
                 self.nativeTypeEnumDisplay(nativeType, intval, form)
         tdata.templateArguments = self.listTemplateParameters(nativeType.name())
-        self.registerType(typeId, tdata) # Fix up fields and template args
+        self.registerType(typeId, tdata)  # Fix up fields and template args
         return self.Type(self, typeId)
 
     def listFields(self, nativeType, value):
@@ -320,14 +324,16 @@ class Dumper(DumperBase):
             if namespaceIndex > 0:
                 namespace = name[:namespaceIndex + 2]
         self.qtNamespace = lambda: namespace
-        self.qtCustomEventFunc = self.parseAndEvaluate('%s!%sQObject::customEvent'
-                                        % (self.qtCoreModuleName(), namespace)).address()
+        self.qtCustomEventFunc = self.parseAndEvaluate(
+            '%s!%sQObject::customEvent' %
+            (self.qtCoreModuleName(), namespace)).address()
         return namespace
 
     def qtVersion(self):
         qtVersion = None
         try:
-            qtVersion = self.parseAndEvaluate('((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
+            qtVersion = self.parseAndEvaluate(
+                '((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
         except:
             if self.qtCoreModuleName() is not None:
                 try:
@@ -391,7 +397,7 @@ class Dumper(DumperBase):
         else:
             return typeName
 
-    def lookupType(self, typeNameIn, module = 0):
+    def lookupType(self, typeNameIn, module=0):
         if len(typeNameIn) == 0:
             return None
         typeName = self.stripQintTypedefs(typeNameIn)
@@ -405,7 +411,7 @@ class Dumper(DumperBase):
             return type
         return self.Type(self, typeName)
 
-    def lookupNativeType(self, name, module = 0):
+    def lookupNativeType(self, name, module=0):
         if name.startswith('void'):
             return FakeVoidType(name, self)
         return cdbext.lookupType(name, module)
@@ -447,7 +453,7 @@ class Dumper(DumperBase):
         variables = []
         for val in cdbext.listOfLocals(self.partialVariable):
             dumperVal = self.fromNativeValue(val)
-            dumperVal.lIsInScope = not dumperVal.name in self.uninitialized
+            dumperVal.lIsInScope = dumperVal.name not in self.uninitialized
             variables.append(dumperVal)
 
         self.handleLocals(variables)
@@ -472,7 +478,7 @@ class Dumper(DumperBase):
         return cdbext.parseAndEvaluate(exp)
 
     def nativeDynamicTypeName(self, address, baseType):
-        return None # Does not work with cdb
+        return None  # Does not work with cdb
 
     def nativeValueDereferenceReference(self, value):
         return self.nativeValueDereferencePointer(value)

@@ -23,14 +23,17 @@
 #
 ############################################################################
 
+
 def typeTarget(type):
     target = type.target()
     if target:
         return target
     return type
 
+
 def stripTypeName(value):
     return typeTarget(value.type).unqualified().name
+
 
 def extractPointerType(d, value):
     postfix = ""
@@ -46,6 +49,7 @@ def extractPointerType(d, value):
         elif typeName == "CPlusPlus::VoidType":
             return "void" + postfix
         return "<unsupported>"
+
 
 def readTemplateName(d, value):
     name = readLiteral(d, value["_identifier"]) + "<"
@@ -65,6 +69,7 @@ def readTemplateName(d, value):
     name += ">"
     return name
 
+
 def readLiteral(d, value):
     if not value.integer():
         return "<null>"
@@ -78,8 +83,10 @@ def readLiteral(d, value):
     except:
         return "<unsupported>"
 
+
 def dumpLiteral(d, value):
     d.putValue(d.hexencode(readLiteral(d, value)), "latin1")
+
 
 def qdump__Core__Id(d, value):
     val = value.extractPointer()
@@ -93,35 +100,43 @@ def qdump__Core__Id(d, value):
         d.putValue(val)
     d.putPlainChildren(value)
 
+
 def qdump__Debugger__Internal__GdbMi(d, value):
     val = d.encodeString(value["m_name"]) + "3a002000" \
         + d.encodeString(value["m_data"])
     d.putValue(val, "utf16")
     d.putPlainChildren(value)
 
+
 def qdump__Debugger__Internal__DisassemblerLine(d, value):
     d.putByteArrayValue(value["m_data"])
     d.putPlainChildren(value)
+
 
 def qdump__Debugger__Internal__WatchData(d, value):
     d.putStringValue(value["iname"])
     d.putPlainChildren(value)
 
+
 def qdump__Debugger__Internal__WatchItem(d, value):
     d.putStringValue(value["iname"])
     d.putPlainChildren(value)
+
 
 def qdump__Debugger__Internal__BreakpointModelId(d, value):
     d.putValue("%s.%s" % (value["m_majorPart"].integer(), value["m_minorPart"].integer()))
     d.putPlainChildren(value)
 
+
 def qdump__Debugger__Internal__ThreadId(d, value):
     d.putValue("%s" % value["m_id"])
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__ByteArrayRef(d, value):
     d.putSimpleCharArray(value["m_start"], value["m_length"])
     d.putPlainChildren(value)
+
 
 def qdump__CPlusPlus__Identifier(d, value):
     try:
@@ -130,13 +145,16 @@ def qdump__CPlusPlus__Identifier(d, value):
         pass
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__Symbol(d, value):
     dumpLiteral(d, value["_name"])
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__Class(d, value):
     qdump__CPlusPlus__Symbol(d, value)
+
 
 def kindName(d, value):
     e = value.integer()
@@ -146,9 +164,11 @@ def kindName(d, value):
     else:
         return ''
 
+
 def qdump__CPlusPlus__IntegerType(d, value):
     d.putValue(kindName(d, value["_kind"]))
     d.putPlainChildren(value)
+
 
 def qdump__CPlusPlus__FullySpecifiedType(d, value):
     type = value["_type"]
@@ -159,35 +179,43 @@ def qdump__CPlusPlus__FullySpecifiedType(d, value):
         d.putValue(d.hexencode(extractPointerType(d, type)), "latin1")
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__NamedType(d, value):
     dumpLiteral(d, value["_name"])
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__PointerType(d, value):
     d.putValue(d.hexencode(extractPointerType(d, value)), "latin1")
     d.putPlainChildren(value)
+
 
 def qdump__CPlusPlus__TemplateNameId(d, value):
     dumpLiteral(d, value)
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__QualifiedNameId(d, value):
     dumpLiteral(d, value)
     d.putPlainChildren(value)
+
 
 def qdump__CPlusPlus__Literal(d, value):
     dumpLiteral(d, value)
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__StringLiteral(d, value):
     d.putSimpleCharArray(value["_chars"], value["_size"])
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__Internal__Value(d, value):
     d.putValue(value["l"])
     d.putPlainChildren(value)
+
 
 def qdump__Utils__FilePath(d, value):
     try:
@@ -199,20 +227,25 @@ def qdump__Utils__FilePath(d, value):
         d.putStringValue(value)  # support FileName before 4.10 as well
     d.putPlainChildren(value)
 
+
 def qdump__Utils__FileName(d, value):
     qdump__Utils__FilePath(d, value)
+
 
 def qdump__Utils__ElfSection(d, value):
     d.putByteArrayValue(value["name"])
     d.putPlainChildren(value)
 
+
 def qdump__Utils__Port(d, value):
     d.putValue(d.extractInt(value))
     d.putPlainChildren(value)
 
+
 def qdump__Utf8String(d, value):
     d.putByteArrayValue(value['byteArray'])
     d.putPlainChildren(value)
+
 
 def qdump__CPlusPlus__Token(d, value):
     k = value["f"]["kind"]
@@ -228,6 +261,7 @@ def qdump__CPlusPlus__Token(d, value):
     d.putValue(type)
     d.putPlainChildren(value)
 
+
 def qdump__CPlusPlus__Internal__PPToken(d, value):
     data, size, alloc = d.byteArrayData(value["m_src"])
     length = value["f"]["utf16chars"].integer()
@@ -236,6 +270,7 @@ def qdump__CPlusPlus__Internal__PPToken(d, value):
     #    % (size, alloc, offset, length, data))
     d.putValue(d.readMemory(data + offset, min(100, length)), "latin1")
     d.putPlainChildren(value)
+
 
 def qdump__ProString(d, value):
     try:
@@ -249,9 +284,11 @@ def qdump__ProString(d, value):
         d.putEmptyValue()
     d.putPlainChildren(value)
 
+
 def qdump__ProKey(d, value):
     qdump__ProString(d, value)
     d.putBetterType(value.type)
+
 
 def qdump__Core__GeneratedFile(d, value):
     d.putStringValue(value["m_d"]["d"]["path"])
@@ -275,14 +312,18 @@ def qdump__Core__GeneratedFile(d, value):
 #    d.putStringValue(value["d"]["m_unexpandedDisplayName"])
 #    d.putPlainChildren(value)
 
+
 def qdump__ProjectExplorer__ProjectNode(d, value):
     qdump__ProjectExplorer__FolderNode(d, value)
+
 
 def qdump__CMakeProjectManager__Internal__CMakeProjectNode(d, value):
     qdump__ProjectExplorer__FolderNode(d, value)
 
+
 def qdump__QmakeProjectManager__QmakePriFileNode(d, value):
     qdump__ProjectExplorer__FolderNode(d, value)
+
 
 def qdump__QmakeProjectManager__QmakeProFileNode(d, value):
     qdump__ProjectExplorer__FolderNode(d, value)

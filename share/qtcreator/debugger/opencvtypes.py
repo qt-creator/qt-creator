@@ -26,16 +26,19 @@
 from dumper import Children, SubItem
 from utils import TypeCode, DisplayFormat
 
+
 def qdump__cv__Size_(d, value):
     d.putValue('(%s, %s)' % (value[0].display(), value[1].display()))
     d.putPlainChildren(value)
 
+
 def qform__cv__Mat():
     return [DisplayFormat.SeparateFormat]
 
+
 def qdump__cv__Mat(d, value):
     (flag, dims, rows, cols, data, refcount, datastart, dataend,
-            datalimit, allocator, size, stepp) \
+     datalimit, allocator, size, stepp) \
         = value.split('iiiipppppppp')
     steps = d.split('p' * dims, stepp)
     innerSize = 0 if dims == 0 else steps[dims - 1]
