@@ -123,8 +123,10 @@ void AndroidDebugSupport::start()
     qCDebug(androidDebugSupportLog) << "Start. Package name: " << packageName
                                     << "PID: " << m_runner->pid().pid();
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
-    if (!Utils::HostOsInfo::isWindowsHost() &&
-            AndroidConfigurations::currentConfig().ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0)) {
+    if (!Utils::HostOsInfo::isWindowsHost()
+        && (qtVersion
+            && AndroidConfigurations::currentConfig().ndkVersion(qtVersion)
+                   >= QVersionNumber(11, 0, 0))) {
         qCDebug(androidDebugSupportLog) << "UseTargetAsync: " << true;
         setUseTargetAsync(true);
     }
@@ -152,19 +154,21 @@ void AndroidDebugSupport::start()
         setRemoteChannel(gdbServer);
 
         auto qt = static_cast<AndroidQtVersion *>(qtVersion);
-        QTC_CHECK(qt);
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
 
         int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
         // TODO find a way to use the new sysroot layout
         // instead ~/android/ndk-bundle/platforms/android-29/arch-arm64
         // use ~/android/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/sysroot
-        Utils::FilePath sysRoot = AndroidConfigurations::currentConfig().ndkLocation(qtVersion)
-                .pathAppended("platforms")
-                .pathAppended(QString("android-%1").arg(sdkVersion))
-                .pathAppended(devicePreferredAbi);
-        setSysRoot(sysRoot);
-        qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;
+        if (qtVersion) {
+            Utils::FilePath sysRoot = AndroidConfigurations::currentConfig()
+                                          .ndkLocation(qtVersion)
+                                          .pathAppended("platforms")
+                                          .pathAppended(QString("android-%1").arg(sdkVersion))
+                                          .pathAppended(devicePreferredAbi);
+            setSysRoot(sysRoot);
+            qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;
+        }
     }
     if (isQmlDebugging()) {
         qCDebug(androidDebugSupportLog) << "QML debugging enabled. QML server: "
