@@ -50,6 +50,7 @@ Column {
         anchors.left: parent.left
         anchors.right: parent.right
         caption: qsTr("Border Color")
+        visible: backendValues.border_color.isAvailable
 
         ColorEditor {
             caption: qsTr("Border Color")
@@ -63,6 +64,7 @@ Column {
         anchors.left: parent.left
         anchors.right: parent.right
         caption: "Rectangle"
+        visible: backendValues.border_color.isAvailable
 
         SectionLayout {
             rows: 2

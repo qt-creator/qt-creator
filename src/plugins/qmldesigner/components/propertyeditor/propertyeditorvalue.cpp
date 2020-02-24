@@ -25,16 +25,18 @@
 
 #include "propertyeditorvalue.h"
 
+#include <abstractview.h>
 #include <bindingproperty.h>
+#include <designdocument.h>
+#include <nodeproperty.h>
+#include <nodemetainfo.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+
+#include <utils/qtcassert.h>
 
 #include <QRegExp>
 #include <QUrl>
-#include <abstractview.h>
-#include <nodeproperty.h>
-#include <nodemetainfo.h>
-#include <qmlobjectnode.h>
-#include <bindingproperty.h>
-#include <utils/qtcassert.h>
 
 //using namespace QmlDesigner;
 
@@ -259,6 +261,22 @@ bool PropertyEditorValue::isTranslated() const
         }
     }
     return false;
+}
+
+bool PropertyEditorValue::isAvailable() const
+{
+    const QList<QByteArray> mcuProperties = {"layer", "opacity", "rotation", "scale", "transformOrigin", "smooth", "antialiasing", "border"};
+    const QList<QByteArray> list = name().split('.');
+    const QByteArray pureName = list.first();
+
+    QmlDesigner::DesignDocument *designDocument =
+        QmlDesigner::QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
+
+
+    if (designDocument && designDocument->isQtForMCUsProject())
+        return !mcuProperties.contains(pureName);
+
+    return true;
 }
 
 QmlDesigner::ModelNode PropertyEditorValue::modelNode() const

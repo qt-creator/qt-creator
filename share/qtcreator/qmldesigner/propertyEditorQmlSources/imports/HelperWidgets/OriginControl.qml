@@ -42,6 +42,8 @@ Item {
     readonly property color selectedColor: Theme.qmlDesignerBackgroundColorDarkAlternate()
     readonly property color unselectedColor: Theme.qmlDesignerBackgroundColorDarker()
 
+    property bool enabled: true
+
     ExtendedFunctionLogic {
         id: extFuncLogic
         backendValue: originControl.backendValue
@@ -69,6 +71,7 @@ Item {
     }
 
     Grid {
+        opacity: originControl.enabled ? 1 : 0.5
         rows: 3
         columns: 3
         spacing: 5
@@ -76,7 +79,8 @@ Item {
         id: grid
 
         function setValue(myValue) {
-            originControl.backendValue.setEnumeration("Item", myValue)
+            if (originControl.enabled)
+                originControl.backendValue.setEnumeration("Item", myValue)
         }
 
         function select(myValue) {
