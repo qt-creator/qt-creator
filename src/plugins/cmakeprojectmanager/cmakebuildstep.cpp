@@ -225,9 +225,6 @@ bool CMakeBuildStep::init()
 void CMakeBuildStep::doRun()
 {
     // Make sure CMake state was written to disk before trying to build:
-    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
-    QTC_ASSERT(bc, return);
-
     m_waiting = false;
     auto bs = static_cast<CMakeBuildSystem *>(buildSystem());
     if (bs->persistCMakeState()) {
