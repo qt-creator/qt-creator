@@ -137,14 +137,16 @@ void AnnotationEditor::removeFullAnnotation()
     if (!m_modelNode.customId().isNull()) {
         dialogTitle = m_modelNode.customId();
     }
-    QMessageBox *deleteDialog = new QMessageBox(Core::ICore::dialogParent());
+    QPointer<QMessageBox> deleteDialog = new QMessageBox(Core::ICore::dialogParent());
     deleteDialog->setWindowTitle(dialogTitle);
     deleteDialog->setText(tr("Delete this annotation?"));
     deleteDialog->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     deleteDialog->setDefaultButton(QMessageBox::Yes);
 
     int result = deleteDialog->exec();
-    if (deleteDialog) deleteDialog->deleteLater();
+
+    if (deleteDialog)
+        deleteDialog->deleteLater();
 
     if (result == QMessageBox::Yes) {
         m_modelNode.removeCustomId();
