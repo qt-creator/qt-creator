@@ -265,9 +265,6 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     connect(d->m_taskWindow, &Internal::TaskWindow::tasksChanged,
             this, &BuildManager::updateTaskCount);
 
-    connect(d->m_taskWindow, &Internal::TaskWindow::tasksCleared,
-            this,&BuildManager::tasksCleared);
-
     connect(&d->m_progressWatcher, &QFutureWatcherBase::canceled,
             this, &BuildManager::cancel);
     connect(&d->m_progressWatcher, &QFutureWatcherBase::finished,
@@ -457,7 +454,6 @@ void BuildManager::updateTaskCount()
 {
     const int errors = getErrorTaskCount();
     ProgressManager::setApplicationLabel(errors > 0 ? QString::number(errors) : QString());
-    emit m_instance->tasksChanged();
 }
 
 void BuildManager::finish()

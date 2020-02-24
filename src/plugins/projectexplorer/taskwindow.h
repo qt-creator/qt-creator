@@ -79,7 +79,6 @@ public:
 
 signals:
     void tasksChanged();
-    void tasksCleared();
 
 private:
     void updateFilter() override;

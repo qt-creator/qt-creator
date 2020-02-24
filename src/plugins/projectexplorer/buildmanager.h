@@ -102,9 +102,6 @@ public slots:
 signals:
     void buildStateChanged(ProjectExplorer::Project *pro);
     void buildQueueFinished(bool success);
-    void tasksChanged();
-    void taskAdded(const ProjectExplorer::Task &task);
-    void tasksCleared();
 
 private:
     static void addToTaskWindow(const ProjectExplorer::Task &task, int linkedOutputLines, int skipLines);
