@@ -27,6 +27,9 @@
 #include "importlabel.h"
 #include "importmanagercombobox.h"
 
+#include <designdocument.h>
+#include <qmldesignerplugin.h>
+
 #include <utils/algorithm.h>
 
 #include <QVBoxLayout>
@@ -90,7 +93,22 @@ void ImportsWidget::setPossibleImports(QList<Import> possibleImports)
 {
     Utils::sort(possibleImports, importLess);
     m_addImportComboBox->clear();
-    foreach (const Import &possibleImport, possibleImports) {
+
+    const DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
+    const bool isQtForMCUs = designDocument && designDocument->isQtForMCUsProject();
+
+    QList<Import> filteredImports;
+
+    const QStringList mcuWhiteList = {"QtQuick", "QtQuick.Controls"};
+
+    if (isQtForMCUs)
+        filteredImports = Utils::filtered(possibleImports, [mcuWhiteList](const Import &import) {
+            return mcuWhiteList.contains(import.url()) || !import.url().startsWith("Qt");
+        });
+    else
+        filteredImports = possibleImports;
+
+    for (const Import &possibleImport : filteredImports) {
         if (!isImportAlreadyUsed(possibleImport, m_importLabels))
             m_addImportComboBox->addItem(possibleImport.toString(true), QVariant::fromValue(possibleImport));
     }
