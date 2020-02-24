@@ -1090,22 +1090,73 @@ void AndroidConfigurations::removeOldToolChains()
     }
 }
 
-static QVariant findOrRegisterDebugger(ToolChain *tc, const BaseQtVersion *qtVersion)
+void AndroidConfigurations::removeUnusedDebuggers()
 {
-    const FilePath command = AndroidConfigurations::currentConfig().gdbPath(tc->targetAbi(), qtVersion);
+    QList<FilePath> uniqueNdks;
+    const QList<QtSupport::BaseQtVersion *> qtVersions
+        = QtSupport::QtVersionManager::versions([](const QtSupport::BaseQtVersion *v) {
+              return v->type() == Constants::ANDROIDQT;
+          });
+
+    for (const QtSupport::BaseQtVersion *qt : qtVersions) {
+        FilePath ndkLocation = currentConfig().ndkLocation(qt);
+        if (!uniqueNdks.contains(ndkLocation))
+            uniqueNdks.append(ndkLocation);
+    }
+
+    const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
+    for (const Debugger::DebuggerItem &debugger : allDebuggers) {
+        if (!debugger.displayName().contains("Android"))
+            continue;
+
+        bool isChildOfNdk = false;
+        for (const FilePath &path : uniqueNdks) {
+            if (debugger.command().isChildOf(path)) {
+                isChildOfNdk = true;
+                break;
+            }
+        }
+
+        if (!isChildOfNdk && debugger.isAutoDetected())
+            Debugger::DebuggerItemManager::deregisterDebugger(debugger.id());
+    }
+}
+
+static QVariant findOrRegisterDebugger(ToolChain *tc,
+                                       const QStringList &abisList,
+                                       const BaseQtVersion *qtVersion)
+{
+    const FilePath command = AndroidConfigurations::currentConfig().gdbPath(tc->targetAbi(),
+                                                                            qtVersion);
     // check if the debugger is already registered, but ignoring the display name
     const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
+
+    QList<Abi> abis = Utils::transform(abisList, Abi::abiFromTargetTriplet);
+
+    auto containsAbis = [abis](const Abis &secondAbis) {
+        for (const Abi &abi : secondAbis) {
+            if (!abis.contains(abi))
+                return false;
+        }
+        return true;
+    };
+
     if (existing && existing->engineType() == Debugger::GdbEngineType && existing->isAutoDetected()
-            && existing->abis() == Abis{tc->targetAbi()})
+        && containsAbis(existing->abis())) {
+        // update debugger info with new
         return existing->id();
+    }
+
     // debugger not found, register a new one
     Debugger::DebuggerItem debugger;
     debugger.setCommand(command);
     debugger.setEngineType(Debugger::GdbEngineType);
     debugger.setUnexpandedDisplayName(
-        AndroidConfigurations::tr("Android Debugger for %1").arg(tc->displayName()));
+        AndroidConfigurations::tr("Android Debugger (%1, NDK %2)")
+            .arg(abisList.join(", "),
+                 AndroidConfigurations::currentConfig().ndkVersion(qtVersion).toString()));
     debugger.setAutoDetected(true);
-    debugger.setAbi(tc->targetAbi());
+    debugger.setAbis(abis.toVector());
     debugger.reinitializeFromFile();
     return Debugger::DebuggerItemManager::registerDebugger(debugger);
 }
@@ -1135,6 +1186,8 @@ void AndroidConfigurations::updateAutomaticKitList()
         }
         return false;
     });
+
+    removeUnusedDebuggers();
 
     QHash<Abi, QList<const QtSupport::BaseQtVersion *> > qtVersionsForArch;
     const QList<QtSupport::BaseQtVersion *> qtVersions
@@ -1199,10 +1252,11 @@ void AndroidConfigurations::updateAutomaticKitList()
                     ToolChainKitAspect::setToolChain(k, tc);
                 QtSupport::QtKitAspect::setQtVersion(k, qt);
                 DeviceKitAspect::setDevice(k, device);
-                Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, QtKitAspect::qtVersion(k)));
+                QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
+                Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis, QtKitAspect::qtVersion(k)));
                 k->makeSticky();
                 k->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
-                                                  .arg(static_cast<const AndroidQtVersion *>(qt)->androidAbis().join(","))
+                                                  .arg(abis.join(","))
                                                   .arg(qt->displayName()));
                 k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(qt).toString());
                 k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
