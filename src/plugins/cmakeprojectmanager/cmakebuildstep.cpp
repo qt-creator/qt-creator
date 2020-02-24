@@ -372,8 +372,8 @@ Utils::CommandLine CMakeBuildStep::cmakeCommand(RunConfiguration *rc) const
 
 QStringList CMakeBuildStep::knownBuildTargets()
 {
-    auto bc = qobject_cast<CMakeBuildSystem *>(buildSystem());
-    return bc ? bc->buildTargetTitles() : QStringList();
+    auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
+    return bs ? bs->buildTargetTitles() : QStringList();
 }
 
 QString CMakeBuildStep::cleanTarget()
