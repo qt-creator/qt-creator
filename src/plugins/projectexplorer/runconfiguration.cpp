@@ -204,11 +204,6 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
 
 RunConfiguration::~RunConfiguration() = default;
 
-bool RunConfiguration::isActive() const
-{
-    return target()->isActive() && target()->activeRunConfiguration() == this;
-}
-
 QString RunConfiguration::disabledReason() const
 {
     BuildSystem *bs = activeBuildSystem();
@@ -305,7 +300,9 @@ void RunConfiguration::update()
 
     emit enabledChanged();
 
-    if (isActive() && project() == SessionManager::startupProject())
+    const bool isActive = target()->isActive() && target()->activeRunConfiguration() == this;
+
+    if (isActive && project() == SessionManager::startupProject())
         emit ProjectExplorerPlugin::instance()->updateRunActions();
 }
 

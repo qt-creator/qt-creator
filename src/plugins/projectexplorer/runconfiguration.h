@@ -127,8 +127,6 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 public:
     ~RunConfiguration() override;
 
-    bool isActive() const;
-
     virtual QString disabledReason() const;
     virtual bool isEnabled() const;
 
