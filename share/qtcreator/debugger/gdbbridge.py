@@ -101,7 +101,7 @@ PPPCommand()
 def scanStack(p, n):
     p = int(p)
     r = []
-    for i in xrange(n):
+    for i in range(n):
         f = gdb.parse_and_eval('{void*}%s' % p)
         m = gdb.execute('info symbol %s' % f, to_string=True)
         if not m.startswith('No symbol matches'):

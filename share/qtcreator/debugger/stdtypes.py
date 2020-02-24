@@ -1160,7 +1160,7 @@ def qdump____gnu_cxx__hash_set(d, value):
             bucketFinish = buckets["_M_finish"]
             p = bucketStart
             itemCount = 0
-            for i in xrange((bucketFinish.pointer() - bucketStart.pointer()) // d.ptrSize()):
+            for i in range((bucketFinish.pointer() - bucketStart.pointer()) // d.ptrSize()):
                 if p.dereference().pointer():
                     cur = p.dereference()
                     while cur.pointer():
