@@ -66,7 +66,7 @@ class GitLogFilterWidget : public QToolBar
 public:
     GitLogFilterWidget(GitEditorWidget *editor)
     {
-        auto addLineEdit = [](const QString &placeholder,
+        auto addLineEdit = [this](const QString &placeholder,
                 const QString &tooltip,
                 GitEditorWidget *editor)
         {
