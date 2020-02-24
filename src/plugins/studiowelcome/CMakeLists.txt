@@ -3,7 +3,7 @@ set(qmlQrcFile "${CMAKE_CURRENT_BINARY_DIR}/StudioWelcome_qml.qrc")
 qtc_glob_resources(
   QRC_FILE "${qmlQrcFile}"
   ROOT "${CMAKE_CURRENT_SOURCE_DIR}"
-  GLOB "qml/*.*"
+  GLOB "qml/*"
 )
 
 add_qtc_plugin(StudioWelcome
