@@ -25,7 +25,6 @@
 
 #include "qmakeproject.h"
 
-#include "qmakeprojectmanager.h"
 #include "qmakeprojectimporter.h"
 #include "qmakebuildinfo.h"
 #include "qmakestep.h"

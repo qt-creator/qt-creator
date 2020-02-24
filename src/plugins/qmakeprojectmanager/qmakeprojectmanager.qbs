@@ -46,7 +46,6 @@ Project {
                 "qmakenodes.cpp", "qmakenodes.h",
                 "qmakenodetreebuilder.cpp", "qmakenodetreebuilder.h",
                 "qmakeproject.cpp", "qmakeproject.h",
-                "qmakeprojectmanager.cpp", "qmakeprojectmanager.h",
                 "qmakeprojectmanager.qrc",
                 "qmakeprojectmanager_global.h",
                 "qmakeprojectmanagerconstants.h",

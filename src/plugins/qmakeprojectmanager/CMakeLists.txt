@@ -32,7 +32,6 @@ add_qtc_plugin(QmakeProjectManager
     qmakeparsernodes.cpp qmakeparsernodes.h
     qmakeproject.cpp qmakeproject.h
     qmakeprojectimporter.cpp qmakeprojectimporter.h
-    qmakeprojectmanager.cpp qmakeprojectmanager.h
     qmakeprojectmanager.qrc
     qmakeprojectmanager_global.h
     qmakeprojectmanagerconstants.h

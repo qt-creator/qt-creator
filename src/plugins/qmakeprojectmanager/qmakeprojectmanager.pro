@@ -10,7 +10,6 @@ HEADERS += \
     qmakeparsernodes.h \
     qmakeprojectimporter.h \
     qmakeprojectmanagerplugin.h \
-    qmakeprojectmanager.h \
     qmakeproject.h \
     qmakesettings.h \
     qmakenodes.h \
@@ -40,7 +39,6 @@ SOURCES += \
     qmakeparsernodes.cpp \
     qmakeprojectimporter.cpp \
     qmakeprojectmanagerplugin.cpp \
-    qmakeprojectmanager.cpp \
     qmakeproject.cpp \
     qmakenodes.cpp \
     qmakesettings.cpp \

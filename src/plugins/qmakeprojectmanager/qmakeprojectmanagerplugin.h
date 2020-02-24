@@ -27,6 +27,11 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace ProjectExplorer {
+class Project;
+class Node;
+} // ProjectExplorer
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -37,6 +42,8 @@ class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin
 
 public:
     ~QmakeProjectManagerPlugin() final;
+
+    static void buildProduct(ProjectExplorer::Project *project, ProjectExplorer::Node *proFileNode);
 
 #ifdef WITH_TESTS
 private slots:

@@ -26,7 +26,6 @@
 #include "qtwizard.h"
 
 #include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanager.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <coreplugin/icore.h>

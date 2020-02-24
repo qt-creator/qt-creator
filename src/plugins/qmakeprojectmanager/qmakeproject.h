@@ -26,12 +26,12 @@
 #pragma once
 
 #include "qmakeprojectmanager_global.h"
-#include "qmakeprojectmanager.h"
 #include "qmakenodes.h"
 #include "qmakeparsernodes.h"
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QStringList>
 #include <QFutureInterface>
