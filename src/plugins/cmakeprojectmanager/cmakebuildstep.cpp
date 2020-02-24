@@ -155,7 +155,8 @@ bool CMakeBuildStep::init()
 {
     bool canInit = true;
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
-    if (bc && !bc->isEnabled()) {
+    QTC_ASSERT(bc, return false);
+    if (!bc->isEnabled()) {
         emit addTask(BuildSystemTask(Task::Error,
                           tr("CMakeProjectManager::CMakeBuildStep")));
         canInit = false;
