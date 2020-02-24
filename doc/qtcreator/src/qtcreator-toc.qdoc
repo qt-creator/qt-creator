@@ -38,6 +38,8 @@
                 \list
                     \li \l{Selecting Modes}
                     \li \l{Browsing Project Contents}
+                    \li \l{Working with Sidebars}
+                    \li \l{Managing Workspaces}
                     \li \l{Viewing Output}
                  \endlist
             \li \l{Configuring Qt Creator}

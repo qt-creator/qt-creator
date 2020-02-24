@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -87,11 +87,13 @@
     \endif
 
 
-    The following sections describe some of these controls in more detail:
+    The following sections describe some \QC controls in more detail:
 
     \list
         \li \l{Selecting Modes}{Mode selector}
-        \li \l{Browsing Project Contents}{Sidebars}
+        \li \l{Browsing Project Contents}{Views}
+        \li \l{Working with Sidebars}{Sidebars}
+        \li \l{Managing Workspaces}{Workspaces}
         \li \l{Viewing Output}{Output panes}
     \endlist
 
@@ -253,7 +255,7 @@
     \contentspage index.html
     \page creator-modes.html
     \previouspage creator-quick-tour.html
-    \nextpage creator-sidebar-views.html
+    \nextpage creator-views.html
 
     \title Selecting Modes
 
@@ -327,7 +329,7 @@
 /*!
     \contentspage index.html
     \page creator-output-panes.html
-    \previouspage creator-sidebar-views.html
+    \previouspage creator-project-managing-workspaces.html
     \if defined(qtdesignstudio)
     \nextpage creator-using-qt-quick-designer.html
     \else
