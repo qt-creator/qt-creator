@@ -1568,7 +1568,7 @@ QSet<QString> VcsBaseEditorWidget::annotationChanges() const
     QStringRef txt(&text);
     if (txt.isEmpty())
         return changes;
-    if (d->m_annotationSeparatorPattern.isValid()) {
+    if (!d->m_annotationSeparatorPattern.pattern().isEmpty()) {
         const QRegularExpressionMatch match = d->m_annotationSeparatorPattern.match(txt);
         if (match.hasMatch())
             txt.truncate(match.capturedStart());
