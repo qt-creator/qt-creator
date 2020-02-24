@@ -37,8 +37,6 @@ class VcsBaseEditorParameters;
 
 class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
 {
-    Q_OBJECT
-
 public:
     VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                      const EditorWidgetCreator editorWidgetCreator,
