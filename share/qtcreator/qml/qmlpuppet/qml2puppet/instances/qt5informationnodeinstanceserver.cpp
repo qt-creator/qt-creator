@@ -1185,9 +1185,17 @@ void Qt5InformationNodeInstanceServer::inputEvent(const InputEventCommand &comma
 {
     if (m_editView3D) {
         if (command.type() == QEvent::Wheel) {
-            auto we = new QWheelEvent(command.pos(), command.pos(), {0, 0}, {0, command.angleDelta()},
+            QWheelEvent *we
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+                    = new QWheelEvent(command.pos(), command.pos(), {0, 0}, {0, command.angleDelta()},
                                       command.buttons(), command.modifiers(), Qt::NoScrollPhase,
                                       false);
+#else
+                    = new QWheelEvent(command.pos(), command.pos(), {0, 0}, {0, command.angleDelta()},
+                                      0, Qt::Horizontal, command.buttons(), command.modifiers(),
+                                      Qt::NoScrollPhase, Qt::MouseEventNotSynthesized);
+#endif
+
             QGuiApplication::postEvent(m_editView3D, we);
         } else {
             auto me = new QMouseEvent(command.type(), command.pos(), command.button(),
