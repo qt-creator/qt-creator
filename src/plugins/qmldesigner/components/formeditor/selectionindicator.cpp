@@ -44,7 +44,6 @@ namespace QmlDesigner {
 
 SelectionIndicator::SelectionIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)
-    , m_annotationItem(nullptr)
 {
 }
 

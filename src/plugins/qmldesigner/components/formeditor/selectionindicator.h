@@ -57,11 +57,11 @@ private:
 
 private:
     QHash<FormEditorItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
-    FormEditorItem *m_selectedItem;
+    FormEditorItem *m_selectedItem = nullptr;
     QPointer<LayerItem> m_layerItem;
     QCursor m_cursor;
     std::unique_ptr<QGraphicsPolygonItem> m_labelItem;
-    FormEditorAnnotationIcon *m_annotationItem; //handled by m_labelItem
+    FormEditorAnnotationIcon *m_annotationItem = nullptr; //handled by m_labelItem
 };
 
 } // namespace QmlDesigner
