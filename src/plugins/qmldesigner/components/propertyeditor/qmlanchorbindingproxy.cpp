@@ -894,6 +894,7 @@ QmlItemNode QmlAnchorBindingProxy::targetIdToNode(const QString &id) const
 
 QString QmlAnchorBindingProxy::idForNode(const QmlItemNode &qmlItemNode) const
 {
+    QTC_ASSERT(qmlItemNode.isValid(), return {});
     if (m_qmlItemNode.instanceParent().modelNode() == qmlItemNode)
         return QStringLiteral("parent");
 
