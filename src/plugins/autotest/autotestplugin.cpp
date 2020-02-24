@@ -236,7 +236,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
             this, &AutotestPlugin::updateMenuItemsEnabledState);
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &AutotestPlugin::updateMenuItemsEnabledState);
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &AutotestPlugin::updateMenuItemsEnabledState);
     connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
             this, &AutotestPlugin::updateMenuItemsEnabledState);

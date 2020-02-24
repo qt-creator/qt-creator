@@ -571,7 +571,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
 
     m_perspective.addWindow(m_errorView, Perspective::SplitVertical, nullptr);
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &MemcheckToolPrivate::maybeActiveRunConfigurationChanged);
 
     //

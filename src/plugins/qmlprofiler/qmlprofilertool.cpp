@@ -243,7 +243,7 @@ QmlProfilerTool::QmlProfilerTool()
     perspective->addToolBarWidget(d->m_displayFeaturesButton);
     perspective->addToolBarWidget(d->m_timeLabel);
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &QmlProfilerTool::updateRunActions);
 
     QmlProfilerTextMarkModel *model = d->m_profilerModelManager->textMarkModel();

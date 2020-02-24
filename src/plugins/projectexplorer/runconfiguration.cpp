@@ -303,7 +303,7 @@ void RunConfiguration::update()
     const bool isActive = target()->isActive() && target()->activeRunConfiguration() == this;
 
     if (isActive && project() == SessionManager::startupProject())
-        emit ProjectExplorerPlugin::instance()->updateRunActions();
+        ProjectExplorerPlugin::updateRunActions();
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const

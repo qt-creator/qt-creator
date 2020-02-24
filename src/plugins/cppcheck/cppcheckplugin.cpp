@@ -176,7 +176,7 @@ bool CppcheckPlugin::initialize(const QStringList &arguments, QString *errorStri
     }
 
     using ProjectExplorer::ProjectExplorerPlugin;
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             d.get(), &CppcheckPluginPrivate::updateManualRunAction);
     d->updateManualRunAction();
 

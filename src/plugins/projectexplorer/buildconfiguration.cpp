@@ -141,7 +141,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
         if (isActive() && project() == SessionManager::startupProject()) {
             ProjectExplorerPlugin::updateActions();
-            emit ProjectExplorerPlugin::instance()->updateRunActions();
+            ProjectExplorerPlugin::updateRunActions();
         }
     });
 }
