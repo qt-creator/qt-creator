@@ -498,12 +498,6 @@ DebuggerSettings::DebuggerSettings()
     insertItem(IntelFlavor, item);
 
     item = new SavedAction;
-    item->setSettingsKey(debugModeGroup, "IdentifyDebugInfoPackages");
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(IdentifyDebugInfoPackages, item);
-
-    item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "UseToolTips");
     item->setText(tr("Use tooltips in main editor when debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips for variable "
