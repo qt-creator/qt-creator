@@ -72,7 +72,6 @@
 #include "puppettocreatorcommand.h"
 #include "inputeventcommand.h"
 #include "view3dactioncommand.h"
-#include "edit3dview.h"
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
