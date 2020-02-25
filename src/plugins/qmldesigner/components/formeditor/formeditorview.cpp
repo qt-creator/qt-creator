@@ -125,6 +125,13 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
             }
     } else if (qmlItemNode.isFlowView() && qmlItemNode.isRootNode()) {
         m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Flow);
+
+        ModelNode node = qmlItemNode.modelNode();
+        if (!node.hasAuxiliaryData("width") && !node.hasAuxiliaryData("height")) {
+            node.setAuxiliaryData("width", 10000);
+            node.setAuxiliaryData("height", 10000);
+        }
+
         for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
             if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.toQmlItemNode().isFlowItem()) {
                 setupFormEditorItemTree(nextNode.toQmlItemNode());
