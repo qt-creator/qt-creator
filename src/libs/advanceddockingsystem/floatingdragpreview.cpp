@@ -96,22 +96,19 @@ namespace ADS
 
     void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &globalPosition)
     {
-        if (!q->isVisible() || !m_dockManager) {
+        if (!q->isVisible() || !m_dockManager)
             return;
-        }
 
         auto containers = m_dockManager->dockContainers();
         DockContainerWidget *topContainer = nullptr;
         for (auto containerWidget : containers) {
-            if (!containerWidget->isVisible()) {
+            if (!containerWidget->isVisible())
                 continue;
-            }
 
             QPoint mappedPosition = containerWidget->mapFromGlobal(globalPosition);
             if (containerWidget->rect().contains(mappedPosition)) {
-                if (!topContainer || containerWidget->isInFrontOf(topContainer)) {
+                if (!topContainer || containerWidget->isInFrontOf(topContainer))
                     topContainer = containerWidget;
-                }
             }
         }
 
@@ -124,9 +121,9 @@ namespace ADS
         if (!topContainer) {
             containerOverlay->hideOverlay();
             dockAreaOverlay->hideOverlay();
-            if (DockManager::configFlags().testFlag(DockManager::DragPreviewIsDynamic)) {
+            if (DockManager::configFlags().testFlag(DockManager::DragPreviewIsDynamic))
                 setHidden(false);
-            }
+
             return;
         }
 
@@ -153,9 +150,8 @@ namespace ADS
             }
         } else {
             dockAreaOverlay->hideOverlay();
-            if (dockArea == m_contentSourceArea && InvalidDockWidgetArea == containerDropArea) {
+            if (dockArea == m_contentSourceArea && InvalidDockWidgetArea == containerDropArea)
                 m_dropContainer = nullptr;
-            }
         }
 
         if (DockManager::configFlags().testFlag(DockManager::DragPreviewIsDynamic)) {
@@ -199,7 +195,10 @@ namespace ADS
         connect(qApp,
                 &QApplication::applicationStateChanged,
                 this,
-                &FloatingDragPreview::onApplicationStateChanged); // TODO
+                &FloatingDragPreview::onApplicationStateChanged);
+        // The focused object will receive key press events and therefore we install
+        // the event filter on it to receive escape key press for drag canceling
+        QApplication::focusObject()->installEventFilter(this);
     }
 
     FloatingDragPreview::FloatingDragPreview(DockWidget *content)
@@ -212,9 +211,6 @@ namespace ADS
             d->m_contenSourceContainer = content->dockContainer();
         }
         setWindowTitle(content->windowTitle());
-        // We need to install an event filter for the given content
-        // widget to receive the escape key press
-        content->dockAreaWidget()->installEventFilter(this);
     }
 
     FloatingDragPreview::FloatingDragPreview(DockAreaWidget *content)
@@ -225,10 +221,6 @@ namespace ADS
         d->m_contentSourceArea = content;
         d->m_contenSourceContainer = content->dockContainer();
         setWindowTitle(content->currentDockWidget()->windowTitle());
-
-        // We need to install an event filter for the given Content
-        // widget to receive the escape key press
-        content->installEventFilter(this);
     }
 
     FloatingDragPreview::~FloatingDragPreview() { delete d; }
@@ -277,9 +269,8 @@ namespace ADS
                 floatingWidget = new FloatingDockContainer(dockWidget);
             } else {
                 DockAreaWidget *dockArea = qobject_cast<DockAreaWidget *>(d->m_content);
-                if (dockArea->features().testFlag(DockWidget::DockWidgetFloatable)) {
+                if (dockArea->features().testFlag(DockWidget::DockWidgetFloatable))
                     floatingWidget = new FloatingDockContainer(dockArea);
-                }
             }
 
             if (floatingWidget) {
@@ -303,14 +294,12 @@ namespace ADS
     void FloatingDragPreview::paintEvent(QPaintEvent *event)
     {
         Q_UNUSED(event)
-        if (d->m_hidden) {
+        if (d->m_hidden)
             return;
-        }
 
         QPainter painter(this);
-        if (DockManager::configFlags().testFlag(DockManager::DragPreviewShowsContentPixmap)) {
+        if (DockManager::configFlags().testFlag(DockManager::DragPreviewShowsContentPixmap))
             painter.drawPixmap(QPoint(0, 0), d->m_contentPreviewPixmap);
-        }
 
         // If we do not have a window frame then we paint a QRubberBand like frameless window
         if (!DockManager::configFlags().testFlag(DockManager::DragPreviewHasWindowFrame)) {

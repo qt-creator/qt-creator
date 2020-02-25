@@ -112,7 +112,7 @@ namespace ADS
             if (testConfigFlag(DockManager::FloatingContainerHasWidgetTitle)) {
                 setWindowTitle(currentWidget->windowTitle());
             } else {
-                setWindowTitle(qApp->applicationDisplayName());
+                setWindowTitle(QApplication::applicationDisplayName());
             }
 
             // reflect CurrentWidget's icon if configured to do so, otherwise display application icon as window icon
@@ -495,7 +495,7 @@ namespace ADS
                            &FloatingDockContainer::onDockAreaCurrentChanged);
                 d->m_singleDockArea = nullptr;
             }
-            d->setWindowTitle(qApp->applicationDisplayName());
+            d->setWindowTitle(QApplication::applicationDisplayName());
             setWindowIcon(QApplication::windowIcon());
         }
     }
@@ -507,7 +507,7 @@ namespace ADS
             DockWidget *currentWidget = topLevelDockArea->currentDockWidget();
             d->reflectCurrentWidget(currentWidget);
         } else {
-            d->setWindowTitle(qApp->applicationDisplayName());
+            d->setWindowTitle(QApplication::applicationDisplayName());
             setWindowIcon(QApplication::windowIcon());
         }
     }

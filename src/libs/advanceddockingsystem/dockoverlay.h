@@ -138,13 +138,13 @@ struct DockOverlayCrossPrivate;
  * You can style the cross icon using the property system.
  * \code
  * ADS--DockOverlayCross
-  {
-          qproperty-iconFrameColor: palette(highlight);
-          qproperty-iconBackgroundColor: palette(base);
-          qproperty-iconOverlayColor: palette(highlight);
-          qproperty-iconArrowColor: rgb(227, 227, 227);
-          qproperty-iconShadowColor: rgb(0, 0, 0);
-     }
+ * {
+ *     qproperty-iconFrameColor: palette(highlight);
+ *     qproperty-iconBackgroundColor: palette(base);
+ *     qproperty-iconOverlayColor: palette(highlight);
+ *     qproperty-iconArrowColor: rgb(227, 227, 227);
+ *     qproperty-iconShadowColor: rgb(0, 0, 0);
+ * }
  * \endcode
  * Or you can use the iconColors property to pass in AARRGGBB values as
  * hex string like shown in the example below.
