@@ -58,7 +58,6 @@ private:
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
     void init() override;
-    void resetChange(const QByteArray &resetType);
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;
     void aboutToOpen(const QString &fileName, const QString &realFileName) override;
     QString changeUnderCursor(const QTextCursor &) const override;
@@ -67,13 +66,13 @@ private:
     QStringList annotationPreviousVersions(const QString &revision) const override;
     bool isValidRevision(const QString &revision) const override;
     void addChangeActions(QMenu *menu, const QString &change) override;
+    static void addChangeActions(QMenu *menu, const QString &workingDir, const QString &change);
     QString revisionSubject(const QTextBlock &inBlock) const override;
     bool supportChangeLinks() const override;
     QString fileNameForLine(int line) const override;
     QString sourceWorkingDirectory() const;
 
     mutable QRegExp m_changeNumberPattern;
-    QString m_currentChange;
     GitLogFilterWidget *m_logFilterWidget = nullptr;
 };
 

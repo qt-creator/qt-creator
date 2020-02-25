@@ -216,12 +216,6 @@ void GitEditorWidget::setPlainText(const QString &text)
     textDocument()->setPlainText(modText);
 }
 
-void GitEditorWidget::resetChange(const QByteArray &resetType)
-{
-    GitPlugin::client()->reset(
-                sourceWorkingDirectory(), QLatin1String("--" + resetType), m_currentChange);
-}
-
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
 {
     Utils::TemporaryFile patchFile("git-apply-chunk");
@@ -314,32 +308,28 @@ bool GitEditorWidget::isValidRevision(const QString &revision) const
     return GitPlugin::client()->isValidRevision(revision);
 }
 
-void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
+void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change, const QString &workingDir)
 {
-    m_currentChange = change;
-    if (contentType() == OtherContent)
-        return;
-
-    menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), this, [this] {
-        GitPlugin::client()->synchronousCherryPick(sourceWorkingDirectory(), m_currentChange);
+    menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), [workingDir, change] {
+        GitPlugin::client()->synchronousCherryPick(workingDir, change);
     });
-    menu->addAction(tr("Re&vert Change %1").arg(change), this, [this] {
-        GitPlugin::client()->synchronousRevert(sourceWorkingDirectory(), m_currentChange);
+    menu->addAction(tr("Re&vert Change %1").arg(change), [workingDir, change] {
+        GitPlugin::client()->synchronousRevert(workingDir, change);
     });
-    menu->addAction(tr("C&heckout Change %1").arg(change), this, [this] {
-        GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
+    menu->addAction(tr("C&heckout Change %1").arg(change), [workingDir, change] {
+        GitPlugin::client()->checkout(workingDir, change);
     });
     connect(menu->addAction(tr("&Interactive Rebase from Change %1...").arg(change)),
-            &QAction::triggered, this, [this] {
-        GitPlugin::startRebaseFromCommit(sourceWorkingDirectory(), m_currentChange);
+            &QAction::triggered, [workingDir, change] {
+        GitPlugin::startRebaseFromCommit(workingDir, change);
     });
-    menu->addAction(tr("&Log for Change %1").arg(change), this, [this] {
-        GitPlugin::client()->log(sourceWorkingDirectory(), QString(), false, {m_currentChange});
+    menu->addAction(tr("&Log for Change %1").arg(change), [workingDir, change] {
+        GitPlugin::client()->log(workingDir, QString(), false, {change});
     });
-    menu->addAction(tr("Add &Tag for Change %1...").arg(change), this, [this] {
+    menu->addAction(tr("Add &Tag for Change %1...").arg(change), [workingDir, change] {
         QString output;
         QString errorMessage;
-        GitPlugin::client()->synchronousTagCmd(sourceWorkingDirectory(), QStringList(),
+        GitPlugin::client()->synchronousTagCmd(workingDir, QStringList(),
                                                &output, &errorMessage);
 
         const QStringList tags = output.split('\n');
@@ -348,19 +338,29 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
         if (dialog.exec() == QDialog::Rejected)
             return;
 
-        GitPlugin::client()->synchronousTagCmd(sourceWorkingDirectory(),
-                                               {dialog.branchName(), m_currentChange},
+        GitPlugin::client()->synchronousTagCmd(workingDir,
+                                               {dialog.branchName(), change},
                                                &output, &errorMessage);
         VcsOutputWindow::append(output);
         if (!errorMessage.isEmpty())
             VcsOutputWindow::append(errorMessage, VcsOutputWindow::MessageStyle::Error);
     });
 
+    auto resetChange = [workingDir, change](const QByteArray &resetType) {
+        GitPlugin::client()->reset(
+                    workingDir, QLatin1String("--" + resetType), change);
+    };
     auto resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
-    resetMenu->addAction(tr("&Hard"), this, [this] { resetChange("hard"); });
-    resetMenu->addAction(tr("&Mixed"), this, [this] { resetChange("mixed"); });
-    resetMenu->addAction(tr("&Soft"), this, [this] { resetChange("soft"); });
+    resetMenu->addAction(tr("&Hard"), std::bind(resetChange, "hard"));
+    resetMenu->addAction(tr("&Mixed"), std::bind(resetChange, "mixed"));
+    resetMenu->addAction(tr("&Soft"), std::bind(resetChange, "soft"));
     menu->addMenu(resetMenu);
+}
+
+void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
+{
+    if (contentType() != OtherContent)
+        addChangeActions(menu, change, sourceWorkingDirectory());
 }
 
 QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const
