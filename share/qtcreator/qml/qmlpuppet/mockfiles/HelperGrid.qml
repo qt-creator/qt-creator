@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 import GridGeometry 1.0
 
 Node {
@@ -34,7 +34,7 @@ Node {
     property alias step: gridGeometry.step
     property alias subdivAlpha: subGridMaterial.opacity
 
-    rotation.x: 90
+    eulerRotation.x: 90
 
     // Note: Only one instance of HelperGrid is supported, as the geometry names are fixed
 
@@ -89,7 +89,7 @@ Node {
         ]
     }
     Model { // X Axis
-        rotation.z: 90
+        eulerRotation.z: 90
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 import MouseArea3D 1.0
 
 Model {
@@ -61,8 +61,6 @@ Model {
         var maskedPosition = Qt.vector3d(planePos.x, 0, 0);
         _posPressed = planePos.x;
         _scenePosPressed = mouseArea.dragHelper.mapPositionToScene(maskedPosition);
-        if (targetNode.orientation === Node.RightHanded)
-            _scenePosPressed.z = -_scenePosPressed.z;
         _targetStartPos = mouseArea.pivotScenePosition(targetNode);
         pressed(mouseArea);
     }
@@ -71,8 +69,6 @@ Model {
     {
         var maskedPosition = Qt.vector3d(planePos.x, 0, 0);
         var scenePointerPos = mouseArea.dragHelper.mapPositionToScene(maskedPosition);
-        if (targetNode.orientation === Node.RightHanded)
-            scenePointerPos.z = -scenePointerPos.z;
         return scenePointerPos.minus(_scenePosPressed);
     }
 
@@ -99,7 +95,7 @@ Model {
         y: -1.5
         width: 12
         height: 3
-        rotation: Qt.vector3d(0, 0, 90)
+        eulerRotation: Qt.vector3d(0, 0, 90)
         grabsMouse: targetNode
         active: rootModel.active
         dragHelper: rootModel.dragHelper
@@ -116,7 +112,7 @@ Model {
         y: -1.5
         width: 12
         height: 3
-        rotation: Qt.vector3d(0, 90, 90)
+        eulerRotation: Qt.vector3d(0, 90, 90)
         grabsMouse: targetNode
         active: rootModel.active
         dragHelper: rootModel.dragHelper

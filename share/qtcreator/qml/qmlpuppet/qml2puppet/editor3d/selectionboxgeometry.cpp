@@ -32,7 +32,7 @@
 #include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3D/private/qquick3dmodel_p.h>
-#include <QtQuick3D/private/qquick3dobject_p_p.h>
+#include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/qvector.h>
 
@@ -366,10 +366,6 @@ void SelectionBoxGeometry::trackNodeChanges(QQuick3DNode *node)
     m_connections << QObject::connect(node, &QQuick3DNode::scenePositionChanged,
                                       this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
     m_connections << QObject::connect(node, &QQuick3DNode::pivotChanged,
-                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
-    m_connections << QObject::connect(node, &QQuick3DNode::orientationChanged,
-                                      this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
-    m_connections << QObject::connect(node, &QQuick3DNode::rotationOrderChanged,
                                       this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
 }
 

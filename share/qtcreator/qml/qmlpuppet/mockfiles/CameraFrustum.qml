@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,46 +25,37 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
+import CameraGeometry 1.0
 
-Node {
-    id: armRoot
-    property alias posModel: posModel
-    property alias negModel: negModel
-    property View3D view3D
-    property color hoverColor
-    property color color
-    property vector3d camRotPos
-    property vector3d camRotNeg
+Model {
+    id: cameraFrustum
 
-    Model {
-        id: posModel
+    property alias geometryName: cameraGeometry.name // Name must be unique for each geometry
+    property alias viewPortRect: cameraGeometry.viewPortRect
+    property Node targetNode: null
+    property Node scene: null
+    property bool selected: false
 
-        property bool hovering: false
-        property vector3d cameraRotation: armRoot.camRotPos
-
-        source: "meshes/axishelper.mesh"
-        materials: DefaultMaterial {
-            id: posMat
-            emissiveColor: posModel.hovering ? armRoot.hoverColor : armRoot.color
-            lighting: DefaultMaterial.NoLighting
-        }
-        pickable: true
+    function updateGeometry()
+    {
+        cameraGeometry.update();
     }
 
-    Model {
-        id: negModel
+    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    rotation: targetNode ? targetNode.sceneRotation : Qt.quaternion(1, 0, 0, 0)
 
-        property bool hovering: false
-        property vector3d cameraRotation: armRoot.camRotNeg
-
-        source: "#Sphere"
-        y: -6
-        scale: Qt.vector3d(0.025, 0.025, 0.025)
-        materials: DefaultMaterial {
-            id: negMat
-            emissiveColor: negModel.hovering ? armRoot.hoverColor : armRoot.color
+    geometry: cameraGeometry
+    materials: [
+        DefaultMaterial {
+            id: defaultMaterial
+            emissiveColor: cameraFrustum.selected ? "#FF0000" : "#555555"
             lighting: DefaultMaterial.NoLighting
+            cullingMode: Material.DisableCulling
         }
-        pickable: true
+    ]
+
+    CameraGeometry {
+        id: cameraGeometry
+        camera: cameraFrustum.scene && cameraFrustum.targetNode ? cameraFrustum.targetNode : null
     }
 }

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 import MouseArea3D 1.0
 
 Node {
@@ -45,12 +45,12 @@ Node {
 
     Connections {
         target: camera
-        onSceneTransformChanged: updateScale()
+        function onSceneTransformChanged() { updateScale() }
     }
 
     Connections {
         target: _generalHelper
-        onOverlayUpdateNeeded: updateScale()
+        function onOverlayUpdateNeeded() { updateScale() }
     }
 
     function getScale(baseScale)

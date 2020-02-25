@@ -28,9 +28,9 @@
 
 #include "selectionboxgeometry.h"
 
+#include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
-#include <QtQuick3D/private/qquick3dobject_p_p.h>
 #include <QtQuick3D/private/qquick3dcamera_p.h>
 #include <QtQuick3D/private/qquick3dnode_p.h>
 #include <QtQuick3D/private/qquick3dmodel_p.h>
@@ -85,17 +85,17 @@ void GeneralHelper::orbitCamera(QQuick3DCamera *camera, const QVector3D &startRo
     if (dragVector.length() < 0.001f)
         return;
 
-    camera->setRotation(startRotation);
-    QVector3D newRotation(dragVector.y(), dragVector.x(), 0.f);
+    camera->setEulerRotation(startRotation);
+    QVector3D newRotation(-dragVector.y(), -dragVector.x(), 0.f);
     newRotation *= 0.5f; // Emprically determined multiplier for nice drag
     newRotation += startRotation;
 
-    camera->setRotation(newRotation);
+    camera->setEulerRotation(newRotation);
 
     const QVector3D oldLookVector = camera->position() - lookAtPoint;
     QMatrix4x4 m = camera->sceneTransform();
     const float *dataPtr(m.data());
-    QVector3D newLookVector(-dataPtr[8], -dataPtr[9], -dataPtr[10]);
+    QVector3D newLookVector(dataPtr[8], dataPtr[9], dataPtr[10]);
     newLookVector.normalize();
     newLookVector *= oldLookVector.length();
 
@@ -187,7 +187,6 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
 
                     // Adjust lookAt to look directly at the center of the object bounds
                     lookAt = renderModel->globalTransform.map(center);
-                    lookAt.setZ(-lookAt.z()); // Render node transforms have inverted z
                 }
             }
         }
@@ -196,7 +195,7 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
     // Reset camera position to default zoom
     QMatrix4x4 m = camera->sceneTransform();
     const float *dataPtr(m.data());
-    QVector3D newLookVector(-dataPtr[8], -dataPtr[9], -dataPtr[10]);
+    QVector3D newLookVector(dataPtr[8], dataPtr[9], dataPtr[10]);
     newLookVector.normalize();
     newLookVector *= defaultLookAtDistance;
 

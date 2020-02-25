@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 import MouseArea3D 1.0
 
 Node {
@@ -40,13 +40,13 @@ Node {
     property MouseArea3D dragHelper: null
 
     position: dragHelper.pivotScenePosition(targetNode)
-    orientation: targetNode ? targetNode.orientation : Node.LeftHanded
 
     onTargetNodeChanged: position = dragHelper.pivotScenePosition(targetNode)
 
     Connections {
         target: moveGizmo.targetNode
-        onSceneTransformChanged: {
+        function onSceneTransformChanged()
+        {
             moveGizmo.position = moveGizmo.dragHelper.pivotScenePosition(moveGizmo.targetNode);
         }
     }
@@ -55,14 +55,11 @@ Node {
     signal positionMove()
 
     Node {
-        rotation: globalOrientation || !moveGizmo.targetNode ? Qt.vector3d(0, 0, 0)
+        rotation: globalOrientation || !moveGizmo.targetNode ? Qt.quaternion(1, 0, 0, 0)
                                                              : moveGizmo.targetNode.sceneRotation
-        rotationOrder: moveGizmo.targetNode ? moveGizmo.targetNode.rotationOrder : Node.YXZ
-        orientation: moveGizmo.orientation
-
         Arrow {
             id: arrowX
-            rotation: Qt.vector3d(0, 0, -90)
+            eulerRotation: Qt.vector3d(0, 0, -90)
             targetNode: moveGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
                                                               : Qt.rgba(1, 0, 0, 1)
@@ -76,7 +73,7 @@ Node {
 
         Arrow {
             id: arrowY
-            rotation: Qt.vector3d(0, 0, 0)
+            eulerRotation: Qt.vector3d(0, 0, 0)
             targetNode: moveGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                                                               : Qt.rgba(0, 0.6, 0, 1)
@@ -90,7 +87,7 @@ Node {
 
         Arrow {
             id: arrowZ
-            rotation: Qt.vector3d(90, 0, 0)
+            eulerRotation: Qt.vector3d(90, 0, 0)
             targetNode: moveGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
                                                               : Qt.rgba(0, 0, 1, 1)
@@ -108,7 +105,7 @@ Node {
             y: 10
             z: 10
 
-            rotation: Qt.vector3d(0, 90, 0)
+            eulerRotation: Qt.vector3d(0, 90, 0)
             targetNode: moveGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
                                                               : Qt.rgba(1, 0, 0, 1)
@@ -126,7 +123,7 @@ Node {
             x: 10
             z: 10
 
-            rotation: Qt.vector3d(90, 0, 0)
+            eulerRotation: Qt.vector3d(90, 0, 0)
             targetNode: moveGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                                                               : Qt.rgba(0, 0.6, 0, 1)
@@ -144,7 +141,7 @@ Node {
             x: 10
             y: 10
 
-            rotation: Qt.vector3d(0, 0, 0)
+            eulerRotation: Qt.vector3d(0, 0, 0)
             targetNode: moveGizmo.targetNode
             color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
                                                               : Qt.rgba(0, 0, 1, 1)

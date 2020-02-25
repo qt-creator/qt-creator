@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 import SelectionBoxGeometry 1.0
 
 Node {
@@ -48,11 +48,9 @@ Node {
         geometry: selectionBoxGeometry
 
         scale: selectionBox.targetNode ? selectionBox.targetNode.scale : Qt.vector3d(1, 1, 1)
-        rotation: selectionBox.targetNode ? selectionBox.targetNode.rotation : Qt.vector3d(0, 0, 0)
+        rotation: selectionBox.targetNode ? selectionBox.targetNode.rotation : Qt.quaternion(1, 0, 0, 0)
         position: selectionBox.targetNode ? selectionBox.targetNode.position : Qt.vector3d(0, 0, 0)
         pivot: selectionBox.targetNode ? selectionBox.targetNode.pivot : Qt.vector3d(0, 0, 0)
-        orientation: selectionBox.targetNode ? selectionBox.targetNode.orientation : Node.LeftHanded
-        rotationOrder: selectionBox.targetNode ? selectionBox.targetNode.rotationOrder : Node.YXZ
 
         visible: selectionBox.targetNode && !selectionBoxGeometry.isEmpty
 

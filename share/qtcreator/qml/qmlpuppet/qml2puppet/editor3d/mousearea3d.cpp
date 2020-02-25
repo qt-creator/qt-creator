@@ -396,16 +396,12 @@ qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
     if (dragVector.length() < 0.001f)
         return prevAngle;
 
-    // Get camera to node direction in node orientation
+    // Get camera to node direction
     QVector3D cameraToNodeDir = getCameraToNodeDir(node);
     if (trackBall) {
         // Only the distance in plane direction is relevant in trackball drag
         QVector3D dragDir = QVector3D::crossProduct(getNormal(), cameraToNodeDir).normalized();
         QVector3D scenePos = pivotScenePosition(node);
-        if (node->orientation() == QQuick3DNode::RightHanded) {
-            scenePos.setZ(-scenePos.z());
-            dragDir = -dragDir;
-        }
         QVector3D screenDragDir = m_view3D->mapFrom3DScene(scenePos + dragDir);
         screenDragDir.setZ(0);
         dragDir = (screenDragDir - nodePos).normalized();
@@ -420,12 +416,10 @@ qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
 
         // Determine drag direction left/right
         QVector3D dragNormal = QVector3D::crossProduct(nodeToPress, nodeToCurrent).normalized();
-        if (node->orientation() == QQuick3DNode::RightHanded)
-            dragNormal = -dragNormal;
         angle *= QVector3D::dotProduct(QVector3D(0.f, 0.f, 1.f), dragNormal) < 0 ? -1.0 : 1.0;
 
         // Determine drag ring orientation relative to camera
-        angle *= QVector3D::dotProduct(getNormal(), cameraToNodeDir) < 0 ? 1.0 : -1.0;
+        angle *= QVector3D::dotProduct(getNormal(), cameraToNodeDir) < 0 ? -1.0 : 1.0;
 
         qreal adjustedPrevAngle = prevAngle;
         const qreal PI_2 = M_PI * 2.0;
@@ -451,10 +445,8 @@ void QmlDesigner::Internal::MouseArea3D::applyRotationAngleToNode(
         QQuick3DNode *node, const QVector3D &startRotation, qreal angle)
 {
     if (!qFuzzyIsNull(angle)) {
-        node->setRotation(startRotation);
+        node->setEulerRotation(startRotation);
         QVector3D normal = getNormal();
-        if (orientation() != node->orientation())
-            normal.setZ(-normal.z());
         node->rotate(qRadiansToDegrees(angle), normal, QQuick3DNode::SceneSpace);
     }
 }
@@ -468,20 +460,15 @@ void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRo
         return;
 
     const float *dataPtr(sceneTransform().data());
-    QVector3D xAxis = QVector3D(-dataPtr[0], -dataPtr[1], -dataPtr[2]).normalized();
-    QVector3D yAxis = QVector3D(-dataPtr[4], -dataPtr[5], -dataPtr[6]).normalized();
-    if (node->orientation() == QQuick3DNode::RightHanded) {
-        xAxis = QVector3D(-xAxis.x(), -xAxis.y(), xAxis.z());
-        yAxis = QVector3D(-yAxis.x(), -yAxis.y(), yAxis.z());
-    }
-
+    QVector3D xAxis = QVector3D(dataPtr[0], dataPtr[1], dataPtr[2]).normalized();
+    QVector3D yAxis = QVector3D(dataPtr[4], dataPtr[5], dataPtr[6]).normalized();
     QVector3D finalAxis = (dragVector.x() * yAxis + dragVector.y() * xAxis);
 
     qreal degrees = qRadiansToDegrees(qreal(finalAxis.length()) * mouseDragMultiplier());
 
     finalAxis.normalize();
 
-    node->setRotation(startRotation);
+    node->setEulerRotation(startRotation);
     node->rotate(degrees, finalAxis, QQuick3DNode::SceneSpace);
 }
 
@@ -513,8 +500,6 @@ double MouseArea3D::getRelativeScale(QQuick3DNode *node) const
     // view and scene, will tell us what the distance independent scale should be.
 
     QVector3D nodePos(node->scenePosition());
-    if (orientation() == QQuick3DNode::RightHanded)
-        nodePos.setZ(-nodePos.z());
 
     DoubleVec3D posInView1(m_view3D->mapFrom3DScene(nodePos));
 
@@ -718,12 +703,9 @@ QVector3D MouseArea3D::getCameraToNodeDir(QQuick3DNode *node) const
     QVector3D dir;
     if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
         dir = -m_view3D->camera()->cameraNode()->getDirection();
-        dir.setZ(-dir.z());
     } else {
         QVector3D camPos = m_view3D->camera()->scenePosition();
         QVector3D nodePos = pivotScenePosition(node);
-        if (node->orientation() == QQuick3DNode::RightHanded)
-            nodePos.setZ(-nodePos.z());
         dir = (nodePos - camPos).normalized();
     }
     return dir;

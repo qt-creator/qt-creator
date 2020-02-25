@@ -25,7 +25,7 @@
 
 import QtQuick 2.12
 import QtQuick.Window 2.12
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
 import MouseArea3D 1.0
@@ -111,7 +111,7 @@ Item {
         if (editView) {
             var targetNode = selectedNodes.length > 0
                     ? selectionBoxes[0].model : null;
-            cameraControl.focusObject(targetNode, editView.camera.rotation, true);
+            cameraControl.focusObject(targetNode, editView.camera.eulerRotation, true);
         }
     }
 
@@ -252,7 +252,7 @@ Item {
         // No free gizmos available, create a new one
         var component = Qt.createComponent("LightGizmo.qml");
         if (component.status === Component.Ready) {
-            var gizmo = component.createObject(overlayScene,
+            var gizmo = component.createObject(overlayView,
                                                {"view3D": overlayView, "targetNode": obj,
                                                 "selectedNodes": selectedNodes, "scene": scene,
                                                 "activeScene": activeScene});
@@ -274,19 +274,24 @@ Item {
             }
         }
         // No free gizmos available, create a new one
-        var component = Qt.createComponent("CameraGizmo.qml");
-        if (component.status === Component.Ready) {
+        var gizmoComponent = Qt.createComponent("CameraGizmo.qml");
+        var frustumComponent = Qt.createComponent("CameraFrustum.qml");
+        if (gizmoComponent.status === Component.Ready && frustumComponent.status === Component.Ready) {
             var geometryName = _generalHelper.generateUniqueName("CameraGeometry");
-            var gizmo = component.createObject(
+            var frustum = frustumComponent.createObject(
                         overlayScene,
-                        {"view3D": overlayView, "targetNode": obj, "geometryName": geometryName,
-                         "viewPortRect": viewPortRect, "selectedNodes": selectedNodes,
-                         "scene": scene, "activeScene": activeScene});
+                        {"geometryName": geometryName, "viewPortRect": viewPortRect});
+            var gizmo = gizmoComponent.createObject(
+                        overlayView,
+                        {"view3D": overlayView, "targetNode": obj,
+                         "selectedNodes": selectedNodes, "scene": scene, "activeScene": activeScene});
+
             cameraGizmos[cameraGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
-            gizmo.viewPortRect = Qt.binding(function() {return viewPortRect;});
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
             gizmo.activeScene = Qt.binding(function() {return activeScene;});
+            frustum.viewPortRect = Qt.binding(function() {return viewPortRect;});
+            gizmo.connectFrustum(frustum);
         }
     }
 
@@ -350,7 +355,7 @@ Item {
             clipFar: viewRoot.editView ? viewRoot.editView.perpectiveCamera.clipFar : 1000
             clipNear: viewRoot.editView ? viewRoot.editView.perpectiveCamera.clipNear : 1
             position: viewRoot.editView ? viewRoot.editView.perpectiveCamera.position : Qt.vector3d(0, 0, 0)
-            rotation: viewRoot.editView ? viewRoot.editView.perpectiveCamera.rotation : Qt.vector3d(0, 0, 0)
+            rotation: viewRoot.editView ? viewRoot.editView.perpectiveCamera.rotation : Qt.quaternion(1, 0, 0, 0)
         }
 
         OrthographicCamera {
@@ -358,7 +363,7 @@ Item {
             clipFar: viewRoot.editView ? viewRoot.editView.orthoCamera.clipFar : 1000
             clipNear: viewRoot.editView ? viewRoot.editView.orthoCamera.clipNear : 1
             position: viewRoot.editView ? viewRoot.editView.orthoCamera.position : Qt.vector3d(0, 0, 0)
-            rotation: viewRoot.editView ? viewRoot.editView.orthoCamera.rotation : Qt.vector3d(0, 0, 0)
+            rotation: viewRoot.editView ? viewRoot.editView.orthoCamera.rotation : Qt.quaternion(1, 0, 0, 0)
             scale: viewRoot.editView ? viewRoot.editView.orthoCamera.scale : Qt.vector3d(0, 0, 0)
         }
 
@@ -404,15 +409,14 @@ Item {
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onRotateCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "rotation")
-            onRotateChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "rotation")
+            onRotateCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "eulerRotation")
+            onRotateChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "eulerRotation")
         }
 
         AutoScaleHelper {
             id: autoScale
             view3D: overlayView
             position: moveGizmo.scenePosition
-            orientation: moveGizmo.orientation
         }
 
         Line3D {
@@ -421,27 +425,20 @@ Item {
             name: "3D Edit View Pivot Line"
             color: "#ddd600"
 
-            function flipIfNeeded(vec) {
-                if (!viewRoot.selectedNode || viewRoot.selectedNode.orientation === Node.LeftHanded)
-                    return vec;
-                else
-                    return Qt.vector3d(vec.x, vec.y, -vec.z);
-            }
-
-            startPos: viewRoot.selectedNode ? flipIfNeeded(viewRoot.selectedNode.scenePosition)
-                                              : Qt.vector3d(0, 0, 0)
+            startPos: viewRoot.selectedNode ? viewRoot.selectedNode.scenePosition
+                                            : Qt.vector3d(0, 0, 0)
             Connections {
                 target: viewRoot
-                onSelectedNodeChanged: {
-                    pivotLine.endPos = pivotLine.flipIfNeeded(gizmoDragHelper.pivotScenePosition(
-                                                                  viewRoot.selectedNode));
+                function onSelectedNodeChanged()
+                {
+                    pivotLine.endPos = gizmoDragHelper.pivotScenePosition(viewRoot.selectedNode);
                 }
             }
             Connections {
                 target: viewRoot.selectedNode
-                onSceneTransformChanged: {
-                    pivotLine.endPos = pivotLine.flipIfNeeded(gizmoDragHelper.pivotScenePosition(
-                                                                  viewRoot.selectedNode));
+                function onSceneTransformChanged()
+                {
+                    pivotLine.endPos = gizmoDragHelper.pivotScenePosition(viewRoot.selectedNode);
                 }
             }
 
@@ -535,6 +532,32 @@ Item {
                         }
                         anchors.centerIn: parent
                     }
+                }
+            }
+
+            Rectangle {
+                id: rotateGizmoLabel
+                color: "white"
+                x: rotateGizmo.currentMousePos.x - (10 + width)
+                y: rotateGizmo.currentMousePos.y - (10 + height)
+                width: rotateGizmoLabelText.width + 4
+                height: rotateGizmoLabelText.height + 4
+                border.width: 1
+                visible: rotateGizmo.dragging
+                parent: rotateGizmo.view3D
+
+                Text {
+                    id: rotateGizmoLabelText
+                    text: {
+                        var l = Qt.locale();
+                        if (rotateGizmo.targetNode) {
+                            var degrees = rotateGizmo.currentAngle * (180 / Math.PI);
+                            return qsTr(Number(degrees).toLocaleString(l, 'f', 1));
+                        } else {
+                            return "";
+                        }
+                    }
+                    anchors.centerIn: parent
                 }
             }
 
