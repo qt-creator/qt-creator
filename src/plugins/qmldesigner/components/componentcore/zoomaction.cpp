@@ -30,10 +30,12 @@
 
 namespace QmlDesigner {
 
+const int defaultZoomIndex = 11;
+
 ZoomAction::ZoomAction(QObject *parent)
     :  QWidgetAction(parent),
     m_zoomLevel(1.0),
-    m_currentComboBoxIndex(8)
+    m_currentComboBoxIndex(defaultZoomIndex)
 {
 
 }
@@ -58,7 +60,7 @@ void ZoomAction::zoomOut()
 void ZoomAction::resetZoomLevel()
 {
     m_zoomLevel = 1.0;
-    m_currentComboBoxIndex = 8;
+    m_currentComboBoxIndex = defaultZoomIndex;
     emit reseted();
 }
 
@@ -72,6 +74,9 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
 {
     auto comboBox = new QComboBox(parent);
 
+    /*
+     * When add zoom levels do not forget to update defaultZoomIndex
+     */
     if (m_comboBoxModel.isNull()) {
         m_comboBoxModel = comboBox->model();
         comboBox->addItem(QLatin1String("1 %"), 0.01);
