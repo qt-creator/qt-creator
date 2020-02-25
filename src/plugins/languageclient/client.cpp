@@ -466,7 +466,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                                      int charsRemoved,
                                      int charsAdded)
 {
-    if (!m_openedDocument.contains(document))
+    if (!m_openedDocument.contains(document) || !reachable())
         return;
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = m_serverCapabilities.textDocumentSyncKindHelper();
