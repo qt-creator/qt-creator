@@ -57,7 +57,7 @@ private:
 
     friend class AndroidToolChainFactory;
 
-    Utils::FilePath m_ndkLocation;
+    mutable Utils::FilePath m_ndkLocation;
 };
 
 class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory

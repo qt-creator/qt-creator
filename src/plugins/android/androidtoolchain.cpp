@@ -93,14 +93,22 @@ AndroidToolChain::~AndroidToolChain() = default;
 
 bool AndroidToolChain::isValid() const
 {
+    if (m_ndkLocation.isEmpty()) {
+        QStringList ndkParts(compilerCommand().toString().split("toolchains/llvm/prebuilt/"));
+        if (ndkParts.size() > 1) {
+            QString ndkLocation(ndkParts.first());
+            if (ndkLocation.endsWith('/'))
+                ndkLocation.chop(1);
+            m_ndkLocation = FilePath::fromString(ndkLocation);
+        }
+    }
+
     const bool isChildofNdk = compilerCommand().isChildOf(m_ndkLocation);
-    // If we're restoring a toolchain we set NDK path ourselves so it's enough to check against SDK
     const bool isChildofSdk = compilerCommand().isChildOf(
         AndroidConfigurations::currentConfig().sdkLocation());
 
     return ClangToolChain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
-           && targetAbi().isValid()
-           && (isChildofNdk || isChildofSdk)
+           && targetAbi().isValid() && (isChildofNdk || isChildofSdk)
            && !originalTargetTriple().isEmpty();
 }
 
