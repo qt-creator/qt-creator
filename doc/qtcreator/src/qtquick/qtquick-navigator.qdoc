@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,7 +38,7 @@
     \image qmldesigner-navigator.png "Navigator"
 
     You can select items in the \uicontrol Navigator to edit their properties
-    in the \uicontrol Properties pane. Items can access the properties of their
+    in the \uicontrol Properties view. Items can access the properties of their
     parent item. To select items on the canvas, right-click an item, and select
     another type in the context menu.
 
@@ -55,7 +55,7 @@
     To show and hide items on the canvas when focusing on specific parts of the
     application, click \inlineimage eye_open.png
     . To change the visibility of an item in the application code, select the
-    \uicontrol Visibility check box in the \uicontrol Properties pane or select
+    \uicontrol Visibility check box in the \uicontrol Properties view or select
     \uicontrol Edit > \uicontrol Visibility in the context menu.
 
     You can also set the \uicontrol Opacity field to 0 to hide items that you

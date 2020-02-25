@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -58,14 +58,14 @@
 
         \li In the \uicontrol Navigator, select \uicontrol Item and set the
             width (\uicontrol W) and height (\uicontrol H) of the button in the
-            \uicontrol Properties pane.
+            \uicontrol Properties view.
 
         \li Drag and drop a \uicontrol Rectangle from the \uicontrol Library to
             the item in the navigator. This creates a nested item where the
             item is the parent of the rectangle. Items are positioned relative
             to their parents.
 
-        \li In the \uicontrol Properties pane, modify the appearance of the
+        \li In the \uicontrol Properties view, modify the appearance of the
             rectangle:
 
         \list a
@@ -85,7 +85,7 @@
 
         \li Drag and drop a \uicontrol {Text} type to the item in the navigator.
 
-        \li In the \uicontrol Properties pane, edit the properties of the \uicontrol Text
+        \li In the \uicontrol Properties view, edit the properties of the \uicontrol Text
             type.
 
         \list a
@@ -167,7 +167,7 @@
 
         \li In the \uicontrol Navigator, select \uicontrol Item and set the
             width (\uicontrol W) and height (\uicontrol H) of the button in the
-            \uicontrol Properties pane.
+            \uicontrol Properties view.
 
         \li Select \uicontrol Connections > \uicontrol {Properties} >
             \uicontrol Add to add properties for the item:
@@ -193,7 +193,7 @@
             navigator.
 
         \li In the navigator, select a border image to specify settings for it
-            in the \uicontrol Properties pane:
+            in the \uicontrol Properties view:
 
         \list a
 

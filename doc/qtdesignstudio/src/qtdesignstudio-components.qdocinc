@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Design Studio documentation.
@@ -70,7 +70,7 @@
             \note Components are listed in the \uicontrol {QML Components}
             section of the \uicontrol Library only if the filename begins
             with a capital letter.
-        \li Edit component properties in the \uicontrol Properties pane.
+        \li Edit component properties in the \uicontrol Properties view.
 
             The available properties depend on the QML type.
     \endlist

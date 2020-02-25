@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -51,7 +51,7 @@
         \li To display the full help on a Qt class or function, press \key F1 or
             select \uicontrol {Context Help} in the context menu.
             The documentation is displayed in a
-            pane next to the code editor, or, if there is not enough vertical
+            view next to the code editor, or, if there is not enough vertical
             space, in the fullscreen \uicontrol Help mode.
 
         \li To select and configure how the documentation is displayed in the
@@ -215,7 +215,7 @@
     You can select the page to display when you open the \uicontrol Help mode in the
     \uicontrol Tools > \uicontrol Options > \uicontrol Help > \uicontrol General
     > \uicontrol {On help start} field.
-    To display the page and help panes that were open when you exited the mode,
+    To display the page and help views that were open when you exited the mode,
     select the \uicontrol {Show My Tabs from Last Session} option. However, Web pages
     are not opened, because loading them would slow down opening the \uicontrol Help
     mode.
@@ -232,7 +232,7 @@
     You can filter the documents displayed in the \uicontrol Help mode to find
     relevant information faster. Select a filter from a list of filters (1). The
     contents of the \uicontrol Index and \uicontrol Contents
-    pane in the sidebar change accordingly.
+    view in the sidebar change accordingly.
 
     \image qtcreator-help-filters.png "Help filters"
 

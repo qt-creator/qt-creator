@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -109,7 +109,7 @@
         \li In \uicontrol Library > \uicontrol Assets, select Bluebubble.svg
             and drag and drop it to \e mainWindow in the navigator.
 
-        \li In the \uicontrol Properties pane, \uicontrol Id field, enter
+        \li In the \uicontrol Properties view, \uicontrol Id field, enter
             \e bubble to be able to reference the image from other places.
 
         \li Select the \inlineimage export_unchecked.png

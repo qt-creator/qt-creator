@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -35,19 +35,19 @@
 
     \title Specifying Item Properties
 
-    The \uicontrol Properties pane displays all the properties of the selected
-    item. The properties are grouped by type. The top part of the pane displays
+    The \uicontrol Properties view displays all the properties of the selected
+    item. The properties are grouped by type. The top part of the view displays
     properties that are common to all QML types, such as position, size, and
     visibility.
 
-    The bottom part of the pane displays properties that are specific to each
+    The bottom part of the view displays properties that are specific to each
     QML type. For example, the following image displays the properties you can
     set for \uicontrol Rectangle (1) and \uicontrol Text (2) items.
 
     \image qmldesigner-element-properties.png
 
     To change the item type, double-click the \uicontrol Type field in the
-    \uicontrol Properties pane, and enter the name of another QML type in the
+    \uicontrol Properties view, and enter the name of another QML type in the
     field. If you have specified properties for the item that are not supported
     for the new type, the type cannot be changed and an error message is
     displayed. Select the \inlineimage icons/action-icon.png
@@ -130,7 +130,7 @@
     \section1 Picking Colors
 
     To specify the color of the selected item in the color picker view (1),
-    select the color picker icon (2) in the \uicontrol Properties pane.
+    select the color picker icon (2) in the \uicontrol Properties view.
 
     \image qtquick-designer-color-picker.png "Color Picker view"
 
@@ -163,7 +163,7 @@
     \section1 Marking Text Items for Translation
 
     To support translators, mark each text item that should be translated.
-    In the \uicontrol Properties pane, \uicontrol Text field, select \uicontrol tr (1).
+    In the \uicontrol Properties view, \uicontrol Text field, select \uicontrol tr (1).
 
     \image qmldesigner-text-property-tr.png "Text properties"
 
@@ -281,7 +281,7 @@
 
     \section1 Building Transformations on Items
 
-    The \uicontrol Advanced pane allows you to configure advanced
+    The \uicontrol Advanced tab allows you to configure advanced
     transformations, such as rotation, scale, and translation. You
     can assign any number of transformations to an item. Each
     transformation is applied in order, one at a time.
