@@ -25,7 +25,6 @@
 
 import os
 import codecs
-import copy
 import collections
 import struct
 import sys
@@ -33,7 +32,6 @@ import base64
 import re
 import time
 import inspect
-import threading
 from utils import DisplayFormat, TypeCode
 
 try:

@@ -35,7 +35,6 @@ import re
 import sys
 import struct
 import tempfile
-import types
 
 from dumper import DumperBase, Children, toInteger, TopLevelItem
 from utils import TypeCode
