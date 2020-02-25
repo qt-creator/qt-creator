@@ -384,7 +384,9 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &prop
             if (target.modelNode().isValid() && target.isFlowTransition()) {
                 FormEditorItem *item = m_scene->itemForQmlItemNode(target.toQmlItemNode());
                 if (item) {
-                    m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
+                    const QmlItemNode itemNode = node.toQmlItemNode();
+                    if (itemNode.hasNodeParent())
+                        m_scene->reparentItem(itemNode, itemNode.modelParentItem());
                     m_scene->synchronizeTransformation(item);
                     item->update();
                 }
