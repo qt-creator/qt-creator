@@ -1044,7 +1044,18 @@ function(add_qtc_executable name)
             \"Prefix=\${qt_conf_binaries}\n\"
           )
         endif()
-
+        if (WIN32 OR APPLE)
+          file(RELATIVE_PATH qt_binaries
+            \"\${install_prefix}/\${base_dir}\"
+            \"\${install_prefix}/${IDE_BIN_PATH}\"
+          )
+          if (NOT qt_binaries)
+            set(qt_binaries .)
+          endif()
+          file(APPEND \"\${CMAKE_INSTALL_PREFIX}/\${location}/qt.conf\"
+            \"# Needed by QtCreator for qtdiag\n\"
+            \"Binaries=\${qt_binaries}\n\")
+        endif()
       endfunction()
       if(APPLE)
         create_qt_conf(\"${_EXECUTABLE_PATH}\" \"${IDE_DATA_PATH}/..\")
