@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "logchangedialog.h"
-#include "gitplugin.h"
 #include "gitclient.h"
 
 #include <vcsbase/vcsoutputwindow.h>
@@ -79,7 +78,7 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, Log
         return true;
     if (!(flags & Silent)) {
         VcsOutputWindow::appendError(
-                    GitPlugin::client()->msgNoCommits(flags & IncludeRemotes));
+                    GitClient::instance()->msgNoCommits(flags & IncludeRemotes));
     }
     return false;
 }
@@ -159,8 +158,10 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
         arguments << "--not" << "--remotes";
     arguments << "--";
     QString output;
-    if (!GitPlugin::client()->synchronousLog(repository, arguments, &output, nullptr, VcsCommand::NoOutput))
+    if (!GitClient::instance()->synchronousLog(
+                repository, arguments, &output, nullptr, VcsCommand::NoOutput)) {
         return false;
+    }
     const QStringList lines = output.split('\n');
     for (const QString &line : lines) {
         const int colonPos = line.indexOf(':');
@@ -211,8 +212,8 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
         m_resetTypeComboBox->addItem(tr("Hard"), "--hard");
         m_resetTypeComboBox->addItem(tr("Mixed"), "--mixed");
         m_resetTypeComboBox->addItem(tr("Soft"), "--soft");
-        m_resetTypeComboBox->setCurrentIndex(GitPlugin::client()->settings().intValue(
-                                                 GitSettings::lastResetIndexKey));
+        m_resetTypeComboBox->setCurrentIndex(
+                    GitClient::instance()->settings().intValue(GitSettings::lastResetIndexKey));
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
     }
@@ -239,8 +240,8 @@ bool LogChangeDialog::runDialog(const QString &repository,
 
     if (QDialog::exec() == QDialog::Accepted) {
         if (m_resetTypeComboBox) {
-            GitPlugin::client()->settings().setValue(GitSettings::lastResetIndexKey,
-                                                     m_resetTypeComboBox->currentIndex());
+            GitClient::instance()->settings().setValue(
+                        GitSettings::lastResetIndexKey, m_resetTypeComboBox->currentIndex());
         }
         return true;
     }

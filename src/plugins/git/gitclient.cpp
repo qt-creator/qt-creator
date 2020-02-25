@@ -106,6 +106,8 @@ using namespace VcsBase;
 namespace Git {
 namespace Internal {
 
+static GitClient *m_instance = nullptr;
+
 // Suppress git diff warnings about "LF will be replaced by CRLF..." on Windows.
 static unsigned diffExecutionFlags()
 {
@@ -300,7 +302,7 @@ void GitDiffEditorController::updateBranchList()
         return;
 
     const QString workingDirectory = baseDirectory();
-    VcsCommand *command = GitPlugin::client()->vcsExec(
+    VcsCommand *command = m_instance->vcsExec(
                 workingDirectory, {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
                 false, 0, workingDirectory);
     connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
@@ -375,7 +377,7 @@ QStringList GitDiffEditorController::addHeadWhenCommandInProgress() const
     // This is workaround for lack of support for merge commits and resolving conflicts,
     // we compare the current state of working tree to the HEAD of current branch
     // instead of showing unsupported combined diff format.
-    GitClient::CommandInProgress commandInProgress = GitPlugin::client()->checkCommandInProgress(workingDirectory());
+    GitClient::CommandInProgress commandInProgress = m_instance->checkCommandInProgress(workingDirectory());
     if (commandInProgress != GitClient::NoCommand)
         return {HEAD};
     return QStringList();
@@ -478,7 +480,7 @@ public:
         setReloader([this] {
             m_state = GettingDescription;
             const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
-            runCommand({args}, GitPlugin::client()->encoding(workingDirectory(), "i18n.commitEncoding"));
+            runCommand({args}, m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
             setStartupFile(VcsBase::source(this->document()));
         });
     }
@@ -495,7 +497,7 @@ void ShowController::processCommandOutput(const QString &output)
 {
     QTC_ASSERT(m_state != Idle, return);
     if (m_state == GettingDescription) {
-        setDescription(GitPlugin::client()->extendedShowDescription(workingDirectory(), output));
+        setDescription(m_instance->extendedShowDescription(workingDirectory(), output));
         // stage 2
         m_state = GettingDiff;
         const QStringList args = {"show", "--format=format:", // omit header, already generated
@@ -669,12 +671,11 @@ private:
     {
         // If interactive rebase editor window is closed, plugin is terminated
         // but referenced here when the command ends
-        GitClient *client = GitPlugin::client();
         if (m_commit.isEmpty() && m_files.isEmpty()) {
-            if (client->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
-                client->endStashScope(m_workingDirectory);
+            if (m_instance->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
+                m_instance->endStashScope(m_workingDirectory);
         } else {
-            client->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_abortCommand);
+            m_instance->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_abortCommand);
         }
     }
 
@@ -763,9 +764,15 @@ GitClient::GitClient(GitSettings *settings) : VcsBase::VcsBaseClientImpl(setting
     m_cachedGitVersion(0),
     m_disableEditor(false)
 {
+    m_instance = this;
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
+}
+
+GitClient *GitClient::instance()
+{
+    return m_instance;
 }
 
 QString GitClient::findRepositoryForDirectory(const QString &directory) const
@@ -3476,8 +3483,8 @@ bool GitClient::StashInfo::init(const QString &workingDirectory, const QString &
     m_pushAction = pushAction;
     QString errorMessage;
     QString statusOutput;
-    switch (GitPlugin::client()->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
-                                           &statusOutput, &errorMessage)) {
+    switch (m_instance->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
+                                &statusOutput, &errorMessage)) {
     case GitClient::StatusChanged:
         if (m_flags & NoPrompt)
             executeStash(command, &errorMessage);
@@ -3529,14 +3536,14 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     msgBox.exec();
 
     if (msgBox.clickedButton() == discardButton) {
-        m_stashResult = GitPlugin::client()->synchronousReset(m_workingDir, QStringList(), errorMessage) ?
+        m_stashResult = m_instance->synchronousReset(m_workingDir, QStringList(), errorMessage) ?
                     StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == ignoreButton) { // At your own risk, so.
         m_stashResult = NotStashed;
     } else if (msgBox.clickedButton() == cancelButton) {
         m_stashResult = StashCanceled;
     } else if (msgBox.clickedButton() == stashButton) {
-        const bool result = GitPlugin::client()->executeSynchronousStash(
+        const bool result = m_instance->executeSynchronousStash(
                     m_workingDir, creatorStashMessage(command), false, errorMessage);
         m_stashResult = result ? StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == stashAndPopButton) {
@@ -3547,7 +3554,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
 void GitClient::StashInfo::executeStash(const QString &command, QString *errorMessage)
 {
     m_message = creatorStashMessage(command);
-    if (!GitPlugin::client()->executeSynchronousStash(m_workingDir, m_message, false, errorMessage))
+    if (!m_instance->executeSynchronousStash(m_workingDir, m_message, false, errorMessage))
         m_stashResult = StashFailed;
     else
         m_stashResult = Stashed;
@@ -3570,12 +3577,12 @@ void GitClient::StashInfo::end()
 {
     if (m_stashResult == Stashed) {
         QString stashName;
-        if (GitPlugin::client()->stashNameFromMessage(m_workingDir, m_message, &stashName))
-            GitPlugin::client()->stashPop(m_workingDir, stashName);
+        if (m_instance->stashNameFromMessage(m_workingDir, m_message, &stashName))
+            m_instance->stashPop(m_workingDir, stashName);
     }
 
     if (m_pushAction == NormalPush)
-        GitPlugin::client()->push(m_workingDir);
+        m_instance->push(m_workingDir);
     else if (m_pushAction == PushToGerrit)
         GitPlugin::gerritPush(m_workingDir);
 

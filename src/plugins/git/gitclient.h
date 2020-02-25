@@ -139,6 +139,7 @@ public:
     };
 
     explicit GitClient(GitSettings *settings);
+    static GitClient *instance();
 
     Utils::FilePath vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = nullptr) const;

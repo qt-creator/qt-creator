@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "branchcombobox.h"
-#include "../gitplugin.h"
 #include "../gitclient.h"
 
 using namespace Git::Internal;
@@ -36,7 +35,7 @@ BranchComboBox::BranchComboBox(QWidget *parent) : QComboBox(parent)
 void BranchComboBox::init(const QString &repository)
 {
     m_repository = repository;
-    QString currentBranch = GitPlugin::client()->synchronousCurrentLocalBranch(repository);
+    QString currentBranch = GitClient::instance()->synchronousCurrentLocalBranch(repository);
     if (currentBranch.isEmpty()) {
         m_detached = true;
         currentBranch = "HEAD";
@@ -44,7 +43,7 @@ void BranchComboBox::init(const QString &repository)
     }
     QString output;
     const QString branchPrefix("refs/heads/");
-    if (!GitPlugin::client()->synchronousForEachRefCmd(
+    if (!GitClient::instance()->synchronousForEachRefCmd(
                 m_repository, {"--format=%(refname)", branchPrefix}, &output)) {
         return;
     }

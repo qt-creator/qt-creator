@@ -203,7 +203,7 @@ void RemoteDialog::pushToRemote()
 
     const int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    GitPlugin::client()->push(m_remoteModel->workingDirectory(), {remoteName});
+    GitClient::instance()->push(m_remoteModel->workingDirectory(), {remoteName});
 }
 
 void RemoteDialog::fetchFromRemote()
@@ -214,7 +214,7 @@ void RemoteDialog::fetchFromRemote()
 
     int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    GitPlugin::client()->fetch(m_remoteModel->workingDirectory(), remoteName);
+    GitClient::instance()->fetch(m_remoteModel->workingDirectory(), remoteName);
 }
 
 void RemoteDialog::updateButtonState()
