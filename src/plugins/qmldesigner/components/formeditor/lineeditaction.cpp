@@ -55,7 +55,7 @@ QWidget *LineEditAction::createWidget(QWidget *parent)
     QFont font = lineEdit->font();
     font.setPixelSize(Theme::instance()->smallFontPixelSize());
     lineEdit->setFont(font);
-    lineEdit->setValidator(new QIntValidator(0, 4096, this));
+    lineEdit->setValidator(new QIntValidator(0, 99999, this));
 
     connect(lineEdit, &QLineEdit::textEdited, this, &LineEditAction::textChanged);
     connect(this, &LineEditAction::lineEditTextClear, lineEdit, &QLineEdit::clear);
