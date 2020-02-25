@@ -66,7 +66,6 @@ private:
     QStringList annotationPreviousVersions(const QString &revision) const override;
     bool isValidRevision(const QString &revision) const override;
     void addChangeActions(QMenu *menu, const QString &change) override;
-    static void addChangeActions(QMenu *menu, const QString &workingDir, const QString &change);
     QString revisionSubject(const QTextBlock &inBlock) const override;
     bool supportChangeLinks() const override;
     QString fileNameForLine(int line) const override;

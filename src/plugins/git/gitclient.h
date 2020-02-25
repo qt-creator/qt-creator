@@ -353,6 +353,9 @@ public:
 
     VcsBase::VcsCommand *asyncUpstreamStatus(const QString &workingDirectory,
                                              const QString &branch, const QString &upstream);
+
+    static void addChangeActions(QMenu *menu, const QString &workingDir, const QString &change);
+
 private:
     void finishSubmoduleUpdate();
     void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,

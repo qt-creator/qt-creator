@@ -3596,6 +3596,55 @@ GitRemote::GitRemote(const QString &location) : Core::IVersionControl::RepoUrl(l
         isValid = QDir(path).exists() || QDir(path + ".git").exists();
 }
 
+void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const QString &change)
+{
+    menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), [workingDir, change] {
+        m_instance->synchronousCherryPick(workingDir, change);
+    });
+    menu->addAction(tr("Re&vert Change %1").arg(change), [workingDir, change] {
+        m_instance->synchronousRevert(workingDir, change);
+    });
+    menu->addAction(tr("C&heckout Change %1").arg(change), [workingDir, change] {
+        m_instance->checkout(workingDir, change);
+    });
+    connect(menu->addAction(tr("&Interactive Rebase from Change %1...").arg(change)),
+            &QAction::triggered, [workingDir, change] {
+        GitPlugin::startRebaseFromCommit(workingDir, change);
+    });
+    menu->addAction(tr("&Log for Change %1").arg(change), [workingDir, change] {
+        m_instance->log(workingDir, QString(), false, {change});
+    });
+    menu->addAction(tr("Add &Tag for Change %1...").arg(change), [workingDir, change] {
+        QString output;
+        QString errorMessage;
+        m_instance->synchronousTagCmd(workingDir, QStringList(),
+                                               &output, &errorMessage);
+
+        const QStringList tags = output.split('\n');
+        BranchAddDialog dialog(tags, BranchAddDialog::Type::AddTag, Core::ICore::dialogParent());
+
+        if (dialog.exec() == QDialog::Rejected)
+            return;
+
+        m_instance->synchronousTagCmd(workingDir,
+                                               {dialog.branchName(), change},
+                                               &output, &errorMessage);
+        VcsOutputWindow::append(output);
+        if (!errorMessage.isEmpty())
+            VcsOutputWindow::append(errorMessage, VcsOutputWindow::MessageStyle::Error);
+    });
+
+    auto resetChange = [workingDir, change](const QByteArray &resetType) {
+        m_instance->reset(
+                    workingDir, QLatin1String("--" + resetType), change);
+    };
+    auto resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
+    resetMenu->addAction(tr("&Hard"), std::bind(resetChange, "hard"));
+    resetMenu->addAction(tr("&Mixed"), std::bind(resetChange, "mixed"));
+    resetMenu->addAction(tr("&Soft"), std::bind(resetChange, "soft"));
+    menu->addMenu(resetMenu);
+}
+
 } // namespace Internal
 } // namespace Git
 
