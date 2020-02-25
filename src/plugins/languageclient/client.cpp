@@ -808,11 +808,12 @@ bool Client::reset()
     m_responseHandlers.clear();
     m_clientInterface->resetBuffer();
     updateEditorToolBar(m_openedDocument.keys());
-    m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
+    for (TextEditor::TextDocument *document : m_openedDocument.keys())
+        document->disconnect(this);
     for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
         resetAssistProviders(document);
     return true;

@@ -366,6 +366,8 @@ void LanguageClientManager::clientFinished(Client *client)
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS),
                     Core::MessageManager::Flash);
         QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { startClient(client); });
+        for (TextEditor::TextDocument *document : m_clientForDocument.keys(client))
+            client->deactivateDocument(document);
     } else {
         if (unexpectedFinish && !m_shuttingDown)
             client->log(tr("Unexpectedly finished."), Core::MessageManager::Flash);
