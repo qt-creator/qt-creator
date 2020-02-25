@@ -397,7 +397,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                     if (!widget)
                         return;
                     if (Client *client = clientForDocument(widget->textDocument()))
-                        client->cursorPositionChanged(widget);
+                        if (client->reachable())
+                            client->cursorPositionChanged(widget);
                 });
             });
             updateEditorToolBar(editor);
