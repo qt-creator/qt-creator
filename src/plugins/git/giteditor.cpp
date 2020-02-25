@@ -27,7 +27,6 @@
 
 #include "annotationhighlighter.h"
 #include "branchadddialog.h"
-#include "gitplugin.h"
 #include "gitclient.h"
 #include "gitsettings.h"
 #include "gitsubmiteditorwidget.h"

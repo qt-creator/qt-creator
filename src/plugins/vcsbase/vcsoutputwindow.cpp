@@ -175,10 +175,17 @@ QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos
 
 void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
 {
-    QMenu *menu = createStandardContextMenu();
+    const QString href = anchorAt(event->pos());
+    QMenu *menu = href.isEmpty() ? createStandardContextMenu(event->pos()) : new QMenu;
     // Add 'open file'
     QString repository;
     const QString token = identifierUnderCursor(event->pos(), &repository);
+    if (!repository.isEmpty()) {
+        if (VcsOutputFormatter *f = formatter()) {
+            if (!href.isEmpty())
+                f->fillLinkContextMenu(menu, repository, href);
+        }
+    }
     QAction *openAction = nullptr;
     if (!token.isEmpty()) {
         // Check for a file, expand via repository if relative
@@ -192,9 +199,12 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
             openAction->setData(fi.absoluteFilePath());
         }
     }
-    // Add 'clear'
-    menu->addSeparator();
-    QAction *clearAction = menu->addAction(VcsOutputWindow::tr("Clear"));
+    QAction *clearAction = nullptr;
+    if (href.isEmpty()) {
+        // Add 'clear'
+        menu->addSeparator();
+        clearAction = menu->addAction(VcsOutputWindow::tr("Clear"));
+    }
 
     // Run
     QAction *action = menu->exec(event->globalPos());
