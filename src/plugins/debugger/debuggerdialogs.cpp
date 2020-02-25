@@ -86,7 +86,9 @@ public:
     PathChooser *debuginfoPathChooser;
     QLabel *serverStartScriptLabel;
     PathChooser *serverStartScriptPathChooser;
+    QLabel *serverInitCommandsLabel;
     QPlainTextEdit *serverInitCommandsTextEdit;
+    QLabel *serverResetCommandsLabel;
     QPlainTextEdit *serverResetCommandsTextEdit;
     QComboBox *historyComboBox;
     QDialogButtonBox *buttonBox;
@@ -261,9 +263,17 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->serverInitCommandsTextEdit->setToolTip(tr(
         "This option can be used to send the target init commands."));
 
+    d->serverInitCommandsLabel = new QLabel(tr("&Init commands:"), this);
+    d->serverInitCommandsLabel->setBuddy(d->serverInitCommandsTextEdit);
+    d->serverInitCommandsLabel->setToolTip(d->serverInitCommandsTextEdit->toolTip());
+
     d->serverResetCommandsTextEdit = new QPlainTextEdit(this);
     d->serverResetCommandsTextEdit->setToolTip(tr(
         "This option can be used to send the target reset commands."));
+
+    d->serverResetCommandsLabel = new QLabel(tr("&Reset commands:"), this);
+    d->serverResetCommandsLabel->setBuddy(d->serverResetCommandsTextEdit);
+    d->serverResetCommandsLabel->setToolTip(d->serverResetCommandsTextEdit->toolTip());
 
     d->debuginfoPathChooser = new PathChooser(this);
     d->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
@@ -296,8 +306,8 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(tr("Run in &terminal:"), d->runInTerminalCheckBox);
     formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
     formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
-    formLayout->addRow(tr("&Init commands:"), d->serverInitCommandsTextEdit);
-    formLayout->addRow(tr("&Reset commands:"), d->serverResetCommandsTextEdit);
+    formLayout->addRow(d->serverInitCommandsLabel, d->serverInitCommandsTextEdit);
+    formLayout->addRow(d->serverResetCommandsLabel, d->serverResetCommandsTextEdit);
     formLayout->addRow(tr("Debug &information:"), d->debuginfoPathChooser);
     formLayout->addRow(d->channelOverrideHintLabel);
     formLayout->addRow(d->channelOverrideLabel, d->channelOverrideEdit);
@@ -387,7 +397,9 @@ void StartApplicationDialog::run(bool attachRemote)
         dialog.d->serverStartScriptPathChooser->setVisible(false);
         dialog.d->serverStartScriptLabel->setVisible(false);
         dialog.d->serverInitCommandsTextEdit->setVisible(false);
+        dialog.d->serverInitCommandsLabel->setVisible(false);
         dialog.d->serverResetCommandsTextEdit->setVisible(false);
+        dialog.d->serverResetCommandsLabel->setVisible(false);
         dialog.d->serverPortSpinBox->setVisible(false);
         dialog.d->serverPortLabel->setVisible(false);
         dialog.d->channelOverrideHintLabel->setVisible(false);
