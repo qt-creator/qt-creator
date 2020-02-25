@@ -35,15 +35,16 @@ Editing
 
 * Added `Go to Last Edit`
 * Added option for default line terminator style (QTCREATORBUG-3590)
-* Improved performance of syntax highlighting (QTCREATORBUG-23281)
 * Fixed that wizards ignored default file encoding
 * Fixed that only restricted number of sizes were allowed for font size (QTCREATORBUG-22536)
+* Fixed completion after undo (QTCREATORBUG-15038)
 
 ### Language Client
 
 * Added support for Markdown in tooltips
 * Added support for auto-formatting
 * Added outline dropdown (QTCREATORBUG-21916)
+* Improved protocol error reporting
 * Fixed `Ctrl-click` for `Follow Symbol Under Cursor` (QTCREATORBUG-21848)
 
 ### QML
@@ -93,6 +94,7 @@ Projects
 * Added automatic registration of CMake documentation, if available (QTCREATORBUG-21338)
 * Fixed issues with `snap` on Ubuntu Linux (QTCREATORBUG-23376)
 * Fixed handling of `Enable QML` in debugger settings (QTCREATORBUG-23541)
+* Fixed unneeded reparsing of files
 
 ### Qbs
 
@@ -122,6 +124,8 @@ Debugging
 ---------
 
 * Added option to hide columns from views (QTCREATORBUG-23342)
+* Added option for `init` and `reset` GDB commands when attaching to remote server
+* Fixed pretty printer for `std::optional` (QTCREATORBUG-22436)
 
 Analyzer
 --------
@@ -149,6 +153,7 @@ Qt Quick Designer
 -----------------
 
 * Added locking and pinning of animation curves (QDS-550, QDS-551)
+* Added support for annotations (QDS-39)
 * Fixed dragging of keyframes in curve editor (QDS-1405)
 
 Version Control Systems
@@ -159,6 +164,8 @@ Version Control Systems
 * Added option to create branch when trying to push to a non-existing branch (QTCREATORBUG-21154)
 * Added option to start interactive rebase from log view (QTCREATORBUG-11200)
 * Added information about upstream status to `Git Branches` view
+* Added option to `grep` and `pickaxe` git log (QTCREATORBUG-22512)
+* Made references in VCS output view clickable (QTCREATORBUG-16477)
 
 Test Integration
 ----------------
@@ -184,7 +191,14 @@ Platforms
 
 * Added auto-detection of Java JDK (QTCREATORBUG-23407)
 * Added option to automatically download and install required Android tools (QTCREATORBUG-23285)
+* Added automatic selection of correct NDK for Qt version (QTCREATORBUG-23583)
+* Added support for Android 11 with API level 30
+* Improved examples browser to only show items tagged with `android` (QTBUG-80716)
 * Fixed several issues with AVD manager (QTCREATORBUG-23284, QTCREATORBUG-23448)
+
+### iOS
+
+* Improved examples browser to only show items tagged with `ios`
 
 ### Remote Linux
 
