@@ -4334,16 +4334,12 @@ void TextEditorWidgetPrivate::paintCurrentLineHighlight(const PaintEventData &da
     QRectF lineRect = data.block.layout()->lineForTextPosition(data.textCursor.positionInBlock()).rect();
     lineRect.moveTop(lineRect.top() + blockRect.top());
     lineRect.setLeft(0);
-    lineRect.setRight(data.viewportRect.width() - data.offset.x());
+    lineRect.setRight(data.viewportRect.width());
     QColor color = m_document->fontSettings().toTextCharFormat(C_CURRENT_LINE).background().color();
     // set alpha, otherwise we cannot see block highlighting and find scope underneath
     color.setAlpha(128);
-    if (!data.eventRect.contains(lineRect.toRect())) {
-        QRect updateRect = data.eventRect;
-        updateRect.setLeft(0);
-        updateRect.setRight(data.viewportRect.width() - int(data.offset.x()));
-        q->viewport()->update(updateRect);
-    }
+    if (!data.eventRect.contains(lineRect.toRect()))
+        q->viewport()->update(lineRect.toRect());
     painter.fillRect(lineRect, color);
 }
 
