@@ -651,6 +651,7 @@ public:
     MarginSettings m_marginSettings;
     // apply when making visible the first time, for the split case
     bool m_fontSettingsNeedsApply = true;
+    bool m_wasNotYetShown = true;
     BehaviorSettings m_behaviorSettings;
 
     int extraAreaSelectionAnchorBlockNumber = -1;
@@ -7204,9 +7205,19 @@ void TextEditorWidget::encourageApply()
 void TextEditorWidget::showEvent(QShowEvent* e)
 {
     triggerPendingUpdates();
+    // QPlainTextEdit::showEvent scrolls to make the cursor visible on first show
+    // which we don't want, since we restore previous states when
+    // opening editors, and when splitting/duplicating.
+    // So restore the previous state after that.
+    QByteArray state;
+    if (d->m_wasNotYetShown)
+        state = saveState();
     QPlainTextEdit::showEvent(e);
+    if (d->m_wasNotYetShown) {
+        restoreState(state);
+        d->m_wasNotYetShown = false;
+    }
 }
-
 
 void TextEditorWidgetPrivate::applyFontSettingsDelayed()
 {
