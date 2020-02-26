@@ -45,6 +45,12 @@ Update3dViewStateCommand::Update3dViewStateCommand(bool active, bool hasPopup)
 {
 }
 
+Update3dViewStateCommand::Update3dViewStateCommand(const QSize &size)
+    : m_size(size)
+    , m_type(Update3dViewStateCommand::SizeChange)
+{
+}
+
 Qt::WindowStates Update3dViewStateCommand::previousStates() const
 {
     return m_previousStates;
@@ -65,6 +71,11 @@ bool Update3dViewStateCommand::hasPopup() const
     return m_hasPopup;
 }
 
+QSize Update3dViewStateCommand::size() const
+{
+    return m_size;
+}
+
 Update3dViewStateCommand::Type Update3dViewStateCommand::type() const
 {
     return m_type;
@@ -77,6 +88,7 @@ QDataStream &operator<<(QDataStream &out, const Update3dViewStateCommand &comman
     out << qint32(command.isActive());
     out << qint32(command.hasPopup());
     out << qint32(command.type());
+    out << command.size();
 
     return out;
 }
@@ -94,13 +106,16 @@ QDataStream &operator>>(QDataStream &in, Update3dViewStateCommand &command)
     command.m_active = active;
     command.m_hasPopup = hasPopup;
     command.m_type = Update3dViewStateCommand::Type(type);
+    in >> command.m_size;
 
     return in;
 }
 
 QDebug operator<<(QDebug debug, const Update3dViewStateCommand &command)
 {
-    return debug.nospace() << "Update3dViewStateCommand(type: " << command.m_type << ")";
+    return debug.nospace() << "Update3dViewStateCommand(type: "
+                           << command.m_type << ","
+                           << command.m_size << ")";
 }
 
 } // namespace QmlDesigner

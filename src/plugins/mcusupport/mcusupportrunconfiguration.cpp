@@ -54,10 +54,7 @@ static QStringList flashAndRunArgs(const Target *target)
     const QString projectName = target->project()->displayName();
 
     // TODO: Hack! Implement flash target name handling, properly
-    const QString targetName =
-            target->kit()->value(Constants::KIT_MCUTARGET_VENDOR_KEY).toString() == "NXP"
-            ? QString("flash_%1").arg(projectName)
-            : QString("flash_%1_and_bootloader").arg(projectName);
+    const QString targetName = "flash_" + projectName;
 
     return {"--build", ".", "--target", targetName};
 }

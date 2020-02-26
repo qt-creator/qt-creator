@@ -433,7 +433,7 @@ endfunction()
 #
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS;UNVERSIONED"
     "DESTINATION;COMPONENT"
     "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
   )
@@ -536,6 +536,7 @@ function(add_qtc_library name)
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     VERSION "${IDE_VERSION}"
     SOVERSION "${PROJECT_VERSION_MAJOR}"
+    CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_LIB_RPATH}"
@@ -547,7 +548,7 @@ function(add_qtc_library name)
   )
   enable_pch(${name})
 
-  if (WIN32 AND library_type STREQUAL "SHARED")
+  if (WIN32 AND library_type STREQUAL "SHARED" AND NOT _arg_UNVERSIONED)
     # Match qmake naming scheme e.g. Library4.dll
     set_target_properties(${name} PROPERTIES
       SUFFIX "${PROJECT_VERSION_MAJOR}${CMAKE_SHARED_LIBRARY_SUFFIX}"
@@ -781,6 +782,7 @@ function(add_qtc_plugin target_name)
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${target_name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+    CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     _arg_DEPENDS "${_arg_PLUGIN_DEPENDS}"
@@ -991,6 +993,7 @@ function(add_qtc_executable name)
     INSTALL_RPATH "${install_rpath}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     QT_SKIP_TRANSLATION "${skip_translation}"
+    CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     ${_arg_PROPERTIES}
@@ -1120,4 +1123,17 @@ function(finalize_qtc_gtest test_name)
   foreach(test IN LISTS test_list)
     finalize_test_setup(${test})
   endforeach()
+endfunction()
+
+# This is the CMake equivalent of "RESOURCES = $$files()" from qmake
+function(qtc_glob_resources)
+  cmake_parse_arguments(_arg "" "QRC_FILE;ROOT;GLOB" "" ${ARGN})
+
+  file(GLOB_RECURSE fileList RELATIVE "${_arg_ROOT}" "${_arg_ROOT}/${_arg_GLOB}")
+  set(qrcData "<RCC><qresource>\n")
+  foreach(file IN LISTS fileList)
+    string(APPEND qrcData "  <file alias=\"${file}\">${_arg_ROOT}/${file}</file>\n")
+  endforeach()
+  string(APPEND qrcData "</qresource></RCC>")
+  file(WRITE "${_arg_QRC_FILE}" "${qrcData}")
 endfunction()

@@ -455,7 +455,7 @@ void ILocatorFilter::setConfigurable(bool configurable)
 }
 
 /*!
-    \fn QList<LocatorFilterEntry> ILocatorFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
+    \fn QList<Core::LocatorFilterEntry> Core::ILocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 
     Returns the list of results of this filter for the search term \a entry.
     This is run in a separate thread, but is guaranteed to only run in a single
@@ -471,7 +471,7 @@ void ILocatorFilter::setConfigurable(bool configurable)
 */
 
 /*!
-    \fn void ILocatorFilter::accept(LocatorFilterEntry selection, QString *newText, int *selectionStart, int *selectionLength) const
+    \fn void Core::ILocatorFilter::accept(Core::LocatorFilterEntry selection, QString *newText, int *selectionStart, int *selectionLength) const
 
     Called with the entry specified by \a selection when the user activates it
     in the result list.
@@ -480,7 +480,7 @@ void ILocatorFilter::setConfigurable(bool configurable)
 */
 
 /*!
-    \fn void ILocatorFilter::refresh(QFutureInterface<void> &future)
+    \fn void Core::ILocatorFilter::refresh(QFutureInterface<void> &future)
 
     Refreshes cached data asynchronously.
 
@@ -488,7 +488,7 @@ void ILocatorFilter::setConfigurable(bool configurable)
 */
 
 /*!
-    \enum ILocatorFilter::Priority
+    \enum Core::ILocatorFilter::Priority
 
     This enum value holds the priority that is used for ordering the results
     when multiple filters are used.
@@ -505,7 +505,7 @@ void ILocatorFilter::setConfigurable(bool configurable)
 */
 
 /*!
-    \enum ILocatorFilter::MatchLevel
+    \enum Core::ILocatorFilter::MatchLevel
 
     This enum value holds the level for ordering the results based on how well
     they match the search criteria.

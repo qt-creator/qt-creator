@@ -69,7 +69,6 @@ bool Stash::parseStashLine(const QString &l)
 bool inputText(QWidget *parent, const QString &title, const QString &prompt, QString *s)
 {
     QInputDialog dialog(parent);
-    dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     dialog.setWindowTitle(title);
     dialog.setLabelText(prompt);
     dialog.setTextValue(*s);

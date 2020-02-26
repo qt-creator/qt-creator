@@ -15,6 +15,7 @@ Project {
                 "core-private", "quickwidgets"
             ]
         }
+        Depends { name: "AdvancedDockingSystem" }
         Depends { name: "Core" }
         Depends { name: "QmlJS" }
         Depends { name: "QmlEditorWidgets" }
@@ -50,6 +51,7 @@ Project {
              "components/importmanager",
              "components/integration",
              "components/propertyeditor",
+             "components/edit3d",
              "components/formeditor",
              "components/itemlibrary",
              "components/navigator",
@@ -69,6 +71,7 @@ Project {
             cpp.includePaths: base.concat([
                 product.sourceDirectory,
                 product.sourceDirectory + "/components/componentcore",
+                product.sourceDirectory + "/components/edit3d",
                 product.sourceDirectory + "/components/formeditor",
                 product.sourceDirectory + "/components/integration",
                 product.sourceDirectory + "/designercore",
@@ -174,12 +177,14 @@ Project {
                 "commands/drop3dlibraryitemcommand.h",
                 "commands/update3dviewstatecommand.cpp",
                 "commands/update3dviewstatecommand.h",
-                "commands/enable3dviewcommand.cpp",
-                "commands/enable3dviewcommand.h",
                 "commands/view3dclosedcommand.cpp",
                 "commands/view3dclosedcommand.h",
                 "commands/puppettocreatorcommand.cpp",
                 "commands/puppettocreatorcommand.h",
+                "commands/inputeventcommand.cpp",
+                "commands/inputeventcommand.h",
+                "commands/view3dactioncommand.cpp",
+                "commands/view3dactioncommand.h",
                 "container/addimportcontainer.cpp",
                 "container/addimportcontainer.h",
                 "container/idcontainer.cpp",
@@ -443,6 +448,15 @@ Project {
                 "debugview/debugviewwidget.cpp",
                 "debugview/debugviewwidget.h",
                 "debugview/debugviewwidget.ui",
+                "edit3d/edit3dview.cpp",
+                "edit3d/edit3dview.h",
+                "edit3d/edit3dwidget.cpp",
+                "edit3d/edit3dwidget.h",
+                "edit3d/edit3dcanvas.cpp",
+                "edit3d/edit3dcanvas.h",
+                "edit3d/edit3dactions.cpp",
+                "edit3d/edit3dactions.h",
+                "edit3d/edit3d.qrc",
                 "formeditor/abstractcustomtool.cpp",
                 "formeditor/abstractcustomtool.h",
                 "formeditor/abstractformeditortool.cpp",

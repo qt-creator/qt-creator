@@ -80,7 +80,6 @@ void addHideColumnActions(QMenu *menu, QWidget *widget);
 // Qt's various build paths for unpatched versions
 QStringList qtBuildPaths();
 
-void addDebugInfoTask(unsigned id, const QString &cmd);
 QWidget *addSearch(Utils::BaseTreeView *treeView);
 
 } // namespace Internal

@@ -118,7 +118,6 @@ CheckableMessageBox::CheckableMessageBox(QWidget *parent) :
     d(new CheckableMessageBoxPrivate(this))
 {
     setModal(true);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(d->buttonBox, &QDialogButtonBox::clicked,

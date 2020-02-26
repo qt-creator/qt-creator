@@ -153,14 +153,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
         "<html><head/><body>GDB shows by default AT&&T style disassembly."
         "</body></html>"));
 
-    auto checkBoxIdentifyDebugInfoPackages = new QCheckBox(groupBoxGeneral);
-    checkBoxIdentifyDebugInfoPackages->setText(GdbOptionsPage::tr("Create tasks from missing packages"));
-    checkBoxIdentifyDebugInfoPackages->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Attempts to identify missing debug info packages "
-        "and lists them in the Issues output pane.</p><p>"
-        "<b>Note:</b> This feature needs special support from the Linux "
-        "distribution and GDB build and is not available everywhere.</p></body></html>"));
-
     QString howToUsePython = GdbOptionsPage::tr(
         "<p>To execute simple Python commands, prefix them with \"python\".</p>"
         "<p>To execute sequences of Python commands spanning multiple lines "
@@ -233,7 +225,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
     formLayout->addRow(checkBoxLoadGdbInit);
     formLayout->addRow(checkBoxLoadGdbDumpers);
     formLayout->addRow(checkBoxIntelFlavor);
-    formLayout->addRow(checkBoxIdentifyDebugInfoPackages);
 
     auto startLayout = new QGridLayout(groupBoxStartupCommands);
     startLayout->addWidget(textEditStartupCommands, 0, 0, 1, 1);
@@ -255,7 +246,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
     group.insert(action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
     group.insert(action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
     group.insert(action(IntelFlavor), checkBoxIntelFlavor);
-    group.insert(action(IdentifyDebugInfoPackages), checkBoxIdentifyDebugInfoPackages);
     group.insert(action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
     group.insert(action(SkipKnownFrames), checkBoxSkipKnownFrames);
 

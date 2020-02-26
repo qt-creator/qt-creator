@@ -30,6 +30,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qhash.h>
+#include <QtCore/qpointer.h>
 #include <QtGui/qvector3d.h>
 #include <QtGui/qmatrix4x4.h>
 
@@ -74,10 +75,12 @@ public:
     Q_INVOKABLE void storeToolState(const QString &sceneId, const QString &tool,
                                     const QVariant &state, int delayEmit = 0);
     void initToolStates(const QString &sceneId, const QVariantMap &toolStates);
-    Q_INVOKABLE void storeWindowState(QQuickWindow *w);
-    void restoreWindowState(QQuickWindow *w);
+    Q_INVOKABLE void storeWindowState();
+    void restoreWindowState();
     Q_INVOKABLE void enableItemUpdate(QQuickItem *item, bool enable);
     Q_INVOKABLE QVariantMap getToolStates(const QString &sceneId);
+    void setEdit3DWindow(QQuickWindow *w);
+    QString globalStateId() const;
 
     bool isMacOS() const;
 
@@ -86,7 +89,7 @@ signals:
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
 
 private slots:
-    void doRestoreWindowState(QQuickWindow *w, const QVariantMap &windowState);
+    void doRestoreWindowState(const QVariantMap &windowState);
 
 private:
     void handlePendingToolStateUpdate();
@@ -95,6 +98,7 @@ private:
     QTimer m_toolStateUpdateTimer;
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
+    QPointer<QQuickWindow> m_edit3DWindow;
 };
 
 }

@@ -56,6 +56,9 @@ const char QUICK_3D_ASSET_ICON_DIR[] = "_icons";
 const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
 const char QT_QUICK_3D_MODULE_NAME[] = "QtQuick3D";
 
+// Menus
+const char M_WINDOW_WORKSPACES[] = "QmlDesigner.Menu.Window.Workspaces";
+
 namespace Internal {
     enum { debug = 0 };
 }

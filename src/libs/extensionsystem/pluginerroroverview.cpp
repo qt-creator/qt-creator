@@ -41,8 +41,6 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent) :
     QDialog(parent),
     m_ui(new Internal::Ui::PluginErrorOverview)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
     m_ui->setupUi(this);
     m_ui->buttonBox->addButton(tr("Continue"), QDialogButtonBox::AcceptRole);
 

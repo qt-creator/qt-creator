@@ -47,5 +47,36 @@ const Utils::Icon NO_SNAPPING({
 const Utils::Icon NO_SNAPPING_AND_ANCHORING({
         {QLatin1String(":/icon/layout/snapping_and_anchoring.png"), Utils::Theme::IconsBaseColor}});
 
+const Utils::Icon EDIT3D_LIGHT_ON({
+        {QLatin1String(":/edit3d/images/edit_light_on.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_LIGHT_OFF({
+        {QLatin1String(":/edit3d/images/edit_light_off.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_SELECTION_MODE_ON({
+        {QLatin1String(":/edit3d/images/group_selection_selected.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_SELECTION_MODE_OFF({
+        {QLatin1String(":/edit3d/images/item_selection_selected.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_MOVE_TOOL_ON({
+        {QLatin1String(":/edit3d/images/move_selected.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_MOVE_TOOL_OFF({
+        {QLatin1String(":/edit3d/images/move_active.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_ROTATE_TOOL_ON({
+        {QLatin1String(":/edit3d/images/rotate_selected.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_ROTATE_TOOL_OFF({
+        {QLatin1String(":/edit3d/images/rotate_active.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_SCALE_TOOL_ON({
+        {QLatin1String(":/edit3d/images/scale_selected.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_SCALE_TOOL_OFF({
+        {QLatin1String(":/edit3d/images/scale_active.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_FIT_SELECTED_OFF({
+        {QLatin1String(":/edit3d/images/fit_active.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_EDIT_CAMERA_ON({
+        {QLatin1String(":/edit3d/images/persp.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_EDIT_CAMERA_OFF({
+        {QLatin1String(":/edit3d/images/ortho.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_ORIENTATION_ON({
+        {QLatin1String(":/edit3d/images/global.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_ORIENTATION_OFF({
+        {QLatin1String(":/edit3d/images/local.png"), Utils::Theme::IconsBaseColor}});
+
 } // Icons
 } // QmlDesigner

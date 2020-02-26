@@ -995,7 +995,6 @@ void SubversionPluginPrivate::slotDescribe()
     QTC_ASSERT(state.hasTopLevel(), return);
 
     QInputDialog inputDialog(ICore::dialogParent());
-    inputDialog.setWindowFlags(inputDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     inputDialog.setInputMode(QInputDialog::IntInput);
     inputDialog.setIntRange(1, INT_MAX);
     inputDialog.setWindowTitle(tr("Describe"));

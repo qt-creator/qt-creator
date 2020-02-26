@@ -36,7 +36,7 @@ namespace Internal {
 
 class BoostTestSettingsWidget : public Core::IOptionsPageWidget
 {
-    QT_DECLARE_DEPRECATED_TR_FUNCTIONS(Autotest::Internal::BoostTestSettingsWidget)
+    Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::BoostTestSettingsWidget)
 
 public:
     explicit BoostTestSettingsWidget(QSharedPointer<BoostTestSettings> settings);

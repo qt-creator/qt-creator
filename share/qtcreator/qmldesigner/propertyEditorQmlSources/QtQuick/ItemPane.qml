@@ -146,6 +146,12 @@ Rectangle {
                                 tooltip: qsTr("Toggles whether this item is exported as an alias property of the root item.")
                             }
                         }
+                        Item { //dummy object to preserve layout in case of multiselection
+                            Layout.preferredWidth: 20
+                            Layout.preferredHeight: 20
+                            enabled: modelNodeBackend.multiSelection
+                            visible: enabled
+                        }
                     }
 
                     Label {
@@ -154,13 +160,11 @@ Rectangle {
 
                     SecondColumnLayout {
                         enabled: !modelNodeBackend.multiSelection
-                        visible: enabled
                         spacing: 2
 
                         LineEdit {
                             id: annotationEdit
-                            enabled: annotationEditor.hasAuxData
-                            visible: enabled
+                            visible: annotationEditor.hasAuxData
 
                             backendValue: backendValues.customId__AUX
                             placeholderText: qsTr("customId")
@@ -176,8 +180,8 @@ Rectangle {
 
                         StudioControls.AbstractButton {
                             id: editAnnotationButton
-                            enabled: annotationEditor.hasAuxData
-                            visible: enabled
+                            visible: annotationEditor.hasAuxData
+
                             Layout.preferredWidth: 22
                             Layout.preferredHeight: 22
                             width: 22
@@ -185,14 +189,13 @@ Rectangle {
                             buttonIcon: StudioTheme.Constants.edit
 
                             onClicked: annotationEditor.showWidget()
-
                             onHoveredChanged: annotationEditor.checkAux()
                         }
 
                         StudioControls.AbstractButton {
                             id: removeAnnotationButton
-                            enabled: annotationEditor.hasAuxData
-                            visible: enabled
+                            visible: annotationEditor.hasAuxData
+
                             Layout.preferredWidth: 22
                             Layout.preferredHeight: 22
                             width: 22
@@ -200,19 +203,18 @@ Rectangle {
                             buttonIcon: StudioTheme.Constants.closeCross
 
                             onClicked: annotationEditor.removeFullAnnotation()
-
                             onHoveredChanged: annotationEditor.checkAux()
                         }
 
                         StudioControls.AbstractButton {
                             id: addAnnotationButton
-                            enabled: !annotationEditor.hasAuxData
-                            visible: enabled
+                            visible: !annotationEditor.hasAuxData
 
                             buttonIcon: qsTr("Add Annotation")
                             iconFont: StudioTheme.Constants.font
                             Layout.fillWidth: true
                             Layout.preferredWidth: 240
+                            width: 240
 
                             onClicked: annotationEditor.showWidget()
 
@@ -222,8 +224,7 @@ Rectangle {
                         Item {
                             Layout.preferredWidth: 22
                             Layout.preferredHeight: 22
-                            enabled: !annotationEditor.hasAuxData
-                            visible: enabled
+                            visible: !annotationEditor.hasAuxData
                         }
 
                         AnnotationEditor {

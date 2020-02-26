@@ -142,7 +142,8 @@ WidgetInfo NavigatorView::widgetInfo()
                             new WidgetInfo::ToolBarWidgetDefaultFactory<NavigatorWidget>(m_widget.data()),
                             QStringLiteral("Navigator"),
                             WidgetInfo::LeftPane,
-                            0);
+                            0,
+                            tr("Navigator"));
 }
 
 void NavigatorView::modelAttached(Model *model)

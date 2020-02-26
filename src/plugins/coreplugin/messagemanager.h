@@ -65,6 +65,7 @@ public:
     static void writeMessages(const QStringList &messages,
                               PrintToOutputPaneFlags flags = NoModeSwitch);
     static void write(const QString &text, PrintToOutputPaneFlags flags = NoModeSwitch);
+    static void writeWithTime(const QString &text, PrintToOutputPaneFlags flags = NoModeSwitch);
 
 private:
     MessageManager();

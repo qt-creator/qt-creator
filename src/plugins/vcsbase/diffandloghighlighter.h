@@ -30,7 +30,7 @@
 #include <texteditor/syntaxhighlighter.h>
 
 QT_BEGIN_NAMESPACE
-class QRegExp;
+class QRegularExpression;
 class QTextCharFormat;
 QT_END_NAMESPACE
 
@@ -45,7 +45,8 @@ class VCSBASE_EXPORT DiffAndLogHighlighter : public TextEditor::SyntaxHighlighte
     Q_OBJECT
 
 public:
-    explicit DiffAndLogHighlighter(const QRegExp &filePattern, const QRegExp &changePattern);
+    explicit DiffAndLogHighlighter(const QRegularExpression &filePattern,
+                                   const QRegularExpression &changePattern);
     ~DiffAndLogHighlighter() override;
 
     void highlightBlock(const QString &text) override;

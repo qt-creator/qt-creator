@@ -63,13 +63,14 @@ using namespace Core::Internal;
 using namespace Utils;
 
 /*!
-    \mainclass
+    \ingroup mainclasses
+    \inmodule QtCreator
     \class Core::ProgressManager
     \brief The ProgressManager class is used to show a user interface
     for running tasks in Qt Creator.
 
-    It tracks the progress of a task that it is told
-    about, and shows a progress indicator in the lower right
+    The progress manager tracks the progress of a task that it is told
+    about, and shows a progress indicator in the lower right corner
     of Qt Creator's main window to the user.
     The progress indicator also allows the user to cancel the task.
 
@@ -88,7 +89,7 @@ using namespace Utils;
     \row
         \li Task abstraction
         \li \c QFuture<void>
-        \li A \c QFuture object that represents the task which is
+        \li A \l QFuture object that represents the task which is
            responsible for reporting the state of the task. See below
            for coding patterns how to create this object for your
            specific task.
@@ -132,7 +133,7 @@ using namespace Utils;
     ProgressManager in the addTask() function.
 
     Have a look at e.g Core::ILocatorFilter. Locator filters implement
-    a function \c refresh which takes a \c QFutureInterface object
+    a function \c refresh() which takes a \c QFutureInterface object
     as a parameter. These functions look something like:
     \code
     void Filter::refresh(QFutureInterface<void> &future) {
@@ -206,50 +207,6 @@ using namespace Utils;
         The progress indicator for this task is additionally
         shown in the application icon in the system's task bar or dock, on
         platforms that support that (at the moment Windows 7 and Mac OS X).
-*/
-
-/*!
-    \fn Core::ProgressManager::ProgressManager(QObject *parent = 0)
-    \internal
-*/
-
-/*!
-    \fn Core::ProgressManager::~ProgressManager()
-    \internal
-*/
-
-/*!
-    \fn FutureProgress *Core::ProgressManager::addTask(const QFuture<void> &future, const QString &title, const QString &type, ProgressFlags flags = 0)
-
-    Shows a progress indicator for task given by the QFuture object \a future.
-    The progress indicator shows the specified \a title along with the progress bar.
-    The \a type of a task will specify a logical grouping with other
-    running tasks. Via the \a flags parameter you can e.g. let the
-    progress indicator stay visible after the task has finished.
-    Returns an object that represents the created progress indicator,
-    which can be used to further customize. The FutureProgress object's
-    life is managed by the ProgressManager and is guaranteed to live only until
-    the next event loop cycle, or until the next call of addTask.
-    If you want to use the returned FutureProgress later than directly after calling this function,
-    you will need to use protective functions (like wrapping the returned object in QPointer and
-    checking for 0 whenever you use it).
-*/
-
-/*!
-    \fn void Core::ProgressManager::setApplicationLabel(const QString &text)
-
-    Shows the given \a text in a platform dependent way in the application
-    icon in the system's task bar or dock. This is used
-    to show the number of build errors on Windows 7 and Mac OS X.
-*/
-
-/*!
-    \fn void Core::ProgressManager::cancelTasks(Core::Id type)
-
-    Schedules a cancel for all running tasks of the given \a type.
-    Please note that the cancel functionality depends on the
-    running task to actually check the \c QFutureInterface::isCanceled
-    property.
 */
 
 /*!
@@ -708,26 +665,58 @@ void ProgressManagerPrivate::progressDetailsToggled(bool checked)
     settings->endGroup();
 }
 
+/*!
+    \internal
+*/
 ProgressManager::ProgressManager() = default;
 
+/*!
+    \internal
+*/
 ProgressManager::~ProgressManager() = default;
 
+/*!
+    Returns a single progress manager instance.
+*/
 ProgressManager *ProgressManager::instance()
 {
     return m_instance;
 }
 
+/*!
+    Shows a progress indicator for the task given by the QFuture object
+    \a future.
+
+    The progress indicator shows the specified \a title along with the progress
+    bar. The \a type of a task will specify a logical grouping with other
+    running tasks. Via the \a flags parameter you can e.g. let the progress
+    indicator stay visible after the task has finished.
+
+    Returns an object that represents the created progress indicator, which
+    can be used to further customize. The FutureProgress object's life is
+    managed by the ProgressManager and is guaranteed to live only until
+    the next event loop cycle, or until the next call of addTask.
+
+    If you want to use the returned FutureProgress later than directly after
+    calling this function, you will need to use protective functions (like
+    wrapping the returned object in QPointer and checking for 0 whenever you
+    use it).
+*/
 FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QString &title, Id type, ProgressFlags flags)
 {
     return m_instance->doAddTask(future, title, type, flags);
 }
 
 /*!
-    Shows a progress indicator for task given by the QFuture given by
-    the QFutureInterface \a futureInterface.
+    Shows a progress indicator for task given by the QFutureInterface object
+    \a futureInterface.
     The progress indicator shows the specified \a title along with the progress bar.
     The progress indicator will increase monotonically with time, at \a expectedSeconds
     it will reach about 80%, and continue to increase with a decreasingly slower rate.
+
+    The \a type of a task will specify a logical grouping with other
+    running tasks. Via the \a flags parameter you can e.g. let the
+    progress indicator stay visible after the task has finished.
 
     \sa addTask
 */
@@ -741,10 +730,21 @@ FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futu
     return fp;
 }
 
+/*!
+    Shows the given \a text in a platform dependent way in the application
+    icon in the system's task bar or dock. This is used to show the number
+    of build errors on Windows 7 and \macos.
+*/
 void ProgressManager::setApplicationLabel(const QString &text)
 {
     m_instance->doSetApplicationLabel(text);
 }
+
+/*!
+    Schedules the cancellation of all running tasks of the given \a type.
+    The cancellation functionality depends on the running task actually
+    checking the \l QFuture::isCanceled property.
+*/
 
 void ProgressManager::cancelTasks(Id type)
 {

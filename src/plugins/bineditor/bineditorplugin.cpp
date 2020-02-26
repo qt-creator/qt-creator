@@ -472,7 +472,7 @@ BinEditorFactory::BinEditorFactory()
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME));
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 
-    setEditorCreator([] {
+    setEditorCreator([this] {
         auto widget = new BinEditorWidget();
         auto editor = new BinEditor(widget);
 

@@ -76,6 +76,7 @@ public:
 
     Utils::FilePath canonicalProjectDir() const;
     QString mainFile() const;
+    bool qtForMCUs() const;
     void setMainFile(const QString &mainFilePath);
     Utils::FilePath targetDirectory() const;
     Utils::FilePath targetFile(const Utils::FilePath &sourceFile) const;

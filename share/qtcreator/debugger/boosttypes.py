@@ -23,7 +23,7 @@
 #
 ############################################################################
 
-from dumper import *
+from dumper import Children
 
 def qdump__boost__bimaps__bimap(d, value):
     #leftType = value.type[0]

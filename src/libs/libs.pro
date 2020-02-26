@@ -23,6 +23,13 @@ qtHaveModule(quick) {
         tracing
 }
 
+QTC_DO_NOT_BUILD_QMLDESIGNER = $$(QTC_DO_NOT_BUILD_QMLDESIGNER)
+isEmpty(QTC_DO_NOT_BUILD_QMLDESIGNER):qtHaveModule(quick-private) {
+    exists($$[QT_INSTALL_QML]/QtQuick/Controls/qmldir) {
+        SUBDIRS += advanceddockingsystem
+    }
+}
+
 for(l, SUBDIRS) {
     QTC_LIB_DEPENDS =
     include($$l/$${l}_dependencies.pri)

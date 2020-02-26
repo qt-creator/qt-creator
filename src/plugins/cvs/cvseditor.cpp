@@ -43,8 +43,8 @@ namespace Internal {
 #define CVS_REVISION_AT_START_PATTERN "^(" CVS_REVISION_PATTERN ") "
 
 CvsEditorWidget::CvsEditorWidget() :
-    m_revisionAnnotationPattern(QLatin1String(CVS_REVISION_AT_START_PATTERN ".*$")),
-    m_revisionLogPattern(QLatin1String("^revision  *(" CVS_REVISION_PATTERN ")$"))
+    m_revisionAnnotationPattern(CVS_REVISION_AT_START_PATTERN),
+    m_revisionLogPattern("^revision  *(" CVS_REVISION_PATTERN ")$")
 {
     QTC_ASSERT(m_revisionAnnotationPattern.isValid(), return);
     QTC_ASSERT(m_revisionLogPattern.isValid(), return);
@@ -56,31 +56,10 @@ CvsEditorWidget::CvsEditorWidget() :
     @@ -6,6 +6,5 @@
     \endcode
     */
-    setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)")));
-    setLogEntryPattern(QRegExp(QLatin1String("^revision (.+)$")));
+    setDiffFilePattern("^[-+]{3} ([^\\t]+)");
+    setLogEntryPattern("^revision (.+)$");
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
-}
-
-QSet<QString> CvsEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-    // Hunt for first change number in annotation: "1.1 (author)"
-    QRegExp r(QLatin1String(CVS_REVISION_AT_START_PATTERN));
-    QTC_ASSERT(r.isValid(), return changes);
-    if (r.indexIn(txt) != -1) {
-        changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n(" CVS_REVISION_PATTERN ") "));
-        QTC_ASSERT(r.isValid(), return changes);
-        int pos = 0;
-        while ((pos = r.indexIn(txt, pos)) != -1) {
-            pos += r.matchedLength();
-            changes.insert(r.cap(1));
-        }
-    }
-    return changes;
+    setAnnotationEntryPattern("^(" CVS_REVISION_PATTERN ") ");
 }
 
 QString CvsEditorWidget::changeUnderCursor(const QTextCursor &c) const
@@ -99,15 +78,19 @@ QString CvsEditorWidget::changeUnderCursor(const QTextCursor &c) const
             const QTextBlock block = c.block();
             if (c.atBlockStart() || (c.position() - block.position() < 3)) {
                 const QString line = block.text();
-                if (m_revisionAnnotationPattern.exactMatch(line))
-                    return m_revisionAnnotationPattern.cap(1);
+                const QRegularExpressionMatch match = m_revisionAnnotationPattern.match(line);
+                if (match.hasMatch())
+                    return match.captured(1);
             }
         }
         break;
     case VcsBase::LogOutput: {
             const QTextBlock block = c.block();
-            if (c.position() - block.position() > 8 && m_revisionLogPattern.exactMatch(block.text()))
-                return m_revisionLogPattern.cap(1);
+            if (c.position() - block.position() > 8) {
+                const QRegularExpressionMatch match = m_revisionLogPattern.match(block.text());
+                if (match.hasMatch())
+                    return match.captured(1);
+            }
         }
         break;
     }

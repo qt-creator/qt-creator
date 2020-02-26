@@ -34,7 +34,6 @@ AddNewBackendDialog::AddNewBackendDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::AddNewBackendDialog)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
 
     connect(m_ui->comboBox, &QComboBox::currentTextChanged, this, &AddNewBackendDialog::invalidate);

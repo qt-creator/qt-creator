@@ -83,6 +83,7 @@ private:
     void rebase();
     bool cherryPick();
     void log(const QModelIndex &idx);
+    void reflog(const QModelIndex &idx);
     void push();
 
     QToolButton *m_addButton = nullptr;

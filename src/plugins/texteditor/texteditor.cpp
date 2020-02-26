@@ -5472,7 +5472,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                     column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).horizontalAdvance(QLatin1Char(' '));
 
                 d->m_blockSelection.positionBlock = cursor.blockNumber();
-                d->m_blockSelection.positionColumn = column;
+                d->m_blockSelection.positionColumn = qMax(0, column);
 
                 doSetTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
                 viewport()->update();
@@ -7166,7 +7166,7 @@ void TextEditorWidget::rewrapParagraph()
     QString currentWord;
 
     for (const QChar &ch : qAsConst(selectedText)) {
-        if (ch.isSpace()) {
+        if (ch.isSpace() && ch != QChar::Nbsp) {
             if (!currentWord.isEmpty()) {
                 currentLength += currentWord.length() + 1;
 
@@ -8055,12 +8055,12 @@ QTextCursor TextBlockSelection::cursor(const TextDocument *baseTextDocument,
 }
 
 void TextBlockSelection::fromPostition(int positionBlock, int positionColumn,
-                                           int anchorBlock, int anchorColumn)
+                                       int anchorBlock, int anchorColumn)
 {
-    this->positionBlock = positionBlock;
-    this->positionColumn = positionColumn;
-    this->anchorBlock = anchorBlock;
-    this->anchorColumn = anchorColumn;
+    this->positionBlock = QTC_GUARD(positionBlock >= 0) ? positionBlock : 0;
+    this->positionColumn = QTC_GUARD(positionColumn >= 0) ? positionColumn : 0;
+    this->anchorBlock = QTC_GUARD(anchorBlock >= 0) ? anchorBlock : 0;
+    this->anchorColumn = QTC_GUARD(anchorColumn >= 0) ? anchorColumn : 0;
 }
 
 bool TextEditorWidget::inFindScope(const QTextCursor &cursor)

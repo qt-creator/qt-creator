@@ -158,7 +158,7 @@ bool CMakeBuildStep::init()
     QTC_ASSERT(bc, return false);
     if (!bc->isEnabled()) {
         emit addTask(BuildSystemTask(Task::Error,
-                          tr("CMakeProjectManager::CMakeBuildStep")));
+                                     tr("The build configuration is currently disabled.")));
         canInit = false;
     }
 

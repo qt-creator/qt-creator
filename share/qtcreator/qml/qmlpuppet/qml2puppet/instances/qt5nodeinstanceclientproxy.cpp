@@ -70,8 +70,10 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
          * because we want to be able to show the 3D Edit View
          * as a normal QQuickView.
          * The DesignerWindowManager prevents any window from actually being shown. */
-        if (!qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE"))
+        if (!qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE")
+                || !qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW")) {
             DesignerSupport::activateDesignerWindowManager();
+        }
         setNodeInstanceServer(new Qt5InformationNodeInstanceServer(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("rendermode")) {

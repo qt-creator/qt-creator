@@ -42,7 +42,7 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     using Preset = QGradient::Preset;
 #else
-    enum Preset {};
+    enum Preset { NumPresets = 0 };
 #endif
 
     explicit GradientPresetItem();

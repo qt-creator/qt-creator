@@ -99,14 +99,14 @@
 
 
 /*!
-    \fn QString IFindFilter::id() const
+    \fn QString Core::IFindFilter::id() const
     Returns the unique string identifier for this find filter.
 
     Usually should be something like "MyPlugin.MyFindFilter".
 */
 
 /*!
-    \fn QString IFindFilter::displayName() const
+    \fn QString Core::IFindFilter::displayName() const
     Returns the name of the find filter or scope as presented to the user.
 
     This is the name that appears in the scope selection combo box, for example.
@@ -115,7 +115,7 @@
 */
 
 /*!
-    \fn bool IFindFilter::isEnabled() const
+    \fn bool Core::IFindFilter::isEnabled() const
     Returns whether the user should be able to select this find filter
     at the moment.
 
@@ -127,14 +127,14 @@
 */
 
 /*!
-    \fn bool IFindFilter::isValid() const
+    \fn bool Core::IFindFilter::isValid() const
     Returns whether the find filter is valid.
 
     \sa validChanged()
 */
 
 /*!
-    \fn bool IFindFilter::isReplaceSupported() const
+    \fn bool Core::IFindFilter::isReplaceSupported() const
     Returns whether the find filter supports search and replace.
 
     The default value is false, override this function to return \c true, if
@@ -142,7 +142,7 @@
 */
 
 /*!
-    \fn bool IFindFilter::showSearchTermInput() const
+    \fn bool Core::IFindFilter::showSearchTermInput() const
     Returns whether the find filter wants to show the search term line edit.
 
     The default value is \c true, override this function to return \c false, if
@@ -150,7 +150,7 @@
 */
 
 /*!
-    \fn void IFindFilter::findAll(const QString &txt, FindFlags findFlags)
+    \fn void Core::IFindFilter::findAll(const QString &txt, Core::FindFlags findFlags)
     This function is called when the user selected this find scope and
     initiated a search.
 
@@ -167,7 +167,7 @@
 */
 
 /*!
-    \fn void IFindFilter::replaceAll(const QString &txt, FindFlags findFlags)
+    \fn void Core::IFindFilter::replaceAll(const QString &txt, Core::FindFlags findFlags)
     Override this function if you want to support search and replace.
 
     This function is called when the user selected this find scope and
@@ -187,7 +187,7 @@
 */
 
 /*!
-    \fn QWidget *IFindFilter::createConfigWidget()
+    \fn QWidget *Core::IFindFilter::createConfigWidget()
     Returns a widget that contains additional controls for options
     for this find filter.
 
@@ -196,32 +196,32 @@
 */
 
 /*!
-    \fn void IFindFilter::writeSettings(QSettings *settings)
+    \fn void Core::IFindFilter::writeSettings(QSettings *settings)
     Called at shutdown to write the state of the additional options
     for this find filter to the \a settings.
 */
 
 /*!
-    \fn void IFindFilter::readSettings(QSettings *settings)
+    \fn void Core::IFindFilter::readSettings(QSettings *settings)
     Called at startup to read the state of the additional options
     for this find filter from the \a settings.
 */
 
 /*!
-    \fn void IFindFilter::enabledChanged(bool enabled)
+    \fn void Core::IFindFilter::enabledChanged(bool enabled)
 
     This signal is emitted when the \a enabled state of this find filter
     changes.
 */
 
 /*!
-    \fn void IFindFilter::validChanged(bool valid)
+    \fn void Core::IFindFilter::validChanged(bool valid)
 
     This signal is emitted when the \a valid state of this find filter changes.
 */
 
 /*!
-    \fn void IFindFilter::displayNameChanged()
+    \fn void Core::IFindFilter::displayNameChanged()
 
     This signal is emitted when the display name of this find filter changes.
 */

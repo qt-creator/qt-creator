@@ -64,7 +64,6 @@ PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent) :
 {
     setWindowTitle(tr("Overwrite Existing Files"));
     setModal(true);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_label);
     m_view->setRootIsDecorated(false);

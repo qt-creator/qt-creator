@@ -66,7 +66,8 @@ void AnnotationEditor::showWidget()
 
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-    m_dialog->open();
+    m_dialog->show();
+    m_dialog->raise();
 }
 
 void AnnotationEditor::showWidget(int x, int y)

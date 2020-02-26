@@ -356,24 +356,6 @@ void GdbEngine::handleResponse(const QString &buff)
                 break;
             }
 
-            if (boolSetting(IdentifyDebugInfoPackages)) {
-                // From SuSE's gdb: >&"Missing separate debuginfo for ...\n"
-                // ">&"Try: zypper install -C \"debuginfo(build-id)=c084ee5876ed1ac12730181c9f07c3e027d8e943\"\n"
-                if (data.startsWith("Missing separate debuginfo for ")) {
-                    m_lastMissingDebugInfo = data.mid(32);
-                } else if (data.startsWith("Try: zypper")) {
-                    QString cmd = data.mid(4);
-
-                    Task task(Task::Warning,
-                        tr("Missing debug information for %1\nTry: %2")
-                            .arg(m_lastMissingDebugInfo).arg(cmd),
-                        FilePath(), 0, Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
-
-                    TaskHub::addTask(task);
-                    Internal::addDebugInfoTask(task.taskId, cmd);
-                }
-            }
-
             break;
         }
 
@@ -3302,6 +3284,10 @@ void GdbEngine::handlePeripheralRegisterListValues(
 
 void GdbEngine::reloadLocals()
 {
+    // if the engine is not running - do nothing
+    if (state() == DebuggerState::DebuggerFinished || state() == DebuggerState::DebuggerNotReady)
+        return;
+
     setTokenBarrier();
     updateLocals();
 }

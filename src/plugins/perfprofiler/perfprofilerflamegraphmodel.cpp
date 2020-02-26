@@ -152,9 +152,9 @@ int PerfProfilerFlameGraphModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
         Data *parentData = static_cast<Data *>(parent.internalPointer());
-        return parentData->children.size();
+        return int(parentData->children.size());
     }
-    return m_stackBottom->children.size();
+    return int(m_stackBottom->children.size());
 }
 
 int PerfProfilerFlameGraphModel::columnCount(const QModelIndex &parent) const

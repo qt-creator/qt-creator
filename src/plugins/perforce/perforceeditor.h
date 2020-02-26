@@ -27,7 +27,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Perforce {
 namespace Internal {
@@ -40,14 +40,13 @@ public:
     PerforceEditorWidget();
 
 private:
-    QSet<QString> annotationChanges() const override;
     QString changeUnderCursor(const QTextCursor &) const override;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
             const QSet<QString> &changes) const override;
     QString findDiffFile(const QString &f) const override;
     QStringList annotationPreviousVersions(const QString &v) const override;
 
-    mutable QRegExp m_changeNumberPattern;
+    const QRegularExpression m_changeNumberPattern;
 };
 
 } // namespace Perforce

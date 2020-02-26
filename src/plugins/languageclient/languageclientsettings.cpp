@@ -842,7 +842,6 @@ public:
         connect(filter, &QLineEdit::textChanged, proxy, &QSortFilterProxyModel::setFilterWildcard);
         listView->setModel(proxy);
 
-        setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
         setModal(true);
     }
 

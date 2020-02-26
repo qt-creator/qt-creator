@@ -41,7 +41,6 @@
 #include "clearscenecommand.h"
 #include "reparentinstancescommand.h"
 #include "update3dviewstatecommand.h"
-#include "enable3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
@@ -63,6 +62,8 @@
 #include "drop3dlibraryitemcommand.h"
 #include "puppettocreatorcommand.h"
 #include "view3dclosedcommand.h"
+#include "inputeventcommand.h"
+#include "view3dactioncommand.h"
 
 #include "dummycontextobject.h"
 #include "../editor3d/generalhelper.h"
@@ -73,6 +74,7 @@
 #include "../editor3d/linegeometry.h"
 
 #include <designersupportdelegate.h>
+#include <qmlprivategate.h>
 
 #include <QVector3D>
 #include <QQmlProperty>
@@ -80,6 +82,8 @@
 #include <QQuickView>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QtGui/qevent.h>
+#include <QtGui/qguiapplication.h>
 
 #ifdef QUICK3D_MODULE
 #include <QtQuick3D/private/qquick3dnode_p.h>
@@ -165,53 +169,72 @@ bool Qt5InformationNodeInstanceServer::dropAcceptable(QDragMoveEvent *event) con
     return canBeDropped == "true" || canBeDropped == "True";
 }
 
-QObject *Qt5InformationNodeInstanceServer::createEditView3D(QQmlEngine *engine)
+void Qt5InformationNodeInstanceServer::createEditView3D()
 {
 #ifdef QUICK3D_MODULE
-    auto helper = new QmlDesigner::Internal::GeneralHelper();
-    QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
-                     this, &Qt5InformationNodeInstanceServer::handleToolStateChanged);
-    engine->rootContext()->setContextProperty("_generalHelper", helper);
-    m_3dHelper = helper;
+    static bool showEditView = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW");
+
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");
     qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
     qmlRegisterType<QmlDesigner::Internal::LineGeometry>("LineGeometry", 1, 0, "LineGeometry");
-#endif
 
-    QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
+    auto helper = new QmlDesigner::Internal::GeneralHelper();
+    QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
+                     this, &Qt5InformationNodeInstanceServer::handleToolStateChanged);
+    engine()->rootContext()->setContextProperty("_generalHelper", helper);
+    m_3dHelper = helper;
 
-    QWindow *window = qobject_cast<QWindow *>(component.create());
+    QQmlComponent component(engine());
+    if (showEditView) {
+        component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/EditWindow3D.qml"));
+        m_editWindow3D = qobject_cast<QQuickWindow *>(component.create());
+        m_editView3DRootItem = QQmlProperty::read(m_editWindow3D, "editViewRoot").value<QQuickItem *>();
 
-    if (!window) {
-        qWarning() << "Could not create edit view 3D: " << component.errors();
-        return nullptr;
+        //For macOS we have to use the 4.1 core profile
+        QSurfaceFormat surfaceFormat = m_editWindow3D->requestedFormat();
+        surfaceFormat.setVersion(4, 1);
+        surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+        m_editWindow3D->setFormat(surfaceFormat);
+    } else {
+        m_editView3D = new QQuickView(quickView()->engine(), quickView());
+        m_editView3D->setFormat(quickView()->format());
+        DesignerSupport::createOpenGLContext(m_editView3D.data());
+        component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
+        m_editView3DRootItem = qobject_cast<QQuickItem *>(component.create());
     }
 
-    window->installEventFilter(this);
-    QObject::connect(window, SIGNAL(selectionChanged(QVariant)),
+    if (!m_editView3DRootItem) {
+        qWarning() << "Could not create edit view 3D: " << component.errors();
+        return;
+    }
+
+    if (!showEditView) {
+        DesignerSupport::setRootItem(m_editView3D, m_editView3DRootItem);
+    } else {
+        m_editView3DRootItem->installEventFilter(this);
+        QQmlProperty showButtonsProperty(m_editView3DRootItem, "showButtons", context());
+        showButtonsProperty.write(QVariant(true));
+    }
+
+    QObject::connect(m_editView3DRootItem, SIGNAL(selectionChanged(QVariant)),
                      this, SLOT(handleSelectionChanged(QVariant)));
-    QObject::connect(window, SIGNAL(commitObjectProperty(QVariant, QVariant)),
+    QObject::connect(m_editView3DRootItem, SIGNAL(commitObjectProperty(QVariant, QVariant)),
                      this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
-    QObject::connect(window, SIGNAL(changeObjectProperty(QVariant, QVariant)),
+    QObject::connect(m_editView3DRootItem, SIGNAL(changeObjectProperty(QVariant, QVariant)),
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout);
+    QObject::connect(&m_renderTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::doRender3DEditView);
 
-    //For macOS we have to use the 4.1 core profile
-    QSurfaceFormat surfaceFormat = window->requestedFormat();
-    surfaceFormat.setVersion(4, 1);
-    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-    window->setFormat(surfaceFormat);
-
-#ifdef QUICK3D_MODULE
-    helper->setParent(window);
+    helper->setParent(m_editView3DRootItem);
+    if (showEditView)
+        helper->setEdit3DWindow(m_editWindow3D);
 #endif
-
-    return window;
 }
 
 // The selection has changed in the edit view 3D. Empty list indicates selection is cleared.
@@ -357,10 +380,10 @@ void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
 {
 #ifdef QUICK3D_MODULE
     if (qobject_cast<QQuick3DCamera *>(obj)) {
-        QMetaObject::invokeMethod(m_editView3D, "releaseCameraGizmo",
+        QMetaObject::invokeMethod(m_editView3DRootItem, "releaseCameraGizmo",
                                   Q_ARG(QVariant, objectToVariant(obj)));
     } else if (qobject_cast<QQuick3DAbstractLight *>(obj)) {
-        QMetaObject::invokeMethod(m_editView3D, "releaseLightGizmo",
+        QMetaObject::invokeMethod(m_editView3DRootItem, "releaseLightGizmo",
                                   Q_ARG(QVariant, objectToVariant(obj)));
     }
     removeNode3D(obj);
@@ -376,29 +399,41 @@ void Qt5InformationNodeInstanceServer::updateView3DRect(QObject *view3D)
         viewPortrect = QRectF(0., 0., view3D->property("width").toDouble(),
                               view3D->property("height").toDouble());
     }
-    QQmlProperty viewPortProperty(m_editView3D, "viewPortRect", context());
+    QQmlProperty viewPortProperty(m_editView3DRootItem, "viewPortRect", context());
     viewPortProperty.write(viewPortrect);
 }
 
 void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
 {
+#ifdef QUICK3D_MODULE
     // Active scene change handling on qml side is async, so a deleted importScene would crash
     // editView when it updates next. Disable/enable edit view update synchronously to avoid this.
     QVariant activeSceneVar = objectToVariant(m_active3DScene);
-    QMetaObject::invokeMethod(m_editView3D, "enableEditViewUpdate",
+    QMetaObject::invokeMethod(m_editView3DRootItem, "enableEditViewUpdate",
                               Q_ARG(QVariant, activeSceneVar));
 
     ServerNodeInstance sceneInstance = active3DSceneInstance();
-    QVariant sceneInstanceVar;
-    QQmlProperty sceneIdProperty(m_editView3D, "sceneId", context());
+    QVariant sceneIdVar;
+    QQmlProperty sceneIdProperty(m_editView3DRootItem, "sceneId", context());
+    const QString sceneId = sceneInstance.id();
     if (sceneInstance.isValid())
-        sceneInstanceVar = QVariant::fromValue(sceneInstance.id());
-    sceneIdProperty.write(sceneInstanceVar);
+        sceneIdVar = QVariant::fromValue(sceneId);
+    sceneIdProperty.write(sceneIdVar);
 
-    QQmlProperty sceneProperty(m_editView3D, "activeScene", context());
+    QQmlProperty sceneProperty(m_editView3DRootItem, "activeScene", context());
     sceneProperty.write(activeSceneVar);
 
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    QVariantMap toolStates;
+    if (helper)
+        toolStates = helper->getToolStates(sceneId);
+    toolStates.insert("sceneInstanceId", QVariant::fromValue(sceneInstance.instanceId()));
+
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSceneChanged,
+                                                        toolStates});
+
     updateView3DRect(m_active3DView);
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::removeNode3D(QObject *node)
@@ -439,11 +474,11 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
 
         if (newRoot != oldRoot) {
             if (qobject_cast<QQuick3DCamera *>(node)) {
-                QMetaObject::invokeMethod(m_editView3D, "updateCameraGizmoScene",
+                QMetaObject::invokeMethod(m_editView3DRootItem, "updateCameraGizmoScene",
                                           Q_ARG(QVariant, objectToVariant(newRoot)),
                                           Q_ARG(QVariant, objectToVariant(node)));
             } else if (qobject_cast<QQuick3DAbstractLight *>(node)) {
-                QMetaObject::invokeMethod(m_editView3D, "updateLightGizmoScene",
+                QMetaObject::invokeMethod(m_editView3DRootItem, "updateLightGizmoScene",
                                           Q_ARG(QVariant, objectToVariant(newRoot)),
                                           Q_ARG(QVariant, objectToVariant(node)));
             }
@@ -467,11 +502,65 @@ ServerNodeInstance Qt5InformationNodeInstanceServer::active3DSceneInstance() con
     return sceneInstance;
 }
 
+void Qt5InformationNodeInstanceServer::render3DEditView()
+{
+    m_needRender = true;
+    if (!m_renderTimer.isActive())
+        m_renderTimer.start(0);
+}
+
+// render the 3D edit view and send the result to creator process
+void Qt5InformationNodeInstanceServer::doRender3DEditView()
+{
+    static bool showEditView = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW");
+    if (m_editView3DRootItem && !showEditView) {
+        auto t = std::chrono::steady_clock::now();
+        if (!m_editView3DContentItem) {
+            m_editView3DContentItem = QQmlProperty::read(m_editView3DRootItem, "contentItem").value<QQuickItem *>();
+            if (m_editView3DContentItem) {
+                designerSupport()->refFromEffectItem(m_editView3DContentItem, false);
+                QmlDesigner::Internal::QmlPrivateGate::disableNativeTextRendering(m_editView3DContentItem);
+            }
+        }
+
+        std::function<void (QQuickItem *)> updateNodesRecursive;
+        updateNodesRecursive = [&updateNodesRecursive](QQuickItem *item) {
+            for (QQuickItem *childItem : item->childItems())
+                updateNodesRecursive(childItem);
+            DesignerSupport::updateDirtyNode(item);
+        };
+        updateNodesRecursive(m_editView3DContentItem);
+
+        QSizeF size = qobject_cast<QQuickItem *>(m_editView3DContentItem)->size();
+        QRectF renderRect(QPointF(0., 0.), size);
+        QImage renderImage = designerSupport()->renderImageForItem(m_editView3DContentItem,
+                                                                   renderRect, size.toSize());
+
+        // There's no instance related to image, so instance id is -1.
+        // Key number is selected so that it is unlikely to conflict other ImageContainer use.
+        const qint32 edit3DKey = 2100000000;
+        auto imgContainer = ImageContainer(-1, renderImage, edit3DKey);
+
+        // send the rendered image to creator process
+        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Render3DView,
+                                                            QVariant::fromValue(imgContainer)});
+        qDebug() << "\x1b[42m \x1b[1m" << __FUNCTION__
+                 << ", t=" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-t).count()
+                 << "\x1b[m";
+
+        if (m_needRender) {
+            m_renderTimer.start(0);
+            m_needRender = false;
+        }
+    }
+}
+
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
     m_propertyChangeTimer.setInterval(100);
     m_selectionChangeTimer.setSingleShot(true);
+    m_renderTimer.setSingleShot(true);
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
@@ -523,7 +612,6 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuick
             return false;
 
         return isDirtyRecursiveForParentInstances(parentItem);
-
     }
 
     return false;
@@ -549,11 +637,13 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
 {
     const auto createdInstances = NodeInstanceServer::createInstances(container);
 
-    if (m_editView3D) {
+    if (m_editView3DRootItem) {
         add3DViewPorts(createdInstances);
         add3DScenes(createdInstances);
         createCameraAndLightGizmos(createdInstances);
     }
+
+    render3DEditView();
 
     return createdInstances;
 }
@@ -586,7 +676,7 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
     while (cameraIt != cameras.constEnd()) {
         const auto cameraObjs = cameraIt.value();
         for (auto &obj : cameraObjs) {
-            QMetaObject::invokeMethod(m_editView3D, "addCameraGizmo",
+            QMetaObject::invokeMethod(m_editView3DRootItem, "addCameraGizmo",
                                       Q_ARG(QVariant, objectToVariant(cameraIt.key())),
                                       Q_ARG(QVariant, objectToVariant(obj)));
         }
@@ -596,7 +686,7 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
     while (lightIt != lights.constEnd()) {
         const auto lightObjs = lightIt.value();
         for (auto &obj : lightObjs) {
-            QMetaObject::invokeMethod(m_editView3D, "addLightGizmo",
+            QMetaObject::invokeMethod(m_editView3DRootItem, "addLightGizmo",
                                       Q_ARG(QVariant, objectToVariant(lightIt.key())),
                                       Q_ARG(QVariant, objectToVariant(obj)));
         }
@@ -791,8 +881,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         m_active3DView = findView3DForSceneRoot(m_active3DScene);
     }
     if (m_active3DScene) {
-        m_editView3D = createEditView3D(engine());
-        if (!m_editView3D) {
+        createEditView3D();
+        if (!m_editView3DRootItem) {
             m_active3DScene = nullptr;
             m_active3DView = nullptr;
             return;
@@ -805,7 +895,11 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
                 helper->initToolStates(it.key(), it.value());
                 ++it;
             }
-            helper->restoreWindowState(qobject_cast<QQuickWindow *>(m_editView3D));
+            helper->restoreWindowState();
+            if (toolStates.contains(helper->globalStateId())
+                    && toolStates[helper->globalStateId()].contains("rootSize")) {
+                m_editView3DRootItem->setSize(toolStates[helper->globalStateId()]["rootSize"].value<QSize>());
+            }
         }
 
         updateActiveSceneToEditView3D();
@@ -900,7 +994,7 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
 
     Qt5NodeInstanceServer::reparentInstances(command);
 
-    if (m_editView3D)
+    if (m_editView3DRootItem)
         resolveSceneRoots();
 }
 
@@ -991,7 +1085,7 @@ void QmlDesigner::Qt5InformationNodeInstanceServer::removeSharedMemory(const Qml
 
 void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionCommand &command)
 {
-    if (!m_editView3D)
+    if (!m_editView3DRootItem)
         return;
 
     if (m_selectionChangeTimer.isActive()) {
@@ -1033,16 +1127,18 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     // Ensure the UI has enough selection box items. If it doesn't yet have them, which can be the
     // case when the first selection processed is a multiselection, we wait a bit as
     // using the new boxes immediately leads to visual glitches.
-    int boxCount = m_editView3D->property("selectionBoxes").value<QVariantList>().size();
+    int boxCount = m_editView3DRootItem->property("selectionBoxes").value<QVariantList>().size();
     if (boxCount < selectedObjs.size()) {
-        QMetaObject::invokeMethod(m_editView3D, "ensureSelectionBoxes",
+        QMetaObject::invokeMethod(m_editView3DRootItem, "ensureSelectionBoxes",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs.size())));
         m_pendingSelectionChangeCommand = command;
         m_selectionChangeTimer.start(100);
     } else {
-        QMetaObject::invokeMethod(m_editView3D, "selectObjects",
+        QMetaObject::invokeMethod(m_editView3DRootItem, "selectObjects",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs)));
     }
+
+    render3DEditView();
 }
 
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
@@ -1060,6 +1156,8 @@ void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCo
         refreshBindings();
 
     startRenderTimer();
+
+    render3DEditView();
 }
 
 void Qt5InformationNodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
@@ -1074,45 +1172,118 @@ void Qt5InformationNodeInstanceServer::removeInstances(const RemoveInstancesComm
         resolveSceneRoots();
     }
 
-    if (m_editView3D && (!m_active3DScene || !m_active3DView)) {
+    if (m_editView3DRootItem && (!m_active3DScene || !m_active3DView)) {
         if (!m_active3DScene && !m_3DSceneMap.isEmpty())
             m_active3DScene = m_3DSceneMap.begin().key();
         m_active3DView = findView3DForSceneRoot(m_active3DScene);
         updateActiveSceneToEditView3D();
     }
+    render3DEditView();
+}
+
+void Qt5InformationNodeInstanceServer::inputEvent(const InputEventCommand &command)
+{
+    if (m_editView3D) {
+        if (command.type() == QEvent::Wheel) {
+            QWheelEvent *we
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+                    = new QWheelEvent(command.pos(), command.pos(), {0, 0}, {0, command.angleDelta()},
+                                      command.buttons(), command.modifiers(), Qt::NoScrollPhase,
+                                      false);
+#else
+                    = new QWheelEvent(command.pos(), command.pos(), {0, 0}, {0, command.angleDelta()},
+                                      0, Qt::Horizontal, command.buttons(), command.modifiers(),
+                                      Qt::NoScrollPhase, Qt::MouseEventNotSynthesized);
+#endif
+
+            QGuiApplication::postEvent(m_editView3D, we);
+        } else {
+            auto me = new QMouseEvent(command.type(), command.pos(), command.button(),
+                                      command.buttons(), command.modifiers());
+            QGuiApplication::postEvent(m_editView3D, me);
+        }
+
+        render3DEditView();
+    }
+}
+
+void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &command)
+{
+    QVariantMap updatedState;
+
+    switch (command.type()) {
+    case View3DActionCommand::MoveTool:
+        updatedState.insert("groupTransform", 0);
+        break;
+    case View3DActionCommand::RotateTool:
+        updatedState.insert("groupTransform", 1);
+        break;
+    case View3DActionCommand::ScaleTool:
+        updatedState.insert("groupTransform", 2);
+        break;
+    case View3DActionCommand::FitToView:
+        QMetaObject::invokeMethod(m_editView3DRootItem, "fitToView");
+        break;
+    case View3DActionCommand::SelectionModeToggle:
+        updatedState.insert("groupSelect", command.isEnabled() ? 0 : 1);
+        break;
+    case View3DActionCommand::CameraToggle:
+        updatedState.insert("usePerspective", command.isEnabled());
+        break;
+    case View3DActionCommand::OrientationToggle:
+        updatedState.insert("globalOrientation", command.isEnabled());
+        break;
+    case View3DActionCommand::EditLightToggle:
+        updatedState.insert("showEditLight", command.isEnabled());
+        break;
+    default:
+        break;
+    }
+
+    if (!updatedState.isEmpty()) {
+        QMetaObject::invokeMethod(m_editView3DRootItem, "updateToolStates",
+                                  Q_ARG(QVariant, updatedState),
+                                  Q_ARG(QVariant, QVariant::fromValue(false)));
+    }
+
+    render3DEditView();
+}
+
+void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
+{
+    Qt5NodeInstanceServer::changeAuxiliaryValues(command);
+    render3DEditView();
 }
 
 // update 3D view window state when the main app window state change
 void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
 {
-    auto window = qobject_cast<QWindow *>(m_editView3D);
-    if (window) {
+#ifdef QUICK3D_MODULE
+    if (command.type() == Update3dViewStateCommand::SizeChange) {
+        if (m_editView3DRootItem) {
+            m_editView3DRootItem->setSize(command.size());
+            auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+            if (helper)
+                helper->storeToolState(helper->globalStateId(), "rootSize", QVariant(command.size()), 0);
+            render3DEditView();
+        }
+    } else if (m_editWindow3D) {
         if (command.type() == Update3dViewStateCommand::StateChange) {
             if (command.previousStates() & Qt::WindowMinimized) // main window expanded from minimize state
-                window->show();
+                m_editWindow3D->show();
             else if (command.currentStates() & Qt::WindowMinimized) // main window minimized
-                window->hide();
+                m_editWindow3D->hide();
         } else if (command.type() == Update3dViewStateCommand::ActiveChange) {
-            window->setFlag(Qt::WindowStaysOnTopHint, command.isActive());
+            m_editWindow3D->setFlag(Qt::WindowStaysOnTopHint, command.isActive());
 
             // main window has a popup open, lower the edit view 3D so that the pop up is visible
             if (command.hasPopup())
-                window->lower();
+                m_editWindow3D->lower();
         }
     }
-}
-
-void Qt5InformationNodeInstanceServer::enable3DView(const Enable3DViewCommand &command)
-{
-    // TODO: this method is not currently in use as the 3D view is currently enabled by resetting the puppet.
-    //       It should however be implemented here.
-
-    auto window = qobject_cast<QWindow *>(m_editView3D);
-    if (window && !command.isEnable()) {
-        // TODO: remove the 3D view
-    } else if (!window && command.isEnable()) {
-        // TODO: create the 3D view
-    }
+#else
+    Q_UNUSED(command)
+#endif
 }
 
 } // namespace QmlDesigner

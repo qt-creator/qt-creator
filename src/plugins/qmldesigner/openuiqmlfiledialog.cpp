@@ -36,7 +36,6 @@ OpenUiQmlFileDialog::OpenUiQmlFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OpenUiQmlFileDialog)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     ui->setupUi(this);
 
     connect(ui->cancelButton, &QPushButton::clicked, this, &QDialog::close);

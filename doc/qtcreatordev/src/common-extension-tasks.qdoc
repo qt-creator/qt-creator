@@ -60,11 +60,16 @@
 
         \row
             \li Add a new wizard.
-            \li You can extend the wizards in File > New File or Project with
-                your own file and project templates.
-            \li \l{Core::IWizard}, \l{Core::StandardFileWizard},
-                \l{Core::BaseFileWizard}, \l{Core::BaseFileWizardParameters}
+            \li You can extend the wizards in \uicontrol File >
+                \uicontrol {New File or Project} with your own file
+                and project templates. We recommend that you create
+                JSON-based wizards instead of implementing new
+                wizards in C++ code.
+            \li \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}
+                {Adding New Custom Wizards}
 
+                \l{Core::IWizardFactory}, \l{Core::BaseFileWizardFactory},
+                \l{Core::BaseFileWizard}, \l{Core::WizardDialogParameters}
         \row
             \li Add support for a new version control system.
             \li Version control systems integrated in \QC are Bazaar, CVS, Git,

@@ -223,8 +223,9 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             });
             contextMenu.addSeparator();
         }
-        QAction *act = contextMenu.addAction(tr("Manage &Remotes..."));
-        connect(act, &QAction::triggered, [this] { GitPlugin::manageRemotes(); });
+        contextMenu.addAction(tr("Manage &Remotes..."), this, [] {
+            GitPlugin::manageRemotes();
+        });
     }
     if (hasActions) {
         if (!currentSelected && (isLocal || isTag))
@@ -240,6 +241,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 GitPlugin::client()->diffBranch(m_repository, fullName);
         });
         contextMenu.addAction(tr("&Log"), this, [this] { log(selectedIndex()); });
+        contextMenu.addAction(tr("Reflo&g"), this, [this] { reflog(selectedIndex()); });
         contextMenu.addSeparator();
         if (!currentSelected) {
             auto resetMenu = new QMenu(tr("Re&set"), &contextMenu);
@@ -557,6 +559,13 @@ void BranchView::log(const QModelIndex &idx)
     const QString branchName = m_model->fullName(idx, true);
     if (!branchName.isEmpty())
         GitPlugin::client()->log(m_repository, QString(), false, {branchName});
+}
+
+void BranchView::reflog(const QModelIndex &idx)
+{
+    const QString branchName = m_model->fullName(idx, true);
+    if (!branchName.isEmpty())
+        GitPlugin::client()->reflog(m_repository, branchName);
 }
 
 void BranchView::push()

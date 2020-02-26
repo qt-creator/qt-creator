@@ -450,7 +450,6 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_filterLineEdit->setFiltering(true);
 
     createGui();
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     if (Utils::HostOsInfo::isMacHost())
         setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Preferences"));
     else

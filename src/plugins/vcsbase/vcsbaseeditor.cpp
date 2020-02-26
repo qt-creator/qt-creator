@@ -50,7 +50,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QFile>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 #include <QTextCodec>
 #include <QUrl>
@@ -402,7 +402,7 @@ private:
     };
 
     UrlData m_urlData;
-    QRegExp m_pattern;
+    QRegularExpression m_pattern;
 };
 
 UrlTextCursorHandler::UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget)
@@ -424,16 +424,17 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
         const QString line = cursorForUrl.selectedText();
         const int cursorCol = cursor.columnNumber();
         int urlMatchIndex = -1;
-        do {
-            urlMatchIndex = m_pattern.indexIn(line, urlMatchIndex + 1);
-            if (urlMatchIndex != -1) {
-                const QString url = m_pattern.cap(0);
-                if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
-                    m_urlData.startColumn = urlMatchIndex;
-                    m_urlData.url = url;
-                }
+        QRegularExpressionMatchIterator i = m_pattern.globalMatch(line);
+        while (i.hasNext()) {
+            const QRegularExpressionMatch match = i.next();
+            urlMatchIndex = match.capturedStart();
+            const QString url = match.captured(0);
+            if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
+                m_urlData.startColumn = urlMatchIndex;
+                m_urlData.url = url;
+                break;
             }
-        } while (urlMatchIndex != -1 && m_urlData.startColumn == -1);
+        };
     }
 
     return m_urlData.startColumn != -1;
@@ -474,7 +475,7 @@ QString UrlTextCursorHandler::currentContents() const
 
 void UrlTextCursorHandler::setUrlPattern(const QString &pattern)
 {
-    m_pattern = QRegExp(pattern);
+    m_pattern = QRegularExpression(pattern);
     QTC_ASSERT(m_pattern.isValid(), return);
 }
 
@@ -554,8 +555,10 @@ public:
 
     QString m_workingDirectory;
 
-    QRegExp m_diffFilePattern;
-    QRegExp m_logEntryPattern;
+    QRegularExpression m_diffFilePattern;
+    QRegularExpression m_logEntryPattern;
+    QRegularExpression m_annotationEntryPattern;
+    QRegularExpression m_annotationSeparatorPattern;
     QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine = -1;
     int m_firstLineNumber = -1;
@@ -649,16 +652,34 @@ void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters *parameter
     d->m_parameters = parameters;
 }
 
-void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)
+static void regexpFromString(
+        const QString &pattern,
+        QRegularExpression *regexp,
+        QRegularExpression::PatternOptions options = QRegularExpression::NoPatternOption)
 {
-    QTC_ASSERT(pattern.isValid() && pattern.captureCount() >= 1, return);
-    d->m_diffFilePattern = pattern;
+    const QRegularExpression re(pattern, options);
+    QTC_ASSERT(re.isValid() && re.captureCount() >= 1, return);
+    *regexp = re;
 }
 
-void VcsBaseEditorWidget::setLogEntryPattern(const QRegExp &pattern)
+void VcsBaseEditorWidget::setDiffFilePattern(const QString &pattern)
 {
-    QTC_ASSERT(pattern.isValid() && pattern.captureCount() >= 1, return);
-    d->m_logEntryPattern = pattern;
+    regexpFromString(pattern, &d->m_diffFilePattern);
+}
+
+void VcsBaseEditorWidget::setLogEntryPattern(const QString &pattern)
+{
+    regexpFromString(pattern, &d->m_logEntryPattern);
+}
+
+void VcsBaseEditorWidget::setAnnotationEntryPattern(const QString &pattern)
+{
+    regexpFromString(pattern, &d->m_annotationEntryPattern, QRegularExpression::MultilineOption);
+}
+
+void VcsBaseEditorWidget::setAnnotationSeparatorPattern(const QString &pattern)
+{
+    regexpFromString(pattern, &d->m_annotationSeparatorPattern);
 }
 
 bool VcsBaseEditorWidget::supportChangeLinks() const
@@ -864,7 +885,7 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
     for (QTextBlock it = document()->begin(); it != cend; it = it.next(), lineNumber++) {
         const QString text = it.text();
         // Check for a new diff section (not repeating the last filename)
-        if (d->m_diffFilePattern.indexIn(text) == 0) {
+        if (d->m_diffFilePattern.match(text).capturedStart() == 0) {
             const QString file = fileNameFromDiffSpecification(it);
             if (!file.isEmpty() && lastFileName != file) {
                 lastFileName = file;
@@ -888,9 +909,10 @@ void VcsBaseEditorWidget::slotPopulateLogBrowser()
     for (QTextBlock it = document()->begin(); it != cend; it = it.next(), lineNumber++) {
         const QString text = it.text();
         // Check for a new log section (not repeating the last filename)
-        if (d->m_logEntryPattern.indexIn(text) != -1) {
+        const QRegularExpressionMatch match = d->m_logEntryPattern.match(text);
+        if (match.hasMatch()) {
             d->m_entrySections.push_back(d->m_entrySections.empty() ? 0 : lineNumber);
-            QString entry = d->m_logEntryPattern.cap(1);
+            QString entry = match.captured(1);
             QString subject = revisionSubject(it);
             if (!subject.isEmpty()) {
                 if (subject.length() > 100) {
@@ -1198,7 +1220,8 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
         unicode.append(QLatin1Char('\n'));
     for (block = block.next() ; block.isValid() ; block = block.next()) {
         const QString line = block.text();
-        if (checkChunkLine(line, &chunkStart) || d->m_diffFilePattern.indexIn(line) == 0) {
+        if (checkChunkLine(line, &chunkStart)
+                || d->m_diffFilePattern.match(line).capturedStart() == 0) {
             break;
         } else {
             unicode += line;
@@ -1518,8 +1541,9 @@ QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inB
     QString fileName;
     for (QTextBlock block = inBlock; block.isValid(); block = block.previous()) {
         const QString line = block.text();
-        if (d->m_diffFilePattern.indexIn(line) != -1) {
-            QString cap = d->m_diffFilePattern.cap(1);
+        const QRegularExpressionMatch match = d->m_diffFilePattern.match(line);
+        if (match.hasMatch()) {
+            QString cap = match.captured(1);
             if (header)
                 header->prepend(line + QLatin1String("\n"));
             if (fileName.isEmpty() && !cap.isEmpty())
@@ -1535,6 +1559,26 @@ QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inB
 
 void VcsBaseEditorWidget::addChangeActions(QMenu *, const QString &)
 {
+}
+
+QSet<QString> VcsBaseEditorWidget::annotationChanges() const
+{
+    QSet<QString> changes;
+    QString text = toPlainText();
+    QStringRef txt(&text);
+    if (txt.isEmpty())
+        return changes;
+    if (!d->m_annotationSeparatorPattern.pattern().isEmpty()) {
+        const QRegularExpressionMatch match = d->m_annotationSeparatorPattern.match(txt);
+        if (match.hasMatch())
+            txt.truncate(match.capturedStart());
+    }
+    QRegularExpressionMatchIterator i = d->m_annotationEntryPattern.globalMatch(txt);
+    while (i.hasNext()) {
+        const QRegularExpressionMatch match = i.next();
+        changes.insert(match.captured(1));
+    }
+    return changes;
 }
 
 QString VcsBaseEditorWidget::decorateVersion(const QString &revision) const

@@ -270,13 +270,13 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void SearchResult::activated(const Core::SearchResultItem &item)
+    \fn void Core::SearchResult::activated(const Core::SearchResultItem &item)
     Indicates that the user activated the search result \a item by
     double-clicking it, for example.
 */
 
 /*!
-    \fn void SearchResult::replaceButtonClicked(const QString &replaceText,
+    \fn void Core::SearchResult::replaceButtonClicked(const QString &replaceText,
                            const QList<Core::SearchResultItem> &checkedItems,
                            bool preserveCase)
 
@@ -303,36 +303,36 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void SearchResult::cancelled()
+    \fn void Core::SearchResult::cancelled()
     This signal is emitted if the user cancels the search.
 */
 
 /*!
-    \fn void SearchResult::countChanged(int count)
+    \fn void Core::SearchResult::countChanged(int count)
     This signal is emitted when the number of search hits changes to \a count.
 */
 
 /*!
-    \fn void SearchResult::paused(bool paused)
+    \fn void Core::SearchResult::paused(bool paused)
     This signal is emitted when the search status is set to \a paused.
 */
 
 /*!
-    \fn void SearchResult::requestEnabledCheck()
+    \fn void Core::SearchResult::requestEnabledCheck()
 
     This signal is emitted when the enabled status of search results is
     requested.
 */
 
 /*!
-    \fn void SearchResult::searchAgainRequested()
+    \fn void Core::SearchResult::searchAgainRequested()
 
     This signal is emitted when the \uicontrol {Search Again} button is
     selected.
 */
 
 /*!
-    \fn void SearchResult::visibilityChanged(bool visible)
+    \fn void Core::SearchResult::visibilityChanged(bool visible)
 
     This signal is emitted when the visibility of the search results changes
     to \a visible.
@@ -372,12 +372,12 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn QString SearchResultWindow::displayName() const
+    \fn QString Core::SearchResultWindow::displayName() const
     \internal
 */
 
 /*!
-    \enum SearchResultWindow::PreserveCaseMode
+    \enum Core::SearchResultWindow::PreserveCaseMode
     This enum type specifies whether a search and replace should preserve the
     case of the replaced strings:
 

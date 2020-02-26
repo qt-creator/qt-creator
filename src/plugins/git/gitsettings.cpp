@@ -47,6 +47,7 @@ const QLatin1String GitSettings::graphLogKey("GraphLog");
 const QLatin1String GitSettings::firstParentKey("FirstParent");
 const QLatin1String GitSettings::followRenamesKey("FollowRenames");
 const QLatin1String GitSettings::lastResetIndexKey("LastResetIndex");
+const QLatin1String GitSettings::refLogShowDateKey("RefLogShowDate");
 
 GitSettings::GitSettings()
 {
@@ -69,6 +70,7 @@ GitSettings::GitSettings()
     declareKey(firstParentKey, false);
     declareKey(followRenamesKey, true);
     declareKey(lastResetIndexKey, 0);
+    declareKey(refLogShowDateKey, false);
 }
 
 Utils::FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const

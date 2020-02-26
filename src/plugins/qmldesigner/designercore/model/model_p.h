@@ -158,6 +158,9 @@ public:
     void notifyCurrentStateChanged(const ModelNode &node);
     void notifyCurrentTimelineChanged(const ModelNode &node);
 
+    void notifyRenderImage3DChanged(const QImage &image);
+    void notifyUpdateActiveScene3D(const QVariantMap &sceneState);
+
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 
     void notifyRewriterBeginTransaction();

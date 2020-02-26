@@ -247,8 +247,8 @@ void Client::initialize()
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
-    auto initRequest = new InitializeRequest();
-    auto params = initRequest->params().value_or(InitializeParams());
+    InitializeRequest initRequest;
+    auto params = initRequest.params().value_or(InitializeParams());
     params.setCapabilities(generateClientCapabilities());
     if (m_project) {
         params.setRootUri(DocumentUri::fromFilePath(m_project->projectDirectory()));
@@ -256,13 +256,13 @@ void Client::initialize()
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
         }));
     }
-    initRequest->setParams(params);
-    initRequest->setResponseCallback([this](const InitializeRequest::Response &initResponse){
+    initRequest.setParams(params);
+    initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
         initializeCallback(initResponse);
     });
     // directly send data otherwise the state check would fail;
-    initRequest->registerResponseHandler(&m_responseHandlers);
-    m_clientInterface->sendMessage(initRequest->toBaseMessage());
+    initRequest.registerResponseHandler(&m_responseHandlers);
+    m_clientInterface->sendMessage(initRequest.toBaseMessage());
     m_state = InitializeRequested;
 }
 
@@ -357,7 +357,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     deactivateDocument(document);
     const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
     m_highlights[uri].clear();
-    if (m_openedDocument.remove(document) != 0) {
+    if (m_openedDocument.remove(document) != 0 && m_state == Initialized) {
         DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
         sendContent(DidCloseTextDocumentNotification(params));
     }
@@ -475,7 +475,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                                      int charsRemoved,
                                      int charsAdded)
 {
-    if (!m_openedDocument.contains(document))
+    if (!m_openedDocument.contains(document) || !reachable())
         return;
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = m_serverCapabilities.textDocumentSyncKindHelper();
@@ -912,11 +912,12 @@ bool Client::reset()
     m_responseHandlers.clear();
     m_clientInterface->resetBuffer();
     updateEditorToolBar(m_openedDocument.keys());
-    m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
+    for (TextEditor::TextDocument *document : m_openedDocument.keys())
+        document->disconnect(this);
     for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
         resetAssistProviders(document);
     return true;

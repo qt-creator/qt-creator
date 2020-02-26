@@ -34,7 +34,6 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <QRegExp>
 #include <QTextCursor>
 #include <QTextBlock>
 
@@ -42,8 +41,8 @@ using namespace Subversion;
 using namespace Subversion::Internal;
 
 SubversionEditorWidget::SubversionEditorWidget() :
-    m_changeNumberPattern(QLatin1String("^\\s*(?<area>(?<rev>\\d+))\\s+.*$")),
-    m_revisionNumberPattern(QLatin1String("\\b(?<area>(r|[rR]evision )(?<rev>\\d+))\\b"))
+    m_changeNumberPattern("^\\s*(?<area>(?<rev>\\d+))\\s+.*$"),
+    m_revisionNumberPattern("\\b(?<area>(r|[rR]evision )(?<rev>\\d+))\\b")
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     QTC_ASSERT(m_revisionNumberPattern.isValid(), return);
@@ -56,33 +55,10 @@ SubversionEditorWidget::SubversionEditorWidget() :
     @@ -6,6 +6,5 @@
     \endcode
     */
-    setDiffFilePattern(QRegExp(QLatin1String("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$")));
-    setLogEntryPattern(QRegExp(QLatin1String("^(r\\d+) \\|")));
+    setDiffFilePattern("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$");
+    setLogEntryPattern("^(r\\d+) \\|");
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
-}
-
-QSet<QString> SubversionEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-    // Hunt for first change number in annotation: "<change>:"
-    QRegExp r(QLatin1String("^(\\d+):"));
-    QTC_ASSERT(r.isValid(), return changes);
-    if (r.indexIn(txt) != -1) {
-        changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n(\\d+):"));
-        QTC_ASSERT(r.isValid(), return changes);
-        int pos = 0;
-        while ((pos = r.indexIn(txt, pos)) != -1) {
-            pos += r.matchedLength();
-            changes.insert(r.cap(1));
-        }
-    }
-    if (Subversion::Constants::debug)
-        qDebug() << "SubversionEditor::annotationChanges() returns #" << changes.size();
-    return changes;
+    setAnnotationEntryPattern("^(\\d+):");
 }
 
 QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const

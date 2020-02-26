@@ -25,8 +25,8 @@
 
 import platform
 import re
-from dumper import *
-
+from dumper import Children, SubItem, UnnamedSubItem, toInteger
+from utils import DisplayFormat
 
 def qdump__QAtomicInt(d, value):
     d.putValue(value.integer())
@@ -44,8 +44,8 @@ def qdump__QAtomicPointer(d, value):
 
 
 def qform__QByteArray():
-    return [Latin1StringFormat, SeparateLatin1StringFormat,
-            Utf8StringFormat, SeparateUtf8StringFormat ]
+    return [DisplayFormat.Latin1StringFormat, DisplayFormat.SeparateLatin1StringFormat,
+            DisplayFormat.Utf8StringFormat, DisplayFormat.SeparateUtf8StringFormat ]
 
 def qedit__QByteArray(d, value, data):
     d.call('void', value, 'resize', str(len(data)))
@@ -58,14 +58,14 @@ def qdump__QByteArray(d, value):
     d.putNumChild(size)
     elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
     displayFormat = d.currentItemFormat()
-    if displayFormat == AutomaticFormat or displayFormat == Latin1StringFormat:
+    if displayFormat == DisplayFormat.AutomaticFormat or displayFormat == DisplayFormat.Latin1StringFormat:
         d.putValue(p, 'latin1', elided=elided)
-    elif displayFormat == SeparateLatin1StringFormat:
+    elif displayFormat == DisplayFormat.SeparateLatin1StringFormat:
         d.putValue(p, 'latin1', elided=elided)
         d.putDisplay('latin1:separate', d.encodeByteArray(value, limit=100000))
-    elif displayFormat == Utf8StringFormat:
+    elif displayFormat == DisplayFormat.Utf8StringFormat:
         d.putValue(p, 'utf8', elided=elided)
-    elif displayFormat == SeparateUtf8StringFormat:
+    elif displayFormat == DisplayFormat.SeparateUtf8StringFormat:
         d.putValue(p, 'utf8', elided=elided)
         d.putDisplay('utf8:separate', d.encodeByteArray(value, limit=100000))
     if d.isExpanded():
@@ -103,11 +103,11 @@ def qdump__QChar(d, value):
 
 
 def qform_X_QAbstractItemModel():
-    return [SimpleFormat, EnhancedFormat]
+    return [DisplayFormat.SimpleFormat, DisplayFormat.EnhancedFormat]
 
 def qdump_X_QAbstractItemModel(d, value):
     displayFormat = d.currentItemFormat()
-    if displayFormat == SimpleFormat:
+    if displayFormat == DisplayFormat.SimpleFormat:
         d.putPlainChildren(value)
         return
     #displayFormat == EnhancedFormat:
@@ -137,11 +137,11 @@ def qdump_X_QAbstractItemModel(d, value):
     #gdb.execute('call free($ri)')
 
 def qform_X_QModelIndex():
-    return [SimpleFormat, EnhancedFormat]
+    return [DisplayFormat.SimpleFormat, DisplayFormat.EnhancedFormat]
 
 def qdump_X_QModelIndex(d, value):
     displayFormat = d.currentItemFormat()
-    if displayFormat == SimpleFormat:
+    if displayFormat == DisplayFormat.SimpleFormat:
         d.putPlainChildren(value)
         return
     r = value['r']
@@ -306,12 +306,12 @@ def qdump__QDateTime(d, value):
     is32bit = d.ptrSize() == 4
     if qtVersion >= 0x050200:
         tiVersion = d.qtTypeInfoVersion()
-        #warn('TI VERSION: %s' % tiVersion)
+        #DumperBase.warn('TI VERSION: %s' % tiVersion)
         if tiVersion is None:
             tiVersion = 4
         if tiVersion > 10:
             status = d.extractByte(value)
-            #warn('STATUS: %s' % status)
+            #DumperBase.warn('STATUS: %s' % status)
             if status & 0x01:
                 # Short data
                 msecs = d.extractUInt64(value) >> 8
@@ -757,7 +757,7 @@ def qdump__QFixed(d, value):
 
 
 def qform__QFiniteStack():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__QFiniteStack(d, value):
     array, alloc, size = value.split('pii')
@@ -775,7 +775,7 @@ def qdump__QFlags(d, value):
 
 
 def qform__QHash():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__QHash(d, value):
     qdumpHelper_QHash(d, value, value.type[0], value.type[1])
@@ -835,7 +835,7 @@ def qdumpHelper_QHash(d, value, keyType, valueType):
 
 
 def qform__QHashNode():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__QHashNode(d, value):
     d.putPairItem(None, value)
@@ -872,7 +872,7 @@ def qdump__QHostAddress(d, value):
     dd = d.extractPointer(value)
     qtVersion = d.qtVersion()
     tiVersion = d.qtTypeInfoVersion()
-    #warn('QT: %x, TI: %s' % (qtVersion, tiVersion))
+    #DumperBase.warn('QT: %x, TI: %s' % (qtVersion, tiVersion))
     mayNeedParse = True
     if tiVersion is not None:
         if tiVersion >= 16:
@@ -942,7 +942,7 @@ def qdump__QIPv6Address(d, value):
     d.putArrayData(value.address(), 16, d.lookupType('unsigned char'))
 
 def qform__QList():
-    return [DirectQListStorageFormat, IndirectQListStorageFormat]
+    return [DisplayFormat.DirectQListStorageFormat, DisplayFormat.IndirectQListStorageFormat]
 
 def qdump__QList(d, value):
     return qdumpHelper_QList(d, value, value.type[0])
@@ -972,9 +972,9 @@ def qdumpHelper_QList(d, value, innerType):
         # in the frontend.
         # So as first approximation only do the 'isLarge' check:
         displayFormat = d.currentItemFormat()
-        if displayFormat == DirectQListStorageFormat:
+        if displayFormat == DisplayFormat.DirectQListStorageFormat:
             isInternal = True
-        elif displayFormat == IndirectQListStorageFormat:
+        elif displayFormat == DisplayFormat.IndirectQListStorageFormat:
             isInternal = False
         else:
             isInternal = innerSize <= stepSize and innerType.isMovableType()
@@ -995,7 +995,7 @@ def qdumpHelper_QList(d, value, innerType):
                     d.putSubItem(i, x)
 
 def qform__QImage():
-    return [SimpleFormat, SeparateFormat]
+    return [DisplayFormat.SimpleFormat, DisplayFormat.SeparateFormat]
 
 def qdump__QImage(d, value):
     if d.qtVersion() < 0x050000:
@@ -1024,7 +1024,7 @@ def qdump__QImage(d, value):
                 d.putType('void *')
 
     displayFormat = d.currentItemFormat()
-    if displayFormat == SeparateFormat:
+    if displayFormat == DisplayFormat.SeparateFormat:
         d.putDisplay('imagedata:separate', '%08x%08x%08x%08x' % (width, height, nbytes, iformat)
                         + d.readMemory(bits, nbytes))
 
@@ -1167,7 +1167,7 @@ def qdumpHelper_Qt5_QMap(d, value, keyType, valueType):
 
 
 def qform__QMap():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__QMap(d, value):
     qdumpHelper_QMap(d, value, value.type[0], value.type[1])
@@ -1179,13 +1179,13 @@ def qdumpHelper_QMap(d, value, keyType, valueType):
         qdumpHelper_Qt5_QMap(d, value, keyType, valueType)
 
 def qform__QMultiMap():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__QMultiMap(d, value):
     qdump__QMap(d, value)
 
 def qform__QVariantMap():
-    return mapForms()
+    return [DisplayFormat.CompactMapFormat]
 
 def qdump__QVariantMap(d, value):
     qdumpHelper_QMap(d, value, d.createType('QString'), d.createType('QVariant'))
@@ -1458,7 +1458,7 @@ def qdump__QSizePolicy(d, value):
 
 
 def qform__QStack():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 def qdump__QStack(d, value):
     qdump__QVector(d, value)
@@ -1492,14 +1492,14 @@ def qedit__QString(d, value, data):
     d.setValues(base, 'short', [ord(c) for c in data])
 
 def qform__QString():
-    return [SimpleFormat, SeparateFormat]
+    return [DisplayFormat.SimpleFormat, DisplayFormat.SeparateFormat]
 
 def qdump__QString(d, value):
     d.putStringValue(value)
     (data, size, alloc) = d.stringData(value)
     d.putNumChild(size)
     displayFormat = d.currentItemFormat()
-    if displayFormat == SeparateFormat:
+    if displayFormat == DisplayFormat.SeparateFormat:
         d.putDisplay('utf16:separate', d.encodeString(value, limit=100000))
     if d.isExpanded():
         d.putArrayData(data, size, d.createType('QChar'))
@@ -1596,7 +1596,7 @@ def qdump__QTextDocument(d, value):
 
 
 def qform__QUrl():
-    return [SimpleFormat, SeparateFormat]
+    return [DisplayFormat.SimpleFormat, DisplayFormat.SeparateFormat]
 
 def qdump__QUrl(d, value):
     privAddress = d.extractPointer(value)
@@ -1637,7 +1637,7 @@ def qdump__QUrl(d, value):
     d.putValue(url, 'utf16')
 
     displayFormat = d.currentItemFormat()
-    if displayFormat == SeparateFormat:
+    if displayFormat == DisplayFormat.SeparateFormat:
         d.putDisplay('utf16:separate', url)
 
     d.putNumChild(1)
@@ -1851,7 +1851,7 @@ def qdump__QVariant(d, value):
         d.putNumChild(0)
         return None
 
-    #warn('TYPE: %s' % variantType)
+    #DumperBase.warn('TYPE: %s' % variantType)
 
     if variantType <= 86:
         # Known Core or Gui type.
@@ -1867,15 +1867,15 @@ def qdump__QVariant(d, value):
         #data = value['d']['data']
         innerType = d.qtNamespace() + innert
 
-        #warn('SHARED: %s' % isShared)
+        #DumperBase.warn('SHARED: %s' % isShared)
         if isShared:
             base1 = d.extractPointer(value)
-            #warn('BASE 1: %s %s' % (base1, innert))
+            #DumperBase.warn('BASE 1: %s %s' % (base1, innert))
             base = d.extractPointer(base1)
-            #warn('SIZE 1: %s' % size)
+            #DumperBase.warn('SIZE 1: %s' % size)
             val = d.createValue(base, innerType)
         else:
-            #warn('DIRECT ITEM 1: %s' % innerType)
+            #DumperBase.warn('DIRECT ITEM 1: %s' % innerType)
             val = d.createValue(data, innerType)
             val.laddress = value.laddress
 
@@ -1939,7 +1939,7 @@ def qedit__QVector(d, value, data):
 
 
 def qform__QVector():
-    return arrayForms()
+    return [DisplayFormat.ArrayPlotFormat]
 
 
 def qdump__QVector(d, value):
@@ -2053,17 +2053,17 @@ def qdump__QXmlStreamAttribute(d, value):
 #######################################################################
 
 def extractQmlData(d, value):
-    #if value.type.code == TypeCodePointer:
+    #if value.type.code == TypeCode.TypeCodePointer:
     #    value = value.dereference()
     base = value.split('p')[0]
     #mmdata = d.split('Q', base)[0]
     #PointerMask = 0xfffffffffffffffd
     #vtable = mmdata & PointerMask
-    #warn('QML DATA: %s' % value.stringify())
+    #DumperBase.warn('QML DATA: %s' % value.stringify())
     #data = value['data']
     #return #data.cast(d.lookupType(value.type.name.replace('QV4::', 'QV4::Heap::')))
     typeName = value.type.name.replace('QV4::', 'QV4::Heap::')
-    #warn('TYOE DATA: %s' % typeName)
+    #DumperBase.warn('TYOE DATA: %s' % typeName)
     return d.createValue(base, typeName)
 
 def qdump__QV4__Heap__Base(d, value):
@@ -2236,7 +2236,7 @@ def QV4_valueForData(d, jsval): # (Dumper, QJSValue *jsval) -> QV4::Value *
     v = QV4_getValue(d, jsval)
     if v:
         return v
-    warn('Not implemented: VARIANT')
+    d.warn('Not implemented: VARIANT')
     return 0
 
 def QV4_putObjectValue(d, objectPtr):
@@ -2424,7 +2424,7 @@ def qdump_64__QV4__Value(d, value):
             d.putBetterType('%sQV4::Value (object)' % ns)
             #QV4_putObjectValue(d, d.extractPointer(value) + 2 * d.ptrSize())
             arrayVTable = d.symbolAddress(ns + 'QV4::ArrayObject::static_vtbl')
-            #warn('ARRAY VTABLE: 0x%x' % arrayVTable)
+            #DumperBase.warn('ARRAY VTABLE: 0x%x' % arrayVTable)
             d.putNumChild(1)
             d.putItem(d.createValue(d.extractPointer(value) + 2 * d.ptrSize(), ns + 'QV4::Object'))
             return
@@ -2630,7 +2630,7 @@ def qdump__QScriptValue(d, value):
     payload = x['asBits']['payload']
     #isValid = int(x['asBits']['tag']) != -6   # Empty
     #isCell = int(x['asBits']['tag']) == -2
-    #warn('IS CELL: %s ' % isCell)
+    #DumperBase.warn('IS CELL: %s ' % isCell)
     #isObject = False
     #className = 'UNKNOWN NAME'
     #if isCell:
@@ -2648,7 +2648,7 @@ def qdump__QScriptValue(d, value):
     #    type = cell['m_structure']['m_typeInfo']['m_type']
     #    isObject = int(type) == 7 # ObjectType;
     #    className = 'UNKNOWN NAME'
-    #warn('IS OBJECT: %s ' % isObject)
+    #DumperBase.warn('IS OBJECT: %s ' % isObject)
 
     #inline bool JSCell::inherits(const ClassInfo* info) const
     #for (const ClassInfo* ci = classInfo(); ci; ci = ci->parentClass) {

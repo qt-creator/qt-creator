@@ -57,16 +57,26 @@ public:
     IndexDataConsumer(const IndexDataConsumer &) = delete;
     IndexDataConsumer &operator=(const IndexDataConsumer &) = delete;
 
-    bool handleDeclOccurence(const clang::Decl *declaration,
-                             clang::index::SymbolRoleSet symbolRoles,
-                             llvm::ArrayRef<clang::index::SymbolRelation> symbolRelations,
-                             clang::SourceLocation sourceLocation,
-                             ASTNodeInfo astNodeInfo) override;
+#if LLVM_VERSION_MAJOR >= 10
+    bool handleDeclOccurrence(
+#else
+    bool handleDeclOccurence(
+#endif
+            const clang::Decl *declaration,
+            clang::index::SymbolRoleSet symbolRoles,
+            llvm::ArrayRef<clang::index::SymbolRelation> symbolRelations,
+            clang::SourceLocation sourceLocation,
+            ASTNodeInfo astNodeInfo) override;
 
-    bool handleMacroOccurence(const clang::IdentifierInfo *identifierInfo,
-                              const clang::MacroInfo *macroInfo,
-                              clang::index::SymbolRoleSet roles,
-                              clang::SourceLocation sourceLocation) override;
+#if LLVM_VERSION_MAJOR >= 10
+    bool handleMacroOccurrence(
+#else
+    bool handleMacroOccurence(
+#endif
+                const clang::IdentifierInfo *identifierInfo,
+                const clang::MacroInfo *macroInfo,
+                clang::index::SymbolRoleSet roles,
+                clang::SourceLocation sourceLocation) override;
 
     void finish() override;
 

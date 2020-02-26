@@ -41,18 +41,23 @@
 
 /*!
     \class Core::IWizardFactory
-    \mainclass
+    \inmodule QtCreator
+    \ingroup mainclasses
 
-    \brief The class IWizardFactory is the base class for all wizard factories
-    (for example shown in \gui {File | New}).
+    \brief The IWizardFactory class is the base class for all wizard factories.
 
-    The wizard interface is a very thin abstraction for the \gui{New...} wizards.
-    Basically it defines what to show to the user in the wizard selection dialogs,
+    \note Instead of using this class, we recommend that you create JSON-based
+    wizards, as instructed in \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}
+    {Adding New Custom Wizards}.
+
+    The wizard interface is a very thin abstraction for the wizards in
+    \uicontrol File > \uicontrol {New File or Project}.
+    Basically, it defines what to show to the user in the wizard selection dialogs,
     and a hook that is called if the user selects the wizard.
 
     Wizards can then perform any operations they like, including showing dialogs and
-    creating files. Often it is not necessary to create your own wizard from scratch,
-    instead use one of the predefined wizards and adapt it to your needs.
+    creating files. Often it is not necessary to create your own wizard from scratch.
+    Use one of the predefined wizards and adapt it to your needs.
 
     To make your wizard known to the system, add your IWizardFactory instance to the
     plugin manager's object pool in your plugin's initialize function:
@@ -64,84 +69,58 @@
             // ... do more setup
         }
     \endcode
-    \sa Core::BaseFileWizard
-    \sa Core::StandardFileWizard
+
+    \sa Core::BaseFileWizardFactory, Core::BaseFileWizard
 */
 
 /*!
     \enum Core::IWizardFactory::WizardKind
     Used to specify what kind of objects the wizard creates. This information is used
-    to show e.g. only wizards that create projects when selecting a \gui{New Project}
+    to show e.g. only wizards that create projects when selecting a \uicontrol{New Project}
     menu item.
     \value FileWizard
         The wizard creates one or more files.
-    \value ClassWizard
-        The wizard creates a new class (e.g. source+header files).
     \value ProjectWizard
         The wizard creates a new project.
 */
 
 /*!
-    \fn IWizardFactory::IWizardFactory(QObject *parent)
-    \internal
-*/
-
-/*!
-    \fn IWizardFactory::~IWizardFactory()
-    \internal
-*/
-
-/*!
-    \fn Kind IWizardFactory::kind() const
+    \fn Core::IWizardFactory::WizardKind Core::IWizardFactory::kind() const
     Returns what kind of objects are created by the wizard.
-    \sa Kind
 */
 
 /*!
-    \fn QIcon IWizardFactory::icon() const
+    \fn QIcon Core::IWizardFactory::icon() const
     Returns an icon to show in the wizard selection dialog.
 */
 
 /*!
-    \fn QString IWizardFactory::description() const
+    \fn QString Core::IWizardFactory::description() const
     Returns a translated description to show when this wizard is selected
     in the dialog.
 */
 
 /*!
-    \fn QString IWizardFactory::displayName() const
+    \fn QString Core::IWizardFactory::displayName() const
     Returns the translated name of the wizard, how it should appear in the
     dialog.
 */
 
 /*!
-    \fn QString IWizardFactory::id() const
+    \fn QString Core::IWizardFactory::id() const
     Returns an arbitrary id that is used for sorting within the category.
 */
 
 
 /*!
-    \fn QString IWizardFactory::category() const
+    \fn QString Core::IWizardFactory::category() const
     Returns a category ID to add the wizard to.
 */
 
 /*!
-    \fn QString IWizardFactory::displayCategory() const
+    \fn QString Core::IWizardFactory::displayCategory() const
     Returns the translated string of the category, how it should appear
     in the dialog.
-*/
-
-/*!
-    \fn void IWizardFactory::runWizard(const QString &path,
-                                      QWidget *parent,
-                                      const QString &platform,
-                                      const QVariantMap &variables)
-
-    This function is executed when the wizard has been selected by the user
-    for execution. Any dialogs the wizard opens should use the given \a parent.
-    The \a path argument is a suggestion for the location where files should be
-    created. The wizard should fill this in its path selection elements as a
-    default path.
 */
 
 using namespace Core;
@@ -268,6 +247,15 @@ QString IWizardFactory::runPath(const QString &defaultPath)
     return path;
 }
 
+/*!
+    Creates the wizard that the user selected for execution on the operating
+    system \a platform with \a variables.
+
+    Any dialogs the wizard opens should use the given \a parent.
+    The \a path argument is a suggestion for the location where files should be
+    created. The wizard should fill this in its path selection elements as a
+    default path.
+*/
 Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, Id platform, const QVariantMap &variables)
 {
     QTC_ASSERT(!s_isWizardRunning, return nullptr);

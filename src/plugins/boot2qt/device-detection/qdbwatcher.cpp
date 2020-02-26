@@ -62,11 +62,17 @@ void QdbWatcher::start(RequestType requestType)
 
 void QdbWatcher::startPrivate()
 {
+    constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                = &QLocalSocket::error;
+#else
+                = &QLocalSocket::errorOccurred;
+#endif
+
     m_socket = std::unique_ptr<QLocalSocket>(new QLocalSocket());
     connect(m_socket.get(), &QLocalSocket::connected,
             this, &QdbWatcher::handleWatchConnection);
-    connect(m_socket.get(), static_cast<void (QLocalSocket::*)
-            (QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
+    connect(m_socket.get(), LocalSocketErrorFunction,
             this, &QdbWatcher::handleWatchError);
     m_socket->connectToServer(qdbSocketName);
 }

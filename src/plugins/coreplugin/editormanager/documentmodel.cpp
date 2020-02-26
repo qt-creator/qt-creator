@@ -414,6 +414,18 @@ void DocumentModelPrivate::addEditor(IEditor *editor, bool *isNewDocument)
     }
 }
 
+/*!
+    \class Core::DocumentModel
+    \inmodule QtCreator
+    \internal
+*/
+
+/*!
+    \class Core::DocumentModel::Entry
+    \inmodule QtCreator
+    \internal
+*/
+
 DocumentModel::Entry *DocumentModelPrivate::addSuspendedDocument(const QString &fileName,
                                                                  const QString &displayName,
                                                                  Id id)

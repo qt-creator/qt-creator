@@ -56,6 +56,8 @@ void GradientPresetDefaultListModel::addAllPresets()
         return;
 
     for (int i = 0; i < metaEnum.keyCount(); i++) {
-        addItem(GradientPresetItem(GradientPresetItem::Preset(metaEnum.value(i))));
+        auto preset = GradientPresetItem::Preset(metaEnum.value(i));
+        if (preset < GradientPresetItem::Preset::NumPresets)
+            addItem(GradientPresetItem(preset));
     }
 }

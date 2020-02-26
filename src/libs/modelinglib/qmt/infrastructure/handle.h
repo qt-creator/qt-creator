@@ -41,6 +41,8 @@ public:
     template<class U>
     Handle(const Handle<U> &rhs) : m_uid(rhs.uid()), m_target(rhs.target()) { }
 
+    Handle &operator=(const Handle &) = default;
+
     bool isNull() const { return !m_uid.isValid(); }
     bool hasTarget() const { return m_target != nullptr; }
     Uid uid() const { return m_uid; }

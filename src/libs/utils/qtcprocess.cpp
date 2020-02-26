@@ -39,6 +39,7 @@
 #include <qt_windows.h>
 #else
 #include <errno.h>
+#include <stdio.h>
 #include <unistd.h>
 #endif
 
@@ -1226,7 +1227,7 @@ void QtcProcess::setupChildProcess()
     if (m_lowPriority) {
         errno = 0;
         if (::nice(5) == -1 && errno != 0)
-            qWarning("Failed to set nice value. Error: %d", errno);
+            perror("Failed to set nice value");
     }
 #endif
     QProcess::setupChildProcess();

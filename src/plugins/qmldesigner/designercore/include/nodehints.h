@@ -59,6 +59,7 @@ public:
     bool doesLayoutChildren() const;
     bool canBeDroppedInFormEditor() const;
     bool canBeDroppedInNavigator() const;
+    bool canBeDroppedInView3D() const;
     bool isMovable() const;
     bool isResizable() const;
     bool isStackedContainer() const;

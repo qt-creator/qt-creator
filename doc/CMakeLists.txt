@@ -10,6 +10,33 @@ add_feature_info("Build online documentation" WITH_ONLINE_DOCS "")
 option(BUILD_DEVELOPER_DOCS "Include developer documentation" OFF)
 add_feature_info("Include developer documentation" BUILD_DEVELOPER_DOCS "")
 
+function(_find_all_includes _ret_includes _ret_framework_paths)
+  set(_all_includes "${PROJECT_SOURCE_DIR}/src/plugins;${PROJECT_SOURCE_DIR}/src/libs")
+  foreach(_target ${__QTC_PLUGINS} ${__QTC_LIBRARIES})
+    if (NOT TARGET ${_target})
+      continue()
+    endif()
+    get_target_property(_includes ${_target} INCLUDE_DIRECTORIES)
+    foreach(_include ${_includes})
+      string(FIND "${_include}" "/src/plugins/" _in_plugins)
+      string(FIND "${_include}" "/src/libs/" _in_libs)
+      string(FIND "${_include}" "${CMAKE_BINARY_DIR}" _in_build)
+      if(_in_plugins LESS 0 AND _in_libs LESS 0 AND _in_build LESS 0)
+        list(APPEND _all_includes ${_include})
+      endif()
+    endforeach()
+  endforeach()
+  list(APPEND _all_includes ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+  list(REMOVE_DUPLICATES _all_includes)
+  set("${_ret_includes}" "${_all_includes}" PARENT_SCOPE)
+
+  # framework path
+  if (APPLE)
+    get_target_property(_qt_target Qt5::Core LOCATION) # <fw_path>/QtCore.framework/QtCore
+    get_filename_component(_qt_loc "${_qt_target}" DIRECTORY)
+    set("${_ret_framework_paths}" "${_qt_loc}/.." PARENT_SCOPE)
+  endif()
+endfunction()
 
 # Find programs:
 function(_doc_find_program result_var)
@@ -51,7 +78,7 @@ endfunction()
 
 function(_setup_qdoc_targets _qdocconf_file _retval)
   cmake_parse_arguments(_arg "" "HTML_DIR;INSTALL_DIR;POSTFIX"
-    "INDEXES;ENVIRONMENT_EXPORTS" ${ARGN})
+    "INDEXES;INCLUDE_DIRECTORIES;FRAMEWORK_PATHS;ENVIRONMENT_EXPORTS" ${ARGN})
 
   foreach(_index ${_arg_INDEXES})
     list(APPEND _qdoc_index_args "-indexdir;${_index}")
@@ -79,9 +106,30 @@ function(_setup_qdoc_targets _qdocconf_file _retval)
   set(_html_outputdir "${_arg_HTML_DIR}/${_target}${_arg_POSTFIX}")
   file(MAKE_DIRECTORY "${_html_outputdir}")
 
+  set(_qdoc_include_args "")
+  if (_arg_INCLUDE_DIRECTORIES OR _arg_FRAMEWORK_PATHS)
+    # pass include directories to qdoc via hidden @ option, since we need to generate a file
+    # to be able to resolve the generators inside the include paths
+    set(_qdoc_includes "${CMAKE_CURRENT_BINARY_DIR}/cmake/qdoc_${_target}.inc")
+    set(_qdoc_include_args "@${_qdoc_includes}")
+    set(_includes "")
+    if (_arg_INCLUDE_DIRECTORIES)
+      set(_includes "-I$<JOIN:${_arg_INCLUDE_DIRECTORIES},\n-I>\n")
+    endif()
+    set(_frameworks "")
+    if (_arg_FRAMEWORK_PATHS)
+      set(_frameworks "-F$<JOIN:${_arg_FRAMEWORK_PATHS},\n-F>\n")
+    endif()
+    file(GENERATE
+      OUTPUT "${_qdoc_includes}"
+      CONTENT "${_includes}${_frameworks}"
+    )
+  endif()
+
   set(_html_target "html_docs_${_target}")
   add_custom_target("${_html_target}"
-    ${_full_qdoc_command} "-outputdir" "${_html_outputdir}" "${_qdocconf_file}" ${_qdoc_index_args}
+      ${_full_qdoc_command} -outputdir "${_html_outputdir}" "${_qdocconf_file}"
+      ${_qdoc_index_args} ${_qdoc_include_args}
     COMMENT "Build HTML documentation from ${_qdocconf_file}"
     DEPENDS "${_qdocconf_file}"
     SOURCES "${_qdocconf_file}"
@@ -176,7 +224,7 @@ function(qdoc_build_qdocconf_file _qdocconf_file)
   endif()
 
   cmake_parse_arguments(_arg "QCH" "HTML_DIR;QCH_DIR;INSTALL_DIR;POSTFIX"
-    "INDEXES;ENVIRONMENT_EXPORTS" ${ARGN})
+    "INDEXES;INCLUDE_DIRECTORIES;FRAMEWORK_PATHS;ENVIRONMENT_EXPORTS" ${ARGN})
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "qdoc_build_qdocconf_file has unknown arguments: ${_arg_UNPARSED_ARGUMENTS}.")
   endif()
@@ -188,7 +236,10 @@ function(qdoc_build_qdocconf_file _qdocconf_file)
   _setup_qdoc_targets("${_qdocconf_file}" _html_outputdir
     HTML_DIR "${_arg_HTML_DIR}" INSTALL_DIR "${_arg_INSTALL_DIR}"
     INDEXES ${_arg_INDEXES} ENVIRONMENT_EXPORTS ${_arg_ENVIRONMENT_EXPORTS}
-    POSTFIX "${_arg_POSTFIX}")
+    POSTFIX "${_arg_POSTFIX}"
+    INCLUDE_DIRECTORIES ${_arg_INCLUDE_DIRECTORIES}
+    FRAMEWORK_PATHS ${_arg_FRAMEWORK_PATHS}
+  )
 
   if (_arg_QCH)
     _setup_qhelpgenerator_targets("${_qdocconf_file}" "${_html_outputdir}"
@@ -231,13 +282,21 @@ if (WITH_ONLINE_DOCS OR WITH_DOCS)
   if (WITH_DOCS)
     qdoc_build_qdocconf_file("qtcreator/qtcreator.qdocconf" ${_qch_params} ${_qdoc_params})
     if (BUILD_DEVELOPER_DOCS)
-      qdoc_build_qdocconf_file("qtcreatordev/qtcreator-dev.qdocconf" ${_qch_params} ${_qdoc_params})
+      _find_all_includes(_all_includes _framework_paths)
+      qdoc_build_qdocconf_file("qtcreatordev/qtcreator-dev.qdocconf" ${_qch_params} ${_qdoc_params}
+        INCLUDE_DIRECTORIES ${_all_includes}
+        FRAMEWORK_PATHS ${_framework_paths}
+      )
     endif()
   endif()
   if(WITH_ONLINE_DOCS)
     qdoc_build_qdocconf_file("qtcreator/qtcreator-online.qdocconf" ${_qdoc_params})
     if (BUILD_DEVELOPER_DOCS)
-      qdoc_build_qdocconf_file("qtcreatordev/qtcreator-dev-online.qdocconf" ${_qdoc_params})
+      _find_all_includes(_all_includes _framework_paths)
+      qdoc_build_qdocconf_file("qtcreatordev/qtcreator-dev-online.qdocconf" ${_qdoc_params}
+        INCLUDE_DIRECTORIES ${_all_includes}
+        FRAMEWORK_PATHS ${_framework_paths}
+      )
     endif()
   endif()
 endif()

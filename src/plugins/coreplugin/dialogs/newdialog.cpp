@@ -181,8 +181,6 @@ NewDialog::NewDialog(QWidget *parent) :
 
     m_currentDialog = this;
 
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(windowFlags());
     setAttribute(Qt::WA_DeleteOnClose);
     ICore::registerWindow(this, Context("Core.NewDialog"));
     m_ui->setupUi(this);

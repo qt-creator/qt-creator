@@ -49,6 +49,7 @@ INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/stateseditor
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/formeditor
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/propertyeditor
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/debugview
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/edit3d
 INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/3rdparty
 
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore-lib.pri)

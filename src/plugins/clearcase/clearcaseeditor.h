@@ -28,7 +28,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace ClearCase {
 namespace Internal {
@@ -41,12 +41,11 @@ public:
     ClearCaseEditorWidget();
 
 private:
-    QSet<QString> annotationChanges() const override;
     QString changeUnderCursor(const QTextCursor &) const override;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
             const QSet<QString> &changes) const override;
 
-    QRegExp m_versionNumberPattern;
+    const QRegularExpression m_versionNumberPattern;
 };
 
 } // namespace Internal

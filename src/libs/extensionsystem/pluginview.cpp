@@ -57,19 +57,19 @@
 */
 
 /*!
-    \fn void PluginView::currentPluginChanged(ExtensionSystem::PluginSpec *spec)
+    \fn void ExtensionSystem::PluginView::currentPluginChanged(ExtensionSystem::PluginSpec *spec)
     The current selection in the plugin list has changed to the
     plugin corresponding to \a spec.
 */
 
 /*!
-    \fn void PluginView::pluginActivated(ExtensionSystem::PluginSpec *spec)
+    \fn void ExtensionSystem::PluginView::pluginActivated(ExtensionSystem::PluginSpec *spec)
     The plugin list entry corresponding to \a spec has been activated,
     for example by a double-click.
 */
 
 /*!
-    \fn void PluginView::pluginSettingsChanged(ExtensionSystem::PluginSpec *spec)
+    \fn void ExtensionSystem::PluginView::pluginSettingsChanged(ExtensionSystem::PluginSpec *spec)
     The settings for the plugin list entry corresponding to \a spec changed.
 */
 

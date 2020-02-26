@@ -37,5 +37,6 @@ IconGizmo {
                     : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
                 : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
 
-    overlayColor: targetNode ? targetNode.color : "transparent"
+    // ColorOverlay doesn't work correctly with hidden windows so commenting it out for now
+    //overlayColor: targetNode ? targetNode.color : "transparent"
 }

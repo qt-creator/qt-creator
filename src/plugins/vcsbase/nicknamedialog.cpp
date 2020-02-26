@@ -169,7 +169,6 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
         m_model(model),
         m_filterModel(new QSortFilterProxyModel(this))
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     okButton()->setEnabled(false);
 

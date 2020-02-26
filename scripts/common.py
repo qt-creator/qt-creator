@@ -40,6 +40,33 @@ def is_linux_platform():
 def is_mac_platform():
     return sys.platform.startswith('darwin')
 
+def check_print_call(command, workdir):
+    print('------------------------------------------')
+    print('COMMAND:')
+    print(' '.join(['"' + c.replace('"', '\\"') + '"' for c in command]))
+    print('PWD:      "' + workdir + '"')
+    print('------------------------------------------')
+    subprocess.check_call(command, cwd=workdir)
+
+
+def get_git_SHA(path):
+    try:
+        return subprocess.check_output(['git', 'rev-list', '-n1', 'HEAD'], cwd=path).strip()
+    except subprocess.CalledProcessError:
+        return None
+    return None
+
+
+# get commit SHA either directly from git, or from a .tag file in the source directory
+def get_commit_SHA(path):
+    git_sha = get_git_SHA(path)
+    if not git_sha:
+        tagfile = os.path.join(path, '.tag')
+        if os.path.exists(tagfile):
+            with open(tagfile, 'r') as f:
+                git_sha = f.read().strip()
+    return git_sha
+
 # copy of shutil.copytree that does not bail out if the target directory already exists
 # and that does not create empty directories
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -211,5 +238,7 @@ def codesign(app_path):
                                lambda ff: ff.endswith('.dylib'))
     codesign = codesign_call()
     if is_mac_platform() and codesign:
+        entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
+                                         'installer', 'mac', 'entitlements.plist')
         # sign the whole bundle
-        subprocess.check_call(codesign + ['--deep', app_path])
+        subprocess.check_call(codesign + ['--deep', app_path, '--entitlements', entitlements_path])

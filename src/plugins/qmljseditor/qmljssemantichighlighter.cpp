@@ -610,7 +610,7 @@ void SemanticHighlighter::reportMessagesInfo(const QVector<QTextLayout::FormatRa
     // but will use them only after a signal sent by that same thread, maybe we should transfer
     // them more explicitly
     m_extraFormats = formats;
-    m_extraFormats.unite(m_formats);
+    Utils::addToHash(&m_extraFormats, m_formats);
     m_diagnosticRanges = diagnosticRanges;
 }
 

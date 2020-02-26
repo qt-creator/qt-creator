@@ -30,7 +30,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 
 /*!
     \class VcsBase::DiffAndLogHighlighter
@@ -88,8 +88,9 @@ static inline QTextCharFormat invertedColorFormat(const QTextCharFormat &in)
 class DiffAndLogHighlighterPrivate
 {
 public:
-    DiffAndLogHighlighterPrivate(DiffAndLogHighlighter *q_, const QRegExp &filePattern,
-                                 const QRegExp &changePattern) :
+    DiffAndLogHighlighterPrivate(DiffAndLogHighlighter *q_,
+                                 const QRegularExpression &filePattern,
+                                 const QRegularExpression &changePattern) :
         q(q_),
         m_filePattern(filePattern),
         m_changePattern(changePattern),
@@ -106,8 +107,8 @@ public:
 
     DiffAndLogHighlighter *const q;
 
-    mutable QRegExp m_filePattern;
-    mutable QRegExp m_changePattern;
+    const QRegularExpression m_filePattern;
+    const QRegularExpression m_changePattern;
     const QString m_locationIndicator;
     const QChar m_diffInIndicator;
     const QChar m_diffOutIndicator;
@@ -120,9 +121,9 @@ TextEditor::TextStyle DiffAndLogHighlighterPrivate::analyzeLine(const QString &t
 {
     // Do not match on git "--- a/" as a deleted line, check
     // file first
-    if (m_filePattern.indexIn(text) == 0)
+    if (m_filePattern.match(text).capturedStart() == 0)
         return TextEditor::C_DIFF_FILE;
-    if (m_changePattern.indexIn(text) == 0)
+    if (m_changePattern.match(text).capturedStart() == 0)
         return TextEditor::C_LOG_CHANGE_LINE;
     if (text.startsWith(m_diffInIndicator))
         return TextEditor::C_ADDED_LINE;
@@ -141,7 +142,8 @@ void DiffAndLogHighlighterPrivate::updateOtherFormats()
 }
 
 // --- DiffAndLogHighlighter
-DiffAndLogHighlighter::DiffAndLogHighlighter(const QRegExp &filePattern, const QRegExp &changePattern) :
+DiffAndLogHighlighter::DiffAndLogHighlighter(const QRegularExpression &filePattern,
+                                             const QRegularExpression &changePattern) :
     TextEditor::SyntaxHighlighter(static_cast<QTextDocument *>(nullptr)),
     d(new DiffAndLogHighlighterPrivate(this, filePattern, changePattern))
 {

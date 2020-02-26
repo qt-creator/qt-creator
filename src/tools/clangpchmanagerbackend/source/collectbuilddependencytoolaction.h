@@ -60,6 +60,16 @@ public:
                                                                     diagnosticConsumer);
     }
 
+#if LLVM_VERSION_MAJOR >= 10
+    std::unique_ptr<clang::FrontendAction> create() override
+    {
+        return std::make_unique<CollectBuildDependencyAction>(
+                    m_buildDependency,
+                    m_filePathCache,
+                    m_excludedIncludeUIDs,
+                    m_alreadyIncludedFileUIDs);
+    }
+#else
     clang::FrontendAction *create() override
     {
         return new CollectBuildDependencyAction(m_buildDependency,
@@ -67,6 +77,7 @@ public:
                                                 m_excludedIncludeUIDs,
                                                 m_alreadyIncludedFileUIDs);
     }
+#endif
 
     std::vector<uint> generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const
     {
@@ -77,7 +88,11 @@ public:
             NativeFilePath nativeFilePath{filePath};
             const clang::FileEntry *file = fileManager.getFile({nativeFilePath.path().data(),
                                                                 nativeFilePath.path().size()},
-                                                               true);
+                                                               true)
+#if LLVM_VERSION_MAJOR >= 10
+                    .get()
+#endif
+                    ;
 
             if (file)
                 fileUIDs.push_back(file->getUID());

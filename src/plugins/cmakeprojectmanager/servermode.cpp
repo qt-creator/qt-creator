@@ -207,8 +207,15 @@ void ServerMode::connectToServer()
 
     auto socket = new QLocalSocket(m_cmakeProcess.get());
     connect(socket, &QLocalSocket::readyRead, this, &ServerMode::handleRawCMakeServerData);
-    connect(socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
-            this, [this, socket]() {
+
+    constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                = &QLocalSocket::error;
+#else
+                = &QLocalSocket::errorOccurred;
+#endif
+
+    connect(socket, LocalSocketErrorFunction, this, [this, socket]() {
         reportError(socket->errorString());
         m_cmakeSocket = nullptr;
         socket->disconnect();

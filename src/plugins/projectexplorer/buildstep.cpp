@@ -260,11 +260,6 @@ void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)
     fi.reportFinished();
 }
 
-bool BuildStep::isActive() const
-{
-    return projectConfiguration()->isActive();
-}
-
 bool BuildStep::widgetExpandedByDefault() const
 {
     return m_widgetExpandedByDefault;

@@ -27,7 +27,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Mercurial {
 namespace Internal {
@@ -41,17 +41,15 @@ public:
     explicit MercurialEditorWidget(MercurialClient *client);
 
 private:
-    QSet<QString> annotationChanges() const override;
     QString changeUnderCursor(const QTextCursor &cursor) const override;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
             const QSet<QString> &changes) const override;
     QString decorateVersion(const QString &revision) const override;
     QStringList annotationPreviousVersions(const QString &revision) const override;
 
-    mutable QRegExp exactIdentifier12;
-    mutable QRegExp exactIdentifier40;
-    mutable QRegExp changesetIdentifier12;
-    const QRegExp changesetIdentifier40;
+    const QRegularExpression exactIdentifier12;
+    const QRegularExpression exactIdentifier40;
+    const QRegularExpression changesetIdentifier40;
 
     MercurialClient *m_client;
 };

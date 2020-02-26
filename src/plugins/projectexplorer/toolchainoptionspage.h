@@ -27,11 +27,15 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QCoreApplication>
+
 namespace ProjectExplorer {
 namespace Internal {
 
 class ToolChainOptionsPage final : public Core::IOptionsPage
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::ToolChainOptionsPage)
+
 public:
     ToolChainOptionsPage();
 };

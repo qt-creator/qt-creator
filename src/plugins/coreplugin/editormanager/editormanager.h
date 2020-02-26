@@ -149,7 +149,7 @@ public:
                                     const QString &infoText,
                                     const QString &buttonText = QString(),
                                     QObject *object = nullptr,
-                                    const std::function<void()> &function = nullptr);
+                                    const std::function<void()> &function = {});
     static void hideEditorStatusBar(const QString &id);
 
     static bool isAutoSaveFile(const QString &fileName);

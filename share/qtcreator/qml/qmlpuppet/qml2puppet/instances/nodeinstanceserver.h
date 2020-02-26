@@ -102,7 +102,6 @@ public:
     void createScene(const CreateSceneCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
     void update3DViewState(const Update3dViewStateCommand &command) override;
-    void enable3DView(const Enable3DViewCommand &command) override;
     void removeInstances(const RemoveInstancesCommand &command) override;
     void removeProperties(const RemovePropertiesCommand &command) override;
     void reparentInstances(const ReparentInstancesCommand &command) override;
@@ -112,6 +111,8 @@ public:
     void token(const TokenCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changeSelection(const ChangeSelectionCommand &command) override;
+    void inputEvent(const InputEventCommand &command) override;
+    void view3DAction(const View3DActionCommand &command) override;
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;

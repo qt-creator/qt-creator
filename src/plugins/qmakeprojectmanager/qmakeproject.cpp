@@ -1232,15 +1232,11 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
 
     const Utils::FilePath expected = tc->compilerCommand();
 
-    Environment env = Environment::systemEnvironment();
     Target *t = target();
     QTC_ASSERT(t, return);
 
-    Kit *k = t->kit();
-    if (BuildConfiguration *bc = t->activeBuildConfiguration())
-        env = bc->environment();
-    else
-        k->addToEnvironment(env);
+    QTC_ASSERT(m_buildConfiguration, return);
+    Environment env = m_buildConfiguration->environment();
 
     if (env.isSameExecutable(path.toString(), expected.toString()))
         return;
@@ -1261,7 +1257,9 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
                          "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
                          "Please update your kit (%3) or choose a mkspec for qmake that matches "
                          "your target environment better.")
-                     .arg(path.toUserOutput()).arg(expected.toUserOutput()).arg(k->displayName())));
+                                .arg(path.toUserOutput())
+                                .arg(expected.toUserOutput())
+                                .arg(t->kit()->displayName())));
     m_toolChainWarnings.insert(pair);
 }
 

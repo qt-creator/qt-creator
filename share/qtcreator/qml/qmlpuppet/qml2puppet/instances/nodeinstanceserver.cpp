@@ -68,6 +68,8 @@
 #include <removesharedmemorycommand.h>
 #include <changeselectioncommand.h>
 #include <drop3dlibraryitemcommand.h>
+#include <inputeventcommand.h>
+#include <view3dactioncommand.h>
 
 #include <QDebug>
 #include <QQmlEngine>
@@ -333,10 +335,6 @@ void NodeInstanceServer::clearScene(const ClearSceneCommand &/*command*/)
 }
 
 void NodeInstanceServer::update3DViewState(const Update3dViewStateCommand &/*command*/)
-{
-}
-
-void NodeInstanceServer::enable3DView(const Enable3DViewCommand &/*command*/)
 {
 }
 
@@ -1393,6 +1391,16 @@ QStringList NodeInstanceServer::dummyDataDirectories(const QString& directoryPat
 
         directory.cdUp();
     }
+}
+
+void NodeInstanceServer::inputEvent(const InputEventCommand &command)
+{
+    Q_UNUSED(command)
+}
+
+void NodeInstanceServer::view3DAction(const View3DActionCommand &command)
+{
+    Q_UNUSED(command)
 }
 
 }

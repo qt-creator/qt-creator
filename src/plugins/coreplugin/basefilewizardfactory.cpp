@@ -58,20 +58,11 @@ static int indexOfFile(const GeneratedFiles &f, const QString &path)
 
 /*!
     \class Core::BaseFileWizard
-    \brief The BaseFileWizard class implements a generic wizard for
+    \inmodule QtCreator
+    \brief The BaseFileWizard class implements a is a convenience class for
     creating files.
 
-    The following abstract functions must be implemented:
-    \list
-    \li create(): Called to create the QWizard dialog to be shown.
-    \li generateFiles(): Generates file content.
-    \endlist
-
-    The behaviour can be further customized by overwriting the virtual function \c postGenerateFiles(),
-    which is called after generating the files.
-
-    \sa Core::GeneratedFile, Core::BaseFileWizardParameters, Core::StandardFileWizard
-    \sa Core::Internal::WizardEventLoop
+    \sa Core::BaseFileWizardFactory
 */
 
 Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
@@ -98,25 +89,54 @@ Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget
 }
 
 /*!
-    \fn virtual QWizard *Core::BaseFileWizard::create(QWidget *parent,
-                                                      const WizardDialogParameters &parameters) const
+    \class Core::BaseFileWizardFactory
+    \inmodule QtCreator
+    \brief The BaseFileWizardFactory class implements a generic wizard for
+    creating files.
+
+    The following abstract functions must be implemented:
+    \list
+    \li create(): Called to create the QWizard dialog to be shown.
+    \li generateFiles(): Generates file content.
+    \endlist
+
+    The behavior can be further customized by overwriting the virtual function
+    postGenerateFiles(), which is called after generating the files.
+
+    \note Instead of using this class, we recommend that you create JSON-based
+    wizards, as instructed in \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}
+    {Adding New Custom Wizards}.
+
+    \sa Core::GeneratedFile, Core::WizardDialogParameters, Core::BaseFileWizard
+*/
+
+/*!
+    \fn Core::BaseFileWizard *Core::BaseFileWizardFactory::create(QWidget *parent,
+                                                                  const Core::WizardDialogParameters &parameters) const
 
     Creates the wizard on the \a parent with the \a parameters.
 */
 
 /*!
-    \fn virtual Core::GeneratedFiles Core::BaseFileWizard::generateFiles(const QWizard *w,
-                                                                         QString *errorMessage) const = 0
-    Overwrite to query the parameters from the dialog and generate the files.
+    \fn virtual Core::GeneratedFiles Core::BaseFileWizardFactory::generateFiles(const QWizard *w,
+                                                                                QString *errorMessage) const
+    Overwrite to query the parameters from the wizard \a w and generate the
+    files.
+
+    Possible errors are held in \a errorMessage.
 
     \note This does not generate physical files, but merely the list of
     Core::GeneratedFile.
 */
 
 /*!
-    Physically writes files.
+    Physically writes \a files.
 
-    Re-implement (calling the base implementation) to create files with CustomGeneratorAttribute set.
+    If the files cannot be written, returns \c false and sets \a errorMessage
+    to the message that is displayed to users.
+
+    Re-implement (calling the base implementation) to create files with
+    GeneratedFile::CustomGeneratorAttribute set.
 */
 
 bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *errorMessage) const
@@ -131,9 +151,13 @@ bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *err
 }
 
 /*!
-    Overwrite to perform steps to be done after files are actually created.
+    Overwrite to perform steps to be done by the wizard \a w after the files
+    specified by \a l are actually created.
 
-    The default implementation opens editors with the newly generated files.
+    The default implementation opens editors with the newly generated files
+    that have GeneratedFile::OpenEditorAttribute set.
+
+    Returns \a errorMessage if errors occur.
 */
 
 bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFiles &l,
@@ -143,7 +167,12 @@ bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFi
 }
 
 /*!
-    Opens the editors for the files whose attribute is set accordingly.
+    Opens the editors for the files \a l if their
+    GeneratedFile::OpenEditorAttribute attribute
+    is set accordingly.
+
+    If the editorrs cannot be opened, returns \c false and dand sets
+    \a errorMessage to the message that is displayed to users.
 */
 
 bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
@@ -163,6 +192,8 @@ bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QSt
 /*!
     Performs an overwrite check on a set of \a files. Checks if the file exists and
     can be overwritten at all, and then prompts the user with a summary.
+
+    Returns \a errorMessage if the file cannot be overwritten.
 */
 
 BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(GeneratedFiles *files,
@@ -243,8 +274,8 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
 }
 
 /*!
-    Constructs a file name, adding the \a extension unless \a baseName already has
-    one.
+    Constructs a file name including \a path, adding the \a extension unless
+    \a baseName already has one.
 */
 
 QString BaseFileWizardFactory::buildFileName(const QString &path,
@@ -285,14 +316,18 @@ QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
 }
 
 /*!
-    \class Core::StandardFileWizard
-    \brief The StandardFileWizard class is a convenience class for
-    creating one file.
+    \class Core::WizardDialogParameters
+    \inmodule QtCreator
+    \brief The WizardDialogParameters class holds parameters for the new file
+    wizard dialog.
 
-    It uses Utils::FileWizardDialog and introduces a new virtual to generate the
-    files from path and name.
+    \sa Core::GeneratedFile, Core::BaseFileWizardFactory
+*/
 
-    \sa Core::GeneratedFile, Core::BaseFileWizardParameters, Core::BaseFileWizard
+/*!
+    \enum Core::WizardDialogParameters::DialogParameterEnum
+    This enum type holds whether to force capital letters for file names.
+    \value ForceCapitalLetterForFileName Forces capital letters for file names.
 */
 
 } // namespace Core

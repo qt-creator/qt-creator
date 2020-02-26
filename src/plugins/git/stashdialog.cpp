@@ -102,7 +102,6 @@ StashDialog::StashDialog(QWidget *parent) : QDialog(parent),
     m_restoreCurrentInBranchButton(new QPushButton(tr("Restore to &Branch..."))),
     m_refreshButton(new QPushButton(tr("Re&fresh")))
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setAttribute(Qt::WA_DeleteOnClose, true);  // Do not update unnecessarily
 
     ui->setupUi(this);

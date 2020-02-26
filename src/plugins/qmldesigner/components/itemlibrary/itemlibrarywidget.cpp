@@ -83,7 +83,7 @@ static QString propertyEditorResourcesPath() {
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
     m_itemIconSize(24, 24),
-    m_itemViewQuickWidget(new QQuickWidget),
+    m_itemViewQuickWidget(new QQuickWidget(this)),
     m_resourcesView(new ItemLibraryResourceView(this)),
     m_importTagsWidget(new QWidget(this)),
     m_addResourcesWidget(new QWidget(this)),
@@ -121,7 +121,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     auto tabBar = new QTabBar(this);
     tabBar->addTab(tr("QML Types", "Title of library QML types view"));
     tabBar->addTab(tr("Assets", "Title of library assets view"));
-    tabBar->addTab(tr("Imports", "Title of library imports view"));
+    tabBar->addTab(tr("QML Imports", "Title of QML imports view"));
     tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     connect(tabBar, &QTabBar::currentChanged, this, &ItemLibraryWidget::setCurrentIndexOfStackedWidget);
     connect(tabBar, &QTabBar::currentChanged, this, &ItemLibraryWidget::updateSearch);
@@ -147,6 +147,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_stackedWidget = new QStackedWidget(this);
     m_stackedWidget->addWidget(m_itemViewQuickWidget.data());
     m_stackedWidget->addWidget(m_resourcesView.data());
+    m_stackedWidget->setMinimumHeight(30);
+    m_stackedWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
     QWidget *spacer = new QWidget(this);
     spacer->setObjectName(QStringLiteral("itemLibrarySearchInputSpacer"));

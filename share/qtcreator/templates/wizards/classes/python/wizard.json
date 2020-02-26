@@ -46,7 +46,7 @@
                     "data":
                     {
                         "items": [ { "trKey": "<Custom>", "value": "" },
-                                   "QObject", "QWidget", "QMainWindow", "QDeclarativeItem" ]
+                                   "QObject", "QWidget", "QMainWindow", "QDeclarativeItem", "QQuickItem" ]
                     }
                 },
                 {

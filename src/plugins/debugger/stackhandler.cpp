@@ -337,7 +337,6 @@ static StackFrame inputFunctionForDisassembly()
     dialog.setInputMode(QInputDialog::TextInput);
     dialog.setLabelText(StackHandler::tr("Function:"));
     dialog.setWindowTitle(StackHandler::tr("Disassemble Function"));
-    dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     if (dialog.exec() != QDialog::Accepted)
         return frame;
     const QString function = dialog.textValue();

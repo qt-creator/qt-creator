@@ -74,7 +74,7 @@ QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Core::Id id)
         QString command = static_cast<QbsBuildConfiguration *>(buildConfiguration())
                  ->equivalentCommandLine(data);
         effectiveCommandAspect->setValue(command);
-        return tr("<b>Qbs:</b> %1").arg(command);
+        return tr("<b>Qbs:</b> %1").arg("clean");
     });
 }
 

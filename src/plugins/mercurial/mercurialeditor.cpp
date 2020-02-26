@@ -42,33 +42,18 @@
 namespace Mercurial {
 namespace Internal  {
 
+// use QRegularExpression::anchoredPattern() when minimum Qt is raised to 5.12+
 MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
-        exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
-        exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
-        changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
-        changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
+        exactIdentifier12(QString("\\A(?:") + Constants::CHANGEIDEXACT12 + QString(")\\z")),
+        exactIdentifier40(QString("\\A(?:") + Constants::CHANGEIDEXACT40 + QString(")\\z")),
+        changesetIdentifier40(Constants::CHANGESETID40),
         m_client(client)
 {
-    setDiffFilePattern(QRegExp(QLatin1String(Constants::DIFFIDENTIFIER)));
-    setLogEntryPattern(QRegExp(QLatin1String("^changeset:\\s+(\\S+)$")));
+    setDiffFilePattern(Constants::DIFFIDENTIFIER);
+    setLogEntryPattern("^changeset:\\s+(\\S+)$");
     setAnnotateRevisionTextFormat(tr("&Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
-}
-
-QSet<QString> MercurialEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString data = toPlainText();
-    if (data.isEmpty())
-        return changes;
-
-    int position = 0;
-    while ((position = changesetIdentifier12.indexIn(data, position)) != -1) {
-        changes.insert(changesetIdentifier12.cap(1));
-        position += changesetIdentifier12.matchedLength();
-    }
-
-    return changes;
+    setAnnotationEntryPattern(Constants::CHANGESETID12);
 }
 
 QString MercurialEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
@@ -77,9 +62,9 @@ QString MercurialEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) co
     cursor.select(QTextCursor::WordUnderCursor);
     if (cursor.hasSelection()) {
         const QString change = cursor.selectedText();
-        if (exactIdentifier12.exactMatch(change))
+        if (exactIdentifier12.match(change).hasMatch())
             return change;
-        if (exactIdentifier40.exactMatch(change))
+        if (exactIdentifier40.match(change).hasMatch())
             return change;
     }
     return QString();

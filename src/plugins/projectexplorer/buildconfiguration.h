@@ -105,7 +105,7 @@ public:
 
     static QString buildTypeName(BuildType type);
 
-    bool isActive() const override;
+    bool isActive() const;
 
     static void prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env);
     void updateCacheAndEmitEnvironmentChanged();

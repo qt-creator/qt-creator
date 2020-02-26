@@ -368,7 +368,6 @@ private:
 
         // Disable help button in titlebar on windows:
         Qt::WindowFlags flags = changeDialog->windowFlags();
-        flags &= ~Qt::WindowContextHelpButtonHint;
         flags |= Qt::MSWindowsFixedSizeDialogHint;
         changeDialog->setWindowFlags(flags);
 

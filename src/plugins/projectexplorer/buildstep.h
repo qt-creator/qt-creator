@@ -100,8 +100,6 @@ public:
 
     static void reportRunResult(QFutureInterface<bool> &fi, bool success);
 
-    bool isActive() const override;
-
     bool widgetExpandedByDefault() const;
     void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
 

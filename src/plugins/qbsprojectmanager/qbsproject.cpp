@@ -1067,12 +1067,13 @@ void QbsBuildSystem::updateApplicationTargets()
             }
         }
         BuildTargetInfo bti;
-        bti.buildKey = productData.value("full-display-name").toString();
+        bti.buildKey = productData.value("name").toString() + '.'
+                + productData.value("multiplex-configuration-id").toString();
         bti.targetFilePath = FilePath::fromString(targetFile);
         bti.projectFilePath = FilePath::fromString(projectFile);
         bti.isQtcRunnable = isQtcRunnable; // Fixed up below.
         bti.usesTerminal = usesTerminal;
-        bti.displayName = bti.buildKey;
+        bti.displayName = productData.value("full-display-name").toString();
         bti.runEnvModifier = [targetFile, productData, this](Utils::Environment &env, bool usingLibraryPaths) {
             const QString productName = productData.value("full-display-name").toString();
             if (session()->projectData().isEmpty())

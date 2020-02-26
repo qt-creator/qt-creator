@@ -37,10 +37,9 @@ namespace QmlDesigner {
 class SwitchSplitTabWidget : public QWidget
 {
     Q_OBJECT
-    enum Mode {
-        SplitMode,
-        TabMode
-    };
+
+    enum Mode { SplitMode, TabMode };
+
 public:
     explicit SwitchSplitTabWidget(QWidget *parent = nullptr);
     int count() const;
@@ -50,19 +49,15 @@ public:
     QWidget *takeTabWidget(const int index);
     void switchTo(QWidget *widget);
 
-protected:
-    bool event(QEvent* event) override;
-
 private:
     void updateSplitterSizes(int index = -1);
     void updateSplitButtons();
     void selectFakeTab();
-    Mode mode();
+    Mode mode() const;
 
     QSplitter *m_splitter = nullptr;
     QTabBar *m_tabBar = nullptr;
     QWidget *m_tabBarBackground = nullptr;
     const int fakeTab = 1;
-    bool m_splittSizesAreDirty = true;
 };
 } // namespace QmlDesigner

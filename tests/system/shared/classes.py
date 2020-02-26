@@ -85,27 +85,6 @@ class ViewConstants:
     # always adjust the following to the highest value of the available ViewConstants when adding new
     LAST_AVAILABLE = HELP
 
-    # this function returns a regex of the tooltip of the FancyTabBar elements
-    # this is needed because the keyboard shortcut is OS specific
-    # if the provided argument does not match any of the ViewConstants it returns None
-    @staticmethod
-    def getToolTipForViewTab(viewTab):
-        if viewTab == ViewConstants.WELCOME:
-            toolTip = ur'Switch to <b>Welcome</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
-        elif viewTab == ViewConstants.EDIT:
-            toolTip = ur'Switch to <b>Edit</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
-        elif viewTab == ViewConstants.DESIGN:
-            toolTip = ur'Switch to <b>Design</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
-        elif viewTab == ViewConstants.DEBUG:
-            toolTip = ur'Switch to <b>Debug</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
-        elif viewTab == ViewConstants.PROJECTS:
-            toolTip = ur'Switch to <b>Projects</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
-        elif viewTab == ViewConstants.HELP:
-            toolTip = ur'Switch to <b>Help</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
-        else:
-            return None
-        return toolTip % (viewTab + 1)
-
 class LibType:
     SHARED = 0
     STATIC = 1

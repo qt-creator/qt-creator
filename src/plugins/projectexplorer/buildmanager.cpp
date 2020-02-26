@@ -791,6 +791,7 @@ bool BuildManager::buildLists(const QList<BuildStepList *> bsls, const QStringLi
     bool success = buildQueueAppend(steps, names, preambelMessage);
     if (!success) {
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
+        d->m_isDeploying = false;
         return false;
     }
 

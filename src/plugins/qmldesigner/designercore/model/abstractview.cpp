@@ -42,6 +42,7 @@
 #include <utils/algorithm.h>
 
 #include <QRegExp>
+#include <QtGui/qimage.h>
 
 namespace QmlDesigner {
 
@@ -362,7 +363,14 @@ void AbstractView::documentMessagesChanged(const QList<DocumentMessage> &/*error
 
 void AbstractView::currentTimelineChanged(const ModelNode & /*node*/)
 {
+}
 
+void AbstractView::renderImage3DChanged(const QImage & /*image*/)
+{
+}
+
+void AbstractView::updateActiveScene3D(const QVariantMap & /*sceneState*/)
+{
 }
 
 QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList) const
@@ -727,6 +735,18 @@ void AbstractView::emitInstanceToken(const QString &token, int number, const QVe
 {
     if (nodeInstanceView())
         model()->d->notifyInstanceToken(token, number, nodeVector);
+}
+
+void AbstractView::emitRenderImage3DChanged(const QImage &image)
+{
+    if (model())
+        model()->d->notifyRenderImage3DChanged(image);
+}
+
+void AbstractView::emitUpdateActiveScene3D(const QVariantMap &sceneState)
+{
+    if (model())
+        model()->d->notifyUpdateActiveScene3D(sceneState);
 }
 
 void AbstractView::emitRewriterEndTransaction()

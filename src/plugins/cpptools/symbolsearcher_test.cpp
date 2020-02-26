@@ -63,7 +63,7 @@ public:
     static ResultDataList fromSearchResultList(const QList<Core::SearchResultItem> &entries)
     {
         ResultDataList result;
-        foreach (const Core::SearchResultItem &entry, entries)
+        for (const Core::SearchResultItem &entry : entries)
             result << ResultData(entry.text, entry.path.join(QLatin1String("::")));
         return result;
     }
@@ -72,9 +72,9 @@ public:
     static void printFilterEntries(const ResultDataList &entries)
     {
         QTextStream out(stdout);
-        foreach (const ResultData entry, entries) {
+        for (const ResultData &entry : entries) {
             out << "<< ResultData(_(\"" << entry.m_symbolName << "\"), _(\""
-                << entry.m_scope <<  "\"))" << endl;
+                << entry.m_scope <<  "\"))" << '\n';
         }
     }
 

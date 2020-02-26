@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,44 +22,45 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#include "enable3dviewcommand.h"
+#include "itemlibraryinfo.h"
 
-#include <QDebug>
-#include <QDataStream>
+#include <QtWidgets/qwidget.h>
+#include <QtGui/qimage.h>
+#include <QtGui/qevent.h>
+#include <QtCore/qpointer.h>
 
 namespace QmlDesigner {
 
-// open / close edit view 3D command
-Enable3DViewCommand::Enable3DViewCommand(bool enable)
-    : m_enable(enable)
+class Edit3DWidget;
+
+class Edit3DCanvas : public QWidget
 {
-}
+    Q_OBJECT
 
-bool Enable3DViewCommand::isEnable() const
-{
-    return m_enable;
-}
+public:
+    Edit3DCanvas(Edit3DWidget *parent);
 
-QDataStream &operator<<(QDataStream &out, const Enable3DViewCommand &command)
-{
-    out << qint32(command.isEnable());
+    void updateRenderImage(const QImage &img);
+    void updateActiveScene(qint32 activeScene);
 
-    return out;
-}
+protected:
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void wheelEvent(QWheelEvent *e) override;
+    void paintEvent(QPaintEvent *e) override;
+    void resizeEvent(QResizeEvent *e) override;
+    void dragEnterEvent(QDragEnterEvent *e) override;
+    void dropEvent(QDropEvent *e) override;
 
-QDataStream &operator>>(QDataStream &in, Enable3DViewCommand &command)
-{
-    qint32 enable;
-    in >> enable;
-    command.m_enable = enable;
-
-    return in;
-}
-
-QDebug operator<<(QDebug debug, const Enable3DViewCommand &command)
-{
-    return debug.nospace() << "Enable3DViewCommand(enable: " << command.m_enable << ")";
-}
+private:
+    QPointer<Edit3DWidget> m_parent;
+    QImage m_image;
+    qint32 m_activeScene;
+    ItemLibraryEntry m_itemLibraryEntry;
+};
 
 } // namespace QmlDesigner

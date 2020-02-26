@@ -92,7 +92,7 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 */
 
 /*!
-    \fn void BaseTextFind::findScopeChanged(const QTextCursor &start,
+    \fn void Core::BaseTextFind::findScopeChanged(const QTextCursor &start,
                            const QTextCursor &end,
                            int verticalBlockSelectionFirstColumn,
                            int verticalBlockSelectionLastColumn)
@@ -104,7 +104,7 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 */
 
 /*!
-    \fn void BaseTextFind::highlightAllRequested(const QString &txt, Core::FindFlags findFlags)
+    \fn void Core::BaseTextFind::highlightAllRequested(const QString &txt, Core::FindFlags findFlags)
 
     This signal is emitted when the search results for \a txt using the given
     \a findFlags should be highlighted in the editor widget.

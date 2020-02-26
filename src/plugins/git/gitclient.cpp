@@ -560,14 +560,15 @@ public:
     }
 };
 
-class GitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
+class BaseGitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
 {
     Q_OBJECT
 
 public:
-    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, QToolBar *toolBar) :
-        BaseGitDiffArgumentsWidget(settings, toolBar)
+    BaseGitLogArgumentsWidget(VcsBaseClientSettings &settings, GitEditorWidget *editor) :
+        BaseGitDiffArgumentsWidget(settings, editor->toolBar())
     {
+        QToolBar *toolBar = editor->toolBar();
         QAction *diffButton = addToggleButton("--patch", tr("Diff"),
                                               tr("Show difference."));
         mapSetting(diffButton, settings.boolPointer(GitSettings::logDiffKey));
@@ -575,6 +576,22 @@ public:
         connect(diffButton, &QAction::toggled, m_ignoreWSButton, &QAction::setVisible);
         m_patienceButton->setVisible(diffButton->isChecked());
         m_ignoreWSButton->setVisible(diffButton->isChecked());
+        auto filterAction = new QAction(tr("Filter"), toolBar);
+        filterAction->setToolTip(tr("Filter commits by message or content."));
+        filterAction->setCheckable(true);
+        connect(filterAction, &QAction::toggled, editor, &GitEditorWidget::toggleFilters);
+        toolBar->addAction(filterAction);
+    }
+};
+
+class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
+{
+    Q_OBJECT
+
+public:
+    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, GitEditorWidget *editor) :
+        BaseGitLogArgumentsWidget(settings, editor)
+    {
         QAction *firstParentButton =
                 addToggleButton({"-m", "--first-parent"},
                                 tr("First Parent"),
@@ -594,6 +611,24 @@ public:
                         tr("Show log also for previous names of the file."));
             mapSetting(followButton, settings.boolPointer(GitSettings::followRenamesKey));
         }
+
+        addReloadButton();
+    }
+};
+
+class GitRefLogArgumentsWidget : public BaseGitLogArgumentsWidget
+{
+    Q_OBJECT
+
+public:
+    GitRefLogArgumentsWidget(VcsBaseClientSettings &settings, GitEditorWidget *editor) :
+        BaseGitLogArgumentsWidget(settings, editor)
+    {
+        QAction *showDateButton =
+                addToggleButton("--date=iso",
+                                tr("Show Date"),
+                                tr("Show date instead of sequence"));
+        mapSetting(showDateButton, settings.boolPointer(GitSettings::refLogShowDateKey));
 
         addReloadButton();
     }
@@ -1004,7 +1039,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
                                 codecFor(CodecLogOutput), "logTitle", msgArg));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
-        argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor->toolBar());
+        argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor);
         argWidget->setBaseArguments(args);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
                 [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
@@ -1027,26 +1062,42 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (!pickaxeValue.isEmpty())
         arguments << "-S" << pickaxeValue;
 
+    if ((!grepValue.isEmpty() || !pickaxeValue.isEmpty()) && !editor->caseSensitive())
+        arguments << "-i";
+
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
 
     vcsExec(workingDir, arguments, editor);
 }
 
-void GitClient::reflog(const QString &workingDirectory)
+void GitClient::reflog(const QString &workingDirectory, const QString &ref)
 {
     const QString title = tr("Git Reflog \"%1\"").arg(workingDirectory);
-    const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, workingDirectory, codecFor(CodecLogOutput),
-                                                  "reflogRepository", workingDirectory);
-    editor->setWorkingDirectory(workingDirectory);
+    const Id editorId = Git::Constants::GIT_REFLOG_EDITOR_ID;
+    // Creating document might change the referenced workingDirectory. Store a copy and use it.
+    const QString workingDir = workingDirectory;
+    GitEditorWidget *editor = static_cast<GitEditorWidget *>(
+                createVcsEditor(editorId, title, workingDir, codecFor(CodecLogOutput),
+                                "reflogRepository", workingDir));
+    VcsBaseEditorConfig *argWidget = editor->editorConfig();
+    if (!argWidget) {
+        argWidget = new GitRefLogArgumentsWidget(settings(), editor);
+        if (!ref.isEmpty())
+            argWidget->setBaseArguments({ref});
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                [=] { this->reflog(workingDir, ref); });
+        editor->setEditorConfig(argWidget);
+    }
+    editor->setWorkingDirectory(workingDir);
 
     QStringList arguments = {"reflog", noColorOption, decorateOption};
+    arguments << argWidget->arguments();
     int logCount = settings().intValue(GitSettings::logCountKey);
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
-    vcsExec(workingDirectory, arguments, editor);
+    vcsExec(workingDir, arguments, editor);
 }
 
 // Do not show "0000" or "^32ae4"
@@ -3076,7 +3127,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
 
     // Create a command editor, no highlighting or interaction.
     const QString title = tr("Git SVN Log");
-    const Id editorId = Git::Constants::GIT_COMMAND_LOG_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_SVN_LOG_EDITOR_ID;
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, QStringList());
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecNone),
                                                   "svnLog", sourceFile);

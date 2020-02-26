@@ -30,16 +30,11 @@ import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
 import MouseArea3D 1.0
 
-Window {
-    id: viewWindow
+Item {
+    id: viewRoot
     width: 1024
     height: 768
-    minimumHeight: 200
-    minimumWidth: 200
     visible: true
-    title: qsTr("3D Edit View [") + sceneId + qsTr("]")
-    // need all those flags otherwise the title bar disappears after setting WindowStaysOnTopHint flag later
-    flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
 
     property Node activeScene: null
     property View3D editView: null
@@ -48,6 +43,7 @@ Window {
     property alias showEditLight: btnEditViewLight.toggled
     property alias usePerspective: btnPerspective.toggled
     property alias globalOrientation: btnLocalGlobal.toggled
+    property alias contentItem: contentItem
 
     property Node selectedNode: null // This is non-null only in single selection case
     property var selectedNodes: [] // All selected nodes
@@ -56,6 +52,8 @@ Window {
     property var cameraGizmos: []
     property var selectionBoxes: []
     property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
+
+    property bool showButtons: false
 
     signal selectionChanged(var selectedNodes)
     signal commitObjectProperty(var object, var propName)
@@ -86,7 +84,7 @@ Window {
                 editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
                 selectionBoxes.length = 0;
-                updateToolStates();
+                updateToolStates(_generalHelper.getToolStates(sceneId), true);
             }
         }
     }
@@ -99,54 +97,62 @@ Window {
             _generalHelper.enableItemUpdate(editView, (scene && scene === activeScene));
     }
 
-
-    function restoreWindowState()
+    function fitToView()
     {
-        // It is expected that tool states have been initialized before calling this
-        _generalHelper.restoreWindowState(viewWindow);
+        if (editView) {
+            var targetNode = selectedNodes.length > 0
+                    ? selectionBoxes[0].model : null;
+            cameraControl.focusObject(targetNode, editView.camera.rotation, true);
+        }
     }
 
-    function updateToolStates()
+    // If resetToDefault is true, tool states not specifically set to anything will be reset to
+    // their default state.
+    function updateToolStates(toolStates, resetToDefault)
     {
-        var toolStates = _generalHelper.getToolStates(sceneId);
         if ("showEditLight" in toolStates)
             showEditLight = toolStates.showEditLight;
-        else
+        else if (resetToDefault)
             showEditLight = false;
         if ("usePerspective" in toolStates)
             usePerspective = toolStates.usePerspective;
-        else
+        else if (resetToDefault)
             usePerspective = false;
         if ("globalOrientation" in toolStates)
             globalOrientation = toolStates.globalOrientation;
-        else
+        else if (resetToDefault)
             globalOrientation = false;
 
         var groupIndex;
         var group;
         var i;
-        btnSelectItem.selected = false;
-        btnSelectGroup.selected = true;
+
         if ("groupSelect" in toolStates) {
             groupIndex = toolStates.groupSelect;
             group = toolbarButtons.buttonGroups["groupSelect"];
             for (i = 0; i < group.length; ++i)
                 group[i].selected = (i === groupIndex);
+            _generalHelper.storeToolState(sceneId, "groupSelect", groupIndex)
+        } else if (resetToDefault) {
+            btnSelectItem.selected = true;
+            btnSelectGroup.selected = false;
         }
 
-        btnRotate.selected = false;
-        btnScale.selected = false;
-        btnMove.selected = true;
         if ("groupTransform" in toolStates) {
             groupIndex = toolStates.groupTransform;
             group = toolbarButtons.buttonGroups["groupTransform"];
             for (i = 0; i < group.length; ++i)
                 group[i].selected = (i === groupIndex);
+            _generalHelper.storeToolState(sceneId, "groupTransform", groupIndex)
+        } else if (resetToDefault) {
+            btnRotate.selected = false;
+            btnScale.selected = false;
+            btnMove.selected = true;
         }
 
         if ("editCamState" in toolStates)
             cameraControl.restoreCameraState(toolStates.editCamState);
-        else
+        else if (resetToDefault)
             cameraControl.restoreDefaultState();
     }
 
@@ -324,37 +330,27 @@ Window {
         _generalHelper.requestOverlayUpdate();
     }
 
-    onWidthChanged: {
-        _generalHelper.requestOverlayUpdate();
-        _generalHelper.storeWindowState(viewWindow);
-    }
-    onHeightChanged: {
-        _generalHelper.requestOverlayUpdate();
-        _generalHelper.storeWindowState(viewWindow);
-
-    }
-    onXChanged: _generalHelper.storeWindowState(viewWindow);
-    onYChanged: _generalHelper.storeWindowState(viewWindow);
-    onWindowStateChanged: _generalHelper.storeWindowState(viewWindow);
+    onWidthChanged: _generalHelper.requestOverlayUpdate()
+    onHeightChanged: _generalHelper.requestOverlayUpdate()
 
     Node {
         id: overlayScene
 
         PerspectiveCamera {
             id: overlayPerspectiveCamera
-            clipFar: viewWindow.editView ? viewWindow.editView.perpectiveCamera.clipFar : 1000
-            clipNear: viewWindow.editView ? viewWindow.editView.perpectiveCamera.clipNear : 1
-            position: viewWindow.editView ? viewWindow.editView.perpectiveCamera.position : Qt.vector3d(0, 0, 0)
-            rotation: viewWindow.editView ? viewWindow.editView.perpectiveCamera.rotation : Qt.vector3d(0, 0, 0)
+            clipFar: viewRoot.editView ? viewRoot.editView.perpectiveCamera.clipFar : 1000
+            clipNear: viewRoot.editView ? viewRoot.editView.perpectiveCamera.clipNear : 1
+            position: viewRoot.editView ? viewRoot.editView.perpectiveCamera.position : Qt.vector3d(0, 0, 0)
+            rotation: viewRoot.editView ? viewRoot.editView.perpectiveCamera.rotation : Qt.vector3d(0, 0, 0)
         }
 
         OrthographicCamera {
             id: overlayOrthoCamera
-            clipFar: viewWindow.editView ? viewWindow.editView.orthoCamera.clipFar : 1000
-            clipNear: viewWindow.editView ? viewWindow.editView.orthoCamera.clipNear : 1
-            position: viewWindow.editView ? viewWindow.editView.orthoCamera.position : Qt.vector3d(0, 0, 0)
-            rotation: viewWindow.editView ? viewWindow.editView.orthoCamera.rotation : Qt.vector3d(0, 0, 0)
-            scale: viewWindow.editView ? viewWindow.editView.orthoCamera.scale : Qt.vector3d(0, 0, 0)
+            clipFar: viewRoot.editView ? viewRoot.editView.orthoCamera.clipFar : 1000
+            clipNear: viewRoot.editView ? viewRoot.editView.orthoCamera.clipNear : 1
+            position: viewRoot.editView ? viewRoot.editView.orthoCamera.position : Qt.vector3d(0, 0, 0)
+            rotation: viewRoot.editView ? viewRoot.editView.orthoCamera.rotation : Qt.vector3d(0, 0, 0)
+            scale: viewRoot.editView ? viewRoot.editView.orthoCamera.scale : Qt.vector3d(0, 0, 0)
         }
 
         MouseArea3D {
@@ -366,41 +362,41 @@ Window {
             id: moveGizmo
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
-            targetNode: viewWindow.selectedNode
-            globalOrientation: viewWindow.globalOrientation
-            visible: viewWindow.selectedNode && btnMove.selected
+            targetNode: viewRoot.selectedNode
+            globalOrientation: viewRoot.globalOrientation
+            visible: viewRoot.selectedNode && btnMove.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onPositionCommit: viewWindow.commitObjectProperty(viewWindow.selectedNode, "position")
-            onPositionMove: viewWindow.changeObjectProperty(viewWindow.selectedNode, "position")
+            onPositionCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "position")
+            onPositionMove: viewRoot.changeObjectProperty(viewRoot.selectedNode, "position")
         }
 
         ScaleGizmo {
             id: scaleGizmo
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
-            targetNode: viewWindow.selectedNode
-            visible: viewWindow.selectedNode && btnScale.selected
+            targetNode: viewRoot.selectedNode
+            visible: viewRoot.selectedNode && btnScale.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onScaleCommit: viewWindow.commitObjectProperty(viewWindow.selectedNode, "scale")
-            onScaleChange: viewWindow.changeObjectProperty(viewWindow.selectedNode, "scale")
+            onScaleCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "scale")
+            onScaleChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "scale")
         }
 
         RotateGizmo {
             id: rotateGizmo
             scale: autoScale.getScale(Qt.vector3d(7, 7, 7))
             highlightOnHover: true
-            targetNode: viewWindow.selectedNode
-            globalOrientation: viewWindow.globalOrientation
-            visible: viewWindow.selectedNode && btnRotate.selected
+            targetNode: viewRoot.selectedNode
+            globalOrientation: viewRoot.globalOrientation
+            visible: viewRoot.selectedNode && btnRotate.selected
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onRotateCommit: viewWindow.commitObjectProperty(viewWindow.selectedNode, "rotation")
-            onRotateChange: viewWindow.changeObjectProperty(viewWindow.selectedNode, "rotation")
+            onRotateCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "rotation")
+            onRotateChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "rotation")
         }
 
         AutoScaleHelper {
@@ -412,31 +408,31 @@ Window {
 
         Line3D {
             id: pivotLine
-            visible: viewWindow.selectedNode
+            visible: viewRoot.selectedNode
             name: "3D Edit View Pivot Line"
             color: "#ddd600"
 
             function flipIfNeeded(vec) {
-                if (!viewWindow.selectedNode || viewWindow.selectedNode.orientation === Node.LeftHanded)
+                if (!viewRoot.selectedNode || viewRoot.selectedNode.orientation === Node.LeftHanded)
                     return vec;
                 else
                     return Qt.vector3d(vec.x, vec.y, -vec.z);
             }
 
-            startPos: viewWindow.selectedNode ? flipIfNeeded(viewWindow.selectedNode.scenePosition)
+            startPos: viewRoot.selectedNode ? flipIfNeeded(viewRoot.selectedNode.scenePosition)
                                               : Qt.vector3d(0, 0, 0)
             Connections {
-                target: viewWindow
+                target: viewRoot
                 onSelectedNodeChanged: {
                     pivotLine.endPos = pivotLine.flipIfNeeded(gizmoDragHelper.pivotScenePosition(
-                                                                  viewWindow.selectedNode));
+                                                                  viewRoot.selectedNode));
                 }
             }
             Connections {
-                target: viewWindow.selectedNode
+                target: viewRoot.selectedNode
                 onSceneTransformChanged: {
                     pivotLine.endPos = pivotLine.flipIfNeeded(gizmoDragHelper.pivotScenePosition(
-                                                                  viewWindow.selectedNode));
+                                                                  viewRoot.selectedNode));
                 }
             }
 
@@ -457,243 +453,235 @@ Window {
         }
     }
 
-    Rectangle {
-        id: viewRect
+    Item {
+        id: contentItem
         anchors.fill: parent
-        focus: true
 
-        gradient: Gradient {
-            GradientStop { position: 1.0; color: "#222222" }
-            GradientStop { position: 0.0; color: "#999999" }
-        }
-
-        MouseArea {
+        Rectangle {
+            id: viewRect
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
-            onClicked: {
-                if (viewWindow.editView) {
-                    var pickResult = viewWindow.editView.pick(mouse.x, mouse.y);
-                    handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
-                                        mouse.modifiers & Qt.ControlModifier);
-                    if (!pickResult.objectHit)
-                        mouse.accepted = false;
+            focus: true
+
+            gradient: Gradient {
+                GradientStop { position: 1.0; color: "#222222" }
+                GradientStop { position: 0.0; color: "#999999" }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton
+                onClicked: {
+                    if (viewRoot.editView) {
+                        var pickResult = viewRoot.editView.pick(mouse.x, mouse.y);
+                        handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
+                                            mouse.modifiers & Qt.ControlModifier);
+                        if (!pickResult.objectHit)
+                            mouse.accepted = false;
+                    }
                 }
             }
-        }
 
-        DropArea {
-            anchors.fill: parent
-        }
+            DropArea {
+                anchors.fill: parent
+            }
 
-        View3D {
-            id: overlayView
-            anchors.fill: parent
-            camera: usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
-            importScene: overlayScene
-            z: 2
-        }
+            View3D {
+                id: overlayView
+                anchors.fill: parent
+                camera: usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
+                importScene: overlayScene
+                z: 2
+            }
 
-        Overlay2D {
-            id: gizmoLabel
-            targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
-            targetView: overlayView
-            visible: targetNode.dragging
-            z: 3
+            Overlay2D {
+                id: gizmoLabel
+                targetNode: moveGizmo.visible ? moveGizmo : scaleGizmo
+                targetView: overlayView
+                visible: targetNode.dragging
+                z: 3
 
-            Rectangle {
-                color: "white"
-                x: -width / 2
-                y: -height - 8
-                width: gizmoLabelText.width + 4
-                height: gizmoLabelText.height + 4
-                border.width: 1
-                Text {
-                    id: gizmoLabelText
-                    text: {
-                        var l = Qt.locale();
-                        var targetProperty;
-                        if (viewWindow.selectedNode) {
-                            if (gizmoLabel.targetNode === moveGizmo)
-                                targetProperty = viewWindow.selectedNode.position;
-                            else
-                                targetProperty = viewWindow.selectedNode.scale;
-                            return qsTr("x:") + Number(targetProperty.x).toLocaleString(l, 'f', 1)
-                                + qsTr(" y:") + Number(targetProperty.y).toLocaleString(l, 'f', 1)
-                                + qsTr(" z:") + Number(targetProperty.z).toLocaleString(l, 'f', 1);
-                        } else {
-                            return "";
+                Rectangle {
+                    color: "white"
+                    x: -width / 2
+                    y: -height - 8
+                    width: gizmoLabelText.width + 4
+                    height: gizmoLabelText.height + 4
+                    border.width: 1
+                    Text {
+                        id: gizmoLabelText
+                        text: {
+                            var l = Qt.locale();
+                            var targetProperty;
+                            if (viewRoot.selectedNode) {
+                                if (gizmoLabel.targetNode === moveGizmo)
+                                    targetProperty = viewRoot.selectedNode.position;
+                                else
+                                    targetProperty = viewRoot.selectedNode.scale;
+                                return qsTr("x:") + Number(targetProperty.x).toLocaleString(l, 'f', 1)
+                                    + qsTr(" y:") + Number(targetProperty.y).toLocaleString(l, 'f', 1)
+                                    + qsTr(" z:") + Number(targetProperty.z).toLocaleString(l, 'f', 1);
+                            } else {
+                                return "";
+                            }
                         }
+                        anchors.centerIn: parent
                     }
-                    anchors.centerIn: parent
                 }
             }
+
+            EditCameraController {
+                id: cameraControl
+                camera: viewRoot.editView ? viewRoot.editView.camera : null
+                anchors.fill: parent
+                view3d: viewRoot.editView
+                sceneId: viewRoot.sceneId
+            }
         }
 
-        EditCameraController {
-            id: cameraControl
-            camera: viewWindow.editView ? viewWindow.editView.camera : null
-            anchors.fill: parent
-            view3d: viewWindow.editView
-            sceneId: viewWindow.sceneId
-        }
-    }
+        Rectangle { // toolbar
+            id: toolbar
+            color: "#9F000000"
+            width: 35
+            height: toolbarButtons.height
+            visible: viewRoot.showButtons
 
-    Rectangle { // toolbar
-        id: toolbar
-        color: "#9F000000"
-        width: 35
-        height: toolbarButtons.height
-
-        Column {
-            id: toolbarButtons
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 5
-            padding: 5
-
-            // Button groups must be defined in parent object of buttons
-            property var buttonGroups: {
-                "groupSelect": [btnSelectGroup, btnSelectItem],
-                "groupTransform": [btnMove, btnRotate, btnScale]
-            }
-
-            ToolBarButton {
-                id: btnSelectItem
-                selected: true
-                tooltip: qsTr("Select Item")
-                shortcut: "Q"
-                currentShortcut: selected ? "" : shortcut
-                tool: "item_selection"
-                buttonGroup: "groupSelect"
-                sceneId: viewWindow.sceneId
-            }
-
-            ToolBarButton {
-                id: btnSelectGroup
-                tooltip: qsTr("Select Group")
-                shortcut: "Q"
-                currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
-                tool: "group_selection"
-                buttonGroup: "groupSelect"
-                sceneId: viewWindow.sceneId
-            }
-
-            Rectangle { // separator
-                width: 25
-                height: 1
-                color: "#f1f1f1"
+            Column {
+                id: toolbarButtons
                 anchors.horizontalCenter: parent.horizontalCenter
-            }
+                spacing: 5
+                padding: 5
 
-            ToolBarButton {
-                id: btnMove
-                selected: true
-                tooltip: qsTr("Move current selection")
-                shortcut: "W"
-                currentShortcut: shortcut
-                tool: "move"
-                buttonGroup: "groupTransform"
-                sceneId: viewWindow.sceneId
-            }
+                // Button groups must be defined in parent object of buttons
+                property var buttonGroups: {
+                    "groupSelect": [btnSelectGroup, btnSelectItem],
+                    "groupTransform": [btnMove, btnRotate, btnScale]
+                }
 
-            ToolBarButton {
-                id: btnRotate
-                tooltip: qsTr("Rotate current selection")
-                shortcut: "E"
-                currentShortcut: shortcut
-                tool: "rotate"
-                buttonGroup: "groupTransform"
-                sceneId: viewWindow.sceneId
-            }
+                ToolBarButton {
+                    id: btnSelectItem
+                    selected: true
+                    tooltip: qsTr("Select Item")
+                    shortcut: "Q"
+                    currentShortcut: selected ? "" : shortcut
+                    tool: "item_selection"
+                    buttonGroup: "groupSelect"
+                    sceneId: viewRoot.sceneId
+                }
 
-            ToolBarButton {
-                id: btnScale
-                tooltip: qsTr("Scale current selection")
-                shortcut: "R"
-                currentShortcut: shortcut
-                tool: "scale"
-                buttonGroup: "groupTransform"
-                sceneId: viewWindow.sceneId
-            }
+                ToolBarButton {
+                    id: btnSelectGroup
+                    tooltip: qsTr("Select Group")
+                    shortcut: "Q"
+                    currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
+                    tool: "group_selection"
+                    buttonGroup: "groupSelect"
+                    sceneId: viewRoot.sceneId
+                }
 
-            Rectangle { // separator
-                width: 25
-                height: 1
-                color: "#f1f1f1"
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+                Rectangle { // separator
+                    width: 25
+                    height: 1
+                    color: "#f1f1f1"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
-            ToolBarButton {
-                id: btnFit
-                tooltip: qsTr("Fit camera to current selection")
-                shortcut: "F"
-                currentShortcut: shortcut
-                tool: "fit"
-                togglable: false
+                ToolBarButton {
+                    id: btnMove
+                    selected: true
+                    tooltip: qsTr("Move current selection")
+                    shortcut: "W"
+                    currentShortcut: shortcut
+                    tool: "move"
+                    buttonGroup: "groupTransform"
+                    sceneId: viewRoot.sceneId
+                }
 
-                onSelectedChanged: {
-                    if (viewWindow.editView && selected) {
-                        var targetNode = viewWindow.selectedNodes.length > 0
-                                ? selectionBoxes[0].model : null;
-                        cameraControl.focusObject(targetNode, viewWindow.editView.camera.rotation, true);
+                ToolBarButton {
+                    id: btnRotate
+                    tooltip: qsTr("Rotate current selection")
+                    shortcut: "E"
+                    currentShortcut: shortcut
+                    tool: "rotate"
+                    buttonGroup: "groupTransform"
+                    sceneId: viewRoot.sceneId
+                }
+
+                ToolBarButton {
+                    id: btnScale
+                    tooltip: qsTr("Scale current selection")
+                    shortcut: "R"
+                    currentShortcut: shortcut
+                    tool: "scale"
+                    buttonGroup: "groupTransform"
+                    sceneId: viewRoot.sceneId
+                }
+
+                Rectangle { // separator
+                    width: 25
+                    height: 1
+                    color: "#f1f1f1"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                ToolBarButton {
+                    id: btnFit
+                    tooltip: qsTr("Fit camera to current selection")
+                    shortcut: "F"
+                    currentShortcut: shortcut
+                    tool: "fit"
+                    togglable: false
+
+                    onSelectedChanged: {
+                        if (selected)
+                            viewRoot.fitToView();
                     }
                 }
             }
         }
-    }
 
-    AxisHelper {
-        anchors.right: parent.right
-        anchors.top: parent.top
-        width: 100
-        height: width
-        editCameraCtrl: cameraControl
-        selectedNode : viewWindow.selectedNodes.length ? selectionBoxes[0].model : null
-    }
-
-    Rectangle { // top controls bar
-        color: "#aa000000"
-        width: 290
-        height: btnPerspective.height + 10
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.rightMargin: 100
-
-        Row {
-            padding: 5
-            anchors.fill: parent
-            ToggleButton {
-                id: btnPerspective
-                width: 105
-                tooltip: qsTr("Toggle Perspective / Orthographic Projection")
-                states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
-            }
-
-            ToggleButton {
-                id: btnLocalGlobal
-                width: 65
-                tooltip: qsTr("Toggle Global / Local Orientation")
-                states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
-            }
-
-            ToggleButton {
-                id: btnEditViewLight
-                width: 110
-                toggleBackground: true
-                tooltip: qsTr("Toggle Edit Light")
-                states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
-            }
+        AxisHelper {
+            anchors.right: parent.right
+            anchors.top: parent.top
+            width: 100
+            height: width
+            editCameraCtrl: cameraControl
+            selectedNode : viewRoot.selectedNodes.length ? selectionBoxes[0].model : null
         }
 
-    }
+        Rectangle { // top controls bar
+            color: "#aa000000"
+            width: 290
+            height: btnPerspective.height + 10
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.rightMargin: 100
+            visible: viewRoot.showButtons
 
-    Text {
-        id: helpText
+            Row {
+                padding: 5
+                anchors.fill: parent
+                ToggleButton {
+                    id: btnPerspective
+                    width: 105
+                    tooltip: qsTr("Toggle Perspective / Orthographic Projection")
+                    states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
+                }
 
-        property string modKey: _generalHelper.isMacOS ? qsTr("Option") : qsTr("Alt")
+                ToggleButton {
+                    id: btnLocalGlobal
+                    width: 65
+                    tooltip: qsTr("Toggle Global / Local Orientation")
+                    states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
+                }
 
-        color: "white"
-        text: qsTr("Camera controls: ") + modKey
-              + qsTr(" + mouse press and drag. Left: Rotate, Middle: Pan, Right/Wheel: Zoom.")
-        anchors.bottom: parent.bottom
+                ToggleButton {
+                    id: btnEditViewLight
+                    width: 110
+                    toggleBackground: true
+                    tooltip: qsTr("Toggle Edit Light")
+                    states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
+                }
+            }
+        }
     }
 }

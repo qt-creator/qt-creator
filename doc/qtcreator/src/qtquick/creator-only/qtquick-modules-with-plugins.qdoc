@@ -76,7 +76,7 @@
 
     \endlist
 
-    Your module should now appear in the \uicontrol Imports tab in the
+    Your module should now appear in the \uicontrol {QML Imports} tab in the
     \uicontrol Library in the Design mode. Your components should appear in the
     \uicontrol {QML Types} tab if a valid \c .metainfo file is in place.
 

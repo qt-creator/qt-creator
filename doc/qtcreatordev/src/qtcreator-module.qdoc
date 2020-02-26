@@ -77,7 +77,9 @@
         \row
             \li \l{qtcreatorcdbext}
             \li Windows CDB debugger extension
+    \endomit
     \endtable
+
 
     \section1 Plugins
 
@@ -98,9 +100,10 @@
                 most important ones.
 
                 This plugin also contains classes necessary to hook into the
-                \l{Locator} as well as support for searching text in arbitrary
-                widgets.
+                \l{Core::ILocatorFilter}{Locator} as well as support for
+                searching text in arbitrary widgets.
 
+    \omit
         \row
             \li \l{ProjectExplorer}
             \li The project explorer plugin. Provides base classes for project

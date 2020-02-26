@@ -52,7 +52,7 @@ namespace Internal {
 
 class SystemSettingsWidget : public IOptionsPageWidget
 {
-    QT_DECLARE_DEPRECATED_TR_FUNCTIONS(Core::Internal::SystemSettingsWidget)
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::SystemSettingsWidget)
 
 public:
     SystemSettingsWidget()

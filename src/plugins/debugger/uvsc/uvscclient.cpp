@@ -321,7 +321,7 @@ bool UvscClient::fetchThreads(bool showNames, GdbMi &data)
         return false;
 
     std::vector<TASKENUM> taskenums(kMaximumTaskEnumsCount);
-    qint32 taskenumsCount = taskenums.size();
+    qint32 taskenumsCount = qint32(taskenums.size());
     const UVSC_STATUS st = ::UVSC_DBG_ENUM_TASKS(m_descriptor, taskenums.data(),
                                                  &taskenumsCount);
     if (st != UVSC_STATUS_SUCCESS) {
@@ -432,7 +432,7 @@ bool UvscClient::fetchRegisters(Registers &registers)
 
     // Enumerate the register groups names.
     std::vector<SSTR> sstrs(kMaximumRegisterGroupsCount);
-    qint32 sstrsCount = sstrs.size();
+    qint32 sstrsCount = qint32(sstrs.size());
     UVSC_STATUS st = ::UVSC_DBG_ENUM_REGISTER_GROUPS(m_descriptor, sstrs.data(),
                                                      &sstrsCount);
     if (st != UVSC_STATUS_SUCCESS) {
@@ -449,7 +449,7 @@ bool UvscClient::fetchRegisters(Registers &registers)
 
     // Enumerate the registers.
     std::vector<REGENUM> regenums(kMaximumRegisterEnumsCount);
-    qint32 regenumsCount = regenums.size();
+    qint32 regenumsCount = qint32(regenums.size());
     st = ::UVSC_DBG_ENUM_REGISTERS(m_descriptor, regenums.data(), &regenumsCount);
     if (st != UVSC_STATUS_SUCCESS) {
         setError(RuntimeError);
@@ -471,7 +471,7 @@ bool UvscClient::fetchRegisters(Registers &registers)
 
     // Read the register values.
     std::vector<qint8> values(kMaximumRegisterEnumsCount * kMaximumValueBitsSize);
-    qint32 length = values.size();
+    qint32 length = qint32(values.size());
     st = ::UVSC_DBG_READ_REGISTERS( m_descriptor, values.data(), &length);
     if (st != UVSC_STATUS_SUCCESS) {
         setError(RuntimeError);
@@ -529,7 +529,7 @@ bool UvscClient::inspectLocal(const QStringList &expandedLocalINames,
     ivarenum.frame = frameId;
     ivarenum.count = kMaximumVarinfosCount / 2;
     std::vector<VARINFO> varinfos(kMaximumVarinfosCount);
-    qint32 varinfosCount = varinfos.size();
+    qint32 varinfosCount = qint32(varinfos.size());
     const UVSC_STATUS st = ::UVSC_DBG_ENUM_VARIABLES(m_descriptor, &ivarenum,
                                                      varinfos.data(), &varinfosCount);
     if (st != UVSC_STATUS_SUCCESS) {
@@ -647,7 +647,7 @@ bool UvscClient::inspectWatcher(const QStringList &expandedWatcherINames,
     ivarenum.id = watcherId;
     ivarenum.count = kMaximumVarinfosCount / 2;
     std::vector<VARINFO> varinfos(kMaximumVarinfosCount);
-    qint32 varinfosCount = varinfos.size();
+    qint32 varinfosCount = qint32(varinfos.size());
     const UVSC_STATUS st = ::UVSC_DBG_ENUM_VARIABLES(m_descriptor, &ivarenum,
                                                      varinfos.data(), &varinfosCount);
     if (st != UVSC_STATUS_SUCCESS) {
@@ -1027,7 +1027,7 @@ bool UvscClient::enumerateStack(quint32 taskId, std::vector<STACKENUM> &stackenu
     istkenum.isFull = true;
     istkenum.hasExtended = true;
     stackenums.resize(kMaximumStackEnumsCount);
-    qint32 stackenumsCount = stackenums.size();
+    qint32 stackenumsCount = qint32(stackenums.size());
     const UVSC_STATUS st = ::UVSC_DBG_ENUM_STACK(m_descriptor, &istkenum,
                                                  stackenums.data(), &stackenumsCount);
     if (st != UVSC_STATUS_SUCCESS)

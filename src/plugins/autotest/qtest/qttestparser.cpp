@@ -319,7 +319,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
         QHash<QString, QtTestCodeLocationList> dataTags;
         for (const QString &file : files)
-            dataTags.unite(checkForDataTags(file, snapshot));
+            Utils::addToHash(&dataTags, checkForDataTags(file, snapshot));
 
         QtTestParseResult *parseResult = new QtTestParseResult(id);
         parseResult->itemType = TestTreeItem::TestCase;

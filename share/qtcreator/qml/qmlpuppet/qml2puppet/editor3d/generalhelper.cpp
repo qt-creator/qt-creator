@@ -48,7 +48,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-const QString globalStateId = QStringLiteral("@GTS"); // global tool state
+const QString _globalStateId = QStringLiteral("@GTS"); // global tool state
 
 GeneralHelper::GeneralHelper()
     : QObject()
@@ -260,37 +260,42 @@ void GeneralHelper::initToolStates(const QString &sceneId, const QVariantMap &to
     m_toolStates[sceneId] = toolStates;
 }
 
-void GeneralHelper::storeWindowState(QQuickWindow *w)
+void GeneralHelper::storeWindowState()
 {
+    if (!m_edit3DWindow)
+        return;
+
     QVariantMap windowState;
-    const QRect geometry = w->geometry();
-    const bool maximized = w->windowState() == Qt::WindowMaximized;
+    const QRect geometry = m_edit3DWindow->geometry();
+    const bool maximized = m_edit3DWindow->windowState() == Qt::WindowMaximized;
     windowState.insert("maximized", maximized);
     windowState.insert("geometry", geometry);
 
-    storeToolState(globalStateId, "windowState", windowState, 500);
+    storeToolState(globalStateId(), "windowState", windowState, 500);
 }
 
-void GeneralHelper::restoreWindowState(QQuickWindow *w)
+void GeneralHelper::restoreWindowState()
 {
-    if (m_toolStates.contains(globalStateId)) {
-        const QVariantMap &globalStateMap = m_toolStates[globalStateId];
+    if (!m_edit3DWindow)
+        return;
+
+    if (m_toolStates.contains(globalStateId())) {
+        const QVariantMap &globalStateMap = m_toolStates[globalStateId()];
         const QString stateKey = QStringLiteral("windowState");
         if (globalStateMap.contains(stateKey)) {
             QVariantMap windowState = globalStateMap[stateKey].value<QVariantMap>();
 
-            doRestoreWindowState(w, windowState);
+            doRestoreWindowState(windowState);
 
             // If the mouse cursor at puppet launch time is in a different screen than the one where the
             // view geometry was saved on, the initial position and size can be incorrect, but if
             // we reset the geometry again asynchronously, it should end up with correct geometry.
-            QTimer::singleShot(0, [this, w, windowState]() {
-                doRestoreWindowState(w, windowState);
-
-                QTimer::singleShot(0, [w]() {
+            QTimer::singleShot(0, [this, windowState]() {
+                doRestoreWindowState(windowState);
+                QTimer::singleShot(0, [this]() {
                     // Make sure that the window is at least partially visible on the screen
-                    QRect geo = w->geometry();
-                    QRect sRect = w->screen()->geometry();
+                    QRect geo = m_edit3DWindow->geometry();
+                    QRect sRect = m_edit3DWindow->screen()->geometry();
                     if (geo.left() > sRect.right() - 150)
                         geo.moveRight(sRect.right());
                     if (geo.right() < sRect.left() + 150)
@@ -303,7 +308,7 @@ void GeneralHelper::restoreWindowState(QQuickWindow *w)
                         geo.setWidth(sRect.width());
                     if (geo.height() > sRect.height())
                         geo.setHeight(sRect.height());
-                    w->setGeometry(geo);
+                    m_edit3DWindow->setGeometry(geo);
                 });
             });
         }
@@ -324,7 +329,17 @@ QVariantMap GeneralHelper::getToolStates(const QString &sceneId)
     return {};
 }
 
-void GeneralHelper::doRestoreWindowState(QQuickWindow *w, const QVariantMap &windowState)
+void GeneralHelper::setEdit3DWindow(QQuickWindow *w)
+{
+    m_edit3DWindow = w;
+}
+
+QString GeneralHelper::globalStateId() const
+{
+    return _globalStateId;
+}
+
+void GeneralHelper::doRestoreWindowState(const QVariantMap &windowState)
 {
     const QString geoKey = QStringLiteral("geometry");
     if (windowState.contains(geoKey)) {
@@ -335,9 +350,9 @@ void GeneralHelper::doRestoreWindowState(QQuickWindow *w, const QVariantMap &win
 
         QRect rect = windowState[geoKey].value<QRect>();
 
-        w->setGeometry(rect);
+        m_edit3DWindow->setGeometry(rect);
         if (maximized)
-            w->showMaximized();
+            m_edit3DWindow->showMaximized();
     }
 }
 

@@ -59,6 +59,9 @@ public:
 
     void toggleStatesViewExpanded();
 
+protected:
+    void showEvent(QShowEvent *) override;
+
 private:
     void reloadQmlSource();
     Q_SLOT void handleExpandedChanged();

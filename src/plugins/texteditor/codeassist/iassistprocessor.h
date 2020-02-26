@@ -51,6 +51,7 @@ public:
 
     virtual bool running() { return false; }
     virtual bool needsRestart() const { return false; }
+    virtual void cancel() {}
 
 private:
     AsyncCompletionsAvailableHandler m_asyncCompletionsAvailableHandler;

@@ -32,7 +32,10 @@
 #include <modelnode.h>
 
 #include <QWidget>
+#include <QMainWindow>
 #include <QScopedPointer>
+
+#include <advanceddockingsystem/dockmanager.h>
 
 namespace Core {
     class SideBar;
@@ -53,7 +56,7 @@ namespace Internal {
 class DesignMode;
 class DocumentWidget;
 
-class DesignModeWidget : public QWidget
+class DesignModeWidget : public QMainWindow
 {
     Q_OBJECT
 
@@ -75,16 +78,16 @@ public:
 
     void enableWidgets();
     void disableWidgets();
-    void switchTextOrForm();
 
     CrumbleBar* crumbleBar() const;
     void showInternalTextEditor();
 
-    void restoreDefaultView();
-    void toggleLeftSidebar();
-    void toggleRightSidebar();
+    void determineWorkspaceToRestoreAtStartup();
 
     static QWidget *createProjectExplorerWidget(QWidget *parent);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private: // functions
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
@@ -99,12 +102,13 @@ private: // functions
     QWidget *createCenterWidget();
     QWidget *createCrumbleBarFrame();
 
+    void aboutToShowWorkspaces();
+
+    void createFactoryDefaultWorkspace();
+
 private: // variables
-    QSplitter *m_mainSplitter = nullptr;
     SwitchSplitTabWidget* m_centralTabWidget = nullptr;
 
-    QScopedPointer<Core::SideBar> m_leftSideBar;
-    QScopedPointer<Core::SideBar> m_rightSideBar;
     QPointer<QWidget> m_bottomSideBar;
     Core::EditorToolBar *m_toolBar;
     CrumbleBar *m_crumbleBar;
@@ -118,6 +122,9 @@ private: // variables
     bool m_keepNavigatorHistory = false;
 
     QList<QPointer<QWidget> >m_viewWidgets;
+
+    ADS::DockManager *m_dockManager = nullptr;
+    ADS::DockWidget *m_outputPaneDockWidget = nullptr;
 };
 
 } // namespace Internal

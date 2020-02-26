@@ -45,7 +45,7 @@ Node {
     }
 
     property alias iconSource: iconImage.source
-    property alias overlayColor: colorOverlay.color
+    //property alias overlayColor: colorOverlay.color
 
     signal positionCommit()
     signal clicked(Node node, bool multi)
@@ -94,15 +94,15 @@ Node {
                     acceptedButtons: Qt.LeftButton
                 }
             }
-            ColorOverlay {
-                id: colorOverlay
-                anchors.fill: parent
-                cached: true
-                source: iconImage
-                color: "transparent"
-                opacity: 0.6
-            }
-
+// ColorOverlay doesn't work correctly with hidden windows so commenting it out for now
+//            ColorOverlay {
+//                id: colorOverlay
+//                anchors.fill: parent
+//                cached: true
+//                source: iconImage
+//                color: "#00000000"
+//                opacity: 0.6
+//            }
         }
     }
 }

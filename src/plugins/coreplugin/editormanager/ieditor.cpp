@@ -27,43 +27,95 @@
 
 /*!
   \class Core::IEditor
-  \brief The IEditor class is an interface for providing different editors for
-  different file types.
+  \inmodule QtCreator
+  \brief The IEditor class is an interface for providing suitable editors for
+  documents according to their MIME type.
 
   Classes that implement this interface are for example the editors for
-  C++ files, UI files and resource files.
+  C++ files, UI files, and resource files.
 
-  Whenever a user wants to edit or create a file, the EditorManager scans all
-  EditorFactoryInterfaces for suitable editors. The selected EditorFactory
-  is then asked to create an editor, which must implement this interface.
+  Whenever a user wants to edit or create a document, the EditorManager
+  scans all IEditorFactory interfaces for suitable editors. The selected
+  IEditorFactory is then asked to create an editor, which must implement
+  this interface.
 
-  Guidelines for implementing:
-  \list
-  \li \c displayName() is used as a user visible description of the document
-      (usually filename w/o path).
-  \li \c kind() must be the same value as the \c kind() of the corresponding
-      EditorFactory.
-  \li If duplication is supported, you need to ensure that all duplicates
-        return the same \c file().
-  \li QString \c preferredMode() const is the mode the editor manager should
-      activate. Some editors use a special mode (such as \gui Design mode).
-  \endlist
+  \sa Core::IEditorFactory, Core::EditorManager
+*/
 
-  \sa Core::EditorFactoryInterface Core::IContext
+/*!
+    \fn Core::IDocument *Core::IEditor::document() const
+    Returns the document to open in an editor.
+*/
 
+/*!
+    \fn Core::IEditor *Core::IEditor::duplicate()
+    Duplicates the editor.
+
+    \sa duplicateSupported()
+*/
+
+/*!
+    \fn QByteArray Core::IEditor::saveState() const
+    Saves the state of the document.
+*/
+
+/*!
+    \fn bool Core::IEditor::restoreState(const QByteArray &state)
+    Restores the \a state of the document.
+
+    Returns \c true on success.
+*/
+
+/*!
+    \fn int Core::IEditor::currentLine() const
+    Returns the current line in the document.
+*/
+
+/*!
+    \fn int Core::IEditor::currentColumn() const
+    Returns the current column in the document.
+*/
+
+/*!
+    \fn void Core::IEditor::gotoLine(int line, int column = 0, bool centerLine = true)
+    Goes to \a line and \a column in the document. If \a centerLine is
+    \c true, centers the line in the editor.
+*/
+
+/*!
+    \fn QWidget Core::IEditor::toolBar()
+    Returns the toolbar for the editor.
+
+    The editor toolbar is located at the top of the editor view. The editor
+    toolbar is context sensitive and shows items relevant to the document
+    currently open in the editor.
+*/
+
+/*! \fn bool Core::IEditor::isDesignModePreferred() const
+    Indicates whether the document should be opened in the Design mode.
+    Returns \c false unless Design mode is preferred.
 */
 
 namespace Core {
 
+/*!
+    \internal
+*/
 IEditor::IEditor(QObject *parent)
     : IContext(parent), m_duplicateSupported(false)
 {}
 
+/*!
+    Returns whether duplication is supported.
+*/
 bool IEditor::duplicateSupported() const
 {
     return m_duplicateSupported;
 }
 
+/*!
+    Sets whether duplication is supported to \a duplicatesSupported.
+*/
 void IEditor::setDuplicateSupported(bool duplicatesSupported)
 {
     m_duplicateSupported = duplicatesSupported;

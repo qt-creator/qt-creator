@@ -30,19 +30,6 @@ def switchViewTo(view):
     waitFor("not QToolTip.isVisible()", 15000)
     if view < ViewConstants.FIRST_AVAILABLE or view > ViewConstants.LAST_AVAILABLE:
         return
-    tabBar = waitForObject("{name='ModeSelector' type='Core::Internal::FancyTabBar' visible='1' "
-                           "window=':Qt Creator_Core::Internal::MainWindow'}")
-    mouseMove(tabBar, 20, 20 + 52 * view)
-    if waitFor("QToolTip.isVisible()", 10000):
-        text = str(QToolTip.text())
-    else:
-        test.warning("Waiting for ToolTip timed out.")
-        text = ""
-    pattern = ViewConstants.getToolTipForViewTab(view)
-    if re.match(pattern, unicode(text), re.UNICODE):
-        test.passes("ToolTip verified")
-    else:
-        test.warning("ToolTip does not match", "Expected pattern: %s\nGot: %s" % (pattern, text))
     mouseClick(waitForObject("{name='ModeSelector' type='Core::Internal::FancyTabBar' visible='1' "
                              "window=':Qt Creator_Core::Internal::MainWindow'}"), 20, 20 + 52 * view, 0, Qt.LeftButton)
 
@@ -159,13 +146,6 @@ def addAndActivateKit(kit):
             mouseClick(index)
             test.verify(waitFor("not str(index.toolTip).startswith(clickToActivate)", 1500),
                         "Kit added for this project")
-            try:
-                findObject(":Projects.ProjectNavigationTreeView")
-            except:
-                test.warning("Squish issue - QC switches automatically to Edit view after enabling "
-                             "a new kit when running tst_opencreator_qbs - works as expected when "
-                             "running without Squish")
-                switchViewTo(ViewConstants.PROJECTS)
         else:
             test.warning("Kit is already added for this project.")
         mouseClick(index)

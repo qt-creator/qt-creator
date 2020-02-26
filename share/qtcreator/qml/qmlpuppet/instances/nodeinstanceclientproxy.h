@@ -46,7 +46,6 @@ class CreateInstancesCommand;
 class ClearSceneCommand;
 class ReparentInstancesCommand;
 class Update3dViewStateCommand;
-class Enable3DViewCommand;
 class ChangeFileUrlCommand;
 class ChangeValuesCommand;
 class ChangeAuxiliaryCommand;
@@ -62,6 +61,8 @@ class ChangeSelectionCommand;
 class Drop3DLibraryItemCommand;
 class PuppetToCreatorCommand;
 class View3DClosedCommand;
+class InputEventCommand;
+class View3DActionCommand;
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
 {
@@ -102,7 +103,6 @@ protected:
     void createScene(const CreateSceneCommand &command);
     void clearScene(const ClearSceneCommand &command);
     void update3DViewState(const Update3dViewStateCommand &command);
-    void enable3DView(const Enable3DViewCommand &command);
     void removeInstances(const RemoveInstancesCommand &command);
     void removeProperties(const RemovePropertiesCommand &command);
     void changePropertyBindings(const ChangeBindingsCommand &command);
@@ -118,6 +118,8 @@ protected:
     void redirectToken(const EndPuppetCommand &command);
     void changeSelection(const ChangeSelectionCommand &command);
     static QVariant readCommandFromIOStream(QIODevice *ioDevice, quint32 *readCommandCounter, quint32 *blockSize);
+    void inputEvent(const InputEventCommand &command);
+    void view3DAction(const View3DActionCommand &command);
 
 protected slots:
     void readDataStream();

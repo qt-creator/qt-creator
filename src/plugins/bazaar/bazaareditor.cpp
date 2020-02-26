@@ -29,7 +29,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QRegExp>
 #include <QString>
 #include <QTextCursor>
 
@@ -46,30 +45,9 @@ BazaarEditorWidget::BazaarEditorWidget() :
     setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
     // Diff format:
     // === <change> <file|dir> 'mainwindow.cpp'
-    setDiffFilePattern(QRegExp(QLatin1String("^=== [a-z]+ [a-z]+ '(.+)'\\s*")));
-    setLogEntryPattern(QRegExp(QLatin1String("^revno: (\\d+)")));
-}
-
-QSet<QString> BazaarEditorWidget::annotationChanges() const
-{
-    QSet<QString> changes;
-    const QString txt = toPlainText();
-    if (txt.isEmpty())
-        return changes;
-
-    QRegExp changeNumRx(QLatin1String("^(" BZR_CHANGE_PATTERN ") "));
-    QTC_ASSERT(changeNumRx.isValid(), return changes);
-    if (changeNumRx.indexIn(txt) != -1) {
-        changes.insert(changeNumRx.cap(1));
-        changeNumRx.setPattern(QLatin1String("\n(" BZR_CHANGE_PATTERN ") "));
-        QTC_ASSERT(changeNumRx.isValid(), return changes);
-        int pos = 0;
-        while ((pos = changeNumRx.indexIn(txt, pos)) != -1) {
-            pos += changeNumRx.matchedLength();
-            changes.insert(changeNumRx.cap(1));
-        }
-    }
-    return changes;
+    setDiffFilePattern("^=== [a-z]+ [a-z]+ '(.+)'\\s*");
+    setLogEntryPattern("^revno: (\\d+)");
+    setAnnotationEntryPattern("^(" BZR_CHANGE_PATTERN ") ");
 }
 
 QString BazaarEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const

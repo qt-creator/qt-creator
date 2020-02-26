@@ -284,6 +284,7 @@ MetaInfo {
            visibleInNavigator: true
            canBeDroppedInNavigator: true
            canBeDroppedInFormEditor: false
+           canBeContainer: false
        }
 
         ItemLibraryEntry {
@@ -302,6 +303,7 @@ MetaInfo {
            visibleInNavigator: true
            canBeDroppedInNavigator: true
            canBeDroppedInFormEditor: false
+           canBeContainer: false
        }
 
         ItemLibraryEntry {
@@ -356,6 +358,7 @@ MetaInfo {
            visibleInNavigator: true
            canBeDroppedInNavigator: true
            canBeDroppedInFormEditor: false
+           canBeContainer: false
        }
 
         ItemLibraryEntry {
@@ -374,6 +377,7 @@ MetaInfo {
            visibleInNavigator: true
            canBeDroppedInNavigator: true
            canBeDroppedInFormEditor: false
+           canBeContainer: false
        }
 
         ItemLibraryEntry {
@@ -392,6 +396,7 @@ MetaInfo {
            visibleInNavigator: true
            canBeDroppedInNavigator: true
            canBeDroppedInFormEditor: false
+           canBeContainer: false
        }
 
         ItemLibraryEntry {
@@ -410,6 +415,7 @@ MetaInfo {
             visibleInNavigator: true
             canBeDroppedInNavigator: true
             canBeDroppedInFormEditor: false
+            canBeContainer: false
         }
 
         ItemLibraryEntry {

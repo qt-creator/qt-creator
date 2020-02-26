@@ -75,8 +75,10 @@ static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, Abstra
 bool fitsToTargetProperty(const NodeAbstractProperty &targetProperty,
                           const QList<ModelNode> &modelNodeList)
 {
+    bool const canBeContainer =
+        NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(modelNodeList.first());
     return !(targetProperty.isNodeProperty() &&
-             modelNodeList.count() > 1);
+             modelNodeList.count() > 1) && canBeContainer;
 }
 
 static inline QString msgUnknownItem(const QString &t)

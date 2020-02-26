@@ -42,7 +42,6 @@
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
 #include "update3dviewstatecommand.h"
-#include "enable3dviewcommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeauxiliarycommand.h"
@@ -57,6 +56,8 @@
 #include "synchronizecommand.h"
 #include "removesharedmemorycommand.h"
 #include "tokencommand.h"
+#include "inputeventcommand.h"
+#include "view3dactioncommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -76,6 +77,13 @@
 
 namespace QmlDesigner {
 
+constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    = &QLocalSocket::error;
+#else
+    = &QLocalSocket::errorOccurred;
+#endif
+
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
       m_inputIoDevice(nullptr),
@@ -93,7 +101,7 @@ void NodeInstanceClientProxy::initializeSocket()
 {
     QLocalSocket *localSocket = new QLocalSocket(this);
     connect(localSocket, &QIODevice::readyRead, this, &NodeInstanceClientProxy::readDataStream);
-    connect(localSocket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
+    connect(localSocket, LocalSocketErrorFunction,
             QCoreApplication::instance(), &QCoreApplication::quit);
     connect(localSocket, &QLocalSocket::disconnected, QCoreApplication::instance(), &QCoreApplication::quit);
     localSocket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
@@ -321,6 +329,16 @@ QVariant NodeInstanceClientProxy::readCommandFromIOStream(QIODevice *ioDevice, q
     return command;
 }
 
+void NodeInstanceClientProxy::inputEvent(const InputEventCommand &command)
+{
+    nodeInstanceServer()->inputEvent(command);
+}
+
+void NodeInstanceClientProxy::view3DAction(const View3DActionCommand &command)
+{
+    nodeInstanceServer()->view3DAction(command);
+}
+
 void NodeInstanceClientProxy::readDataStream()
 {
     QList<QVariant> commandList;
@@ -377,11 +395,6 @@ void NodeInstanceClientProxy::createScene(const CreateSceneCommand &command)
 void NodeInstanceClientProxy::update3DViewState(const Update3dViewStateCommand &command)
 {
     nodeInstanceServer()->update3DViewState(command);
-}
-
-void NodeInstanceClientProxy::enable3DView(const Enable3DViewCommand &command)
-{
-    nodeInstanceServer()->enable3DView(command);
 }
 
 void NodeInstanceClientProxy::clearScene(const ClearSceneCommand &command)
@@ -472,7 +485,6 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
     static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
     static const int update3dViewStateCommand = QMetaType::type("Update3dViewStateCommand");
-    static const int enable3DViewCommandType = QMetaType::type("Enable3DViewCommand");
     static const int changeFileUrlCommandType = QMetaType::type("ChangeFileUrlCommand");
     static const int createSceneCommandType = QMetaType::type("CreateSceneCommand");
     static const int clearSceneCommandType = QMetaType::type("ClearSceneCommand");
@@ -491,15 +503,17 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int endPuppetCommandType = QMetaType::type("EndPuppetCommand");
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
+    static const int inputEventCommandType = QMetaType::type("InputEventCommand");
+    static const int view3DActionCommandType = QMetaType::type("View3DActionCommand");
 
     const int commandType = command.userType();
 
-    if (commandType == createInstancesCommandType)
+    if (commandType == inputEventCommandType)
+        inputEvent(command.value<InputEventCommand>());
+    else if (commandType == createInstancesCommandType)
         createInstances(command.value<CreateInstancesCommand>());
     else if (commandType == update3dViewStateCommand)
         update3DViewState(command.value<Update3dViewStateCommand>());
-    else if (commandType == enable3DViewCommandType)
-        enable3DView(command.value<Enable3DViewCommand>());
     else if (commandType == changeFileUrlCommandType)
         changeFileUrl(command.value<ChangeFileUrlCommand>());
     else if (commandType == createSceneCommandType)
@@ -532,6 +546,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         redirectToken(command.value<TokenCommand>());
     else if (commandType == endPuppetCommandType)
         redirectToken(command.value<EndPuppetCommand>());
+    else if (commandType == view3DActionCommandType)
+        view3DAction(command.value<View3DActionCommand>());
     else if (commandType == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();

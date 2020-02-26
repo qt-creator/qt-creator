@@ -167,7 +167,7 @@ public:
     void status(const QString &workingDirectory);
     void log(const QString &workingDirectory, const QString &fileName = QString(),
              bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
-    void reflog(const QString &workingDirectory);
+    void reflog(const QString &workingDirectory, const QString &branch = {});
     VcsBase::VcsBaseEditorWidget *annotate(
             const QString &workingDir, const QString &file, const QString &revision = QString(),
             int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;

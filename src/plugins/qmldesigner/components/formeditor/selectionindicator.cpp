@@ -215,17 +215,18 @@ void SelectionIndicator::adjustAnnotationPosition(const QRectF &itemRect, const 
 {
     if (!m_annotationItem) return;
 
-    const qreal iconW = 40 * 0.5; //*0.5 for a shift of an icon outide the item
+    const qreal iconWShift = m_annotationItem->iconWidth() * 0.5;
+    const qreal iconHShift = (m_annotationItem->iconHeight() * 0.45)/scaleFactor;
     qreal iconX = 0.0;
-    qreal iconY = -15.0/scaleFactor; //small offset
+    qreal iconY = -(iconHShift);
 
-    if (((labelRect.width() + iconW)/scaleFactor) > itemRect.width())
+    if (((labelRect.width() + iconWShift)/scaleFactor) > itemRect.width())
         iconY -= labelRect.height()/scaleFactor;
 
-    if ((iconW/scaleFactor) > itemRect.width())
+    if ((iconWShift/scaleFactor) > itemRect.width())
         iconX = 0.0;
     else
-        iconX = (itemRect.width()) - (iconW/scaleFactor);
+        iconX = (itemRect.width()) - (iconWShift/scaleFactor);
 
     m_annotationItem->setPos(iconX*scaleFactor, iconY*scaleFactor);
 }

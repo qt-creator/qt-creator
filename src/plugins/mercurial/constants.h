@@ -37,10 +37,10 @@ const char MERCURIALDEFAULT[] = "hg";
 const char MERCURIAL_CONTEXT[] = "Mercurial Context";
 
 // Changeset identifiers
-const char CHANGESETID12[] = " ([a-f0-9]{12,12}) "; //match 12 hex chars and capture
-const char CHANGESETID40[] = " ([a-f0-9]{40,40}) ";
-const char CHANGEIDEXACT12[] = "[a-f0-9]{12,12}"; //match 12 hex chars a
-const char CHANGEIDEXACT40[] = "[a-f0-9]{40,40}";
+const char CHANGESETID12[] = " ([a-f0-9]{12}) "; //match 12 hex chars and capture
+const char CHANGESETID40[] = " ([a-f0-9]{40}) ";
+const char CHANGEIDEXACT12[] = "[a-f0-9]{12}"; //match 12 hex chars
+const char CHANGEIDEXACT40[] = "[a-f0-9]{40}";
 // match diff header. e.g. +++ b/filename
 const char DIFFIDENTIFIER[] = "^(?:diff --git a/|[+-]{3} (?:/dev/null|[ab]/(.+$)))";
 

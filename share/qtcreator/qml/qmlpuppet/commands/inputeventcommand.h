@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,30 +25,44 @@
 
 #pragma once
 
-#include <QMetaType>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qdatastream.h>
+#include <QtGui/qevent.h>
+
+#include "instancecontainer.h"
 
 namespace QmlDesigner {
 
-class Enable3DViewCommand
+class InputEventCommand
 {
-    friend QDataStream &operator>>(QDataStream &in, Enable3DViewCommand &command);
-    friend QDebug operator<<(QDebug debug, const Enable3DViewCommand &command);
+    friend QDataStream &operator>>(QDataStream &in, InputEventCommand &command);
+    friend QDebug operator <<(QDebug debug, const InputEventCommand &command);
 
 public:
-    explicit Enable3DViewCommand(bool enable);
-    Enable3DViewCommand() = default;
+    InputEventCommand();
+    explicit InputEventCommand(QInputEvent *e);
 
-    bool isEnable() const;
+    QEvent::Type type() const { return m_type; }
+    QPoint pos() const { return m_pos; }
+    Qt::MouseButton button() const { return m_button; }
+    Qt::MouseButtons buttons() const { return m_buttons; }
+    Qt::KeyboardModifiers modifiers() const { return m_modifiers; }
+    int angleDelta() const { return m_angleDelta; }
 
 private:
-    bool m_enable = true;
+    QEvent::Type m_type;
+    QPoint m_pos;
+    Qt::MouseButton m_button = Qt::NoButton;
+    Qt::MouseButtons m_buttons = Qt::NoButton;
+    Qt::KeyboardModifiers m_modifiers = Qt::NoModifier;
+    int m_angleDelta = 0;
 };
 
-QDataStream &operator<<(QDataStream &out, const Enable3DViewCommand &command);
-QDataStream &operator>>(QDataStream &in, Enable3DViewCommand &command);
+QDataStream &operator<<(QDataStream &out, const InputEventCommand &command);
+QDataStream &operator>>(QDataStream &in, InputEventCommand &command);
 
-QDebug operator<<(QDebug debug, const Enable3DViewCommand &command);
+QDebug operator <<(QDebug debug, const InputEventCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::Enable3DViewCommand)
+Q_DECLARE_METATYPE(QmlDesigner::InputEventCommand)

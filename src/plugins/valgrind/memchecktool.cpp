@@ -1338,9 +1338,6 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_profileDeleteButton->setEnabled(m_profilesCombo->count() > 1);
 
     setWindowTitle(tr("Heob"));
-
-    // disable context help button
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
 QString HeobDialog::arguments() const

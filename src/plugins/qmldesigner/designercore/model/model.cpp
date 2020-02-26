@@ -668,6 +668,22 @@ void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
         resetModelByRewriter(description);
 }
 
+void ModelPrivate::notifyRenderImage3DChanged(const QImage &image)
+{
+    for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
+        Q_ASSERT(view != nullptr);
+        view->renderImage3DChanged(image);
+    }
+}
+
+void ModelPrivate::notifyUpdateActiveScene3D(const QVariantMap &sceneState)
+{
+    for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
+        Q_ASSERT(view != nullptr);
+        view->updateActiveScene3D(sceneState);
+    }
+}
+
 void ModelPrivate::notifyRewriterBeginTransaction()
 {
     bool resetModel = false;

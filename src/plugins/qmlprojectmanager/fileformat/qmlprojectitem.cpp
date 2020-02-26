@@ -55,6 +55,11 @@ void QmlProjectItem::setTargetDirectory(const QString &directoryPath)
     m_targetDirectory = directoryPath;
 }
 
+void QmlProjectItem::setQtForMCUs(bool b)
+{
+    m_qtForMCUs = b;
+}
+
 void QmlProjectItem::setImportPaths(const QStringList &importPaths)
 {
     if (m_importPaths != importPaths)

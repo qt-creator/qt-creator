@@ -60,7 +60,6 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <aggregation/aggregate.h>
-#include <utils/fancylineedit.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -85,7 +84,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QVBoxLayout>
 
@@ -129,32 +127,32 @@ private:
     GitClient *m_client;
 };
 
+class GitReflogEditorWidget : public GitEditorWidget
+{
+public:
+    GitReflogEditorWidget()
+    {
+        setLogEntryPattern("^([0-9a-f]{8,}) [^}]*\\}: .*$");
+    }
+
+    QString revisionSubject(const QTextBlock &inBlock) const override
+    {
+        const QString text = inBlock.text();
+        return text.mid(text.indexOf(' ') + 1);
+    }
+};
+
 class GitLogEditorWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Git::Internal::GitLogEditorWidget);
 public:
-    GitLogEditorWidget()
+    GitLogEditorWidget(GitEditorWidget *gitEditor)
     {
-        auto gitEditor = new GitEditorWidget;
         auto vlayout = new QVBoxLayout;
-        auto hlayout = new QHBoxLayout;
         vlayout->setSpacing(0);
         vlayout->setContentsMargins(0, 0, 0, 0);
-        auto grepLineEdit = addLineEdit(tr("Filter by message"),
-                                        tr("Filter log entries by text in the commit message."));
-        auto pickaxeLineEdit = addLineEdit(tr("Filter by content"),
-                                           tr("Filter log entries by added or removed string."));
-        hlayout->setSpacing(20);
-        hlayout->setContentsMargins(0, 0, 0, 0);
-        hlayout->addWidget(new QLabel(tr("Filter:")));
-        hlayout->addWidget(grepLineEdit);
-        hlayout->addWidget(pickaxeLineEdit);
-        hlayout->addStretch();
-        vlayout->addLayout(hlayout);
+        vlayout->addWidget(gitEditor->addFilterWidget());
         vlayout->addWidget(gitEditor);
         setLayout(vlayout);
-        gitEditor->setGrepLineEdit(grepLineEdit);
-        gitEditor->setPickaxeLineEdit(pickaxeLineEdit);
 
         auto textAgg = Aggregation::Aggregate::parentAggregate(gitEditor);
         auto agg = textAgg ? textAgg : new Aggregation::Aggregate;
@@ -162,17 +160,13 @@ public:
         agg->add(gitEditor);
         setFocusProxy(gitEditor);
     }
+};
 
-private:
-    FancyLineEdit *addLineEdit(const QString &placeholder, const QString &tooltip)
-    {
-        auto lineEdit = new FancyLineEdit;
-        lineEdit->setFiltering(true);
-        lineEdit->setToolTip(tooltip);
-        lineEdit->setPlaceholderText(placeholder);
-        lineEdit->setMaximumWidth(200);
-        return lineEdit;
-    }
+template<class Editor>
+class GitLogEditorWidgetT : public GitLogEditorWidget
+{
+public:
+    GitLogEditorWidgetT() : GitLogEditorWidget(new Editor) {}
 };
 
 const unsigned minimumRequiredVersion = 0x010900;
@@ -184,11 +178,11 @@ const VcsBaseSubmitEditorParameters submitParameters {
     VcsBaseSubmitEditorParameters::DiffRows
 };
 
-const VcsBaseEditorParameters commandLogEditorParameters {
+const VcsBaseEditorParameters svnLogEditorParameters {
     OtherContent,
-    Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
-    Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
-    "text/vnd.qtcreator.git.commandlog"
+    Git::Constants::GIT_SVN_LOG_EDITOR_ID,
+    Git::Constants::GIT_SVN_LOG_EDITOR_DISPLAY_NAME,
+    "text/vnd.qtcreator.git.svnlog"
 };
 
 const VcsBaseEditorParameters logEditorParameters {
@@ -196,6 +190,13 @@ const VcsBaseEditorParameters logEditorParameters {
     Git::Constants::GIT_LOG_EDITOR_ID,
     Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.log"
+};
+
+const VcsBaseEditorParameters reflogEditorParameters {
+    LogOutput,
+    Git::Constants::GIT_REFLOG_EDITOR_ID,
+    Git::Constants::GIT_REFLOG_EDITOR_DISPLAY_NAME,
+    "text/vnd.qtcreator.git.reflog"
 };
 
 const VcsBaseEditorParameters blameEditorParameters {
@@ -278,6 +279,7 @@ public:
     void blameFile();
     void logProject();
     void logRepository();
+    void reflogRepository();
     void undoFileChanges(bool revertStaging);
     void resetRepository();
     void recoverDeletedFiles();
@@ -388,15 +390,21 @@ public:
 
     GitGrep gitGrep{&m_gitClient};
 
-    VcsEditorFactory commandLogEditorFactory {
-        &commandLogEditorParameters,
+    VcsEditorFactory svnLogEditorFactory {
+        &svnLogEditorParameters,
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::describe, this, _1, _2)
     };
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
-        [] { return new GitLogEditorWidget; },
+        [] { return new GitLogEditorWidgetT<GitEditorWidget>; },
+        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+    };
+
+    VcsEditorFactory reflogEditorFactory {
+        &reflogEditorParameters,
+                [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
         std::bind(&GitPluginPrivate::describe, this, _1, _2)
     };
 
@@ -707,7 +715,7 @@ GitPluginPrivate::GitPluginPrivate()
                            context, true, std::bind(&GitPluginPrivate::logRepository, this));
 
     createRepositoryAction(localRepositoryMenu, tr("Reflog"), "Git.ReflogRepository",
-                           context, true, &GitClient::reflog);
+                           context, true, std::bind(&GitPluginPrivate::reflogRepository, this));
 
     createRepositoryAction(localRepositoryMenu, tr("Clean..."), "Git.CleanRepository",
                            context, true, [this] { cleanRepository(); });
@@ -974,7 +982,10 @@ GitPluginPrivate::GitPluginPrivate()
             this, [this](const QString &name) {
         const VcsBasePluginState state = currentState();
         QTC_ASSERT(state.hasTopLevel(), return);
-        m_gitClient.show(state.topLevel(), name);
+        if (name.contains(".."))
+            m_gitClient.log(state.topLevel(), {}, false, {name});
+        else
+            m_gitClient.show(state.topLevel(), name);
     });
 
 }
@@ -1055,6 +1066,13 @@ void GitPluginPrivate::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_gitClient.log(state.topLevel());
+}
+
+void GitPluginPrivate::reflogRepository()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    m_gitClient.reflog(state.topLevel());
 }
 
 void GitPluginPrivate::undoFileChanges(bool revertStaging)

@@ -40,7 +40,6 @@ public:
     BazaarEditorWidget();
 
 private:
-    QSet<QString> annotationChanges() const override;
     QString changeUnderCursor(const QTextCursor &cursor) const override;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
             const QSet<QString> &changes) const override;

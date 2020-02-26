@@ -369,6 +369,7 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
 
 void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
 {
+    Q_UNUSED(propertyChange)
     for (const BindingProperty &property : propertyList) {
         QmlVisualNode node(property.parentModelNode());
         if (node.isFlowTransition()) {
@@ -675,9 +676,6 @@ void FormEditorView::toggle3DViewEnabled(bool enabled)
         rootModelNode().removeAuxiliaryData("3d-view");
 
     resetNodeInstanceView();
-
-    // TODO: the line below is not in use. It should replace the resetNodeInstanceView(); to have a clean API
-//    nodeInstanceView()->enable3DView(enabled);
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)

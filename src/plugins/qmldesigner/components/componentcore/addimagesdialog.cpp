@@ -95,7 +95,6 @@ QString AddImagesDialog::getDirectory(const QStringList &fileNames, const QStrin
     QString directory = defaultDirectory;
 
     dialog->setModal(true);
-    dialog->setWindowFlags(dialog->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     dialog->setWindowTitle(QCoreApplication::translate("AddImageToResources","Add Resources"));
     QTableWidget *table = createFilesTable(fileNames);
     table->setParent(dialog);

@@ -251,7 +251,6 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     : QDialog(parent), d(new AttachCoreDialogPrivate)
 {
     setWindowTitle(tr("Load Core File"));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     d->buttonBox = new QDialogButtonBox(this);
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);

@@ -39,7 +39,6 @@ WaitForStopDialog::WaitForStopDialog(QList<ProjectExplorer::RunControl *> runCon
     m_runControls(runControls)
 {
     setWindowTitle(tr("Waiting for Applications to Stop"));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     auto layout = new QVBoxLayout();
     setLayout(layout);
