@@ -35,6 +35,7 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <utils/algorithm.h>
+#include <utils/executeondestruction.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
@@ -361,6 +362,9 @@ void LanguageClientCompletionAssistProcessor::cancel()
 void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     const CompletionRequest::Response &response)
 {
+    LanguageClientCompletionProposal *proposal = nullptr;
+    // We must report back to the code assistant under all circumstances
+    Utils::ExecuteOnDestruction eod([this, proposal]() { setAsyncProposalAvailable(proposal); });
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : got completions";
     m_currentRequest = MessageId();
     QTC_ASSERT(m_client, return);
@@ -383,12 +387,11 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     model->loadContent(Utils::transform(items, [](const CompletionItem &item){
         return static_cast<AssistProposalItemInterface *>(new LanguageClientCompletionItem(item));
     }));
-    auto proposal = new LanguageClientCompletionProposal(m_pos, model);
+    proposal = new LanguageClientCompletionProposal(m_pos, model);
     proposal->m_document = m_document;
     proposal->m_pos = m_pos;
     proposal->setFragile(true);
     proposal->setSupportsPrefix(false);
-    setAsyncProposalAvailable(proposal);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "
                               << items.count() << " completions handled";
 }
