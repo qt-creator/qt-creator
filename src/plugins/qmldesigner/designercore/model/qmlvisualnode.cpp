@@ -294,15 +294,16 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
     return newQmlObjectNode;
 }
 
-QmlVisualNode QmlVisualNode::createQmlVisualNode(AbstractView *view,
-                                                 const ItemLibraryEntry &itemLibraryEntry,
-                                                 qint32 sceneRootId, const QVector3D &position)
+QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
+                                             const ItemLibraryEntry &itemLibraryEntry,
+                                             qint32 sceneRootId, const QVector3D &position)
 {
-    NodeAbstractProperty sceneNodeProperty = findSceneNodeProperty(view, sceneRootId);
-    QTC_ASSERT(sceneNodeProperty.isValid(), return {});
-    ModelNode node = createQmlObjectNode(view, itemLibraryEntry, position, sceneNodeProperty).modelNode();
+    NodeAbstractProperty sceneNodeProperty = sceneRootId != -1 ? findSceneNodeProperty(view, sceneRootId)
+                                                               : view->rootModelNode().defaultNodeAbstractProperty();
 
-    return node;
+    QTC_ASSERT(sceneNodeProperty.isValid(), return {});
+
+    return createQmlObjectNode(view, itemLibraryEntry, position, sceneNodeProperty).modelNode();
 }
 
 NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32 sceneRootId)
@@ -318,8 +319,7 @@ NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32
 
 bool QmlVisualNode::isFlowTransition(const ModelNode &node)
 {
-    return node.metaInfo().isValid()
-           && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
+    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
 }
 
 bool QmlVisualNode::isFlowTransition() const

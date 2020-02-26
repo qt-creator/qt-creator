@@ -59,7 +59,7 @@ protected:
 private:
     QPointer<Edit3DWidget> m_parent;
     QImage m_image;
-    qint32 m_activeScene;
+    qint32 m_activeScene = -1;
     ItemLibraryEntry m_itemLibraryEntry;
 };
 

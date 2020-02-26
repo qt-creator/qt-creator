@@ -62,31 +62,40 @@ Item {
     onUsePerspectiveChanged: _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
     onShowEditLightChanged: _generalHelper.storeToolState(sceneId,"showEditLight", showEditLight)
     onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
+    onActiveSceneChanged: updateActiveScene();
 
-    onActiveSceneChanged: {
+    function updateActiveScene()
+    {
         if (editView) {
             // Destroy is async, so make sure we don't get any more updates for the old editView
             _generalHelper.enableItemUpdate(editView, false);
             editView.destroy();
         }
-        if (activeScene) {
-            // importScene cannot be updated after initial set, so we need to reconstruct entire View3D
-            var component = Qt.createComponent("SceneView3D.qml");
-            if (component.status === Component.Ready) {
-                editView = component.createObject(viewRect,
-                                                  {"usePerspective": usePerspective,
-                                                   "showSceneLight": showEditLight,
-                                                   "importScene": activeScene,
-                                                   "cameraZoomFactor": cameraControl._zoomFactor,
-                                                   "z": 1});
-                editView.usePerspective = Qt.binding(function() {return usePerspective;});
-                editView.showSceneLight = Qt.binding(function() {return showEditLight;});
-                editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
-                selectionBoxes.length = 0;
-                updateToolStates(_generalHelper.getToolStates(sceneId), true);
-            }
+        // importScene cannot be updated after initial set, so we need to reconstruct entire View3D
+        var component = Qt.createComponent("SceneView3D.qml");
+        if (component.status === Component.Ready) {
+            editView = component.createObject(viewRect,
+                                              {"usePerspective": usePerspective,
+                                               "showSceneLight": showEditLight,
+                                               "importScene": activeScene,
+                                               "cameraZoomFactor": cameraControl._zoomFactor,
+                                               "z": 1});
+            editView.usePerspective = Qt.binding(function() {return usePerspective;});
+            editView.showSceneLight = Qt.binding(function() {return showEditLight;});
+            editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
+
+            selectionBoxes.length = 0;
+            updateToolStates(_generalHelper.getToolStates(sceneId), true);
         }
+    }
+
+    function clearActiveScene()
+    {
+        activeScene = null;
+        sceneId = "";
+
+        updateActiveScene();
     }
 
     // Disables edit view update if scene doesn't match current activeScene.

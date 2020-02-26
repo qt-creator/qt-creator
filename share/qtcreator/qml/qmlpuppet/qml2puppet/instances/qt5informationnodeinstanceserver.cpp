@@ -420,14 +420,22 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
         sceneIdVar = QVariant::fromValue(sceneId);
     sceneIdProperty.write(sceneIdVar);
 
-    QQmlProperty sceneProperty(m_editView3DRootItem, "activeScene", context());
-    sceneProperty.write(activeSceneVar);
-
-    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
     QVariantMap toolStates;
-    if (helper)
-        toolStates = helper->getToolStates(sceneId);
-    toolStates.insert("sceneInstanceId", QVariant::fromValue(sceneInstance.instanceId()));
+
+    // if m_active3DScene is null, QQmlProperty::write() doesn't work so invoke the updateActiveScene
+    // qml method directly
+    if (!m_active3DScene) {
+        QMetaObject::invokeMethod(m_editView3DRootItem, "clearActiveScene", Qt::QueuedConnection);
+        toolStates.insert("sceneInstanceId", QVariant::fromValue(-1));
+    } else {
+        QQmlProperty sceneProperty(m_editView3DRootItem, "activeScene", context());
+        sceneProperty.write(activeSceneVar);
+
+        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+        if (helper)
+            toolStates = helper->getToolStates(sceneId);
+        toolStates.insert("sceneInstanceId", QVariant::fromValue(sceneInstance.instanceId()));
+    }
 
     nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSceneChanged,
                                                         toolStates});
@@ -514,7 +522,6 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
 {
     static bool showEditView = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW");
     if (m_editView3DRootItem && !showEditView) {
-        auto t = std::chrono::steady_clock::now();
         if (!m_editView3DContentItem) {
             m_editView3DContentItem = QQmlProperty::read(m_editView3DRootItem, "contentItem").value<QQuickItem *>();
             if (m_editView3DContentItem) {
@@ -544,10 +551,6 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
         // send the rendered image to creator process
         nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Render3DView,
                                                             QVariant::fromValue(imgContainer)});
-        qDebug() << "\x1b[42m \x1b[1m" << __FUNCTION__
-                 << ", t=" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-t).count()
-                 << "\x1b[m";
-
         if (m_needRender) {
             m_renderTimer.start(0);
             m_needRender = false;
@@ -880,32 +883,31 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         m_active3DScene = m_3DSceneMap.begin().key();
         m_active3DView = findView3DForSceneRoot(m_active3DScene);
     }
-    if (m_active3DScene) {
-        createEditView3D();
-        if (!m_editView3DRootItem) {
-            m_active3DScene = nullptr;
-            m_active3DView = nullptr;
-            return;
-        }
 
-        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
-        if (helper) {
-            auto it = toolStates.constBegin();
-            while (it != toolStates.constEnd()) {
-                helper->initToolStates(it.key(), it.value());
-                ++it;
-            }
-            helper->restoreWindowState();
-            if (toolStates.contains(helper->globalStateId())
-                    && toolStates[helper->globalStateId()].contains("rootSize")) {
-                m_editView3DRootItem->setSize(toolStates[helper->globalStateId()]["rootSize"].value<QSize>());
-            }
-        }
-
-        updateActiveSceneToEditView3D();
-
-        createCameraAndLightGizmos(instanceList);
+    createEditView3D();
+    if (!m_editView3DRootItem) {
+        m_active3DScene = nullptr;
+        m_active3DView = nullptr;
+        return;
     }
+
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (helper) {
+        auto it = toolStates.constBegin();
+        while (it != toolStates.constEnd()) {
+            helper->initToolStates(it.key(), it.value());
+            ++it;
+        }
+        helper->restoreWindowState();
+        if (toolStates.contains(helper->globalStateId())
+                && toolStates[helper->globalStateId()].contains("rootSize")) {
+            m_editView3DRootItem->setSize(toolStates[helper->globalStateId()]["rootSize"].value<QSize>());
+        }
+    }
+
+    updateActiveSceneToEditView3D();
+
+    createCameraAndLightGizmos(instanceList);
 #else
     Q_UNUSED(instanceList)
     Q_UNUSED(toolStates)
