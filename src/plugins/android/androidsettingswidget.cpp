@@ -342,7 +342,7 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         // Reloading SDK packages (force) is still synchronous. Use zero timer
         // to let settings dialog open first.
         QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages,
-                                        m_sdkManager.get(), true));
+                                        m_sdkManager.get(), false));
         m_isInitialReloadDone = true;
     }
 }
