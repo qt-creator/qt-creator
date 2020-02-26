@@ -1,19 +1,8 @@
-if (IDE_LIBEXEC_PATH AND IDE_BIN_PATH)
-    get_filename_component(bin_path
-      "${CMAKE_INSTALL_PREFIX}/${IDE_BIN_PATH}" ABSOLUTE "${CMAKE_BINARY_DIR}")
-    get_filename_component(libexec_path
-      "${CMAKE_INSTALL_PREFIX}/${IDE_LIBEXEC_PATH}" ABSOLUTE "${CMAKE_BINARY_DIR}")
-  file(RELATIVE_PATH RELATIVE_TOOLS_PATH "${bin_path}" "${libexec_path}")
-else()
-  message(WARNING "IDE_LIBEXEC_PATH or IDE_BIN_PATH undefined when calculating tools path")
-  set(RELATIVE_TOOLS_PATH "")
-endif()
-
 add_qtc_library(Utils
   DEPENDS Qt5::Xml
   PUBLIC_DEPENDS Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Qml Qt5::Gui Qt5::Widgets
   DEFINES
-    "QTC_REL_TOOLS_PATH=\"${RELATIVE_TOOLS_PATH}\""
+    "QTC_REL_TOOLS_PATH=\"${RELATIVE_LIBEXEC_PATH}\""
   SOURCES
     ../3rdparty/optional/optional.hpp
     ../3rdparty/variant/variant.hpp
