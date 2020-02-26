@@ -21,6 +21,7 @@ from PyQt5 import QtQuick
     @endif
 @endif
 
+
 @if '%{Base}'
 class %{Class}(%{Base}):
 @else
@@ -29,11 +30,9 @@ class %{Class}:
     def __init__(self):
 @if '%{Base}' === 'QWidget'
         QtWidgets.QWidget.__init__(self)
-@endif
-@if '%{Base}' === 'QMainWindow'
+@elif '%{Base}' === 'QMainWindow'
         QtWidgets.QMainWindow.__init__(self)
-@if '%{Base}' === 'QQuickItem'
+@elif '%{Base}' === 'QQuickItem'
         QtQuick.QQuickItem.__init__(self)
 @endif
         pass
-

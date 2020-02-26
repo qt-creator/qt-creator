@@ -238,5 +238,7 @@ def codesign(app_path):
                                lambda ff: ff.endswith('.dylib'))
     codesign = codesign_call()
     if is_mac_platform() and codesign:
+        entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
+                                         'installer', 'mac', 'entitlements.plist')
         # sign the whole bundle
-        subprocess.check_call(codesign + ['--deep', app_path])
+        subprocess.check_call(codesign + ['--deep', app_path, '--entitlements', entitlements_path])
