@@ -3,8 +3,11 @@ description = "$IDE_DISPLAY_NAME Manual"
 url         = http://doc.qt.io/$IDE_ID
 
 headerdirs =
-sourcedirs = ../src
+sourcedirs = ../src \
+             ../../qtdesignstudio/src/qtquick3d-editor
+
 imagedirs = ../images \
+            ../../qtdesignstudio/images \
             ../../../src/libs/qmleditorwidgets/images \
             ../../../src/libs/utils/images \
             ../../../src/plugins/android/images \
@@ -16,6 +19,7 @@ imagedirs = ../images \
             ../../../src/plugins/help/images \
             ../../../src/plugins/projectexplorer/images \
             ../../../src/plugins/qmldesigner/components/componentcore/images \
+            ../../../src/plugins/qmldesigner/components/edit3d/images \
             ../../../src/plugins/qmldesigner/components/formeditor \
             ../../../src/plugins/qmldesigner/components/navigator \
             ../../../src/plugins/qmldesigner/components/timelineeditor/images \
@@ -35,12 +39,15 @@ depends +=    qtwidgets \
               qtcmake \
               qtcore \
               qtqml \
+              qtqmlmodels \
               qtquick \
               qmake \
               qtdesigner \
               qtdoc \
+              qtgraphicaleffects \
               qtgui \
               qthelp \
+              qtquick3d \
               qtquickcontrols \
               qtquickextras \
               qtquicktimeline \

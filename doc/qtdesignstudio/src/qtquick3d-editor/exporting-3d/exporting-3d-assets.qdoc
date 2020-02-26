@@ -27,9 +27,13 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Design Studio}
+    \contentspage index.html
     \page exporting-3d-assets.html
+    \if defined(qtdesignstudio)
     \previouspage qtbridge-sketch-using.html
+    \else
+    \previouspage studio-3d.html
+    \endif
     \nextpage exporting-from-blender.html
 
     \title Exporting 3D Assets

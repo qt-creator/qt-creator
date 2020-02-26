@@ -28,7 +28,7 @@
     \page quick-converting-ui-projects.html
     \if defined(qtdesignstudio)
     \previouspage studio-importing-designs.html
-    \nextpage studio-prototyping.html
+    \nextpage quick-uis.html
     \else
     \previouspage creator-qml-modules-with-plugins.html
     \nextpage creator-using-qt-designer.html

@@ -24,9 +24,13 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Design Studio}
-    \previouspage studio-3d.html
+    \contentspage index.html
     \page studio-3d-design-mode.html
+    \if defined (qtdesignstudio)
+    \previouspage studio-3d.html
+    \else
+    \previouspage studio-importing-3d.html
+    \endif
     \nextpage studio-3d-editor.html
 
     \title Editing 3D Assets in Design Mode

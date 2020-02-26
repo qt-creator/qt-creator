@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Design Studio}
+    \contentspage index.html
     \page qtdesignstudio-toc.html
 
     \title All Topics
@@ -90,7 +90,7 @@
                 \li \l{Adding States}
                 \li \l{Editing PathView Properties}
             \endlist
-        \li \b {\l{Editing 3D Scenes}}
+        \li \l{Editing 3D Scenes}
                 \list
                     \li \l{Editing 3D Assets in Design Mode}
                     \li \l{Working in the 3D Editor}

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -26,10 +26,14 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Design Studio Manual}
+    \contentspage index.html
     \page exporting-from-maya.html
-    \previouspage qtbridge-sketch-using.html
+    \previouspage exporting-from-blender.html
+    \if defined (qtdesignstudio)
     \nextpage creator-quick-tour.html
+    \else
+    \nextpage studio-importing-3d.html
+    \endif
 
     \title Exporting from Maya
 

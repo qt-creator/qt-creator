@@ -24,14 +24,10 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \page qtquick-properties.html
     \previouspage qtquick-navigator.html
-    \if defined(qtdesignstudio)
-    \nextpage studio-fonts.html
-    \else
-    \nextpage studio-timeline.html
-    \endif
+    \nextpage qtquick-fonts.html
 
     \title Specifying Item Properties
 
