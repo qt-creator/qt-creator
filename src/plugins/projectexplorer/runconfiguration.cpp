@@ -248,11 +248,6 @@ QMap<Core::Id, QVariantMap> RunConfiguration::aspectData() const
     return data;
 }
 
-BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
-{
-    return target()->activeBuildConfiguration();
-}
-
 BuildSystem *RunConfiguration::activeBuildSystem() const
 {
     return target()->buildSystem();

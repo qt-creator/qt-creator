@@ -174,8 +174,7 @@ signals:
 protected:
     RunConfiguration(Target *target, Core::Id id);
 
-    /// convenience function to get current build configuration.
-    BuildConfiguration *activeBuildConfiguration() const;
+    /// convenience function to get current build system. Try to avoid.
     BuildSystem *activeBuildSystem() const;
 
     using Updater = std::function<void()>;

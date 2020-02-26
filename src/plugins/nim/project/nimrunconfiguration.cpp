@@ -58,8 +58,8 @@ public:
         setDisplayName(tr("Current Build Target"));
         setDefaultDisplayName(tr("Current Build Target"));
 
-        setUpdater([this] {
-            auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(activeBuildConfiguration());
+        setUpdater([this, target] {
+            auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(target->activeBuildConfiguration());
             QTC_ASSERT(buildConfiguration, return);
             const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
             aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
