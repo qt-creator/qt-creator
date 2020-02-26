@@ -114,6 +114,12 @@
 
     \quotefile progressbar/main.cpp
 
+    \section1 Adding Custom Fonts
+
+    To \l{Using Custom Fonts}{use custom fonts} from the Qt Quick UI project,
+    call the QFontDatabase::addApplicationFont() function from the \e {main.cpp}
+    file.
+
     \section1 Adding Qt Quick Timeline Module to Qt Installations
 
     \note You only need to do this if your Qt version is older than 5.14.
