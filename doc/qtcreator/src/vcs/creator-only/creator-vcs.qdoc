@@ -52,8 +52,9 @@
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
             \li Disabled by default. To enable the plugin, select
                 \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol ClearCase, and then
-                restart \QC.
+                \uicontrol {Version Control} > \uicontrol ClearCase.
+                Then select \uicontrol {Restart Now} to restart \QC
+                and load the plugin.
         \row
             \li \l{Using CVS}{CVS}
             \li \l{http://www.nongnu.org/cvs/}
@@ -75,8 +76,9 @@
 
                 Disabled by default. To enable the plugin, select
                 \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol Perforce,
-                and then restart \QC.
+                \uicontrol {Version Control} > \uicontrol Perforce.
+                Then select \uicontrol {Restart Now} to restart \QC
+                and load the plugin.
         \row
             \li \l{Using Subversion}{Subversion}
             \li \l{http://subversion.apache.org/}

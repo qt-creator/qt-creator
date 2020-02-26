@@ -38,7 +38,8 @@
 
     To use \QC for Nim development, you need to enable the experimental
     Nim plugin. Select \uicontrol Help > \uicontrol {About Plugins} >
-    \uicontrol {Other Languages} > \uicontrol Nim, and then restart \QC.
+    \uicontrol {Other Languages} > \uicontrol Nim. Then select
+    \uicontrol {Restart Now} to restart \QC and load the plugin.
 
     In addition, you have to download and install Nim and set up a Nim kit
     in \QC.

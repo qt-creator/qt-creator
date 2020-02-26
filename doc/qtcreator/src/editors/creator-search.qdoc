@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -245,7 +245,7 @@
             \uicontrol {Utilities} > \uicontrol {SilverSearcher} to enable the
             plugin.
 
-        \li Restart \QC to be able to use the plugin.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
         \li When searching, select \uicontrol {Silver Searcher} in the
             \uicontrol {Search engine} field.
@@ -267,7 +267,7 @@
         \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol C++
             > \uicontrol {ClangRefactoring} to enable the plugin.
 
-        \li Restart \QC to be able to use the plugin.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
         \li When searching, select \uicontrol {Clang Query Project} in the
             \uicontrol {Scope} field.
