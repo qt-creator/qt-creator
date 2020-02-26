@@ -316,7 +316,7 @@ void BuildSystem::emitBuildSystemUpdated()
 
 QString BuildSystem::disabledReason(const QString &buildKey) const
 {
-    if (hasParsingData()) {
+    if (!hasParsingData()) {
         QString msg = isParsing() ? tr("The project is currently being parsed.")
                                   : tr("The project could not be fully parsed.");
         const FilePath projectFilePath = buildTarget(buildKey).projectFilePath;
