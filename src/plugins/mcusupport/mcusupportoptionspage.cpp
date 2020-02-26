@@ -183,7 +183,6 @@ void McuSupportOptionsWidget::apply()
     for (auto package : m_options.packages)
         package->writeToSettings();
 
-    QTC_ASSERT(m_options.armGccPackage, return);
     QTC_ASSERT(m_options.qtForMCUsSdkPackage, return);
 
     if (!isVisible() || !cMakeAvailable())

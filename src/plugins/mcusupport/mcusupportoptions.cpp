@@ -195,12 +195,101 @@ void McuPackage::updateStatus()
     m_infoLabel->setText(statusText);
 }
 
+McuToolChainPackage::McuToolChainPackage(const QString &label, const QString &defaultPath,
+                                         const QString &detectionPath, const QString &settingsKey,
+                                         McuToolChainPackage::Type type)
+    : McuPackage(label, defaultPath, detectionPath, settingsKey)
+    , m_type(type)
+{
+}
+
+McuToolChainPackage::Type McuToolChainPackage::type() const
+{
+    return m_type;
+}
+
+static ProjectExplorer::ToolChain* armGccToolChain(const Utils::FilePath &path, Core::Id language)
+{
+    using namespace ProjectExplorer;
+
+    ToolChain *toolChain = ToolChainManager::toolChain([&path, language](const ToolChain *t){
+        return t->compilerCommand() == path && t->language() == language;
+    });
+    if (!toolChain) {
+        ToolChainFactory *gccFactory =
+            Utils::findOrDefault(ToolChainFactory::allToolChainFactories(), [](ToolChainFactory *f){
+            return f->supportedToolChainType() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
+        });
+        if (gccFactory) {
+            const QList<ToolChain*> detected = gccFactory->detectForImport({path, language});
+            if (!detected.isEmpty()) {
+                toolChain = detected.first();
+                toolChain->setDetection(ToolChain::ManualDetection);
+                toolChain->setDisplayName("Arm GCC");
+                ToolChainManager::registerToolChain(toolChain);
+            }
+        }
+    }
+
+    return toolChain;
+}
+
+ProjectExplorer::ToolChain *McuToolChainPackage::toolChain(Core::Id language) const
+{
+    const QLatin1String compilerName(
+                language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
+    const Utils::FilePath compiler = Utils::FilePath::fromUserInput(
+                Utils::HostOsInfo::withExecutableSuffix(
+                path() + (
+                    m_type == TypeArmGcc
+                    ? "/bin/arm-none-eabi-%1" : m_type == TypeIAR
+                      ? "/foo/bar-iar-%1" : "/bar/foo-keil-%1")).arg(compilerName));
+
+    ProjectExplorer::ToolChain *tc = armGccToolChain(compiler, language);
+    return tc;
+}
+
+QString McuToolChainPackage::cmakeToolChainFileName() const
+{
+    return QLatin1String(m_type == TypeArmGcc
+                         ? "armgcc.cmake" : m_type == McuToolChainPackage::TypeIAR
+                           ? "iar.cmake" : "keil.cmake");
+}
+
+QVariant McuToolChainPackage::debuggerId() const
+{
+    using namespace Debugger;
+
+    const Utils::FilePath command = Utils::FilePath::fromUserInput(
+                Utils::HostOsInfo::withExecutableSuffix(path() + (
+                        m_type == TypeArmGcc
+                        ? "/bin/arm-none-eabi-gdb-py" : m_type == TypeIAR
+                          ? "/foo/bar-iar-gdb" : "/bar/foo-keil-gdb")));
+    const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command);
+    QVariant debuggerId;
+    if (!debugger) {
+        DebuggerItem newDebugger;
+        newDebugger.setCommand(command);
+        const QString displayName =
+            m_type == TypeArmGcc
+            ? tr("Arm GDB at %1") : m_type == TypeIAR
+              ? QLatin1String("/foo/bar-iar-gdb") : QLatin1String("/bar/foo-keil-gdb");
+        newDebugger.setUnexpandedDisplayName(displayName.arg(command.toUserOutput()));
+        debuggerId = DebuggerItemManager::registerDebugger(newDebugger);
+    } else {
+        debuggerId = debugger->id();
+    }
+    return debuggerId;
+}
+
 McuTarget::McuTarget(const QString &vendor, const QString &platform,
-                     const QVector<McuPackage*> &packages)
+                     const QVector<McuPackage *> &packages, McuToolChainPackage *toolChainPackage)
     : m_vendor(vendor)
     , m_qulPlatform(platform)
     , m_packages(packages)
+    , m_toolChainPackage(toolChainPackage)
 {
+    QTC_CHECK(m_toolChainPackage == nullptr || m_packages.contains(m_toolChainPackage));
 }
 
 QString McuTarget::vendor() const
@@ -213,14 +302,9 @@ QVector<McuPackage *> McuTarget::packages() const
     return m_packages;
 }
 
-void McuTarget::setToolChainFile(const QString &toolChainFile)
+McuToolChainPackage *McuTarget::toolChainPackage() const
 {
-    m_toolChainFile = toolChainFile;
-}
-
-QString McuTarget::toolChainFile() const
-{
-    return m_toolChainFile;
+    return m_toolChainPackage;
 }
 
 QString McuTarget::qulPlatform() const
@@ -269,7 +353,7 @@ static McuPackage *createQtForMCUsPackage()
     return result;
 }
 
-static McuPackage *createArmGccPackage()
+static McuToolChainPackage *createArmGccPackage()
 {
     const char envVar[] = "ARMGCC_DIR";
 
@@ -290,11 +374,12 @@ static McuPackage *createArmGccPackage()
     if (defaultPath.isEmpty())
         defaultPath = QDir::homePath();
 
-    auto result = new McuPackage(
+    auto result = new McuToolChainPackage(
                 McuPackage::tr("GNU Arm Embedded Toolchain"),
                 defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++"),
-                "GNUArmEmbeddedToolchain");
+                "GNUArmEmbeddedToolchain",
+                McuToolChainPackage::TypeArmGcc);
     result->setDownloadUrl(
                 "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads");
     result->setEnvironmentVariableName(envVar);
@@ -368,19 +453,19 @@ static McuPackage *createSeggerJLinkPackage()
 
 McuSupportOptions::McuSupportOptions(QObject *parent)
     : QObject(parent)
+    , qtForMCUsSdkPackage(createQtForMCUsPackage())
 {
-    qtForMCUsSdkPackage = createQtForMCUsPackage();
-    armGccPackage = createArmGccPackage();
+    McuToolChainPackage* armGccPackage = createArmGccPackage();
     McuPackage* stm32CubeFwF7SdkPackage = createStm32CubeFwF7SdkPackage();
     McuPackage* stm32CubeProgrammerPackage = createStm32CubeProgrammerPackage();
     McuPackage* evkbImxrt1050SdkPackage = createEvkbImxrt1050SdkPackage();
     McuPackage* seggerJLinkPackage = createSeggerJLinkPackage();
 
-    auto stmEvalPackages = {
+    QVector<McuPackage*> stmEvalPackages = {
         armGccPackage, stm32CubeProgrammerPackage, qtForMCUsSdkPackage};
-    auto nxpEvalPackages = {
+    QVector<McuPackage*> nxpEvalPackages = {
         armGccPackage, seggerJLinkPackage, qtForMCUsSdkPackage};
-    auto desktopPackages = {
+    QVector<McuPackage*> desktopPackages = {
         qtForMCUsSdkPackage};
     packages = {
         armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
@@ -390,30 +475,25 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     const QString vendorNxp = "NXP";
     const QString vendorQt = "Qt";
 
-    const QString armGccToochainFile = "CMake/toolchain/armgcc.cmake";
-
     // STM
-    auto mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages);
-    mcuTarget->setToolChainFile(armGccToochainFile);
+    auto mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages,
+                                   armGccPackage);
     mcuTarget->setColorDepth(32);
     mcuTargets.append(mcuTarget);
 
-    mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages);
-    mcuTarget->setToolChainFile(armGccToochainFile);
+    mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages, armGccPackage);
     mcuTarget->setColorDepth(16);
     mcuTargets.append(mcuTarget);
 
-    mcuTarget = new McuTarget(vendorStm, "STM32F769I-DISCOVERY", stmEvalPackages);
-    mcuTarget->setToolChainFile(armGccToochainFile);
+    mcuTarget = new McuTarget(vendorStm, "STM32F769I-DISCOVERY", stmEvalPackages, armGccPackage);
     mcuTargets.append(mcuTarget);
 
     // NXP
-    mcuTarget = new McuTarget(vendorNxp, "MIMXRT1050-EVK", nxpEvalPackages);
-    mcuTarget->setToolChainFile(armGccToochainFile);
+    mcuTarget = new McuTarget(vendorNxp, "MIMXRT1050-EVK", nxpEvalPackages, armGccPackage);
     mcuTargets.append(mcuTarget);
 
     // Desktop (Qt)
-    mcuTarget = new McuTarget(vendorQt, "Qt", desktopPackages);
+    mcuTarget = new McuTarget(vendorQt, "Qt", desktopPackages, nullptr);
     mcuTarget->setColorDepth(32);
     mcuTargets.append(mcuTarget);
 
@@ -429,32 +509,6 @@ McuSupportOptions::~McuSupportOptions()
     packages.clear();
     qDeleteAll(mcuTargets);
     mcuTargets.clear();
-}
-
-static ProjectExplorer::ToolChain* armGccToolchain(const Utils::FilePath &path, Core::Id language)
-{
-    using namespace ProjectExplorer;
-
-    ToolChain *toolChain = ToolChainManager::toolChain([&path, language](const ToolChain *t){
-        return t->compilerCommand() == path && t->language() == language;
-    });
-    if (!toolChain) {
-        ToolChainFactory *gccFactory =
-            Utils::findOrDefault(ToolChainFactory::allToolChainFactories(), [](ToolChainFactory *f){
-            return f->supportedToolChainType() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
-        });
-        if (gccFactory) {
-            const QList<ToolChain*> detected = gccFactory->detectForImport({path, language});
-            if (!detected.isEmpty()) {
-                toolChain = detected.first();
-                toolChain->setDetection(ToolChain::ManualDetection);
-                toolChain->setDisplayName("Arm GCC");
-                ToolChainManager::registerToolChain(toolChain);
-            }
-        }
-    }
-
-    return toolChain;
 }
 
 static bool mcuTargetIsDesktop(const McuTarget* mcuTarget)
@@ -492,48 +546,22 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     }
 }
 
-static void setKitToolchains(ProjectExplorer::Kit *k, const QString &armGccPath)
+static void setKitToolchains(ProjectExplorer::Kit *k, const McuToolChainPackage *tcPackage)
 {
-    using namespace ProjectExplorer;
-
-    const QString compileNameScheme = Utils::HostOsInfo::withExecutableSuffix(
-                armGccPath + "/bin/arm-none-eabi-%1");
-    ToolChain *cTc = armGccToolchain(
-                Utils::FilePath::fromUserInput(compileNameScheme.arg("gcc")),
-                ProjectExplorer::Constants::C_LANGUAGE_ID);
-    ToolChain *cxxTc = armGccToolchain(
-                Utils::FilePath::fromUserInput(compileNameScheme.arg("g++")),
-                ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    ToolChainKitAspect::setToolChain(k, cTc);
-    ToolChainKitAspect::setToolChain(k, cxxTc);
+    ProjectExplorer::ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
+                                         ProjectExplorer::Constants::C_LANGUAGE_ID));
+    ProjectExplorer::ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
+                                         ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }
 
-static void setKitDebugger(ProjectExplorer::Kit *k, const QString &armGccPath)
+static void setKitDebugger(ProjectExplorer::Kit *k, const McuToolChainPackage *tcPackage)
 {
-    using namespace Debugger;
-
-    const Utils::FilePath command = Utils::FilePath::fromUserInput(
-                Utils::HostOsInfo::withExecutableSuffix(armGccPath + "/bin/arm-none-eabi-gdb-py"));
-    const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command);
-    QVariant debuggerId;
-    if (!debugger) {
-        DebuggerItem newDebugger;
-        newDebugger.setCommand(command);
-        newDebugger.setUnexpandedDisplayName(
-                    McuPackage::tr("Arm GDB at %1").arg(command.toUserOutput()));
-        debuggerId = DebuggerItemManager::registerDebugger(newDebugger);
-    } else {
-        debuggerId = debugger->id();
-    }
-
-    DebuggerKitAspect::setDebugger(k, debuggerId);
+    Debugger::DebuggerKitAspect::setDebugger(k, tcPackage->debuggerId());
 }
 
 static void setKitDevice(ProjectExplorer::Kit *k)
 {
-    using namespace ProjectExplorer;
-
-    DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
+    ProjectExplorer::DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
 }
 
 static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarget)
@@ -564,11 +592,13 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
     config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
     config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
-    if (!mcuTarget->toolChainFile().isEmpty())
-        config.append(CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
-                                      (qulDir + "/" + mcuTarget->toolChainFile()).toUtf8()));
+    if (mcuTarget->toolChainPackage())
+        config.append(CMakeConfigItem(
+                          "CMAKE_TOOLCHAIN_FILE",
+                          (qulDir + "/lib/cmake/Qul/toolchain/"
+                           + mcuTarget->toolChainPackage()->cmakeToolChainFileName()).toUtf8()));
     config.append(CMakeConfigItem("QUL_GENERATORS",
-                                  (qulDir + "/CMake/QulGenerators.cmake").toUtf8()));
+                                  (qulDir + "/lib/cmake/Qul/QulGenerators.cmake").toUtf8()));
     config.append(CMakeConfigItem("QUL_PLATFORM",
                                   mcuTarget->qulPlatform().toUtf8()));
     if (mcuTargetIsDesktop(mcuTarget))
@@ -607,15 +637,13 @@ ProjectExplorer::Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget)
 {
     using namespace ProjectExplorer;
 
-    const QString armGccPath = armGccPackage->path();
-    const QString qulDir = qtForMCUsSdkPackage->path();
     const auto init = [this, mcuTarget](Kit *k) {
         KitGuard kitGuard(k);
 
         setKitProperties(kitName(mcuTarget), k, mcuTarget);
         if (!mcuTargetIsDesktop(mcuTarget)) {
-            setKitToolchains(k, armGccPackage->path());
-            setKitDebugger(k, armGccPackage->path());
+            setKitToolchains(k, mcuTarget->toolChainPackage());
+            setKitDebugger(k, mcuTarget->toolChainPackage());
             setKitDevice(k);
         }
         setKitEnvironment(k, mcuTarget);
