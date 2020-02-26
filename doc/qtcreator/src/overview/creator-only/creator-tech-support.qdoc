@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -61,6 +61,11 @@
             \li Participate in Qt development
             \li \l{https://wiki.qt.io/Qt_Contribution_Guidelines}
                 {Qt Contribution Guidelines}
+
+       \row
+            \li Find extensions for Qt, such as \QC plugins, development tools,
+                and Qt modules
+            \li \l{https://marketplace.qt.io/}{Qt Marketplace}
 
         \row
             \li Find free Qt-based applications
