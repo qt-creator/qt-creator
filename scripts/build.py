@@ -44,7 +44,9 @@ def default_python3():
     path_system = os.path.join('/usr', 'bin') if not common.is_windows_platform() else None
     path = os.environ.get('PYTHON3_PATH') or path_system
     postfix = '.exe' if common.is_windows_platform() else ''
-    return existing_path(os.path.join(path, 'python3' + postfix)) or existing_path(os.path.join(path, 'python' + postfix))
+    return (path if not path
+            else (existing_path(os.path.join(path, 'python3' + postfix)) or
+                  existing_path(os.path.join(path, 'python' + postfix))))
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Build Qt Creator for packaging')
