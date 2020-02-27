@@ -475,7 +475,7 @@ void QmakeProjectManagerPluginPrivate::buildFile()
         Project *project = SessionManager::projectForFile(file);
 
         if (project && node)
-            handleSubDirContextMenu(BUILD, true, project, node->parentProjectNode(), node);
+            handleSubDirContextMenu(BUILD, true, project, buildableFileProFile(node), node);
     }
 }
 
