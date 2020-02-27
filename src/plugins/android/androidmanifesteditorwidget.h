@@ -189,6 +189,7 @@ private:
     QLineEdit *m_appNameLineEdit;
     QLineEdit *m_activityNameLineEdit;
     QComboBox *m_targetLineEdit;
+    QComboBox *m_styleExtractMethod;
     QToolButton *m_masterIconButton;
     QToolButton *m_lIconButton;
     QToolButton *m_lIconClearButton;
