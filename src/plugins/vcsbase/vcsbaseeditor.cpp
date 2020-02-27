@@ -358,7 +358,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
 
 QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change) const
 {
-    auto a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), nullptr);
+    auto a = new QAction(tr("Copy \"%1\"").arg(change), nullptr);
     a->setData(change);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotCopyRevision);
     return a;
@@ -564,7 +564,6 @@ public:
     int m_firstLineNumber = -1;
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
-    QString m_copyRevisionTextFormat;
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
@@ -579,8 +578,7 @@ private:
 
 VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget)  :
     q(editorWidget),
-    m_annotateRevisionTextFormat(VcsBaseEditorWidget::tr("Annotate \"%1\"")),
-    m_copyRevisionTextFormat(VcsBaseEditorWidget::tr("Copy \"%1\""))
+    m_annotateRevisionTextFormat(VcsBaseEditorWidget::tr("Annotate \"%1\""))
 {
     m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
     m_textCursorHandlers.append(new UrlTextCursorHandler(editorWidget));
@@ -817,16 +815,6 @@ QString VcsBaseEditorWidget::annotatePreviousRevisionTextFormat() const
 void VcsBaseEditorWidget::setAnnotatePreviousRevisionTextFormat(const QString &f)
 {
     d->m_annotatePreviousRevisionTextFormat = f;
-}
-
-QString VcsBaseEditorWidget::copyRevisionTextFormat() const
-{
-    return d->m_copyRevisionTextFormat;
-}
-
-void VcsBaseEditorWidget::setCopyRevisionTextFormat(const QString &f)
-{
-    d->m_copyRevisionTextFormat = f;
 }
 
 bool VcsBaseEditorWidget::isFileLogAnnotateEnabled() const
