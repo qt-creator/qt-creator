@@ -141,7 +141,7 @@ public:
     void handleSubDirContextMenu(Action action, bool isFileBuild);
     static void handleSubDirContextMenu(Action action, bool isFileBuild,
                                         Project *contextProject,
-                                        Node *contextProFileNode,
+                                        QmakeProFileNode *profile,
                                         FileNode *buildableFile);
     void addLibraryImpl(const QString &fileName, TextEditor::BaseTextEditor *editor);
     void runQMakeImpl(Project *p, ProjectExplorer::Node *node);
@@ -477,7 +477,7 @@ void QmakeProjectManagerPluginPrivate::buildFile()
     }
 }
 
-void QmakeProjectManagerPlugin::buildProduct(Project *project, Node *proFileNode)
+void QmakeProjectManagerPlugin::buildProduct(Project *project, QmakeProFileNode *proFileNode)
 {
     QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(
                 QmakeProjectManagerPluginPrivate::BUILD, false, project, proFileNode, nullptr);
@@ -500,9 +500,11 @@ void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(Action action, bo
                             buildableFileNode);
 }
 
-void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(Action action, bool isFileBuild,
-                                           Project *contextProject, Node *contextNode,
-                                           FileNode *buildableFile)
+void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(Action action,
+                                                               bool isFileBuild,
+                                                               Project *contextProject,
+                                                               QmakeProFileNode *profile,
+                                                               FileNode *buildableFile)
 {
     QTC_ASSERT(contextProject, return);
     Target *target = contextProject->activeTarget();
@@ -513,14 +515,12 @@ void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(Action action, bo
     if (!bc)
         return;
 
-    if (!contextNode || !buildableFile)
+    if (!profile || !buildableFile)
         isFileBuild = false;
 
-    if (auto *prifile = dynamic_cast<QmakePriFileNode *>(contextNode)) {
-        if (QmakeProFileNode *profile = prifile->proFileNode()) {
-            if (profile != contextProject->rootProjectNode() || isFileBuild)
-                bc->setSubNodeBuild(profile->proFileNode());
-        }
+    if (profile) {
+        if (profile != contextProject->rootProjectNode() || isFileBuild)
+            bc->setSubNodeBuild(profile->proFileNode());
     }
 
     if (isFileBuild)

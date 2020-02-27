@@ -27,12 +27,12 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace ProjectExplorer {
-class Project;
-class Node;
-} // ProjectExplorer
+namespace ProjectExplorer { class Project; }
 
 namespace QmakeProjectManager {
+
+class QmakeProFileNode;
+
 namespace Internal {
 
 class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin
@@ -43,7 +43,7 @@ class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin
 public:
     ~QmakeProjectManagerPlugin() final;
 
-    static void buildProduct(ProjectExplorer::Project *project, ProjectExplorer::Node *proFileNode);
+    static void buildProduct(ProjectExplorer::Project *project, QmakeProFileNode *proFileNode);
 
 #ifdef WITH_TESTS
 private slots:
