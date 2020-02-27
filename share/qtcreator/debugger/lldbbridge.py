@@ -810,7 +810,7 @@ class Dumper(DumperBase):
         needle = self.canonicalTypeName(name)
         #DumperBase.warn('NEEDLE: %s ' % needle)
         self.warn('Searching for type %s across all target modules, this could be very slow' % name)
-        for i in xrange(self.target.GetNumModules()):
+        for i in range(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
             # SBModule.GetType is new somewhere after early 300.x
             # So this may fail.
@@ -1000,7 +1000,7 @@ class Dumper(DumperBase):
         return None if thread is None else thread.GetSelectedFrame()
 
     def firstStoppedThread(self):
-        for i in xrange(0, self.process.GetNumThreads()):
+        for i in range(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
             reason = thread.GetStopReason()
             if (reason == lldb.eStopReasonBreakpoint or
@@ -1013,7 +1013,7 @@ class Dumper(DumperBase):
 
     def fetchThreads(self, args):
         result = 'threads=['
-        for i in xrange(0, self.process.GetNumThreads()):
+        for i in range(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
             if thread.is_stopped:
                 state = 'stopped'
@@ -1043,7 +1043,7 @@ class Dumper(DumperBase):
         self.reportResult(result, args)
 
     def firstUsableFrame(self, thread):
-        for i in xrange(10):
+        for i in range(10):
             frame = thread.GetFrameAtIndex(i)
             lineEntry = frame.GetLineEntry()
             line = lineEntry.GetLine()
@@ -1067,7 +1067,7 @@ class Dumper(DumperBase):
         self.currentCallContext = None
         result = 'stack={current-thread="%s"' % thread.GetThreadID()
         result += ',frames=['
-        for i in xrange(n):
+        for i in range(n):
             frame = thread.GetFrameAtIndex(i)
             if not frame.IsValid():
                 isLimited = False
@@ -1183,7 +1183,7 @@ class Dumper(DumperBase):
                 with Children(self):
                     statics = frame.GetVariables(False, False, True, False)
                     if len(statics):
-                        for i in xrange(len(statics)):
+                        for i in range(len(statics)):
                             staticVar = statics[i]
                             staticVar.SetPreferSyntheticValue(False)
                             typename = staticVar.GetType().GetName()
@@ -1408,7 +1408,7 @@ class Dumper(DumperBase):
         if bp.IsValid() and isinstance(bp, lldb.SBBreakpoint):
             result += ',locations=['
             lineEntry = None
-            for i in xrange(bp.GetNumLocations()):
+            for i in range(bp.GetNumLocations()):
                 loc = bp.GetLocationAtIndex(i)
                 addr = loc.GetAddress()
                 lineEntry = addr.GetLineEntry()
@@ -1539,7 +1539,7 @@ class Dumper(DumperBase):
 
     def fetchModules(self, args):
         result = 'modules=['
-        for i in xrange(self.target.GetNumModules()):
+        for i in range(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
             result += '{file="%s"' % module.file.fullpath
             result += ',name="%s"' % module.file.basename
@@ -1559,7 +1559,7 @@ class Dumper(DumperBase):
         moduleName = args['module']
         #file = lldb.SBFileSpec(moduleName)
         #module = self.target.FindModule(file)
-        for i in xrange(self.target.GetNumModules()):
+        for i in range(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
             if module.file.fullpath == moduleName:
                 break
@@ -1872,7 +1872,7 @@ class Tester(Dumper):
                     break
                 if state == lldb.eStateStopped: # 5
                     stoppedThread = None
-                    for i in xrange(0, self.process.GetNumThreads()):
+                    for i in range(0, self.process.GetNumThreads()):
                         thread = self.process.GetThreadAtIndex(i)
                         reason = thread.GetStopReason()
                         #DumperBase.warn('THREAD: %s REASON: %s' % (thread, reason))

@@ -530,7 +530,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_perspective.addWindow(m_visualization, Perspective::SplitVertical, nullptr,
                            false, Qt::RightDockWidgetArea);
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &CallgrindToolPrivate::updateRunActions);
 }
 

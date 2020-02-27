@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -117,9 +117,9 @@
     components on the canvas:
 
     \list 1
-        \li In the \uicontrol States pane, select the \inlineimage plus.png
+        \li In the \uicontrol States view, select the \inlineimage plus.png
             button.
-            \image loginui3-login-state.png "States pane"
+            \image loginui3-login-state.png "States view"
         \li Enter \e loginState as the state name.
         \li Select \e verifyPasswordField in the \uicontrol Navigator,
             and deselect the \uicontrol Visibility check box in

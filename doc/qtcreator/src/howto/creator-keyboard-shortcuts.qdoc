@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -239,14 +239,14 @@
             Where the number is the number of the output pane.
         \if defined(qtcreator)
         \row
-            \li  Activate \uicontrol Bookmarks pane
+            \li  Activate \uicontrol Bookmarks view
             \li  Alt+M
         \endif
         \row
-            \li  Activate \uicontrol{File System} pane
+            \li  Activate \uicontrol{File System} view
             \li  Alt+Y
         \row
-            \li  Activate \uicontrol{Open Documents} pane
+            \li  Activate \uicontrol{Open Documents} view
             \li  Alt+O
         \row
             \li  Maximize output panes
@@ -258,7 +258,7 @@
             \li  Move to previous item in output panes
             \li  Shift+F6
         \row
-            \li  Activate \uicontrol Projects pane
+            \li  Activate \uicontrol Projects view
             \li  Alt+X
         \row
             \li  Full screen

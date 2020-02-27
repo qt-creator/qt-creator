@@ -1186,7 +1186,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, &DebuggerPluginPrivate::writeSettings);
 
     // ProjectExplorer
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &DebuggerPluginPrivate::updatePresetState);
 
     // EditorManager

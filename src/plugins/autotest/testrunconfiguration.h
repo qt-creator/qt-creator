@@ -59,7 +59,7 @@ public:
 
         if (auto debugAspect = aspect<Debugger::DebuggerRunConfigurationAspect>()) {
             debugAspect->setUseQmlDebugger(enableQuick);
-            ProjectExplorer::ProjectExplorerPlugin::instance()->updateRunActions();
+            ProjectExplorer::ProjectExplorerPlugin::updateRunActions();
         }
         m_testConfig = config;
     }

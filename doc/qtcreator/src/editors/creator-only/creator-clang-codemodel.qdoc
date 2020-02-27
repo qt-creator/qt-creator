@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -105,8 +105,8 @@
 
     To use the built-in code model instead, select \uicontrol Help >
     \uicontrol {About Plugins} > \uicontrol C++, and deselect the
-    \uicontrol ClangCodeModel check box. The changes take effect after
-    you restart \QC.
+    \uicontrol ClangCodeModel check box. Select \uicontrol {Restart Now}
+    to restart \QC and have the changes take effect.
 
     You can configure Clang diagnostics either globally or separately for:
 

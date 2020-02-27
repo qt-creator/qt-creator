@@ -154,16 +154,18 @@ namespace ADS
 
     void DockWidgetPrivate::updateParentDockArea()
     {
-        if (!m_dockArea) {
+        if (!m_dockArea)
             return;
-        }
+
+        // we don't need to change the current tab if the current DockWidget is not the one being closed
+        if (m_dockArea->currentDockWidget() != q)
+            return;
 
         auto nextDockWidget = m_dockArea->nextOpenDockWidget(q);
-        if (nextDockWidget) {
+        if (nextDockWidget)
             m_dockArea->setCurrentDockWidget(nextDockWidget);
-        } else {
+        else
             m_dockArea->hideAreaWithNoVisibleContent();
-        }
     }
 
     void DockWidgetPrivate::setupToolBar()
@@ -222,9 +224,8 @@ namespace ADS
         QScrollArea *scrollAreaWidget = qobject_cast<QScrollArea *>(widget);
         if (scrollAreaWidget || ForceNoScrollArea == insertMode) {
             d->m_layout->addWidget(widget);
-            if (scrollAreaWidget && scrollAreaWidget->viewport()) {
+            if (scrollAreaWidget && scrollAreaWidget->viewport())
                 scrollAreaWidget->viewport()->setProperty("dockWidgetContent", true);
-            }
         } else {
             d->setupScrollArea();
             d->m_scrollArea->setWidget(widget);
@@ -283,9 +284,8 @@ namespace ADS
 
     bool DockWidget::isFloating() const
     {
-        if (!isInFloatingContainer()) {
+        if (!isInFloatingContainer())
             return false;
-        }
 
         return dockContainer()->topLevelDockWidget() == this;
     }
@@ -293,13 +293,11 @@ namespace ADS
     bool DockWidget::isInFloatingContainer() const
     {
         auto container = dockContainer();
-        if (!container) {
+        if (!container)
             return false;
-        }
 
-        if (!container->isFloating()) {
+        if (!container->isFloating())
             return false;
-        }
 
         return true;
     }
@@ -324,17 +322,16 @@ namespace ADS
         // If the toggle view action mode is ActionModeShow, then Open is always
         // true if the sender is the toggle view action
         QAction *action = qobject_cast<QAction *>(sender());
-        if (action == d->m_toggleViewAction && !d->m_toggleViewAction->isCheckable()) {
+        if (action == d->m_toggleViewAction && !d->m_toggleViewAction->isCheckable())
             open = true;
-        }
+
         // If the dock widget state is different, then we really need to toggle
         // the state. If we are in the right state, then we simply make this
         // dock widget the current dock widget
-        if (d->m_closed != !open) {
+        if (d->m_closed != !open)
             toggleViewInternal(open);
-        } else if (open && d->m_dockArea) {
+        else if (open && d->m_dockArea)
             d->m_dockArea->setCurrentDockWidget(this);
-        }
     }
 
     void DockWidget::toggleViewInternal(bool open)
@@ -353,13 +350,11 @@ namespace ADS
         //d->m_toggleViewAction->blockSignals(true);
         d->m_toggleViewAction->setChecked(open);
         //d->m_toggleViewAction->blockSignals(false);
-        if (d->m_dockArea) {
+        if (d->m_dockArea)
             d->m_dockArea->toggleDockWidgetView(this, open);
-        }
 
-        if (open && topLevelDockWidgetBefore) {
+        if (open && topLevelDockWidgetBefore)
             DockWidget::emitTopLevelEventForWidget(topLevelDockWidgetBefore, false);
-        }
 
         // Here we need to call the dockContainer() function again, because if
         // this dock widget was unassigned before the call to showDockWidget() then
@@ -370,13 +365,12 @@ namespace ADS
                                                   : nullptr;
         DockWidget::emitTopLevelEventForWidget(topLevelDockWidgetAfter, true);
         FloatingDockContainer *floatingContainer = dockContainerWidget->floatingWidget();
-        if (floatingContainer) {
+        if (floatingContainer)
             floatingContainer->updateWindowTitle();
-        }
 
-        if (!open) {
+        if (!open)
             emit closed();
-        }
+
         emit viewToggled(open);
     }
 
@@ -440,24 +434,22 @@ namespace ADS
 #ifndef QT_NO_TOOLTIP
     void DockWidget::setTabToolTip(const QString &text)
     {
-        if (d->m_tabWidget) {
+        if (d->m_tabWidget)
             d->m_tabWidget->setToolTip(text);
-        }
-        if (d->m_toggleViewAction) {
+
+        if (d->m_toggleViewAction)
             d->m_toggleViewAction->setToolTip(text);
-        }
-        if (d->m_dockArea) {
+
+        if (d->m_dockArea)
             d->m_dockArea->markTitleBarMenuOutdated(); //update tabs menu
-        }
     }
 #endif
 
     void DockWidget::setIcon(const QIcon &icon)
     {
         d->m_tabWidget->setIcon(icon);
-        if (!d->m_toggleViewAction->isCheckable()) {
+        if (!d->m_toggleViewAction->isCheckable())
             d->m_toggleViewAction->setIcon(icon);
-        }
     }
 
     QIcon DockWidget::icon() const { return d->m_tabWidget->icon(); }
@@ -466,18 +458,16 @@ namespace ADS
 
     QToolBar *DockWidget::createDefaultToolBar()
     {
-        if (!d->m_toolBar) {
+        if (!d->m_toolBar)
             d->setupToolBar();
-        }
 
         return d->m_toolBar;
     }
 
     void DockWidget::setToolBar(QToolBar *toolBar)
     {
-        if (d->m_toolBar) {
+        if (d->m_toolBar)
             delete d->m_toolBar;
-        }
 
         d->m_toolBar = toolBar;
         d->m_layout->insertWidget(0, d->m_toolBar);
@@ -487,59 +477,52 @@ namespace ADS
 
     void DockWidget::setToolBarStyle(Qt::ToolButtonStyle style, eState state)
     {
-        if (StateFloating == state) {
+        if (StateFloating == state)
             d->m_toolBarStyleFloating = style;
-        } else {
+        else
             d->m_toolBarStyleDocked = style;
-        }
 
         setToolbarFloatingStyle(isFloating());
     }
 
     Qt::ToolButtonStyle DockWidget::toolBarStyle(eState state) const
     {
-        if (StateFloating == state) {
+        if (StateFloating == state)
             return d->m_toolBarStyleFloating;
-        } else {
+        else
             return d->m_toolBarStyleDocked;
-        }
     }
 
     void DockWidget::setToolBarIconSize(const QSize &iconSize, eState state)
     {
-        if (StateFloating == state) {
+        if (StateFloating == state)
             d->m_toolBarIconSizeFloating = iconSize;
-        } else {
+        else
             d->m_toolBarIconSizeDocked = iconSize;
-        }
 
         setToolbarFloatingStyle(isFloating());
     }
 
     QSize DockWidget::toolBarIconSize(eState state) const
     {
-        if (StateFloating == state) {
+        if (StateFloating == state)
             return d->m_toolBarIconSizeFloating;
-        } else {
+        else
             return d->m_toolBarIconSizeDocked;
-        }
     }
 
     void DockWidget::setToolbarFloatingStyle(bool floating)
     {
-        if (!d->m_toolBar) {
+        if (!d->m_toolBar)
             return;
-        }
 
         auto iconSize = floating ? d->m_toolBarIconSizeFloating : d->m_toolBarIconSizeDocked;
-        if (iconSize != d->m_toolBar->iconSize()) {
+        if (iconSize != d->m_toolBar->iconSize())
             d->m_toolBar->setIconSize(iconSize);
-        }
 
         auto buttonStyle = floating ? d->m_toolBarStyleFloating : d->m_toolBarStyleDocked;
-        if (buttonStyle != d->m_toolBar->toolButtonStyle()) {
+        if (buttonStyle != d->m_toolBar->toolButtonStyle())
             d->m_toolBar->setToolButtonStyle(buttonStyle);
-        }
     }
 
     void DockWidget::emitTopLevelEventForWidget(DockWidget *topLevelDockWidget, bool floating)
@@ -564,9 +547,9 @@ namespace ADS
 
     void DockWidget::setFloating()
     {
-        if (isClosed()) {
+        if (isClosed())
             return;
-        }
+
         d->m_tabWidget->detachDockWidget();
     }
 
@@ -584,13 +567,11 @@ namespace ADS
 
     bool DockWidget::closeDockWidgetInternal(bool forceClose)
     {
-        if (!forceClose) {
+        if (!forceClose)
             emit closeRequested();
-        }
 
-        if (!forceClose && features().testFlag(DockWidget::CustomCloseHandling)) {
+        if (!forceClose && features().testFlag(DockWidget::CustomCloseHandling))
             return false;
-        }
 
         if (features().testFlag(DockWidget::DockWidgetDeleteOnClose)) {
             // If the dock widget is floating, then we check if we also need to
@@ -598,11 +579,10 @@ namespace ADS
             if (isFloating()) {
                 FloatingDockContainer* floatingWidget = internal::findParent<
                         FloatingDockContainer *>(this);
-                if (floatingWidget->dockWidgets().count() == 1) {
+                if (floatingWidget->dockWidgets().count() == 1)
                     floatingWidget->deleteLater();
-                } else {
+                else
                     floatingWidget->hide();
-                }
             }
             deleteDockWidget();
         } else {

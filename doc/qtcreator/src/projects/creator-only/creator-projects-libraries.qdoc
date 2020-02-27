@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -88,7 +88,7 @@
 
     \list 1
 
-        \li In the \uicontrol Projects pane, right-click the project name to open the
+        \li In the \uicontrol Projects view, right-click the project name to open the
             context menu and select
             \uicontrol {Add Library}.
 
@@ -122,7 +122,7 @@
             \uicontrol {Project Management} dialog. In the \uicontrol {Add to project}
             list, select a project. For example, \b myapp.
 
-        \li In the \uicontrol Projects pane, right-click the project name to open the
+        \li In the \uicontrol Projects view, right-click the project name to open the
             context menu and select
             \uicontrol {Add Library > Internal Library > Next}.
 

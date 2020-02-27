@@ -159,7 +159,7 @@ PerfProfilerTool::PerfProfilerTool()
         tracePointsAction->setEnabled(m_startAction->isEnabled());
     });
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &PerfProfilerTool::updateRunActions);
 
     m_recordButton = new QToolButton;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -85,7 +85,7 @@
 
     \list 1
         \li Open \e {Screen01.ui.qml} in the Design mode for editing.
-        \li In the \uicontrol States pane, select the \inlineimage close.png
+        \li In the \uicontrol States view, select the \inlineimage close.png
             (\uicontrol Close) button in \e loginState and \e registerState
             to remove the states.
         \li In the \uicontrol {Text Editor}, remove the following line:
@@ -259,11 +259,11 @@
     \section1 Binding Animation to States
 
     You will now bring back the \l{Adding States}{states} in the
-    \uicontrol States pane and bind them to the animation settings
+    \uicontrol States view and bind them to the animation settings
     in the \uicontrol Timeline view:
 
     \list 1
-        \li In the \uicontrol States pane, select the \inlineimage plus.png
+        \li In the \uicontrol States view, select the \inlineimage plus.png
             button twice to add two states called \e loginState and
             \e registerState. You don't need to make any property changes this
             time, because you'll bind the states to property animations.

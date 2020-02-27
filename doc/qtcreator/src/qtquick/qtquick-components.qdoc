@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -47,7 +47,7 @@
     is generally defined in its own QML file. You can import components to
     applications.
 
-    The \uicontrol {Library} pane lists the available QML types, UI
+    The \uicontrol {Library} view lists the available QML types, UI
     components, assets, and QML imports.
 
     \image qmldesigner-qml-components.png "QML Components"
@@ -77,13 +77,13 @@
         \li Drag and drop components from the \uicontrol Library (2) to the
             \uicontrol Navigator (3) or \uicontrol {Form Editor} (1).
         \li Select components in the \uicontrol Navigator to edit their
-            properties in the \uicontrol Properties pane (4). For more
+            properties in the \uicontrol Properties view (4). For more
             information, see \l {Specifying Item Properties}.
         \li Connect components to signals or create bindings between components
-            in the \uicontrol Connections pane (5). For more information, see
+            in the \uicontrol Connections view (5). For more information, see
             \l{Adding Connections}.
         \li Add states to apply sets of changes to the properties of one or
-            several components in the \uicontrol States pane (6). For more
+            several components in the \uicontrol States view (6). For more
             information, see \l{Adding States}.
     \endlist
 
@@ -135,7 +135,7 @@
     When you add a \l{GridView}{Grid View}, \l{ListView}{List View}, or
     \l{PathView}{Path View}, the ListModel and the delegate component that
     creates an instance for each item in the model are added automatically.
-    You can edit item properties in the \uicontrol Properties pane or
+    You can edit item properties in the \uicontrol Properties view or
     in the \uicontrol {Text Editor}. You can also replace the default model and
     delegate with other, more complex models and delegates in the
     \uicontrol {Text Editor}. \l{ItemDelegate}{Item Delegate} and
@@ -212,7 +212,7 @@
     invisible \e anchor lines: top, bottom, left, right, fill, horizontal
     center, vertical center, and baseline.
 
-    In the \uicontrol Layout pane you can set anchors and margins for items. To
+    In the \uicontrol Layout tab you can set anchors and margins for items. To
     set the anchors of an item, click the anchor buttons. You can combine the
     top/bottom, left/right, and horizontal/vertical anchors to anchor items in
     the corners of the parent item or center them horizontally or vertically
@@ -558,7 +558,7 @@
         \li Drag and drop a QML type from the \uicontrol Library to the
             \uicontrol Navigator or \uicontrol {Form Editor}.
 
-        \li Edit its properties in the \uicontrol Properties pane.
+        \li Edit its properties in the \uicontrol Properties view.
 
             The available properties depend on the QML type.
 

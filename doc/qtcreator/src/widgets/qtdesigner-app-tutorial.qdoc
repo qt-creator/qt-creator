@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -157,7 +157,7 @@
         \li Double-click the \uicontrol{Push Button} widget and enter the text
             \b{Find}.
 
-        \li In the \uicontrol Properties pane, change the \uicontrol objectName to
+        \li In the \uicontrol Properties view, change the \uicontrol objectName to
             \b findButton.
 
             \image qtcreator-textfinder-objectname.png "Changing object names"
@@ -216,7 +216,7 @@
 
     \list 1
 
-        \li In the \uicontrol{Projects} pane in the \uicontrol {Edit view}, double-click the
+        \li In the \uicontrol{Projects} view in the \uicontrol {Edit view}, double-click the
             \c{textfinder.h} file to open it for editing.
 
         \li Add a private function to the \c{private} section, after the
@@ -234,7 +234,7 @@
 
     \list 1
 
-        \li In the \uicontrol{Projects} pane in the \uicontrol Edit view, double-click the
+        \li In the \uicontrol{Projects} view in the \uicontrol Edit view, double-click the
             textfinder.cpp file to open it for editing.
 
         \li Add code to load a text file using QFile, read it with QTextStream,

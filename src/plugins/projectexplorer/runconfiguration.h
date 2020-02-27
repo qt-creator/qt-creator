@@ -128,8 +128,6 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 public:
     ~RunConfiguration() override;
 
-    bool isActive() const;
-
     virtual QString disabledReason() const;
     virtual bool isEnabled() const;
 
@@ -179,8 +177,7 @@ signals:
 protected:
     RunConfiguration(Target *target, Core::Id id);
 
-    /// convenience function to get current build configuration.
-    BuildConfiguration *activeBuildConfiguration() const;
+    /// convenience function to get current build system. Try to avoid.
     BuildSystem *activeBuildSystem() const;
 
     using Updater = std::function<void()>;

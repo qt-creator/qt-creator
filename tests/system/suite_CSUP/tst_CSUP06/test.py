@@ -28,7 +28,9 @@ source("../../shared/qtcreator.py")
 def moveDownToNextNonEmptyLine(editor):
     currentLine = "" # there's no do-while in python - so use empty line which fails
     while not currentLine:
-        type(editor, "<Down>")
+        if waitFor("object.exists(':Utils::FakeToolTip')", 100):
+            type(editor, "<Esc>")   # close possibly shown completion tooltip so pressing
+        type(editor, "<Down>")      # down scrolls the line, not completion alternatives
         currentLine = str(lineUnderCursor(editor)).strip()
     return currentLine
 

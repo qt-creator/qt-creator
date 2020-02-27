@@ -203,11 +203,6 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
 
 RunConfiguration::~RunConfiguration() = default;
 
-bool RunConfiguration::isActive() const
-{
-    return target()->isActive() && target()->activeRunConfiguration() == this;
-}
-
 QString RunConfiguration::disabledReason() const
 {
     BuildSystem *bs = activeBuildSystem();
@@ -250,11 +245,6 @@ QMap<Core::Id, QVariantMap> RunConfiguration::aspectData() const
     for (ProjectConfigurationAspect *aspect : m_aspects)
         aspect->toMap(data[aspect->id()]);
     return data;
-}
-
-BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
-{
-    return target()->activeBuildConfiguration();
 }
 
 BuildSystem *RunConfiguration::activeBuildSystem() const
@@ -304,8 +294,10 @@ void RunConfiguration::update()
 
     emit enabledChanged();
 
-    if (isActive() && project() == SessionManager::startupProject())
-        emit ProjectExplorerPlugin::instance()->updateRunActions();
+    const bool isActive = target()->isActive() && target()->activeRunConfiguration() == this;
+
+    if (isActive && project() == SessionManager::startupProject())
+        ProjectExplorerPlugin::updateRunActions();
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const

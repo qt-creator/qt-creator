@@ -58,7 +58,6 @@ private:
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
     void init() override;
-    void resetChange(const QByteArray &resetType);
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;
     void aboutToOpen(const QString &fileName, const QString &realFileName) override;
     QString changeUnderCursor(const QTextCursor &) const override;
@@ -73,7 +72,6 @@ private:
     QString sourceWorkingDirectory() const;
 
     mutable QRegExp m_changeNumberPattern;
-    QString m_currentChange;
     GitLogFilterWidget *m_logFilterWidget = nullptr;
 };
 

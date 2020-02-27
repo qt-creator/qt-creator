@@ -41,6 +41,18 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
     ${exclusion_mask}
   )
 
+  # QtCreator's "System Information..." needs qtdiag
+  set(qtdiag_destination ${IDE_BIN_PATH})
+  if (NOT APPLE AND NOT WIN32)
+    set(qtdiag_destination ${IDE_LIBRARY_BASE_PATH}/Qt/bin)
+  endif()
+  install(PROGRAMS
+    "${QT_BASE_DIR}/bin/qtdiag${CMAKE_EXECUTABLE_SUFFIX}"
+    DESTINATION ${qtdiag_destination}
+    COMPONENT Dependencies
+    EXCLUDE_FROM_ALL
+  )
+
   # Analyze the binaries and install missing dependencies if they are
   # found the CMAKE_PREFIX_PATH e.g. Qt, Clang
   configure_file(InstallDependentSharedObjects.cmake.in InstallDependentSharedObjects.cmake @ONLY)

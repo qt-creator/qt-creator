@@ -126,8 +126,8 @@ def qdump_X_QAbstractItemModel(d, value):
     if d.isExpanded():
         with Children(d, numChild=rowCount * columnCount, childType=ri.type):
             i = 0
-            for row in xrange(rowCount):
-                for column in xrange(columnCount):
+            for row in range(rowCount):
+                for column in range(columnCount):
                     with SubItem(d, i):
                         d.putName('[%s, %s]' % (row, column))
                         mi = d.parseAndEvaluate('%s.index(%d,%d,%s)'
@@ -182,8 +182,8 @@ def qdump_X_QModelIndex(d, value):
         with Children(d):
             d.putFields(value, False)
             i = 0
-            for row in xrange(rowCount):
-                for column in xrange(columnCount):
+            for row in range(rowCount):
+                for column in range(columnCount):
                     with UnnamedSubItem(d, i):
                         d.putName('[%s, %s]' % (row, column))
                         mi2 = d.parseAndEvaluate('%s.index(%d,%d,%s)'
@@ -912,7 +912,7 @@ def qdump__QHostAddress(d, value):
         if protocol == 1:
             # value.d.d->a6
             data = d.hexencode(a6)
-            address = ':'.join('%x' % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
+            address = ':'.join('%x' % int(data[i:i+4], 16) for i in range(0, 32, 4))
             d.putValue(address)
         elif protocol == 0:
             # value.d.d->a
@@ -938,7 +938,7 @@ def qdump__QHostAddress(d, value):
 def qdump__QIPv6Address(d, value):
     raw = d.split('16s', value)[0]
     data = d.hexencode(raw)
-    d.putValue(':'.join('%x' % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
+    d.putValue(':'.join('%x' % int(data[i:i+4], 16) for i in range(0, 32, 4)))
     d.putArrayData(value.address(), 16, d.lookupType('unsigned char'))
 
 def qform__QList():

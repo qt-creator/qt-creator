@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -80,7 +80,7 @@
         \li In \QC, select \uicontrol Help > \uicontrol {About Plugins} >
             \uicontrol {Device Support} > \uicontrol {WebAssembly} to enable
             the plugin.
-        \li Restart \QC to be able to use the plugin.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol {Qt Versions} > \uicontrol Add to add Qt for WebAssembly
             (wasm_32).

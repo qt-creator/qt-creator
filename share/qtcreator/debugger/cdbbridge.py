@@ -353,7 +353,7 @@ class Dumper(DumperBase):
 
     def putVTableChildren(self, item, itemCount):
         p = item.address()
-        for i in xrange(itemCount):
+        for i in range(itemCount):
             deref = self.extractPointer(p)
             if deref == 0:
                 n = i

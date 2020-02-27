@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -107,8 +107,9 @@
     \list 1
 
         \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Modeling > \uicontrol ScxmlEditor and restart \QC to
-            enable the plugin.
+            \uicontrol Modeling > \uicontrol ScxmlEditor.
+
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol {Files and Classes} > \uicontrol Modeling >

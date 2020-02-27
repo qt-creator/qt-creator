@@ -1760,11 +1760,11 @@ void GitPluginPrivate::updateCurrentBranch()
 QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &workingDirectory,
                                   const QStringList &)
 {
-    if (!GitPlugin::client() || options.size() < 2)
+    if (options.size() < 2)
         return nullptr;
 
     if (options.first() == "-git-show")
-        GitPlugin::client()->show(workingDirectory, options.at(1));
+        dd->m_gitClient.show(workingDirectory, options.at(1));
     return nullptr;
 }
 

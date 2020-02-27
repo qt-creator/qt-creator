@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "gerritmodel.h"
-#include "../gitplugin.h"
 #include "../gitclient.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -295,7 +294,7 @@ QueryContext::QueryContext(const QString &query,
     connect(&m_process, &QProcess::errorOccurred, this, &QueryContext::processError);
     connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
     m_watcher.setFuture(m_progress.future());
-    m_process.setProcessEnvironment(Git::Internal::GitPlugin::client()->processEnvironment());
+    m_process.setProcessEnvironment(Git::Internal::GitClient::instance()->processEnvironment());
     m_progress.setProgressRange(0, 1);
 
     m_timer.setInterval(timeOutMS);

@@ -453,7 +453,7 @@ public:
     void activeRunConfigurationChanged();
     void activeBuildConfigurationChanged();
 
-    void slotUpdateRunActions();
+    void doUpdateRunActions();
 
     void currentModeChanged(Core::Id mode, Core::Id oldMode);
 
@@ -1714,8 +1714,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_projectTreeExpandAllAction, &QAction::triggered,
             ProjectTree::instance(), &ProjectTree::expandAll);
 
-    connect(this, &ProjectExplorerPlugin::updateRunActions,
-            dd, &ProjectExplorerPluginPrivate::slotUpdateRunActions);
     connect(this, &ProjectExplorerPlugin::settingsChanged,
             dd, &ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu);
 
@@ -2483,7 +2481,7 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
             Qt::QueuedConnection);
     ++m_activeRunControlCount;
     runControl->initiateStart();
-    emit m_instance->updateRunActions();
+    doUpdateRunActions();
 }
 
 void ProjectExplorerPluginPrivate::showOutputPaneForRunControl(RunControl *runControl)
@@ -2540,7 +2538,7 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
     m_delayedRunConfiguration = nullptr;
     m_shouldHaveRunConfiguration = false;
     m_runMode = Constants::NO_RUN_MODE;
-    emit m_instance->updateRunActions();
+    doUpdateRunActions();
 }
 
 QList<QPair<QString, QString> > ProjectExplorerPluginPrivate::recentProjects() const
@@ -2903,7 +2901,8 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
         dd->executeRunConfiguration(rc, runMode);
         break;
     }
-    emit m_instance->updateRunActions();
+
+    dd->doUpdateRunActions();
 }
 
 QList<QPair<Runnable, Utils::ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
@@ -3001,7 +3000,7 @@ void ProjectExplorerPluginPrivate::activeRunConfigurationChanged()
     if (rc == previousRunConfiguration)
         return;
     updateActions();
-    emit m_instance->updateRunActions();
+    doUpdateRunActions();
 }
 
 void ProjectExplorerPluginPrivate::activeBuildConfigurationChanged()
@@ -3015,7 +3014,7 @@ void ProjectExplorerPluginPrivate::activeBuildConfigurationChanged()
         return;
 
     updateActions();
-    emit m_instance->updateRunActions();
+    doUpdateRunActions();
 }
 
 void ProjectExplorerPluginPrivate::updateDeployActions()
@@ -3064,7 +3063,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
         enableDeploySessionAction = false;
     m_deploySessionAction->setEnabled(enableDeploySessionAction);
 
-    emit m_instance->updateRunActions();
+    doUpdateRunActions();
 }
 
 bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyNot)
@@ -3139,13 +3138,15 @@ bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyN
     return true;
 }
 
-void ProjectExplorerPluginPrivate::slotUpdateRunActions()
+void ProjectExplorerPluginPrivate::doUpdateRunActions()
 {
     QString whyNot;
     const bool state = ProjectExplorerPlugin::canRunStartupProject(Constants::NORMAL_RUN_MODE, &whyNot);
     m_runAction->setEnabled(state);
     m_runAction->setToolTip(whyNot);
     m_runWithoutDeployAction->setEnabled(state);
+
+    emit m_instance->runActionsUpdated();
 }
 
 void ProjectExplorerPluginPrivate::addToRecentProjects(const QString &fileName, const QString &displayName)
@@ -4000,6 +4001,11 @@ void ProjectExplorerPlugin::removeFromRecentProjects(const QString &fileName,
                                                      const QString &displayName)
 {
     dd->removeFromRecentProjects(fileName, displayName);
+}
+
+void ProjectExplorerPlugin::updateRunActions()
+{
+    dd->doUpdateRunActions();
 }
 
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()

@@ -2053,6 +2053,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     }
     if (Utils::HostOsInfo::isWindowsHost())
         saver.write("chcp 65001\r\n");
+    saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
     saver.write(call + "\r\n");
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     saver.write("set\r\n");

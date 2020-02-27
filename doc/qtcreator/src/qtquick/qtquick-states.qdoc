@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -62,12 +62,12 @@
         \li Show a different view.
     \endlist
 
-    The \uicontrol States pane displays the different \l{State}{states}
-    of the component in the Design mode. The \uicontrol States pane is
+    The \uicontrol States view displays the different \l{State}{states}
+    of the component in the Design mode. The \uicontrol States view is
     collapsed by default to save space. Select \uicontrol Expand in
-    the context menu to view the whole pane.
+    the context menu to view the whole view.
 
-    \image qmldesigner-transitions.png "States pane"
+    \image qmldesigner-transitions.png "States view"
 
     To add states, click the \inlineimage plus.png
     button. Then modify the new state in the editor. For example, to change the
@@ -86,9 +86,9 @@
     a button is pressed, you could select a button component and
     its pressed property.
 
-    \image qtquick-states-binding-editor.png "Binding editor in States pane"
+    \image qtquick-states-binding-editor.png "Binding editor in States view"
 
-    You can preview the states in the \uicontrol States pane and click them to
+    You can preview the states in the \uicontrol States view and click them to
     switch between states on the canvas.
 
     \section1 Using States
@@ -97,11 +97,11 @@
     controls, their properties and behavior and the available actions. For
     example, you can use states to create two views.
 
-    To add states, click the empty slot in the \uicontrol States pane.
+    To add states, click the empty slot in the \uicontrol States view.
     Then modify the new state in the \uicontrol {Form Editor} or the
-    \uicontrol Properties pane.
+    \uicontrol Properties view.
 
-    \image qmldesigner-states.png "States pane"
+    \image qmldesigner-states.png "States view"
 
     The properties that you change in a state are highlighted with blue color.
     In the \uicontrol {Text Editor}, you can see the changes recorded as changes
@@ -130,9 +130,9 @@
             (1). While you work on one view, you can click the
             \inlineimage eye_open.png
             icon to hide items on the canvas that are not part of a view.
-        \li In the \uicontrol States pane, click the empty slot to create a
+        \li In the \uicontrol States view, click the empty slot to create a
             new state and give it a name. For example, \c Normal.
-        \li In the \uicontrol Properties pane (2), deselect the
+        \li In the \uicontrol Properties view (2), deselect the
             \uicontrol Visibility check box or set \uicontrol Opacity to 0
             for each item that is not needed in this view. If you specify
             the setting for the parent item, all child items inherit it and

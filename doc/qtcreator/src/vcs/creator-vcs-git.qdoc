@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -189,7 +189,7 @@
     The \uicontrol {Diff Selected Files} button brings up a diff view of the
     files selected in the file list. Since the commit page is just another
     editor, you can go back to it by closing the diff view. You can also switch
-    to an open diff view by selecting it in the \uicontrol {Open Documents} pane
+    to an open diff view by selecting it in the \uicontrol {Open Documents} view
     in the sidebar.
 
     \section2 Amending Commits

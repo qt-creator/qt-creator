@@ -48,7 +48,6 @@ except ModuleNotFoundError:
 
 
 if sys.version_info[0] >= 3:
-    xrange = range
     toInteger = int
 else:
     toInteger = long
@@ -306,8 +305,8 @@ class DumperBase:
 
     def childRange(self):
         if self.currentMaxNumChild is None:
-            return xrange(0, self.currentNumChild)
-        return xrange(min(self.currentMaxNumChild, self.currentNumChild))
+            return range(0, self.currentNumChild)
+        return range(min(self.currentMaxNumChild, self.currentNumChild))
 
     def enterSubItem(self, item):
         if self.useTimeStamps:
@@ -820,7 +819,7 @@ class DumperBase:
 
     def putVTableChildren(self, item, itemCount):
         p = item.pointer()
-        for i in xrange(itemCount):
+        for i in range(itemCount):
             deref = self.extractPointer(p)
             if deref == 0:
                 itemCount = i
@@ -901,7 +900,7 @@ class DumperBase:
                 self.warn('REDUCING READING MAXIMUM TO %s' % maximum)
 
         #DumperBase.warn('BASE: 0x%x TSIZE: %s MAX: %s' % (base, tsize, maximum))
-        for i in xrange(0, maximum, tsize):
+        for i in range(0, maximum, tsize):
             t = struct.unpack_from(code, blob, i)[0]
             if t == 0:
                 return 0, i, self.hexencode(blob[:i])
@@ -2090,7 +2089,7 @@ class DumperBase:
                     base = self.extractPointer(connections)
                     data, size, alloc = self.vectorDataHelper(base)
                     connectionType = self.createType('@QObjectPrivate::Connection')
-                    for i in xrange(size):
+                    for i in range(size):
                         first = self.extractPointer(data + i * 2 * ptrSize)
                         while first:
                             self.putSubItem('%s' % pp,
@@ -2193,7 +2192,7 @@ class DumperBase:
             if self.currentIName in self.expandedINames:
                 p = value
                 with Children(self, n):
-                    for i in xrange(n):
+                    for i in range(n):
                         self.putSubItem(i, p.dereference())
                         p += 1
 
@@ -2340,7 +2339,7 @@ class DumperBase:
                 self.putField('exp', exp)
                 self.putItemCount(n)
                 self.putNoType()
-            for i in xrange(n):
+            for i in range(n):
                 self.handleWatch(exps[i], exps[i], '%s.%d' % (iname, i))
             return
 

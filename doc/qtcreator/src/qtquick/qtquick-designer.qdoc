@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -102,13 +102,13 @@
 
         \endlist
 
-        \li \uicontrol {States} pane (6) displays the different states of the item.
+        \li \uicontrol {States} view (6) displays the different states of the item.
             QML states typically describe user interface configurations, such as
             the UI controls, their properties and behavior and the available
             actions. For more information, see \l{Adding States}.
 
         \if defined(qtdesignstudio)
-        \li \uicontrol Timeline pane (7) provides a timeline and keyframe based
+        \li \uicontrol Timeline view (7) provides a timeline and keyframe based
             editor that enables you to animate the properties of UI components.
         \endif
 
@@ -165,9 +165,9 @@
     To experiment with different component sizes, enter values in the
     \uicontrol {Override Width} and \uicontrol {Override Height} fields (1) on
     the canvas toolbar. The changes are displayed on the canvas (2)
-    and in the \uicontrol States pane (3), but the property
+    and in the \uicontrol States view (3), but the property
     values are not changed permanently in the QML file. You can permanently
-    change the property values in the \uicontrol Properties pane (4).
+    change the property values in the \uicontrol Properties view (4).
 
     \image qmldesigner-preview-size.png "Canvas width and height"
 

@@ -65,7 +65,7 @@ def qdump____m512d(d, value):
 
 def qdump____m128i(d, value):
     data = d.hexencode(value.data(16))
-    d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
+    d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in range(0, 32, 4)))
     if d.isExpanded():
         with Children(d):
             addr = value.address()
@@ -76,7 +76,7 @@ def qdump____m128i(d, value):
 
 def qdump____m256i(d, value):
     data = d.hexencode(value.data(32))
-    d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(0, 64, 4)))
+    d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in range(0, 64, 4)))
     if d.isExpanded():
         with Children(d):
             addr = value.address()
@@ -87,8 +87,8 @@ def qdump____m256i(d, value):
 
 def qdump____m512i(d, value):
     data = d.hexencode(value.data(64))
-    d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(0, 64, 4))
-               + ', ' + ':'.join('%04x' % int(data[i:i+4], 16) for i in xrange(64, 128, 4)))
+    d.putValue(':'.join('%04x' % int(data[i:i+4], 16) for i in range(0, 64, 4))
+               + ', ' + ':'.join('%04x' % int(data[i:i+4], 16) for i in range(64, 128, 4)))
     if d.isExpanded():
         with Children(d):
             d.putArrayItem('uint32x16', value.address(), 16, 'unsigned int')
@@ -279,14 +279,14 @@ if False:
               d.putNoType()
               if d.isExpanded():
                 with Children(d):
-                  for i in xrange(count):
+                  for i in range(count):
                       d.putSubItem(Item(entries[i], iname))
             with SubItem(d, 'data'):
               d.putEmptyValue()
               d.putNoType()
               if d.isExpanded():
                  with Children(d):
-                    for i in xrange(count):
+                    for i in range(count):
                       with SubItem(d, i):
                         entry = entries[i]
                         mpitype = str(entry['type'])

@@ -182,6 +182,8 @@ public:
     static void clearRecentProjects();
     static void removeFromRecentProjects(const QString &fileName, const QString &displayName);
 
+    static void updateRunActions();
+
 signals:
     void finishedInitialization();
 
@@ -193,7 +195,7 @@ signals:
 
     void settingsChanged();
 
-    void updateRunActions();
+    void runActionsUpdated();
 
 private:
     static bool coreAboutToClose();

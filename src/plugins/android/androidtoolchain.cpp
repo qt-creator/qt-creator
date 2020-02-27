@@ -228,8 +228,16 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(const ToolChai
                 const Abi &abi = targetItr.value();
                 const QString target = targetItr.key();
                 ToolChain *tc = findToolChain(compilerCommand, lang, target, alreadyKnown);
+
+                const QString displayName(QString("Android Clang (%1, %2, NDK %3)")
+                                              .arg(ToolChainManager::displayNameOfLanguageId(lang),
+                                                   AndroidConfig::displayName(abi),
+                                                   config.ndkVersion(qtVersion).toString()));
                 if (tc) {
                     qCDebug(androidTCLog) << "Tool chain already known" << abi.toString() << lang;
+                    // make sure to update the toolchain with current name format
+                    if (tc->displayName() != displayName)
+                        tc->setDisplayName(displayName);
                 } else {
                     qCDebug(androidTCLog) << "New Clang toolchain found" << abi.toString() << lang;
                     auto atc = new AndroidToolChain();
@@ -239,14 +247,11 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(const ToolChai
                     atc->setTargetAbi(ClangTargets[target]);
                     atc->setPlatformCodeGenFlags({"-target", target});
                     atc->setPlatformLinkerFlags({"-target", target});
-                    atc->setDetection(ToolChain::AutoDetection);
-                    atc->setDisplayName(QString("Android Clang (%1, %2, NDK %3)")
-                                            .arg(ToolChainManager::displayNameOfLanguageId(lang),
-                                                 AndroidConfig::displayName(abi),
-                                                 config.ndkVersion(qtVersion).toString()));
+                    atc->setDisplayName(displayName);
                     atc->resetToolChain(compilerCommand);
                     tc = atc;
                 }
+                tc->setDetection(ToolChain::AutoDetection);
                 result << tc;
                 ++targetItr;
             }

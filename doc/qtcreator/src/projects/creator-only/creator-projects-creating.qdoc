@@ -434,16 +434,16 @@
 
     \image qtcreator-new-opengl-file.png "New OpenGL file wizard"
 
-    \section2 Displaying Additional File Types in Projects Pane
+    \section2 Displaying Additional File Types in Projects View
 
     \QC determines whether to display files from the project folder
-    in the \uicontrol Projects pane depending on the file type (.pro, .pri, .cpp,
+    in the \uicontrol Projects view depending on the file type (.pro, .pri, .cpp,
     .h, .qrc, and so on). To display other types of files, edit the
     project file. Add filenames as values of the \c {DISTFILES} variable.
     You can also use wildcards.
 
     For example, the following code specifies that text files are displayed
-    in the \uicontrol Projects pane:
+    in the \uicontrol Projects view:
 
     \code
 
@@ -478,7 +478,7 @@
     {SUBDIRS variable}. It also adds all the necessary files for the subproject.
 
     To create more subprojects, right-click the project name in the
-    \uicontrol Projects pane to open the context menu, and select
+    \uicontrol Projects view to open the context menu, and select
     \uicontrol {New Subproject}. Follow the steps in the
      \uicontrol {New Subproject} wizard to create a subproject.
 
@@ -489,7 +489,7 @@
     In the file browser dialog, locate your subproject.
 
     To remove subprojects, right-click the project name in the \uicontrol Projects
-    pane, and select \uicontrol {Remove Subproject} in the context menu.
+    view, and select \uicontrol {Remove Subproject} in the context menu.
 
     To specify dependencies, use the \uicontrol{Add Library} wizard. For more
     information, see \l{Adding Libraries to Projects}.

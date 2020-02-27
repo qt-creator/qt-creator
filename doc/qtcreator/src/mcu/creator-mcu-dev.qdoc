@@ -103,7 +103,7 @@
             \uicontrol {Device Support} > \uicontrol {Bare Metal} and
             \uicontrol {MCU Support} to enable the Bare Metal and MCU
             plugins.
-        \li Restart \QC to be able to use the plugins.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugins.
         \li Create connections for debugging on the MCU board, as described in
             \l{Connecting Bare Metal Devices}.
     \endlist
