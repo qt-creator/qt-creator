@@ -746,6 +746,7 @@ void SplitterOrView::split(Qt::Orientation orientation, bool activateView)
     editorView->setCloseSplitEnabled(true); // might have been disabled for root view
     m_view = nullptr;
     IEditor *e = editorView->currentEditor();
+    const QByteArray state = e ? e->saveState() : QByteArray();
 
     SplitterOrView *view = nullptr;
     SplitterOrView *otherView = nullptr;
@@ -764,6 +765,14 @@ void SplitterOrView::split(Qt::Orientation orientation, bool activateView)
     } else {
         view->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_TOP.icon());
         otherView->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
+    }
+
+    if (orientation == Qt::Vertical) {
+        // give the editor(s) the chance to adapt to the new layout, given the old state
+        if (duplicate)
+            duplicate->restoreState(state);
+        if (e)
+            e->restoreState(state);
     }
 
     if (activateView)

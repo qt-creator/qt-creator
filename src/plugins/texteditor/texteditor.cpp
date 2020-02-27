@@ -2930,7 +2930,7 @@ QByteArray TextEditorWidget::saveState() const
 {
     QByteArray state;
     QDataStream stream(&state, QIODevice::WriteOnly);
-    stream << 1; // version number
+    stream << 2; // version number
     stream << verticalScrollBar()->value();
     stream << horizontalScrollBar()->value();
     int line, column;
@@ -2949,6 +2949,9 @@ QByteArray TextEditorWidget::saveState() const
         block = block.next();
     }
     stream << foldedBlocks;
+
+    stream << firstVisibleBlockNumber();
+    stream << lastVisibleBlockNumber();
 
     return state;
 }
@@ -3000,6 +3003,19 @@ bool TextEditorWidget::restoreState(const QByteArray &state)
     gotoLine(lineVal, columnVal - 1);
     verticalScrollBar()->setValue(vval);
     horizontalScrollBar()->setValue(hval);
+
+    if (version >= 2) {
+        int firstBlock, lastBlock;
+        stream >> firstBlock;
+        stream >> lastBlock;
+        // If current line was visible in the old state, make sure it is visible in the new state.
+        // This can happen if the height of the editor changed in the meantime
+        if (firstBlock <= lineVal && lineVal <= lastBlock
+            && (lineVal < firstVisibleBlockNumber() || lastVisibleBlockNumber() <= lineVal)) {
+            centerCursor();
+        }
+    }
+
     d->saveCurrentCursorPositionForNavigation();
     return true;
 }
