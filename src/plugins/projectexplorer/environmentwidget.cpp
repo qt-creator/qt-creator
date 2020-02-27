@@ -36,21 +36,100 @@
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/namevaluevalidator.h>
+#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QString>
-#include <QPushButton>
-#include <QTreeView>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QKeyEvent>
-#include <QStyledItemDelegate>
 #include <QLineEdit>
-#include <QDebug>
+#include <QPushButton>
+#include <QString>
+#include <QStyledItemDelegate>
+#include <QTreeView>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QVBoxLayout>
 
 namespace ProjectExplorer {
+
+class PathListDialog : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(EnvironmentWidget)
+public:
+    PathListDialog(const QString &varName, const QString &paths, QWidget *parent) : QDialog(parent)
+    {
+        const auto mainLayout = new QVBoxLayout(this);
+        const auto viewLayout = new QHBoxLayout;
+        const auto buttonsLayout = new QVBoxLayout;
+        const auto addButton = new QPushButton(tr("Add ..."));
+        const auto removeButton = new QPushButton(tr("Remove"));
+        const auto editButton = new QPushButton(tr("Edit..."));
+        buttonsLayout->addWidget(addButton);
+        buttonsLayout->addWidget(removeButton);
+        buttonsLayout->addWidget(editButton);
+        buttonsLayout->addStretch(1);
+        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                                    | QDialogButtonBox::Cancel);
+        viewLayout->addWidget(&m_view);
+        viewLayout->addLayout(buttonsLayout);
+        mainLayout->addLayout(viewLayout);
+        mainLayout->addWidget(buttonBox);
+
+        m_view.setHeaderLabel(varName);
+        const QStringList pathList = paths.split(Utils::HostOsInfo::pathListSeparator(),
+                                                 QString::SkipEmptyParts);
+        for (const QString &path : pathList)
+            addPath(path);
+
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        connect(addButton, &QPushButton::clicked, this, [this] {
+            const QString dir = QDir::toNativeSeparators(
+                        QFileDialog::getExistingDirectory(this, tr("Choose Directory")));
+            if (!dir.isEmpty())
+                addPath(dir);
+        });
+        connect(removeButton, &QPushButton::clicked, this, [this] {
+            const QList<QTreeWidgetItem *> selected = m_view.selectedItems();
+            QTC_ASSERT(selected.count() == 1, return);
+            delete selected.first();
+        });
+        connect(editButton, &QPushButton::clicked, this, [this] {
+            const QList<QTreeWidgetItem *> selected = m_view.selectedItems();
+            QTC_ASSERT(selected.count() == 1, return);
+            m_view.editItem(selected.first(), 0);
+        });
+        const auto updateButtonStates = [this, removeButton, editButton] {
+            const bool hasSelection = !m_view.selectedItems().isEmpty();
+            removeButton->setEnabled(hasSelection);
+            editButton->setEnabled(hasSelection);
+        };
+        connect(m_view.selectionModel(), &QItemSelectionModel::selectionChanged,
+                this, updateButtonStates);
+        updateButtonStates();
+    }
+
+    QString paths() const
+    {
+        QStringList pathList;
+        for (int i = 0; i < m_view.topLevelItemCount(); ++i)
+            pathList << QDir::fromNativeSeparators(m_view.topLevelItem(i)->text(0));
+        return pathList.join(Utils::HostOsInfo::pathListSeparator());
+    }
+
+private:
+    void addPath(const QString &path)
+    {
+        const auto item = new QTreeWidgetItem(&m_view, {QDir::toNativeSeparators(path)});
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
+    }
+
+    QTreeWidget m_view;
+};
 
 class EnvironmentDelegate : public QStyledItemDelegate
 {
@@ -85,7 +164,7 @@ class EnvironmentWidgetPrivate
 {
 public:
     Utils::EnvironmentModel *m_model;
-
+    EnvironmentWidget::Type m_type = EnvironmentWidget::TypeLocal;
     QString m_baseEnvironmentText;
     EnvironmentWidget::OpenTerminalFunc m_openTerminalFunc;
     Utils::DetailsWidget *m_detailsContainer;
@@ -105,6 +184,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     : QWidget(parent), d(std::make_unique<EnvironmentWidgetPrivate>())
 {
     d->m_model = new Utils::EnvironmentModel();
+    d->m_type = type;
     connect(d->m_model, &Utils::EnvironmentModel::userChangesChanged,
             this, &EnvironmentWidget::userChangesChanged);
     connect(d->m_model, &QAbstractItemModel::modelReset,
@@ -377,7 +457,15 @@ void EnvironmentWidget::updateButtons()
 
 void EnvironmentWidget::editEnvironmentButtonClicked()
 {
-    d->m_environmentView->edit(d->m_environmentView->currentIndex());
+    const QModelIndex current = d->m_environmentView->currentIndex();
+    if (current.column() == 1 && d->m_type == TypeLocal && currentEntryIsPathList(current)) {
+        PathListDialog dlg(d->m_model->indexToVariable(current),
+                           d->m_model->data(current).toString(), this);
+        if (dlg.exec() == QDialog::Accepted)
+            d->m_model->setData(current, dlg.paths());
+    } else {
+        d->m_environmentView->edit(current);
+    }
 }
 
 void EnvironmentWidget::addEnvironmentButtonClicked()
