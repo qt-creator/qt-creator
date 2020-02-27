@@ -25,7 +25,7 @@
 
 #include "simpleprojectwizard.h"
 
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include "projectexplorerconstants.h"
 
 #include <app/app_version.h>
 
@@ -36,6 +36,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/selectablefilesmodel.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -56,10 +57,9 @@
 #include <QWizardPage>
 
 using namespace Core;
-using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QmakeProjectManager {
+namespace ProjectExplorer {
 namespace Internal {
 
 class SimpleProjectWizardDialog;
@@ -169,7 +169,7 @@ SimpleProjectWizard::SimpleProjectWizard()
 {
     setSupportedProjectTypes({QmakeProjectManager::Constants::QMAKEPROJECT_ID,
                               CMakeProjectManager::Constants::CMAKEPROJECT_ID});
-    setIcon(QIcon(QLatin1String(":/qmakeprojectmanager/images/qmakeprojectmanager.png")));
+    setIcon(QIcon(QLatin1String(":/projectexplorer/images/importasproject.png")));
     setDisplayName(tr("Import as qmake or cmake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools.<p>"
@@ -356,6 +356,6 @@ bool SimpleProjectWizard::postGenerateFiles(const QWizard *w, const GeneratedFil
 }
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace GenericProjectManager
 
 #include "simpleprojectwizard.moc"

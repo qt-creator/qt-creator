@@ -86,5 +86,7 @@
         <file>images/settingscategory_kits@2x.png</file>
         <file>images/settingscategory_cpp.png</file>
         <file>images/settingscategory_cpp@2x.png</file>
+        <file>images/importasproject.png</file>
+        <file>images/importasproject@2x.png</file>
     </qresource>
 </RCC>

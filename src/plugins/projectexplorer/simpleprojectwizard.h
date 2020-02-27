@@ -27,7 +27,7 @@
 
 #include <coreplugin/basefilewizardfactory.h>
 
-namespace QmakeProjectManager {
+namespace ProjectExplorer {
 namespace Internal {
 
 class SimpleProjectWizard : public Core::BaseFileWizardFactory
@@ -45,4 +45,4 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace ProjectExplorer

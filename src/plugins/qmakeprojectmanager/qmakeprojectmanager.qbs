@@ -78,7 +78,6 @@ Project {
                 "qtwizard.cpp", "qtwizard.h",
                 "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
                 "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",
-                "simpleprojectwizard.cpp", "simpleprojectwizard.h",
                 "wizards.qrc"
             ]
         }

@@ -166,7 +166,8 @@ HEADERS += projectexplorer.h \
     parseissuesdialog.h \
     projectconfigurationaspects.h \
     treescanner.h \
-    rawprojectpart.h
+    rawprojectpart.h \
+    simpleprojectwizard.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -313,7 +314,8 @@ SOURCES += projectexplorer.cpp \
     parseissuesdialog.cpp \
     projectconfigurationaspects.cpp \
     treescanner.cpp \
-    rawprojectpart.cpp
+    rawprojectpart.cpp \
+    simpleprojectwizard.cpp
 
 FORMS += \
     editorsettingspropertiespage.ui \

@@ -98,6 +98,7 @@
 #include "targetsettingspanel.h"
 #include "projectpanelfactory.h"
 #include "projectexplorericons.h"
+#include "simpleprojectwizard.h"
 
 #include "windebuginterface.h"
 #include "msvctoolchain.h"
@@ -708,6 +709,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         QList<IWizardFactory *> result;
         result << CustomWizard::createWizards();
         result << JsonWizardFactory::createWizardFactories();
+        result << new SimpleProjectWizard;
         return result;
     });
 
