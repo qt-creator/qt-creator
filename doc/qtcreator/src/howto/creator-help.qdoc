@@ -92,6 +92,12 @@
     \QC, \QSDK and other Qt deliverables contain documentation
     as .qch files. All the documentation is accessible in the \uicontrol Help mode.
 
+    By default, \QC registers only the latest available version of the
+    documentation for each installed Qt module. To register all installed
+    documentation, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Kits > \uicontrol {Qt Versions} >
+    \uicontrol {Register documentation}.
+
     To find information in the documentation, select:
 
     \list
@@ -209,6 +215,9 @@
     settings for displaying context-sensitive help
     in the \uicontrol {On context help} field. To detach the help window, select
     \uicontrol {Always Show in External Window}.
+
+    To change this setting in a help view, select the \inlineimage linkicon.png
+    toolbar button.
 
     \section1 Selecting the Start Page
 
