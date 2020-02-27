@@ -204,7 +204,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     });
 
     connect(project(), &Project::projectFileIsDirty, this, [this]() {
-        if (m_buildConfiguration->isActive()) {
+        if (m_buildConfiguration->isActive() && !isParsing()) {
             const auto cmake = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
             if (cmake && cmake->isAutoRun()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
@@ -235,9 +235,20 @@ CMakeBuildSystem::~CMakeBuildSystem()
 void CMakeBuildSystem::triggerParsing()
 {
     qCDebug(cmakeBuildSystemLog) << "Parsing has been triggered";
-    m_currentGuard = guardParsingRun();
 
-    QTC_ASSERT(m_currentGuard.guardsProject(), return );
+    auto guard = guardParsingRun();
+
+    if (!guard.guardsProject()) {
+        // This can legitimately trigger if e.g. Build->Run CMake
+        // is selected while this here is already running.
+
+        // FIXME: Instead of aborting the second run here we could try to
+        // cancel the first one in the Build->Run CMake handler and then
+        // continue to here normally. This here could then be an Assert.
+        return;
+    }
+
+    m_currentGuard = std::move(guard);
 
     if (m_allFiles.isEmpty())
         m_buildDirManager.requestFilesystemScan();
