@@ -74,9 +74,12 @@
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, compiler, and Qt version. If you know you have
-    installed a Qt
-    version, but it is not listed in \uicontrol Tools > \uicontrol Options >
-    \uicontrol Kits > \uicontrol {Qt Versions}, you must add it.
+    installed a Qt version, but it is not listed in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Kits > \uicontrol {Qt Versions}, select
+    \uicontrol {Link with Qt}.
+
+    If the Qt version is still not listed under \uicontrol Auto-detected, select
+    \uicontrol {Add} to add it manually.
 
     For more information, see \l{Adding Qt Versions}.
 
