@@ -964,13 +964,17 @@ void VcsBaseEditorWidget::slotCursorPositionChanged()
 
 void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QPointer<QMenu> menu = createStandardContextMenu();
+    QPointer<QMenu> menu;
     // 'click on change-interaction'
     if (supportChangeLinks()) {
         const QTextCursor cursor = cursorForPosition(e->pos());
-        if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor))
+        if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor)) {
+            menu = new QMenu;
             handler->fillContextMenu(menu, d->m_parameters->type);
+        }
     }
+    if (!menu)
+        menu = createStandardContextMenu();
     switch (d->m_parameters->type) {
     case LogOutput: // log might have diff
     case DiffOutput: {
