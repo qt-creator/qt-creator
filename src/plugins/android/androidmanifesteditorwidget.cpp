@@ -346,17 +346,6 @@ void AndroidManifestEditorWidget::initializePage()
         m_defaultFeaturesCheckBox->setText(tr("Include default features for Qt modules."));
         layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
 
-        m_permissionsModel = new PermissionsModel(this);
-
-        m_permissionsListView = new QListView(permissionsGroupBox);
-        m_permissionsListView->setModel(m_permissionsModel);
-        m_permissionsListView->setMinimumSize(QSize(0, 200));
-        layout->addWidget(m_permissionsListView, 2, 0, 3, 1);
-
-        m_removePermissionButton = new QPushButton(permissionsGroupBox);
-        m_removePermissionButton->setText(tr("Remove"));
-        layout->addWidget(m_removePermissionButton, 2, 1);
-
         m_permissionsComboBox = new QComboBox(permissionsGroupBox);
         m_permissionsComboBox->insertItems(0, QStringList()
          << QLatin1String("android.permission.ACCESS_CHECKIN_PROPERTIES")
@@ -491,11 +480,22 @@ void AndroidManifestEditorWidget::initializePage()
          << QLatin1String("android.permission.WRITE_USER_DICTIONARY")
         );
         m_permissionsComboBox->setEditable(true);
-        layout->addWidget(m_permissionsComboBox, 6, 0);
+        layout->addWidget(m_permissionsComboBox, 2, 0);
 
         m_addPermissionButton = new QPushButton(permissionsGroupBox);
         m_addPermissionButton->setText(tr("Add"));
-        layout->addWidget(m_addPermissionButton, 6, 1);
+        layout->addWidget(m_addPermissionButton, 2, 1);
+
+        m_permissionsModel = new PermissionsModel(this);
+
+        m_permissionsListView = new QListView(permissionsGroupBox);
+        m_permissionsListView->setModel(m_permissionsModel);
+        m_permissionsListView->setMinimumSize(QSize(0, 200));
+        layout->addWidget(m_permissionsListView, 3, 0, 3, 1);
+
+        m_removePermissionButton = new QPushButton(permissionsGroupBox);
+        m_removePermissionButton->setText(tr("Remove"));
+        layout->addWidget(m_removePermissionButton, 3, 1);
 
         permissionsGroupBox->setLayout(layout);
 
