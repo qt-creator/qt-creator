@@ -127,8 +127,8 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
 
     const int aboveValue = m_scrollBar->value();
     const int belowValue = m_scrollBar->maximum() - m_scrollBar->value();
-    const int sizeDocAbove = aboveValue * int(m_highlightController->lineHeight());
-    const int sizeDocBelow = belowValue * int(m_highlightController->lineHeight());
+    const int sizeDocAbove = int(aboveValue * m_highlightController->lineHeight());
+    const int sizeDocBelow = int(belowValue * m_highlightController->lineHeight());
     const int sizeDocVisible = int(m_highlightController->visibleRange());
 
     const int scrollBarBackgroundHeight = aboveHandleRect.height() + belowHandleRect.height();
