@@ -359,7 +359,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
 
 QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change) const
 {
-    auto a = new QAction(tr("Copy \"%1\"").arg(change), nullptr);
+    auto a = new QAction(VcsBaseEditorWidget::tr("Copy \"%1\"").arg(change), nullptr);
     a->setData(change);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotCopyRevision);
     return a;
