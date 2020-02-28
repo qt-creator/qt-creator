@@ -124,8 +124,6 @@ protected slots:
 private:
     void updateCheckAllComboBox();
     void checkAllToggled();
-    void checkAll();
-    void uncheckAll();
 
     void triggerDiffSelected();
     void diffActivated(const QModelIndex &index);

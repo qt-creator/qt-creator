@@ -622,16 +622,6 @@ void SubmitEditorWidget::checkAllToggled()
     d->m_ui.checkAllCheckBox->setTristate(false);
 }
 
-void SubmitEditorWidget::checkAll()
-{
-    fileModel()->setAllChecked(true);
-}
-
-void SubmitEditorWidget::uncheckAll()
-{
-    fileModel()->setAllChecked(false);
-}
-
 void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
 {
     // Execute menu offering to check/uncheck all
@@ -642,11 +632,11 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
     QAction *uncheckAllAction = menu.addAction(tr("Unselect All"));
     QAction *action = menu.exec(d->m_ui.fileView->mapToGlobal(pos));
     if (action == checkAllAction) {
-        checkAll();
+        fileModel()->setAllChecked(true);;
         return;
     }
     if (action == uncheckAllAction) {
-        uncheckAll();
+        fileModel()->setAllChecked(false);
         return;
     }
 }
