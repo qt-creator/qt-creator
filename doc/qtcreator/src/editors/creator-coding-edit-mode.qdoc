@@ -187,10 +187,10 @@
     the bookmark.
 
     To go to the previous bookmark in the current session, select
-    \uicontrol Tools \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
+    \uicontrol Tools > \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
     or press \key {Ctrl+,}.
 
-    To go to the next bookmark in the current session, select \uicontrol Tools
+    To go to the next bookmark in the current session, select \uicontrol Tools >
     \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or press
     \key {Ctrl+.}.
 
