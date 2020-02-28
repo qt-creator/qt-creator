@@ -483,6 +483,42 @@ static QString replaceIllegalPropertyNameChars(const QString &str)
     return ret;
 }
 
+static bool idIsQmlKeyWord(const QString& id)
+{
+    static const QSet<QString> keywords = {
+        "as",
+        "break",
+        "case",
+        "catch",
+        "continue",
+        "debugger",
+        "default",
+        "delete",
+        "do",
+        "else",
+        "finally",
+        "for",
+        "function",
+        "if",
+        "import",
+        "in",
+        "instanceof",
+        "new",
+        "return",
+        "switch",
+        "this",
+        "throw",
+        "try",
+        "typeof",
+        "var",
+        "void",
+        "while",
+        "with"
+    };
+
+    return keywords.contains(id);
+}
+
 QString RewriterView::auxiliaryDataAsQML() const
 {
     bool hasAuxData = false;
@@ -521,6 +557,9 @@ QString RewriterView::auxiliaryDataAsQML() const
                     continue;
 
                 if (key.endsWith("@Internal"))
+                    continue;
+
+                if (idIsQmlKeyWord(key))
                     continue;
 
                 const QVariant value = data.value(key.toUtf8());
