@@ -255,7 +255,7 @@ private slots:
     void slotCopyRevision();
 
 private:
-    QAction *createDescribeAction(const QString &change) const;
+    void addDescribeAction(QMenu *menu, const QString &change) const;
     QAction *createAnnotateAction(const QString &change, bool previous) const;
     QAction *createCopyRevisionAction(const QString &change) const;
 
@@ -299,7 +299,7 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
         menu->addSeparator();
         menu->addAction(createCopyRevisionAction(m_currentChange));
         if (currentValid)
-            menu->addAction(createDescribeAction(m_currentChange));
+            addDescribeAction(menu, m_currentChange);
         menu->addSeparator();
         if (currentValid)
             menu->addAction(createAnnotateAction(widget->decorateVersion(m_currentChange), false));
@@ -313,7 +313,7 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
     default: // Describe current / Annotate file of current
         menu->addSeparator();
         menu->addAction(createCopyRevisionAction(m_currentChange));
-        menu->addAction(createDescribeAction(m_currentChange));
+        addDescribeAction(menu, m_currentChange);
         if (widget->isFileLogAnnotateEnabled())
             menu->addAction(createAnnotateAction(m_currentChange, false));
         break;
@@ -336,11 +336,12 @@ void ChangeTextCursorHandler::slotCopyRevision()
     QApplication::clipboard()->setText(m_currentChange);
 }
 
-QAction *ChangeTextCursorHandler::createDescribeAction(const QString &change) const
+void ChangeTextCursorHandler::addDescribeAction(QMenu *menu, const QString &change) const
 {
     auto a = new QAction(VcsBaseEditorWidget::tr("&Describe Change %1").arg(change), nullptr);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotDescribe);
-    return a;
+    menu->addAction(a);
+    menu->setDefaultAction(a);
 }
 
 QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bool previous) const
