@@ -331,6 +331,7 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
          bc != d->m_activeBuildConfiguration)) {
         d->m_activeBuildConfiguration = bc;
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
+        ProjectExplorerPlugin::updateActions();
     }
 }
 
@@ -467,6 +468,7 @@ void Target::setActiveRunConfiguration(RunConfiguration *rc)
          rc != d->m_activeRunConfiguration)) {
         d->m_activeRunConfiguration = rc;
         emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
+        ProjectExplorerPlugin::updateActions();
     }
     updateDeviceState();
 }

@@ -450,8 +450,6 @@ public:
     void projectDisplayNameChanged(ProjectExplorer::Project *pro);
     void startupProjectChanged(); // Calls updateRunAction
     void activeTargetChanged();
-    void activeRunConfigurationChanged();
-    void activeBuildConfigurationChanged();
 
     void doUpdateRunActions();
 
@@ -2957,50 +2955,8 @@ void ProjectExplorerPluginPrivate::activeTargetChanged()
     if (target == previousTarget)
         return;
 
-    if (previousTarget) {
-        disconnect(previousTarget.data(), &Target::activeRunConfigurationChanged,
-                   this, &ProjectExplorerPluginPrivate::activeRunConfigurationChanged);
-        disconnect(previousTarget.data(), &Target::activeBuildConfigurationChanged,
-                   this, &ProjectExplorerPluginPrivate::activeBuildConfigurationChanged);
-    }
     previousTarget = target;
-    if (target) {
-        connect(target, &Target::activeRunConfigurationChanged,
-                this, &ProjectExplorerPluginPrivate::activeRunConfigurationChanged);
-        connect(previousTarget.data(), &Target::activeBuildConfigurationChanged,
-                this, &ProjectExplorerPluginPrivate::activeBuildConfigurationChanged);
-    }
-
-    activeBuildConfigurationChanged();
-    activeRunConfigurationChanged();
-    updateDeployActions();
-}
-
-void ProjectExplorerPluginPrivate::activeRunConfigurationChanged()
-{
-    static QPointer<RunConfiguration> previousRunConfiguration = nullptr;
-    RunConfiguration *rc = nullptr;
-    Project *startupProject = SessionManager::startupProject();
-    if (startupProject && startupProject->activeTarget())
-        rc = startupProject->activeTarget()->activeRunConfiguration();
-    if (rc == previousRunConfiguration)
-        return;
     updateActions();
-    doUpdateRunActions();
-}
-
-void ProjectExplorerPluginPrivate::activeBuildConfigurationChanged()
-{
-    static QPointer<BuildConfiguration> previousBuildConfiguration = nullptr;
-
-    BuildConfiguration *bc = nullptr;
-    if (Target *target = SessionManager::startupTarget())
-        bc = target->activeBuildConfiguration();
-    if (bc == previousBuildConfiguration)
-        return;
-
-    updateActions();
-    doUpdateRunActions();
 }
 
 void ProjectExplorerPluginPrivate::updateDeployActions()
