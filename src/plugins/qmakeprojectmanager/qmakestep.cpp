@@ -569,14 +569,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
     connect(abisListWidget, &QListWidget::itemChanged, this, [this]{
         abisChanged();
-        QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
-        if (!bc)
-            return;
-
-        QList<ProjectExplorer::BuildStepList *> stepLists;
-        const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
-        stepLists << bc->cleanSteps();
-        BuildManager::buildLists(stepLists, {ProjectExplorerPlugin::displayNameForStepId(clean)});
+        if (QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration())
+            BuildManager::buildLists({bc->cleanSteps()});
     });
     auto chooser = new Core::VariableChooser(qmakeAdditonalArgumentsLineEdit);
     chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
@@ -749,15 +743,8 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Yes) {
-        BuildConfiguration *bc = m_step->buildConfiguration();
-        if (!bc)
-            return;
-
-        const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
-        const Core::Id build = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-        BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()},
-                                 QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean)
-                       << ProjectExplorerPlugin::displayNameForStepId(build));
+        if (BuildConfiguration *bc = m_step->buildConfiguration())
+            BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()});
     }
 }
 

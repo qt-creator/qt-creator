@@ -542,17 +542,13 @@ void QbsProjectManagerPlugin::runStepsForProducts(QbsProject *project,
     bc->setChangedFiles(QStringList());
     bc->setProducts(products);
     QList<ProjectExplorer::BuildStepList *> stepLists;
-    QStringList stepListNames;
     for (const Core::Id &stepType : stepTypes) {
-        if (stepType == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
+        if (stepType == ProjectExplorer::Constants::BUILDSTEPS_BUILD)
             stepLists << bc->buildSteps();
-            stepListNames << ProjectExplorerPlugin::displayNameForStepId(stepType);
-        } else if (stepType == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        else if (stepType == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
             stepLists << bc->cleanSteps();
-            stepListNames << ProjectExplorerPlugin::displayNameForStepId(stepType);
-        }
     }
-    BuildManager::buildLists(stepLists, stepListNames);
+    BuildManager::buildLists(stepLists);
     bc->setProducts(QStringList());
 }
 

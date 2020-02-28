@@ -528,19 +528,12 @@ void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(Action action, bo
     if (isFileBuild)
         bc->setFileNodeBuild(buildableFile);
     if (ProjectExplorerPlugin::saveModifiedFiles()) {
-        const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-        const Core::Id cleanStep = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
-        if (action == BUILD) {
+        if (action == BUILD)
             BuildManager::buildList(bc->buildSteps());
-        } else if (action == CLEAN) {
+        else if (action == CLEAN)
             BuildManager::buildList(bc->cleanSteps());
-        } else if (action == REBUILD) {
-            QStringList names;
-            names << ProjectExplorerPlugin::displayNameForStepId(cleanStep)
-                  << ProjectExplorerPlugin::displayNameForStepId(buildStep);
-
-            BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()}, names);
-        }
+        else if (action == REBUILD)
+            BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()});
     }
 
     bc->setSubNodeBuild(nullptr);

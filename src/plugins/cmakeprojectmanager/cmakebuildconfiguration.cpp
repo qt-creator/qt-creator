@@ -278,10 +278,7 @@ void CMakeBuildConfiguration::setConfigurationForCMake(const QList<ConfigModel::
             return item.key.startsWith("ANDROID_BUILD_ABI_");
         }) != -1) {
         // We always need to clean when we change the ANDROID_BUILD_ABI_ variables
-        QList<ProjectExplorer::BuildStepList *> stepLists;
-        const Core::Id clean = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
-        stepLists << cleanSteps();
-        BuildManager::buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean));
+        BuildManager::buildLists({cleanSteps()});
     }
 }
 
