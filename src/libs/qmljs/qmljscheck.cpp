@@ -313,6 +313,12 @@ protected:
             _state = ReachesEnd;
         return false;
     }
+
+    void throwRecursionDepthError() override
+    {
+         // handle differently? ReturnOrThrow declares unreachable code, but probably leads to bogus warnings
+        _state = ReachesEnd;
+    }
 };
 
 class MarkUnreachableCode : protected ReachesEndCheck
@@ -351,6 +357,11 @@ protected:
             message.location = locationFromRange(expr->firstSourceLocation(), expr->lastSourceLocation());
         if (message.isValid())
             _messages += message;
+    }
+
+    void throwRecursionDepthError() override
+    {
+        _messages.append(Message(ErrHitMaximumRecursion, SourceLocation()));
     }
 };
 
@@ -508,6 +519,11 @@ protected:
                 ++it;
         }
         --_block;
+    }
+
+    void throwRecursionDepthError() override
+    {
+        addMessage(ErrHitMaximumRecursion, SourceLocation());
     }
 
 private:
@@ -806,6 +822,11 @@ void Check::endVisit(UiObjectInitializer *)
     UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
     if (objectBinding && objectBinding->qualifiedTypeNameId->name == "Component")
         m_idStack.pop();
+}
+
+void Check::throwRecursionDepthError()
+{
+    addMessage(ErrHitMaximumRecursion, SourceLocation());
 }
 
 void Check::checkProperty(UiQualifiedId *qualifiedId)

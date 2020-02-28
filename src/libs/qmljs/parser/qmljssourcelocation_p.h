@@ -25,45 +25,45 @@
 
 #pragma once
 
-#include <QtCore/qurl.h>
-#include <QtCore/qstring.h>
+#include "qmljsglobal_p.h"
 
-QT_BEGIN_NAMESPACE
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-// ### Qt 6: should this be called QmlMessage, since it can have a message type?
-class QDebug;
-class QmlErrorPrivate;
-class QmlError
+QT_QML_BEGIN_NAMESPACE
+
+namespace QmlJS {
+
+class SourceLocation
 {
 public:
-    QmlError();
-    QmlError(const QmlError &);
-    QmlError &operator=(const QmlError &);
-    ~QmlError();
+    explicit SourceLocation(quint32 offset = 0, quint32 length = 0, quint32 line = 0, quint32 column = 0)
+        : offset(offset), length(length),
+          startLine(line), startColumn(column)
+    { }
 
-    bool isValid() const;
+    bool isValid() const { return length != 0; }
 
-    QUrl url() const;
-    void setUrl(const QUrl &);
-    QString description() const;
-    void setDescription(const QString &);
-    int line() const;
-    void setLine(int);
-    int column() const;
-    void setColumn(int);
-    QObject *object() const;
-    void setObject(QObject *);
-    QtMsgType messageType() const;
-    void setMessageType(QtMsgType messageType);
+    quint32 begin() const { return offset; }
+    quint32 end() const { return offset + length; }
 
-    QString toString() const;
-private:
-    QmlErrorPrivate *d;
+// attributes
+    // ### encode
+    quint32 offset;
+    quint32 length;
+    quint32 startLine;
+    quint32 startColumn;
 };
 
-QDebug operator<<(QDebug debug, const QmlError &error);
+} // namespace QmlJS
 
-Q_DECLARE_TYPEINFO(QmlError, Q_MOVABLE_TYPE);
-
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 

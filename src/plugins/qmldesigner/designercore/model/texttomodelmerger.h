@@ -144,10 +144,10 @@ private:
     void addIsoIconQrcMapping(const QUrl &fileUrl);
 
     static QString textAt(const QmlJS::Document::Ptr &doc,
-                          const QmlJS::AST::SourceLocation &location);
+                          const QmlJS::SourceLocation &location);
     static QString textAt(const QmlJS::Document::Ptr &doc,
-                          const QmlJS::AST::SourceLocation &from,
-                          const QmlJS::AST::SourceLocation &to);
+                          const QmlJS::SourceLocation &from,
+                          const QmlJS::SourceLocation &to);
 
 private:
     RewriterView *m_rewriterView;

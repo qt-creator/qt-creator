@@ -65,6 +65,8 @@ public:
     bool visit(QmlJS::AST::FunctionDeclaration *ast) override;
     bool visit(QmlJS::AST::StringLiteral *ast) override;
 
+    void throwRecursionDepthError() override;
+
     QVector<QuickTestCaseSpec> testCases() const { return m_testCases; }
     bool isValid() const { return !m_testCases.isEmpty(); }
 

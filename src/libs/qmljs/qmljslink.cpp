@@ -101,8 +101,8 @@ public:
     void loadImplicitDirectoryImports(Imports *imports, const Document::Ptr &doc);
     void loadImplicitDefaultImports(Imports *imports);
 
-    void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
-    void warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
+    void error(const Document::Ptr &doc, const SourceLocation &loc, const QString &message);
+    void warning(const Document::Ptr &doc, const SourceLocation &loc, const QString &message);
     void appendDiagnostic(const Document::Ptr &doc, const DiagnosticMessage &message);
 
 private:
@@ -516,13 +516,13 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
     return true;
 }
 
-void LinkPrivate::error(const Document::Ptr &doc, const AST::SourceLocation &loc,
+void LinkPrivate::error(const Document::Ptr &doc, const SourceLocation &loc,
                         const QString &message)
 {
     appendDiagnostic(doc, DiagnosticMessage(Severity::Error, loc, message));
 }
 
-void LinkPrivate::warning(const Document::Ptr &doc, const AST::SourceLocation &loc,
+void LinkPrivate::warning(const Document::Ptr &doc, const SourceLocation &loc,
                           const QString &message)
 {
     appendDiagnostic(doc, DiagnosticMessage(Severity::Warning, loc, message));

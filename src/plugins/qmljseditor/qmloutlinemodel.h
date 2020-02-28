@@ -90,7 +90,7 @@ public:
     void update(const QmlJSTools::SemanticInfo &semanticInfo);
 
     QmlJS::AST::Node *nodeForIndex(const QModelIndex &index) const;
-    QmlJS::AST::SourceLocation sourceLocation(const QModelIndex &index) const;
+    QmlJS::SourceLocation sourceLocation(const QModelIndex &index) const;
     QmlJS::AST::UiQualifiedId *idNode(const QModelIndex &index) const;
     QIcon icon(const QModelIndex &index) const;
 
@@ -138,10 +138,10 @@ private:
     QStandardItem *parentItem();
 
     static QString asString(QmlJS::AST::UiQualifiedId *id);
-    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::UiObjectMember *objMember);
-    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::ExpressionNode *exprNode);
-    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::PatternProperty *propertyNode);
-    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::PatternPropertyList *propertyNode);
+    static QmlJS::SourceLocation getLocation(QmlJS::AST::UiObjectMember *objMember);
+    static QmlJS::SourceLocation getLocation(QmlJS::AST::ExpressionNode *exprNode);
+    static QmlJS::SourceLocation getLocation(QmlJS::AST::PatternProperty *propertyNode);
+    static QmlJS::SourceLocation getLocation(QmlJS::AST::PatternPropertyList *propertyNode);
     QIcon getIcon(QmlJS::AST::UiQualifiedId *objDef);
 
     QString getAnnotation(QmlJS::AST::UiObjectInitializer *objInitializer);

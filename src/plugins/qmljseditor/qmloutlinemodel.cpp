@@ -64,7 +64,7 @@ QmlOutlineItem::QmlOutlineItem(QmlOutlineModel *model) :
 QVariant QmlOutlineItem::data(int role) const
 {
     if (role == Qt::ToolTipRole) {
-        AST::SourceLocation location = m_outlineModel->sourceLocation(index());
+        SourceLocation location = m_outlineModel->sourceLocation(index());
         AST::UiQualifiedId *uiQualifiedId = m_outlineModel->idNode(index());
         if (!uiQualifiedId || !location.isValid() || !m_outlineModel->m_semanticInfo.isValid())
             return QVariant();
@@ -145,6 +145,11 @@ private:
             if (!stack.isEmpty())
                 parent.insert(objMember, stack.last());
         }
+    }
+
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion depth while visiting AST in ObjectMemberParentVisitor");
     }
 };
 
@@ -304,6 +309,11 @@ private:
         }
     }
 
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion limit visiting AST in QmlOutlineModelSync");
+    }
+
     QmlOutlineModel *m_model;
 
     QHash<AST::Node*, QModelIndex> m_nodeToIndex;
@@ -341,7 +351,7 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
     stream << indexes.size();
 
     for (const auto &index : indexes) {
-        AST::SourceLocation location = sourceLocation(index);
+        SourceLocation location = sourceLocation(index);
         data->addFile(m_editorDocument->filePath().toString(), location.startLine,
                       location.startColumn - 1 /*editors have 0-based column*/);
 
@@ -719,9 +729,9 @@ AST::Node *QmlOutlineModel::nodeForIndex(const QModelIndex &index) const
     return nullptr;
 }
 
-AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) const
+SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) const
 {
-    AST::SourceLocation location;
+    SourceLocation location;
     QTC_ASSERT(index.isValid() && (index.model() == this), return location);
     AST::Node *node = nodeForIndex(index);
     if (node) {
@@ -981,8 +991,8 @@ QString QmlOutlineModel::asString(AST::UiQualifiedId *id)
     return text;
 }
 
-AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember) {
-    AST::SourceLocation location;
+SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember) {
+    SourceLocation location;
     location = objMember->firstSourceLocation();
     location.length = objMember->lastSourceLocation().offset
             - objMember->firstSourceLocation().offset
@@ -990,8 +1000,8 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember)
     return location;
 }
 
-AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) {
-    AST::SourceLocation location;
+SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) {
+    SourceLocation location;
     location = exprNode->firstSourceLocation();
     location.length = exprNode->lastSourceLocation().offset
             - exprNode->firstSourceLocation().offset
@@ -999,14 +1009,14 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) 
     return location;
 }
 
-AST::SourceLocation QmlOutlineModel::getLocation(AST::PatternPropertyList *propertyNode) {
+SourceLocation QmlOutlineModel::getLocation(AST::PatternPropertyList *propertyNode) {
     if (auto assignment = AST::cast<AST::PatternProperty *>(propertyNode->property))
         return getLocation(assignment);
     return propertyNode->firstSourceLocation(); // should never happen
 }
 
-AST::SourceLocation QmlOutlineModel::getLocation(AST::PatternProperty *propertyNode) {
-    AST::SourceLocation location;
+SourceLocation QmlOutlineModel::getLocation(AST::PatternProperty *propertyNode) {
+    SourceLocation location;
     location = propertyNode->name->propertyNameToken;
     location.length = propertyNode->initializer->lastSourceLocation().end() - location.offset;
 

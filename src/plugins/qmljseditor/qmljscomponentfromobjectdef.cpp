@@ -51,6 +51,7 @@
 #include <QMessageBox>
 
 using namespace QmlJS::AST;
+using QmlJS::SourceLocation;
 using namespace QmlJSTools;
 
 namespace QmlJSEditor {

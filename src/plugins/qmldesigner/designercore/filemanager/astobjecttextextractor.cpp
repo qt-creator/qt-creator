@@ -27,6 +27,8 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
+#include <QDebug>
+
 using namespace QmlDesigner;
 
 ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text):
@@ -68,4 +70,9 @@ bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectDefinition *ast)
         m_text = m_document->source().mid(m_location, ast->lastSourceLocation().end() - m_location);
 
     return m_text.isEmpty();
+}
+
+void ASTObjectTextExtractor::throwRecursionDepthError()
+{
+    qWarning("Warning: Hit maximum recursion depth while visiting the AST in ASTObjectTextExtractor");
 }

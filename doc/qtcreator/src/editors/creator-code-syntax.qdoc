@@ -670,9 +670,17 @@
             {The array literal notation [] is preferable}.
 
     \row
+        \li M324
+        \li Error
+        \li Hit maximum recursion limit visiting AST, the code model will be unreliable
+            and most likely invalid
+        \li
+
+    \row
         \li M400
         \li Warning
         \li Duplicate import
+        \li
 
     \endtable
 

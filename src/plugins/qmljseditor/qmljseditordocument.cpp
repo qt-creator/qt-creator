@@ -43,6 +43,8 @@
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
+#include <QDebug>
+
 const char QML_UI_FILE_WARNING[] = "QmlJSEditor.QmlUiFileWarning";
 
 using namespace QmlJSEditor;
@@ -69,7 +71,7 @@ struct Declaration
 class FindIdDeclarations: protected Visitor
 {
 public:
-    using Result = QHash<QString, QList<AST::SourceLocation> >;
+    using Result = QHash<QString, QList<SourceLocation> >;
 
     Result operator()(Document::Ptr doc)
     {
@@ -110,7 +112,7 @@ protected:
                 if (auto idExpr = AST::cast<const AST::IdentifierExpression *>(stmt->expression)) {
                     if (!idExpr->name.isEmpty()) {
                         const QString &id = idExpr->name.toString();
-                        QList<AST::SourceLocation> *locs = &_ids[id];
+                        QList<SourceLocation> *locs = &_ids[id];
                         locs->append(idExpr->firstSourceLocation());
                         locs->append(_maybeIds.value(id));
                         _maybeIds.remove(id);
@@ -136,6 +138,11 @@ protected:
                 _maybeIds[name].append(node->identifierToken);
         }
         return false;
+    }
+
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion depth while visiting AST in FindIdDeclarations");
     }
 
 private:
@@ -414,6 +421,11 @@ protected:
         return true;
     }
 
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion depth while visiting AST in CreateRanges");
+    }
+
     Range createRange(AST::UiObjectMember *member, AST::UiObjectInitializer *ast)
     {
         return createRange(member, member->firstSourceLocation(), ast->rbraceToken);
@@ -429,7 +441,7 @@ protected:
         return createRange(ast, block->lbraceToken, block->rbraceToken);
     }
 
-    Range createRange(AST::Node *ast, AST::SourceLocation start, AST::SourceLocation end)
+    Range createRange(AST::Node *ast, SourceLocation start, SourceLocation end)
     {
         Range range;
 

@@ -85,7 +85,7 @@ public: // attributes
     QmlJS::Snapshot snapshot;
     QmlJS::ContextPtr context;
     QList<Range> ranges;
-    QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
+    QHash<QString, QList<QmlJS::SourceLocation> > idLocations;
 
     // these are in addition to the parser messages in the document
     QList<QmlJS::DiagnosticMessage> semanticMessages;

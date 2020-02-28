@@ -63,8 +63,8 @@ namespace QmlJSEditor {
 namespace {
 
     QString textAt(const Document::Ptr doc,
-                   const AST::SourceLocation &from,
-                   const AST::SourceLocation &to)
+                   const SourceLocation &from,
+                   const SourceLocation &to)
     {
         return doc->source().mid(from.offset, to.end() - from.begin());
     }

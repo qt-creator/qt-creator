@@ -98,3 +98,8 @@ bool FirstDefinitionFinder::visit(QmlJS::AST::UiObjectDefinition *ast)
     }
     return true;
 }
+
+void FirstDefinitionFinder::throwRecursionDepthError()
+{
+    qWarning("Warning: Hit maximum recursion depth while visiting the AST in FirstDefinitionFinder");
+}

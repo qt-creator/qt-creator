@@ -129,6 +129,7 @@ enum Type
     ErrLongerStringValueExpected = 321,
     ErrShorterStringValueExpected = 322,
     ErrInvalidArrayValueLength = 323,
+    ErrHitMaximumRecursion = 324,
     WarnDuplicateImport = 400
 };
 
@@ -144,7 +145,7 @@ class QMLJS_EXPORT Message
 {
 public:
     Message();
-    Message(Type type, AST::SourceLocation location,
+    Message(Type type, SourceLocation location,
             const QString &arg1 = QString(),
             const QString &arg2 = QString(),
             bool appendTypeId = true);
@@ -157,7 +158,7 @@ public:
     QString suppressionString() const;
     static QRegExp suppressionPattern();
 
-    AST::SourceLocation location;
+    SourceLocation location;
     QString message;
     Type type;
     Severity::Enum severity = Severity::Enum::Hint;

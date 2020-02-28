@@ -85,8 +85,8 @@ public:
     QStringList errors() const;
 
 protected:
-    void addError(const QString &error, const AST::SourceLocation &sourceLocation = AST::SourceLocation());
-    AST::SourceLocation currentSourceLocation() const;
+    void addError(const QString &error, const SourceLocation &sourceLocation = SourceLocation());
+    SourceLocation currentSourceLocation() const;
 
     virtual void elementStart(const QString &name) = 0;
     virtual void elementEnd() = 0;
@@ -100,11 +100,11 @@ private:
     void readProperty(AST::UiScriptBinding *uiScriptBinding);
     QVariant parsePropertyScriptBinding(AST::UiScriptBinding *ExpressionNode);
     QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode);
-    void setSourceLocation(const AST::SourceLocation &sourceLocation);
-    QString textAt(const AST::SourceLocation &from, const AST::SourceLocation &to);
+    void setSourceLocation(const SourceLocation &sourceLocation);
+    QString textAt(const SourceLocation &from, const SourceLocation &to);
 
     QStringList m_errors;
-    AST::SourceLocation m_currentSourceLocation;
+    SourceLocation m_currentSourceLocation;
     QString m_source;
 };
 

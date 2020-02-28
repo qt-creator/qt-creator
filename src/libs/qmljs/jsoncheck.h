@@ -59,6 +59,8 @@ private:
     bool visit(AST::NumericLiteral *ast) override;
     bool visit(AST::StringLiteral *ast) override;
 
+    void throwRecursionDepthError() override;
+
     struct AnalysisData
     {
         AnalysisData() : m_ranking(0), m_hasMatch(false) {}
@@ -71,12 +73,12 @@ private:
     };
 
     void processSchema(AST::Node *ast);
-    bool proceedCheck(Utils::JsonValue::Kind kind, const AST::SourceLocation &location);
+    bool proceedCheck(Utils::JsonValue::Kind kind, const SourceLocation &location);
 
     AnalysisData *analysis();
 
     Document::Ptr m_doc;
-    AST::SourceLocation m_firstLoc;
+    SourceLocation m_firstLoc;
     Utils::JsonSchema *m_schema;
     QStack<AnalysisData> m_analysis;
 };

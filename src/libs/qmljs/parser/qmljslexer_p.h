@@ -36,8 +36,8 @@
 // We mean it.
 //
 
-#include "qmljsglobal_p.h"
-#include "qmljsgrammar_p.h"
+#include "qmljs/parser/qmljsglobal_p.h"
+#include "qmljs/parser/qmljsgrammar_p.h"
 
 #include <QtCore/qstring.h>
 #include <QtCore/qstack.h>

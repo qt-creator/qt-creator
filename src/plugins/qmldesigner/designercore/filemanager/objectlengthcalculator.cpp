@@ -88,3 +88,8 @@ bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectDefinition *ast)
 
     return m_offset < end;
 }
+
+void ObjectLengthCalculator::throwRecursionDepthError()
+{
+    qWarning("Warning: Hit maximum recursion depth while visiting the AST in ObjectLengthCalculator");
+}

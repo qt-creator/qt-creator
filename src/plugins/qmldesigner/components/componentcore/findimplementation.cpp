@@ -35,6 +35,8 @@
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <QDebug>
+
 namespace {
 
 using namespace QmlJS;
@@ -42,7 +44,7 @@ using namespace QmlJS;
 class FindImplementationVisitor: protected AST::Visitor
 {
 public:
-    using Results = QList<AST::SourceLocation>;
+    using Results = QList<SourceLocation>;
 
     FindImplementationVisitor(const Document::Ptr &doc, const ContextPtr &context)
         : m_document(doc)
@@ -66,13 +68,13 @@ public:
     }
 
 protected:
-    QString textAt(const AST::SourceLocation &location)
+    QString textAt(const SourceLocation &location)
     {
         return m_document->source().mid(location.offset, location.length);
     }
 
-    QString textAt(const AST::SourceLocation &from,
-                   const AST::SourceLocation &to)
+    QString textAt(const SourceLocation &from,
+                   const SourceLocation &to)
     {
         return m_document->source().mid(from.offset, to.end() - from.begin());
     }
@@ -206,7 +208,10 @@ protected:
         return false;
     }
 
-
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion depth while visiting AST in FindImplementationVisitor");
+    }
 private:
     bool checkTypeName(AST::UiQualifiedId *id)
     {
@@ -223,7 +228,7 @@ private:
     }
 
     Results m_implemenations;
-    AST::SourceLocation m_formLocation;
+    SourceLocation m_formLocation;
 
     Document::Ptr m_document;
     ContextPtr m_context;
@@ -281,7 +286,7 @@ QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString 
     FindImplementationVisitor visitor(document, context);
 
     FindImplementationVisitor::Results results = visitor(typeName, itemName, targetValue);
-    foreach (const AST::SourceLocation &location, results) {
+    foreach (const SourceLocation &location, results) {
         usages.append(QmlJSEditor::FindReferences::Usage(fileName,
                                                          matchingLine(location.offset, document->source()),
                                                          location.startLine, location.startColumn - 1, location.length));

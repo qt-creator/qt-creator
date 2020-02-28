@@ -68,12 +68,12 @@ QString QMLRewriter::textBetween(int startPosition, int endPosition) const
     return m_textModifier->text().mid(startPosition, endPosition - startPosition);
 }
 
-QString QMLRewriter::textAt(const QmlJS::AST::SourceLocation &location) const
+QString QMLRewriter::textAt(const QmlJS::SourceLocation &location) const
 {
     return m_textModifier->text().mid(location.offset, location.length);
 }
 
-unsigned QMLRewriter::calculateIndentDepth(const QmlJS::AST::SourceLocation &position) const
+unsigned QMLRewriter::calculateIndentDepth(const QmlJS::SourceLocation &position) const
 {
     QTextDocument *doc = m_textModifier->textDocument();
     QTextCursor tc(doc);
@@ -151,20 +151,20 @@ QString QMLRewriter::removeIndentation(const QString &text, unsigned depth)
     return result;
 }
 
-QmlJS::AST::SourceLocation QMLRewriter::calculateLocation(QmlJS::AST::UiQualifiedId *id)
+QmlJS::SourceLocation QMLRewriter::calculateLocation(QmlJS::AST::UiQualifiedId *id)
 {
     Q_ASSERT(id != nullptr);
 
-    const QmlJS::AST::SourceLocation startLocation = id->identifierToken;
+    const QmlJS::SourceLocation startLocation = id->identifierToken;
 
     QmlJS::AST::UiQualifiedId *nextId = id;
     while (nextId->next) {
         nextId = nextId->next;
     }
 
-    const QmlJS::AST::SourceLocation endLocation = nextId->identifierToken;
+    const QmlJS::SourceLocation endLocation = nextId->identifierToken;
 
-    return QmlJS::AST::SourceLocation(startLocation.offset, endLocation.end() - startLocation.offset);
+    return QmlJS::SourceLocation(startLocation.offset, endLocation.end() - startLocation.offset);
 }
 
 bool QMLRewriter::isMissingSemicolon(QmlJS::AST::UiObjectMember *member)
@@ -339,4 +339,9 @@ void QMLRewriter::dump(const ASTPath &path)
         auto node = path.at(i);
         qCDebug(qmlRewriter).noquote() << QString(i + 1, QLatin1Char('-')) << typeid(*node).name();
     }
+}
+
+void QMLRewriter::throwRecursionDepthError()
+{
+    qCWarning(qmlRewriter) << "Warning: Hit maximum recursion level while visiting AST in QMLRewriter";
 }

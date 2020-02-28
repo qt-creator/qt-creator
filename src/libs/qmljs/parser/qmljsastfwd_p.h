@@ -26,8 +26,9 @@
 #pragma once
 
 #include "qmljsglobal_p.h"
+#include "qmljs/parser/qmljssourcelocation_p.h"
 
-#include <QtCore/qglobal.h>
+#include "qmljsglobal_p.h"
 
 //
 //  W A R N I N G
@@ -44,27 +45,7 @@ QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS { namespace AST {
 
-class SourceLocation
-{
-public:
-    explicit SourceLocation(quint32 offset = 0, quint32 length = 0, quint32 line = 0, quint32 column = 0)
-        : offset(offset), length(length),
-          startLine(line), startColumn(column)
-    { }
-
-    bool isValid() const { return length != 0; }
-
-    quint32 begin() const { return offset; }
-    quint32 end() const { return offset + length; }
-
-// attributes
-    // ### encode
-    quint32 offset;
-    quint32 length;
-    quint32 startLine;
-    quint32 startColumn;
-};
-
+class BaseVisitor;
 class Visitor;
 class Node;
 class ExpressionNode;
@@ -156,7 +137,6 @@ class NamedImport;
 class ImportClause;
 class FromClause;
 class ImportDeclaration;
-class ModuleItem;
 class ESModule;
 class DebuggerStatement;
 class NestedExpression;
@@ -174,6 +154,7 @@ class UiImport;
 class UiPublicMember;
 class UiParameterList;
 class UiObjectDefinition;
+class UiInlineComponent;
 class UiObjectInitializer;
 class UiObjectBinding;
 class UiScriptBinding;
@@ -187,8 +168,12 @@ class UiHeaderItemList;
 class UiEnumDeclaration;
 class UiEnumMemberList;
 class UiVersionSpecifier;
+class UiRequired;
+class UiAnnotation;
+class UiAnnotationList;
 
-} } // namespace AST
+} // namespace AST
+} // namespace QmlJS
 
 QT_QML_END_NAMESPACE
 

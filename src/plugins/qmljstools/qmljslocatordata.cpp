@@ -33,6 +33,7 @@
 //#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
+#include <QDebug>
 #include <QMutexLocker>
 
 using namespace QmlJSTools::Internal;
@@ -223,6 +224,11 @@ protected:
         }
 
         return true;
+    }
+
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion limit visiting AST in FunctionFinder.");
     }
 };
 } // anonymous namespace

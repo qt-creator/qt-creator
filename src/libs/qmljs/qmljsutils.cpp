@@ -191,7 +191,7 @@ UiQualifiedId *QmlJS::qualifiedTypeNameId(Node *node)
     return nullptr;
 }
 
-DiagnosticMessage QmlJS::errorMessage(const AST::SourceLocation &loc, const QString &message)
+DiagnosticMessage QmlJS::errorMessage(const SourceLocation &loc, const QString &message)
 {
     return DiagnosticMessage(Severity::Error, loc, message);
 }

@@ -145,6 +145,8 @@ protected:
     bool visit(AST::StatementList *ast) override;
     bool visit(AST::DebuggerStatement *ast) override;
 
+    void throwRecursionDepthError() override;
+
 private:
     QmlJS::Document::Ptr _doc;
     ValueOwner *_valueOwner;
