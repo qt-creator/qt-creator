@@ -265,10 +265,10 @@
 
     \section1 Inspecting the Code Model
 
-    When you report a bug that is related to the C++ code model, the \QC
-    developers might ask you to write information about the internal state of
-    the code model into a log file and to deliver the file to them for
-    inspection.
+    When you \l{https://bugreports.qt.io/}{report a bug} that is related to the
+    C++ code model, the \QC developers might ask you to write information about
+    the internal state of the code model into a log file and to deliver the fil
+    to them for inspection.
 
     To view information about the C++ code model in the
     \uicontrol {C++ Code Model Inspector} dialog and write it to a log file,

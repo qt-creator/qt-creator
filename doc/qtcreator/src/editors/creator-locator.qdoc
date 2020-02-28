@@ -149,7 +149,7 @@
         \li Triggering menu items from the main menu (\c {t})
 
         \li Searching for issues from the \l{https://bugreports.qt.io/}
-            {Qt Bug Tracker} (\c bug).
+            {Qt Project Bug Tracker} (\c bug).
 
         \if defined(qtcreator)
         \li Running external tools (\c x)

@@ -73,7 +73,7 @@
     \b {Has a reported issue been addressed?}
 
     You can look up any issue in the
-    \l{https://bugreports.qt.io/}{Qt bug tracker}.
+    \l{https://bugreports.qt.io/}{Qt Project Bug Tracker}.
 
     \include widgets/creator-faq-qtdesigner.qdocinc qt designer faq
 
