@@ -35,6 +35,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QObject>
@@ -237,11 +238,8 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
 
     emit finished(code, status);
 
-    const QTime format = QTime(0, 0, 0, 0).addMSecs(m_elapsed.elapsed() + 500);
-    QString time = format.toString("h:mm:ss");
-    if (time.startsWith("0:"))
-        time.remove(0, 2); // Don't display zero hours
-    Core::MessageManager::write(tr("Elapsed time: %1.") .arg(time));
+    const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
+    Core::MessageManager::write(elapsedTime);
 }
 
 void CMakeProcess::checkForCancelled()

@@ -61,6 +61,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
 #include <QLoggingCategory>
@@ -345,11 +346,8 @@ void ClangToolRunWorker::stop()
     reportStopped();
 
     // Print elapsed time since start
-    const QTime format = QTime(0, 0, 0, 0).addMSecs(m_elapsed.elapsed() + 500);
-    QString time = format.toString("h:mm:ss");
-    if (time.startsWith("0:"))
-        time.remove(0, 2); // Don't display zero hours
-    appendMessage(tr("Elapsed time: %1.") .arg(time), NormalMessageFormat);
+    const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
+    appendMessage(elapsedTime, NormalMessageFormat);
 }
 
 void ClangToolRunWorker::analyzeNextFile()

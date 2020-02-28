@@ -30,11 +30,13 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QRegularExpression>
 #include <QSet>
+#include <QTime>
 
 #include <limits.h>
 
@@ -381,6 +383,14 @@ QString quoteAmpersands(const QString &text)
 {
     QString result = text;
     return result.replace("&", "&&");
+}
+
+QString formatElapsedTime(qint64 elapsed)
+{
+    elapsed += 500; // round up
+    const QString format = QString::fromLatin1(elapsed >= 3600000 ? "h:mm:ss" : "mm:ss");
+    const QString time = QTime(0, 0).addMSecs(elapsed).toString(format);
+    return QCoreApplication::translate("StringUtils", "Elapsed time: %1.").arg(time);
 }
 
 } // namespace Utils
