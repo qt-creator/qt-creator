@@ -66,7 +66,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
         auto entry = m_cache.find(uri);
         if (entry != m_cache.end()) {
             emit gotSymbols(uri, entry.value());
-            return;
+            continue;
         }
 
         const DocumentSymbolParams params((TextDocumentIdentifier(uri)));
