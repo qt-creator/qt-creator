@@ -205,6 +205,48 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Android OpenSSL settings</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>OpenSSL .pri location:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="openSslPathChooser" native="true">
+        <property name="toolTip">
+         <string>Select the path of the prebuilt OpenSSL binaries.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="Utils::DetailsWidget" name="openSslDetailsWidget" native="true"/>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="downloadOpenSSLPrebuiltLibs">
+        <property name="toolTip">
+         <string>Automatically download OpenSSL prebuilt libraries. If the automatic download fails, a URL will be opened in the browser for manual download.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="CreateKitCheckBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">

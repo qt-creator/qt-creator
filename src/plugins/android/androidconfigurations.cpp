@@ -104,6 +104,7 @@ namespace {
     const QLatin1String SdkFullyConfiguredKey("AllEssentialsInstalled");
     const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
+    const QLatin1String OpenSslPriLocationKey("OpenSSLPriLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
     const QLatin1String PartitionSizeKey("PartitionSize");
@@ -239,6 +240,7 @@ void AndroidConfig::load(const QSettings &settings)
     m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
     m_openJDKLocation = FilePath::fromString(settings.value(OpenJDKLocationKey).toString());
+    m_openSslLocation = FilePath::fromString(settings.value(OpenSslPriLocationKey).toString());
     m_keystoreLocation = FilePath::fromString(settings.value(KeystoreLocationKey).toString());
     m_automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
     m_sdkFullyConfigured = settings.value(SdkFullyConfiguredKey, false).toBool();
@@ -251,6 +253,7 @@ void AndroidConfig::load(const QSettings &settings)
         m_customNdkList = reader.restoreValue(CustomNdkLocationsKey).toStringList();
         m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_openJDKLocation = FilePath::fromString(reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toString()).toString());
+        m_openSslLocation = FilePath::fromString(reader.restoreValue(OpenSslPriLocationKey, m_openSslLocation.toString()).toString());
         m_automaticKitCreation = reader.restoreValue(AutomaticKitCreationKey, m_automaticKitCreation).toBool();
         m_sdkFullyConfigured = reader.restoreValue(SdkFullyConfiguredKey, m_sdkFullyConfigured).toBool();
         // persistent settings
@@ -271,6 +274,7 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toString());
     settings.setValue(KeystoreLocationKey, m_keystoreLocation.toString());
+    settings.setValue(OpenSslPriLocationKey, m_openSslLocation.toString());
     settings.setValue(PartitionSizeKey, m_partitionSize);
     settings.setValue(AutomaticKitCreationKey, m_automaticKitCreation);
     settings.setValue(SdkFullyConfiguredKey, m_sdkFullyConfigured);
@@ -372,6 +376,16 @@ void AndroidConfig::addCustomNdk(const QString &customNdk)
 void AndroidConfig::removeCustomNdk(const QString &customNdk)
 {
     m_customNdkList.removeAll(customNdk);
+}
+
+Utils::FilePath AndroidConfig::openSslLocation() const
+{
+    return m_openSslLocation;
+}
+
+void AndroidConfig::setOpenSslLocation(const Utils::FilePath &openSslLocation)
+{
+    m_openSslLocation = openSslLocation;
 }
 
 QStringList AndroidConfig::apiLevelNamesFor(const SdkPlatformList &platforms)

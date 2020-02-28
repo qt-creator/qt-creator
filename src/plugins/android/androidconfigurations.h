@@ -196,6 +196,10 @@ public:
     void addCustomNdk(const QString &customNdk);
     void removeCustomNdk(const QString &customNdk);
 
+    Utils::FilePath openSslLocation() const;
+    void setOpenSslLocation(const Utils::FilePath &openSslLocation);
+
+
 private:
     static QString getDeviceProperty(const Utils::FilePath &adbToolPath,
                                      const QString &device, const QString &property);
@@ -217,6 +221,7 @@ private:
     QStringList m_sdkManagerToolArgs;
     Utils::FilePath m_openJDKLocation;
     Utils::FilePath m_keystoreLocation;
+    Utils::FilePath m_openSslLocation;
     unsigned m_partitionSize = 1024;
     bool m_automaticKitCreation = true;
     QUrl m_sdkToolsUrl;

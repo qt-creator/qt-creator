@@ -41,6 +41,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -112,6 +113,7 @@ private:
     void openSDKDownloadUrl();
     void openNDKDownloadUrl();
     void openOpenJDKDownloadUrl();
+    void downloadOpenSslRepo(const bool silent = false);
     void addAVD();
     void avdAdded();
     void removeAVD();
@@ -134,6 +136,7 @@ private:
     Utils::FilePath getDefaultSdkPath();
     void showEvent(QShowEvent *event) override;
     void addCustomNdkItem();
+    void validateOpenSsl();
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
@@ -165,6 +168,12 @@ enum AndroidValidation {
     NdkPathExistsRow,
     NdkDirStructureRow,
     NdkinstallDirOkRow
+};
+
+enum OpenSslValidation {
+    OpenSslPathExistsRow,
+    OpenSslPriPathExists,
+    OpenSslCmakeListsPathExists
 };
 
 class SummaryWidget : public QWidget
@@ -344,6 +353,7 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         // to let settings dialog open first.
         QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages,
                                         m_sdkManager.get(), false));
+        validateOpenSsl();
         m_isInitialReloadDone = true;
     }
 }
@@ -421,6 +431,18 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                             m_ui->androidDetailsWidget);
     m_ui->androidDetailsWidget->setWidget(androidSummary);
 
+    QMap<int, QString> openSslValidationPoints;
+    openSslValidationPoints[OpenSslPathExistsRow] = tr("OpenSSL path exists.");
+    openSslValidationPoints[OpenSslPriPathExists] = tr(
+        "QMake include project (openssl.pri) exists.");
+    openSslValidationPoints[OpenSslCmakeListsPathExists] = tr(
+        "CMake include project (CMakeLists.txt) exists.");
+    auto openSslSummary = new SummaryWidget(openSslValidationPoints,
+                                            tr("OpenSSL Settings are OK."),
+                                            tr("OpenSSL settings have errors."),
+                                            m_ui->openSslDetailsWidget);
+    m_ui->openSslDetailsWidget->setWidget(openSslSummary);
+
     connect(m_ui->OpenJDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateJdk);
     Utils::FilePath currentJdkPath = m_androidConfig.openJDKLocation();
@@ -436,6 +458,12 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui->SDKLocationPathChooser->setFileName(currentSDKPath);
     m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
 
+    m_ui->openSslPathChooser->setPromptDialogTitle(tr("Select OpenSSL Include Project File"));
+    Utils::FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
+    if (currentOpenSslPath.isEmpty())
+        currentOpenSslPath = currentSDKPath.pathAppended("android_openssl");
+    m_ui->openSslPathChooser->setFileName(currentOpenSslPath);
+
     m_ui->DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui->AVDTableView->setModel(&m_AVDModel);
@@ -448,6 +476,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui->downloadSDKToolButton->setIcon(downloadIcon);
     m_ui->downloadNDKToolButton->setIcon(downloadIcon);
     m_ui->downloadOpenJDKToolButton->setIcon(downloadIcon);
+    m_ui->downloadOpenSSLPrebuiltLibs->setIcon(downloadIcon);
     m_ui->sdkToolsAutoDownloadButton->setIcon(Utils::Icons::RELOAD.icon());
 
     connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
@@ -469,6 +498,10 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_ui->ndkListComboBox->removeItem(m_ui->ndkListComboBox->currentIndex());
     });
 
+    connect(m_ui->ndkListComboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+            [this](const QString) { validateNdk(); });
+    connect(m_ui->openSslPathChooser, &Utils::PathChooser::rawPathChanged, this,
+            &AndroidSettingsWidget::validateOpenSsl);
     connect(&m_virtualDevicesWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::updateAvds);
     connect(m_ui->AVDRefreshPushButton, &QAbstractButton::clicked,
@@ -494,6 +527,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::openNDKDownloadUrl);
     connect(m_ui->downloadSDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openSDKDownloadUrl);
+    connect(m_ui->downloadOpenSSLPrebuiltLibs, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::downloadOpenSslRepo);
     connect(m_ui->downloadOpenJDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
     // Validate SDK again after any change in SDK packages.
@@ -561,6 +596,22 @@ void AndroidSettingsWidget::validateJdk()
 
     const Utils::FilePath bin = m_androidConfig.openJDKLocation().pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
     summaryWidget->setPointValid(JavaJdkValidRow, jdkPathExists && bin.exists());
+    updateUI();
+}
+
+void AndroidSettingsWidget::validateOpenSsl()
+{
+    auto openSslPath = Utils::FilePath::fromUserInput(m_ui->openSslPathChooser->rawPath());
+    m_androidConfig.setOpenSslLocation(openSslPath);
+
+    auto summaryWidget = static_cast<SummaryWidget *>(m_ui->openSslDetailsWidget->widget());
+    summaryWidget->setPointValid(OpenSslPathExistsRow, m_androidConfig.openSslLocation().exists());
+
+    const bool priFileExists = m_androidConfig.openSslLocation().pathAppended("openssl.pri").exists();
+    summaryWidget->setPointValid(OpenSslPriPathExists, priFileExists);
+    const bool cmakeListsExists
+        = m_androidConfig.openSslLocation().pathAppended("CMakeLists.txt").exists();
+    summaryWidget->setPointValid(OpenSslCmakeListsPathExists, cmakeListsExists);
     updateUI();
 }
 
@@ -700,6 +751,67 @@ void AndroidSettingsWidget::openOpenJDKDownloadUrl()
     QDesktopServices::openUrl(QUrl::fromUserInput("http://www.oracle.com/technetwork/java/javase/downloads/"));
 }
 
+void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
+{
+    const Utils::FilePath openSslPath = m_ui->openSslPathChooser->fileName();
+    const QString openSslCloneTitle(tr("OpenSSL Cloning"));
+
+    auto openSslSummaryWidget = static_cast<SummaryWidget *>(m_ui->openSslDetailsWidget->widget());
+    if (openSslSummaryWidget->allRowsOk()) {
+        if (silent) {
+            QMessageBox::information(this, openSslCloneTitle,
+                tr("OpenSSL prebuilt libraries repository is already configured."));
+        }
+        return;
+    }
+
+    const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
+    Utils::QtcProcess *gitCloner = new Utils::QtcProcess(this);
+    gitCloner->setCommand(Utils::CommandLine("git", {"clone", openSslRepo, openSslPath.fileName()}));
+    gitCloner->setWorkingDirectory(openSslPath.parentDir().toString());
+
+    QDir openSslDir(openSslPath.toString());
+    if (openSslDir.exists()) {
+        auto userInput = QMessageBox::information(this, openSslCloneTitle,
+            tr("The selected download path (%1) for OpenSSL already exists, "
+               "do you want to remove and overwrite its content?")
+                .arg(QDir::toNativeSeparators(openSslPath.toString())),
+            QMessageBox::Yes | QMessageBox::No);
+        if (userInput == QMessageBox::Yes)
+            openSslDir.removeRecursively();
+        else
+            return;
+    }
+
+    QProgressDialog *openSslProgressDialog
+        = new QProgressDialog(tr("Cloning OpenSSL prebuilt libraries, please be patient..."),
+                              tr("Cancel"), 0, 0);
+    openSslProgressDialog->setWindowModality(Qt::WindowModal);
+    openSslProgressDialog->setWindowTitle(openSslCloneTitle);
+    openSslProgressDialog->setFixedSize(openSslProgressDialog->sizeHint());
+
+    connect(openSslProgressDialog, &QProgressDialog::canceled, this, [gitCloner]() {
+        gitCloner->kill();
+    });
+
+    gitCloner->start();
+    openSslProgressDialog->show();
+
+    connect(gitCloner, QOverload<int, Utils::QtcProcess::ExitStatus>::of(&Utils::QtcProcess::finished),
+            [=](int exitCode, QProcess::ExitStatus exitStatus) {
+                openSslProgressDialog->close();
+                validateOpenSsl();
+
+                if (!openSslProgressDialog->wasCanceled() ||
+                    (exitStatus == Utils::QtcProcess::NormalExit && exitCode != 0)) {
+                    QMessageBox::information(this, openSslCloneTitle,
+                                             tr("OpenSSL prebuilt libraries cloning failed. "
+                                                "Opening OpenSSL URL for manual download..."));
+                    QDesktopServices::openUrl(QUrl::fromUserInput(openSslRepo));
+                }
+            });
+}
+
 void AndroidSettingsWidget::addAVD()
 {
     disableAvdControls();
@@ -767,9 +879,11 @@ void AndroidSettingsWidget::updateUI()
 {
     auto javaSummaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
     auto androidSummaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
-    bool javaSetupOk = javaSummaryWidget->allRowsOk();
-    bool sdkToolsOk = androidSummaryWidget->rowsOk({SdkPathExistsRow, SdkPathWritableRow, SdkToolsInstalledRow});
-    bool androidSetupOk = androidSummaryWidget->allRowsOk();
+    auto openSslSummaryWidget = static_cast<SummaryWidget *>(m_ui->openSslDetailsWidget->widget());
+    const bool javaSetupOk = javaSummaryWidget->allRowsOk();
+    const bool sdkToolsOk = androidSummaryWidget->rowsOk({SdkPathExistsRow, SdkPathWritableRow, SdkToolsInstalledRow});
+    const bool androidSetupOk = androidSummaryWidget->allRowsOk();
+    const bool openSslOk = openSslSummaryWidget->allRowsOk();
 
     m_ui->avdManagerTab->setEnabled(javaSetupOk && androidSetupOk);
     m_ui->sdkManagerTab->setEnabled(sdkToolsOk);
@@ -785,6 +899,8 @@ void AndroidSettingsWidget::updateUI()
                                                     Utils::DetailsWidget::Expanded);
     m_ui->androidDetailsWidget->setState(androidSetupOk ? Utils::DetailsWidget::Collapsed :
                                                           Utils::DetailsWidget::Expanded);
+    m_ui->openSslDetailsWidget->setState(openSslOk ? Utils::DetailsWidget::Collapsed :
+                                                        Utils::DetailsWidget::Expanded);
 }
 
 void AndroidSettingsWidget::manageAVD()
@@ -820,6 +936,14 @@ void AndroidSettingsWidget::downloadSdk()
                 m_sdkManager->reloadPackages(true);
                 updateUI();
                 apply();
+
+                QMetaObject::Connection *const openSslOneShot = new QMetaObject::Connection;
+                *openSslOneShot = connect(m_sdkManager.get(), &AndroidSdkManager::packageReloadFinished,
+                                          this, [this, openSslOneShot]() {
+                                              QObject::disconnect(*openSslOneShot);
+                                              downloadOpenSslRepo(true);
+                                              delete openSslOneShot;
+                });
             });
 
             auto showErrorDialog = [this](const QString &error) {
