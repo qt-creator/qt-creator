@@ -323,7 +323,7 @@ void SessionManager::setActiveBuildConfiguration(Target *target, BuildConfigurat
         if (!otherTarget || otherTarget->kit()->id() != kitId)
             continue;
 
-        foreach (BuildConfiguration *otherBc, otherTarget->buildConfigurations()) {
+        for (BuildConfiguration *otherBc : otherTarget->buildConfigurations()) {
             if (otherBc->displayName() == name) {
                 otherTarget->setActiveBuildConfiguration(otherBc);
                 break;
@@ -351,7 +351,7 @@ void SessionManager::setActiveDeployConfiguration(Target *target, DeployConfigur
         if (!otherTarget || otherTarget->kit()->id() != kitId)
             continue;
 
-        foreach (DeployConfiguration *otherDc, otherTarget->deployConfigurations()) {
+        for (DeployConfiguration *otherDc : otherTarget->deployConfigurations()) {
             if (otherDc->displayName() == name) {
                 otherTarget->setActiveDeployConfiguration(otherDc);
                 break;

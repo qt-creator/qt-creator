@@ -314,7 +314,7 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
     return true;
 }
 
-QList<BuildConfiguration *> Target::buildConfigurations() const
+const QList<BuildConfiguration *> Target::buildConfigurations() const
 {
     return d->m_buildConfigurations;
 }
@@ -385,7 +385,7 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
     return true;
 }
 
-QList<DeployConfiguration *> Target::deployConfigurations() const
+const QList<DeployConfiguration *> Target::deployConfigurations() const
 {
     return d->m_deployConfigurations;
 }
@@ -406,7 +406,7 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
     updateDeviceState();
 }
 
-QList<RunConfiguration *> Target::runConfigurations() const
+const QList<RunConfiguration *> Target::runConfigurations() const
 {
     return d->m_runConfigurations;
 }

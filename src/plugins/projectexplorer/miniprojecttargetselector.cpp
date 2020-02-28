@@ -1160,11 +1160,11 @@ void MiniProjectTargetSelector::addedTarget(Target *target)
 
     m_listWidgets[TARGET]->addProjectConfiguration(target);
 
-    foreach (BuildConfiguration *bc, target->buildConfigurations())
+    for (BuildConfiguration *bc : target->buildConfigurations())
         addedBuildConfiguration(bc);
-    foreach (DeployConfiguration *dc, target->deployConfigurations())
+    for (DeployConfiguration *dc : target->deployConfigurations())
         addedDeployConfiguration(dc);
-    foreach (RunConfiguration *rc, target->runConfigurations())
+    for (RunConfiguration *rc : target->runConfigurations())
         addedRunConfiguration(rc);
 }
 
@@ -1175,11 +1175,11 @@ void MiniProjectTargetSelector::removedTarget(Target *target)
 
     m_listWidgets[TARGET]->removeProjectConfiguration(target);
 
-    foreach (BuildConfiguration *bc, target->buildConfigurations())
+    for (BuildConfiguration *bc : target->buildConfigurations())
         removedBuildConfiguration(bc);
-    foreach (DeployConfiguration *dc, target->deployConfigurations())
+    for (DeployConfiguration *dc : target->deployConfigurations())
         removedDeployConfiguration(dc);
-    foreach (RunConfiguration *rc, target->runConfigurations())
+    for (RunConfiguration *rc : target->runConfigurations())
         removedRunConfiguration(rc);
 }
 
@@ -1364,17 +1364,17 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
 
     if (m_target) {
         QList<QObject *> bl;
-        foreach (BuildConfiguration *bc, target->buildConfigurations())
+        for (BuildConfiguration *bc : target->buildConfigurations())
             bl.append(bc);
         m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
 
         QList<QObject *> dl;
-        foreach (DeployConfiguration *dc, target->deployConfigurations())
+        for (DeployConfiguration *dc : target->deployConfigurations())
             dl.append(dc);
         m_listWidgets[DEPLOY]->setProjectConfigurations(dl, target->activeDeployConfiguration());
 
         QList<QObject *> rl;
-        foreach (RunConfiguration *rc, target->runConfigurations())
+        for (RunConfiguration *rc : target->runConfigurations())
             rl.append(rc);
         m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
 

@@ -401,7 +401,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     QStringList runconfigurationError;
 
     const Project * const project = newTarget->project();
-    foreach (BuildConfiguration *sourceBc, sourceTarget->buildConfigurations()) {
+    for (BuildConfiguration *sourceBc : sourceTarget->buildConfigurations()) {
         ProjectMacroExpander expander(project->projectFilePath(), project->displayName(),
                                       newTarget->kit(), sourceBc->displayName(),
                                       sourceBc->buildType());
@@ -423,7 +423,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
             SessionManager::setActiveBuildConfiguration(newTarget, bcs.first(), SetActive::NoCascade);
     }
 
-    foreach (DeployConfiguration *sourceDc, sourceTarget->deployConfigurations()) {
+    for (DeployConfiguration *sourceDc : sourceTarget->deployConfigurations()) {
         DeployConfiguration *newDc = DeployConfigurationFactory::clone(newTarget, sourceDc);
         if (!newDc) {
             deployconfigurationError << sourceDc->displayName();
@@ -440,7 +440,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
             SessionManager::setActiveDeployConfiguration(newTarget, dcs.first(), SetActive::NoCascade);
     }
 
-    foreach (RunConfiguration *sourceRc, sourceTarget->runConfigurations()) {
+    for (RunConfiguration *sourceRc : sourceTarget->runConfigurations()) {
         RunConfiguration *newRc = RunConfigurationFactory::clone(newTarget, sourceRc);
         if (!newRc) {
             runconfigurationError << sourceRc->displayName();
