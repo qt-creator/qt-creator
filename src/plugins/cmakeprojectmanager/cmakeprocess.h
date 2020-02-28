@@ -31,6 +31,7 @@
 
 #include <utils/qtcprocess.h>
 
+#include <QElapsedTimer>
 #include <QFutureInterface>
 #include <QTimer>
 
@@ -73,6 +74,7 @@ private:
     std::unique_ptr<QFutureInterface<void>> m_future;
     bool m_processWasCanceled = false;
     QTimer m_cancelTimer;
+    QElapsedTimer m_elapsed;
 };
 
 } // namespace Internal

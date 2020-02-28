@@ -38,6 +38,7 @@
 
 #include <QDir>
 #include <QObject>
+#include <QTime>
 #include <QTimer>
 
 namespace CMakeProjectManager {
@@ -149,6 +150,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     process->setCommand(commandLine);
     emit started();
+    m_elapsed.start();
     process->start();
 
     m_process = std::move(process);
@@ -234,6 +236,12 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
     m_future->reportFinished();
 
     emit finished(code, status);
+
+    const QTime format = QTime(0, 0, 0, 0).addMSecs(m_elapsed.elapsed() + 500);
+    QString time = format.toString("h:mm:ss");
+    if (time.startsWith("0:"))
+        time.remove(0, 2); // Don't display zero hours
+    Core::MessageManager::write(tr("Elapsed time: %1.") .arg(time));
 }
 
 void CMakeProcess::checkForCancelled()
