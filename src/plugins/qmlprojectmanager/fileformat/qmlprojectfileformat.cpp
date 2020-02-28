@@ -103,7 +103,7 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
 
         const QVariant qtForMCUProperty = rootNode->property("qtForMCUs");
         if (qtForMCUProperty.isValid() && qtForMCUProperty.toBool())
-            projectItem->setQtForMCUs(targetDirectoryPropery.toBool());
+            projectItem->setQtForMCUs(qtForMCUProperty.toBool());
 
         if (debug)
             qDebug() << "importPath:" << importPathsProperty << "mainFile:" << mainFileProperty;
