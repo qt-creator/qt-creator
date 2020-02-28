@@ -90,8 +90,8 @@ public:
     ~AutotestPluginPrivate() override;
 
     AutotestPlugin *q = nullptr;
+
     TestFrameworkManager *m_frameworkManager = nullptr;
-    TestSettingsPage *m_testSettingPage = nullptr;
     TestNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
     TestResultsPane *m_resultsPane = nullptr;
     QMap<QString, ChoicePair> m_runconfigCache;
@@ -101,30 +101,31 @@ public:
     void onRunSelectedTriggered();
     void onRunFileTriggered();
     void onRunUnderCursorTriggered(TestRunMode mode);
+
+    TestSettings m_settings;
+    TestSettingsPage m_testSettingPage{&m_settings};
 };
 
-static AutotestPlugin *s_instance = nullptr;
+static AutotestPluginPrivate *dd = nullptr;
 static QHash<ProjectExplorer::Project *, TestProjectSettings *> s_projectSettings;
 
 AutotestPlugin::AutotestPlugin()
-    : m_settings(new TestSettings)
 {
     // needed to be used in QueuedConnection connects
     qRegisterMetaType<TestResult>();
     qRegisterMetaType<TestTreeItem *>();
     qRegisterMetaType<TestCodeLocationAndType>();
-
-    s_instance = this;
 }
 
 AutotestPlugin::~AutotestPlugin()
 {
-    delete d;
+    delete dd;
 }
 
 AutotestPluginPrivate::AutotestPluginPrivate(AutotestPlugin *parent)
     : q(parent)
 {
+    dd = this; // Needed as the code below access it via the static plugin interface
     m_frameworkManager = TestFrameworkManager::instance();
     initializeMenuEntries();
     m_frameworkManager->registerTestFramework(new QtTestFramework);
@@ -133,7 +134,6 @@ AutotestPluginPrivate::AutotestPluginPrivate(AutotestPlugin *parent)
     m_frameworkManager->registerTestFramework(new BoostTestFramework);
 
     m_frameworkManager->synchronizeSettings(ICore::settings());
-    m_testSettingPage = new TestSettingsPage(q->settings());
     m_navigationWidgetFactory = new TestNavigationWidgetFactory;
     m_resultsPane = TestResultsPane::instance();
 
@@ -146,7 +146,7 @@ AutotestPluginPrivate::AutotestPluginPrivate(AutotestPlugin *parent)
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
-    m_frameworkManager->activateFrameworksFromSettings(q->settings());
+    m_frameworkManager->activateFrameworksFromSettings(&m_settings);
     TestTreeModel::instance()->synchronizeTestFrameworks();
 
     connect(ProjectExplorer::SessionManager::instance(),
@@ -160,13 +160,12 @@ AutotestPluginPrivate::~AutotestPluginPrivate()
 {
     delete m_navigationWidgetFactory;
     delete m_resultsPane;
-    delete m_testSettingPage;
     delete m_frameworkManager;
 }
 
-QSharedPointer<TestSettings> AutotestPlugin::settings()
+TestSettings *AutotestPlugin::settings()
 {
-    return s_instance->m_settings;
+    return &dd->m_settings;
 }
 
 TestProjectSettings *AutotestPlugin::projectSettings(ProjectExplorer::Project *project)
@@ -247,7 +246,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    d = new AutotestPluginPrivate(this);
+    dd = new AutotestPluginPrivate(this);
     return true;
 }
 
@@ -263,7 +262,7 @@ void AutotestPlugin::extensionsInitialized()
 
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_UCURSOR);
     connect(action, &QAction::triggered,
-            std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, d, TestRunMode::Run));
+            std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::Run));
     contextMenu->addSeparator();
     contextMenu->addAction(command);
 
@@ -273,7 +272,7 @@ void AutotestPlugin::extensionsInitialized()
 
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_DBG_UCURSOR);
     connect(action, &QAction::triggered,
-            std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, d, TestRunMode::Debug));
+            std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::Debug));
     contextMenu->addAction(command);
     contextMenu->addSeparator();
 }
@@ -392,25 +391,25 @@ void AutotestPlugin::updateMenuItemsEnabledState()
 
 void AutotestPlugin::cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice)
 {
-    if (s_instance)
-        s_instance->d->m_runconfigCache.insert(buildTargetKey, choice);
+    if (dd)
+        dd->m_runconfigCache.insert(buildTargetKey, choice);
 }
 
 ChoicePair AutotestPlugin::cachedChoiceFor(const QString &buildTargetKey)
 {
-    return s_instance ? s_instance->d->m_runconfigCache.value(buildTargetKey) : ChoicePair();
+    return dd ? dd->m_runconfigCache.value(buildTargetKey) : ChoicePair();
 }
 
 void AutotestPlugin::clearChoiceCache()
 {
-    if (s_instance)
-        s_instance->d->m_runconfigCache.clear();
+    if (dd)
+        dd->m_runconfigCache.clear();
 }
 
 void AutotestPlugin::popupResultsPane()
 {
-    if (s_instance)
-        s_instance->d->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
+    if (dd)
+        dd->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
 }
 
 QVector<QObject *> AutotestPlugin::createTestObjects() const

@@ -140,7 +140,7 @@ void TestSettingsWidget::onFrameworkItemChanged()
     m_ui.frameworksWarn->setVisible(true);
 }
 
-TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)
+TestSettingsPage::TestSettingsPage(TestSettings *settings)
     : m_settings(settings)
 {
     setId("A.AutoTest.0.General");

@@ -91,7 +91,7 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     return true;
 }
 
-void TestFrameworkManager::activateFrameworksFromSettings(QSharedPointer<Internal::TestSettings> settings)
+void TestFrameworkManager::activateFrameworksFromSettings(const Internal::TestSettings *settings)
 {
     FrameworkIterator it = m_registeredFrameworks.begin();
     FrameworkIterator end = m_registeredFrameworks.end();

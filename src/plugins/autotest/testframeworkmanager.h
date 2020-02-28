@@ -57,7 +57,7 @@ public:
     virtual ~TestFrameworkManager();
     bool registerTestFramework(ITestFramework *framework);
 
-    void activateFrameworksFromSettings(QSharedPointer<Internal::TestSettings> settings);
+    void activateFrameworksFromSettings(const Internal::TestSettings *settings);
     QString frameworkNameForId(const Core::Id &id) const;
     QList<Core::Id> registeredFrameworkIds() const;
     QList<Core::Id> sortedRegisteredFrameworkIds() const;

@@ -57,14 +57,14 @@ class TestSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
-    explicit TestSettingsPage(const QSharedPointer<TestSettings> &settings);
+    explicit TestSettingsPage(TestSettings *settings);
 
     QWidget *widget() override;
     void apply() override;
     void finish() override { }
 
 private:
-    QSharedPointer<TestSettings> m_settings;
+    TestSettings *m_settings;
     QPointer<TestSettingsWidget> m_widget;
 };
 
