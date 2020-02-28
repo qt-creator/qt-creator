@@ -305,11 +305,6 @@ void CMakeBuildConfiguration::clearError(ForceEnabledChanged fec)
     }
 }
 
-void CMakeBuildConfiguration::emitBuildTypeChanged()
-{
-    emit buildTypeChanged();
-}
-
 static CMakeConfig removeDuplicates(const CMakeConfig &config)
 {
     CMakeConfig result;

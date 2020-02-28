@@ -56,8 +56,6 @@ class CMakeBuildConfiguration final : public ProjectExplorer::BuildConfiguration
     ~CMakeBuildConfiguration() final;
 
 public:
-    void emitBuildTypeChanged();
-
     CMakeConfig configurationForCMake() const;
     CMakeConfig configurationFromCMake() const;
 
