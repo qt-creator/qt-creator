@@ -6,33 +6,40 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>196</width>
-    <height>68</height>
+    <width>368</width>
+    <height>102</height>
    </rect>
   </property>
   <property name="title">
    <string>Choose the Location</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="nameLabel">
      <property name="text">
-      <string>Name:</string>
+      <string>File name:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="1" column="1">
     <widget class="Utils::FileNameValidatingLineEdit" name="nameLineEdit"/>
    </item>
-   <item row="1" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="pathLabel">
      <property name="text">
       <string>Path:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="3" column="1">
     <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="defaultSuffixLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

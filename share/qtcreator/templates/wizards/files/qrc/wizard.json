@@ -9,6 +9,8 @@
     "iconText": "qrc",
     "enabled": "%{JS: value('Plugins').indexOf('ResourceEditor') >= 0}",
 
+    "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('application/vnd.qt.xml.resource')}" },
+
     "pages" :
     [
         {
@@ -29,7 +31,7 @@
             "data":
             {
                 "source": "file.qrc",
-                "target": "%{JS: Util.fileName(value('TargetPath'), Util.preferredSuffix('application/vnd.qt.xml.resource'))}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}",
                 "openInEditor": true
             }
         }

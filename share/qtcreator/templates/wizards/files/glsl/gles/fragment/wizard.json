@@ -10,6 +10,8 @@
     "platformIndependent": true,
     "enabled": "%{JS: value('Plugins').indexOf('GLSLEditor') >= 0}",
 
+    "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-glsl-es-frag')}" },
+
     "pages" :
     [
         {
@@ -30,7 +32,7 @@
             "data":
             {
                 "source": "file.fsh",
-                "target": "%{JS: Util.fileName(value('TargetPath'), Util.preferredSuffix('text/x-glsl-es-frag'))}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}",
                 "openInEditor": true
             }
         }

@@ -9,6 +9,8 @@
     "iconText": "qml",
     "enabled": "%{JS: value('Plugins').indexOf('QmlJSEditor') >= 0}",
 
+    "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-qml')}" },
+
     "pages" :
     [
         {
@@ -29,7 +31,7 @@
             "data":
             {
                 "source": "file.qml.tpl",
-                "target": "%{JS: Util.fileName(value('TargetPath'), Util.preferredSuffix('text/x-qml'))}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}",
                 "openInEditor": true
             }
         }

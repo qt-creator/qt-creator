@@ -50,6 +50,7 @@ public:
 
     void setFileNameLabel(const QString &label);
     void setPathLabel(const QString &label);
+    void setDefaultSuffix(const QString &suffix);
 
     bool forceFirstCapitalLetterForFileName() const;
     void setForceFirstCapitalLetterForFileName(bool b);

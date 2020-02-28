@@ -9,6 +9,8 @@
     "icon": "icon.png",
     "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
 
+    "options": { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-python')}" },
+
     "pages" :
     [
         {
@@ -29,7 +31,7 @@
             "data":
             {
                 "source": "file.py",
-                "target": "%{JS: Util.fileName(value('TargetPath'), Util.preferredSuffix('text/x-python'))}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}",
                 "openInEditor": true
             }
         }

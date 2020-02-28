@@ -110,6 +110,19 @@ void FileWizardPage::setPathLabel(const QString &label)
     d->m_ui.pathLabel->setText(label);
 }
 
+void FileWizardPage::setDefaultSuffix(const QString &suffix)
+{
+    if (suffix.isEmpty()) {
+        const auto layout = qobject_cast<QFormLayout *>(this->layout());
+        if (layout->rowCount() == 3)
+            layout->removeRow(0);
+    } else {
+        d->m_ui.defaultSuffixLabel->setText(
+            tr("The default suffix if you do not explicitly specify a file extension is \".%1\".")
+                .arg(suffix));
+    }
+}
+
 bool FileWizardPage::forceFirstCapitalLetterForFileName() const
 {
     return d->m_ui.nameLineEdit->forceFirstCapitalLetter();
