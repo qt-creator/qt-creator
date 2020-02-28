@@ -340,6 +340,7 @@ void Project::setActiveTarget(Target *target)
         (target && Utils::contains(d->m_targets, target))) {
         d->m_activeTarget = target;
         emit activeTargetChanged(d->m_activeTarget);
+        ProjectExplorerPlugin::updateActions();
     }
 }
 

@@ -448,8 +448,6 @@ public:
     void projectAdded(ProjectExplorer::Project *pro);
     void projectRemoved(ProjectExplorer::Project *pro);
     void projectDisplayNameChanged(ProjectExplorer::Project *pro);
-    void startupProjectChanged(); // Calls updateRunAction
-    void activeTargetChanged();
 
     void doUpdateRunActions();
 
@@ -727,8 +725,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::projectAdded);
     connect(sessionManager, &SessionManager::projectRemoved,
             dd, &ProjectExplorerPluginPrivate::projectRemoved);
-    connect(sessionManager, &SessionManager::startupProjectChanged,
-            dd, &ProjectExplorerPluginPrivate::startupProjectChanged);
     connect(sessionManager, &SessionManager::projectDisplayNameChanged,
             dd, &ProjectExplorerPluginPrivate::projectDisplayNameChanged);
     connect(sessionManager, &SessionManager::dependencyChanged,
@@ -2919,43 +2915,6 @@ void ProjectExplorerPluginPrivate::projectRemoved(Project *pro)
 void ProjectExplorerPluginPrivate::projectDisplayNameChanged(Project *pro)
 {
     addToRecentProjects(pro->projectFilePath().toString(), pro->displayName());
-    updateActions();
-}
-
-void ProjectExplorerPluginPrivate::startupProjectChanged()
-{
-    static QPointer<Project> previousStartupProject = nullptr;
-    Project *project = SessionManager::startupProject();
-    if (project == previousStartupProject)
-        return;
-
-    if (previousStartupProject) {
-        disconnect(previousStartupProject.data(), &Project::activeTargetChanged,
-                   this, &ProjectExplorerPluginPrivate::activeTargetChanged);
-    }
-
-    previousStartupProject = project;
-
-    if (project) {
-        connect(project, &Project::activeTargetChanged,
-                this, &ProjectExplorerPluginPrivate::activeTargetChanged);
-    }
-
-    activeTargetChanged();
-    updateActions();
-}
-
-void ProjectExplorerPluginPrivate::activeTargetChanged()
-{
-    static QPointer<Target> previousTarget = nullptr;
-    Target *target = nullptr;
-    Project *startupProject = SessionManager::startupProject();
-    if (startupProject)
-        target = startupProject->activeTarget();
-    if (target == previousTarget)
-        return;
-
-    previousTarget = target;
     updateActions();
 }
 
