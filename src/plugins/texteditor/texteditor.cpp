@@ -41,7 +41,6 @@
 #include "highlighter.h"
 #include "highlightersettings.h"
 #include "icodestylepreferences.h"
-#include "indenter.h"
 #include "refactoroverlay.h"
 #include "snippets/snippet.h"
 #include "storagesettings.h"
@@ -52,6 +51,7 @@
 #include "texteditorconstants.h"
 #include "texteditoroverlay.h"
 #include "texteditorsettings.h"
+#include "textindenter.h"
 #include "typingsettings.h"
 
 #include <texteditor/codeassist/assistinterface.h>
@@ -8539,9 +8539,10 @@ namespace Internal {
 class TextEditorFactoryPrivate
 {
 public:
-    TextEditorFactoryPrivate(TextEditorFactory *parent) :
-        q(parent),
-        m_widgetCreator([]() { return new TextEditorWidget; })
+    TextEditorFactoryPrivate(TextEditorFactory *parent)
+        : q(parent)
+        , m_widgetCreator([]() { return new TextEditorWidget; })
+        , m_indenterCreator([](QTextDocument *d) { return new TextIndenter(d); })
     {}
 
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *other)

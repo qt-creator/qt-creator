@@ -35,15 +35,15 @@
 #include <utils/stringutils.h>
 
 #include <coreplugin/icore.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/icodestylepreferences.h>
-#include <texteditor/icodestylepreferencesfactory.h>
-#include <texteditor/normalindenter.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/storagesettings.h>
+#include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/editorconfiguration.h>
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/storagesettings.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/textindenter.h>
 #include <utils/mimetypes/mimedatabase.h>
 #
 #include <QPointer>
@@ -259,7 +259,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
         indenter->setFileName(Utils::FilePath::fromString(file->path()));
     }
     if (!indenter)
-        indenter = new NormalIndenter(&doc);
+        indenter = new TextIndenter(&doc);
 
     ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
     indenter->setCodeStylePreferences(codeStylePrefs);

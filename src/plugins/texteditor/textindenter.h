@@ -44,6 +44,10 @@ public:
     explicit TextIndenter(QTextDocument *doc);
     ~TextIndenter() override;
 
+    int indentFor(const QTextBlock &block,
+                  const TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
+
     IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
                                              const TabSettings &tabSettings,
                                              int cursorPositionInEditor = -1) override;

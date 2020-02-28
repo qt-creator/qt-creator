@@ -104,8 +104,6 @@ Project {
             "linenumberfilter.h",
             "marginsettings.cpp",
             "marginsettings.h",
-            "normalindenter.cpp",
-            "normalindenter.h",
             "outlinefactory.cpp",
             "outlinefactory.h",
             "plaintexteditorfactory.cpp",

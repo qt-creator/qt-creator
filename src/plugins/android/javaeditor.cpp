@@ -29,7 +29,6 @@
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <texteditor/normalindenter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>

@@ -41,7 +41,6 @@ SOURCES += texteditorplugin.cpp \
     texteditoroverlay.cpp \
     textdocumentlayout.cpp \
     completionsettings.cpp \
-    normalindenter.cpp \
     textindenter.cpp \
     quickfix.cpp \
     syntaxhighlighter.cpp \
@@ -129,7 +128,6 @@ HEADERS += texteditorplugin.h \
     texteditoroverlay.h \
     textdocumentlayout.h \
     completionsettings.h \
-    normalindenter.h \
     textindenter.h \
     quickfix.h \
     syntaxhighlighter.h \
