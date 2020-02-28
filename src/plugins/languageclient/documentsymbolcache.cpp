@@ -78,6 +78,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
         });
         m_client->sendContent(request);
     }
+    m_compressedUris.clear();
 }
 
 void DocumentSymbolCache::handleResponse(const DocumentUri &uri,
