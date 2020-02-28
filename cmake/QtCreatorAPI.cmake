@@ -382,14 +382,12 @@ function(enable_pch target)
       endfunction()
 
       if (NOT TARGET QtCreatorPchGui AND NOT TARGET QtCreatorPchConsole)
-        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in "/*empty file*/")
-        configure_file(
-          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in
-          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp)
-        configure_file(
-          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c_cpp.in
-          ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c)
-
+        file(GENERATE
+          OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c
+          CONTENT "/*empty file*/")
+        file(GENERATE
+          OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp
+          CONTENT "/*empty file*/")
         _add_pch_target(QtCreatorPchGui
           "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
         _add_pch_target(QtCreatorPchConsole
@@ -728,9 +726,10 @@ function(add_qtc_plugin target_name)
         string(REGEX REPLACE "^.*=" "" json_value ${_arg_PLUGIN_JSON_IN})
         string(REPLACE "$$${json_key}" "${json_value}" plugin_json_in ${plugin_json_in})
     endif()
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${name}.json.cmakein" ${plugin_json_in})
-
-    configure_file("${CMAKE_CURRENT_BINARY_DIR}/${name}.json.cmakein" "${name}.json")
+    string(CONFIGURE "${plugin_json_in}" plugin_json)
+    file(GENERATE
+      OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.json"
+      CONTENT "${plugin_json}")
   endif()
 
   add_library(${target_name} SHARED ${_arg_SOURCES})
