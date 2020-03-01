@@ -95,6 +95,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
                                               &ResourceEditorW::renameCurrentFile);
     m_copyFileNameAction = m_contextMenu->addAction(tr("Copy Resource Path to Clipboard"),
                                                     this, &ResourceEditorW::copyCurrentResourcePath);
+    m_orderList = m_contextMenu->addAction(tr("Sort Alphabetically"), this, &ResourceEditorW::orderList);
 
     connect(m_resourceDocument, &ResourceEditorDocument::loaded,
             m_resourceEditor, &QrcEditor::loaded);
@@ -329,6 +330,11 @@ void ResourceEditorW::renameCurrentFile()
 void ResourceEditorW::copyCurrentResourcePath()
 {
     QApplication::clipboard()->setText(m_resourceEditor->currentResourcePath());
+}
+
+void ResourceEditorW::orderList()
+{
+    m_resourceDocument->model()->orderList();
 }
 
 void ResourceEditorW::onUndo()

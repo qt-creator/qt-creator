@@ -101,6 +101,7 @@ private:
     void openFile(const QString &fileName);
     void renameCurrentFile();
     void copyCurrentResourcePath();
+    void orderList();
 
     const QString m_extension;
     const QString m_fileFilter;
@@ -114,6 +115,7 @@ private:
     QToolBar *m_toolBar;
     QAction *m_renameAction;
     QAction *m_copyFileNameAction;
+    QAction *m_orderList;
 
 public:
     void onRefresh();

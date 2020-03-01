@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -448,6 +448,18 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
     return QDir::cleanPath(rc);
 }
 
+void ResourceFile::orderList()
+{
+    for (Prefix *p : m_prefix_list) {
+        std::sort(p->file_list.begin(), p->file_list.end(), [&](File *f1, File *f2) {
+            return *f1 < *f2;
+        });
+    }
+
+    if (!save())
+        m_error_message = tr("Cannot save file.");
+}
+
 bool ResourceFile::contains(const QString &prefix, const QString &lang, const QString &file) const
 {
     int pref_idx = indexOfPrefix(prefix, lang);
@@ -686,6 +698,11 @@ QList<QModelIndex> ResourceModel::nonExistingFiles() const
         }
     }
     return files;
+}
+
+void ResourceModel::orderList()
+{
+    m_resource_file.orderList();
 }
 
 Qt::ItemFlags ResourceModel::flags(const QModelIndex &index) const

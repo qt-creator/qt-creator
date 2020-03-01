@@ -170,6 +170,8 @@ public:
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;
 
+    void orderList();
+
     static QString fixPrefix(const QString &prefix);
 
 private:
@@ -259,6 +261,8 @@ public:
 
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);
+
+    void orderList();
 
 private:
     QMimeData *mimeData (const QModelIndexList & indexes) const override;
