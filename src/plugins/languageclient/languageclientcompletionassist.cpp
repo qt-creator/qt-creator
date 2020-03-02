@@ -35,7 +35,6 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <utils/algorithm.h>
-#include <utils/executeondestruction.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
@@ -362,19 +361,18 @@ void LanguageClientCompletionAssistProcessor::cancel()
 void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     const CompletionRequest::Response &response)
 {
-    LanguageClientCompletionProposal *proposal = nullptr;
     // We must report back to the code assistant under all circumstances
-    Utils::ExecuteOnDestruction eod([this, proposal]() { setAsyncProposalAvailable(proposal); });
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : got completions";
     m_currentRequest = MessageId();
-    QTC_ASSERT(m_client, return);
-    if (auto error = response.error()) {
+    QTC_ASSERT(m_client, setAsyncProposalAvailable(nullptr); return);
+    if (auto error = response.error())
         m_client->log(error.value());
+
+    const Utils::optional<CompletionResult> &result = response.result();
+    if (!result || Utils::holds_alternative<std::nullptr_t>(*result)) {
+        setAsyncProposalAvailable(nullptr);
         return;
     }
-    const Utils::optional<CompletionResult> &result = response.result();
-    if (!result || Utils::holds_alternative<std::nullptr_t>(*result))
-        return;
 
     QList<CompletionItem> items;
     if (Utils::holds_alternative<CompletionList>(*result)) {
@@ -387,11 +385,12 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     model->loadContent(Utils::transform(items, [](const CompletionItem &item){
         return static_cast<AssistProposalItemInterface *>(new LanguageClientCompletionItem(item));
     }));
-    proposal = new LanguageClientCompletionProposal(m_pos, model);
+    LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_pos, model);
     proposal->m_document = m_document;
     proposal->m_pos = m_pos;
     proposal->setFragile(true);
     proposal->setSupportsPrefix(false);
+    setAsyncProposalAvailable(proposal);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "
                               << items.count() << " completions handled";
 }
