@@ -52,7 +52,7 @@ class DockWidget;
 class DockManager;
 struct DockManagerPrivate;
 class FloatingDockContainer;
-struct FloatingDockContainerPrivate;
+class FloatingDockContainerPrivate;
 class FloatingDragPreview;
 struct FloatingDragPreviewPrivate;
 class DockingStateReader;
@@ -75,7 +75,7 @@ private:
     friend class DockAreaWidget;
     friend struct DockAreaWidgetPrivate;
     friend class FloatingDockContainer;
-    friend struct FloatingDockContainerPrivate;
+    friend class FloatingDockContainerPrivate;
     friend class DockWidget;
     friend class FloatingDragPreview;
     friend struct FloatingDragPreviewPrivate;

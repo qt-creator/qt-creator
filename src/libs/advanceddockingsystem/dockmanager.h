@@ -68,7 +68,7 @@ const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLast
 
 struct DockManagerPrivate;
 class FloatingDockContainer;
-struct FloatingDockContainerPrivate;
+class FloatingDockContainerPrivate;
 class DockComponentsFactory;
 class DockContainerWidget;
 class DockContainerWidgetPrivate;
@@ -98,7 +98,7 @@ private:
     DockManagerPrivate *d; ///< private data (pimpl)
     friend struct DockManagerPrivate;
     friend class FloatingDockContainer;
-    friend struct FloatingDockContainerPrivate;
+    friend class FloatingDockContainerPrivate;
     friend class DockContainerWidget;
     friend class DockContainerWidgetPrivate;
     friend class DockAreaTabBar;

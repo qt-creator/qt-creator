@@ -48,7 +48,7 @@ using FloatingWidgetBaseType = QWidget;
 
 namespace ADS {
 
-struct FloatingDockContainerPrivate;
+class FloatingDockContainerPrivate;
 class DockManager;
 struct DockManagerPrivate;
 class DockAreaWidget;
@@ -111,7 +111,7 @@ class ADS_EXPORT FloatingDockContainer : public FloatingWidgetBaseType,
     Q_OBJECT
 private:
     FloatingDockContainerPrivate *d; ///< private data (pimpl)
-    friend struct FloatingDockContainerPrivate;
+    friend class FloatingDockContainerPrivate;
     friend class DockManager;
     friend struct DockManagerPrivate;
     friend class DockAreaTabBar;
