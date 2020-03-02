@@ -63,9 +63,9 @@ namespace ADS
     {
     public:
         DockAreaTabBar *q;
-        DockAreaWidget *m_dockArea;
-        QWidget *m_tabsContainerWidget;
-        QBoxLayout *m_tabsLayout;
+        DockAreaWidget *m_dockArea = nullptr;
+        QWidget *m_tabsContainerWidget = nullptr;
+        QBoxLayout *m_tabsLayout = nullptr;
         int m_currentIndex = -1;
 
         /**
