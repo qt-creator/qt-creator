@@ -134,7 +134,12 @@ NimbleBuildSystem::NimbleBuildSystem(Target *target)
 
 void NimbleBuildSystem::triggerParsing()
 {
-    m_guard = guardParsingRun();
+    // Only allow one parsing run at the same time:
+    auto guard = guardParsingRun();
+    if (!guard.guardsProject())
+        return;
+    m_guard = std::move(guard);
+
     m_projectScanner.startScan();
 }
 
