@@ -24,6 +24,8 @@ add_qtc_plugin(Android
     androidmanifesteditor.cpp androidmanifesteditor.h
     androidmanifesteditorfactory.cpp androidmanifesteditorfactory.h
     androidmanifesteditorwidget.cpp androidmanifesteditorwidget.h
+    androidmanifesteditoriconwidget.cpp androidmanifesteditoriconwidget.h
+    androidmanifesteditoriconcontainerwidget.cpp androidmanifesteditoriconcontainerwidget.h
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h
     androidplugin.cpp androidplugin.h
     androidpotentialkit.cpp androidpotentialkit.h

@@ -52,8 +52,8 @@ namespace Core { class IEditor; }
 namespace Android {
 namespace Internal {
 class AndroidManifestEditor;
+class AndroidManifestEditorIconContainerWidget;
 class AndroidManifestEditorWidget;
-
 
 class PermissionsModel: public QAbstractListModel
 {
@@ -116,21 +116,6 @@ protected:
     void focusInEvent(QFocusEvent *event) override;
 
 private:
-    void setMasterIcon();
-    void clearMasterIcon();
-    void setLDPIIcon();
-    void setMDPIIcon();
-    void setHDPIIcon();
-    void clearLDPIIcon();
-    void clearMDPIIcon();
-    void clearHDPIIcon();
-    void createDPIButton(QHBoxLayout *layout,
-                         QWidget *parent,
-                         QToolButton *&button, const QSize &buttonSize,
-                         const QString &title, const QString &tooltip,
-                         QToolButton **clearButton = nullptr,
-                         QLabel **scaleWarningLabel = nullptr
-                         );
     void defaultPermissionOrFeatureCheckBoxClicked();
     void addPermission();
     void removePermission();
@@ -148,14 +133,6 @@ private:
 
     bool checkDocument(const QDomDocument &doc, QString *errorMessage,
                        int *errorLine, int *errorColumn);
-    enum IconDPI { LowDPI, MediumDPI, HighDPI };
-    QIcon icon(const QString &baseDir, IconDPI dpi);
-    QString iconPath(IconDPI dpi);
-    QSize iconSize(IconDPI dpi);
-    void updateIconPath(const QString &newPath, IconDPI dpi);
-    void copyIcon(IconDPI dpi, const QString &baseDir, const QString &filePath);
-    void removeIcon(IconDPI dpi, const QString &baseDir);
-    void toggleIconScaleWarning(IconDPI dpi, bool visible);
 
     void updateInfoBar(const QString &errorMessage, int line, int column);
     void hideInfoBar();
@@ -190,19 +167,7 @@ private:
     QLineEdit *m_activityNameLineEdit;
     QComboBox *m_targetLineEdit;
     QComboBox *m_styleExtractMethod;
-    QToolButton *m_masterIconButton;
-    QToolButton *m_lIconButton;
-    QToolButton *m_lIconClearButton;
-    QLabel *m_lIconScaleWarningLabel;
-    QToolButton *m_mIconButton;
-    QToolButton *m_mIconClearButton;
-    QLabel *m_mIconScaleWarningLabel;
-    QToolButton *m_hIconButton;
-    QToolButton *m_hIconClearButton;
-    QLabel *m_hIconScaleWarningLabel;
-    QString m_lIconPath;
-    QString m_mIconPath;
-    QString m_hIconPath;
+    AndroidManifestEditorIconContainerWidget *m_iconButtons;
 
     // Permissions
     QCheckBox *m_defaultPermissonsCheckBox;
