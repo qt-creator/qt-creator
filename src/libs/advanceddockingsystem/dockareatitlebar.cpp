@@ -64,8 +64,9 @@ namespace ADS
     /**
      * Private data class of DockAreaTitleBar class (pimpl)
      */
-    struct DockAreaTitleBarPrivate
+    class DockAreaTitleBarPrivate
     {
+    public:
         DockAreaTitleBar *q;
         QPointer<TitleBarButtonType> m_tabsMenuButton;
         QPointer<TitleBarButtonType> m_undockButton;
@@ -124,8 +125,7 @@ namespace ADS
          * Makes the dock area floating
          */
         AbstractFloatingWidget *makeAreaFloating(const QPoint &offset, eDragState dragState);
-    }; // struct DockAreaTitleBarPrivate
-
+    }; // class DockAreaTitleBarPrivate
 
     DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(DockAreaTitleBar *parent)
         : q(parent)

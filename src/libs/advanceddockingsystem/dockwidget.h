@@ -80,7 +80,7 @@ protected:
     friend class DockAreaTabBar;
     friend class DockWidgetTab;
     friend class DockWidgetTabPrivate;
-    friend struct DockAreaTitleBarPrivate;
+    friend class DockAreaTitleBarPrivate;
 
     /**
      * Assigns the dock manager that manages this dock widget

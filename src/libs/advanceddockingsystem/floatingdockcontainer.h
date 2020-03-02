@@ -59,7 +59,7 @@ class DockAreaTabBar;
 class DockWidgetTab;
 class DockWidgetTabPrivate;
 class DockAreaTitleBar;
-struct DockAreaTitleBarPrivate;
+class DockAreaTitleBarPrivate;
 class FloatingWidgetTitleBar;
 class DockingStateReader;
 
@@ -118,7 +118,7 @@ private:
     friend class DockWidgetTabPrivate;
     friend class DockWidgetTab;
     friend class DockAreaTitleBar;
-    friend struct DockAreaTitleBarPrivate;
+    friend class DockAreaTitleBarPrivate;
     friend class DockWidget;
     friend class DockAreaWidget;
     friend class FloatingWidgetTitleBar;
