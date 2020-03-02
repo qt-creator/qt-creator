@@ -67,7 +67,7 @@ private:
     friend class DockContainerWidget;
     friend class DockContainerWidgetPrivate;
     friend class DockWidgetTab;
-    friend struct DockWidgetPrivate;
+    friend class DockWidgetPrivate;
     friend class DockWidget;
     friend struct DockManagerPrivate;
     friend class DockManager;

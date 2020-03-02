@@ -63,8 +63,9 @@ namespace ADS
     /**
      * Private data class of DockWidget class (pimpl)
      */
-    struct DockWidgetPrivate
+    class DockWidgetPrivate
     {
+    public:
         DockWidget *q = nullptr;
         QBoxLayout *m_layout = nullptr;
         QWidget *m_widget = nullptr;
@@ -114,8 +115,7 @@ namespace ADS
          * Setup the main scroll area
          */
         void setupScrollArea();
-    };
-    // struct DockWidgetPrivate
+    }; // class DockWidgetPrivate
 
     DockWidgetPrivate::DockWidgetPrivate(DockWidget *parent)
         : q(parent)
