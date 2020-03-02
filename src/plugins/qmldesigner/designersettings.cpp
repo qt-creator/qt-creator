@@ -84,7 +84,6 @@ void DesignerSettings::fromSettings(QSettings *settings)
                  );
     restoreValue(settings, DesignerSettingsKey::SIMPLE_COLOR_PALETTE_CONTENT, QStringList());
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
-    restoreValue(settings, DesignerSettingsKey::VIEW_3D_ACTIVE, false);
 
     settings->endGroup();
     settings->endGroup();

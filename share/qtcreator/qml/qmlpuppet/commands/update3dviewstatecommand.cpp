@@ -30,45 +30,10 @@
 
 namespace QmlDesigner {
 
-Update3dViewStateCommand::Update3dViewStateCommand(Qt::WindowStates previousStates,
-                                                   Qt::WindowStates currentStates)
-    : m_previousStates(previousStates)
-    , m_currentStates(currentStates)
-    , m_type(Update3dViewStateCommand::StateChange)
-{
-}
-
-Update3dViewStateCommand::Update3dViewStateCommand(bool active, bool hasPopup)
-    : m_active(active)
-    , m_hasPopup(hasPopup)
-    , m_type(Update3dViewStateCommand::ActiveChange)
-{
-}
-
 Update3dViewStateCommand::Update3dViewStateCommand(const QSize &size)
     : m_size(size)
     , m_type(Update3dViewStateCommand::SizeChange)
 {
-}
-
-Qt::WindowStates Update3dViewStateCommand::previousStates() const
-{
-    return m_previousStates;
-}
-
-Qt::WindowStates Update3dViewStateCommand::currentStates() const
-{
-    return m_currentStates;
-}
-
-bool Update3dViewStateCommand::isActive() const
-{
-    return m_active;
-}
-
-bool Update3dViewStateCommand::hasPopup() const
-{
-    return m_hasPopup;
 }
 
 QSize Update3dViewStateCommand::size() const
@@ -83,10 +48,6 @@ Update3dViewStateCommand::Type Update3dViewStateCommand::type() const
 
 QDataStream &operator<<(QDataStream &out, const Update3dViewStateCommand &command)
 {
-    out << command.previousStates();
-    out << command.currentStates();
-    out << qint32(command.isActive());
-    out << qint32(command.hasPopup());
     out << qint32(command.type());
     out << command.size();
 
@@ -95,16 +56,8 @@ QDataStream &operator<<(QDataStream &out, const Update3dViewStateCommand &comman
 
 QDataStream &operator>>(QDataStream &in, Update3dViewStateCommand &command)
 {
-    in >> command.m_previousStates;
-    in >> command.m_currentStates;
-    qint32 active;
-    qint32 hasPopup;
     qint32 type;
-    in >> active;
-    in >> hasPopup;
     in >> type;
-    command.m_active = active;
-    command.m_hasPopup = hasPopup;
     command.m_type = Update3dViewStateCommand::Type(type);
     in >> command.m_size;
 

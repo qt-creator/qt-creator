@@ -36,28 +36,15 @@ class Update3dViewStateCommand
     friend QDebug operator<<(QDebug debug, const Update3dViewStateCommand &command);
 
 public:
-    enum Type { StateChange, ActiveChange, SizeChange, Empty };
+    enum Type { SizeChange, Empty };
 
-    explicit Update3dViewStateCommand(Qt::WindowStates previousStates, Qt::WindowStates currentStates);
-    explicit Update3dViewStateCommand(bool active, bool hasPopup);
     explicit Update3dViewStateCommand(const QSize &size);
     Update3dViewStateCommand() = default;
 
-    Qt::WindowStates previousStates() const;
-    Qt::WindowStates currentStates() const;
-
-    bool isActive() const;
-    bool hasPopup() const;
     QSize size() const;
-
     Type type() const;
 
 private:
-    Qt::WindowStates m_previousStates = Qt::WindowNoState;
-    Qt::WindowStates m_currentStates = Qt::WindowNoState;
-
-    bool m_active = false;
-    bool m_hasPopup = false;
     QSize m_size;
 
     Type m_type = Empty;

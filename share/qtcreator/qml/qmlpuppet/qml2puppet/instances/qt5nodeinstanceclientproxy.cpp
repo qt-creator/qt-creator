@@ -54,30 +54,20 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     NodeInstanceClientProxy(parent)
 {
     prioritizeDown();
+    DesignerSupport::activateDesignerWindowManager();
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
-        DesignerSupport::activateDesignerWindowManager();
         qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");
         setNodeInstanceServer(new Qt5TestNodeInstanceServer(this));
         initializeCapturedStream(QCoreApplication::arguments().at(2));
         readDataStream();
         QCoreApplication::exit();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
-        DesignerSupport::activateDesignerWindowManager();
         setNodeInstanceServer(new Qt5PreviewNodeInstanceServer(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
-        /* The editormode does not use the DesignerWindowManager,
-         * because we want to be able to show the 3D Edit View
-         * as a normal QQuickView.
-         * The DesignerWindowManager prevents any window from actually being shown. */
-        if (!qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE")
-                || !qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW")) {
-            DesignerSupport::activateDesignerWindowManager();
-        }
         setNodeInstanceServer(new Qt5InformationNodeInstanceServer(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("rendermode")) {
-        DesignerSupport::activateDesignerWindowManager();
         setNodeInstanceServer(new Qt5RenderNodeInstanceServer(this));
         initializeSocket();
     }

@@ -53,7 +53,6 @@
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
 #include "changeselectioncommand.h"
-#include "drop3dlibraryitemcommand.h"
 #include "changenodesourcecommand.h"
 #include "removeinstancescommand.h"
 #include "removepropertiescommand.h"
@@ -1447,23 +1446,10 @@ void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
             selectModelNode(modelNodeForInternalId(instanceId));
     }
 }
-void NodeInstanceView::library3DItemDropped(const Drop3DLibraryItemCommand &command)
-{
-    QDataStream stream(command.itemData());
-    ItemLibraryEntry itemLibraryEntry;
-    stream >> itemLibraryEntry;
-    QmlVisualNode::createQml3DNode(this, itemLibraryEntry, command.sceneRootId(), {});
-}
 
 void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)
 {
-    if (command.type() == PuppetToCreatorCommand::KeyPressed) {
-        QPair<int, int> data = qvariant_cast<QPair<int, int>>(command.data());
-        int key = data.first;
-        Qt::KeyboardModifiers modifiers = Qt::KeyboardModifiers(data.second);
-
-        handlePuppetKeyPress(key, modifiers);
-    } else if (command.type() == PuppetToCreatorCommand::Edit3DToolState) {
+    if (command.type() == PuppetToCreatorCommand::Edit3DToolState) {
         if (!m_nodeInstanceServer.isNull()) {
             auto data = qvariant_cast<QVariantList>(command.data());
             if (data.size() == 3) {
@@ -1481,57 +1467,10 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     }
 }
 
-// puppet to creator command handlers
-void NodeInstanceView::handlePuppetKeyPress(int key, Qt::KeyboardModifiers modifiers)
-{
-    // TODO: optimal way to handle key events is to just pass them on. This is done
-    // using the code below but it is so far not working, if someone could get it to work then
-    // it should be utilized and the rest of the method deleted
-//    QCoreApplication::postEvent([receiver], new QKeyEvent(QEvent::KeyPress, key, modifiers));
-
-#ifndef QMLDESIGNER_TEST
-    // handle common keyboard actions coming from puppet
-    if (Core::ActionManager::command(Core::Constants::UNDO)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
-        QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
-    else if (Core::ActionManager::command(Core::Constants::REDO)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
-        QmlDesignerPlugin::instance()->currentDesignDocument()->redo();
-    else if (Core::ActionManager::command(Core::Constants::SAVE)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
-        Core::EditorManager::saveDocument();
-    else if (Core::ActionManager::command(Core::Constants::SAVEAS)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
-        Core::EditorManager::saveDocumentAs();
-    else if (Core::ActionManager::command(Core::Constants::SAVEALL)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
-        Core::DocumentManager::saveAllModifiedDocuments();
-    else if (Core::ActionManager::command(QmlDesigner::Constants::C_DELETE)->keySequence().matches(key + modifiers) == QKeySequence::ExactMatch)
-        QmlDesignerPlugin::instance()->currentDesignDocument()->deleteSelected();
-#else
-    Q_UNUSED(key);
-    Q_UNUSED(modifiers);
-#endif
-}
-
-void NodeInstanceView::view3DClosed(const View3DClosedCommand &command)
-{
-    Q_UNUSED(command)
-
-    rootModelNode().removeAuxiliaryData("3d-view");
-}
-
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                             const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
     nodeInstanceServer()->changeSelection(createChangeSelectionCommand(selectedNodeList));
-}
-
-void NodeInstanceView::mainWindowStateChanged(Qt::WindowStates previousStates, Qt::WindowStates currentStates)
-{
-    if (nodeInstanceServer())
-        nodeInstanceServer()->update3DViewState(Update3dViewStateCommand(previousStates, currentStates));
-}
-
-void NodeInstanceView::mainWindowActiveChanged(bool active, bool hasPopup)
-{
-    if (nodeInstanceServer())
-        nodeInstanceServer()->update3DViewState(Update3dViewStateCommand(active, hasPopup));
 }
 
 void NodeInstanceView::sendInputEvent(QInputEvent *e) const

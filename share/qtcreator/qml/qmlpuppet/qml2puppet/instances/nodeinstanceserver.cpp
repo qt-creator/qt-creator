@@ -67,7 +67,6 @@
 #include <tokencommand.h>
 #include <removesharedmemorycommand.h>
 #include <changeselectioncommand.h>
-#include <drop3dlibraryitemcommand.h>
 #include <inputeventcommand.h>
 #include <view3dactioncommand.h>
 
@@ -1176,12 +1175,6 @@ ChangeSelectionCommand NodeInstanceServer::createChangeSelectionCommand(const QL
     }
 
     return ChangeSelectionCommand(idVector);
-}
-
-Drop3DLibraryItemCommand NodeInstanceServer::createDrop3DLibraryItemCommand(const QByteArray &itemData,
-                                                                            qint32 sceneRootId)
-{
-    return Drop3DLibraryItemCommand(itemData, sceneRootId);
 }
 
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const

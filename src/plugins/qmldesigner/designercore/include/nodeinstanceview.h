@@ -128,14 +128,10 @@ public:
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
     void selectionChanged(const ChangeSelectionCommand &command) override;
-    void library3DItemDropped(const Drop3DLibraryItemCommand &command) override;
-    void view3DClosed(const View3DClosedCommand &command) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
-    void mainWindowStateChanged(Qt::WindowStates previousStates, Qt::WindowStates currentStates);
-    void mainWindowActiveChanged(bool active, bool hasPopup);
     void sendInputEvent(QInputEvent *e) const;
     void view3DAction(const View3DActionCommand &command);
     void edit3DViewResized(const QSize &size) const;
