@@ -173,8 +173,6 @@ private:
     CppTools::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
 
     Utils::FileSystemWatcher m_deployFileWatcher;
-
-    ParseGuard m_guard;
 };
 
 
@@ -263,7 +261,6 @@ GenericBuildSystem::~GenericBuildSystem()
 
 void GenericBuildSystem::triggerParsing()
 {
-    m_guard = guardParsingRun();
     refresh(Everything);
 }
 
