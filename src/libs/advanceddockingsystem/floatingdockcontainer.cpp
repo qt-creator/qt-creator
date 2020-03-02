@@ -66,7 +66,7 @@ namespace ADS
     {
     public:
         FloatingDockContainer *q;
-        DockContainerWidget *m_dockContainer;
+        DockContainerWidget *m_dockContainer = nullptr;
         unsigned int m_zOrderIndex = ++zOrderCounter;
         QPointer<DockManager> m_dockManager;
         eDragState m_draggingState = DraggingInactive;
