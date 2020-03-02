@@ -364,7 +364,9 @@ namespace ADS
                                                   ? dockContainerWidget->topLevelDockWidget()
                                                   : nullptr;
         DockWidget::emitTopLevelEventForWidget(topLevelDockWidgetAfter, true);
-        FloatingDockContainer *floatingContainer = dockContainerWidget->floatingWidget();
+        FloatingDockContainer *floatingContainer = dockContainerWidget
+                                                       ? dockContainerWidget->floatingWidget()
+                                                       : nullptr;
         if (floatingContainer)
             floatingContainer->updateWindowTitle();
 
