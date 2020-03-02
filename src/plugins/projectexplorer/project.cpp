@@ -362,8 +362,8 @@ void Project::setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocume
     QSet<Utils::FilePath> existingWatches = Utils::transform<QSet>(d->m_extraProjectDocuments,
                                                                    &Core::IDocument::filePath);
 
-    QSet<Utils::FilePath> toAdd = uniqueNewFiles.subtract(existingWatches);
-    QSet<Utils::FilePath> toRemove = existingWatches.subtract(uniqueNewFiles);
+    const QSet<Utils::FilePath> toAdd = uniqueNewFiles - existingWatches;
+    const QSet<Utils::FilePath> toRemove = existingWatches - uniqueNewFiles;
 
     Utils::erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<Core::IDocument> &d) {
         return toRemove.contains(d->filePath());
