@@ -75,7 +75,7 @@ class DockContainerWidgetPrivate;
 class DockOverlay;
 class DockAreaTabBar;
 class DockWidgetTab;
-struct DockWidgetTabPrivate;
+class DockWidgetTabPrivate;
 struct DockAreaWidgetPrivate;
 class IconProvider;
 
@@ -104,7 +104,7 @@ private:
     friend class DockAreaTabBar;
     friend class DockWidgetTab;
     friend struct DockAreaWidgetPrivate;
-    friend struct DockWidgetTabPrivate;
+    friend class DockWidgetTabPrivate;
     friend class FloatingDragPreview;
     friend class FloatingDragPreviewPrivate;
     friend class DockAreaTitleBar;

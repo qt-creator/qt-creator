@@ -79,7 +79,7 @@ protected:
     friend class DockContainerWidgetPrivate;
     friend class DockAreaTabBar;
     friend class DockWidgetTab;
-    friend struct DockWidgetTabPrivate;
+    friend class DockWidgetTabPrivate;
     friend struct DockAreaTitleBarPrivate;
 
     /**

@@ -67,8 +67,9 @@ namespace ADS
     /**
      * Private data class of DockWidgetTab class (pimpl)
      */
-    struct DockWidgetTabPrivate
+    class DockWidgetTabPrivate
     {
+    public:
         DockWidgetTab *q;
         DockWidget *m_dockWidget;
         QLabel *m_iconLabel = nullptr;
@@ -155,8 +156,7 @@ namespace ADS
             m_globalDragStartMousePosition = globalPos;
             m_dragStartMousePosition = q->mapFromGlobal(globalPos);
         }
-    };
-    // struct DockWidgetTabPrivate
+    }; // class DockWidgetTabPrivate
 
     DockWidgetTabPrivate::DockWidgetTabPrivate(DockWidgetTab *parent)
         : q(parent)

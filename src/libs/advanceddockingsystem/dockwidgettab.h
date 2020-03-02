@@ -43,7 +43,7 @@ namespace ADS {
 
 class DockWidget;
 class DockAreaWidget;
-struct DockWidgetTabPrivate;
+class DockWidgetTabPrivate;
 
 /**
  * A dock widget tab that shows a title and an icon.
@@ -57,7 +57,7 @@ class ADS_EXPORT DockWidgetTab : public QFrame
 
 private:
     DockWidgetTabPrivate *d; ///< private data (pimpl)
-    friend struct DockWidgetTabPrivate;
+    friend class DockWidgetTabPrivate;
     friend class DockWidget;
     void onDockWidgetFeaturesChanged();
     void detachDockWidget();
