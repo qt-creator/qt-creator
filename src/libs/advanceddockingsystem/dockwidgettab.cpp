@@ -71,9 +71,9 @@ namespace ADS
     {
     public:
         DockWidgetTab *q;
-        DockWidget *m_dockWidget;
+        DockWidget *m_dockWidget = nullptr;
         QLabel *m_iconLabel = nullptr;
-        TabLabelType *m_titleLabel;
+        TabLabelType *m_titleLabel = nullptr;
         QPoint m_globalDragStartMousePosition;
         QPoint m_dragStartMousePosition;
         bool m_isActiveTab = false;
@@ -82,7 +82,6 @@ namespace ADS
         AbstractFloatingWidget *m_floatingWidget = nullptr;
         QIcon m_icon;
         QAbstractButton *m_closeButton = nullptr;
-        QSpacerItem *m_iconTextSpacer;
         QPoint m_tabDragStartPosition;
 
         /**
