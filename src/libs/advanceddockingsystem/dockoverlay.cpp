@@ -59,8 +59,9 @@ namespace ADS {
     /**
      * Private data class of DockOverlay
      */
-    struct DockOverlayPrivate
+    class DockOverlayPrivate
     {
+    public:
         DockOverlay *q;
         DockWidgetAreas m_allowedAreas = InvalidDockWidgetArea;
         DockOverlayCross *m_cross;
@@ -81,8 +82,9 @@ namespace ADS {
     /**
      * Private data of DockOverlayCross class
      */
-    struct DockOverlayCrossPrivate
+    class DockOverlayCrossPrivate
     {
+    public:
         DockOverlayCross *q;
         DockOverlay::eMode m_mode = DockOverlay::ModeDockAreaOverlay;
         DockOverlay *m_dockOverlay;
@@ -335,7 +337,7 @@ namespace ADS {
             pixmap.setDevicePixelRatio(devicePixelRatio);
             return pixmap;
         }
-    };
+    }; // class DockOverlayCrossPrivate
 
     DockOverlay::DockOverlay(QWidget *parent, eMode mode)
         : QFrame(parent)
