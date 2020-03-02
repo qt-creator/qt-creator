@@ -89,7 +89,7 @@ public:
     bool isFilesystemScanRequested() const;
     void parse();
 
-    QVector<Utils::FilePath> takeProjectFilesToWatch();
+    QSet<Utils::FilePath> projectFilesToWatch() const;
     std::unique_ptr<CMakeProjectNode> generateProjectTree(const QList<const ProjectExplorer::FileNode *> &allFiles,
                              QString &errorMessage) const;
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage) const;

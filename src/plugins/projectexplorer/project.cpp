@@ -354,9 +354,9 @@ void Project::setNeedsInitialExpansion(bool needsExpansion)
     d->m_needsInitialExpansion = needsExpansion;
 }
 
-void Project::setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocumentPaths)
+void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths)
 {
-    QSet<Utils::FilePath> uniqueNewFiles = Utils::toSet(projectDocumentPaths);
+    QSet<Utils::FilePath> uniqueNewFiles = projectDocumentPaths;
     uniqueNewFiles.remove(projectFilePath()); // Make sure to never add the main project file!
 
     QSet<Utils::FilePath> existingWatches = Utils::transform<QSet>(d->m_extraProjectDocuments,

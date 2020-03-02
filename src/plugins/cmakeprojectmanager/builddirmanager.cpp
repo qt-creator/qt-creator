@@ -390,7 +390,7 @@ void BuildDirManager::parse()
                     reparseParameters & REPARSE_FORCE_CONFIGURATION);
 }
 
-QVector<FilePath> BuildDirManager::takeProjectFilesToWatch()
+QSet<FilePath> BuildDirManager::projectFilesToWatch() const
 {
     QTC_ASSERT(!m_isHandlingError, return {});
     QTC_ASSERT(m_reader, return {});
@@ -398,7 +398,7 @@ QVector<FilePath> BuildDirManager::takeProjectFilesToWatch()
     Utils::FilePath sourceDir = m_parameters.sourceDirectory;
     Utils::FilePath buildDir = m_parameters.workDirectory;
 
-    return Utils::filtered(m_reader->takeProjectFilesToWatch(),
+    return Utils::filtered(m_reader->projectFilesToWatch(),
                            [&sourceDir,
                            &buildDir](const Utils::FilePath &p) {
         return p.isChildOf(sourceDir)

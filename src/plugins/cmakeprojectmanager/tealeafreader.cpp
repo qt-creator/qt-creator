@@ -160,9 +160,9 @@ bool TeaLeafReader::isParsing() const
     return m_cmakeProcess && m_cmakeProcess->state() != QProcess::NotRunning;
 }
 
-QVector<FilePath> TeaLeafReader::takeProjectFilesToWatch()
+QSet<FilePath> TeaLeafReader::projectFilesToWatch() const
 {
-    return transform<QVector>(m_cmakeFiles, [](const FilePath &p) { return p; });
+    return m_cmakeFiles;
 }
 
 QList<CMakeBuildTarget> TeaLeafReader::takeBuildTargets(QString &errorMessage)
