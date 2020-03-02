@@ -66,7 +66,7 @@ const char STARTUP_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/StartupWorkspace";
 const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLastWorkspace";
 } // namespace Constants
 
-struct DockManagerPrivate;
+class DockManagerPrivate;
 class FloatingDockContainer;
 class FloatingDockContainerPrivate;
 class DockComponentsFactory;
@@ -96,7 +96,7 @@ class ADS_EXPORT DockManager : public DockContainerWidget
     Q_OBJECT
 private:
     DockManagerPrivate *d; ///< private data (pimpl)
-    friend struct DockManagerPrivate;
+    friend class DockManagerPrivate;
     friend class FloatingDockContainer;
     friend class FloatingDockContainerPrivate;
     friend class DockContainerWidget;

@@ -75,7 +75,7 @@ protected:
     friend class DockAreaWidget;
     friend class FloatingDockContainer;
     friend class DockManager;
-    friend struct DockManagerPrivate;
+    friend class DockManagerPrivate;
     friend class DockContainerWidgetPrivate;
     friend class DockAreaTabBar;
     friend class DockWidgetTab;

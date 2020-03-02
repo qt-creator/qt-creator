@@ -50,7 +50,7 @@ namespace ADS {
 
 class FloatingDockContainerPrivate;
 class DockManager;
-struct DockManagerPrivate;
+class DockManagerPrivate;
 class DockAreaWidget;
 class DockContainerWidget;
 class DockWidget;
@@ -113,7 +113,7 @@ private:
     FloatingDockContainerPrivate *d; ///< private data (pimpl)
     friend class FloatingDockContainerPrivate;
     friend class DockManager;
-    friend struct DockManagerPrivate;
+    friend class DockManagerPrivate;
     friend class DockAreaTabBar;
     friend struct DockWidgetTabPrivate;
     friend class DockWidgetTab;

@@ -77,8 +77,9 @@ namespace ADS
     /**
      * Private data class of DockManager class (pimpl)
      */
-    struct DockManagerPrivate
+    class DockManagerPrivate
     {
+    public:
         DockManager *q;
         QList<FloatingDockContainer *> m_floatingWidgets;
         QList<DockContainerWidget *> m_containers;
@@ -144,8 +145,7 @@ namespace ADS
         bool restoreContainer(int index, DockingStateReader &stream, bool testing);
 
         void workspaceLoadingProgress();
-    };
-    // struct DockManagerPrivate
+    }; // class DockManagerPrivate
 
     DockManagerPrivate::DockManagerPrivate(DockManager *parent)
         : q(parent)
