@@ -336,9 +336,9 @@ namespace ADS
 
     void DockWidget::toggleViewInternal(bool open)
     {
-        DockContainerWidget *dockContainerWidget = dockContainer();
-        DockWidget *topLevelDockWidgetBefore = dockContainerWidget
-                                                   ? dockContainerWidget->topLevelDockWidget()
+        const DockContainerWidget *const beforeDockContainerWidget = dockContainer();
+        DockWidget *topLevelDockWidgetBefore = beforeDockContainerWidget
+                                                   ? beforeDockContainerWidget->topLevelDockWidget()
                                                    : nullptr;
 
         if (open) {
@@ -359,7 +359,7 @@ namespace ADS
         // Here we need to call the dockContainer() function again, because if
         // this dock widget was unassigned before the call to showDockWidget() then
         // it has a dock container now
-        dockContainerWidget = dockContainer();
+        const DockContainerWidget *const dockContainerWidget = dockContainer();
         DockWidget *topLevelDockWidgetAfter = dockContainerWidget
                                                   ? dockContainerWidget->topLevelDockWidget()
                                                   : nullptr;
