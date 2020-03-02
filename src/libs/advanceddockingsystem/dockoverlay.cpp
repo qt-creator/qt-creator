@@ -64,7 +64,7 @@ namespace ADS {
     public:
         DockOverlay *q;
         DockWidgetAreas m_allowedAreas = InvalidDockWidgetArea;
-        DockOverlayCross *m_cross;
+        DockOverlayCross *m_cross = nullptr;
         QPointer<QWidget> m_targetWidget;
         DockWidgetArea m_lastLocation = InvalidDockWidgetArea;
         bool m_dropPreviewEnabled = true;
@@ -87,9 +87,9 @@ namespace ADS {
     public:
         DockOverlayCross *q;
         DockOverlay::eMode m_mode = DockOverlay::ModeDockAreaOverlay;
-        DockOverlay *m_dockOverlay;
+        DockOverlay *m_dockOverlay = nullptr;
         QHash<DockWidgetArea, QWidget *> m_dropIndicatorWidgets;
-        QGridLayout *m_gridLayout;
+        QGridLayout *m_gridLayout = nullptr;
         QColor m_iconColors[5];
         bool m_updateRequired = false;
         double m_lastDevicePixelRatio = 0.1;
