@@ -46,8 +46,9 @@ using tCloseButton = QPushButton;
 /**
  * @brief Private data class of public interface CFloatingWidgetTitleBar
  */
-struct FloatingWidgetTitleBarPrivate
+class FloatingWidgetTitleBarPrivate
 {
+public:
     FloatingWidgetTitleBar *q; ///< public interface class
     QLabel *m_iconLabel = nullptr;
     TabLabelType *m_titleLabel;
