@@ -374,18 +374,11 @@
     of an output pane to open the pane. To maximize an open output pane, click
     the \uicontrol {Maximize Output Pane} button or press \key {Alt+9}.
 
-    To search within the \uicontrol{Application Output} and \uicontrol{Compile Output}
-    panes, press \key {Ctrl+F} when the pane is active. Enter search criteria in
-    the \uicontrol Find field and click the left and right arrows to search down and
-    up in the pane.
 
     To increase or decrease the output text size, select \inlineimage plus.png
     (\uicontrol {Zoom In}) or \inlineimage minus.png
     (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-. Zooming is
     not supported in all output panes.
-
-    To filter the output, enter a string in the \uicontrol Filter field.
-    Filtering is not supported in all output panes.
 
     To open the \uicontrol{General Messages} and
     \if defined(qtcreator)
@@ -400,6 +393,21 @@
 
     For more information about the \uicontrol {QML Debugger Console} view, see
     \l{Executing JavaScript Expressions}.
+
+    \section1 Finding and Filtering Output
+
+    To search from output, press \key {Ctrl+F} when the pane is active. Enter
+    search criteria in the \uicontrol Find field. For more information, see
+    \l{Finding and Replacing}.
+
+    Besides searching from the output, you can enter a string in the
+    \uicontrol Filter field to filter it. To specify filtering options,
+    select the \inlineimage magnifier.png "Filtering options menu"
+    button. You can filter output by using regular expressions or
+    case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
+    hide the lines that match the filter.
+
+    Finding and filtering are not supported in all output panes.
 
     \section1 Issues
 
