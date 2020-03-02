@@ -222,13 +222,25 @@ void QtKitAspect::fix(ProjectExplorer::Kit *k)
     if (ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
         return;
     const QString spec = version->mkspec();
-    const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
+    QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
                 [version](const ToolChain *t) {
         return t->isValid()
                 && t->language() == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-                && version->qtAbis().contains(t->targetAbi());
+                && contains(version->qtAbis(), [t](const Abi &qtAbi) {
+                       return qtAbi.isFullyCompatibleWith(t->targetAbi());
+                   });
     });
     if (!possibleTcs.isEmpty()) {
+        // Prefer exact matches.
+        // TODO: We should probably prefer the compiler with the highest version number instead,
+        //       but this information is currently not exposed by the ToolChain class.
+        sort(possibleTcs, [version](const ToolChain *tc1, const ToolChain *tc2) {
+            const QVector<Abi> &qtAbis = version->qtAbis();
+            const bool tc1ExactMatch = qtAbis.contains(tc1->targetAbi());
+            const bool tc2ExactMatch = qtAbis.contains(tc2->targetAbi());
+            return tc1ExactMatch && !tc2ExactMatch;
+        });
+
         const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
                                                            [&spec](const ToolChain *t) {
             return t->suggestedMkspecList().contains(spec);
