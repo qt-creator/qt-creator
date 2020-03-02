@@ -73,15 +73,15 @@ private:
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;
     QVector<Edit3DAction *> m_rightActions;
-    Edit3DAction *m_selectionModeAction;
-    Edit3DAction *m_moveToolAction;
-    Edit3DAction *m_rotateToolAction;
-    Edit3DAction *m_scaleToolAction;
-    Edit3DAction *m_fitAction;
-    Edit3DAction *m_cameraModeAction;
-    Edit3DAction *m_orientationModeAction;
-    Edit3DAction *m_editLightAction;
-    Edit3DAction *m_resetAction;
+    Edit3DAction *m_selectionModeAction = nullptr;
+    Edit3DAction *m_moveToolAction = nullptr;
+    Edit3DAction *m_rotateToolAction = nullptr;
+    Edit3DAction *m_scaleToolAction = nullptr;
+    Edit3DAction *m_fitAction = nullptr;
+    Edit3DAction *m_cameraModeAction = nullptr;
+    Edit3DAction *m_orientationModeAction = nullptr;
+    Edit3DAction *m_editLightAction = nullptr;
+    Edit3DAction *m_resetAction = nullptr;
 };
 
 } // namespace QmlDesigner
