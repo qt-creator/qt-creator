@@ -59,8 +59,9 @@ namespace ADS
     /**
      * Private data class of DockAreaTabBar class (pimpl)
      */
-    struct DockAreaTabBarPrivate
+    class DockAreaTabBarPrivate
     {
+    public:
         DockAreaTabBar *q;
         DockAreaWidget *m_dockArea;
         QWidget *m_tabsContainerWidget;
@@ -87,8 +88,7 @@ namespace ADS
          * Convenience function to access last tab
          */
         DockWidgetTab *lastTab() const {return q->tab(q->count() - 1);}
-    };
-    // struct DockAreaTabBarPrivate
+    }; // class DockAreaTabBarPrivate
 
     DockAreaTabBarPrivate::DockAreaTabBarPrivate(DockAreaTabBar *parent)
         : q(parent)
