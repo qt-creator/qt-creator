@@ -84,7 +84,7 @@ WorkspaceView::WorkspaceView(QWidget *parent)
 {
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
+    setSelectionMode(QAbstractItemView::SingleSelection);
     setWordWrap(false);
     setRootIsDecorated(false);
     setSortingEnabled(true);
@@ -145,6 +145,11 @@ void WorkspaceView::renameCurrentWorkspace()
     m_workspaceModel.renameWorkspace(this, currentWorkspace());
 }
 
+void WorkspaceView::resetCurrentWorkspace()
+{
+    m_workspaceModel.resetWorkspace(currentWorkspace());
+}
+
 void WorkspaceView::switchToCurrentWorkspace()
 {
     m_workspaceModel.switchToWorkspace(currentWorkspace());
@@ -187,10 +192,9 @@ void WorkspaceView::keyPressEvent(QKeyEvent *event)
         return;
     }
     const QStringList workspaces = selectedWorkspaces();
-    if (!workspaces.contains("default")
-        && !Utils::anyOf(workspaces, [this](const QString &workspace) {
-               return workspace == m_manager->activeWorkspace();
-           })) {
+    if (!Utils::anyOf(workspaces, [this](const QString &workspace) {
+            return workspace == m_manager->activeWorkspace();
+        })) {
         deleteWorkspaces(workspaces);
     }
 }

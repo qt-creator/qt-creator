@@ -49,7 +49,7 @@ class WorkspaceModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    enum { DefaultWorkspaceRole = Qt::UserRole + 1, LastWorkspaceRole, ActiveWorkspaceRole };
+    enum { PresetWorkspaceRole = Qt::UserRole + 1, LastWorkspaceRole, ActiveWorkspaceRole };
 
     explicit WorkspaceModel(DockManager *manager, QObject *parent = nullptr);
 
@@ -64,8 +64,6 @@ public:
     QHash<int, QByteArray> roleNames() const override;
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
-    Q_SCRIPTABLE bool isDefaultVirgin() const;
-
 signals:
     void workspaceSwitched();
     void workspaceCreated(const QString &workspaceName);
@@ -76,6 +74,7 @@ public:
     void cloneWorkspace(QWidget *parent, const QString &workspace);
     void deleteWorkspaces(const QStringList &workspaces);
     void renameWorkspace(QWidget *parent, const QString &workspace);
+    void resetWorkspace(const QString &workspace);
     void switchToWorkspace(const QString &workspace);
 
 private:
@@ -84,6 +83,8 @@ private:
 
     QStringList m_sortedWorkspaces;
     DockManager *m_manager;
+    int m_currentSortColumn;
+    Qt::SortOrder m_currentSortOrder = Qt::AscendingOrder;
 };
 
 } // namespace ADS

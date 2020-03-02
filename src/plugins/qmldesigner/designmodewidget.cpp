@@ -56,6 +56,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -230,9 +231,12 @@ void DesignModeWidget::setup()
     actionManager.createDefaultAddResourceHandler();
     actionManager.polishActions();
 
+    auto settings = Core::ICore::settings(QSettings::UserScope);
+
     m_dockManager = new ADS::DockManager(this);
     m_dockManager->setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);
-    m_dockManager->setSettings(Core::ICore::settings(QSettings::UserScope));
+    m_dockManager->setSettings(settings);
+    m_dockManager->setWorkspacePresetsPath(Core::ICore::resourcePath() + QLatin1String("/qmldesigner/workspacePresets/"));
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
@@ -369,32 +373,7 @@ void DesignModeWidget::setup()
     if (currentDesignDocument())
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
-    // Get a list of all available workspaces
-    QStringList workspaces = m_dockManager->workspaces();
-    QString workspace = ADS::Constants::FACTORY_DEFAULT_NAME;
-
-    // If there is no factory default workspace create one and write the xml file
-    if (!workspaces.contains(ADS::Constants::FACTORY_DEFAULT_NAME)) {
-        createFactoryDefaultWorkspace();
-        // List of workspaces needs to be updated
-        workspaces = m_dockManager->workspaces();
-    }
-
-    // Determine workspace to restore at startup
-    if (m_dockManager->autoRestorLastWorkspace()) {
-        QString lastWorkspace = m_dockManager->lastWorkspace();
-        if (!lastWorkspace.isEmpty() && workspaces.contains(lastWorkspace))
-            workspace = lastWorkspace;
-        else
-            qDebug() << "Couldn't restore last workspace!";
-    }
-
-    if (workspace.isNull() && workspaces.contains(ADS::Constants::DEFAULT_NAME)) {
-        workspace = ADS::Constants::DEFAULT_NAME;
-    }
-
-    m_dockManager->openWorkspace(workspace);
-
+    m_dockManager->initialize();
     viewManager().enableWidgets();
     readSettings();
     show();
@@ -419,7 +398,11 @@ void DesignModeWidget::aboutToShowWorkspaces()
 
     menu->addSeparator();
 
-    for (const auto &workspace : m_dockManager->workspaces())
+    // Sort the list of workspaces
+    auto sortedWorkspaces = m_dockManager->workspaces();
+    Utils::sort(sortedWorkspaces);
+
+    for (const auto &workspace : sortedWorkspaces)
     {
         QAction *action = ag->addAction(workspace);
         action->setData(workspace);
@@ -428,87 +411,6 @@ void DesignModeWidget::aboutToShowWorkspaces()
             action->setChecked(true);
     }
     menu->addActions(ag->actions());
-}
-
-void DesignModeWidget::createFactoryDefaultWorkspace()
-{
-    ADS::DockAreaWidget* centerArea = nullptr;
-    ADS::DockAreaWidget* leftArea = nullptr;
-    ADS::DockAreaWidget* rightArea = nullptr;
-    ADS::DockAreaWidget* bottomArea = nullptr;
-
-    // Iterate over all widgets and only get the central once to start with creating the factory
-    // default workspace layout.
-    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
-        if (widgetInfo.placementHint == widgetInfo.CentralPane) {
-            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
-            if (centerArea)
-                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, centerArea);
-            else
-                centerArea = m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget);
-        }
-    }
-
-    // Iterate over all widgets and get the remaining left, right and bottom widgets
-    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
-        if (widgetInfo.placementHint == widgetInfo.LeftPane) {
-            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
-            if (leftArea)
-                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, leftArea);
-            else
-                leftArea = m_dockManager->addDockWidget(ADS::LeftDockWidgetArea, dockWidget, centerArea);
-        }
-
-        if (widgetInfo.placementHint == widgetInfo.RightPane) {
-            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
-            if (rightArea)
-                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, rightArea);
-            else
-                rightArea = m_dockManager->addDockWidget(ADS::RightDockWidgetArea, dockWidget, centerArea);
-        }
-
-        if (widgetInfo.placementHint == widgetInfo.BottomPane) {
-            ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
-            if (bottomArea)
-                m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, bottomArea);
-            else
-                bottomArea = m_dockManager->addDockWidget(ADS::BottomDockWidgetArea, dockWidget, centerArea);
-        }
-    }
-
-    // Iterate over all 'special' widgets
-    QStringList specialWidgets = {"Projects", "FileSystem", "OpenDocuments"};
-    ADS::DockAreaWidget* leftBottomArea = nullptr;
-    for (const QString &uniqueId : specialWidgets) {
-        ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(uniqueId);
-        if (leftBottomArea)
-            m_dockManager->addDockWidget(ADS::CenterDockWidgetArea, dockWidget, leftBottomArea);
-        else
-            leftBottomArea = m_dockManager->addDockWidget(ADS::BottomDockWidgetArea, dockWidget, leftArea);
-    }
-
-    // Add the last widget 'OutputPane' as the bottom bottom area
-    ADS::DockWidget *dockWidget = m_dockManager->findDockWidget("OutputPane");
-    m_dockManager->addDockWidget(ADS::BottomDockWidgetArea, dockWidget, bottomArea);
-
-    // TODO This is just a test
-    auto splitter = centerArea->dockContainer()->rootSplitter();
-    splitter->setSizes({100, 800, 100});
-    // TODO
-
-    m_dockManager->createWorkspace(ADS::Constants::FACTORY_DEFAULT_NAME);
-
-    // Write the xml file
-    Utils::FilePath fileName = m_dockManager->workspaceNameToFileName(ADS::Constants::FACTORY_DEFAULT_NAME);
-    QString errorString;
-    Utils::FileSaver fileSaver(fileName.toString(), QIODevice::Text);
-    QByteArray data = m_dockManager->saveState();
-    if (!fileSaver.hasError()) {
-        fileSaver.write(data);
-    }
-    if (!fileSaver.finalize()) {
-        errorString = fileSaver.errorString();
-    }
 }
 
 void DesignModeWidget::toolBarOnGoBackClicked()

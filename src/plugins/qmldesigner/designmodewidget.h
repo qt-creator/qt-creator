@@ -104,8 +104,6 @@ private: // functions
 
     void aboutToShowWorkspaces();
 
-    void createFactoryDefaultWorkspace();
-
 private: // variables
     SwitchSplitTabWidget* m_centralTabWidget = nullptr;
 

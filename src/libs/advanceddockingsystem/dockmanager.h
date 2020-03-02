@@ -60,8 +60,7 @@ QT_END_NAMESPACE
 namespace ADS {
 
 namespace Constants {
-const char FACTORY_DEFAULT_NAME[] = "factorydefault";
-const char DEFAULT_NAME[] = "default";
+const char DEFAULT_WORKSPACE[] = "Essentials"; // This needs to align with a name of the shipped presets
 const char STARTUP_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/StartupWorkspace";
 const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLastWorkspace";
 } // namespace Constants
@@ -272,6 +271,13 @@ public:
     void setSettings(QSettings *settings);
 
     /**
+     * Set the path to the workspace presets folder.
+     */
+    void setWorkspacePresetsPath(const QString &path);
+
+    void initialize();
+
+    /**
      * Adds dockwidget into the given area.
      * If DockAreaWidget is not null, then the area parameter indicates the area
      * into the DockAreaWidget. If DockAreaWidget is null, the Dockwidget will
@@ -445,12 +451,14 @@ public:
     QString lastWorkspace() const;
     bool autoRestorLastWorkspace() const;
     QStringList workspaces();
+    QSet<QString> workspacePresets() const;
     QDateTime workspaceDateTime(const QString &workspace) const;
     Utils::FilePath workspaceNameToFileName(const QString &workspaceName) const;
 
     bool createWorkspace(const QString &workspace);
 
     bool openWorkspace(const QString &workspace);
+    bool reloadActiveWorkspace();
 
     bool confirmWorkspaceDelete(const QStringList &workspaces);
     bool deleteWorkspace(const QString &workspace);
@@ -459,22 +467,28 @@ public:
     bool cloneWorkspace(const QString &original, const QString &clone);
     bool renameWorkspace(const QString &original, const QString &newName);
 
+    bool resetWorkspacePreset(const QString &workspace);
+
     bool save();
 
-    bool isFactoryDefaultWorkspace(const QString &workspace) const;
-    bool isDefaultWorkspace(const QString &workspace) const;
+    bool isWorkspacePreset(const QString &workspace) const;
 
 signals:
     void aboutToUnloadWorkspace(QString workspaceName);
     void aboutToLoadWorkspace(QString workspaceName);
     void workspaceLoaded(QString workspaceName);
+    void workspaceReloaded(QString workspaceName);
     void aboutToSaveWorkspace();
 
 private:
-    bool write(const QByteArray &data, QString *errorString) const;
-#ifdef QT_GUI_LIB
-    bool write(const QByteArray &data, QWidget *parent) const;
-#endif
+    bool write(const QString &workspace, const QByteArray &data, QString *errorString) const;
+    bool write(const QString &workspace, const QByteArray &data, QWidget *parent) const;
+
+    QByteArray loadWorkspace(const QString &workspace) const;
+
+    void syncWorkspacePresets();
+
+    void saveStartupWorkspace();
 }; // class DockManager
 
 } // namespace ADS

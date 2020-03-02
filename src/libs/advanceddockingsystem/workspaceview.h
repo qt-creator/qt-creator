@@ -57,12 +57,15 @@ public:
     void deleteSelectedWorkspaces();
     void cloneCurrentWorkspace();
     void renameCurrentWorkspace();
+    void resetCurrentWorkspace();
     void switchToCurrentWorkspace();
 
     QString currentWorkspace();
     WorkspaceModel *workspaceModel();
     void selectActiveWorkspace();
     void selectWorkspace(const QString &workspaceName);
+
+    QStringList selectedWorkspaces() const;
 
 signals:
     void activated(const QString &workspace);
@@ -74,7 +77,6 @@ private:
     void keyPressEvent(QKeyEvent *event) override;
 
     void deleteWorkspaces(const QStringList &workspaces);
-    QStringList selectedWorkspaces() const;
 
     static WorkspaceDialog *castToWorkspaceDialog(QWidget *widget);
 
