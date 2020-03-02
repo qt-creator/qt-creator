@@ -806,8 +806,12 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     m_versionNameLinedit->setText(manifest.attribute(QLatin1String("android:versionName")));
 
     QDomElement usesSdkElement = manifest.firstChildElement(QLatin1String("uses-sdk"));
-    setApiLevel(m_androidMinSdkVersion, usesSdkElement, QLatin1String("android:minSdkVersion"));
-    setApiLevel(m_androidTargetSdkVersion, usesSdkElement, QLatin1String("android:targetSdkVersion"));
+    m_androidMinSdkVersion->setEnabled(!usesSdkElement.isNull());
+    m_androidTargetSdkVersion->setEnabled(!usesSdkElement.isNull());
+    if (!usesSdkElement.isNull()) {
+        setApiLevel(m_androidMinSdkVersion, usesSdkElement, QLatin1String("android:minSdkVersion"));
+        setApiLevel(m_androidTargetSdkVersion, usesSdkElement, QLatin1String("android:targetSdkVersion"));
+    }
 
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
 
