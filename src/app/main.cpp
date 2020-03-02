@@ -237,7 +237,10 @@ static inline QStringList getPluginPaths()
     // patch versions
     const QString minorVersion = QString::number(IDE_VERSION_MAJOR) + '.'
                                  + QString::number(IDE_VERSION_MINOR) + '.';
-    for (int patchVersion = IDE_VERSION_RELEASE; patchVersion >= 0; --patchVersion)
+    const int minPatchVersion
+        = qMin(IDE_VERSION_RELEASE,
+               QVersionNumber::fromString(Core::Constants::IDE_VERSION_COMPAT).microVersion());
+    for (int patchVersion = IDE_VERSION_RELEASE; patchVersion >= minPatchVersion; --patchVersion)
         rc.push_back(pluginPath + minorVersion + QString::number(patchVersion));
     return rc;
 }
