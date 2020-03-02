@@ -50,7 +50,7 @@ public:
     int angleDelta() const { return m_angleDelta; }
 
 private:
-    QEvent::Type m_type;
+    QEvent::Type m_type = QEvent::None;
     QPoint m_pos;
     Qt::MouseButton m_button = Qt::NoButton;
     Qt::MouseButtons m_buttons = Qt::NoButton;
