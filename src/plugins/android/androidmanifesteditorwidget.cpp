@@ -242,13 +242,13 @@ void AndroidManifestEditorWidget::initializePage()
 
         m_styleExtractMethod = new QComboBox(applicationGroupBox);
         formLayout->addRow(tr("Style extraction:"), m_styleExtractMethod);
-        QList<QStringList> styleMethodsMap = {
+        const QList<QStringList> styleMethodsMap = {
             {"default", "In most cases this will be the same as \"full\", but it can also be something else if needed, e.g. for compatibility reasons."},
             {"full", "Useful for Qt Widgets & Qt Quick Controls 1 apps."},
             {"minimal", "Useful for Qt Quick Controls 2 apps, it is much faster than \"full\"."},
             {"none", "Useful for apps that don't use Qt Widgets, Qt Quick Controls 1 or Qt Quick Controls 2."}};
         for (int i = 0; i <styleMethodsMap.size(); ++i) {
-            m_styleExtractMethod->addItem(styleMethodsMap.at(i).at(0));
+            m_styleExtractMethod->addItem(styleMethodsMap.at(i).first());
             m_styleExtractMethod->setItemData(i, styleMethodsMap.at(i).at(1), Qt::ToolTipRole);
         }
 
