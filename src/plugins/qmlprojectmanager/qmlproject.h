@@ -104,6 +104,27 @@ public:
 
     QPointer<QmlProjectItem> m_projectItem;
     Utils::FilePath m_canonicalProjectDir;
+
+private:
+    bool m_blockFilesUpdate = false;
+    friend class FilesUpdateBlocker;
+};
+
+class FilesUpdateBlocker {
+public:
+    FilesUpdateBlocker(QmlBuildSystem* bs): m_bs(bs) {
+        if (m_bs)
+            m_bs->m_blockFilesUpdate = true;
+    }
+
+    ~FilesUpdateBlocker() {
+        if (m_bs) {
+            m_bs->m_blockFilesUpdate = false;
+            m_bs->refresh(QmlBuildSystem::Everything);
+        }
+    }
+private:
+    QPointer<QmlBuildSystem> m_bs;
 };
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project

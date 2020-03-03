@@ -57,10 +57,15 @@
 #include <QDebug>
 #include <QRegularExpression>
 #include <QTextCodec>
+#include <QLoggingCategory>
 
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QmlProjectManager::Internal;
+
+namespace {
+Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
+}
 
 namespace QmlProjectManager {
 
@@ -276,6 +281,10 @@ QStringList QmlBuildSystem::makeAbsolute(const Utils::FilePath &path, const QStr
 
 void QmlBuildSystem::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)
 {
+    if (m_blockFilesUpdate) {
+        qCDebug(infoLogger) << "Auto files refresh blocked.";
+        return;
+    }
     refresh(Files);
     if (!removed.isEmpty()) {
         if (auto modelManager = QmlJS::ModelManagerInterface::instance())
