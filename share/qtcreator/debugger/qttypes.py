@@ -494,7 +494,10 @@ def qdump__QDir(d, value):
         with Children(d):
             if not d.isMsvcTarget():
                 ns = d.qtNamespace()
-                d.call('int', value, 'count')  # Fill cache.
+                try:
+                    d.call('int', value, 'count')  # Fill cache.
+                except:
+                    pass
                 #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
                 #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
                 with SubItem(d, 'absolutePath'):
@@ -1083,9 +1086,6 @@ qqLocalesCount = None
 
 
 def qdump__QLocale(d, value):
-    if d.isMsvcTarget():  # as long as this dumper relies on calling functions skip it for cdb
-        return
-
     # Check for uninitialized 'index' variable. Retrieve size of
     # QLocale data array from variable in qlocale.cpp.
     # Default is 368 in Qt 4.8, 438 in Qt 5.0.1, the last one
@@ -1119,7 +1119,10 @@ def qdump__QLocale(d, value):
         = d.split('2s{short}2s'
                   + '{QChar}{QChar}{short}{QChar}{QChar}'
                   + '{QChar}{QChar}{QChar}', data)
-    d.putStringValue(d.call('const char *', value, 'name'))
+    try:
+        d.putStringValue(d.call('const char *', value, 'name'))
+    except:
+        pass
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
