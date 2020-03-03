@@ -60,11 +60,13 @@ public:
     void inputEvent(const InputEventCommand &command) override;
     void view3DAction(const View3DActionCommand &command) override;
     void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command) override;
+    void changeIds(const ChangeIdsCommand &command) override;
 
 private slots:
     void handleSelectionChanged(const QVariant &objs);
     void handleObjectPropertyCommit(const QVariant &object, const QVariant &propName);
     void handleObjectPropertyChange(const QVariant &object, const QVariant &propName);
+    void handleActiveSceneChange();
     void handleToolStateChanged(const QString &sceneId, const QString &tool,
                                 const QVariant &toolState);
     void handleView3DSizeChange();
@@ -113,8 +115,9 @@ private:
     QQuickItem *m_editView3DContentItem = nullptr;
     QSet<QObject *> m_view3Ds;
     QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node
-    QObject *m_active3DView;
+    QObject *m_active3DView = nullptr;
     QObject *m_active3DScene = nullptr;
+    bool m_active3DSceneUpdatePending = false;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;
