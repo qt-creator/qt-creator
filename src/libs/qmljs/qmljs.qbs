@@ -72,7 +72,7 @@ Project {
                 "qmljslexer.cpp", "qmljslexer_p.h",
                 "qmljsmemorypool_p.h",
                 "qmljsparser.cpp", "qmljsparser_p.h",
-                "qmljssourcelocation.cpp", "qmljssourcelocation_p.h",
+                "qmljssourcelocation_p.h",
             ]
         }
 
