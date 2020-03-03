@@ -67,6 +67,7 @@ public:
         case QtFatalMsg:
             return Severity::Error;
         case QtInfoMsg:
+        default:
             return Severity::MaybeWarning;
         }
     }
