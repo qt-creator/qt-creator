@@ -106,7 +106,7 @@ public:
     Target *addTargetForKit(Kit *kit);
     bool removeTarget(Target *target);
 
-    QList<Target *> targets() const;
+    const QList<Target *> targets() const;
     // Note: activeTarget can be 0 (if no targets are defined).
     Target *activeTarget() const;
     Target *target(Core::Id id) const;
