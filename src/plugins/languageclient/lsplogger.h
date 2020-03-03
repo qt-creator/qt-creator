@@ -31,8 +31,6 @@
 
 #include <languageserverprotocol/basemessage.h>
 
-class QWidget;
-
 namespace LanguageClient {
 
 struct LspLogMessage
