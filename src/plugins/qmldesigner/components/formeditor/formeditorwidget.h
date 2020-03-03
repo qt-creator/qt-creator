@@ -98,6 +98,7 @@ private:
     void changeRootItemWidth(const QString &widthText);
     void changeRootItemHeight(const QString &heightText);
     void changeBackgound(const QColor &color);
+    void registerActionAsCommand(QAction *action, Core::Id id, const QKeySequence &keysequence);
 
     QPointer<FormEditorView> m_formEditorView;
     QPointer<FormEditorGraphicsView> m_graphicsView;
@@ -115,6 +116,7 @@ private:
     QPointer<Option3DAction> m_option3DAction;
     QPointer<QAction> m_resetAction;
     QPointer<DocumentWarningWidget> m_documentErrorWidget;
+    Core::IContext *m_context = nullptr;
 };
 
 } // namespace QmlDesigner
