@@ -188,6 +188,8 @@ namespace ADS
         }
         DockingStateReader stateReader(state);
         stateReader.readNextStartElement();
+        if (!stateReader.readNextStartElement())
+            return false;
         if (stateReader.name() != "QtAdvancedDockingSystem") {
             return false;
         }
