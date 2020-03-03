@@ -54,8 +54,8 @@ struct DockManagerPrivate;
 class FloatingDockContainer;
 class FloatingDockContainerPrivate;
 class FloatingDragPreview;
-struct FloatingDragPreviewPrivate;
 class DockingStateReader;
+class FloatingDragPreviewPrivate;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
@@ -78,7 +78,7 @@ private:
     friend class FloatingDockContainerPrivate;
     friend class DockWidget;
     friend class FloatingDragPreview;
-    friend struct FloatingDragPreviewPrivate;
+    friend class FloatingDragPreviewPrivate;
 
 protected:
     /**

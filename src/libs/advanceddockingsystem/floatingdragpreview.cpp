@@ -56,8 +56,9 @@ namespace ADS
     /**
      * Private data class (pimpl)
      */
-    struct FloatingDragPreviewPrivate
+    class FloatingDragPreviewPrivate
     {
+    public:
         FloatingDragPreview *q;
         QWidget *m_content;
         DockAreaWidget *m_contentSourceArea = nullptr;
@@ -91,8 +92,7 @@ namespace ADS
             m_dockManager->dockAreaOverlay()->hideOverlay();
             q->close();
         }
-    };
-    // struct FloatingDragPreviewPrivate
+    }; // class FloatingDragPreviewPrivate
 
     void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &globalPosition)
     {

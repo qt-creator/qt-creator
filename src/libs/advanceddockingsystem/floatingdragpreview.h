@@ -43,7 +43,7 @@ namespace ADS {
 
 class DockWidget;
 class DockAreaWidget;
-struct FloatingDragPreviewPrivate;
+class FloatingDragPreviewPrivate;
 
 /**
  * A floating overlay is a temporary floating widget that is just used to
@@ -56,7 +56,7 @@ class FloatingDragPreview : public QWidget, public AbstractFloatingWidget
     Q_OBJECT
 private:
     FloatingDragPreviewPrivate *d;
-    friend struct FloatingDragPreviewPrivate;
+    friend class FloatingDragPreviewPrivate;
 
     /**
      * Cancel non opaque undocking if application becomes inactive

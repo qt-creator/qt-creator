@@ -106,7 +106,7 @@ private:
     friend struct DockAreaWidgetPrivate;
     friend struct DockWidgetTabPrivate;
     friend class FloatingDragPreview;
-    friend struct FloatingDragPreviewPrivate;
+    friend class FloatingDragPreviewPrivate;
     friend class DockAreaTitleBar;
 
 protected:
