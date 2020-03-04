@@ -58,10 +58,7 @@
     \list 1
         \li To generate debug symbols also for applications compiled in release
             mode, select \uicontrol {Projects}, and then select
-            \uicontrol Details next to \uicontrol {Build Steps} to view the
-            build steps.
-
-        \li Select the \uicontrol {Generate separate debug info} check box.
+            \uicontrol Enable in the \uicontrol {Separate debug info} field.
 
         \li Select \uicontrol Yes to recompile the project.
 
