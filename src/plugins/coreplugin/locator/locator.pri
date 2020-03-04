@@ -38,9 +38,7 @@ SOURCES += \
 FORMS += \
     $$PWD/urllocatorfilter.ui
 
-qtHaveModule(script) {
-    QT *= script
-
+minQtVersion(5, 14, 0) {
     DEFINES += WITH_JAVASCRIPTFILTER
 
     HEADERS += \

@@ -179,9 +179,8 @@ extend_qtc_plugin(Core
 )
 
 extend_qtc_plugin(Core
-  CONDITION TARGET Qt5::Script
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 5.14.0
   FEATURE_INFO "Script Locator filter"
-  DEPENDS Qt5::Script
   DEFINES WITH_JAVASCRIPTFILTER
   SOURCES
     locator/javascriptfilter.cpp locator/javascriptfilter.h

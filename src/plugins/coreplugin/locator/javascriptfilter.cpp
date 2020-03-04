@@ -27,7 +27,7 @@
 
 #include <QClipboard>
 #include <QGuiApplication>
-#include <QScriptEngine>
+#include <QJSEngine>
 
 namespace Core {
 namespace Internal {
@@ -48,8 +48,8 @@ JavaScriptFilter::JavaScriptFilter()
     m_abortTimer.setInterval(1000);
     connect(&m_abortTimer, &QTimer::timeout, this, [this] {
         m_aborted = true;
-        if (m_engine && m_engine->isEvaluating())
-            m_engine->abortEvaluation();
+        if (m_engine)
+            m_engine->setInterrupted(true);
     });
 }
 
@@ -63,6 +63,7 @@ void JavaScriptFilter::prepareSearch(const QString &entry)
 
     if (!m_engine)
         setupEngine();
+    m_engine->setInterrupted(false);
     m_aborted = false;
     m_abortTimer.start();
 }
@@ -118,7 +119,7 @@ void JavaScriptFilter::refresh(QFutureInterface<void> &future)
 
 void JavaScriptFilter::setupEngine()
 {
-    m_engine.reset(new QScriptEngine);
+    m_engine.reset(new QJSEngine);
     m_engine->evaluate(
                 "function abs(x) { return Math.abs(x); }\n"
                 "function acos(x) { return Math.acos(x); }\n"
