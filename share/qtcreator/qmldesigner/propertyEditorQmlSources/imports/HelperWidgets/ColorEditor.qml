@@ -88,6 +88,8 @@ Column {
             //Delay setting the color to keep ui responsive
             colorEditorTimer.restart()
         }
+
+        colorPalette.selectedColor = color
     }
 
     ColorLine {
@@ -178,6 +180,7 @@ Column {
                 }
                 gradientLine.isInValidState = true
                 colorEditor.originalColor = colorEditor.color
+                colorPalette.selectedColor = colorEditor.color
             }
         }
 
@@ -673,8 +676,10 @@ Column {
                             border.width: 1
                             border.color: "#555555"
 
-                            MouseArea {
+                            ToolTipArea {
                                 anchors.fill: parent
+
+                                tooltip: originalColorRectangle.color
                                 onClicked: {
                                     if (!colorEditor.transparent)
                                         colorEditor.color = colorEditor.originalColor
@@ -722,7 +727,6 @@ Column {
                         onDialogColorChanged: colorEditor.color = colorPalette.selectedColor
                     }
                 }
-
             }
         }
     }

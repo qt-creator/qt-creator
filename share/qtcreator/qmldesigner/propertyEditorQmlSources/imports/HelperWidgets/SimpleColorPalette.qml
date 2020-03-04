@@ -73,9 +73,12 @@ Item {
                 border.width: 1
             }
 
-            MouseArea {
+            ToolTipArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                tooltip: colorCode
+
                 onClicked: {
                     if ((mouse.button === Qt.LeftButton) && clickable)
                         selectedColor = colorRectangle.color
@@ -85,6 +88,7 @@ Item {
                         contextMenu.popup()
                 }
             }
+
             StudioControls.Menu {
                 id: contextMenu
                 StudioControls.MenuItem {
