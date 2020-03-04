@@ -38,6 +38,7 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QString>
@@ -1992,7 +1993,7 @@ public:
     }
 
 protected:
-    bool visit(ArrayMemberExpression *ast)
+    bool visit(ArrayMemberExpression *ast) override
     {
         if (IdentifierExpression *idExp = cast<IdentifierExpression *>(ast->base)) {
             if (idExp->name == QLatin1String("arguments"))
@@ -2002,8 +2003,12 @@ protected:
     }
 
     // don't go into nested functions
-    bool visit(Program *) { return false; }
-    bool visit(StatementList *) { return false; }
+    bool visit(Program *) override { return false; }
+    bool visit(StatementList *) override { return false; }
+
+    void throwRecursionDepthError() override {
+        qWarning("Warning: Hit maximum recursion error visiting AST in UsesArgumentsArray");
+    }
 };
 } // anonymous namespace
 

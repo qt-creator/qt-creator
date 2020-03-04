@@ -49,11 +49,11 @@ public:
         \returns the offset in the document for the start position of the given
                  source location.
      */
-    unsigned startOf(const QmlJS::AST::SourceLocation &loc) const;
+    unsigned startOf(const QmlJS::SourceLocation &loc) const;
 
     bool isCursorOn(QmlJS::AST::UiObjectMember *ast) const;
     bool isCursorOn(QmlJS::AST::UiQualifiedId *ast) const;
-    bool isCursorOn(QmlJS::AST::SourceLocation loc) const;
+    bool isCursorOn(QmlJS::SourceLocation loc) const;
 
 protected:
     QmlJSRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data);

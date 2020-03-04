@@ -67,9 +67,9 @@ private:
     friend class DockContainerWidget;
     friend class DockContainerWidgetPrivate;
     friend class DockWidgetTab;
-    friend struct DockWidgetPrivate;
+    friend class DockWidgetPrivate;
     friend class DockWidget;
-    friend struct DockManagerPrivate;
+    friend class DockManagerPrivate;
     friend class DockManager;
 
     void onTabCloseRequested(int index);

@@ -79,8 +79,8 @@ bool AddPropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializer)
 {
     QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
-    QmlJS::AST::SourceLocation endOfPreviousMember;
-    QmlJS::AST::SourceLocation startOfNextMember;
+    QmlJS::SourceLocation endOfPreviousMember;
+    QmlJS::SourceLocation startOfNextMember;
     bool previousMemberSemicolon = false;
     unsigned depth;
 

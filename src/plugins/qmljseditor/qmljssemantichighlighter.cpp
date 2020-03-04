@@ -46,6 +46,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
+#include <QDebug>
 #include <QTextDocument>
 #include <QThreadPool>
 
@@ -162,6 +163,11 @@ protected:
         m_stateNames += strLit->value.toString();
 
         return false;
+    }
+
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion depth while visitin AST in CollectStateNames");
     }
 };
 
@@ -451,6 +457,11 @@ protected:
             collectRanges(begin, length, format);
             addDelayedUse(SemanticHighlighter::Use(line, column, length, addFormat(format)));
         }
+    }
+
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit Maximum recursion depth when visiting AST in CollectionTask");
     }
 
 private:

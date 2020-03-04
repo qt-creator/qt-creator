@@ -30,7 +30,7 @@
 namespace ADS {
 
 class FloatingDockContainer;
-struct FloatingWidgetTitleBarPrivate;
+class FloatingWidgetTitleBarPrivate;
 
 /**
  * Titlebar for floating widgets to capture non client are mouse events.

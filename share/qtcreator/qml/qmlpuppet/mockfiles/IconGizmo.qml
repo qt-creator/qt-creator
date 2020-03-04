@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 import QtGraphicalEffects 1.12
 
-Node {
+Item {
     id: iconGizmo
 
     property Node activeScene: null
@@ -50,16 +50,13 @@ Node {
     signal positionCommit()
     signal clicked(Node node, bool multi)
 
-    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
-    rotation: targetNode ? targetNode.sceneRotation : Qt.vector3d(0, 0, 0)
     visible: activeScene === scene && (targetNode ? targetNode.visible : false)
 
     Overlay2D {
         id: iconOverlay
-        targetNode: iconGizmo
+        targetNode: iconGizmo.targetNode
         targetView: view3D
         visible: iconGizmo.visible && !isBehindCamera
-        parent: view3D
 
         Rectangle {
             id: iconRect

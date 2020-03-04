@@ -585,9 +585,11 @@ protected:
             out(QString::fromLatin1("\"%1\"").arg(ast->fileName.toString()));
         else
             accept(ast->importUri);
-        if (ast->versionToken.isValid()) {
+        if (ast->version) {
             out(" ");
-            out(ast->versionToken);
+            out(QString::number(ast->version->majorVersion).toUtf8());
+            out(".");
+            out(QString::number(ast->version->minorVersion).toUtf8());
         }
         if (!ast->importId.isNull()) {
             out(" as ", ast->asToken);
@@ -1338,6 +1340,10 @@ protected:
                 out(", ");
         }
         return false;
+    }
+
+    void throwRecursionDepthError() override {
+        out("/* ERROR: Hit recursion limit visiting AST, rewrite failed */");
     }
 };
 

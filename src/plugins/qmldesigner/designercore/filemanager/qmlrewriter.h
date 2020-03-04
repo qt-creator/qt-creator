@@ -51,20 +51,22 @@ public:
 protected:
     using QmlJS::AST::Visitor::visit;
 
+    void throwRecursionDepthError() override;
+
     virtual void replace(int offset, int length, const QString &text);
     virtual void move(const QmlDesigner::TextModifier::MoveInfo &moveInfo);
 
     QString textBetween(int startPosition, int endPosition) const;
-    QString textAt(const QmlJS::AST::SourceLocation &location) const;
+    QString textAt(const QmlJS::SourceLocation &location) const;
 
     int indentDepth() const
     { return textModifier()->indentDepth(); }
-    unsigned calculateIndentDepth(const QmlJS::AST::SourceLocation &position) const;
+    unsigned calculateIndentDepth(const QmlJS::SourceLocation &position) const;
     static QString addIndentation(const QString &text, unsigned depth);
     static QString removeIndentation(const QString &text, unsigned depth);
     static QString removeIndentationFromLine(const QString &text, int depth);
 
-    static QmlJS::AST::SourceLocation calculateLocation(QmlJS::AST::UiQualifiedId *id);
+    static QmlJS::SourceLocation calculateLocation(QmlJS::AST::UiQualifiedId *id);
     static bool isMissingSemicolon(QmlJS::AST::UiObjectMember *member);
     static bool isMissingSemicolon(QmlJS::AST::Statement *stmt);
 

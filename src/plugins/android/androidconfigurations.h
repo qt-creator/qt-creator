@@ -160,9 +160,12 @@ public:
     Utils::FilePath aaptToolPath() const;
 
     Utils::FilePath toolchainPath(const QtSupport::BaseQtVersion *qtVersion) const;
+    Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation) const;
     Utils::FilePath clangPath(const QtSupport::BaseQtVersion *qtVersion) const;
+    Utils::FilePath clangPathFromNdk(const Utils::FilePath &ndkLocation) const;
 
     Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi, const QtSupport::BaseQtVersion *qtVersion) const;
+    Utils::FilePath gdbPathFromNdk(const ProjectExplorer::Abi &abi, const Utils::FilePath &ndkLocation) const;
     Utils::FilePath makePath(const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation) const;
 
@@ -187,6 +190,11 @@ public:
 
     bool sdkFullyConfigured() const { return m_sdkFullyConfigured; };
     void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; };
+
+    bool isValidNdk(const QString &ndkLocation) const;
+    QStringList getCustomNdkList() const;
+    void addCustomNdk(const QString &customNdk);
+    void removeCustomNdk(const QString &customNdk);
 
 private:
     static QString getDeviceProperty(const Utils::FilePath &adbToolPath,
@@ -216,6 +224,7 @@ private:
     QStringList m_commonEssentialPkgs;
     SdkForQtVersions m_defaultSdkDepends;
     QList<SdkForQtVersions> m_specificQtVersions;
+    QStringList m_customNdkList;
     bool m_sdkFullyConfigured = false;
 
     //caches
@@ -237,6 +246,8 @@ public:
     static QString defaultDevice(ProjectExplorer::Project *project, const QString &abi); // serial number or avd name
     static void clearDefaultDevices(ProjectExplorer::Project *project);
     static void registerNewToolChains();
+    static void registerCustomToolChainsAndDebuggers();
+    static void removeUnusedDebuggers();
     static void removeOldToolChains();
     static void updateAutomaticKitList();
     static bool force32bitEmulator();

@@ -48,7 +48,7 @@ namespace ADS {
 
 class DockAreaTabBar;
 class DockAreaWidget;
-struct DockAreaTitleBarPrivate;
+class DockAreaTitleBarPrivate;
 
 using TitleBarButtonType = QToolButton;
 
@@ -106,7 +106,7 @@ class ADS_EXPORT DockAreaTitleBar : public QFrame
     Q_OBJECT
 private:
     DockAreaTitleBarPrivate *d; ///< private data (pimpl)
-    friend struct DockAreaTitleBarPrivate;
+    friend class DockAreaTitleBarPrivate;
 
     void onTabsMenuAboutToShow();
     void onCloseButtonClicked();

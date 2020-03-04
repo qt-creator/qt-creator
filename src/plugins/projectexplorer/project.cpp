@@ -340,6 +340,7 @@ void Project::setActiveTarget(Target *target)
         (target && Utils::contains(d->m_targets, target))) {
         d->m_activeTarget = target;
         emit activeTargetChanged(d->m_activeTarget);
+        ProjectExplorerPlugin::updateActions();
     }
 }
 
@@ -353,16 +354,16 @@ void Project::setNeedsInitialExpansion(bool needsExpansion)
     d->m_needsInitialExpansion = needsExpansion;
 }
 
-void Project::setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocumentPaths)
+void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths)
 {
-    QSet<Utils::FilePath> uniqueNewFiles = Utils::toSet(projectDocumentPaths);
+    QSet<Utils::FilePath> uniqueNewFiles = projectDocumentPaths;
     uniqueNewFiles.remove(projectFilePath()); // Make sure to never add the main project file!
 
     QSet<Utils::FilePath> existingWatches = Utils::transform<QSet>(d->m_extraProjectDocuments,
                                                                    &Core::IDocument::filePath);
 
-    QSet<Utils::FilePath> toAdd = uniqueNewFiles.subtract(existingWatches);
-    QSet<Utils::FilePath> toRemove = existingWatches.subtract(uniqueNewFiles);
+    const QSet<Utils::FilePath> toAdd = uniqueNewFiles - existingWatches;
+    const QSet<Utils::FilePath> toRemove = existingWatches - uniqueNewFiles;
 
     Utils::erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<Core::IDocument> &d) {
         return toRemove.contains(d->filePath());
@@ -400,7 +401,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     QStringList runconfigurationError;
 
     const Project * const project = newTarget->project();
-    foreach (BuildConfiguration *sourceBc, sourceTarget->buildConfigurations()) {
+    for (BuildConfiguration *sourceBc : sourceTarget->buildConfigurations()) {
         ProjectMacroExpander expander(project->projectFilePath(), project->displayName(),
                                       newTarget->kit(), sourceBc->displayName(),
                                       sourceBc->buildType());
@@ -422,7 +423,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
             SessionManager::setActiveBuildConfiguration(newTarget, bcs.first(), SetActive::NoCascade);
     }
 
-    foreach (DeployConfiguration *sourceDc, sourceTarget->deployConfigurations()) {
+    for (DeployConfiguration *sourceDc : sourceTarget->deployConfigurations()) {
         DeployConfiguration *newDc = DeployConfigurationFactory::clone(newTarget, sourceDc);
         if (!newDc) {
             deployconfigurationError << sourceDc->displayName();
@@ -439,7 +440,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
             SessionManager::setActiveDeployConfiguration(newTarget, dcs.first(), SetActive::NoCascade);
     }
 
-    foreach (RunConfiguration *sourceRc, sourceTarget->runConfigurations()) {
+    for (RunConfiguration *sourceRc : sourceTarget->runConfigurations()) {
         RunConfiguration *newRc = RunConfigurationFactory::clone(newTarget, sourceRc);
         if (!newRc) {
             runconfigurationError << sourceRc->displayName();

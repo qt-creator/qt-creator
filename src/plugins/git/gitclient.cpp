@@ -3598,6 +3598,7 @@ GitRemote::GitRemote(const QString &location) : Core::IVersionControl::RepoUrl(l
 
 void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const QString &change)
 {
+    QTC_ASSERT(!change.isEmpty(), return);
     menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), [workingDir, change] {
         m_instance->synchronousCherryPick(workingDir, change);
     });
@@ -3611,9 +3612,11 @@ void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const Q
             &QAction::triggered, [workingDir, change] {
         GitPlugin::startRebaseFromCommit(workingDir, change);
     });
-    menu->addAction(tr("&Log for Change %1").arg(change), [workingDir, change] {
+    QAction *logAction = menu->addAction(tr("&Log for Change %1").arg(change), [workingDir, change] {
         m_instance->log(workingDir, QString(), false, {change});
     });
+    if (change.contains(".."))
+        menu->setDefaultAction(logAction);
     menu->addAction(tr("Add &Tag for Change %1...").arg(change), [workingDir, change] {
         QString output;
         QString errorMessage;

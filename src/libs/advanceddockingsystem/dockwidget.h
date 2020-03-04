@@ -46,7 +46,7 @@ QT_END_NAMESPACE
 
 namespace ADS {
 
-struct DockWidgetPrivate;
+class DockWidgetPrivate;
 class DockWidgetTab;
 class DockManager;
 class DockContainerWidget;
@@ -63,7 +63,7 @@ class ADS_EXPORT DockWidget : public QFrame
     Q_OBJECT
 private:
     DockWidgetPrivate *d; ///< private data (pimpl)
-    friend struct DockWidgetPrivate;
+    friend class DockWidgetPrivate;
 
     /**
      * Adjusts the toolbar icon sizes according to the floating state
@@ -75,12 +75,12 @@ protected:
     friend class DockAreaWidget;
     friend class FloatingDockContainer;
     friend class DockManager;
-    friend struct DockManagerPrivate;
+    friend class DockManagerPrivate;
     friend class DockContainerWidgetPrivate;
     friend class DockAreaTabBar;
     friend class DockWidgetTab;
-    friend struct DockWidgetTabPrivate;
-    friend struct DockAreaTitleBarPrivate;
+    friend class DockWidgetTabPrivate;
+    friend class DockAreaTitleBarPrivate;
 
     /**
      * Assigns the dock manager that manages this dock widget

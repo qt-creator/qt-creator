@@ -78,7 +78,7 @@ void QmlJsTodoItemsScanner::processDocument(QmlJS::Document::Ptr doc)
 {
     QList<TodoItem> itemList;
 
-    foreach (const QmlJS::AST::SourceLocation &sourceLocation, doc->engine()->comments()) {
+    foreach (const QmlJS::SourceLocation &sourceLocation, doc->engine()->comments()) {
         QString source = doc->source().mid(sourceLocation.begin(), sourceLocation.length).trimmed();
 
         // Process every line

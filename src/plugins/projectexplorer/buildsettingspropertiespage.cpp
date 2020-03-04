@@ -244,7 +244,7 @@ QString BuildSettingsWidget::uniqueName(const QString & name)
     QString result = name.trimmed();
     if (!result.isEmpty()) {
         QStringList bcNames;
-        foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
+        for (BuildConfiguration *bc : m_target->buildConfigurations()) {
             if (bc == m_buildConfiguration)
                 continue;
             bcNames.append(bc->displayName());

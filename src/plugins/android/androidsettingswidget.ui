@@ -93,7 +93,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="SDKLocationLabel">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -106,21 +106,24 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="downloadSDKToolButton">
-        <property name="toolTip">
-         <string>Download Android SDK</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="ndkComboBoxLabel">
+       <widget class="QLabel" name="customNdkLabel">
         <property name="text">
-         <string>Android NDK list:</string>
+         <string>Add custom NDK:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
+      <item row="1" column="6">
+       <widget class="QToolButton" name="downloadNDKToolButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="4">
+       <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
+      </item>
+      <item row="0" column="5">
        <widget class="QToolButton" name="sdkToolsAutoDownloadButton">
         <property name="toolTip">
          <string>Automatically download Android SDK Tools to selected location.</string>
@@ -130,28 +133,73 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="5">
+      <item row="3" column="0" colspan="7">
        <widget class="Utils::DetailsWidget" name="androidDetailsWidget" native="true"/>
       </item>
-      <item row="1" column="4">
-       <widget class="QToolButton" name="downloadNDKToolButton">
+      <item row="2" column="0">
+       <widget class="QLabel" name="ndkComboBoxLabel">
         <property name="text">
-         <string/>
+         <string>Android NDK list:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true">
+      <item row="0" column="6">
+       <widget class="QToolButton" name="downloadSDKToolButton">
+        <property name="toolTip">
+         <string>Download Android SDK</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="3">
+       <widget class="Utils::PathChooser" name="customNdkPathChooser" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QPushButton" name="addCustomNdkButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="toolTip">
+         <string>Add the selected custom NDK. The toolchains and debuggers will be created automatically.</string>
+        </property>
+        <property name="text">
+         <string>Add</string>
+        </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="2" column="1" colspan="3">
        <widget class="QComboBox" name="ndkListComboBox"/>
+      </item>
+      <item row="2" column="4">
+       <widget class="QPushButton" name="removeCustomNdkButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Remove the selected custom NDK.</string>
+        </property>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -351,6 +399,10 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>Utils::DetailsWidget</class>

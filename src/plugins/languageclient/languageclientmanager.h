@@ -29,6 +29,7 @@
 #include "languageclient_global.h"
 #include "languageclientsettings.h"
 #include "locatorfilter.h"
+#include "lsplogger.h"
 
 #include <coreplugin/id.h>
 
@@ -84,6 +85,11 @@ public:
     static Client *clientForUri(const LanguageServerProtocol::DocumentUri &uri);
     static void reOpenDocumentWithClient(TextEditor::TextDocument *document, Client *client);
 
+    static void logBaseMessage(const LspLogMessage::MessageSender sender,
+                               const QString &clientName,
+                               const LanguageServerProtocol::BaseMessage &message);
+    static void showLogger();
+
 signals:
     void shutdownFinished();
 
@@ -118,5 +124,6 @@ private:
     WorkspaceLocatorFilter m_workspaceLocatorFilter;
     WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;
     WorkspaceMethodLocatorFilter m_workspaceMethodLocatorFilter;
+    LspLogger m_logger;
 };
 } // namespace LanguageClient

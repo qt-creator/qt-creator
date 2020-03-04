@@ -43,7 +43,7 @@ namespace ADS {
 
 class DockAreaWidget;
 class DockWidgetTab;
-struct DockAreaTabBarPrivate;
+class DockAreaTabBarPrivate;
 class DockAreaTitleBar;
 class FloatingDockContainer;
 class AbstractFloatingWidget;
@@ -62,7 +62,7 @@ class ADS_EXPORT DockAreaTabBar : public QScrollArea
     Q_OBJECT
 private:
     DockAreaTabBarPrivate *d; ///< private data (pimpl)
-    friend struct DockAreaTabBarPrivate;
+    friend class DockAreaTabBarPrivate;
     friend class DockAreaTitleBar;
 
     void onTabClicked();

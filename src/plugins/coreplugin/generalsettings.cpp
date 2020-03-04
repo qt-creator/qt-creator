@@ -85,7 +85,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
 
     m_ui.showShortcutsInContextMenus->setText(
                 tr("Show keyboard shortcuts in context menus (default: %1)")
-                .arg(QLatin1String(q->m_defaultShowShortcutsInContextMenu ? "on" : "off")));
+                .arg(q->m_defaultShowShortcutsInContextMenu ? tr("on") : tr("off")));
     m_ui.showShortcutsInContextMenus->setChecked(q->showShortcutsInContextMenu());
 #if (QT_VERSION < QT_VERSION_CHECK(5, 13, 0))
     m_ui.showShortcutsInContextMenus->setVisible(false);

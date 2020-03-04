@@ -4,7 +4,6 @@ add_qtc_library(QmlJS
   SOURCES
     jsoncheck.cpp jsoncheck.h
     parser/qmldirparser.cpp parser/qmldirparser_p.h
-    parser/qmlerror.cpp parser/qmlerror.h
     parser/qmljsast.cpp parser/qmljsast_p.h
     parser/qmljsastfwd_p.h
     parser/qmljsastvisitor.cpp parser/qmljsastvisitor_p.h
@@ -15,6 +14,7 @@ add_qtc_library(QmlJS
     parser/qmljslexer.cpp parser/qmljslexer_p.h
     parser/qmljsmemorypool_p.h
     parser/qmljsparser.cpp parser/qmljsparser_p.h
+    parser/qmljssourcelocation_p.h
     persistenttrie.cpp persistenttrie.h
     qmljs_global.h
     qmljsbind.cpp qmljsbind.h

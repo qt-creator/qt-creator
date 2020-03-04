@@ -89,7 +89,8 @@
     by default. To use the unified diff view instead, select the
     \uicontrol {Switch to Unified Diff Editor} (1) option from the toolbar.
     In both views, you can use context menu commands to apply, revert, stage,
-    and unstage hunks, as well as send them to a code pasting service.
+    and unstage chunks or selected lines, as well as send chunks to a code
+    pasting service.
 
     \section2 Viewing Git Log
 
@@ -186,11 +187,18 @@
     When you have finished filling out the commit page information, click on
     \uicontrol Commit to start committing.
 
-    The \uicontrol {Diff Selected Files} button brings up a diff view of the
-    files selected in the file list. Since the commit page is just another
-    editor, you can go back to it by closing the diff view. You can also switch
-    to an open diff view by selecting it in the \uicontrol {Open Documents} view
-    in the sidebar.
+    The \uicontrol {Diff Selected Files} button opens a \l{Viewing Git Diff}
+    {diff view} of the files selected in the file list. Select
+    \uicontrol {Stage Chunk} in the context menu to stage a chunk or
+    \uicontrol {Stage Selection} to stage the selected lines.
+
+    To unstage chunks or selected lines, select \uicontrol {Unstage Chunk} or
+    \uicontrol {Unstage Selection} in the context menu. To revert the changes
+    in a chunk, select \uicontrol {Revert Chunk}.
+
+    The commit page is just another editor, and therefore you return to it when
+    you close the diff view. You can also switch to an open diff view by
+    selecting it in the \uicontrol {Open Documents} view in the sidebar.
 
     \section2 Amending Commits
 

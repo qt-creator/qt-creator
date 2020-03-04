@@ -62,10 +62,11 @@ namespace ADS
     /**
      * Private data class of FloatingDockContainer class (pimpl)
      */
-    struct FloatingDockContainerPrivate
+    class FloatingDockContainerPrivate
     {
+    public:
         FloatingDockContainer *q;
-        DockContainerWidget *m_dockContainer;
+        DockContainerWidget *m_dockContainer = nullptr;
         unsigned int m_zOrderIndex = ++zOrderCounter;
         QPointer<DockManager> m_dockManager;
         eDragState m_draggingState = DraggingInactive;
@@ -125,8 +126,7 @@ namespace ADS
                 q->setWindowIcon(QApplication::windowIcon());
             }
         }
-    };
-    // struct FloatingDockContainerPrivate
+    }; // class FloatingDockContainerPrivate
 
     FloatingDockContainerPrivate::FloatingDockContainerPrivate(FloatingDockContainer *parent)
         : q(parent)

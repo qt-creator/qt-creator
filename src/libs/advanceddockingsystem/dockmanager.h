@@ -66,16 +66,16 @@ const char STARTUP_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/StartupWorkspace";
 const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLastWorkspace";
 } // namespace Constants
 
-struct DockManagerPrivate;
+class DockManagerPrivate;
 class FloatingDockContainer;
-struct FloatingDockContainerPrivate;
+class FloatingDockContainerPrivate;
 class DockComponentsFactory;
 class DockContainerWidget;
 class DockContainerWidgetPrivate;
 class DockOverlay;
 class DockAreaTabBar;
 class DockWidgetTab;
-struct DockWidgetTabPrivate;
+class DockWidgetTabPrivate;
 struct DockAreaWidgetPrivate;
 class IconProvider;
 
@@ -96,17 +96,17 @@ class ADS_EXPORT DockManager : public DockContainerWidget
     Q_OBJECT
 private:
     DockManagerPrivate *d; ///< private data (pimpl)
-    friend struct DockManagerPrivate;
+    friend class DockManagerPrivate;
     friend class FloatingDockContainer;
-    friend struct FloatingDockContainerPrivate;
+    friend class FloatingDockContainerPrivate;
     friend class DockContainerWidget;
     friend class DockContainerWidgetPrivate;
     friend class DockAreaTabBar;
     friend class DockWidgetTab;
     friend struct DockAreaWidgetPrivate;
-    friend struct DockWidgetTabPrivate;
+    friend class DockWidgetTabPrivate;
     friend class FloatingDragPreview;
-    friend struct FloatingDragPreviewPrivate;
+    friend class FloatingDragPreviewPrivate;
     friend class DockAreaTitleBar;
 
 protected:

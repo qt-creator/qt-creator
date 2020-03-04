@@ -162,7 +162,7 @@ public:
 
     // Set project files that will be watched and trigger the same callback
     // as the main project file.
-    void setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocumentPaths);
+    void setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths);
 
     void setDisplayName(const QString &name);
     void setProjectLanguage(Core::Id id, bool enabled);

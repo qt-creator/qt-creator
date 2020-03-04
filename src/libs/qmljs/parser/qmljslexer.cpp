@@ -25,17 +25,19 @@
 
 #include "qmljslexer_p.h"
 #include "qmljsengine_p.h"
-#include "qmljsmemorypool_p.h"
 #include "qmljskeywords_p.h"
+
+#include "qmljs/parser/qmljsdiagnosticmessage_p.h"
+#include "qmljs/parser/qmljsmemorypool_p.h"
 
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qvarlengtharray.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/QScopedValueRollback>
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
-QT_END_NAMESPACE
+QT_QML_END_NAMESPACE
 
 using namespace QmlJS;
 
@@ -564,7 +566,14 @@ again:
 
     case ']': return T_RBRACKET;
     case '[': return T_LBRACKET;
-    case '?': return T_QUESTION;
+    case '?': {
+        if (_char == QLatin1Char('?')) {
+            scanChar();
+            return T_QUESTION_QUESTION;
+        }
+
+        return T_QUESTION;
+    }
 
     case '>':
         if (_char == QLatin1Char('>')) {
@@ -695,6 +704,8 @@ again:
 
     case ')': return T_RPAREN;
     case '(': return T_LPAREN;
+
+    case '@': return T_AT;
 
     case '&':
         if (_char == QLatin1Char('=')) {

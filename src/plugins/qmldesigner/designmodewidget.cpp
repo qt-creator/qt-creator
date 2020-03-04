@@ -182,21 +182,11 @@ QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
 void DesignModeWidget::readSettings() // readPerspectives
 {
     return;
-
-    QSettings *settings = Core::ICore::settings();
-
-    settings->beginGroup("Bauhaus");
-    settings->endGroup();
 }
 
 void DesignModeWidget::saveSettings() // savePerspectives
 {
     return;
-
-    QSettings *settings = Core::ICore::settings();
-
-    settings->beginGroup("Bauhaus");
-    settings->endGroup();
 }
 
 void DesignModeWidget::enableWidgets()

@@ -1,0 +1,21 @@
+diff -u parser-genOut/qmljs.g parser/qmljs.g
+--- parser-genOut/qmljs.g	2020-03-02 13:53:50.000000000 +0100
++++ parser/qmljs.g	2020-03-02 13:55:50.000000000 +0100
+@@ -379,7 +379,7 @@
+     inline DiagnosticMessage diagnosticMessage() const
+     {
+         for (const DiagnosticMessage &d : diagnostic_messages) {
+-            if (d.type != QtWarningMsg)
++            if (d.kind != Severity::Warning)
+                 return d;
+         }
+ 
+@@ -423,7 +423,7 @@
+         DiagnosticMessage error;
+         error.loc = location;
+         error.message = message;
+-        error.type = kind;
++        error.kind = DiagnosticMessage::qtMsgTypeToKind(kind);
+         return error;
+     }
+ 

@@ -38,12 +38,10 @@
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchainconfigwidget.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <texteditor/textdocument.h>
 
@@ -439,12 +437,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
-
     setBuildSystemCreator([](Target *t) { return new CompilationDatabaseBuildSystem(t); });
-
-    m_kit.reset(KitManager::defaultKit()->clone());
-    addTargetForKit(m_kit.get());
-
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
 }

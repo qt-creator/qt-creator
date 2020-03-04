@@ -93,7 +93,7 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
     if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
         if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
             Utils::ChangeSet changeSet;
-            foreach (const QmlJS::AST::SourceLocation &loc,
+            foreach (const QmlJS::SourceLocation &loc,
                     document->semanticInfo().idLocations.value(oldId)) {
                 changeSet.replace(loc.begin(), loc.end(), newId);
             }

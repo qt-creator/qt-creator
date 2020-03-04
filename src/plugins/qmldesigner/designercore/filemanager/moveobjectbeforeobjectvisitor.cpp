@@ -147,7 +147,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
         moveInfo.prefixToInsert = QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
         moveInfo.suffixToInsert = separator + QStringLiteral("\n\n");
     } else {
-        const QmlJS::AST::SourceLocation insertionPoint = lastParentLocation();
+        const QmlJS::SourceLocation insertionPoint = lastParentLocation();
         Q_ASSERT(insertionPoint.isValid());
         moveInfo.destination = insertionPoint.offset;
         int dummy = -1;
@@ -169,7 +169,7 @@ QmlJS::AST::Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
         return nullptr;
 }
 
-QmlJS::AST::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
+QmlJS::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
 {
     dump(movingObjectParents);
 
@@ -179,5 +179,5 @@ QmlJS::AST::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() c
     else if (auto initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent))
         return initializer->rbracketToken;
     else
-        return QmlJS::AST::SourceLocation();
+        return QmlJS::SourceLocation();
 }

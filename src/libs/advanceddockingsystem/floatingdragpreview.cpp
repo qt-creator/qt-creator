@@ -56,16 +56,16 @@ namespace ADS
     /**
      * Private data class (pimpl)
      */
-    struct FloatingDragPreviewPrivate
+    class FloatingDragPreviewPrivate
     {
+    public:
         FloatingDragPreview *q;
-        QWidget *m_content;
+        QWidget *m_content = nullptr;
         DockAreaWidget *m_contentSourceArea = nullptr;
         DockContainerWidget *m_contenSourceContainer = nullptr;
         QPoint m_dragStartMousePosition;
-        DockManager *m_dockManager;
+        DockManager *m_dockManager = nullptr;
         DockContainerWidget *m_dropContainer = nullptr;
-        qreal m_windowOpacity;
         bool m_hidden = false;
         QPixmap m_contentPreviewPixmap;
 
@@ -91,8 +91,7 @@ namespace ADS
             m_dockManager->dockAreaOverlay()->hideOverlay();
             q->close();
         }
-    };
-    // struct FloatingDragPreviewPrivate
+    }; // class FloatingDragPreviewPrivate
 
     void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &globalPosition)
     {

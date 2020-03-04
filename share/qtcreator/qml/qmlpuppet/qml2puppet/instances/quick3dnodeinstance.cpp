@@ -129,7 +129,7 @@ void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyT
                     checkChildren(node);
                 }
             }
-            if (nodeType == QQuick3DObject::Model)
+            if (nodeType == QQuick3DObject::Type::Model)
                 setPropertyVariant("pickable", enable); // allow 3D objects to receive mouse clicks
         }
     }

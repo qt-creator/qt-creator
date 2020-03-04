@@ -1452,7 +1452,7 @@ void NodeInstanceView::library3DItemDropped(const Drop3DLibraryItemCommand &comm
     QDataStream stream(command.itemData());
     ItemLibraryEntry itemLibraryEntry;
     stream >> itemLibraryEntry;
-    QmlVisualNode::createQmlVisualNode(this, itemLibraryEntry, command.sceneRootId(), {});
+    QmlVisualNode::createQml3DNode(this, itemLibraryEntry, command.sceneRootId(), {});
 }
 
 void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)

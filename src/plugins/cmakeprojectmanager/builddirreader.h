@@ -63,7 +63,7 @@ public:
 
     virtual bool isParsing() const = 0;
 
-    virtual QVector<Utils::FilePath> takeProjectFilesToWatch() = 0;
+    virtual QSet<Utils::FilePath> projectFilesToWatch() const = 0;
     virtual QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) = 0;
     virtual CMakeConfig takeParsedConfiguration(QString &errorMessage) = 0;
     virtual std::unique_ptr<CMakeProjectNode> generateProjectTree(

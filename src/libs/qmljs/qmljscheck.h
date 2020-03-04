@@ -99,12 +99,13 @@ protected:
 
     void endVisit(QmlJS::AST::UiObjectInitializer *) override;
 
+    void throwRecursionDepthError() override;
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,
                         AST::UiObjectInitializer *initializer);
     const Value *checkScopeObjectMember(const AST::UiQualifiedId *id);
     void checkAssignInCondition(AST::ExpressionNode *condition);
-    void checkCaseFallthrough(AST::StatementList *statements, AST::SourceLocation errorLoc, AST::SourceLocation nextLoc);
+    void checkCaseFallthrough(AST::StatementList *statements, SourceLocation errorLoc, SourceLocation nextLoc);
     void checkProperty(QmlJS::AST::UiQualifiedId *);
     void checkNewExpression(AST::ExpressionNode *node);
     void checkBindingRhs(AST::Statement *statement);
@@ -112,7 +113,7 @@ private:
 
     void addMessages(const QList<StaticAnalysis::Message> &messages);
     void addMessage(const StaticAnalysis::Message &message);
-    void addMessage(StaticAnalysis::Type type, const AST::SourceLocation &location,
+    void addMessage(StaticAnalysis::Type type, const SourceLocation &location,
                     const QString &arg1 = QString(), const QString &arg2 = QString());
 
     void scanCommentsForAnnotations();
@@ -143,7 +144,7 @@ private:
     class MessageTypeAndSuppression
     {
     public:
-        AST::SourceLocation suppressionSource;
+        SourceLocation suppressionSource;
         StaticAnalysis::Type type;
         bool wasSuppressed;
     };

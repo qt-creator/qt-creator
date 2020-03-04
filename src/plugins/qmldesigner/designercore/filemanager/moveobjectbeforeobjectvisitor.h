@@ -58,7 +58,7 @@ private:
     void doMove();
 
     QmlJS::AST::Node *movingObjectParent() const;
-    QmlJS::AST::SourceLocation lastParentLocation() const;
+    QmlJS::SourceLocation lastParentLocation() const;
 
 private:
     QStack<QmlJS::AST::Node *> parents;

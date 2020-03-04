@@ -13,6 +13,7 @@
         <file>mockfiles/Arrow.qml</file>
         <file>mockfiles/AutoScaleHelper.qml</file>
         <file>mockfiles/MoveGizmo.qml</file>
+        <file>mockfiles/CameraFrustum.qml</file>
         <file>mockfiles/CameraGizmo.qml</file>
         <file>mockfiles/LightGizmo.qml</file>
         <file>mockfiles/IconGizmo.qml</file>

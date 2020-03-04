@@ -48,7 +48,7 @@ QT_END_NAMESPACE
 
 namespace ADS {
 
-struct DockOverlayPrivate;
+class DockOverlayPrivate;
 class DockOverlayCross;
 
 /**
@@ -60,7 +60,7 @@ class ADS_EXPORT DockOverlay : public QFrame
     Q_OBJECT
 private:
     DockOverlayPrivate *d; //< private data class
-    friend struct DockOverlayPrivate;
+    friend class DockOverlayPrivate;
     friend class DockOverlayCross;
 
 public:
@@ -130,7 +130,7 @@ protected:
     virtual void hideEvent(QHideEvent *event) override;
 };
 
-struct DockOverlayCrossPrivate;
+class DockOverlayCrossPrivate;
 /**
  * DockOverlayCross shows a cross with 5 different drop area possibilities.
  * I could have handled everything inside DockOverlay, but because of some
@@ -176,7 +176,7 @@ public:
 
 private:
     DockOverlayCrossPrivate *d;
-    friend struct DockOverlayCrossPrivate;
+    friend class DockOverlayCrossPrivate;
     friend class DockOverlay;
 
 protected:

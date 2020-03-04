@@ -122,8 +122,8 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
     const QRect &gRect = overlayRect();
     const QRect &hRect = handleRect();
 
-    const int marginX = 3;
-    const int marginH = -2 * marginX + 1;
+    constexpr int marginX = 3;
+    constexpr int marginH = -2 * marginX + 1;
     const QRect aboveHandleRect = QRect(gRect.x() + marginX,
                                         gRect.y(),
                                         gRect.width() + marginH,

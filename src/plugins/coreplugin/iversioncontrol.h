@@ -36,6 +36,8 @@
 #include <QObject>
 #include <QString>
 
+QT_FORWARD_DECLARE_CLASS(QMenu);
+
 namespace Core {
 
 class ShellCommand;
@@ -225,6 +227,10 @@ public:
                                                        const Utils::FilePath &baseDirectory,
                                                        const QString &localName,
                                                        const QStringList &extraArgs);
+
+    virtual void fillLinkContextMenu(QMenu *menu,
+                                     const QString &workingDirectory,
+                                     const QString &reference);
 
     class CORE_EXPORT RepoUrl {
     public:

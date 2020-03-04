@@ -310,6 +310,14 @@ bool JsonCheck::visit(StringLiteral *ast)
     return false;
 }
 
+void JsonCheck::throwRecursionDepthError()
+{
+    analysis()->m_messages.append(Message(ErrHitMaximumRecursion,
+                                          SourceLocation(),
+                                          QString(), QString(), false));
+
+}
+
 static QString formatExpectedTypes(QStringList all)
 {
     all.removeDuplicates();

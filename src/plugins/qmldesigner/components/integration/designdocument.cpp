@@ -269,6 +269,14 @@ void DesignDocument::changeToDocumentModel()
     viewManager().attachViewsExceptRewriterAndComponetView();
 }
 
+bool DesignDocument::isQtForMCUsProject() const
+{
+    if (m_currentTarget)
+        return m_currentTarget->additionalData("CustomQtForMCUs").toBool();
+
+    return true;
+}
+
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)
 {
     m_inFileComponentTextModifier.reset(textModifer);

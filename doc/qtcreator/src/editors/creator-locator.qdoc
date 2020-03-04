@@ -33,7 +33,7 @@
 
     You can find the locator in the bottom left of the \QC window.
 
-    \image qtcreator-locator.png
+    \image qtcreator-locator.png "List of locator filters"
 
     To activate the locator:
 
@@ -59,7 +59,7 @@
 
         \li Start typing the filename.
 
-            \image qtcreator-locator-open.png
+            \image qtcreator-locator-open.png "List of files found in the locator"
 
         \li Move to the filename in the list and press \key Enter.
 
@@ -148,6 +148,9 @@
 
         \li Triggering menu items from the main menu (\c {t})
 
+        \li Searching for issues from the \l{https://bugreports.qt.io/}
+            {Qt Project Bug Tracker} (\c bug).
+
         \if defined(qtcreator)
         \li Running external tools (\c x)
         \li Using CMake to build the project for the current run configuration
@@ -184,7 +187,7 @@
 
             The locator lists the results.
 
-            \image qtcreator-navigate-popup.png
+            \image qtcreator-locator-example.png "List of files matching the locator filter"
 
     \endlist
 
@@ -265,7 +268,7 @@
 
         \li Select \uicontrol Add to add a new entry to the list.
 
-            \image qtcreator-add-online-doc.png "Filter Configuration dialog"
+            \image qtcreator-add-online-doc.png "List of URLs in Filter Configuration dialog"
 
         \li Double-click the new entry to specify a URL and a search command.
             For example, \c {http://www.google.com/search?q=%1}.
@@ -276,49 +279,48 @@
 
     \section1 Creating Locator Filters
 
+    You can create custom locator filters for finding in a directory structure
+    or on the web.
+
     To quickly access files not directly mentioned in your project, you can
-    create your own locator filters. That way you can locate files in a
+    create your own directory filters. That way you can locate files in a
     directory structure you have defined.
 
-    To create a locator filter:
+    To create custom locator filters:
 
     \list 1
 
         \li In the locator, select \uicontrol Options >
             \uicontrol Configure to open the \uicontrol Locator options.
 
-            \image qtcreator-locator-customize.png
+            \image qtcreator-locator-customize.png "Locator options tab"
 
-        \li Click \uicontrol Add.
+        \li Select \uicontrol Add > \uicontrol {Files in Directories} to add
+            a directory filter or \uicontrol {URL Template} to add a URL
+            filter. The settings to specify depend on the filter type.
 
-        \li In the \uicontrol {Filter Configuration} dialog:
+            \image qtcreator-locator-generic-directory-filter.png "Filter Configuration dialog"
 
-                \image qtcreator-navigate-customfilter.png
+        \li In the \uicontrol Name field, enter a name for your filter.
 
-        \list
+        \li In the \uicontrol Directories field, select at least one
+            directory. The locator searches directories recursively.
 
-            \li In the \uicontrol Name field, enter a name for your filter.
+        \li In the \uicontrol {File pattern} field, specify file patterns to
+            restrict the search to files that match the pattern.
+            Use a comma separated list. For example, to search for all
+            \c {.qml} and \c {.ui.qml} files, enter \c{*.qml,*.ui.qml}
 
-            \li In the \uicontrol Directories field, select at least one
-                directory. The locator searches directories recursively.
+        \li In the \uicontrol {Exclusion pattern} field, specify file
+            patterns to omit files from the search.
 
-            \li In the \uicontrol {File pattern} field, specify file patterns to
-                restrict the search to files that match the pattern.
-                Use a comma separated list. For example, to search for all
-                \c {.qml} and \c {.ui.qml} files, enter \c{*.qml,*.ui.qml}
+        \li In the \uicontrol Prefix field, specify the prefix string.
 
-            \li In the \uicontrol {Exclusion pattern} field, specify file
-                patterns to omit files from the search.
+            To implicitly include the filter even when not typing a prefix
+            as a part of the search string, select
+            \uicontrol {Include by default}.
 
-            \li In the \uicontrol Prefix field, specify the prefix string.
-
-                To implicitly include the filter even when not typing a prefix
-                as a part of the search string, select
-                \uicontrol {Include by default}.
-
-        \endlist
-
-        \li Click \uicontrol OK.
+        \li Select \uicontrol OK.
 
     \endlist
 

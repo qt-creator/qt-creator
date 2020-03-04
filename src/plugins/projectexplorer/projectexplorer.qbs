@@ -142,6 +142,7 @@ Project {
                 "sessiondialog.cpp", "sessiondialog.h", "sessiondialog.ui",
                 "showineditortaskhandler.cpp", "showineditortaskhandler.h",
                 "showoutputtaskhandler.cpp", "showoutputtaskhandler.h",
+                "simpleprojectwizard.cpp", "simpleprojectwizard.h",
                 "target.cpp", "target.h",
                 "targetsettingspanel.cpp", "targetsettingspanel.h",
                 "targetsetuppage.cpp", "targetsetuppage.h",

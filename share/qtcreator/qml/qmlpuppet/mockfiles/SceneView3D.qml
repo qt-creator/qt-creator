@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.12
-import QtQuick3D 1.14
+import QtQuick3D 1.15
 
 View3D {
     id: sceneView
@@ -74,18 +74,18 @@ View3D {
         // point.
         PerspectiveCamera {
             id: scenePerspectiveCamera
-            z: -600
+            z: 600
             y: 600
-            rotation.x: 45
+            eulerRotation.x: -45
             clipFar: 100000
             clipNear: 1
         }
 
         OrthographicCamera {
             id: sceneOrthoCamera
-            z: -600
+            z: 600
             y: 600
-            rotation.x: 45
+            eulerRotation.x: -45
             clipFar: 100000
             clipNear: -10000
         }

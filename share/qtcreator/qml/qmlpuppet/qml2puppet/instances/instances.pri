@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD/
 
-qtHaveModule(quick3d) {
+versionAtLeast(QT_VERSION, 5.15.0):qtHaveModule(quick3d) {
     QT *= quick3d-private
     DEFINES *= QUICK3D_MODULE
 }

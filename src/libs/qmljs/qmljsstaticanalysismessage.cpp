@@ -26,6 +26,7 @@
 #include "qmljsstaticanalysismessage.h"
 #include "qmljsconstants.h"
 #include "parser/qmljsengine_p.h"
+#include "parser/qmljsdiagnosticmessage_p.h"
 
 #include <utils/qtcassert.h>
 
@@ -242,6 +243,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
             tr("A State cannot have a child item (%1)."), 1);
     newMsg(WarnDuplicateImport, Warning,
            tr("Duplicate import (%1)."), 1);
+    newMsg(ErrHitMaximumRecursion, Error,
+           tr("Hit Maximum recursion limit when visiting AST"));
 }
 
 } // anonymous namespace
@@ -258,7 +261,7 @@ Message::Message()
 {}
 
 Message::Message(Type type,
-                 AST::SourceLocation location,
+                 SourceLocation location,
                  const QString &arg1,
                  const QString &arg2,
                  bool appendTypeId)

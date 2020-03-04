@@ -350,7 +350,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
                     if (file.isExecutable())
                         validFolders << file.remoteDirectory();
                 }
-                foreach (BuildConfiguration *config, target->buildConfigurations())
+                for (BuildConfiguration *config : target->buildConfigurations())
                     validFolders << config->buildDirectory().toString();
             }
         }

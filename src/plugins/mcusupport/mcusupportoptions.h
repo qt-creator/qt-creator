@@ -30,6 +30,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
 
+namespace Core {
+class Id;
+}
+
 namespace Utils {
 class PathChooser;
 class InfoLabel;
@@ -37,6 +41,7 @@ class InfoLabel;
 
 namespace ProjectExplorer {
 class Kit;
+class ToolChain;
 }
 
 namespace McuSupport {
@@ -55,6 +60,7 @@ public:
 
     McuPackage(const QString &label, const QString &defaultPath, const QString &detectionPath,
                const QString &settingsKey);
+    virtual ~McuPackage() = default;
 
     QString path() const;
     QString label() const;
@@ -95,17 +101,38 @@ private:
     Status m_status = InvalidPath;
 };
 
+class McuToolChainPackage : public McuPackage
+{
+public:
+    enum Type {
+        TypeArmGcc,
+        TypeIAR,
+        TypeKEIL
+    };
+
+    McuToolChainPackage(const QString &label, const QString &defaultPath,
+                        const QString &detectionPath, const QString &settingsKey, Type type);
+
+    Type type() const;
+    ProjectExplorer::ToolChain *toolChain(Core::Id language) const;
+    QString cmakeToolChainFileName() const;
+    QVariant debuggerId() const;
+
+private:
+    const Type m_type;
+};
+
 class McuTarget : public QObject
 {
     Q_OBJECT
 
 public:
-    McuTarget(const QString &vendor, const QString &platform, const QVector<McuPackage *> &packages);
+    McuTarget(const QString &vendor, const QString &platform, const QVector<McuPackage *> &packages,
+              McuToolChainPackage *toolChainPackage);
 
     QString vendor() const;
     QVector<McuPackage *> packages() const;
-    void setToolChainFile(const QString &toolChainFile);
-    QString toolChainFile() const;
+    McuToolChainPackage *toolChainPackage() const;
     QString qulPlatform() const;
     void setColorDepth(int colorDepth);
     int colorDepth() const;
@@ -115,7 +142,7 @@ private:
     const QString m_vendor;
     const QString m_qulPlatform;
     const QVector<McuPackage*> m_packages;
-    QString m_toolChainFile;
+    McuToolChainPackage *m_toolChainPackage;
     int m_colorDepth = -1;
 };
 
@@ -129,7 +156,6 @@ public:
 
     QVector<McuPackage*> packages;
     QVector<McuTarget*> mcuTargets;
-    McuPackage *armGccPackage = nullptr;
     McuPackage *qtForMCUsSdkPackage = nullptr;
 
     QString kitName(const McuTarget* mcuTarget) const;

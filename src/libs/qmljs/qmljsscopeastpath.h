@@ -51,8 +51,9 @@ protected:
     bool visit(AST::FunctionDeclaration *node) override;
     bool visit(AST::FunctionExpression *node) override;
 
+    void throwRecursionDepthError() override;
 private:
-    bool containsOffset(AST::SourceLocation start, AST::SourceLocation end);
+    bool containsOffset(SourceLocation start, SourceLocation end);
 
     QList<AST::Node *> _result;
     Document::Ptr _doc;

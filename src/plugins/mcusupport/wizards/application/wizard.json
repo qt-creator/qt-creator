@@ -48,6 +48,11 @@
                     "openAsProject": true
                 },
                 {
+                    "source": "project.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/%{ProjectName}.qmlproject",
+                    "openInEditor": false
+                },
+                {
                     "source": "main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFile}",
                     "openInEditor": true

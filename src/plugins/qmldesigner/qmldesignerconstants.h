@@ -48,6 +48,11 @@ const char TOGGLE_RIGHT_SIDEBAR[] = "QmlDesigner.ToggleRightSideBar";
 const char TOGGLE_STATES_EDITOR[] = "QmlDesigner.ToggleStatesEditor";
 const char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
 const char EXPORT_AS_IMAGE[] = "QmlDesigner.ExportAsImage";
+const char FORMEDITOR_REFRESH[] = "QmlDesigner.FormEditor.Refresh";
+const char FORMEDITOR_SNAPPING[] = "QmlDesigner.FormEditor.Snapping";
+const char FORMEDITOR_NO_SNAPPING[] = "QmlDesigner.FormEditor.NoSnapping";
+const char FORMEDITOR_NO_SNAPPING_AND_ANCHORING[] = "QmlDesigner.FormEditor.NoSnappingAndAnchoring";
+const char FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE[] = "QmlDesigner.FormEditor.ShowBoundingRectangle";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";

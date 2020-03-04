@@ -642,9 +642,8 @@ FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescr
 
 void FontSettingsPage::setFontZoom(int zoom)
 {
-    auto w = static_cast<FontSettingsPageWidget *>(widget());
-    w->m_ui.zoomSpinBox->setValue(zoom);
-    w->saveSettings();
+    if (m_widget)
+        static_cast<FontSettingsPageWidget *>(m_widget.data())->m_ui.zoomSpinBox->setValue(zoom);
 }
 
 } // TextEditor

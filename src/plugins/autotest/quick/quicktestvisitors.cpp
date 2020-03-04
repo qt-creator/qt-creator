@@ -33,6 +33,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QDebug>
+
 namespace Autotest {
 namespace Internal {
 
@@ -175,6 +177,11 @@ bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
         m_expectTestCaseName = false;
     }
     return false;
+}
+
+void TestQmlVisitor::throwRecursionDepthError()
+{
+    qWarning("Warning: Hit maximum recursion depth while visiting AST in TestQmlVisitor");
 }
 
 /************************************** QuickTestAstVisitor *************************************/

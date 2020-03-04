@@ -43,6 +43,8 @@ protected:
     bool visit(QmlJS::AST::UiObjectBinding *ast) override;
     bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
+    void throwRecursionDepthError() override;
+
 private:
     QmlJS::Document::MutablePtr m_doc;
     quint32 m_offset = 0;

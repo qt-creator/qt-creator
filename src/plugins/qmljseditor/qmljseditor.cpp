@@ -86,6 +86,7 @@
 #include <QTextCodec>
 #include <QTimer>
 #include <QTreeView>
+#include <QDebug>
 
 enum {
     UPDATE_USES_DEFAULT_INTERVAL = 150,
@@ -230,7 +231,7 @@ bool QmlJSEditorWidget::isOutlineCursorChangesBlocked()
 void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
 {
     QModelIndex index = m_outlineCombo->view()->currentIndex();
-    AST::SourceLocation location = m_qmlJsEditorDocument->outlineModel()->sourceLocation(index);
+    SourceLocation location = m_qmlJsEditorDocument->outlineModel()->sourceLocation(index);
 
     if (!location.isValid())
         return;
@@ -332,7 +333,7 @@ void QmlJSEditorWidget::updateUses()
         return;
 
     QList<QTextEdit::ExtraSelection> selections;
-    foreach (const AST::SourceLocation &loc,
+    foreach (const SourceLocation &loc,
              m_qmlJsEditorDocument->semanticInfo().idLocations.value(wordUnderCursor())) {
         if (! loc.isValid())
             continue;
@@ -431,6 +432,11 @@ protected:
                 }
             }
         }
+    }
+
+    void throwRecursionDepthError() override
+    {
+        qWarning("Warning: Hit maximum recursion depth visiting AST in SelectedElement");
     }
 };
 
@@ -941,7 +947,7 @@ QModelIndex QmlJSEditorWidget::indexForPosition(unsigned cursorPosition, const Q
     const int rowCount = model->rowCount(rootIndex);
     for (int i = 0; i < rowCount; ++i) {
         QModelIndex childIndex = model->index(i, 0, rootIndex);
-        AST::SourceLocation location = model->sourceLocation(childIndex);
+        SourceLocation location = model->sourceLocation(childIndex);
 
         if ((cursorPosition >= location.offset)
               && (cursorPosition <= location.offset + location.length)) {

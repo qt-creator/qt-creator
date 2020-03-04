@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick3D 1.0
+import QtQuick3D 1.15
 
 View3D {
     id: axisHelperView
@@ -37,7 +37,7 @@ View3D {
     Node {
         OrthographicCamera {
             id: axisHelperCamera
-            rotation: editCameraCtrl.camera ? editCameraCtrl.camera.rotation : Qt.vector3d(0, 0, 0)
+            rotation: editCameraCtrl.camera ? editCameraCtrl.camera.rotation : Qt.quaternion(1, 0, 0, 0)
             position: editCameraCtrl.camera ? editCameraCtrl.camera.position.minus(editCameraCtrl._lookAtPoint)
                                               .normalized().times(600) : Qt.vector3d(0, 0, 0)
         }
@@ -54,7 +54,7 @@ View3D {
 
             AxisHelperArm {
                 id: armX
-                rotation: Qt.vector3d(0, 0, -90)
+                eulerRotation: Qt.vector3d(0, 0, -90)
                 color: Qt.rgba(1, 0, 0, 1)
                 hoverColor: Qt.lighter(Qt.rgba(1, 0, 0, 1))
                 view3D: axisHelperView
@@ -64,7 +64,7 @@ View3D {
 
             AxisHelperArm {
                 id: armY
-                rotation: Qt.vector3d(0, 0, 0)
+                eulerRotation: Qt.vector3d(0, 0, 0)
                 color: Qt.rgba(0, 0.6, 0, 1)
                 hoverColor: Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
                 view3D: axisHelperView
@@ -74,7 +74,7 @@ View3D {
 
             AxisHelperArm {
                 id: armZ
-                rotation: Qt.vector3d(90, 0, 0)
+                eulerRotation: Qt.vector3d(90, 0, 0)
                 color: Qt.rgba(0, 0, 1, 1)
                 hoverColor: Qt.lighter(Qt.rgba(0, 0, 1, 1))
                 view3D: axisHelperView

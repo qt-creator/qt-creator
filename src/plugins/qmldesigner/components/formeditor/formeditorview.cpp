@@ -125,6 +125,13 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
             }
     } else if (qmlItemNode.isFlowView() && qmlItemNode.isRootNode()) {
         m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Flow);
+
+        ModelNode node = qmlItemNode.modelNode();
+        if (!node.hasAuxiliaryData("width") && !node.hasAuxiliaryData("height")) {
+            node.setAuxiliaryData("width", 10000);
+            node.setAuxiliaryData("height", 10000);
+        }
+
         for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
             if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.toQmlItemNode().isFlowItem()) {
                 setupFormEditorItemTree(nextNode.toQmlItemNode());
@@ -384,7 +391,9 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &prop
             if (target.modelNode().isValid() && target.isFlowTransition()) {
                 FormEditorItem *item = m_scene->itemForQmlItemNode(target.toQmlItemNode());
                 if (item) {
-                    m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
+                    const QmlItemNode itemNode = node.toQmlItemNode();
+                    if (itemNode.hasNodeParent())
+                        m_scene->reparentItem(itemNode, itemNode.modelParentItem());
                     m_scene->synchronizeTransformation(item);
                     item->update();
                 }

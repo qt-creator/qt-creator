@@ -32,7 +32,7 @@
 #include <QVector>
 
 namespace QmlJS {
-namespace AST { class SourceLocation; }
+class SourceLocation;
 }
 
 namespace TextEditor { class FontSettings; }

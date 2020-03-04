@@ -135,7 +135,6 @@ class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
     Q_PROPERTY(QString workingDirectory READ workingDirectory WRITE setWorkingDirectory)
     Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
     Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
-    Q_PROPERTY(QString copyRevisionTextFormat READ copyRevisionTextFormat WRITE setCopyRevisionTextFormat)
     Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
     Q_OBJECT
 
@@ -187,10 +186,6 @@ public:
     // Defaults to "annotateRevisionTextFormat" if unset.
     QString annotatePreviousRevisionTextFormat() const;
     void setAnnotatePreviousRevisionTextFormat(const QString &);
-
-    // Format for "Copy" revision menu entries. Should contain '%1" placeholder
-    QString copyRevisionTextFormat() const;
-    void setCopyRevisionTextFormat(const QString &);
 
     // Enable "Annotate" context menu in file log view
     // (set to true if the source is a single file and the VCS implements it)

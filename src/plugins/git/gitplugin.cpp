@@ -83,6 +83,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QFileDialog>
 #include <QMenu>
 #include <QVBoxLayout>
@@ -255,6 +256,18 @@ public:
                                                      const Utils::FilePath &baseDirectory,
                                                      const QString &localName,
                                                      const QStringList &extraArgs) final;
+
+    void fillLinkContextMenu(QMenu *menu,
+                             const QString &workingDirectory,
+                             const QString &reference) final
+    {
+        menu->addAction(tr("&Copy \"%1\"").arg(reference),
+                        [reference] { QApplication::clipboard()->setText(reference); });
+        QAction *action = menu->addAction(tr("&Describe Change %1").arg(reference),
+                                          [=] { describe(workingDirectory, reference); });
+        menu->setDefaultAction(action);
+        GitClient::addChangeActions(menu, workingDirectory, reference);
+    }
 
     RepoUrl getRepoUrl(const QString &location) const override;
 

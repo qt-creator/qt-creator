@@ -117,9 +117,7 @@ void Edit3DCanvas::dropEvent(QDropEvent *e)
 {
     Q_UNUSED(e)
 
-    QmlVisualNode::createQmlVisualNode(m_parent->view(), m_itemLibraryEntry, m_activeScene, {});
+    QmlVisualNode::createQml3DNode(m_parent->view(), m_itemLibraryEntry, m_activeScene);
 }
 
 }
-
-

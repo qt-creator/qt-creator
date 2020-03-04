@@ -55,14 +55,7 @@ class CompilationDatabaseProject : public ProjectExplorer::Project
 
 public:
     explicit CompilationDatabaseProject(const Utils::FilePath &filename);
-
-    bool needsConfiguration() const override { return false; }
-
     Utils::FilePath rootPathFromSettings() const;
-    ProjectExplorer::Kit *kit() const { return m_kit.get(); }
-
-private:
-    std::unique_ptr<ProjectExplorer::Kit> m_kit;
 };
 
 class CompilationDatabaseBuildSystem : public ProjectExplorer::BuildSystem

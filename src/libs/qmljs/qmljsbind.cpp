@@ -162,6 +162,11 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
     return switchObjectValue(parentObjectValue);
 }
 
+void Bind::throwRecursionDepthError()
+{
+    _diagnosticMessages->append(DiagnosticMessage(Severity::Error, SourceLocation(), tr("Hit maximal recursion depth in AST visit")));
+}
+
 void Bind::accept(Node *node)
 {
     Node::accept(node, this);
@@ -194,14 +199,8 @@ void Bind::endVisit(UiProgram *)
 bool Bind::visit(UiImport *ast)
 {
     ComponentVersion version;
-    if (ast->versionToken.isValid()) {
-        const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
-        version = ComponentVersion(versionString);
-        if (!version.isValid()) {
-            _diagnosticMessages->append(
-                        errorMessage(ast->versionToken, tr("expected two numbers separated by a dot")));
-        }
-    }
+    if (ast->version)
+        version = ComponentVersion(ast->version->majorVersion, ast->version->minorVersion);
 
     if (ast->importUri) {
         if (!version.isValid()) {

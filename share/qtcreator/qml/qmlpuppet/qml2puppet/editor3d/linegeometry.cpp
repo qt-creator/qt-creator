@@ -81,10 +81,10 @@ QSSGRenderGraphObject *LineGeometry::updateSpatialNode(QSSGRenderGraphObject *no
 
     dataPtr[0] = m_startPos[0];
     dataPtr[1] = m_startPos[1];
-    dataPtr[2] = -m_startPos[2];
+    dataPtr[2] = m_startPos[2];
     dataPtr[3] = m_endPos[0];
     dataPtr[4] = m_endPos[1];
-    dataPtr[5] = -m_endPos[2];
+    dataPtr[5] = m_endPos[2];
 
     geometry->addAttribute(QSSGRenderGeometry::Attribute::PositionSemantic, 0,
                            QSSGRenderGeometry::Attribute::ComponentType::F32Type);

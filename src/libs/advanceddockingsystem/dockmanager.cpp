@@ -77,13 +77,14 @@ namespace ADS
     /**
      * Private data class of DockManager class (pimpl)
      */
-    struct DockManagerPrivate
+    class DockManagerPrivate
     {
+    public:
         DockManager *q;
         QList<FloatingDockContainer *> m_floatingWidgets;
         QList<DockContainerWidget *> m_containers;
-        DockOverlay *m_containerOverlay;
-        DockOverlay *m_dockAreaOverlay;
+        DockOverlay *m_containerOverlay = nullptr;
+        DockOverlay *m_dockAreaOverlay = nullptr;
         QMap<QString, DockWidget *> m_dockWidgetsMap;
         bool m_restoringState = false;
         QVector<FloatingDockContainer *> m_uninitializedFloatingWidgets;
@@ -94,7 +95,7 @@ namespace ADS
         QHash<QString, QDateTime> m_workspaceDateTimes;
         QString m_workspaceToRestoreAtStartup;
         bool m_autorestoreLastWorkspace; // This option is set in the Workspace Manager!
-        QSettings *m_settings;
+        QSettings *m_settings = nullptr;
 
         /**
          * Private data constructor
@@ -144,8 +145,7 @@ namespace ADS
         bool restoreContainer(int index, DockingStateReader &stream, bool testing);
 
         void workspaceLoadingProgress();
-    };
-    // struct DockManagerPrivate
+    }; // class DockManagerPrivate
 
     DockManagerPrivate::DockManagerPrivate(DockManager *parent)
         : q(parent)
@@ -188,6 +188,8 @@ namespace ADS
         }
         DockingStateReader stateReader(state);
         stateReader.readNextStartElement();
+        if (!stateReader.readNextStartElement())
+            return false;
         if (stateReader.name() != "QtAdvancedDockingSystem") {
             return false;
         }

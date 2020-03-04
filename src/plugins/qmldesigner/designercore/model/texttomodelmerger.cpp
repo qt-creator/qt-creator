@@ -772,8 +772,8 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
             continue;
 
         QString version;
-        if (import->versionToken.isValid())
-            version = textAt(doc, import->versionToken);
+        if (import->version != nullptr)
+            version = QLatin1String("%1.%2").arg(import->version->majorVersion).arg(import->version->minorVersion);
         const QString &as = import->importId.toString();
 
         if (!import->fileName.isEmpty()) {
@@ -2036,7 +2036,7 @@ void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const 
 void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
     if (m_rewriterView->model()->imports().isEmpty()) {
-        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
+        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
         errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
     }
 
@@ -2047,7 +2047,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
             if (supportedQtQuickVersion(import.version())) {
                 hasQtQuick = true;
             } else {
-                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
+                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0),
                                                                  QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
                 errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
             }
@@ -2172,14 +2172,14 @@ QSet<QPair<QString, QString> > TextToModelMerger::qrcMapping() const
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
-                                  const AST::SourceLocation &location)
+                                  const SourceLocation &location)
 {
     return doc->source().mid(location.offset, location.length);
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
-                                  const AST::SourceLocation &from,
-                                  const AST::SourceLocation &to)
+                                  const SourceLocation &from,
+                                  const SourceLocation &to)
 {
     return doc->source().mid(from.offset, to.end() - from.begin());
 }

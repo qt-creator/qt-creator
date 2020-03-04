@@ -42,6 +42,7 @@
 #include <cplusplus/LookupContext.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -173,9 +174,8 @@ void indexFindErrors(QFutureInterface<void> &indexingFuture,
         indexingFuture.setProgressValue(files.size() - (files.size() - (i + 1)));
     }
 
-    const QTime format = QTime(0, 0, 0, 0).addMSecs(timer.elapsed() + 500);
-    const QString time = format.toString(QLatin1String("hh:mm:ss"));
-    qDebug("FindErrorsIndexing: Finished after %s.", qPrintable(time));
+    const QString elapsedTime = Utils::formatElapsedTime(timer.elapsed());
+    qDebug("FindErrorsIndexing: %s", qPrintable(elapsedTime));
 }
 
 void index(QFutureInterface<void> &indexingFuture,

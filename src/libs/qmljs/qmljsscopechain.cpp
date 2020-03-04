@@ -287,7 +287,7 @@ void ScopeChain::update() const
 static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *chain)
 {
     const QRegExp importCommentPattern(QLatin1String("@scope\\s+(.*)"));
-    foreach (const AST::SourceLocation &commentLoc, chain->document()->engine()->comments()) {
+    foreach (const SourceLocation &commentLoc, chain->document()->engine()->comments()) {
         const QString &comment = chain->document()->source().mid(commentLoc.begin(), commentLoc.length);
 
         // find all @scope annotations

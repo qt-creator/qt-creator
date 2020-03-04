@@ -514,21 +514,26 @@ Core::Id TextEditorSettings::languageId(const QString &mimeType)
     return d->m_mimeTypeToLanguage.value(mimeType);
 }
 
+static void setFontZoom(int zoom)
+{
+    d->m_fontSettingsPage.setFontZoom(zoom);
+    d->m_fontSettings.setFontZoom(zoom);
+    d->m_fontSettings.toSettings(Core::ICore::settings());
+    emit m_instance->fontSettingsChanged(d->m_fontSettings);
+}
+
 int TextEditorSettings::increaseFontZoom(int step)
 {
     const int previousZoom = d->m_fontSettings.fontZoom();
     const int newZoom = qMax(10, previousZoom + step);
-    if (newZoom != previousZoom) {
-        d->m_fontSettings.setFontZoom(newZoom);
-        d->m_fontSettingsPage.setFontZoom(newZoom);
-    }
+    if (newZoom != previousZoom)
+        setFontZoom(newZoom);
     return newZoom;
 }
 
 void TextEditorSettings::resetFontZoom()
 {
-    d->m_fontSettings.setFontZoom(100);
-    d->m_fontSettingsPage.setFontZoom(100);
+    setFontZoom(100);
 }
 
 } // TextEditor

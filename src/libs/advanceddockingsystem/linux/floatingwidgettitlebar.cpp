@@ -46,11 +46,12 @@ using tCloseButton = QPushButton;
 /**
  * @brief Private data class of public interface CFloatingWidgetTitleBar
  */
-struct FloatingWidgetTitleBarPrivate
+class FloatingWidgetTitleBarPrivate
 {
+public:
     FloatingWidgetTitleBar *q; ///< public interface class
     QLabel *m_iconLabel = nullptr;
-    TabLabelType *m_titleLabel;
+    TabLabelType *m_titleLabel = nullptr;
     tCloseButton *m_closeButton = nullptr;
     FloatingDockContainer *m_floatingWidget = nullptr;
     eDragState m_dragState = DraggingInactive;

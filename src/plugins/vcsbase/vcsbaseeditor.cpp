@@ -255,7 +255,7 @@ private slots:
     void slotCopyRevision();
 
 private:
-    QAction *createDescribeAction(const QString &change) const;
+    void addDescribeAction(QMenu *menu, const QString &change) const;
     QAction *createAnnotateAction(const QString &change, bool previous) const;
     QAction *createCopyRevisionAction(const QString &change) const;
 
@@ -299,7 +299,7 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
         menu->addSeparator();
         menu->addAction(createCopyRevisionAction(m_currentChange));
         if (currentValid)
-            menu->addAction(createDescribeAction(m_currentChange));
+            addDescribeAction(menu, m_currentChange);
         menu->addSeparator();
         if (currentValid)
             menu->addAction(createAnnotateAction(widget->decorateVersion(m_currentChange), false));
@@ -313,7 +313,7 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
     default: // Describe current / Annotate file of current
         menu->addSeparator();
         menu->addAction(createCopyRevisionAction(m_currentChange));
-        menu->addAction(createDescribeAction(m_currentChange));
+        addDescribeAction(menu, m_currentChange);
         if (widget->isFileLogAnnotateEnabled())
             menu->addAction(createAnnotateAction(m_currentChange, false));
         break;
@@ -336,11 +336,12 @@ void ChangeTextCursorHandler::slotCopyRevision()
     QApplication::clipboard()->setText(m_currentChange);
 }
 
-QAction *ChangeTextCursorHandler::createDescribeAction(const QString &change) const
+void ChangeTextCursorHandler::addDescribeAction(QMenu *menu, const QString &change) const
 {
     auto a = new QAction(VcsBaseEditorWidget::tr("&Describe Change %1").arg(change), nullptr);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotDescribe);
-    return a;
+    menu->addAction(a);
+    menu->setDefaultAction(a);
 }
 
 QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bool previous) const
@@ -358,7 +359,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
 
 QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change) const
 {
-    auto a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), nullptr);
+    auto a = new QAction(VcsBaseEditorWidget::tr("Copy \"%1\"").arg(change), nullptr);
     a->setData(change);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotCopyRevision);
     return a;
@@ -564,7 +565,6 @@ public:
     int m_firstLineNumber = -1;
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
-    QString m_copyRevisionTextFormat;
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
@@ -579,8 +579,7 @@ private:
 
 VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget)  :
     q(editorWidget),
-    m_annotateRevisionTextFormat(VcsBaseEditorWidget::tr("Annotate \"%1\"")),
-    m_copyRevisionTextFormat(VcsBaseEditorWidget::tr("Copy \"%1\""))
+    m_annotateRevisionTextFormat(VcsBaseEditorWidget::tr("Annotate \"%1\""))
 {
     m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
     m_textCursorHandlers.append(new UrlTextCursorHandler(editorWidget));
@@ -819,16 +818,6 @@ void VcsBaseEditorWidget::setAnnotatePreviousRevisionTextFormat(const QString &f
     d->m_annotatePreviousRevisionTextFormat = f;
 }
 
-QString VcsBaseEditorWidget::copyRevisionTextFormat() const
-{
-    return d->m_copyRevisionTextFormat;
-}
-
-void VcsBaseEditorWidget::setCopyRevisionTextFormat(const QString &f)
-{
-    d->m_copyRevisionTextFormat = f;
-}
-
 bool VcsBaseEditorWidget::isFileLogAnnotateEnabled() const
 {
     return d->m_fileLogAnnotateEnabled;
@@ -976,13 +965,17 @@ void VcsBaseEditorWidget::slotCursorPositionChanged()
 
 void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QPointer<QMenu> menu = createStandardContextMenu();
+    QPointer<QMenu> menu;
     // 'click on change-interaction'
     if (supportChangeLinks()) {
         const QTextCursor cursor = cursorForPosition(e->pos());
-        if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor))
+        if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor)) {
+            menu = new QMenu;
             handler->fillContextMenu(menu, d->m_parameters->type);
+        }
     }
+    if (!menu)
+        menu = createStandardContextMenu();
     switch (d->m_parameters->type) {
     case LogOutput: // log might have diff
     case DiffOutput: {

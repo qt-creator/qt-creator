@@ -206,7 +206,7 @@ void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
         if (!m_editor->isOutlineCursorChangesBlocked()) {
             QModelIndex sourceIndex = m_filterModel->mapToSource(index);
 
-            AST::SourceLocation location
+            SourceLocation location
                     = m_editor->qmlJsEditorDocument()->outlineModel()->sourceLocation(sourceIndex);
 
             if (!location.isValid())

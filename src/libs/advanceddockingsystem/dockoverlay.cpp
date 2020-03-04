@@ -59,11 +59,12 @@ namespace ADS {
     /**
      * Private data class of DockOverlay
      */
-    struct DockOverlayPrivate
+    class DockOverlayPrivate
     {
+    public:
         DockOverlay *q;
         DockWidgetAreas m_allowedAreas = InvalidDockWidgetArea;
-        DockOverlayCross *m_cross;
+        DockOverlayCross *m_cross = nullptr;
         QPointer<QWidget> m_targetWidget;
         DockWidgetArea m_lastLocation = InvalidDockWidgetArea;
         bool m_dropPreviewEnabled = true;
@@ -81,13 +82,14 @@ namespace ADS {
     /**
      * Private data of DockOverlayCross class
      */
-    struct DockOverlayCrossPrivate
+    class DockOverlayCrossPrivate
     {
+    public:
         DockOverlayCross *q;
         DockOverlay::eMode m_mode = DockOverlay::ModeDockAreaOverlay;
-        DockOverlay *m_dockOverlay;
+        DockOverlay *m_dockOverlay = nullptr;
         QHash<DockWidgetArea, QWidget *> m_dropIndicatorWidgets;
-        QGridLayout *m_gridLayout;
+        QGridLayout *m_gridLayout = nullptr;
         QColor m_iconColors[5];
         bool m_updateRequired = false;
         double m_lastDevicePixelRatio = 0.1;
@@ -335,7 +337,7 @@ namespace ADS {
             pixmap.setDevicePixelRatio(devicePixelRatio);
             return pixmap;
         }
-    };
+    }; // class DockOverlayCrossPrivate
 
     DockOverlay::DockOverlay(QWidget *parent, eMode mode)
         : QFrame(parent)

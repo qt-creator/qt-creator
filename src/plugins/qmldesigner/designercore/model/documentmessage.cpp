@@ -26,6 +26,7 @@
 #include <documentmessage.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/parser/qmljsdiagnosticmessage_p.h>
 
 namespace QmlDesigner {
 

@@ -84,6 +84,7 @@ QtObject {
     property string themeControlBackground: "#242424"
     property string themeControlOutline: "#404040"
     property string themeTextColor: "#ffffff"
+    property string themeDisabledTextColor: "#909090"
 
     property string themePanelBackground: "#2a2a2a"
     property string themeHoverHighlight: "#313131"

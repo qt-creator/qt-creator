@@ -31,6 +31,7 @@ Section {
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Layer")
+    visible: backendValues.layer_effect.isAvailable
 
     SectionLayout {
         columns: 2

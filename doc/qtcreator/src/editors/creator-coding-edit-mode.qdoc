@@ -54,11 +54,17 @@
 
     \section2 Navigating Between Open Files and Symbols
 
-    Use the toolbar to navigate between open files and symbols in use. To browse
-    backward or forward through your location history, click
-    \inlineimage prev.png
+    Use the toolbar, \uicontrol Window menu items, or
+    \l{General Keyboard Shortcuts}{keyboard shortcuts}
+    to navigate between open files and symbols in use.
+
+    To browse backward or forward through your
+    location history, click \inlineimage prev.png
     (\uicontrol {Go Back}) and \inlineimage next.png
     (\uicontrol {Go Forward}).
+
+    To return to the last location where you made a change, select
+    \uicontrol Window > \uicontrol {Go to Last Edit}.
 
     To go to any open file, select it from the \uicontrol {Open files} drop-down
     menu (1). To open a context menu that contains commands for managing open
@@ -80,8 +86,7 @@
     number in the locator, separated by a colon (:).
 
     \note Other convenient ways of navigating in \QC are provided
-    by the \l{Keyboard Shortcuts} {keyboard shortcuts} and the
-    \l{Browsing Project Contents}{sidebar}.
+    by the \l{Browsing Project Contents}{sidebars}.
 
     \if defined(qtcreator)
     \section2 Selecting Parse Context
@@ -187,10 +192,10 @@
     the bookmark.
 
     To go to the previous bookmark in the current session, select
-    \uicontrol Tools \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
+    \uicontrol Tools > \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
     or press \key {Ctrl+,}.
 
-    To go to the next bookmark in the current session, select \uicontrol Tools
+    To go to the next bookmark in the current session, select \uicontrol Tools >
     \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or press
     \key {Ctrl+.}.
 
@@ -265,10 +270,10 @@
 
     \section1 Inspecting the Code Model
 
-    When you report a bug that is related to the C++ code model, the \QC
-    developers might ask you to write information about the internal state of
-    the code model into a log file and to deliver the file to them for
-    inspection.
+    When you \l{https://bugreports.qt.io/}{report a bug} that is related to the
+    C++ code model, the \QC developers might ask you to write information about
+    the internal state of the code model into a log file and to deliver the file
+    to them for inspection.
 
     To view information about the C++ code model in the
     \uicontrol {C++ Code Model Inspector} dialog and write it to a log file,

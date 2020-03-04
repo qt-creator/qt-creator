@@ -2356,7 +2356,8 @@ namespace final {
         // Continue.
 
         return; // Comment out.
-        *(int *)0 = a + b;
+        volatile int *ip = 0;
+        *(int *)ip = a + b;
     }
 
     void testEndlessRecursion(int i = 0)

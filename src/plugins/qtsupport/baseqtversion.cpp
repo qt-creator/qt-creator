@@ -522,7 +522,7 @@ Tasks BaseQtVersion::validateKit(const Kit *k)
             qtAbiString.append(qtAbi.toString());
 
             if (!fullMatch)
-                fullMatch = (targetAbi == qtAbi);
+                fullMatch = targetAbi.isFullyCompatibleWith(qtAbi);
             if (!fuzzyMatch)
                 fuzzyMatch = targetAbi.isCompatibleWith(qtAbi);
         }

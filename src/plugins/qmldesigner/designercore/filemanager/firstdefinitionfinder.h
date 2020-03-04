@@ -43,6 +43,8 @@ protected:
     bool visit(QmlJS::AST::UiObjectBinding *ast) override;
     bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
+    void throwRecursionDepthError() override;
+
     void extractFirstObjectDefinition(QmlJS::AST::UiObjectInitializer* ast);
 
 private:

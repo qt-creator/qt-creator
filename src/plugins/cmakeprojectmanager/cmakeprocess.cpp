@@ -35,9 +35,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QObject>
+#include <QTime>
 #include <QTimer>
 
 namespace CMakeProjectManager {
@@ -149,6 +151,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     process->setCommand(commandLine);
     emit started();
+    m_elapsed.start();
     process->start();
 
     m_process = std::move(process);
@@ -234,6 +237,9 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
     m_future->reportFinished();
 
     emit finished(code, status);
+
+    const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
+    Core::MessageManager::write(elapsedTime);
 }
 
 void CMakeProcess::checkForCancelled()

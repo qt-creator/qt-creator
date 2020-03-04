@@ -23,7 +23,11 @@
 ****************************************************************************/
 #include "vcsoutputformatter.h"
 
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
+
 #include <QDesktopServices>
+#include <QMenu>
 #include <QPlainTextEdit>
 #include <QTextCursor>
 #include <QUrl>
@@ -66,6 +70,20 @@ void VcsOutputFormatter::handleLink(const QString &href)
         QDesktopServices::openUrl(QUrl(href));
     else if (!href.isEmpty())
         emit referenceClicked(href);
+}
+
+void VcsOutputFormatter::fillLinkContextMenu(
+        QMenu *menu, const QString &workingDirectory, const QString &href)
+{
+    if (href.isEmpty() || href.startsWith("http://") || href.startsWith("https://")) {
+        QAction *action = menu->addAction(
+                    tr("&Open \"%1\"").arg(href),
+                    [href] { QDesktopServices::openUrl(QUrl(href)); });
+        menu->setDefaultAction(action);
+        return;
+    }
+    if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(workingDirectory))
+        vcs->fillLinkContextMenu(menu, workingDirectory, href);
 }
 
 }

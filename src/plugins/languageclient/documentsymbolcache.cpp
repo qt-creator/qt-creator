@@ -66,7 +66,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
         auto entry = m_cache.find(uri);
         if (entry != m_cache.end()) {
             emit gotSymbols(uri, entry.value());
-            return;
+            continue;
         }
 
         const DocumentSymbolParams params((TextDocumentIdentifier(uri)));
@@ -78,6 +78,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
         });
         m_client->sendContent(request);
     }
+    m_compressedUris.clear();
 }
 
 void DocumentSymbolCache::handleResponse(const DocumentUri &uri,

@@ -26,7 +26,7 @@
 # Debugger start modes. Keep in sync with DebuggerStartMode in debuggerconstants.h
 
 
-class DebuggerStartMode:
+class DebuggerStartMode():
     (
         NoStartMode,
         StartInternal,
@@ -41,33 +41,33 @@ class DebuggerStartMode:
 
 
 # Known special formats. Keep in sync with DisplayFormat in debuggerprotocol.h
-class DisplayFormat:
+class DisplayFormat():
     (
-        AutomaticFormat,
-        RawFormat,
-        SimpleFormat,
-        EnhancedFormat,
-        SeparateFormat,
-        Latin1StringFormat,
-        SeparateLatin1StringFormat,
-        Utf8StringFormat,
-        SeparateUtf8StringFormat,
-        Local8BitStringFormat,
-        Utf16StringFormat,
-        Ucs4StringFormat,
-        Array10Format,
-        Array100Format,
-        Array1000Format,
-        Array10000Format,
-        ArrayPlotFormat,
-        CompactMapFormat,
-        DirectQListStorageFormat,
-        IndirectQListStorageFormat,
+        Automatic,
+        Raw,
+        Simple,
+        Enhanced,
+        Separate,
+        Latin1String,
+        SeparateLatin1String,
+        Utf8String,
+        SeparateUtf8String,
+        Local8BitString,
+        Utf16String,
+        Ucs4String,
+        Array10,
+        Array100,
+        Array1000,
+        Array10000,
+        ArrayPlot,
+        CompactMap,
+        DirectQListStorage,
+        IndirectQListStorage,
     ) = range(0, 20)
 
 
 # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
-class BreakpointType:
+class BreakpointType():
     (
         UnknownType,
         BreakpointByFileAndLine,
@@ -87,24 +87,24 @@ class BreakpointType:
 
 
 # Internal codes for types keep in sync with cdbextensions pytype.cpp
-class TypeCode:
+class TypeCode():
     (
-        TypeCodeTypedef,
-        TypeCodeStruct,
-        TypeCodeVoid,
-        TypeCodeIntegral,
-        TypeCodeFloat,
-        TypeCodeEnum,
-        TypeCodePointer,
-        TypeCodeArray,
-        TypeCodeComplex,
-        TypeCodeReference,
-        TypeCodeFunction,
-        TypeCodeMemberPointer,
-        TypeCodeFortranString,
-        TypeCodeUnresolvable,
-        TypeCodeBitfield,
-        TypeCodeRValueReference,
+        Typedef,
+        Struct,
+        Void,
+        Integral,
+        Float,
+        Enum,
+        Pointer,
+        Array,
+        Complex,
+        Reference,
+        Function,
+        MemberPointer,
+        FortranString,
+        Unresolvable,
+        Bitfield,
+        RValueReference,
     ) = range(0, 16)
 
 

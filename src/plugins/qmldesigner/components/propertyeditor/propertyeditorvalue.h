@@ -89,6 +89,8 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(QString name READ nameAsQString FINAL)
     Q_PROPERTY(PropertyEditorNodeWrapper* complexNode READ complexNode NOTIFY complexNodeChanged FINAL)
 
+    Q_PROPERTY(bool isAvailable READ isAvailable NOTIFY isBoundChanged)
+
 public:
     PropertyEditorValue(QObject *parent=nullptr);
 
@@ -114,6 +116,8 @@ public:
     void setIsValid(bool valid);
 
     bool isTranslated() const;
+
+    bool isAvailable() const;
 
     QmlDesigner::PropertyName name() const;
     QString nameAsQString() const;

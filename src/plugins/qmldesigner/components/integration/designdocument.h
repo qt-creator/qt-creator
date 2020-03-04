@@ -97,6 +97,8 @@ public:
 
     void changeToDocumentModel();
 
+    bool isQtForMCUsProject() const;
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);

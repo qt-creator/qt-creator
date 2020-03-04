@@ -29,6 +29,8 @@
 #include "qmljsvalueowner.h"
 #include "parser/qmljsast_p.h"
 
+#include <QDebug>
+
 using namespace QmlJS;
 
 /*!
@@ -667,4 +669,9 @@ bool Evaluate::visit(AST::StatementList *)
 bool Evaluate::visit(AST::DebuggerStatement *)
 {
     return false;
+}
+
+void Evaluate::throwRecursionDepthError()
+{
+    qWarning("Evaluate hit maximum recursion error when visiting AST");
 }

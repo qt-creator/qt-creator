@@ -62,7 +62,6 @@ Project {
             prefix: "parser/"
             files: [
                 "qmldirparser.cpp", "qmldirparser_p.h",
-                "qmlerror.cpp", "qmlerror.h",
                 "qmljsast.cpp", "qmljsast_p.h",
                 "qmljsastfwd_p.h",
                 "qmljsastvisitor.cpp", "qmljsastvisitor_p.h",
@@ -73,6 +72,7 @@ Project {
                 "qmljslexer.cpp", "qmljslexer_p.h",
                 "qmljsmemorypool_p.h",
                 "qmljsparser.cpp", "qmljsparser_p.h",
+                "qmljssourcelocation_p.h",
             ]
         }
 

@@ -50,12 +50,12 @@ class DockContainerWidgetPrivate;
 class DockAreaWidget;
 class DockWidget;
 class DockManager;
-struct DockManagerPrivate;
+class DockManagerPrivate;
 class FloatingDockContainer;
-struct FloatingDockContainerPrivate;
+class FloatingDockContainerPrivate;
 class FloatingDragPreview;
-struct FloatingDragPreviewPrivate;
 class DockingStateReader;
+class FloatingDragPreviewPrivate;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
@@ -71,14 +71,14 @@ private:
     DockContainerWidgetPrivate *d; ///< private data (pimpl)
     friend class DockContainerWidgetPrivate;
     friend class DockManager;
-    friend struct DockManagerPrivate;
+    friend class DockManagerPrivate;
     friend class DockAreaWidget;
     friend struct DockAreaWidgetPrivate;
     friend class FloatingDockContainer;
-    friend struct FloatingDockContainerPrivate;
+    friend class FloatingDockContainerPrivate;
     friend class DockWidget;
     friend class FloatingDragPreview;
-    friend struct FloatingDragPreviewPrivate;
+    friend class FloatingDragPreviewPrivate;
 
 protected:
     /**

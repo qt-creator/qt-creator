@@ -240,6 +240,18 @@ void AndroidManifestEditorWidget::initializePage()
         m_targetLineEdit->installEventFilter(this);
         formLayout->addRow(tr("Run:"), m_targetLineEdit);
 
+        m_styleExtractMethod = new QComboBox(applicationGroupBox);
+        formLayout->addRow(tr("Style extraction:"), m_styleExtractMethod);
+        const QList<QStringList> styleMethodsMap = {
+            {"default", "In most cases this will be the same as \"full\", but it can also be something else if needed, e.g. for compatibility reasons."},
+            {"full", "Useful for Qt Widgets & Qt Quick Controls 1 apps."},
+            {"minimal", "Useful for Qt Quick Controls 2 apps, it is much faster than \"full\"."},
+            {"none", "Useful for apps that don't use Qt Widgets, Qt Quick Controls 1 or Qt Quick Controls 2."}};
+        for (int i = 0; i <styleMethodsMap.size(); ++i) {
+            m_styleExtractMethod->addItem(styleMethodsMap.at(i).first());
+            m_styleExtractMethod->setItemData(i, styleMethodsMap.at(i).at(1), Qt::ToolTipRole);
+        }
+
         auto iconLayout = new QHBoxLayout();
 
         createDPIButton(iconLayout,
@@ -297,6 +309,9 @@ void AndroidManifestEditorWidget::initializePage()
                 this, setDirtyFunc);
         connect(m_targetLineEdit, &QComboBox::currentTextChanged,
                 this, setDirtyFunc);
+        connect(m_styleExtractMethod,
+                QOverload<int>::of(&QComboBox::currentIndexChanged),
+                this, setDirtyFunc);
 
         connect(m_masterIconButton, &QAbstractButton::clicked,
                 this, &AndroidManifestEditorWidget::setMasterIcon);
@@ -330,17 +345,6 @@ void AndroidManifestEditorWidget::initializePage()
         m_defaultFeaturesCheckBox = new QCheckBox(this);
         m_defaultFeaturesCheckBox->setText(tr("Include default features for Qt modules."));
         layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
-
-        m_permissionsModel = new PermissionsModel(this);
-
-        m_permissionsListView = new QListView(permissionsGroupBox);
-        m_permissionsListView->setModel(m_permissionsModel);
-        m_permissionsListView->setMinimumSize(QSize(0, 200));
-        layout->addWidget(m_permissionsListView, 2, 0, 3, 1);
-
-        m_removePermissionButton = new QPushButton(permissionsGroupBox);
-        m_removePermissionButton->setText(tr("Remove"));
-        layout->addWidget(m_removePermissionButton, 2, 1);
 
         m_permissionsComboBox = new QComboBox(permissionsGroupBox);
         m_permissionsComboBox->insertItems(0, QStringList()
@@ -476,11 +480,22 @@ void AndroidManifestEditorWidget::initializePage()
          << QLatin1String("android.permission.WRITE_USER_DICTIONARY")
         );
         m_permissionsComboBox->setEditable(true);
-        layout->addWidget(m_permissionsComboBox, 6, 0);
+        layout->addWidget(m_permissionsComboBox, 2, 0);
 
         m_addPermissionButton = new QPushButton(permissionsGroupBox);
         m_addPermissionButton->setText(tr("Add"));
-        layout->addWidget(m_addPermissionButton, 6, 1);
+        layout->addWidget(m_addPermissionButton, 2, 1);
+
+        m_permissionsModel = new PermissionsModel(this);
+
+        m_permissionsListView = new QListView(permissionsGroupBox);
+        m_permissionsListView->setModel(m_permissionsModel);
+        m_permissionsListView->setMinimumSize(QSize(0, 200));
+        layout->addWidget(m_permissionsListView, 3, 0, 3, 1);
+
+        m_removePermissionButton = new QPushButton(permissionsGroupBox);
+        m_removePermissionButton->setText(tr("Remove"));
+        layout->addWidget(m_removePermissionButton, 3, 1);
 
         permissionsGroupBox->setLayout(layout);
 
@@ -804,11 +819,21 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
 
     QDomElement metadataElem = activityElem.firstChildElement(QLatin1String("meta-data"));
 
+    const int parseItemsCount = 2;
+    int counter = 0;
     while (!metadataElem.isNull()) {
         if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
             m_targetLineEdit->setEditText(metadataElem.attribute(QLatin1String("android:value")));
-            break;
+            ++counter;
+        } else if (metadataElem.attribute(QLatin1String("android:name"))
+                   == QLatin1String("android.app.extract_android_style")) {
+            m_styleExtractMethod->setCurrentText(
+                metadataElem.attribute(QLatin1String("android:value")));
+            ++counter;
         }
+
+        if (counter == parseItemsCount)
+            break;
         metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
     }
 
@@ -1093,15 +1118,24 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
 {
     Q_ASSERT(reader.isStartElement());
 
-    bool found = false;
+    const int parseItemsCount = 2;
+    int counter = 0;
     QXmlStreamAttributes attributes = reader.attributes();
     QXmlStreamAttributes result;
+    QStringList keys;
+    QStringList values;
 
     if (attributes.value(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
-        QStringList keys = QStringList("android:value");
-        QStringList values = QStringList(m_targetLineEdit->currentText());
+        keys = QStringList("android:value");
+        values = QStringList(m_targetLineEdit->currentText());
         result = modifyXmlStreamAttributes(attributes, keys, values);
-        found = true;
+        ++counter;
+    } else if (attributes.value(QLatin1String("android:name"))
+               == QLatin1String("android.app.extract_android_style")) {
+        keys = QStringList("android:value");
+        values = QStringList(m_styleExtractMethod->currentText());
+        result = modifyXmlStreamAttributes(attributes, keys, values);
+        ++counter;
     } else {
         result = attributes;
     }
@@ -1114,7 +1148,7 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
             writer.writeCurrentToken(reader);
-            return found;
+            return counter == parseItemsCount;
         } else if (reader.isStartElement()) {
             parseUnknownElement(reader, writer);
         } else {
@@ -1122,7 +1156,7 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
         }
         reader.readNext();
     }
-    return found; // should never be reached
+    return counter == parseItemsCount; // should never be reached
 }
 
 void AndroidManifestEditorWidget::parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter & writer)

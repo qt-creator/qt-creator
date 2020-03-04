@@ -25,6 +25,7 @@
 
 from dumper import Children
 
+
 def qdump__boost__bimaps__bimap(d, value):
     #leftType = value.type[0]
     #rightType = value.type[1]
@@ -64,7 +65,7 @@ def qdump__boost__shared_ptr(d, value):
     (vptr, usecount, weakcount) = d.split('pii', pi)
     d.check(weakcount >= 0)
     d.check(weakcount <= usecount)
-    d.check(usecount <= 10*1000*1000)
+    d.check(usecount <= 10 * 1000 * 1000)
     d.putItem(d.createValue(px, value.type[0]))
     d.putBetterType(value.type)
 
@@ -105,7 +106,7 @@ def qdump__boost__posix_time__time_duration(d, value):
 
 def qdump__boost__unordered__unordered_set(d, value):
     innerType = value.type[0]
-    if value.type.size() == 6 * d.ptrSize(): # 48 for boost 1.55+, 40 for 1.48
+    if value.type.size() == 6 * d.ptrSize():  # 48 for boost 1.55+, 40 for 1.48
         # boost 1.58 or 1.55
         # bases are 3? bytes, and mlf is actually a float, but since
         # its followed by size_t maxload, it's # effectively padded to a size_t
@@ -125,6 +126,7 @@ def qdump__boost__unordered__unordered_set(d, value):
     if forward:
         # boost 1.58
         code = 'pp{%s}' % innerType.name
+
         def children(p):
             while True:
                 p, dummy, val = d.split(code, p)
@@ -134,12 +136,13 @@ def qdump__boost__unordered__unordered_set(d, value):
         code = '{%s}@p' % innerType.name
         (pp, ssize, fields) = d.describeStruct(code)
         offset = fields[2].offset()
+
         def children(p):
             while True:
                 val, pad, p = d.split(code, p - offset)
                 yield val
     p = d.extractPointer(buckets + bucketCount * d.ptrSize())
-    d.putItems(size, children(p), maxNumChild = 10000)
+    d.putItems(size, children(p), maxNumChild=10000)
 
 
 def qdump__boost__variant(d, value):

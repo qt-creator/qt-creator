@@ -27,6 +27,8 @@
 
 #include <QRegularExpression>
 
+QT_FORWARD_DECLARE_CLASS(QMenu)
+
 namespace VcsBase {
 
 class VcsOutputFormatter : public Utils::OutputFormatter
@@ -37,6 +39,7 @@ public:
     ~VcsOutputFormatter() override = default;
     void appendMessage(const QString &text, Utils::OutputFormat format) override;
     void handleLink(const QString &href) override;
+    void fillLinkContextMenu(QMenu *menu, const QString &workingDirectory, const QString &href);
 
 signals:
     void referenceClicked(const QString &reference);

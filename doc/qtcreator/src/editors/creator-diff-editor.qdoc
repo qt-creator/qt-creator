@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -80,11 +80,11 @@
 
     \image creator-diff-editor.png "Diff editor output in the Edit mode"
 
-    The changes are displayed in the \uicontrol Edit mode. Color coding is used
-    to mark changed lines. By default, light red indicates lines that contain
-    removed text (painted a darker red) in the left pane and light green
-    indicates lines that contain added text (painted a darker green) in the
-    right pane.
+    The changes are displayed in the \uicontrol Edit mode. Color coding is
+    used to mark changed lines. By default, red indicates lines that contain
+    removed text (painted another shade of red) in the left pane and green
+    indicates lines that contain added text (painted another shade of green)
+    in the right pane.
 
     To revert the changes, right-click added text and then select
     \uicontrol {Revert Chunk} in the context menu. To apply the changes, select

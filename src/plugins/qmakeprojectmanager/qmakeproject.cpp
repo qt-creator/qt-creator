@@ -262,9 +262,9 @@ void QmakeBuildSystem::updateCodeModels()
 
 void QmakeBuildSystem::updateDocuments()
 {
-    QVector<FilePath> projectDocuments;
+    QSet<FilePath> projectDocuments;
     project()->rootProjectNode()->forEachProjectNode([&projectDocuments](const ProjectNode *n) {
-        projectDocuments << n->filePath();
+        projectDocuments.insert(n->filePath());
     });
     project()->setExtraProjectFiles(projectDocuments);
 }

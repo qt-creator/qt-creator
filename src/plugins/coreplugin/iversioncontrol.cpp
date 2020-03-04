@@ -194,6 +194,10 @@ QString IVersionControl::TopicCache::topic(const QString &topLevel)
     return data.topic = refreshTopic(topLevel);
 }
 
+void IVersionControl::fillLinkContextMenu(QMenu *, const QString &, const QString &)
+{
+}
+
 } // namespace Core
 
 #if defined(WITH_TESTS)

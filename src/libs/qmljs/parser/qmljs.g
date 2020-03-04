@@ -73,13 +73,14 @@
 %token T_VAR "var"              T_VOID "void"               T_WHILE "while"
 %token T_WITH "with"            T_XOR "^"                   T_XOR_EQ "^="
 %token T_NULL "null"            T_TRUE "true"               T_FALSE "false"
-%token T_CONST "const"          T_LET "let"
+%token T_CONST "const"          T_LET "let"                 T_AT "@"
 %token T_DEBUGGER "debugger"
 %token T_RESERVED_WORD "reserved word"
 %token T_MULTILINE_STRING_LITERAL "multiline string literal"
 %token T_COMMENT "comment"
 %token T_COMPATIBILITY_SEMICOLON
 %token T_ARROW "=>"
+%token T_QUESTION_QUESTION "??"
 %token T_ENUM "enum"
 %token T_ELLIPSIS "..."
 %token T_YIELD "yield"
@@ -90,6 +91,7 @@
 %token T_EXPORT "export"
 %token T_FROM "from"
 %token T_REQUIRED "required"
+%token T_COMPONENT "component"
 
 --- template strings
 %token T_NO_SUBSTITUTION_TEMPLATE"(no subst template)"
@@ -122,9 +124,10 @@
 %token T_FOR_LOOKAHEAD_OK "(for lookahead ok)"
 
 --%left T_PLUS T_MINUS
-%nonassoc T_IDENTIFIER T_COLON T_SIGNAL T_PROPERTY T_READONLY T_ON T_SET T_GET T_OF T_STATIC T_FROM T_AS T_REQUIRED
+%nonassoc T_IDENTIFIER T_COLON T_SIGNAL T_PROPERTY T_READONLY T_ON T_SET T_GET T_OF T_STATIC T_FROM T_AS T_REQUIRED T_COMPONENT
 %nonassoc REDUCE_HERE
 %right T_THEN T_ELSE
+%right T_WITHOUTAS T_AS
 
 %start TopLevel
 
@@ -167,10 +170,10 @@
 **
 ****************************************************************************/
 
-#include "qmljsengine_p.h"
-#include "qmljslexer_p.h"
-#include "qmljsast_p.h"
-#include "qmljsmemorypool_p.h"
+#include "qmljs/parser/qmljsengine_p.h"
+#include "qmljs/parser/qmljslexer_p.h"
+#include "qmljs/parser/qmljsast_p.h"
+#include "qmljs/parser/qmljsmemorypool_p.h"
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qcoreapplication.h>
@@ -245,10 +248,11 @@
 #ifndef QMLJSPARSER_P_H
 #define QMLJSPARSER_P_H
 
-#include "qmljsglobal_p.h"
-#include "qmljsgrammar_p.h"
-#include "qmljsast_p.h"
-#include "qmljsengine_p.h"
+#include "qmljs/parser/qmljsglobal_p.h"
+#include "qmljs/parser/qmljsgrammar_p.h"
+#include "qmljs/parser/qmljsast_p.h"
+#include "qmljs/parser/qmljsengine_p.h"
+#include "qmljs/parser/qmljsdiagnosticmessage_p.h"
 
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
@@ -322,6 +326,8 @@ public:
       AST::UiQualifiedId *UiQualifiedId;
       AST::UiEnumMemberList *UiEnumMemberList;
       AST::UiVersionSpecifier *UiVersionSpecifier;
+      AST::UiAnnotation *UiAnnotation;
+      AST::UiAnnotationList *UiAnnotationList;
     };
 
 public:
@@ -403,7 +409,7 @@ protected:
     inline QStringRef &rawStringRef(int index)
     { return rawString_stack [tos + index - 1]; }
 
-    inline AST::SourceLocation &loc(int index)
+    inline SourceLocation &loc(int index)
     { return location_stack [tos + index - 1]; }
 
     AST::UiQualifiedId *reparseAsQualifiedId(AST::ExpressionNode *expr);
@@ -411,20 +417,20 @@ protected:
     void pushToken(int token);
     int lookaheadToken(Lexer *lexer);
 
-    static DiagnosticMessage compileError(const AST::SourceLocation &location,
-                                          const QString &message, Severity::Enum kind = Severity::Error)
+    static DiagnosticMessage compileError(const SourceLocation &location,
+                                          const QString &message, QtMsgType kind = QtCriticalMsg)
     {
         DiagnosticMessage error;
         error.loc = location;
         error.message = message;
-        error.kind = kind;
+        error.kind = DiagnosticMessage::qtMsgTypeToKind(kind);
         return error;
     }
 
-    void syntaxError(const AST::SourceLocation &location, const char *message) {
+    void syntaxError(const SourceLocation &location, const char *message) {
         diagnostic_messages.append(compileError(location, QLatin1String(message)));
      }
-     void syntaxError(const AST::SourceLocation &location, const QString &message) {
+     void syntaxError(const SourceLocation &location, const QString &message) {
         diagnostic_messages.append(compileError(location, message));
       }
 
@@ -437,7 +443,7 @@ protected:
     int stack_size = 0;
     Value *sym_stack = nullptr;
     int *state_stack = nullptr;
-    AST::SourceLocation *location_stack = nullptr;
+    SourceLocation *location_stack = nullptr;
     QVector<QStringRef> string_stack;
     QVector<QStringRef> rawString_stack;
 
@@ -449,7 +455,7 @@ protected:
     struct SavedToken {
        int token;
        double dval;
-       AST::SourceLocation loc;
+       SourceLocation loc;
        QStringRef spell;
        QStringRef raw;
     };
@@ -458,8 +464,8 @@ protected:
     double yylval = 0.;
     QStringRef yytokenspell;
     QStringRef yytokenraw;
-    AST::SourceLocation yylloc;
-    AST::SourceLocation yyprevlloc;
+    SourceLocation yylloc;
+    SourceLocation yyprevlloc;
 
     SavedToken token_buffer[TOKEN_BUFFER_SIZE];
     SavedToken *first_token = nullptr;
@@ -472,7 +478,7 @@ protected:
         CE_ParenthesizedExpression,
         CE_FormalParameterList
     };
-    AST::SourceLocation coverExpressionErrorLocation;
+    SourceLocation coverExpressionErrorLocation;
     CoverExpressionType coverExpressionType = CE_Invalid;
 
     QList<DiagnosticMessage> diagnostic_messages;
@@ -517,7 +523,7 @@ void Parser::reallocateStack()
 
     sym_stack = reinterpret_cast<Value*> (realloc(sym_stack, stack_size * sizeof(Value)));
     state_stack = reinterpret_cast<int*> (realloc(state_stack, stack_size * sizeof(int)));
-    location_stack = reinterpret_cast<AST::SourceLocation*> (realloc(location_stack, stack_size * sizeof(AST::SourceLocation)));
+    location_stack = reinterpret_cast<SourceLocation*> (realloc(location_stack, stack_size * sizeof(SourceLocation)));
     string_stack.resize(stack_size);
     rawString_stack.resize(stack_size);
 }
@@ -537,9 +543,9 @@ Parser::~Parser()
     }
 }
 
-static inline AST::SourceLocation location(Lexer *lexer)
+static inline SourceLocation location(Lexer *lexer)
 {
-    AST::SourceLocation loc;
+    SourceLocation loc;
     loc.offset = lexer->tokenOffset();
     loc.length = lexer->tokenLength();
     loc.startLine = lexer->tokenStartLine();
@@ -550,7 +556,7 @@ static inline AST::SourceLocation location(Lexer *lexer)
 AST::UiQualifiedId *Parser::reparseAsQualifiedId(AST::ExpressionNode *expr)
 {
     QVarLengthArray<QStringRef, 4> nameIds;
-    QVarLengthArray<AST::SourceLocation, 4> locations;
+    QVarLengthArray<SourceLocation, 4> locations;
 
     AST::ExpressionNode *it = expr;
     while (AST::FieldMemberExpression *m = AST::cast<AST::FieldMemberExpression *>(it)) {
@@ -734,7 +740,7 @@ TopLevel: T_FEED_JS_EXPRESSION Expression;
     } break;
 ./
 
-TopLevel: T_FEED_UI_OBJECT_MEMBER UiObjectMember;
+TopLevel: T_FEED_UI_OBJECT_MEMBER UiAnnotatedObjectMember;
 /.
     case $rule_number: {
         sym(1).Node = sym(2).Node;
@@ -849,13 +855,7 @@ UiVersionSpecifier: T_VERSION_NUMBER;
 UiImport: UiImportHead UiVersionSpecifier Semicolon;
 /.
     case $rule_number: {
-        auto versionToken = loc(2);
-        auto version = sym(2).UiVersionSpecifier;
-        sym(1).UiImport->version = version;
-        if (version->minorToken.isValid()) {
-            versionToken.length += version->minorToken.length + (version->minorToken.offset - versionToken.offset - versionToken.length);
-        }
-        sym(1).UiImport->versionToken = versionToken;
+        sym(1).UiImport->version = sym(2).UiVersionSpecifier;
         sym(1).UiImport->semicolonToken = loc(3);
     } break;
 ./
@@ -863,13 +863,7 @@ UiImport: UiImportHead UiVersionSpecifier Semicolon;
 UiImport: UiImportHead UiVersionSpecifier  T_AS QmlIdentifier Semicolon;
 /.
     case $rule_number: {
-        auto versionToken = loc(2);
-        auto version = sym(2).UiVersionSpecifier;
-        sym(1).UiImport->version = version;
-        if (version->minorToken.isValid()) {
-            versionToken.length += version->minorToken.length + (version->minorToken.offset - versionToken.offset - versionToken.length);
-        }
-        sym(1).UiImport->versionToken = versionToken;
+        sym(1).UiImport->version = sym(2).UiVersionSpecifier;
         sym(1).UiImport->asToken = loc(3);
         sym(1).UiImport->importIdToken = loc(4);
         sym(1).UiImport->importId = stringRef(4);
@@ -920,21 +914,92 @@ Empty: ;
     } break;
 ./
 
-UiRootMember: UiObjectDefinition;
+UiRootMember: UiAnnotatedObject;
 /.
     case $rule_number: {
         sym(1).Node = new (pool) AST::UiObjectMemberList(sym(1).UiObjectMember);
     } break;
 ./
 
-UiObjectMemberList: UiObjectMember;
+UiSimpleQualifiedId: T_IDENTIFIER;
+/.
+    case $rule_number: {
+        AST::IdentifierExpression *node = new (pool) AST::IdentifierExpression(stringRef(1));
+        node->identifierToken = loc(1);
+        sym(1).Node = node;
+    } break;
+./
+
+UiSimpleQualifiedId: UiSimpleQualifiedId T_DOT T_IDENTIFIER;
+/.
+    case $rule_number: {
+        AST::FieldMemberExpression *node = new (pool) AST::FieldMemberExpression(sym(1).Expression, stringRef(3));
+        node->dotToken = loc(2);
+        node->identifierToken = loc(3);
+        sym(1).Node = node;
+    } break;
+./
+
+UiAnnotationObjectDefinition: UiSimpleQualifiedId UiObjectInitializer;
+/.
+    case $rule_number: {
+        if (AST::UiQualifiedId *qualifiedId = reparseAsQualifiedId(sym(1).Expression)) {
+            sym(1).UiQualifiedId = qualifiedId;
+        } else {
+            sym(1).UiQualifiedId = 0;
+
+            diagnostic_messages.append(compileError(loc(1),
+            QLatin1String("Expected a qualified name id")));
+
+            return false;
+        }
+        AST::UiAnnotation *node = new (pool) AST::UiAnnotation(sym(1).UiQualifiedId, sym(2).UiObjectInitializer);
+        sym(1).Node = node;
+    } break;
+./
+
+UiAnnotation: T_AT UiAnnotationObjectDefinition;
+/.
+case $rule_number: {
+    sym(1).Node = sym(2).Node;
+} break;
+./
+
+
+UiAnnotationList: UiAnnotation;
+/.
+    case $rule_number: {
+        sym(1).Node = new (pool) AST::UiAnnotationList(sym(1).UiAnnotation);
+    } break;
+./
+
+UiAnnotationList: UiAnnotationList UiAnnotation;
+/.
+    case $rule_number: {
+        AST::UiAnnotationList *node = new (pool) AST::UiAnnotationList(sym(1).UiAnnotationList, sym(2).UiAnnotation);
+        sym(1).Node = node;
+    } break;
+./
+
+UiAnnotatedObject: UiAnnotationList UiObjectDefinition;
+/.
+   case $rule_number: {
+       AST::UiObjectDefinition *node = sym(2).UiObjectDefinition;
+       node->annotations = sym(1).UiAnnotationList->finish();
+       sym(1).Node = node;
+   } break;
+./
+
+UiAnnotatedObject: UiObjectDefinition;
+
+UiObjectMemberList: UiAnnotatedObjectMember;
 /.
     case $rule_number: {
         sym(1).Node = new (pool) AST::UiObjectMemberList(sym(1).UiObjectMember);
     } break;
 ./
 
-UiObjectMemberList: UiObjectMemberList UiObjectMember;
+UiObjectMemberList: UiObjectMemberList UiAnnotatedObjectMember;
 /.
     case $rule_number: {
         AST::UiObjectMemberList *node = new (pool) AST:: UiObjectMemberList(sym(1).UiObjectMemberList, sym(2).UiObjectMember);
@@ -986,6 +1051,17 @@ UiObjectDefinition: UiQualifiedId UiObjectInitializer;
     } break;
 ./
 
+UiAnnotatedObjectMember: UiAnnotationList UiObjectMember;
+/.
+   case $rule_number: {
+       AST::UiObjectMember *node = sym(2).UiObjectMember;
+       node->annotations = sym(1).UiAnnotationList->finish();
+       sym(1).Node = sym(2).Node;
+   } break;
+./
+
+UiAnnotatedObjectMember: UiObjectMember;
+
 UiObjectMember: UiObjectDefinition;
 
 UiObjectMember: UiQualifiedId T_COLON ExpressionStatementLookahead T_LBRACKET UiArrayMemberList T_RBRACKET;
@@ -1021,15 +1097,27 @@ UiObjectMember: UiQualifiedId T_ON UiQualifiedId  UiObjectInitializer;
 ./
 
 
-UiObjectLiteral: T_LBRACE ExpressionStatementLookahead UiPropertyDefinitionList T_RBRACE;
-/.  case $rule_number: Q_FALLTHROUGH(); ./
-UiObjectLiteral: T_LBRACE ExpressionStatementLookahead UiPropertyDefinitionList T_COMMA T_RBRACE;
+UiObjectLiteral: T_LBRACE ExpressionStatementLookahead UiPropertyDefinitionList T_RBRACE Semicolon;
 /.
     case $rule_number: {
         AST::ObjectPattern *l = new (pool) AST::ObjectPattern(sym(3).PatternPropertyList->finish());
         l->lbraceToken = loc(1);
         l->rbraceToken = loc(4);
         AST::ExpressionStatement *node = new (pool) AST::ExpressionStatement(l);
+        node->semicolonToken = loc(5);
+        sym(1).Node = node;
+    } break;
+./
+
+
+UiObjectLiteral: T_LBRACE ExpressionStatementLookahead UiPropertyDefinitionList T_COMMA T_RBRACE Semicolon;
+/.
+    case $rule_number: {
+        AST::ObjectPattern *l = new (pool) AST::ObjectPattern(sym(3).PatternPropertyList->finish());
+        l->lbraceToken = loc(1);
+        l->rbraceToken = loc(5);
+        AST::ExpressionStatement *node = new (pool) AST::ExpressionStatement(l);
+        node->semicolonToken = loc(6);
         sym(1).Node = node;
     } break;
 ./
@@ -1242,11 +1330,48 @@ UiObjectMember: T_DEFAULT UiObjectMemberListPropertyNoInitialiser;
     } break;
 ./
 
+UiObjectMember: T_DEFAULT T_REQUIRED UiObjectMemberPropertyNoInitialiser;
+/.
+    case $rule_number: {
+        AST::UiPublicMember *node = sym(3).UiPublicMember;
+        node->isDefaultMember = true;
+        node->defaultToken = loc(1);
+        node->isRequired = true;
+        node->requiredToken = loc(2);
+        sym(1).Node = node;
+    } break;
+./
+
+
+UiObjectMember: T_REQUIRED T_DEFAULT UiObjectMemberPropertyNoInitialiser;
+/.
+    case $rule_number: {
+        AST::UiPublicMember *node = sym(3).UiPublicMember;
+        node->isDefaultMember = true;
+        node->defaultToken = loc(2);
+        node->isRequired = true;
+        node->requiredToken = loc(1);
+        sym(1).Node = node;
+    } break;
+./
+
 OptionalSemicolon: | Semicolon;
 /.
 /* we need OptionalSemicolon because UiScriptStatement might already parse the last semicolon
   and then we would miss a semicolon (see tests/auto/quick/qquickvisualdatamodel/data/objectlist.qml)*/
  ./
+
+UiRequired: T_REQUIRED QmlIdentifier Semicolon;
+/.
+    case $rule_number: {
+        AST::UiRequired *node = new (pool) AST::UiRequired(stringRef(2));
+        node->requiredToken = loc(1);
+        node->semicolonToken = loc(3);
+        sym(1).Node = node;
+    } break;
+./
+
+UiObjectMember: UiRequired;
 
 UiObjectMember: T_REQUIRED UiObjectMemberPropertyNoInitialiser;
 /.
@@ -1257,7 +1382,6 @@ UiObjectMember: T_REQUIRED UiObjectMemberPropertyNoInitialiser;
         sym(1).Node = node;
     } break;
 ./
-
 
 UiObjectMemberWithScriptStatement: T_PROPERTY UiPropertyType QmlIdentifier T_COLON UiScriptStatement OptionalSemicolon;
 /.
@@ -1393,7 +1517,7 @@ UiQualifiedId: MemberExpression;
     case $rule_number: {
       if (AST::ArrayMemberExpression *mem = AST::cast<AST::ArrayMemberExpression *>(sym(1).Expression)) {
         diagnostic_messages.append(compileError(mem->lbracketToken,
-          QLatin1String("Ignored annotation"), Severity::Warning));
+          QLatin1String("Ignored annotation"), QtWarningMsg));
 
         sym(1).Expression = mem->base;
       }
@@ -1420,6 +1544,19 @@ UiObjectMember: T_ENUM T_IDENTIFIER T_LBRACE EnumMemberList T_RBRACE;
         sym(1).Node = enumDeclaration;
         break;
     }
+./
+
+UiObjectMember: T_COMPONENT T_IDENTIFIER T_COLON UiObjectDefinition;
+/.
+    case $rule_number: {
+        if (!stringRef(2).front().isUpper()) {
+            diagnostic_messages.append(compileError(loc(2),
+                QLatin1String("Type name must be upper case"), QtWarningMsg));
+        }
+        auto inlineComponent = new (pool) AST::UiInlineComponent(stringRef(2), sym(4).UiObjectDefinition);
+        inlineComponent->componentToken = loc(1);
+        sym(1).Node = inlineComponent;
+    } break;
 ./
 
 EnumMemberList: T_IDENTIFIER;
@@ -1464,29 +1601,31 @@ EnumMemberList: EnumMemberList T_COMMA T_IDENTIFIER T_EQ T_NUMERIC_LITERAL;
     }
 ./
 
-QmlIdentifier: T_IDENTIFIER;
-QmlIdentifier: T_PROPERTY;
-QmlIdentifier: T_SIGNAL;
-QmlIdentifier: T_READONLY;
-QmlIdentifier: T_ON;
-QmlIdentifier: T_GET;
-QmlIdentifier: T_SET;
-QmlIdentifier: T_FROM;
-QmlIdentifier: T_OF;
-QmlIdentifier: T_REQUIRED;
+QmlIdentifier: T_IDENTIFIER
+             | T_PROPERTY
+             | T_SIGNAL
+             | T_READONLY
+             | T_ON
+             | T_GET
+             | T_SET
+             | T_FROM
+             | T_OF
+             | T_REQUIRED
+             | T_COMPONENT;
 
-JsIdentifier: T_IDENTIFIER;
-JsIdentifier: T_PROPERTY;
-JsIdentifier: T_SIGNAL;
-JsIdentifier: T_READONLY;
-JsIdentifier: T_ON;
-JsIdentifier: T_GET;
-JsIdentifier: T_SET;
-JsIdentifier: T_FROM;
-JsIdentifier: T_STATIC;
-JsIdentifier: T_OF;
-JsIdentifier: T_AS;
-JsIdentifier: T_REQUIRED;
+JsIdentifier: T_IDENTIFIER
+            | T_PROPERTY
+            | T_SIGNAL
+            | T_READONLY
+            | T_ON
+            | T_GET
+            | T_SET
+            | T_FROM
+            | T_STATIC
+            | T_OF
+            | T_AS
+            | T_REQUIRED
+            | T_COMPONENT;
 
 IdentifierReference: JsIdentifier;
 BindingIdentifier: IdentifierReference;
@@ -2510,6 +2649,20 @@ RelationalExpression_In: RelationalExpression_In T_IN ShiftExpression;
     } break;
 ./
 
+TypeAssertExpression_In: RelationalExpression_In T_AS Type;
+/.  case $rule_number: Q_FALLTHROUGH(); ./
+TypeAssertExpression: RelationalExpression T_AS Type;
+/.
+    case $rule_number: {
+        AST::BinaryExpression *node = new (pool) AST::BinaryExpression(sym(1).Expression, QSOperator::As, sym(3).Expression);
+        node->operatorToken = loc(2);
+        sym(1).Node = node;
+    } break;
+./
+
+RelationalExpression_In: TypeAssertExpression_In;
+RelationalExpression: TypeAssertExpression;
+
 EqualityExpression_In: RelationalExpression_In;
 EqualityExpression: RelationalExpression;
 
@@ -2621,13 +2774,48 @@ LogicalORExpression_In: LogicalORExpression_In T_OR_OR LogicalANDExpression_In;
     } break;
 ./
 
+CoalesceExpression: LogicalORExpression;
+CoalesceExpression_In: LogicalORExpression_In;
 
-ConditionalExpression: LogicalORExpression;
-ConditionalExpression_In: LogicalORExpression_In;
-
-ConditionalExpression: LogicalORExpression T_QUESTION AssignmentExpression_In T_COLON AssignmentExpression;
+CoalesceExpression: CoalesceExpression T_QUESTION_QUESTION LogicalORExpression;
 /.  case $rule_number: Q_FALLTHROUGH(); ./
-ConditionalExpression_In: LogicalORExpression_In T_QUESTION AssignmentExpression_In T_COLON AssignmentExpression_In;
+CoalesceExpression_In: CoalesceExpression_In T_QUESTION_QUESTION LogicalORExpression_In;
+/.
+    case $rule_number: {
+
+        auto *lhs = sym(1).Expression;
+        auto *rhs = sym(3).Expression;
+
+        // Check if lhs or rhs contain || or &&
+
+        if (lhs->binaryExpressionCast() != nullptr) {
+            auto *binaryExpr = lhs->binaryExpressionCast();
+            if (binaryExpr->op == QSOperator::And || binaryExpr->op == QSOperator::Or) {
+                syntaxError(binaryExpr->operatorToken, "Left-hand side may not contain || or &&");
+                return false;
+            }
+        }
+
+        if (rhs->binaryExpressionCast() != nullptr) {
+            auto *binaryExpr = rhs->binaryExpressionCast();
+            if (binaryExpr->op == QSOperator::And || binaryExpr->op == QSOperator::Or) {
+                syntaxError(binaryExpr->operatorToken, "Right-hand side may not contain || or &&");
+                return false;
+            }
+        }
+
+        AST::BinaryExpression *node = new (pool) AST::BinaryExpression(lhs, QSOperator::Coalesce, rhs);
+        node->operatorToken = loc(2);
+        sym(1).Node = node;
+    } break;
+./
+
+ConditionalExpression: CoalesceExpression;
+ConditionalExpression_In: CoalesceExpression_In;
+
+ConditionalExpression: CoalesceExpression T_QUESTION AssignmentExpression_In T_COLON AssignmentExpression;
+/.  case $rule_number: Q_FALLTHROUGH(); ./
+ConditionalExpression_In: CoalesceExpression_In T_QUESTION AssignmentExpression_In T_COLON AssignmentExpression_In;
 /.
     case $rule_number: {
         AST::ConditionalExpression *node = new (pool) AST::ConditionalExpression(sym(1).Expression, sym(3).Expression, sym(5).Expression);
@@ -2653,7 +2841,7 @@ AssignmentExpression_In: LeftHandSideExpression T_EQ AssignmentExpression_In;
     case $rule_number: {
         // need to convert the LHS to an AssignmentPattern if it was an Array/ObjectLiteral
         if (AST::Pattern *p = sym(1).Expression->patternCast()) {
-            AST::SourceLocation errorLoc;
+            SourceLocation errorLoc;
             QString errorMsg;
             if (!p->convertLiteralToAssignmentPattern(pool, &errorLoc, &errorMsg)) {
                 syntaxError(errorLoc, errorMsg);
@@ -3319,7 +3507,7 @@ IterationStatement: T_FOR T_LPAREN LeftHandSideExpression InOrOf Expression_In T
     case $rule_number: {
         // need to convert the LHS to an AssignmentPattern if it was an Array/ObjectLiteral
         if (AST::Pattern *p = sym(3).Expression->patternCast()) {
-            AST::SourceLocation errorLoc;
+            SourceLocation errorLoc;
             QString errorMsg;
             if (!p->convertLiteralToAssignmentPattern(pool, &errorLoc, &errorMsg)) {
                 syntaxError(errorLoc, errorMsg);
@@ -4366,7 +4554,10 @@ ImportsList: ImportsList T_COMMA ImportSpecifier;
     } break;
 ./
 
-ImportSpecifier: ImportedBinding;
+-- When enconutering an IdentifierReference it can resolve to both ImportedBinding and IdentifierName
+-- Using %right and %prec, we tell qlalr that it should not reduce immediately, but rather shift
+-- so that we have a chance of actually parsing the correct rule if there is an "as" identifier
+ImportSpecifier: ImportedBinding %prec T_WITHOUTAS;
 /.
     case $rule_number: {
         auto importSpecifier = new (pool) AST::ImportSpecifier(stringRef(1));
@@ -4572,7 +4763,7 @@ ExportSpecifier: IdentifierName T_AS IdentifierName;
             yylloc.length = 0;
 
             //const QString msg = QCoreApplication::translate("QmlParser", "Missing `;'");
-            //diagnostic_messages.append(compileError(yyloc, msg, Severity::Warning));
+            //diagnostic_messages.append(compileError(yyloc, msg, QtWarningMsg));
 
             first_token = &token_buffer[0];
             last_token = &token_buffer[1];

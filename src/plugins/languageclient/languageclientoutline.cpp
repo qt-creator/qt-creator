@@ -299,6 +299,8 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     connect(m_editorWidget, &TextEditor::TextEditorWidget::cursorPositionChanged,
             this, &OutlineComboBox::updateEntry);
     connect(this, QOverload<int>::of(&QComboBox::activated), this, &OutlineComboBox::activateEntry);
+
+    requestSymbols();
 }
 
 void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result)

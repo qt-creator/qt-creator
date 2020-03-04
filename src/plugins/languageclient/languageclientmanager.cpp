@@ -340,6 +340,20 @@ void LanguageClientManager::reOpenDocumentWithClient(TextEditor::TextDocument *d
     client->activateDocument(document);
 }
 
+void LanguageClientManager::logBaseMessage(const LspLogMessage::MessageSender sender,
+                                           const QString &clientName,
+                                           const BaseMessage &message)
+{
+    instance()->m_logger.log(sender, clientName, message);
+}
+
+void LanguageClientManager::showLogger()
+{
+    QWidget *loggerWidget = instance()->m_logger.createWidget();
+    loggerWidget->setAttribute(Qt::WA_DeleteOnClose);
+    loggerWidget->show();
+}
+
 QVector<Client *> LanguageClientManager::reachableClients()
 {
     return Utils::filtered(m_clients, &Client::reachable);
