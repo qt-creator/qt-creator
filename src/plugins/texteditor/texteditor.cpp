@@ -8542,7 +8542,6 @@ public:
     TextEditorFactoryPrivate(TextEditorFactory *parent)
         : q(parent)
         , m_widgetCreator([]() { return new TextEditorWidget; })
-        , m_indenterCreator([](QTextDocument *d) { return new TextIndenter(d); })
     {}
 
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *other)
