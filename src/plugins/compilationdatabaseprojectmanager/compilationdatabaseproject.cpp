@@ -38,6 +38,7 @@
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
@@ -450,6 +451,12 @@ Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
     return Utils::FilePath::fromString(
         namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
 #endif
+}
+
+void CompilationDatabaseProject::configureAsExampleProject()
+{
+    if (KitManager::defaultKit())
+        addTargetForKit(KitManager::defaultKit());
 }
 
 void CompilationDatabaseBuildSystem::reparseProject()
