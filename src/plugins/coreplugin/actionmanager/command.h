@@ -58,7 +58,9 @@ public:
     Q_DECLARE_FLAGS(CommandAttributes, CommandAttribute)
 
     virtual void setDefaultKeySequence(const QKeySequence &key) = 0;
-    virtual QKeySequence defaultKeySequence() const = 0;
+    virtual void setDefaultKeySequences(const QList<QKeySequence> &keys) = 0;
+    virtual QList<QKeySequence> defaultKeySequences() const = 0;
+    virtual QList<QKeySequence> keySequences() const = 0;
     virtual QKeySequence keySequence() const = 0;
     // explicitly set the description (used e.g. in shortcut settings)
     // default is to use the action text for actions, or the whatsThis for shortcuts,
@@ -78,7 +80,7 @@ public:
 
     virtual bool isActive() const = 0;
 
-    virtual void setKeySequence(const QKeySequence &key) = 0;
+    virtual void setKeySequences(const QList<QKeySequence> &keys) = 0;
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
     void augmentActionWithShortcutToolTip(QAction *action) const;
     static QToolButton *toolButtonWithAppendedShortcut(QAction *action, Command *cmd);

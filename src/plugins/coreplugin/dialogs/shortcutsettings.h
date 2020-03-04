@@ -51,7 +51,7 @@ class ShortcutSettingsWidget;
 struct ShortcutItem
 {
     Command *m_cmd;
-    QKeySequence m_key;
+    QList<QKeySequence> m_keys;
     QTreeWidgetItem *m_item;
 };
 

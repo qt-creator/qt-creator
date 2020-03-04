@@ -253,13 +253,20 @@ Id Action::id() const
 void Action::setDefaultKeySequence(const QKeySequence &key)
 {
     if (!m_isKeyInitialized)
-        setKeySequence(key);
-    m_defaultKey = key;
+        setKeySequences({key});
+    m_defaultKeys = {key};
 }
 
-QKeySequence Action::defaultKeySequence() const
+void Action::setDefaultKeySequences(const QList<QKeySequence> &keys)
 {
-    return m_defaultKey;
+    if (!m_isKeyInitialized)
+        setKeySequences(keys);
+    m_defaultKeys = keys;
+}
+
+QList<QKeySequence> Action::defaultKeySequences() const
+{
+    return m_defaultKeys;
 }
 
 QAction *Action::action() const
@@ -277,11 +284,16 @@ Context Action::context() const
     return m_context;
 }
 
-void Action::setKeySequence(const QKeySequence &key)
+void Action::setKeySequences(const QList<QKeySequence> &keys)
 {
     m_isKeyInitialized = true;
-    m_action->setShortcut(key);
+    m_action->setShortcuts(keys);
     emit keySequenceChanged();
+}
+
+QList<QKeySequence> Action::keySequences() const
+{
+    return m_action->shortcuts();
 }
 
 QKeySequence Action::keySequence() const
