@@ -244,11 +244,11 @@ void DesignModeWidget::setup()
     // Setup Actions and Menus
     Core::ActionContainer *mwindow = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW);
     // Window > Views
-    Core::ActionContainer *mviews = Core::ActionManager::createMenu(Core::Constants::M_WINDOW_VIEWS);
+    Core::ActionContainer *mviews = Core::ActionManager::createMenu(Core::Constants::M_VIEW_VIEWS);
     mviews->menu()->addSeparator();
     // Window > Workspaces
     Core::ActionContainer *mworkspaces = Core::ActionManager::createMenu(QmlDesigner::Constants::M_WINDOW_WORKSPACES);
-    mwindow->addMenu(mworkspaces, Core::Constants::G_WINDOW_VIEWS);
+    mwindow->addMenu(mworkspaces, Core::Constants::G_VIEW_VIEWS);
     mworkspaces->menu()->setTitle(tr("&Workspaces"));
     mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show); // TODO what does it exactly do?!
 

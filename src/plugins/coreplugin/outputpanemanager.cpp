@@ -391,11 +391,11 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     StatusBarManager::addStatusBarWidget(m_buttonsWidget, StatusBarManager::Second);
 
-    ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
+    ActionContainer *mview = ActionManager::actionContainer(Constants::M_VIEW);
 
     // Window->Output Panes
-    ActionContainer *mpanes = ActionManager::createMenu(Constants::M_WINDOW_PANES);
-    mwindow->addMenu(mpanes, Constants::G_WINDOW_PANES);
+    ActionContainer *mpanes = ActionManager::createMenu(Constants::M_VIEW_PANES);
+    mview->addMenu(mpanes, Constants::G_VIEW_PANES);
     mpanes->menu()->setTitle(tr("Output &Panes"));
     mpanes->appendGroup("Coreplugin.OutputPane.ActionsGroup");
     mpanes->appendGroup("Coreplugin.OutputPane.PanesGroup");

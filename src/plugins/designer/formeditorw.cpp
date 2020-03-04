@@ -313,7 +313,7 @@ void FormEditorData::addDockViewAction(ActionContainer *viewMenu,
 void FormEditorData::setupViewActions()
 {
     // Populate "View" menu of form editor menu
-    ActionContainer *viewMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
+    ActionContainer *viewMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
     QTC_ASSERT(viewMenu, return);
 
     addDockViewAction(viewMenu, WidgetBoxSubWindow, m_contexts,

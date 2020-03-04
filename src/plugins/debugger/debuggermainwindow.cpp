@@ -253,7 +253,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     q->addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
 
     connect(viewButton, &QAbstractButton::clicked, this, [this, viewButton] {
-        ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
+        ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
         viewsMenu->menu()->exec(viewButton->mapToGlobal(QPoint()));
     });
 
@@ -279,7 +279,7 @@ DebuggerMainWindow::DebuggerMainWindow()
 
     Context debugcontext(Debugger::Constants::C_DEBUGMODE);
 
-    ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
+    ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
     Command *cmd = ActionManager::registerAction(showCentralWidgetAction(),
         "Debugger.Views.ShowCentralWidget", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
@@ -312,7 +312,7 @@ DebuggerMainWindow::~DebuggerMainWindow()
 
 void DebuggerMainWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
+    ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
     viewsMenu->menu()->exec(ev->globalPos());
 }
 
@@ -893,7 +893,7 @@ void Perspective::addWindow(QWidget *widget,
 
         Command *cmd = ActionManager::registerAction(op.toggleViewAction, op.commandId, d->context());
         cmd->setAttribute(Command::CA_Hide);
-        ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS)->addAction(cmd);
+        ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS)->addAction(cmd);
     }
 
     d->m_dockOperations.append(op);
