@@ -587,9 +587,9 @@ protected:
             accept(ast->importUri);
         if (ast->version) {
             out(" ");
-            out(QString::number(ast->version->majorVersion).toUtf8());
+            out(QString::number(ast->version->majorVersion));
             out(".");
-            out(QString::number(ast->version->minorVersion).toUtf8());
+            out(QString::number(ast->version->minorVersion));
         }
         if (!ast->importId.isNull()) {
             out(" as ", ast->asToken);

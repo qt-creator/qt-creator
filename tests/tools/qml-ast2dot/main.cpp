@@ -154,7 +154,7 @@ protected: // visiting functions:
         else
             terminal(ast->fileNameToken);
 
-        terminal(ast->versionToken);
+        terminal(ast->version->firstSourceLocation());
         terminal(ast->asToken);
         terminal(ast->importIdToken);
         terminal(ast->semicolonToken);
@@ -299,6 +299,9 @@ protected: // visiting functions:
     virtual bool visit(DebuggerStatement *ast) { terminal(ast->debuggerToken); terminal(ast->semicolonToken); return false; }
     virtual bool visit(UiParameterList *ast) { terminal(ast->commaToken); terminal(ast->identifierToken); nonterminal(ast->next); return false; }
 
+    void throwRecursionDepthError() override {
+        qWarning() << "Reached maximum recursion depth.";
+    }
 private:
     QHash<Node *, QByteArray> _id;
     QList<QPair<QByteArray, QByteArray> > _connections;
