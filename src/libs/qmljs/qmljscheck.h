@@ -154,7 +154,6 @@ private:
     bool _importsOk;
     bool _inStatementBinding;
     const Imports *_imports;
-    bool _isQtQuick2;
 };
 
 } // namespace QmlJS
