@@ -2,10 +2,9 @@
 <QtAdvancedDockingSystem version="1" containers="1">
     <container floating="false">
         <splitter orientation="Horizontal" count="3">
-            <splitter orientation="Vertical" count="2">
-                <area tabs="3" current="Library">
+            <splitter orientation="Vertical" count="3">
+                <area tabs="2" current="Library">
                     <widget name="Library" closed="false"/>
-                    <widget name="Navigator" closed="false"/>
                     <widget name="DebugView" closed="false"/>
                 </area>
                 <area tabs="3" current="Projects">
@@ -13,21 +12,24 @@
                     <widget name="FileSystem" closed="false"/>
                     <widget name="OpenDocuments" closed="false"/>
                 </area>
-                <sizes>600 400</sizes>
+                <area tabs="1" current="Navigator">
+                    <widget name="Navigator" closed="false"/>
+                </area>
+                <sizes>6000 1500 2500</sizes>
             </splitter>
             <splitter orientation="Vertical" count="3">
                 <area tabs="2" current="FormEditor">
                     <widget name="FormEditor" closed="false"/>
                     <widget name="TextEditor" closed="false"/>
                 </area>
-                <area tabs="2" current="Timelines">
+                <area tabs="2" current="StatesEditor">
                     <widget name="StatesEditor" closed="false"/>
                     <widget name="Timelines" closed="false"/>
                 </area>
                 <area tabs="1" current="OutputPane">
                     <widget name="OutputPane" closed="true"/>
                 </area>
-                <sizes>700 150 150</sizes>
+                <sizes>7000 1500 1500</sizes>
             </splitter>
             <splitter orientation="Vertical" count="2">
                 <area tabs="1" current="Properties">
@@ -36,9 +38,9 @@
                 <area tabs="1" current="ConnectionView">
                     <widget name="ConnectionView" closed="false"/>
                 </area>
-                <sizes>700 300</sizes>
+                <sizes>7000 3000</sizes>
             </splitter>
-            <sizes>200 600 200</sizes>
+            <sizes>2000 6000 2000</sizes>
         </splitter>
     </container>
 </QtAdvancedDockingSystem>
