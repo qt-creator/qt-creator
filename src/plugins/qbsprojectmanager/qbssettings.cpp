@@ -117,8 +117,9 @@ void QbsSettings::loadSettings()
 {
     QSettings * const s = Core::ICore::settings();
     m_settings.qbsExecutableFilePath = FilePath::fromString(s->value(QBS_EXE_KEY).toString());
-    m_settings.defaultInstallDirTemplate = s->value(QBS_DEFAULT_INSTALL_DIR_KEY,
-                                                    "%{CurrentBuild:QbsBuildRoot}").toString();
+    m_settings.defaultInstallDirTemplate = s->value(
+                QBS_DEFAULT_INSTALL_DIR_KEY,
+                "%{CurrentBuild:QbsBuildRoot}/install-root").toString();
     m_settings.useCreatorSettings = s->value(USE_CREATOR_SETTINGS_KEY, true).toBool();
 }
 
