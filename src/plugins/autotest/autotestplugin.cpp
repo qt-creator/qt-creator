@@ -86,10 +86,8 @@ class AutotestPluginPrivate : public QObject
 {
     Q_OBJECT
 public:
-    explicit AutotestPluginPrivate(AutotestPlugin *parent);
+    AutotestPluginPrivate();
     ~AutotestPluginPrivate() override;
-
-    AutotestPlugin *q = nullptr;
 
     TestFrameworkManager *m_frameworkManager = nullptr;
     TestNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
@@ -122,8 +120,7 @@ AutotestPlugin::~AutotestPlugin()
     delete dd;
 }
 
-AutotestPluginPrivate::AutotestPluginPrivate(AutotestPlugin *parent)
-    : q(parent)
+AutotestPluginPrivate::AutotestPluginPrivate()
 {
     dd = this; // Needed as the code below access it via the static plugin interface
     m_frameworkManager = TestFrameworkManager::instance();
@@ -258,7 +255,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    dd = new AutotestPluginPrivate(this);
+    dd = new AutotestPluginPrivate;
     return true;
 }
 
