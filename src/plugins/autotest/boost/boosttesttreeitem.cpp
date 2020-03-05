@@ -337,6 +337,9 @@ bool BoostTestTreeItem::enabled() const
     if (m_state & Disabled)
         return false;
 
+    if (type() == Root)
+        return true;
+
     const TestTreeItem *parent = parentItem();
     if (parent && parent->type() == TestSuite) // take test suites into account
         return static_cast<const BoostTestTreeItem *>(parent)->enabled();
