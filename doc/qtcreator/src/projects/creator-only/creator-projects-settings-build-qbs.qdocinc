@@ -70,6 +70,13 @@
                 \li Select \uicontrol {Force probes} to force re-execution of
                     the configure scripts of
                     \l{https://doc.qt.io/qbs/probe-item.html}{Probes}.
+                            \li In the \uicontrol Flags field:
+
+            \endlist
+
+        \li In the \uicontrol {Installation flags} field:
+
+            \list
 
                 \li Select \uicontrol Install to copy artifacts to their install
                     location after building them. This option is enabled by

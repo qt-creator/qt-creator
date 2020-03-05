@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -41,7 +41,7 @@
     kit. You can edit the build profiles by adding new keys and values.
 
     To check which Qbs version is being used, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Kits > \uicontrol Qbs.
+    \uicontrol Options > \uicontrol Qbs > \uicontrol General.
 
     \section1 Building Qbs
 
@@ -59,22 +59,32 @@
 
     \section1 Specifying Qbs Settings
 
-    To specify settings for Qbs, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol Kits > \uicontrol Qbs.
-
-    \image qtcreator-options-qbs.png
-
     By default, Qbs profiles are stored in the \c qbs directory in the \QC
     settings directory to ensure that different \QC instances do not overwrite
     each other's profiles. If you only run one \QC instance, you can store the
-    profiles in the Qbs settings directory instead, by deselecting the
-    \uicontrol {Store profiles in \QC settings directory} check box.
+    profiles in the Qbs settings directory instead.
 
-    In the \uicontrol Kit field, select a build and run kit to view the
-    properties of the associated Qbs profile. To modify the properties of the
-    Qbs profile associated with a kit, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Kits. For more
-    information, see \l{Editing Qbs Profiles}.
+    To specify settings for Qbs:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Qbs.
+            \image qtcreator-options-qbs.png
+        \li Deselect the \uicontrol {Use \QC settings directory for Qbs} check
+            box to store Qbs profiles in the Qbs settings directory.
+        \li In the \uicontrol {Path to qbs executable} field, you can view
+            and change the path to the Qbs executable.
+            The \uicontrol {Qbs version} field displays the version number
+            of the executable.
+        \li In the \uicontrol {Default installation directory} field, you
+            can view and change the Qbs installation directory.
+        \li Select the \uicontrol Profiles tab to specify settings for Qbs
+            profiles.
+            \image creator-qbs-profiles.png "Qbs Profiles tab"
+        \li In the \uicontrol Kit field, select a build and run kit to view
+            the properties of the associated profile. To modify the properties,
+            select \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
+            For more information, see \l{Editing Qbs Profiles}.
+    \endlist
 
     \section1 Related Topics
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -58,8 +58,9 @@
     for building and running projects, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General. The
     \uicontrol CMake tab contains additional settings for CMake. You can find
-    more settings for CMake and Qbs in \uicontrol Tools > \uicontrol Options >
-    \uicontrol Kits > \uicontrol CMake and \uicontrol Qbs.
+    more settings for CMake in \uicontrol Tools > \uicontrol Options >
+    \uicontrol Kits > \uicontrol CMake and for Qbs in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Qbs.
 
     To specify build and run settings for different target platforms,
     select \uicontrol Projects. For more information on the options you have,
