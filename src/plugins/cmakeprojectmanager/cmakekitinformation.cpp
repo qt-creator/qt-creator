@@ -25,8 +25,10 @@
 
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
-#include "cmaketoolmanager.h"
+#include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 #include "cmaketool.h"
+#include "cmaketoolmanager.h"
 
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
@@ -611,10 +613,19 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
         return g.matches("Ninja", extraGenerator);
     });
     if (it != known.constEnd()) {
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        k->addToEnvironment(env);
-        const Utils::FilePath ninjaExec = env.searchInPath(QLatin1String("ninja"));
-        if (!ninjaExec.isEmpty())
+        const bool hasNinja = [k]() {
+            Internal::CMakeSpecificSettings *settings
+                = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
+
+            if (settings->ninjaPath().isEmpty()) {
+                Utils::Environment env = Utils::Environment::systemEnvironment();
+                k->addToEnvironment(env);
+                return !env.searchInPath("ninja").isEmpty();
+            }
+            return true;
+        }();
+
+        if (hasNinja)
             return GeneratorInfo({QString("Ninja"), extraGenerator, QString(), QString()}).toVariant();
     }
 
