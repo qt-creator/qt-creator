@@ -41,7 +41,6 @@ public:
     ~FossilEditorWidget() final;
 
 private:
-    QSet<QString> annotationChanges() const final;
     QString changeUnderCursor(const QTextCursor &cursor) const final;
     QString decorateVersion(const QString &revision) const final;
     QStringList annotationPreviousVersions(const QString &revision) const final;
