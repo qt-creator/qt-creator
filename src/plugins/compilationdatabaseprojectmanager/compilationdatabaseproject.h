@@ -56,6 +56,9 @@ class CompilationDatabaseProject : public ProjectExplorer::Project
 public:
     explicit CompilationDatabaseProject(const Utils::FilePath &filename);
     Utils::FilePath rootPathFromSettings() const;
+
+private:
+    void configureAsExampleProject() override;
 };
 
 class CompilationDatabaseBuildSystem : public ProjectExplorer::BuildSystem

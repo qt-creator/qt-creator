@@ -134,7 +134,7 @@ void tst_Check::test()
     const QRegExp messagePattern(" (\\d+) (\\d+) (\\d+)");
 
     QList<Message> expectedMessages;
-    foreach (const AST::SourceLocation &comment, doc->engine()->comments()) {
+    foreach (const SourceLocation &comment, doc->engine()->comments()) {
         const QString text = doc->source().mid(comment.begin(), comment.end() - comment.begin());
 
         if (messagePattern.indexIn(text) == -1)

@@ -35,9 +35,11 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/QScopedValueRollback>
 
-QT_QML_BEGIN_NAMESPACE
+QT_BEGIN_NAMESPACE
 Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
-QT_QML_END_NAMESPACE
+QT_END_NAMESPACE
+
+QT_QML_BEGIN_NAMESPACE
 
 using namespace QmlJS;
 
@@ -1619,3 +1621,5 @@ bool Lexer::scanDirectives(Directives *directives, DiagnosticMessage *error)
 
     return true;
 }
+
+QT_QML_END_NAMESPACE

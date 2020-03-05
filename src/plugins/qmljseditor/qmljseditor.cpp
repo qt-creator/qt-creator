@@ -36,6 +36,7 @@
 #include "qmljsquickfixassist.h"
 #include "qmloutlinemodel.h"
 #include "quicktoolbar.h"
+#include "qmljseditingsettingspage.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
@@ -158,6 +159,24 @@ void QmlJSEditorWidget::finalizeInitialization()
     createToolBar();
 }
 
+bool QmlJSEditorWidget::restoreState(const QByteArray &state)
+{
+    QStringList qmlTypes { QmlJSTools::Constants::QML_MIMETYPE,
+                QmlJSTools::Constants::QBS_MIMETYPE,
+                QmlJSTools::Constants::QMLTYPES_MIMETYPE,
+                QmlJSTools::Constants::QMLUI_MIMETYPE };
+
+    if (QmlJsEditingSettings::get().foldAuxData() && qmlTypes.contains(textDocument()->mimeType())) {
+        int version = 0;
+        QDataStream stream(state);
+        stream >> version;
+        if (version < 1)
+            foldAuxiliaryData();
+    }
+
+    return TextEditorWidget::restoreState(state);
+}
+
 QModelIndex QmlJSEditorWidget::outlineModelIndex()
 {
     if (!m_outlineModelIndex.isValid()) {
@@ -214,6 +233,27 @@ void QmlJSEditorWidget::updateCodeWarnings(Document::Ptr doc)
         setExtraSelections(CodeWarningsSelection, selections);
     } else {
         setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
+    }
+}
+
+void QmlJSEditorWidget::foldAuxiliaryData()
+{
+    QTextDocument *doc = document();
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    QTextBlock block = doc->lastBlock();
+
+    while (block.isValid() && block.isVisible()) {
+        if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
+            const QString trimmedText = block.text().trimmed();
+            if (trimmedText.startsWith("/*##^##")) {
+                TextDocumentLayout::doFoldOrUnfold(block, false);
+                documentLayout->requestUpdate();
+                documentLayout->emitDocumentSizeChanged();
+                break;
+            }
+        }
+        block = block.previous();
     }
 }
 

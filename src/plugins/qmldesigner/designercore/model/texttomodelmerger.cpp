@@ -773,7 +773,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 
         QString version;
         if (import->version != nullptr)
-            version = QLatin1String("%1.%2").arg(import->version->majorVersion).arg(import->version->minorVersion);
+            version = QString("%1.%2").arg(import->version->majorVersion).arg(import->version->minorVersion);
         const QString &as = import->importId.toString();
 
         if (!import->fileName.isEmpty()) {

@@ -190,7 +190,7 @@ public:
     virtual void openFinishedSuccessfully();
     // IEditor
     QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
+    virtual bool restoreState(const QByteArray &state);
     void gotoLine(int line, int column = 0, bool centerLine = true, bool animate = false);
     int position(TextPositionOperation posOp = CurrentPosition,
          int at = -1) const;

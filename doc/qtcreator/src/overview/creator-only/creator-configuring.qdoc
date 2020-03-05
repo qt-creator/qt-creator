@@ -177,4 +177,8 @@
     To enable and disable plugins, select \uicontrol Help >
     \uicontrol {About Plugins}.
 
+    The \l{https://marketplace.qt.io/}{Qt Marketplace} contains \QC plugins
+    that you can download and install either for free or for a price set by
+    their publisher. You can browse the available plugins in the
+    \uicontrol Marketplace tab in the Welcome mode.
 */

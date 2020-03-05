@@ -47,7 +47,7 @@
 
 #include "qmljssourcelocation_p.h"
 
-QT_BEGIN_NAMESPACE
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 class DiagnosticMessage
@@ -93,7 +93,8 @@ public:
 };
 } // namespace QmlJS
 
+QT_QML_END_NAMESPACE
+
+QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(QmlJS::DiagnosticMessage, Q_MOVABLE_TYPE);
-
 QT_END_NAMESPACE
-

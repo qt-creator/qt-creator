@@ -310,7 +310,7 @@ bool GitEditorWidget::isValidRevision(const QString &revision) const
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     if (contentType() != OtherContent)
-        GitClient::addChangeActions(menu, change, sourceWorkingDirectory());
+        GitClient::addChangeActions(menu, sourceWorkingDirectory(), change);
 }
 
 QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const
