@@ -60,6 +60,7 @@ public:
     void inputEvent(const InputEventCommand &command) override;
     void view3DAction(const View3DActionCommand &command) override;
     void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command) override;
+    void changePropertyBindings(const ChangeBindingsCommand &command) override;
     void changeIds(const ChangeIdsCommand &command) override;
 
 private slots:
@@ -107,7 +108,7 @@ private:
     void removeNode3D(QObject *node);
     void resolveSceneRoots();
     ServerNodeInstance active3DSceneInstance() const;
-    void render3DEditView();
+    void render3DEditView(int count = 1);
     void doRender3DEditView();
 
     QPointer<QQuickView> m_editView3D;
@@ -128,7 +129,7 @@ private:
     PropertyName m_changedProperty;
     ChangeSelectionCommand m_pendingSelectionChangeCommand;
     QObject *m_3dHelper = nullptr;
-    bool m_needRender = false;
+    int m_needRender = 0;
 };
 
 } // namespace QmlDesigner

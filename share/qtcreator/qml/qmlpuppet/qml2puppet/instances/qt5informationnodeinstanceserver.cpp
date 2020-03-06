@@ -425,9 +425,9 @@ ServerNodeInstance Qt5InformationNodeInstanceServer::active3DSceneInstance() con
     return sceneInstance;
 }
 
-void Qt5InformationNodeInstanceServer::render3DEditView()
+void Qt5InformationNodeInstanceServer::render3DEditView(int count)
 {
-    m_needRender = true;
+    m_needRender = qMax(count, m_needRender);
     if (!m_renderTimer.isActive())
         m_renderTimer.start(0);
 }
@@ -465,9 +465,9 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
         // send the rendered image to creator process
         nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Render3DView,
                                                             QVariant::fromValue(imgContainer)});
-        if (m_needRender) {
+        if (m_needRender > 0) {
             m_renderTimer.start(0);
-            m_needRender = false;
+            --m_needRender;
         }
     }
 }
@@ -822,6 +822,9 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     updateActiveSceneToEditView3D();
 
     createCameraAndLightGizmos(instanceList);
+
+    // Queue two renders to make sure icon gizmos update properly
+    render3DEditView(2);
 #else
     Q_UNUSED(instanceList)
     Q_UNUSED(toolStates)
@@ -912,6 +915,8 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
 
     if (m_editView3DRootItem)
         resolveSceneRoots();
+
+    render3DEditView();
 }
 
 void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &command)
@@ -1171,6 +1176,12 @@ void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxilia
     render3DEditView();
 }
 
+void Qt5InformationNodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
+{
+    Qt5NodeInstanceServer::changePropertyBindings(command);
+    render3DEditView();
+}
+
 void Qt5InformationNodeInstanceServer::changeIds(const ChangeIdsCommand &command)
 {
     Qt5NodeInstanceServer::changeIds(command);
@@ -1193,7 +1204,8 @@ void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewState
             auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
             if (helper)
                 helper->storeToolState(helper->globalStateId(), "rootSize", QVariant(command.size()), 0);
-            render3DEditView();
+            // Queue two renders to make sure icon gizmos update properly
+            render3DEditView(2);
         }
     }
 #else
