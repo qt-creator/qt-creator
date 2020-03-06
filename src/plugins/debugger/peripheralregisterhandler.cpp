@@ -682,9 +682,9 @@ static void handleGroup(QXmlStreamReader &in, PeripheralRegisterGroups &groups)
     groups.push_back(group);
 }
 
-static PeripheralRegisterGroups availablePeripheralRegisterGroups(const QString &filePath)
+static PeripheralRegisterGroups availablePeripheralRegisterGroups(const FilePath &filePath)
 {
-    QFile f(filePath);
+    QFile f(filePath.toString());
     if (!f.open(QIODevice::ReadOnly))
         return {};
 
@@ -716,14 +716,13 @@ void PeripheralRegisterHandler::updateRegisterGroups()
 {
     clear();
 
-    const auto dev = m_engine->device();
-    QTC_ASSERT(dev, return);
+    const DebuggerRunParameters &rp = m_engine->runParameters();
+    const FilePath peripheralDescriptionFile = FilePath::fromVariant(
+                rp.inferior.extraData.value(Debugger::Constants::kPeripheralDescriptionFile));
 
-    const QString filePath = dev->peripheralDescriptionFilePath();
-    if (filePath.isEmpty())
+    if (!peripheralDescriptionFile.exists())
         return;
-
-    m_peripheralRegisterGroups = availablePeripheralRegisterGroups(filePath);
+    m_peripheralRegisterGroups = availablePeripheralRegisterGroups(peripheralDescriptionFile);
 }
 
 void PeripheralRegisterHandler::updateRegister(quint64 address, quint64 value)

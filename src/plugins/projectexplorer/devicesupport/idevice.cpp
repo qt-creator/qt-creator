@@ -124,7 +124,6 @@ const char TimeoutKey[] = "Timeout";
 const char HostKeyCheckingKey[] = "HostKeyChecking";
 
 const char DebugServerKey[] = "DebugServerKey";
-const char PeripheralDescriptionFileKey[] = "PeripheralDescriptionFileKey";
 const char QmlsceneKey[] = "QmlsceneKey";
 
 using AuthType = QSsh::SshConnectionParameters::AuthenticationType;
@@ -152,7 +151,6 @@ public:
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
     QString debugServerPath;
-    QString peripheralDescriptionFilePath;
     QString qmlsceneCommand;
 
     QList<Utils::Icon> deviceIcons;
@@ -392,7 +390,6 @@ void IDevice::fromMap(const QVariantMap &map)
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
     d->debugServerPath = map.value(QLatin1String(DebugServerKey)).toString();
-    d->peripheralDescriptionFilePath = map.value(QLatin1String(PeripheralDescriptionFileKey)).toString();
     d->qmlsceneCommand = map.value(QLatin1String(QmlsceneKey)).toString();
     d->extraData = map.value(ExtraDataKey).toMap();
 }
@@ -424,7 +421,6 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(VersionKey), d->version);
 
     map.insert(QLatin1String(DebugServerKey), d->debugServerPath);
-    map.insert(QLatin1String(PeripheralDescriptionFileKey), d->peripheralDescriptionFilePath);
     map.insert(QLatin1String(QmlsceneKey), d->qmlsceneCommand);
     map.insert(ExtraDataKey, d->extraData);
 
@@ -506,17 +502,6 @@ QString IDevice::debugServerPath() const
 void IDevice::setDebugServerPath(const QString &path)
 {
     d->debugServerPath = path;
-}
-
-
-QString IDevice::peripheralDescriptionFilePath() const
-{
-    return d->peripheralDescriptionFilePath;
-}
-
-void IDevice::setPeripheralDescriptionFilePath(const QString &path)
-{
-    d->peripheralDescriptionFilePath = path;
 }
 
 QString IDevice::qmlsceneCommand() const

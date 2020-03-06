@@ -33,6 +33,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
 
 #include <ssh/sshconnection.h>
 
@@ -49,6 +50,7 @@ namespace BareMetal {
 namespace Internal {
 
 const char startupModeKeyC[] = "BareMetal.GdbServerProvider.Mode";
+const char peripheralDescriptionFileKeyC[] = "BareMetal.GdbServerProvider.PeripheralDescriptionFile";
 const char initCommandsKeyC[] = "BareMetal.GdbServerProvider.InitCommands";
 const char resetCommandsKeyC[] = "BareMetal.GdbServerProvider.ResetCommands";
 const char useExtendedRemoteKeyC[] = "BareMetal.GdbServerProvider.UseExtendedRemote";
@@ -64,6 +66,7 @@ GdbServerProvider::GdbServerProvider(const QString &id)
 GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
     : IDebugServerProvider(other.id())
     , m_startupMode(other.m_startupMode)
+    , m_peripheralDescriptionFile(other.m_peripheralDescriptionFile)
     , m_initCommands(other.m_initCommands)
     , m_resetCommands(other.m_resetCommands)
     , m_useExtendedRemote(other.useExtendedRemote())
@@ -76,9 +79,19 @@ GdbServerProvider::StartupMode GdbServerProvider::startupMode() const
     return m_startupMode;
 }
 
+Utils::FilePath GdbServerProvider::peripheralDescriptionFile() const
+{
+    return m_peripheralDescriptionFile;
+}
+
 void GdbServerProvider::setStartupMode(StartupMode m)
 {
     m_startupMode = m;
+}
+
+void GdbServerProvider::setPeripheralDescriptionFile(const FilePath &file)
+{
+    m_peripheralDescriptionFile = file;
 }
 
 QString GdbServerProvider::initCommands() const
@@ -123,6 +136,7 @@ bool GdbServerProvider::operator==(const IDebugServerProvider &other) const
 
     const auto p = static_cast<const GdbServerProvider *>(&other);
     return m_startupMode == p->m_startupMode
+            && m_peripheralDescriptionFile == p->m_peripheralDescriptionFile
             && m_initCommands == p->m_initCommands
             && m_resetCommands == p->m_resetCommands
             && m_useExtendedRemote == p->m_useExtendedRemote;
@@ -132,6 +146,7 @@ QVariantMap GdbServerProvider::toMap() const
 {
     QVariantMap data = IDebugServerProvider::toMap();
     data.insert(startupModeKeyC, m_startupMode);
+    data.insert(peripheralDescriptionFileKeyC, m_peripheralDescriptionFile.toVariant());
     data.insert(initCommandsKeyC, m_initCommands);
     data.insert(resetCommandsKeyC, m_resetCommands);
     data.insert(useExtendedRemoteKeyC, m_useExtendedRemote);
@@ -166,6 +181,8 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
 
     Runnable inferior;
     inferior.executable = bin;
+    inferior.extraData.insert(Debugger::Constants::kPeripheralDescriptionFile,
+                              m_peripheralDescriptionFile.toVariant());
     if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
         inferior.commandLineArguments = argAspect->arguments(runControl->macroExpander());
     runTool->setInferior(inferior);
@@ -197,6 +214,7 @@ bool GdbServerProvider::fromMap(const QVariantMap &data)
         return false;
 
     m_startupMode = static_cast<StartupMode>(data.value(startupModeKeyC).toInt());
+    m_peripheralDescriptionFile = FilePath::fromVariant(data.value(peripheralDescriptionFileKeyC));
     m_initCommands = data.value(initCommandsKeyC).toString();
     m_resetCommands = data.value(resetCommandsKeyC).toString();
     m_useExtendedRemote = data.value(useExtendedRemoteKeyC).toBool();
@@ -214,17 +232,31 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
                                          "of the GDB server provider."));
     m_mainLayout->addRow(tr("Startup mode:"), m_startupModeComboBox);
 
+    m_peripheralDescriptionFileChooser = new Utils::PathChooser(this);
+    m_peripheralDescriptionFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_peripheralDescriptionFileChooser->setPromptDialogFilter(
+                tr("Peripheral description files (*.svd)"));
+    m_peripheralDescriptionFileChooser->setPromptDialogTitle(
+                tr("Select Peripheral Description File"));
+    m_mainLayout->addRow(tr("Peripheral description file:"),
+                         m_peripheralDescriptionFileChooser);
+
     populateStartupModes();
     setFromProvider();
 
     connect(m_startupModeComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &GdbServerProviderConfigWidget::dirty);
+
+    connect(m_peripheralDescriptionFileChooser, &Utils::PathChooser::pathChanged,
+            this, &GdbServerProviderConfigWidget::dirty);
 }
 
 void GdbServerProviderConfigWidget::apply()
 {
-    static_cast<GdbServerProvider *>(m_provider)->setStartupMode(startupMode());
+    const auto p = static_cast<GdbServerProvider *>(m_provider);
+    p->setStartupMode(startupMode());
+    p->setPeripheralDescriptionFile(peripheralDescriptionFile());
     IDebugServerProviderConfigWidget::apply();
 }
 
@@ -277,9 +309,21 @@ void GdbServerProviderConfigWidget::populateStartupModes()
         m_startupModeComboBox->addItem(startupModeName(mode), mode);
 }
 
+Utils::FilePath GdbServerProviderConfigWidget::peripheralDescriptionFile() const
+{
+    return m_peripheralDescriptionFileChooser->fileName();
+}
+
+void GdbServerProviderConfigWidget::setPeripheralDescriptionFile(const Utils::FilePath &file)
+{
+    m_peripheralDescriptionFileChooser->setFileName(file);
+}
+
 void GdbServerProviderConfigWidget::setFromProvider()
 {
-    setStartupMode(static_cast<GdbServerProvider *>(m_provider)->startupMode());
+    const auto p = static_cast<GdbServerProvider *>(m_provider);
+    setStartupMode(p->startupMode());
+    setPeripheralDescriptionFile(p->peripheralDescriptionFile());
 }
 
 QString GdbServerProviderConfigWidget::defaultInitCommandsTooltip()

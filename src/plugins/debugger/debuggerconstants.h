@@ -36,6 +36,9 @@ const char MODE_DEBUG[]             = "Mode.Debug";
 // Debug mode context
 const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
+// Common debugger constants.
+const char kPeripheralDescriptionFile[] = "PeripheralDescriptionFile";
+
 // UVSC-specific debugger constants.
 const char kUVisionProjectFilePath[] = "UVisionProjectFilePath";
 const char kUVisionOptionsFilePath[] = "UVisionOptionsFilePath";
