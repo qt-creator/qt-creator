@@ -149,15 +149,27 @@ AutotestPluginPrivate::AutotestPluginPrivate(AutotestPlugin *parent)
     m_frameworkManager->activateFrameworksFromSettings(&m_settings);
     TestTreeModel::instance()->synchronizeTestFrameworks();
 
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged, this, [this] {
-        m_runconfigCache.clear();
-    });
+    auto sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, &ProjectExplorer::SessionManager::startupProjectChanged,
+            this, [this] { m_runconfigCache.clear(); });
 
+    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
+            this, [this] (ProjectExplorer::Project *project) {
+        auto it = s_projectSettings.find(project);
+        if (it != s_projectSettings.end()) {
+            delete it.value();
+            s_projectSettings.erase(it);
+        }
+    });
 }
 
 AutotestPluginPrivate::~AutotestPluginPrivate()
 {
+    if (!s_projectSettings.isEmpty()) {
+        qDeleteAll(s_projectSettings.values());
+        s_projectSettings.clear();
+    }
+
     delete m_navigationWidgetFactory;
     delete m_resultsPane;
     delete m_frameworkManager;

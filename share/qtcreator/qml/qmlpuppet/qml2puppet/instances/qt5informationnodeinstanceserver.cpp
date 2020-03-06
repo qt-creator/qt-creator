@@ -59,9 +59,7 @@
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
 #include "objectnodeinstance.h"
-#include "drop3dlibraryitemcommand.h"
 #include "puppettocreatorcommand.h"
-#include "view3dclosedcommand.h"
 #include "inputeventcommand.h"
 #include "view3dactioncommand.h"
 
@@ -100,80 +98,9 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-bool Qt5InformationNodeInstanceServer::eventFilter(QObject *, QEvent *event)
-{
-    switch (event->type()) {
-    case QEvent::DragMove: {
-        if (!dropAcceptable(static_cast<QDragMoveEvent *>(event))) {
-            event->ignore();
-            return true;
-        }
-    } break;
-
-    case QEvent::Drop: {
-        QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
-        QByteArray data = dropEvent->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
-        if (!data.isEmpty()) {
-            nodeInstanceClient()->library3DItemDropped(createDrop3DLibraryItemCommand(
-                                                           data, active3DSceneInstance().instanceId()));
-        }
-
-    } break;
-
-    case QEvent::Close: {
-        nodeInstanceClient()->view3DClosed(View3DClosedCommand());
-    } break;
-
-    case QEvent::KeyPress: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        QPair<int, int> data = {keyEvent->key(), int(keyEvent->modifiers())};
-        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::KeyPressed,
-                                                            QVariant::fromValue(data)});
-    } break;
-
-    default:
-        break;
-    }
-
-    return false;
-}
-
-bool Qt5InformationNodeInstanceServer::dropAcceptable(QDragMoveEvent *event) const
-{
-    // Note: this method parses data out of the QDataStream. This should be in sync with how the
-    // data is written to the stream (check QDataStream overloaded operators << and >> in
-    // itemlibraryentry.cpp). If the write order changes, this logic may break.
-    QDataStream stream(event->mimeData()->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo")));
-
-    QString name;
-    TypeName typeName;
-    int majorVersion;
-    int minorVersion;
-    QIcon typeIcon;
-    QString libraryEntryIconPath;
-    QString category;
-    QString requiredImport;
-    QHash<QString, QString> hints;
-
-    stream >> name;
-    stream >> typeName;
-    stream >> majorVersion;
-    stream >> minorVersion;
-    stream >> typeIcon;
-    stream >> libraryEntryIconPath;
-    stream >> category;
-    stream >> requiredImport;
-    stream >> hints;
-
-    QString canBeDropped = hints.value("canBeDroppedInView3D");
-    return canBeDropped == "true" || canBeDropped == "True";
-}
-
 void Qt5InformationNodeInstanceServer::createEditView3D()
 {
 #ifdef QUICK3D_MODULE
-    static bool showEditView = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW");
-
     qmlRegisterRevision<QQuick3DNode, 1>("MouseArea3D", 1, 0);
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
@@ -187,37 +114,19 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     engine()->rootContext()->setContextProperty("_generalHelper", helper);
     m_3dHelper = helper;
 
+    m_editView3D = new QQuickView(quickView()->engine(), quickView());
+    m_editView3D->setFormat(quickView()->format());
+    DesignerSupport::createOpenGLContext(m_editView3D.data());
     QQmlComponent component(engine());
-    if (showEditView) {
-        component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/EditWindow3D.qml"));
-        m_editWindow3D = qobject_cast<QQuickWindow *>(component.create());
-        m_editView3DRootItem = QQmlProperty::read(m_editWindow3D, "editViewRoot").value<QQuickItem *>();
-
-        //For macOS we have to use the 4.1 core profile
-        QSurfaceFormat surfaceFormat = m_editWindow3D->requestedFormat();
-        surfaceFormat.setVersion(4, 1);
-        surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-        m_editWindow3D->setFormat(surfaceFormat);
-    } else {
-        m_editView3D = new QQuickView(quickView()->engine(), quickView());
-        m_editView3D->setFormat(quickView()->format());
-        DesignerSupport::createOpenGLContext(m_editView3D.data());
-        component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
-        m_editView3DRootItem = qobject_cast<QQuickItem *>(component.create());
-    }
+    component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
+    m_editView3DRootItem = qobject_cast<QQuickItem *>(component.create());
 
     if (!m_editView3DRootItem) {
         qWarning() << "Could not create edit view 3D: " << component.errors();
         return;
     }
 
-    if (!showEditView) {
-        DesignerSupport::setRootItem(m_editView3D, m_editView3DRootItem);
-    } else {
-        m_editView3DRootItem->installEventFilter(this);
-        QQmlProperty showButtonsProperty(m_editView3DRootItem, "showButtons", context());
-        showButtonsProperty.write(QVariant(true));
-    }
+    DesignerSupport::setRootItem(m_editView3D, m_editView3DRootItem);
 
     QObject::connect(m_editView3DRootItem, SIGNAL(selectionChanged(QVariant)),
                      this, SLOT(handleSelectionChanged(QVariant)));
@@ -233,8 +142,6 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
                      this, &Qt5InformationNodeInstanceServer::doRender3DEditView);
 
     helper->setParent(m_editView3DRootItem);
-    if (showEditView)
-        helper->setEdit3DWindow(m_editWindow3D);
 #endif
 }
 
@@ -521,8 +428,7 @@ void Qt5InformationNodeInstanceServer::render3DEditView()
 // render the 3D edit view and send the result to creator process
 void Qt5InformationNodeInstanceServer::doRender3DEditView()
 {
-    static bool showEditView = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW");
-    if (m_editView3DRootItem && !showEditView) {
+    if (m_editView3DRootItem) {
         if (!m_editView3DContentItem) {
             m_editView3DContentItem = QQmlProperty::read(m_editView3DRootItem, "contentItem").value<QQuickItem *>();
             if (m_editView3DContentItem) {
@@ -1258,7 +1164,7 @@ void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxilia
     render3DEditView();
 }
 
-// update 3D view window state when the main app window state change
+// update 3D view size when it changes in creator side
 void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
 {
 #ifdef QUICK3D_MODULE
@@ -1269,19 +1175,6 @@ void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewState
             if (helper)
                 helper->storeToolState(helper->globalStateId(), "rootSize", QVariant(command.size()), 0);
             render3DEditView();
-        }
-    } else if (m_editWindow3D) {
-        if (command.type() == Update3dViewStateCommand::StateChange) {
-            if (command.previousStates() & Qt::WindowMinimized) // main window expanded from minimize state
-                m_editWindow3D->show();
-            else if (command.currentStates() & Qt::WindowMinimized) // main window minimized
-                m_editWindow3D->hide();
-        } else if (command.type() == Update3dViewStateCommand::ActiveChange) {
-            m_editWindow3D->setFlag(Qt::WindowStaysOnTopHint, command.isActive());
-
-            // main window has a popup open, lower the edit view 3D so that the pop up is visible
-            if (command.hasPopup())
-                m_editWindow3D->lower();
         }
     }
 #else

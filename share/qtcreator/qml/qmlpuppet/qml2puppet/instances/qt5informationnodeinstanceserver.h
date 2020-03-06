@@ -73,7 +73,6 @@ private slots:
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;
-    bool eventFilter(QObject *obj, QEvent *event) override;
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
     void sendTokenBack();
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
@@ -101,7 +100,6 @@ private:
     void modifyVariantValue(const QVariant &node,
                             const PropertyName &propertyName,
                             ValuesModifiedCommand::TransactionOption option);
-    bool dropAcceptable(QDragMoveEvent *event) const;
     void updateView3DRect(QObject *view3D);
     void updateActiveSceneToEditView3D();
     void removeNode3D(QObject *node);
@@ -111,7 +109,6 @@ private:
     void doRender3DEditView();
 
     QPointer<QQuickView> m_editView3D;
-    QPointer<QQuickWindow> m_editWindow3D;
     QQuickItem *m_editView3DRootItem = nullptr;
     QQuickItem *m_editView3DContentItem = nullptr;
     QSet<QObject *> m_view3Ds;

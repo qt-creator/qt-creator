@@ -43,9 +43,7 @@
 #include <completecomponentcommand.h>
 #include <changenodesourcecommand.h>
 #include <changeselectioncommand.h>
-#include <drop3dlibraryitemcommand.h>
 #include <puppettocreatorcommand.h>
-#include <view3dclosedcommand.h>
 #include <inputeventcommand.h>
 #include <view3dactioncommand.h>
 
@@ -286,9 +284,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
-    static const int drop3DLibraryItemCommandType = QMetaType::type("Drop3DLibraryItemCommand");
     static const int puppetToCreatorCommand = QMetaType::type("PuppetToCreatorCommand");
-    static const int view3DClosedCommand = QMetaType::type("View3DClosedCommand");
 
     if (m_destructing)
         return;
@@ -314,20 +310,18 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
     } else if (command.userType() == changeSelectionCommandType) {
         nodeInstanceClient()->selectionChanged(command.value<ChangeSelectionCommand>());
-    } else if (command.userType() == drop3DLibraryItemCommandType) {
-        nodeInstanceClient()->library3DItemDropped(command.value<Drop3DLibraryItemCommand>());
     } else if (command.userType() == puppetToCreatorCommand) {
         nodeInstanceClient()->handlePuppetToCreatorCommand(command.value<PuppetToCreatorCommand>());
-    } else if (command.userType() == view3DClosedCommand) {
-        nodeInstanceClient()->view3DClosed(command.value<View3DClosedCommand>());
     } else if (command.userType() == puppetAliveCommandType) {
         puppetAlive(puppetStreamType);
     } else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
-    }  else
+    } else {
         Q_ASSERT(false);
-     qCInfo(instanceViewBenchmark) << "dispatching command" << "done" << command.userType();
+    }
+
+    qCInfo(instanceViewBenchmark) << "dispatching command" << "done" << command.userType();
 }
 
 NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const

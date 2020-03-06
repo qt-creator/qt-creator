@@ -35,6 +35,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
@@ -83,12 +84,24 @@ QString ProFileEditorWidget::checkForPrfFile(const QString &baseName) const
 {
     const FilePath projectFile = textDocument()->filePath();
     const QmakePriFileNode *projectNode = nullptr;
+
+    // FIXME: Remove this check once project nodes are fully "static".
     for (const Project * const project : SessionManager::projects()) {
-        if (Target *t = project->activeTarget()) {
-            if (t->buildSystem()->isParsing())
-                continue;
-        }
-        projectNode = dynamic_cast<const QmakePriFileNode *>(project->rootProjectNode()
+        static const auto isParsing = [](const Project *project) {
+            for (const Target * const t : project->targets()) {
+                for (const BuildConfiguration * const bc : t->buildConfigurations()) {
+                    if (bc->buildSystem()->isParsing())
+                        return true;
+                }
+            }
+            return false;
+        };
+        if (isParsing(project))
+            continue;
+
+        ProjectNode * const rootNode = project->rootProjectNode();
+        QTC_ASSERT(rootNode, continue);
+        projectNode = dynamic_cast<const QmakePriFileNode *>(rootNode
                 ->findProjectNode([&projectFile](const ProjectNode *pn) {
             return pn->filePath() == projectFile;
         }));

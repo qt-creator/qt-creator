@@ -64,9 +64,9 @@ QValidator::State WorkspaceValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos)
 
-    if (input.contains(QLatin1Char('/')) || input.contains(QLatin1Char(':'))
-        || input.contains(QLatin1Char('\\')) || input.contains(QLatin1Char('?'))
-        || input.contains(QLatin1Char('*')) || input.contains(QLatin1Char('_')))
+    static QRegExp rx("[a-zA-Z0-9 ()\\-]*");
+
+    if (!rx.exactMatch(input))
         return QValidator::Invalid;
 
     if (m_workspaces.contains(input))
@@ -158,15 +158,22 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
             &QAbstractButton::clicked,
             m_ui.workspaceView,
             &WorkspaceView::renameCurrentWorkspace);
+    connect(m_ui.btReset,
+            &QAbstractButton::clicked,
+            m_ui.workspaceView,
+            &WorkspaceView::resetCurrentWorkspace);
     connect(m_ui.workspaceView,
             &WorkspaceView::activated,
             m_ui.workspaceView,
             &WorkspaceView::switchToCurrentWorkspace);
-
-    connect(m_ui.workspaceView, &WorkspaceView::selected, this, &WorkspaceDialog::updateActions);
-    connect(m_ui.workspaceView, &WorkspaceView::workspaceSwitched, this, &QDialog::reject);
+    connect(m_ui.workspaceView,
+            &WorkspaceView::selected,
+            this,
+            &WorkspaceDialog::updateActions);
 
     m_ui.whatsAWorkspaceLabel->setOpenExternalLinks(true);
+
+   updateActions(m_ui.workspaceView->selectedWorkspaces());
 }
 
 void WorkspaceDialog::setAutoLoadWorkspace(bool check)
@@ -190,16 +197,20 @@ void WorkspaceDialog::updateActions(const QStringList &workspaces)
         m_ui.btDelete->setEnabled(false);
         m_ui.btRename->setEnabled(false);
         m_ui.btClone->setEnabled(false);
+        m_ui.btReset->setEnabled(false);
         m_ui.btSwitch->setEnabled(false);
         return;
     }
-    const bool defaultIsSelected = workspaces.contains("default"); // TODO use const var
+    const bool presetIsSelected = Utils::anyOf(workspaces, [this](const QString &workspace) {
+        return m_manager->isWorkspacePreset(workspace);
+    });
     const bool activeIsSelected = Utils::anyOf(workspaces, [this](const QString &workspace) {
         return workspace == m_manager->activeWorkspace();
     });
-    m_ui.btDelete->setEnabled(!defaultIsSelected && !activeIsSelected);
-    m_ui.btRename->setEnabled(workspaces.size() == 1 && !defaultIsSelected);
+    m_ui.btDelete->setEnabled(!activeIsSelected && !presetIsSelected);
+    m_ui.btRename->setEnabled(workspaces.size() == 1 && !presetIsSelected);
     m_ui.btClone->setEnabled(workspaces.size() == 1);
+    m_ui.btReset->setEnabled(presetIsSelected);
     m_ui.btSwitch->setEnabled(workspaces.size() == 1);
 }
 

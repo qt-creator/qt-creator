@@ -36,7 +36,6 @@ SOURCES += formeditoritem.cpp \
     contentnoteditableindicator.cpp \
     backgroundaction.cpp \
     formeditortoolbutton.cpp \
-    option3daction.cpp \
     formeditorannotationicon.cpp
 
 HEADERS += formeditorscene.h \
@@ -76,7 +75,6 @@ HEADERS += formeditorscene.h \
     contentnoteditableindicator.h \
     backgroundaction.h \
     formeditortoolbutton.h \
-    option3daction.h \
     formeditorannotationicon.h
 
 RESOURCES += formeditor.qrc

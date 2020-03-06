@@ -320,7 +320,7 @@ bool Project::removeTarget(Target *target)
     return true;
 }
 
-QList<Target *> Project::targets() const
+const QList<Target *> Project::targets() const
 {
     return Utils::toRawPointer<QList>(d->m_targets);
 }

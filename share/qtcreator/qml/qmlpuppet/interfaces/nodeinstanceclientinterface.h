@@ -41,8 +41,6 @@ class RemoveSharedMemoryCommand;
 class DebugOutputCommand;
 class PuppetAliveCommand;
 class ChangeSelectionCommand;
-class Drop3DLibraryItemCommand;
-class View3DClosedCommand;
 class PuppetToCreatorCommand;
 
 class NodeInstanceClientInterface
@@ -58,8 +56,6 @@ public:
     virtual void token(const TokenCommand &command) = 0;
     virtual void debugOutput(const DebugOutputCommand &command) = 0;
     virtual void selectionChanged(const ChangeSelectionCommand &command) = 0;
-    virtual void library3DItemDropped(const Drop3DLibraryItemCommand &command) = 0;
-    virtual void view3DClosed(const View3DClosedCommand &command) = 0;
     virtual void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) = 0;
 
     virtual void flush() {}

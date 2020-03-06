@@ -67,7 +67,6 @@ const char STANDALONE_MODE[] = "StandAloneMode";
 const char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
 const char SIMPLE_COLOR_PALETTE_CONTENT[] = "SimpleColorPaletteContent";
 const char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
-const char VIEW_3D_ACTIVE[] = "View3DActive";
 }
 
 class DesignerSettings : public QHash<QByteArray, QVariant>

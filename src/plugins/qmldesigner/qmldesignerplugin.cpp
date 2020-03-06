@@ -253,16 +253,6 @@ void QmlDesignerPlugin::extensionsInitialized()
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToOpen, this, [this] {
         integrateIntoQtCreator(&d->mainWidget);
     });
-
-    connect(Core::ICore::instance(), &Core::ICore::windowStateChanged, this,
-            [this] (Qt::WindowStates previousStates, Qt::WindowStates currentStates) {
-        d->viewManager.nodeInstanceView()->mainWindowStateChanged(previousStates, currentStates);
-    });
-
-    connect(Core::ICore::instance(), &Core::ICore::windowActivationChanged, this,
-            [this] (bool isActive, bool hasPopup) {
-        d->viewManager.nodeInstanceView()->mainWindowActiveChanged(isActive, hasPopup);
-    });
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileName)

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtAdvancedDockingSystem version="1" containers="1">
+    <container floating="false">
+        <splitter orientation="Horizontal" count="3">
+            <splitter orientation="Vertical" count="3">
+                <area tabs="2" current="Library">
+                    <widget name="Library" closed="false"/>
+                    <widget name="DebugView" closed="false"/>
+                </area>
+                <area tabs="3" current="Projects">
+                    <widget name="Projects" closed="false"/>
+                    <widget name="FileSystem" closed="false"/>
+                    <widget name="OpenDocuments" closed="false"/>
+                </area>
+                <area tabs="1" current="Navigator">
+                    <widget name="Navigator" closed="false"/>
+                </area>
+                <sizes>6000 1500 2500</sizes>
+            </splitter>
+            <splitter orientation="Vertical" count="3">
+                <area tabs="2" current="FormEditor">
+                    <widget name="FormEditor" closed="false"/>
+                    <widget name="TextEditor" closed="false"/>
+                </area>
+                <area tabs="2" current="StatesEditor">
+                    <widget name="StatesEditor" closed="false"/>
+                    <widget name="Timelines" closed="false"/>
+                </area>
+                <area tabs="1" current="OutputPane">
+                    <widget name="OutputPane" closed="true"/>
+                </area>
+                <sizes>7000 1500 1500</sizes>
+            </splitter>
+            <splitter orientation="Vertical" count="2">
+                <area tabs="1" current="Properties">
+                    <widget name="Properties" closed="false"/>
+                </area>
+                <area tabs="1" current="ConnectionView">
+                    <widget name="ConnectionView" closed="false"/>
+                </area>
+                <sizes>7000 3000</sizes>
+            </splitter>
+            <sizes>2000 6000 2000</sizes>
+        </splitter>
+    </container>
+</QtAdvancedDockingSystem>

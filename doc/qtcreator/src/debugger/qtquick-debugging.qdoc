@@ -67,7 +67,7 @@
 
         \li Debugging is enabled by default for Qt 5.0, or later.
 
-            \image qml-link-debugging-library.png "Build Steps"
+            \image qtcreator-projectpane.png "qmake general build settings pane"
 
             \note Debugging requires opening a socket at a TCP port,
             which presents a security risk. Anyone on the Internet could connect

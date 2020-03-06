@@ -50,6 +50,7 @@ namespace ADS {
 WorkspaceModel::WorkspaceModel(DockManager *manager, QObject *parent)
     : QAbstractTableModel(parent)
     , m_manager(manager)
+    , m_currentSortColumn(0)
 {
     m_sortedWorkspaces = m_manager->workspaces();
     connect(m_manager, &DockManager::workspaceLoaded, this, &WorkspaceModel::resetWorkspaces);
@@ -134,19 +135,18 @@ QVariant WorkspaceModel::data(const QModelIndex &index, int role) const
             break;
         case Qt::FontRole: {
             QFont font;
-            if (m_manager->isDefaultWorkspace(workspaceName))
+            if (m_manager->isWorkspacePreset(workspaceName))
                 font.setItalic(true);
             else
                 font.setItalic(false);
-            if (m_manager->activeWorkspace() == workspaceName
-                && !m_manager->isFactoryDefaultWorkspace(workspaceName))
+            if (m_manager->activeWorkspace() == workspaceName)
                 font.setBold(true);
             else
                 font.setBold(false);
             result = font;
         } break;
-        case DefaultWorkspaceRole:
-            result = m_manager->isDefaultWorkspace(workspaceName);
+        case PresetWorkspaceRole:
+            result = m_manager->isWorkspacePreset(workspaceName);
             break;
         case LastWorkspaceRole:
             result = m_manager->lastWorkspace() == workspaceName;
@@ -163,7 +163,7 @@ QVariant WorkspaceModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> WorkspaceModel::roleNames() const
 {
     static QHash<int, QByteArray> extraRoles{{Qt::DisplayRole, "workspaceName"},
-                                             {DefaultWorkspaceRole, "defaultWorkspace"},
+                                             {PresetWorkspaceRole, "presetWorkspace"},
                                              {LastWorkspaceRole, "activeWorkspace"},
                                              {ActiveWorkspaceRole, "lastWorkspace"}};
     return QAbstractTableModel::roleNames().unite(extraRoles);
@@ -171,6 +171,9 @@ QHash<int, QByteArray> WorkspaceModel::roleNames() const
 
 void WorkspaceModel::sort(int column, Qt::SortOrder order)
 {
+    m_currentSortColumn = column;
+    m_currentSortOrder = order;
+
     beginResetModel();
     const auto cmp = [this, column, order](const QString &s1, const QString &s2) {
         bool isLess;
@@ -186,16 +189,10 @@ void WorkspaceModel::sort(int column, Qt::SortOrder order)
     endResetModel();
 }
 
-bool WorkspaceModel::isDefaultVirgin() const
-{
-    return false; //m_manager->isFactoryDefaultWorkspace(); // TODO
-}
-
 void WorkspaceModel::resetWorkspaces()
 {
-    beginResetModel();
     m_sortedWorkspaces = m_manager->workspaces();
-    endResetModel();
+    sort(m_currentSortColumn, m_currentSortOrder);
 }
 
 void WorkspaceModel::newWorkspace(QWidget *parent)
@@ -225,9 +222,10 @@ void WorkspaceModel::deleteWorkspaces(const QStringList &workspaces)
 {
     if (!m_manager->confirmWorkspaceDelete(workspaces))
         return;
-    beginResetModel();
+
     m_manager->deleteWorkspaces(workspaces);
-    endResetModel();
+    m_sortedWorkspaces = m_manager->workspaces();
+    sort(m_currentSortColumn, m_currentSortOrder);
 }
 
 void WorkspaceModel::renameWorkspace(QWidget *parent, const QString &workspace)
@@ -240,6 +238,12 @@ void WorkspaceModel::renameWorkspace(QWidget *parent, const QString &workspace)
     runWorkspaceNameInputDialog(&workspaceInputDialog, [this, workspace](const QString &newName) {
         m_manager->renameWorkspace(workspace, newName);
     });
+}
+
+void WorkspaceModel::resetWorkspace(const QString &workspace)
+{
+    if (m_manager->resetWorkspacePreset(workspace) && workspace == m_manager->activeWorkspace())
+        m_manager->reloadActiveWorkspace();
 }
 
 void WorkspaceModel::switchToWorkspace(const QString &workspace)
@@ -255,13 +259,14 @@ void WorkspaceModel::runWorkspaceNameInputDialog(WorkspaceNameInputDialog *works
         QString newWorkspace = workspaceInputDialog->value();
         if (newWorkspace.isEmpty() || m_manager->workspaces().contains(newWorkspace))
             return;
-        beginResetModel();
+
         createWorkspace(newWorkspace);
         m_sortedWorkspaces = m_manager->workspaces();
-        endResetModel();
+        sort(m_currentSortColumn, m_currentSortOrder);
 
         if (workspaceInputDialog->isSwitchToRequested())
             switchToWorkspace(newWorkspace);
+
         emit workspaceCreated(newWorkspace);
     }
 }

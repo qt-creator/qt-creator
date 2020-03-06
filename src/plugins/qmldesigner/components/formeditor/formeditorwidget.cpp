@@ -39,7 +39,6 @@
 #include <formeditorscene.h>
 #include <formeditorview.h>
 #include <lineeditaction.h>
-#include <option3daction.h>
 #include <zoomaction.h>
 #include <toolbox.h>
 
@@ -145,13 +144,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     addAction(m_backgroundAction.data());
     upperActions.append(m_backgroundAction.data());
     m_toolBox->addRightSideAction(m_backgroundAction.data());
-
-    m_option3DAction = new Option3DAction(m_toolActionGroup.data());
-    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_SHOW_EDIT_WINDOW")) {
-        addAction(m_option3DAction.data());
-        upperActions.append(m_option3DAction.data());
-        m_toolBox->addRightSideAction(m_option3DAction.data());
-    }
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,
@@ -296,11 +288,6 @@ void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warni
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
-}
-
-Option3DAction *FormEditorWidget::option3DAction() const
-{
-    return m_option3DAction.data();
 }
 
 QAction *FormEditorWidget::resetAction() const

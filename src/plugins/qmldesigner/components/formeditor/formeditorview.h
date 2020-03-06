@@ -133,7 +133,6 @@ private:
     void createFormEditorWidget();
     void temporaryBlockView();
     void resetNodeInstanceView();
-    void toggle3DViewEnabled(bool enabled);
 
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;

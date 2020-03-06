@@ -79,7 +79,6 @@ void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyT
 #ifdef QUICK3D_MODULE
     auto node = quick3DNode();
     if (node) {
-        QQuick3DObject::Type nodeType = node->type();
         bool parentHidden = false;
         if (checkParent) {
             // First check if any parent node is already hidden. Never set pickable on that case.
@@ -129,7 +128,7 @@ void Quick3DNodeInstance::setPickable(bool enable, bool checkParent, bool applyT
                     checkChildren(node);
                 }
             }
-            if (nodeType == QQuick3DObject::Type::Model)
+            if (qobject_cast<QQuick3DModel *>(node))
                 setPropertyVariant("pickable", enable); // allow 3D objects to receive mouse clicks
         }
     }

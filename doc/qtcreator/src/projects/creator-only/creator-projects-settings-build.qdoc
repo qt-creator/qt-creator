@@ -59,9 +59,12 @@
     Select the build configuration to edit in the
     \uicontrol {Edit build configuration} field.
 
+    The available build settings depend on the build system that you selected
+    for the project.
+
     \section2 qmake Build Configuration
 
-    \image qtcreator-projectpane.png
+    \image qtcreator-projectpane.png "qmake general build settings pane"
 
     By default, \QC builds projects in a separate directory from the source
     directory, as \l{glossary-shadow-build} {shadow builds}. This keeps the
@@ -79,6 +82,30 @@
     code separate. You can use qmake \l{Adding Platform Specific Source Files}
     {scopes} to select the file to process depending on which platform qmake is
     run on.
+
+    To generate debug symbols also for applications compiled in release mode,
+    select \uicontrol Enable in the \uicontrol {Separate debug info} field. For
+    more information, see \l{Using the Performance Analyzer}. To use default
+    settings, select \uicontrol {Leave at Default}.
+
+    To set the default build properties, select \uicontrol Tools
+    > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol {Default Build Properties}.
+
+    \section3 Compiling QML
+
+    Since Qt 5.11, you can compile QML source code into the final binary. This
+    improves the startup time of the application and eliminates the need to
+    deploy QML files together with the application. For more information, see
+    \l{Ahead-of-Time Compilation}.
+
+    \QC new project wizards create Qt Quick projects that can be compiled,
+    because they are set up to use the Qt Resource System. To compile Qt Quick
+    code, select \uicontrol Enable in the \uicontrol {Qt Quick Compiler}
+    field. To use default settings, select \uicontrol {Leave at Default}.
+
+    \note In earlier Qt versions, this was a commercial feature. For more
+    information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
 
     \include creator-projects-cmake-building.qdocinc cmake build configuration
 
@@ -173,24 +200,6 @@
     jobs to use for building in the \uicontrol {Parallel jobs} field. Select the
     \uicontrol {Override MAKEFLAGS} check box to override existing MAKEFLAGS
     variables.
-
-    To generate debug symbols also for applications compiled in release mode,
-    select the \uicontrol {Generate separate debug info} check box. For more
-    information, see \l{Using the Performance Analyzer}.
-
-    \section3 Compiling QML
-
-    Since Qt 5.11, you can compile QML source code into the final binary. This
-    improves the startup time of the application and eliminates the need to
-    deploy QML files together with the application. For more information, see
-    \l{Ahead-of-Time Compilation}.
-
-    \QC new project wizards create Qt Quick projects that can be compiled,
-    because they are set up to use the Qt Resource System. To compile Qt Quick
-    projects, select the \uicontrol {Enable Qt Quick Compiler} check box.
-
-    \note In earlier Qt versions, this was a commercial feature. For more
-    information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
 
     \include creator-projects-cmake-building.qdocinc cmake build steps
     \include creator-projects-settings-build-qbs.qdocinc qbs build steps

@@ -45,9 +45,7 @@ extend_qtc_executable(qml2puppet
     synchronizecommand.cpp synchronizecommand.h
     tokencommand.cpp tokencommand.h
     changeselectioncommand.cpp changeselectioncommand.h
-    drop3dlibraryitemcommand.cpp drop3dlibraryitemcommand.h
     update3dviewstatecommand.cpp update3dviewstatecommand.h
-    view3dclosedcommand.cpp view3dclosedcommand.h
     puppettocreatorcommand.cpp puppettocreatorcommand.h
     inputeventcommand.cpp inputeventcommand.h
     view3dactioncommand.cpp view3dactioncommand.h

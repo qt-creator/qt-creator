@@ -166,8 +166,6 @@ signals:
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);
     void contextChanged(const Core::Context &context);
-    void windowStateChanged(Qt::WindowStates previousStates, Qt::WindowStates currentStates);
-    void windowActivationChanged(bool isActive, bool hasPopup);
 
 public:
     /* internal use */

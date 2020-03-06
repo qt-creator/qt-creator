@@ -199,7 +199,9 @@
     \section1 Editing Qbs Profiles
 
     To view the Qbs profile associated with the kit, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Kits > \uicontrol Qbs.
+    \uicontrol Options > \uicontrol Qbs > \uicontrol Profiles.
+
+    \image creator-qbs-profiles.png "Qbs Profiles tab"
 
     You can add keys and values to the profile or remove them from it, as well
     as modify existing values. For a list of available keys and values, see
@@ -214,7 +216,7 @@
             \uicontrol {Additional Qbs Profile Settings} field to open the
             \uicontrol {Custom Properties} dialog.
 
-            \image qtcreator-qbs-profile-settings.
+            \image qtcreator-qbs-profile-settings.png "Custom Properties dialog"
 
         \li Double-click an empty cell in the \uicontrol Key column to specify
             the key to add or modify as: \c <module_name>.<property_name>.
