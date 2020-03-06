@@ -238,8 +238,8 @@ void DisassemblerAgent::setLocation(const Location &loc)
         // Refresh when not displaying a function and there is not sufficient
         // context left past the address.
         if (d->cache.at(index).first.endAddress - loc.address() < 24) {
-            index = -1;
             d->cache.removeAt(index);
+            index = -1;
         }
     }
     if (index != -1) {
