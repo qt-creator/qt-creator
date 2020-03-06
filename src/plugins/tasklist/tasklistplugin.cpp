@@ -224,10 +224,12 @@ bool TaskListPlugin::loadFile(QString *errorString, const FilePath &fileName)
     clearTasks();
 
     bool result = parseTaskFile(errorString, fileName);
-    if (result)
-        SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), fileName.toString());
-    else
+    if (result) {
+        if (!SessionManager::isDefaultSession(SessionManager::activeSession()))
+            SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), fileName.toString());
+    } else {
         stopMonitoring();
+    }
 
     return result;
 }
