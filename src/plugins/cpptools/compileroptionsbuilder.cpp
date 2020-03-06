@@ -341,19 +341,17 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders)
 {
     for (const QString &pchFile : m_projectPart.precompiledHeaders) {
-        // Bail if build system precomiple header artifacts exists
+        // Bail if build system precompiled header artifacts exists.
         // Clang cannot handle foreign PCH files.
-        if (QFile::exists(pchFile + ".gch") || QFile::exists(pchFile + ".pch")) {
+        if (QFile::exists(pchFile + ".gch") || QFile::exists(pchFile + ".pch"))
             usePrecompiledHeaders = UsePrecompiledHeaders::No;
-
-            // In case of Clang compilers, remove the pch-inclusion arguments
-            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".gch"});
-            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".pch"});
-        }
 
         if (usePrecompiledHeaders == UsePrecompiledHeaders::No) {
             // CMake PCH will already have force included the header file in
             // command line options, remove it if exists.
+            // In case of Clang compilers, also remove the pch-inclusion arguments.
+            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".gch"});
+            remove({"-Xclang", "-include-pch", "-Xclang", pchFile + ".pch"});
             remove({isClStyle() ? QLatin1String(includeFileOptionCl)
                                 : QLatin1String(includeFileOptionGcc), pchFile});
         } else if (QFile::exists(pchFile)) {
