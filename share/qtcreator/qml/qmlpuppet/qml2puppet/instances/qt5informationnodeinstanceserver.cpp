@@ -812,7 +812,6 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             helper->initToolStates(it.key(), it.value());
             ++it;
         }
-        helper->restoreWindowState();
         if (toolStates.contains(helper->globalStateId())
                 && toolStates[helper->globalStateId()].contains("rootSize")) {
             m_editView3DRootItem->setSize(toolStates[helper->globalStateId()]["rootSize"].value<QSize>());
