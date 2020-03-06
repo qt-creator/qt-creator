@@ -244,16 +244,23 @@ void DesignModeWidget::setup()
     // Setup Actions and Menus
     Core::ActionContainer *mwindow = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW);
     // Window > Views
-    Core::ActionContainer *mviews = Core::ActionManager::createMenu(Core::Constants::M_WINDOW_VIEWS);
+    Core::ActionContainer *mviews = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
     mviews->menu()->addSeparator();
     // Window > Workspaces
     Core::ActionContainer *mworkspaces = Core::ActionManager::createMenu(QmlDesigner::Constants::M_WINDOW_WORKSPACES);
     mwindow->addMenu(mworkspaces, Core::Constants::G_WINDOW_VIEWS);
     mworkspaces->menu()->setTitle(tr("&Workspaces"));
-    mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show); // TODO what does it exactly do?!
-
-    // Connect opening of the 'window' menu with creation of the workspaces menu
-    connect(mwindow->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
+    mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show);
+    // Connect opening of the 'workspaces' menu with creation of the workspaces menu
+    connect(mworkspaces->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
+    // Disable workspace menu when context is different to C_DESIGN_MODE
+    connect(Core::ICore::instance(), &Core::ICore::contextChanged,
+            this, [mworkspaces](const Core::Context &context){
+                if (context.contains(Core::Constants::C_DESIGN_MODE))
+                    mworkspaces->menu()->setEnabled(true);
+                else
+                    mworkspaces->menu()->setEnabled(false);
+                });
 
     // Create a DockWidget for each QWidget and add them to the DockManager
     const Core::Context designContext(Core::Constants::C_DESIGN_MODE);
