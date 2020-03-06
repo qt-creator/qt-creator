@@ -209,7 +209,9 @@ private: // functions
     ProjectExplorer::Target *m_currentTarget = nullptr;
     int m_restartProcessTimerId;
     RewriterTransaction m_puppetTransaction;
-    QHash<QString, QVariantMap> m_edit3DToolStates; // Key: instance qml id, value: related tool states
+
+    // key: fileUrl value: (key: instance qml id, value: related tool states)
+    QHash<QUrl, QHash<QString, QVariantMap>> m_edit3DToolStates;
 };
 
 } // namespace ProxyNodeInstanceView

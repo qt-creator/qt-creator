@@ -73,6 +73,10 @@ Edit3DWidget *Edit3DView::edit3DWidget() const
 void Edit3DView::renderImage3DChanged(const QImage &img)
 {
     edit3DWidget()->canvas()->updateRenderImage(img);
+
+    // Notify puppet to resize if received image wasn't correct size
+    if (img.size() != canvasSize())
+        edit3DViewResized(canvasSize());
 }
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
@@ -116,6 +120,15 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_editLightAction->action()->setChecked(sceneState[editLightKey].toBool());
     else
         m_editLightAction->action()->setChecked(false);
+}
+
+void Edit3DView::modelAboutToBeDetached(Model *model)
+{
+    Q_UNUSED(model)
+
+    // Clear the image when model is detached (i.e. changing documents)
+    QImage emptyImage;
+    edit3DWidget()->canvas()->updateRenderImage(emptyImage);
 }
 
 void Edit3DView::sendInputEvent(QInputEvent *e) const
