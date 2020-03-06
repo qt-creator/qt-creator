@@ -289,6 +289,24 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
         return view->createModelNode("QtQuick.State", 1, 0, propertyList);
 }
 
+void QmlModelState::setAsDefault()
+{
+    if ((!isBaseState()) && (modelNode().isValid())) {
+        view()->rootModelNode().variantProperty("state").setValue(name());
+    }
+}
+
+bool QmlModelState::isDefault() const
+{
+    if ((!isBaseState()) && (modelNode().isValid())) {
+        if (view()->rootModelNode().hasProperty("state")) {
+            return (view()->rootModelNode().variantProperty("state").value() == name());
+        }
+    }
+
+    return false;
+}
+
 QmlModelState QmlModelState::createBaseState(const AbstractView *view)
 {
     QmlModelState qmlModelState(view->rootModelNode());

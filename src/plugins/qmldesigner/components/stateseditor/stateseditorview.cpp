@@ -304,6 +304,50 @@ void StatesEditorView::resetWhenCondition(int internalNodeId)
     m_block = false;
 }
 
+void StatesEditorView::setStateAsDefault(int internalNodeId)
+{
+    if (m_block)
+        return;
+
+    m_block = true;
+
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
+        try {
+            if (state.isValid())
+                state.setAsDefault();
+
+        } catch (const RewritingException &e) {
+            e.showException();
+        }
+    }
+
+    m_block = false;
+}
+
+void StatesEditorView::resetDefaultState()
+{
+    if (m_block)
+        return;
+
+    m_block = true;
+
+    try {
+        if (rootModelNode().hasProperty("state"))
+            rootModelNode().removeProperty("state");
+
+    } catch (const RewritingException &e) {
+        e.showException();
+    }
+
+    m_block = false;
+}
+
+bool StatesEditorView::hasDefaultState() const
+{
+    return rootModelNode().hasProperty("state");
+}
+
 void StatesEditorView::modelAttached(Model *model)
 {
     if (model == AbstractView::model())

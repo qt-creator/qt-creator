@@ -69,6 +69,9 @@ public:
 
     static ModelNode createQmlState(AbstractView *view, const PropertyListType &propertyList);
 
+    void setAsDefault();
+    bool isDefault() const;
+
 protected:
     void addChangeSetIfNotExists(const ModelNode &node);
     static QmlModelState createBaseState(const AbstractView *view);
