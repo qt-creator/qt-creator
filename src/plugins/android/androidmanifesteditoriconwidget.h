@@ -31,8 +31,10 @@ namespace TextEditor {
     class TextEditorWidget;
 }
 
+QT_BEGIN_NAMESPACE
 class QLabel;
 class QToolButton;
+QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
