@@ -3261,7 +3261,7 @@ void GdbEngine::handlePeripheralRegisterListValues(
 
     const QString output = response.consoleStreamOutput;
     // Regexp to match for '0x50060800:\t0\n'.
-    const QRegularExpression re("^(0x[0-9A-F]+):\\t(\\d+)\\n$");
+    const QRegularExpression re("^(0x[0-9A-Fa-f]+):\\t(\\d+)\\n$");
     const QRegularExpressionMatch m = re.match(output);
     if (!m.hasMatch())
         return;
