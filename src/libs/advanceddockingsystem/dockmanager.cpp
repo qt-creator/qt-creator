@@ -909,7 +909,13 @@ namespace ADS
 
         // Copy all missing workspace presets over to the local workspace folder
         QDir presetsDir(d->m_workspacePresetsPath);
-        QDir workspaceDir(QFileInfo(d->m_settings->fileName()).path() + QLatin1String("/workspaces"));
+        QDir workspaceDir(QFileInfo(d->m_settings->fileName()).path() + QLatin1Char('/') + m_dirName);
+        // Try do create the 'workspaces' directory if it doesn't exist already
+        workspaceDir.mkpath(workspaceDir.absolutePath());
+        if (!workspaceDir.exists()) {
+            qCInfo(adsLog) << QString("Could not make directory '%1')").arg(workspaceDir.absolutePath());
+            return;
+        }
 
         for (const auto &preset : presets) {
             QString filename = preset;
@@ -920,7 +926,10 @@ namespace ADS
             QFile file(filePath);
 
             if (file.exists()) {
-                file.copy(workspaceDir.filePath(filename));
+                if (!file.copy(workspaceDir.filePath(filename))) {
+                    qCInfo(adsLog) << QString("Could not copy '%1' to '%2' error: %3").arg(
+                        filePath, workspaceDir.filePath(filename), file.errorString());
+                }
                 d->m_workspaceListDirty = true;
             }
         }
