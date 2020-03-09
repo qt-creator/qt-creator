@@ -32,6 +32,7 @@
 
 #include "navigatortreeview.h"
 
+QT_FORWARD_DECLARE_CLASS(QToolBar)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
 
@@ -48,6 +49,7 @@ public:
     void setTreeModel(QAbstractItemModel *model);
     QTreeView *treeView() const;
     QList<QToolButton *> createToolBarWidgets();
+    QToolBar *createToolBar();
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     void disableNavigator();
