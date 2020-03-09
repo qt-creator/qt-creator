@@ -101,6 +101,8 @@
 
                 \li \l{Specifying Dependencies}{Dependencies}
 
+                \li \l{Specifying Environment Settings}{Environment}
+
                 \li \l{Parsing C++ Files with the Clang Code Model}
                     {Clang Code Model}
 

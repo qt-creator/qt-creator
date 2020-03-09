@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -42,15 +42,26 @@
 
     \title  Customizing the Build Process
 
-    To specify the relationship between the release, build,
-    and deploy configurations, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Build & Run}. By
-    default, the \uicontrol {Always build project before deploying it} and the
-    \uicontrol {Always deploy project before running it} options (1) are enabled.
-    Therefore, when you select the \uicontrol Run function, \QC checks for changes in
-    the project files and also builds and deploys the project if necessary.
+    To configure how projects are built, deployed, and run, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run}
+     > \uicontrol General.
 
     \image qtcreator-project-options-deploy.png "Project General Options"
+
+    By default, the \uicontrol {Always deploy project before running it} (1) and
+    \uicontrol {Build the Whole Project} (2) options are enabled. Therefore,
+    when you select the \uicontrol Run function, \QC checks for changes in the
+    project files and also builds and deploys the project if necessary.
+
+    To deploy applications without building them or to just build the
+    application that you want to run, select the appropriate options
+    in the \uicontrol {Build before deploying} field.
+
+    By default, the applications that the project contains are stopped
+    before rebuilding the project. To stop just the current application,
+    the applications in the same build directory, all applications,
+    or no applications, select the appropriate option in the
+    \uicontrol {Stop applications before building} field.
 
     On Windows, you can use \c jom instead of \c nmake for building the project
     to distribute the compilation process to multiple CPU cores. You can download

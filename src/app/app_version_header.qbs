@@ -34,6 +34,8 @@ Product {
                 // replace the magic qmake incantations
                 content = content.replace(/(\n#define IDE_VERSION_DISPLAY_DEF) .+\n/, "$1 "
                         + product.moduleProperty("qtc", "qtcreator_display_version") + "\n");
+                content = content.replace(/(\n#define IDE_VERSION_COMPAT_DEF) .+\n/, "$1 "
+                        + product.moduleProperty("qtc", "qtcreator_compat_version") + "\n");
                 content = content.replace(/(\n#define IDE_VERSION) .+\n/, "$1 "
                         + product.moduleProperty("qtc", "qtcreator_version") + "\n");
                 content = content.replace(/(\n#define IDE_VERSION_MAJOR) .+\n/, "$1 "

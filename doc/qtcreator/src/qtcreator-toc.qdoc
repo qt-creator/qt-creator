@@ -80,6 +80,7 @@
                 \li \l{Specifying Editor Settings}
                 \li \l{Specifying Code Style Settings}
                 \li \l{Specifying Dependencies}
+                \li \l{Specifying Environment Settings}
                 \li \l{Sharing Project Settings}
             \endlist
             \li \l{Managing Sessions}

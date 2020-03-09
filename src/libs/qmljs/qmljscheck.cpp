@@ -664,13 +664,11 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     , _importsOk(false)
     , _inStatementBinding(false)
     , _imports(nullptr)
-    , _isQtQuick2(false)
 
 {
     _imports = context->imports(doc.data());
     if (_imports && !_imports->importFailed()) {
         _importsOk = true;
-        _isQtQuick2 = isQtQuick2();
     }
 
     _enabledMessages = Utils::toSet(Message::allMessageTypes());
@@ -681,12 +679,9 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintOneStatementPerLine);
     disableMessage(HintExtraParentheses);
 
-    if (isQtQuick2Ui()) {
-        disableQmlDesignerChecks();
-    } else {
-        disableQmlDesignerChecks();
+    disableQmlDesignerChecks();
+    if (!isQtQuick2Ui())
         disableQmlDesignerUiFileChecks();
-    }
 }
 
 Check::~Check()

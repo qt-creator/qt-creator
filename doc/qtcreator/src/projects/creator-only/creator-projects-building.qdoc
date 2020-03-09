@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -67,9 +67,10 @@
 
     \endlist
 
-    While the application is being built, the \uicontrol Build button changes to
-    a \uicontrol {Cancel Build} button (3). To cancel the build, select the
-    button or press \key {Alt+Backspace}. If you selected a build command and
+    While the application is being built, the \uicontrol Build button (3)
+    changes to a \uicontrol {Cancel Build} button. To cancel the build, select
+    the button, press \key {Alt+Backspace}, or select \uicontrol Build >
+    \uicontrol {Cancel Build}. If you selected a build command and
     decide you would also like to run the application, you can select the
     \uicontrol Run button to schedule running the project after building is done.
 
@@ -78,28 +79,35 @@
 
     \section1 Additional Build Commands
 
-    To build the current project in all its configurations, that is, for
-    all build configurations in all enabled kits, select
-    \uicontrol Build > \uicontrol {Build Project for all Configurations}.
+    The \uicontrol Build menu contains additional commands for building,
+    rebuilding, and cleaning projects.
 
-    To build all open projects, select \uicontrol Build > \uicontrol {Build All}.
+    To build the current project in all its configurations, that
+    is, for all build configurations in all enabled kits, select
+    \uicontrol {Build Project for All Configurations}.
+
+    To build all open projects, select \uicontrol {Build All Projects}.
     If building one application fails, \QC displays an error message and
     continues building the other applications.
+
+    To build all open projects in all their configurations, select
+    \uicontrol {Build All Projects for All Configurations}.
 
     To quickly check the compile output for changes that you made in one file or
     subproject, you can use the \uicontrol Build menu commands to build a file or
     subproject. The available build menu commands depend on the build system
     you selected for the project: CMake, qmake, or Qbs.
 
-    Select \uicontrol Build > \uicontrol {Build for Run Configuration} to
+    Select \uicontrol {Build for Run Configuration} to
     build the executable that corresponds to the selected run configuration.
     You can also use the \c cm filter in the \l {Searching with the Locator}
     {locator}.
 
-    To remove all build artifacts, select \uicontrol Build > \uicontrol {Clean All} or
-    \uicontrol {Clean Project}. To clean the build directory and then build
-    the project, select \uicontrol Build > \uicontrol {Rebuild All} or
-    \uicontrol {Rebuild Project}.
+    To remove all build artifacts, select \uicontrol {Clean Project} or one
+    of its variants.
+
+    To clean the build directory and then build the project, select
+    \uicontrol {Rebuild Project} or one of its variants.
 
     To build and clean projects without dependencies, select the
     \uicontrol {Build Without Dependencies},
@@ -110,7 +118,7 @@
     To run qmake or CMake to regenerate build system files, select
     \uicontrol Build > \uicontrol {Run qmake} or \uicontrol {Run CMake}.
 
-    \section2 Building with CMake
+    \section1 Building with CMake
 
     \QC automatically runs CMake when you make changes to \c {CMakeLists.txt}
     files. To disable this feature, select \uicontrol Tools >
@@ -119,7 +127,7 @@
 
     For more information, see \l {Setting Up CMake}.
 
-    \section2 Building with qmake
+    \section1 Building with qmake
 
     To prevent failures on incremental builds, it might make sense
     to always run qmake before building, even though it means that

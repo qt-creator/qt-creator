@@ -28,9 +28,7 @@
 #include "baremetaldeviceconfigurationwidget.h"
 
 #include "debugserverproviderchooser.h"
-#include "idebugserverprovider.h"
 
-#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QFormLayout>
@@ -57,19 +55,6 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
 
     connect(m_debugServerProviderChooser, &DebugServerProviderChooser::providerChanged,
             this, &BareMetalDeviceConfigurationWidget::debugServerProviderChanged);
-
-    m_peripheralDescriptionFileChooser = new Utils::PathChooser(this);
-    m_peripheralDescriptionFileChooser->setExpectedKind(Utils::PathChooser::File);
-    m_peripheralDescriptionFileChooser->setPromptDialogFilter(
-                tr("Peripheral description files (*.svd)"));
-    m_peripheralDescriptionFileChooser->setPromptDialogTitle(
-                tr("Select Peripheral Description File"));
-    m_peripheralDescriptionFileChooser->setPath(dev->peripheralDescriptionFilePath());
-    formLayout->addRow(tr("Peripheral description file:"),
-                       m_peripheralDescriptionFileChooser);
-
-    connect(m_peripheralDescriptionFileChooser, &Utils::PathChooser::pathChanged,
-            this, &BareMetalDeviceConfigurationWidget::peripheralDescriptionFileChanged);
 }
 
 void BareMetalDeviceConfigurationWidget::debugServerProviderChanged()
@@ -77,13 +62,6 @@ void BareMetalDeviceConfigurationWidget::debugServerProviderChanged()
     const auto dev = qSharedPointerCast<BareMetalDevice>(device());
     QTC_ASSERT(dev, return);
     dev->setDebugServerProviderId(m_debugServerProviderChooser->currentProviderId());
-}
-
-void BareMetalDeviceConfigurationWidget::peripheralDescriptionFileChanged()
-{
-    const auto dev = qSharedPointerCast<BareMetalDevice>(device());
-    QTC_ASSERT(dev, return);
-    dev->setPeripheralDescriptionFilePath(m_peripheralDescriptionFileChooser->path());
 }
 
 void BareMetalDeviceConfigurationWidget::updateDeviceFromUi()

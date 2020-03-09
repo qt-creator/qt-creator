@@ -132,52 +132,10 @@
     tested or grouping commands, are not supported because the value of the
     \uicontrol Executable field is always placed first when constructing the command.
 
-    \section2 Using Environment Variables
-
-    You can use any environment variables as values in the fields. For a list
-    of variable names, click \uicontrol {Build Environment > Details} in the
-    \uicontrol {Build Settings}. Environment variables are referenced using the native
-    syntax: $VARNAME or ${VARNAME} on Unix and %VARNAME% on Windows.
-
-    \section2 Using Qt Creator Variables
-
-    You can use \QC variables in arguments, executable paths, and working
-    directories. The variables take care of quoting their expansions, so you do
-    not need to put them in quotes. Select the \inlineimage replace.png
-    (\uicontrol {Variables}) button in a field to select from a list of variables that
-    are available in a particular context.
-
-    The following syntax enables you to use environment variables as \QC
-    variables: %{Env:VARNAME}.
-
-    \QC uses pattern substitution when expanding variable names. To replace the
-    first match of \e pattern within \e variable with \e replacement, use:
-
-    \badcode
-    %{variable/pattern/replacement}
-    \endcode
-
-    To replace all matches of \e pattern within \e variable with \e replacement,
-    use:
-
-    \badcode
-    %{variable//pattern/replacement}
-    \endcode
-
-    The pattern can be a regular expression and the replacement can contain
-    backreferences. For example, if \c %{variable} is \c my123var, then
-    \c %{variable/(..)(\d+)/\2\1} is expanded to \c {123myvar}.
-
-    Instead of the forward slash, you can also use the pound sign (\c #) as
-    the substitution character. This can be helpful if the value is supposed
-    to be a file path, in which case forward slashes might get translated
-    to backslashes on Windows hosts.
-
-    To use the default value if the variable is not set, use:
-
-    \badcode
-    %{variable:-default}
-    \endcode
+    You can use \l {Using Environment Variables}{environment variables} as
+    values in the fields. In addition, you can \l {Using Qt Creator Variables}
+    {use \QC variables} in arguments, executable paths, and working
+    directories.
 
     \section1 Build Steps
 
@@ -248,57 +206,4 @@
 
     \include creator-projects-cmake-building.qdocinc cmake clean steps
     \include creator-projects-settings-build-qbs.qdocinc qbs clean steps
-
-    \section1 Build Environment
-
-    You can specify the environment you want to use for building in the
-    \uicontrol {Build Environment} section. By default, the environment in which \QC
-    was started is used and modified to include the Qt version.
-    Depending on the selected Qt version, \QC automatically sets the
-    necessary environment variables. You can edit existing environment
-    variables or add, reset and unset new variables based on your project
-    requirements.
-
-    \image qtcreator-build-environment.png "Build Environment"
-
-    \note The changes are stored in the local project specific \c{.pro.user}
-    file. Therefore, they are not suitable for sharing between developers or
-    development PCs. To share settings, incorporate them into the build system.
-    For example, if you use qmake, make the changes in the \c{.pro} file.
-
-    \section2 Batch Editing
-
-    To modify environment variable values for build or run environments,
-    select \uicontrol {Batch Edit} in the build or run settings and enter environment
-    variables in the \uicontrol {Edit Environment} dialog.
-
-    To remove a variable value from the environment, enter the variable name.
-    For example, \c TEST sets the value of the \c TEST variable empty when
-    building or running the project.
-
-    To add a variable value to the environment, enter the variable name and
-    value, separated by the equals sign. For example, the following line
-    prepends the \c /opt/bin folder to the existing PATH:
-
-    \list
-        \li On Windows: \c {PATH=C:\opt\bin;${PATH}}
-        \li On Linux: \c {PATH=/opt/bin:${PATH}}
-    \endlist
-
-    To add or remove several variables, place them on separate lines. The order
-    is important. If you remove a value on a line, you cannot refer to it on the
-    following lines. However, you can remove a value after you have referred to
-    it on an earlier line.
-
-    To temporarily disable a variable, add a hash character (#) to the beginning
-    of the line.
-
-    \section2 Clearing the System Environment
-
-    To build with a clean system environment, select the \uicontrol {Clear system
-    environment} check box. \QC discards the current environment, and
-    populates a clean system environment with the environment variables that the
-    compilers and tools need. Therefore, the environment is never totally empty,
-    even after you clear it.
-
 */

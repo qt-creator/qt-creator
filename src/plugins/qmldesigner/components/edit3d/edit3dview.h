@@ -55,6 +55,7 @@ public:
 
     void renderImage3DChanged(const QImage &img) override;
     void updateActiveScene3D(const QVariantMap &sceneState) override;
+    void modelAboutToBeDetached(Model *model) override;
 
     void sendInputEvent(QInputEvent *e) const;
     void edit3DViewResized(const QSize &size) const;

@@ -43,6 +43,7 @@ const char IDE_ID[]           = "${IDE_ID}";
 const char IDE_CASED_ID[]     = "${IDE_CASED_ID}";
 
 const char IDE_VERSION_DISPLAY[] = "${IDE_VERSION_DISPLAY}";
+const char IDE_VERSION_COMPAT[] = "${IDE_VERSION_COMPAT}";
 const char IDE_REVISION_STR[]    = "${IDE_REVISION_STR}";
 const char IDE_REVISION_URL_STR[] = "${IDE_REVISION_URL_STR}";
 

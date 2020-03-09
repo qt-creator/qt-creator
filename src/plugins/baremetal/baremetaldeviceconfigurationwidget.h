@@ -28,8 +28,6 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-namespace Utils { class PathChooser; }
-
 namespace BareMetal {
 namespace Internal {
 
@@ -47,11 +45,9 @@ public:
 
 private:
     void debugServerProviderChanged();
-    void peripheralDescriptionFileChanged();
     void updateDeviceFromUi() final;
 
     DebugServerProviderChooser *m_debugServerProviderChooser = nullptr;
-    Utils::PathChooser *m_peripheralDescriptionFileChooser = nullptr;
 };
 
 } // namespace Internal

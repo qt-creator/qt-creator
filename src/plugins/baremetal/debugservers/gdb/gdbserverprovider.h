@@ -35,6 +35,8 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
+namespace Utils { class PathChooser; }
+
 namespace BareMetal {
 namespace Internal {
 
@@ -51,6 +53,7 @@ public:
     };
 
     StartupMode startupMode() const;
+    Utils::FilePath peripheralDescriptionFile() const;
     QString initCommands() const;
     QString resetCommands() const;
     bool useExtendedRemote() const;
@@ -74,6 +77,7 @@ protected:
     explicit GdbServerProvider(const GdbServerProvider &other);
 
     void setStartupMode(StartupMode);
+    void setPeripheralDescriptionFile(const Utils::FilePath &file);
     void setInitCommands(const QString &);
     void setResetCommands(const QString &);
     void setUseExtendedRemote(bool);
@@ -81,6 +85,7 @@ protected:
     bool fromMap(const QVariantMap &data) override;
 
     StartupMode m_startupMode = StartupOnNetwork;
+    Utils::FilePath m_peripheralDescriptionFile;
     QString m_initCommands;
     QString m_resetCommands;
     bool m_useExtendedRemote = false;
@@ -104,12 +109,15 @@ protected:
     GdbServerProvider::StartupMode startupMode() const;
     void setStartupMode(GdbServerProvider::StartupMode mode);
     void populateStartupModes();
+    Utils::FilePath peripheralDescriptionFile() const;
+    void setPeripheralDescriptionFile(const Utils::FilePath &file);
     void setFromProvider();
 
     static QString defaultInitCommandsTooltip();
     static QString defaultResetCommandsTooltip();
 
     QComboBox *m_startupModeComboBox = nullptr;
+    Utils::PathChooser *m_peripheralDescriptionFileChooser = nullptr;
 };
 
 // GdbServerProviderRunner

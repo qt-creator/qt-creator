@@ -134,6 +134,8 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
                      this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
     QObject::connect(m_editView3DRootItem, SIGNAL(changeObjectProperty(QVariant, QVariant)),
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
+    QObject::connect(m_editView3DRootItem, SIGNAL(notifyActiveSceneChange()),
+                     this, SLOT(handleActiveSceneChange()));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
@@ -252,6 +254,24 @@ void Qt5InformationNodeInstanceServer::handleObjectPropertyChange(const QVariant
     m_changedProperty = propertyName;
 }
 
+void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
+{
+#ifdef QUICK3D_MODULE
+    ServerNodeInstance sceneInstance = active3DSceneInstance();
+    const QString sceneId = sceneInstance.id();
+
+    QVariantMap toolStates;
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (helper)
+        toolStates = helper->getToolStates(sceneId);
+    toolStates.insert("sceneInstanceId", QVariant::fromValue(sceneInstance.instanceId()));
+
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSceneChanged,
+                                                        toolStates});
+    render3DEditView();
+#endif
+}
+
 void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &sceneId,
                                                               const QString &tool,
                                                               const QVariant &toolState)
@@ -321,32 +341,19 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
                               Q_ARG(QVariant, activeSceneVar));
 
     ServerNodeInstance sceneInstance = active3DSceneInstance();
-    QVariant sceneIdVar;
-    QQmlProperty sceneIdProperty(m_editView3DRootItem, "sceneId", context());
     const QString sceneId = sceneInstance.id();
-    if (sceneInstance.isValid())
-        sceneIdVar = QVariant::fromValue(sceneId);
-    sceneIdProperty.write(sceneIdVar);
 
-    QVariantMap toolStates;
-
-    // if m_active3DScene is null, QQmlProperty::write() doesn't work so invoke the updateActiveScene
-    // qml method directly
-    if (!m_active3DScene) {
-        QMetaObject::invokeMethod(m_editView3DRootItem, "clearActiveScene", Qt::QueuedConnection);
-        toolStates.insert("sceneInstanceId", QVariant::fromValue(-1));
+    // QML item id is updated with separate call, so delay this update until we have it
+    if (m_active3DScene && sceneId.isEmpty()) {
+        m_active3DSceneUpdatePending = true;
+        return;
     } else {
-        QQmlProperty sceneProperty(m_editView3DRootItem, "activeScene", context());
-        sceneProperty.write(activeSceneVar);
-
-        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
-        if (helper)
-            toolStates = helper->getToolStates(sceneId);
-        toolStates.insert("sceneInstanceId", QVariant::fromValue(sceneInstance.instanceId()));
+        m_active3DSceneUpdatePending = false;
     }
 
-    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSceneChanged,
-                                                        toolStates});
+    QMetaObject::invokeMethod(m_editView3DRootItem, "setActiveScene", Qt::QueuedConnection,
+                              Q_ARG(QVariant, activeSceneVar),
+                              Q_ARG(QVariant, QVariant::fromValue(sceneId)));
 
     updateView3DRect(m_active3DView);
 #endif
@@ -418,9 +425,9 @@ ServerNodeInstance Qt5InformationNodeInstanceServer::active3DSceneInstance() con
     return sceneInstance;
 }
 
-void Qt5InformationNodeInstanceServer::render3DEditView()
+void Qt5InformationNodeInstanceServer::render3DEditView(int count)
 {
-    m_needRender = true;
+    m_needRender = qMax(count, m_needRender);
     if (!m_renderTimer.isActive())
         m_renderTimer.start(0);
 }
@@ -458,9 +465,9 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
         // send the rendered image to creator process
         nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Render3DView,
                                                             QVariant::fromValue(imgContainer)});
-        if (m_needRender) {
+        if (m_needRender > 0) {
             m_renderTimer.start(0);
-            m_needRender = false;
+            --m_needRender;
         }
     }
 }
@@ -805,7 +812,6 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             helper->initToolStates(it.key(), it.value());
             ++it;
         }
-        helper->restoreWindowState();
         if (toolStates.contains(helper->globalStateId())
                 && toolStates[helper->globalStateId()].contains("rootSize")) {
             m_editView3DRootItem->setSize(toolStates[helper->globalStateId()]["rootSize"].value<QSize>());
@@ -815,6 +821,9 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     updateActiveSceneToEditView3D();
 
     createCameraAndLightGizmos(instanceList);
+
+    // Queue two renders to make sure icon gizmos update properly
+    render3DEditView(2);
 #else
     Q_UNUSED(instanceList)
     Q_UNUSED(toolStates)
@@ -905,6 +914,8 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
 
     if (m_editView3DRootItem)
         resolveSceneRoots();
+
+    render3DEditView();
 }
 
 void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &command)
@@ -1164,6 +1175,24 @@ void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxilia
     render3DEditView();
 }
 
+void Qt5InformationNodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
+{
+    Qt5NodeInstanceServer::changePropertyBindings(command);
+    render3DEditView();
+}
+
+void Qt5InformationNodeInstanceServer::changeIds(const ChangeIdsCommand &command)
+{
+    Qt5NodeInstanceServer::changeIds(command);
+
+    if (m_active3DSceneUpdatePending) {
+        ServerNodeInstance sceneInstance = active3DSceneInstance();
+        const QString sceneId = sceneInstance.id();
+        if (!sceneId.isEmpty())
+            updateActiveSceneToEditView3D();
+    }
+}
+
 // update 3D view size when it changes in creator side
 void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
 {
@@ -1174,7 +1203,8 @@ void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewState
             auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
             if (helper)
                 helper->storeToolState(helper->globalStateId(), "rootSize", QVariant(command.size()), 0);
-            render3DEditView();
+            // Queue two renders to make sure icon gizmos update properly
+            render3DEditView(2);
         }
     }
 #else

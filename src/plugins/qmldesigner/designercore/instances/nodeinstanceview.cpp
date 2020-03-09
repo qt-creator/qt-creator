@@ -984,7 +984,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               importVector,
                               mockupTypesVector,
                               model()->fileUrl(),
-                              m_edit3DToolStates);
+                              m_edit3DToolStates[model()->fileUrl()]);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
@@ -1454,7 +1454,7 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             auto data = qvariant_cast<QVariantList>(command.data());
             if (data.size() == 3) {
                 QString qmlId = data[0].toString();
-                m_edit3DToolStates[qmlId].insert(data[1].toString(), data[2]);
+                m_edit3DToolStates[model()->fileUrl()][qmlId].insert(data[1].toString(), data[2]);
             }
         }
     } else if (command.type() == PuppetToCreatorCommand::Render3DView) {

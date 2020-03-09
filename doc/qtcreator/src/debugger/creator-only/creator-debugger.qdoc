@@ -110,8 +110,9 @@
     (\uicontrol {Start Debugging of Startup Project}) button or press \key F5.
 
     \QC checks whether the compiled program is up-to-date, and rebuilds and
-    deploys it if the \uicontrol {Always build project before deploying it} and
-    \uicontrol {Always deploy before running} options are selected in the
+    deploys it if the \uicontrol {Build before deploying} field is set to
+    build the whole project or the application to run and the
+    \uicontrol {Always deploy before running} check box is selected in the
     \uicontrol {Build and Run} options. To debug the program without deploying
     it, select \uicontrol Debug > \uicontrol {Start Debugging} >
     \uicontrol {Start Debugging Without Deployment}.

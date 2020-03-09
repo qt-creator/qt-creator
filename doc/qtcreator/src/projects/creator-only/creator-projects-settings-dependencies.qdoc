@@ -36,7 +36,7 @@
     \if defined(qtdesignstudio)
     \nextpage studio-designing.html
     \else
-    \nextpage creator-sharing-project-settings.html
+    \nextpage creator-project-settings-environment.html
     \endif
 
     \title Specifying Dependencies

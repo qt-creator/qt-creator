@@ -58,11 +58,12 @@ Item {
     signal selectionChanged(var selectedNodes)
     signal commitObjectProperty(var object, var propName)
     signal changeObjectProperty(var object, var propName)
+    signal notifyActiveSceneChange()
 
     onUsePerspectiveChanged: _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
     onShowEditLightChanged: _generalHelper.storeToolState(sceneId,"showEditLight", showEditLight)
     onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
-    onActiveSceneChanged: updateActiveScene();
+    onActiveSceneChanged: updateActiveScene()
 
     function updateActiveScene()
     {
@@ -86,16 +87,33 @@ Item {
             editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
             selectionBoxes.length = 0;
-            updateToolStates(_generalHelper.getToolStates(sceneId), true);
+
+            if (activeScene) {
+                var toolStates = _generalHelper.getToolStates(sceneId);
+                if (Object.keys(toolStates).length > 0)
+                    updateToolStates(toolStates, true);
+                else
+                    storeCurrentToolStates();
+            } else {
+                // When active scene is deleted, this function gets called by object deletion
+                // handlers without going through setActiveScene, so make sure sceneId is cleared.
+                sceneId = "";
+                storeCurrentToolStates();
+            }
+
+            notifyActiveSceneChange();
         }
     }
 
-    function clearActiveScene()
+    function setActiveScene(newScene, newSceneId)
     {
-        activeScene = null;
-        sceneId = "";
+        var needExplicitUpdate = !activeScene && !newScene;
 
-        updateActiveScene();
+        sceneId = newSceneId;
+        activeScene = newScene;
+
+        if (needExplicitUpdate)
+            updateActiveScene();
     }
 
     // Disables edit view update if scene doesn't match current activeScene.
@@ -163,6 +181,32 @@ Item {
             cameraControl.restoreCameraState(toolStates.editCamState);
         else if (resetToDefault)
             cameraControl.restoreDefaultState();
+    }
+
+    function storeCurrentToolStates()
+    {
+        _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
+        _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
+        _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
+
+        var group = toolbarButtons.buttonGroups["groupSelect"];
+        var i;
+        for (i = 0; i < group.length; ++i) {
+            if (group[i].selected) {
+                _generalHelper.storeToolState(sceneId, "groupSelect", i)
+                break;
+            }
+        }
+
+        group = toolbarButtons.buttonGroups["groupTransform"];
+        for (i = 0; i < group.length; ++i) {
+            if (group[i].selected) {
+                _generalHelper.storeToolState(sceneId, "groupTransform", i)
+                break;
+            }
+        }
+
+        cameraControl.storeCameraState(0);
     }
 
     function ensureSelectionBoxes(count)

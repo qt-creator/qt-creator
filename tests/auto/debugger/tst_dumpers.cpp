@@ -7644,7 +7644,7 @@ void tst_Dumpers::dumper_data()
             + Check("f2", "\"qt-logo.png\"", "@QSqlField (QString)")
             + Check("f3", "(invalid)", "@QSqlField (invalid)");
 
-
+#ifdef Q_OS_LINUX
     Data f90data;
     f90data.configTest = "which f95";
     f90data.allProfile =
@@ -7676,7 +7676,7 @@ void tst_Dumpers::dumper_data()
         + GdbEngine
         + Check("c8", "\"c_____a_\"", "character *8")
         + Check("i8", "1337", "integer(kind=8)");
-
+#endif
 
 #if 0
 #ifdef Q_OS_LINUX

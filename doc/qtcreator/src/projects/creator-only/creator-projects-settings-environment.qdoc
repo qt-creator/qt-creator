@@ -1,0 +1,142 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-build-dependencies.html
+    \page creator-project-settings-environment.html
+    \nextpage creator-sharing-project-settings.html
+
+    \title Specifying Environment Settings
+
+    You can specify the environment you want to use for building
+    a project in the \uicontrol {Build Environment} section of
+    the \uicontrol {Build Settings}.
+
+    By default, the environment in which \QC was started is used and modified
+    to include the Qt version. Depending on the selected Qt version, \QC
+    automatically sets the necessary environment variables. You can edit
+    existing environment variables or add, reset and unset new variables
+    based on your project requirements.
+
+    In addition, you can specify custom environment variables in the
+    \uicontrol {Project Settings} > \uicontrol Environment settings.
+    They are added to all build environments. The final build environment
+    is specified separately for each kit. The project-specific environment
+    settings enable you to amend the build environment for all kits that
+    you use to build the project simultaneously, rather than having to edit
+    it separately for each kit.
+
+    \image qtcreator-build-environment.png "Build Environment"
+
+    \note The changes are stored in the local project specific \c{.pro.user}
+    file. Therefore, they are not suitable for sharing between developers or
+    development PCs. To share settings, incorporate them into the build system.
+    For example, if you use qmake, make the changes in the \c{.pro} file.
+
+    \section1 Batch Editing
+
+    To modify environment variable values for build or run environments,
+    select \uicontrol {Batch Edit} in the \uicontrol {Build Environment}
+    or \uicontrol {Environment} pane and enter environment variables in
+    the \uicontrol {Edit Environment} dialog.
+
+    To remove a variable value from the environment, enter the variable name.
+    For example, \c TEST sets the value of the \c TEST variable empty when
+    building or running the project.
+
+    To add a variable value to the environment, enter the variable name and
+    value, separated by the equals sign. For example, the following line
+    prepends the \c /opt/bin folder to the existing PATH:
+
+    \list
+        \li On Windows: \c {PATH=C:\opt\bin;${PATH}}
+        \li On Linux: \c {PATH=/opt/bin:${PATH}}
+    \endlist
+
+    To add or remove several variables, place them on separate lines. The order
+    is important. If you remove a value on a line, you cannot refer to it on the
+    following lines. However, you can remove a value after you have referred to
+    it on an earlier line.
+
+    To temporarily disable a variable, add a hash character (#) to the beginning
+    of the line.
+
+    \section1 Clearing the System Environment
+
+    To build with a clean system environment, select the \uicontrol {Clear
+    system environment} check box. \QC discards the current environment, and
+    populates a clean system environment with the environment variables that
+    the compilers and tools need. Therefore, the environment is never totally
+    empty, even after you clear it.
+
+    \section1 Using Environment Variables
+
+    You can use any environment variables to in build, deploy, and run
+    configurations. For a list of variable names, select \uicontrol {Build
+    Settings} > \uicontrol {Build Environment} > \uicontrol  Details}.
+    Environment variables are referenced using the native syntax: $VARNAME
+    or ${VARNAME} on Unix and %VARNAME% on Windows.
+
+    \section1 Using Qt Creator Variables
+
+    You can use \QC variables in arguments, executable paths, and working
+    directories. The variables take care of quoting their expansions, so you do
+    not need to put them in quotes. Select the \inlineimage replace.png
+    (\uicontrol {Variables}) button in a field to select from a list of
+    variables that are available in a particular context.
+
+    The following syntax enables you to use environment variables as \QC
+    variables: %{Env:VARNAME}.
+
+    \QC uses pattern substitution when expanding variable names. To replace the
+    first match of \e pattern within \e variable with \e replacement, use:
+
+    \badcode
+    %{variable/pattern/replacement}
+    \endcode
+
+    To replace all matches of \e pattern within \e variable with \e replacement,
+    use:
+
+    \badcode
+    %{variable//pattern/replacement}
+    \endcode
+
+    The pattern can be a regular expression and the replacement can contain
+    backreferences. For example, if \c %{variable} is \c my123var, then
+    \c %{variable/(..)(\d+)/\2\1} is expanded to \c {123myvar}.
+
+    Instead of the forward slash, you can also use the pound sign (\c #) as
+    the substitution character. This can be helpful if the value is supposed
+    to be a file path, in which case forward slashes might get translated
+    to backslashes on Windows hosts.
+
+    To use the default value if the variable is not set, use:
+
+    \badcode
+    %{variable:-default}
+    \endcode
+*/
