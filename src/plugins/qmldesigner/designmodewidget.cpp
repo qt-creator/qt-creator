@@ -42,6 +42,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actionmanager_p.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/modemanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 
 #include <coreplugin/outputpane.h>
@@ -381,6 +382,23 @@ void DesignModeWidget::setup()
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
     m_dockManager->initialize();
+
+    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
+            this, [this](Core::Id mode, Core::Id oldMode) {
+        if (mode == Core::Constants::MODE_DESIGN) {
+            m_dockManager->reloadActiveWorkspace();
+            m_dockManager->setModeChangeState(false);
+        }
+
+        if (oldMode == Core::Constants::MODE_DESIGN
+            && mode != Core::Constants::MODE_DESIGN) {
+            m_dockManager->save();
+            m_dockManager->setModeChangeState(true);
+            for (auto floatingWidget : m_dockManager->floatingWidgets())
+                floatingWidget->hide();
+        }
+    });
+
     viewManager().enableWidgets();
     readSettings();
     show();

@@ -473,6 +473,9 @@ public:
 
     bool isWorkspacePreset(const QString &workspace) const;
 
+    void setModeChangeState(bool value);
+    bool isModeChangeState() const;
+
 signals:
     void aboutToUnloadWorkspace(QString workspaceName);
     void aboutToLoadWorkspace(QString workspaceName);

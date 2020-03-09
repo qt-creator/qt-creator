@@ -98,6 +98,7 @@ namespace ADS
         bool m_autorestoreLastWorkspace; // This option is set in the Workspace Manager!
         QSettings *m_settings = nullptr;
         QString m_workspacePresetsPath;
+        bool m_modeChangeState;
 
         /**
          * Private data constructor
@@ -576,6 +577,9 @@ namespace ADS
 
     bool DockManager::save()
     {
+        if (isModeChangeState())
+            return false;
+
         emit aboutToSaveWorkspace();
 
         bool result = write(activeWorkspace(), saveState(), parentWidget());
@@ -834,6 +838,16 @@ namespace ADS
             d->m_workspaceDateTimes.insert(workspace, QDateTime::currentDateTime());
 
         return result;
+    }
+
+    void DockManager::setModeChangeState(bool value)
+    {
+        d->m_modeChangeState = value;
+    }
+
+    bool DockManager::isModeChangeState() const
+    {
+        return d->m_modeChangeState;
     }
 
     bool DockManager::write(const QString &workspace, const QByteArray &data, QString *errorString) const
