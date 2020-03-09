@@ -183,7 +183,7 @@ void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexDat
 {
     const int vertexSize = int(sizeof(float)) * 8 * 3; // 8 vertices, 3 floats/vert
     vertexData.resize(vertexSize);
-    const int indexSize = int(sizeof(quint16)) * 12 * 2; // 16 lines, 2 vert/line
+    const int indexSize = int(sizeof(quint16)) * 12 * 2; // 12 lines, 2 vert/line
     indexData.resize(indexSize);
 
     auto dataPtr = reinterpret_cast<float *>(vertexData.data());

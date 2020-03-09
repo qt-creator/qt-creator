@@ -14,6 +14,7 @@
         <file>mockfiles/MoveGizmo.qml</file>
         <file>mockfiles/CameraFrustum.qml</file>
         <file>mockfiles/CameraGizmo.qml</file>
+        <file>mockfiles/LightModel.qml</file>
         <file>mockfiles/LightGizmo.qml</file>
         <file>mockfiles/IconGizmo.qml</file>
         <file>mockfiles/Overlay2D.qml</file>

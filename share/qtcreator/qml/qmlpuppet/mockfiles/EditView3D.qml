@@ -134,7 +134,7 @@ Item {
     function fitToView()
     {
         if (editView) {
-            var targetNode = selectedNodes.length > 0
+            var targetNode = selectionBoxes.length > 0
                     ? selectionBoxes[0].model : null;
             cameraControl.focusObject(targetNode, editView.camera.eulerRotation, true);
         }
@@ -301,16 +301,20 @@ Item {
         }
 
         // No free gizmos available, create a new one
-        var component = Qt.createComponent("LightGizmo.qml");
-        if (component.status === Component.Ready) {
-            var gizmo = component.createObject(overlayView,
-                                               {"view3D": overlayView, "targetNode": obj,
-                                                "selectedNodes": selectedNodes, "scene": scene,
-                                                "activeScene": activeScene});
+        var gizmoComponent = Qt.createComponent("LightGizmo.qml");
+        var modelComponent = Qt.createComponent("LightModel.qml");
+        if (gizmoComponent.status === Component.Ready && modelComponent.status === Component.Ready) {
+            var geometryName = _generalHelper.generateUniqueName("LightGeometry");
+            var model = modelComponent.createObject(overlayScene, {"geometryName": geometryName});
+            var gizmo = gizmoComponent.createObject(overlayView,
+                                                    {"view3D": overlayView, "targetNode": obj,
+                                                     "selectedNodes": selectedNodes, "scene": scene,
+                                                     "activeScene": activeScene});
             lightGizmos[lightGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
             gizmo.activeScene = Qt.binding(function() {return activeScene;});
+            gizmo.connectModel(model);
         }
     }
 

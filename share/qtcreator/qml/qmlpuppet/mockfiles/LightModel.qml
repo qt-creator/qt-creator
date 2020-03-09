@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,33 +25,38 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
+import LightGeometry 1.0
 
-IconGizmo {
-    id: cameraGizmo
+Model {
+    id: lightModel
 
-    property Model frustumModel: null
+    property string geometryName
+    property alias geometryName: lightGeometry.name // Name must be unique for each geometry
+    property Node targetNode: null
+    property Node scene: null
+    property bool selected: false
 
-    iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
-
-    function connectFrustum(frustum)
+    function updateGeometry()
     {
-        frustumModel = frustum;
-
-        frustum.selected = selected;
-        frustum.selected = Qt.binding(function() {return selected;});
-
-        frustum.scene = scene;
-        frustum.scene = Qt.binding(function() {return scene;});
-
-        frustum.targetNode = targetNode;
-        frustum.targetNode = Qt.binding(function() {return targetNode;});
-
-        frustum.visible = visible;
-        frustum.visible = Qt.binding(function() {return visible;});
+        lightGeometry.update();
     }
 
-    onActiveSceneChanged: {
-        if (frustumModel && activeScene == scene)
-            frustumModel.updateGeometry();
+    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    rotation: targetNode ? targetNode.sceneRotation : Qt.quaternion(1, 0, 0, 0)
+    scale: Qt.vector3d(50, 50, 50)
+
+    geometry: lightGeometry
+    materials: [
+        DefaultMaterial {
+            id: defaultMaterial
+            emissiveColor: lightModel.selected ? "#FF0000" : "#555555"
+            lighting: DefaultMaterial.NoLighting
+            cullMode: Material.NoCulling
+        }
+    ]
+
+    LightGeometry {
+        id: lightGeometry
+        light: lightModel.scene && lightModel.targetNode ? lightModel.targetNode : null
     }
 }

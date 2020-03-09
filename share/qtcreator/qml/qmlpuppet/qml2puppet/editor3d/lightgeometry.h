@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,35 +23,45 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick3D 1.15
+#pragma once
 
-IconGizmo {
-    id: cameraGizmo
+#ifdef QUICK3D_MODULE
 
-    property Model frustumModel: null
+#include <QtQuick3D/private/qquick3dgeometry_p.h>
+#include <QtQuick3D/private/qquick3dabstractlight_p.h>
 
-    iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
+namespace QmlDesigner {
+namespace Internal {
 
-    function connectFrustum(frustum)
-    {
-        frustumModel = frustum;
+class LightGeometry : public QQuick3DGeometry
+{
+    Q_OBJECT
+    Q_PROPERTY(QQuick3DAbstractLight *light READ light WRITE setLight NOTIFY lightChanged)
 
-        frustum.selected = selected;
-        frustum.selected = Qt.binding(function() {return selected;});
+public:
+    LightGeometry();
+    ~LightGeometry() override;
 
-        frustum.scene = scene;
-        frustum.scene = Qt.binding(function() {return scene;});
+    QQuick3DAbstractLight *light() const;
 
-        frustum.targetNode = targetNode;
-        frustum.targetNode = Qt.binding(function() {return targetNode;});
+public Q_SLOTS:
+    void setLight(QQuick3DAbstractLight *light);
 
-        frustum.visible = visible;
-        frustum.visible = Qt.binding(function() {return visible;});
-    }
+Q_SIGNALS:
+    void lightChanged();
 
-    onActiveSceneChanged: {
-        if (frustumModel && activeScene == scene)
-            frustumModel.updateGeometry();
-    }
+protected:
+    QSSGRenderGraphObject *updateSpatialNode(QSSGRenderGraphObject *node) override;
+
+private:
+    void fillVertexData(QByteArray &vertexData, QByteArray &indexData,
+                        QVector3D &minBounds, QVector3D &maxBounds);
+    QQuick3DAbstractLight *m_light = nullptr;
+};
+
 }
+}
+
+QML_DECLARE_TYPE(QmlDesigner::Internal::LightGeometry)
+
+#endif // QUICK3D_MODULE
