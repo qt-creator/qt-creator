@@ -72,7 +72,6 @@ add_qtc_plugin(AutoTest
     testtreeitemdelegate.cpp testtreeitemdelegate.h
     testtreemodel.cpp testtreemodel.h
     testtreeview.cpp testtreeview.h
-  EXPLICIT_MOC boost/boosttestsettingspage.h
 )
 
 extend_qtc_plugin(AutoTest
