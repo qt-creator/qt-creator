@@ -33,7 +33,7 @@ View3D {
     property bool usePerspective: false
     property bool showSceneLight: false
     property alias sceneHelpers: sceneHelpers
-    property alias perpectiveCamera: scenePerspectiveCamera
+    property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera
     property double cameraZoomFactor: .55;
 

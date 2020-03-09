@@ -65,15 +65,8 @@ Item {
     onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
     onActiveSceneChanged: updateActiveScene()
 
-    function updateActiveScene()
+    function createEditView()
     {
-        if (editView) {
-            // Destroy is async, so make sure we don't get any more updates for the old editView
-            _generalHelper.enableItemUpdate(editView, false);
-            editView.destroy();
-        }
-
-        // importScene cannot be updated after initial set, so we need to reconstruct entire View3D
         var component = Qt.createComponent("SceneView3D.qml");
         if (component.status === Component.Ready) {
             editView = component.createObject(viewRect,
@@ -87,7 +80,21 @@ Item {
             editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
             selectionBoxes.length = 0;
+            return true;
+        }
+        return false;
+    }
 
+    function updateActiveScene()
+    {
+        if (editView) {
+            // Destroy is async, so make sure we don't get any more updates for the old editView
+            _generalHelper.enableItemUpdate(editView, false);
+            editView.destroy();
+        }
+
+        // importScene cannot be updated after initial set, so we need to reconstruct entire View3D
+        if (createEditView()) {
             if (activeScene) {
                 var toolStates = _generalHelper.getToolStates(sceneId);
                 if (Object.keys(toolStates).length > 0)
@@ -381,10 +388,11 @@ Item {
         }
     }
 
-    // Work-around the fact that the projection matrix for the camera is not calculated until
-    // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
     Component.onCompleted: {
+        createEditView();
         selectObjects([]);
+        // Work-around the fact that the projection matrix for the camera is not calculated until
+        // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
         _generalHelper.requestOverlayUpdate();
     }
 
@@ -396,10 +404,10 @@ Item {
 
         PerspectiveCamera {
             id: overlayPerspectiveCamera
-            clipFar: viewRoot.editView ? viewRoot.editView.perpectiveCamera.clipFar : 1000
-            clipNear: viewRoot.editView ? viewRoot.editView.perpectiveCamera.clipNear : 1
-            position: viewRoot.editView ? viewRoot.editView.perpectiveCamera.position : Qt.vector3d(0, 0, 0)
-            rotation: viewRoot.editView ? viewRoot.editView.perpectiveCamera.rotation : Qt.quaternion(1, 0, 0, 0)
+            clipFar: viewRoot.editView ? viewRoot.editView.perspectiveCamera.clipFar : 1000
+            clipNear: viewRoot.editView ? viewRoot.editView.perspectiveCamera.clipNear : 1
+            position: viewRoot.editView ? viewRoot.editView.perspectiveCamera.position : Qt.vector3d(0, 0, 0)
+            rotation: viewRoot.editView ? viewRoot.editView.perspectiveCamera.rotation : Qt.quaternion(1, 0, 0, 0)
         }
 
         OrthographicCamera {
@@ -538,7 +546,7 @@ Item {
             View3D {
                 id: overlayView
                 anchors.fill: parent
-                camera: usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
+                camera: viewRoot.usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
                 importScene: overlayScene
                 z: 2
             }
