@@ -29,6 +29,9 @@
    <property name="spacing">
     <number>0</number>
    </property>
+   <item row="0" column="0">
+    <widget class="QTabBar" name="tabBar" native="true"/>
+   </item>
    <item row="1" column="0">
     <widget class="QWidget" name="widgetSpacer" native="true">
      <property name="sizePolicy">
@@ -51,10 +54,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QTabBar" name="tabBar" native="true"/>
-   </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
       <number>3</number>
@@ -255,10 +255,14 @@
      </widget>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QToolBar" name="toolBar" native="true"/>
+   </item>
   </layout>
   <zorder>stackedWidget</zorder>
   <zorder>tabBar</zorder>
   <zorder>widgetSpacer</zorder>
+  <zorder>toolBar</zorder>
  </widget>
  <customwidgets>
   <customwidget>
