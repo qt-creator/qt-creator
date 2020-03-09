@@ -1108,7 +1108,8 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         }
 
         if (auto kev = ev.as<QKeyEvent>(QEvent::KeyPress)) {
-            if (item && kev->key() == Qt::Key_Delete && item->isWatcher()) {
+            if (item && (kev->key() == Qt::Key_Delete || kev->key() == Qt::Key_Backspace)
+                && item->isWatcher()) {
                 foreach (const QModelIndex &idx, ev.selectedRows())
                     removeWatchItem(itemForIndex(idx));
                 return true;

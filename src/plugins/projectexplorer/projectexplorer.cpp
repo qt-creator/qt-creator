@@ -1362,7 +1362,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_removeFileAction = new QAction(this);
     cmd = ActionManager::registerAction(dd->m_removeFileAction, Constants::REMOVEFILE,
                        projectTreeContext);
-    cmd->setDefaultKeySequence(QKeySequence::Delete);
+    cmd->setDefaultKeySequences({QKeySequence::Delete, QKeySequence::Backspace});
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // duplicate file action
@@ -1381,7 +1381,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_deleteFileAction = new QAction(tr("Delete File..."), this);
     cmd = ActionManager::registerAction(dd->m_deleteFileAction, Constants::DELETEFILE,
                              projectTreeContext);
-    cmd->setDefaultKeySequence(QKeySequence::Delete);
+    cmd->setDefaultKeySequences({QKeySequence::Delete, QKeySequence::Backspace});
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // renamefile action

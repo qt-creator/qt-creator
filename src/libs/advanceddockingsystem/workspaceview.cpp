@@ -187,7 +187,7 @@ void WorkspaceView::showEvent(QShowEvent *event)
 
 void WorkspaceView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() != Qt::Key_Delete) {
+    if (event->key() != Qt::Key_Delete && event->key() != Qt::Key_Backspace) {
         TreeView::keyPressEvent(event);
         return;
     }

@@ -310,7 +310,7 @@ bool EngineItem::setData(int row, const QVariant &value, int role)
         }
 
         if (auto kev = ev.as<QKeyEvent>(QEvent::KeyPress)) {
-            if (kev->key() == Qt::Key_Delete && m_engine) {
+            if ((kev->key() == Qt::Key_Delete || kev->key() == Qt::Key_Backspace) && m_engine) {
                 m_engine->quitDebugger();
             } else if (kev->key() == Qt::Key_Return || kev->key() == Qt::Key_Enter) {
                 d->activateEngineByIndex(row);

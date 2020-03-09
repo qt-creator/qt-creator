@@ -645,7 +645,10 @@ void MainWindow::registerDefaultActions()
                                            : Utils::Icons::ZOOMOUT_TOOLBAR.icon();
     tmpaction = new QAction(icon, tr("Zoom Out"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_OUT);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
+    if (useMacShortcuts)
+        cmd->setDefaultKeySequences({QKeySequence(tr("Ctrl+-")), QKeySequence(tr("Ctrl+Shift+-"))});
+    else
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
     tmpaction->setEnabled(false);
 
     // Zoom Reset Action

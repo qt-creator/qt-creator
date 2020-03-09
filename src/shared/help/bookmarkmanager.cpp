@@ -273,6 +273,7 @@ bool BookmarkDialog::eventFilter(QObject *object, QEvent *e)
                 }
             }   break;
 
+            case Qt::Key_Backspace:
             case Qt::Key_Delete: {
                 bookmarkManager->removeBookmarkItem(ui.treeView,
                     proxyModel->mapToSource(index));
@@ -489,7 +490,7 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
                         treeView->edit(index);
                         item->setEditable(false);
                     }
-                } else if (ke->key() == Qt::Key_Delete) {
+                } else if (ke->key() == Qt::Key_Delete || ke->key() == Qt::Key_Backspace) {
                     bookmarkManager->removeBookmarkItem(treeView, src);
                 }
             }

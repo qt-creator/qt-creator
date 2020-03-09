@@ -457,7 +457,7 @@ void TransitionItem::selectedMenuAction(const QAction *action)
 
 void TransitionItem::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Delete) {
+    if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
         bool bFound = false;
         if (m_cornerGrabbers.count() > 2) {
             for (int i = m_cornerGrabbers.count() - 1; i >= 1; i--) {

@@ -239,7 +239,7 @@ void Structure::childAdded(const QModelIndex &childIndex)
 
 void Structure::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Delete) {
+    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace) {
         QModelIndex ind = m_proxyModel->mapToSource(m_structureView->currentIndex());
         auto tag = static_cast<ScxmlTag*>(ind.internalPointer());
         if (tag && m_currentDocument) {

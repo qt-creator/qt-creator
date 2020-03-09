@@ -1509,7 +1509,7 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
             return contextMenuEvent(ev);
 
         if (auto kev = ev.as<QKeyEvent>(QEvent::KeyPress)) {
-            if (kev->key() == Qt::Key_Delete) {
+            if (kev->key() == Qt::Key_Delete || kev->key() == Qt::Key_Backspace) {
                 QModelIndexList si = ev.currentOrSelectedRows();
                 const Breakpoints bps = findBreakpointsByIndex(si);
                 for (Breakpoint bp : bps) {
@@ -2547,7 +2547,7 @@ bool BreakpointManager::setData(const QModelIndex &idx, const QVariant &value, i
             return contextMenuEvent(ev);
 
         if (auto kev = ev.as<QKeyEvent>(QEvent::KeyPress)) {
-            if (kev->key() == Qt::Key_Delete) {
+            if (kev->key() == Qt::Key_Delete || kev->key() == Qt::Key_Backspace) {
                 QModelIndexList si = ev.currentOrSelectedRows();
                 const GlobalBreakpoints gbps = findBreakpointsByIndex(si);
                 for (GlobalBreakpoint gbp : gbps)

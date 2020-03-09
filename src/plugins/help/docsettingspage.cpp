@@ -282,6 +282,7 @@ bool DocSettingsPageWidget::eventFilter(QObject *object, QEvent *event)
     if (event->type() == QEvent::KeyPress) {
         auto ke = static_cast<const QKeyEvent*>(event);
         switch (ke->key()) {
+            case Qt::Key_Backspace:
             case Qt::Key_Delete:
                 removeDocumentation(currentSelection());
             break;

@@ -679,7 +679,7 @@ void GraphicsScene::keyPressEvent(QKeyEvent *event)
 {
     QGraphicsItem *focusItem = this->focusItem();
     if (!focusItem || focusItem->type() != TextType) {
-        if (event->key() == Qt::Key_Delete)
+        if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
             removeSelectedItems();
     }
     QGraphicsScene::keyPressEvent(event);

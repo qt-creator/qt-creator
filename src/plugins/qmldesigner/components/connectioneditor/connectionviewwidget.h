@@ -102,7 +102,6 @@ private:
 private:
     Ui::ConnectionViewWidget *ui;
     QmlDesigner::ActionEditor *m_actionEditor;
-    QShortcut *m_deleteShortcut;
 };
 
 } // namespace Internal

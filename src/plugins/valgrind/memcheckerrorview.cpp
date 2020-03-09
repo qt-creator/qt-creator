@@ -61,7 +61,7 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
             {":/valgrind/images/suppressoverlay.png", Utils::Theme::IconsErrorColor}},
             Utils::Icon::Tint | Utils::Icon::PunchEdges).icon();
     m_suppressAction->setIcon(icon);
-    m_suppressAction->setShortcut(QKeySequence(Qt::Key_Delete));
+    m_suppressAction->setShortcuts({QKeySequence::Delete, QKeySequence::Backspace});
     m_suppressAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_suppressAction, &QAction::triggered, this, &MemcheckErrorView::suppressError);
     addAction(m_suppressAction);
