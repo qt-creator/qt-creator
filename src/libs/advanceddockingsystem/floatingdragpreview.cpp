@@ -68,6 +68,7 @@ namespace ADS
         DockContainerWidget *m_dropContainer = nullptr;
         bool m_hidden = false;
         QPixmap m_contentPreviewPixmap;
+        bool m_canceled = false;
 
         /**
          * Private data constructor
@@ -86,6 +87,7 @@ namespace ADS
          */
         void cancelDragging()
         {
+            m_canceled = true;
             emit q->draggingCanceled();
             m_dockManager->containerOverlay()->hideOverlay();
             m_dockManager->dockAreaOverlay()->hideOverlay();
@@ -149,6 +151,12 @@ namespace ADS
             }
         } else {
             dockAreaOverlay->hideOverlay();
+            // If there is only one single visible dock area in a container, then
+            // it does not make sense to show a dock overlay because the dock area
+            // would be removed and inserted at the same position
+            if (visibleDockAreas <= 1)
+                containerOverlay->hide();
+
             if (dockArea == m_contentSourceArea && InvalidDockWidgetArea == containerDropArea)
                 m_dropContainer = nullptr;
         }
@@ -195,9 +203,9 @@ namespace ADS
                 &QApplication::applicationStateChanged,
                 this,
                 &FloatingDragPreview::onApplicationStateChanged);
-        // The focused object will receive key press events and therefore we install
-        // the event filter on it to receive escape key press for drag canceling
-        QApplication::focusObject()->installEventFilter(this);
+        // The only safe way to receive escape key presses is to install an event
+        // filter for the application object
+        QApplication::instance()->installEventFilter(this);
     }
 
     FloatingDragPreview::FloatingDragPreview(DockWidget *content)
@@ -329,7 +337,7 @@ namespace ADS
 
     bool FloatingDragPreview::eventFilter(QObject *watched, QEvent *event)
     {
-        if (event->type() == QEvent::KeyPress) {
+        if (!d->m_canceled && event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Escape) {
                 watched->removeEventFilter(this);
