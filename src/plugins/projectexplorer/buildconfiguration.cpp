@@ -172,7 +172,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     d->m_buildDirectoryAspect->setEnvironment(environment());
     d->m_buildDirectoryAspect->setMacroExpanderProvider([this] { return macroExpander(); });
     connect(d->m_buildDirectoryAspect, &BaseStringAspect::changed,
-            this, &BuildConfiguration::buildDirectoryChanged);
+            this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         d->m_buildDirectoryAspect->setEnvironment(environment());
         this->target()->buildEnvironmentChanged(this);
