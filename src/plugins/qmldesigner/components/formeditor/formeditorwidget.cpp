@@ -85,13 +85,13 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_noSnappingAction->setIcon(Icons::NO_SNAPPING.icon());
     registerActionAsCommand(m_noSnappingAction, Constants::FORMEDITOR_NO_SNAPPING, QKeySequence(Qt::Key_T));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items and generate anchors"));
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items and generate anchors."));
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
     m_snappingAndAnchoringAction->setIcon(Icons::NO_SNAPPING_AND_ANCHORING.icon());
     registerActionAsCommand(m_snappingAndAnchoringAction, Constants::FORMEDITOR_NO_SNAPPING_AND_ANCHORING, QKeySequence(Qt::Key_W));
 
-    m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items but do not generate anchors"));
+    m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items but do not generate anchors."));
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
     m_snappingAction->setIcon(Icons::SNAPPING.icon());
@@ -106,7 +106,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     upperActions.append(separatorAction);
 
     m_showBoundingRectAction = new QAction(Utils::Icons::BOUNDING_RECT.icon(),
-                                           tr("Show bounding rectangles and stripes for empty items"),
+                                           tr("Show bounding rectangles and stripes for empty items."),
                                            this);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(false);
@@ -152,7 +152,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     upperActions.append(m_zoomAction.data());
     m_toolBox->addRightSideAction(m_zoomAction.data());
 
-    m_resetAction = new QAction(Utils::Icons::RESET_TOOLBAR.icon(), tr("Reset view"), this);
+    m_resetAction = new QAction(Utils::Icons::RESET_TOOLBAR.icon(), tr("Reset View"), this);
     registerActionAsCommand(m_resetAction, Constants::FORMEDITOR_REFRESH, QKeySequence(Qt::Key_R));
 
     addAction(m_resetAction.data());

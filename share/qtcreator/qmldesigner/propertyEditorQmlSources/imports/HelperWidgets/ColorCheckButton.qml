@@ -81,6 +81,6 @@ Item {
         hoverEnabled: true
         anchors.fill: parent
         anchors.leftMargin: -arrowImage.width
-        tooltip: qsTr("Toggle color picker view")
+        tooltip: qsTr("Toggle color picker view.")
     }
 }
