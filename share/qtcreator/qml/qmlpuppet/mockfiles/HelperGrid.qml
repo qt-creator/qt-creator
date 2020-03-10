@@ -49,7 +49,7 @@ Node {
                 id: mainGridMaterial
                 emissiveColor: "#aaaaaa"
                 lighting: DefaultMaterial.NoLighting
-                cullingMode: Material.DisableCulling
+                cullMode: Material.NoCulling
             }
         ]
     }
@@ -67,7 +67,7 @@ Node {
                 id: subGridMaterial
                 emissiveColor: mainGridMaterial.emissiveColor
                 lighting: DefaultMaterial.NoLighting
-                cullingMode: Material.DisableCulling
+                cullMode: Material.NoCulling
             }
         ]
     }
@@ -84,7 +84,7 @@ Node {
                 id: vCenterLineMaterial
                 emissiveColor: "#00a1d2"
                 lighting: DefaultMaterial.NoLighting
-                cullingMode: Material.DisableCulling
+                cullMode: Material.NoCulling
             }
         ]
     }
@@ -101,7 +101,7 @@ Node {
                 id: hCenterLineMaterial
                 emissiveColor: "#cb211a"
                 lighting: DefaultMaterial.NoLighting
-                cullingMode: Material.DisableCulling
+                cullMode: Material.NoCulling
             }
         ]
     }

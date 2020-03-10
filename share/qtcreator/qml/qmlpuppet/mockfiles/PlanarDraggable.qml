@@ -54,7 +54,7 @@ Model {
         id: gizmoMaterial
         emissiveColor: "white"
         lighting: DefaultMaterial.NoLighting
-        cullingMode: Material.DisableCulling
+        cullMode: Material.NoCulling
     }
     materials: gizmoMaterial
 

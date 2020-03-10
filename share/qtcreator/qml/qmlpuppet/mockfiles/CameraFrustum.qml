@@ -50,7 +50,7 @@ Model {
             id: defaultMaterial
             emissiveColor: cameraFrustum.selected ? "#FF0000" : "#555555"
             lighting: DefaultMaterial.NoLighting
-            cullingMode: Material.DisableCulling
+            cullMode: Material.NoCulling
         }
     ]
 

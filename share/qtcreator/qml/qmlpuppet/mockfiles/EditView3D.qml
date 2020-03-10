@@ -503,7 +503,7 @@ Item {
                     DefaultMaterial {
                         id: lineMat
                         lighting: DefaultMaterial.NoLighting
-                        cullingMode: Material.DisableCulling
+                        cullMode: Material.NoCulling
                         emissiveColor: pivotLine.color
                     }
                 ]
