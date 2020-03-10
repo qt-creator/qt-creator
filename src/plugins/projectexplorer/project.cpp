@@ -31,6 +31,7 @@
 #include "deployconfiguration.h"
 #include "editorconfiguration.h"
 #include "kit.h"
+#include "kitinformation.h"
 #include "makestep.h"
 #include "projectexplorer.h"
 #include "projectmacroexpander.h"
@@ -39,6 +40,7 @@
 #include "runcontrol.h"
 #include "session.h"
 #include "target.h"
+#include "taskhub.h"
 #include "userfileaccessor.h"
 
 #include <coreplugin/idocument.h>
@@ -57,6 +59,7 @@
 #include <utils/macroexpander.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QFileDialog>
 
@@ -757,8 +760,22 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
 
     Kit *k = KitManager::kit(id);
     if (!k) {
-        qWarning("Warning: No kit '%s' found. Continuing.", qPrintable(id.toString()));
-        return;
+        Core::Id deviceTypeId = Core::Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
+        if (!deviceTypeId.isValid())
+            deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
+        const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
+        k = KitManager::registerKit([deviceTypeId, &formerKitName](Kit *kit) {
+                const QString tempKitName = Utils::makeUniquelyNumbered(
+                            tr("Replacement for \"%1\"").arg(formerKitName),
+                        Utils::transform(KitManager::kits(), &Kit::unexpandedDisplayName));
+                kit->setUnexpandedDisplayName(tempKitName);
+                DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
+                kit->setup();
+        }, id);
+        TaskHub::addTask(BuildSystemTask(Task::Warning, tr("Project \"%1\" was configured for "
+            "kit \"%2\" with id %3, which does not exist anymore. The new kit \"%4\" was "
+            "created in its place, in an attempt not to lose custom project settings.")
+                .arg(displayName(), formerKitName, id.toString(), k->displayName())));
     }
 
     auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});

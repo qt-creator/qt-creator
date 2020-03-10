@@ -69,6 +69,9 @@ public:
     QString displayName() const;
     QString toolTip() const;
 
+    static QString displayNameKey();
+    static QString deviceTypeKey();
+
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *bc);
     bool removeBuildConfiguration(BuildConfiguration *bc);

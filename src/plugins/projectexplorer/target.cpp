@@ -259,6 +259,16 @@ QString Target::toolTip() const
     return d->m_kit->toHtml();
 }
 
+QString Target::displayNameKey()
+{
+    return QString("ProjectExplorer.ProjectConfiguration.DisplayName");
+}
+
+QString Target::deviceTypeKey()
+{
+    return QString("DeviceType");
+}
+
 void Target::addBuildConfiguration(BuildConfiguration *bc)
 {
     QTC_ASSERT(bc && !d->m_buildConfigurations.contains(bc), return);
@@ -499,15 +509,15 @@ QVariantMap Target::toMap() const
         return QVariantMap();
 
     QVariantMap map;
+    map.insert(displayNameKey(), displayName());
+    map.insert(deviceTypeKey(), DeviceTypeKitAspect::deviceTypeId(kit()).toSetting());
 
     {
         // FIXME: For compatibility within the 4.11 cycle, remove this block later.
         // This is only read by older versions of Creator, but even there not actively used.
         const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
-        const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
         const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
         map.insert(QLatin1String(CONFIGURATION_ID_KEY), id().toSetting());
-        map.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
         map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), displayName());
     }
 
