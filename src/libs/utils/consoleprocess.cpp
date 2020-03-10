@@ -136,6 +136,11 @@ void ConsoleProcess::setCommand(const CommandLine &command)
     d->m_commandLine = command;
 }
 
+CommandLine ConsoleProcess::command() const
+{
+    return d->m_commandLine;
+}
+
 void ConsoleProcess::setSettings(QSettings *settings)
 {
     d->m_settings = settings;

@@ -40,6 +40,10 @@ namespace TextEditor { class TextDocument; }
 namespace Python {
 namespace Internal {
 
+enum class ReplType { Unmodified, Import, ImportToplevel };
+
+void openPythonRepl(const Utils::FilePath &file, ReplType type);
+
 struct PythonLanguageServerState;
 
 class PyLSConfigureAssistant : public QObject

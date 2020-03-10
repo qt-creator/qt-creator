@@ -65,6 +65,7 @@ public:
     ~ConsoleProcess() override;
 
     void setCommand(const Utils::CommandLine &command);
+    Utils::CommandLine command() const;
     void setAbortOnMetaChars(bool abort);
 
     void setWorkingDirectory(const QString &dir);

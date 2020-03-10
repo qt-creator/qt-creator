@@ -37,6 +37,10 @@ const char C_EDITOR_DISPLAY_NAME[] =
 const char C_PYTHONOPTIONS_PAGE_ID[] = "PythonEditor.OptionsPage";
 const char C_PYTHON_SETTINGS_CATEGORY[] = "P.Python";
 
+const char PYTHON_OPEN_REPL[] = "Python.OpenRepl";
+const char PYTHON_OPEN_REPL_IMPORT[] = "Python.OpenReplImport";
+const char PYTHON_OPEN_REPL_IMPORT_TOPLEVEL[] = "Python.OpenReplImportToplevel";
+
 /*******************************************************************************
  * MIME type
  ******************************************************************************/
