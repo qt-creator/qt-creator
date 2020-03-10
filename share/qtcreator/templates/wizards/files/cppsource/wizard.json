@@ -3,9 +3,9 @@
     "supportedProjectTypes": [ ],
     "id": "B.Source",
     "category": "O.C++",
-    "trDescription": "Creates a C++ source file that you can add to a C++ project.",
-    "trDisplayName": "C++ Source File",
-    "trDisplayCategory": "C++",
+    "trDescription": "Creates a source file that you can add to a C/C++ project.",
+    "trDisplayName": "C/C++ Source File",
+    "trDisplayCategory": "C/C++",
     "iconText": "cpp",
     "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
 

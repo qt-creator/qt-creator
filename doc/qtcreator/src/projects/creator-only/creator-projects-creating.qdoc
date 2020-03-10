@@ -270,11 +270,9 @@
 
     \list
 
-        \li C++
+        \li C/C++
 
-            C++ class, source, or header files that you can use to write the
-            application logic in both Qt Quick projects and
-            Qt widget based projects
+            C or C++ source and header files
 
         \li Qt
 
