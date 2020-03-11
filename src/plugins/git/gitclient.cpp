@@ -629,7 +629,7 @@ public:
         QAction *showDateButton =
                 addToggleButton("--date=iso",
                                 tr("Show Date"),
-                                tr("Show date instead of sequence"));
+                                tr("Show date instead of sequence."));
         mapSetting(showDateButton, settings.boolPointer(GitSettings::refLogShowDateKey));
 
         addReloadButton();

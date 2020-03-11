@@ -92,7 +92,7 @@ public:
         addSeparator();
         addWidget(pickaxeLineEdit);
         addSeparator();
-        caseAction = new QAction(tr("Case sensitive"), this);
+        caseAction = new QAction(tr("Case Sensitive"), this);
         caseAction->setCheckable(true);
         caseAction->setChecked(true);
         connect(caseAction, &QAction::toggled, editor, &GitEditorWidget::refresh);
