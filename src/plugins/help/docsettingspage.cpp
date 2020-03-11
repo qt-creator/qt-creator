@@ -254,7 +254,7 @@ void DocSettingsPageWidget::addDocumentation()
     }
 
     if (!formatedFail.isEmpty()) {
-        QMessageBox::information(m_ui.addButton->parentWidget(), tr("Registration failed"),
+        QMessageBox::information(m_ui.addButton->parentWidget(), tr("Registration Failed"),
             tr("Unable to register documentation.") + formatedFail, QMessageBox::Ok);
     }
 }
