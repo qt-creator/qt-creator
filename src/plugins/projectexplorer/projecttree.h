@@ -95,6 +95,7 @@ public:
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged();
+    void nodeActionsChanged();
 
     // Emitted whenever the model needs to send a update signal.
     void subtreeChanged(ProjectExplorer::FolderNode *node);

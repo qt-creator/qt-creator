@@ -370,6 +370,7 @@ void FlatModel::handleProjectAdded(Project *project)
             this, [this, project]() {
         if (nodeForProject(project))
             parsingStateChanged(project);
+        emit ProjectTree::instance()->nodeActionsChanged();
     });
     addOrRebuildProjectModel(project);
 }

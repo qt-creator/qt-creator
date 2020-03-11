@@ -753,6 +753,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ProjectTree *tree = &dd->m_projectTree;
     connect(tree, &ProjectTree::currentProjectChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
+    connect(tree, &ProjectTree::nodeActionsChanged,
+            dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
     connect(tree, &ProjectTree::currentNodeChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
     connect(tree, &ProjectTree::currentProjectChanged,
@@ -3249,20 +3251,28 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             return currentNode->supportsAction(action, currentNode);
         };
 
+        bool canEditProject = true;
+        if (project && project->activeTarget()) {
+            const BuildSystem * const bs = project->activeTarget()->buildSystem();
+            if (bs->isParsing() || bs->isWaitingForParse())
+                canEditProject = false;
+        }
         if (currentNode->asFolderNode()) {
             // Also handles ProjectNode
-            m_addNewFileAction->setEnabled(supports(AddNewFile)
+            m_addNewFileAction->setEnabled(canEditProject && supports(AddNewFile)
                                               && !ICore::isNewItemDialogRunning());
-            m_addNewSubprojectAction->setEnabled(currentNode->isProjectNodeType()
+            m_addNewSubprojectAction->setEnabled(canEditProject && currentNode->isProjectNodeType()
                                                     && supports(AddSubProject)
                                                     && !ICore::isNewItemDialogRunning());
-            m_addExistingProjectsAction->setEnabled(currentNode->isProjectNodeType()
+            m_addExistingProjectsAction->setEnabled(canEditProject
+                                                    && currentNode->isProjectNodeType()
                                                     && supports(AddExistingProject));
-            m_removeProjectAction->setEnabled(currentNode->isProjectNodeType()
+            m_removeProjectAction->setEnabled(canEditProject && currentNode->isProjectNodeType()
                                                     && supports(RemoveSubProject));
-            m_addExistingFilesAction->setEnabled(supports(AddExistingFile));
-            m_addExistingDirectoryAction->setEnabled(supports(AddExistingDirectory));
-            m_renameFileAction->setEnabled(supports(Rename));
+            m_addExistingFilesAction->setEnabled(canEditProject && supports(AddExistingFile));
+            m_addExistingDirectoryAction->setEnabled(canEditProject
+                                                     && supports(AddExistingDirectory));
+            m_renameFileAction->setEnabled(canEditProject && supports(Rename));
         } else if (auto fileNode = currentNode->asFileNode()) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
@@ -3270,20 +3280,20 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             // If only removeFile is enabled only show it
             // If only deleteFile is enable only show it
             bool isTypeProject = fileNode->fileType() == FileType::Project;
-            bool enableRemove = !isTypeProject && supports(RemoveFile);
+            bool enableRemove = canEditProject && !isTypeProject && supports(RemoveFile);
             m_removeFileAction->setEnabled(enableRemove);
-            bool enableDelete = !isTypeProject && supports(EraseFile);
+            bool enableDelete = canEditProject && !isTypeProject && supports(EraseFile);
             m_deleteFileAction->setEnabled(enableDelete);
             m_deleteFileAction->setVisible(enableDelete);
 
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
-            m_renameFileAction->setEnabled(!isTypeProject && supports(Rename));
+            m_renameFileAction->setEnabled(canEditProject && !isTypeProject && supports(Rename));
             const bool currentNodeIsTextFile = isTextFile(
                         currentNode->filePath().toString());
             m_diffFileAction->setEnabled(DiffService::instance()
                         && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
-            const bool canDuplicate = supports(AddNewFile)
+            const bool canDuplicate = canEditProject && supports(AddNewFile)
                     && currentNode->asFileNode()->fileType() != FileType::Project;
             m_duplicateFileAction->setVisible(canDuplicate);
             m_duplicateFileAction->setEnabled(canDuplicate);
