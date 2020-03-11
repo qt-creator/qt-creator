@@ -392,6 +392,7 @@ void QbsSession::insertRequestedModuleProperties(QJsonObject &request)
         "cpp.minimumDarwinVersionCompilerFlag",
         "cpp.platformCommonCompilerFlags",
         "cpp.platformDriverFlags",
+        "cpp.platformDefines",
         "cpp.positionIndependentCode",
         "cpp.systemFrameworkPaths",
         "cpp.systemIncludePaths",

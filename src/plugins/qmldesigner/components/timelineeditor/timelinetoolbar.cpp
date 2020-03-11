@@ -103,10 +103,10 @@ QAction *createAction(const Core::Id &id,
 TimelineToolBar::TimelineToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
-    , m_dialog(Core::ICore::dialogParent())
+    , m_dialog(new AnimationCurveDialog(Core::ICore::dialogParent()))
     , m_curveModel(new AnimationCurveEditorModel(0., 500.))
 {
-    m_dialog.setModel(m_curveModel);
+    m_dialog->setModel(m_curveModel);
     connect(m_curveModel,
             &AnimationCurveEditorModel::currentFrameChanged,
             this,
@@ -248,9 +248,9 @@ void TimelineToolBar::openAnimationCurveEditor()
             timeline = tlv->timelineForState(tlv->currentState());
     }
 
-    m_dialog.refresh();
+    m_dialog->refresh();
     m_curveModel->setTimeline(timeline);
-    m_dialog.show();
+    m_dialog->show();
 }
 
 void TimelineToolBar::updateCurve(DesignTools::PropertyTreeItem *item)

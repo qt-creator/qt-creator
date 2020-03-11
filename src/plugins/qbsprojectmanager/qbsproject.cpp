@@ -886,7 +886,9 @@ static RawProjectParts generateProjectParts(
             rpp.setFlagsForC({cToolChain.get(), cFlags});
             rpp.setFlagsForCxx({cxxToolChain.get(), cxxFlags});
 
-            rpp.setMacros(transform<QVector>(arrayToStringList(props.value("cpp.defines")),
+            const QStringList defines = arrayToStringList(props.value("cpp.defines"))
+                    + arrayToStringList(props.value("cpp.platformDefines"));
+            rpp.setMacros(transform<QVector>(defines,
                     [](const QString &s) { return Macro::fromKeyValue(s); }));
 
             ProjectExplorer::HeaderPaths grpHeaderPaths;

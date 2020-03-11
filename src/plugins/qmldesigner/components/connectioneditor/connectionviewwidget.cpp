@@ -85,7 +85,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->setupUi(this);
 
     QStyle *style = QStyleFactory::create("fusion");
-    setStyle(style);
+    ui->stackedWidget->setStyle(style);
 
     //ui->tabWidget->tabBar()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -95,6 +95,11 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->tabBar->addTab(tr("Connections", "Title of connection view"));
     ui->tabBar->addTab(tr("Bindings", "Title of connection view"));
     ui->tabBar->addTab(tr("Properties", "Title of dynamic properties view"));
+
+    const QList<QToolButton*> buttons = createToolBarWidgets();
+
+    for (auto toolButton : buttons)
+        ui->toolBar->addWidget(toolButton);
 
     auto settings = QmlDesignerPlugin::instance()->settings();
 

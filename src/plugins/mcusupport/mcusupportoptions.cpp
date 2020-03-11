@@ -462,11 +462,10 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     McuPackage* seggerJLinkPackage = createSeggerJLinkPackage();
 
     QVector<McuPackage*> stmEvalPackages = {
-        armGccPackage, stm32CubeProgrammerPackage, qtForMCUsSdkPackage};
+        armGccPackage, stm32CubeProgrammerPackage};
     QVector<McuPackage*> nxpEvalPackages = {
-        armGccPackage, seggerJLinkPackage, qtForMCUsSdkPackage};
-    QVector<McuPackage*> desktopPackages = {
-        qtForMCUsSdkPackage};
+        armGccPackage, seggerJLinkPackage};
+    QVector<McuPackage*> desktopPackages = {};
     packages = {
         armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
         seggerJLinkPackage, qtForMCUsSdkPackage};
@@ -564,13 +563,20 @@ static void setKitDevice(ProjectExplorer::Kit *k)
     ProjectExplorer::DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
 }
 
-static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarget)
+static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarget,
+                              McuPackage *qtForMCUsSdkPackage)
 {
     using namespace ProjectExplorer;
 
     Utils::EnvironmentItems changes;
     QStringList pathAdditions;
-    for (auto package : mcuTarget->packages()) {
+
+    QVector<McuPackage *> packagesIncludingSdk;
+    packagesIncludingSdk.reserve(mcuTarget->packages().size() + 1);
+    packagesIncludingSdk.append(mcuTarget->packages());
+    packagesIncludingSdk.append(qtForMCUsSdkPackage);
+
+    for (auto package : packagesIncludingSdk) {
         if (package->addToPath())
             pathAdditions.append(QDir::toNativeSeparators(package->path()));
         if (!package->environmentVariableName().isEmpty())
@@ -646,7 +652,7 @@ ProjectExplorer::Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget)
             setKitDebugger(k, mcuTarget->toolChainPackage());
             setKitDevice(k);
         }
-        setKitEnvironment(k, mcuTarget);
+        setKitEnvironment(k, mcuTarget, qtForMCUsSdkPackage);
         setKitCMakeOptions(k, mcuTarget, qtForMCUsSdkPackage->path());
 
         k->setup();

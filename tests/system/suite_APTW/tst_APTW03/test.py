@@ -86,7 +86,7 @@ def main():
     checkSimpleCppLib("SampleApp1", False)
     checkSimpleCppLib("SampleApp2", True)
 
-    pluginTargets = (Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_10_1_DEFAULT)
+    pluginTargets = (Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT)
     projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin", pluginTargets)
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs("Debug"):

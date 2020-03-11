@@ -88,7 +88,7 @@ FocusScope {
     Item {
         id: addStateItem
 
-        property int buttonLeftSpacing: 0
+        property int buttonLeftSpacing: 8 * (expanded ?  1 : 2)
 
         anchors.right: parent.right
         width: delegateHeight / 2 + buttonLeftSpacing

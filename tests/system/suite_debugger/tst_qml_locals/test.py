@@ -27,6 +27,8 @@ source("../../shared/qtcreator.py")
 source("Tree.py")
 
 def main():
+    test.xfail("Skipping test. This must be rewritten for current kits.")
+    return
     if os.getenv("SYSTEST_OPENGL_MISSING") == "1":
         test.xfail("This test needs OpenGL - skipping...")
         return

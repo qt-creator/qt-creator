@@ -44,6 +44,9 @@ public:
     void renameState(int internalNodeId,const QString &newName);
     void setWhenCondition(int internalNodeId, const QString &condition);
     void resetWhenCondition(int internalNodeId);
+    void setStateAsDefault(int internalNodeId);
+    void resetDefaultState();
+    bool hasDefaultState() const;
     bool validStateName(const QString &name) const;
     QString currentStateName() const;
     void setCurrentState(const QmlModelState &state);

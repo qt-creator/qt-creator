@@ -857,7 +857,11 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             }
         }
         break;
-
+    case CE_ToolButtonLabel:
+        // Directly use QCommonStyle to circumvent funny painting in QMacStyle
+        // which ignores the palette and adds an alpha
+        QCommonStyle::drawControl(element, option, painter, widget);
+        break;
     default:
         QProxyStyle::drawControl(element, option, painter, widget);
         break;

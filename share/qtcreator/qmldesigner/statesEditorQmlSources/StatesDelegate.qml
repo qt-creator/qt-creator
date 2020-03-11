@@ -39,8 +39,9 @@ Rectangle {
     property int delegateStateImageSize
     property bool delegateHasWhenCondition
     property string delegateWhenConditionString
+    readonly property bool isDefaultState: isDefault
 
-    color: baseColor
+    color: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? Qt.lighter(baseColor, 1.5) : baseColor
     border.color: Theme.qmlDesignerBorderColor()
 
     function autoComplete(text, pos, explicitComplete, filter) {
@@ -85,7 +86,7 @@ Rectangle {
 
     Image {
         id: whenButton
-        visible: !isBaseState && expanded
+        visible: !isBaseState || (isBaseState && modelHasDefaultState)
         width: 14
         height: 14
         x: 4
@@ -108,6 +109,7 @@ Rectangle {
             id: contextMenu
 
             MenuItem {
+                visible: !isBaseState
                 text: qsTr("Set when Condition")
                 onTriggered: {
                     var x = whenButton.mapToGlobal(0,0).x + 4
@@ -116,20 +118,32 @@ Rectangle {
                     bindingEditor.text = delegateWhenConditionString
                     bindingEditor.prepareBindings()
                 }
-
             }
 
             MenuItem {
-                visible: delegateHasWhenCondition
+                visible: !isBaseState && delegateHasWhenCondition
                 text: qsTr("Reset when Condition")
                 onTriggered: {
                    statesEditorModel.resetWhenCondition(internalNodeId)
                 }
+            }
 
+            MenuItem {
+                visible: !isBaseState && !isDefaultState
+                text: qsTr("Set as Default")
+                onTriggered: {
+                    statesEditorModel.setStateAsDefault(internalNodeId)
+                }
+            }
+
+            MenuItem {
+                visible: (!isBaseState && isDefaultState) || (isBaseState && modelHasDefaultState)
+                text: qsTr("Reset Default")
+                onTriggered: {
+                    statesEditorModel.resetDefaultState()
+                }
             }
         }
-
-
     }
 
     TextField {

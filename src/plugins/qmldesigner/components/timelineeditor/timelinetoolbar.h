@@ -105,7 +105,7 @@ private:
 
     QList<QObject *> m_grp;
 
-    AnimationCurveDialog m_dialog;
+    AnimationCurveDialog *m_dialog = nullptr;
 
     AnimationCurveEditorModel *m_curveModel = nullptr;
 

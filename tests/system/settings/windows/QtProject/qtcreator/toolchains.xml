@@ -49,12 +49,12 @@
  <data>
   <variable>ToolChain.3</variable>
   <valuemap type="QVariantMap">
-   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2015-pe-32bit</value>
-   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/vcvarsall.bat</value>
-   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">x86</value>
-   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">true</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">Microsoft Visual C++ Compiler 14.0 (x86)</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{c96cfaf3-fb8a-472b-b3c7-e94e8c490f17}</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2017-pe-64bit</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Auxiliary/Build/vcvarsall.bat</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">amd64</value>
+   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC2017 (amd64)</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{ce3a8004-e9ae-46f2-b62d-d7daf69435ca}</value>
    <value type="int" key="ProjectExplorer.ToolChain.Language">1</value>
    <value type="QString" key="ProjectExplorer.ToolChain.LanguageV2">C</value>
   </valuemap>
@@ -67,13 +67,26 @@
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">x86</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">true</value>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">Microsoft Visual C++ Compiler 14.0 (x86)</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{c96cfaf3-fb8a-472b-b3c7-e94e8c490f17}</value>
+   <value type="int" key="ProjectExplorer.ToolChain.Language">1</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.LanguageV2">C</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>ToolChain.5</variable>
+  <valuemap type="QVariantMap">
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2015-pe-32bit</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/vcvarsall.bat</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">x86</value>
+   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">true</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">Microsoft Visual C++ Compiler 14.0 (x86)</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{ed856706-2a9d-4745-9d85-4e322b6f91d4}</value>
    <value type="int" key="ProjectExplorer.ToolChain.Language">2</value>
    <value type="QString" key="ProjectExplorer.ToolChain.LanguageV2">Cxx</value>
   </valuemap>
  </data>
  <data>
-  <variable>ToolChain.5</variable>
+  <variable>ToolChain.6</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2013-pe-32bit</value>
    <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat</value>
@@ -84,8 +97,21 @@
   </valuemap>
  </data>
  <data>
+  <variable>ToolChain.7</variable>
+  <valuemap type="QVariantMap">
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2017-pe-64bit</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Auxiliary/Build/vcvarsall.bat</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">amd64</value>
+   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC2017 (amd64)</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{3df7c776-a480-4a04-9099-6c75adac2dca}</value>
+   <value type="int" key="ProjectExplorer.ToolChain.Language">2</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.LanguageV2">Cxx</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>ToolChain.Count</variable>
-  <value type="int">6</value>
+  <value type="int">8</value>
  </data>
  <data>
   <variable>Version</variable>

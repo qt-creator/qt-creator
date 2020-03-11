@@ -744,6 +744,8 @@ class Dumper(DumperBase):
             return None
 
     def callHelper(self, rettype, value, function, args):
+        if self.isWindowsTarget():
+            raise Exception("gdb crashes when calling functions on Windows")
         # args is a tuple.
         arg = ''
         for i in range(len(args)):

@@ -818,6 +818,14 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
         }
     }
 
+    if (toolStates.contains({})) {
+        // Update tool state to an existing no-scene state before updating the active scene to
+        // ensure the previous state is inherited properly in all cases.
+        QMetaObject::invokeMethod(m_editView3DRootItem, "updateToolStates", Qt::QueuedConnection,
+                                  Q_ARG(QVariant, toolStates[{}]),
+                                  Q_ARG(QVariant, QVariant::fromValue(false)));
+    }
+
     updateActiveSceneToEditView3D();
 
     createCameraAndLightGizmos(instanceList);

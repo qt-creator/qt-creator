@@ -42,6 +42,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actionmanager_p.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/modemanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 
 #include <coreplugin/outputpane.h>
@@ -242,18 +243,25 @@ void DesignModeWidget::setup()
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup Actions and Menus
-    Core::ActionContainer *mwindow = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW);
+    Core::ActionContainer *mview = Core::ActionManager::actionContainer(Core::Constants::M_VIEW);
     // Window > Views
     Core::ActionContainer *mviews = Core::ActionManager::createMenu(Core::Constants::M_VIEW_VIEWS);
     mviews->menu()->addSeparator();
     // Window > Workspaces
     Core::ActionContainer *mworkspaces = Core::ActionManager::createMenu(QmlDesigner::Constants::M_WINDOW_WORKSPACES);
-    mwindow->addMenu(mworkspaces, Core::Constants::G_VIEW_VIEWS);
+    mview->addMenu(mworkspaces, Core::Constants::G_VIEW_VIEWS);
     mworkspaces->menu()->setTitle(tr("&Workspaces"));
-    mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show); // TODO what does it exactly do?!
-
-    // Connect opening of the 'window' menu with creation of the workspaces menu
-    connect(mwindow->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
+    mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show);
+    // Connect opening of the 'workspaces' menu with creation of the workspaces menu
+    connect(mworkspaces->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
+    // Disable workspace menu when context is different to C_DESIGN_MODE
+    connect(Core::ICore::instance(), &Core::ICore::contextChanged,
+            this, [mworkspaces](const Core::Context &context){
+                if (context.contains(Core::Constants::C_DESIGN_MODE))
+                    mworkspaces->menu()->setEnabled(true);
+                else
+                    mworkspaces->menu()->setEnabled(false);
+                });
 
     // Create a DockWidget for each QWidget and add them to the DockManager
     const Core::Context designContext(Core::Constants::C_DESIGN_MODE);
@@ -374,6 +382,23 @@ void DesignModeWidget::setup()
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
     m_dockManager->initialize();
+
+    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
+            this, [this](Core::Id mode, Core::Id oldMode) {
+        if (mode == Core::Constants::MODE_DESIGN) {
+            m_dockManager->reloadActiveWorkspace();
+            m_dockManager->setModeChangeState(false);
+        }
+
+        if (oldMode == Core::Constants::MODE_DESIGN
+            && mode != Core::Constants::MODE_DESIGN) {
+            m_dockManager->save();
+            m_dockManager->setModeChangeState(true);
+            for (auto floatingWidget : m_dockManager->floatingWidgets())
+                floatingWidget->hide();
+        }
+    });
+
     viewManager().enableWidgets();
     readSettings();
     show();

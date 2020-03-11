@@ -28,7 +28,7 @@ source("../../shared/qtcreator.py")
 focusDocumentPath = "keyinteraction.Resources.keyinteraction\.qrc./keyinteraction.focus.%s"
 
 def main():
-    target = Targets.DESKTOP_5_6_1_DEFAULT
+    target = Targets.DESKTOP_5_14_1_DEFAULT
     sourceExample = os.path.join(Qt5Path.examplesPath(target), "quick/keyinteraction")
     proFile = "keyinteraction.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):

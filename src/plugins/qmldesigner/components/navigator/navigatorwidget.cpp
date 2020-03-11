@@ -61,6 +61,11 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
+    QWidget *toolBar = createToolBar();
+
+    toolBar->setParent(this);
+    layout->addWidget(toolBar);
+
     layout->addWidget(m_treeView);
     setLayout(layout);
 
@@ -124,14 +129,27 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     auto filterMenu = new QMenu(filter);
     auto objectAction = new QAction(tr("Show only visible items."), nullptr);
     objectAction->setCheckable(true);
-    objectAction->setChecked(
-                DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+
+    bool filterFlag = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool();
+    objectAction->setChecked(filterFlag);
+
     connect(objectAction, &QAction::toggled, this, &NavigatorWidget::filterToggled);
     filterMenu->addAction(objectAction);
     filter->setMenu(filterMenu);
     buttons.append(filter);
 
     return buttons;
+}
+
+QToolBar *NavigatorWidget::createToolBar()
+{
+    const QList<QToolButton*> buttons = createToolBarWidgets();
+
+    auto toolBar = new QToolBar();
+    for (auto toolButton : buttons)
+        toolBar->addWidget(toolButton);
+
+    return toolBar;
 }
 
 void NavigatorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

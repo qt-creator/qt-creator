@@ -49,6 +49,7 @@ static char KEY_SELECTED_PROJECT[] = "SelectedProject";
 static char KEY_SELECTED_NODE[] = "SelectedFolderNode";
 static char KEY_IS_SUBPROJECT[] = "IsSubproject";
 static char KEY_VERSIONCONTROL[] = "VersionControl";
+static char KEY_QT_KEYWORDS_ENABLED[] = "QtKeywordsEnabled";
 
 namespace ProjectExplorer {
 
@@ -105,6 +106,7 @@ void JsonSummaryPage::initializePage()
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant());
     m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), false);
     m_wizard->setValue(QLatin1String(KEY_VERSIONCONTROL), QString());
+    m_wizard->setValue(QLatin1String(KEY_QT_KEYWORDS_ENABLED), false);
 
     connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::triggerCommit);
     connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::addToProject);
@@ -270,7 +272,7 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
             projectNode = projectNode->parentProjectNode();
         }
     }
-    m_wizard->setValue("QtKeywordsEnabled", qtKeyWordsEnabled);
+    m_wizard->setValue(QLatin1String(KEY_QT_KEYWORDS_ENABLED), qtKeyWordsEnabled);
 
     updateFileList();
 }

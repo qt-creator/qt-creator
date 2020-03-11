@@ -110,6 +110,7 @@ protected: //functions
     bool blockSelectionChangedSignal(bool block);
     void expandRecursively(const QModelIndex &index);
     void reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode);
+    void setupWidget();
 
 private:
     bool m_blockSelectionChangedSignal;
