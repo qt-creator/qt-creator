@@ -196,7 +196,7 @@ void ClangDiagnosticConfigsWidget::onRenameButtonClicked()
     bool dialogAccepted = false;
     const QString newName = QInputDialog::getText(this,
                                                   tr("Rename Diagnostic Configuration"),
-                                                  tr("New Name:"),
+                                                  tr("New name:"),
                                                   QLineEdit::Normal,
                                                   config.displayName(),
                                                   &dialogAccepted);
