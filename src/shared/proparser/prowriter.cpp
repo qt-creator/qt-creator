@@ -30,8 +30,11 @@
 #include <utils/algorithm.h>
 
 #include <QDir>
+#include <QLoggingCategory>
 #include <QPair>
 #include <QRegularExpression>
+
+Q_LOGGING_CATEGORY(prowriterLog, "qtc.prowriter", QtWarningMsg)
 
 using namespace QmakeProjectManager::Internal;
 
@@ -309,6 +312,9 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
                              const QString &var, PutFlags flags, const QString &scope,
                              const QString &continuationIndent)
 {
+    qCDebug(prowriterLog) << Q_FUNC_INFO << "lines:" << *lines << "values:" << values
+                          << "var:" << var << "flags:" << int(flags) << "scope:" << scope
+                          << "indent:" << continuationIndent;
     const QString indent = scope.isEmpty() ? QString() : continuationIndent;
     const auto effectiveContIndent = [indent, continuationIndent](const ContinuationInfo &ci) {
         return !ci.indent.isEmpty() ? ci.indent : continuationIndent + indent;
@@ -325,10 +331,12 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
             if (eqs >= 0) // If this is not true, we mess up the file a bit.
                 line.truncate(eqs + 1);
             // put new values
+            qCDebug(prowriterLog) << 1 << "old line value:" << line;
             for (const QString &v : values) {
                 line += ((flags & MultiLine) ? QString(" \\\n") + effectiveContIndent(contInfo)
                                              : QString(" ")) + v;
             }
+            qCDebug(prowriterLog) << "new line value:" << line;
         } else {
             const ContinuationInfo contInfo = skipContLines(lines, lineNo, false);
             int endLineNo = contInfo.lineNo;
@@ -343,6 +351,8 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
                 } else {
                     newLine += " \\";
                 }
+                qCDebug(prowriterLog) << 2 << "adding new line" << newLine
+                                      << "at line " << curLineNo;
                 lines->insert(curLineNo, newLine);
                 ++endLineNo;
             }
@@ -360,8 +370,10 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
                 const QRegularExpression rx("\\A(\\s*" + scope + "\\s*:\\s*)[^\\s{].*\\z");
                 const QRegularExpressionMatch match(rx.match(lines->at(scopeStart)));
                 if (match.hasMatch()) {
+                    qCDebug(prowriterLog) << 3 << "old line value:" << (*lines)[scopeStart];
                     (*lines)[scopeStart].replace(0, match.captured(1).length(),
                                                  scope + " {\n" + continuationIndent);
+                    qCDebug(prowriterLog) << "new line value:" << (*lines)[scopeStart];
                     contInfo = skipContLines(lines, scopeStart, false);
                     lNo = contInfo.lineNo;
                     scopeStart = -1;
@@ -395,6 +407,7 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
         }
         if (!scope.isEmpty() && scopeStart < 0)
             added += "\n}";
+        qCDebug(prowriterLog) << 4 << "adding" << added << "at line" << lNo;
         lines->insert(lNo, added);
     }
 }
