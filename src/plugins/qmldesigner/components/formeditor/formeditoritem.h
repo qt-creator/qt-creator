@@ -123,6 +123,7 @@ protected:
     void paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const;
     QList<FormEditorItem*> offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const;
     FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);
+    QTransform viewportTransform() const;
 
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;
