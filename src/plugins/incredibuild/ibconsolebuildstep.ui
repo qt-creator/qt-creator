@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>IncrediBuild::Internal::IBConsoleBuildStep</class>
+ <widget class="QWidget" name="IncrediBuild::Internal::IBConsoleBuildStep">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>355</width>
+    <height>273</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Enter the appropriate arguments to your build command</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QCheckBox" name="keepJobsNum">
+     <property name="toolTip">
+      <string>Setting this option to true, forces IncrediBuild to not override the -j command line switch. The default IncrediBuild behavior is to set a high value to the -j command line switch which controls the number of processes that the build tools executed by QT will execute in parallel (the default IncrediBuild behavior will set this value to 200).</string>
+     </property>
+     <property name="text">
+      <string>Keep Original Jobs Num</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Target and configuration</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="makeLabel">
+     <property name="text">
+      <string>Make command:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QSpinBox" name="niceSpin">
+     <property name="minimum">
+      <number>-20</number>
+     </property>
+     <property name="maximum">
+      <number>19</number>
+     </property>
+     <property name="singleStep">
+      <number>1</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0">
+    <widget class="QCheckBox" name="forceRemote">
+     <property name="toolTip">
+      <string extracomment="Force allow_remote tasks to remote helpers."/>
+     </property>
+     <property name="text">
+      <string>Force remote</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="makeArgumentsLineEdit"/>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>IncrediBuild Distribution control</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0">
+    <widget class="QLabel" name="maxCpuLabel">
+     <property name="toolTip">
+      <string>Specify nice value. Nice Value should be numeric and between -20 and 19</string>
+     </property>
+     <property name="text">
+      <string>Nice value:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="commandBuilder"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="makeArgumentsLabel">
+     <property name="text">
+      <string>Make arguments:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label">
+     <property name="toolTip">
+      <string>Select an helper to establish the build command.</string>
+     </property>
+     <property name="text">
+      <string>Command Helper:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0">
+    <widget class="QCheckBox" name="alternate">
+     <property name="text">
+      <string>Alternate tasks preference</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="Utils::PathChooser" name="makePathChooser" native="true"/>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Make sure the build command's multi-job parameter value is large enough (such as -J200 for the JOM or Make build tools).</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

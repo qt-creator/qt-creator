@@ -44,6 +44,7 @@ Project {
         "helloworld/helloworld.qbs",
         "help/help.qbs",
         "imageviewer/imageviewer.qbs",
+        "incredibuild/incredibuild.qbs",
         "ios/ios.qbs",
         "languageclient/languageclient.qbs",
         "macros/macros.qbs",

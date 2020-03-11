@@ -1,0 +1,11 @@
+{
+    \"Name\" : \"IncrediBuild\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Platform\" : \"^(Linux|Windows)\",
+    \"Vendor\" : \"IncrediBuild\",
+    \"Copyright\" : \"(C) IncrediBuild\",
+    \"Category\" : \"Build Systems\",
+    \"Url\" : \"http://www.IncrediBuild.com\",
+    $$dependencyList
+}

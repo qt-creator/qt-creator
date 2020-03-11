@@ -65,7 +65,8 @@ SUBDIRS   = \
     studiowelcome \
     webassembly \
     mcusupport \
-    marketplace
+    marketplace \
+    incredibuild
 
 qtHaveModule(serialport) {
     SUBDIRS += serialterminal
