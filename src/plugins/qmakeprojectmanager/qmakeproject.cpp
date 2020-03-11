@@ -617,7 +617,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     if (qtThatContainsProject && qtThatContainsProject != qtFromKit) {
         result.append(CompileTask(Task::Warning,
                                   tr("Project is part of Qt sources that do not match "
-                                     "the Qt defined in the Kit")));
+                                     "the Qt defined in the kit.")));
     }
 
     return result;
