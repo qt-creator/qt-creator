@@ -263,7 +263,7 @@ QString QbsSession::errorString(QbsSession::Error error)
 {
     switch (error) {
     case Error::QbsQuit:
-        return tr("The qbs process quit unexpectedly");
+        return tr("The qbs process quit unexpectedly.");
     case Error::QbsFailedToStart:
         return tr("The qbs process failed to start.");
     case Error::ProtocolError:
