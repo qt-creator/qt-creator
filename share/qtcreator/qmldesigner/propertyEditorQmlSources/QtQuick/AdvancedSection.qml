@@ -100,6 +100,19 @@ Section {
         }
 
         Label {
+            text: "State"
+        }
+        SecondColumnLayout {
+            LineEdit {
+                backendValue: backendValues.state
+                showTranslateCheckBox: false
+                enabled: anchorBackend.hasParent || isBaseState
+            }
+            ExpandingSpacer {
+            }
+        }
+
+        Label {
             visible: majorQtQuickVersion > 1
             text: qsTr("Enabled")
         }
