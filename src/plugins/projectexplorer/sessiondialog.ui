@@ -63,7 +63,7 @@
      <item>
       <widget class="QPushButton" name="btSwitch">
        <property name="text">
-        <string>&amp;Switch to</string>
+        <string>&amp;Switch To</string>
        </property>
        <property name="default">
         <bool>true</bool>
