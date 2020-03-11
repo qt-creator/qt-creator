@@ -979,8 +979,8 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     int breakOffset = 50;
 
-    if (qmlItemNode().modelNode().hasAuxiliaryData("break"))
-        breakOffset = qmlItemNode().modelNode().auxiliaryData("break").toInt();
+    if (qmlItemNode().modelNode().hasAuxiliaryData("breakPoint"))
+        breakOffset = qmlItemNode().modelNode().auxiliaryData("breakPoint").toInt();
 
     paintConnection(painter, fromRect, toRect, width, adjustedWidth ,color, dash, outOffset, inOffset, breakOffset);
 
