@@ -230,9 +230,11 @@ bool AndroidBuildApkStep::init()
         m_inputFile = node->data(Constants::AndroidDeploySettingsFile).toString();
 
     if (m_inputFile.isEmpty()) {
+        qCDebug(buildapkstepLog) << "no input file" << rc << node << buildKey;
         m_skipBuilding = true;
         return true;
     }
+    m_skipBuilding = false;
 
     if (m_buildTargetSdk.isEmpty()) {
         emit addOutput(tr("Android build SDK not defined. Check Android settings."),
