@@ -84,7 +84,7 @@ CtfVisualizerTool::CtfVisualizerTool()
     m_perspective.setAboutToActivateCallback([this]() { createViews(); });
 
     m_restrictToThreadsButton->setIcon(Utils::Icons::FILTER.icon());
-    m_restrictToThreadsButton->setToolTip(tr("Restrict to threads"));
+    m_restrictToThreadsButton->setToolTip(tr("Restrict to Threads"));
     m_restrictToThreadsButton->setPopupMode(QToolButton::InstantPopup);
     m_restrictToThreadsButton->setProperty("noArrow", true);
     m_restrictToThreadsButton->setMenu(m_restrictToThreadsMenu);
