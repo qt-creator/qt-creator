@@ -87,6 +87,9 @@ public:
     bool fetchWatchers(const QStringList &expandedWatcherINames,
                        const std::vector<std::pair<QString, QString>> &rootWatchers, GdbMi &data);
 
+    bool fetchMemory(quint64 address, QByteArray &data);
+    bool changeMemory(quint64 address, const QByteArray &data);
+
     bool disassemblyAddress(quint64 address, QByteArray &result);
 
     bool setRegisterValue(int index, const QString &value);

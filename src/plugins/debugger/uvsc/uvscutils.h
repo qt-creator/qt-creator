@@ -56,6 +56,7 @@ QString decodeAscii(const qint8 *ascii);
 QByteArray encodeProjectData(const QStringList &someNames);
 QByteArray encodeBreakPoint(BKTYPE type, const QString &exp, const QString &cmd = QString());
 QByteArray encodeAmem(quint64 address, quint32 bytesCount);
+QByteArray encodeAmem(quint64 address, const QByteArray &data);
 TVAL encodeVoidTval();
 TVAL encodeIntTval(int value);
 TVAL encodeU64Tval(quint64 value);
@@ -64,6 +65,9 @@ VSET encodeIntVset(int index, const QString &value);
 VSET encodeU64Vset(quint64 index, const QString &value);
 bool isKnownRegister(int type);
 QString adjustHexValue(QString hex, const QString &type);
+
+QByteArray encodeU32(quint32 value);
+quint32 decodeU32(const QByteArray &data);
 
 QString buildLocalId(const VARINFO &varinfo);
 QString buildLocalEditable(const VARINFO &varinfo);

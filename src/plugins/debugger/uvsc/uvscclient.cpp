@@ -691,6 +691,41 @@ bool UvscClient::inspectWatcher(const QStringList &expandedWatcherINames,
     return true;
 }
 
+bool UvscClient::fetchMemory(quint64 address, QByteArray &data)
+{
+    if (data.isEmpty())
+        data.resize(sizeof(quint8));
+
+    QByteArray amem = UvscUtils::encodeAmem(address, data);
+    const auto amemPtr = reinterpret_cast<AMEM *>(amem.data());
+    const UVSC_STATUS st = ::UVSC_DBG_MEM_READ(m_descriptor, amemPtr, amem.size());
+    if (st != UVSC_STATUS_SUCCESS) {
+        setError(RuntimeError);
+        return false;
+    }
+
+    data = QByteArray(reinterpret_cast<char *>(&amemPtr->bytes),
+                      amemPtr->bytesCount);
+    return true;
+}
+
+bool UvscClient::changeMemory(quint64 address, const QByteArray &data)
+{
+    if (data.isEmpty()) {
+        setError(RuntimeError);
+        return false;
+    }
+
+    QByteArray amem = UvscUtils::encodeAmem(address, data);
+    const auto amemPtr = reinterpret_cast<AMEM *>(amem.data());
+    const UVSC_STATUS st = ::UVSC_DBG_MEM_WRITE(m_descriptor, amemPtr, amem.size());
+    if (st != UVSC_STATUS_SUCCESS) {
+        setError(RuntimeError);
+        return false;
+    }
+    return true;
+}
+
 bool UvscClient::disassemblyAddress(quint64 address, QByteArray &result)
 {
     if (!checkConnection())

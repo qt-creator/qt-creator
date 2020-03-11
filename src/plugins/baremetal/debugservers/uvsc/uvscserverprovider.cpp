@@ -201,8 +201,12 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
     if (!optFilePath.exists())
         return false;
 
+    const FilePath peripheralDescriptionFile = FilePath::fromString(m_deviceSelection.svd);
+
     Runnable inferior;
     inferior.executable = bin;
+    inferior.extraData.insert(Debugger::Constants::kPeripheralDescriptionFile,
+                              peripheralDescriptionFile.toVariant());
     inferior.extraData.insert(Debugger::Constants::kUVisionProjectFilePath, projFilePath.toString());
     inferior.extraData.insert(Debugger::Constants::kUVisionOptionsFilePath, optFilePath.toString());
     inferior.extraData.insert(Debugger::Constants::kUVisionSimulator, isSimulator());

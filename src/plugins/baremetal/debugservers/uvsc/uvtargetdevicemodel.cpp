@@ -497,6 +497,14 @@ DeviceSelection DeviceSelectionView::buildSelection(const DeviceSelectionItem *i
             break;
         }
     } while ((item = item->parentPackItem()));
+
+    // Fix relative SVD file path to make it as absolute.
+    const QFileInfo fi(selection.svd);
+    if (!fi.isAbsolute()) {
+        const QDir dir(QFileInfo(selection.package.file).path());
+        selection.svd = QFileInfo(dir, fi.filePath()).absoluteFilePath();
+    }
+
     return selection;
 }
 

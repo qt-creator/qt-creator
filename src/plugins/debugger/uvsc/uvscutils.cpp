@@ -110,6 +110,16 @@ QByteArray encodeAmem(quint64 address, quint32 bytesCount)
     return buffer;
 }
 
+QByteArray encodeAmem(quint64 address, const QByteArray &data)
+{
+    QByteArray buffer(sizeof(AMEM) - 1, 0);
+    buffer.append(data);
+    const auto amem = reinterpret_cast<AMEM *>(buffer.data());
+    amem->address = address;
+    amem->bytesCount = data.size();
+    return buffer;
+}
+
 TVAL encodeVoidTval()
 {
     TVAL tval = {};
@@ -236,6 +246,24 @@ QString adjustHexValue(QString hex, const QString &type)
     }
 
     return {};
+}
+
+QByteArray encodeU32(quint32 value)
+{
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setByteOrder(QDataStream::LittleEndian);
+    out << value;
+    return data;
+}
+
+quint32 decodeU32(const QByteArray &data)
+{
+    QDataStream in(data);
+    in.setByteOrder(QDataStream::LittleEndian);
+    quint32 value = 0;
+    in >> value;
+    return value;
 }
 
 QString buildLocalId(const VARINFO &varinfo)

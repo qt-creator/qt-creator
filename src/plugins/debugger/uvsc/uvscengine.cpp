@@ -32,6 +32,7 @@
 #include <debugger/disassemblerlines.h>
 #include <debugger/memoryagent.h>
 #include <debugger/moduleshandler.h>
+#include <debugger/peripheralregisterhandler.h>
 #include <debugger/registerhandler.h>
 #include <debugger/stackhandler.h>
 #include <debugger/threadshandler.h>
@@ -162,6 +163,9 @@ void UvscEngine::setupEngine()
 
     if (!configureProject(rp))
         return;
+
+    // Reload peripheral register description.
+    peripheralRegisterHandler()->updateRegisterGroups();
 }
 
 void UvscEngine::runEngine()
@@ -229,6 +233,14 @@ void UvscEngine::setRegisterValue(const QString &name, const QString &value)
     if (!m_client->setRegisterValue(registerIt->first, value))
         return;
     reloadRegisters();
+}
+
+void UvscEngine::setPeripheralRegisterValue(quint64 address, quint64 value)
+{
+    const QByteArray data = UvscUtils::encodeU32(value);
+    if (!m_client->changeMemory(address, data))
+        return;
+    reloadPeripheralRegisters();
 }
 
 void UvscEngine::executeStepOver(bool byInstruction)
@@ -332,6 +344,7 @@ void UvscEngine::activateFrame(int index)
     gotoCurrentLocation();
     updateLocals();
     reloadRegisters();
+    reloadPeripheralRegisters();
 }
 
 bool UvscEngine::stateAcceptsBreakpointChanges() const
@@ -469,6 +482,17 @@ void UvscEngine::reloadRegisters()
     handleReloadRegisters();
 }
 
+void UvscEngine::reloadPeripheralRegisters()
+{
+    if (!isPeripheralRegistersWindowVisible())
+        return;
+
+    const QList<quint64> addresses = peripheralRegisterHandler()->activeRegisters();
+    if (addresses.isEmpty())
+        return; // Nothing to update.
+    handleReloadPeripheralRegisters(addresses);
+}
+
 void UvscEngine::reloadFullStack()
 {
     resetLocation();
@@ -496,6 +520,7 @@ void UvscEngine::updateAll()
 
     handleThreadInfo();
     reloadRegisters();
+    reloadPeripheralRegisters();
     updateLocals();
 }
 
@@ -653,6 +678,7 @@ void UvscEngine::handleReloadStack(bool isFull)
     if (!m_client->fetchStackFrames(taskId, m_address, data)) {
         m_address = 0;
         reloadRegisters();
+        reloadPeripheralRegisters();
         return;
     }
 
@@ -675,6 +701,19 @@ void UvscEngine::handleReloadRegisters()
         for (const auto &reg : qAsConst(m_registers))
             handler->updateRegister(reg.second);
         handler->commitUpdates();
+    }
+}
+
+void UvscEngine::handleReloadPeripheralRegisters(const QList<quint64> &addresses)
+{
+    for (const quint64 address : addresses) {
+        QByteArray data = UvscUtils::encodeU32(0);
+        if (!m_client->fetchMemory(address, data)) {
+            showMessage(tr("UVSC: Fetching peripheral register failed"), LogMisc);
+        } else {
+            const quint32 value = UvscUtils::decodeU32(data);
+            peripheralRegisterHandler()->updateRegister(address, value);
+        }
     }
 }
 
