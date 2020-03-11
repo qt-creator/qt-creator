@@ -47,7 +47,7 @@ ManualRunDialog::ManualRunDialog(const CppcheckOptions &options,
 {
     QTC_ASSERT(project, return );
 
-    setWindowTitle(tr("Cppcheck run configuration"));
+    setWindowTitle(tr("Cppcheck Run Configuration"));
 
     auto view = new QTreeView;
     view->setHeaderHidden(true);
