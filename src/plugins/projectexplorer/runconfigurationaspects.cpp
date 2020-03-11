@@ -344,7 +344,7 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
     containerLayout->setContentsMargins(0, 0, 0, 0);
     containerLayout->addWidget(setupChooser());
     m_multiLineButton = new ExpandButton;
-    m_multiLineButton->setToolTip(tr("Toggle multi-line mode"));
+    m_multiLineButton->setToolTip(tr("Toggle multi-line mode."));
     m_multiLineButton->setChecked(m_multiLine);
     connect(m_multiLineButton, &QCheckBox::clicked, this, [this](bool checked) {
         if (m_multiLine == checked)
