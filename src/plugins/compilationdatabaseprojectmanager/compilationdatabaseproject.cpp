@@ -52,7 +52,6 @@
 #include <utils/runextensions.h>
 
 #include <QFileDialog>
-#include <QTimer>
 
 #ifdef Q_OS_WIN
 #include <Windows.h>
@@ -339,20 +338,15 @@ void createTree(std::unique_ptr<ProjectNode> &root,
 CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
     : BuildSystem(target)
     , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
-    , m_parseDelay(new QTimer(this))
     , m_deployFileWatcher(new FileSystemWatcher(this))
 {
     connect(target->project(), &CompilationDatabaseProject::rootProjectDirectoryChanged,
             this, [this] {
         m_projectFileHash.clear();
-        m_parseDelay->start();
+        requestDelayedParse();
     });
 
-    connect(m_parseDelay, &QTimer::timeout, this, &CompilationDatabaseBuildSystem::reparseProject);
-
-    m_parseDelay->setSingleShot(true);
-    m_parseDelay->setInterval(1000);
-    m_parseDelay->start();
+    requestDelayedParse();
 
     connect(project(), &Project::projectFileIsDirty, this, &CompilationDatabaseBuildSystem::reparseProject);
 
