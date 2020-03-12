@@ -83,12 +83,20 @@
         \li \l {Using Custom Fonts}
 
             You can load custom fonts to \QMLD and use them in your designs.
+
+        \li \l {Annotating Designs}
+
+            You can annotate your designs to provide reviewers or developers
+            with additional information about them.
+
+    \if defined(qtdesignstudio)
     \endlist
 
     \section1 Related Topics
 
     \list
-        \li \l{Qt Quick UI Forms}
+    \endif
+            \li \l{Qt Quick UI Forms}
 
             Some of the wizards create Qt Quick projects that contain UI forms
             (.ui.qml files). The forms use a purely declarative subset of the
