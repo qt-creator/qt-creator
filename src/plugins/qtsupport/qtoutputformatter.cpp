@@ -94,7 +94,6 @@ public:
 
     void appendMessage(const QString &text, Utils::OutputFormat format) override;
     void handleLink(const QString &href) override;
-    void setPlainTextEdit(QPlainTextEdit *plainText) override;
 
 protected:
     void clearLastLine() override;
@@ -188,7 +187,7 @@ void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFor
         LinkResult lr = matchLine(line);
         if (!lr.href.isEmpty()) {
             // Found something && line continuation
-            d->cursor.insertText(deferredText, fmt);
+            cursor().insertText(deferredText, fmt);
             deferredText.clear();
             if (!d->lastLine.isEmpty())
                 clearLastLine();
@@ -207,20 +206,20 @@ void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFor
         }
         d->lastLine.clear(); // Handled line continuation
     }
-    d->cursor.insertText(deferredText, fmt);
+    cursor().insertText(deferredText, fmt);
 }
 
 void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat &format)
 {
-    if (!d->cursor.atEnd())
-        d->cursor.movePosition(QTextCursor::End);
-    d->cursor.beginEditBlock();
+    if (!cursor().atEnd())
+        cursor().movePosition(QTextCursor::End);
+    cursor().beginEditBlock();
 
     const QList<FormattedText> ansiTextList = parseAnsi(txt, format);
     for (const FormattedText &output : ansiTextList)
         appendMessagePart(output.text, output.format);
 
-    d->cursor.endEditBlock();
+    cursor().endEditBlock();
 
     emit contentChanged();
 }
@@ -233,9 +232,9 @@ void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line, Ou
 void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line,
                                    const QTextCharFormat &format)
 {
-    d->cursor.insertText(line.left(lr.start), format);
-    d->cursor.insertText(line.mid(lr.start, lr.end - lr.start), linkFormat(format, lr.href));
-    d->cursor.insertText(line.mid(lr.end), format);
+    cursor().insertText(line.left(lr.start), format);
+    cursor().insertText(line.mid(lr.start, lr.end - lr.start), linkFormat(format, lr.href));
+    cursor().insertText(line.mid(lr.end), format);
 }
 
 void QtOutputFormatter::handleLink(const QString &href)
@@ -302,12 +301,6 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
     }
-}
-
-void QtOutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
-{
-    OutputFormatter::setPlainTextEdit(plainText);
-    d->cursor = plainText ? plainText->textCursor() : QTextCursor();
 }
 
 void QtOutputFormatter::clearLastLine()

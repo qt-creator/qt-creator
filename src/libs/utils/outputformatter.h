@@ -52,7 +52,7 @@ public:
     ~OutputFormatter() override;
 
     QPlainTextEdit *plainTextEdit() const;
-    virtual void setPlainTextEdit(QPlainTextEdit *plainText);
+    void setPlainTextEdit(QPlainTextEdit *plainText);
 
     void flush();
 
@@ -72,6 +72,7 @@ protected:
     QTextCharFormat charFormat(OutputFormat format) const;
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
     void append(const QString &text, const QTextCharFormat &format);
+    QTextCursor &cursor() const;
 
 private:
     virtual void appendMessage(const QString &text, const QTextCharFormat &format);

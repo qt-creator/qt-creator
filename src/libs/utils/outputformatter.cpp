@@ -112,6 +112,11 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
         d->cursor.insertText(text.mid(startPos), format);
 }
 
+QTextCursor &OutputFormatter::cursor() const
+{
+    return d->cursor;
+}
+
 QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, const QString &href)
 {
     QTextCharFormat result = inputFormat;
