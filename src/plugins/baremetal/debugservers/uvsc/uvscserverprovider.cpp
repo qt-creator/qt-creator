@@ -375,13 +375,16 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
         this->runControl()->setApplicationProcessHandle(pid);
         reportStarted();
     });
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QtcProcess::finished),
-            this, [this] (int exitCode, QProcess::ExitStatus status) {
-        const QString msg = (status == QProcess::CrashExit)
-                ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(exitCode);
-        appendMessage(msg.arg(m_process.program()), Utils::NormalMessageFormat);
-        reportStopped();
-    });
+    connect(&m_process,
+            QOverload<int, QProcess::ExitStatus>::of(&QtcProcess::finished),
+            this,
+            [this](int exitCode, QProcess::ExitStatus status) {
+                const QString msg = (status == QProcess::CrashExit)
+                                        ? RunControl::tr("%1 crashed.")
+                                        : RunControl::tr("%2 exited with code %1").arg(exitCode);
+                appendMessage(msg.arg(m_process.program()), Utils::NormalMessageFormat);
+                reportStopped();
+            });
     connect(&m_process, &QtcProcess::errorOccurred, this, [this] (QProcess::ProcessError error) {
         if (error == QProcess::Timedout)
             return; // No actual change on the process side.

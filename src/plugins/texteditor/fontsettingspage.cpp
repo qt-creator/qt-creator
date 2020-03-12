@@ -108,7 +108,7 @@ private:
 
 class FontSettingsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::FontSettingsPage)
+    Q_DECLARE_TR_FUNCTIONS(TextEditor::FontSettingsPageWidget)
 
 public:
     FontSettingsPageWidget(FontSettingsPage *q, const FormatDescriptions &fd, FontSettings *fontSettings)
@@ -360,6 +360,8 @@ void FontSettingsPageWidget::fontSelected(const QFont &font)
     m_ui.schemeEdit->setBaseFont(font);
     updatePointSizes();
 }
+
+namespace Internal {
 
 void FontSettingsPageWidget::updatePointSizes()
 {
@@ -620,6 +622,8 @@ void FontSettingsPageWidget::finish()
     // If changes were applied, these are equal. Otherwise restores last value.
     m_value = m_lastValue;
 }
+
+} // namespace Internal
 
 // FontSettingsPage
 

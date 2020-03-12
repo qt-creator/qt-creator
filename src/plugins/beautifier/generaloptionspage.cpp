@@ -34,6 +34,8 @@ namespace Internal {
 
 class GeneralOptionsPageWidget : public Core::IOptionsPageWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Beautifier::Internal::GeneralOptionsPageWidget)
+
 public:
     explicit GeneralOptionsPageWidget(const QStringList &toolIds);
 
@@ -69,7 +71,7 @@ void GeneralOptionsPageWidget::apply()
 GeneralOptionsPage::GeneralOptionsPage(const QStringList &toolIds)
 {
     setId(Constants::OPTION_GENERAL_ID);
-    setDisplayName(tr("General"));
+    setDisplayName(GeneralOptionsPageWidget::tr("General"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", "Beautifier"));
     setWidgetCreator([toolIds] { return new GeneralOptionsPageWidget(toolIds); });

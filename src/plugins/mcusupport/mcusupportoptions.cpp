@@ -271,10 +271,10 @@ QVariant McuToolChainPackage::debuggerId() const
     if (!debugger) {
         DebuggerItem newDebugger;
         newDebugger.setCommand(command);
-        const QString displayName =
-            m_type == TypeArmGcc
-            ? tr("Arm GDB at %1") : m_type == TypeIAR
-              ? QLatin1String("/foo/bar-iar-gdb") : QLatin1String("/bar/foo-keil-gdb");
+        const QString displayName = m_type == TypeArmGcc
+                                        ? McuPackage::tr("Arm GDB at %1")
+                                        : m_type == TypeIAR ? QLatin1String("/foo/bar-iar-gdb")
+                                                            : QLatin1String("/bar/foo-keil-gdb");
         newDebugger.setUnexpandedDisplayName(displayName.arg(command.toUserOutput()));
         debuggerId = DebuggerItemManager::registerDebugger(newDebugger);
     } else {

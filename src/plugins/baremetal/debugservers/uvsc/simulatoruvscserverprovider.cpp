@@ -82,7 +82,7 @@ public:
 SimulatorUvscServerProvider::SimulatorUvscServerProvider()
     : UvscServerProvider(Constants::UVSC_SIMULATOR_PROVIDER_ID)
 {
-    setTypeDisplayName(tr("uVision Simulator"));
+    setTypeDisplayName(UvscServerProvider::tr("uVision Simulator"));
     setConfigurationWidgetCreator([this] { return new SimulatorUvscServerProviderConfigWidget(this); });
     setDriverSelection(defaultSimulatorDriverSelection());
 }

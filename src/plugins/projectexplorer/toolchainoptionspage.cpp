@@ -571,7 +571,7 @@ ToolChainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 ToolChainOptionsPage::ToolChainOptionsPage()
 {
     setId(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
-    setDisplayName(ToolChainOptionsWidget::tr("Compilers"));
+    setDisplayName(ToolChainOptionsPage::tr("Compilers"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new ToolChainOptionsWidget; });
 }

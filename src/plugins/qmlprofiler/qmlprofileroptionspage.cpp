@@ -38,7 +38,7 @@ QmlProfilerOptionsPage::QmlProfilerOptionsPage()
     setId(Constants::SETTINGS);
     setDisplayName(QmlProfilerConfigWidget::tr("QML Profiler"));
     setCategory("T.Analyzer");
-    setDisplayCategory(tr("Analyzer"));
+    setDisplayCategory(QmlProfilerConfigWidget::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 }
 
