@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "overlaywidget.h"
 #include "utils_global.h"
 
 #include <QTimer>
@@ -76,7 +77,7 @@ private:
     UpdateCallback m_callback;
 };
 
-class QTCREATOR_UTILS_EXPORT ProgressIndicator : public QWidget
+class QTCREATOR_UTILS_EXPORT ProgressIndicator : public OverlayWidget
 {
     Q_OBJECT
 public:
@@ -86,17 +87,11 @@ public:
 
     QSize sizeHint() const final;
 
-    void attachToWidget(QWidget *parent);
-
 protected:
-    void paintEvent(QPaintEvent *) final;
     void showEvent(QShowEvent *) final;
     void hideEvent(QHideEvent *) final;
-    bool eventFilter(QObject *obj, QEvent *ev) final;
 
 private:
-    void resizeToParent();
-
     ProgressIndicatorPainter m_paint;
 };
 
