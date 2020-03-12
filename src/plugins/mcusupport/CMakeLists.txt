@@ -9,5 +9,6 @@ add_qtc_plugin(McuSupport
     mcusupportoptions.cpp mcusupportoptions.h
     mcusupportoptionspage.cpp mcusupportoptionspage.h
     mcusupportplugin.cpp mcusupportplugin.h
+    mcusupportsdk.cpp mcusupportsdk.h
     mcusupportrunconfiguration.cpp mcusupportrunconfiguration.h
 )
