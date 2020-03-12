@@ -77,6 +77,7 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QSet>
+#include <QTimer>
 #include <QVariantMap>
 
 #include <algorithm>
@@ -207,7 +208,6 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
     });
     connect(m_session, &QbsSession::fileListUpdated, this, &QbsBuildSystem::delayParsing);
 
-    m_parsingDelay.setInterval(1000); // delay parsing by 1s.
     delayParsing();
 
     connect(bc->project(), &Project::activeTargetChanged,
@@ -215,8 +215,6 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
 
     connect(bc->target(), &Target::activeBuildConfigurationChanged,
             this, &QbsBuildSystem::delayParsing);
-
-    connect(&m_parsingDelay, &QTimer::timeout, this, &QbsBuildSystem::triggerParsing);
 
     connect(bc->project(), &Project::projectFileIsDirty, this, &QbsBuildSystem::delayParsing);
     updateProjectNodes({});
@@ -591,7 +589,7 @@ void QbsBuildSystem::triggerParsing()
 void QbsBuildSystem::delayParsing()
 {
     if (m_buildConfiguration->isActive())
-        m_parsingDelay.start();
+        requestDelayedParse();
 }
 
 void QbsBuildSystem::parseCurrentBuildConfiguration()
@@ -629,7 +627,7 @@ void QbsBuildSystem::parseCurrentBuildConfiguration()
 
     prepareForParsing();
 
-    m_parsingDelay.stop();
+    cancelDelayedParseRequest();
 
     QTC_ASSERT(!m_qbsProjectParser, return);
     m_qbsProjectParser = new QbsProjectParser(this, m_qbsUpdateFutureInterface);

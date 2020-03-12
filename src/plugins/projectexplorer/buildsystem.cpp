@@ -142,6 +142,11 @@ void BuildSystem::requestDelayedParse()
     requestParseHelper(1000);
 }
 
+void BuildSystem::cancelDelayedParseRequest()
+{
+    d->m_delayedParsingTimer.stop();
+}
+
 bool BuildSystem::isParsing() const
 {
     return d->m_isParsing;

@@ -62,6 +62,7 @@ public:
 
     void requestParse();
     void requestDelayedParse();
+    void cancelDelayedParseRequest();
 
     bool isParsing() const;
     bool hasParsingData() const;
