@@ -167,7 +167,7 @@ void AndroidManifestEditorIconWidget::removeIcon()
 
 bool AndroidManifestEditorIconWidget::hasIcon()
 {
-    return m_iconPath.isEmpty();
+    return !m_iconPath.isEmpty();
 }
 
 void AndroidManifestEditorIconWidget::setScaleWarningLabelVisible(bool visible)
