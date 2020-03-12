@@ -184,9 +184,12 @@
             support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
             {Qt Virtual Keyboard} to the application.
 
+            \note \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
+            {Qt Virtual Keyboard} is not supported for Android and iOS.
+
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for. To build applications for
-            mobile devices, select kits for Android ARM and iPhone OS, and
+            mobile devices, select kits for Android ARM and iOS, and
             click \uicontrol{Next}.
 
             \note Kits are listed if they have been specified in \uicontrol
