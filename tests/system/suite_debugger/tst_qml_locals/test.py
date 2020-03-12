@@ -27,8 +27,6 @@ source("../../shared/qtcreator.py")
 source("Tree.py")
 
 def main():
-    test.xfail("Skipping test. This must be rewritten for current kits.")
-    return
     if os.getenv("SYSTEST_OPENGL_MISSING") == "1":
         test.xfail("This test needs OpenGL - skipping...")
         return
@@ -73,9 +71,13 @@ def main():
         earlyExit("Could not find expected Inspector tree inside Locals and Expressions.")
         return
     # reduce items to outer Rectangle object
-    items = items.getChild("QQmlEngine")
+    items = items.getChild("QQuickView")
     if items == None:
-        earlyExit("Could not find expected QQmlEngine tree inside Locals and Expressions.")
+        earlyExit("Could not find expected QQuickView tree inside Locals and Expressions.")
+        return
+    items = items.getChild("QQuickRootItem")
+    if items == None:
+        earlyExit("Could not find expected QQuickRootItem tree inside Locals and Expressions.")
         return
     items = items.getChild("Rectangle")
     if items == None:
@@ -97,23 +99,28 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def __unfoldTree__():
-    rootIndex = getQModelIndexStr("text='QQmlEngine'",
+    # TODO inspect the qmlengine as well?
+    rootIndex = getQModelIndexStr("text='QQuickView'",
                                   ':Locals and Expressions_Debugger::Internal::WatchTreeView')
-    mainRect = getQModelIndexStr("text='Rectangle'", rootIndex)
-    unfoldQModelIndexIncludingProperties(mainRect)
+    unfoldQModelIndex(rootIndex, False)
+    quickRootItem = getQModelIndexStr("text='QQuickRootItem'", rootIndex)
+    unfoldQModelIndex(quickRootItem, False)
+    mainRect = getQModelIndexStr("text='Rectangle'", quickRootItem)
+    unfoldQModelIndex(mainRect)
     subItems = ["text='Rectangle'", "text='Rectangle' occurrence='2'", "text='Text'"]
     for item in subItems:
-        unfoldQModelIndexIncludingProperties(getQModelIndexStr(item, mainRect))
+        unfoldQModelIndex(getQModelIndexStr(item, mainRect))
 
-def unfoldQModelIndexIncludingProperties(indexStr):
+def unfoldQModelIndex(indexStr, includingProperties=True):
     tv = waitForObject(':Locals and Expressions_Debugger::Internal::WatchTreeView')
     # HACK to avoid failing clicks
     tv.scrollToBottom()
     doubleClick(waitForObject(indexStr))
-    propIndex = getQModelIndexStr("text='Properties'", indexStr)
-    # HACK to avoid failing clicks
-    tv.scrollToBottom()
-    doubleClick(waitForObject(propIndex))
+    if includingProperties:
+        propIndex = getQModelIndexStr("text='Properties'", indexStr)
+        # HACK to avoid failing clicks
+        tv.scrollToBottom()
+        doubleClick(waitForObject(propIndex))
 
 def fetchItems(index, valIndex, treeView):
     tree = Tree()
