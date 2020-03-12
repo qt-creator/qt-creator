@@ -36,7 +36,9 @@ IconGizmo {
                   ? "qrc:///qtquickplugin/mockfiles/images/directional_light_gradient.png"
                   : targetNode instanceof AreaLight
                     ? "qrc:///qtquickplugin/mockfiles/images/area_light_gradient.png"
-                    : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+                    : targetNode instanceof PointLight
+                      ? "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+                      : "qrc:///qtquickplugin/mockfiles/images/spot_light_gradient.png"
                 : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
 
     // ColorOverlay doesn't work correctly with hidden windows so commenting it out for now

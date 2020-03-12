@@ -32,6 +32,7 @@
 #include <QtQuick3D/private/qquick3darealight_p.h>
 #include <QtQuick3D/private/qquick3ddirectionallight_p.h>
 #include <QtQuick3D/private/qquick3dpointlight_p.h>
+#include <QtQuick3D/private/qquick3dspotlight_p.h>
 #include <QtCore/qmath.h>
 
 #include <limits>
@@ -115,6 +116,10 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
         // and resize later when we know the exact count.
         vertexSize = int(sizeof(float)) * 3 * pointLightDensity * pointLightDensity * 4;
         indexSize = int(sizeof(quint16)) * pointLightDensity * pointLightDensity * 4;
+    } else if (qobject_cast<QQuick3DSpotLight *>(m_light)) {
+        // TODO: Spot light model, for now use area light model
+        vertexSize = int(sizeof(float)) * 3 * dirSegments * 2;
+        indexSize = int(sizeof(quint16)) * dirSegments * 2 * 2;
     }
     vertexData.resize(vertexSize);
     indexData.resize(indexSize);
@@ -181,9 +186,29 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
                 indexSize += 2 * sizeof(quint16);
             }
         }
-
         vertexData.resize(vertexSize);
         indexData.resize(indexSize);
+    } else if (qobject_cast<QQuick3DSpotLight *>(m_light)) {
+        // TODO: Spot light model, for now use area light model
+        *dataPtr++ = -1.f; *dataPtr++ = 1.f;  *dataPtr++ = 0.f;
+        *dataPtr++ = -1.f; *dataPtr++ = -1.f; *dataPtr++ = 0.f;
+        *dataPtr++ = 1.f;  *dataPtr++ = -1.f; *dataPtr++ = 0.f;
+        *dataPtr++ = 1.f;  *dataPtr++ = 1.f;  *dataPtr++ = 0.f;
+
+        *dataPtr++ = -1.f; *dataPtr++ = 1.f;  *dataPtr++ = -1.f;
+        *dataPtr++ = -1.f; *dataPtr++ = -1.f; *dataPtr++ = -1.f;
+        *dataPtr++ = 1.f;  *dataPtr++ = -1.f; *dataPtr++ = -1.f;
+        *dataPtr++ = 1.f;  *dataPtr++ = 1.f;  *dataPtr++ = -1.f;
+
+        *indexPtr++ = 0; *indexPtr++ = 1;
+        *indexPtr++ = 1; *indexPtr++ = 2;
+        *indexPtr++ = 2; *indexPtr++ = 3;
+        *indexPtr++ = 3; *indexPtr++ = 0;
+
+        *indexPtr++ = 0; *indexPtr++ = 4;
+        *indexPtr++ = 1; *indexPtr++ = 5;
+        *indexPtr++ = 2; *indexPtr++ = 6;
+        *indexPtr++ = 3; *indexPtr++ = 7;
     }
 
     static const float floatMin = std::numeric_limits<float>::lowest();
