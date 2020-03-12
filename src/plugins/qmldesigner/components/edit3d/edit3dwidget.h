@@ -26,6 +26,7 @@
 
 #include <QtWidgets/qwidget.h>
 #include <QtCore/qpointer.h>
+#include <coreplugin/icontext.h>
 
 namespace QmlDesigner {
 
@@ -42,12 +43,14 @@ public:
 
     Edit3DCanvas *canvas() const;
     Edit3DView *view() const;
+    void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
 private:
     QPointer<Edit3DView> m_edit3DView;
     QPointer<Edit3DView> m_view;
     QPointer<Edit3DCanvas> m_canvas;
     QPointer<ToolBox> m_toolBox;
+    Core::IContext *m_context = nullptr;
 };
 
 } // namespace QmlDesigner

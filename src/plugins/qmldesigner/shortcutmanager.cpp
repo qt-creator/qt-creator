@@ -77,6 +77,7 @@ ShortCutManager::ShortCutManager()
 
 void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContext,
                                       const Core::Context &qmlDesignerFormEditorContext,
+                                      const Core::Context &qmlDesignerEditor3DContext,
                                       const Core::Context &qmlDesignerNavigatorContext)
 {
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
@@ -166,18 +167,21 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 280);
 
     Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerEditor3DContext);
     command = Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Cut);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 260, Utils::Icons::CUT_TOOLBAR.icon());
 
     Core::ActionManager::registerAction(&m_copyAction, Core::Constants::COPY, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_copyAction, Core::Constants::COPY, qmlDesignerEditor3DContext);
     command = Core::ActionManager::registerAction(&m_copyAction,  Core::Constants::COPY, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Copy);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 250, Utils::Icons::COPY_TOOLBAR.icon());
 
     Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerEditor3DContext);
     command = Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Paste);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
@@ -209,14 +213,13 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     });
 
     connect(Core::ICore::instance(), &Core::ICore::contextChanged, this, [&designerActionManager, this](const Core::Context &context){
-        if (!context.contains(Constants::C_QMLFORMEDITOR) && !context.contains(Constants::C_QMLNAVIGATOR)) {
+        if (!context.contains(Constants::C_QMLFORMEDITOR) && !context.contains(Constants::C_QMLEDITOR3D) && !context.contains(Constants::C_QMLNAVIGATOR)) {
             m_deleteAction.setEnabled(false);
             m_cutAction.setEnabled(false);
             m_copyAction.setEnabled(false);
             m_pasteAction.setEnabled(false);
         } else {
             designerActionManager.view()->emitSelectionChanged();
-
         }
     });
 }

@@ -37,6 +37,8 @@
 #include <viewmanager.h>
 #include <qmldesignericons.h>
 #include <utils/utilsicons.h>
+#include <coreplugin/icore.h>
+#include <designmodecontext.h>
 
 #include <QDebug>
 
@@ -55,6 +57,9 @@ void Edit3DView::createEdit3DWidget()
 {
     createEdit3DActions();
     m_edit3DWidget = new Edit3DWidget(this);
+
+    auto editor3DContext = new Internal::Editor3DContext(m_edit3DWidget.data());
+    Core::ICore::addContextObject(editor3DContext);
 }
 
 WidgetInfo Edit3DView::widgetInfo()
@@ -88,8 +93,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString orientationKey = QStringLiteral("globalOrientation");
     const QString editLightKey = QStringLiteral("showEditLight");
 
-    if (sceneState.contains(sceneKey))
-        edit3DWidget()->canvas()->updateActiveScene(sceneState[sceneKey].value<qint32>());
+    if (sceneState.contains(sceneKey)) {
+        qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
+        edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
+        rootModelNode().setAuxiliaryData("3d-active-scene", newActiveScene);
+    }
 
     if (sceneState.contains(selectKey))
         m_selectionModeAction->action()->setChecked(sceneState[selectKey].toInt() == 0);

@@ -342,7 +342,6 @@ double FormEditorWidget::containerPadding() const
     return DesignerSettings::getValue(DesignerSettingsKey::CONTAINERPADDING).toDouble();
 }
 
-
 void FormEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (m_formEditorView)

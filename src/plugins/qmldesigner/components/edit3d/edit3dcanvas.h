@@ -45,6 +45,8 @@ public:
     void updateRenderImage(const QImage &img);
     void updateActiveScene(qint32 activeScene);
 
+    qint32 activeScene() const { return m_activeScene; }
+
 protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
