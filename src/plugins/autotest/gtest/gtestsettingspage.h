@@ -28,15 +28,14 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Autotest {
-
-class IFrameworkSettings;
-
 namespace Internal {
+
+class GTestSettings;
 
 class GTestSettingsPage final : public Core::IOptionsPage
 {
 public:
-    GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings, Core::Id settingsId);
+    GTestSettingsPage(GTestSettings *settings, Core::Id settingsId);
 };
 
 } // namespace Internal

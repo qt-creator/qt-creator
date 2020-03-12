@@ -46,7 +46,7 @@ TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<Te
     static const Core::Id id
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
     TestFrameworkManager *manager = TestFrameworkManager::instance();
-    auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
+    auto qtSettings = dynamic_cast<QtTestSettings *>(manager->settingsForTestFramework(id));
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
@@ -67,8 +67,8 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     }
 
     TestFrameworkManager *manager = TestFrameworkManager::instance();
-    auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
-    if (qtSettings.isNull())
+    auto qtSettings = dynamic_cast<QtTestSettings *>(manager->settingsForTestFramework(id));
+    if (!qtSettings)
         return arguments;
     if (qtSettings->useXMLOutput)
         arguments << "-xml";

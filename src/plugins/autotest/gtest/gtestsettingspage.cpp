@@ -46,17 +46,17 @@ class GTestSettingsWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::GTestSettingsWidget)
 
 public:
-    explicit GTestSettingsWidget(const QSharedPointer<GTestSettings> &settings);
+    explicit GTestSettingsWidget(GTestSettings *settings);
 
 private:
     void apply() final;
 
     Ui::GTestSettingsPage m_ui;
     QString m_currentGTestFilter;
-    QSharedPointer<GTestSettings> m_settings;
+    GTestSettings *m_settings;
 };
 
-GTestSettingsWidget::GTestSettingsWidget(const QSharedPointer<GTestSettings> &settings)
+GTestSettingsWidget::GTestSettingsWidget(GTestSettings *settings)
     : m_settings(settings)
 {
     m_ui.setupUi(this);
@@ -109,14 +109,13 @@ void GTestSettingsWidget::apply()
     TestTreeModel::instance()->rebuild({id});
 }
 
-GTestSettingsPage::GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
-                                     Core::Id settingsId)
+GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Core::Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(QCoreApplication::translate("GTestFramework",
                                                GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setWidgetCreator([settings] { return new GTestSettingsWidget(qSharedPointerCast<GTestSettings>(settings)); });
+    setWidgetCreator([settings] { return new GTestSettingsWidget(settings); });
 }
 
 } // namespace Internal

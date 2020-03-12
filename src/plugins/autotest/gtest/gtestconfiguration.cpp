@@ -87,8 +87,8 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
         arguments << "--gtest_filter=" + testSets.join(':');
 
     TestFrameworkManager *manager = TestFrameworkManager::instance();
-    auto gSettings = qSharedPointerCast<GTestSettings>(manager->settingsForTestFramework(id));
-    if (gSettings.isNull())
+    auto gSettings = dynamic_cast<GTestSettings *>(manager->settingsForTestFramework(id));
+    if (!gSettings)
         return arguments;
 
     if (gSettings->runDisabled)

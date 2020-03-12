@@ -25,8 +25,6 @@
 
 #include "boosttestframework.h"
 #include "boosttestconstants.h"
-#include "boosttestsettings.h"
-#include "boosttestsettingspage.h"
 #include "boosttesttreeitem.h"
 #include "boosttestparser.h"
 #include "../testframeworkmanager.h"
@@ -55,21 +53,6 @@ const char *BoostTestFramework::name() const
 unsigned BoostTestFramework::priority() const
 {
     return BoostTest::Constants::FRAMEWORK_PRIORITY;
-}
-
-IFrameworkSettings *BoostTestFramework::createFrameworkSettings() const
-{
-    return new BoostTestSettings;
-}
-
-Core::IOptionsPage *BoostTestFramework::createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
-{
-    return new BoostTestSettingsPage(settings, settingsId());
-}
-
-bool BoostTestFramework::hasFrameworkSettings() const
-{
-    return true;
 }
 
 } // namespace Internal

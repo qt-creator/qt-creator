@@ -27,6 +27,9 @@
 
 #include "../itestframework.h"
 
+#include "qttestsettings.h"
+#include "qttestsettingspage.h"
+
 namespace Autotest {
 namespace Internal {
 
@@ -34,15 +37,16 @@ class QtTestFramework : public ITestFramework
 {
 public:
     QtTestFramework() : ITestFramework(true) {}
+
+private:
     const char *name() const override;
     unsigned priority() const override;
-    IFrameworkSettings *createFrameworkSettings() const override;
-    Core::IOptionsPage *createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const override;
-    bool hasFrameworkSettings() const override;
-
-protected:
     ITestParser *createTestParser() const override;
     TestTreeItem *createRootNode() const override;
+    IFrameworkSettings *frameworkSettings() override { return &m_settings; }
+
+    QtTestSettings m_settings;
+    QtTestSettingsPage m_settingsPage{&m_settings, settingsId()};
 };
 
 } // namespace Internal

@@ -67,8 +67,6 @@ TestFrameworkManager::~TestFrameworkManager()
 {
     delete m_testRunner;
     delete m_testTreeModel;
-    qDeleteAll(m_frameworkSettingsPages);
-    m_frameworkSettingsPages.clear();
     for (ITestFramework *framework : m_registeredFrameworks.values())
         delete framework;
 }
@@ -82,12 +80,9 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     qCDebug(LOG) << "Registering" << id;
     m_registeredFrameworks.insert(id, framework);
 
-    if (framework->hasFrameworkSettings()) {
-        QSharedPointer<IFrameworkSettings> frameworkSettings(framework->createFrameworkSettings());
+    if (IFrameworkSettings *frameworkSettings = framework->frameworkSettings())
         m_frameworkSettings.insert(id, frameworkSettings);
-        if (auto page = framework->createSettingsPage(frameworkSettings))
-            m_frameworkSettingsPages.append(page);
-    }
+
     return true;
 }
 
@@ -161,19 +156,17 @@ ITestParser *TestFrameworkManager::testParserForTestFramework(const Id &framewor
     return testParser;
 }
 
-QSharedPointer<IFrameworkSettings> TestFrameworkManager::settingsForTestFramework(
+IFrameworkSettings *TestFrameworkManager::settingsForTestFramework(
             const Id &frameworkId) const
 {
-    return m_frameworkSettings.contains(frameworkId) ? m_frameworkSettings.value(frameworkId)
-                                                     : QSharedPointer<IFrameworkSettings>();
+    return m_frameworkSettings.value(frameworkId, nullptr);
 }
 
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
     Internal::AutotestPlugin::settings()->fromSettings(s);
     for (const Id &id : m_frameworkSettings.keys()) {
-        QSharedPointer<IFrameworkSettings> fSettings = settingsForTestFramework(id);
-        if (!fSettings.isNull())
+        if (IFrameworkSettings *fSettings = settingsForTestFramework(id))
             fSettings->fromSettings(s);
     }
 }

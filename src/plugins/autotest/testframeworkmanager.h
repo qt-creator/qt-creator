@@ -28,7 +28,6 @@
 #include "itestframework.h"
 
 #include <QHash>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -65,7 +64,7 @@ public:
 
     TestTreeItem *rootNodeForTestFramework(const Core::Id &frameworkId) const;
     ITestParser *testParserForTestFramework(const Core::Id &frameworkId) const;
-    QSharedPointer<IFrameworkSettings> settingsForTestFramework(const Core::Id &frameworkId) const;
+    IFrameworkSettings *settingsForTestFramework(const Core::Id &frameworkId) const;
     void synchronizeSettings(QSettings *s);
     bool isActive(const Core::Id &frameworkId) const;
     bool groupingEnabled(const Core::Id &frameworkId) const;
@@ -77,8 +76,7 @@ private:
     QList<Core::Id> activeFrameworkIds() const;
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
-    QHash<Core::Id, QSharedPointer<IFrameworkSettings> > m_frameworkSettings;
-    QVector<Core::IOptionsPage *> m_frameworkSettingsPages;
+    QHash<Core::Id, IFrameworkSettings *> m_frameworkSettings;
     TestTreeModel *m_testTreeModel;
     Internal::TestRunner *m_testRunner;
 

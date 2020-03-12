@@ -35,12 +35,12 @@
 namespace Autotest {
 namespace Internal {
 
-static QSharedPointer<BoostTestSettings> getBoostSettings()
+static BoostTestSettings *getBoostSettings()
 {
     const Core::Id id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(
                 BoostTest::Constants::FRAMEWORK_NAME);
     TestFrameworkManager *manager = TestFrameworkManager::instance();
-    return qSharedPointerCast<BoostTestSettings>(manager->settingsForTestFramework(id));
+    return dynamic_cast<BoostTestSettings *>(manager->settingsForTestFramework(id));
 }
 
 TestOutputReader *BoostTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,

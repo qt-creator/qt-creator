@@ -39,7 +39,7 @@ class BoostTestSettingsWidget : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::BoostTestSettingsWidget)
 
 public:
-    explicit BoostTestSettingsWidget(QSharedPointer<BoostTestSettings> settings);
+    explicit BoostTestSettingsWidget(BoostTestSettings *settings);
 
     void apply() final;
 
@@ -49,10 +49,10 @@ public:
 private:
     void fillComboBoxes();
     Ui::BoostSettingsPage m_ui;
-    QSharedPointer<BoostTestSettings> m_settings;
+    BoostTestSettings *m_settings;
 };
 
-BoostTestSettingsWidget::BoostTestSettingsWidget(QSharedPointer<BoostTestSettings> settings)
+BoostTestSettingsWidget::BoostTestSettingsWidget(BoostTestSettings *settings)
     : m_settings(settings)
 {
     m_ui.setupUi(this);
@@ -101,16 +101,13 @@ void BoostTestSettingsWidget::fillComboBoxes()
     m_ui.reportLevelCB->addItem("No", QVariant::fromValue(ReportLevel::No));
 }
 
-BoostTestSettingsPage::BoostTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
-                                             Core::Id settingsId)
+BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Core::Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(QCoreApplication::translate("BoostTestFramework",
                                                BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setWidgetCreator([settings] {
-        return new BoostTestSettingsWidget(qSharedPointerCast<BoostTestSettings>(settings));
-    });
+    setWidgetCreator([settings] { return new BoostTestSettingsWidget(settings); });
 }
 
 } // Internal

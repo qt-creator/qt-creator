@@ -41,16 +41,16 @@ class QtTestSettingsWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::QtTestSettingsWidget)
 
 public:
-    explicit QtTestSettingsWidget(QSharedPointer<QtTestSettings> settings);
+    explicit QtTestSettingsWidget(QtTestSettings *settings);
 
     void apply() final;
 
 private:
     Ui::QtTestSettingsPage m_ui;
-    QSharedPointer<QtTestSettings> m_settings;
+    QtTestSettings *m_settings;
 };
 
-QtTestSettingsWidget::QtTestSettingsWidget(QSharedPointer<QtTestSettings> settings)
+QtTestSettingsWidget::QtTestSettingsWidget(QtTestSettings *settings)
     : m_settings(settings)
 {
     m_ui.setupUi(this);
@@ -100,16 +100,13 @@ void QtTestSettingsWidget::apply()
     m_settings->toSettings(Core::ICore::settings());
 }
 
-QtTestSettingsPage::QtTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
-                                       Core::Id settingsId)
+QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Core::Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(QCoreApplication::translate("QtTestFramework",
                                                QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setWidgetCreator([settings] {
-        return new QtTestSettingsWidget(qSharedPointerCast<QtTestSettings>(settings));
-    });
+    setWidgetCreator([settings] { return new QtTestSettingsWidget(settings); });
 }
 
 } // namespace Internal
