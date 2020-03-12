@@ -317,6 +317,9 @@
          <property name="textElideMode">
           <enum>Qt::ElideMiddle</enum>
          </property>
+         <attribute name="horizontalHeaderHighlightSections">
+          <bool>false</bool>
+         </attribute>
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
          </attribute>
