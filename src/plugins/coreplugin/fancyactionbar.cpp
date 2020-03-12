@@ -38,6 +38,7 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmapCache>
 #include <QPropertyAnimation>
 #include <QStyle>

@@ -43,6 +43,7 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmap>
 #include <QStatusBar>
 #include <QStyleFactory>
