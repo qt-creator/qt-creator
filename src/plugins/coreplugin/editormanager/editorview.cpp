@@ -767,13 +767,12 @@ void SplitterOrView::split(Qt::Orientation orientation, bool activateView)
         otherView->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
     }
 
-    if (orientation == Qt::Vertical) {
-        // give the editor(s) the chance to adapt to the new layout, given the old state
-        if (duplicate)
-            duplicate->restoreState(state);
-        if (e)
-            e->restoreState(state);
-    }
+    // restore old state, possibly adapted to the new layout (the editors can e.g. make sure that
+    // a previously visible text cursor stays visible)
+    if (duplicate)
+        duplicate->restoreState(state);
+    if (e)
+        e->restoreState(state);
 
     if (activateView)
         EditorManagerPrivate::activateView(otherView->view());

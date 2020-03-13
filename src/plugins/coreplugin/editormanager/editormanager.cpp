@@ -1334,6 +1334,7 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
     if (IEditor *e = view->editorForDocument(editor->document()))
         return e;
 
+    const QByteArray state = editor->saveState();
     if (EditorView *sourceView = viewForEditor(editor)) {
         // try duplication or pull editor over to new view
         bool duplicateSupported = editor->duplicateSupported();
@@ -1342,6 +1343,8 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
             sourceView->removeEditor(editor);
             view->addEditor(editor);
             view->setCurrentEditor(editor);
+            // possibly adapts old state to new layout
+            editor->restoreState(state);
             if (!sourceView->currentEditor()) {
                 EditorView *replacementView = nullptr;
                 if (IEditor *replacement = pickUnusedEditor(&replacementView)) {
@@ -1358,6 +1361,9 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
         }
     }
     view->addEditor(editor);
+    view->setCurrentEditor(editor);
+    // possibly adapts old state to new layout
+    editor->restoreState(state);
     return editor;
 }
 
@@ -1367,7 +1373,6 @@ IEditor *EditorManagerPrivate::duplicateEditor(IEditor *editor)
         return nullptr;
 
     IEditor *duplicate = editor->duplicate();
-    duplicate->restoreState(editor->saveState());
     emit m_instance->editorCreated(duplicate, duplicate->document()->filePath().toString());
     addEditor(duplicate);
     return duplicate;
@@ -1756,6 +1761,7 @@ void EditorManagerPrivate::splitNewWindow(EditorView *view)
 {
     IEditor *editor = view->currentEditor();
     IEditor *newEditor = nullptr;
+    const QByteArray state = editor ? editor->saveState() : QByteArray();
     if (editor && editor->duplicateSupported())
         newEditor = EditorManagerPrivate::duplicateEditor(editor);
     else
@@ -1764,10 +1770,13 @@ void EditorManagerPrivate::splitNewWindow(EditorView *view)
     EditorWindow *win = createEditorWindow();
     win->show();
     ICore::raiseWindow(win);
-    if (newEditor)
+    if (newEditor) {
         activateEditor(win->editorArea()->view(), newEditor, EditorManager::IgnoreNavigationHistory);
-    else
+        // possibly adapts old state to new layout
+        newEditor->restoreState(state);
+    } else {
         win->editorArea()->view()->setFocus();
+    }
     updateActions();
 }
 
