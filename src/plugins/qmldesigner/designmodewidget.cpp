@@ -66,6 +66,7 @@
 #include <QLayout>
 #include <QBoxLayout>
 #include <QDir>
+#include <QComboBox>
 
 #include <advanceddockingsystem/dockareawidget.h>
 #include <advanceddockingsystem/docksplitter.h>
@@ -397,6 +398,30 @@ void DesignModeWidget::setup()
             for (auto floatingWidget : m_dockManager->floatingWidgets())
                 floatingWidget->hide();
         }
+    });
+
+    auto workspaceComboBox = new QComboBox();
+    workspaceComboBox->setMinimumWidth(120);
+    workspaceComboBox->setToolTip(tr("Switch the active workspace."));
+    auto sortedWorkspaces = m_dockManager->workspaces();
+    Utils::sort(sortedWorkspaces);
+    workspaceComboBox->addItems(sortedWorkspaces);
+    workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
+    toolBar->addWidget(workspaceComboBox);
+
+    connect(m_dockManager, &ADS::DockManager::workspaceListChanged,
+            workspaceComboBox, [this, workspaceComboBox]() {
+                workspaceComboBox->clear();
+                auto sortedWorkspaces = m_dockManager->workspaces();
+                Utils::sort(sortedWorkspaces);
+                workspaceComboBox->addItems(sortedWorkspaces);
+                workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
+    });
+    connect(m_dockManager, &ADS::DockManager::workspaceLoaded, workspaceComboBox, &QComboBox::setCurrentText);
+    connect(workspaceComboBox, QOverload<int>::of(&QComboBox::activated),
+            m_dockManager, [this, workspaceComboBox] (int index) {
+            Q_UNUSED(index)
+            m_dockManager->openWorkspace(workspaceComboBox->currentText());
     });
 
     viewManager().enableWidgets();
