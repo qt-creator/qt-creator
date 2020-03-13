@@ -45,8 +45,6 @@ namespace Internal { class OutputFormatterPrivate; }
 
 class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 {
-    Q_OBJECT
-
 public:
     OutputFormatter();
     ~OutputFormatter() override;
@@ -62,9 +60,6 @@ public:
     virtual void clear() {}
     void setBoldFontEnabled(bool enabled);
     static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
-
-signals:
-    void contentChanged();
 
 protected:
     void initFormats();
