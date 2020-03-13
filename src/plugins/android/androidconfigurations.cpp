@@ -94,6 +94,10 @@ const char VersionsKey[] = "versions";
 const char NdkPathKey[] = "ndk_path";
 const char SpecificQtVersionsKey[] = "specific_qt_versions";
 const char DefaultVersionKey[] = "default";
+const char LinuxOsKey[] = "linux";
+const char WindowsOsKey[] = "windows";
+const char macOsKey[] = "mac";
+
 
 namespace {
     const char jdkSettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\Java Development Kit";
@@ -296,21 +300,32 @@ void AndroidConfig::parseDependenciesJson()
         if (commonObject.contains(SdkToolsUrlKey) && commonObject[SdkToolsUrlKey].isObject()) {
             QJsonObject sdkToolsObj(commonObject[SdkToolsUrlKey].toObject());
             if (Utils::HostOsInfo::isMacHost()) {
-                m_sdkToolsUrl = sdkToolsObj["mac"].toString();
+                m_sdkToolsUrl = sdkToolsObj[macOsKey].toString();
                 m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["mac_sha256"].toString().toUtf8());
             } else if (Utils::HostOsInfo::isWindowsHost()) {
-                m_sdkToolsUrl = sdkToolsObj["windows"].toString();
+                m_sdkToolsUrl = sdkToolsObj[WindowsOsKey].toString();
                 m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["windows_sha256"].toString().toUtf8());
             } else {
-                m_sdkToolsUrl = sdkToolsObj["linux"].toString();
+                m_sdkToolsUrl = sdkToolsObj[LinuxOsKey].toString();
                 m_sdkToolsSha256 = QByteArray::fromHex(sdkToolsObj["linux_sha256"].toString().toUtf8());
             }
         }
 
         // Parse common essential packages
-        QJsonArray commonEssentials = commonObject[SdkEssentialPkgsKey].toArray();
-        for (const QJsonValueRef &pkg : commonEssentials)
-            m_commonEssentialPkgs.append(pkg.toString());
+        auto appendEssentialsFromArray = [this](QJsonArray array) {
+            for (const QJsonValueRef &pkg : array)
+                m_commonEssentialPkgs.append(pkg.toString());
+        };
+
+        QJsonObject commonEssentials = commonObject[SdkEssentialPkgsKey].toObject();
+        appendEssentialsFromArray(commonEssentials[DefaultVersionKey].toArray());
+
+        if (Utils::HostOsInfo::isWindowsHost())
+            appendEssentialsFromArray(commonEssentials[WindowsOsKey].toArray());
+        if (Utils::HostOsInfo::isMacHost())
+            appendEssentialsFromArray(commonEssentials[macOsKey].toArray());
+        else
+            appendEssentialsFromArray(commonEssentials[LinuxOsKey].toArray());
     }
 
     auto fillQtVersionsRange = [](const QString &shortVersion) {
