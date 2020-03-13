@@ -63,6 +63,7 @@ public:
     IContext *outputWindowContext = nullptr;
     QPointer<Utils::OutputFormatter> formatter;
     QString settingsKey;
+    OutputFormatter defaultFormatter;
 
     bool enforceNewline = false;
     bool prependCarriageReturn = false;
@@ -93,6 +94,7 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
     setUndoRedoEnabled(false);
+    setFormatter(&d->defaultFormatter);
 
     d->settingsKey = settingsKey;
 
@@ -169,8 +171,7 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton) {
         const QString href = anchorAt(e->pos());
-        if (d->formatter)
-            d->formatter->handleLink(href);
+        d->formatter->handleLink(href);
     }
 
     // Mouse was released, activate links again
@@ -219,6 +220,8 @@ void OutputWindow::setFormatter(OutputFormatter *formatter)
     d->formatter = formatter;
     if (d->formatter)
         d->formatter->setPlainTextEdit(this);
+    else
+        d->formatter = &d->defaultFormatter;
 }
 
 void OutputWindow::showEvent(QShowEvent *e)
@@ -424,8 +427,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
     const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
-        if (d->formatter)
-            d->formatter->appendMessage(doNewlineEnforcement(out), format);
+        d->formatter->appendMessage(doNewlineEnforcement(out), format);
     } else {
 
         bool sameLine = format == StdOutFormatSameLine
@@ -443,8 +445,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
                 const int newline = out.indexOf('\n');
                 moveCursor(QTextCursor::End);
                 if (newline != -1) {
-                    if (d->formatter)
-                        d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
+                    d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
                     out = out.mid(newline);
                 }
             }
@@ -456,12 +457,10 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
                     d->enforceNewline = true;
                     out.chop(1);
                 }
-                if (d->formatter)
-                    d->formatter->appendMessage(out, format);
+                d->formatter->appendMessage(out, format);
             }
         } else {
-            if (d->formatter)
-                d->formatter->appendMessage(doNewlineEnforcement(out), format);
+            d->formatter->appendMessage(doNewlineEnforcement(out), format);
         }
     }
 
@@ -476,31 +475,6 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 
     m_lastMessage.start();
     enableUndoRedo();
-}
-
-// TODO rename
-void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format)
-{
-    const QString text = SynchronousProcess::normalizeNewlines(textIn);
-    if (d->maxCharCount > 0 && document()->characterCount() >= d->maxCharCount)
-        return;
-    const bool atBottom = isScrollbarAtBottom();
-    if (!d->cursor.atEnd())
-        d->cursor.movePosition(QTextCursor::End);
-    d->cursor.beginEditBlock();
-    d->cursor.insertText(doNewlineEnforcement(text), format);
-
-    if (d->maxCharCount > 0 && document()->characterCount() >= d->maxCharCount) {
-        QTextCharFormat tmp;
-        tmp.setFontWeight(QFont::Bold);
-        d->cursor.insertText(doNewlineEnforcement(tr("Additional output omitted. You can increase "
-                                                     "the limit in the \"Build & Run\" settings.")
-                                                  + '\n'), tmp);
-    }
-
-    d->cursor.endEditBlock();
-    if (atBottom)
-        scrollToBottom();
 }
 
 bool OutputWindow::isScrollbarAtBottom() const
@@ -540,8 +514,7 @@ void OutputWindow::clear()
     d->enforceNewline = false;
     d->prependCarriageReturn = false;
     QPlainTextEdit::clear();
-    if (d->formatter)
-        d->formatter->clear();
+    d->formatter->clear();
 }
 
 void OutputWindow::scrollToBottom()

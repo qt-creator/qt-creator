@@ -111,7 +111,7 @@ void MessageOutputWindow::visibilityChanged(bool /*b*/)
 
 void MessageOutputWindow::append(const QString &text)
 {
-    m_widget->appendText(text);
+    m_widget->appendMessage(text, Utils::DebugFormat);
 }
 
 int MessageOutputWindow::priorityInStatusBar() const

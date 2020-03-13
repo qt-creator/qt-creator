@@ -59,8 +59,6 @@ public:
     void setFormatter(Utils::OutputFormatter *formatter);
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
-    /// appends a \p text using \p format without using formater
-    void appendText(const QString &text, const QTextCharFormat &format = QTextCharFormat());
 
     void grayOutOldContent();
     void clear();
