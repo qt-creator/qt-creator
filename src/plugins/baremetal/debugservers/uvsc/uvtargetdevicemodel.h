@@ -52,12 +52,10 @@ public:
 
 private:
     void parsePackage(const QString &packageFile);
-    void parsePackage(QXmlStreamReader &in, const QString &file);
+    void parsePackage(QXmlStreamReader &in, const QString &packageFile);
     void parseFamily(QXmlStreamReader &in, DeviceSelectionItem *parent);
-    void parseSubFamily(QXmlStreamReader &in, DeviceSelectionItem *parent,
-                        DeviceSelection::Cpu &cpu);
-    void parseDevice(QXmlStreamReader &in, DeviceSelectionItem *parent,
-                     DeviceSelection::Cpu &cpu, DeviceSelection::Memories &memories);
+    void parseSubFamily(QXmlStreamReader &in, DeviceSelectionItem *parent);
+    void parseDevice(QXmlStreamReader &in, DeviceSelectionItem *parent);
     void parseDeviceVariant(QXmlStreamReader &in, DeviceSelectionItem *parent);
 
     Utils::FilePath m_toolsIniFile;
@@ -77,7 +75,6 @@ signals:
 private:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous) final;
 
-    bool isValidItem(const DeviceSelectionItem *item) const;
     DeviceSelection buildSelection(const DeviceSelectionItem *item) const;
 };
 

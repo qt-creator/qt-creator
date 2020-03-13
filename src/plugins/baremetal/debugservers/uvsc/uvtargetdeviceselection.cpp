@@ -41,14 +41,16 @@ constexpr char packageDescrKeyC[] = "BareMetal.UvscServerProvider.PackageDescrip
 constexpr char packageFileKeyC[] = "BareMetal.UvscServerProvider.PackageFile";
 constexpr char packageNameKeyC[] = "BareMetal.UvscServerProvider.PackageName";
 constexpr char packageUrlKeyC[] = "BareMetal.UvscServerProvider.PackageUrl";
-constexpr char packageVendorKeyC[] = "BareMetal.UvscServerProvider.PackageVendor";
+constexpr char packageVendorNameKeyC[] = "BareMetal.UvscServerProvider.PackageVendorName";
+constexpr char packageVendorIdKeyC[] = "BareMetal.UvscServerProvider.PackageVendorId";
 constexpr char packageVersionKeyC[] = "BareMetal.UvscServerProvider.PackageVersion";
 // Device data keys.
 constexpr char deviceNameKeyC[] = "BareMetal.UvscServerProvider.DeviceName";
 constexpr char deviceDescrKeyC[] = "BareMetal.UvscServerProvider.DeviceDescription";
 constexpr char deviceFamilyKeyC[] = "BareMetal.UvscServerProvider.DeviceFamily";
 constexpr char deviceSubFamilyKeyC[] = "BareMetal.UvscServerProvider.DeviceSubFamily";
-constexpr char deviceVendorKeyC[] = "BareMetal.UvscServerProvider.DeviceVendor";
+constexpr char deviceVendorNameKeyC[] = "BareMetal.UvscServerProvider.DeviceVendorName";
+constexpr char deviceVendorIdKeyC[] = "BareMetal.UvscServerProvider.DeviceVendorId";
 constexpr char deviceSvdKeyC[] = "BareMetal.UvscServerProvider.DeviceSVD";
 // Device CPU data keys.
 constexpr char deviceClockKeyC[] = "BareMetal.UvscServerProvider.DeviceClock";
@@ -77,14 +79,16 @@ QVariantMap DeviceSelection::toMap() const
     map.insert(packageFileKeyC, package.file);
     map.insert(packageNameKeyC, package.name);
     map.insert(packageUrlKeyC, package.url);
-    map.insert(packageVendorKeyC, package.vendor);
+    map.insert(packageVendorNameKeyC, package.vendorName);
+    map.insert(packageVendorIdKeyC, package.vendorId);
     map.insert(packageVersionKeyC, package.version);
     // Device.
     map.insert(deviceNameKeyC, name);
     map.insert(deviceDescrKeyC, desc);
     map.insert(deviceFamilyKeyC, family);
     map.insert(deviceSubFamilyKeyC, subfamily);
-    map.insert(deviceVendorKeyC, vendor);
+    map.insert(deviceVendorNameKeyC, vendorName);
+    map.insert(deviceVendorIdKeyC, vendorId);
     map.insert(deviceSvdKeyC, svd);
     // Device CPU.
     map.insert(deviceClockKeyC, cpu.clock);
@@ -122,14 +126,16 @@ void DeviceSelection::fromMap(const QVariantMap &map)
     package.file = map.value(packageFileKeyC).toString();
     package.name = map.value(packageNameKeyC).toString();
     package.url = map.value(packageUrlKeyC).toString();
-    package.vendor = map.value(packageVendorKeyC).toString();
+    package.vendorName = map.value(packageVendorNameKeyC).toString();
+    package.vendorId = map.value(packageVendorIdKeyC).toString();
     package.version = map.value(packageVersionKeyC).toString();
     // Device.
     name = map.value(deviceNameKeyC).toString();
     desc = map.value(deviceDescrKeyC).toString();
     family = map.value(deviceFamilyKeyC).toString();
     subfamily = map.value(deviceSubFamilyKeyC).toString();
-    vendor = map.value(deviceVendorKeyC).toString();
+    vendorName = map.value(deviceVendorNameKeyC).toString();
+    vendorId = map.value(deviceVendorIdKeyC).toString();
     svd = map.value(deviceSvdKeyC).toString();
     // Device CPU.
     cpu.clock = map.value(deviceClockKeyC).toString();
@@ -163,7 +169,8 @@ bool DeviceSelection::Package::operator==(const Package &other) const
 {
     return desc == other.desc && file == other.file
             && name == other.name && url == other.url
-            && vendor == other.vendor && version == other.version;
+            && vendorName == other.vendorName && vendorId == other.vendorId
+            && version == other.version;
 }
 
 bool DeviceSelection::Cpu::operator==(const Cpu &other) const
@@ -186,7 +193,8 @@ bool DeviceSelection::operator==(const DeviceSelection &other) const
 {
     return package == other.package && name == other.name && desc == other.desc
             && family == other.family && subfamily == other.subfamily
-            && vendor == other.vendor && svd == other.svd && cpu == other.cpu
+            && vendorName == other.vendorName && vendorId == other.vendorId
+            && svd == other.svd && cpu == other.cpu
             && memories == other.memories && algorithms == other.algorithms
             && algorithmIndex == other.algorithmIndex;
 }
