@@ -42,14 +42,14 @@ VcsOutputFormatter::VcsOutputFormatter() :
 {
 }
 
-void VcsOutputFormatter::appendMessage(const QString &text, Utils::OutputFormat format)
+void VcsOutputFormatter::doAppendMessage(const QString &text, Utils::OutputFormat format)
 {
     QRegularExpressionMatchIterator it = m_regexp.globalMatch(text);
     int begin = 0;
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
         const QTextCharFormat normalFormat = charFormat(format);
-        OutputFormatter::appendMessage(text.mid(begin, match.capturedStart() - begin), format);
+        OutputFormatter::doAppendMessage(text.mid(begin, match.capturedStart() - begin), format);
         QTextCursor tc = plainTextEdit()->textCursor();
         QStringView url = match.capturedView();
         begin = match.capturedEnd();
@@ -61,7 +61,7 @@ void VcsOutputFormatter::appendMessage(const QString &text, Utils::OutputFormat 
         tc.insertText(url.toString(), linkFormat(normalFormat, url.toString()));
         tc.movePosition(QTextCursor::End);
     }
-    OutputFormatter::appendMessage(text.mid(begin), format);
+    OutputFormatter::doAppendMessage(text.mid(begin), format);
 }
 
 void VcsOutputFormatter::handleLink(const QString &href)

@@ -228,10 +228,7 @@ void OutputWindowPlainTextEdit::appendLines(const QString &s, const QString &rep
 
     const int previousLineCount = document()->lineCount();
 
-    const QChar newLine('\n');
-    const QChar lastChar = s.at(s.size() - 1);
-    const bool appendNewline = (lastChar != '\r' && lastChar != newLine);
-    m_formatter->appendMessage(appendNewline ? s + newLine : s, m_format);
+    m_formatter->appendMessage(s, m_format);
 
     // Scroll down
     moveCursor(QTextCursor::End);

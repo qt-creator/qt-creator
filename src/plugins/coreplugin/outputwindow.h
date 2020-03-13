@@ -103,7 +103,6 @@ private:
     QTimer m_scrollTimer;
     QElapsedTimer m_lastMessage;
     void enableUndoRedo();
-    QString doNewlineEnforcement(const QString &out);
     void filterNewContent();
 
     Internal::OutputWindowPrivate *d = nullptr;

@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    void appendMessage(const QString &text, OutputFormat format) final
+    void doAppendMessage(const QString &text, OutputFormat format) final
     {
         const bool isTrace = (format == StdErrFormat
                               || format == StdErrFormatSameLine)
@@ -79,7 +79,7 @@ private:
                               || text.startsWith("\nTraceback (most recent call last):"));
 
         if (!isTrace) {
-            OutputFormatter::appendMessage(text, format);
+            OutputFormatter::doAppendMessage(text, format);
             return;
         }
 
@@ -110,7 +110,7 @@ private:
                         task.description += ' ';
                     task.description += line.trimmed();
                 }
-                OutputFormatter::appendMessage('\n' + line, format);
+                OutputFormatter::doAppendMessage('\n' + line, format);
             }
         }
         if (!tasks.isEmpty()) {

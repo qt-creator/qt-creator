@@ -30,7 +30,6 @@
 #include "icore.h"
 
 #include <utils/outputformatter.h>
-#include <utils/synchronousprocess.h>
 
 #include <QAction>
 #include <QCursor>
@@ -65,8 +64,6 @@ public:
     QString settingsKey;
     OutputFormatter defaultFormatter;
 
-    bool enforceNewline = false;
-    bool prependCarriageReturn = false;
     bool scrollToBottom = true;
     bool linksActive = true;
     bool zoomEnabled = false;
@@ -362,23 +359,6 @@ void OutputWindow::filterNewContent()
         scrollToBottom();
 }
 
-QString OutputWindow::doNewlineEnforcement(const QString &out)
-{
-    d->scrollToBottom = true;
-    QString s = out;
-    if (d->enforceNewline) {
-        s.prepend('\n');
-        d->enforceNewline = false;
-    }
-
-    if (s.endsWith('\n')) {
-        d->enforceNewline = true; // make appendOutputInline put in a newline next time
-        s.chop(1);
-    }
-
-    return s;
-}
-
 void OutputWindow::setMaxCharCount(int count)
 {
     d->maxCharCount = count;
@@ -393,16 +373,6 @@ int OutputWindow::maxCharCount() const
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
     QString out = output;
-    if (d->prependCarriageReturn) {
-        d->prependCarriageReturn = false;
-        out.prepend('\r');
-    }
-    out = SynchronousProcess::normalizeNewlines(out);
-    if (out.endsWith('\r')) {
-        d->prependCarriageReturn = true;
-        out.chop(1);
-    }
-
     if (out.size() > d->maxCharCount) {
         // Current line alone exceeds limit, we need to cut it.
         out.truncate(d->maxCharCount);
@@ -425,44 +395,8 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
     }
 
     const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
-
-    if (format == ErrorMessageFormat || format == NormalMessageFormat) {
-        d->formatter->appendMessage(doNewlineEnforcement(out), format);
-    } else {
-
-        bool sameLine = format == StdOutFormatSameLine
-                     || format == StdErrFormatSameLine;
-
-        if (sameLine) {
-            d->scrollToBottom = true;
-
-            bool enforceNewline = d->enforceNewline;
-            d->enforceNewline = false;
-
-            if (enforceNewline) {
-                out.prepend('\n');
-            } else {
-                const int newline = out.indexOf('\n');
-                moveCursor(QTextCursor::End);
-                if (newline != -1) {
-                    d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
-                    out = out.mid(newline);
-                }
-            }
-
-            if (out.isEmpty()) {
-                d->enforceNewline = true;
-            } else {
-                if (out.endsWith('\n')) {
-                    d->enforceNewline = true;
-                    out.chop(1);
-                }
-                d->formatter->appendMessage(out, format);
-            }
-        } else {
-            d->formatter->appendMessage(doNewlineEnforcement(out), format);
-        }
-    }
+    d->scrollToBottom = true;
+    d->formatter->appendMessage(out, format);
 
     if (atBottom) {
         if (m_lastMessage.elapsed() < 5) {
@@ -511,8 +445,6 @@ QMimeData *OutputWindow::createMimeDataFromSelection() const
 
 void OutputWindow::clear()
 {
-    d->enforceNewline = false;
-    d->prependCarriageReturn = false;
     QPlainTextEdit::clear();
     d->formatter->clear();
 }

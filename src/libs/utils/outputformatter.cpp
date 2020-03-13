@@ -25,6 +25,7 @@
 
 #include "ansiescapecodehandler.h"
 #include "outputformatter.h"
+#include "synchronousprocess.h"
 #include "theme/theme.h"
 
 #include <QPlainTextEdit>
@@ -42,6 +43,8 @@ public:
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
     bool boldFontEnabled = true;
+    bool enforceNewline = false;
+    bool prependCarriageReturn = false;
 };
 
 } // namespace Internal
@@ -69,14 +72,14 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
     initFormats();
 }
 
-void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
+void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
     if (!d->cursor.atEnd() && text.startsWith('\n'))
         d->cursor.movePosition(QTextCursor::End);
-    appendMessage(text, d->formats[format]);
+    doAppendMessage(text, d->formats[format]);
 }
 
-void OutputFormatter::appendMessage(const QString &text, const QTextCharFormat &format)
+void OutputFormatter::doAppendMessage(const QString &text, const QTextCharFormat &format)
 {
     const QList<FormattedText> formattedTextList = parseAnsi(text, format);
     for (const FormattedText &output : formattedTextList)
@@ -169,6 +172,12 @@ void OutputFormatter::handleLink(const QString &href)
     Q_UNUSED(href)
 }
 
+void OutputFormatter::clear()
+{
+    d->enforceNewline = false;
+    d->prependCarriageReturn = false;
+}
+
 void OutputFormatter::setBoldFontEnabled(bool enabled)
 {
     d->boldFontEnabled = enabled;
@@ -180,6 +189,68 @@ void OutputFormatter::setBoldFontEnabled(bool enabled)
 void OutputFormatter::flush()
 {
     d->escapeCodeHandler.endFormatScope();
+}
+
+void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
+{
+    QString out = text;
+    if (d->prependCarriageReturn) {
+        d->prependCarriageReturn = false;
+        out.prepend('\r');
+    }
+    out = SynchronousProcess::normalizeNewlines(out);
+    if (out.endsWith('\r')) {
+        d->prependCarriageReturn = true;
+        out.chop(1);
+    }
+
+    if (format == ErrorMessageFormat || format == NormalMessageFormat) {
+        doAppendMessage(doNewlineEnforcement(out), format);
+    } else {
+        const bool sameLine = format == StdOutFormatSameLine || format == StdErrFormatSameLine;
+        if (sameLine) {
+            bool enforceNewline = d->enforceNewline;
+            d->enforceNewline = false;
+            if (enforceNewline) {
+                out.prepend('\n');
+            } else {
+                const int newline = out.indexOf('\n');
+                plainTextEdit()->moveCursor(QTextCursor::End);
+                if (newline != -1) {
+                    doAppendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
+                    out = out.mid(newline);
+                }
+            }
+
+            if (out.isEmpty()) {
+                d->enforceNewline = true;
+            } else {
+                if (out.endsWith('\n')) {
+                    d->enforceNewline = true;
+                    out.chop(1);
+                }
+                doAppendMessage(out, format);
+            }
+        } else {
+            doAppendMessage(doNewlineEnforcement(out), format);
+        }
+    }
+}
+
+QString OutputFormatter::doNewlineEnforcement(const QString &out)
+{
+    QString s = out;
+    if (d->enforceNewline) {
+        s.prepend('\n');
+        d->enforceNewline = false;
+    }
+
+    if (s.endsWith('\n')) {
+        d->enforceNewline = true; // make appendOutputInline put in a newline next time
+        s.chop(1);
+    }
+
+    return s;
 }
 
 } // namespace Utils

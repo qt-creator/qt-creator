@@ -92,7 +92,7 @@ public:
     explicit QtOutputFormatter(Target *target);
     ~QtOutputFormatter() override;
 
-    void appendMessage(const QString &text, Utils::OutputFormat format) override;
+    void doAppendMessage(const QString &text, Utils::OutputFormat format) override;
     void handleLink(const QString &href) override;
 
 protected:
@@ -105,7 +105,7 @@ private:
     void appendMessagePart(const QString &txt, const QTextCharFormat &fmt);
     void appendLine(const LinkResult &lr, const QString &line, Utils::OutputFormat format);
     void appendLine(const LinkResult &lr, const QString &line, const QTextCharFormat &format);
-    void appendMessage(const QString &text, const QTextCharFormat &format) override;
+    void doAppendMessage(const QString &text, const QTextCharFormat &format) override;
 
     QtOutputFormatterPrivate *d;
     friend class QtSupportPlugin; // for testing
@@ -163,9 +163,9 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     return lr;
 }
 
-void QtOutputFormatter::appendMessage(const QString &txt, OutputFormat format)
+void QtOutputFormatter::doAppendMessage(const QString &txt, OutputFormat format)
 {
-    appendMessage(txt, charFormat(format));
+    doAppendMessage(txt, charFormat(format));
 }
 
 void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFormat &fmt)
@@ -209,7 +209,7 @@ void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFor
     cursor().insertText(deferredText, fmt);
 }
 
-void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat &format)
+void QtOutputFormatter::doAppendMessage(const QString &txt, const QTextCharFormat &format)
 {
     if (!cursor().atEnd())
         cursor().movePosition(QTextCursor::End);
@@ -558,7 +558,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMessage()
     QFETCH(QTextCharFormat, inputFormat);
     QFETCH(QTextCharFormat, outputFormat);
 
-    formatter.appendMessage(inputText, inputFormat);
+    formatter.doAppendMessage(inputText, inputFormat);
 
     QCOMPARE(edit.toPlainText(), outputText);
     QCOMPARE(edit.currentCharFormat(), outputFormat);
@@ -579,7 +579,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
                 "file://test.cpp:123 "
                 "Blue\n";
 
-    formatter.appendMessage(inputText, QTextCharFormat());
+    formatter.doAppendMessage(inputText, QTextCharFormat());
 
     QCOMPARE(edit.toPlainText(), outputText);
 

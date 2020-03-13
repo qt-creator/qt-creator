@@ -37,7 +37,7 @@ class VcsOutputFormatter : public Utils::OutputFormatter
 public:
     VcsOutputFormatter();
     ~VcsOutputFormatter() override = default;
-    void appendMessage(const QString &text, Utils::OutputFormat format) override;
+    void doAppendMessage(const QString &text, Utils::OutputFormat format) override;
     void handleLink(const QString &href) override;
     void fillLinkContextMenu(QMenu *menu, const QString &workingDirectory, const QString &href);
 
