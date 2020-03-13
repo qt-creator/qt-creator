@@ -998,8 +998,9 @@ QVector<QRect> DocumentContainer::mouseMoveEvent(const QPoint &documentPos,
                                                                   viewportPos,
                                                                   m_selection.mode);
         if (element.element) {
+            redrawRects.append(
+                m_selection.boundingRect() /*.adjusted(-1, -1, +1, +1)*/); // redraw old selection area
             m_selection.endElem = element;
-            redrawRects.append(m_selection.boundingRect()); // redraw old selection area
             m_selection.update();
             redrawRects.append(m_selection.boundingRect());
         }
