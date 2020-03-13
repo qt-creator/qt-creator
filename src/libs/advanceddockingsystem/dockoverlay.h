@@ -94,6 +94,13 @@ public:
     DockWidgetArea dropAreaUnderCursor() const;
 
     /**
+     * This function returns the same like dropAreaUnderCursor() if this
+     * overlay is not hidden and if drop preview is enabled and returns
+     * InvalidDockWidgetArea if it is hidden or drop preview is disabled.
+     */
+    DockWidgetArea visibleDropAreaUnderCursor() const;
+
+    /**
      * Show the drop overly for the given target widget
      */
     DockWidgetArea showOverlay(QWidget *target);

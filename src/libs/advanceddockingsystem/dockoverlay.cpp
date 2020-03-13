@@ -399,6 +399,14 @@ namespace ADS {
         return result;
     }
 
+    DockWidgetArea DockOverlay::visibleDropAreaUnderCursor() const
+    {
+        if (isHidden() || !d->m_dropPreviewEnabled)
+            return InvalidDockWidgetArea;
+        else
+            return dropAreaUnderCursor();
+    }
+
     DockWidgetArea DockOverlay::showOverlay(QWidget *target)
     {
         if (d->m_targetWidget == target) {

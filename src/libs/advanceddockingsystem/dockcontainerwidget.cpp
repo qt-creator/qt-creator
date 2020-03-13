@@ -595,7 +595,7 @@ namespace ADS
     {
         DockWidget *droppedDockWidget = qobject_cast<DockWidget *>(widget);
         DockAreaWidget *droppedDockArea = qobject_cast<DockAreaWidget *>(widget);
-        DockAreaWidget *newDockArea;
+        DockAreaWidget *newDockArea = nullptr;
 
         if (droppedDockWidget) {
             newDockArea = new DockAreaWidget(m_dockManager, q);
@@ -605,6 +605,18 @@ namespace ADS
             }
             newDockArea->addDockWidget(droppedDockWidget);
         } else {
+            // We check, if we insert the dropped widget into the same place that
+            // it already has and do nothing, if it is the same place. It would
+            // also work without this check, but it looks nicer with the check
+            // because there will be no layout updates
+            auto splitter = internal::findParent<DockSplitter*>(droppedDockArea);
+            auto insertParam = internal::dockAreaInsertParameters(area);
+            if (splitter == m_rootSplitter && insertParam.orientation() == splitter->orientation()) {
+                if (insertParam.append() && splitter->lastWidget() == droppedDockArea)
+                    return;
+                else if (!insertParam.append() && splitter->firstWidget() == droppedDockArea)
+                    return;
+            }
             droppedDockArea->dockContainer()->removeDockArea(droppedDockArea);
             newDockArea = droppedDockArea;
         }
@@ -1217,36 +1229,13 @@ namespace ADS
         }
     }
 
-    void DockContainerWidget::dropWidget(QWidget *widget, const QPoint &targetPosition)
+    void DockContainerWidget::dropWidget(QWidget *widget, DockWidgetArea dropArea, DockAreaWidget *targetAreaWidget)
     {
-        qCInfo(adsLog) << Q_FUNC_INFO;
         DockWidget *singleDockWidget = topLevelDockWidget();
-        DockAreaWidget *dockArea = dockAreaAt(targetPosition);
-        auto dropArea = InvalidDockWidgetArea;
-        auto containerDropArea = d->m_dockManager->containerOverlay()->dropAreaUnderCursor();
-
-        if (dockArea) {
-            auto dropOverlay = d->m_dockManager->dockAreaOverlay();
-            dropOverlay->setAllowedAreas(dockArea->allowedAreas());
-            dropArea = dropOverlay->showOverlay(dockArea);
-            if (containerDropArea != InvalidDockWidgetArea && containerDropArea != dropArea) {
-                dropArea = InvalidDockWidgetArea;
-            }
-
-            if (dropArea != InvalidDockWidgetArea) {
-                qCInfo(adsLog) << "Dock Area Drop Content: " << dropArea;
-                d->moveToNewSection(widget, dockArea, dropArea);
-            }
-        }
-
-        // mouse is over container
-        if (InvalidDockWidgetArea == dropArea) {
-            dropArea = containerDropArea;
-            qCInfo(adsLog) << "Container Drop Content: " << dropArea;
-            if (dropArea != InvalidDockWidgetArea) {
-                d->moveToContainer(widget, dropArea);
-            }
-        }
+        if (targetAreaWidget)
+            d->moveToNewSection(widget, targetAreaWidget, dropArea);
+        else
+            d->moveToContainer(widget, dropArea);
 
         // If there was a top level widget before the drop, then it is not top
         // level widget anymore

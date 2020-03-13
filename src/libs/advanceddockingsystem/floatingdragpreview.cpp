@@ -262,12 +262,14 @@ namespace ADS
     void FloatingDragPreview::finishDragging()
     {
         qCInfo(adsLog) << Q_FUNC_INFO;
-        auto dockDropArea = d->m_dockManager->dockAreaOverlay()->dropAreaUnderCursor();
-        auto containerDropArea = d->m_dockManager->containerOverlay()->dropAreaUnderCursor();
-        bool dropPossible = (dockDropArea != InvalidDockWidgetArea)
-                            || (containerDropArea != InvalidDockWidgetArea);
-        if (d->m_dropContainer && dropPossible) {
-            d->m_dropContainer->dropWidget(d->m_content, QCursor::pos());
+        auto dockDropArea = d->m_dockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
+        auto containerDropArea = d->m_dockManager->containerOverlay()->visibleDropAreaUnderCursor();
+        if (d->m_dropContainer && (dockDropArea != InvalidDockWidgetArea)) {
+            d->m_dropContainer->dropWidget(d->m_content,
+                                           dockDropArea,
+                                           d->m_dropContainer->dockAreaAt(QCursor::pos()));
+        } else if (d->m_dropContainer && (containerDropArea != InvalidDockWidgetArea)) {
+            d->m_dropContainer->dropWidget(d->m_content, containerDropArea, nullptr);
         } else {
             DockWidget *dockWidget = qobject_cast<DockWidget *>(d->m_content);
             FloatingDockContainer *floatingWidget = nullptr;
