@@ -1043,7 +1043,25 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
             QObject *object = nullptr;
             if (firstSceneRoot && sceneRoot == firstSceneRoot && instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
-            if (object && (firstSceneRoot != object || instance.isSubclassOf("QQuick3DModel")))
+
+            auto instanceIsModelOrComponent = [&]() -> bool {
+                bool retval = instance.isSubclassOf("QQuick3DModel");
+#ifdef QUICK3D_MODULE
+                if (!retval) {
+                    // Node is a component if it has node children that have no instances
+                    auto node = qobject_cast<QQuick3DNode *>(object);
+                    if (node) {
+                        const auto childItems = node->childItems();
+                        for (const auto &childItem : childItems) {
+                            if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
+                                return true;
+                        }
+                    }
+                }
+#endif
+                return retval;
+            };
+            if (object && (firstSceneRoot != object || instanceIsModelOrComponent()))
                 selectedObjs << objectToVariant(object);
         }
     }
