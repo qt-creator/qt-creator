@@ -133,12 +133,14 @@ void Edit3DView::modelAboutToBeDetached(Model *model)
 
 void Edit3DView::sendInputEvent(QInputEvent *e) const
 {
-    nodeInstanceView()->sendInputEvent(e);
+    if (nodeInstanceView())
+        nodeInstanceView()->sendInputEvent(e);
 }
 
 void Edit3DView::edit3DViewResized(const QSize &size) const
 {
-    nodeInstanceView()->edit3DViewResized(size);
+    if (nodeInstanceView())
+        nodeInstanceView()->edit3DViewResized(size);
 }
 
 QSize Edit3DView::canvasSize() const
