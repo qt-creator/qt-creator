@@ -31,12 +31,15 @@ namespace Core { class Id; }
 namespace Utils { class Environment; }
 
 namespace Autotest {
+
+class ITestFramework;
+
 namespace Internal {
 namespace QTestUtils {
 
 bool isQTestMacro(const QByteArray &macro);
-QHash<QString, QString> testCaseNamesForFiles(const Core::Id &id, const QStringList &files);
-QMultiHash<QString, QString> alternativeFiles(const Core::Id &id, const QStringList &files);
+QHash<QString, QString> testCaseNamesForFiles(ITestFramework *framework, const QStringList &files);
+QMultiHash<QString, QString> alternativeFiles(ITestFramework *framework, const QStringList &files);
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest);
 Utils::Environment prepareBasicEnvironment(const Utils::Environment &env);
 

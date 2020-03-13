@@ -46,7 +46,7 @@ private:
     unsigned priority() const override;
     QString groupingToolTip() const override;
     IFrameworkSettings *frameworkSettings() override { return &m_settings; }
-    ITestParser *createTestParser() const override;
+    ITestParser *createTestParser() override;
     TestTreeItem *createRootNode() const override;
 
     GTestSettings m_settings;

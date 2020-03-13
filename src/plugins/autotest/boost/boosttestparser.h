@@ -34,7 +34,7 @@ namespace Internal {
 class BoostTestParseResult : public TestParseResult
 {
 public:
-    explicit BoostTestParseResult(const Core::Id &id) : TestParseResult(id) {}
+    explicit BoostTestParseResult(ITestFramework *framework) : TestParseResult(framework) {}
     TestTreeItem *createTestTreeItem() const override;
     // TODO special attributes/states (labeled, timeout,...?)
     BoostTestTreeItem::TestStates state = BoostTestTreeItem::Enabled;
@@ -43,6 +43,7 @@ public:
 class BoostTestParser : public CppParser
 {
 public:
+    explicit BoostTestParser(ITestFramework *framework) : CppParser(framework) {}
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                          const QString &fileName) override;
 };

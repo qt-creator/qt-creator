@@ -71,7 +71,7 @@ public:
     // framework specific tool tip to be displayed on the general settings page
     virtual QString groupingToolTip() const { return QString(); }
 protected:
-    virtual ITestParser *createTestParser() const = 0;
+    virtual ITestParser *createTestParser() = 0;
     virtual TestTreeItem *createRootNode() const = 0;
 
 private:
@@ -80,5 +80,7 @@ private:
     bool m_active = false;
     bool m_grouping = false;
 };
+
+using TestFrameworks = QList<ITestFramework *>;
 
 } // namespace Autotest

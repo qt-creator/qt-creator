@@ -110,7 +110,7 @@ void TestCodeParser::setState(State state)
     }
 }
 
-void TestCodeParser::syncTestFrameworks(const QList<Core::Id> &frameworkIds)
+void TestCodeParser::syncTestFrameworks(const QList<ITestFramework *> &frameworks)
 {
     if (m_parserState != Idle) {
         // there's a running parse
@@ -119,10 +119,9 @@ void TestCodeParser::syncTestFrameworks(const QList<Core::Id> &frameworkIds)
         Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
     }
     m_testCodeParsers.clear();
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    qCDebug(LOG) << "Setting" << frameworkIds << "as current parsers";
-    for (const Core::Id &id : frameworkIds) {
-        ITestParser *testParser = frameworkManager->testParserForTestFramework(id);
+    qCDebug(LOG) << "Setting" << frameworks << "as current parsers";
+    for (ITestFramework *framework : frameworks) {
+        ITestParser *testParser = framework->testParser();
         QTC_ASSERT(testParser, continue);
         m_testCodeParsers.append(testParser);
     }
@@ -133,7 +132,7 @@ void TestCodeParser::emitUpdateTestTree(ITestParser *parser)
     if (m_testCodeParsers.isEmpty())
         return;
     if (parser)
-        m_updateParsers.insert(parser->id());
+        m_updateParsers.insert(parser->framework());
     else
         m_updateParsers.clear();
     if (m_singleShotScheduled) {
@@ -146,18 +145,18 @@ void TestCodeParser::emitUpdateTestTree(ITestParser *parser)
     QTimer::singleShot(1000, this, [this]() { updateTestTree(m_updateParsers); });
 }
 
-void TestCodeParser::updateTestTree(const QSet<Core::Id> &frameworkIds)
+void TestCodeParser::updateTestTree(const QSet<ITestFramework *> &frameworks)
 {
     m_singleShotScheduled = false;
     if (m_codeModelParsing) {
         m_fullUpdatePostponed = true;
         m_partialUpdatePostponed = false;
         m_postponedFiles.clear();
-        if (frameworkIds.isEmpty()) {
+        if (frameworks.isEmpty()) {
             m_updateParsers.clear();
         } else {
-            for (const Core::Id &id : frameworkIds)
-                m_updateParsers.insert(id);
+            for (ITestFramework *framework : frameworks)
+                m_updateParsers.insert(framework);
         }
         return;
     }
@@ -167,11 +166,8 @@ void TestCodeParser::updateTestTree(const QSet<Core::Id> &frameworkIds)
 
     m_fullUpdatePostponed = false;
     qCDebug(LOG) << "calling scanForTests (updateTestTree)";
-    QList<Core::Id> sortedFrameworks = Utils::toList(frameworkIds);
-    Utils::sort(sortedFrameworks, [manager = TestFrameworkManager::instance()]
-                (const Core::Id &lhs, const Core::Id &rhs) {
-        return manager->priority(lhs) < manager->priority(rhs);
-    });
+    TestFrameworks sortedFrameworks = Utils::toList(frameworks);
+    Utils::sort(sortedFrameworks, &ITestFramework::priority);
     scanForTests(QStringList(), sortedFrameworks);
 }
 
@@ -307,7 +303,7 @@ static void parseFileForTests(const QList<ITestParser *> &parsers,
     }
 }
 
-void TestCodeParser::scanForTests(const QStringList &fileList, const QList<Core::Id> &parserIds)
+void TestCodeParser::scanForTests(const QStringList &fileList, const QList<ITestFramework *> &parsers)
 {
     if (m_parserState == Shutdown || m_testCodeParsers.isEmpty())
         return;
@@ -341,23 +337,21 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<Core:
     }
 
     parsingHasFailed = false;
-    TestFrameworkManager *manager = TestFrameworkManager::instance();
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
         list = Utils::filtered(list, [] (const QString &fn) {
             return !fn.endsWith(".qml");
         });
-        if (!parserIds.isEmpty()) {
-            for (const Core::Id &id : parserIds)
-                manager->rootNodeForTestFramework(id)->markForRemovalRecursively(true);
+        if (!parsers.isEmpty()) {
+            for (ITestFramework *framework : parsers)
+                framework->rootNode()->markForRemovalRecursively(true);
         } else {
             m_model->markAllForRemoval();
         }
-    } else if (!parserIds.isEmpty()) {
-        for (const Core::Id &id : parserIds) {
-            TestTreeItem *root = manager->rootNodeForTestFramework(id);
+    } else if (!parsers.isEmpty()) {
+        for (ITestFramework *framework : parsers) {
             for (const QString &filePath : list)
-                root->markForRemovalRecursively(filePath);
+                framework->rootNode()->markForRemovalRecursively(filePath);
         }
     } else {
         for (const QString &filePath : list)
@@ -368,10 +362,8 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<Core:
 
     // use only a single parser or all current active?
     const QList<ITestParser *> codeParsers
-            = parserIds.isEmpty() ? m_testCodeParsers
-                                  : Utils::transform(parserIds, [](const Core::Id &id) {
-        return TestFrameworkManager::instance()->testParserForTestFramework(id);
-    });
+            = parsers.isEmpty() ? m_testCodeParsers
+                                : Utils::transform(parsers, &ITestFramework::testParser);
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
     for (ITestParser *parser : codeParsers)
         parser->init(list, isFullParse);

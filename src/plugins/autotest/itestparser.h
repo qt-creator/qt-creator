@@ -35,16 +35,18 @@
 
 namespace Autotest {
 
+class ITestFramework;
+
 class TestParseResult
 {
 public:
-    explicit TestParseResult(const Core::Id &id) : frameworkId(id) {}
+    explicit TestParseResult(ITestFramework *framework) : framework(framework) {}
     virtual ~TestParseResult() { qDeleteAll(children); }
 
     virtual TestTreeItem *createTestTreeItem() const = 0;
 
     QVector<TestParseResult *> children;
-    Core::Id frameworkId;
+    ITestFramework *framework;
     TestTreeItem::Type itemType = TestTreeItem::Root;
     QString displayName;
     QString fileName;
@@ -59,22 +61,23 @@ using TestParseResultPtr = QSharedPointer<TestParseResult>;
 class ITestParser
 {
 public:
+    explicit ITestParser(ITestFramework *framework) : m_framework(framework) {}
     virtual ~ITestParser() { }
     virtual void init(const QStringList &filesToParse, bool fullParse) = 0;
     virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                  const QString &fileName) = 0;
     virtual void release() = 0;
-    void setId(const Core::Id &id) { m_id = id; }
-    Core::Id id() const { return m_id; }
+
+    ITestFramework *framework() const { return m_framework; }
 
 private:
-    Core::Id m_id;
+    ITestFramework *m_framework;
 };
 
 class CppParser : public ITestParser
 {
 public:
-    CppParser();
+    explicit CppParser(ITestFramework *framework);
     void init(const QStringList &filesToParse, bool fullParse) override;
     static bool selectedForBuilding(const QString &fileName);
     static QByteArray getFileContent(const QString &filePath);

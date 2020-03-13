@@ -41,7 +41,7 @@ public:
 private:
     const char *name() const override;
     unsigned priority() const override;
-    ITestParser *createTestParser() const override;
+    ITestParser *createTestParser() override;
     TestTreeItem *createRootNode() const override;
     IFrameworkSettings *frameworkSettings() override { return &m_settings; }
 

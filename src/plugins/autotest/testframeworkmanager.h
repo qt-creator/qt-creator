@@ -60,23 +60,16 @@ public:
     bool registerTestFramework(ITestFramework *framework);
 
     void activateFrameworksFromSettings(const Internal::TestSettings *settings);
-    QString frameworkNameForId(const Core::Id &id) const;
-    QList<Core::Id> registeredFrameworkIds() const;
-    QList<Core::Id> sortedRegisteredFrameworkIds() const;
-    QList<Core::Id> sortedActiveFrameworkIds() const;
+    TestFrameworks registeredFrameworks() const;
+    TestFrameworks sortedRegisteredFrameworks() const;
+    TestFrameworks sortedActiveFrameworks() const;
 
-    TestTreeItem *rootNodeForTestFramework(const Core::Id &frameworkId) const;
-    ITestParser *testParserForTestFramework(const Core::Id &frameworkId) const;
     IFrameworkSettings *settingsForTestFramework(const Core::Id &frameworkId) const;
     void synchronizeSettings(QSettings *s);
-    bool isActive(const Core::Id &frameworkId) const;
-    bool groupingEnabled(const Core::Id &frameworkId) const;
-    void setGroupingEnabledFor(const Core::Id &frameworkId, bool enabled);
-    QString groupingToolTip(const Core::Id &frameworkId) const;
     bool hasActiveFrameworks() const;
-    unsigned priority(const Core::Id &frameworkId) const;
+
 private:
-    QList<Core::Id> activeFrameworkIds() const;
+    TestFrameworks activeFrameworks() const;
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
     QHash<Core::Id, IFrameworkSettings *> m_frameworkSettings;

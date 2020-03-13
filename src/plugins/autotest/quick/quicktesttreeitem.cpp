@@ -318,7 +318,7 @@ TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
     case Root:
         if (result->name.isEmpty())
             return unnamedQuickTests();
-        if (TestFrameworkManager::instance()->groupingEnabled(result->frameworkId)) {
+        if (result->framework->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             TestTreeItem *group = findFirstLevelChild([path](TestTreeItem *group) {
                     return group->filePath() == path;
@@ -433,11 +433,12 @@ void QuickTestTreeItem::markForRemovalRecursively(const QString &filePath)
     static const Core::Id id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(
                 QuickTest::Constants::FRAMEWORK_NAME);
     TestTreeItem::markForRemovalRecursively(filePath);
-    auto parser = dynamic_cast<QuickTestParser *>(TestFrameworkManager::instance()
-                                                   ->testParserForTestFramework(id));
+    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+    QTC_ASSERT(framework, return);
+    auto parser = dynamic_cast<QuickTestParser *>(framework->testParser());
     const QString proFile = parser->projectFileForMainCppFile(filePath);
     if (!proFile.isEmpty()) {
-        TestTreeItem *root = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
+        TestTreeItem *root = framework->rootNode();
         root->forAllChildren([proFile](TestTreeItem *it) {
             if (it->proFile() == proFile)
                 it->markForRemoval(true);

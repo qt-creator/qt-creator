@@ -74,7 +74,7 @@ TestTreeItem *BoostTestTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        if (TestFrameworkManager::instance()->groupingEnabled(result->frameworkId)) {
+        if (result->framework->grouping()) {
             const QFileInfo fileInfo(bResult->fileName);
             const QFileInfo base(fileInfo.absolutePath());
             for (int row = 0; row < childCount(); ++row) {

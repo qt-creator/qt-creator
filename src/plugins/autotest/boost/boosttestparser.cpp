@@ -98,10 +98,10 @@ static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)
 }
 
 static BoostTestParseResult *createParseResult(const QString &name, const QString &filePath,
-                                               const QString &projectFile, const Core::Id &id,
+                                               const QString &projectFile, ITestFramework *framework,
                                                TestTreeItem::Type type, const BoostTestInfo &info)
 {
-    BoostTestParseResult *partialSuite = new BoostTestParseResult(id);
+    BoostTestParseResult *partialSuite = new BoostTestParseResult(framework);
     partialSuite->itemType = type;
     partialSuite->fileName = filePath;
     partialSuite->name = info.fullName;
@@ -117,7 +117,7 @@ static BoostTestParseResult *createParseResult(const QString &name, const QStrin
 static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface,
                             const CPlusPlus::Document::Ptr &doc,
                             const CPlusPlus::Snapshot &snapshot,
-                            const Core::Id &id)
+                            ITestFramework *framework)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
@@ -139,7 +139,7 @@ static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface
         BoostTestInfo firstSuite = suitesStates.first();
         QStringList suites = firstSuite.fullName.split('/');
         BoostTestParseResult *topLevelSuite = createParseResult(suites.first(), filePath,
-                                                                projectFile, id,
+                                                                projectFile, framework,
                                                                 TestTreeItem::TestSuite,
                                                                 firstSuite);
         BoostTestParseResult *currentSuite = topLevelSuite;
@@ -148,7 +148,7 @@ static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface
             firstSuite = suitesStates.first();
             suites = firstSuite.fullName.split('/');
             BoostTestParseResult *suiteResult = createParseResult(suites.last(), filePath,
-                                                                  projectFile, id,
+                                                                  projectFile, framework,
                                                                   TestTreeItem::TestSuite,
                                                                   firstSuite);
             currentSuite->children.append(suiteResult);
@@ -161,7 +161,7 @@ static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface
                 locationAndType.m_suitesState.last().fullName + "::" + locationAndType.m_name,
                         locationAndType.m_state, locationAndType.m_line};
             BoostTestParseResult *funcResult = createParseResult(locationAndType.m_name, filePath,
-                                                                 projectFile, id,
+                                                                 projectFile, framework,
                                                                  locationAndType.m_type,
                                                                  tmpInfo);
             currentSuite->children.append(funcResult);
@@ -177,7 +177,7 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull() || !includesBoostTest(doc, m_cppSnapshot) || !hasBoostTestMacros(doc))
         return false;
-    return handleBoostTest(futureInterface, doc, m_cppSnapshot, id());
+    return handleBoostTest(futureInterface, doc, m_cppSnapshot, framework());
 }
 
 } // namespace Internal

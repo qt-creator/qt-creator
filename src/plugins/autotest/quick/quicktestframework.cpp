@@ -30,9 +30,9 @@
 namespace Autotest {
 namespace Internal {
 
-ITestParser *QuickTestFramework::createTestParser() const
+ITestParser *QuickTestFramework::createTestParser()
 {
-    return new QuickTestParser;
+    return new QuickTestParser(this);
 }
 
 TestTreeItem *QuickTestFramework::createRootNode() const

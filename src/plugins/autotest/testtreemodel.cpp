@@ -205,23 +205,23 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 void TestTreeModel::synchronizeTestFrameworks()
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    QList<Core::Id> sortedIds;
+    TestFrameworks sorted;
     TestFrameworkManager *manager = TestFrameworkManager::instance();
     const QVariant useGlobal = project ? project->namedSettings(Constants::SK_USE_GLOBAL)
                                        : QVariant();
     if (!useGlobal.isValid() || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
-        sortedIds = manager->sortedActiveFrameworkIds();
+        sorted = manager->sortedActiveFrameworks();
     } else { // we've got custom project settings
         const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
-        const QMap<Core::Id, bool> active = settings->activeFrameworks();
-        sortedIds = Utils::filtered(active.keys(), [active](const Core::Id &id) {
-            return active.value(id);
+        const QMap<ITestFramework *, bool> active = settings->activeFrameworks();
+        sorted = Utils::filtered(active.keys(), [active](ITestFramework *framework) {
+            return active.value(framework);
         });
     }
 
     // pre-check to avoid further processing when frameworks are unchanged
     Utils::TreeItem *invisibleRoot = rootItem();
-    QSet<Core::Id> newlyAdded;
+    QSet<ITestFramework *> newlyAdded;
     QList<Utils::TreeItem *> oldFrameworkRoots;
     for (Utils::TreeItem *oldFrameworkRoot : *invisibleRoot)
         oldFrameworkRoots.append(oldFrameworkRoot);
@@ -229,19 +229,19 @@ void TestTreeModel::synchronizeTestFrameworks()
     for (Utils::TreeItem *oldFrameworkRoot : oldFrameworkRoots)
         takeItem(oldFrameworkRoot);  // do NOT delete the ptr is still held by TestFrameworkManager
 
-    for (const Core::Id &id : sortedIds) {
-        TestTreeItem *frameworkRootNode = manager->rootNodeForTestFramework(id);
+    for (ITestFramework *framework : sorted) {
+        TestTreeItem *frameworkRootNode = framework->rootNode();
         invisibleRoot->appendChild(frameworkRootNode);
         if (!oldFrameworkRoots.removeOne(frameworkRootNode))
-            newlyAdded.insert(id);
+            newlyAdded.insert(framework);
     }
     for (Utils::TreeItem *oldFrameworkRoot : oldFrameworkRoots)
         oldFrameworkRoot->removeChildren();
 
-    m_parser->syncTestFrameworks(sortedIds);
+    m_parser->syncTestFrameworks(sorted);
     if (!newlyAdded.isEmpty())
         m_parser->updateTestTree(newlyAdded);
-    emit updatedActiveFrameworks(sortedIds.size());
+    emit updatedActiveFrameworks(sorted.size());
 }
 
 void TestTreeModel::filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled)
@@ -257,10 +257,10 @@ void TestTreeModel::filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool
 
 void TestTreeModel::rebuild(const QList<Core::Id> &frameworkIds)
 {
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     for (const Core::Id &id : frameworkIds) {
-        TestTreeItem *frameworkRoot = frameworkManager->rootNodeForTestFramework(id);
-        const bool groupingEnabled = TestFrameworkManager::instance()->groupingEnabled(id);
+        ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+        TestTreeItem *frameworkRoot = framework->rootNode();
+        const bool groupingEnabled = framework->grouping();
         for (int row = frameworkRoot->childCount() - 1; row >= 0; --row) {
             auto testItem = frameworkRoot->childAt(row);
             if (testItem->type() == TestTreeItem::GroupNode) {
@@ -450,16 +450,14 @@ void TestTreeModel::revalidateCheckState(TestTreeItem *item)
 
 void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
 {
-    TestTreeItem *rootNode
-            = TestFrameworkManager::instance()->rootNodeForTestFramework(result->frameworkId);
+    TestTreeItem *rootNode = result->framework->rootNode();
     QTC_ASSERT(rootNode, return);
     handleParseResult(result.data(), rootNode);
 }
 
 void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeItem *parentNode)
 {
-    const bool groupingEnabled =
-            TestFrameworkManager::instance()->groupingEnabled(result->frameworkId);
+    const bool groupingEnabled = result->framework->grouping();
     // lookup existing items
     if (TestTreeItem *toBeModified = parentNode->find(result)) {
         // found existing item... Do not remove
@@ -515,26 +513,26 @@ void TestTreeModel::removeTestRootNodes()
 // we're inside tests - so use some internal knowledge to make testing easier
 static TestTreeItem *qtRootNode()
 {
-    return TestFrameworkManager::instance()->rootNodeForTestFramework(
-                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtTest"));
+    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtTest");
+    return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 
 static TestTreeItem *quickRootNode()
 {
-    return TestFrameworkManager::instance()->rootNodeForTestFramework(
-                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtQuickTest"));
+    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtQuickTest");
+    return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 
 static TestTreeItem *gtestRootNode()
 {
-    return TestFrameworkManager::instance()->rootNodeForTestFramework(
-                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("GTest"));
+    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("GTest");
+    return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 
 static TestTreeItem *boostTestRootNode()
 {
-    return TestFrameworkManager::instance()->rootNodeForTestFramework(
-                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("Boost"));
+    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("Boost");
+    return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 
 int TestTreeModel::autoTestsCount() const

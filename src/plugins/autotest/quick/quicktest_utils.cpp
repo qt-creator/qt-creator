@@ -43,10 +43,10 @@ bool isQuickTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<QString, QString> proFilesForQmlFiles(const Core::Id &id, const QStringList &files)
+QHash<QString, QString> proFilesForQmlFiles(ITestFramework *framework, const QStringList &files)
 {
     QHash<QString, QString> result;
-    TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
+    TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
     if (files.isEmpty())

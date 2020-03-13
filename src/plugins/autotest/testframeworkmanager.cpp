@@ -96,64 +96,35 @@ void TestFrameworkManager::activateFrameworksFromSettings(const Internal::TestSe
     }
 }
 
-QString TestFrameworkManager::frameworkNameForId(const Id &id) const
+TestFrameworks TestFrameworkManager::registeredFrameworks() const
 {
-    ITestFramework *framework = m_registeredFrameworks.value(id, nullptr);
-    return framework ? QString::fromLatin1(framework->name()) : QString();
+    return m_registeredFrameworks.values();
 }
 
-QList<Id> TestFrameworkManager::registeredFrameworkIds() const
+TestFrameworks TestFrameworkManager::sortedRegisteredFrameworks() const
 {
-    return m_registeredFrameworks.keys();
-}
-
-QList<Id> TestFrameworkManager::sortedRegisteredFrameworkIds() const
-{
-    QList<Id> registered = m_registeredFrameworks.keys();
-    Utils::sort(registered, [this] (const Id &lhs, const Id &rhs) {
-        return m_registeredFrameworks[lhs]->priority() < m_registeredFrameworks[rhs]->priority();
-    });
+    TestFrameworks registered = m_registeredFrameworks.values();
+    Utils::sort(registered, &ITestFramework::priority);
     qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
     return registered;
 }
 
-QList<Id> TestFrameworkManager::activeFrameworkIds() const
+TestFrameworks TestFrameworkManager::activeFrameworks() const
 {
-    QList<Id> active;
-    FrameworkIterator it = m_registeredFrameworks.begin();
-    FrameworkIterator end = m_registeredFrameworks.end();
-    for ( ; it != end; ++it) {
-        if (it.value()->active())
-            active.append(it.key());
+    TestFrameworks active;
+    for (ITestFramework *framework : m_registeredFrameworks) {
+        if (framework->active())
+            active.append(framework);
     }
     return active;
 }
 
-QList<Id> TestFrameworkManager::sortedActiveFrameworkIds() const
+TestFrameworks TestFrameworkManager::sortedActiveFrameworks() const
 {
-    QList<Id> active = activeFrameworkIds();
-    Utils::sort(active, [this] (const Id &lhs, const Id &rhs) {
-        return m_registeredFrameworks[lhs]->priority() < m_registeredFrameworks[rhs]->priority();
-    });
+    TestFrameworks active = activeFrameworks();
+    Utils::sort(active, &ITestFramework::priority);
     qCDebug(LOG) << "Active frameworks sorted by priority" << active;
     return active;
-}
-
-TestTreeItem *TestFrameworkManager::rootNodeForTestFramework(const Id &frameworkId) const
-{
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
-    return framework ? framework->rootNode() : nullptr;
-}
-
-ITestParser *TestFrameworkManager::testParserForTestFramework(const Id &frameworkId) const
-{
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
-    if (!framework)
-        return nullptr;
-    ITestParser *testParser = framework->testParser();
-    qCDebug(LOG) << "Setting" << frameworkId << "as Id for test parser";
-    testParser->setId(frameworkId);
-    return testParser;
 }
 
 ITestFramework *TestFrameworkManager::frameworkForId(Id frameworkId)
@@ -176,31 +147,6 @@ void TestFrameworkManager::synchronizeSettings(QSettings *s)
     }
 }
 
-bool TestFrameworkManager::isActive(const Id &frameworkId) const
-{
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId);
-    return framework ? framework->active() : false;
-}
-
-bool TestFrameworkManager::groupingEnabled(const Id &frameworkId) const
-{
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId);
-    return framework ? framework->grouping() : false;
-}
-
-void TestFrameworkManager::setGroupingEnabledFor(const Id &frameworkId, bool enabled)
-{
-    if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
-        framework->setGrouping(enabled);
-}
-
-QString TestFrameworkManager::groupingToolTip(const Id &frameworkId) const
-{
-    if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
-        return framework->groupingToolTip();
-    return QString();
-}
-
 bool TestFrameworkManager::hasActiveFrameworks() const
 {
     for (ITestFramework *framework : m_registeredFrameworks.values()) {
@@ -208,13 +154,6 @@ bool TestFrameworkManager::hasActiveFrameworks() const
             return true;
     }
     return false;
-}
-
-unsigned TestFrameworkManager::priority(const Id &frameworkId) const
-{
-    if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
-        return framework->priority();
-    return unsigned(-1);
 }
 
 Id ITestFramework::settingsId() const

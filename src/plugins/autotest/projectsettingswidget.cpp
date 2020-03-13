@@ -105,16 +105,14 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
             TestTreeModel::instance(), &TestTreeModel::synchronizeTestFrameworks);
 }
 
-void ProjectTestSettingsWidget::populateFrameworks(const QMap<Core::Id, bool> &frameworks)
+void ProjectTestSettingsWidget::populateFrameworks(const QMap<ITestFramework *, bool> &frameworks)
 {
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     auto end = frameworks.cend();
     for (auto it = frameworks.cbegin(); it != end; ++it) {
-        auto *item = new QTreeWidgetItem(m_activeFrameworks,
-                                         QStringList(frameworkManager->frameworkNameForId(it.key())));
+        auto item = new QTreeWidgetItem(m_activeFrameworks, QStringList(QLatin1String(it.key()->name())));
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, it.value() ? Qt::Checked : Qt::Unchecked);
-        item->setData(0, FrameworkIdRole, it.key().toSetting());
+        item->setData(0, FrameworkIdRole, it.key()->id().toSetting());
     }
 }
 

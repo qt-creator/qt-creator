@@ -33,7 +33,7 @@ namespace Internal {
 class GTestParseResult : public TestParseResult
 {
 public:
-    explicit GTestParseResult(const Core::Id &id) : TestParseResult(id) {}
+    explicit GTestParseResult(ITestFramework *framework) : TestParseResult(framework) {}
     TestTreeItem *createTestTreeItem() const override;
     bool parameterized = false;
     bool typed = false;
@@ -43,6 +43,7 @@ public:
 class GTestParser : public CppParser
 {
 public:
+    explicit GTestParser(ITestFramework *framework) : CppParser(framework) {}
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                          const QString &fileName) override;
 };

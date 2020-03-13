@@ -46,10 +46,10 @@ bool isQTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<QString, QString> testCaseNamesForFiles(const Core::Id &id, const QStringList &files)
+QHash<QString, QString> testCaseNamesForFiles(ITestFramework *framework, const QStringList &files)
 {
     QHash<QString, QString> result;
-    TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
+    TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
     rootNode->forFirstLevelChildren([&result, &files](TestTreeItem *child) {
@@ -63,10 +63,10 @@ QHash<QString, QString> testCaseNamesForFiles(const Core::Id &id, const QStringL
     return result;
 }
 
-QMultiHash<QString, QString> alternativeFiles(const Core::Id &id, const QStringList &files)
+QMultiHash<QString, QString> alternativeFiles(ITestFramework *framework, const QStringList &files)
 {
     QMultiHash<QString, QString> result;
-    TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
+    TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
     rootNode->forFirstLevelChildren([&result, &files](TestTreeItem *child) {

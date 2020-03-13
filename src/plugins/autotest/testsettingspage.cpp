@@ -94,19 +94,18 @@ TestSettings TestSettingsWidget::settings() const
 void TestSettingsWidget::populateFrameworksListWidget(const QHash<Core::Id, bool> &frameworks)
 {
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    const QList<Core::Id> &registered = frameworkManager->sortedRegisteredFrameworkIds();
+    const TestFrameworks &registered = frameworkManager->sortedRegisteredFrameworks();
     m_ui.frameworkTreeWidget->clear();
-    for (const Core::Id &id : registered) {
-        auto *item = new QTreeWidgetItem(m_ui.frameworkTreeWidget,
-                                         QStringList(frameworkManager->frameworkNameForId(id)));
+    for (const ITestFramework *framework : registered) {
+        const Core::Id id = framework->id();
+        auto item = new QTreeWidgetItem(m_ui.frameworkTreeWidget, QStringList(QLatin1String(framework->name())));
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
         item->setData(0, Qt::UserRole, id.toSetting());
-        item->setData(1, Qt::CheckStateRole, frameworkManager->groupingEnabled(id) ? Qt::Checked
-                                                                                   : Qt::Unchecked);
+        item->setData(1, Qt::CheckStateRole, framework->grouping() ? Qt::Checked : Qt::Unchecked);
         item->setToolTip(0, tr("Enable or disable test frameworks to be handled by the AutoTest "
                                "plugin."));
-        QString toolTip = frameworkManager->groupingToolTip(id);
+        QString toolTip = framework->groupingToolTip();
         if (toolTip.isEmpty())
             toolTip = tr("Enable or disable grouping of test cases by folder.");
         item->setToolTip(1, toolTip);

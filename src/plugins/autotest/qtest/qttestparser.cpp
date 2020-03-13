@@ -284,7 +284,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                          const CPlusPlus::Snapshot &snapshot,
                          const QString &oldTestCaseName,
                          const QStringList &alternativeFiles,
-                         const Core::Id &id)
+                         ITestFramework *framework)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &fileName = document->fileName();
@@ -321,7 +321,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         for (const QString &file : files)
             Utils::addToHash(&dataTags, checkForDataTags(file, snapshot));
 
-        QtTestParseResult *parseResult = new QtTestParseResult(id);
+        QtTestParseResult *parseResult = new QtTestParseResult(framework);
         parseResult->itemType = TestTreeItem::TestCase;
         parseResult->fileName = declaringDoc->fileName();
         parseResult->name = testCaseName;
@@ -338,7 +338,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
             const QtTestCodeLocationAndType &location = it.value();
             QString functionName = it.key();
             functionName = functionName.mid(functionName.lastIndexOf(':') + 1);
-            QtTestParseResult *func = new QtTestParseResult(id);
+            QtTestParseResult *func = new QtTestParseResult(framework);
             func->itemType = location.m_type;
             func->name = testCaseName + "::" + functionName;
             func->displayName = functionName;
@@ -349,7 +349,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
             const QtTestCodeLocationList &tagLocations = tagLocationsFor(func, dataTags);
             for (const QtTestCodeLocationAndType &tag : tagLocations) {
-                QtTestParseResult *dataTag = new QtTestParseResult(id);
+                QtTestParseResult *dataTag = new QtTestParseResult(framework);
                 dataTag->itemType = tag.m_type;
                 dataTag->name = tag.m_name;
                 dataTag->displayName = tag.m_name;
@@ -372,8 +372,8 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 void QtTestParser::init(const QStringList &filesToParse, bool fullParse)
 {
     if (!fullParse) { // in a full parse cached information might lead to wrong results
-        m_testCaseNames = QTestUtils::testCaseNamesForFiles(id(), filesToParse);
-        m_alternativeFiles = QTestUtils::alternativeFiles(id(), filesToParse);
+        m_testCaseNames = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);
+        m_alternativeFiles = QTestUtils::alternativeFiles(framework(), filesToParse);
     }
     CppParser::init(filesToParse, fullParse);
 }
@@ -396,7 +396,7 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureIn
     if ((!includesQtTest(doc, m_cppSnapshot) || !qtTestLibDefined(fileName)) && oldName.isEmpty())
         return false;
 
-    return handleQtTest(futureInterface, doc, m_cppSnapshot, oldName, alternativeFiles, id());
+    return handleQtTest(futureInterface, doc, m_cppSnapshot, oldName, alternativeFiles, framework());
 }
 
 } // namespace Internal

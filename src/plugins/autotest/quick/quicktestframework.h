@@ -46,7 +46,7 @@ public:
     unsigned priority() const override;
 
 protected:
-    ITestParser *createTestParser() const override;
+    ITestParser *createTestParser() override;
     TestTreeItem *createRootNode() const override;
 };
 
