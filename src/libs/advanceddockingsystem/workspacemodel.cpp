@@ -53,6 +53,7 @@ WorkspaceModel::WorkspaceModel(DockManager *manager, QObject *parent)
     , m_currentSortColumn(0)
 {
     m_sortedWorkspaces = m_manager->workspaces();
+    sort(m_currentSortColumn, m_currentSortOrder);
     connect(m_manager, &DockManager::workspaceLoaded, this, &WorkspaceModel::resetWorkspaces);
 }
 

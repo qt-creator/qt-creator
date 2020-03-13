@@ -774,15 +774,16 @@ namespace ADS
         if (!d->m_workspaces.contains(workspace))
             return false;
 
-        d->m_workspaces.removeOne(workspace);
-
-        emit workspacesRemoved();
-        emit workspaceListChanged();
-
         // Remove corresponding workspace file
         QFile fi(workspaceNameToFileName(workspace).toString());
-        if (fi.exists())
-            return fi.remove();
+        if (fi.exists()) {
+            if (fi.remove()) {
+                d->m_workspaces.removeOne(workspace);
+                emit workspacesRemoved();
+                emit workspaceListChanged();
+                return true;
+            }
+        }
 
         return false;
     }
