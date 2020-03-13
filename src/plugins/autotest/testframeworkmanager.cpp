@@ -74,7 +74,7 @@ TestFrameworkManager::~TestFrameworkManager()
 bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
 {
     QTC_ASSERT(framework, return false);
-    Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(framework->name());
+    Id id = framework->id();
     QTC_ASSERT(!m_registeredFrameworks.contains(id), delete framework; return false);
     // TODO check for unique priority before registering
     qCDebug(LOG) << "Registering" << id;
@@ -154,6 +154,11 @@ ITestParser *TestFrameworkManager::testParserForTestFramework(const Id &framewor
     qCDebug(LOG) << "Setting" << frameworkId << "as Id for test parser";
     testParser->setId(frameworkId);
     return testParser;
+}
+
+ITestFramework *TestFrameworkManager::frameworkForId(Id frameworkId)
+{
+    return instance()->m_registeredFrameworks.value(frameworkId, nullptr);
 }
 
 IFrameworkSettings *TestFrameworkManager::settingsForTestFramework(

@@ -62,6 +62,8 @@ public:
 
     Core::Id settingsId() const;
 
+    Core::Id id() const { return Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(name()); }
+
     bool active() const { return m_active; }
     void setActive(bool active) { m_active = active; }
     bool grouping() const { return m_grouping; }

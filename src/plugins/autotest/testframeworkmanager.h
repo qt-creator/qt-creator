@@ -54,6 +54,9 @@ class TestFrameworkManager
 public:
     static TestFrameworkManager *instance();
     virtual ~TestFrameworkManager();
+
+    static ITestFramework *frameworkForId(Core::Id frameworkId);
+
     bool registerTestFramework(ITestFramework *framework);
 
     void activateFrameworksFromSettings(const Internal::TestSettings *settings);
