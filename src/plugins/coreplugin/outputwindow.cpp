@@ -214,11 +214,6 @@ void OutputWindow::keyPressEvent(QKeyEvent *ev)
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 }
 
-OutputFormatter *OutputWindow::formatter() const
-{
-    return d->formatter;
-}
-
 void OutputWindow::setFormatter(OutputFormatter *formatter)
 {
     d->formatter = formatter;

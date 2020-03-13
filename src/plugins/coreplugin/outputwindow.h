@@ -56,7 +56,6 @@ public:
     OutputWindow(Context context, const QString &settingsKey, QWidget *parent = nullptr);
     ~OutputWindow() override;
 
-    Utils::OutputFormatter *formatter() const;
     void setFormatter(Utils::OutputFormatter *formatter);
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
