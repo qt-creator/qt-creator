@@ -772,7 +772,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     auto openSslSummaryWidget = static_cast<SummaryWidget *>(m_ui->openSslDetailsWidget->widget());
     if (openSslSummaryWidget->allRowsOk()) {
-        if (silent) {
+        if (!silent) {
             QMessageBox::information(this, openSslCloneTitle,
                 tr("OpenSSL prebuilt libraries repository is already configured."));
         }
