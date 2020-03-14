@@ -51,7 +51,7 @@
       <item row="0" column="2">
        <widget class="QToolButton" name="downloadOpenJDKToolButton">
         <property name="toolTip">
-         <string>Download JDK</string>
+         <string>Open JDK download URL in the system's browser.</string>
         </property>
        </widget>
       </item>
@@ -119,14 +119,14 @@
       <item row="0" column="6">
        <widget class="QToolButton" name="downloadSDKToolButton">
         <property name="toolTip">
-         <string>Download Android SDK</string>
+         <string>Open Android SDK download URL in the system's browser.</string>
         </property>
        </widget>
       </item>
       <item row="2" column="6">
        <widget class="QToolButton" name="downloadNDKToolButton">
         <property name="toolTip">
-         <string/>
+         <string>Open Android NDK download URL in the system's browser.</string>
         </property>
         <property name="text">
          <string/>
@@ -246,18 +246,18 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="Utils::DetailsWidget" name="openSslDetailsWidget" native="true"/>
-      </item>
       <item row="0" column="2">
        <widget class="QToolButton" name="downloadOpenSSLPrebuiltLibs">
         <property name="toolTip">
-         <string>Automatically download OpenSSL prebuilt libraries. If the automatic download fails, a URL will be opened in the browser for manual download.</string>
+         <string>Automatically download OpenSSL prebuilt libraries. If the automatic download fails, the download URL will be opened in the system's browser for manual download.</string>
         </property>
         <property name="text">
          <string/>
         </property>
        </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="Utils::DetailsWidget" name="openSslDetailsWidget" native="true"/>
       </item>
      </layout>
     </widget>

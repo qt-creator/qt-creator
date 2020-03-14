@@ -787,8 +787,8 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     QDir openSslDir(openSslPath.toString());
     if (openSslDir.exists()) {
         auto userInput = QMessageBox::information(this, openSslCloneTitle,
-            tr("The selected download path (%1) for OpenSSL already exists, "
-               "do you want to remove and overwrite its content?")
+            tr("The selected download path (%1) for OpenSSL already exists. "
+               "Remove and overwrite its content?")
                 .arg(QDir::toNativeSeparators(openSslPath.toString())),
             QMessageBox::Yes | QMessageBox::No);
         if (userInput == QMessageBox::Yes)
@@ -798,7 +798,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     }
 
     QProgressDialog *openSslProgressDialog
-        = new QProgressDialog(tr("Cloning OpenSSL prebuilt libraries, please be patient..."),
+        = new QProgressDialog(tr("Cloning OpenSSL prebuilt libraries..."),
                               tr("Cancel"), 0, 0);
     openSslProgressDialog->setWindowModality(Qt::WindowModal);
     openSslProgressDialog->setWindowTitle(openSslCloneTitle);
@@ -820,7 +820,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
                     (exitStatus == Utils::QtcProcess::NormalExit && exitCode != 0)) {
                     QMessageBox::information(this, openSslCloneTitle,
                                              tr("OpenSSL prebuilt libraries cloning failed. "
-                                                "Opening OpenSSL URL for manual download..."));
+                                                "Opening OpenSSL URL for manual download."));
                     QDesktopServices::openUrl(QUrl::fromUserInput(openSslRepo));
                 }
             });
@@ -933,7 +933,7 @@ void AndroidSettingsWidget::manageAVD()
 
 void AndroidSettingsWidget::downloadSdk()
 {
-    QString message(tr("Do you want to download and install Android SDK Tools to: %1?")
+    QString message(tr("Download and install Android SDK Tools to: %1?")
                         .arg(QDir::toNativeSeparators(m_ui->SDKLocationPathChooser->rawPath())));
     auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
                                               message, QMessageBox::Yes | QMessageBox::No);
