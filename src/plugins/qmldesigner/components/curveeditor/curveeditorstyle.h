@@ -53,6 +53,8 @@ struct HandleItemStyleOption
     double lineWidth = 1.0;
     QColor color = QColor(200, 0, 0);
     QColor selectionColor = QColor(200, 200, 200);
+    QColor activeColor = QColor(0, 200, 0);
+    QColor hoverColor = QColor(200, 0, 200);
 };
 
 struct KeyframeItemStyleOption
@@ -90,8 +92,9 @@ struct Shortcuts
 
     Shortcut insertKeyframe = Shortcut(Qt::MiddleButton, Qt::NoModifier);
 
-    Shortcut deleteKeyframe = Utils::HostOsInfo::isMacHost() ?
-            Shortcut(Qt::NoModifier, Qt::Key_Backspace) : Shortcut(Qt::NoModifier, Qt::Key_Delete);
+    Shortcut deleteKeyframe = Utils::HostOsInfo::isMacHost()
+                                  ? Shortcut(Qt::NoModifier, Qt::Key_Backspace)
+                                  : Shortcut(Qt::NoModifier, Qt::Key_Delete);
 };
 
 struct CurveEditorStyle

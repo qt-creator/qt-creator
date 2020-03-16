@@ -35,17 +35,25 @@ class HandleItem : public SelectableItem
     Q_OBJECT
 
 public:
-    HandleItem(QGraphicsItem *parent);
+    enum { Type = ItemTypeHandle };
+
+    enum class Slot { Undefined, Left, Right };
+
+    HandleItem(QGraphicsItem *parent, HandleItem::Slot slot);
 
     ~HandleItem() override;
-
-    enum { Type = ItemTypeHandle };
 
     int type() const override;
 
     QRectF boundingRect() const override;
 
+    bool contains(const QPointF &point) const override;
+
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+
+    void underMouseCallback() override;
+
+    Slot slot() const;
 
     void setStyle(const CurveEditorStyle &style);
 
@@ -53,6 +61,8 @@ protected:
     QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
 private:
+    Slot m_slot;
+
     HandleItemStyleOption m_style;
 };
 

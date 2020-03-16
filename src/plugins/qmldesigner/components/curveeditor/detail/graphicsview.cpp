@@ -553,6 +553,8 @@ void GraphicsView::drawExtremaY(QPainter *painter, const QRectF &rect)
 
 void GraphicsView::drawRangeBar(QPainter *painter, const QRectF &rect)
 {
+    painter->save();
+
     QFontMetrics fm(painter->font());
     QRectF labelRect = fm.boundingRect(QString("0"));
     labelRect.moveCenter(rect.center());
@@ -562,12 +564,10 @@ void GraphicsView::drawRangeBar(QPainter *painter, const QRectF &rect)
     QRectF activeRect = QRectF(QPointF(mapTimeToX(m_model->minimumTime()), tTick),
                                QPointF(mapTimeToX(m_model->maximumTime()), bTick));
 
-    QColor color = Qt::white;
-    color.setAlpha(30);
+    QColor rangeColor = m_style.rangeBarColor;
+    painter->fillRect(activeRect, m_style.rangeBarColor);
 
-    painter->fillRect(activeRect, color);
-
-    QColor handleColor(Qt::green);
+    QColor handleColor(m_style.rangeBarCapsColor);
     painter->setBrush(handleColor);
     painter->setPen(handleColor);
 
@@ -575,12 +575,14 @@ void GraphicsView::drawRangeBar(QPainter *painter, const QRectF &rect)
     QRectF minHandle = rangeMinHandle(rect);
     painter->drawRoundedRect(minHandle, radius, radius);
     minHandle.setLeft(minHandle.center().x());
-    painter->fillRect(minHandle, Qt::green);
+    painter->fillRect(minHandle, handleColor);
 
     QRectF maxHandle = rangeMaxHandle(rect);
     painter->drawRoundedRect(maxHandle, radius, radius);
     maxHandle.setRight(maxHandle.center().x());
-    painter->fillRect(maxHandle, Qt::green);
+    painter->fillRect(maxHandle, handleColor);
+
+    painter->restore();
 }
 
 void GraphicsView::drawTimeScale(QPainter *painter, const QRectF &rect)
@@ -603,11 +605,11 @@ void GraphicsView::drawTimeScale(QPainter *painter, const QRectF &rect)
         painter->drawLine(position, rect.bottom() - 2, position, textRect.bottom() + 2);
     };
 
+    drawRangeBar(painter, rect);
+
     double timeIncrement = timeLabelInterval(painter, maximumTime());
     for (double i = minimumTime(); i <= maximumTime(); i += timeIncrement)
         paintLabeledTick(i);
-
-    drawRangeBar(painter, rect);
 
     painter->restore();
 }

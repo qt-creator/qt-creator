@@ -40,7 +40,7 @@ class AnimationCurve;
 class KeyframeItem;
 class GraphicsScene;
 
-class CurveItem : public QGraphicsObject
+class CurveItem : public CurveEditorItem
 {
     Q_OBJECT
 
@@ -64,13 +64,9 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
+    void lockedCallback() override;
+
     bool isDirty() const;
-
-    bool locked() const;
-
-    bool pinned() const;
-
-    bool isUnderMouse() const;
 
     bool hasSelection() const;
 
@@ -87,10 +83,6 @@ public:
     std::vector<AnimationCurve> curves() const;
 
     void restore();
-
-    void setLocked(bool locked);
-
-    void setPinned(bool pinned);
 
     void setDirty(bool dirty);
 
@@ -110,8 +102,6 @@ public:
 
     void connect(GraphicsScene *scene);
 
-    void setIsUnderMouse(bool under);
-
     void insertKeyframeByTime(double time);
 
     void deleteSelectedKeyframes();
@@ -130,12 +120,6 @@ private:
     QTransform m_transform;
 
     std::vector<KeyframeItem *> m_keyframes;
-
-    bool m_locked;
-
-    bool m_pinned;
-
-    bool m_underMouse;
 
     bool m_itemDirty;
 };

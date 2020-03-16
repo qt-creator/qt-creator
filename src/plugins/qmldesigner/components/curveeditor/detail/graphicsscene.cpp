@@ -104,8 +104,24 @@ void GraphicsScene::keyframeMoved(KeyframeItem *movedItem, const QPointF &direct
     }
 }
 
+void GraphicsScene::handleUnderMouse(HandleItem *handle)
+{
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (item == handle)
+            continue;
+
+        if (auto *handleItem = qgraphicsitem_cast<HandleItem *>(item)) {
+            if (handleItem->selected()) {
+                if (handleItem->slot() == handle->slot())
+                    handleItem->setActivated(handle->isUnderMouse());
+            }
+        }
+    }
+}
+
 void GraphicsScene::handleMoved(KeyframeItem *frame,
-                                HandleSlot handle,
+                                HandleItem::Slot handle,
                                 double angle,
                                 double deltaLength)
 {
@@ -151,12 +167,11 @@ void GraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     QGraphicsScene::mouseMoveEvent(mouseEvent);
 
-    if (hasActiveItem())
-        return;
-
     const auto itemList = items();
     for (auto *item : itemList) {
-        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item))
+        if (auto *handleItem = qgraphicsitem_cast<HandleItem *>(item))
+            handleItem->setIsUnderMouse(handleItem->contains(mouseEvent->scenePos()));
+        else if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item))
             curveItem->setIsUnderMouse(curveItem->contains(mouseEvent->scenePos()));
     }
 }
