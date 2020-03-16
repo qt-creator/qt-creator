@@ -244,7 +244,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnDuplicateImport, Warning,
            tr("Duplicate import (%1)."), 1);
     newMsg(ErrHitMaximumRecursion, Error,
-           tr("Hit Maximum recursion limit when visiting AST"));
+           tr("Hit maximum recursion limit when visiting AST."));
 }
 
 } // anonymous namespace

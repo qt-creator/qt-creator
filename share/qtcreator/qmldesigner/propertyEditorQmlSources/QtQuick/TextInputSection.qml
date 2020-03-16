@@ -103,7 +103,7 @@ Section {
         Label {
             visible: !textInputSection.isTextInput
             text: qsTr("Text margin")
-            tooltip: qsTr("Sets the margin, in pixels, around the text in the TextEdit..")
+            tooltip: qsTr("Sets the margin, in pixels, around the text in the Text Edit.")
         }
         SpinBox {
             visible: !textInputSection.isTextInput

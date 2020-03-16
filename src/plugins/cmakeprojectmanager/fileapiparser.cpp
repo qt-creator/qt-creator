@@ -57,7 +57,7 @@ static void reportFileApiSetupFailure()
 {
     Core::MessageManager::write(QCoreApplication::translate(
         "CMakeProjectManager::Internal",
-        "Failed to set up CMake file API support. Qt Creator can not extract project information."));
+        "Failed to set up CMake file API support. Qt Creator cannot extract project information."));
 }
 
 static std::pair<int, int> cmakeVersion(const QJsonObject &obj)

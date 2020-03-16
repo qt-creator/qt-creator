@@ -30,6 +30,7 @@
 #include <QDebug>
 #include <QMap>
 #include <QPainter>
+#include <QPainterPath>
 #include <QTextBlock>
 
 #include <algorithm>

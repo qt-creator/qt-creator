@@ -186,14 +186,14 @@ AppOutputPane::AppOutputPane() :
 
     // Rerun
     m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
-    m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
+    m_reRunButton->setToolTip(tr("Re-run this run-configuration."));
     m_reRunButton->setEnabled(false);
     connect(m_reRunButton, &QToolButton::clicked,
             this, &AppOutputPane::reRunRunControl);
 
     // Stop
     m_stopAction->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
-    m_stopAction->setToolTip(tr("Stop Running Program"));
+    m_stopAction->setToolTip(tr("Stop running program."));
     m_stopAction->setEnabled(false);
 
     Core::Command *cmd = Core::ActionManager::registerAction(m_stopAction, Constants::STOP);
@@ -833,7 +833,7 @@ public:
              : {&m_runOutputModeComboBox, &m_debugOutputModeComboBox}) {
             modeComboBox->addItem(tr("Always"), int(AppOutputPaneMode::PopupOnOutput));
             modeComboBox->addItem(tr("Never"), int(AppOutputPaneMode::FlashOnOutput));
-            modeComboBox->addItem(tr("On first output only"),
+            modeComboBox->addItem(tr("On First Output Only"),
                                   int(AppOutputPaneMode::PopupOnFirstOutput));
         }
         m_runOutputModeComboBox.setCurrentIndex(m_runOutputModeComboBox

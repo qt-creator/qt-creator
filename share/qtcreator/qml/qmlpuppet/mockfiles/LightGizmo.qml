@@ -29,14 +29,40 @@ import QtQuick3D 1.15
 IconGizmo {
     id: lightGizmo
 
+    property Model lightModel: null
+
     iconSource: targetNode
                 ? targetNode instanceof DirectionalLight
                   ? "qrc:///qtquickplugin/mockfiles/images/directional_light_gradient.png"
                   : targetNode instanceof AreaLight
                     ? "qrc:///qtquickplugin/mockfiles/images/area_light_gradient.png"
-                    : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+                    : targetNode instanceof PointLight
+                      ? "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
+                      : "qrc:///qtquickplugin/mockfiles/images/spot_light_gradient.png"
                 : "qrc:///qtquickplugin/mockfiles/images/point_light_gradient.png"
 
     // ColorOverlay doesn't work correctly with hidden windows so commenting it out for now
     //overlayColor: targetNode ? targetNode.color : "transparent"
+
+    function connectModel(model)
+    {
+        lightModel = model;
+
+        model.selected = selected;
+        model.selected = Qt.binding(function() {return selected;});
+
+        model.scene = scene;
+        model.scene = Qt.binding(function() {return scene;});
+
+        model.targetNode = targetNode;
+        model.targetNode = Qt.binding(function() {return targetNode;});
+
+        model.visible = visible;
+        model.visible = Qt.binding(function() {return visible;});
+    }
+
+    onActiveSceneChanged: {
+        if (lightModel && activeScene == scene)
+            lightModel.updateGeometry();
+    }
 }

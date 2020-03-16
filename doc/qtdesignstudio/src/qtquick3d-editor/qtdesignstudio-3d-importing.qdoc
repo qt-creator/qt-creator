@@ -1,0 +1,72 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Bridge documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \page studio-importing-3d.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-importing-2d.html
+    \nextpage quick-converting-ui-projects.html
+    \else
+    \previouspage exporting-from-maya.html
+    \nextpage studio-3d-design-mode.html
+    \endif
+
+    \title Importing 3D Assets
+
+    You can import files you created using 3D graphics applications and stored
+    in several widely-used formats, such as .blend, .dae, .fbx, .glb, .gltf,
+    .obj, .uia, or .uip. For a list of formats supported by each \l{Qt Quick 3D}
+    version, see the module documentation.
+
+    For more information about exporting 3D graphics from Maya, see
+    \l{Exporting from Maya}.
+
+    During the import, you can optimize the files for \QDS. You can remove
+    components from meshes to reduce the cache size, find and fix issues in
+    the files, optimize graphs and meshes, and so on. The available options
+    depend on whether you are importing files that you created with Qt 3D Studio
+    or with other 3D graphics tools. See the tooltips in the options dialog
+    for more information about a particular option.
+
+    \image studio-import-3d.png
+
+    To import 3D assets to \QDS projects:
+
+    \list 1
+        \li In the Design mode, select \uicontrol Library > \uicontrol Assets
+            > \uicontrol {Add New Assets}.
+        \li Select \uicontrol {3D Assets} in the dropdown menu to filter 3D
+            graphics files.
+        \li Select a file to import, and then select \uicontrol Open.
+        \li In the \uicontrol {3D Scene Options} tab, select options for
+            importing the file.
+        \li Select \uicontrol Import to import the 3D graphics file.
+        \li When the import is done, select \uicontrol Close.
+    \endlist
+
+    You can open the imported files in the Design mode for editing in the
+    \l{Editing 3D Scenes}{3D editor}.
+*/

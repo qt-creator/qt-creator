@@ -1533,7 +1533,7 @@ void GitPluginPrivate::cleanRepository(const QString &directory)
     QApplication::restoreOverrideCursor();
 
     if (!gotFiles) {
-        Core::AsynchronousMessageBox::warning(tr("Unable to retrieve file list"), errorMessage);
+        Core::AsynchronousMessageBox::warning(tr("Unable to Retrieve File List"), errorMessage);
         return;
     }
     if (files.isEmpty() && ignoredFiles.isEmpty()) {

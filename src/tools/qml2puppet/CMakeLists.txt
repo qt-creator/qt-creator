@@ -114,6 +114,7 @@ extend_qtc_executable(qml2puppet
     generalhelper.cpp generalhelper.h
     mousearea3d.cpp mousearea3d.h
     camerageometry.cpp camerageometry.h
+    lightgeometry.cpp lightgeometry.h
     gridgeometry.cpp gridgeometry.h
     selectionboxgeometry.cpp selectionboxgeometry.h
     linegeometry.cpp linegeometry.h

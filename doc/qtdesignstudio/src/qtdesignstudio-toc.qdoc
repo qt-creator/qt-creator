@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Design Studio}
+    \contentspage index.html
     \page qtdesignstudio-toc.html
 
     \title All Topics
@@ -76,6 +76,7 @@
                 \li \l{Managing Item Hierarchy}
                 \li \l{Specifying Item Properties}
                 \li \l{Using Custom Fonts}
+                \li \l{Annotating Designs}
                 \li \l{Qt Quick UI Forms}
            \endlist
        \li \l {Adding Dynamics}
@@ -90,7 +91,7 @@
                 \li \l{Adding States}
                 \li \l{Editing PathView Properties}
             \endlist
-        \li \b {\l{Editing 3D Scenes}}
+        \li \l{Editing 3D Scenes}
                 \list
                     \li \l{Editing 3D Assets in Design Mode}
                     \li \l{Working in the 3D Editor}

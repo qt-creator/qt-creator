@@ -37,7 +37,7 @@
     \nextpage {Tutorials}
     \else
     \previouspage quick-projects.html
-    \nextpage quick-components.html
+    \nextpage quick-uis.html
     \endif
 
     \title Editing QML Files in Design Mode

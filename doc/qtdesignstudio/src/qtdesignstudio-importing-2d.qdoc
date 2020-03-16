@@ -1,0 +1,109 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Bridge documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage studio-importing-designs.html
+    \page studio-importing-2d.html
+    \nextpage studio-importing-3d.html
+
+    \title Importing 2D Assets
+
+    \image studio-imported-assets.png "Artwork imported into Qt Design Studio"
+
+    You can import assets that you exported with \QB to a \QDS project as image
+    and QML files and edit them in the Design mode. If you make changes to your
+    design in the design tool, you can merge the changes into existing QML files
+    without overwriting the changes you have made in \QDS.
+
+    \note Attempting to import assets exported on another system might fail.
+
+    The following instructions use an empty project as an example. For more
+    information about the options you have, see
+    \l {Creating Projects}.
+
+    To import designs to \QDS projects:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol General > \uicontrol Choose, and follow the
+            instructions of the wizard to create an empty project.
+        \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
+            the Design mode.
+        \li Select \uicontrol Library > \uicontrol Assets >
+            \uicontrol {Add New Assets}.
+        \li Select the folder where you exported the assets.
+        \li Select \uicontrol {Exported Assets (*.metadata)} in the dropdown
+            menu to filter \e .metadata files.
+        \li Select a \e .metadata file to import, and then select
+            \uicontrol Open.
+        \li Select \uicontrol Details next to the
+            \uicontrol {Metadata Import Paths} field to display the path where
+            the metadata is imported from.
+            \image studio-import-metadata.png "Asset Import dialog"
+        \li Select \uicontrol Details next to the
+            \uicontrol {QML/Asset Export Paths} field to display the paths to
+            copy the assets to.
+        \li In the \uicontrol QML field, you can change the folder to copy the
+            QML files to.
+        \li In the \uicontrol Assets field, you can change the folder to copy
+            the image files to.
+        \li Deselect the \uicontrol {Import assets} check box if you only want
+            to create QML files.
+        \li Deselect the \uicontrol {Generate QML} check box if you only
+            want to import assets.
+        \li Select the \uicontrol {Merge QML} check box if you have imported the
+            assets before and want to merge the changes into existing QML files
+            instead of overwriting the existing files.
+        \li Select \uicontrol Import to import the QML files and assets. This
+            might take a little while for complex projects.
+    \endlist
+
+    The imported assets are displayed in the \uicontrol Assets tab in the
+    \uicontrol Library as PNG images. The components that you specified in
+    the design tool are displayed in the \uicontrol {My QML Components} tab,
+    as well as in the \uicontrol Project tab of the \uicontrol Navigator as
+    separate QML files.
+
+    \note The layer that was the bottom layer in the design tool becames the top
+    layer in the \uicontrol Navigator to reflect the QML code model. You
+    can view the QML code in the \uicontrol {Text Editor} tab.
+
+    If asset importer conflicts, warnings, and errors are displayed in the
+    \uicontrol {Asset Import} dialog while importing, fix the issues in
+    design tool and export the assets again.
+
+    \section1 \QB Videos
+
+    For more information about importing assets from Adobe Photoshop, watch a
+    video tutorial and webinar about using \QB:
+
+    \list
+        \li \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partone}
+            {Building an Instrument Cluster for Your Car HMI, Part 1}
+        \li \l{https://www.youtube.com/watch?v=ZzbucmQPU44}
+            {From Photoshop to Prototype with Qt Design Studio}
+    \endlist
+*/

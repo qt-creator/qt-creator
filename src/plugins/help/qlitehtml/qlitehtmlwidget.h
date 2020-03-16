@@ -82,9 +82,7 @@ private:
     QPoint scrollPosition() const;
     void htmlPos(const QPoint &pos, QPoint *viewportPos, QPoint *htmlPos) const;
     QPoint toVirtual(const QPoint &p) const;
-    QPoint fromVirtual(const QPoint &p) const;
     QSize toVirtual(const QSize &s) const;
-    QSize fromVirtual(const QSize &s) const;
     QRect toVirtual(const QRect &r) const;
     QRect fromVirtual(const QRect &r) const;
 

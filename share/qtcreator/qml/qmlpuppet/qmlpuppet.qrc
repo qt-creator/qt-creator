@@ -14,6 +14,7 @@
         <file>mockfiles/MoveGizmo.qml</file>
         <file>mockfiles/CameraFrustum.qml</file>
         <file>mockfiles/CameraGizmo.qml</file>
+        <file>mockfiles/LightModel.qml</file>
         <file>mockfiles/LightGizmo.qml</file>
         <file>mockfiles/IconGizmo.qml</file>
         <file>mockfiles/Overlay2D.qml</file>
@@ -40,49 +41,13 @@
         <file>mockfiles/meshes/axishelper.mesh</file>
         <file>mockfiles/images/editor_camera.png</file>
         <file>mockfiles/images/editor_camera@2x.png</file>
-        <file>mockfiles/images/light-pick-icon.png</file>
-        <file>mockfiles/images/light-pick-icon@2x.png</file>
-        <file>mockfiles/images/item_selection_active.png</file>
-        <file>mockfiles/images/item_selection_active@2x.png</file>
-        <file>mockfiles/images/item_selection_selected.png</file>
-        <file>mockfiles/images/item_selection_selected@2x.png</file>
-        <file>mockfiles/images/group_selection_selected.png</file>
-        <file>mockfiles/images/group_selection_selected@2x.png</file>
-        <file>mockfiles/images/group_selection_active.png</file>
-        <file>mockfiles/images/group_selection_active@2x.png</file>
-        <file>mockfiles/images/move_active.png</file>
-        <file>mockfiles/images/move_active@2x.png</file>
-        <file>mockfiles/images/move_selected.png</file>
-        <file>mockfiles/images/move_selected@2x.png</file>
-        <file>mockfiles/images/rotate_active.png</file>
-        <file>mockfiles/images/rotate_active@2x.png</file>
-        <file>mockfiles/images/rotate_selected.png</file>
-        <file>mockfiles/images/rotate_selected@2x.png</file>
-        <file>mockfiles/images/scale_active.png</file>
-        <file>mockfiles/images/scale_active@2x.png</file>
-        <file>mockfiles/images/scale_selected.png</file>
-        <file>mockfiles/images/scale_selected@2x.png</file>
         <file>mockfiles/images/directional_light_gradient.png</file>
         <file>mockfiles/images/directional_light_gradient@2x.png</file>
         <file>mockfiles/images/point_light_gradient.png</file>
         <file>mockfiles/images/point_light_gradient@2x.png</file>
         <file>mockfiles/images/area_light_gradient.png</file>
         <file>mockfiles/images/area_light_gradient@2x.png</file>
-        <file>mockfiles/images/fit_active.png</file>
-        <file>mockfiles/images/fit_active@2x.png</file>
-        <file>mockfiles/images/fit_selected.png</file>
-        <file>mockfiles/images/fit_selected@2x.png</file>
-        <file>mockfiles/images/local.png</file>
-        <file>mockfiles/images/local@2x.png</file>
-        <file>mockfiles/images/global.png</file>
-        <file>mockfiles/images/global@2x.png</file>
-        <file>mockfiles/images/ortho.png</file>
-        <file>mockfiles/images/ortho@2x.png</file>
-        <file>mockfiles/images/persp.png</file>
-        <file>mockfiles/images/persp@2x.png</file>
-        <file>mockfiles/images/edit_light_off.png</file>
-        <file>mockfiles/images/edit_light_off@2x.png</file>
-        <file>mockfiles/images/edit_light_on.png</file>
-        <file>mockfiles/images/edit_light_on@2x.png</file>
+        <file>mockfiles/images/spot_light_gradient.png</file>
+        <file>mockfiles/images/spot_light_gradient@2x.png</file>
     </qresource>
 </RCC>

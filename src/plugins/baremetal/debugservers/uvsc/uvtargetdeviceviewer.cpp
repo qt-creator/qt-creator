@@ -117,7 +117,7 @@ static QString trimVendor(const QString &vendor)
 
 void DeviceSelectorDetailsPanel::refresh()
 {
-    m_vendorEdit->setText(trimVendor(m_selection.vendor));
+    m_vendorEdit->setText(trimVendor(m_selection.vendorName));
     m_fimilyEdit->setText(m_selection.family);
     m_descEdit->setPlainText(m_selection.desc);
     m_memoryView->refresh();

@@ -33,6 +33,7 @@
 #include "qmldesignerconstants.h"
 #include "viewmanager.h"
 
+#include <coreplugin/icore.h>
 #include <toolbox.h>
 #include <utils/utilsicons.h>
 #include <QVBoxLayout>
@@ -42,6 +43,11 @@ namespace QmlDesigner {
 Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     m_view(view)
 {
+    Core::Context context(Constants::C_QMLEDITOR3D);
+    m_context = new Core::IContext(this);
+    m_context->setContext(context);
+    m_context->setWidget(this);
+
     setMouseTracking(true);
     setFocusPolicy(Qt::WheelFocus);
 
@@ -91,6 +97,14 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     // Canvas is used to render the actual edit 3d view
     m_canvas = new Edit3DCanvas(this);
     fillLayout->addWidget(m_canvas.data());
+}
+
+void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
+{
+    if (m_view)
+        m_view->contextHelp(callback);
+
+    callback({});
 }
 
 Edit3DCanvas *Edit3DWidget::canvas() const

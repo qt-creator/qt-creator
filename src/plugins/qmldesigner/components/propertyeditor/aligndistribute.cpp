@@ -685,7 +685,7 @@ bool AlignDistribute::executePixelPerfectDialog() const
 {
     QDialogButtonBox::StandardButton pressed = Utils::CheckableMessageBox::doNotAskAgainQuestion(
         Core::ICore::dialogParent(),
-        tr("Cannot distribute perfectly"),
+        tr("Cannot Distribute Perfectly"),
         tr("These objects cannot be distributed to equal pixel values. "
            "Do you want to distribute to the nearest possible values?"),
         Core::ICore::settings(),

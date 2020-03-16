@@ -33,7 +33,7 @@
      <item>
       <widget class="QPushButton" name="selectWithFixits">
        <property name="text">
-        <string>Select All With Fixits</string>
+        <string>Select All with Fixits</string>
        </property>
       </widget>
      </item>

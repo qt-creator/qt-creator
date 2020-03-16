@@ -35,9 +35,14 @@ Editing
 
 * Added `Go to Last Edit`
 * Added option for default line terminator style (QTCREATORBUG-3590)
+* Improved behavior when splitting would hide text cursor
 * Fixed that wizards ignored default file encoding
 * Fixed that only restricted number of sizes were allowed for font size (QTCREATORBUG-22536)
 * Fixed completion after undo (QTCREATORBUG-15038)
+
+### C++
+
+* Fixed issue with Clang and precompiled headers (QTCREATORBUG-22897)
 
 ### Language Client
 
@@ -49,6 +54,7 @@ Editing
 
 ### QML
 
+* Updated to Qt 5.15 parser (QTCREATORBUG-23591)
 * Improved support for multiple imports into same namespace (QTCREATORBUG-15684)
 * Added scanning of `app.qmltypes` and `lib.qmltypes` for type information
 
@@ -165,7 +171,7 @@ Version Control Systems
 * Added option to start interactive rebase from log view (QTCREATORBUG-11200)
 * Added information about upstream status to `Git Branches` view
 * Added option to `grep` and `pickaxe` git log (QTCREATORBUG-22512)
-* Made references in VCS output view clickable (QTCREATORBUG-16477)
+* Made references in VCS output view clickable and added context menu (QTCREATORBUG-16477)
 
 Test Integration
 ----------------
@@ -181,6 +187,9 @@ Platforms
 
 ### Windows
 
+* Improved behavior with regard to MSVC tool chain matching and compatibility of MSVC 2017 and
+  MSVC 2019 (QTCREATORBUG-23653)
+
 ### macOS
 
 * Fixed parsing of Apple Clang specific linker message (QTCREATORBUG-19766)
@@ -191,9 +200,11 @@ Platforms
 
 * Added auto-detection of Java JDK (QTCREATORBUG-23407)
 * Added option to automatically download and install required Android tools (QTCREATORBUG-23285)
+* Added option to register multiple NDKs (QTCREATORBUG-23286)
 * Added automatic selection of correct NDK for Qt version (QTCREATORBUG-23583)
 * Added support for Android 11 with API level 30
 * Improved examples browser to only show items tagged with `android` (QTBUG-80716)
+* Improved manifest editor (QTCREATORBUG-23283)
 * Fixed several issues with AVD manager (QTCREATORBUG-23284, QTCREATORBUG-23448)
 
 ### iOS
@@ -213,12 +224,14 @@ Platforms
 
 Credits for these changes go to:
 --------------------------------
+Aleksei German  
 Alessandro Portale  
 Alexandru Croitor  
 Andre Hartmann  
 Andrey Sobol  
 André Pönitz  
 Assam Boudjelthia  
+BogDan Vatra  
 Camila San  
 Christian Kandeler  
 Christian Stenger  
@@ -227,13 +240,16 @@ David Schulz
 Denis Shienkov  
 Dmitry Kovalev  
 Eike Ziller  
+Fawzi Mohamed  
 Federico Guerinoni  
 Filippo Cucchetto  
 Halfdan Ingvarsson  
 Hannes Domani  
+Henning Gruendl  
 Igor Sidorov  
 Jaroslaw Kobus  
 Jochen Becher  
+Kai Köhne  
 Knud Dollereder  
 Leander Schulten  
 Leena Miettinen  
@@ -260,6 +276,7 @@ Tim Jenssen
 Tobias Hunger  
 Topi Reinio  
 Ulf Hermann  
+Vikas Pachdha  
 Ville Voutilainen  
 Volodymyr Samokhatko  
 zarelaky  

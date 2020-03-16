@@ -67,6 +67,7 @@
 #include "../editor3d/generalhelper.h"
 #include "../editor3d/mousearea3d.h"
 #include "../editor3d/camerageometry.h"
+#include "../editor3d/lightgeometry.h"
 #include "../editor3d/gridgeometry.h"
 #include "../editor3d/selectionboxgeometry.h"
 #include "../editor3d/linegeometry.h"
@@ -104,6 +105,7 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     qmlRegisterRevision<QQuick3DNode, 1>("MouseArea3D", 1, 0);
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
+    qmlRegisterType<QmlDesigner::Internal::LightGeometry>("LightGeometry", 1, 0, "LightGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");
     qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
     qmlRegisterType<QmlDesigner::Internal::LineGeometry>("LineGeometry", 1, 0, "LineGeometry");

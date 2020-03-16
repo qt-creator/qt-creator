@@ -46,6 +46,7 @@ public:
 
     void registerActions(const Core::Context &qmlDesignerMainContext,
                          const Core::Context &qmlDesignerFormEditorContext,
+                         const Core::Context &qmlDesignerEditor3DContext,
                          const Core::Context &qmlDesignerNavigatorContext);
 
     void connectUndoActions(DesignDocument *designDocument);

@@ -576,9 +576,9 @@ bool BuildDirManager::checkConfiguration()
         box->setText(tr("The project has been changed outside of %1.")
                          .arg(Core::Constants::IDE_DISPLAY_NAME));
         box->setInformativeText(table);
-        auto *defaultButton = box->addButton(tr("Discard external changes"),
+        auto *defaultButton = box->addButton(tr("Discard External Changes"),
                                              QMessageBox::RejectRole);
-        auto *applyButton = box->addButton(tr("Adapt %1 project to changes")
+        auto *applyButton = box->addButton(tr("Adapt %1 Project to Changes")
                                                .arg(Core::Constants::IDE_DISPLAY_NAME),
                                            QMessageBox::ApplyRole);
         box->setDefaultButton(defaultButton);

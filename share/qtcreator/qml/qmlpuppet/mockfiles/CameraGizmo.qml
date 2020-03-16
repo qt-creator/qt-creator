@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import QtQuick3D 1.15
 
 IconGizmo {
     id: cameraGizmo
 
-    property var frustumModel: null
+    property Model frustumModel: null
 
     iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
 

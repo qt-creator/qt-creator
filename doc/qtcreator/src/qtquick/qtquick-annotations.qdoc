@@ -1,0 +1,76 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \page qtquick-annotations.html
+    \previouspage qtquick-fonts.html
+    \nextpage creator-quick-ui-forms.html
+
+    \title Annotating Designs
+
+    You can submit your designs to review or further development as QML files.
+    You can annotate your designs to provide reviewers or developers with
+    additional information about them. An annotation consist of an annotation
+    name and one or several comments. The comments have a title, author, and
+    comment text.
+
+    \image qtquick-annotations.png "Annotations displayed in the Form Editor tab"
+
+    Annotations are saved in the end of QML files when you save the file. They
+    do not affect the QML performance in any way.
+
+    To view annotations, select the annotation icon.
+
+    To edit annotations, select \uicontrol {Edit Annotation} in the context
+    menu of the annotation icon.
+
+    \section1 Adding Annotations
+
+    To add annotations:
+
+    \list 1
+        \li Select the component to annotate in the \uicontrol Navigator
+            or in the \uicontrol {Form Editor}.
+        \li In the \uicontrol Properties view, select
+            \uicontrol {Add Annotation}.
+            \image qtquick-annotation-editor.png "Annotation Editor"
+        \li The \uicontrol {Selected Item} field displays the ID of the
+            component. Enter a name for the annotation in the
+            \uicontrol {Custom ID} field.
+        \li In the \uicontrol Title field, enter the text to display in
+            the tab for this comment.
+        \li In the \uicontrol Author field, enter the author's name.
+        \li In the \uicontrol Text field, enter the comment text.
+        \li Select \uicontrol OK.
+    \endlist
+
+    To add more comments about the component, select the \inlineimage plus.png
+    (\uicontrol {Add Comment}) button.
+
+    To remove the active comment, select the \inlineimage minus.png
+    (\uicontrol {Remove Comment}) button. To remove the annotation, right-click
+    the annotation icon, and then select \uicontrol {Remove Annotation}.
+*/

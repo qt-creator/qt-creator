@@ -83,7 +83,7 @@ void GenerateResource::generateMenuEntry()
             currentProject->projectFilePath().parentDir().parentDir().toString()));
 
         auto resourceFileName = Core:: DocumentManager::getSaveFileName(
-            QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project As Resource"),
+            QCoreApplication::translate("QmlDesigner::GenerateResource", "Save Project as Resource"),
             lastUsedPathes.value(currentProject->displayName()) + "/" + currentProject->displayName() + ".qmlrc",
             QCoreApplication::translate("QmlDesigner::GenerateResource", "QML Resource File (*.qmlrc)"));
         if (resourceFileName.isEmpty())

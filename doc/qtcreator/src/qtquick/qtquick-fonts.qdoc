@@ -25,10 +25,10 @@
 
 /*!
 
-    \contentspage {Qt Design Studio}
+    \contentspage index.html
     \previouspage qtquick-properties.html
-    \page studio-fonts.html
-    \nextpage studio-adding-dynamics.html
+    \page qtquick-fonts.html
+    \nextpage qtquick-annotations.html
 
     \title Using Custom Fonts
 

@@ -49,6 +49,7 @@ public:
 public Q_SLOTS:
     void setCamera(QQuick3DCamera *camera);
     void setViewPortRect(const QRectF &rect);
+    void handleCameraPropertyChange();
 
 Q_SIGNALS:
     void cameraChanged();
@@ -62,6 +63,7 @@ private:
                         QVector3D &minBounds, QVector3D &maxBounds);
     QQuick3DCamera *m_camera = nullptr;
     QRectF m_viewPortRect;
+    bool m_cameraUpdatePending = false;
 };
 
 }

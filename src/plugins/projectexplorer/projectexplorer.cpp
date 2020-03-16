@@ -1087,7 +1087,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     dd->m_buildSessionForAllConfigsAction
-            = new QAction(buildIcon, tr("Build All Projects For All Configurations"), this);
+            = new QAction(buildIcon, tr("Build All Projects for All Configurations"), this);
     cmd = ActionManager::registerAction(dd->m_buildSessionForAllConfigsAction,
                                         Constants::BUILDSESSIONALLCONFIGS);
     mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
@@ -1107,7 +1107,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     dd->m_rebuildSessionForAllConfigsAction
-            = new QAction(Icons::REBUILD.icon(), tr("Rebuild All Projects For All Configurations"),
+            = new QAction(Icons::REBUILD.icon(), tr("Rebuild All Projects for All Configurations"),
                           this);
     cmd = ActionManager::registerAction(dd->m_rebuildSessionForAllConfigsAction,
                                         Constants::REBUILDSESSIONALLCONFIGS);
@@ -1122,7 +1122,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     dd->m_cleanSessionForAllConfigsAction = new QAction(Utils::Icons::CLEAN.icon(),
-            tr("Clean All Projects For All Configurations"), this);
+            tr("Clean All Projects for All Configurations"), this);
     cmd = ActionManager::registerAction(dd->m_cleanSessionForAllConfigsAction,
                                         Constants::CLEANSESSIONALLCONFIGS);
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);

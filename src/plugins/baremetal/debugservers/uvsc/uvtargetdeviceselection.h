@@ -46,7 +46,8 @@ public:
         QString file;
         QString name;
         QString url;
-        QString vendor;
+        QString vendorId;
+        QString vendorName;
         QString version;
 
         bool operator==(const Package &other) const;
@@ -84,7 +85,8 @@ public:
     QString desc;
     QString family;
     QString subfamily;
-    QString vendor;
+    QString vendorId;
+    QString vendorName;
     QString svd;
     Cpu cpu;
     Memories memories;

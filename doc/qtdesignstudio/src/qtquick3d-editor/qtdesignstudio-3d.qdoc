@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -24,10 +24,15 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Design Studio Manual}
+    \contentspage index.html
     \page studio-3d.html
     \previouspage qmldesigner-pathview-editor.html
+    \if defined(qtdesignstudio)
     \nextpage studio-3d-design-mode.html
+    \else
+    \nextpage exporting-3d-assets.html
+    \endif
+
 
     \title Editing 3D Scenes
 
@@ -45,6 +50,20 @@
     The following topics contain information about working with Qt Quick 3D:
 
     \list
+        \if defined (qtcreator)
+        \li \l {Exporting 3D Assets}
+
+            You can import files you created using 3D graphics applications and
+            stored in several widely-used formats, such as .blend, .dae, .fbx,
+            .glb, .gltf, .obj, .uia, or .uip.
+
+         \li \l{Importing 3D Assets}
+
+            You can import 3D assets that you created using 3D graphics
+            applications and stored in one of the supported file formats.
+            You can then edit them in the Design mode.
+        \endif
+
         \li \l {Editing 3D Assets in Design Mode}
 
             \QDS opens QML files that contain 3D scenes in the Design mode and

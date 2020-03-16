@@ -65,9 +65,10 @@ def main():
             usedProposal = "class derived from QObject"
             expectedProposals = ["class", "class ", "class template",
                                  usedProposal, "class derived from QWidget"]
-            test.compare(len(shownProposals), len(expectedProposals), "Number of proposed templates")
-            test.compare(set(shownProposals), set(expectedProposals),
-                         "Expected proposals shown, ignoring order?")
+            test.xcompare(len(shownProposals), len(expectedProposals),  # QTCREATORBUG-23159
+                          "Number of proposed templates")
+            test.verify(set(expectedProposals).issubset(set(shownProposals)),
+                        "Expected proposals shown, ignoring order?")
             doubleClickItem(listView, usedProposal, 5, 5, 0, Qt.LeftButton)
             pattern = ("(?<=class)\s+name\s*:\s*public\s+QObject\s*\{\s*Q_OBJECT\s+"
                        "public:\s+name\(\)\s*\{\}\s+virtual\s+~name\(\)\s*\{\}\s+\};")

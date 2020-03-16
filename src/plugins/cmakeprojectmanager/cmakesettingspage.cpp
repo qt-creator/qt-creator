@@ -463,7 +463,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
-    formLayout->addRow(new QLabel(tr("Help File:")), m_qchFileChooser);
+    formLayout->addRow(new QLabel(tr("Help file:")), m_qchFileChooser);
     formLayout->addRow(m_autoRunCheckBox);
     formLayout->addRow(m_autoCreateBuildDirectoryCheckBox);
 

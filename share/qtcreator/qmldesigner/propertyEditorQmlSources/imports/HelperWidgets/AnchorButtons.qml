@@ -31,7 +31,7 @@ import StudioTheme 1.0 as StudioTheme
 StudioControls.ButtonRow {
     id: buttonRow
 
-    enabled: anchorBackend.hasParent
+    enabled: anchorBackend.hasParent && isBaseState
     opacity: enabled ? 1 : 0.5
 
     actionIndicatorVisible: false

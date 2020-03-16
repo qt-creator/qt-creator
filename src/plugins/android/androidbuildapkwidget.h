@@ -56,6 +56,9 @@ private:
     void setCertificates();
     void updateSigningWarning();
     void signPackageCheckBoxToggled(bool checked);
+    void onOpenSslCheckBoxChanged();
+    bool isOpenSslLibsIncluded();
+    QString openSslIncludeFileContent(const Utils::FilePath &projectPath);
 
     QWidget *createApplicationGroup();
     QWidget *createSignPackageGroup();
@@ -69,6 +72,7 @@ private:
     Utils::InfoLabel *m_signingDebugWarningLabel = nullptr;
     QComboBox *m_certificatesAliasComboBox = nullptr;
     QCheckBox *m_addDebuggerCheckBox = nullptr;
+    QCheckBox *m_openSslCheckBox = nullptr;
 };
 
 } // namespace Internal

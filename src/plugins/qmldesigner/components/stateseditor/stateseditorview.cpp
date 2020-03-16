@@ -443,6 +443,8 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
     for (const VariantProperty &property : propertyList) {
         if (property.name() == "name" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
+        else if (property.name() == "state" && property.parentModelNode().isRootNode())
+            resetModel();
     }
 
     m_block = false;

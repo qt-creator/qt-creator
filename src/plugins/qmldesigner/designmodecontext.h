@@ -51,6 +51,15 @@ public:
     void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
+class Editor3DContext : public Core::IContext
+{
+    Q_OBJECT
+
+public:
+    Editor3DContext(QWidget *widget);
+    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
+};
+
 class NavigatorContext : public Core::IContext
 {
     Q_OBJECT

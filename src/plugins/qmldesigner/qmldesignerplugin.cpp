@@ -287,14 +287,17 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     Core::ICore::addContextObject(d->context);
     Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
+    Core::Context qmlDesignerEditor3dContext(Constants::C_QMLEDITOR3D);
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
 
     d->context->context().add(qmlDesignerMainContext);
     d->context->context().add(qmlDesignerFormEditorContext);
+    d->context->context().add(qmlDesignerEditor3dContext);
     d->context->context().add(qmlDesignerNavigatorContext);
     d->context->context().add(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
-    d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
+    d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext,
+                                       qmlDesignerEditor3dContext, qmlDesignerNavigatorContext);
 
     const QStringList mimeTypes = { QmlJSTools::Constants::QML_MIMETYPE,
                                     QmlJSTools::Constants::QMLUI_MIMETYPE };

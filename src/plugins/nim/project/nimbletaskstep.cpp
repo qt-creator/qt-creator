@@ -110,7 +110,7 @@ bool NimbleTaskStep::validate()
     QTC_ASSERT(nimbleBuildSystem, return false);
 
     if (!Utils::contains(nimbleBuildSystem->tasks(), [this](const NimbleTask &task){ return task.name == m_taskName; })) {
-        emit addTask(BuildSystemTask(Task::Error, tr("Nimble task %1 not found").arg(m_taskName)));
+        emit addTask(BuildSystemTask(Task::Error, tr("Nimble task %1 not found.").arg(m_taskName)));
         emitFaultyConfigurationMessage();
         return false;
     }

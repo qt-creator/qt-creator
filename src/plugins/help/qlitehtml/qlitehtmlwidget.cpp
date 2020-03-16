@@ -664,19 +664,9 @@ QPoint QLiteHtmlWidget::toVirtual(const QPoint &p) const
     return {int(p.x() / d->zoomFactor), int(p.y() / d->zoomFactor)};
 }
 
-QPoint QLiteHtmlWidget::fromVirtual(const QPoint &p) const
-{
-    return {int(p.x() * d->zoomFactor), int(p.y() * d->zoomFactor)};
-}
-
 QSize QLiteHtmlWidget::toVirtual(const QSize &s) const
 {
     return {int(s.width() / d->zoomFactor), int(s.height() / d->zoomFactor)};
-}
-
-QSize QLiteHtmlWidget::fromVirtual(const QSize &s) const
-{
-    return {int(s.width() * d->zoomFactor + 0.5), int(s.height() * d->zoomFactor + 0.5)};
 }
 
 QRect QLiteHtmlWidget::toVirtual(const QRect &r) const
@@ -686,5 +676,9 @@ QRect QLiteHtmlWidget::toVirtual(const QRect &r) const
 
 QRect QLiteHtmlWidget::fromVirtual(const QRect &r) const
 {
-    return {fromVirtual(r.topLeft()), fromVirtual(r.size())};
+    const QPoint tl{int(r.x() * d->zoomFactor), int(r.y() * d->zoomFactor)};
+    // round size up, and add one since the topleft point was rounded down
+    const QSize s{int(r.width() * d->zoomFactor + 0.5) + 1,
+                  int(r.height() * d->zoomFactor + 0.5) + 1};
+    return {tl, s};
 }

@@ -35,20 +35,13 @@ Rectangle {
 
     id: root
     color: toggleBackground && toggled ? "#aa000000" : mouseArea.containsMouse ? "#44000000" : "#00000000"
-    width: img.width + txt.width + 5
-    height: img.height
-
-    Image {
-        id: img
-        anchors.verticalCenter: parent.verticalCenter
-        source: "qrc:///qtquickplugin/mockfiles/images/" + root.states[toggled ? 1 : 0].iconId + ".png"
-    }
+    width: txt.width + 5
+    height: 16
 
     Text {
         id: txt
         color: "#b5b5b5"
         anchors.verticalCenter: parent.verticalCenter
-        anchors.left: img.right
         text: root.states[toggled ? 1 : 0].text
     }
 

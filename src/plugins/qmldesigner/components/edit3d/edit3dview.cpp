@@ -37,6 +37,8 @@
 #include <viewmanager.h>
 #include <qmldesignericons.h>
 #include <utils/utilsicons.h>
+#include <coreplugin/icore.h>
+#include <designmodecontext.h>
 
 #include <QDebug>
 
@@ -55,6 +57,9 @@ void Edit3DView::createEdit3DWidget()
 {
     createEdit3DActions();
     m_edit3DWidget = new Edit3DWidget(this);
+
+    auto editor3DContext = new Internal::Editor3DContext(m_edit3DWidget.data());
+    Core::ICore::addContextObject(editor3DContext);
 }
 
 WidgetInfo Edit3DView::widgetInfo()
@@ -88,8 +93,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString orientationKey = QStringLiteral("globalOrientation");
     const QString editLightKey = QStringLiteral("showEditLight");
 
-    if (sceneState.contains(sceneKey))
-        edit3DWidget()->canvas()->updateActiveScene(sceneState[sceneKey].value<qint32>());
+    if (sceneState.contains(sceneKey)) {
+        qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
+        edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
+        rootModelNode().setAuxiliaryData("3d-active-scene", newActiveScene);
+    }
 
     if (sceneState.contains(selectKey))
         m_selectionModeAction->action()->setChecked(sceneState[selectKey].toInt() == 0);
@@ -133,12 +141,14 @@ void Edit3DView::modelAboutToBeDetached(Model *model)
 
 void Edit3DView::sendInputEvent(QInputEvent *e) const
 {
-    nodeInstanceView()->sendInputEvent(e);
+    if (nodeInstanceView())
+        nodeInstanceView()->sendInputEvent(e);
 }
 
 void Edit3DView::edit3DViewResized(const QSize &size) const
 {
-    nodeInstanceView()->edit3DViewResized(size);
+    if (nodeInstanceView())
+        nodeInstanceView()->edit3DViewResized(size);
 }
 
 QSize Edit3DView::canvasSize() const
@@ -154,7 +164,7 @@ void Edit3DView::createEdit3DActions()
     m_selectionModeAction
             = new Edit3DAction(
                 "Edit3DSelectionModeToggle", View3DActionCommand::SelectionModeToggle,
-                QCoreApplication::translate("SelectionModeToggleAction", "Toggle Group / Single Selection Mode"),
+                QCoreApplication::translate("SelectionModeToggleAction", "Toggle Group/Single Selection Mode"),
                 QKeySequence(Qt::Key_Q), true, false, Icons::EDIT3D_SELECTION_MODE_OFF.icon(),
                 Icons::EDIT3D_SELECTION_MODE_ON.icon());
 
@@ -181,27 +191,27 @@ void Edit3DView::createEdit3DActions()
 
     m_fitAction = new Edit3DAction(
                 "Edit3DFitToView", View3DActionCommand::FitToView,
-                QCoreApplication::translate("FitToViewAction", "Fit Selected Object To View"),
+                QCoreApplication::translate("FitToViewAction", "Fit Selected Object to View"),
                 QKeySequence(Qt::Key_F), false, false, Icons::EDIT3D_FIT_SELECTED_OFF.icon(), {});
 
     m_cameraModeAction
             = new Edit3DAction(
                 "Edit3DCameraToggle", View3DActionCommand::CameraToggle,
-                QCoreApplication::translate("CameraToggleAction", "Toggle Perspective / Orthographic Edit Camera"),
+                QCoreApplication::translate("CameraToggleAction", "Toggle Perspective/Orthographic Edit Camera"),
                 QKeySequence(Qt::Key_T), true, false, Icons::EDIT3D_EDIT_CAMERA_OFF.icon(),
                 Icons::EDIT3D_EDIT_CAMERA_ON.icon());
 
     m_orientationModeAction
             = new Edit3DAction(
                 "Edit3DOrientationToggle", View3DActionCommand::OrientationToggle,
-                QCoreApplication::translate("OrientationToggleAction", "Toggle Global / Local Orientation"),
+                QCoreApplication::translate("OrientationToggleAction", "Toggle Global/Local Orientation"),
                 QKeySequence(Qt::Key_Y), true, false, Icons::EDIT3D_ORIENTATION_OFF.icon(),
                 Icons::EDIT3D_ORIENTATION_ON.icon());
 
     m_editLightAction
             = new Edit3DAction(
                 "Edit3DEditLightToggle", View3DActionCommand::EditLightToggle,
-                QCoreApplication::translate("EditLightToggleAction", "Toggle Edit Light On / Off"),
+                QCoreApplication::translate("EditLightToggleAction", "Toggle Edit Light On/Off"),
                 QKeySequence(Qt::Key_U), true, false, Icons::EDIT3D_LIGHT_OFF.icon(),
                 Icons::EDIT3D_LIGHT_ON.icon());
 

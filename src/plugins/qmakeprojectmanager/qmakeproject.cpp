@@ -72,6 +72,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QLoggingCategory>
 
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
@@ -82,6 +83,8 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 const int UPDATE_INTERVAL = 3000;
+
+static Q_LOGGING_CATEGORY(qmakeBuildSystemLog, "qtc.qmake.buildsystem", QtWarningMsg);
 
 /// Watches folders for QmakePriFile nodes
 /// use one file system watcher to watch all folders
@@ -185,7 +188,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     m_qmakeVfs->setTextCodec(codec);
 
     m_asyncUpdateTimer.setSingleShot(true);
-    m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
+    m_asyncUpdateTimer.setInterval(0);
     connect(&m_asyncUpdateTimer, &QTimer::timeout, this, &QmakeBuildSystem::asyncUpdate);
 
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());
@@ -454,12 +457,11 @@ void QmakeBuildSystem::scheduleAsyncUpdateFile(QmakeProFile *file, QmakeProFile:
 
 void QmakeBuildSystem::scheduleUpdateAllNowOrLater()
 {
-    if (m_firstParseNeeded) {
-        m_firstParseNeeded = false;
+    qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << m_firstParseNeeded;
+    if (m_firstParseNeeded)
         scheduleUpdateAll(QmakeProFile::ParseNow);
-    } else {
+    else
         scheduleUpdateAll(QmakeProFile::ParseLater);
-    }
 }
 
 void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
@@ -490,13 +492,17 @@ void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
 
 void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 {
-   if (!m_buildConfiguration->isActive())
+   if (!m_buildConfiguration->isActive()) {
+        qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << "skipped, not active";
         return;
+   }
+
+    const int interval = qMin(m_asyncUpdateTimer.interval(),
+                              delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0);
+    qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << interval;
 
     m_asyncUpdateTimer.stop();
-    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(),
-                                        delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0));
-
+    m_asyncUpdateTimer.setInterval(interval);
     m_asyncUpdateTimer.start();
 }
 
@@ -543,6 +549,9 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
             m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
             m_guard = {}; // This triggers emitParsingFinished by destroying the previous guard.
 
+            qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << "first parse succeeded";
+            m_firstParseNeeded = false;
+
             emitBuildSystemUpdated();
         }
     }
@@ -556,6 +565,7 @@ bool QmakeBuildSystem::wasEvaluateCanceled()
 void QmakeBuildSystem::asyncUpdate()
 {
     m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
+    qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__;
 
     if (m_invalidateQmakeVfsContents) {
         m_invalidateQmakeVfsContents = false;
@@ -616,7 +626,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     if (qtThatContainsProject && qtThatContainsProject != qtFromKit) {
         result.append(CompileTask(Task::Warning,
                                   tr("Project is part of Qt sources that do not match "
-                                     "the Qt defined in the Kit")));
+                                     "the Qt defined in the kit.")));
     }
 
     return result;

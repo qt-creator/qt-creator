@@ -41,8 +41,8 @@ Rectangle {
     property var _buttonGroupArray: []
 
     id: root
-    width: img.width + 5
-    height: img.height + 5
+    width: 16
+    height: 16
     color: root.selected ? "#aa000000" : (mouseArea.containsMouse ? "#44000000" : "#00000000")
     radius: 3
 
@@ -63,13 +63,6 @@ Rectangle {
         text: root.tooltip + " (" + root.shortcut + ")"
         visible: mouseArea.containsMouse
         delay: 1000
-    }
-
-    Image {
-        id: img
-        anchors.centerIn: parent
-        source: root.selected ? "qrc:///qtquickplugin/mockfiles/images/" + root.tool + "_selected.png"
-                         : "qrc:///qtquickplugin/mockfiles/images/" + root.tool + "_active.png"
     }
 
     Shortcut {

@@ -104,9 +104,13 @@ protected:
     void dropFloatingWidget(FloatingDockContainer *floatingWidget, const QPoint &targetPos);
 
     /**
-     * Drop a dock area or a dock widget given in widget parameter
+     * Drop a dock area or a dock widget given in widget parameter.
+     * If the TargetAreaWidget is a nullptr, then the DropArea indicates
+     * the drop area for the container. If the given TargetAreaWidget is not
+     * a nullptr, then the DropArea indicates the drop area in the given
+     * TargetAreaWidget
      */
-    void dropWidget(QWidget *widget, const QPoint &targetPos);
+    void dropWidget(QWidget *widget, DockWidgetArea dropArea, DockAreaWidget *targetAreaWidget);
 
     /**
      * Adds the given dock area to this container widget
