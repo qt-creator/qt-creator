@@ -260,7 +260,7 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
     m_verboseLevelSpinBox = new QSpinBox;
     m_verboseLevelSpinBox->setRange(0, 7);
     m_verboseLevelSpinBox->setMaximumWidth(80);
-    m_verboseLevelSpinBox->setToolTip(tr("Specify the verbosity level (0..7)."));
+    m_verboseLevelSpinBox->setToolTip(tr("Specify the verbosity level (0 to 7)."));
     m_mainLayout->addRow(tr("Verbosity level:"), m_verboseLevelSpinBox);
 
     m_resetOnConnectCheckBox = new QCheckBox;
@@ -268,22 +268,22 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
     m_mainLayout->addRow(tr("Connect under reset:"), m_resetOnConnectCheckBox);
 
     m_interfaceTypeComboBox = new QComboBox;
-    m_interfaceTypeComboBox->setToolTip(tr("Interface type. SWD or JTAG"));
+    m_interfaceTypeComboBox->setToolTip(tr("Interface type."));
     m_mainLayout->addRow(tr("Type:"), m_interfaceTypeComboBox);
 
     m_interfaceSpeedSpinBox = new QSpinBox;
     m_interfaceSpeedSpinBox->setRange(120, 8000);
     m_interfaceSpeedSpinBox->setMaximumWidth(120);
-    m_interfaceSpeedSpinBox->setToolTip(tr("Specify speed of Interface (120-8000)kHz"));
+    m_interfaceSpeedSpinBox->setToolTip(tr("Specify the speed of the interface (120 to 8000) in kilohertz (kHz)."));
     m_mainLayout->addRow(tr("Speed:"), m_interfaceSpeedSpinBox);
 
     m_notUseCacheCheckBox = new QCheckBox;
-    m_notUseCacheCheckBox->setToolTip(tr("Don't use EBlink flash cache"));
+    m_notUseCacheCheckBox->setToolTip(tr("Do not use EBlink flash cache."));
     m_mainLayout->addRow(tr("Disable cache:"), m_notUseCacheCheckBox);
 
     m_shutDownAfterDisconnectCheckBox = new QCheckBox;
     m_shutDownAfterDisconnectCheckBox->setEnabled(false);
-    m_shutDownAfterDisconnectCheckBox->setToolTip(tr("Shutdown EBlink server after disconnect"));
+    m_shutDownAfterDisconnectCheckBox->setToolTip(tr("Shut down EBlink server after disconnect."));
     m_mainLayout->addRow(tr("Auto shutdown:"), m_shutDownAfterDisconnectCheckBox);
 
     m_initCommandsTextEdit = new QPlainTextEdit(this);

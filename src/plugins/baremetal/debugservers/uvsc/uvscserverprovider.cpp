@@ -246,7 +246,7 @@ Utils::FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool,
     const Uv::Project project(this, runTool);
     if (!writer.write(&project)) {
         errorMessage = BareMetalDebugSupport::tr(
-                    "Unable to create an uVision project template");
+                    "Unable to create a uVision project template.");
         return {};
     }
     return projectPath;
@@ -275,7 +275,7 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
     m_toolsIniChooser = new PathChooser;
     m_toolsIniChooser->setExpectedKind(PathChooser::File);
     m_toolsIniChooser->setPromptDialogFilter("tools.ini");
-    m_toolsIniChooser->setPromptDialogTitle(tr("Choose a Keil toolset configuration file"));
+    m_toolsIniChooser->setPromptDialogTitle(tr("Choose Keil Toolset Configuration File"));
     m_mainLayout->addRow(tr("Tools file path:"), m_toolsIniChooser);
     m_deviceSelector = new DeviceSelector;
     m_mainLayout->addRow(tr("Target device:"), m_deviceSelector);

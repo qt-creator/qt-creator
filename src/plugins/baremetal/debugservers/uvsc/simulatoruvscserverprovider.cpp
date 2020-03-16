@@ -119,7 +119,7 @@ FilePath SimulatorUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
     const SimulatorUvProjectOptions projectOptions(this);
     if (!writer.write(&projectOptions)) {
         errorMessage = BareMetalDebugSupport::tr(
-                    "Unable to create an uVision project options template");
+                    "Unable to create a uVision project options template.");
         return {};
     }
     return optionsPath;
@@ -143,7 +143,7 @@ SimulatorUvscServerProviderConfigWidget::SimulatorUvscServerProviderConfigWidget
     Q_ASSERT(p);
 
     m_limitSpeedCheckBox = new QCheckBox;
-    m_limitSpeedCheckBox->setToolTip(tr("Limit speed to real-time"));
+    m_limitSpeedCheckBox->setToolTip(tr("Limit speed to real-time."));
     m_mainLayout->addRow(tr("Limit speed to real-time:"), m_limitSpeedCheckBox);
 
     setFromProvider();

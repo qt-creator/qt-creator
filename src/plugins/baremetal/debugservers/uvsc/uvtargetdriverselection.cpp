@@ -126,7 +126,7 @@ DriverSelectionCpuDllView::DriverSelectionCpuDllView(DriverSelection &selection,
     const auto layout = new QHBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     m_comboBox = new QComboBox;
-    m_comboBox->setToolTip(tr("Debugger CPU library (depends on a CPU core."));
+    m_comboBox->setToolTip(tr("Debugger CPU library (depends on a CPU core)."));
     m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_comboBox->setModel(model);
     layout->addWidget(m_comboBox);
