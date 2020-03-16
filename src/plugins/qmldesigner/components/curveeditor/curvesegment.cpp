@@ -150,7 +150,18 @@ CurveSegment::CurveSegment(const Keyframe &left, const Keyframe &right)
 
 bool CurveSegment::isValid() const
 {
-    return m_left.position() != m_right.position();
+    if (m_left.position() == m_right.position())
+        return false;
+
+    if (interpolation() == Keyframe::Interpolation::Undefined)
+        return false;
+
+    if (interpolation() == Keyframe::Interpolation::Easing
+        || interpolation() == Keyframe::Interpolation::Bezier) {
+        if (qFuzzyCompare(m_left.position().y(), m_right.position().y()))
+            return false;
+    }
+    return true;
 }
 
 bool CurveSegment::containsX(double x) const
@@ -263,6 +274,10 @@ QEasingCurve CurveSegment::easingCurve() const
     auto mapPosition = [this](const QPointF &position) {
         QPointF min = m_left.position();
         QPointF max = m_right.position();
+        if (qFuzzyCompare(min.y(), max.y()))
+            return QPointF((position.x() - min.x()) / (max.x() - min.x()),
+                           (position.y() - min.y()) / (max.y()));
+
         return QPointF((position.x() - min.x()) / (max.x() - min.x()),
                        (position.y() - min.y()) / (max.y() - min.y()));
     };
@@ -270,8 +285,7 @@ QEasingCurve CurveSegment::easingCurve() const
     QEasingCurve curve;
     curve.addCubicBezierSegment(mapPosition(m_left.rightHandle()),
                                 mapPosition(m_right.leftHandle()),
-                                mapPosition(m_right.position()));
-
+                                QPointF(1., 1.));
     return curve;
 }
 

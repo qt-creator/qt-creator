@@ -355,7 +355,8 @@ void TimelineWidget::updateAnimationCurve(DesignTools::PropertyTreeItem *item)
                 if (previous.isValid()) {
                     if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Bezier) {
                         DesignTools::CurveSegment segment(previous, frame);
-                        attachEasingCurve(pos.x(), segment.easingCurve(), group);
+                        if (segment.isValid())
+                            attachEasingCurve(pos.x(), segment.easingCurve(), group);
                     } else if (frame.interpolation()
                                == DesignTools::Keyframe::Interpolation::Easing) {
                         QVariant data = frame.data();
