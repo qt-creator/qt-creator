@@ -26,6 +26,8 @@
 #ifndef ANDROIDSDKDOWNLOADER_H
 #define ANDROIDSDKDOWNLOADER_H
 
+#include "androidconfigurations.h"
+
 #include <QNetworkReply>
 #include <QObject>
 #include <QProgressDialog>
@@ -38,7 +40,7 @@ class AndroidSdkDownloader : public QObject
     Q_OBJECT
 
 public:
-    AndroidSdkDownloader(const QUrl &sdkUrl, const QByteArray &sha256);
+    AndroidSdkDownloader();
     void downloadAndExtractSdk(const QString &jdkPath, const QString &sdkExtractPath);
     static QString dialogTitle();
 
@@ -68,8 +70,7 @@ private:
     QNetworkReply *m_reply = nullptr;
     QString m_sdkFilename;
     QProgressDialog *m_progressDialog = nullptr;
-    QUrl m_sdkUrl;
-    QByteArray m_sha256;
+    AndroidConfig m_androidConfig;
 };
 
 } // Internal

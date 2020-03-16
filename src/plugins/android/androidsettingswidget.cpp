@@ -149,6 +149,7 @@ private:
     QString m_lastAddedAvd;
     std::unique_ptr<AndroidAvdManager> m_avdManager;
     std::unique_ptr<AndroidSdkManager> m_sdkManager;
+    std::unique_ptr<AndroidSdkDownloader> m_sdkDownloader;
     bool m_isInitialReloadDone = false;
 };
 
@@ -405,7 +406,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     : m_ui(new Ui_AndroidSettingsWidget),
       m_androidConfig(AndroidConfigurations::currentConfig()),
       m_avdManager(new AndroidAvdManager(m_androidConfig)),
-      m_sdkManager(new AndroidSdkManager(m_androidConfig))
+      m_sdkManager(new AndroidSdkManager(m_androidConfig)),
+      m_sdkDownloader(new AndroidSdkDownloader())
 {
     m_ui->setupUi(this);
     m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, m_sdkManager.get(),
@@ -498,6 +500,13 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui->downloadOpenJDKToolButton->setIcon(downloadIcon);
     m_ui->downloadOpenSSLPrebuiltLibs->setIcon(downloadIcon);
     m_ui->sdkToolsAutoDownloadButton->setIcon(Utils::Icons::RELOAD.icon());
+    m_ui->sdkToolsAutoDownloadButton->setToolTip(tr(
+            "Automatically download Android SDK Tools to selected location.\n\n"
+            "If the selected path contains no valid SDK Tools, the SDK Tools package "
+            "is downloaded from %1, and extracted to the selected path.\n"
+            "After the SDK Tools are properly set up, you are prompted to install "
+            "any essential packages required for Qt to build for Android.\n")
+                                                 .arg(m_androidConfig.sdkToolsUrl().toString()));
 
     connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::onSdkPathChanged);
@@ -545,18 +554,25 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(m_ui->downloadOpenJDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
     // Validate SDK again after any change in SDK packages.
-    connect(m_sdkManager.get(),
-            &AndroidSdkManager::packageReloadFinished,
-            this,
-            &AndroidSettingsWidget::validateSdk);
-    connect(m_ui->sdkToolsAutoDownloadButton, &QAbstractButton::clicked, this, [this]() {
-        if (sdkToolsOk()) {
-            QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(),
-                                 tr("The selected path already has a valid SDK Tools package."));
-            validateSdk();
-            return;
-        }
-        downloadSdk();
+    connect(m_sdkManager.get(), &AndroidSdkManager::packageReloadFinished,
+            this, &AndroidSettingsWidget::validateSdk);
+    connect(m_ui->sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::downloadSdk);
+    connect(m_sdkDownloader.get(), &AndroidSdkDownloader::sdkDownloaderError, this, [this](const QString &error) {
+        QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(), error);
+    });
+    connect(m_sdkDownloader.get(), &AndroidSdkDownloader::sdkExtracted, this, [this]() {
+        m_sdkManager->reloadPackages(true);
+        updateUI();
+        apply();
+
+        QMetaObject::Connection *const openSslOneShot = new QMetaObject::Connection;
+        *openSslOneShot = connect(m_sdkManager.get(), &AndroidSdkManager::packageReloadFinished,
+                                  this, [this, openSslOneShot]() {
+                                      QObject::disconnect(*openSslOneShot);
+                                      downloadOpenSslRepo(true);
+                                      delete openSslOneShot;
+        });
     });
 }
 
@@ -933,6 +949,13 @@ void AndroidSettingsWidget::manageAVD()
 
 void AndroidSettingsWidget::downloadSdk()
 {
+    if (sdkToolsOk()) {
+        QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(),
+                             tr("The selected path already has a valid SDK Tools package."));
+        validateSdk();
+        return;
+    }
+
     QString message(tr("Download and install Android SDK Tools to: %1?")
                         .arg(QDir::toNativeSeparators(m_ui->SDKLocationPathChooser->rawPath())));
     auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
@@ -941,31 +964,8 @@ void AndroidSettingsWidget::downloadSdk()
         auto javaSummaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
         if (javaSummaryWidget->allRowsOk()) {
             auto javaPath = Utils::FilePath::fromUserInput(m_ui->OpenJDKLocationPathChooser->rawPath());
-            AndroidSdkDownloader *sdkDownloader = new AndroidSdkDownloader(
-                                                        m_androidConfig.sdkToolsUrl(),
-                                                        m_androidConfig.getSdkToolsSha256());
-            sdkDownloader->downloadAndExtractSdk(javaPath.toString(),
+            m_sdkDownloader->downloadAndExtractSdk(javaPath.toString(),
                                                  m_ui->SDKLocationPathChooser->path());
-
-            connect(sdkDownloader, &AndroidSdkDownloader::sdkExtracted, this, [this]() {
-                m_sdkManager->reloadPackages(true);
-                updateUI();
-                apply();
-
-                QMetaObject::Connection *const openSslOneShot = new QMetaObject::Connection;
-                *openSslOneShot = connect(m_sdkManager.get(), &AndroidSdkManager::packageReloadFinished,
-                                          this, [this, openSslOneShot]() {
-                                              QObject::disconnect(*openSslOneShot);
-                                              downloadOpenSslRepo(true);
-                                              delete openSslOneShot;
-                });
-            });
-
-            auto showErrorDialog = [this](const QString &error) {
-                QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(), error);
-            };
-
-            connect(sdkDownloader, &AndroidSdkDownloader::sdkDownloaderError, this, showErrorDialog);
         }
     }
 }

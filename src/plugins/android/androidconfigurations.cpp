@@ -286,13 +286,27 @@ void AndroidConfig::save(QSettings &settings) const
 
 void AndroidConfig::parseDependenciesJson()
 {
+    QString sdkConfigUserFile(Core::ICore::userResourcePath() + JsonFilePath);
     QString sdkConfigFile(Core::ICore::resourcePath() + JsonFilePath);
-    QFile jsonFile(sdkConfigFile);
-    if (!jsonFile.open(QIODevice::ReadOnly))
-        qCDebug(avdConfigLog, "Couldn't open JSON config file %s.", qPrintable(sdkConfigFile));
 
-    QJsonDocument loadDoc(QJsonDocument::fromJson(jsonFile.readAll()));
-    QJsonObject jsonObject = loadDoc.object();
+    if (!QFile::exists(sdkConfigUserFile)) {
+        QDir(QFileInfo(sdkConfigUserFile).absolutePath()).mkpath(".");
+        QFile::copy(sdkConfigFile, sdkConfigUserFile);
+    }
+
+    if (QFileInfo(sdkConfigFile).lastModified() > QFileInfo(sdkConfigUserFile).lastModified()) {
+        QFile::remove(sdkConfigUserFile + ".old");
+        QFile::rename(sdkConfigUserFile, sdkConfigUserFile + ".old");
+        QFile::copy(sdkConfigFile, sdkConfigUserFile);
+    }
+
+    QFile jsonFile(sdkConfigUserFile);
+    if (!jsonFile.open(QIODevice::ReadOnly)) {
+        qCDebug(avdConfigLog, "Couldn't open JSON config file %s.", qPrintable(jsonFile.fileName()));
+        return;
+    }
+
+    QJsonObject jsonObject = QJsonDocument::fromJson(jsonFile.readAll()).object();
 
     if (jsonObject.contains(CommonKey) && jsonObject[CommonKey].isObject()) {
         QJsonObject commonObject = jsonObject[CommonKey].toObject();
