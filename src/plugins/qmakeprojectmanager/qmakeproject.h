@@ -35,7 +35,6 @@
 
 #include <QStringList>
 #include <QFutureInterface>
-#include <QTimer>
 #include <QFuture>
 
 QT_BEGIN_NAMESPACE
@@ -189,7 +188,6 @@ public:
 
     QString m_qmakeSysroot;
 
-    QTimer m_asyncUpdateTimer;
     QFutureInterface<void> m_asyncUpdateFutureInterface;
     int m_pendingEvaluateFuturesCount = 0;
     AsyncUpdateState m_asyncUpdateState = Base;

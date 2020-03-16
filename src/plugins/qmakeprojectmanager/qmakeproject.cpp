@@ -73,6 +73,7 @@
 #include <QDir>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
+#include <QTimer>
 
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
@@ -187,9 +188,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
     m_qmakeVfs->setTextCodec(codec);
 
-    m_asyncUpdateTimer.setSingleShot(true);
-    m_asyncUpdateTimer.setInterval(0);
-    connect(&m_asyncUpdateTimer, &QTimer::timeout, this, &QmakeBuildSystem::asyncUpdate);
+    setParseDelay(0);
 
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());
 
@@ -497,13 +496,10 @@ void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
         return;
    }
 
-    const int interval = qMin(m_asyncUpdateTimer.interval(),
+    const int interval = qMin(parseDelay(),
                               delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0);
     qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << interval;
-
-    m_asyncUpdateTimer.stop();
-    m_asyncUpdateTimer.setInterval(interval);
-    m_asyncUpdateTimer.start();
+    requestParseWithCustomDelay(interval);
 }
 
 void QmakeBuildSystem::incrementPendingEvaluateFutures()
@@ -564,7 +560,7 @@ bool QmakeBuildSystem::wasEvaluateCanceled()
 
 void QmakeBuildSystem::asyncUpdate()
 {
-    m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
+    setParseDelay(UPDATE_INTERVAL);
     qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__;
 
     if (m_invalidateQmakeVfsContents) {
