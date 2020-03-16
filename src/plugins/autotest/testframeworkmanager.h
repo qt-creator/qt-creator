@@ -36,18 +36,13 @@ QT_END_NAMESPACE
 namespace Core { class Id; }
 
 namespace Autotest {
-
-class TestTreeItem;
-
 namespace Internal {
-
 class TestRunner;
 struct TestSettings;
 }
 
 class IFrameworkSettings;
 class ITestParser;
-class TestTreeModel;
 
 class TestFrameworkManager
 {
@@ -73,7 +68,6 @@ private:
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
     QHash<Core::Id, IFrameworkSettings *> m_frameworkSettings;
-    TestTreeModel *m_testTreeModel;
     Internal::TestRunner *m_testRunner;
 
     typedef QHash<Core::Id, ITestFramework *>::ConstIterator FrameworkIterator;

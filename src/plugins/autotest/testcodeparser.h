@@ -59,7 +59,8 @@ public:
         Shutdown
     };
 
-    explicit TestCodeParser(TestTreeModel *parent = nullptr);
+    TestCodeParser();
+
     void setState(State state);
     State state() const { return m_parserState; }
     bool isParsing() const { return m_parserState == PartialParse || m_parserState == FullParse; }
@@ -76,6 +77,8 @@ signals:
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
+    void requestRemoval(const QString &filePath);
+    void requestRemoveAll();
 
 public:
     void emitUpdateTestTree(ITestParser *parser = nullptr);
@@ -99,8 +102,6 @@ private:
     void onPartialParsingFinished();
     void parsePostponedFiles();
     void releaseParserInternals();
-
-    TestTreeModel *m_model;
 
     bool m_codeModelParsing = false;
     bool m_fullUpdatePostponed = false;

@@ -55,10 +55,8 @@ namespace Internal {
 
 using namespace ProjectExplorer;
 
-TestCodeParser::TestCodeParser(TestTreeModel *parent)
-    : QObject(parent),
-      m_model(parent),
-      m_threadPool(new QThreadPool(this))
+TestCodeParser::TestCodeParser()
+    :  m_threadPool(new QThreadPool(this))
 {
     // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
     auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
@@ -206,7 +204,6 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 
 void TestCodeParser::onStartupProjectChanged(Project *project)
 {
-    m_model->synchronizeTestFrameworks(); // we might have project settings
     if (m_parserState == FullParse || m_parserState == PartialParse) {
         qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
         Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
@@ -346,7 +343,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<ITest
             for (ITestFramework *framework : parsers)
                 framework->rootNode()->markForRemovalRecursively(true);
         } else {
-            m_model->markAllForRemoval();
+            emit requestRemoveAll();
         }
     } else if (!parsers.isEmpty()) {
         for (ITestFramework *framework : parsers) {
@@ -355,7 +352,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<ITest
         }
     } else {
         for (const QString &filePath : list)
-            m_model->markForRemoval(filePath);
+            emit requestRemoval(filePath);
     }
 
     QTC_ASSERT(!(isFullParse && list.isEmpty()), onFinished(); return);

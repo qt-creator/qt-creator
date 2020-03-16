@@ -51,7 +51,6 @@ static TestFrameworkManager *s_instance = nullptr;
 
 TestFrameworkManager::TestFrameworkManager()
 {
-    m_testTreeModel = TestTreeModel::instance();
     m_testRunner = Internal::TestRunner::instance();
     s_instance = this;
 }
@@ -66,7 +65,6 @@ TestFrameworkManager *TestFrameworkManager::instance()
 TestFrameworkManager::~TestFrameworkManager()
 {
     delete m_testRunner;
-    delete m_testTreeModel;
     for (ITestFramework *framework : m_registeredFrameworks.values())
         delete framework;
 }

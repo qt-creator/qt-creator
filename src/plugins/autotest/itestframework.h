@@ -38,7 +38,6 @@ public:
     explicit ITestFramework(bool activeByDefault) : m_active(activeByDefault) {}
     virtual ~ITestFramework()
     {
-        delete m_rootNode;
         delete m_testParser;
     }
 
@@ -50,6 +49,7 @@ public:
     TestTreeItem *rootNode()
     {   if (!m_rootNode)
             m_rootNode = createRootNode();
+        // These are stored in the TestTreeModel and destroyed on shutdown there.
         return m_rootNode;
     }
 
@@ -70,6 +70,17 @@ public:
     void setGrouping(bool group) { m_grouping = group; }
     // framework specific tool tip to be displayed on the general settings page
     virtual QString groupingToolTip() const { return QString(); }
+
+    void resetRootNode()
+    {
+        if (!m_rootNode)
+            return;
+        if (m_rootNode->model())
+            static_cast<TestTreeModel *>(m_rootNode->model())->takeItem(m_rootNode);
+        delete m_rootNode;
+        m_rootNode = nullptr;
+    }
+
 protected:
     virtual ITestParser *createTestParser() = 0;
     virtual TestTreeItem *createRootNode() const = 0;

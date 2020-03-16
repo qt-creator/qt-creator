@@ -39,14 +39,18 @@
 #include <texteditor/texteditor.h>
 #include <utils/qtcassert.h>
 
+using namespace ProjectExplorer;
+using namespace Autotest::Internal;
+
 namespace Autotest {
 
-using namespace Internal;
+static TestTreeModel *s_instance = nullptr;
 
-TestTreeModel::TestTreeModel(QObject *parent) :
-    TreeModel<>(parent),
-    m_parser(new TestCodeParser(this))
+TestTreeModel::TestTreeModel(TestCodeParser *parser) :
+    m_parser(parser)
 {
+    s_instance = this;
+
     connect(m_parser, &TestCodeParser::aboutToPerformFullParse, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::testParseResultReady,
@@ -55,22 +59,21 @@ TestTreeModel::TestTreeModel(QObject *parent) :
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::parsingFailed,
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
+    connect(m_parser, &TestCodeParser::requestRemoveAll,
+            this, &TestTreeModel::markAllForRemoval);
+    connect(m_parser, &TestCodeParser::requestRemoval,
+            this, &TestTreeModel::markForRemoval);
 
     setupParsingConnections();
 }
 
-static TestTreeModel *s_instance = nullptr;
-
 TestTreeModel *TestTreeModel::instance()
 {
-    if (!s_instance)
-        s_instance = new TestTreeModel;
     return s_instance;
 }
 
 TestTreeModel::~TestTreeModel()
 {
-    removeTestRootNodes();
     s_instance = nullptr;
 }
 
@@ -82,9 +85,11 @@ void TestTreeModel::setupParsingConnections()
     m_parser->setDirty();
     m_parser->setState(TestCodeParser::Idle);
 
-    ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
-    connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
-            m_parser, &TestCodeParser::onStartupProjectChanged);
+    SessionManager *sm = SessionManager::instance();
+    connect(sm, &SessionManager::startupProjectChanged, [this](Project *project) {
+        synchronizeTestFrameworks(); // we might have project settings
+        m_parser->onStartupProjectChanged(project);
+    });
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     connect(cppMM, &CppTools::CppModelManager::documentUpdated,
@@ -496,17 +501,6 @@ void TestTreeModel::removeAllTestItems()
             testTreeItem->setData(0, Qt::Checked, Qt::CheckStateRole);
     }
     emit testTreeModelChanged();
-}
-
-void TestTreeModel::removeTestRootNodes()
-{
-    const Utils::TreeItem *invisibleRoot = rootItem();
-    const int frameworkRootCount = invisibleRoot ? invisibleRoot->childCount() : 0;
-    for (int row = frameworkRootCount - 1; row >= 0; --row) {
-        Utils::TreeItem *item = invisibleRoot->childAt(row);
-        item->removeChildren();
-        takeItem(item); // do NOT delete the item as it's still a ptr held by TestFrameworkManager
-    }
 }
 
 #ifdef WITH_TESTS

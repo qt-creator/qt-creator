@@ -60,7 +60,10 @@ void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
 
 void TestProjectSettings::activateFramework(const Core::Id &id, bool activate)
 {
-    m_activeTestFrameworks[TestFrameworkManager::instance()->frameworkForId(id)] = activate;
+    ITestFramework *framework = TestFrameworkManager::instance()->frameworkForId(id);
+    m_activeTestFrameworks[framework] = activate;
+    if (!activate)
+        framework->resetRootNode();
 }
 
 void TestProjectSettings::load()

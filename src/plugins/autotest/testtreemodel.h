@@ -36,6 +36,7 @@
 
 namespace Autotest {
 namespace Internal {
+class AutotestPluginPrivate;
 class TestCodeParser;
 } // namespace Internal
 
@@ -45,6 +46,10 @@ using TestParseResultPtr = QSharedPointer<TestParseResult>;
 class AUTOTESTSHARED_EXPORT TestTreeModel : public Utils::TreeModel<>
 {
     Q_OBJECT
+
+    friend class Internal::AutotestPluginPrivate; // For ctor.
+    explicit TestTreeModel(Internal::TestCodeParser *parser);
+
 public:
     static TestTreeModel* instance();
     ~TestTreeModel() override;
@@ -89,12 +94,10 @@ private:
     void onParseResultReady(const TestParseResultPtr result);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
-    void removeTestRootNodes();
     void removeFiles(const QStringList &files);
     bool sweepChildren(TestTreeItem *item);
     void insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     void revalidateCheckState(TestTreeItem *item);
-    explicit TestTreeModel(QObject *parent = nullptr);
     void setupParsingConnections();
     void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);

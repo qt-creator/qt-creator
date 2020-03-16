@@ -102,6 +102,9 @@ public:
 
     TestSettings m_settings;
     TestSettingsPage m_testSettingPage{&m_settings};
+
+    TestCodeParser m_testCodeParser;
+    TestTreeModel m_testTreeModel{&m_testCodeParser};
 };
 
 static AutotestPluginPrivate *dd = nullptr;
@@ -118,6 +121,7 @@ AutotestPlugin::AutotestPlugin()
 AutotestPlugin::~AutotestPlugin()
 {
     delete dd;
+    dd = nullptr;
 }
 
 AutotestPluginPrivate::AutotestPluginPrivate()
@@ -144,7 +148,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
     m_frameworkManager->activateFrameworksFromSettings(&m_settings);
-    TestTreeModel::instance()->synchronizeTestFrameworks();
+    m_testTreeModel.synchronizeTestFrameworks();
 
     auto sessionManager = ProjectExplorer::SessionManager::instance();
     connect(sessionManager, &ProjectExplorer::SessionManager::startupProjectChanged,
@@ -232,9 +236,8 @@ void AutotestPluginPrivate::initializeMenuEntries()
     command = ActionManager::registerAction(action, Constants::ACTION_SCAN_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+S") : tr("Alt+Shift+T,Alt+S")));
-    connect(action, &QAction::triggered, this, []() {
-        TestTreeModel::instance()->parser()->updateTestTree();
-    });
+
+    connect(action, &QAction::triggered, this, [] { dd->m_testCodeParser.updateTestTree(); });
     menu->addAction(command);
 
     ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
@@ -246,7 +249,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
             this, &AutotestPlugin::updateMenuItemsEnabledState);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &AutotestPlugin::updateMenuItemsEnabledState);
-    connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
+    connect(&dd->m_testTreeModel, &TestTreeModel::testTreeModelChanged,
             this, &AutotestPlugin::updateMenuItemsEnabledState);
 }
 
@@ -288,23 +291,22 @@ void AutotestPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
 {
-    TestTreeModel::instance()->parser()->aboutToShutdown();
+    dd->m_testCodeParser.aboutToShutdown();
+    dd->m_testTreeModel.disconnect();
     return SynchronousShutdown;
 }
 
 void AutotestPluginPrivate::onRunAllTriggered()
 {
     TestRunner *runner = TestRunner::instance();
-    TestTreeModel *model = TestTreeModel::instance();
-    runner->setSelectedTests(model->getAllTestCases());
+    runner->setSelectedTests(m_testTreeModel.getAllTestCases());
     runner->prepareToRunTests(TestRunMode::Run);
 }
 
 void AutotestPluginPrivate::onRunSelectedTriggered()
 {
     TestRunner *runner = TestRunner::instance();
-    TestTreeModel *model = TestTreeModel::instance();
-    runner->setSelectedTests(model->getSelectedTests());
+    runner->setSelectedTests(m_testTreeModel.getSelectedTests());
     runner->prepareToRunTests(TestRunMode::Run);
 }
 
@@ -318,8 +320,7 @@ void AutotestPluginPrivate::onRunFileTriggered()
     if (fileName.isEmpty())
         return;
 
-    TestTreeModel *model = TestTreeModel::instance();
-    const QList<TestConfiguration *> tests = model->getTestsForFile(fileName);
+    const QList<TestConfiguration *> tests = m_testTreeModel.getTestsForFile(fileName);
     if (tests.isEmpty())
         return;
 
@@ -348,7 +349,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
     if (text.isEmpty())
         return; // Do not trigger when no name under cursor
 
-    const QList<TestTreeItem *> testsItems = TestTreeModel::instance()->testItemsByName(text);
+    const QList<TestTreeItem *> testsItems = m_testTreeModel.testItemsByName(text);
     if (testsItems.isEmpty())
         return; // Wrong location triggered
 
@@ -377,8 +378,8 @@ void AutotestPlugin::updateMenuItemsEnabledState()
     const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     const ProjectExplorer::Target *target = project ? project->activeTarget() : nullptr;
     const bool canScan = !TestRunner::instance()->isTestRunning()
-            && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
-    const bool hasTests = TestTreeModel::instance()->hasTests();
+            && dd->m_testCodeParser.state() == TestCodeParser::Idle;
+    const bool hasTests = dd->m_testTreeModel.hasTests();
     // avoid expensive call to PE::canRunStartupProject() - limit to minimum necessary checks
     const bool canRun = hasTests && canScan
             && project && !project->needsConfiguration()
@@ -425,7 +426,7 @@ QVector<QObject *> AutotestPlugin::createTestObjects() const
 {
     QVector<QObject *> tests;
 #ifdef WITH_TESTS
-    tests << new AutoTestUnitTests(TestTreeModel::instance());
+    tests << new AutoTestUnitTests(&dd->m_testTreeModel);
 #endif
     return tests;
 }
