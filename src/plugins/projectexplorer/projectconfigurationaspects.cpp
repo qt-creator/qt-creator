@@ -109,6 +109,7 @@ public:
     Utils::FilePath m_baseFileName;
     bool m_readOnly = false;
     bool m_showToolTipOnLabel = false;
+    bool m_fileDialogOnly = false;
 
     template<class Widget> void updateWidgetFromCheckStatus(Widget *w)
     {
@@ -257,6 +258,13 @@ void BaseStringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
         d->m_pathChooserDisplay->setExpectedKind(expectedKind);
 }
 
+void BaseStringAspect::setFileDialogOnly(bool requireFileDialog)
+{
+    d->m_fileDialogOnly = requireFileDialog;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setFileDialogOnly(requireFileDialog);
+}
+
 void BaseStringAspect::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
@@ -337,6 +345,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &BaseStringAspect::setValue);
         builder.addItem(d->m_pathChooserDisplay.data());
+        d->m_pathChooserDisplay->setFileDialogOnly(d->m_fileDialogOnly);
         break;
     case LineEditDisplay:
         d->m_lineEditDisplay = new FancyLineEdit;

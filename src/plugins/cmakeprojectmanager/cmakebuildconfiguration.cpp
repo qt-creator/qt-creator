@@ -33,6 +33,7 @@
 #include "cmakeprojectconstants.h"
 
 #include <android/androidconstants.h>
+#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -66,6 +67,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
                                            target->kit(),
                                            displayName(),
                                            BuildConfiguration::Unknown));
+
+    buildDirectoryAspect()->setFileDialogOnly(true);
 
     appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
