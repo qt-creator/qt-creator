@@ -99,7 +99,9 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
 {
     int vertexSize = 0;
     int indexSize = 0;
-    const int dirSegments = 12;
+    const int dirSegments = 12; // Segment lines in directional light circle
+    const int spotArc = 6; // Segment lines per cone line in spotlight arc
+    const int spotCone = 4; // Lines in spotlight cone
     const int pointLightDensity = 5;
 
     if (qobject_cast<QQuick3DAreaLight *>(m_light)) {
@@ -117,9 +119,8 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
         vertexSize = int(sizeof(float)) * 3 * pointLightDensity * pointLightDensity * 4;
         indexSize = int(sizeof(quint16)) * pointLightDensity * pointLightDensity * 4;
     } else if (qobject_cast<QQuick3DSpotLight *>(m_light)) {
-        // TODO: Spot light model, for now use area light model
-        vertexSize = int(sizeof(float)) * 3 * dirSegments * 2;
-        indexSize = int(sizeof(quint16)) * dirSegments * 2 * 2;
+        vertexSize = int(sizeof(float)) * 3 * (spotArc * spotCone + 1);
+        indexSize = int(sizeof(quint16)) * (spotArc + 1) * spotCone * 2;
     }
     vertexData.resize(vertexSize);
     indexData.resize(indexSize);
@@ -189,26 +190,28 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
         vertexData.resize(vertexSize);
         indexData.resize(indexSize);
     } else if (qobject_cast<QQuick3DSpotLight *>(m_light)) {
-        // TODO: Spot light model, for now use area light model
-        *dataPtr++ = -1.f; *dataPtr++ = 1.f;  *dataPtr++ = 0.f;
-        *dataPtr++ = -1.f; *dataPtr++ = -1.f; *dataPtr++ = 0.f;
-        *dataPtr++ = 1.f;  *dataPtr++ = -1.f; *dataPtr++ = 0.f;
-        *dataPtr++ = 1.f;  *dataPtr++ = 1.f;  *dataPtr++ = 0.f;
+        const quint16 segments = spotArc * spotCone;
+        const double segment = M_PI * 2. / double(segments);
 
-        *dataPtr++ = -1.f; *dataPtr++ = 1.f;  *dataPtr++ = -1.f;
-        *dataPtr++ = -1.f; *dataPtr++ = -1.f; *dataPtr++ = -1.f;
-        *dataPtr++ = 1.f;  *dataPtr++ = -1.f; *dataPtr++ = -1.f;
-        *dataPtr++ = 1.f;  *dataPtr++ = 1.f;  *dataPtr++ = -1.f;
+        // Circle
+        for (quint16 i = 0; i < segments; ++i) {
+            float x = float(qCos(i * segment));
+            float y = float(qSin(i * segment));
+            *dataPtr++ = x; *dataPtr++ = y; *dataPtr++ = -2.f;
+            *indexPtr++ = i; *indexPtr++ = i + 1;
+        }
+        // Adjust the final index to complete the circle
+        *(indexPtr - 1) = 0;
 
-        *indexPtr++ = 0; *indexPtr++ = 1;
-        *indexPtr++ = 1; *indexPtr++ = 2;
-        *indexPtr++ = 2; *indexPtr++ = 3;
-        *indexPtr++ = 3; *indexPtr++ = 0;
+        // Cone tip
+        *dataPtr++ = 0.f; *dataPtr++ = 0.f; *dataPtr++ = 0.f;
+        quint16 tipIndex = segments;
 
-        *indexPtr++ = 0; *indexPtr++ = 4;
-        *indexPtr++ = 1; *indexPtr++ = 5;
-        *indexPtr++ = 2; *indexPtr++ = 6;
-        *indexPtr++ = 3; *indexPtr++ = 7;
+        // Cone lines
+        for (quint16 i = 0; i < spotCone; ++i) {
+            *indexPtr++ = tipIndex;
+            *indexPtr++ = i * spotArc;
+        }
     }
 
     static const float floatMin = std::numeric_limits<float>::lowest();
