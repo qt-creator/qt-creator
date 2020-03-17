@@ -224,6 +224,23 @@ QPainterPath CurveSegment::path() const
     return path;
 }
 
+void CurveSegment::extendWithEasingCurve(QPainterPath &path, const QEasingCurve &curve) const
+{
+    auto mapEasing = [](const QPointF &start, const QPointF &end, const QPointF &pos) {
+        QPointF slope(end.x() - start.x(), end.y() - start.y());
+        return QPointF(start.x() + slope.x() * pos.x(), start.y() + slope.y() * pos.y());
+    };
+
+    QVector<QPointF> points = curve.toCubicSpline();
+    int numSegments = points.count() / 3;
+    for (int i = 0; i < numSegments; i++) {
+        QPointF p1 = mapEasing(m_left.position(), m_right.position(), points.at(i * 3));
+        QPointF p2 = mapEasing(m_left.position(), m_right.position(), points.at(i * 3 + 1));
+        QPointF p3 = mapEasing(m_left.position(), m_right.position(), points.at(i * 3 + 2));
+        path.cubicTo(p1, p2, p3);
+    }
+}
+
 void CurveSegment::extend(QPainterPath &path) const
 {
     if (interpolation() == Keyframe::Interpolation::Linear) {
@@ -232,23 +249,11 @@ void CurveSegment::extend(QPainterPath &path) const
         path.lineTo(QPointF(m_right.position().x(), m_left.position().y()));
         path.lineTo(m_right.position());
     } else if (interpolation() == Keyframe::Interpolation::Bezier) {
-        path.cubicTo(m_left.rightHandle(), m_right.leftHandle(), m_right.position());
+        extendWithEasingCurve(path, easingCurve());
     } else if (interpolation() == Keyframe::Interpolation::Easing) {
-        auto mapEasing = [](const QPointF &start, const QPointF &end, const QPointF &pos) {
-            QPointF slope(end.x() - start.x(), end.y() - start.y());
-            return QPointF(start.x() + slope.x() * pos.x(), start.y() + slope.y() * pos.y());
-        };
-
         QVariant data = m_right.data();
         if (data.isValid() && data.type() == static_cast<int>(QMetaType::QEasingCurve)) {
-            QVector<QPointF> points = data.value<QEasingCurve>().toCubicSpline();
-            int numSegments = points.count() / 3;
-            for (int i = 0; i < numSegments; i++) {
-                QPointF p1 = mapEasing(m_left.position(), m_right.position(), points.at(i * 3));
-                QPointF p2 = mapEasing(m_left.position(), m_right.position(), points.at(i * 3 + 1));
-                QPointF p3 = mapEasing(m_left.position(), m_right.position(), points.at(i * 3 + 2));
-                path.cubicTo(p1, p2, p3);
-            }
+            extendWithEasingCurve(path, data.value<QEasingCurve>());
         }
     }
 }

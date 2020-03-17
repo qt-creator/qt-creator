@@ -206,6 +206,13 @@ std::vector<DesignTools::Keyframe> resolveSmallCurves(
             QEasingCurve curve = frame.data().toEasingCurve();
             if (curve.toCubicSpline().count() == 3) {
                 DesignTools::Keyframe &previous = out.back();
+#if 0
+                // Do not resolve when two adjacent keyframes have the same value.
+                if (qFuzzyCompare(previous.position().y(), frame.position().y())) {
+                    out.push_back(frame);
+                    continue;
+                }
+#endif
                 DesignTools::AnimationCurve acurve(curve, previous.position(), frame.position());
                 previous.setRightHandle(acurve.keyframeAt(0).rightHandle());
                 out.push_back(acurve.keyframeAt(1));
