@@ -93,6 +93,8 @@ private:
     void runOrDebugTests();
     void reportResult(ResultType type, const QString &description);
     explicit TestRunner(QObject *parent = nullptr);
+    bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
+    void onBuildSystemUpdated();
 
     QFutureWatcher<TestResultPtr> m_futureWatcher;
     QFutureInterface<TestResultPtr> *m_fakeFutureInterface = nullptr;
@@ -111,6 +113,7 @@ private:
     QMetaObject::Connection m_finishDebugConnect;
     // temporarily used for handling of switching the current target
     QMetaObject::Connection m_targetConnect;
+    bool m_skipTargetsCheck = false;
 };
 
 class RunConfigurationSelectionDialog : public QDialog
