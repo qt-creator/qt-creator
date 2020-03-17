@@ -29,6 +29,8 @@
 
 #include <QWidget>
 
+#include <functional>
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT OverlayWidget : public QWidget
