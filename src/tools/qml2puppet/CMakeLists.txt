@@ -97,6 +97,16 @@ extend_qtc_executable(qml2puppet
   FEATURE_INFO "Qt Quick 3D"
   DEPENDS Qt5::Quick3D Qt5::Quick3DPrivate
   DEFINES QUICK3D_MODULE
+
+  SOURCES_PREFIX "${SRCDIR}/qmlpuppet/editor3d"
+  SOURCES
+    generalhelper.cpp generalhelper.h
+    mousearea3d.cpp mousearea3d.h
+    camerageometry.cpp camerageometry.h
+    lightgeometry.cpp lightgeometry.h
+    gridgeometry.cpp gridgeometry.h
+    selectionboxgeometry.cpp selectionboxgeometry.h
+    linegeometry.cpp linegeometry.h
 )
 
 extend_qtc_executable(qml2puppet
@@ -106,18 +116,6 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientinterface.h
     nodeinstanceglobal.h
     nodeinstanceserverinterface.cpp nodeinstanceserverinterface.h
-)
-
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/qml2puppet/editor3d"
-  SOURCES
-    generalhelper.cpp generalhelper.h
-    mousearea3d.cpp mousearea3d.h
-    camerageometry.cpp camerageometry.h
-    lightgeometry.cpp lightgeometry.h
-    gridgeometry.cpp gridgeometry.h
-    selectionboxgeometry.cpp selectionboxgeometry.h
-    linegeometry.cpp linegeometry.h
 )
 
 extend_qtc_executable(qml2puppet
