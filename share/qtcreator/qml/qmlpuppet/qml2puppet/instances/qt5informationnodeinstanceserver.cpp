@@ -925,7 +925,8 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
     if (m_editView3DRootItem)
         resolveSceneRoots();
 
-    render3DEditView();
+    // Make sure selection is in sync after all reparentings are done
+    m_selectionChangeTimer.start(0);
 }
 
 void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &command)
@@ -1085,7 +1086,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs)));
     }
 
-    render3DEditView();
+    render3DEditView(2);
 }
 
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
