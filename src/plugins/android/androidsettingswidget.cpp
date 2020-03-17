@@ -924,7 +924,7 @@ void AndroidSettingsWidget::manageAVD()
         m_avdManager->launchAvdManagerUiTool();
     } else {
         QMessageBox::warning(this, tr("AVD Manager Not Available"),
-                             tr("AVD manager UI tool is not available in the installed SDK tools"
+                             tr("AVD manager UI tool is not available in the installed SDK tools "
                                 "(version %1). Use the command line tool \"avdmanager\" for "
                                 "advanced AVD management.")
                              .arg(m_androidConfig.sdkToolsVersion().toString()));
