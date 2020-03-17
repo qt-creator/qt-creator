@@ -497,8 +497,8 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
 {
     QByteArray message = msg.toUtf8();
     switch (format) {
-    case Utils::OutputFormat::StdErrFormatSameLine:
-    case Utils::OutputFormat::StdOutFormatSameLine:
+    case Utils::OutputFormat::StdErrFormat:
+    case Utils::OutputFormat::StdOutFormat:
     case Utils::OutputFormat::DebugFormat: {
         static const QByteArray gdbSpecialOut = "Qt: gdb: -nograb added to command-line options.\n"
                                                 "\t Use the -dograb option to enforce grabbing.";
@@ -507,7 +507,7 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
         message.chop(1); // all messages have an additional \n at the end
 
         for (auto line : message.split('\n')) {
-            if (format == Utils::OutputFormat::StdOutFormatSameLine)
+            if (format == Utils::OutputFormat::StdOutFormat)
                 outputreader->processStdOutput(line);
             else
                 outputreader->processStdError(line);

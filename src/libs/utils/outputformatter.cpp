@@ -144,26 +144,12 @@ void OutputFormatter::initFormats()
         return;
 
     Theme *theme = creatorTheme();
-
-    // NormalMessageFormat
     d->formats[NormalMessageFormat].setForeground(theme->color(Theme::OutputPanes_NormalMessageTextColor));
-
-    // ErrorMessageFormat
     d->formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
-
-    // LogMessageFormat
     d->formats[LogMessageFormat].setForeground(theme->color(Theme::OutputPanes_WarningMessageTextColor));
-
-    // StdOutFormat
     d->formats[StdOutFormat].setForeground(theme->color(Theme::OutputPanes_StdOutTextColor));
-    d->formats[StdOutFormatSameLine] = d->formats[StdOutFormat];
-
-    // StdErrFormat
     d->formats[StdErrFormat].setForeground(theme->color(Theme::OutputPanes_StdErrTextColor));
-    d->formats[StdErrFormatSameLine] = d->formats[StdErrFormat];
-
     d->formats[DebugFormat].setForeground(theme->color(Theme::OutputPanes_DebugTextColor));
-
     setBoldFontEnabled(d->boldFontEnabled);
 }
 
@@ -203,34 +189,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         d->prependCarriageReturn = true;
         out.chop(1);
     }
-
-    if (format != StdOutFormatSameLine && format != StdErrFormatSameLine) {
-        doAppendMessage(doNewlineEnforcement(out), format);
-        return;
-    }
-
-    const bool enforceNewline = d->enforceNewline;
-    d->enforceNewline = false;
-    if (enforceNewline) {
-        out.prepend('\n');
-    } else {
-        const int newline = out.indexOf('\n');
-        plainTextEdit()->moveCursor(QTextCursor::End);
-        if (newline != -1) {
-            doAppendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
-            out = out.mid(newline);
-        }
-    }
-
-    if (out.isEmpty()) {
-        d->enforceNewline = true;
-    } else {
-        if (out.endsWith('\n')) {
-            d->enforceNewline = true;
-            out.chop(1);
-        }
-        doAppendMessage(out, format);
-    }
+    doAppendMessage(doNewlineEnforcement(out), format);
 }
 
 QString OutputFormatter::doNewlineEnforcement(const QString &out)

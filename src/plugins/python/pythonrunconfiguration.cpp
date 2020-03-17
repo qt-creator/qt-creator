@@ -73,8 +73,7 @@ public:
 private:
     void doAppendMessage(const QString &text, OutputFormat format) final
     {
-        const bool isTrace = (format == StdErrFormat
-                              || format == StdErrFormatSameLine)
+        const bool isTrace = format == StdErrFormat
                           && (text.startsWith("Traceback (most recent call last):")
                               || text.startsWith("\nTraceback (most recent call last):"));
 

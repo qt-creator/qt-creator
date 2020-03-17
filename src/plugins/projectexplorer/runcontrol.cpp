@@ -1214,12 +1214,12 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
 
         connect(&m_launcher, &ApplicationLauncher::remoteStderr,
                 this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdErrFormatSameLine, false);
+                    appendMessage(output, Utils::StdErrFormat, false);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::remoteStdout,
                 this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdOutFormatSameLine, false);
+                    appendMessage(output, Utils::StdOutFormat, false);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::finished,

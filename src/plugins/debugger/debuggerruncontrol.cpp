@@ -128,14 +128,14 @@ public:
     {
         const QByteArray ba = m_proc.readAllStandardOutput();
         const QString msg = QString::fromLocal8Bit(ba, ba.length());
-        m_runTool->appendMessage(msg, StdOutFormatSameLine);
+        m_runTool->appendMessage(msg, StdOutFormat);
     }
 
     void handleStandardError()
     {
         const QByteArray ba = m_proc.readAllStandardError();
         const QString msg = QString::fromLocal8Bit(ba, ba.length());
-        m_runTool->appendMessage(msg, StdErrFormatSameLine);
+        m_runTool->appendMessage(msg, StdErrFormat);
     }
 
     void handleFinished()
@@ -1025,10 +1025,10 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
         m_engine->showMessage(msg, channel, timeout);
     switch (channel) {
     case AppOutput:
-        appendMessage(msg, StdOutFormatSameLine);
+        appendMessage(msg, StdOutFormat);
         break;
     case AppError:
-        appendMessage(msg, StdErrFormatSameLine);
+        appendMessage(msg, StdErrFormat);
         break;
     case AppStuff:
         appendMessage(msg, DebugFormat);

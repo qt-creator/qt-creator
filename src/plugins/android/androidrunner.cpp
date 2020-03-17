@@ -215,14 +215,14 @@ void AndroidRunner::qmlServerPortReady(Port port)
 void AndroidRunner::remoteOutput(const QString &output)
 {
     Core::MessageManager::write("LOGCAT: " + output, Core::MessageManager::Silent);
-    appendMessage(output, Utils::StdOutFormatSameLine);
+    appendMessage(output, Utils::StdOutFormat);
     m_outputParser.processOutput(output);
 }
 
 void AndroidRunner::remoteErrorOutput(const QString &output)
 {
     Core::MessageManager::write("LOGCAT: " + output, Core::MessageManager::Silent);
-    appendMessage(output, Utils::StdErrFormatSameLine);
+    appendMessage(output, Utils::StdErrFormat);
     m_outputParser.processOutput(output);
 }
 
