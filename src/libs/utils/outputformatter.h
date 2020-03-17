@@ -72,8 +72,6 @@ protected:
     QTextCursor &cursor() const;
 
 private:
-    QString doNewlineEnforcement(const QString &out);
-
     virtual void doAppendMessage(const QString &text, const QTextCharFormat &format);
     Internal::OutputFormatterPrivate *d;
 };

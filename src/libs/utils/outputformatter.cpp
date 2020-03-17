@@ -43,7 +43,6 @@ public:
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
     bool boldFontEnabled = true;
-    bool enforceNewline = false;
     bool prependCarriageReturn = false;
 };
 
@@ -160,7 +159,6 @@ void OutputFormatter::handleLink(const QString &href)
 
 void OutputFormatter::clear()
 {
-    d->enforceNewline = false;
     d->prependCarriageReturn = false;
 }
 
@@ -189,23 +187,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         d->prependCarriageReturn = true;
         out.chop(1);
     }
-    doAppendMessage(doNewlineEnforcement(out), format);
-}
-
-QString OutputFormatter::doNewlineEnforcement(const QString &out)
-{
-    QString s = out;
-    if (d->enforceNewline) {
-        s.prepend('\n');
-        d->enforceNewline = false;
-    }
-
-    if (s.endsWith('\n')) {
-        d->enforceNewline = true; // make appendOutputInline put in a newline next time
-        s.chop(1);
-    }
-
-    return s;
+    doAppendMessage(out, format);
 }
 
 } // namespace Utils
