@@ -270,7 +270,7 @@ void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
 
     nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSceneChanged,
                                                         toolStates});
-    render3DEditView();
+    m_selectionChangeTimer.start(0);
 #endif
 }
 
@@ -575,7 +575,7 @@ void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 
 void Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout()
 {
-    changeSelection(m_pendingSelectionChangeCommand);
+    changeSelection(m_lastSelectionChangeCommand);
 }
 
 void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
@@ -1018,10 +1018,10 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     if (!m_editView3DRootItem)
         return;
 
+    m_lastSelectionChangeCommand = command;
     if (m_selectionChangeTimer.isActive()) {
         // If selection was recently changed by puppet, hold updating the selection for a bit to
         // avoid selection flicker, especially in multiselect cases.
-        m_pendingSelectionChangeCommand = command;
         // Add additional time in case more commands are still coming through
         m_selectionChangeTimer.start(500);
         return;
@@ -1079,8 +1079,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     if (boxCount < selectedObjs.size()) {
         QMetaObject::invokeMethod(m_editView3DRootItem, "ensureSelectionBoxes",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs.size())));
-        m_pendingSelectionChangeCommand = command;
-        m_selectionChangeTimer.start(100);
+        m_selectionChangeTimer.start(0);
     } else {
         QMetaObject::invokeMethod(m_editView3DRootItem, "selectObjects",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs)));
