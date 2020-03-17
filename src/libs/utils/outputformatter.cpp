@@ -204,36 +204,32 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         out.chop(1);
     }
 
-    if (format == ErrorMessageFormat || format == NormalMessageFormat) {
+    if (format != StdOutFormatSameLine && format != StdErrFormatSameLine) {
         doAppendMessage(doNewlineEnforcement(out), format);
-    } else {
-        const bool sameLine = format == StdOutFormatSameLine || format == StdErrFormatSameLine;
-        if (sameLine) {
-            bool enforceNewline = d->enforceNewline;
-            d->enforceNewline = false;
-            if (enforceNewline) {
-                out.prepend('\n');
-            } else {
-                const int newline = out.indexOf('\n');
-                plainTextEdit()->moveCursor(QTextCursor::End);
-                if (newline != -1) {
-                    doAppendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
-                    out = out.mid(newline);
-                }
-            }
+        return;
+    }
 
-            if (out.isEmpty()) {
-                d->enforceNewline = true;
-            } else {
-                if (out.endsWith('\n')) {
-                    d->enforceNewline = true;
-                    out.chop(1);
-                }
-                doAppendMessage(out, format);
-            }
-        } else {
-            doAppendMessage(doNewlineEnforcement(out), format);
+    const bool enforceNewline = d->enforceNewline;
+    d->enforceNewline = false;
+    if (enforceNewline) {
+        out.prepend('\n');
+    } else {
+        const int newline = out.indexOf('\n');
+        plainTextEdit()->moveCursor(QTextCursor::End);
+        if (newline != -1) {
+            doAppendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
+            out = out.mid(newline);
         }
+    }
+
+    if (out.isEmpty()) {
+        d->enforceNewline = true;
+    } else {
+        if (out.endsWith('\n')) {
+            d->enforceNewline = true;
+            out.chop(1);
+        }
+        doAppendMessage(out, format);
     }
 }
 
