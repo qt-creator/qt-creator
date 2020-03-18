@@ -73,50 +73,46 @@ public:
 private:
     void doAppendMessage(const QString &text, OutputFormat format) final
     {
-        const bool isTrace = format == StdErrFormat
-                          && (text.startsWith("Traceback (most recent call last):")
-                              || text.startsWith("\nTraceback (most recent call last):"));
-
-        if (!isTrace) {
+        if (!m_inTraceBack) {
+            m_inTraceBack = format == StdErrFormat
+                    && text.startsWith("Traceback (most recent call last):");
             OutputFormatter::doAppendMessage(text, format);
+        }
+
+        const Core::Id category(PythonErrorTaskCategory);
+        const QRegularExpressionMatch match = filePattern.match(text);
+        if (match.hasMatch()) {
+            QTextCursor tc = plainTextEdit()->textCursor();
+            tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+            tc.insertText(match.captured(1));
+            tc.insertText(match.captured(2), linkFormat(charFormat(format), match.captured(2)));
+
+            const auto fileName = FilePath::fromString(match.captured(3));
+            const int lineNumber = match.capturedRef(4).toInt();
+            m_tasks.append({Task::Warning, QString(), fileName, lineNumber, category});
             return;
         }
 
-        const QTextCharFormat frm = charFormat(format);
-        const Core::Id id(PythonErrorTaskCategory);
-        QVector<Task> tasks;
-        const QStringList lines = text.split('\n');
-        unsigned taskId = unsigned(lines.size());
-
-        for (const QString &line : lines) {
-            const QRegularExpressionMatch match = filePattern.match(line);
-            if (match.hasMatch()) {
-                QTextCursor tc = plainTextEdit()->textCursor();
-                tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-                tc.insertText('\n' + match.captured(1));
-                tc.insertText(match.captured(2), linkFormat(frm, match.captured(2)));
-
-                const auto fileName = FilePath::fromString(match.captured(3));
-                const int lineNumber = match.capturedRef(4).toInt();
-                Task task(Task::Warning,
-                                           QString(), fileName, lineNumber, id);
-                task.taskId = --taskId;
-                tasks.append(task);
+        if (text.startsWith(' ')) {
+            // Neither traceback start, nor file, nor error message line.
+            // Not sure if that can actually happen.
+            if (m_tasks.isEmpty()) {
+                m_tasks.append({Task::Warning, text.trimmed(), {}, -1, category});
             } else {
-                if (!tasks.isEmpty()) {
-                    Task &task = tasks.back();
-                    if (!task.description.isEmpty())
-                        task.description += ' ';
-                    task.description += line.trimmed();
-                }
-                OutputFormatter::doAppendMessage('\n' + line, format);
+                Task &task = m_tasks.back();
+                if (!task.description.isEmpty())
+                    task.description += ' ';
+                task.description += text.trimmed();
             }
-        }
-        if (!tasks.isEmpty()) {
-            tasks.back().type = Task::Error;
-            for (auto rit = tasks.crbegin(), rend = tasks.crend(); rit != rend; ++rit)
+        } else {
+            // The actual exception. This ends the traceback.
+            TaskHub::addTask({Task::Error, text, {}, -1, category});
+            for (auto rit = m_tasks.crbegin(), rend = m_tasks.crend(); rit != rend; ++rit)
                 TaskHub::addTask(*rit);
+            m_tasks.clear();
+            m_inTraceBack = false;
         }
+        OutputFormatter::doAppendMessage(text, format);
     }
 
     void handleLink(const QString &href) final
@@ -129,7 +125,15 @@ private:
         Core::EditorManager::openEditorAt(fileName, lineNumber);
     }
 
+    void reset() override
+    {
+        m_inTraceBack = false;
+        m_tasks.clear();
+    }
+
     const QRegularExpression filePattern;
+    QList<Task> m_tasks;
+    bool m_inTraceBack;
 };
 
 ////////////////////////////////////////////////////////////////

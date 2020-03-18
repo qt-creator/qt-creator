@@ -81,7 +81,6 @@ public:
     const QRegularExpression qtTestFailUnix;
     const QRegularExpression qtTestFailWin;
     QPointer<Project> project;
-    QList<FormattedText> lastLine;
     FileInProjectFinder projectFinder;
     QTextCursor cursor;
 };
@@ -92,20 +91,18 @@ public:
     explicit QtOutputFormatter(Target *target);
     ~QtOutputFormatter() override;
 
-    void doAppendMessage(const QString &text, Utils::OutputFormat format) override;
-    void handleLink(const QString &href) override;
-
 protected:
-    void clearLastLine() override;
     virtual void openEditor(const QString &fileName, int line, int column = -1);
 
 private:
+    void doAppendMessage(const QString &text, Utils::OutputFormat format) override;
+    void handleLink(const QString &href) override;
+
     void updateProjectFileList();
     LinkResult matchLine(const QString &line) const;
     void appendMessagePart(const QString &txt, const QTextCharFormat &fmt);
-    void appendLine(const LinkResult &lr, const QString &line, Utils::OutputFormat format);
     void appendLine(const LinkResult &lr, const QString &line, const QTextCharFormat &format);
-    void doAppendMessage(const QString &text, const QTextCharFormat &format) override;
+    void doAppendMessage(const QString &txt, const QTextCharFormat &format);
 
     QtOutputFormatterPrivate *d;
     friend class QtSupportPlugin; // for testing
@@ -163,6 +160,13 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     return lr;
 }
 
+void QtOutputFormatter::doAppendMessage(const QString &txt, const QTextCharFormat &format)
+{
+    const QList<FormattedText> ansiTextList = parseAnsi(txt, format);
+    for (const FormattedText &output : ansiTextList)
+        appendMessagePart(output.text, output.format);
+}
+
 void QtOutputFormatter::doAppendMessage(const QString &txt, OutputFormat format)
 {
     doAppendMessage(txt, charFormat(format));
@@ -170,61 +174,11 @@ void QtOutputFormatter::doAppendMessage(const QString &txt, OutputFormat format)
 
 void QtOutputFormatter::appendMessagePart(const QString &txt, const QTextCharFormat &fmt)
 {
-    QString deferredText;
-
-    const int length = txt.length();
-    for (int start = 0, pos = -1; start < length; start = pos + 1) {
-        bool linkHandled = false;
-        pos = txt.indexOf('\n', start);
-        const QString newPart = txt.mid(start, (pos == -1) ? -1 : pos - start + 1);
-        QString line = newPart;
-        QTextCharFormat format = fmt;
-        if (!d->lastLine.isEmpty()) {
-            line = d->lastLine.last().text + newPart;
-            format = d->lastLine.last().format;
-        }
-
-        LinkResult lr = matchLine(line);
-        if (!lr.href.isEmpty()) {
-            // Found something && line continuation
-            cursor().insertText(deferredText, fmt);
-            deferredText.clear();
-            if (!d->lastLine.isEmpty())
-                clearLastLine();
-            appendLine(lr, line, format);
-            linkHandled = true;
-        } else {
-            // Found nothing, just emit the new part
-            deferredText += newPart;
-        }
-
-        if (pos == -1) {
-            d->lastLine.clear();
-            if (!linkHandled)
-                d->lastLine.append(FormattedText(line, format));
-            break;
-        }
-        d->lastLine.clear(); // Handled line continuation
-    }
-    cursor().insertText(deferredText, fmt);
-}
-
-void QtOutputFormatter::doAppendMessage(const QString &txt, const QTextCharFormat &format)
-{
-    if (!cursor().atEnd())
-        cursor().movePosition(QTextCursor::End);
-    cursor().beginEditBlock();
-
-    const QList<FormattedText> ansiTextList = parseAnsi(txt, format);
-    for (const FormattedText &output : ansiTextList)
-        appendMessagePart(output.text, output.format);
-
-    cursor().endEditBlock();
-}
-
-void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line, OutputFormat format)
-{
-    appendLine(lr, line, charFormat(format));
+    const LinkResult lr = matchLine(txt);
+    if (!lr.href.isEmpty())
+        appendLine(lr, txt, fmt);
+    else
+        cursor().insertText(txt, fmt);
 }
 
 void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line,
@@ -299,13 +253,6 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
     }
-}
-
-void QtOutputFormatter::clearLastLine()
-{
-    OutputFormatter::clearLastLine();
-    if (!d->lastLine.isEmpty())
-        d->lastLine.removeLast();
 }
 
 void QtOutputFormatter::openEditor(const QString &fileName, int line, int column)

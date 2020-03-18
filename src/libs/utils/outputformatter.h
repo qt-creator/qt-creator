@@ -61,16 +61,24 @@ public:
     static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
 
 protected:
+    // text contains at most one line feed character, and if it does occur, it's the last character.
+    // Either way, the input is to be considered "complete" for formatting purposes.
+    virtual void doAppendMessage(const QString &text, OutputFormat format);
+
     virtual void clearLastLine();
+
     QTextCharFormat charFormat(OutputFormat format) const;
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
-    virtual void doAppendMessage(const QString &text, OutputFormat format);
     QTextCursor &cursor() const;
 
 private:
-    virtual void doAppendMessage(const QString &text, const QTextCharFormat &format);
+    void doAppendMessage(const QString &text, const QTextCharFormat &format);
+    virtual void reset() {}
+
     void append(const QString &text, const QTextCharFormat &format);
     void initFormats();
+    void flushIncompleteLine();
+    void dumpIncompleteLine(const QString &line, OutputFormat format);
 
     Internal::OutputFormatterPrivate *d;
 };

@@ -28,6 +28,7 @@
 #include "synchronousprocess.h"
 #include "theme/theme.h"
 
+#include <QPair>
 #include <QPlainTextEdit>
 #include <QTextCursor>
 
@@ -42,6 +43,7 @@ public:
     QTextCharFormat formats[NumberOfFormats];
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
+    QPair<QString, OutputFormat> incompleteLine;
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
 };
@@ -118,6 +120,9 @@ QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, 
 
 void OutputFormatter::clearLastLine()
 {
+    // Note that this approach will fail if the text edit is not read-only and users
+    // have messed with the last line between programmatic inputs.
+    // We live with this risk, as all the alternatives are worse.
     if (!d->cursor.atEnd())
         d->cursor.movePosition(QTextCursor::End);
     d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
@@ -139,6 +144,20 @@ void OutputFormatter::initFormats()
     setBoldFontEnabled(d->boldFontEnabled);
 }
 
+void OutputFormatter::flushIncompleteLine()
+{
+    clearLastLine();
+    doAppendMessage(d->incompleteLine.first, d->incompleteLine.second);
+    d->incompleteLine.first.clear();
+}
+
+void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat format)
+{
+    append(line, charFormat(format));
+    d->incompleteLine.first.append(line);
+    d->incompleteLine.second = format;
+}
+
 void OutputFormatter::handleLink(const QString &href)
 {
     Q_UNUSED(href)
@@ -147,7 +166,9 @@ void OutputFormatter::handleLink(const QString &href)
 void OutputFormatter::clear()
 {
     d->prependCarriageReturn = false;
+    d->incompleteLine.first.clear();
     plainTextEdit()->clear();
+    reset();
 }
 
 void OutputFormatter::setBoldFontEnabled(bool enabled)
@@ -160,11 +181,20 @@ void OutputFormatter::setBoldFontEnabled(bool enabled)
 
 void OutputFormatter::flush()
 {
+    if (!d->incompleteLine.first.isEmpty())
+        flushIncompleteLine();
     d->escapeCodeHandler.endFormatScope();
+    reset();
 }
 
 void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 {
+    // If we have an existing incomplete line and its format is different from this one,
+    // then we consider the two messages unrelated. We re-insert the previous incomplete line,
+    // possibly formatted now, and start from scratch with the new input.
+    if (!d->incompleteLine.first.isEmpty() && d->incompleteLine.second != format)
+        flushIncompleteLine();
+
     QString out = text;
     if (d->prependCarriageReturn) {
         d->prependCarriageReturn = false;
@@ -175,7 +205,35 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         d->prependCarriageReturn = true;
         out.chop(1);
     }
-    doAppendMessage(out, format);
+
+    // If the input is a single incomplete line, we do not forward it to the specialized
+    // formatting code, but simply dump it as-is. Once it becomes complete or it needs to
+    // be flushed for other reasons, we remove the unformatted part and re-insert it, this
+    // time with proper formatting.
+    if (!out.contains('\n')) {
+        dumpIncompleteLine(out, format);
+        return;
+    }
+
+    // We have at least one complete line, so let's remove the previously dumped
+    // incomplete line and prepend it to the first line of our new input.
+    if (!d->incompleteLine.first.isEmpty()) {
+        clearLastLine();
+        out.prepend(d->incompleteLine.first);
+        d->incompleteLine.first.clear();
+    }
+
+    // Forward all complete lines to the specialized formatting code, and handle a
+    // potential trailing incomplete line the same way as above.
+    for (int startPos = 0; ;) {
+        const int eolPos = out.indexOf('\n', startPos);
+        if (eolPos == -1) {
+            dumpIncompleteLine(out.mid(startPos), format);
+            break;
+        }
+        doAppendMessage(out.mid(startPos, eolPos - startPos + 1), format);
+        startPos = eolPos + 1;
+    }
 }
 
 } // namespace Utils
