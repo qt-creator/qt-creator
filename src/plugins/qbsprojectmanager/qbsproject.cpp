@@ -919,6 +919,7 @@ static RawProjectParts generateProjectParts(
             rpp.setBuildTargetType(prd.value("is-runnable").toBool()
                                    ? BuildTargetType::Executable
                                    : BuildTargetType::Library);
+            rpp.setSelectedForBuilding(grp.value("is-enabled").toBool());
 
             QHash<QString, QJsonObject> filePathToSourceArtifact;
             bool hasCFiles = false;
