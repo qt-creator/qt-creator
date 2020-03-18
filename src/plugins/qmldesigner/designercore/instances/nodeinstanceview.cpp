@@ -1089,7 +1089,7 @@ ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<Varia
 {
     QVector<PropertyValueContainer> containerList;
 
-    const bool reflectionFlag = m_puppetTransaction.isValid();
+    const bool reflectionFlag = m_puppetTransaction.isValid() && (!currentTimeline().isValid() || !currentTimeline().isRecording());
 
     foreach (const VariantProperty &property, propertyList) {
         ModelNode node = property.parentModelNode();
@@ -1245,10 +1245,10 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                ModelNode node = instance.modelNode();
-                VariantProperty property = instance.modelNode().variantProperty(container.name());
-                if (property.value() != container.value())
-                    property.setValue(container.value());
+                // QmlVisualNode is needed so timeline and state are updated
+                QmlVisualNode node = instance.modelNode();
+                if (node.instanceValue(container.name()) != container.value())
+                    node.setVariantProperty(container.name(), container.value());
             }
         }
     }
