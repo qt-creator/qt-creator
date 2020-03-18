@@ -29,7 +29,7 @@
 #include <QMetaType>
 #include <QPointF>
 
-QT_FORWARD_DECLARE_CLASS(QPainterPath);
+QT_FORWARD_DECLARE_CLASS(QPainterPath)
 
 namespace QmlDesigner {
 

@@ -31,6 +31,8 @@
 #include <QGraphicsWidget>
 #include <QTimer>
 
+QT_FORWARD_DECLARE_CLASS(QPainterPath)
+
 namespace QmlDesigner {
 
 class TimelineItem : public QGraphicsWidget

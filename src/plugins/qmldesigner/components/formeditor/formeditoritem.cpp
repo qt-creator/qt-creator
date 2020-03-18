@@ -37,6 +37,7 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyleOptionGraphicsItem>
 #include <QTimeLine>
 #include <QGraphicsView>

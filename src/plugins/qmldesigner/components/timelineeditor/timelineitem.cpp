@@ -40,6 +40,7 @@
 #include <QCursor>
 #include <QGraphicsView>
 #include <QPainter>
+#include <QPainterPath>
 
 #include <cmath>
 

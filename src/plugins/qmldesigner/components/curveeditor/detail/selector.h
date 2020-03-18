@@ -28,11 +28,6 @@
 #include "curveeditorstyle.h"
 #include "selectableitem.h"
 
-#include <QMouseEvent>
-#include <QPainterPath>
-#include <QPoint>
-#include <QRectF>
-
 namespace DesignTools {
 
 class GraphicsView;
@@ -68,19 +63,19 @@ private:
 
     void applyPreSelection(GraphicsView *view);
 
-    Shortcuts m_shortcuts = Shortcuts();
+    Shortcuts m_shortcuts;
 
     Shortcut m_shortcut;
 
     SelectionTool m_tool = SelectionTool::Rectangle;
 
-    QPoint m_mouseInit = QPoint();
+    QPoint m_mouseInit;
 
-    QPoint m_mouseCurr = QPoint();
+    QPoint m_mouseCurr;
 
-    QPainterPath m_lasso = QPainterPath();
+    QPainterPath m_lasso;
 
-    QRectF m_rect = QRectF();
+    QRectF m_rect;
 };
 
 } // End namespace DesignTools.

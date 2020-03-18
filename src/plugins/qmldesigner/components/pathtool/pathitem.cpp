@@ -36,6 +36,7 @@
 #include <theme.h>
 
 #include <QPainter>
+#include <QPainterPath>
 #include <QMenu>
 #include <QtDebug>
 #include <QGraphicsSceneMouseEvent>

@@ -29,6 +29,7 @@
 
 QT_BEGIN_NAMESPACE
 class QGraphicsPathItem;
+class QPainterPath;
 QT_END_NAMESPACE
 
 namespace qmt {

@@ -32,6 +32,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTimeLine;
+class QPainterPath;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {

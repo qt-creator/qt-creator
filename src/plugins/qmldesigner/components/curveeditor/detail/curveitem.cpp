@@ -30,7 +30,6 @@
 
 #include <QEasingCurve>
 #include <QPainter>
-#include <QPainterPath>
 
 #include <algorithm>
 #include <cmath>

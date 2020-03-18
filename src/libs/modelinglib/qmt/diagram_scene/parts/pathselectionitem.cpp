@@ -35,6 +35,7 @@
 #include <QBrush>
 #include <QLineF>
 #include <QPainter>
+#include <QPainterPath>
 #include <QKeyEvent>
 
 namespace qmt {
