@@ -37,7 +37,7 @@ namespace Sdk {
 McuPackage *createQtForMCUsPackage();
 
 // Legacy: List of targets supported by Qt for MCUs 1.0
-void hardcodedTargetsAndPackages(const McuPackage* const qtForMCUsSdkPackage,
+void hardcodedTargetsAndPackages(const Utils::FilePath &qulDir,
                                  QVector<McuPackage*> *packages, QVector<McuTarget*> *mcuTargets);
 
 } // namespace Sdk

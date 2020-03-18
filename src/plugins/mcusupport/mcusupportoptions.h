@@ -35,6 +35,7 @@ class Id;
 }
 
 namespace Utils {
+class FilePath;
 class PathChooser;
 class InfoLabel;
 }
@@ -158,10 +159,16 @@ public:
     QVector<McuTarget*> mcuTargets;
     McuPackage *qtForMCUsSdkPackage = nullptr;
 
+    void setQulDir(const Utils::FilePath &dir);
+
     QString kitName(const McuTarget* mcuTarget) const;
 
     QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTargt);
     ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
+    void populatePackagesAndTargets();
+
+private:
+    void deletePackagesAndTargets();
 
 signals:
     void changed();
