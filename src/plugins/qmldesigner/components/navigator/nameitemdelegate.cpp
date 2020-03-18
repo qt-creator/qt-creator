@@ -43,6 +43,7 @@
 #include <QPixmapCache>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPainterPath>
 
 namespace QmlDesigner {
 
