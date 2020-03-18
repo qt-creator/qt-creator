@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -81,7 +82,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
     const QTextCursor initialCursor = cursor;
 
     const QChar &c = cursor.document()->characterAt(cursor.position());
-    if (!c.isLetter() && c != QLatin1Char('_'))
+    if (!c.isLetter() && c != QLatin1Char('_') && c != QLatin1Char('['))
         return QString();
 
     // Try to find what would be the declaration we are interested in.
@@ -109,8 +110,12 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
 
     QString declCandidate = cursor.selectedText();
 
-    if (declCandidate.startsWith(QLatin1String("Q_INVOKABLE")))
-        declCandidate = declCandidate.mid(11);
+    // remove attributes like [[nodiscard]] because
+    // Document::Ptr::parse(Document::ParseDeclaration) fails on attributes
+    static QRegularExpression attribute("\\[\\s*\\[.*\\]\\s*\\]");
+    declCandidate.replace(attribute, "");
+
+    declCandidate.replace("Q_INVOKABLE", "");
 
     declCandidate.replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
 
