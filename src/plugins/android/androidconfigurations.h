@@ -135,7 +135,6 @@ public:
     QStringList defaultEssentials() const;
     QStringList essentialsFromQtVersion(const QtSupport::BaseQtVersion &version) const;
     QStringList allEssentials() const;
-    void updateDependenciesConfig();
 
     Utils::FilePath openJDKLocation() const;
     void setOpenJDKLocation(const Utils::FilePath &openJDKLocation);

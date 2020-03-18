@@ -1004,11 +1004,6 @@ QStringList AndroidConfig::defaultEssentials() const
     return m_defaultSdkDepends.essentialPackages + m_commonEssentialPkgs;
 }
 
-void AndroidConfig::updateDependenciesConfig()
-{
-    parseDependenciesJson();
-}
-
 bool SdkForQtVersions::containsVersion(const QtVersionNumber &qtVersion) const
 {
     return versions.contains(qtVersion)
