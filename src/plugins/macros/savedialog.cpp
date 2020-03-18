@@ -28,7 +28,7 @@
 
 #include <QLineEdit>
 #include <QCheckBox>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 
 using namespace Macros::Internal;
 
@@ -37,7 +37,7 @@ SaveDialog::SaveDialog(QWidget *parent) :
     ui(new Ui::SaveDialog)
 {
     ui->setupUi(this);
-    ui->name->setValidator(new QRegExpValidator(QRegExp(QLatin1String("\\w*")), this));
+    ui->name->setValidator(new QRegularExpressionValidator(QRegularExpression(QLatin1String("\\w*")), this));
 }
 
 SaveDialog::~SaveDialog()

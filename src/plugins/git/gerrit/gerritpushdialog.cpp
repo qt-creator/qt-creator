@@ -37,7 +37,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QPushButton>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QVersionNumber>
 
 using namespace Git::Internal;
@@ -156,7 +156,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     updateCommits(m_ui->localBranchComboBox->currentIndex());
     onRemoteChanged(true);
 
-    QRegExpValidator *noSpaceValidator = new QRegExpValidator(QRegExp("^\\S+$"), this);
+    QRegularExpressionValidator *noSpaceValidator = new QRegularExpressionValidator(QRegularExpression("^\\S+$"), this);
     m_ui->reviewersLineEdit->setText(reviewerList);
     m_ui->reviewersLineEdit->setValidator(noSpaceValidator);
     m_ui->topicLineEdit->setValidator(noSpaceValidator);

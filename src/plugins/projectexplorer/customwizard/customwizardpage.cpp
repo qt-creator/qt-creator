@@ -42,7 +42,7 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QLabel>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QComboBox>
 #include <QTextEdit>
 #include <QSpacerItem>
@@ -284,9 +284,9 @@ QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
 
     const QString validationRegExp = field.controlAttributes.value(QLatin1String("validator"));
     if (!validationRegExp.isEmpty()) {
-        QRegExp re(validationRegExp);
+        QRegularExpression re(validationRegExp);
         if (re.isValid())
-            lineEdit->setValidator(new QRegExpValidator(re, lineEdit));
+            lineEdit->setValidator(new QRegularExpressionValidator(re, lineEdit));
         else
             qWarning("Invalid custom wizard field validator regular expression %s.", qPrintable(validationRegExp));
     }

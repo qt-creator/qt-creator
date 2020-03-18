@@ -33,7 +33,7 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QTextEdit>
 
 #include <QDir>
@@ -52,7 +52,7 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
     m_gitSubmitPanelUi.setupUi(m_gitSubmitPanel);
     new GitSubmitHighlighter(descriptionEdit());
 
-    m_emailValidator = new QRegExpValidator(QRegExp("[^@ ]+@[^@ ]+\\.[a-zA-Z]+"), this);
+    m_emailValidator = new QRegularExpressionValidator(QRegularExpression("[^@ ]+@[^@ ]+\\.[a-zA-Z]+"), this);
     const QPixmap error = Utils::Icons::CRITICAL.pixmap();
     m_gitSubmitPanelUi.invalidAuthorLabel->setPixmap(error);
     m_gitSubmitPanelUi.invalidEmailLabel->setToolTip(tr("Provide a valid email to commit."));

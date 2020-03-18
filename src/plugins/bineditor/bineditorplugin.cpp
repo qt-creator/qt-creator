@@ -42,7 +42,7 @@
 #include <QMessageBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QToolBar>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -363,7 +363,7 @@ public:
         setWidget(widget);
         m_file = new BinEditorDocument(widget);
         m_addressEdit = new QLineEdit;
-        auto addressValidator = new QRegExpValidator(QRegExp("[0-9a-fA-F]{1,16}"), m_addressEdit);
+        auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
         m_addressEdit->setValidator(addressValidator);
 
         auto l = new QHBoxLayout;

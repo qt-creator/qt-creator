@@ -42,7 +42,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QRegExp>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QToolBar>
 #include <QToolButton>
 #include <QUndoStack>
@@ -63,9 +63,9 @@ QWidget *TreeItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
     if (index.isValid()) {
         auto edit = new QLineEdit(parent);
         edit->setFocusPolicy(Qt::StrongFocus);
-        QRegExp rx("^(?!xml)[_a-z][a-z0-9-._]*$");
-        rx.setCaseSensitivity(Qt::CaseInsensitive);
-        edit->setValidator(new QRegExpValidator(rx, parent));
+        QRegularExpression rx("^(?!xml)[_a-z][a-z0-9-._]*$");
+        rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+        edit->setValidator(new QRegularExpressionValidator(rx, parent));
         return edit;
     }
     return QStyledItemDelegate::createEditor(parent, option, index);

@@ -64,7 +64,7 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
         m_avdDialog.abiComboBox->addItems(abis);
     }
 
-    auto v = new QRegExpValidator(m_allowedNameChars, this);
+    auto v = new QRegularExpressionValidator(m_allowedNameChars, this);
     m_avdDialog.nameLineEdit->setValidator(v);
     m_avdDialog.nameLineEdit->installEventFilter(this);
 
@@ -258,7 +258,7 @@ bool AvdDialog::eventFilter(QObject *obj, QEvent *event)
     if (obj == m_avdDialog.nameLineEdit && event->type() == QEvent::KeyPress) {
         auto ke = static_cast<QKeyEvent *>(event);
         const QString key = ke->text();
-        if (!key.isEmpty() && !m_allowedNameChars.exactMatch(key)) {
+        if (!key.isEmpty() && !m_allowedNameChars.match(key).hasMatch()) {
             QPoint position = m_avdDialog.nameLineEdit->parentWidget()->mapToGlobal(m_avdDialog.nameLineEdit->geometry().bottomLeft());
             position -= Utils::ToolTip::offsetFromPosition();
             Utils::ToolTip::show(position, tr("Allowed characters are: a-z A-Z 0-9 and . _ -"), m_avdDialog.nameLineEdit);

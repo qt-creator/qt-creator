@@ -187,8 +187,8 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->keyFileLineEdit->setExpectedKind(PathChooser::File);
     m_ui->keyFileLineEdit->setHistoryCompleter(QLatin1String("Ssh.KeyFile.History"));
     m_ui->keyFileLineEdit->lineEdit()->setMinimumWidth(0);
-    QRegExpValidator * const portsValidator
-        = new QRegExpValidator(QRegExp(PortList::regularExpression()), this);
+    QRegularExpressionValidator * const portsValidator
+        = new QRegularExpressionValidator(QRegularExpression(PortList::regularExpression()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
 
     const SshConnectionParameters &sshParams = device()->sshParameters();

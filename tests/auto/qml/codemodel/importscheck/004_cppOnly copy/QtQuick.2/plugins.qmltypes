@@ -4160,14 +4160,14 @@ Module {
         exportMetaObjectRevisions: [0]
     }
     Component {
-        name: "QRegExpValidator"
+        name: "QRegularExpressionValidator"
         prototype: "QValidator"
-        exports: ["QtQuick/RegExpValidator 2.0"]
+        exports: ["QtQuick/RegularExpressionValidator 2.14"]
         exportMetaObjectRevisions: [0]
-        Property { name: "regExp"; type: "QRegExp" }
+        Property { name: "regularExpression"; type: "QRegularExpression" }
         Signal {
-            name: "regExpChanged"
-            Parameter { name: "regExp"; type: "QRegExp" }
+            name: "regularExpressionChanged"
+            Parameter { name: "regularExpression"; type: "QRegularExpression" }
         }
     }
     Component {

@@ -3223,15 +3223,15 @@ Module {
         Method { name: "deleteLater" }
     }
     Component {
-        name: "QRegExpValidator"
+        name: "QRegularExpressionValidator"
         prototype: "QValidator"
         exports: [
-            "QtQuick/RegExpValidator 1.0"
+            "QtQuick/RegularExpressionValidator 2.14"
         ]
         exportMetaObjectRevisions: [
             0
         ]
-        Property { name: "regExp"; type: "QRegExp" }
+        Property { name: "regularExpression"; type: "QRegularExpression" }
     }
     Component { name: "QValidator"; prototype: "QObject" }
     Component {
