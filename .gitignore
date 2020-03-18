@@ -29,6 +29,7 @@
 .DS_Store
 .qmake.cache
 .qmake.stash
+.vscode
 Makefile*
 Thumbs.db
 core
