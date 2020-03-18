@@ -61,16 +61,17 @@ public:
     static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
 
 protected:
-    void initFormats();
     virtual void clearLastLine();
     QTextCharFormat charFormat(OutputFormat format) const;
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
     virtual void doAppendMessage(const QString &text, OutputFormat format);
-    void append(const QString &text, const QTextCharFormat &format);
     QTextCursor &cursor() const;
 
 private:
     virtual void doAppendMessage(const QString &text, const QTextCharFormat &format);
+    void append(const QString &text, const QTextCharFormat &format);
+    void initFormats();
+
     Internal::OutputFormatterPrivate *d;
 };
 
