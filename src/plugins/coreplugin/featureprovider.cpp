@@ -27,7 +27,8 @@
 
 /*!
     \class Core::IFeatureProvider
-    \mainclass
+    \inmodule QtCreator
+    \ingroup mainclasses
 
     \brief The IFeatureProvider class defines an interface to manage features
     for wizards.

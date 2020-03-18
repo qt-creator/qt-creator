@@ -44,3 +44,13 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 
     return debug;
 }
+
+/*!
+    \class Core::IContext
+    \inmodule QtCreator
+    \ingroup mainclasses
+    \brief The IContext class holds the context for performing an action.
+
+    The behavior of some actions depends on the context in which they are
+    applied.
+*/

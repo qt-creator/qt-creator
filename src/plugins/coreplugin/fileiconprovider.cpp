@@ -44,15 +44,18 @@
 using namespace Utils;
 
 /*!
-  \class Core::FileIconProvider
+  \namespace Core::FileIconProvider
+  \inmodule QtCreator
+  \brief Provides functions for registering custom overlay icons for system
+  icons.
 
   Provides icons based on file suffixes with the ability to overwrite system
   icons for specific subtypes. The underlying QFileIconProvider
   can be used for QFileSystemModel.
 
-  Note: Registering overlay icons currently completely replaces the system
+  \note Registering overlay icons currently completely replaces the system
         icon and is therefore not recommended on platforms that have their
-        own overlay icon handling (Mac/Windows).
+        own overlay icon handling (\macOS and Windows).
 
   Plugins can register custom overlay icons via registerIconOverlayForSuffix(), and
   retrieve icons via the icon() function.
@@ -169,7 +172,7 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fileInfo) const
 }
 
 /*!
-  Returns the icon associated with the file suffix in fileInfo. If there is none,
+  Returns the icon associated with the file suffix in \a info. If there is none,
   the default icon of the operating system is returned.
   */
 
@@ -187,8 +190,7 @@ QIcon icon(QFileIconProvider::IconType type)
 }
 
 /*!
-  Creates a pixmap with baseicon and overlays overlayIcon over it.
-  See platform note in class documentation about recommended usage.
+  Creates a pixmap with \a baseIcon and lays \a overlayIcon over it.
   */
 QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
 {
@@ -199,8 +201,7 @@ QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
 }
 
 /*!
-  Creates a pixmap with baseicon at size and overlays overlayIcon over it.
-  See platform note in class documentation about recommended usage.
+  Creates a pixmap with \a baseIcon at \a size and \a overlay.
   */
 QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const QSize &size)
 {
@@ -208,16 +209,17 @@ QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const
 }
 
 /*!
-  Registers an icon for a given suffix, overlaying the system file icon.
-  See platform note in class documentation about recommended usage.
-  */
+  Registers an icon at \a path for a given \a suffix, overlaying the system
+  file icon.
+ */
 void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
 {
     instance()->registerIconOverlayForSuffix(path, suffix);
 }
 
 /*!
-  Registers an icon for all the suffixes of a given mime type, overlaying the system file icon.
+  Registers \a icon for all the suffixes of a the mime type \a mimeType,
+  overlaying the system file icon.
   */
 void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 {

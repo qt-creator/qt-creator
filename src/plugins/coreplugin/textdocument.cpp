@@ -30,13 +30,15 @@
 #include <QTextCodec>
 
 /*!
-    \class Core::TextDocument
-    \brief The TextDocument class is a very general base class for documents that work with text.
+    \class Core::BaseTextDocument
+    \inmodule QtCreator
+    \brief The BaseTextDocument class is a very general base class for
+    documents that work with text.
 
     This class contains helper methods for saving and reading text files with encoding and
     line ending settings.
 
-    \sa Utils::TextFileUtils
+    \sa Utils::TextFileFormat
 */
 
 enum { debug = 0 };
@@ -78,7 +80,13 @@ QByteArray BaseTextDocument::decodingErrorSample() const
 }
 
 /*!
-    Writes out text using the format obtained from the last read.
+    Writes out the contents (\a data) of the text file \a fileName.
+    Uses the format obtained from the last read() of the file.
+
+    If an error occurs while writing the file, \a errorMessage is set to the
+    error details.
+
+    Returns whether the operation was successful.
 */
 
 bool BaseTextDocument::write(const QString &fileName, const QString &data, QString *errorMessage) const
@@ -87,7 +95,13 @@ bool BaseTextDocument::write(const QString &fileName, const QString &data, QStri
 }
 
 /*!
-    Writes out text using a custom \a format.
+    Writes out the contents (\a data) of the text file \a fileName.
+    Uses the custom format \a format.
+
+    If an error occurs while writing the file, \a errorMessage is set to the
+    error details.
+
+    Returns whether the operation was successful.
 */
 
 bool BaseTextDocument::write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const
@@ -108,7 +122,13 @@ void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTermina
 }
 
 /*!
-    Autodetects format and reads in the text file specified by \a fileName.
+    Autodetects file format and reads the text file specified by \a fileName
+    into a list of strings specified by \a plainTextList.
+
+    If an error occurs while writing the file, \a errorMessage is set to the
+    error details.
+
+    Returns whether the operation was successful.
 */
 
 BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
@@ -120,7 +140,13 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QSt
 }
 
 /*!
-    Autodetects format and reads in the text file specified by \a fileName.
+    Autodetects file format and reads the text file specified by \a fileName
+    into \a plainText.
+
+    If an error occurs while writing the file, \a errorMessage is set to the
+    error details.
+
+    Returns whether the operation was successful.
 */
 
 BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QString *plainText, QString *errorString)
@@ -161,7 +187,7 @@ Utils::TextFileFormat::LineTerminationMode BaseTextDocument::lineTerminationMode
 }
 
 /*!
-    Returns the format obtained from the last call to \c read().
+    Returns the format obtained from the last call to read().
 */
 
 Utils::TextFileFormat BaseTextDocument::format() const

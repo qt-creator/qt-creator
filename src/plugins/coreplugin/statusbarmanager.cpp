@@ -47,7 +47,7 @@ static QPointer<QSplitter> m_splitter;
 static QList<QPointer<QWidget>> m_statusBarWidgets;
 static QList<QPointer<IContext>> m_contexts;
 
-/*!
+/*
     Context that always returns the context of the active's mode widget (if available).
 */
 class StatusBarContext : public IContext

@@ -35,6 +35,8 @@
 
 /*!
     \class Core::IDocument
+    \inmodule QtCreator
+
     \brief The IDocument class describes a document that can be saved and reloaded.
 
     The most common use for implementing an IDocument subclass, is as a document for an IEditor
@@ -46,7 +48,7 @@
     Each IDocument subclass works only with the corresponding IEditor subclasses that it
     was designed to work with.
 
-    \mainclass
+    \ingroup mainclasses
 */
 
 /*!
@@ -156,9 +158,11 @@ QByteArray IDocument::contents() const
 }
 
 /*!
-    Used for example by EditorManager::openEditorWithContents() to set the contents
-    of this document.
-    Returns if setting the contents was successful.
+    Used for example by EditorManager::openEditorWithContents() to set
+    the \a contents of this document.
+
+    Returns whether setting the contents was successful.
+
     The base implementation does nothing and returns false.
 */
 bool IDocument::setContents(const QByteArray &contents)
@@ -333,14 +337,18 @@ void IDocument::setFilePath(const Utils::FilePath &filePath)
 }
 
 /*!
-    Returns the string to display for this document, e.g. in the open document combo box
-    and pane.
-    The returned string has the following priority:
-      * Unique display name set by the document model
-      * Preferred display name set by the owner
-      * Base name of the document's file name
+    Returns the string to display for this document, in the open document combo
+    box and pane, for example.
 
-    \sa setDisplayName()
+    The returned string has the following priority:
+
+    \list 1
+        \li Unique display name set by the document model
+        \li Preferred display name set by the owner
+        \li Base name of the document's file name
+    \endlist
+
+    \sa setPreferredDisplayName()
 */
 QString IDocument::displayName() const
 {

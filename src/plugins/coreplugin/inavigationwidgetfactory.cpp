@@ -32,8 +32,8 @@
 
 /*!
     \class Core::INavigationWidgetFactory
-    \mainclass
-    \inmodule Qt Creator
+    \ingroup mainclasses
+    \inmodule QtCreator
     \brief The INavigationWidgetFactory class provides new instances of navigation widgets.
 
     A navigation widget factory is necessary because there can be more than one navigation widget of

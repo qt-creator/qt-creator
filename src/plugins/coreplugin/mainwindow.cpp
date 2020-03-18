@@ -829,7 +829,9 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
     });
 }
 
-/*! Either opens \a fileNames with editors or loads a project.
+/*!
+ * \internal
+ * Either opens \a fileNames with editors or loads a project.
  *
  *  \a flags can be used to stop on first failure, indicate that a file name
  *  might include line numbers and/or switch mode to edit mode.
@@ -837,7 +839,7 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
  *  \a workingDirectory is used when files are opened by a remote client, since
  *  the file names are relative to the client working directory.
  *
- *  \returns the first opened document. Required to support the -block flag
+ *  Returns the first opened document. Required to support the \c -block flag
  *  for client mode.
  *
  *  \sa IPlugin::remoteArguments()
