@@ -456,8 +456,10 @@ void TestRunner::onBuildSystemUpdated()
     Target *target = SessionManager::startupTarget();
     if (QTC_GUARD(target))
         disconnect(target, &Target::buildSystemUpdated, this, &TestRunner::onBuildSystemUpdated);
-    m_skipTargetsCheck = true;
-    runOrDebugTests();
+    if (!m_skipTargetsCheck) {
+        m_skipTargetsCheck = true;
+        runOrDebugTests();
+    }
 }
 
 void TestRunner::runTests()
