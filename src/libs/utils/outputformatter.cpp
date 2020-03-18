@@ -147,6 +147,7 @@ void OutputFormatter::handleLink(const QString &href)
 void OutputFormatter::clear()
 {
     d->prependCarriageReturn = false;
+    plainTextEdit()->clear();
 }
 
 void OutputFormatter::setBoldFontEnabled(bool enabled)

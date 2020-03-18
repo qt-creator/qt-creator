@@ -56,7 +56,7 @@ public:
     void appendMessage(const QString &text, OutputFormat format);
 
     virtual void handleLink(const QString &href);
-    virtual void clear();
+    void clear();
     void setBoldFontEnabled(bool enabled);
     static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
 

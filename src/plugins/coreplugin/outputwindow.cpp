@@ -445,7 +445,6 @@ QMimeData *OutputWindow::createMimeDataFromSelection() const
 
 void OutputWindow::clear()
 {
-    QPlainTextEdit::clear();
     d->formatter->clear();
 }
 
