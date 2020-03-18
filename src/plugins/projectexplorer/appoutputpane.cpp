@@ -83,15 +83,6 @@ static QString msgAttachDebuggerTooltip(const QString &handleDescription = QStri
            AppOutputPane::tr("Attach debugger to %1").arg(handleDescription);
 }
 
-static void replaceAllChildWidgets(QLayout *layout, const QList<QWidget *> &newChildren)
-{
-    while (QLayoutItem *child = layout->takeAt(0))
-        delete child;
-
-    for (QWidget *widget : newChildren)
-        layout->addWidget(widget);
-}
-
 namespace {
 const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
 const char C_APP_OUTPUT[] = "ProjectExplorer.ApplicationOutput";
@@ -702,10 +693,6 @@ void AppOutputPane::enableButtons(const RunControl *rc)
             m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         }
         setZoomButtonsEnabled(true);
-
-        replaceAllChildWidgets(m_formatterWidget->layout(), rc->outputFormatter() ?
-                                   rc->outputFormatter()->toolbarWidgets() :
-                                   QList<QWidget *>());
     } else {
         m_reRunButton->setEnabled(false);
         m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
