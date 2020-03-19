@@ -122,6 +122,8 @@ public:
 
     Utils::MacroExpander *macroExpander() const;
 
+    bool createBuildDirectory();
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();

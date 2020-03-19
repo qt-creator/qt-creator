@@ -30,6 +30,8 @@
 #include "runcontrol.h"
 #include "target.h"
 
+#include <projectexplorer/buildaspects.h>
+
 #include <utils/qtcassert.h>
 
 #include <QTimer>

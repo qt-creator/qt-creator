@@ -251,6 +251,14 @@ MacroExpander *BuildConfiguration::macroExpander() const
     return &d->m_macroExpander;
 }
 
+bool BuildConfiguration::createBuildDirectory()
+{
+    QDir dir;
+    const auto result = dir.mkpath(buildDirectory().toString());
+    buildDirectoryAspect()->validateInput();
+    return result;
+}
+
 void BuildConfiguration::setInitializer(const std::function<void(const BuildInfo &)> &initializer)
 {
     d->m_initializer = initializer;

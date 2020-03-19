@@ -83,7 +83,7 @@ FilePath BuildDirManager::workDirectory(const BuildDirParameters &parameters) co
     }
 
     if (cmake && cmake->autoCreateBuildDirectory()) {
-        if (!QDir().mkpath(bdir.toString()))
+        if (!m_buildSystem->buildConfiguration()->createBuildDirectory())
             emitErrorOccurred(
                 tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
         return bdir;
@@ -332,9 +332,8 @@ bool BuildDirManager::persistCMakeState()
     if (m_parameters.workDirectory == m_parameters.buildDirectory)
         return false;
 
-    const Utils::FilePath buildDir = m_parameters.buildDirectory;
-    QDir dir(buildDir.toString());
-    dir.mkpath(buildDir.toString());
+    if (!m_buildSystem->buildConfiguration()->createBuildDirectory())
+        return false;
 
     BuildDirParameters newParameters = m_parameters;
     newParameters.workDirectory.clear();
