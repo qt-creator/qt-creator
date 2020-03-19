@@ -56,12 +56,13 @@ public:
     OutputWindow(Context context, const QString &settingsKey, QWidget *parent = nullptr);
     ~OutputWindow() override;
 
-    void setFormatter(Utils::OutputFormatter *formatter);
+    void setFormatters(const QList<Utils::OutputFormatter *> &formatters);
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
 
     void grayOutOldContent();
     void clear();
+    void flush();
 
     void scrollToBottom();
 

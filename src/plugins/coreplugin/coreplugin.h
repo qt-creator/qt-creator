@@ -76,6 +76,8 @@ private slots:
     // Locator:
     void test_basefilefilter();
     void test_basefilefilter_data();
+
+    void testOutputFormatter();
 #endif
 
 private:

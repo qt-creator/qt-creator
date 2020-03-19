@@ -315,7 +315,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
             this, fontSettingsChanged);
     fontSettingsChanged();
     ow->setWindowTitle(tr("Serial Terminal Window"));
-    ow->setFormatter(formatter);
+    ow->setFormatters({formatter});
     // TODO: wordwrap, maxLineCount, zoom/wheelZoom (add to settings)
 
     auto controlTab = SerialControlTab(rc, ow);

@@ -135,7 +135,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
     m_outputWindow->setMaxCharCount(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
-    m_outputWindow->setFormatter(m_formatter);
+    m_outputWindow->setFormatters({m_formatter});
 
     // Let selected text be colored as if the text edit was editable,
     // otherwise the highlight for searching is too light

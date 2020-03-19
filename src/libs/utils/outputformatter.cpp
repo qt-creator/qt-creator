@@ -25,8 +25,10 @@
 
 #include "ansiescapecodehandler.h"
 #include "outputformatter.h"
+#include "qtcassert.h"
 #include "synchronousprocess.h"
 #include "theme/theme.h"
+#include "utils/optional.h"
 
 #include <QPair>
 #include <QPlainTextEdit>
@@ -44,6 +46,7 @@ public:
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
     QPair<QString, OutputFormat> incompleteLine;
+    optional<QTextCharFormat> formatOverride;
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
 };
@@ -75,9 +78,15 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
-    if (!d->cursor.atEnd() && text.startsWith('\n'))
-        d->cursor.movePosition(QTextCursor::End);
-    doAppendMessage(text, d->formats[format]);
+    if (handleMessage(text, format) == Status::NotHandled)
+        appendMessageDefault(text, format);
+}
+
+OutputFormatter::Status OutputFormatter::handleMessage(const QString &text, OutputFormat format)
+{
+    Q_UNUSED(text);
+    Q_UNUSED(format);
+    return Status::NotHandled;
 }
 
 void OutputFormatter::doAppendMessage(const QString &text, const QTextCharFormat &format)
@@ -116,6 +125,16 @@ QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, 
     result.setAnchor(true);
     result.setAnchorHref(href);
     return result;
+}
+
+void OutputFormatter::overrideTextCharFormat(const QTextCharFormat &fmt)
+{
+    d->formatOverride = fmt;
+}
+
+void OutputFormatter::appendMessageDefault(const QString &text, OutputFormat format)
+{
+    doAppendMessage(text, d->formatOverride ? d->formatOverride.value() : d->formats[format]);
 }
 
 void OutputFormatter::clearLastLine()
@@ -158,9 +177,10 @@ void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat forma
     d->incompleteLine.second = format;
 }
 
-void OutputFormatter::handleLink(const QString &href)
+bool OutputFormatter::handleLink(const QString &href)
 {
     Q_UNUSED(href)
+    return false;
 }
 
 void OutputFormatter::clear()
@@ -234,6 +254,64 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         doAppendMessage(out.mid(startPos, eolPos - startPos + 1), format);
         startPos = eolPos + 1;
     }
+}
+
+class AggregatingOutputFormatter::Private
+{
+public:
+    QList<OutputFormatter *> formatters;
+    OutputFormatter *nextFormatter = nullptr;
+};
+
+AggregatingOutputFormatter::AggregatingOutputFormatter() : d(new Private) {}
+AggregatingOutputFormatter::~AggregatingOutputFormatter() { delete d; }
+
+void AggregatingOutputFormatter::setFormatters(const QList<OutputFormatter *> &formatters)
+{
+    for (OutputFormatter * const f : formatters)
+        f->setPlainTextEdit(plainTextEdit());
+    d->formatters = formatters;
+    d->nextFormatter = nullptr;
+}
+
+OutputFormatter::Status AggregatingOutputFormatter::handleMessage(const QString &text,
+                                                                  OutputFormat format)
+{
+    if (d->nextFormatter) {
+        switch (d->nextFormatter->handleMessage(text, format)) {
+        case Status::Done:
+            d->nextFormatter = nullptr;
+            return Status::Done;
+        case Status::InProgress:
+            return Status::InProgress;
+        case Status::NotHandled:
+            QTC_CHECK(false);
+            d->nextFormatter = nullptr;
+            return Status::NotHandled;
+        }
+    }
+    QTC_CHECK(!d->nextFormatter);
+    for (OutputFormatter * const formatter : qAsConst(d->formatters)) {
+        switch (formatter->handleMessage(text, format)) {
+        case Status::Done:
+            return Status::Done;
+        case Status::InProgress:
+            d->nextFormatter = formatter;
+            return Status::InProgress;
+        case Status::NotHandled:
+            break;
+        }
+    }
+    return Status::NotHandled;
+}
+
+bool AggregatingOutputFormatter::handleLink(const QString &href)
+{
+    for (OutputFormatter * const f : qAsConst(d->formatters)) {
+        if (f->handleLink(href))
+            return true;
+    }
+    return false;
 }
 
 } // namespace Utils

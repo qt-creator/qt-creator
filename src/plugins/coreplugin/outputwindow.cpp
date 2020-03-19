@@ -27,6 +27,7 @@
 
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
+#include "coreplugin.h"
 #include "icore.h"
 
 #include <utils/outputformatter.h>
@@ -38,6 +39,10 @@
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QTextBlock>
+
+#ifdef WITH_TESTS
+#include <QtTest>
+#endif
 
 using namespace Utils;
 
@@ -60,9 +65,8 @@ public:
     }
 
     IContext *outputWindowContext = nullptr;
-    QPointer<Utils::OutputFormatter> formatter;
     QString settingsKey;
-    OutputFormatter defaultFormatter;
+    AggregatingOutputFormatter formatter;
 
     bool scrollToBottom = true;
     bool linksActive = true;
@@ -91,7 +95,7 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
     setUndoRedoEnabled(false);
-    setFormatter(&d->defaultFormatter);
+    d->formatter.setPlainTextEdit(this);
 
     d->settingsKey = settingsKey;
 
@@ -168,7 +172,7 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton) {
         const QString href = anchorAt(e->pos());
-        d->formatter->handleLink(href);
+        d->formatter.handleLink(href);
     }
 
     // Mouse was released, activate links again
@@ -212,13 +216,9 @@ void OutputWindow::keyPressEvent(QKeyEvent *ev)
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 }
 
-void OutputWindow::setFormatter(OutputFormatter *formatter)
+void OutputWindow::setFormatters(const QList<OutputFormatter *> &formatters)
 {
-    d->formatter = formatter;
-    if (d->formatter)
-        d->formatter->setPlainTextEdit(this);
-    else
-        d->formatter = &d->defaultFormatter;
+    d->formatter.setFormatters(formatters);
 }
 
 void OutputWindow::showEvent(QShowEvent *e)
@@ -396,7 +396,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 
     const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
     d->scrollToBottom = true;
-    d->formatter->appendMessage(out, format);
+    d->formatter.appendMessage(out, format);
 
     if (atBottom) {
         if (m_lastMessage.elapsed() < 5) {
@@ -445,7 +445,12 @@ QMimeData *OutputWindow::createMimeDataFromSelection() const
 
 void OutputWindow::clear()
 {
-    d->formatter->clear();
+    d->formatter.clear();
+}
+
+void OutputWindow::flush()
+{
+    d->formatter.flush();
 }
 
 void OutputWindow::scrollToBottom()
@@ -494,4 +499,89 @@ void OutputWindow::setWordWrapEnabled(bool wrap)
         setWordWrapMode(QTextOption::NoWrap);
 }
 
+#ifdef WITH_TESTS
+
+// Handles all lines starting with "A" and the following ones up to and including the next
+// one starting with "A".
+class TestFormatterA : public OutputFormatter
+{
+private:
+    Status handleMessage(const QString &text, OutputFormat format) override
+    {
+        if (m_handling) {
+            appendMessageDefault("handled by A\n", format);
+            if (text.startsWith("A")) {
+                m_handling = false;
+                return Status::Done;
+            }
+            return Status::InProgress;
+        }
+        if (text.startsWith("A")) {
+            m_handling = true;
+            appendMessageDefault("handled by A\n", format);
+            return Status::InProgress;
+        }
+        return Status::NotHandled;
+    }
+
+    void reset() override { m_handling = false; }
+
+    bool m_handling = false;
+};
+
+// Handles all lines starting with "B". No continuation logic
+class TestFormatterB : public OutputFormatter
+{
+private:
+    Status handleMessage(const QString &text, OutputFormat format) override
+    {
+        if (text.startsWith("B")) {
+            appendMessageDefault("handled by B\n", format);
+            return Status::Done;
+        }
+        return Status::NotHandled;
+    }
+};
+
+void Internal::CorePlugin::testOutputFormatter()
+{
+    const QString input =
+            "B to be handled by B\r\n"
+            "not to be handled\n"
+            "A to be handled by A\n"
+            "continuation for A\r\n"
+            "B looks like B, but still continuation for A\r\n"
+            "A end of A\n"
+            "A next A\n"
+            "A end of next A\n"
+            " A trick\r\n"
+            "B to be handled by B\n";
+    const QString output =
+            "handled by B\n"
+            "not to be handled\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            "handled by A\n"
+            " A trick\n"
+            "handled by B\n";
+    TestFormatterA formatterA;
+    TestFormatterB formatterB;
+    AggregatingOutputFormatter formatter;
+    QPlainTextEdit textEdit;
+    formatter.setPlainTextEdit(&textEdit);
+    formatter.setFormatters({&formatterB, &formatterA});
+
+    // Stress-test the implementation by providing the input in chunks, splitting at all possible
+    // offsets.
+    for (int i = 0; i < input.length(); ++i) {
+        formatter.appendMessage(input.left(i), NormalMessageFormat);
+        formatter.appendMessage(input.mid(i), NormalMessageFormat);
+        QCOMPARE(textEdit.toPlainText(), output);
+        formatter.clear();
+    }
+}
+#endif // WITH_TESTS
 } // namespace Core

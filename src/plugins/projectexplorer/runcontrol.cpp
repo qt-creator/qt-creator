@@ -279,7 +279,6 @@ public:
         : q(parent), runMode(mode)
     {
         icon = Icons::RUN_SMALL_TOOLBAR;
-        outputFormatter = new OutputFormatter();
     }
 
     ~RunControlPrivate() override
@@ -289,7 +288,7 @@ public:
         q = nullptr;
         qDeleteAll(m_workers);
         m_workers.clear();
-        delete outputFormatter;
+        qDeleteAll(outputFormatters);
     }
 
     Q_ENUM(RunControlState)
@@ -334,7 +333,7 @@ public:
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
     QPointer<Project> project; // Not owned.
-    QPointer<Utils::OutputFormatter> outputFormatter = nullptr;
+    QList<Utils::OutputFormatter *> outputFormatters;
     std::function<bool(bool*)> promptToStop;
     std::vector<RunWorkerFactory> m_factories;
 
@@ -385,10 +384,8 @@ void RunControl::setTarget(Target *target)
         d->buildEnvironment = bc->environment();
     }
 
-    delete d->outputFormatter;
-    d->outputFormatter = OutputFormatterFactory::createFormatter(target);
-    if (!d->outputFormatter)
-        d->outputFormatter = new OutputFormatter();
+    QTC_CHECK(d->outputFormatters.isEmpty());
+    d->outputFormatters = OutputFormatterFactory::createFormatters(target);
 
     setKit(target->kit());
     d->project = target->project();
@@ -831,9 +828,9 @@ void RunControlPrivate::showError(const QString &msg)
         q->appendMessage(msg + '\n', ErrorMessageFormat);
 }
 
-Utils::OutputFormatter *RunControl::outputFormatter() const
+QList<Utils::OutputFormatter *> RunControl::outputFormatters() const
 {
-    return d->outputFormatter;
+    return d->outputFormatters;
 }
 
 Core::Id RunControl::runMode() const
@@ -1601,11 +1598,7 @@ static QList<OutputFormatterFactory *> g_outputFormatterFactories;
 
 OutputFormatterFactory::OutputFormatterFactory()
 {
-    // This is a bit cheating: We know that only two formatters exist right now,
-    // and this here gives the second (python) implicit more priority.
-    // For a final solution, probably all matching formatters should be used
-    // in parallel, so there's no need to invent a fancy priority system here.
-    g_outputFormatterFactories.prepend(this);
+    g_outputFormatterFactories.append(this);
 }
 
 OutputFormatterFactory::~OutputFormatterFactory()
@@ -1613,13 +1606,14 @@ OutputFormatterFactory::~OutputFormatterFactory()
     g_outputFormatterFactories.removeOne(this);
 }
 
-OutputFormatter *OutputFormatterFactory::createFormatter(Target *target)
+QList<OutputFormatter *> OutputFormatterFactory::createFormatters(Target *target)
 {
+    QList<OutputFormatter *> formatters;
     for (auto factory : qAsConst(g_outputFormatterFactories)) {
         if (auto formatter = factory->m_creator(target))
-            return formatter;
+            formatters << formatter;
     }
-    return nullptr;
+    return formatters;
 }
 
 void OutputFormatterFactory::setFormatterCreator

@@ -123,7 +123,7 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     setFrameStyle(QFrame::NoFrame);
     m_formatter = new VcsOutputFormatter;
     m_formatter->setBoldFontEnabled(false);
-    setFormatter(m_formatter);
+    setFormatters({m_formatter});
     auto agg = new Aggregation::Aggregate;
     agg->add(this);
     agg->add(new Core::BaseTextFind(this));

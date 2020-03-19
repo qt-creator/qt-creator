@@ -71,12 +71,16 @@ public:
     }
 
 private:
-    void doAppendMessage(const QString &text, OutputFormat format) final
+    Status handleMessage(const QString &text, OutputFormat format) final
     {
         if (!m_inTraceBack) {
             m_inTraceBack = format == StdErrFormat
                     && text.startsWith("Traceback (most recent call last):");
-            OutputFormatter::doAppendMessage(text, format);
+            if (m_inTraceBack) {
+                OutputFormatter::appendMessageDefault(text, format);
+                return Status::InProgress;
+            }
+            return Status::NotHandled;
         }
 
         const Core::Id category(PythonErrorTaskCategory);
@@ -90,9 +94,10 @@ private:
             const auto fileName = FilePath::fromString(match.captured(3));
             const int lineNumber = match.capturedRef(4).toInt();
             m_tasks.append({Task::Warning, QString(), fileName, lineNumber, category});
-            return;
+            return Status::InProgress;
         }
 
+        Status status = Status::InProgress;
         if (text.startsWith(' ')) {
             // Neither traceback start, nor file, nor error message line.
             // Not sure if that can actually happen.
@@ -111,18 +116,21 @@ private:
                 TaskHub::addTask(*rit);
             m_tasks.clear();
             m_inTraceBack = false;
+            status = Status::Done;
         }
-        OutputFormatter::doAppendMessage(text, format);
+        OutputFormatter::appendMessageDefault(text, format);
+        return status;
     }
 
-    void handleLink(const QString &href) final
+    bool handleLink(const QString &href) final
     {
         const QRegularExpressionMatch match = filePattern.match(href);
         if (!match.hasMatch())
-            return;
+            return false;
         const QString fileName = match.captured(3);
         const int lineNumber = match.capturedRef(4).toInt();
         Core::EditorManager::openEditorAt(fileName, lineNumber);
+        return true;
     }
 
     void reset() override

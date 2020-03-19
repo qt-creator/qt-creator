@@ -42,14 +42,17 @@ VcsOutputFormatter::VcsOutputFormatter() :
 {
 }
 
-void VcsOutputFormatter::doAppendMessage(const QString &text, Utils::OutputFormat format)
+VcsOutputFormatter::Status VcsOutputFormatter::handleMessage(const QString &text,
+                                                             Utils::OutputFormat format)
 {
     QRegularExpressionMatchIterator it = m_regexp.globalMatch(text);
+    if (!it.hasNext())
+        return Status::NotHandled;
     int begin = 0;
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
         const QTextCharFormat normalFormat = charFormat(format);
-        OutputFormatter::doAppendMessage(text.mid(begin, match.capturedStart() - begin), format);
+        appendMessageDefault(text.mid(begin, match.capturedStart() - begin), format);
         QTextCursor tc = plainTextEdit()->textCursor();
         QStringView url = match.capturedView();
         begin = match.capturedEnd();
@@ -61,15 +64,17 @@ void VcsOutputFormatter::doAppendMessage(const QString &text, Utils::OutputForma
         tc.insertText(url.toString(), linkFormat(normalFormat, url.toString()));
         tc.movePosition(QTextCursor::End);
     }
-    OutputFormatter::doAppendMessage(text.mid(begin), format);
+    appendMessageDefault(text.mid(begin), format);
+    return Status::Done;
 }
 
-void VcsOutputFormatter::handleLink(const QString &href)
+bool VcsOutputFormatter::handleLink(const QString &href)
 {
     if (href.startsWith("http://") || href.startsWith("https://"))
         QDesktopServices::openUrl(QUrl(href));
     else if (!href.isEmpty())
         emit referenceClicked(href);
+    return true;
 }
 
 void VcsOutputFormatter::fillLinkContextMenu(

@@ -37,14 +37,15 @@ class VcsOutputFormatter : public Utils::OutputFormatter
 public:
     VcsOutputFormatter();
     ~VcsOutputFormatter() override = default;
-    void doAppendMessage(const QString &text, Utils::OutputFormat format) override;
-    void handleLink(const QString &href) override;
+    bool handleLink(const QString &href) override;
     void fillLinkContextMenu(QMenu *menu, const QString &workingDirectory, const QString &href);
 
 signals:
     void referenceClicked(const QString &reference);
 
 private:
+    Status handleMessage(const QString &text, Utils::OutputFormat format) override;
+
     const QRegularExpression m_regexp;
 };
 

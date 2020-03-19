@@ -238,7 +238,7 @@ public:
     Utils::FilePath targetFilePath() const;
     Utils::FilePath projectFilePath() const;
 
-    Utils::OutputFormatter *outputFormatter() const;
+    QList<Utils::OutputFormatter *> outputFormatters() const;
     Core::Id runMode() const;
 
     const Runnable &runnable() const;
@@ -309,7 +309,7 @@ protected:
 public:
     virtual ~OutputFormatterFactory();
 
-    static Utils::OutputFormatter *createFormatter(Target *target);
+    static QList<Utils::OutputFormatter *> createFormatters(Target *target);
 
 protected:
     void setFormatterCreator(const std::function<Utils::OutputFormatter *(Target *)> &creator);

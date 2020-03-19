@@ -154,7 +154,7 @@ AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::Output
     runControl(runControl), window(w)
 {
     if (runControl && w)
-        w->setFormatter(runControl->outputFormatter());
+        w->setFormatters(runControl->outputFormatters());
 }
 
 AppOutputPane::AppOutputPane() :
@@ -404,7 +404,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         if (tab.runControl)
             tab.runControl->initiateFinish();
         tab.runControl = rc;
-        tab.window->setFormatter(rc->outputFormatter());
+        tab.window->setFormatters(rc->outputFormatters());
 
         handleOldOutput(tab.window);
 
@@ -743,8 +743,12 @@ void AppOutputPane::slotRunControlFinished()
 {
     auto *rc = qobject_cast<RunControl *>(sender());
     QTimer::singleShot(0, this, [this, rc]() { slotRunControlFinished2(rc); });
-    if (rc->outputFormatter())
-        rc->outputFormatter()->flush();
+    for (const RunControlTab &t : m_runControlTabs) {
+        if (t.runControl == rc) {
+            t.window->flush();
+            break;
+        }
+    }
 }
 
 void AppOutputPane::slotRunControlFinished2(RunControl *sender)
