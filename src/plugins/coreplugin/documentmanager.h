@@ -162,6 +162,8 @@ private:
     void checkForReload();
     void changedFile(const QString &file);
     void filePathChanged(const Utils::FilePath &oldName, const Utils::FilePath &newName);
+    void updateSaveAll();
+    static void registerSaveAllAction();
 
     friend class Core::Internal::MainWindow;
     friend class Core::Internal::DocumentManagerPrivate;

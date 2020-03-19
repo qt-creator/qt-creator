@@ -121,7 +121,6 @@ private:
     void openFile();
     void aboutToShowRecentFiles();
     void setFocusToEditor();
-    void saveAll();
     void aboutQtCreator();
     void aboutPlugins();
     void updateFocusWidget(QWidget *old, QWidget *now);

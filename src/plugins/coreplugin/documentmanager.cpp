@@ -30,6 +30,9 @@
 #include "idocumentfactory.h"
 #include "coreconstants.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/dialogs/filepropertiesdialog.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
@@ -165,6 +168,8 @@ public:
     void checkOnNextFocusChange();
     void onApplicationFocusChange();
 
+    void registerSaveAllAction();
+
     QMap<QString, FileState> m_states; // filePathKey -> FileState
     QSet<QString> m_changedFiles; // watched file paths collected from file watcher notifications
     QList<IDocument *> m_documentsWithoutWatch;
@@ -188,6 +193,8 @@ public:
     // signal
     // That makes the code easier
     IDocument *m_blockedIDocument = nullptr;
+
+    QAction *m_saveAllAction;
 };
 
 static DocumentManager *m_instance;
@@ -231,7 +238,20 @@ void DocumentManagerPrivate::onApplicationFocusChange()
     m_instance->checkForReload();
 }
 
-DocumentManagerPrivate::DocumentManagerPrivate()
+void DocumentManagerPrivate::registerSaveAllAction()
+{
+    ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
+    Command *cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
+    mfile->addAction(cmd, Constants::G_FILE_SAVE);
+    m_saveAllAction->setEnabled(false);
+    connect(m_saveAllAction, &QAction::triggered, []() {
+        DocumentManager::saveAllModifiedDocumentsSilently();
+    });
+}
+
+DocumentManagerPrivate::DocumentManagerPrivate() :
+    m_saveAllAction(new QAction(tr("Save A&ll"), this))
 {
     // we do not want to do too much directly in the focus change event, so queue the connection
     connect(qApp,
@@ -348,6 +368,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
                         m_instance, &DocumentManager::documentDestroyed);
                 connect(document, &IDocument::filePathChanged,
                         m_instance, &DocumentManager::filePathChanged);
+                connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
                 d->m_documentsWithoutWatch.append(document);
             }
         }
@@ -360,6 +381,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
             connect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
             connect(document, &IDocument::filePathChanged,
                     m_instance, &DocumentManager::filePathChanged);
+            connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
             addFileInfo(document);
         }
     }
@@ -473,6 +495,11 @@ void DocumentManager::filePathChanged(const FilePath &oldName, const FilePath &n
     emit m_instance->documentRenamed(doc, oldName.toString(), newName.toString());
 }
 
+void DocumentManager::updateSaveAll()
+{
+    d->m_saveAllAction->setEnabled(!modifiedDocuments().empty());
+}
+
 /*!
     Adds \a document to the collection. If \a addWatcher is \c true
     (the default), the document's file is added to a file system watcher
@@ -509,6 +536,7 @@ bool DocumentManager::removeDocument(IDocument *document)
         disconnect(document, &IDocument::changed, m_instance, &DocumentManager::checkForNewFileName);
     }
     disconnect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
+    disconnect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
     return addWatcher;
 }
 
@@ -739,6 +767,7 @@ bool DocumentManager::saveDocument(IDocument *document, const QString &fileName,
 
     addDocument(document, addWatcher);
     unexpectFileChange(effName);
+    m_instance->updateSaveAll();
     return ret;
 }
 
@@ -1499,6 +1528,11 @@ void DocumentManager::setFileDialogLastVisitedDirectory(const QString &directory
 void DocumentManager::notifyFilesChangedInternally(const QStringList &files)
 {
     emit m_instance->filesChangedInternally(files);
+}
+
+void DocumentManager::registerSaveAllAction()
+{
+    d->registerSaveAllAction();
 }
 
 // -------------- FileChangeBlocker

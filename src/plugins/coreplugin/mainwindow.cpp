@@ -549,11 +549,7 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     // SaveAll Action
-    m_saveAllAction = new QAction(tr("Save A&ll"), this);
-    cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
-    mfile->addAction(cmd, Constants::G_FILE_SAVE);
-    connect(m_saveAllAction, &QAction::triggered, this, &MainWindow::saveAll);
+    DocumentManager::registerSaveAllAction();
 
     // Print Action
     icon = QIcon::fromTheme(QLatin1String("document-print"));
@@ -895,11 +891,6 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames,
 void MainWindow::setFocusToEditor()
 {
     EditorManagerPrivate::doEscapeKeyFocusMoveMagic();
-}
-
-void MainWindow::saveAll()
-{
-    DocumentManager::saveAllModifiedDocumentsSilently();
 }
 
 void MainWindow::exit()
