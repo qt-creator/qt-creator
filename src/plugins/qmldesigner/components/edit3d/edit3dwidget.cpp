@@ -94,9 +94,24 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     addActionsToToolBox(view->leftActions(), true);
     addActionsToToolBox(view->rightActions(), false);
 
+    // Onboarding label contains instructions for new users how to get 3D content into the project
+    m_onboardingLabel = new QLabel(this);
+    QString labelText =
+                "No 3D import here yet!<br><br>"
+                "To create a 3D View you need to add the QtQuick3D import to your file.<br>"
+                "You can add the import via the QML Imports tab of the Library view, or alternatively click"
+                " <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">here</span></a> "
+                "to add it straight away.<br><br>"
+                "If you want to import 3D assets from another tool, click on the \"Add New Assets...\" button in the Assets tab of the Library view.";
+    m_onboardingLabel->setText(labelText.arg(Utils::creatorTheme()->color(Utils::Theme::TextColorLink).name()));
+    m_onboardingLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    connect(m_onboardingLabel, &QLabel::linkActivated, this, &Edit3DWidget::linkActivated);
+    fillLayout->addWidget(m_onboardingLabel.data());
+
     // Canvas is used to render the actual edit 3d view
     m_canvas = new Edit3DCanvas(this);
     fillLayout->addWidget(m_canvas.data());
+    showCanvas(false);
 }
 
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
@@ -105,6 +120,22 @@ void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) con
         m_view->contextHelp(callback);
 
     callback({});
+}
+
+void Edit3DWidget::showCanvas(bool show)
+{
+    if (!show) {
+        QImage emptyImage;
+        m_canvas->updateRenderImage(emptyImage);
+    }
+    m_canvas->setVisible(show);
+    m_onboardingLabel->setVisible(!show);
+}
+
+void Edit3DWidget::linkActivated(const QString &link)
+{
+    if (m_view)
+        m_view->addQuick3DImport();
 }
 
 Edit3DCanvas *Edit3DWidget::canvas() const

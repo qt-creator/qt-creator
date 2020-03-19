@@ -36,9 +36,10 @@
 #include <qmldesignerconstants.h>
 #include <viewmanager.h>
 #include <qmldesignericons.h>
+#include <designmodecontext.h>
 #include <utils/utilsicons.h>
 #include <coreplugin/icore.h>
-#include <designmodecontext.h>
+#include <coreplugin/messagebox.h>
 
 #include <QDebug>
 
@@ -60,6 +61,20 @@ void Edit3DView::createEdit3DWidget()
 
     auto editor3DContext = new Internal::Editor3DContext(m_edit3DWidget.data());
     Core::ICore::addContextObject(editor3DContext);
+}
+
+void Edit3DView::checkImports()
+{
+    bool has3dImport = false;
+    const QList<Import> imports = model()->imports();
+    for (const auto &import : imports) {
+        if (import.url() == "QtQuick3D") {
+            has3dImport = true;
+            break;
+        }
+    }
+
+    edit3DWidget()->showCanvas(has3dImport);
 }
 
 WidgetInfo Edit3DView::widgetInfo()
@@ -130,13 +145,30 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_editLightAction->action()->setChecked(false);
 }
 
+void Edit3DView::modelAttached(Model *model)
+{
+    AbstractView::modelAttached(model);
+
+    checkImports();
+}
+
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
     Q_UNUSED(model)
 
-    // Clear the image when model is detached (i.e. changing documents)
-    QImage emptyImage;
-    edit3DWidget()->canvas()->updateRenderImage(emptyImage);
+    // Hide the canvas when model is detached (i.e. changing documents)
+    edit3DWidget()->showCanvas(false);
+
+    AbstractView::modelAboutToBeDetached(model);
+}
+
+void Edit3DView::importsChanged(const QList<Import> &addedImports,
+                                const QList<Import> &removedImports)
+{
+    Q_UNUSED(addedImports)
+    Q_UNUSED(removedImports)
+
+    checkImports();
 }
 
 void Edit3DView::sendInputEvent(QInputEvent *e) const
@@ -264,6 +296,22 @@ QVector<Edit3DAction *> Edit3DView::leftActions() const
 QVector<Edit3DAction *> Edit3DView::rightActions() const
 {
     return m_rightActions;
+}
+
+void Edit3DView::addQuick3DImport()
+{
+    const QList<Import> imports = model()->possibleImports();
+    for (const auto &import : imports) {
+        if (import.url() == "QtQuick3D") {
+            model()->changeImports({import}, {});
+
+            // Subcomponent manager update needed to make item library entries appear
+            QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
+            return;
+        }
+    }
+    Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
+                                          tr("Could not add QtQuick3D import to project."));
 }
 
 }
