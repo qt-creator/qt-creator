@@ -1158,6 +1158,7 @@ void Qt5InformationNodeInstanceServer::inputEvent(const InputEventCommand &comma
 void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &command)
 {
     QVariantMap updatedState;
+    int renderCount = 1;
 
     switch (command.type()) {
     case View3DActionCommand::MoveTool:
@@ -1177,6 +1178,8 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
     case View3DActionCommand::CameraToggle:
         updatedState.insert("usePerspective", command.isEnabled());
+        // It can take a couple frames to properly update icon gizmo positions, so render 3 frames
+        renderCount = 3;
         break;
     case View3DActionCommand::OrientationToggle:
         updatedState.insert("globalOrientation", command.isEnabled());
@@ -1194,7 +1197,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
                                   Q_ARG(QVariant, QVariant::fromValue(false)));
     }
 
-    render3DEditView();
+    render3DEditView(renderCount);
 }
 
 void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
