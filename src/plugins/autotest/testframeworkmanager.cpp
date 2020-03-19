@@ -65,43 +65,34 @@ TestFrameworkManager *TestFrameworkManager::instance()
 TestFrameworkManager::~TestFrameworkManager()
 {
     delete m_testRunner;
-    for (ITestFramework *framework : m_registeredFrameworks.values())
-        delete framework;
+    qDeleteAll(m_registeredFrameworks);
 }
 
 bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
 {
     QTC_ASSERT(framework, return false);
-    Id id = framework->id();
-    QTC_ASSERT(!m_registeredFrameworks.contains(id), delete framework; return false);
+    QTC_ASSERT(!m_registeredFrameworks.contains(framework), return false);
     // TODO check for unique priority before registering
-    qCDebug(LOG) << "Registering" << id;
-    m_registeredFrameworks.insert(id, framework);
-
-    if (IFrameworkSettings *frameworkSettings = framework->frameworkSettings())
-        m_frameworkSettings.insert(id, frameworkSettings);
-
+    m_registeredFrameworks.append(framework);
     return true;
 }
 
 void TestFrameworkManager::activateFrameworksFromSettings(const Internal::TestSettings *settings)
 {
-    FrameworkIterator it = m_registeredFrameworks.begin();
-    FrameworkIterator end = m_registeredFrameworks.end();
-    for ( ; it != end; ++it) {
-        it.value()->setActive(settings->frameworks.value(it.key(), false));
-        it.value()->setGrouping(settings->frameworksGrouping.value(it.key(), false));
+    for (ITestFramework *framework : qAsConst(m_registeredFrameworks)) {
+        framework->setActive(settings->frameworks.value(framework->id(), false));
+        framework->setGrouping(settings->frameworksGrouping.value(framework->id(), false));
     }
 }
 
 TestFrameworks TestFrameworkManager::registeredFrameworks() const
 {
-    return m_registeredFrameworks.values();
+    return m_registeredFrameworks;
 }
 
 TestFrameworks TestFrameworkManager::sortedRegisteredFrameworks() const
 {
-    TestFrameworks registered = m_registeredFrameworks.values();
+    TestFrameworks registered = m_registeredFrameworks;
     Utils::sort(registered, &ITestFramework::priority);
     qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
     return registered;
@@ -110,7 +101,7 @@ TestFrameworks TestFrameworkManager::sortedRegisteredFrameworks() const
 TestFrameworks TestFrameworkManager::activeFrameworks() const
 {
     TestFrameworks active;
-    for (ITestFramework *framework : m_registeredFrameworks) {
+    for (ITestFramework *framework : qAsConst(m_registeredFrameworks)) {
         if (framework->active())
             active.append(framework);
     }
@@ -127,31 +118,32 @@ TestFrameworks TestFrameworkManager::sortedActiveFrameworks() const
 
 ITestFramework *TestFrameworkManager::frameworkForId(Id frameworkId)
 {
-    return instance()->m_registeredFrameworks.value(frameworkId, nullptr);
+    return Utils::findOrDefault(s_instance->m_registeredFrameworks,
+            [frameworkId](ITestFramework *framework) {
+                return framework->id() == frameworkId;
+            });
 }
 
 IFrameworkSettings *TestFrameworkManager::settingsForTestFramework(
             const Id &frameworkId) const
 {
-    return m_frameworkSettings.value(frameworkId, nullptr);
+    ITestFramework *framework = frameworkForId(frameworkId);
+    QTC_ASSERT(framework, return nullptr);
+    return framework->frameworkSettings();
 }
 
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
     Internal::AutotestPlugin::settings()->fromSettings(s);
-    for (const Id &id : m_frameworkSettings.keys()) {
-        if (IFrameworkSettings *fSettings = settingsForTestFramework(id))
+    for (ITestFramework *framework : qAsConst(m_registeredFrameworks)) {
+        if (IFrameworkSettings *fSettings = framework->frameworkSettings())
             fSettings->fromSettings(s);
     }
 }
 
 bool TestFrameworkManager::hasActiveFrameworks() const
 {
-    for (ITestFramework *framework : m_registeredFrameworks.values()) {
-        if (framework->active())
-            return true;
-    }
-    return false;
+    return Utils::anyOf(m_registeredFrameworks, &ITestFramework::active);
 }
 
 Id ITestFramework::settingsId() const

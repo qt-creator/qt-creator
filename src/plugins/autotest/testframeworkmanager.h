@@ -66,11 +66,9 @@ public:
 private:
     TestFrameworks activeFrameworks() const;
     explicit TestFrameworkManager();
-    QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
-    QHash<Core::Id, IFrameworkSettings *> m_frameworkSettings;
-    Internal::TestRunner *m_testRunner;
 
-    typedef QHash<Core::Id, ITestFramework *>::ConstIterator FrameworkIterator;
+    TestFrameworks m_registeredFrameworks;
+    Internal::TestRunner *m_testRunner;
 };
 
 } // namespace Autotest
