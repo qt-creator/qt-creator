@@ -204,6 +204,11 @@ static bool isMcsArchitecture(Abi::Architecture arch)
             || arch == Abi::Architecture::Mcs251Architecture;
 }
 
+static bool isArmArchitecture(Abi::Architecture arch)
+{
+    return arch == Abi::Architecture::ArmArchitecture;
+}
+
 static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
 {
     if (!compiler.exists())
@@ -220,7 +225,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
         QDir includeDir(toolkitDir);
         if (includeDir.cd("inc"))
             headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
-    } else if (arch == Abi::Architecture::ArmArchitecture) {
+    } else if (isArmArchitecture(arch)) {
         QDir includeDir(toolkitDir);
         if (includeDir.cd("include"))
             headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
@@ -258,7 +263,7 @@ static unsigned char guessWordWidth(const Macros &macros, Abi::Architecture arch
 
 static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
 {
-    if (arch == Abi::Architecture::ArmArchitecture)
+    if (isArmArchitecture(arch))
         return Abi::BinaryFormat::ElfFormat;
     if (isMcsArchitecture(arch))
         return Abi::BinaryFormat::OmfFormat;
