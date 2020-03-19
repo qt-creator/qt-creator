@@ -369,8 +369,8 @@ void CompilationDatabaseBuildSystem::triggerParsing()
 
 void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
 {
-    Kit *kit = target()->kit();
-    ProjectExplorer::KitInfo kitInfo(kit);
+    Kit *k = kit();
+    ProjectExplorer::KitInfo kitInfo(k);
     QTC_ASSERT(kitInfo.isValid(), return);
     // Reset toolchains to pick them based on the database entries.
     kitInfo.cToolChain = nullptr;
@@ -389,7 +389,7 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
         prevEntry = &entry;
 
         RawProjectPart rpp = makeRawProjectPart(projectFilePath(),
-                                                kit,
+                                                k,
                                                 kitInfo,
                                                 entry.workingDir,
                                                 entry.fileName,

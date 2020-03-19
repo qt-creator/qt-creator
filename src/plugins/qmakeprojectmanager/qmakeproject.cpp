@@ -577,12 +577,13 @@ void QmakeBuildSystem::asyncUpdate()
 
     m_asyncUpdateFutureInterface.reportStarted();
 
-    const Kit * const kit = target()->kit();
-    QtSupport::BaseQtVersion * const qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+    const Kit *const k = kit();
+    QtSupport::BaseQtVersion *const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
     if (!qtVersion || !qtVersion->isValid()) {
-        const QString errorMessage = kit
-                ? tr("Cannot parse project \"%1\": The currently selected kit \"%2\" does not "
-                     "have a valid Qt.").arg(project()->displayName(), kit->displayName())
+        const QString errorMessage
+            = k ? tr("Cannot parse project \"%1\": The currently selected kit \"%2\" does not "
+                     "have a valid Qt.")
+                      .arg(project()->displayName(), k->displayName())
                 : tr("Cannot parse project \"%1\": No kit selected.").arg(project()->displayName());
         proFileParseError(errorMessage);
         m_asyncUpdateFutureInterface.reportCanceled();
@@ -668,13 +669,14 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
 
         QStringList qmakeArgs;
 
-        Target *t = target();
-        Kit *k = t->kit();
-        Environment env = m_buildConfiguration->environment();
-        if (QMakeStep *qs = m_buildConfiguration->qmakeStep())
+        Kit *k = kit();
+        QmakeBuildConfiguration *bc = m_buildConfiguration;
+
+        Environment env = bc->environment();
+        if (QMakeStep *qs = bc->qmakeStep())
             qmakeArgs = qs->parserArguments();
         else
-            qmakeArgs = m_buildConfiguration->configCommandLineArguments();
+            qmakeArgs = bc->configCommandLineArguments();
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(k);
         m_qmakeSysroot = SysRootKitAspect::sysRoot(k).toString();
@@ -757,7 +759,7 @@ void QmakeBuildSystem::deregisterFromCacheManager()
 void QmakeBuildSystem::activeTargetWasChanged(Target *t)
 {
     // We are only interested in our own target.
-    if (t != m_buildConfiguration->target())
+    if (t != target())
         return;
 
     m_invalidateQmakeVfsContents = true;
@@ -1052,7 +1054,7 @@ void QmakeBuildSystem::updateBuildSystemData()
                 libraryPaths.append(dir);
             }
         }
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target()->kit());
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit());
         if (qtVersion)
             libraryPaths.append(qtVersion->librarySearchPath().toString());
 
@@ -1126,8 +1128,7 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
     const QString targetPath = file->installsList().targetPath;
     if (targetPath.isEmpty())
         return;
-    const Kit * const kit = target()->kit();
-    const ToolChain * const toolchain = ToolChainKitAspect::cxxToolChain(kit);
+    const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(kit());
     if (!toolchain)
         return;
 
@@ -1270,21 +1271,18 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
 
 void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
 {
-    const Target *t = target();
-    const BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
+    const BuildConfiguration *bc = m_buildConfiguration;
     if (!bc)
         return;
 
-    testToolChain(ToolChainKitAspect::cToolChain(t->kit()),
-                  getFullPathOf(pro, Variable::QmakeCc, bc));
-    testToolChain(ToolChainKitAspect::cxxToolChain(t->kit()),
+    testToolChain(ToolChainKitAspect::cToolChain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
+    testToolChain(ToolChainKitAspect::cxxToolChain(kit()),
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
 QString QmakeBuildSystem::executableFor(const QmakeProFile *file)
 {
-    const Kit *const kit = target()->kit();
-    const ToolChain *const tc = ToolChainKitAspect::cxxToolChain(kit);
+    const ToolChain *const tc = ToolChainKitAspect::cxxToolChain(kit());
     if (!tc)
         return QString();
 

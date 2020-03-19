@@ -239,8 +239,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
 std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeBuildSystem *buildSystem)
 {
     // Remove qmake implementation details that litter up the project data:
-    Target *t = buildSystem->target();
-    BaseQtVersion *qt = QtKitAspect::qtVersion(t->kit());
+    BaseQtVersion *qt = QtKitAspect::qtVersion(buildSystem->kit());
 
     const FilePaths toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FilePaths();
 
