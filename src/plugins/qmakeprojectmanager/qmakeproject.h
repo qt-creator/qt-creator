@@ -26,6 +26,7 @@
 #pragma once
 
 #include "qmakeprojectmanager_global.h"
+
 #include "qmakenodes.h"
 #include "qmakeparsernodes.h"
 
@@ -47,6 +48,7 @@ namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
 namespace QmakeProjectManager {
+
 class QmakeBuildConfiguration;
 
 namespace Internal { class CentralizedFolderWatcher; }
@@ -172,6 +174,8 @@ public:
     void scheduleUpdateAllNowOrLater();
     Utils::FilePath buildDir(const Utils::FilePath &proFilePath) const;
 
+    QmakeBuildConfiguration *qmakeBuildConfiguration() const;
+
     mutable QSet<const QPair<Utils::FilePath, Utils::FilePath>> m_toolChainWarnings;
 
     // Current configuration
@@ -200,7 +204,6 @@ public:
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher = nullptr;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
-    QmakeBuildConfiguration *m_buildConfiguration = nullptr;
     bool m_firstParseNeeded = true;
 };
 

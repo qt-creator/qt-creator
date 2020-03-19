@@ -97,6 +97,11 @@ Kit *BuildSystem::kit() const
     return d->m_target->kit();
 }
 
+BuildConfiguration *BuildSystem::buildConfiguration() const
+{
+    return d->m_buildConfiguration;
+}
+
 void BuildSystem::emitParsingStarted()
 {
     QTC_ASSERT(!d->m_isParsing, return);

@@ -54,6 +54,7 @@ public:
     Project *project() const;
     Target *target() const;
     Kit *kit() const;
+    BuildConfiguration *buildConfiguration() const;
 
     Utils::FilePath projectFilePath() const;
     Utils::FilePath projectDirectory() const;

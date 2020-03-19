@@ -36,9 +36,9 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/generatedcodemodelsupport.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -65,7 +65,6 @@ static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarnin
 
 CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     : BuildSystem(bc)
-    , m_buildConfiguration(bc)
     , m_buildDirManager(this)
     , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
@@ -545,14 +544,9 @@ void CMakeBuildSystem::handleParsingFailed(const QString &msg)
     handleParsingError();
 }
 
-BuildConfiguration *CMakeBuildSystem::buildConfiguration() const
-{
-    return m_buildConfiguration;
-}
-
 CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
 {
-    return m_buildConfiguration;
+    return static_cast<CMakeBuildConfiguration *>(BuildSystem::buildConfiguration());
 }
 
 static Utils::FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &buildKey)

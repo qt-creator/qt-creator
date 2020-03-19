@@ -25,13 +25,13 @@
 
 #include "qmakeproject.h"
 
-#include "qmakeprojectimporter.h"
+#include "qmakebuildconfiguration.h"
 #include "qmakebuildinfo.h"
-#include "qmakestep.h"
 #include "qmakenodes.h"
 #include "qmakenodetreebuilder.h"
+#include "qmakeprojectimporter.h"
 #include "qmakeprojectmanagerconstants.h"
-#include "qmakebuildconfiguration.h"
+#include "qmakestep.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
@@ -180,10 +180,9 @@ DeploymentKnowledge QmakeProject::deploymentKnowledge() const
 //
 
 QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
-    : BuildSystem(bc),
-    m_qmakeVfs(new QMakeVfs),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
-    m_buildConfiguration(bc)
+    : BuildSystem(bc)
+    , m_qmakeVfs(new QMakeVfs)
+    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
     m_qmakeVfs->setTextCodec(codec);
@@ -195,16 +194,18 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &QmakeBuildSystem::buildFinished);
 
-    connect(bc->target(), &Target::activeBuildConfigurationChanged,
-            this, [this](BuildConfiguration *bc) {
-        if (bc == m_buildConfiguration)
-            scheduleUpdateAllNowOrLater();
-// FIXME: This is too eager in the presence of not handling updates
-// when the build configuration is not active, see startAsyncTimer
-// below.
-//        else
-//            m_cancelEvaluate = true;
-    });
+    connect(bc->target(),
+            &Target::activeBuildConfigurationChanged,
+            this,
+            [this](BuildConfiguration *bc) {
+                if (bc == buildConfiguration())
+                    scheduleUpdateAllNowOrLater();
+                // FIXME: This is too eager in the presence of not handling updates
+                // when the build configuration is not active, see startAsyncTimer
+                // below.
+                //        else
+                //            m_cancelEvaluate = true;
+            });
 
     connect(bc->project(), &Project::activeTargetChanged,
             this, &QmakeBuildSystem::activeTargetWasChanged);
@@ -255,7 +256,7 @@ QmakeBuildSystem::~QmakeBuildSystem()
 
 void QmakeBuildSystem::updateCodeModels()
 {
-    if (!m_buildConfiguration->isActive())
+    if (!buildConfiguration()->isActive())
         return;
 
     updateCppCodeModel();
@@ -463,6 +464,11 @@ void QmakeBuildSystem::scheduleUpdateAllNowOrLater()
         scheduleUpdateAll(QmakeProFile::ParseLater);
 }
 
+QmakeBuildConfiguration *QmakeBuildSystem::qmakeBuildConfiguration() const
+{
+    return static_cast<QmakeBuildConfiguration *>(BuildSystem::buildConfiguration());
+}
+
 void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
 {
     if (m_asyncUpdateState == ShuttingDown)
@@ -491,10 +497,10 @@ void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
 
 void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 {
-   if (!m_buildConfiguration->isActive()) {
+    if (!buildConfiguration()->isActive()) {
         qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << "skipped, not active";
         return;
-   }
+    }
 
     const int interval = qMin(parseDelay(),
                               delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0);
@@ -660,7 +666,7 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
 {
     const QDir srcDirRoot = QDir(projectDirectory().toString());
     const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
-    const QString buildConfigBuildDir = m_buildConfiguration->buildDirectory().toString();
+    const QString buildConfigBuildDir = buildConfiguration()->buildDirectory().toString();
     const QString buildDir = buildConfigBuildDir.isEmpty()
                                  ? projectDirectory().toString()
                                  : buildConfigBuildDir;
@@ -681,7 +687,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
         QStringList qmakeArgs;
 
         Kit *k = kit();
-        QmakeBuildConfiguration *bc = m_buildConfiguration;
+        QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
 
         Environment env = bc->environment();
         if (QMakeStep *qs = bc->qmakeStep())
@@ -1248,12 +1254,7 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
         return;
 
     const Utils::FilePath expected = tc->compilerCommand();
-
-    Target *t = target();
-    QTC_ASSERT(t, return);
-
-    QTC_ASSERT(m_buildConfiguration, return);
-    Environment env = m_buildConfiguration->environment();
+    Environment env = buildConfiguration()->environment();
 
     if (env.isSameExecutable(path.toString(), expected.toString()))
         return;
@@ -1268,24 +1269,21 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
         return;
     }
     TaskHub::addTask(
-                BuildSystemTask(Task::Warning,
-                     QCoreApplication::translate(
-                         "QmakeProjectManager",
-                         "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
-                         "Please update your kit (%3) or choose a mkspec for qmake that matches "
-                         "your target environment better.")
-                                .arg(path.toUserOutput())
-                                .arg(expected.toUserOutput())
-                                .arg(t->kit()->displayName())));
+        BuildSystemTask(Task::Warning,
+                        QCoreApplication::translate(
+                            "QmakeProjectManager",
+                            "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
+                            "Please update your kit (%3) or choose a mkspec for qmake that matches "
+                            "your target environment better.")
+                            .arg(path.toUserOutput())
+                            .arg(expected.toUserOutput())
+                            .arg(kit()->displayName())));
     m_toolChainWarnings.insert(pair);
 }
 
 void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
 {
-    const BuildConfiguration *bc = m_buildConfiguration;
-    if (!bc)
-        return;
-
+    const BuildConfiguration *bc = buildConfiguration();
     testToolChain(ToolChainKitAspect::cToolChain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
     testToolChain(ToolChainKitAspect::cxxToolChain(kit()),
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
