@@ -43,10 +43,11 @@ public:
     bool isShadowBuild() const;
     void setProblem(const QString &description);
 
+    void addToLayout(LayoutBuilder &builder) override;
+
 private:
     void toMap(QVariantMap &map) const override;
     void fromMap(const QVariantMap &map) override;
-    void addToLayout(LayoutBuilder &builder) override;
 
     void updateProblemLabel();
 
