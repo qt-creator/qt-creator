@@ -58,6 +58,7 @@ public:
         AvrArchitecture,
         XtensaArchitecture,
         Mcs51Architecture,
+        Mcs251Architecture,
         AsmJsArchitecture,
         Stm8Architecture,
         Msp430Architecture,

@@ -74,12 +74,14 @@ static Abi::Architecture guessArchitecture(const FilePath &compilerPath)
     const QString bn = fi.baseName().toLower();
     if (bn == "c51" || bn == "cx51")
         return Abi::Architecture::Mcs51Architecture;
+    if (bn == "c251")
+        return Abi::Architecture::Mcs251Architecture;
     if (bn == "armcc")
         return Abi::Architecture::ArmArchitecture;
     return Abi::Architecture::UnknownArchitecture;
 }
 
-// Note: The KEIL 8051 compiler does not support the predefined
+// Note: The KEIL C51 compiler does not support the predefined
 // macros dumping. So, we do it with following trick where we try
 // to compile a temporary file and to parse the console output.
 static Macros dumpC51PredefinedMacros(const FilePath &compiler, const QStringList &env)
@@ -124,6 +126,41 @@ static Macros dumpC51PredefinedMacros(const FilePath &compiler, const QStringLis
     return macros;
 }
 
+// Note: The KEIL C251 compiler does not support the predefined
+// macros dumping. So, we do it with following trick where we try
+// to compile a temporary file and to parse the console output.
+static Macros dumpC251PredefinedMacros(const FilePath &compiler, const QStringList &env)
+{
+    QTemporaryFile fakeIn;
+    if (!fakeIn.open())
+        return {};
+    fakeIn.write("#define VALUE_TO_STRING(x) #x\n");
+    fakeIn.write("#define VALUE(x) VALUE_TO_STRING(x)\n");
+    fakeIn.write("#define VAR_NAME_VALUE(var) \"\"|#var|VALUE(var)|\"\n");
+    fakeIn.write("#ifdef __C251__\n");
+    fakeIn.write("#warning(VAR_NAME_VALUE(__C251__))\n");
+    fakeIn.write("#endif\n");
+    fakeIn.close();
+
+    SynchronousProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setTimeoutS(10);
+
+    const CommandLine cmd(compiler, {fakeIn.fileName()});
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
+    QString output = response.allOutput();
+    Macros macros;
+    QTextStream stream(&output);
+    QString line;
+    while (stream.readLineInto(&line)) {
+        const QStringList parts = line.split("\"|\"");
+        if (parts.count() != 4)
+            continue;
+        macros.push_back({parts.at(1).toUtf8(), parts.at(2).toUtf8()});
+    }
+    return macros;
+}
+
 static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &env)
 {
     SynchronousProcess cpp;
@@ -152,11 +189,19 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     switch (arch) {
     case Abi::Architecture::Mcs51Architecture:
         return dumpC51PredefinedMacros(compiler, env);
+    case Abi::Architecture::Mcs251Architecture:
+        return dumpC251PredefinedMacros(compiler, env);
     case Abi::Architecture::ArmArchitecture:
         return dumpArmPredefinedMacros(compiler, env);
     default:
         return {};
     }
+}
+
+static bool isMcsArchitecture(Abi::Architecture arch)
+{
+    return arch == Abi::Architecture::Mcs51Architecture
+            || arch == Abi::Architecture::Mcs251Architecture;
 }
 
 static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
@@ -171,7 +216,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
     HeaderPaths headerPaths;
 
     const Abi::Architecture arch = guessArchitecture(compiler);
-    if (arch == Abi::Architecture::Mcs51Architecture) {
+    if (isMcsArchitecture(arch)) {
         QDir includeDir(toolkitDir);
         if (includeDir.cd("inc"))
             headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
@@ -191,15 +236,17 @@ static Abi::Architecture guessArchitecture(const Macros &macros)
             return Abi::Architecture::ArmArchitecture;
         if (macro.key == "__C51__" || macro.key == "__CX51__")
             return Abi::Architecture::Mcs51Architecture;
+        if (macro.key == "__C251__")
+            return Abi::Architecture::Mcs251Architecture;
     }
     return Abi::Architecture::UnknownArchitecture;
 }
 
 static unsigned char guessWordWidth(const Macros &macros, Abi::Architecture arch)
 {
-    // Check for C51 compiler first.
-    if (arch == Abi::Architecture::Mcs51Architecture)
-        return 16; // C51 always have 16-bit word width.
+    // Check for C51 or C251 compiler first.
+    if (isMcsArchitecture(arch))
+        return 16; // C51 or C251 always have 16-bit word width.
 
     const Macro sizeMacro = Utils::findOrDefault(macros, [](const Macro &m) {
         return m.key == "__sizeof_int";
@@ -213,7 +260,7 @@ static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
 {
     if (arch == Abi::Architecture::ArmArchitecture)
         return Abi::BinaryFormat::ElfFormat;
-    if (arch == Abi::Architecture::Mcs51Architecture)
+    if (isMcsArchitecture(arch))
         return Abi::BinaryFormat::OmfFormat;
     return Abi::BinaryFormat::UnknownFormat;
 }
@@ -471,6 +518,8 @@ QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &al
             compilerPath = productPath.pathAppended("\\ARMCC\\bin\\armcc.exe");
         else if (productPath.endsWith("C51"))
             compilerPath = productPath.pathAppended("\\BIN\\c51.exe");
+        else if (productPath.endsWith("C251"))
+            compilerPath = productPath.pathAppended("\\BIN\\c251.exe");
 
         if (compilerPath.exists()) {
             // Fetch the toolchain version.
@@ -529,9 +578,8 @@ QList<ToolChain *> KeilToolChainFactory::autoDetectToolchain(
 
     const Abi abi = guessAbi(macros);
     const Abi::Architecture arch = abi.architecture();
-    if (arch == Abi::Architecture::Mcs51Architecture
-            && language == ProjectExplorer::Constants::CXX_LANGUAGE_ID) {
-        // KEIL C51 compiler does not support C++ language.
+    if (isMcsArchitecture(arch) && language == ProjectExplorer::Constants::CXX_LANGUAGE_ID) {
+        // KEIL C51 or C251 compiler does not support C++ language.
         return {};
     }
 
