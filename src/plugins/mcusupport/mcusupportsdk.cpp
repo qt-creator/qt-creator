@@ -190,16 +190,16 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
         McuToolChainPackage *toolchainPackage;
         const QVector<int> colorDepths;
     } targets[] = {
-        {vendorNxp, "MIMXRT1050-EVK", nxpEvalPackages, armGccPackage, {16}},
-        {vendorNxp, "MIMXRT1064-EVK", nxpEvalPackages, armGccPackage, {16}},
-        {vendorQt, "Qt", desktopPackages, nullptr, {32}},
-        {vendorRenesas, "RH850-D1M1A", renesasEvalPackages, armGccPackage, {32}},
-        {vendorStm, "STM32F469I-DISCOVERY", stmEvalPackages, armGccPackage, {24}},
-        {vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages, armGccPackage, {32, 16}},
-        {vendorStm, "STM32F769I-DISCOVERY", stmEvalPackages, armGccPackage, {32}},
-        {vendorStm, "STM32H750B-DISCOVERY", stmEvalPackages, armGccPackage, {32}},
-        {vendorStm, "STM32L4R9I-DISCOVERY", stmEvalPackages, armGccPackage, {24}},
-        {vendorStm, "STM32L4R9I-EVAL", stmEvalPackages, armGccPackage, {24}}
+        {vendorNxp, {"MIMXRT1050-EVK"}, nxpEvalPackages, armGccPackage, {16}},
+        {vendorNxp, {"MIMXRT1064-EVK"}, nxpEvalPackages, armGccPackage, {16}},
+        {vendorQt, {"Qt"}, desktopPackages, nullptr, {32}},
+        {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, armGccPackage, {32}},
+        {vendorStm, {"STM32F469I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
+        {vendorStm, {"STM32F7508-DISCOVERY"}, stmEvalPackages, armGccPackage, {32, 16}},
+        {vendorStm, {"STM32F769I-DISCOVERY"}, stmEvalPackages, armGccPackage, {32}},
+        {vendorStm, {"STM32H750B-DISCOVERY"}, stmEvalPackages, armGccPackage, {32}},
+        {vendorStm, {"STM32L4R9I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
+        {vendorStm, {"STM32L4R9I-EVAL"}, stmEvalPackages, armGccPackage, {24}}
     };
 
     const QString QulTargetTemplate =
