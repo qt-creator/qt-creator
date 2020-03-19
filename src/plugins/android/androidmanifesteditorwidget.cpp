@@ -427,7 +427,6 @@ void AndroidManifestEditorWidget::initializePage()
 
         m_permissionsListView = new QListView(permissionsGroupBox);
         m_permissionsListView->setModel(m_permissionsModel);
-        m_permissionsListView->setMinimumSize(QSize(0, 200));
         layout->addWidget(m_permissionsListView, 3, 0, 3, 1);
 
         m_removePermissionButton = new QPushButton(permissionsGroupBox);

@@ -51,7 +51,7 @@ namespace Internal {
 
 class KitOptionsPageWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjextExplorer::Internal::KitOptionsPage)
+    Q_DECLARE_TR_FUNCTIONS(ProjextExplorer::Internal::KitOptionsPageWidget)
 
 public:
     KitOptionsPageWidget();
@@ -88,16 +88,14 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     m_kitsView->setSizePolicy(m_kitsView->sizePolicy().horizontalPolicy(),
                               QSizePolicy::Ignored);
 
-    m_addButton = new QPushButton(KitOptionsPage::tr("Add"), this);
-    m_cloneButton = new QPushButton(KitOptionsPage::tr("Clone"), this);
-    m_delButton = new QPushButton(KitOptionsPage::tr("Remove"), this);
-    m_makeDefaultButton = new QPushButton(KitOptionsPage::tr("Make Default"), this);
-    m_filterButton = new QPushButton(KitOptionsPage::tr("Settings Filter..."), this);
-    m_filterButton->setToolTip(KitOptionsPage::tr(
-                                   "Choose which settings to display for this kit."));
-    m_defaultFilterButton = new QPushButton(KitOptionsPage::tr("Default Settings Filter..."), this);
-    m_defaultFilterButton->setToolTip(KitOptionsPage::tr(
-                                          "Choose which kit settings to display by default."));
+    m_addButton = new QPushButton(tr("Add"), this);
+    m_cloneButton = new QPushButton(tr("Clone"), this);
+    m_delButton = new QPushButton(tr("Remove"), this);
+    m_makeDefaultButton = new QPushButton(tr("Make Default"), this);
+    m_filterButton = new QPushButton(tr("Settings Filter..."), this);
+    m_filterButton->setToolTip(tr("Choose which settings to display for this kit."));
+    m_defaultFilterButton = new QPushButton(tr("Default Settings Filter..."), this);
+    m_defaultFilterButton->setToolTip(tr("Choose which kit settings to display by default."));
 
     auto buttonLayout = new QVBoxLayout;
     buttonLayout->setSpacing(6);

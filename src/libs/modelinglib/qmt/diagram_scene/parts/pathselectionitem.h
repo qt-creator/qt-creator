@@ -27,6 +27,8 @@
 
 #include <QGraphicsItem>
 
+QT_FORWARD_DECLARE_CLASS(QPainterPath)
+
 namespace qmt {
 
 class IWindable;

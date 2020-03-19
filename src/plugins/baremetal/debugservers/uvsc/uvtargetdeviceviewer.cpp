@@ -185,7 +185,7 @@ DeviceSelection DeviceSelector::selection() const
 DeviceSelectionDialog::DeviceSelectionDialog(const Utils::FilePath &toolsIniFile, QWidget *parent)
     : QDialog(parent), m_model(new DeviceSelectionModel(this)), m_view(new DeviceSelectionView(this))
 {
-    setWindowTitle(tr("Available target devices"));
+    setWindowTitle(tr("Available Target Devices"));
 
     const auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);

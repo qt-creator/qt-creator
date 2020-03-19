@@ -27,9 +27,10 @@
 
 #include <QEasingCurve>
 #include <QMetaType>
+#include <QPainterPath>
 #include <QPointF>
-
-QT_FORWARD_DECLARE_CLASS(QPainterPath);
+#include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
 

@@ -64,7 +64,7 @@ JLinkGdbServerProvider::JLinkGdbServerProvider()
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 2331);
     setSettingsKeyBase("BareMetal.JLinkGdbServerProvider");
-    setTypeDisplayName(tr("JLink"));
+    setTypeDisplayName(GdbServerProvider::tr("JLink"));
     setConfigurationWidgetCreator([this] { return new JLinkGdbServerProviderConfigWidget(this); });
 }
 

@@ -31,6 +31,7 @@
 #include <QPen>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsSceneMouseEvent)
+QT_FORWARD_DECLARE_CLASS(QPainterPath)
 
 namespace ScxmlEditor {
 

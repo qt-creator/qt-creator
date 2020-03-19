@@ -145,8 +145,10 @@ QString FileUtils::msgTerminalHereAction()
 QString FileUtils::msgTerminalWithAction()
 {
     if (HostOsInfo::isWindowsHost())
-        return QApplication::translate("Core::Internal", "Open Command Prompt With");
-    return QApplication::translate("Core::Internal", "Open Terminal With");
+        return QApplication::translate("Core::Internal", "Open Command Prompt With",
+                        "Opens a submenu for choosing an environment, such as \"Run Environment\"");
+    return QApplication::translate("Core::Internal", "Open Terminal With",
+                        "Opens a submenu for choosing an environment, such as \"Run Environment\"");
 }
 
 void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)

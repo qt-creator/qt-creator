@@ -117,7 +117,10 @@ void Edit3DCanvas::dropEvent(QDropEvent *e)
 {
     Q_UNUSED(e)
 
-    QmlVisualNode::createQml3DNode(m_parent->view(), m_itemLibraryEntry, m_activeScene);
+    auto modelNode = QmlVisualNode::createQml3DNode(m_parent->view(), m_itemLibraryEntry, m_activeScene).modelNode();
+
+    if (modelNode.isValid())
+        m_parent->view()->setSelectedModelNode(modelNode);
 }
 
 }

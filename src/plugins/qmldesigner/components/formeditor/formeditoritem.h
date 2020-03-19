@@ -32,6 +32,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTimeLine;
+class QPainterPath;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -123,6 +124,7 @@ protected:
     void paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const;
     QList<FormEditorItem*> offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const;
     FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);
+    QTransform viewportTransform() const;
 
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;

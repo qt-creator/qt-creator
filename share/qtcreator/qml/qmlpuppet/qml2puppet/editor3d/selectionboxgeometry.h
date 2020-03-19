@@ -81,6 +81,7 @@ private:
     bool m_isEmpty = true;
     QVector<QMetaObject::Connection> m_connections;
     QSSGBounds3 m_bounds;
+    bool m_asyncUpdatePending = false;
 };
 
 }

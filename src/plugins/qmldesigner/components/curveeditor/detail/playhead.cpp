@@ -30,6 +30,7 @@
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QPainterPath>
 
 #include <cmath>
 

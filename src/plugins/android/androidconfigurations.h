@@ -128,14 +128,13 @@ public:
     QVersionNumber ndkVersion(const QtSupport::BaseQtVersion *qtVersion) const;
     QVersionNumber ndkVersion(const Utils::FilePath &ndkPath) const;
 
-    QUrl sdkToolsUrl() const { return m_sdkToolsUrl; };
-    QByteArray getSdkToolsSha256() const { return m_sdkToolsSha256; };
+    QUrl sdkToolsUrl() const { return m_sdkToolsUrl; }
+    QByteArray getSdkToolsSha256() const { return m_sdkToolsSha256; }
     QString ndkPathFromQtVersion(const QtSupport::BaseQtVersion &version) const;
 
     QStringList defaultEssentials() const;
     QStringList essentialsFromQtVersion(const QtSupport::BaseQtVersion &version) const;
     QStringList allEssentials() const;
-    void updateDependenciesConfig();
 
     Utils::FilePath openJDKLocation() const;
     void setOpenJDKLocation(const Utils::FilePath &openJDKLocation);
@@ -188,8 +187,8 @@ public:
 
     bool useNativeUiTools() const;
 
-    bool sdkFullyConfigured() const { return m_sdkFullyConfigured; };
-    void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; };
+    bool sdkFullyConfigured() const { return m_sdkFullyConfigured; }
+    void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; }
 
     bool isValidNdk(const QString &ndkLocation) const;
     QStringList getCustomNdkList() const;

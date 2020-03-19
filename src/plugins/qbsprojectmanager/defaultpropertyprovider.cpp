@@ -67,14 +67,14 @@ static QString extractToolchainPrefix(QString *compilerName)
     QString prefix;
     const QStringList candidates = {QLatin1String("g++"), QLatin1String("clang++"),
                                     QLatin1String("gcc"), QLatin1String("clang")};
-    foreach (const QString &candidate, candidates) {
-        const QString suffix = Utils::HostOsInfo::withExecutableSuffix(QLatin1Char('-')
-                                                                       + candidate);
-        if (compilerName->endsWith(suffix)) {
-            const int idx = compilerName->lastIndexOf(QLatin1Char('-')) + 1;
-            prefix = compilerName->left(idx);
-            compilerName->remove(0, idx);
-        }
+    for (const QString &candidate : candidates) {
+        const QString suffix = QLatin1Char('-') + candidate;
+        const int suffixIndex = compilerName->lastIndexOf(suffix);
+        if (suffixIndex == -1)
+            continue;
+        prefix = compilerName->left(suffixIndex + 1);
+        compilerName->remove(0, suffixIndex + 1);
+        break;
     }
     return prefix;
 }

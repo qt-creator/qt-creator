@@ -52,6 +52,7 @@
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QPainter>
+#include <QPainterPath>
 
 #include <QGraphicsView>
 

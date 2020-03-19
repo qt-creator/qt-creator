@@ -32,6 +32,7 @@
 #include <QColor>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
+QT_FORWARD_DECLARE_CLASS(QPainterPath)
 
 namespace TextEditor {
 class NameMangler;

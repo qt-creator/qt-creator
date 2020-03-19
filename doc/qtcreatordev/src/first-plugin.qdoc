@@ -63,18 +63,6 @@
             project name. You will choose that name later in the wizard.
             Continue to the next page.
 
-            The \uicontrol {Kit Selection} dialog opens.
-
-            \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
-
-        \li Select the kit to build and run your
-            project with. For a \QC plugin this needs to be a kit with
-            \uicontrol Desktop device type, and a Qt version that is compatible
-            with the Qt version that your \QC was built with (in the best case
-            the exact same build). If you use an incompatible Qt version to
-            build your plugin, you will get errors while \QC tries to load your
-            plugin. Continue to the next page.
-
             The \uicontrol {Plugin Information} dialog opens.
 
             \image firstplugin-pluginsetup.png "Specify Your Plugin Details"
@@ -124,6 +112,25 @@
             \QC, and want the plugin to be only loaded by that \QC
             instance. Continue to the next page.
 
+            The \uicontrol {Translation File} dialog opens.
+
+            \image firstplugin-translation-file.png "Choose a language to localize your plugin to"
+
+        \li Select a language to localize your plugin to. This sets up
+            translation support for the selected language. Continue to the
+            next page.
+
+            The \uicontrol {Kit Selection} dialog opens.
+
+            \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
+
+        \li Select the kit to build and run your project with. For a \QC plugin,
+            this needs to be a kit with \uicontrol Desktop device type, and a Qt
+            version that is compatible with the Qt version that your \QC was
+            built with (in the best case the exact same build). If you use an
+            incompatible Qt version to build your plugin, you will get errors
+            while \QC tries to load your plugin. Continue to the next page.
+
             The \uicontrol {Project Management} dialog opens.
 
             \image firstplugin-summary.png "Summary of Created Files"
@@ -136,9 +143,9 @@
     \section1 Building and Running the Plugin
 
     If you passed the correct \QC source and build paths in the project wizard,
-    your plugin should just build fine when pressing the build button. When you
-    try to run your project, \QC will ask you for the executable to run and you
-    are presented the following dialog:
+    your plugin should just build fine when pressing the build button. Before
+    running the project, select \uicontrol {Build & Run} > \uicontrol Run to
+    specify run settings:
 
     \image firstplugin-runsettings.png "Specify the Executable to Run"
 
@@ -146,10 +153,8 @@
     the \uicontrol {Qt Creator build} setting in the project wizard and click
     \uicontrol OK. \QC starts up, and you can verify that your plugin
     successfully loaded by looking for a menu entry \uicontrol Tools >
-    \uicontrol Example and by looking for the plugin in the
+    \uicontrol Example and by looking for the plugin in the \uicontrol Help >
     \uicontrol {About Plugins} dialog.
-
-    \image firstplugin-menuitem.png "Menu Registered by the Plugin"
 
     \section1 File Structure
 
@@ -183,10 +188,18 @@
 
         \li Header defining constants used by the plugin code.
     \row
-        \li \c{exampleplugin.h/.cpp}
+        \li \c{example.h, example.cpp}
 
         \li C++ header and source files that define the plugin class that will be
-            instanciated and run by \QC's plugin manager.
+            instantiated and run by \QC's plugin manager.
+    \row
+        \li \c{build_qmake.yml}
+
+        \li Adds a
+            \l {https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-github-actions}
+            {GitHub action} and workflow that builds your plugin anytime you
+            push commits to GitHub on Windows, Linux, and macOS. For more
+            information, see \c {.github\workflow\README.md}.
     \endtable
 
     \section1 qmake Project

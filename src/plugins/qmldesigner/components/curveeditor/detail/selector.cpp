@@ -28,6 +28,10 @@
 #include "playhead.h"
 
 #include <QApplication>
+#include <QMouseEvent>
+#include <QPainterPath>
+#include <QPoint>
+#include <QRectF>
 
 #include <cmath>
 

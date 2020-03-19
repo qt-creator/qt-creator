@@ -205,6 +205,9 @@ void NavigatorView::nodeReparented(const ModelNode &modelNode,
     else
         m_currentModelInterface->notifyModelNodesMoved({modelNode});
     treeWidget()->expand(indexForModelNode(modelNode));
+
+    // make sure selection is in sync again
+    QTimer::singleShot(0, this, &NavigatorView::updateItemSelection);
 }
 
 void NavigatorView::nodeIdChanged(const ModelNode& modelNode, const QString & /*newId*/, const QString & /*oldId*/)
@@ -256,14 +259,10 @@ void NavigatorView::nodeOrderChanged(const NodeListProperty & listProperty,
                                      const ModelNode & /*node*/,
                                      int /*oldIndex*/)
 {
-    bool blocked = blockSelectionChangedSignal(true);
-
     m_currentModelInterface->notifyModelNodesMoved(listProperty.directSubNodes());
 
     // make sure selection is in sync again
-    updateItemSelection();
-
-    blockSelectionChangedSignal(blocked);
+    QTimer::singleShot(0, this, &NavigatorView::updateItemSelection);
 }
 
 void NavigatorView::changeToComponent(const QModelIndex &index)
@@ -405,7 +404,8 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
 
 void NavigatorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
-    updateItemSelection();
+    // Update selection asynchronously to ensure NavigatorTreeModel's index cache is up to date
+    QTimer::singleShot(0, this, &NavigatorView::updateItemSelection);
 }
 
 void NavigatorView::updateItemSelection()

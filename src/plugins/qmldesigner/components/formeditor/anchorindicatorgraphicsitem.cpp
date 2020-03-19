@@ -26,7 +26,6 @@
 #include "anchorindicatorgraphicsitem.h"
 
 #include <QPainter>
-#include <QPainterPath>
 
 #include <QGraphicsScene>
 #include <QGraphicsView>

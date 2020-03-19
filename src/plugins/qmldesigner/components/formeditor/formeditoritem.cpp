@@ -33,11 +33,14 @@
 #include <nodemetainfo.h>
 
 #include <utils/theme/theme.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyleOptionGraphicsItem>
 #include <QTimeLine>
+#include <QGraphicsView>
 
 #include <cmath>
 
@@ -575,16 +578,16 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     painter->save();
 
     QPen pen;
-    pen.setCosmetic(true);
     pen.setJoinStyle(Qt::MiterJoin);
+    pen.setCosmetic(true);
 
     QColor flowColor = "#e71919";
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
-    int width = 4;
-
+    const qreal scaleFactor = viewportTransform().m11();
+    qreal width = 2;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
         width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
@@ -602,7 +605,7 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     else
         pen.setStyle(Qt::SolidLine);
 
-    pen.setWidth(width);
+    pen.setWidthF(width);
     pen.setCosmetic(true);
     painter->setPen(pen);
 
@@ -715,7 +718,8 @@ static bool horizontalOverlap(const QRectF &from, const QRectF &to)
 static void paintConnection(QPainter *painter,
                             const QRectF &from,
                             const QRectF &to,
-                            int width,
+                            qreal width,
+                            qreal adjustedWidth,
                             const QColor &color,
                             bool dash,
                             int startOffset,
@@ -736,16 +740,16 @@ static void paintConnection(QPainter *painter,
         pen.setStyle(Qt::DashLine);
     else
         pen.setStyle(Qt::SolidLine);
-    pen.setWidth(width);
+    pen.setWidthF(width);
     painter->setPen(pen);
 
     //const bool forceVertical = false;
     //const bool forceHorizontal = false;
 
-    const int padding = 16;
+    const int padding = 2 * width + 2 * adjustedWidth;
 
-    const int arrowLength = 8;
-    const int arrowWidth = 16;
+    const int arrowLength = 4 * adjustedWidth;
+    const int arrowWidth = 8 * adjustedWidth;
 
     const bool boolExitRight = from.right() < to.center().x();
     const bool boolExitBottom = from.bottom() < to.center().y();
@@ -891,11 +895,11 @@ static void paintConnection(QPainter *painter,
         }
     }
 
-    pen.setWidth(4);
+    pen.setWidthF(width);
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
     painter->setBrush(Qt::white);
-    painter->drawEllipse(startP, arrowLength - 2, arrowLength - 2);
+    painter->drawEllipse(startP, arrowLength  / 3, arrowLength / 3);
 
     painter->restore();
 }
@@ -941,16 +945,19 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     toRect.translate(-pos());
     fromRect.translate(-pos());
 
+    qreal width = 2;
 
-    int width = 4;
+    const qreal scaleFactor = viewportTransform().m11();
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
         width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
 
+    qreal adjustedWidth = width / scaleFactor;
+
     if (qmlItemNode().modelNode().isSelected())
         width += 2;
     if (m_hitTest)
-        width += 4;
+        width *= 8;
 
     QColor color = "#e71919";
 
@@ -973,10 +980,10 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     int breakOffset = 50;
 
-    if (qmlItemNode().modelNode().hasAuxiliaryData("break"))
-        breakOffset = qmlItemNode().modelNode().auxiliaryData("break").toInt();
+    if (qmlItemNode().modelNode().hasAuxiliaryData("breakPoint"))
+        breakOffset = qmlItemNode().modelNode().auxiliaryData("breakPoint").toInt();
 
-    paintConnection(painter, fromRect, toRect, width ,color, dash, outOffset, inOffset, breakOffset);
+    paintConnection(painter, fromRect, toRect, width, adjustedWidth ,color, dash, outOffset, inOffset, breakOffset);
 
     painter->restore();
 }
@@ -996,4 +1003,12 @@ bool FormEditorTransitionItem::flowHitTest(const QPointF &point) const
     return image.pixelColor(pos).value() > 0;
 }
 
+QTransform FormEditorItem::viewportTransform() const
+{
+    QTC_ASSERT(scene(), return {});
+    QTC_ASSERT(!scene()->views().isEmpty(), return {});
+
+    return scene()->views().first()->viewportTransform();
 }
+
+} //QmlDesigner

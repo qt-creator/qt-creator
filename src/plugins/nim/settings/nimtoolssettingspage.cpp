@@ -61,7 +61,7 @@ NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
     setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
     setDisplayName(NimToolsSettingsWidget::tr(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_DISPLAY));
     setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
-    setDisplayCategory(tr("Nim"));
+    setDisplayCategory(NimToolsSettingsWidget::tr("Nim"));
     setCategoryIconPath(":/nim/images/settingscategory_nim.png");
 }
 

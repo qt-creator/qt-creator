@@ -67,7 +67,9 @@ public:
 
     void keyframeMoved(KeyframeItem *item, const QPointF &direction);
 
-    void handleMoved(KeyframeItem *frame, HandleSlot handle, double angle, double deltaLength);
+    void handleUnderMouse(HandleItem *handle);
+
+    void handleMoved(KeyframeItem *frame, HandleItem::Slot slot, double angle, double deltaLength);
 
     void setPinned(uint id, bool pinned);
 

@@ -31,6 +31,7 @@
 
 #include <bindingproperty.h>
 #include <variantproperty.h>
+#include <theme.h>
 
 namespace QmlDesigner {
 
@@ -64,8 +65,8 @@ DesignTools::CurveEditorStyle AnimationCurveEditorModel::style() const
     out.timeAxisHeight = 60;
     out.timeOffsetLeft = 10;
     out.timeOffsetRight = 10;
-    out.rangeBarColor = QColor(50, 50, 255);
-    out.rangeBarCapsColor = QColor(50, 50, 255);
+    out.rangeBarColor = Theme::instance()->qmlDesignerBackgroundColorDarkAlternate();
+    out.rangeBarCapsColor = Theme::getColor(Theme::QmlDesigner_HighlightColor);
     out.valueAxisWidth = 60;
     out.valueOffsetTop = 10;
     out.valueOffsetBottom = 10;

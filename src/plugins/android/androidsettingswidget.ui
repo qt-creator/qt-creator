@@ -51,7 +51,7 @@
       <item row="0" column="2">
        <widget class="QToolButton" name="downloadOpenJDKToolButton">
         <property name="toolTip">
-         <string>Download JDK</string>
+         <string>Open JDK download URL in the system's browser.</string>
         </property>
        </widget>
       </item>
@@ -106,23 +106,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="customNdkLabel">
-        <property name="text">
-         <string>Add custom NDK:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="6">
-       <widget class="QToolButton" name="downloadNDKToolButton">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="4">
-       <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
-      </item>
       <item row="0" column="5">
        <widget class="QToolButton" name="sdkToolsAutoDownloadButton">
         <property name="toolTip">
@@ -133,7 +116,27 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="7">
+      <item row="0" column="6">
+       <widget class="QToolButton" name="downloadSDKToolButton">
+        <property name="toolTip">
+         <string>Open Android SDK download URL in the system's browser.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="6">
+       <widget class="QToolButton" name="downloadNDKToolButton">
+        <property name="toolTip">
+         <string>Open Android NDK download URL in the system's browser.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="4">
+       <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
+      </item>
+      <item row="5" column="0" colspan="7">
        <widget class="Utils::DetailsWidget" name="androidDetailsWidget" native="true"/>
       </item>
       <item row="2" column="0">
@@ -143,63 +146,76 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="6">
-       <widget class="QToolButton" name="downloadSDKToolButton">
-        <property name="toolTip">
-         <string>Download Android SDK</string>
+      <item row="2" column="1" rowspan="3">
+       <widget class="QListWidget" name="ndkListWidget">
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="3">
-       <widget class="Utils::PathChooser" name="customNdkPathChooser" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>0</height>
-         </size>
+        <property name="resizeMode">
+         <enum>QListView::Adjust</enum>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QPushButton" name="addCustomNdkButton">
-        <property name="enabled">
+        <property name="modelColumn">
+         <number>0</number>
+        </property>
+        <property name="sortingEnabled">
          <bool>false</bool>
         </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Add the selected custom NDK. The toolchains and debuggers will be created automatically.</string>
-        </property>
-        <property name="text">
-         <string>Add</string>
-        </property>
        </widget>
       </item>
-      <item row="2" column="1" colspan="3">
-       <widget class="QComboBox" name="ndkListComboBox"/>
-      </item>
-      <item row="2" column="4">
-       <widget class="QPushButton" name="removeCustomNdkButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Remove the selected custom NDK.</string>
-        </property>
-        <property name="text">
-         <string>Remove</string>
-        </property>
-       </widget>
+      <item row="2" column="2" rowspan="3" colspan="3">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="addCustomNdkButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Add the selected custom NDK. The toolchains and debuggers will be created automatically.</string>
+          </property>
+          <property name="text">
+           <string>Add...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="removeCustomNdkButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Remove the selected NDK if it has been added manually.</string>
+          </property>
+          <property name="text">
+           <string>Remove</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -230,18 +246,18 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="Utils::DetailsWidget" name="openSslDetailsWidget" native="true"/>
-      </item>
       <item row="0" column="2">
        <widget class="QToolButton" name="downloadOpenSSLPrebuiltLibs">
         <property name="toolTip">
-         <string>Automatically download OpenSSL prebuilt libraries. If the automatic download fails, a URL will be opened in the browser for manual download.</string>
+         <string>Automatically download OpenSSL prebuilt libraries. If the automatic download fails, the download URL will be opened in the system's browser for manual download.</string>
         </property>
         <property name="text">
          <string/>
         </property>
        </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="Utils::DetailsWidget" name="openSslDetailsWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -301,6 +317,9 @@
          <property name="textElideMode">
           <enum>Qt::ElideMiddle</enum>
          </property>
+         <attribute name="horizontalHeaderHighlightSections">
+          <bool>false</bool>
+         </attribute>
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
          </attribute>
@@ -335,7 +354,10 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="AVDAddPushButton">
+          <widget class="QPushButton" name="AVDStartPushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -343,7 +365,14 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Add...</string>
+            <string>Start...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="AVDRefreshPushButton">
+           <property name="text">
+            <string>Refresh List</string>
            </property>
           </widget>
          </item>
@@ -364,6 +393,19 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="AVDAddPushButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Add...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="AVDRemovePushButton">
            <property name="enabled">
             <bool>false</bool>
@@ -376,29 +418,6 @@
            </property>
            <property name="text">
             <string>Remove</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="AVDStartPushButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Start...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="AVDRefreshPushButton">
-           <property name="text">
-            <string>Refresh List</string>
            </property>
           </widget>
          </item>

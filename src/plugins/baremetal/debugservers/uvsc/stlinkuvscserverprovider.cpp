@@ -141,7 +141,7 @@ bool StLinkUvscAdapterOptions::operator==(const StLinkUvscAdapterOptions &other)
 StLinkUvscServerProvider::StLinkUvscServerProvider()
     : UvscServerProvider(Constants::UVSC_STLINK_PROVIDER_ID)
 {
-    setTypeDisplayName(tr("uVision St-Link"));
+    setTypeDisplayName(UvscServerProvider::tr("uVision St-Link"));
     setConfigurationWidgetCreator([this] { return new StLinkUvscServerProviderConfigWidget(this); });
     setSupportedDrivers({"STLink\\ST-LINKIII-KEIL_SWO.dll"});
 }

@@ -26,11 +26,7 @@
 #include "easingcurve.h"
 #include "timelineutils.h"
 
-#include <QDataStream>
-#include <QDebug>
 #include <QLineF>
-#include <QPainterPath>
-#include <QPointF>
 
 #include <utils/qtcassert.h>
 

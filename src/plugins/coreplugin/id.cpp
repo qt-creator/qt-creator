@@ -40,13 +40,14 @@ namespace Core {
 
 /*!
     \class Core::Id
+    \inmodule QtCreator
 
     \brief The Id class encapsulates an identifier that is unique
     within a specific running \QC process.
 
     \c{Core::Id} is used as facility to identify objects of interest
-    in a more typesafe and faster manner than a plain \c QString or
-    \c QByteArray would provide.
+    in a more typesafe and faster manner than a plain QString or
+    QByteArray would provide.
 
     An id is associated with a plain 7-bit-clean ASCII name used
     for display and persistency.
@@ -214,7 +215,7 @@ QVariant Id::toSetting() const
 }
 
 /*!
-  Reconstructs an id from a persistent value.
+  Reconstructs an id from the persistent value \a variant.
 
   \sa toSetting()
 */
@@ -277,8 +278,6 @@ Id Id::withSuffix(const char *suffix) const
 
 /*!
   \overload
-
-  \sa stringSuffix()
 */
 
 Id Id::withSuffix(const QString &suffix) const

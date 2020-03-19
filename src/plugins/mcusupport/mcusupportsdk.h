@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
+** Copyright (C) 2016 BlackBerry Limited. All rights reserved.
+** Contact: BlackBerry (qt@blackberry.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -23,42 +23,23 @@
 **
 ****************************************************************************/
 
-#include "qmlprofileroptionspage.h"
-#include "qmlprofilerconfigwidget.h"
-#include "qmlprofilerplugin.h"
-#include "qmlprofilerconstants.h"
+#pragma once
 
-#include <debugger/analyzer/analyzericons.h>
+#include <QVector>
 
-namespace QmlProfiler {
+namespace McuSupport {
 namespace Internal {
+class McuPackage;
+class McuToolChainPackage;
+class McuTarget;
+namespace Sdk {
 
-QmlProfilerOptionsPage::QmlProfilerOptionsPage()
-{
-    setId(Constants::SETTINGS);
-    setDisplayName(QmlProfilerConfigWidget::tr("QML Profiler"));
-    setCategory("T.Analyzer");
-    setDisplayCategory(QmlProfilerConfigWidget::tr("Analyzer"));
-    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
-}
+McuPackage *createQtForMCUsPackage();
 
-QWidget *QmlProfilerOptionsPage::widget()
-{
-    // We cannot parent the widget to the options page as it expects a QWidget as parent
-    if (!m_widget)
-        m_widget = new QmlProfilerConfigWidget(QmlProfilerPlugin::globalSettings());
-    return m_widget;
-}
+// Legacy: List of targets supported by Qt for MCUs 1.0
+void hardcodedTargetsAndPackages(const McuPackage* const qtForMCUsSdkPackage,
+                                 QVector<McuPackage*> *packages, QVector<McuTarget*> *mcuTargets);
 
-void QmlProfilerOptionsPage::apply()
-{
-    QmlProfilerPlugin::globalSettings()->writeGlobalSettings();
-}
-
-void QmlProfilerOptionsPage::finish()
-{
-    delete m_widget;
-}
-
-} // Internal
-} // QmlProfiler
+} // namespace Sdk
+} // namespace Internal
+} // namespace McuSupport

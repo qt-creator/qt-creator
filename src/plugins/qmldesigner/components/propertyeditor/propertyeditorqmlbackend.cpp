@@ -157,7 +157,7 @@ QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
         return 0;
     else if (propertyName == "outOffset")
         return 0;
-    else if (propertyName == "break")
+    else if (propertyName == "breakPoint")
         return 50;
     else if (propertyName == "customId")
         return QString();
@@ -226,7 +226,7 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
     propertyNames.append("customId");
 
     if (itemNode.isFlowTransition()) {
-        propertyNames.append({"color", "width", "inOffset", "outOffset", "dash", "break"});
+        propertyNames.append({"color", "width", "inOffset", "outOffset", "dash", "breakPoint"});
     } else if (itemNode.isFlowItem()) {
         propertyNames.append({"color", "width", "inOffset", "outOffset"});
     } else if (itemNode.isFlowActionArea()) {

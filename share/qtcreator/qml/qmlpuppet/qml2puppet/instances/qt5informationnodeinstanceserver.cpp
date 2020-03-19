@@ -270,7 +270,7 @@ void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
 
     nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSceneChanged,
                                                         toolStates});
-    render3DEditView();
+    m_selectionChangeTimer.start(0);
 #endif
 }
 
@@ -575,7 +575,7 @@ void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 
 void Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout()
 {
-    changeSelection(m_pendingSelectionChangeCommand);
+    changeSelection(m_lastSelectionChangeCommand);
 }
 
 void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
@@ -925,7 +925,8 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
     if (m_editView3DRootItem)
         resolveSceneRoots();
 
-    render3DEditView();
+    // Make sure selection is in sync after all reparentings are done
+    m_selectionChangeTimer.start(0);
 }
 
 void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &command)
@@ -1018,10 +1019,10 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     if (!m_editView3DRootItem)
         return;
 
+    m_lastSelectionChangeCommand = command;
     if (m_selectionChangeTimer.isActive()) {
         // If selection was recently changed by puppet, hold updating the selection for a bit to
         // avoid selection flicker, especially in multiselect cases.
-        m_pendingSelectionChangeCommand = command;
         // Add additional time in case more commands are still coming through
         m_selectionChangeTimer.start(500);
         return;
@@ -1043,7 +1044,25 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
             QObject *object = nullptr;
             if (firstSceneRoot && sceneRoot == firstSceneRoot && instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
-            if (object && (firstSceneRoot != object || instance.isSubclassOf("QQuick3DModel")))
+
+            auto instanceIsModelOrComponent = [&]() -> bool {
+                bool retval = instance.isSubclassOf("QQuick3DModel");
+#ifdef QUICK3D_MODULE
+                if (!retval) {
+                    // Node is a component if it has node children that have no instances
+                    auto node = qobject_cast<QQuick3DNode *>(object);
+                    if (node) {
+                        const auto childItems = node->childItems();
+                        for (const auto &childItem : childItems) {
+                            if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
+                                return true;
+                        }
+                    }
+                }
+#endif
+                return retval;
+            };
+            if (object && (firstSceneRoot != object || instanceIsModelOrComponent()))
                 selectedObjs << objectToVariant(object);
         }
     }
@@ -1061,14 +1080,13 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     if (boxCount < selectedObjs.size()) {
         QMetaObject::invokeMethod(m_editView3DRootItem, "ensureSelectionBoxes",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs.size())));
-        m_pendingSelectionChangeCommand = command;
-        m_selectionChangeTimer.start(100);
+        m_selectionChangeTimer.start(0);
     } else {
         QMetaObject::invokeMethod(m_editView3DRootItem, "selectObjects",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs)));
     }
 
-    render3DEditView();
+    render3DEditView(2);
 }
 
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)

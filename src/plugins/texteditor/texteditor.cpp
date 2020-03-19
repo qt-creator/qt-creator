@@ -3006,15 +3006,19 @@ bool TextEditorWidget::restoreState(const QByteArray &state)
     horizontalScrollBar()->setValue(hval);
 
     if (version >= 2) {
-        int firstBlock, lastBlock;
-        stream >> firstBlock;
-        stream >> lastBlock;
+        int originalFirstBlock, originalLastBlock;
+        stream >> originalFirstBlock;
+        stream >> originalLastBlock;
         // If current line was visible in the old state, make sure it is visible in the new state.
         // This can happen if the height of the editor changed in the meantime
-        if (firstBlock <= lineVal && lineVal <= lastBlock
-            && (lineVal < firstVisibleBlockNumber() || lastVisibleBlockNumber() <= lineVal)) {
+        const int lineBlock = lineVal - 1; // line is 1-based, blocks are 0-based
+        const bool originalCursorVisible = (originalFirstBlock <= lineBlock
+                                            && lineBlock <= originalLastBlock);
+        const int firstBlock = firstVisibleBlockNumber();
+        const int lastBlock = lastVisibleBlockNumber();
+        const bool cursorVisible = (firstBlock <= lineBlock && lineBlock <= lastBlock);
+        if (originalCursorVisible && !cursorVisible)
             centerCursor();
-        }
     }
 
     d->saveCurrentCursorPositionForNavigation();
@@ -8456,8 +8460,11 @@ int TextEditorWidget::firstVisibleBlockNumber() const
 int TextEditorWidget::lastVisibleBlockNumber() const
 {
     QTextBlock block = blockForVerticalOffset(viewport()->height() - 1);
-    if (!block.isValid())
-        block.previous();
+    if (!block.isValid()) {
+        block = document()->lastBlock();
+        while (block.isValid() && !block.isVisible())
+            block = block.previous();
+    }
     return block.isValid() ? block.blockNumber() : -1;
 }
 

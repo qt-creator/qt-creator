@@ -217,6 +217,9 @@ bool QmakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QSt
             actualFilePaths.removeOne(e);
         if (notAdded)
             *notAdded = alreadyPresentFiles;
+        qCDebug(qmakeNodesLog) << Q_FUNC_INFO << "file paths:" << filePaths
+                               << "already present:" << alreadyPresentFiles
+                               << "actual file paths:" << actualFilePaths;
         return pri->addFiles(actualFilePaths, notAdded);
     }
 

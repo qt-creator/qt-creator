@@ -127,7 +127,7 @@ private:
     QTimer m_renderTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
-    ChangeSelectionCommand m_pendingSelectionChangeCommand;
+    ChangeSelectionCommand m_lastSelectionChangeCommand;
     QObject *m_3dHelper = nullptr;
     int m_needRender = 0;
 };

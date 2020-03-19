@@ -71,7 +71,7 @@ DriverSelectorDetailsPanel::DriverSelectorDetailsPanel(DriverSelection &selectio
     const auto layout = new QFormLayout;
     m_dllEdit = new QLineEdit;;
     m_dllEdit->setReadOnly(true);
-    m_dllEdit->setToolTip(tr("Debugger driver library"));
+    m_dllEdit->setToolTip(tr("Debugger driver library."));
     layout->addRow(tr("Driver library:"), m_dllEdit);
     m_cpuDllView = new DriverSelectionCpuDllView(m_selection);
     layout->addRow(tr("CPU library:"), m_cpuDllView);
@@ -156,7 +156,7 @@ DriverSelectionDialog::DriverSelectionDialog(const Utils::FilePath &toolsIniFile
     : QDialog(parent), m_model(new DriverSelectionModel(this)),
       m_view(new DriverSelectionView(this))
 {
-    setWindowTitle(tr("Available target drivers"));
+    setWindowTitle(tr("Available Target Drivers"));
 
     const auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);

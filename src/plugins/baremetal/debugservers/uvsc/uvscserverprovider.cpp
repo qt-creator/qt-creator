@@ -250,7 +250,7 @@ Utils::FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool,
     const Uv::Project project(this, runTool);
     if (!writer.write(&project)) {
         errorMessage = BareMetalDebugSupport::tr(
-                    "Unable to create an uVision project template");
+                    "Unable to create a uVision project template.");
         return {};
     }
     return projectPath;
@@ -279,7 +279,7 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
     m_toolsIniChooser = new PathChooser;
     m_toolsIniChooser->setExpectedKind(PathChooser::File);
     m_toolsIniChooser->setPromptDialogFilter("tools.ini");
-    m_toolsIniChooser->setPromptDialogTitle(tr("Choose a Keil toolset configuration file"));
+    m_toolsIniChooser->setPromptDialogTitle(tr("Choose Keil Toolset Configuration File"));
     m_mainLayout->addRow(tr("Tools file path:"), m_toolsIniChooser);
     m_deviceSelector = new DeviceSelector;
     m_mainLayout->addRow(tr("Target device:"), m_deviceSelector);
@@ -379,13 +379,16 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
         this->runControl()->setApplicationProcessHandle(pid);
         reportStarted();
     });
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QtcProcess::finished),
-            this, [this] (int exitCode, QProcess::ExitStatus status) {
-        const QString msg = (status == QProcess::CrashExit)
-                ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(exitCode);
-        appendMessage(msg.arg(m_process.program()), Utils::NormalMessageFormat);
-        reportStopped();
-    });
+    connect(&m_process,
+            QOverload<int, QProcess::ExitStatus>::of(&QtcProcess::finished),
+            this,
+            [this](int exitCode, QProcess::ExitStatus status) {
+                const QString msg = (status == QProcess::CrashExit)
+                                        ? RunControl::tr("%1 crashed.")
+                                        : RunControl::tr("%2 exited with code %1").arg(exitCode);
+                appendMessage(msg.arg(m_process.program()), Utils::NormalMessageFormat);
+                reportStopped();
+            });
     connect(&m_process, &QtcProcess::errorOccurred, this, [this] (QProcess::ProcessError error) {
         if (error == QProcess::Timedout)
             return; // No actual change on the process side.

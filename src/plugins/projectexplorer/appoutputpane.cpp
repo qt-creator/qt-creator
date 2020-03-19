@@ -111,8 +111,6 @@ private:
     int m_tabIndexForMiddleClick = -1;
 };
 
-} // Internal
-
 TabWidget::TabWidget(QWidget *parent)
     : QTabWidget(parent)
 {
@@ -881,7 +879,8 @@ AppOutputSettingsPage::AppOutputSettingsPage()
     setWidgetCreator([] { return new AppOutputSettingsWidget; });
 }
 
-} // ProjectExplorer
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #include "appoutputpane.moc"
 

@@ -24,6 +24,8 @@ QtcPlugin {
         "mcusupportoptionspage.h",
         "mcusupportplugin.cpp",
         "mcusupportplugin.h",
+        "mcusupportsdk.cpp",
+        "mcusupportsdk.h",
         "mcusupportrunconfiguration.cpp",
         "mcusupportrunconfiguration.h",
     ]

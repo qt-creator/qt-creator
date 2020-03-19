@@ -35,6 +35,7 @@
 
 #include <QFutureWatcher>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QMap>
 #include <QPair>
 #include <QStringList>
@@ -109,6 +110,7 @@ enum class Variable {
 uint qHash(Variable key, uint seed = 0);
 
 namespace Internal {
+Q_DECLARE_LOGGING_CATEGORY(qmakeNodesLog)
 class QmakeEvalInput;
 class QmakeEvalResult;
 class QmakePriFileEvalResult;

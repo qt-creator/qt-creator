@@ -495,7 +495,8 @@ public:
             }
             if (button == Qt::RightButton) {
                 QMenu contextMenu;
-                QAction *action = new QAction(tr("Remove Project from Recent Projects"));
+                QAction *action = new QAction(
+                    ProjectWelcomePage::tr("Remove Project from Recent Projects"));
                 const auto projectModel = qobject_cast<ProjectModel *>(model);
                 contextMenu.addAction(action);
                 connect(action, &QAction::triggered, [idx, projectModel](){
@@ -505,7 +506,7 @@ public:
                     projectModel->resetProjects();
                 });
                 contextMenu.addSeparator();
-                action = new QAction(tr("Clear Recent Project List"));
+                action = new QAction(ProjectWelcomePage::tr("Clear Recent Project List"));
                 connect(action, &QAction::triggered, [projectModel]() {
                     ProjectExplorerPlugin::clearRecentProjects();
                     projectModel->resetProjects();

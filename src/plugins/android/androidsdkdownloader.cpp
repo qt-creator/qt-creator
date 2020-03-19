@@ -42,9 +42,9 @@ namespace Internal {
  * @class SdkDownloader
  * @brief Download Android SDK tools package from within Qt Creator.
  */
-AndroidSdkDownloader::AndroidSdkDownloader(const QUrl &sdkUrl, const QByteArray &sha256) :
-    m_sdkUrl(sdkUrl), m_sha256(sha256)
+AndroidSdkDownloader::AndroidSdkDownloader()
 {
+    m_androidConfig = AndroidConfigurations::currentConfig();
     connect(&m_manager, &QNetworkAccessManager::finished, this, &AndroidSdkDownloader::downloadFinished);
 }
 
@@ -73,12 +73,12 @@ static void setSdkFilesExecPermission( const QString &sdkExtractPath)
 
 void AndroidSdkDownloader::downloadAndExtractSdk(const QString &jdkPath, const QString &sdkExtractPath)
 {
-    if (m_sdkUrl.isEmpty()) {
+    if (m_androidConfig.sdkToolsUrl().isEmpty()) {
         logError(tr("The SDK Tools download URL is empty."));
         return;
     }
 
-    QNetworkRequest request(m_sdkUrl);
+    QNetworkRequest request(m_androidConfig.sdkToolsUrl());
     m_reply = m_manager.get(request);
 
 #if QT_CONFIG(ssl)
@@ -131,7 +131,7 @@ bool AndroidSdkDownloader::verifyFileIntegrity()
     if (f.open(QFile::ReadOnly)) {
         QCryptographicHash hash(QCryptographicHash::Sha256);
         if (hash.addData(&f)) {
-            return hash.result() == m_sha256;
+            return hash.result() == m_androidConfig.getSdkToolsSha256();
         }
     }
     return false;

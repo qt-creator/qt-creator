@@ -107,6 +107,8 @@ uint qHash(FileOrigin fo) { return ::qHash(int(fo)); }
 
 namespace Internal {
 
+Q_LOGGING_CATEGORY(qmakeNodesLog, "qtc.qmake.nodes", QtWarningMsg)
+
 class QmakeEvalInput
 {
 public:
@@ -901,6 +903,8 @@ void QmakePriFile::changeFiles(const QString &mimeType,
     if (!includeFile)
         return;
 
+    qCDebug(qmakeNodesLog) << Q_FUNC_INFO << "mime type:" << mimeType << "file paths:"
+                           << filePaths << "change type:" << int(change) << "mode:" << int(mode);
     if (change == AddToProFile) {
         // Use the first variable for adding.
         ProWriter::addFiles(includeFile, &lines, filePaths, varNameForAdding(mimeType),

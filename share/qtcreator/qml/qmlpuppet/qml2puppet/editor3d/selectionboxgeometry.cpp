@@ -35,6 +35,7 @@
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/qvector.h>
+#include <QtCore/qtimer.h>
 
 #include <limits>
 
@@ -162,6 +163,12 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
             rootRN->localTransform = m;
             rootRN->markDirty(QSSGRenderNode::TransformDirtyFlag::TransformNotDirty);
             rootRN->calculateGlobalVariables();
+            m_asyncUpdatePending = false;
+        } else if (!m_asyncUpdatePending) {
+            m_asyncUpdatePending = true;
+            // A necessary spatial node doesn't yet exist. Defer selection box creation one frame.
+            QTimer::singleShot(0, this, &SelectionBoxGeometry::update);
+            return node;
         }
         getBounds(m_targetNode, vertexData, indexData, minBounds, maxBounds);
         appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);

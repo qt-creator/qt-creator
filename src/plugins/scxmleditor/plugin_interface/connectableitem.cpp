@@ -35,6 +35,7 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPen>
 #include <QStringList>
 #include <QUndoStack>

@@ -30,7 +30,6 @@
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
-#include <QPainterPath>
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 

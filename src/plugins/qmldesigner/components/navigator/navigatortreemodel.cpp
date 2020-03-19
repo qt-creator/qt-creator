@@ -539,7 +539,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
         }
 
         if (newQmlObjectNode.isValid())
-            m_view->selectModelNode(newQmlObjectNode.modelNode());
+            m_view->setSelectedModelNode(newQmlObjectNode.modelNode());
     }
 }
 

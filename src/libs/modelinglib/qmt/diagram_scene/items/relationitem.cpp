@@ -54,6 +54,7 @@
 #include <QFont>
 #include <QPen>
 #include <QPainter>
+#include <QPainterPath>
 
 namespace qmt {
 
