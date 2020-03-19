@@ -132,6 +132,8 @@ public:
     void setReadOnly(bool readOnly);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
 
+    void validateInput();
+
     enum class UncheckedSemantics { Disabled, ReadOnly };
     enum class CheckBoxPlacement { Top, Right };
     void setUncheckedSemantics(UncheckedSemantics semantics);

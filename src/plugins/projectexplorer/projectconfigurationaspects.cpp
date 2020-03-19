@@ -287,6 +287,14 @@ void BaseStringAspect::setMacroExpanderProvider(const MacroExpanderProvider &exp
     d->m_expanderProvider = expanderProvider;
 }
 
+void BaseStringAspect::validateInput()
+{
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->triggerChanged();
+    if (d->m_lineEditDisplay)
+        d->m_lineEditDisplay->validate();
+}
+
 void BaseStringAspect::setUncheckedSemantics(BaseStringAspect::UncheckedSemantics semantics)
 {
     d->m_uncheckedSemantics = semantics;
@@ -362,6 +370,8 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         break;
     }
 
+    validateInput();
+
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Right)
         d->m_checker->addToLayout(builder);
 
@@ -398,6 +408,8 @@ void BaseStringAspect::update()
         if (!d->m_labelPixmap.isNull())
             d->m_label->setPixmap(d->m_labelPixmap);
     }
+
+    validateInput();
 }
 
 void BaseStringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
