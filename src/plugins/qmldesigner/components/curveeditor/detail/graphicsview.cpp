@@ -564,7 +564,6 @@ void GraphicsView::drawRangeBar(QPainter *painter, const QRectF &rect)
     QRectF activeRect = QRectF(QPointF(mapTimeToX(m_model->minimumTime()), tTick),
                                QPointF(mapTimeToX(m_model->maximumTime()), bTick));
 
-    QColor rangeColor = m_style.rangeBarColor;
     painter->fillRect(activeRect, m_style.rangeBarColor);
 
     QColor handleColor(m_style.rangeBarCapsColor);
