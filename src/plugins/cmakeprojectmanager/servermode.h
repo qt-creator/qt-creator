@@ -64,7 +64,7 @@ signals:
     void connected();
     void disconnected();
     void message(const QString &msg);
-    void errorOccured(const QString &msg);
+    void errorOccurred(const QString &msg);
 
     // Forward stuff from the server
     void cmakeReply(const QVariantMap &data, const QString &inResponseTo, const QVariant &cookie);

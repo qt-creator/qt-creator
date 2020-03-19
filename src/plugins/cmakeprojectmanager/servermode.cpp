@@ -488,7 +488,7 @@ void ServerMode::reportError(const QString &msg)
 {
     qCWarning(cmakeServerMode) << "Report Error:" << msg;
     emit message(msg);
-    emit errorOccured(msg);
+    emit errorOccurred(msg);
 }
 
 } // namespace Internal

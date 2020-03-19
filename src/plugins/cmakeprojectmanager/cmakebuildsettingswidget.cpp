@@ -268,7 +268,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
     });
-    connect(m_buildConfiguration, &CMakeBuildConfiguration::errorOccured,
+    connect(m_buildConfiguration, &CMakeBuildConfiguration::errorOccurred,
             this, [this]() {
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
@@ -323,8 +323,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configView->edit(idx);
     });
 
-    connect(bc, &CMakeBuildConfiguration::errorOccured, this, &CMakeBuildSettingsWidget::setError);
-    connect(bc, &CMakeBuildConfiguration::warningOccured, this, &CMakeBuildSettingsWidget::setWarning);
+    connect(bc, &CMakeBuildConfiguration::errorOccurred, this, &CMakeBuildSettingsWidget::setError);
+    connect(bc, &CMakeBuildConfiguration::warningOccurred, this, &CMakeBuildSettingsWidget::setWarning);
 
     updateFromKit();
     connect(m_buildConfiguration->target(), &ProjectExplorer::Target::kitChanged,

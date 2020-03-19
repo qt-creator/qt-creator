@@ -350,8 +350,8 @@ void ServerModeReader::createNewServer()
                 m_parameters.platform, m_parameters.toolset,
                 true, 1);
 
-    connect(m_cmakeServer.get(), &ServerMode::errorOccured,
-            this, &ServerModeReader::errorOccured);
+    connect(m_cmakeServer.get(), &ServerMode::errorOccurred,
+            this, &ServerModeReader::errorOccurred);
     connect(m_cmakeServer.get(), &ServerMode::cmakeReply,
             this, &ServerModeReader::handleReply);
     connect(m_cmakeServer.get(), &ServerMode::cmakeError,
@@ -485,7 +485,7 @@ void ServerModeReader::reportError()
 {
     stop();
     Core::MessageManager::write(tr("CMake Project parsing failed."));
-    emit errorOccured(m_delayedErrorMessage);
+    emit errorOccurred(m_delayedErrorMessage);
 
     if (m_future)
         m_future->reportCanceled();

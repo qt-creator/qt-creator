@@ -76,7 +76,7 @@ signals:
     void configurationStarted() const;
     void dataAvailable() const;
     void dirty() const;
-    void errorOccured(const QString &message) const;
+    void errorOccurred(const QString &message) const;
 
 protected:
     BuildDirParameters m_parameters;

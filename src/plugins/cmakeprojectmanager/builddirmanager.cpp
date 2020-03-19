@@ -84,7 +84,8 @@ FilePath BuildDirManager::workDirectory(const BuildDirParameters &parameters) co
 
     if (cmake && cmake->autoCreateBuildDirectory()) {
         if (!QDir().mkpath(bdir.toString()))
-            emitErrorOccured(tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
+            emitErrorOccurred(
+                tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
         return bdir;
     }
 
@@ -95,8 +96,8 @@ FilePath BuildDirManager::workDirectory(const BuildDirParameters &parameters) co
         tmpDirIt = ret.first;
 
         if (!tmpDirIt->second->isValid()) {
-            emitErrorOccured(tr("Failed to create temporary directory \"%1\".")
-                             .arg(QDir::toNativeSeparators(tmpDirIt->second->path())));
+            emitErrorOccurred(tr("Failed to create temporary directory \"%1\".")
+                                  .arg(QDir::toNativeSeparators(tmpDirIt->second->path())));
             return bdir;
         }
     }
@@ -121,10 +122,10 @@ void BuildDirManager::emitDataAvailable()
         emit dataAvailable();
 }
 
-void BuildDirManager::emitErrorOccured(const QString &message) const
+void BuildDirManager::emitErrorOccurred(const QString &message) const
 {
     m_isHandlingError = true;
-    emit errorOccured(message);
+    emit errorOccurred(message);
     m_isHandlingError = false;
 }
 
@@ -160,9 +161,9 @@ void BuildDirManager::updateReaderType(const BuildDirParameters &p,
                 this,
                 &BuildDirManager::emitDataAvailable);
         connect(m_reader.get(),
-                &BuildDirReader::errorOccured,
+                &BuildDirReader::errorOccurred,
                 this,
-                &BuildDirManager::emitErrorOccured);
+                &BuildDirManager::emitErrorOccurred);
         connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
         connect(m_reader.get(), &BuildDirReader::isReadyNow, this, todo);
     }
@@ -268,7 +269,7 @@ void BuildDirManager::stopParsingAndClearState()
     qCDebug(cmakeBuildDirManagerLog) << "stopping parsing run!";
     if (m_reader) {
         if (m_reader->isParsing())
-            m_reader->errorOccured(tr("Parsing has been canceled."));
+            m_reader->errorOccurred(tr("Parsing has been canceled."));
         disconnect(m_reader.get(), nullptr, this, nullptr);
         m_reader->stop();
     }

@@ -105,14 +105,14 @@ signals:
     void requestDelayedReparse() const;
     void parsingStarted() const;
     void dataAvailable() const;
-    void errorOccured(const QString &err) const;
+    void errorOccurred(const QString &err) const;
 
 private:
     void updateReparseParameters(const int parameters);
     int takeReparseParameters();
 
     void emitDataAvailable();
-    void emitErrorOccured(const QString &message) const;
+    void emitErrorOccurred(const QString &message) const;
     void emitReparseRequest() const;
     bool checkConfiguration();
 

@@ -355,7 +355,7 @@ void CMakeBuildConfiguration::setError(const QString &message)
         qCDebug(cmakeBuildConfigurationLog) << "Emitting enabledChanged signal";
         emit enabledChanged();
     }
-    emit errorOccured(m_error);
+    emit errorOccurred(m_error);
 }
 
 void CMakeBuildConfiguration::setWarning(const QString &message)
@@ -363,7 +363,7 @@ void CMakeBuildConfiguration::setWarning(const QString &message)
     if (m_warning == message)
         return;
     m_warning = message;
-    emit warningOccured(m_warning);
+    emit warningOccurred(m_warning);
 }
 
 QString CMakeBuildConfiguration::error() const

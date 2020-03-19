@@ -118,7 +118,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     connect(&m_buildDirManager, &BuildDirManager::dataAvailable,
             this, &CMakeBuildSystem::handleParsingSucceeded);
 
-    connect(&m_buildDirManager, &BuildDirManager::errorOccured,
+    connect(&m_buildDirManager, &BuildDirManager::errorOccurred,
             this, &CMakeBuildSystem::handleParsingFailed);
 
     connect(&m_buildDirManager, &BuildDirManager::parsingStarted, this, [this]() {

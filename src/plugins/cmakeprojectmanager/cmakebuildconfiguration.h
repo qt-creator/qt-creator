@@ -66,8 +66,8 @@ public:
     ProjectExplorer::BuildSystem *buildSystem() const final;
 
 signals:
-    void errorOccured(const QString &message);
-    void warningOccured(const QString &message);
+    void errorOccurred(const QString &message);
+    void warningOccurred(const QString &message);
 
     void configurationForCMakeChanged();
 
