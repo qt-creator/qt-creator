@@ -8,9 +8,9 @@ include(QtCreatorIDEBranding)
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
 set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")
-set(IDE_REVISION_URL_STR "" CACHE STRING "The IDE revision Url string.")
+set(IDE_REVISION_URL "" CACHE STRING "The IDE revision Url string.")
 
-mark_as_advanced(IDE_REVISION IDE_REVISION_STR IDE_REVISION_URL_STR)
+mark_as_advanced(IDE_REVISION IDE_REVISION_STR IDE_REVISION_URL)
 
 project(QtCreator VERSION ${IDE_VERSION})
 
