@@ -81,65 +81,37 @@ static Abi::Architecture guessArchitecture(const FilePath &compilerPath)
     return Abi::Architecture::UnknownArchitecture;
 }
 
-// Note: The KEIL C51 compiler does not support the predefined
-// macros dumping. So, we do it with following trick where we try
-// to compile a temporary file and to parse the console output.
-static Macros dumpC51PredefinedMacros(const FilePath &compiler, const QStringList &env)
+static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const QStringList &env)
 {
+    // Note: The KEIL C51 or C251 compiler does not support the predefined
+    // macros dumping. So, we do it with the following trick, where we try
+    // to create and compile a special temporary file and to parse the console
+    // output with the own magic pattern: (""|"key"|"value"|"").
+
     QTemporaryFile fakeIn;
     if (!fakeIn.open())
         return {};
+
     fakeIn.write("#define VALUE_TO_STRING(x) #x\n");
     fakeIn.write("#define VALUE(x) VALUE_TO_STRING(x)\n");
-    fakeIn.write("#define VAR_NAME_VALUE(var) \"\"\"|\"#var\"|\"VALUE(var)\n");
-    fakeIn.write("#ifdef __C51__\n");
-    fakeIn.write("#pragma message(VAR_NAME_VALUE(__C51__))\n");
+
+    // Prepare for C51 compiler.
+    fakeIn.write("#if defined(__C51__) || defined(__CX51__)\n");
+    fakeIn.write("#  define VAR_NAME_VALUE(var) \"(\"\"\"\"|\"#var\"|\"VALUE(var)\"|\"\"\"\")\"\n");
+    fakeIn.write("#  if defined (__C51__)\n");
+    fakeIn.write("#    pragma message (VAR_NAME_VALUE(__C51__))\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__CX51__)\n");
+    fakeIn.write("#    pragma message (VAR_NAME_VALUE(__CX51__))\n");
+    fakeIn.write("#  endif\n");
     fakeIn.write("#endif\n");
-    fakeIn.write("#ifdef __CX51__\n");
-    fakeIn.write("#pragma message(VAR_NAME_VALUE(__CX51__))\n");
+
+    // Prepare for C251 compiler.
+    fakeIn.write("#if defined(__C251__)\n");
+    fakeIn.write("#  define VAR_NAME_VALUE(var) \"\"|#var|VALUE(var)|\"\"\n");
+    fakeIn.write("#  warning (VAR_NAME_VALUE(__C251__))\n");
     fakeIn.write("#endif\n");
-    fakeIn.close();
 
-    SynchronousProcess cpp;
-    cpp.setEnvironment(env);
-    cpp.setTimeoutS(10);
-
-    const CommandLine cmd(compiler, {fakeIn.fileName()});
-
-    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
-    if (response.result != SynchronousProcessResponse::Finished
-            || response.exitCode != 0) {
-        qWarning() << response.exitMessage(cmd.toUserOutput(), 10);
-        return {};
-    }
-
-    QString output = response.allOutput();
-    Macros macros;
-    QTextStream stream(&output);
-    QString line;
-    while (stream.readLineInto(&line)) {
-        const QStringList parts = line.split("\"|\"");
-        if (parts.count() != 3)
-            continue;
-        macros.push_back({parts.at(1).toUtf8(), parts.at(2).toUtf8()});
-    }
-    return macros;
-}
-
-// Note: The KEIL C251 compiler does not support the predefined
-// macros dumping. So, we do it with following trick where we try
-// to compile a temporary file and to parse the console output.
-static Macros dumpC251PredefinedMacros(const FilePath &compiler, const QStringList &env)
-{
-    QTemporaryFile fakeIn;
-    if (!fakeIn.open())
-        return {};
-    fakeIn.write("#define VALUE_TO_STRING(x) #x\n");
-    fakeIn.write("#define VALUE(x) VALUE_TO_STRING(x)\n");
-    fakeIn.write("#define VAR_NAME_VALUE(var) \"\"|#var|VALUE(var)|\"\n");
-    fakeIn.write("#ifdef __C251__\n");
-    fakeIn.write("#warning(VAR_NAME_VALUE(__C251__))\n");
-    fakeIn.write("#endif\n");
     fakeIn.close();
 
     SynchronousProcess cpp;
@@ -153,10 +125,11 @@ static Macros dumpC251PredefinedMacros(const FilePath &compiler, const QStringLi
     QTextStream stream(&output);
     QString line;
     while (stream.readLineInto(&line)) {
+        enum { KEY_INDEX = 1, VALUE_INDEX = 2, ALL_PARTS = 4 };
         const QStringList parts = line.split("\"|\"");
-        if (parts.count() != 4)
+        if (parts.count() != ALL_PARTS)
             continue;
-        macros.push_back({parts.at(1).toUtf8(), parts.at(2).toUtf8()});
+        macros.push_back({parts.at(KEY_INDEX).toUtf8(), parts.at(VALUE_INDEX).toUtf8()});
     }
     return macros;
 }
@@ -180,24 +153,6 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
     return Macro::toMacros(output);
 }
 
-static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &env)
-{
-    if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
-        return {};
-
-    const Abi::Architecture arch = guessArchitecture(compiler);
-    switch (arch) {
-    case Abi::Architecture::Mcs51Architecture:
-        return dumpC51PredefinedMacros(compiler, env);
-    case Abi::Architecture::Mcs251Architecture:
-        return dumpC251PredefinedMacros(compiler, env);
-    case Abi::Architecture::ArmArchitecture:
-        return dumpArmPredefinedMacros(compiler, env);
-    default:
-        return {};
-    }
-}
-
 static bool isMcsArchitecture(Abi::Architecture arch)
 {
     return arch == Abi::Architecture::Mcs51Architecture
@@ -207,6 +162,19 @@ static bool isMcsArchitecture(Abi::Architecture arch)
 static bool isArmArchitecture(Abi::Architecture arch)
 {
     return arch == Abi::Architecture::ArmArchitecture;
+}
+
+static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &env)
+{
+    if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
+        return {};
+
+    const Abi::Architecture arch = guessArchitecture(compiler);
+    if (isMcsArchitecture(arch))
+        return dumpMcsPredefinedMacros(compiler, env);
+    if (isArmArchitecture(arch))
+        return dumpArmPredefinedMacros(compiler, env);
+    return {};
 }
 
 static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
