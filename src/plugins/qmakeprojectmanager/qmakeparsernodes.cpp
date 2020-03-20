@@ -1336,7 +1336,7 @@ QmakeEvalInput QmakeProFile::evalInput() const
     QmakeEvalInput input;
     input.projectDir = directoryPath().toString();
     input.projectFilePath = filePath();
-    input.buildDirectory = buildDir();
+    input.buildDirectory = m_buildSystem->buildDir(m_filePath);
     input.sysroot = FilePath::fromString(m_buildSystem->qmakeSysroot());
     input.readerExact = m_readerExact;
     input.readerCumulative = m_readerCumulative;
@@ -1726,7 +1726,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
     //
     // Add/Remove pri files, sub projects
     //
-    FilePath buildDirectory = buildDir();
+    FilePath buildDirectory = m_buildSystem->buildDir(m_filePath);
     makeEmpty();
     for (QmakePriFile * const toAdd : qAsConst(result->directChildren))
         addChild(toAdd);
@@ -2067,20 +2067,6 @@ InstallsList QmakeProFile::installsList() const
 FilePath QmakeProFile::sourceDir() const
 {
     return directoryPath();
-}
-
-FilePath QmakeProFile::buildDir(BuildConfiguration *bc) const
-{
-    if (!bc)
-        bc = m_buildSystem->target()->activeBuildConfiguration();
-
-    const QDir srcDirRoot = QDir(m_buildSystem->projectDirectory().toString());
-    const QString relativeDir = srcDirRoot.relativeFilePath(directoryPath().toString());
-    const QString buildConfigBuildDir = bc ? bc->buildDirectory().toString() : QString();
-    const QString buildDir = buildConfigBuildDir.isEmpty()
-                                 ? m_buildSystem->projectDirectory().toString()
-                                 : buildConfigBuildDir;
-    return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
 }
 
 FilePaths QmakeProFile::generatedFiles(const FilePath &buildDir,

@@ -170,6 +170,7 @@ public:
     void scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay);
     void scheduleUpdateAllLater() { scheduleUpdateAll(QmakeProFile::ParseLater); }
     void scheduleUpdateAllNowOrLater();
+    Utils::FilePath buildDir(const Utils::FilePath &proFilePath) const;
 
     mutable QSet<const QPair<Utils::FilePath, Utils::FilePath>> m_toolChainWarnings;
 

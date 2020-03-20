@@ -321,7 +321,6 @@ public:
     }
 
     Utils::FilePath sourceDir() const;
-    Utils::FilePath buildDir(ProjectExplorer::BuildConfiguration *bc = nullptr) const;
 
     Utils::FilePaths generatedFiles(const Utils::FilePath &buildDirectory,
                                        const Utils::FilePath &sourceFile,

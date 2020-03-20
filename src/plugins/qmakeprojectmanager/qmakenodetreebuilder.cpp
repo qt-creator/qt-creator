@@ -211,7 +211,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
     if (!generatedFiles.empty()) {
         QTC_CHECK(proFile);
         const FilePath baseDir = generatedFiles.size() == 1 ? generatedFiles.first().parentDir()
-                                                            : proFile->buildDir();
+                                                            : buildSystem->buildDir(proFile->filePath());
         auto genFolder = std::make_unique<VirtualFolderNode>(baseDir);
         genFolder->setDisplayName(QCoreApplication::translate("QmakeProjectManager::QmakePriFile",
                                                               "Generated Files"));

@@ -656,6 +656,17 @@ static FileNode *fileNodeOf(FolderNode *in, const FilePath &fileName)
     return nullptr;
 }
 
+FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
+{
+    const QDir srcDirRoot = QDir(projectDirectory().toString());
+    const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
+    const QString buildConfigBuildDir = m_buildConfiguration->buildDirectory().toString();
+    const QString buildDir = buildConfigBuildDir.isEmpty()
+                                 ? projectDirectory().toString()
+                                 : buildConfigBuildDir;
+    return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
+}
+
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage)
 {
     Core::MessageManager::write(errorMessage);
@@ -686,13 +697,13 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
             qtVersion->applyProperties(m_qmakeGlobals.get());
         }
         m_qmakeGlobals->setDirectories(rootProFile()->sourceDir().toString(),
-                                       rootProFile()->buildDir().toString());
+                                       buildDir(rootProFile()->filePath()).toString());
 
         Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
             m_qmakeGlobals->environment.insert(env.key(eit), env.expandedValueForKey(env.key(eit)));
 
-        m_qmakeGlobals->setCommandLineArguments(rootProFile()->buildDir().toString(), qmakeArgs);
+        m_qmakeGlobals->setCommandLineArguments(buildDir(rootProFile()->filePath()).toString(), qmakeArgs);
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
 
@@ -714,7 +725,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
 
     auto reader = new QtSupport::ProFileReader(m_qmakeGlobals.get(), m_qmakeVfs);
 
-    reader->setOutputDir(qmakeProFile->buildDir().toString());
+    reader->setOutputDir(buildDir(qmakeProFile->filePath()).toString());
 
     return reader;
 }
@@ -1045,7 +1056,7 @@ void QmakeBuildSystem::updateBuildSystemData()
         if (!libDirectories.isEmpty()) {
             QmakeProFile *proFile = node->proFile();
             QTC_ASSERT(proFile, return);
-            const QString proDirectory = proFile->buildDir().toString();
+            const QString proDirectory = buildDir(proFile->filePath()).toString();
             foreach (QString dir, libDirectories) {
                 // Fix up relative entries like "LIBS+=-L.."
                 const QFileInfo fi(dir);
@@ -1335,7 +1346,7 @@ QStringList QmakeBuildSystem::filesGeneratedFrom(const QString &input) const
         const QmakeProFileNode *pro = dynamic_cast<QmakeProFileNode *>(file->parentFolderNode());
         QTC_ASSERT(pro, return {});
         if (const QmakeProFile *proFile = pro->proFile())
-            return Utils::transform(proFile->generatedFiles(pro->buildDir(nullptr),
+            return Utils::transform(proFile->generatedFiles(buildDir(pro->filePath()),
                                                             file->filePath(), file->fileType()),
                                     &FilePath::toString);
     }

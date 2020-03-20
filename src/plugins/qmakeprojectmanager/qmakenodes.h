@@ -98,7 +98,6 @@ public:
     bool setData(Core::Id role, const QVariant &value) const override;
 
     QmakeProjectManager::ProjectType projectType() const;
-    Utils::FilePath buildDir(ProjectExplorer::BuildConfiguration *bc) const;
 
     QStringList variableValue(const Variable var) const;
     QString singleVariableValue(const Variable var) const;

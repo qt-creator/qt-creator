@@ -178,7 +178,7 @@ bool QMakeStep::init()
     FilePath workingDirectory;
 
     if (qmakeBc->subNodeBuild())
-        workingDirectory = qmakeBc->subNodeBuild()->buildDir(qmakeBc);
+        workingDirectory = qmakeBc->qmakeBuildSystem()->buildDir(qmakeBc->subNodeBuild()->filePath());
     else
         workingDirectory = qmakeBc->buildDirectory();
 

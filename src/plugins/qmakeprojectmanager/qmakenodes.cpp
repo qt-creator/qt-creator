@@ -505,12 +505,6 @@ QString QmakeProFileNode::singleVariableValue(const Variable var) const
     return values.isEmpty() ? QString() : values.first();
 }
 
-FilePath QmakeProFileNode::buildDir(BuildConfiguration *bc) const
-{
-    const QmakeProFile *pro = proFile();
-    return pro ? pro->buildDir(bc) : FilePath();
-}
-
 QString QmakeProFileNode::objectExtension() const
 {
     QStringList exts = variableValue(Variable::ObjectExt);

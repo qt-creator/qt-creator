@@ -84,7 +84,7 @@ bool QmakeMakeStep::init()
 
     Utils::FilePath workingDirectory;
     if (bc->subNodeBuild())
-        workingDirectory = bc->subNodeBuild()->buildDir(bc);
+        workingDirectory = bc->qmakeBuildSystem()->buildDir(bc->subNodeBuild()->filePath());
     else
         workingDirectory = bc->buildDirectory();
     pp->setWorkingDirectory(workingDirectory);
@@ -130,7 +130,7 @@ bool QmakeMakeStep::init()
     if (bc->fileNodeBuild() && subProFile) {
         QString objectsDir = subProFile->objectsDirectory();
         if (objectsDir.isEmpty()) {
-            objectsDir = subProFile->buildDir(bc).toString();
+            objectsDir = bc->qmakeBuildSystem()->buildDir(subProFile->filePath()).toString();
             if (subProFile->isDebugAndRelease()) {
                 if (bc->buildType() == QmakeBuildConfiguration::Debug)
                     objectsDir += "/debug";
