@@ -780,8 +780,8 @@ void RewriterView::setupCanonicalHashes() const
 
     for (const ModelNode &node : allModelNodes()) {
         int offset = nodeOffset(node);
-        QTC_ASSERT(offset > 0, qDebug() << Q_FUNC_INFO << "no offset" << node; return);
-        data.emplace_back(std::make_pair(node, offset));
+        if (offset > 0)
+            data.emplace_back(std::make_pair(node, offset));
     }
 
     std::sort(data.begin(), data.end(), [](myPair a, myPair b) {
@@ -1121,7 +1121,8 @@ void RewriterView::restoreAuxiliaryData()
 
     setupCanonicalHashes();
 
-    QTC_ASSERT(!m_canonicalIntModelNode.isEmpty(), return);
+    if (m_canonicalIntModelNode.isEmpty())
+        return;
 
     const QString text = m_textModifier->text();
 
