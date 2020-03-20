@@ -220,6 +220,24 @@ Rectangle {
         }
     }
 
+    Text {
+        id: stateDefaultIndicator
+        anchors.left: whenButton.left
+        anchors.leftMargin: 0
+        anchors.right: removeStateButton.left
+        anchors.rightMargin: 4
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 4
+
+        color: Theme.color(Theme.PanelTextColorLight)
+        font.italic: true
+        font.pixelSize: Theme.smallFontPixelSize()
+
+        visible: expanded && (isDefaultState || (isBaseState && !modelHasDefaultState))
+
+        text: ("* " + qsTr("Default"))
+    }
+
     BindingEditor {
         property string newWhenCondition
 
