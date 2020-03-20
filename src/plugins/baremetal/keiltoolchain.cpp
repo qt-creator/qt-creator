@@ -217,9 +217,11 @@ static Abi::Architecture guessArchitecture(const Macros &macros)
 
 static unsigned char guessWordWidth(const Macros &macros, Abi::Architecture arch)
 {
-    // Check for C51 or C251 compiler first.
+    // Check for C51 or C251 compiler first, which are always have 16-bit word width:
+    // * http://www.keil.com/support/man/docs/c51/c51_le_datatypes.htm
+    // * http://www.keil.com/support/man/docs/c251/c251_le_datatypes.htm
     if (isMcsArchitecture(arch))
-        return 16; // C51 or C251 always have 16-bit word width.
+        return 16;
 
     const Macro sizeMacro = Utils::findOrDefault(macros, [](const Macro &m) {
         return m.key == "__sizeof_int";
