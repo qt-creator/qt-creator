@@ -40,7 +40,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/behaviorsettings.h>
-#include <utils/outputformatter.h>
+#include <utils/outputformat.h>
 #include <utils/proxyaction.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -125,8 +125,7 @@ private:
 
 CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
-    m_settingsButton(new QToolButton),
-    m_formatter(new Utils::OutputFormatter)
+    m_settingsButton(new QToolButton)
 {
     Core::Context context(C_COMPILE_OUTPUT);
     m_outputWindow = new CompileOutputTextEdit(context);
@@ -135,7 +134,6 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
     m_outputWindow->setMaxCharCount(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
-    m_outputWindow->setFormatters({m_formatter});
 
     // Let selected text be colored as if the text edit was editable,
     // otherwise the highlight for searching is too light
@@ -198,7 +196,6 @@ CompileOutputWindow::~CompileOutputWindow()
     delete m_handler;
     delete m_cancelBuildButton;
     delete m_settingsButton;
-    delete m_formatter;
 }
 
 void CompileOutputWindow::updateFromSettings()
@@ -333,7 +330,7 @@ void CompileOutputWindow::showPositionOf(const Task &task)
 
 void CompileOutputWindow::flush()
 {
-    m_formatter->flush();
+    m_outputWindow->flush();
 }
 
 void CompileOutputWindow::setSettings(const CompileOutputSettings &settings)

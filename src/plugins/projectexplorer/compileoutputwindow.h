@@ -34,20 +34,13 @@
 #include <QPair>
 
 QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-class QTextCharFormat;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace Utils { class OutputFormatter; }
-
 namespace ProjectExplorer {
-
-class BuildManager;
 class Task;
 
 namespace Internal {
-
 class ShowOutputTaskHandler;
 class CompileOutputTextEdit;
 
@@ -98,7 +91,6 @@ private:
     ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;
     QToolButton * const m_settingsButton;
-    Utils::OutputFormatter *m_formatter;
     CompileOutputSettings m_settings;
 };
 
