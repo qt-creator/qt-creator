@@ -50,12 +50,14 @@ protected:
 private:
     void setCurrentTestCase(const QString &testCase);
     void setCurrentTestSuite(const QString &testSuite);
+    void handleDescriptionAndReportResult(TestResultPtr testResult);
 
     QString m_projectFile;
     QString m_currentTestSuite;
     QString m_currentTestCase;
     QString m_description;
     int m_iteration = 1;
+    bool m_testSetStarted = false;
 };
 
 } // namespace Internal
