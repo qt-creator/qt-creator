@@ -1106,8 +1106,11 @@ void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
     auto properties = node->properties();
 
     for (auto i = properties.begin(); i != properties.end(); ++i) {
-        if (i.key() != "i")
-            modelNode.setAuxiliaryData(fixUpIllegalChars(i.key()).toUtf8(), i.value());
+        if (i.key() != "i") {
+            const PropertyName name = fixUpIllegalChars(i.key()).toUtf8();
+            if (!modelNode.hasAuxiliaryData(name))
+                modelNode.setAuxiliaryData(name, i.value());
+        }
     }
 
     checkChildNodes(node, view);
