@@ -61,6 +61,8 @@ public:
 
     void extend(QPainterPath &path) const;
 
+    void extendWithEasingCurve(QPainterPath &path, const QEasingCurve &curve) const;
+
     QEasingCurve easingCurve() const;
 
     std::vector<QPointF> extrema() const;

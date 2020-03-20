@@ -108,8 +108,7 @@ void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
 
     endResetModel();
 
-    if (!pinned.empty())
-        graphicsView()->reset(pinned);
+    graphicsView()->reset(pinned);
 
     if (SelectionModel *sm = selectionModel())
         sm->select(sel);

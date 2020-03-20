@@ -62,6 +62,7 @@ public:
 private:
     void apply() final;
 
+    void populateMcuTargetsComboBox();
     void showEvent(QShowEvent *event) final;
 
     QString m_armGccPath;
@@ -108,14 +109,12 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         m_mcuTargetsGroupBox->setFlat(true);
         mainLayout->addWidget(m_mcuTargetsGroupBox);
         m_mcuTargetsComboBox = new QComboBox;
-        m_mcuTargetsComboBox->addItems(
-                    Utils::transform<QStringList>(m_options.mcuTargets, [this](McuTarget *t){
-                        return m_options.kitName(t);
-                    }));
         auto layout = new QVBoxLayout(m_mcuTargetsGroupBox);
         layout->addWidget(m_mcuTargetsComboBox);
         connect(m_mcuTargetsComboBox, &QComboBox::currentTextChanged,
                 this, &McuSupportOptionsWidget::showMcuTargetPackages);
+        connect(m_options.qtForMCUsSdkPackage, &McuPackage::changed,
+                this, &McuSupportOptionsWidget::populateMcuTargetsComboBox);
     }
 
     {
@@ -147,15 +146,13 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
 void McuSupportOptionsWidget::updateStatus()
 {
     const McuTarget *mcuTarget = currentMcuTarget();
-    if (!mcuTarget)
-        return;
 
     const bool cMakeAvailable = !CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty();
 
     // Page elements
     {
         m_qtForMCUsSdkGroupBox->setVisible(cMakeAvailable);
-        const bool ready = cMakeAvailable &&
+        const bool ready = cMakeAvailable && mcuTarget &&
                 m_options.qtForMCUsSdkPackage->status() == McuPackage::ValidPackage;
         m_mcuTargetsGroupBox->setVisible(ready);
         m_packagesGroupBox->setVisible(ready && !mcuTarget->packages().isEmpty());
@@ -163,7 +160,7 @@ void McuSupportOptionsWidget::updateStatus()
     }
 
     // Kit creation status
-    {
+    if (mcuTarget) {
         const bool mcuTargetValid = mcuTarget->isValid();
         m_kitCreationInfoLabel->setType(mcuTargetValid ? Utils::InfoLabel::Ok
                                                        : Utils::InfoLabel::NotOk);
@@ -213,13 +210,15 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
 McuTarget *McuSupportOptionsWidget::currentMcuTarget() const
 {
     const int mcuTargetIndex = m_mcuTargetsComboBox->currentIndex();
-    return m_options.mcuTargets.isEmpty() ? nullptr : m_options.mcuTargets.at(mcuTargetIndex);
+    return (mcuTargetIndex == -1 || m_options.mcuTargets.isEmpty())
+            ? nullptr
+            : m_options.mcuTargets.at(mcuTargetIndex);
 }
 
 void McuSupportOptionsWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
-    updateStatus();
+    populateMcuTargetsComboBox();
 }
 
 void McuSupportOptionsWidget::apply()
@@ -239,6 +238,17 @@ void McuSupportOptionsWidget::apply()
     for (auto existingKit : m_options.existingKits(mcuTarget))
         ProjectExplorer::KitManager::deregisterKit(existingKit);
     m_options.newKit(mcuTarget);
+}
+
+void McuSupportOptionsWidget::populateMcuTargetsComboBox()
+{
+    m_options.populatePackagesAndTargets();
+    m_mcuTargetsComboBox->clear();
+    m_mcuTargetsComboBox->addItems(
+                Utils::transform<QStringList>(m_options.mcuTargets, [this](McuTarget *t){
+                    return m_options.kitName(t);
+                }));
+    updateStatus();
 }
 
 McuSupportOptionsPage::McuSupportOptionsPage()

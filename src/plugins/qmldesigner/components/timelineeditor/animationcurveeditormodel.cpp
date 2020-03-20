@@ -30,8 +30,8 @@
 #include "qmltimeline.h"
 
 #include <bindingproperty.h>
-#include <variantproperty.h>
 #include <theme.h>
+#include <variantproperty.h>
 
 namespace QmlDesigner {
 
@@ -204,8 +204,16 @@ std::vector<DesignTools::Keyframe> resolveSmallCurves(
     for (auto &&frame : frames) {
         if (frame.hasData() && !out.empty()) {
             QEasingCurve curve = frame.data().toEasingCurve();
+            // One-segment-curve: Since (0,0) is implicit => 3
             if (curve.toCubicSpline().count() == 3) {
                 DesignTools::Keyframe &previous = out.back();
+#if 0
+                // Do not resolve when two adjacent keyframes have the same value.
+                if (qFuzzyCompare(previous.position().y(), frame.position().y())) {
+                    out.push_back(frame);
+                    continue;
+                }
+#endif
                 DesignTools::AnimationCurve acurve(curve, previous.position(), frame.position());
                 previous.setRightHandle(acurve.keyframeAt(0).rightHandle());
                 out.push_back(acurve.keyframeAt(1));

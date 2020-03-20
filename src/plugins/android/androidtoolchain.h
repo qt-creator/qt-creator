@@ -67,8 +67,6 @@ class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     AndroidToolChainFactory();
 
-    ToolChainList autoDetect(const ToolChainList &alreadyKnown) override;
-
     class AndroidToolChainInformation
     {
     public:

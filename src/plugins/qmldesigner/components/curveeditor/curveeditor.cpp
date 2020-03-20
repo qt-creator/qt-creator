@@ -106,13 +106,6 @@ QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
     Q_UNUSED(tangentStepAction);
     Q_UNUSED(tangentDefaultAction);
 
-    auto *valueBox = new QHBoxLayout;
-    valueBox->addWidget(new QLabel(tr("Value")));
-    valueBox->addWidget(new QDoubleSpinBox);
-    auto *valueWidget = new QWidget;
-    valueWidget->setLayout(valueBox);
-    bar->addWidget(valueWidget);
-
     auto *durationBox = new QHBoxLayout;
     auto *startSpin = new QSpinBox;
     auto *endSpin = new QSpinBox;

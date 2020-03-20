@@ -169,11 +169,6 @@ AndroidToolChainFactory::AndroidToolChainFactory()
     setToolchainConstructor([] { return new AndroidToolChain; });
 }
 
-ToolChainList AndroidToolChainFactory::autoDetect(const ToolChainList &alreadyKnown)
-{
-    return autodetectToolChains(alreadyKnown);
-}
-
 static FilePath clangPlusPlusPath(const FilePath &clangPath)
 {
     return clangPath.parentDir().pathAppended(

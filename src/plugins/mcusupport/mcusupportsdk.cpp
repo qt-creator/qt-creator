@@ -158,8 +158,8 @@ static McuPackage *createSeggerJLinkPackage()
     return result;
 }
 
-void hardcodedTargetsAndPackages(const McuPackage* qtForMCUsSdkPackage,
-                                 QVector<McuPackage *> *packages, QVector<McuTarget *> *mcuTargets)
+void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packages,
+                                 QVector<McuTarget *> *mcuTargets)
 {
     McuToolChainPackage* armGccPackage = Sdk::createArmGccPackage();
     McuPackage* stm32CubeFwF7SdkPackage = Sdk::createStm32CubeFwF7SdkPackage();
@@ -171,6 +171,8 @@ void hardcodedTargetsAndPackages(const McuPackage* qtForMCUsSdkPackage,
         armGccPackage, stm32CubeProgrammerPackage};
     QVector<McuPackage*> nxpEvalPackages = {
         armGccPackage, seggerJLinkPackage};
+    QVector<McuPackage*> renesasEvalPackages = {
+        armGccPackage, seggerJLinkPackage};
     QVector<McuPackage*> desktopPackages = {};
     *packages = {
         armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
@@ -179,28 +181,42 @@ void hardcodedTargetsAndPackages(const McuPackage* qtForMCUsSdkPackage,
     const QString vendorStm = "STM";
     const QString vendorNxp = "NXP";
     const QString vendorQt = "Qt";
+    const QString vendorRenesas = "Renesas";
 
-    // STM
-    auto mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages,
-                                   armGccPackage);
-    mcuTarget->setColorDepth(32);
-    mcuTargets->append(mcuTarget);
+    const struct {
+        const QString &vendor;
+        const QString qulPlatform;
+        const QVector<McuPackage*> &packages;
+        McuToolChainPackage *toolchainPackage;
+        const QVector<int> colorDepths;
+    } targets[] = {
+        {vendorNxp, {"MIMXRT1050-EVK"}, nxpEvalPackages, armGccPackage, {16}},
+        {vendorNxp, {"MIMXRT1064-EVK"}, nxpEvalPackages, armGccPackage, {16}},
+        {vendorQt, {"Qt"}, desktopPackages, nullptr, {32}},
+        {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, armGccPackage, {32}},
+        {vendorStm, {"STM32F469I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
+        {vendorStm, {"STM32F7508-DISCOVERY"}, stmEvalPackages, armGccPackage, {32, 16}},
+        {vendorStm, {"STM32F769I-DISCOVERY"}, stmEvalPackages, armGccPackage, {32}},
+        {vendorStm, {"STM32H750B-DISCOVERY"}, stmEvalPackages, armGccPackage, {32}},
+        {vendorStm, {"STM32L4R9I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
+        {vendorStm, {"STM32L4R9I-EVAL"}, stmEvalPackages, armGccPackage, {24}}
+    };
 
-    mcuTarget = new McuTarget(vendorStm, "STM32F7508-DISCOVERY", stmEvalPackages, armGccPackage);
-    mcuTarget->setColorDepth(16);
-    mcuTargets->append(mcuTarget);
-
-    mcuTarget = new McuTarget(vendorStm, "STM32F769I-DISCOVERY", stmEvalPackages, armGccPackage);
-    mcuTargets->append(mcuTarget);
-
-    // NXP
-    mcuTarget = new McuTarget(vendorNxp, "MIMXRT1050-EVK", nxpEvalPackages, armGccPackage);
-    mcuTargets->append(mcuTarget);
-
-    // Desktop (Qt)
-    mcuTarget = new McuTarget(vendorQt, "Qt", desktopPackages, nullptr);
-    mcuTarget->setColorDepth(32);
-    mcuTargets->append(mcuTarget);
+    const QString QulTargetTemplate =
+            dir.toString() + "/lib/cmake/Qul/QulTargets/QulTargets_%1_%2.cmake";
+    for (auto target : targets) {
+        for (int colorDepth : target.colorDepths) {
+            const QString QulTarget =
+                    QulTargetTemplate.arg(target.qulPlatform, QString::number(colorDepth));
+            if (!Utils::FilePath::fromUserInput(QulTarget).exists())
+                continue;
+            auto mcuTarget = new McuTarget(target.vendor, target.qulPlatform, target.packages,
+                                           target.toolchainPackage);
+            if (target.colorDepths.count() > 1)
+                mcuTarget->setColorDepth(colorDepth);
+            mcuTargets->append(mcuTarget);
+        }
+    }
 }
 
 } // namespace Sdk

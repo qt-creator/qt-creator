@@ -378,6 +378,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(fullName);
+        fileName = Utils::FilePath::fromString(name);
         //if (data->markerFileName().isEmpty())
         //    data->setMarkerFileName(name);
     } else {

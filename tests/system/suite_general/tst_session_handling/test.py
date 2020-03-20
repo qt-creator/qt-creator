@@ -88,7 +88,7 @@ def switchSession(toSession):
     sessionView = ("{name='sessionView' type='ProjectExplorer::Internal::SessionView' visible='1' "
                    "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}")
     mouseClick(waitForObjectItem(sessionView, toSession))
-    clickButton(waitForObject("{name='btSwitch' text='Switch to' type='QPushButton' visible='1' "
+    clickButton(waitForObject("{name='btSwitch' type='QPushButton' visible='1' "
                               "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}"))
 
 def createAndSwitchToSession(toSession):

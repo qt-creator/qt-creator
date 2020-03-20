@@ -334,21 +334,40 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
     : QObject(parent)
     , qtForMCUsSdkPackage(Sdk::createQtForMCUsPackage())
 {
-    Sdk::hardcodedTargetsAndPackages(qtForMCUsSdkPackage, &packages, &mcuTargets);
-
-    packages.append(qtForMCUsSdkPackage);
-    for (auto package : packages)
-        connect(package, &McuPackage::changed, [this](){
-            emit changed();
-        });
+    connect(qtForMCUsSdkPackage, &McuPackage::changed,
+            this, &McuSupportOptions::populatePackagesAndTargets);
 }
 
 McuSupportOptions::~McuSupportOptions()
+{
+    deletePackagesAndTargets();
+    delete qtForMCUsSdkPackage;
+}
+
+void McuSupportOptions::populatePackagesAndTargets()
+{
+    setQulDir(Utils::FilePath::fromUserInput(qtForMCUsSdkPackage->path()));
+}
+
+void McuSupportOptions::deletePackagesAndTargets()
 {
     qDeleteAll(packages);
     packages.clear();
     qDeleteAll(mcuTargets);
     mcuTargets.clear();
+}
+
+void McuSupportOptions::setQulDir(const Utils::FilePath &dir)
+{
+    deletePackagesAndTargets();
+    Sdk::hardcodedTargetsAndPackages(dir, &packages, &mcuTargets);
+    //packages.append(qtForMCUsSdkPackage);
+    for (auto package : packages) {
+        connect(package, &McuPackage::changed, [this](){
+            emit changed();
+        });
+    }
+    emit changed();
 }
 
 static bool mcuTargetIsDesktop(const McuTarget* mcuTarget)
