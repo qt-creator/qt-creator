@@ -95,9 +95,9 @@ void SelectionBoxGeometry::setTargetNode(QQuick3DNode *targetNode)
 
     if (auto model = qobject_cast<QQuick3DModel *>(m_targetNode)) {
         QObject::connect(model, &QQuick3DModel::sourceChanged,
-                         this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+                         this, &SelectionBoxGeometry::targetMeshUpdated, Qt::QueuedConnection);
         QObject::connect(model, &QQuick3DModel::geometryChanged,
-                         this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+                         this, &SelectionBoxGeometry::targetMeshUpdated, Qt::QueuedConnection);
     }
     if (m_targetNode) {
         QObject::connect(m_targetNode, &QQuick3DNode::parentChanged,
@@ -132,6 +132,14 @@ void SelectionBoxGeometry::setView3D(QQuick3DViewport *view)
 
 QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
 {
+    // If target node mesh has been updated, we need to defer updating the box geometry
+    // to the next frame to ensure target node geometry has been updated
+    if (m_meshUpdatePending) {
+        QTimer::singleShot(0, this, &SelectionBoxGeometry::update);
+        m_meshUpdatePending = false;
+        return node;
+    }
+
     node = QQuick3DGeometry::updateSpatialNode(node);
     QSSGRenderGeometry *geometry = static_cast<QSSGRenderGeometry *>(node);
 
@@ -163,10 +171,13 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
             rootRN->localTransform = m;
             rootRN->markDirty(QSSGRenderNode::TransformDirtyFlag::TransformNotDirty);
             rootRN->calculateGlobalVariables();
-            m_asyncUpdatePending = false;
-        } else if (!m_asyncUpdatePending) {
-            m_asyncUpdatePending = true;
+            m_spatialNodeUpdatePending = false;
+        } else if (!m_spatialNodeUpdatePending) {
+            m_spatialNodeUpdatePending = true;
             // A necessary spatial node doesn't yet exist. Defer selection box creation one frame.
+            // Note: We don't share pending flag with target mesh update, which is checked and
+            // cleared at the beginning of this method, as there would be potential for an endless
+            // loop in case we can't ever resolve one of the spatial nodes.
             QTimer::singleShot(0, this, &SelectionBoxGeometry::update);
             return node;
         }
@@ -374,6 +385,12 @@ void SelectionBoxGeometry::trackNodeChanges(QQuick3DNode *node)
                                       this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
     m_connections << QObject::connect(node, &QQuick3DNode::pivotChanged,
                                       this, &SelectionBoxGeometry::update, Qt::QueuedConnection);
+}
+
+void SelectionBoxGeometry::targetMeshUpdated()
+{
+    m_meshUpdatePending = true;
+    update();
 }
 
 }

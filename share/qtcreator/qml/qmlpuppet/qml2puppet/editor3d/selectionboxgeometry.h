@@ -74,6 +74,7 @@ private:
     void appendVertexData(const QMatrix4x4 &m, QByteArray &vertexData, QByteArray &indexData,
                           const QVector3D &minBounds, const QVector3D &maxBounds);
     void trackNodeChanges(QQuick3DNode *node);
+    void targetMeshUpdated();
 
     QQuick3DNode *m_targetNode = nullptr;
     QQuick3DViewport *m_view3D = nullptr;
@@ -81,7 +82,8 @@ private:
     bool m_isEmpty = true;
     QVector<QMetaObject::Connection> m_connections;
     QSSGBounds3 m_bounds;
-    bool m_asyncUpdatePending = false;
+    bool m_spatialNodeUpdatePending = false;
+    bool m_meshUpdatePending = false;
 };
 
 }
