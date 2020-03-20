@@ -104,6 +104,7 @@ void DebuggerLanguageAspect::addToLayout(LayoutBuilder &builder)
         m_value = m_checkBox->isChecked() ? EnabledLanguage : DisabledLanguage;
         emit changed();
     });
+    builder.addItem(QString());
     builder.addItem(m_checkBox.data());
 
     if (!m_infoLabelText.isEmpty()) {
