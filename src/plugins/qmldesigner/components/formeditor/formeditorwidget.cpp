@@ -77,8 +77,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     auto layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(true);
 
-    m_noSnappingAction = layoutActionGroup->addAction(tr("No snapping (T)."));
-    m_noSnappingAction->setShortcut(Qt::Key_T);
+    m_noSnappingAction = layoutActionGroup->addAction(tr("No snapping."));
     m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);

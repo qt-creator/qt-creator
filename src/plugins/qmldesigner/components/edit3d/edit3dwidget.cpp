@@ -33,6 +33,8 @@
 #include "qmldesignerconstants.h"
 #include "viewmanager.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <toolbox.h>
 #include <utils/utilsicons.h>
@@ -62,7 +64,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
 
     // Iterate through view actions. A null action indicates a separator and a second null action
     // after separator indicates an exclusive group.
-    auto addActionsToToolBox = [this](const QVector<Edit3DAction *> &actions, bool left) {
+    auto addActionsToToolBox = [this, &context](const QVector<Edit3DAction *> &actions, bool left) {
         bool previousWasSeparator = true;
         QActionGroup *group = nullptr;
         for (auto action : actions) {
@@ -75,6 +77,14 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
                 else
                     m_toolBox->addRightSideAction(action->action());
                 previousWasSeparator = false;
+
+                // Register action as creator command to make it configurable
+                Core::Command *command = Core::ActionManager::registerAction(
+                            action->action(), action->menuId().data(), context);
+                command->setDefaultKeySequence(action->action()->shortcut());
+                command->augmentActionWithShortcutToolTip(action->action());
+                // Clear action shortcut so it doesn't conflict with command's override action
+                action->action()->setShortcut({});
             } else {
                 if (previousWasSeparator) {
                     group = new QActionGroup(this);
@@ -89,7 +99,6 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
                 }
             }
         }
-
     };
     addActionsToToolBox(view->leftActions(), true);
     addActionsToToolBox(view->rightActions(), false);

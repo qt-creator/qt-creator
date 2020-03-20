@@ -54,6 +54,15 @@ const char FORMEDITOR_SNAPPING[] = "QmlDesigner.FormEditor.Snapping";
 const char FORMEDITOR_NO_SNAPPING[] = "QmlDesigner.FormEditor.NoSnapping";
 const char FORMEDITOR_NO_SNAPPING_AND_ANCHORING[] = "QmlDesigner.FormEditor.NoSnappingAndAnchoring";
 const char FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE[] = "QmlDesigner.FormEditor.ShowBoundingRectangle";
+const char EDIT3D_SELECTION_MODE[] = "QmlDesigner.Editor3D.SelectionModeToggle";
+const char EDIT3D_MOVE_TOOL[] = "QmlDesigner.Editor3D.MoveTool";
+const char EDIT3D_ROTATE_TOOL[] = "QmlDesigner.Editor3D.RotateTool";
+const char EDIT3D_SCALE_TOOL[] = "QmlDesigner.Editor3D.ScaleTool";
+const char EDIT3D_FIT_SELECTED[] = "QmlDesigner.Editor3D.FitSelected";
+const char EDIT3D_EDIT_CAMERA[] = "QmlDesigner.Editor3D.EditCameraToggle";
+const char EDIT3D_ORIENTATION[] = "QmlDesigner.Editor3D.OrientationToggle";
+const char EDIT3D_EDIT_LIGHT[] = "QmlDesigner.Editor3D.EditLightToggle";
+const char EDIT3D_RESET_VIEW[] = "QmlDesigner.Editor3D.ResetView";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";
