@@ -168,6 +168,11 @@ public:
 
     void notifyChanged(const Utils::FilePath &name);
 
+    enum Action { BUILD, REBUILD, CLEAN };
+    void buildHelper(Action action, bool isFileBuild,
+                     QmakeProFileNode *profile,
+                     ProjectExplorer::FileNode *buildableFile);
+
 public:
     void scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay);
     void scheduleUpdateAllLater() { scheduleUpdateAll(QmakeProFile::ParseLater); }

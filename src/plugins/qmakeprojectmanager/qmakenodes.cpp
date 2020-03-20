@@ -26,7 +26,6 @@
 #include "qmakenodes.h"
 
 #include "qmakeproject.h"
-#include "qmakeprojectmanagerplugin.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
@@ -343,7 +342,7 @@ bool QmakeProFileNode::validParse() const
 
 void QmakeProFileNode::build()
 {
-    QmakeProjectManagerPlugin::buildProduct(getProject(), this);
+    m_buildSystem->buildHelper(QmakeBuildSystem::BUILD, false, this, nullptr);
 }
 
 QStringList QmakeProFileNode::targetApplications() const

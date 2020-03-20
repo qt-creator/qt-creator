@@ -126,23 +126,18 @@ public:
 
     QmakeKitAspect qmakeKitAspect;
 
-    enum Action { BUILD, REBUILD, CLEAN };
-
     void addLibrary();
     void addLibraryContextMenu();
     void runQMake();
     void runQMakeContextMenu();
-    void buildSubDirContextMenu();
-    void rebuildSubDirContextMenu();
-    void cleanSubDirContextMenu();
-    void buildFileContextMenu();
+
+    void buildSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::BUILD, false); }
+    void rebuildSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::REBUILD, false); }
+    void cleanSubDirContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::CLEAN, false); }
+    void buildFileContextMenu() { handleSubDirContextMenu(QmakeBuildSystem::BUILD, true); }
     void buildFile();
 
-    void handleSubDirContextMenu(Action action, bool isFileBuild);
-    static void handleSubDirContextMenu(Action action, bool isFileBuild,
-                                        Project *contextProject,
-                                        QmakeProFileNode *profile,
-                                        FileNode *buildableFile);
+    void handleSubDirContextMenu(QmakeBuildSystem::Action action, bool isFileBuild);
     void addLibraryImpl(const QString &fileName, TextEditor::BaseTextEditor *editor);
     void runQMakeImpl(Project *p, ProjectExplorer::Node *node);
 };
@@ -444,98 +439,39 @@ void QmakeProjectManagerPluginPrivate::runQMakeImpl(Project *p, Node *node)
     bc->setSubNodeBuild(nullptr);
 }
 
-void QmakeProjectManagerPluginPrivate::buildSubDirContextMenu()
-{
-    handleSubDirContextMenu(BUILD, false);
-}
-
-void QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu()
-{
-    handleSubDirContextMenu(CLEAN, false);
-}
-
-void QmakeProjectManagerPluginPrivate::rebuildSubDirContextMenu()
-{
-    handleSubDirContextMenu(REBUILD, false);
-}
-
-void QmakeProjectManagerPluginPrivate::buildFileContextMenu()
-{
-    handleSubDirContextMenu(BUILD, true);
-}
-
 void QmakeProjectManagerPluginPrivate::buildFile()
 {
-    if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        const Utils::FilePath file = currentDocument->filePath();
-        Node *n = ProjectTree::nodeForFile(file);
-        FileNode *node  = n ? n->asFileNode() : nullptr;
-        Project *project = SessionManager::projectForFile(file);
+    Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
+    if (!currentDocument)
+        return;
 
-        if (project && node)
-            handleSubDirContextMenu(BUILD, true, project, buildableFileProFile(node), node);
-    }
+    const Utils::FilePath file = currentDocument->filePath();
+    Node *n = ProjectTree::nodeForFile(file);
+    FileNode *node  = n ? n->asFileNode() : nullptr;
+    if (!node)
+        return;
+    Project *project = SessionManager::projectForFile(file);
+    if (!project)
+        return;
+    Target *target = project->activeTarget();
+    if (!target)
+        return;
+
+    if (auto bs = qobject_cast<QmakeBuildSystem *>(target->buildSystem()))
+        bs->buildHelper(QmakeBuildSystem::BUILD, true, buildableFileProFile(node), node);
 }
 
-void QmakeProjectManagerPlugin::buildProduct(Project *project, QmakeProFileNode *proFileNode)
-{
-    QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(
-                QmakeProjectManagerPluginPrivate::BUILD, false, project, proFileNode, nullptr);
-}
-
-void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(Action action, bool isFileBuild)
+void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(QmakeBuildSystem::Action action, bool isFileBuild)
 {
     Node *node = ProjectTree::currentNode();
 
     QmakeProFileNode *subProjectNode = buildableFileProFile(node);
     FileNode *fileNode = node ? node->asFileNode() : nullptr;
     bool buildFilePossible = subProjectNode && fileNode && fileNode->fileType() == FileType::Source;
-
     FileNode *buildableFileNode = buildFilePossible ? fileNode : nullptr;
 
-    handleSubDirContextMenu(action,
-                            isFileBuild,
-                            ProjectTree::currentProject(),
-                            buildableFileProFile(ProjectTree::currentNode()),
-                            buildableFileNode);
-}
-
-void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(Action action,
-                                                               bool isFileBuild,
-                                                               Project *contextProject,
-                                                               QmakeProFileNode *profile,
-                                                               FileNode *buildableFile)
-{
-    QTC_ASSERT(contextProject, return);
-    Target *target = contextProject->activeTarget();
-    if (!target)
-        return;
-
-    auto *bc = qobject_cast<QmakeBuildConfiguration *>(target->activeBuildConfiguration());
-    if (!bc)
-        return;
-
-    if (!profile || !buildableFile)
-        isFileBuild = false;
-
-    if (profile) {
-        if (profile != contextProject->rootProjectNode() || isFileBuild)
-            bc->setSubNodeBuild(profile->proFileNode());
-    }
-
-    if (isFileBuild)
-        bc->setFileNodeBuild(buildableFile);
-    if (ProjectExplorerPlugin::saveModifiedFiles()) {
-        if (action == BUILD)
-            BuildManager::buildList(bc->buildSteps());
-        else if (action == CLEAN)
-            BuildManager::buildList(bc->cleanSteps());
-        else if (action == REBUILD)
-            BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()});
-    }
-
-    bc->setSubNodeBuild(nullptr);
-    bc->setFileNodeBuild(nullptr);
+    if (auto bs = qobject_cast<QmakeBuildSystem *>(ProjectTree::currentBuildSystem()))
+        bs->buildHelper(action, isFileBuild, subProjectNode, buildableFileNode);
 }
 
 void QmakeProjectManagerPluginPrivate::activeTargetChanged()

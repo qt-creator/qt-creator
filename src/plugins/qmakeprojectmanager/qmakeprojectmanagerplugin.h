@@ -43,8 +43,6 @@ class QmakeProjectManagerPlugin final : public ExtensionSystem::IPlugin
 public:
     ~QmakeProjectManagerPlugin() final;
 
-    static void buildProduct(ProjectExplorer::Project *project, QmakeProFileNode *proFileNode);
-
 #ifdef WITH_TESTS
 private slots:
     void testQmakeOutputParsers_data();

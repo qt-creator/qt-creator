@@ -1358,6 +1358,34 @@ QVariant QmakeBuildSystem::additionalData(Core::Id id) const
     return BuildSystem::additionalData(id);
 }
 
+void QmakeBuildSystem::buildHelper(Action action, bool isFileBuild, QmakeProFileNode *profile,
+                                   FileNode *buildableFile)
+{
+    auto bc = qmakeBuildConfiguration();
+
+    if (!profile || !buildableFile)
+        isFileBuild = false;
+
+    if (profile) {
+        if (profile != project()->rootProjectNode() || isFileBuild)
+            bc->setSubNodeBuild(profile->proFileNode());
+    }
+
+    if (isFileBuild)
+        bc->setFileNodeBuild(buildableFile);
+    if (ProjectExplorerPlugin::saveModifiedFiles()) {
+        if (action == BUILD)
+            BuildManager::buildList(bc->buildSteps());
+        else if (action == CLEAN)
+            BuildManager::buildList(bc->cleanSteps());
+        else if (action == REBUILD)
+            BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()});
+    }
+
+    bc->setSubNodeBuild(nullptr);
+    bc->setFileNodeBuild(nullptr);
+}
+
 } // QmakeProjectManager
 
 #include "qmakeproject.moc"
