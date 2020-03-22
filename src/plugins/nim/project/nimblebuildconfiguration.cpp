@@ -56,7 +56,7 @@ NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Core::Id id)
     appendInitialBuildStep(Constants::C_NIMBLEBUILDSTEP_ID);
 
     setInitializer([this](const BuildInfo &info) {
-        m_buildType = info.buildType;
+        setBuildType(info.buildType);
         setBuildDirectory(project()->projectDirectory());
     });
 }
@@ -79,6 +79,13 @@ QVariantMap NimbleBuildConfiguration::toMap() const
     return map;
 }
 
+void NimbleBuildConfiguration::setBuildType(BuildConfiguration::BuildType buildType)
+{
+    if (buildType == m_buildType)
+        return;
+    m_buildType = buildType;
+    emit buildTypeChanged();
+}
 
 NimbleBuildConfigurationFactory::NimbleBuildConfigurationFactory()
 {
