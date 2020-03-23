@@ -778,7 +778,7 @@ void AndroidSettingsWidget::openNDKDownloadUrl()
 
 void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput("http://www.oracle.com/technetwork/java/javase/downloads/"));
+    QDesktopServices::openUrl(QUrl::fromUserInput("https://www.oracle.com/java/technologies/javase-jdk8-downloads.html"));
 }
 
 void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
