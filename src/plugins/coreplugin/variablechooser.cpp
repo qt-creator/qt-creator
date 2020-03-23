@@ -339,6 +339,7 @@ using namespace Internal;
 
 /*!
  * \class Core::VariableChooser
+ * \inmodule QtCreator
  * \brief The VariableChooser class is used to add a tool window for selecting \QC variables
  * to line edits, text edits or plain text edits.
  *
@@ -351,8 +352,8 @@ using namespace Internal;
  * \image variablechooser.png "External Tools Preferences with Variable Chooser"
  *
  * The variable chooser monitors focus changes of all children of its parent widget.
- * When a text control gets focus, the variable chooser checks if it has variable support set,
- * either through the addVariableSupport() function. If the control supports variables,
+ * When a text control gets focus, the variable chooser checks if it has variable support set.
+ * If the control supports variables,
  * a tool button which opens the variable chooser is shown in it while it has focus.
  *
  * Supported text controls are QLineEdit, QTextEdit and QPlainTextEdit.
@@ -375,7 +376,6 @@ using namespace Internal;
  * Property name that is checked for deciding if a widget supports \QC variables.
  * Can be manually set with
  * \c{textcontrol->setProperty(VariableChooser::kVariableSupportProperty, true)}
- * \sa addVariableSupport()
  */
 const char kVariableSupportProperty[] = "QtCreator.VariableSupport";
 const char kVariableNameProperty[] = "QtCreator.VariableName";
@@ -383,7 +383,6 @@ const char kVariableNameProperty[] = "QtCreator.VariableName";
 /*!
  * Creates a variable chooser that tracks all children of \a parent for variable support.
  * Ownership is also transferred to \a parent.
- * \sa addVariableSupport()
  */
 VariableChooser::VariableChooser(QWidget *parent) :
     QWidget(parent),
@@ -406,6 +405,9 @@ VariableChooser::~VariableChooser()
     delete d;
 }
 
+/*!
+    Adds the macro expander provider \a provider.
+*/
 void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &provider)
 {
     auto item = new VariableGroupItem;
@@ -415,8 +417,11 @@ void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &prov
 }
 
 /*!
- * Marks the control as supporting variables.
- * \sa kVariableSupportProperty
+ * Marks the control \a textcontrol as supporting variables.
+ *
+ * If the control provides a variable to the macro expander itself, set
+ * \a ownName to the variable name to prevent the user from choosing the
+ * variable, which would lead to endless recursion.
  */
 void VariableChooser::addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName)
 {
