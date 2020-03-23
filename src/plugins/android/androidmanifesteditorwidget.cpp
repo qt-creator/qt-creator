@@ -840,12 +840,12 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
         metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
     }
 
+    copyIcon(LowDPI, baseDir, baseDir + iconPath(LowDPI));
+    copyIcon(MediumDPI, baseDir, baseDir + iconPath(MediumDPI));
+    copyIcon(HighDPI, baseDir, baseDir + iconPath(HighDPI));
     m_lIconButton->setIcon(icon(baseDir, LowDPI));
     m_mIconButton->setIcon(icon(baseDir, MediumDPI));
     m_hIconButton->setIcon(icon(baseDir, HighDPI));
-    m_lIconPath = baseDir + iconPath(LowDPI);
-    m_mIconPath = baseDir + iconPath(MediumDPI);
-    m_hIconPath = baseDir + iconPath(HighDPI);
 
     disconnect(m_defaultPermissonsCheckBox, &QCheckBox::stateChanged,
             this, &AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked);
@@ -1343,18 +1343,19 @@ void AndroidManifestEditorWidget::copyIcon(IconDPI dpi, const QString &baseDir, 
         return;
     }
     QFileInfo targetFile(targetPath);
-    if (filePath == targetPath)
-        return;
-    removeIcon(dpi, baseDir);
+    if (filePath != targetPath)
+        removeIcon(dpi, baseDir);
     QImage original(filePath);
     if (!targetPath.isEmpty() && !original.isNull()) {
-        QDir dir;
-        dir.mkpath(QFileInfo(targetPath).absolutePath());
-        QSize targetSize = iconSize(dpi);
-        QImage scaled = original.scaled(targetSize.width(), targetSize.height(),
-                                        Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        toggleIconScaleWarning(dpi, scaled.width() > original.width() || scaled.height() > original.height());
-        scaled.save(targetPath);
+        if (filePath != targetPath) {
+            QDir dir;
+            dir.mkpath(QFileInfo(targetPath).absolutePath());
+            QSize targetSize = iconSize(dpi);
+            QImage scaled = original.scaled(targetSize.width(), targetSize.height(),
+                                            Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            toggleIconScaleWarning(dpi, scaled.width() > original.width() || scaled.height() > original.height());
+            scaled.save(targetPath);
+        }
         updateIconPath(targetPath, dpi);
     }
 }
@@ -1403,6 +1404,7 @@ void AndroidManifestEditorWidget::setMasterIcon()
     m_lIconButton->setIcon(icon(baseDir, LowDPI));
     m_mIconButton->setIcon(icon(baseDir, MediumDPI));
     m_hIconButton->setIcon(icon(baseDir, HighDPI));
+    syncToEditor();
 }
 
 void AndroidManifestEditorWidget::setLDPIIcon()
@@ -1414,6 +1416,7 @@ void AndroidManifestEditorWidget::setLDPIIcon()
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     copyIcon(LowDPI, baseDir, m_lIconPath);
     m_lIconButton->setIcon(icon(baseDir, LowDPI));
+    syncToEditor();
 }
 
 void AndroidManifestEditorWidget::setMDPIIcon()
@@ -1425,6 +1428,7 @@ void AndroidManifestEditorWidget::setMDPIIcon()
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     copyIcon(MediumDPI, baseDir, m_mIconPath);
     m_mIconButton->setIcon(icon(baseDir, MediumDPI));
+    syncToEditor();
 }
 
 void AndroidManifestEditorWidget::setHDPIIcon()
@@ -1436,6 +1440,7 @@ void AndroidManifestEditorWidget::setHDPIIcon()
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     copyIcon(HighDPI, baseDir, m_hIconPath);
     m_hIconButton->setIcon(icon(baseDir, HighDPI));
+    syncToEditor();
 }
 
 void AndroidManifestEditorWidget::clearLDPIIcon()
@@ -1444,6 +1449,7 @@ void AndroidManifestEditorWidget::clearLDPIIcon()
     m_lIconButton->setIcon(QIcon());
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     removeIcon(LowDPI, baseDir);
+    syncToEditor();
 }
 
 void AndroidManifestEditorWidget::clearMDPIIcon()
@@ -1452,6 +1458,7 @@ void AndroidManifestEditorWidget::clearMDPIIcon()
     m_mIconButton->setIcon(QIcon());
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     removeIcon(MediumDPI, baseDir);
+    syncToEditor();
 }
 
 void AndroidManifestEditorWidget::clearHDPIIcon()
@@ -1460,6 +1467,7 @@ void AndroidManifestEditorWidget::clearHDPIIcon()
     m_hIconButton->setIcon(QIcon());
     QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     removeIcon(HighDPI, baseDir);
+    syncToEditor();
 }
 
 void AndroidManifestEditorWidget::createDPIButton(QHBoxLayout *layout,
