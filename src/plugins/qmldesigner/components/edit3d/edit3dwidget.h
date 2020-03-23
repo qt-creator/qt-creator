@@ -25,6 +25,7 @@
 #pragma once
 
 #include <QtWidgets/qwidget.h>
+#include <QtWidgets/qlabel.h>
 #include <QtCore/qpointer.h>
 #include <coreplugin/icontext.h>
 
@@ -45,10 +46,15 @@ public:
     Edit3DView *view() const;
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
+    void showCanvas(bool show);
+
 private:
+    void linkActivated(const QString &link);
+
     QPointer<Edit3DView> m_edit3DView;
     QPointer<Edit3DView> m_view;
     QPointer<Edit3DCanvas> m_canvas;
+    QPointer<QLabel> m_onboardingLabel;
     QPointer<ToolBox> m_toolBox;
     Core::IContext *m_context = nullptr;
 };

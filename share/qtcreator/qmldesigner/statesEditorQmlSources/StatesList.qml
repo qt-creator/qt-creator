@@ -41,7 +41,7 @@ FocusScope {
     property int delegateWidth: stateImageSize + 44
     property int padding: 2
     property int delegateHeight: root.height - padding * 2 + 1
-    property int innerSpacing: -1
+    property int innerSpacing: 0
     property int currentStateInternalId : 0
 
     property bool expanded: true

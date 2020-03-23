@@ -131,7 +131,7 @@ def build_qtcreator(args, paths):
     if ide_revision:
         cmake_args += ['-DIDE_REVISION=ON',
                        '-DIDE_REVISION_STR=' + ide_revision,
-                       '-DIDE_REVISION_URL_STR=https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=' + ide_revision]
+                       '-DIDE_REVISION_URL=https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=' + ide_revision]
 
     common.check_print_call(cmake_args + [paths.src], paths.build)
     common.check_print_call(['cmake', '--build', '.'], paths.build)

@@ -55,7 +55,9 @@ public:
 
     void renderImage3DChanged(const QImage &img) override;
     void updateActiveScene3D(const QVariantMap &sceneState) override;
+    void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
 
     void sendInputEvent(QInputEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
@@ -66,10 +68,13 @@ public:
     QVector<Edit3DAction *> leftActions() const;
     QVector<Edit3DAction *> rightActions() const;
 
+    void addQuick3DImport();
+
 protected:
 
 private:
     void createEdit3DWidget();
+    void checkImports();
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;

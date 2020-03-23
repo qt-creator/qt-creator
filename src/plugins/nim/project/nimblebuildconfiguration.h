@@ -45,6 +45,8 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
     QVariantMap toMap() const override;
 
 private:
+    void setBuildType(BuildType buildType);
+
     BuildType m_buildType;
 };
 

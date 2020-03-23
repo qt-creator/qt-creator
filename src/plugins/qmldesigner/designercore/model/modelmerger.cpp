@@ -38,6 +38,7 @@
 #include <QUrl>
 
 #include <QDebug>
+#include <QtCore/qregularexpression.h>
 
 namespace QmlDesigner {
 
@@ -45,10 +46,13 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,const QHash<QStri
 
 static QString fixExpression(const QString &expression, const QHash<QString, QString> &idRenamingHash)
 {
+    const QString pattern("\\b%1\\b"); // Match only full ids
     QString newExpression = expression;
-    foreach (const QString &id, idRenamingHash.keys()) {
-        if (newExpression.contains(id))
-            newExpression = newExpression.replace(id, idRenamingHash.value(id));
+    const auto keys = idRenamingHash.keys();
+    for (const QString &id : keys) {
+        QRegularExpression re(pattern.arg(id));
+        if (newExpression.contains(re))
+            newExpression = newExpression.replace(re, idRenamingHash.value(id));
     }
     return newExpression;
 }

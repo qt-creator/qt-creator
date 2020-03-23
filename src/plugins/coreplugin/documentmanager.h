@@ -167,12 +167,6 @@ private:
     friend class Core::Internal::DocumentManagerPrivate;
 };
 
-/*! The FileChangeBlocker blocks all change notifications to all IDocument * that
-    match the given filename. And unblocks in the destructor.
-
-    To also reload the IDocument in the destructor class set modifiedReload to true
-
-  */
 class CORE_EXPORT FileChangeBlocker
 {
 public:

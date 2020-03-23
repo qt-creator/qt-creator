@@ -36,9 +36,10 @@
 #include <qmldesignerconstants.h>
 #include <viewmanager.h>
 #include <qmldesignericons.h>
+#include <designmodecontext.h>
 #include <utils/utilsicons.h>
 #include <coreplugin/icore.h>
-#include <designmodecontext.h>
+#include <coreplugin/messagebox.h>
 
 #include <QDebug>
 
@@ -60,6 +61,20 @@ void Edit3DView::createEdit3DWidget()
 
     auto editor3DContext = new Internal::Editor3DContext(m_edit3DWidget.data());
     Core::ICore::addContextObject(editor3DContext);
+}
+
+void Edit3DView::checkImports()
+{
+    bool has3dImport = false;
+    const QList<Import> imports = model()->imports();
+    for (const auto &import : imports) {
+        if (import.url() == "QtQuick3D") {
+            has3dImport = true;
+            break;
+        }
+    }
+
+    edit3DWidget()->showCanvas(has3dImport);
 }
 
 WidgetInfo Edit3DView::widgetInfo()
@@ -130,13 +145,30 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_editLightAction->action()->setChecked(false);
 }
 
+void Edit3DView::modelAttached(Model *model)
+{
+    AbstractView::modelAttached(model);
+
+    checkImports();
+}
+
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
     Q_UNUSED(model)
 
-    // Clear the image when model is detached (i.e. changing documents)
-    QImage emptyImage;
-    edit3DWidget()->canvas()->updateRenderImage(emptyImage);
+    // Hide the canvas when model is detached (i.e. changing documents)
+    edit3DWidget()->showCanvas(false);
+
+    AbstractView::modelAboutToBeDetached(model);
+}
+
+void Edit3DView::importsChanged(const QList<Import> &addedImports,
+                                const QList<Import> &removedImports)
+{
+    Q_UNUSED(addedImports)
+    Q_UNUSED(removedImports)
+
+    checkImports();
 }
 
 void Edit3DView::sendInputEvent(QInputEvent *e) const
@@ -163,54 +195,54 @@ void Edit3DView::createEdit3DActions()
 {
     m_selectionModeAction
             = new Edit3DAction(
-                "Edit3DSelectionModeToggle", View3DActionCommand::SelectionModeToggle,
+                QmlDesigner::Constants::EDIT3D_SELECTION_MODE, View3DActionCommand::SelectionModeToggle,
                 QCoreApplication::translate("SelectionModeToggleAction", "Toggle Group/Single Selection Mode"),
                 QKeySequence(Qt::Key_Q), true, false, Icons::EDIT3D_SELECTION_MODE_OFF.icon(),
                 Icons::EDIT3D_SELECTION_MODE_ON.icon());
 
     m_moveToolAction
             = new Edit3DAction(
-                "Edit3DMoveTool", View3DActionCommand::MoveTool,
+                QmlDesigner::Constants::EDIT3D_MOVE_TOOL, View3DActionCommand::MoveTool,
                 QCoreApplication::translate("MoveToolAction", "Activate Move Tool"),
                 QKeySequence(Qt::Key_W), true, true, Icons::EDIT3D_MOVE_TOOL_OFF.icon(),
                 Icons::EDIT3D_MOVE_TOOL_ON.icon());
 
     m_rotateToolAction
             = new Edit3DAction(
-                "Edit3DRotateTool", View3DActionCommand::RotateTool,
+                QmlDesigner::Constants::EDIT3D_ROTATE_TOOL, View3DActionCommand::RotateTool,
                 QCoreApplication::translate("RotateToolAction", "Activate Rotate Tool"),
                 QKeySequence(Qt::Key_E), true, false, Icons::EDIT3D_ROTATE_TOOL_OFF.icon(),
                 Icons::EDIT3D_ROTATE_TOOL_ON.icon());
 
     m_scaleToolAction
             = new Edit3DAction(
-                "Edit3DScaleTool", View3DActionCommand::ScaleTool,
+                QmlDesigner::Constants::EDIT3D_SCALE_TOOL, View3DActionCommand::ScaleTool,
                 QCoreApplication::translate("ScaleToolAction", "Activate Scale Tool"),
                 QKeySequence(Qt::Key_R), true, false, Icons::EDIT3D_SCALE_TOOL_OFF.icon(),
                 Icons::EDIT3D_SCALE_TOOL_ON.icon());
 
     m_fitAction = new Edit3DAction(
-                "Edit3DFitToView", View3DActionCommand::FitToView,
+                QmlDesigner::Constants::EDIT3D_FIT_SELECTED, View3DActionCommand::FitToView,
                 QCoreApplication::translate("FitToViewAction", "Fit Selected Object to View"),
                 QKeySequence(Qt::Key_F), false, false, Icons::EDIT3D_FIT_SELECTED_OFF.icon(), {});
 
     m_cameraModeAction
             = new Edit3DAction(
-                "Edit3DCameraToggle", View3DActionCommand::CameraToggle,
+                QmlDesigner::Constants::EDIT3D_EDIT_CAMERA, View3DActionCommand::CameraToggle,
                 QCoreApplication::translate("CameraToggleAction", "Toggle Perspective/Orthographic Edit Camera"),
                 QKeySequence(Qt::Key_T), true, false, Icons::EDIT3D_EDIT_CAMERA_OFF.icon(),
                 Icons::EDIT3D_EDIT_CAMERA_ON.icon());
 
     m_orientationModeAction
             = new Edit3DAction(
-                "Edit3DOrientationToggle", View3DActionCommand::OrientationToggle,
+                QmlDesigner::Constants::EDIT3D_ORIENTATION, View3DActionCommand::OrientationToggle,
                 QCoreApplication::translate("OrientationToggleAction", "Toggle Global/Local Orientation"),
                 QKeySequence(Qt::Key_Y), true, false, Icons::EDIT3D_ORIENTATION_OFF.icon(),
                 Icons::EDIT3D_ORIENTATION_ON.icon());
 
     m_editLightAction
             = new Edit3DAction(
-                "Edit3DEditLightToggle", View3DActionCommand::EditLightToggle,
+                QmlDesigner::Constants::EDIT3D_EDIT_LIGHT, View3DActionCommand::EditLightToggle,
                 QCoreApplication::translate("EditLightToggleAction", "Toggle Edit Light On/Off"),
                 QKeySequence(Qt::Key_U), true, false, Icons::EDIT3D_LIGHT_OFF.icon(),
                 Icons::EDIT3D_LIGHT_ON.icon());
@@ -221,7 +253,7 @@ void Edit3DView::createEdit3DActions()
     };
     m_resetAction
             = new Edit3DAction(
-                "Edit3DResetView", View3DActionCommand::Empty,
+                QmlDesigner::Constants::EDIT3D_RESET_VIEW, View3DActionCommand::Empty,
                 QCoreApplication::translate("ResetView", "Reset View"),
                 QKeySequence(Qt::Key_P), false, false, Utils::Icons::RESET_TOOLBAR.icon(), {},
                 resetTrigger);
@@ -240,20 +272,6 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_editLightAction;
 
     m_rightActions << m_resetAction;
-
-    // TODO: Registering actions to action manager causes conflicting shortcuts in form editor.
-    //       Registration commented out until UX defines non-conflicting shortcuts.
-    //       Also, actions creation needs to be somehow triggered before action manager registers
-    //       actions to creator.
-//    DesignerActionManager &actionManager = QmlDesignerPlugin::instance()->designerActionManager();
-//    for (auto action : qAsConst(m_leftActions)) {
-//        if (action)
-//            actionManager.addDesignerAction(action);
-//    }
-//    for (auto action : qAsConst(m_rightActions)) {
-//        if (action)
-//            actionManager.addDesignerAction(action);
-//    }
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const
@@ -264,6 +282,22 @@ QVector<Edit3DAction *> Edit3DView::leftActions() const
 QVector<Edit3DAction *> Edit3DView::rightActions() const
 {
     return m_rightActions;
+}
+
+void Edit3DView::addQuick3DImport()
+{
+    const QList<Import> imports = model()->possibleImports();
+    for (const auto &import : imports) {
+        if (import.url() == "QtQuick3D") {
+            model()->changeImports({import}, {});
+
+            // Subcomponent manager update needed to make item library entries appear
+            QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
+            return;
+        }
+    }
+    Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
+                                          tr("Could not add QtQuick3D import to project."));
 }
 
 }

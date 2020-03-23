@@ -56,11 +56,7 @@ const char IDE_REVISION_STR[]      = STRINGIFY(IDE_REVISION);
 const char IDE_REVISION_STR[]      = \"\";
 #endif
 
-#ifdef IDE_REVISION_URL
-const char IDE_REVISION_URL_STR[]  = STRINGIFY(IDE_REVISION_URL);
-#else
-const char IDE_REVISION_URL_STR[]  = \"\";
-#endif
+const char IDE_REVISION_URL[]  = \"$${IDE_REVISION_URL}\";
 
 // changes the path where the settings are saved to
 #ifdef IDE_SETTINGSVARIANT

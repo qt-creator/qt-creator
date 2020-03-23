@@ -253,7 +253,13 @@ void StatesEditorView::renameState(int internalNodeId, const QString &newName)
                 // Jump to base state for the change
                 QmlModelState oldState = currentState();
                 setCurrentState(baseState());
+                const bool updateDefault = state.isDefault();
+
                 state.setName(newName);
+
+                if (updateDefault)
+                    state.setAsDefault();
+
                 setCurrentState(oldState);
             }
         }  catch (const RewritingException &e) {

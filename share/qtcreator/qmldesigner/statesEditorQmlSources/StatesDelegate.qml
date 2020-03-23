@@ -41,7 +41,7 @@ Rectangle {
     property string delegateWhenConditionString
     readonly property bool isDefaultState: isDefault
 
-    color: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? Qt.lighter(baseColor, 1.5) : baseColor
+    color: baseColor
     border.color: Theme.qmlDesignerBorderColor()
 
     function autoComplete(text, pos, explicitComplete, filter) {
@@ -81,7 +81,12 @@ Rectangle {
         width: 16
         visible: !isBaseState
 
-        onClicked: root.deleteState(internalNodeId)
+        onClicked: {
+            if (isDefaultState)
+                statesEditorModel.resetDefaultState()
+
+            root.deleteState(internalNodeId)
+        }
     }
 
     Image {
@@ -155,7 +160,17 @@ Rectangle {
         anchors.leftMargin: 4
         anchors.right: removeStateButton.left
         anchors.rightMargin: 4
-        style: DesignerTextFieldStyle {}
+        style: DesignerTextFieldStyle {
+            background: Rectangle {
+                implicitWidth: 100
+                implicitHeight: font.pixelSize + padding.top + padding.bottom
+                color: ((isBaseState && modelHasDefaultState) ? "transparent"
+                         : Theme.color(Theme.FancyToolButtonSelectedColor))
+                border.color: ((isBaseState && !modelHasDefaultState) || isDefaultState) ? "#ffd700"
+                                : (isBaseState && modelHasDefaultState) ? "transparent"
+                                : Theme.qmlDesignerBackgroundColorDarker()
+            }
+        }
         readOnly: isBaseState
 
         onActiveFocusChanged: {
@@ -165,8 +180,6 @@ Rectangle {
 
         Component.onCompleted: {
             text = delegateStateName
-            if (isBaseState)
-                __panel.visible = false
         }
 
         property string oldValue
@@ -184,7 +197,7 @@ Rectangle {
 
     Item {
         id: stateImageArea
-        anchors.topMargin: 4
+        anchors.topMargin: 2
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: stateNameField.bottom
 

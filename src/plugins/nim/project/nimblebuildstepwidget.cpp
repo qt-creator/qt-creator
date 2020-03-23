@@ -49,7 +49,7 @@ NimbleBuildStepWidget::NimbleBuildStepWidget(NimbleBuildStep *bs)
     QObject::connect(ui->argumentsLineEdit, &QLineEdit::textEdited, bs, &NimbleBuildStep::setArguments);
 
     ui->resetButton->setIcon(Utils::Icons::RESET.icon());
-    QObject::connect(ui->resetButton, &QToolButton::triggered, bs, &NimbleBuildStep::resetArguments);
+    QObject::connect(ui->resetButton, &QToolButton::clicked, bs, &NimbleBuildStep::resetArguments);
 }
 
 NimbleBuildStepWidget::~NimbleBuildStepWidget()
