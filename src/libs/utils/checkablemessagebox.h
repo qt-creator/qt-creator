@@ -101,6 +101,9 @@ public:
     bool isCheckBoxVisible() const;
     void setCheckBoxVisible(bool);
 
+    QString detailedText() const;
+    void setDetailedText(const QString &text);
+
     QDialogButtonBox::StandardButtons standardButtons() const;
     void setStandardButtons(QDialogButtonBox::StandardButtons s);
     QPushButton *button(QDialogButtonBox::StandardButton b) const;

@@ -38,6 +38,7 @@
 #include <extensionsystem/pluginview.h>
 
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/infolabel.h>
@@ -372,13 +373,14 @@ static bool unzip(const FilePath &src, const FilePath &dest)
     QTC_ASSERT(tool, return false);
     const QString workingDirectory = dest.toFileInfo().absoluteFilePath();
     QDir(workingDirectory).mkpath(".");
-    QMessageBox box(QMessageBox::Information,
-                    PluginDialog::tr("Unzipping File"),
-                    PluginDialog::tr("Unzipping \"%1\" to \"%2\".")
-                        .arg(src.toUserOutput(), dest.toUserOutput()),
-                    QMessageBox::Ok | QMessageBox::Cancel,
-                    ICore::dialogParent());
-    box.button(QMessageBox::Ok)->setEnabled(false);
+    CheckableMessageBox box(ICore::dialogParent());
+    box.setIcon(QMessageBox::Information);
+    box.setWindowTitle(PluginDialog::tr("Unzipping File"));
+    box.setText(PluginDialog::tr("Unzipping \"%1\" to \"%2\".")
+                    .arg(src.toUserOutput(), dest.toUserOutput()));
+    box.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    box.button(QDialogButtonBox::Ok)->setEnabled(false);
+    box.setCheckBoxVisible(false);
     box.setDetailedText(
         PluginDialog::tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
             .arg(CommandLine(tool->executable, tool->arguments).toUserOutput(), workingDirectory));
@@ -390,8 +392,8 @@ static bool unzip(const FilePath &src, const FilePath &dest)
     QObject::connect(&process,
                      QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                      [&box](int, QProcess::ExitStatus) {
-                         box.button(QMessageBox::Ok)->setEnabled(true);
-                         box.button(QMessageBox::Cancel)->setEnabled(false);
+                         box.button(QDialogButtonBox::Ok)->setEnabled(true);
+                         box.button(QDialogButtonBox::Cancel)->setEnabled(false);
                      });
     QObject::connect(&box, &QMessageBox::rejected, &process, [&process] {
         SynchronousProcess::stopProcess(process);
