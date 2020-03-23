@@ -66,8 +66,25 @@ void ZoomAction::resetZoomLevel()
 
 void ZoomAction::setZoomLevel(float zoomLevel)
 {
-    m_zoomLevel = qBound(0.1f, zoomLevel, 16.0f);
+    if (qFuzzyCompare(m_zoomLevel, zoomLevel))
+        return;
+
+    m_zoomLevel = qBound(0.01f, zoomLevel, 16.0f);
     emit zoomLevelChanged(m_zoomLevel);
+}
+
+//initial m_zoomLevel and m_currentComboBoxIndex
+const QVector<float> s_zoomFactors = {0.01f, 0.02f, 0.05f, 0.0625f, 0.125f, 0.25f,
+                                      0.33f, 0.5f, 0.66f, 0.75f, 0.9f, 1.0f, 1.25f,
+                                      1.5f, 1.75f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 10.0f, 16.0f };
+
+int getZoomIndex(float zoom)
+{
+    for (int i = 0; i < s_zoomFactors.length(); i++) {
+        if (qFuzzyCompare(s_zoomFactors.at(i), zoom))
+            return i;
+    }
+    return -1;
 }
 
 QWidget *ZoomAction::createWidget(QWidget *parent)
@@ -79,28 +96,10 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
      */
     if (m_comboBoxModel.isNull()) {
         m_comboBoxModel = comboBox->model();
-        comboBox->addItem(QLatin1String("1 %"), 0.01);
-        comboBox->addItem(QLatin1String("2 %"), 0.02);
-        comboBox->addItem(QLatin1String("5 %"), 0.05);
-        comboBox->addItem(QLatin1String("6.25 %"), 0.0625);
-        comboBox->addItem(QLatin1String("12.5 %"), 0.125);
-        comboBox->addItem(QLatin1String("25 %"), 0.25);
-        comboBox->addItem(QLatin1String("33 %"), 0.33);
-        comboBox->addItem(QLatin1String("50 %"), 0.5);
-        comboBox->addItem(QLatin1String("66 %"), 0.66);
-        comboBox->addItem(QLatin1String("75 %"), 0.75);
-        comboBox->addItem(QLatin1String("90 %"), 0.90);
-        comboBox->addItem(QLatin1String("100 %"), 1.0); // initial m_zoomLevel and m_currentComboBoxIndex
-        comboBox->addItem(QLatin1String("125 %"), 1.25);
-        comboBox->addItem(QLatin1String("150 %"), 1.5);
-        comboBox->addItem(QLatin1String("175 %"), 1.75);
-        comboBox->addItem(QLatin1String("200 %"), 2.0);
-        comboBox->addItem(QLatin1String("300 %"), 3.0);
-        comboBox->addItem(QLatin1String("400 %"), 4.0);
-        comboBox->addItem(QLatin1String("600 %"), 6.0);
-        comboBox->addItem(QLatin1String("800 %"), 8.0);
-        comboBox->addItem(QLatin1String("1000 %"), 10.0);
-        comboBox->addItem(QLatin1String("1600 %"), 16.0);
+        for (float z : s_zoomFactors) {
+            const QString name = QString::number(z * 100, 'g', 4) + " %";
+            comboBox->addItem(name, z);
+        }
     } else {
         comboBox->setModel(m_comboBoxModel.data());
     }
@@ -125,6 +124,12 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     });
 
     connect(this, &ZoomAction::indexChanged, comboBox, &QComboBox::setCurrentIndex);
+
+    connect(this, &ZoomAction::zoomLevelChanged, comboBox, [comboBox](double zoom){
+        const int index = getZoomIndex(zoom);
+        if (comboBox->currentIndex() != index)
+            comboBox->setCurrentIndex(index);
+    });
 
     comboBox->setProperty("hideborder", true);
     comboBox->setMaximumWidth(qMax(comboBox->view()->sizeHintForColumn(0) / 2, 16));
