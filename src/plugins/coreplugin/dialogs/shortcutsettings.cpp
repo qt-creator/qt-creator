@@ -105,16 +105,14 @@ static bool keySequenceIsValid(const QKeySequence &sequence)
     return true;
 }
 
-static bool textKeySequence(const QKeySequence &sequence)
+static bool isTextKeySequence(const QKeySequence &sequence)
 {
     if (sequence.isEmpty())
         return false;
-    for (int i = 0; i < sequence.count(); ++i) {
-        int key = sequence[i];
-        key &= ~(Qt::ShiftModifier | Qt::KeypadModifier);
-        if (key < Qt::Key_Escape)
-            return true;
-    }
+    int key = sequence[0];
+    key &= ~(Qt::ShiftModifier | Qt::KeypadModifier);
+    if (key < Qt::Key_Escape)
+        return true;
     return false;
 }
 
@@ -402,7 +400,7 @@ bool ShortcutSettingsWidget::validateShortcutEdit() const
         if (!valid) {
             m_warningLabel->setText(
                 tr("Key sequence has potential conflicts. <a href=\"#conflicts\">Show.</a>"));
-        } else if (textKeySequence(currentKey)) {
+        } else if (isTextKeySequence(currentKey)) {
             m_warningLabel->setText(tr("Key sequence will not work in editor."));
         }
     } else {
