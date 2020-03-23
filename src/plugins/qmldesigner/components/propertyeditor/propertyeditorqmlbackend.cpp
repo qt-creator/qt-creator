@@ -161,6 +161,8 @@ QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
         return 50;
     else if (propertyName == "customId")
         return QString();
+    else if (propertyName == "joinConnection")
+        return false;
 
     return {};
 }
@@ -228,7 +230,7 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
     if (itemNode.isFlowTransition()) {
         propertyNames.append({"color", "width", "inOffset", "outOffset", "dash", "breakPoint"});
     } else if (itemNode.isFlowItem()) {
-        propertyNames.append({"color", "width", "inOffset", "outOffset"});
+        propertyNames.append({"color", "width", "inOffset", "outOffset", "joinConnection"});
     } else if (itemNode.isFlowActionArea()) {
         propertyNames.append({"color", "width", "fillColor", "outOffset", "dash"});
     }
