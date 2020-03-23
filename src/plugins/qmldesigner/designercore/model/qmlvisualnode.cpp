@@ -71,7 +71,9 @@ bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode)
 {
     return isValidQmlObjectNode(modelNode)
             && modelNode.metaInfo().isValid()
-           && (isItemOr3DNode(modelNode) || modelNode.metaInfo().isSubclassOf("FlowView.FlowTransition"));
+           && (isItemOr3DNode(modelNode) || modelNode.metaInfo().isSubclassOf("FlowView.FlowTransition")
+               || modelNode.metaInfo().isSubclassOf("FlowView.FlowDecision")
+               || modelNode.metaInfo().isSubclassOf("FlowView.FlowWildcard"));
 }
 
 bool QmlVisualNode::isRootNode() const
@@ -322,9 +324,29 @@ bool QmlVisualNode::isFlowTransition(const ModelNode &node)
     return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
 }
 
+bool QmlVisualNode::isFlowDecision(const ModelNode &node)
+{
+    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowDecision");
+}
+
+bool QmlVisualNode::isFlowWildcard(const ModelNode &node)
+{
+    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowWildcard");
+}
+
 bool QmlVisualNode::isFlowTransition() const
 {
     return isFlowTransition(modelNode());
+}
+
+bool QmlVisualNode::isFlowDecision() const
+{
+    return isFlowDecision(modelNode());
+}
+
+bool QmlVisualNode::isFlowWildcard() const
+{
+    return isFlowWildcard(modelNode());
 }
 
 QList<ModelNode> toModelNodeList(const QList<QmlVisualNode> &qmlVisualNodeList)
