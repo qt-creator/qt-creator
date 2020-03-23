@@ -498,6 +498,13 @@ bool QmlItemNode::isFlowActionArea() const
     return modelNode().metaInfo().isSubclassOf("FlowView.FlowActionArea");
 }
 
+ModelNode QmlItemNode::rootModelNode() const
+{
+    if (view())
+        return view()->rootModelNode();
+    return {};
+}
+
 void QmlItemNode::setSize(const QSizeF &size)
 {
     if (!hasBindingProperty("width") && !(anchors().instanceHasAnchor(AnchorLineRight)

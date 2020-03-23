@@ -126,6 +126,7 @@ public:
     bool isFlowView() const;
     bool isFlowItem() const;
     bool isFlowActionArea() const;
+    ModelNode rootModelNode() const;
 };
 
 class QmlFlowItemNode;
