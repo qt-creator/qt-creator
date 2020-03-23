@@ -38,11 +38,13 @@
 
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
+#include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -155,7 +157,8 @@ private:
 
 enum JavaValidation {
     JavaPathExistsRow,
-    JavaJdkValidRow
+    JavaJdkValidRow,
+    JavaJdkValidVersionRow
 };
 
 enum AndroidValidation {
@@ -429,6 +432,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     QMap<int, QString> javaValidationPoints;
     javaValidationPoints[JavaPathExistsRow] = tr("JDK path exists.");
     javaValidationPoints[JavaJdkValidRow] = tr("JDK path is a valid JDK root folder.");
+    javaValidationPoints[JavaJdkValidVersionRow] = tr("Working JDK version (8) detected.");
     auto javaSummary = new SummaryWidget(javaValidationPoints, tr("Java Settings are OK."),
                                          tr("Java settings have errors."), m_ui->javaDetailsWidget);
     m_ui->javaDetailsWidget->setWidget(javaSummary);
@@ -625,6 +629,25 @@ void AndroidSettingsWidget::validateJdk()
 
     const Utils::FilePath bin = m_androidConfig.openJDKLocation().pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
     summaryWidget->setPointValid(JavaJdkValidRow, jdkPathExists && bin.exists());
+
+    bool jdkVersionCorrect = false;
+    Utils::SynchronousProcess javacProcess;
+    const int timeoutS = 5;
+    javacProcess.setTimeoutS(timeoutS);
+    const Utils::CommandLine cmd(bin, {"-version"});
+    Utils::SynchronousProcessResponse response = javacProcess.runBlocking(cmd);
+    if (response.result == Utils::SynchronousProcessResponse::Finished) {
+        QString output = response.stdOut(); // JDK 14 uses stdOut for this output.
+        if (output.isEmpty())
+            output = response.stdErr(); // JDK 8 uses stdErr for this output.
+        if (output.startsWith("javac ")) {
+            const QVersionNumber javacVersion = QVersionNumber::fromString(output.mid(6));
+            if (QVersionNumber(1, 8).isPrefixOf(javacVersion))
+                jdkVersionCorrect = true;
+        }
+    }
+    summaryWidget->setPointValid(JavaJdkValidVersionRow, jdkVersionCorrect);
+
     updateUI();
 }
 
