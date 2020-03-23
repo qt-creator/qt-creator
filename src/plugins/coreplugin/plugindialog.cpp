@@ -73,9 +73,9 @@ const char kApplicationInstall[] = "ApplicationInstall";
 
 static bool hasLibSuffix(const QString &path)
 {
-    return HostOsInfo().isWindowsHost() && path.endsWith(".dll", Qt::CaseInsensitive)
-           || HostOsInfo().isLinuxHost() && QFileInfo(path).completeSuffix().startsWith(".so")
-           || HostOsInfo().isMacHost() && path.endsWith(".dylib");
+    return (HostOsInfo().isWindowsHost() && path.endsWith(".dll", Qt::CaseInsensitive))
+           || (HostOsInfo().isLinuxHost() && QFileInfo(path).completeSuffix().startsWith(".so"))
+           || (HostOsInfo().isMacHost() && path.endsWith(".dylib"));
 }
 
 static bool isZipFile(const QString &path)
@@ -101,12 +101,13 @@ static Utils::optional<Tool> unzipTool(const FilePath &src, const FilePath &dest
         Utils::HostOsInfo::withExecutableSuffix("7z"));
     if (!sevenzip.isEmpty())
         return Tool{sevenzip, {"x", QString("-o") + dest.toString(), "-y", src.toString()}};
-    return Utils::nullopt;
 
     const FilePath cmake = Utils::Environment::systemEnvironment().searchInPath(
         Utils::HostOsInfo::withExecutableSuffix("cmake"));
     if (!cmake.isEmpty())
         return Tool{cmake, {"-E", "tar", "xvf", src.toString()}};
+
+    return {};
 }
 
 class SourcePage : public WizardPage
