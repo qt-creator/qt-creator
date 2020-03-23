@@ -1011,4 +1011,73 @@ QTransform FormEditorItem::viewportTransform() const
     return scene()->views().first()->viewportTransform();
 }
 
+void FormEditorFlowDecisionItem::updateGeometry()
+{
+    prepareGeometryChange();
+    m_selectionBoundingRect = QRectF(0,0, 200, 200);
+    m_paintedBoundingRect = m_selectionBoundingRect;
+    m_boundingRect = m_paintedBoundingRect;
+    setTransform(qmlItemNode().instanceTransformWithContentTransform());
+    const QPointF pos = qmlItemNode().flowPosition();
+    setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+}
+
+void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (!painter->isActive())
+        return;
+
+    painter->save();
+
+    QPen pen;
+    pen.setJoinStyle(Qt::MiterJoin);
+    pen.setCosmetic(true);
+
+    QColor flowColor = "#e71919";
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
+        flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
+
+    const qreal scaleFactor = viewportTransform().m11();
+    qreal width = 2;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
+        width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+
+    bool dash = false;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
+        dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
+
+    pen.setColor(flowColor);
+    if (dash)
+        pen.setStyle(Qt::DashLine);
+    else
+        pen.setStyle(Qt::SolidLine);
+
+    pen.setWidthF(width);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor")) {
+
+       const QColor fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
+       painter->fillRect(boundingRect(), fillColor);
+    }
+
+    painter->drawRect(boundingRect());
+
+    painter->restore();
+}
+
+bool FormEditorFlowDecisionItem::flowHitTest(const QPointF &point) const
+{
+    return true;
+}
+
+void FormEditorFlowWildcardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    FormEditorFlowDecisionItem::paint(painter, option, widget);
+}
+
 } //QmlDesigner
