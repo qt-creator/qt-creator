@@ -55,7 +55,9 @@ public:
         Default,
         Flow,
         FlowAction,
-        FlowTransition
+        FlowTransition,
+        FlowDecision,
+        FlowWildcard
     };
 
     FormEditorScene(FormEditorWidget *widget, FormEditorView *editorView);

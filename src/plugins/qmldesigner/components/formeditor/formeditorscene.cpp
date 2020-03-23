@@ -178,6 +178,10 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
         formEditorItem = new FormEditorFlowActionItem(qmlItemNode, this);
     else if (type == FlowTransition)
         formEditorItem = new FormEditorTransitionItem(qmlItemNode, this);
+    else if (type == FlowDecision)
+        formEditorItem = new FormEditorFlowDecisionItem(qmlItemNode, this);
+    else if (type == FlowWildcard)
+        formEditorItem = new FormEditorFlowWildcardItem(qmlItemNode, this);
     else
         formEditorItem = new FormEditorItem(qmlItemNode, this);
 
