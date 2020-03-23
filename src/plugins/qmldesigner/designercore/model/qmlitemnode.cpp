@@ -53,6 +53,12 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Item"))
         return true;
 
+    if (modelNode.metaInfo().isSubclassOf("FlowView.FlowDecision"))
+        return true;
+
+    if (modelNode.metaInfo().isSubclassOf("FlowView.FlowWildcard"))
+        return true;
+
     if (modelNode.metaInfo().isGraphicalItem()  && modelNode.isRootNode())
         return true;
 
@@ -214,6 +220,12 @@ bool QmlItemNode::instanceIsAnchoredByChildren() const
 
 bool QmlItemNode::instanceIsMovable() const
 {
+    if (modelNode().metaInfo().isValid()
+            &&  (modelNode().metaInfo().isSubclassOf("FlowView.FlowDecision")
+                 || modelNode().metaInfo().isSubclassOf("FlowView.FlowWildcard")
+                 ))
+        return true;
+
     return nodeInstance().isMovable();
 }
 
@@ -597,6 +609,24 @@ void QmlFlowActionAreaNode::destroyTarget()
     }
 }
 
+ModelNode QmlFlowActionAreaNode::decisionNodeForTransition(const ModelNode &transition) const
+{
+    ModelNode target = targetTransition();
+
+    if (target.isValid() && target.hasMetaInfo() && QmlVisualNode::isFlowTransition(target)) {
+
+        ModelNode finalTarget = target.bindingProperty("to").resolveToModelNode();
+
+        if (finalTarget.isValid() && finalTarget.hasMetaInfo() && QmlVisualNode::isFlowDecision(finalTarget)) {
+            if (finalTarget.hasBindingProperty("targets")
+                    && finalTarget.bindingProperty("targets").resolveToModelNodeList().contains(transition))
+                return finalTarget;
+        }
+    }
+
+    return {};
+}
+
 bool QmlFlowViewNode::isValid() const
 {
     return isValidQmlFlowViewNode(modelNode());
@@ -633,7 +663,7 @@ ModelNode QmlFlowViewNode::addTransition(const QmlFlowItemNode &from, const QmlF
     return transition;
 }
 
-QList<ModelNode> QmlFlowViewNode::transitions() const
+const QList<ModelNode> QmlFlowViewNode::transitions() const
 {
     if (modelNode().nodeListProperty("flowTransitions").isValid())
         return modelNode().nodeListProperty("flowTransitions").toModelNodeList();
@@ -641,6 +671,14 @@ QList<ModelNode> QmlFlowViewNode::transitions() const
     return {};
 
 
+}
+
+const QList<ModelNode> QmlFlowViewNode::wildcards() const
+{
+    if (modelNode().nodeListProperty("flowWildcards").isValid())
+        return modelNode().nodeListProperty("flowWildcards").toModelNodeList();
+
+    return {};
 }
 
 } //QmlDesigner

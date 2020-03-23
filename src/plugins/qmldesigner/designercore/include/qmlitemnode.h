@@ -142,6 +142,7 @@ public:
     void assignTargetFlowItem(const QmlFlowItemNode &flowItem);
     QmlFlowItemNode flowItemParent() const;
     void destroyTarget();
+    ModelNode decisionNodeForTransition(const ModelNode &transition) const;
 };
 
 class QMLDESIGNERCORE_EXPORT QmlFlowItemNode : public QmlItemNode
@@ -162,7 +163,8 @@ public:
     static bool isValidQmlFlowViewNode(const ModelNode &modelNode);
     QList<QmlFlowItemNode> flowItems() const;
     ModelNode addTransition(const QmlFlowItemNode &from, const QmlFlowItemNode &to);
-    QList<ModelNode> transitions() const;
+    const QList<ModelNode> transitions() const;
+    const QList<ModelNode> wildcards() const;
 };
 
 
