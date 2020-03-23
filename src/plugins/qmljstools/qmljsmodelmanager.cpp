@@ -37,6 +37,7 @@
 #include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
@@ -44,6 +45,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsfindexportedcpptypes.h>
 #include <qmljs/qmljsplugindumper.h>
@@ -141,7 +143,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH", bc->environment().expandedValueForKey("QML2_IMPORT_PATH"), ":");
         }
 
-        const auto appTargets = activeTarget->applicationTargets();
+        const auto appTargets = activeTarget->buildSystem()->applicationTargets();
         for (const auto &target : appTargets) {
             if (target.targetFilePath.isEmpty())
                 continue;

@@ -232,12 +232,6 @@ DeploymentData Target::buildSystemDeploymentData() const
     return buildSystem()->deploymentData();
 }
 
-const QList<BuildTargetInfo> Target::applicationTargets() const
-{
-    QTC_ASSERT(buildSystem(), return {});
-    return buildSystem()->applicationTargets();
-}
-
 BuildTargetInfo Target::buildTarget(const QString &buildKey) const
 {
     QTC_ASSERT(buildSystem(), return {});

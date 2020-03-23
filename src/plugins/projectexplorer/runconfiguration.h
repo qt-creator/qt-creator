@@ -236,7 +236,7 @@ public:
     static QString decoratedTargetName(const QString &targetName, Target *kit);
 
 protected:
-    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const;
+    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *target) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
 

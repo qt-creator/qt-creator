@@ -31,6 +31,7 @@
 #include <cpptools/projectinfo.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/environmentaspect.h>
@@ -137,8 +138,9 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 
     const QSet<QString> buildSystemTargets = m_buildTargets;
     qCDebug(LOG) << "BuildSystemTargets\n    " << buildSystemTargets;
+    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
     BuildTargetInfo targetInfo
-            = Utils::findOrDefault(target->applicationTargets(),
+            = Utils::findOrDefault(buildTargets,
                                    [&buildSystemTargets] (const BuildTargetInfo &bti) {
         return buildSystemTargets.contains(bti.buildKey);
     });
@@ -146,7 +148,6 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     // there would be no BuildTargetInfo that could match
     if (targetInfo.targetFilePath.isEmpty()) {
         qCDebug(LOG) << "BuildTargetInfos";
-        const QList<BuildTargetInfo> buildTargets = target->applicationTargets();
         // if there is only one build target just use it (but be honest that we're deducing)
         if (buildTargets.size() == 1) {
             targetInfo = buildTargets.first();

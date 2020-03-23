@@ -445,17 +445,17 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
 }
 
 QList<RunConfigurationCreationInfo>
-RunConfigurationFactory::availableCreators(Target *parent) const
+RunConfigurationFactory::availableCreators(Target *target) const
 {
-    const QList<BuildTargetInfo> buildTargets = parent->applicationTargets();
+    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
     const bool hasAnyQtcRunnable = Utils::anyOf(buildTargets,
                                             Utils::equal(&BuildTargetInfo::isQtcRunnable, true));
     return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
         QString displayName = ti.displayName;
         if (displayName.isEmpty())
-            displayName = decoratedTargetName(ti.buildKey, parent);
+            displayName = decoratedTargetName(ti.buildKey, target);
         else if (m_decorateDisplayNames)
-            displayName = decoratedTargetName(displayName, parent);
+            displayName = decoratedTargetName(displayName, target);
         RunConfigurationCreationInfo rci;
         rci.factory = this;
         rci.id = m_runConfigBaseId;
