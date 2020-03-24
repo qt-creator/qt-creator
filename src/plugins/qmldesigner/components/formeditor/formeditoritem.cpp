@@ -754,7 +754,12 @@ static void paintConnection(QPainter *painter,
     const bool boolExitRight = from.right() < to.center().x();
     const bool boolExitBottom = from.bottom() < to.center().y();
 
-    bool horizontalFirst = horizontalOverlap(from, to) && !verticalOverlap(from, to);
+    bool horizontalFirst = true;
+
+    /*
+    if (verticalOverlap(from, to) && !horizontalOverlap(from, to))
+        horizontalFirst = false;
+    */
 
     const qreal middleFactor = breakOffset / 100.0;
 
@@ -764,13 +769,19 @@ static void paintConnection(QPainter *painter,
 
     if (horizontalFirst) {
         if (to.center().x() > from.left() && to.center().x() < from.right()) {
-                horizontalFirst = false;
-                extraLine = true;
-            }
+            horizontalFirst = false;
+            extraLine = true;
+        } else if (verticalOverlap(from, to)) {
+            horizontalFirst = true;
+            extraLine = true;
+        }
 
     } else {
         if (to.center().y() > from.top() && to.center().y() < from.bottom()) {
             horizontalFirst = true;
+            extraLine = true;
+        } else if (horizontalOverlap(from, to)) {
+            horizontalFirst = false;
             extraLine = true;
         }
     }
