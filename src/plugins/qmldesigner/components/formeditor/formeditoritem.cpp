@@ -924,14 +924,29 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     QmlFlowActionAreaNode areaNode = ModelNode();
 
     if (from.isValid() && to.isValid())
+
+    bool isStartLine = false;
+
         for (const QmlFlowActionAreaNode &area : from.flowActionAreas()) {
             if (area.targetTransition() ==  qmlItemNode().modelNode())
                 areaNode = area;
         }
+    } else {
+        if (from == qmlItemNode().rootModelNode()) {
+            isStartLine = true;
+        } else {
+
+        }
+    }
+
 
     QRectF fromRect = QmlItemNode(from).instanceBoundingRect();
     fromRect.translate(QmlItemNode(from).flowPosition());
 
+    if (isStartLine) {
+        fromRect = QRectF(0,0,100,100);
+        fromRect.translate(QmlItemNode(to).flowPosition()- QPoint(200, 0));
+    }
 
     if (areaNode.isValid()) {
         fromRect = QmlItemNode(areaNode).instanceBoundingRect();
@@ -941,6 +956,11 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QRectF toRect = QmlItemNode(to).instanceBoundingRect();
     toRect.translate(QmlItemNode(to).flowPosition());
+
+    if (isStartLine) {
+        fromRect = QRectF(0,0,50,50);
+        fromRect.translate(QmlItemNode(to).flowPosition() + QPoint(-120, toRect.height() / 2 - 25));
+    }
 
     toRect.translate(-pos());
     fromRect.translate(-pos());
@@ -960,6 +980,9 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         width *= 8;
 
     QColor color = "#e71919";
+
+    if (isStartLine)
+        color = "blue";
 
     bool dash = false;
 
@@ -984,6 +1007,23 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         breakOffset = qmlItemNode().modelNode().auxiliaryData("breakPoint").toInt();
 
     paintConnection(painter, fromRect, toRect, width, adjustedWidth ,color, dash, outOffset, inOffset, breakOffset);
+
+    if (isStartLine) {
+        QPen pen;
+        pen.setCosmetic(true);
+
+        pen.setColor(color);
+        painter->setPen(pen);
+        painter->drawRect(fromRect);
+
+        if (scaleFactor > 0.4) {
+            painter->drawLine(fromRect.topRight() + QPoint(20,10), fromRect.bottomRight() + QPoint(20,-10));
+            painter->drawLine(fromRect.topRight() + QPoint(25,12), fromRect.bottomRight() + QPoint(25,-12));
+            painter->drawLine(fromRect.topRight() + QPoint(30,15), fromRect.bottomRight() + QPoint(30,-15));
+            painter->drawLine(fromRect.topRight() + QPoint(35,17), fromRect.bottomRight() + QPoint(35,-17));
+            painter->drawLine(fromRect.topRight() + QPoint(40,20), fromRect.bottomRight() + QPoint(40,-20));
+        }
+    }
 
     painter->restore();
 }
