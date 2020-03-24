@@ -86,6 +86,7 @@ public:
 signals:
     void updatingSdk();
     void updatingSdkFinished();
+    void licenseWorkflowStarted();
 
 private:
     void onApplyButton();

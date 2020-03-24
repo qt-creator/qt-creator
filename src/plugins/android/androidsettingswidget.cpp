@@ -425,6 +425,9 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_ui->SDKLocationPathChooser->setEnabled(true);
         m_ui->managerTabWidget->tabBar()->setEnabled(true);
     });
+    connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::licenseWorkflowStarted, [this]() {
+       m_ui->scrollArea->ensureWidgetVisible(m_ui->managerTabWidget);
+    });
 
     QMap<int, QString> javaValidationPoints;
     javaValidationPoints[JavaPathExistsRow] = tr("JDK path exists.");
@@ -997,7 +1000,13 @@ AndroidSettingsPage::AndroidSettingsPage()
     setId(Constants::ANDROID_SETTINGS_ID);
     setDisplayName(AndroidSettingsWidget::tr("Android"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new AndroidSettingsWidget; });
+    setWidgetCreator([] {
+        auto widget = new AndroidSettingsWidget;
+        QPalette pal = widget->palette();
+        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal));
+        widget->setPalette(pal);
+        return widget;
+    });
 }
 
 } // namespace Internal
