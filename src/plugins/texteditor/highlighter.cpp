@@ -177,8 +177,8 @@ Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FilePa
     return definitions;
 }
 
-void Highlighter::rememberDefintionForDocument(const Highlighter::Definition &definition,
-                                               const TextDocument *document)
+void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &definition,
+                                                const TextDocument *document)
 {
     QTC_ASSERT(document, return );
     if (!definition.isValid())
@@ -207,7 +207,7 @@ void Highlighter::rememberDefintionForDocument(const Highlighter::Definition &de
     settings->endGroup();
 }
 
-void Highlighter::clearDefintionForDocumentCache()
+void Highlighter::clearDefinitionForDocumentCache()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);

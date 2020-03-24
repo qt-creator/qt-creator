@@ -3181,7 +3181,7 @@ void TextEditorWidgetPrivate::rememberCurrentSyntaxDefinition()
         return;
     const Highlighter::Definition &definition = highlighter->definition();
     if (definition.isValid())
-        Highlighter::rememberDefintionForDocument(definition, m_document.data());
+        Highlighter::rememberDefinitionForDocument(definition, m_document.data());
 }
 
 bool TextEditorWidget::codeFoldingVisible() const

@@ -116,7 +116,7 @@ QWidget *HighlighterSettingsPage::widget()
             Highlighter::reload();
         });
         connect(m_d->m_page->resetCache, &QPushButton::clicked, []() {
-            Highlighter::clearDefintionForDocumentCache();
+            Highlighter::clearDefinitionForDocumentCache();
         });
 
         settingsToUI();
