@@ -185,6 +185,9 @@ void GradientModel::setColor(int index, const QColor &color)
     if (locked())
         return;
 
+    if (!m_itemNode.isValid())
+        return;
+
     if (!m_itemNode.modelNode().isSelected())
         return;
 
