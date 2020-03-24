@@ -47,7 +47,9 @@
 
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QLoggingCategory>
+#include <QMessageBox>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -65,12 +67,31 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
     m_buildSystem = new CMakeBuildSystem(this);
 
     buildDirectoryAspect()->setFileDialogOnly(true);
+    const auto buildDirAspect = aspect<BuildDirectoryAspect>();
+    buildDirAspect->setFileDialogOnly(true);
+    buildDirAspect->setValueAcceptor(
+        [this](const QString &oldDir, const QString &newDir) -> Utils::optional<QString> {
+            if (oldDir.isEmpty())
+                return newDir;
+
+            if (QDir(oldDir).exists("CMakeCache.txt")) {
+                if (QMessageBox::information(nullptr,
+                                             tr("Changing Build Directory"),
+                                             tr("Change the build directory and start with a "
+                                                "basic CMake configuration?"),
+                                             QMessageBox::Ok,
+                                             QMessageBox::Cancel)
+                    == QMessageBox::Ok) {
+                    return newDir;
+                }
+            }
+            return Utils::nullopt;
+        });
 
     appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
 
     setInitializer([this, target](const BuildInfo &info) {
-
         CMakeConfig config;
         config.append({"CMAKE_BUILD_TYPE", info.typeName.toUtf8()});
 
