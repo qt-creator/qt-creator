@@ -28,6 +28,7 @@
 #include "mcusupportsdk.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
@@ -56,6 +57,16 @@
 namespace McuSupport {
 namespace Internal {
 
+static QString packagePathFromSettings(const QString &settingsKey, const QString &defaultPath = {})
+{
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(Constants::SETTINGS_GROUP);
+    const QString path = s->value(QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX)
+                                  + settingsKey, defaultPath).toString();
+    s->endGroup();
+    return path;
+}
+
 McuPackage::McuPackage(const QString &label, const QString &defaultPath,
                        const QString &detectionPath, const QString &settingsKey)
     : m_label(label)
@@ -63,11 +74,7 @@ McuPackage::McuPackage(const QString &label, const QString &defaultPath,
     , m_detectionPath(detectionPath)
     , m_settingsKey(settingsKey)
 {
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::SETTINGS_GROUP);
-    m_path = s->value(QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey,
-                      m_defaultPath).toString();
-    s->endGroup();
+    m_path = packagePathFromSettings(settingsKey, defaultPath);
 }
 
 QString McuPackage::path() const
@@ -349,6 +356,22 @@ void McuSupportOptions::populatePackagesAndTargets()
     setQulDir(Utils::FilePath::fromUserInput(qtForMCUsSdkPackage->path()));
 }
 
+void McuSupportOptions::registerQchFiles()
+{
+    const QString qulDir = qulDirFromSettings().toString();
+    if (qulDir.isEmpty() || !QFileInfo::exists(qulDir))
+        return;
+
+    const QString docsPath = qulDir + "/docs/";
+    const QStringList qchFiles = {
+        docsPath + "quickultralite.qch",
+        docsPath + "quickultralitecmake.qch"
+    };
+    Core::HelpManager::registerDocumentation(
+                Utils::filtered(qchFiles,
+                                [](const QString &file) { return QFileInfo::exists(file); }));
+}
+
 void McuSupportOptions::deletePackagesAndTargets()
 {
     qDeleteAll(packages);
@@ -368,6 +391,12 @@ void McuSupportOptions::setQulDir(const Utils::FilePath &dir)
         });
     }
     emit changed();
+}
+
+Utils::FilePath McuSupportOptions::qulDirFromSettings()
+{
+    return Utils::FilePath::fromUserInput(
+                packagePathFromSettings(Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK));
 }
 
 static bool mcuTargetIsDesktop(const McuTarget* mcuTarget)
