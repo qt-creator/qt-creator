@@ -107,6 +107,7 @@ public:
     Utils::MacroExpanderProvider m_expanderProvider;
     QPixmap m_labelPixmap;
     Utils::FilePath m_baseFileName;
+    BaseStringAspect::ValueAcceptor m_valueAcceptor;
     bool m_readOnly = false;
     bool m_showToolTipOnLabel = false;
     bool m_fileDialogOnly = false;
@@ -147,6 +148,11 @@ BaseStringAspect::BaseStringAspect()
 
 BaseStringAspect::~BaseStringAspect() = default;
 
+void BaseStringAspect::setValueAcceptor(BaseStringAspect::ValueAcceptor &&acceptor)
+{
+    d->m_valueAcceptor = std::move(acceptor);
+}
+
 QString BaseStringAspect::value() const
 {
     return d->m_value;
@@ -155,10 +161,22 @@ QString BaseStringAspect::value() const
 void BaseStringAspect::setValue(const QString &value)
 {
     const bool isSame = value == d->m_value;
-    d->m_value = value;
+    if (isSame)
+        return;
+
+    QString processedValue = value;
+    if (d->m_valueAcceptor) {
+        const Utils::optional<QString> tmp = d->m_valueAcceptor(d->m_value, value);
+        if (!tmp) {
+            update(); // Make sure the original value is retained in the UI
+            return;
+        }
+        processedValue = tmp.value();
+    }
+
+    d->m_value = processedValue;
     update();
-    if (!isSame)
-        emit changed();
+    emit changed();
 }
 
 void BaseStringAspect::fromMap(const QVariantMap &map)

@@ -115,6 +115,9 @@ public:
 
     void addToLayout(LayoutBuilder &builder) override;
 
+    // Hook between UI and BaseStringAspect:
+    using ValueAcceptor = std::function<Utils::optional<QString>(const QString &, const QString &)>;
+    void setValueAcceptor(ValueAcceptor &&acceptor);
     QString value() const;
     void setValue(const QString &val);
 
