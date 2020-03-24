@@ -924,10 +924,10 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     QmlFlowActionAreaNode areaNode = ModelNode();
 
     bool joinConnection = false;
-    if (from.isValid() && to.isValid())
 
     bool isStartLine = false;
 
+    if (from.isValid()) {
         for (const QmlFlowActionAreaNode &area : from.flowActionAreas()) {
             if (area.targetTransition() ==  qmlItemNode().modelNode())
                 areaNode = area;
