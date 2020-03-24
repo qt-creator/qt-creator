@@ -55,6 +55,7 @@ private:
         QVariant overwrite = false;
         QVariant openInEditor = false;
         QVariant openAsProject = false;
+        QVariant isTemporary = false;
 
         QList<JsonWizard::OptionDefinition> options;
     };

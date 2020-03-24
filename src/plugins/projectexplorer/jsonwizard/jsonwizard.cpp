@@ -33,6 +33,7 @@
 #include "../projectexplorerconstants.h"
 #include "../projecttree.h"
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
@@ -465,11 +466,14 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             openedSomething = true;
         }
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
-            if (!Core::EditorManager::openEditor(file.path(), file.editorId())) {
+            Core::IEditor *editor = Core::EditorManager::openEditor(file.path(), file.editorId());
+            if (!editor) {
                 errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                            "Failed to open an editor for \"%1\".")
                         .arg(QDir::toNativeSeparators(file.path()));
                 break;
+            } else if (file.attributes() & Core::GeneratedFile::TemporaryFile) {
+                editor->document()->setTemporary(true);
             }
             openedSomething = true;
         }

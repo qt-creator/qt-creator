@@ -69,6 +69,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         f.isBinary = tmp.value(QLatin1String("isBinary"), false);
         f.overwrite = tmp.value(QLatin1String("overwrite"), false);
         f.openInEditor = tmp.value(QLatin1String("openInEditor"), false);
+        f.isTemporary = tmp.value(QLatin1String("temporary"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
 
         f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), errorMessage);
@@ -148,6 +149,8 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
         attributes |= Core::GeneratedFile::OpenProjectAttribute;
     if (JsonWizard::boolFromVariant(file.overwrite, expander))
         attributes |= Core::GeneratedFile::ForceOverwrite;
+    if (JsonWizard::boolFromVariant(file.isTemporary, expander))
+        attributes |= Core::GeneratedFile::TemporaryFile;
 
     if (file.keepExisting)
         attributes |= Core::GeneratedFile::KeepExistingFileAttribute;

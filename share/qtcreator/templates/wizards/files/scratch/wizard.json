@@ -21,7 +21,8 @@
                 "source": "file.txt",
                 "target": "%{TargetPath}",
                 "overwrite": true,
-                "openInEditor": true
+                "openInEditor": true,
+                "temporary": true
             }
         }
     ]
