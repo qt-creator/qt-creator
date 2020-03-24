@@ -640,7 +640,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
     QList<IDocument *> modifiedDocuments;
 
     foreach (IDocument *document, documents) {
-        if (document && document->isModified()) {
+        if (document && document->isModified() && !document->isTemporary()) {
             QString name = document->filePath().toString();
             if (name.isEmpty())
                 name = document->fallbackSaveAsFileName();
