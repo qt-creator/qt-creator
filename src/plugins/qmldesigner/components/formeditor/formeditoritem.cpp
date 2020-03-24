@@ -927,10 +927,20 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     bool isStartLine = false;
 
+    bool isWildcardLine = false;
+
     if (from.isValid()) {
         for (const QmlFlowActionAreaNode &area : from.flowActionAreas()) {
-            if (area.targetTransition() ==  qmlItemNode().modelNode())
+            ModelNode target = area.targetTransition();
+            if (target ==  qmlItemNode().modelNode()) {
                 areaNode = area;
+            } else  {
+                const ModelNode decisionNode = area.decisionNodeForTransition(qmlItemNode().modelNode());
+                if (decisionNode.isValid()) {
+                    from = decisionNode;
+                    areaNode = ModelNode();
+                }
+            }
         }
         if (from.modelNode().hasAuxiliaryData("joinConnection"))
             joinConnection = from.modelNode().auxiliaryData("joinConnection").toBool();
@@ -938,6 +948,12 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         if (from == qmlItemNode().rootModelNode()) {
             isStartLine = true;
         } else {
+            for (const ModelNode wildcard : QmlFlowViewNode(qmlItemNode().rootModelNode()).wildcards()) {
+                if (wildcard.bindingProperty("target").resolveToModelNode() == qmlItemNode().modelNode()) {
+                    from = wildcard;
+                    isWildcardLine = true;
+                }
+            }
 
         }
     }
@@ -946,6 +962,11 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         return;
 
     QRectF fromRect = QmlItemNode(from).instanceBoundingRect();
+    if (QmlItemNode(from).isFlowDecision())
+        fromRect = QRectF(0,0,200,200);
+
+    if (QmlItemNode(from).isFlowWildcard())
+        fromRect = QRectF(0,0,200,200);
     fromRect.translate(QmlItemNode(from).flowPosition());
 
     if (isStartLine) {
@@ -960,6 +981,9 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     }
 
     QRectF toRect = QmlItemNode(to).instanceBoundingRect();
+    if (QmlItemNode(to).isFlowDecision())
+        toRect = QRectF(0,0,200,200);
+
     toRect.translate(QmlItemNode(to).flowPosition());
 
     if (isStartLine) {
