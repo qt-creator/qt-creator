@@ -112,6 +112,7 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
             }
             QTC_ASSERT(proFileNode, return false);
             pro = proFileNode->proFile();
+            QTC_ASSERT(pro, return false);
             t = pro->projectType();
         }
 
