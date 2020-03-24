@@ -48,7 +48,8 @@ find_package(Qt5 COMPONENTS LinguistTools)
 
 find_package(Threads)
 
-find_package(Qt5 COMPONENTS Designer Help Script SerialPort Svg QUIET)
+find_package(Qt5 COMPONENTS Designer DesignerComponents Help Script SerialPort Svg QUIET)
+
 function (set_if_target var target)
    if (TARGET "${target}")
      set(_result ON)

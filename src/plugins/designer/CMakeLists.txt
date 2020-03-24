@@ -1,6 +1,3 @@
-# Qt5::DesignerComponents doesn't have a target, so we need to define our own:-/
-find_package(DesignerComponents)
-
 if (WITH_TESTS)
   set(TST_COMPONENT CppEditor)
 endif()
