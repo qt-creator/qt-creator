@@ -47,6 +47,8 @@ public:
 
     bool hasData() const;
 
+    bool isUnified() const;
+
     bool hasLeftHandle() const;
 
     bool hasRightHandle() const;
@@ -63,6 +65,8 @@ public:
 
     Interpolation interpolation() const;
 
+    void setUnified(bool unified);
+
     void setPosition(const QPointF &pos);
 
     void setLeftHandle(const QPointF &pos);
@@ -75,6 +79,8 @@ public:
 
 private:
     Interpolation m_interpolation = Interpolation::Undefined;
+
+    bool m_unified;
 
     QPointF m_position;
 

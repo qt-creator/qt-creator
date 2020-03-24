@@ -275,6 +275,18 @@ void GraphicsView::setInterpolation(Keyframe::Interpolation interpol)
     viewport()->update();
 }
 
+void GraphicsView::toggleUnified()
+{
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (auto *citem = qgraphicsitem_cast<CurveItem *>(item)) {
+            if (citem->hasSelection())
+                citem->toggleUnified();
+        }
+    }
+    viewport()->update();
+}
+
 void GraphicsView::resizeEvent(QResizeEvent *event)
 {
     QGraphicsView::resizeEvent(event);
@@ -433,6 +445,8 @@ QPointF GraphicsView::globalToRaster(const QPoint &point) const
 
 void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
 {
+    m_scene.doNotMoveItems(true);
+
     QPointF pivotRaster(globalToRaster(pivot));
 
     m_zoomX = clamp(x, 0.0, 1.0);
@@ -471,6 +485,8 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
         QPointF deltaTransformed = pivotRaster - globalToRaster(pivot);
         scrollContent(mapTimeToX(deltaTransformed.x()), mapValueToY(deltaTransformed.y()));
     }
+
+    m_scene.doNotMoveItems(false);
 }
 
 void GraphicsView::insertKeyframe(double time, bool allVisibleCurves)

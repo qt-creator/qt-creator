@@ -297,6 +297,8 @@ void CurveItem::setCurve(const AnimationCurve &curve)
         item->setComponentTransform(m_transform);
         m_keyframes.push_back(item);
         QObject::connect(item, &KeyframeItem::redrawCurve, this, &CurveItem::emitCurveChanged);
+        QObject::connect(item, &KeyframeItem::keyframeMoved, this, &CurveItem::keyframeMoved);
+        QObject::connect(item, &KeyframeItem::handleMoved, this, &CurveItem::handleMoved);
     }
 
     emitCurveChanged();
@@ -344,14 +346,24 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
     emit curveChanged(id(), curve());
 }
 
+void CurveItem::toggleUnified()
+{
+    if (m_keyframes.empty())
+        return;
+
+    for (auto *frame : m_keyframes) {
+        if (frame->selected())
+            frame->toggleUnified();
+    }
+    emit curveChanged(id(), curve());
+}
+
 void CurveItem::connect(GraphicsScene *scene)
 {
     QObject::connect(this, &CurveItem::curveChanged, scene, &GraphicsScene::curveChanged);
 
-    for (auto *frame : m_keyframes) {
-        QObject::connect(frame, &KeyframeItem::keyframeMoved, scene, &GraphicsScene::keyframeMoved);
-        QObject::connect(frame, &KeyframeItem::handleMoved, scene, &GraphicsScene::handleMoved);
-    }
+    QObject::connect(this, &CurveItem::keyframeMoved, scene, &GraphicsScene::keyframeMoved);
+    QObject::connect(this, &CurveItem::handleMoved, scene, &GraphicsScene::handleMoved);
 }
 
 void CurveItem::insertKeyframeByTime(double time)

@@ -31,6 +31,7 @@ namespace DesignTools {
 
 Keyframe::Keyframe()
     : m_interpolation(Interpolation::Undefined)
+    , m_unified(false)
     , m_position()
     , m_leftHandle()
     , m_rightHandle()
@@ -39,6 +40,7 @@ Keyframe::Keyframe()
 
 Keyframe::Keyframe(const QPointF &position)
     : m_interpolation(Interpolation::Linear)
+    , m_unified(false)
     , m_position(position)
     , m_leftHandle()
     , m_rightHandle()
@@ -47,6 +49,7 @@ Keyframe::Keyframe(const QPointF &position)
 
 Keyframe::Keyframe(const QPointF &position, const QVariant &data)
     : m_interpolation(Interpolation::Undefined)
+    , m_unified(false)
     , m_position(position)
     , m_leftHandle()
     , m_rightHandle()
@@ -57,6 +60,7 @@ Keyframe::Keyframe(const QPointF &position, const QVariant &data)
 
 Keyframe::Keyframe(const QPointF &position, const QPointF &leftHandle, const QPointF &rightHandle)
     : m_interpolation(Interpolation::Bezier)
+    , m_unified(false)
     , m_position(position)
     , m_leftHandle(leftHandle)
     , m_rightHandle(rightHandle)
@@ -71,6 +75,11 @@ bool Keyframe::isValid() const
 bool Keyframe::hasData() const
 {
     return m_data.isValid();
+}
+
+bool Keyframe::isUnified() const
+{
+    return m_unified;
 }
 
 bool Keyframe::hasLeftHandle() const
@@ -141,6 +150,11 @@ void Keyframe::setInterpolation(Interpolation interpol)
 void Keyframe::setPosition(const QPointF &pos)
 {
     m_position = pos;
+}
+
+void Keyframe::setUnified(bool unified)
+{
+    m_unified = unified;
 }
 
 void Keyframe::setLeftHandle(const QPointF &pos)

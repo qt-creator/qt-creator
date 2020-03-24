@@ -50,6 +50,8 @@ public:
 
     bool isFromData() const;
 
+    bool hasUnified() const;
+
     double minimumTime() const;
 
     double maximumTime() const;
@@ -59,6 +61,8 @@ public:
     double maximumValue() const;
 
     std::string string() const;
+
+    QString unifyString() const;
 
     CurveSegment segment(double time) const;
 

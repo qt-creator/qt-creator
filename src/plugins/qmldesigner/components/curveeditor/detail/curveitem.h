@@ -27,6 +27,7 @@
 
 #include "curveeditorstyle.h"
 #include "curvesegment.h"
+#include "handleitem.h"
 #include "keyframe.h"
 #include "selectableitem.h"
 #include "treeitem.h"
@@ -46,6 +47,10 @@ class CurveItem : public CurveEditorItem
 
 signals:
     void curveChanged(unsigned int id, const AnimationCurve &curve);
+
+    void keyframeMoved(KeyframeItem *item, const QPointF &direction);
+
+    void handleMoved(KeyframeItem *frame, HandleItem::Slot slot, double angle, double deltaLength);
 
 public:
     CurveItem(QGraphicsItem *parent = nullptr);
@@ -99,6 +104,8 @@ public:
     void setStyle(const CurveEditorStyle &style);
 
     void setInterpolation(Keyframe::Interpolation interpolation);
+
+    void toggleUnified();
 
     void connect(GraphicsScene *scene);
 

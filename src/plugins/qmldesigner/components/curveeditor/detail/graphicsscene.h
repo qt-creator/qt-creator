@@ -61,6 +61,8 @@ public:
 
     double maximumValue() const;
 
+    void doNotMoveItems(bool tmp);
+
     void addCurveItem(CurveItem *item);
 
     void setComponentTransform(const QTransform &transform);
@@ -90,6 +92,8 @@ private:
     mutable bool m_dirty;
 
     mutable QRectF m_limits;
+
+    bool m_doNotMoveItems;
 };
 
 } // End namespace DesignTools.

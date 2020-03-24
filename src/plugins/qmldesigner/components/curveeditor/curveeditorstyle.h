@@ -62,6 +62,9 @@ struct KeyframeItemStyleOption
     double size = 10.0;
     QColor color = QColor(200, 200, 0);
     QColor selectionColor = QColor(200, 200, 200);
+    QColor lockedColor = QColor(50, 50, 50);
+    QColor unifiedColor = QColor(250, 50, 250);
+    QColor splitColor = QColor(0, 250, 0);
 };
 
 struct CurveItemStyleOption

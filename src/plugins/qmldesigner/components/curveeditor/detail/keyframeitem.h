@@ -66,13 +66,13 @@ public:
 
     Keyframe keyframe() const;
 
+    bool isUnified() const;
+
     bool hasLeftHandle() const;
 
     bool hasRightHandle() const;
 
     QTransform transform() const;
-
-    bool contains(HandleItem *handle, const QPointF &point) const;
 
     void setHandleVisibility(bool visible);
 
@@ -81,6 +81,10 @@ public:
     void setStyle(const CurveEditorStyle &style);
 
     void setKeyframe(const Keyframe &keyframe);
+
+    void toggleUnified();
+
+    void setActivated(bool active, HandleItem::Slot slot);
 
     void setInterpolation(Keyframe::Interpolation interpolation);
 

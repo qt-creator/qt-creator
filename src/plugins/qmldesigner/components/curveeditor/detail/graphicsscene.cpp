@@ -37,6 +37,7 @@ GraphicsScene::GraphicsScene(QObject *parent)
     : QGraphicsScene(parent)
     , m_dirty(true)
     , m_limits()
+    , m_doNotMoveItems(false)
 {}
 
 bool GraphicsScene::empty() const
@@ -62,6 +63,11 @@ double GraphicsScene::minimumValue() const
 double GraphicsScene::maximumValue() const
 {
     return limits().top();
+}
+
+void GraphicsScene::doNotMoveItems(bool val)
+{
+    m_doNotMoveItems = val;
 }
 
 void GraphicsScene::addCurveItem(CurveItem *item)
@@ -111,10 +117,9 @@ void GraphicsScene::handleUnderMouse(HandleItem *handle)
         if (item == handle)
             continue;
 
-        if (auto *handleItem = qgraphicsitem_cast<HandleItem *>(item)) {
-            if (handleItem->selected()) {
-                if (handleItem->slot() == handle->slot())
-                    handleItem->setActivated(handle->isUnderMouse());
+        if (auto *keyItem = qgraphicsitem_cast<KeyframeItem *>(item)) {
+            if (keyItem->selected()) {
+                keyItem->setActivated(handle->isUnderMouse(), handle->slot());
             }
         }
     }
@@ -125,14 +130,29 @@ void GraphicsScene::handleMoved(KeyframeItem *frame,
                                 double angle,
                                 double deltaLength)
 {
+    if (m_doNotMoveItems)
+        return;
+
+    auto moveUnified = [handle, angle, deltaLength](KeyframeItem *key) {
+        if (key->isUnified()) {
+            if (handle == HandleItem::Slot::Left)
+                key->moveHandle(HandleItem::Slot::Right, angle, deltaLength);
+            else
+                key->moveHandle(HandleItem::Slot::Left, angle, deltaLength);
+        }
+    };
+
     const auto itemList = items();
     for (auto *item : itemList) {
-        if (item == frame)
-            continue;
-
         if (auto *frameItem = qgraphicsitem_cast<KeyframeItem *>(item)) {
-            if (frameItem->selected())
+            if (item == frame) {
+                moveUnified(frameItem);
+                continue;
+            }
+            if (frameItem->selected()) {
                 frameItem->moveHandle(handle, angle, deltaLength);
+                moveUnified(frameItem);
+            }
         }
     }
 }

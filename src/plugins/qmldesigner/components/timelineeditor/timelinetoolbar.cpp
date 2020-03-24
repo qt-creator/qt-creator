@@ -253,11 +253,6 @@ void TimelineToolBar::openAnimationCurveEditor()
     m_dialog->show();
 }
 
-void TimelineToolBar::updateCurve(DesignTools::PropertyTreeItem *item)
-{
-    DesignTools::AnimationCurve curve = item->curve();
-}
-
 void TimelineToolBar::createLeftControls()
 {
     auto addActionToGroup = [&](QAction *action) {

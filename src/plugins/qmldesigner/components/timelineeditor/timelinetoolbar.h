@@ -91,8 +91,6 @@ public:
 
     void openAnimationCurveEditor();
 
-    void updateCurve(DesignTools::PropertyTreeItem *item);
-
 protected:
     void resizeEvent(QResizeEvent *event) override;
 

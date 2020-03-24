@@ -447,9 +447,11 @@ std::array<Keyframe, 3> CurveSegment::splitAt(double time)
 
             out[0].setInterpolation(left().interpolation());
             out[0].setData(left().data());
+            out[0].setUnified(left().isUnified());
 
             out[2].setInterpolation(right().interpolation());
             out[2].setData(right().data());
+            out[2].setUnified(right().isUnified());
             return out;
         }
     }
