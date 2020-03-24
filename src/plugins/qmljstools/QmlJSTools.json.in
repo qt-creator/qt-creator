@@ -62,6 +62,13 @@
         \"        <comment>Javascript module</comment>\",
         \"        <glob pattern=\'*.mjs\' weight=\'70\'/>\",
         \"    </mime-type>\",
+        \"    <mime-type type=\'text/x-qtscript\'>\",
+        \"        <alias type=\'application/x-qtscript\'/>\",
+        \"        <sub-class-of type=\'application/javascript\'/>\",
+        \"        <comment>Qt Script file</comment>\",
+        \"        <glob pattern=\'*.qs\' weight=\'70\'/>\",
+        \"    </mime-type>\",
         \"</mime-info>\"
     ]
+
 }
