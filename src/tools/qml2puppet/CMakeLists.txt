@@ -121,6 +121,12 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
+  SOURCES_PREFIX "${SRCDIR}/qml2puppet/iconrenderer"
+  SOURCES
+    iconrenderer.cpp iconrenderer.h
+)
+
+extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/qml2puppet/instances"
   SOURCES
     anchorchangesnodeinstance.cpp anchorchangesnodeinstance.h

@@ -217,6 +217,8 @@ QtcTool {
             "editor3d/selectionboxgeometry.h",
             "editor3d/linegeometry.cpp",
             "editor3d/linegeometry.h",
+            "iconrenderer/iconrenderer.cpp",
+            "iconrenderer/iconrenderer.h",
             "qml2puppetmain.cpp",
         ]
     }

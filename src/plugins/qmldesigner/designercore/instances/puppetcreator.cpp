@@ -177,7 +177,8 @@ QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode,
                                              const QString &socketToken,
                                              QObject *handlerObject,
                                              const char *outputSlot,
-                                             const char *finishSlot) const
+                                             const char *finishSlot,
+                                             const QStringList &customOptions) const
 {
     return puppetProcess(qml2PuppetPath(m_availablePuppetType),
                          qmlPuppetDirectory(m_availablePuppetType),
@@ -185,7 +186,8 @@ QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode,
                          socketToken,
                          handlerObject,
                          outputSlot,
-                         finishSlot);
+                         finishSlot,
+                         customOptions);
 }
 
 
@@ -195,7 +197,8 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
                                        const QString &socketToken,
                                        QObject *handlerObject,
                                        const char *outputSlot,
-                                       const char *finishSlot) const
+                                       const char *finishSlot,
+                                       const QStringList &customOptions) const
 {
     auto puppetProcess = new QProcess;
     puppetProcess->setObjectName(puppetMode);
@@ -228,7 +231,14 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     if (forceFreeType)
         forceFreeTypeOption = "-platform windows:fontengine=freetype";
 
-    puppetProcess->start(puppetPath, {socketToken, puppetMode, "-graphicssystem raster", forceFreeTypeOption });
+    if (puppetMode == "custom") {
+        QStringList args = customOptions;
+        args << "-graphicssystem raster";
+        args << forceFreeTypeOption;
+        puppetProcess->start(puppetPath, args);
+    } else {
+        puppetProcess->start(puppetPath, {socketToken, puppetMode, "-graphicssystem raster", forceFreeTypeOption });
+    }
 
 #ifndef QMLDESIGNER_TEST
     QString debugPuppet = m_designerSettings.value(DesignerSettingsKey::

@@ -200,7 +200,7 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
 
     camera->setPosition(lookAt + newLookVector);
 
-    float newZoomFactor = updateZoom ? qBound(.01f, float(maxExtent / 700.), 100.f) : oldZoom;
+    float newZoomFactor = updateZoom ? qBound(.01f, float(maxExtent / 900.), 100.f) : oldZoom;
     float cameraZoomFactor = zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
 
     return QVector4D(lookAt, cameraZoomFactor);

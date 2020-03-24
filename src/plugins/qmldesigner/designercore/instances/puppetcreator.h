@@ -57,7 +57,8 @@ public:
                                   const QString &socketToken,
                                   QObject *handlerObject,
                                   const char *outputSlot,
-                                  const char *finishSlot) const;
+                                  const char *finishSlot,
+                                  const QStringList &customOptions = {}) const;
 
     void setQrcMappingString(const QString qrcMapping);
 
@@ -87,7 +88,8 @@ protected:
                             const QString &socketToken,
                             QObject *handlerObject,
                             const char *outputSlot,
-                            const char *finishSlot) const;
+                            const char *finishSlot,
+                            const QStringList &customOptions) const;
 
     QProcessEnvironment processEnvironment() const;
 
