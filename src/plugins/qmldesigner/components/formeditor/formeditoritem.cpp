@@ -939,6 +939,8 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         }
     }
 
+    if (!from.modelNode().isValid())
+        return;
 
     QRectF fromRect = QmlItemNode(from).instanceBoundingRect();
     fromRect.translate(QmlItemNode(from).flowPosition());
