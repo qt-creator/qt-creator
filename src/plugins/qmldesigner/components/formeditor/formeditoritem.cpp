@@ -913,7 +913,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         return;
 
     if (!(qmlItemNode().modelNode().hasBindingProperty("from")
-          && qmlItemNode().modelNode().hasBindingProperty("from")))
+          && qmlItemNode().modelNode().hasBindingProperty("to")))
         return;
 
     painter->save();
