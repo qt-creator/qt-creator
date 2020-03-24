@@ -923,6 +923,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QmlFlowActionAreaNode areaNode = ModelNode();
 
+    bool joinConnection = false;
     if (from.isValid() && to.isValid())
 
     bool isStartLine = false;
@@ -931,6 +932,8 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
             if (area.targetTransition() ==  qmlItemNode().modelNode())
                 areaNode = area;
         }
+        if (from.modelNode().hasAuxiliaryData("joinConnection"))
+            joinConnection = from.modelNode().auxiliaryData("joinConnection").toBool();
     } else {
         if (from == qmlItemNode().rootModelNode()) {
             isStartLine = true;
@@ -950,7 +953,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         fromRect.translate(QmlItemNode(to).flowPosition()- QPoint(200, 0));
     }
 
-    if (areaNode.isValid()) {
+    if (!joinConnection && areaNode.isValid()) {
         fromRect = QmlItemNode(areaNode).instanceBoundingRect();
         fromRect.translate(QmlItemNode(from).flowPosition());
         fromRect.translate(areaNode.instancePosition());
