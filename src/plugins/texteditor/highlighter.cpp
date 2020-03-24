@@ -118,22 +118,20 @@ Highlighter::Definition Highlighter::definitionForName(const QString &name)
 Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument *document)
 {
     QTC_ASSERT(document, return {});
+    // First try to find definitions for the file path, only afterwards try the MIME type.
+    // An example where that is important is if there was a definition for "*.rb.xml", which
+    // cannot be referred to with a MIME type (since there is none), but there is the definition
+    // for XML files, which specifies a MIME type in addition to a glob pattern.
+    // If we check the MIME type first and then skip the pattern, the definition for "*.rb.xml" is
+    // never considered.
+    // The KSyntaxHighlighting CLI also completely ignores MIME types.
+    const Definitions &fileNameDefinitions = definitionsForFileName(document->filePath());
+    if (!fileNameDefinitions.isEmpty())
+        return fileNameDefinitions;
     const Utils::MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
-    if (mimeType.isValid()) {
-        if (mimeType.name() == "text/plain") {
-            // text/plain is the base mime type for all text types so ignore it and try matching the
-            // file name against the pattern and only if no definition can be found for the
-            // file name try matching the mime type
-            const Definitions &fileNameDefinitions = definitionsForFileName(document->filePath());
-            if (!fileNameDefinitions.isEmpty())
-                return fileNameDefinitions;
-            return definitionsForMimeType(mimeType.name());
-        }
-        const Definitions &mimeTypeDefinitions = definitionsForMimeType(mimeType.name());
-        if (!mimeTypeDefinitions.isEmpty())
-            return mimeTypeDefinitions;
-    }
-    return definitionsForFileName(document->filePath());
+    if (!mimeType.isValid())
+        return fileNameDefinitions;
+    return definitionsForMimeType(mimeType.name());
 }
 
 static Highlighter::Definition definitionForSetting(const QString &settingsKey,
