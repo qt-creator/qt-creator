@@ -44,9 +44,6 @@ public:
     using Definitions = QList<Definition>;
     Highlighter();
 
-    static Definition definitionForDocument(const TextDocument *document);
-    static Definition definitionForMimeType(const QString &mimeType);
-    static Definition definitionForFilePath(const Utils::FilePath &fileName);
     static Definition definitionForName(const QString &name);
 
     static Definitions definitionsForDocument(const TextDocument *document);

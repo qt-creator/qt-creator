@@ -110,35 +110,6 @@ Highlighter::Highlighter()
                             &categoryForTextStyle);
 }
 
-Highlighter::Definition Highlighter::definitionForDocument(const TextDocument *document)
-{
-    const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
-    Definition definition;
-    if (mimeType.isValid())
-        definition = Highlighter::definitionForMimeType(mimeType.name());
-    if (!definition.isValid())
-        definition = Highlighter::definitionForFilePath(document->filePath());
-    return definition;
-}
-
-Highlighter::Definition Highlighter::definitionForMimeType(const QString &mimeType)
-{
-    if (mimeType.isEmpty())
-        return {};
-    const Definitions definitions = definitionsForMimeType(mimeType);
-    if (definitions.size() == 1)
-        return definitions.first();
-    return highlightRepository()->definitionForMimeType(mimeType);
-}
-
-Highlighter::Definition Highlighter::definitionForFilePath(const Utils::FilePath &fileName)
-{
-    const Definitions definitions = definitionsForFileName(fileName);
-    if (definitions.size() == 1)
-        return definitions.first();
-    return highlightRepository()->definitionForFileName(fileName.fileName());
-}
-
 Highlighter::Definition Highlighter::definitionForName(const QString &name)
 {
     return highlightRepository()->definitionForName(name);
