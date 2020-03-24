@@ -1121,8 +1121,7 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
 {
     Q_ASSERT(reader.isStartElement());
 
-    const int parseItemsCount = 2;
-    int counter = 0;
+    bool found = false;
     QXmlStreamAttributes attributes = reader.attributes();
     QXmlStreamAttributes result;
     QStringList keys;
@@ -1132,13 +1131,13 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
         keys = QStringList("android:value");
         values = QStringList(m_targetLineEdit->currentText());
         result = modifyXmlStreamAttributes(attributes, keys, values);
-        ++counter;
+        found = true;
     } else if (attributes.value(QLatin1String("android:name"))
                == QLatin1String("android.app.extract_android_style")) {
         keys = QStringList("android:value");
         values = QStringList(m_styleExtractMethod->currentText());
         result = modifyXmlStreamAttributes(attributes, keys, values);
-        ++counter;
+        found = true;
     } else {
         result = attributes;
     }
@@ -1151,7 +1150,7 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
             writer.writeCurrentToken(reader);
-            return counter == parseItemsCount;
+            return found;
         } else if (reader.isStartElement()) {
             parseUnknownElement(reader, writer);
         } else {
@@ -1159,7 +1158,7 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
         }
         reader.readNext();
     }
-    return counter == parseItemsCount; // should never be reached
+    return found; // should never be reached
 }
 
 void AndroidManifestEditorWidget::parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter & writer)
