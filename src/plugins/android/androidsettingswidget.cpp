@@ -505,7 +505,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             "If the selected path contains no valid SDK Tools, the SDK Tools package "
             "is downloaded from %1, and extracted to the selected path.\n"
             "After the SDK Tools are properly set up, you are prompted to install "
-            "any essential packages required for Qt to build for Android.\n")
+            "any essential packages required for Qt to build for Android.")
                                                  .arg(m_androidConfig.sdkToolsUrl().toString()));
 
     connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
