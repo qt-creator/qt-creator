@@ -918,7 +918,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     painter->save();
 
-    const QmlFlowItemNode from = qmlItemNode().modelNode().bindingProperty("from").resolveToModelNode();
+    QmlFlowItemNode from = qmlItemNode().modelNode().bindingProperty("from").resolveToModelNode();
     const QmlFlowItemNode to = qmlItemNode().modelNode().bindingProperty("to").resolveToModelNode();
 
     QmlFlowActionAreaNode areaNode = ModelNode();
