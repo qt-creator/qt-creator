@@ -107,12 +107,14 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
 
 void ProjectTestSettingsWidget::populateFrameworks(const QMap<ITestFramework *, bool> &frameworks)
 {
-    auto end = frameworks.cend();
-    for (auto it = frameworks.cbegin(); it != end; ++it) {
-        auto item = new QTreeWidgetItem(m_activeFrameworks, QStringList(QLatin1String(it.key()->name())));
+    TestFrameworks sortedFrameworks = frameworks.keys();
+    Utils::sort(sortedFrameworks, &ITestFramework::priority);
+
+    for (ITestFramework *framework : sortedFrameworks) {
+        auto item = new QTreeWidgetItem(m_activeFrameworks, QStringList(QLatin1String(framework->name())));
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
-        item->setCheckState(0, it.value() ? Qt::Checked : Qt::Unchecked);
-        item->setData(0, FrameworkIdRole, it.key()->id().toSetting());
+        item->setCheckState(0, frameworks.value(framework) ? Qt::Checked : Qt::Unchecked);
+        item->setData(0, FrameworkIdRole, framework->id().toSetting());
     }
 }
 

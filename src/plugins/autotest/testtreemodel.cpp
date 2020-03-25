@@ -222,6 +222,7 @@ void TestTreeModel::synchronizeTestFrameworks()
         sorted = Utils::filtered(active.keys(), [active](ITestFramework *framework) {
             return active.value(framework);
         });
+        Utils::sort(sorted, &ITestFramework::priority);
     }
 
     // pre-check to avoid further processing when frameworks are unchanged
