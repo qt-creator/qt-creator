@@ -246,6 +246,7 @@ void AutoTestUnitTests::testCodeParserBoostTest()
         QSKIP("This test needs boost - set BOOST_INCLUDE_DIR (or have it installed)");
 
     QFETCH(QString, projectFilePath);
+    QFETCH(QString, extension);
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
@@ -257,14 +258,23 @@ void AutoTestUnitTests::testCodeParserBoostTest()
 
     QCOMPARE(m_model->boostTestNamesCount(), 5);
 
-    QMultiMap<QString, int> expectedSuitesAndTests;
-    expectedSuitesAndTests.insert(QStringLiteral("Master Test Suite"), 2); // decorators w/o suite
-    expectedSuitesAndTests.insert(QStringLiteral("Master Test Suite"), 2); // fixtures
-    expectedSuitesAndTests.insert(QStringLiteral("Master Test Suite"), 3); // functions
-    expectedSuitesAndTests.insert(QStringLiteral("Suite1"), 4);
-    expectedSuitesAndTests.insert(QStringLiteral("SuiteOuter"), 5); // 2 sub suites + 3 tests
+    QString basePath;
+    if (auto project = projectInfo.project())
+        basePath = project->projectFilePath().toFileInfo().absolutePath();
+    QVERIFY(!basePath.isEmpty());
 
-    QMultiMap<QString, int> foundNamesAndSets = m_model->boostTestSuitesAndTests();
+    QMap<QString, int> expectedSuitesAndTests;
+
+    auto pathConstructor = [basePath, extension](const QString &name, const QString &subPath) {
+        return QString(name + '|' + basePath + subPath + extension);
+    };
+    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "/tests/deco/deco"), 2); // decorators w/o suite
+    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "/tests/fix/fix"), 2); // fixtures
+    expectedSuitesAndTests.insert(pathConstructor("Master Test Suite", "/tests/params/params"), 3); // functions
+    expectedSuitesAndTests.insert(pathConstructor("Suite1", "/tests/deco/deco"), 4);
+    expectedSuitesAndTests.insert(pathConstructor("SuiteOuter", "/tests/deco/deco"), 5); // 2 sub suites + 3 tests
+
+    QMap<QString, int> foundNamesAndSets = m_model->boostTestSuitesAndTests();
     QCOMPARE(expectedSuitesAndTests.size(), foundNamesAndSets.size());
     for (const QString &name : expectedSuitesAndTests.keys())
         QCOMPARE(expectedSuitesAndTests.values(name), foundNamesAndSets.values(name));
@@ -280,10 +290,11 @@ void AutoTestUnitTests::testCodeParserBoostTest()
 void AutoTestUnitTests::testCodeParserBoostTest_data()
 {
     QTest::addColumn<QString>("projectFilePath");
+    QTest::addColumn<QString>("extension");
     QTest::newRow("simpleBoostTest")
-        << QString(m_tmpDir->path() + "/simple_boost/simple_boost.pro");
+        << QString(m_tmpDir->path() + "/simple_boost/simple_boost.pro") << QString(".pro");
     QTest::newRow("simpleBoostTestQbs")
-        << QString(m_tmpDir->path() + "/simple_boost/simple_boost.qbs");
+        << QString(m_tmpDir->path() + "/simple_boost/simple_boost.qbs") << QString(".qbs");
 }
 
 } // namespace Internal

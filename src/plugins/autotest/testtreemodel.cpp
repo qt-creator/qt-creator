@@ -615,13 +615,13 @@ int TestTreeModel::boostTestNamesCount() const
     return rootNode ? rootNode->childCount() : 0;
 }
 
-QMultiMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
+QMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
 {
-    QMultiMap<QString, int> result;
+    QMap<QString, int> result;
 
     if (TestTreeItem *rootNode = boostTestRootNode()) {
         rootNode->forFirstLevelChildren([&result](TestTreeItem *child) {
-            result.insert(child->name(), child->childCount());
+            result.insert(child->name() + '|' + child->proFile(), child->childCount());
         });
     }
     return result;

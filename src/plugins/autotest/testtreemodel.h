@@ -71,7 +71,7 @@ public:
     int gtestNamesCount() const;
     QMultiMap<QString, int> gtestNamesAndSets() const;
     int boostTestNamesCount() const;
-    QMultiMap<QString, int> boostTestSuitesAndTests() const;
+    QMap<QString, int> boostTestSuitesAndTests() const;
 #endif
 
     void markAllForRemoval();
