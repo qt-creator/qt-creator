@@ -42,6 +42,8 @@ Item {
 
     signal reseted
 
+    property bool menuVisible: false
+
     function show() {
         menuLoader.show()
     }
@@ -97,6 +99,10 @@ Item {
                 onAboutToShow: {
                     exportMenuItem.checked = backendValue.hasPropertyAlias()
                     exportMenuItem.enabled = !backendValue.isAttachedProperty()
+                    extendedFunctionButton.menuVisible = true
+                }
+                onAboutToHide: {
+                    extendedFunctionButton.menuVisible = false
                 }
 
                 StudioControls.MenuItem {
