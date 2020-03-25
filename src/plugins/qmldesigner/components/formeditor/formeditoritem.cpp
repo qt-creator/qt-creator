@@ -1145,7 +1145,17 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
        painter->fillRect(boundingRect(), fillColor);
     }
 
-    painter->drawRect(boundingRect());
+    painter->drawLine(boundingRect().left(), boundingRect().center().y(),
+                      boundingRect().center().x(), boundingRect().top());
+
+    painter->drawLine(boundingRect().center().x(), boundingRect().top(),
+                      boundingRect().right(), boundingRect().center().y());
+
+    painter->drawLine(boundingRect().right(), boundingRect().center().y(),
+                      boundingRect().center().x(), boundingRect().bottom());
+
+    painter->drawLine(boundingRect().center().x(), boundingRect().bottom(),
+                      boundingRect().left(), boundingRect().center().y());
 
     painter->restore();
 }
