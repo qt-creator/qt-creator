@@ -40,7 +40,7 @@ Column {
         ColorEditor {
             caption: qsTr("Color")
             backendValue: backendValues.color
-            supportGradient: true
+            supportGradient: backendValues.gradient.isAvailable
         }
 
 
