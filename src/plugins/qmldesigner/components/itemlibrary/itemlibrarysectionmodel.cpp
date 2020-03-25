@@ -39,7 +39,6 @@ ItemLibrarySectionModel::ItemLibrarySectionModel(QObject *parent) :
 
 ItemLibrarySectionModel::~ItemLibrarySectionModel()
 {
-    clearItems();
 }
 
 int ItemLibrarySectionModel::rowCount(const QModelIndex &) const
@@ -71,12 +70,6 @@ QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> ItemLibrarySectionModel::roleNames() const
 {
     return m_roleNames;
-}
-
-void ItemLibrarySectionModel::clearItems()
-{
-    beginResetModel();
-    endResetModel();
 }
 
 void ItemLibrarySectionModel::addItem(ItemLibraryItem *element)
