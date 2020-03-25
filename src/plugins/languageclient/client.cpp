@@ -1244,7 +1244,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
                 .value_or(QList<QString>()));
     }
     if (auto functionHintAssistProvider = qobject_cast<FunctionHintAssistProvider *>(
-            m_clientProviders.completionAssistProvider)) {
+            m_clientProviders.functionHintProvider)) {
         functionHintAssistProvider->setTriggerCharacters(
             m_serverCapabilities.signatureHelpProvider()
                 .value_or(ServerCapabilities::SignatureHelpOptions())
