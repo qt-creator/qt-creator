@@ -293,7 +293,11 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 
 void ItemLibraryWidget::delayedUpdateModel()
 {
-    m_compressionTimer.start();
+    static bool disableTimer = DesignerSettings::getValue(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER).toBool();
+    if (disableTimer)
+        updateModel();
+    else
+        m_compressionTimer.start();
 }
 
 void ItemLibraryWidget::setModel(Model *model)
