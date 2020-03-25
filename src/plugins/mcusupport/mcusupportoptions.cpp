@@ -404,6 +404,12 @@ void McuSupportOptions::deletePackagesAndTargets()
     mcuTargets.clear();
 }
 
+const QVersionNumber &McuSupportOptions::supportedQulVersion()
+{
+    static const QVersionNumber v({1, 1, 0});
+    return v;
+}
+
 void McuSupportOptions::setQulDir(const Utils::FilePath &dir)
 {
     deletePackagesAndTargets();
@@ -443,6 +449,8 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->setUnexpandedDisplayName(kitName);
     k->setValue(Constants::KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
     k->setValue(Constants::KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
+    k->setValue(Constants::KIT_MCUTARGET_SDKVERSION_KEY,
+                McuSupportOptions::supportedQulVersion().toString());
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTargetIsDesktop(mcuTarget)) {
@@ -539,8 +547,8 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget) const
     const QString colorDepth = mcuTarget->colorDepth() > 0
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
-    return QString::fromLatin1("Qt for MCUs - %1%2")
-            .arg(mcuTarget->qulPlatform(), colorDepth);
+    return QString::fromLatin1("Qt for MCUs %1 - %2%3")
+            .arg(supportedQulVersion().toString(), mcuTarget->qulPlatform(), colorDepth);
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTargt)
