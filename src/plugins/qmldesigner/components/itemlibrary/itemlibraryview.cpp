@@ -98,15 +98,14 @@ void ItemLibraryView::setResourcePath(const QString &resourcePath)
 void ItemLibraryView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
 {
     if (m_hasErrors && errors.isEmpty())
-        /* For some reason we have to call update from the event loop */
-        QTimer::singleShot(0, m_widget, &ItemLibraryWidget::updateModel);
+        updateImports();
 
      m_hasErrors = !errors.isEmpty();
 }
 
 void ItemLibraryView::updateImports()
 {
-    m_widget->updateModel();
+    m_widget->delayedUpdateModel();
 }
 
 } //QmlDesigner
