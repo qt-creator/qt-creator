@@ -89,7 +89,6 @@ public:
     AutotestPluginPrivate();
     ~AutotestPluginPrivate() override;
 
-    TestFrameworkManager *m_frameworkManager = nullptr;
     TestNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
     TestResultsPane *m_resultsPane = nullptr;
     QMap<QString, ChoicePair> m_runconfigCache;
@@ -105,6 +104,8 @@ public:
 
     TestCodeParser m_testCodeParser;
     TestTreeModel m_testTreeModel{&m_testCodeParser};
+    TestRunner m_testRunner;
+    TestFrameworkManager m_frameworkManager;
 };
 
 static AutotestPluginPrivate *dd = nullptr;
@@ -127,14 +128,13 @@ AutotestPlugin::~AutotestPlugin()
 AutotestPluginPrivate::AutotestPluginPrivate()
 {
     dd = this; // Needed as the code below access it via the static plugin interface
-    m_frameworkManager = TestFrameworkManager::instance();
     initializeMenuEntries();
-    m_frameworkManager->registerTestFramework(new QtTestFramework);
-    m_frameworkManager->registerTestFramework(new QuickTestFramework);
-    m_frameworkManager->registerTestFramework(new GTestFramework);
-    m_frameworkManager->registerTestFramework(new BoostTestFramework);
+    m_frameworkManager.registerTestFramework(new QtTestFramework);
+    m_frameworkManager.registerTestFramework(new QuickTestFramework);
+    m_frameworkManager.registerTestFramework(new GTestFramework);
+    m_frameworkManager.registerTestFramework(new BoostTestFramework);
 
-    m_frameworkManager->synchronizeSettings(ICore::settings());
+    m_frameworkManager.synchronizeSettings(ICore::settings());
     m_navigationWidgetFactory = new TestNavigationWidgetFactory;
     m_resultsPane = TestResultsPane::instance();
 
@@ -147,7 +147,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
-    m_frameworkManager->activateFrameworksFromSettings(&m_settings);
+    m_frameworkManager.activateFrameworksFromSettings(&m_settings);
     m_testTreeModel.synchronizeTestFrameworks();
 
     auto sessionManager = ProjectExplorer::SessionManager::instance();
@@ -173,7 +173,6 @@ AutotestPluginPrivate::~AutotestPluginPrivate()
 
     delete m_navigationWidgetFactory;
     delete m_resultsPane;
-    delete m_frameworkManager;
 }
 
 TestSettings *AutotestPlugin::settings()
@@ -298,16 +297,14 @@ ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
 
 void AutotestPluginPrivate::onRunAllTriggered()
 {
-    TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(m_testTreeModel.getAllTestCases());
-    runner->prepareToRunTests(TestRunMode::Run);
+    m_testRunner.setSelectedTests(m_testTreeModel.getAllTestCases());
+    m_testRunner.prepareToRunTests(TestRunMode::Run);
 }
 
 void AutotestPluginPrivate::onRunSelectedTriggered()
 {
-    TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(m_testTreeModel.getSelectedTests());
-    runner->prepareToRunTests(TestRunMode::Run);
+    m_testRunner.setSelectedTests(m_testTreeModel.getSelectedTests());
+    m_testRunner.prepareToRunTests(TestRunMode::Run);
 }
 
 void AutotestPluginPrivate::onRunFileTriggered()
@@ -324,9 +321,8 @@ void AutotestPluginPrivate::onRunFileTriggered()
     if (tests.isEmpty())
         return;
 
-    TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(tests);
-    runner->prepareToRunTests(TestRunMode::Run);
+    m_testRunner.setSelectedTests(tests);
+    m_testRunner.prepareToRunTests(TestRunMode::Run);
 }
 
 static QList<TestConfiguration *> testItemsToTestConfigurations(const QList<TestTreeItem *> &items,
@@ -368,16 +364,15 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         return;
     }
 
-    auto runner = TestRunner::instance();
-    runner->setSelectedTests(testsToRun);
-    runner->prepareToRunTests(mode);
+    m_testRunner.setSelectedTests(testsToRun);
+    m_testRunner.prepareToRunTests(mode);
 }
 
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
     const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     const ProjectExplorer::Target *target = project ? project->activeTarget() : nullptr;
-    const bool canScan = !TestRunner::instance()->isTestRunning()
+    const bool canScan = !dd->m_testRunner.isTestRunning()
             && dd->m_testCodeParser.state() == TestCodeParser::Idle;
     const bool hasTests = dd->m_testTreeModel.hasTests();
     // avoid expensive call to PE::canRunStartupProject() - limit to minimum necessary checks

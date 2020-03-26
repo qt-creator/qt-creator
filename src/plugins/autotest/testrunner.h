@@ -53,14 +53,17 @@ enum class TestRunMode;
 
 namespace Internal {
 
-class AUTOTESTSHARED_EXPORT TestRunner : public QObject
+class AUTOTESTSHARED_EXPORT TestRunner final : public QObject
 {
     Q_OBJECT
+
 public:
+    TestRunner();
+    ~TestRunner() final;
+
     enum CancelReason { UserCanceled, Timeout, KitChanged };
 
     static TestRunner* instance();
-    ~TestRunner() override;
 
     void setSelectedTests(const QList<TestConfiguration *> &selected);
     void runTest(TestRunMode mode, const TestTreeItem *item);
@@ -92,7 +95,6 @@ private:
     void debugTests();
     void runOrDebugTests();
     void reportResult(ResultType type, const QString &description);
-    explicit TestRunner(QObject *parent = nullptr);
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 

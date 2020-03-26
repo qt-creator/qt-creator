@@ -37,18 +37,20 @@ namespace Core { class Id; }
 
 namespace Autotest {
 namespace Internal {
-class TestRunner;
 struct TestSettings;
 }
 
 class IFrameworkSettings;
 class ITestParser;
 
-class TestFrameworkManager
+class TestFrameworkManager final
 {
+
 public:
+    TestFrameworkManager();
+    ~TestFrameworkManager();
+
     static TestFrameworkManager *instance();
-    virtual ~TestFrameworkManager();
 
     static ITestFramework *frameworkForId(Core::Id frameworkId);
 
@@ -65,10 +67,8 @@ public:
 
 private:
     TestFrameworks activeFrameworks() const;
-    explicit TestFrameworkManager();
 
     TestFrameworks m_registeredFrameworks;
-    Internal::TestRunner *m_testRunner;
 };
 
 } // namespace Autotest

@@ -28,7 +28,6 @@
 #include "autotestplugin.h"
 #include "iframeworksettings.h"
 #include "itestparser.h"
-#include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
@@ -51,21 +50,18 @@ static TestFrameworkManager *s_instance = nullptr;
 
 TestFrameworkManager::TestFrameworkManager()
 {
-    m_testRunner = Internal::TestRunner::instance();
     s_instance = this;
 }
 
 TestFrameworkManager *TestFrameworkManager::instance()
 {
-    if (!s_instance)
-        return new TestFrameworkManager;
     return s_instance;
 }
 
 TestFrameworkManager::~TestFrameworkManager()
 {
-    delete m_testRunner;
     qDeleteAll(m_registeredFrameworks);
+    s_instance = nullptr;
 }
 
 bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)

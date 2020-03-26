@@ -82,14 +82,13 @@ static TestRunner *s_instance = nullptr;
 
 TestRunner *TestRunner::instance()
 {
-    if (!s_instance)
-        s_instance = new TestRunner;
     return s_instance;
 }
 
-TestRunner::TestRunner(QObject *parent) :
-    QObject(parent)
+TestRunner::TestRunner()
 {
+    s_instance = this;
+
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::resultReadyAt,
             this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::finished,
