@@ -125,7 +125,7 @@ void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTermina
     Autodetects file format and reads the text file specified by \a fileName
     into a list of strings specified by \a plainTextList.
 
-    If an error occurs while writing the file, \a errorMessage is set to the
+    If an error occurs while writing the file, \a errorString is set to the
     error details.
 
     Returns whether the operation was successful.
@@ -143,7 +143,7 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QSt
     Autodetects file format and reads the text file specified by \a fileName
     into \a plainText.
 
-    If an error occurs while writing the file, \a errorMessage is set to the
+    If an error occurs while writing the file, \a errorString is set to the
     error details.
 
     Returns whether the operation was successful.

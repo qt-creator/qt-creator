@@ -70,6 +70,7 @@ StudioControls.TextField {
     actionIndicator.icon.color: extFuncLogic.color
     actionIndicator.icon.text: extFuncLogic.glyph
     actionIndicator.onClicked: extFuncLogic.show()
+    actionIndicator.forceVisible: extFuncLogic.menuVisible
 
     ColorLogic {
         id: colorLogic

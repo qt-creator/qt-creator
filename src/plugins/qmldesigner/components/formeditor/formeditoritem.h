@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
@@ -196,6 +197,33 @@ private:
     mutable bool m_hitTest = false;
 };
 
+class FormEditorFlowDecisionItem : FormEditorFlowItem
+{
+    friend class QmlDesigner::FormEditorScene;
+
+public:
+    void updateGeometry() override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = nullptr ) override;
+    bool flowHitTest(const QPointF &point) const override;
+
+protected:
+    FormEditorFlowDecisionItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
+        : FormEditorFlowItem(qmlItemNode, scene)
+    {}
+};
+
+class FormEditorFlowWildcardItem : FormEditorFlowDecisionItem
+{
+    friend class QmlDesigner::FormEditorScene;
+
+public:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem * option, QWidget * widget = nullptr ) override;
+
+protected:
+    FormEditorFlowWildcardItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
+        : FormEditorFlowDecisionItem(qmlItemNode, scene)
+    {}
+};
 
 inline int FormEditorItem::type() const
 {

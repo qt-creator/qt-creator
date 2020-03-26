@@ -26,6 +26,7 @@
 #include "mcusupportplugin.h"
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
+#include "mcusupportoptions.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportrunconfiguration.h"
 
@@ -74,6 +75,7 @@ bool McuSupportPlugin::initialize(const QStringList& arguments, QString* errorSt
 
     dd = new McuSupportPluginPrivate;
 
+    McuSupportOptions::registerQchFiles();
     ProjectExplorer::JsonWizardFactory::addWizardPath(
                 Utils::FilePath::fromString(":/mcusupport/wizards/"));
 

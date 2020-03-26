@@ -186,12 +186,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
         qCInfo(itemlibraryPopulate) << "required import: " << entry.requiredImport() << entryToImport(entry).toImportString();
 
-        if (!isItem && valid) {
-            qDebug() << Q_FUNC_INFO;
-            qDebug() << metaInfo.typeName() << "is not a QtQuick.Item";
-            qDebug() << Utils::transform(metaInfo.superClasses(), &NodeMetaInfo::typeName);
-        }
-
         bool forceVisiblity = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
         if (m_flowMode) {

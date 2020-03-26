@@ -86,6 +86,7 @@ QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
     QAction *tangentStepAction = bar->addAction(QIcon(":/curveeditor/images/tangetToolsStepIcon.png"), "Step");
     QAction *tangentSplineAction = bar->addAction(QIcon(":/curveeditor/images/tangetToolsSplineIcon.png"), "Spline");
     QAction *tangentDefaultAction = bar->addAction("Set Default");
+    QAction *tangentUnifyAction = bar->addAction("Unify");
 
     auto setLinearInterpolation = [this]() {
         m_view->setInterpolation(Keyframe::Interpolation::Linear);
@@ -97,9 +98,12 @@ QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
         m_view->setInterpolation(Keyframe::Interpolation::Bezier);
     };
 
+    auto toggleUnifyKeyframe = [this]() { m_view->toggleUnified(); };
+
     connect(tangentLinearAction, &QAction::triggered, setLinearInterpolation);
     connect(tangentStepAction, &QAction::triggered, setStepInterpolation);
     connect(tangentSplineAction, &QAction::triggered, setSplineInterpolation);
+    connect(tangentUnifyAction, &QAction::triggered, toggleUnifyKeyframe);
 
     Q_UNUSED(tangentLinearAction);
     Q_UNUSED(tangentSplineAction);

@@ -780,8 +780,8 @@ void RewriterView::setupCanonicalHashes() const
 
     for (const ModelNode &node : allModelNodes()) {
         int offset = nodeOffset(node);
-        QTC_ASSERT(offset > 0, qDebug() << Q_FUNC_INFO << "no offset" << node; return);
-        data.emplace_back(std::make_pair(node, offset));
+        if (offset > 0)
+            data.emplace_back(std::make_pair(node, offset));
     }
 
     std::sort(data.begin(), data.end(), [](myPair a, myPair b) {
@@ -1106,8 +1106,11 @@ void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
     auto properties = node->properties();
 
     for (auto i = properties.begin(); i != properties.end(); ++i) {
-        if (i.key() != "i")
-            modelNode.setAuxiliaryData(fixUpIllegalChars(i.key()).toUtf8(), i.value());
+        if (i.key() != "i") {
+            const PropertyName name = fixUpIllegalChars(i.key()).toUtf8();
+            if (!modelNode.hasAuxiliaryData(name))
+                modelNode.setAuxiliaryData(name, i.value());
+        }
     }
 
     checkChildNodes(node, view);
@@ -1121,7 +1124,8 @@ void RewriterView::restoreAuxiliaryData()
 
     setupCanonicalHashes();
 
-    QTC_ASSERT(!m_canonicalIntModelNode.isEmpty(), return);
+    if (m_canonicalIntModelNode.isEmpty())
+        return;
 
     const QString text = m_textModifier->text();
 

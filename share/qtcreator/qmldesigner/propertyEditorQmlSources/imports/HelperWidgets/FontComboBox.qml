@@ -81,6 +81,7 @@ StudioControls.ComboBox {
     actionIndicator.icon.color: extFuncLogic.color
     actionIndicator.icon.text: extFuncLogic.glyph
     actionIndicator.onClicked: extFuncLogic.show()
+    actionIndicator.forceVisible: extFuncLogic.menuVisible
 
     property bool showExtendedFunctionButton: true
 

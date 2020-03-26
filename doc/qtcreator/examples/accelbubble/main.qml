@@ -118,14 +118,14 @@ ApplicationWindow {
            if (newX < 0)
                newX = 0
 
-           if (newX > mainWindow.width - bubble.width)
-               newX = mainWindow.width - bubble.width
+           if (newX > page1.mainWindow.width - bubble.width)
+               newX = page1.mainWindow.width - bubble.width
 
            if (newY < 18)
                newY = 18
 
-           if (newY > mainWindow.height - bubble.height)
-               newY = mainWindow.height - bubble.height
+           if (newY > page1.mainWindow.height - bubble.height)
+               newY = page1.mainWindow.height - bubble.height
 
                bubble.x = newX
                bubble.y = newY

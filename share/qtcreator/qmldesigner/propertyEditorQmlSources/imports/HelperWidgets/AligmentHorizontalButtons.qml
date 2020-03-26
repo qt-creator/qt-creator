@@ -93,6 +93,7 @@ Row {
         actionIndicator.icon.color: extFuncLogic.color
         actionIndicator.icon.text: extFuncLogic.glyph
         actionIndicator.onClicked: extFuncLogic.show()
+        actionIndicator.forceVisible: extFuncLogic.menuVisible
 
         StudioControls.ButtonGroup {
             id: group

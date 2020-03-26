@@ -311,6 +311,16 @@ AnimationCurve PropertyTreeItem::curve() const
     return m_curve;
 }
 
+bool PropertyTreeItem::hasUnified() const
+{
+    return m_curve.hasUnified();
+}
+
+QString PropertyTreeItem::unifyString() const
+{
+    return m_curve.unifyString();
+}
+
 void PropertyTreeItem::setCurve(const AnimationCurve &curve)
 {
     m_curve = curve;

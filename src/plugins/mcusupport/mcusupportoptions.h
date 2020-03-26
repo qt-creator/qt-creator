@@ -160,12 +160,14 @@ public:
     McuPackage *qtForMCUsSdkPackage = nullptr;
 
     void setQulDir(const Utils::FilePath &dir);
+    static Utils::FilePath qulDirFromSettings();
 
     QString kitName(const McuTarget* mcuTarget) const;
 
     QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTargt);
     ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
     void populatePackagesAndTargets();
+    static void registerQchFiles();
 
 private:
     void deletePackagesAndTargets();

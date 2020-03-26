@@ -47,10 +47,10 @@ public:
     void zoomIn();
     void zoomOut();
     void resetZoomLevel();
+    void setZoomLevel(float zoomLevel);
 
 protected:
     QWidget *createWidget(QWidget *parent) override;
-    void setZoomLevel(float zoomLevel);
 signals:
     void zoomLevelChanged(float zoom);
     void indexChanged(int);

@@ -109,8 +109,12 @@ public:
     static NodeListProperty findSceneNodeProperty(AbstractView *view, qint32 sceneRootId);
 
     static bool isFlowTransition(const ModelNode &node);
+    static bool isFlowDecision(const ModelNode &node);
+    static bool isFlowWildcard(const ModelNode &node);
 
     bool isFlowTransition() const;
+    bool isFlowDecision() const;
+    bool isFlowWildcard() const;
 
 private:
     void setDoubleProperty(const PropertyName &name, double value);

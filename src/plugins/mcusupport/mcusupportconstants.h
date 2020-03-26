@@ -37,6 +37,7 @@ const char KIT_MCUTARGET_MODEL_KEY[] = "McuSupport.McuTargetModel";
 
 const char SETTINGS_GROUP[] = "McuSupport";
 const char SETTINGS_KEY_PACKAGE_PREFIX[] = "Package_";
+const char SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK[] = "QtForMCUsSdk"; // Key known by SDK installer
 
 } // namespace McuSupport
 } // namespace Constants

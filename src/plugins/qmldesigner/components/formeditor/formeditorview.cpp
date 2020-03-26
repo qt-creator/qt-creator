@@ -105,6 +105,16 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
         if (qmlItemNode.hasNodeParent())
             m_scene->reparentItem(qmlItemNode, qmlItemNode.modelParentItem());
         m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
+    } else if (qmlItemNode.isFlowDecision()) {
+        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::FlowDecision);
+        if (qmlItemNode.hasNodeParent())
+            m_scene->reparentItem(qmlItemNode, qmlItemNode.modelParentItem());
+        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
+    } else if (qmlItemNode.isFlowWildcard()) {
+        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::FlowWildcard);
+        if (qmlItemNode.hasNodeParent())
+            m_scene->reparentItem(qmlItemNode, qmlItemNode.modelParentItem());
+        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
     } else if (qmlItemNode.isFlowActionArea()) {
         m_scene->addFormEditorItem(qmlItemNode.toQmlItemNode(), FormEditorScene::FlowAction);
         m_scene->synchronizeParent(qmlItemNode.toQmlItemNode());
@@ -133,6 +143,10 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 
         for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) {
             if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowTransition()) {
+                setupFormEditorItemTree(nextNode.toQmlItemNode());
+            } else if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowDecision()) {
+                setupFormEditorItemTree(nextNode.toQmlItemNode());
+            } else if (QmlVisualNode::isValidQmlVisualNode(nextNode) && nextNode.toQmlVisualNode().isFlowWildcard()) {
                 setupFormEditorItemTree(nextNode.toQmlItemNode());
             }
         }

@@ -754,7 +754,12 @@ static void paintConnection(QPainter *painter,
     const bool boolExitRight = from.right() < to.center().x();
     const bool boolExitBottom = from.bottom() < to.center().y();
 
-    bool horizontalFirst = horizontalOverlap(from, to) && !verticalOverlap(from, to);
+    bool horizontalFirst = true;
+
+    /*
+    if (verticalOverlap(from, to) && !horizontalOverlap(from, to))
+        horizontalFirst = false;
+    */
 
     const qreal middleFactor = breakOffset / 100.0;
 
@@ -764,13 +769,19 @@ static void paintConnection(QPainter *painter,
 
     if (horizontalFirst) {
         if (to.center().x() > from.left() && to.center().x() < from.right()) {
-                horizontalFirst = false;
-                extraLine = true;
-            }
+            horizontalFirst = false;
+            extraLine = true;
+        } else if (verticalOverlap(from, to)) {
+            horizontalFirst = true;
+            extraLine = true;
+        }
 
     } else {
         if (to.center().y() > from.top() && to.center().y() < from.bottom()) {
             horizontalFirst = true;
+            extraLine = true;
+        } else if (horizontalOverlap(from, to)) {
+            horizontalFirst = false;
             extraLine = true;
         }
     }
@@ -913,34 +924,83 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         return;
 
     if (!(qmlItemNode().modelNode().hasBindingProperty("from")
-          && qmlItemNode().modelNode().hasBindingProperty("from")))
+          && qmlItemNode().modelNode().hasBindingProperty("to")))
         return;
 
     painter->save();
 
-    const QmlFlowItemNode from = qmlItemNode().modelNode().bindingProperty("from").resolveToModelNode();
+    QmlFlowItemNode from = qmlItemNode().modelNode().bindingProperty("from").resolveToModelNode();
     const QmlFlowItemNode to = qmlItemNode().modelNode().bindingProperty("to").resolveToModelNode();
 
     QmlFlowActionAreaNode areaNode = ModelNode();
 
-    if (from.isValid() && to.isValid())
+    bool joinConnection = false;
+
+    bool isStartLine = false;
+
+    bool isWildcardLine = false;
+
+    if (from.isValid()) {
         for (const QmlFlowActionAreaNode &area : from.flowActionAreas()) {
-            if (area.targetTransition() ==  qmlItemNode().modelNode())
+            ModelNode target = area.targetTransition();
+            if (target ==  qmlItemNode().modelNode()) {
                 areaNode = area;
+            } else  {
+                const ModelNode decisionNode = area.decisionNodeForTransition(qmlItemNode().modelNode());
+                if (decisionNode.isValid()) {
+                    from = decisionNode;
+                    areaNode = ModelNode();
+                }
+            }
         }
+        if (from.modelNode().hasAuxiliaryData("joinConnection"))
+            joinConnection = from.modelNode().auxiliaryData("joinConnection").toBool();
+    } else {
+        if (from == qmlItemNode().rootModelNode()) {
+            isStartLine = true;
+        } else {
+            for (const ModelNode wildcard : QmlFlowViewNode(qmlItemNode().rootModelNode()).wildcards()) {
+                if (wildcard.bindingProperty("target").resolveToModelNode() == qmlItemNode().modelNode()) {
+                    from = wildcard;
+                    isWildcardLine = true;
+                }
+            }
+
+        }
+    }
+
+    if (!from.modelNode().isValid())
+        return;
 
     QRectF fromRect = QmlItemNode(from).instanceBoundingRect();
+    if (QmlItemNode(from).isFlowDecision())
+        fromRect = QRectF(0,0,200,200);
+
+    if (QmlItemNode(from).isFlowWildcard())
+        fromRect = QRectF(0,0,200,200);
     fromRect.translate(QmlItemNode(from).flowPosition());
 
+    if (isStartLine) {
+        fromRect = QRectF(0,0,100,100);
+        fromRect.translate(QmlItemNode(to).flowPosition()- QPoint(200, 0));
+    }
 
-    if (areaNode.isValid()) {
+    if (!joinConnection && areaNode.isValid()) {
         fromRect = QmlItemNode(areaNode).instanceBoundingRect();
         fromRect.translate(QmlItemNode(from).flowPosition());
         fromRect.translate(areaNode.instancePosition());
     }
 
     QRectF toRect = QmlItemNode(to).instanceBoundingRect();
+    if (QmlItemNode(to).isFlowDecision())
+        toRect = QRectF(0,0,200,200);
+
     toRect.translate(QmlItemNode(to).flowPosition());
+
+    if (isStartLine) {
+        fromRect = QRectF(0,0,50,50);
+        fromRect.translate(QmlItemNode(to).flowPosition() + QPoint(-120, toRect.height() / 2 - 25));
+    }
 
     toRect.translate(-pos());
     fromRect.translate(-pos());
@@ -960,6 +1020,9 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         width *= 8;
 
     QColor color = "#e71919";
+
+    if (isStartLine)
+        color = "blue";
 
     bool dash = false;
 
@@ -985,6 +1048,23 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     paintConnection(painter, fromRect, toRect, width, adjustedWidth ,color, dash, outOffset, inOffset, breakOffset);
 
+    if (isStartLine) {
+        QPen pen;
+        pen.setCosmetic(true);
+
+        pen.setColor(color);
+        painter->setPen(pen);
+        painter->drawRect(fromRect);
+
+        if (scaleFactor > 0.4) {
+            painter->drawLine(fromRect.topRight() + QPoint(20,10), fromRect.bottomRight() + QPoint(20,-10));
+            painter->drawLine(fromRect.topRight() + QPoint(25,12), fromRect.bottomRight() + QPoint(25,-12));
+            painter->drawLine(fromRect.topRight() + QPoint(30,15), fromRect.bottomRight() + QPoint(30,-15));
+            painter->drawLine(fromRect.topRight() + QPoint(35,17), fromRect.bottomRight() + QPoint(35,-17));
+            painter->drawLine(fromRect.topRight() + QPoint(40,20), fromRect.bottomRight() + QPoint(40,-20));
+        }
+    }
+
     painter->restore();
 }
 
@@ -1009,6 +1089,85 @@ QTransform FormEditorItem::viewportTransform() const
     QTC_ASSERT(!scene()->views().isEmpty(), return {});
 
     return scene()->views().first()->viewportTransform();
+}
+
+void FormEditorFlowDecisionItem::updateGeometry()
+{
+    prepareGeometryChange();
+    m_selectionBoundingRect = QRectF(0,0, 200, 200);
+    m_paintedBoundingRect = m_selectionBoundingRect;
+    m_boundingRect = m_paintedBoundingRect;
+    setTransform(qmlItemNode().instanceTransformWithContentTransform());
+    const QPointF pos = qmlItemNode().flowPosition();
+    setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+}
+
+void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (!painter->isActive())
+        return;
+
+    painter->save();
+
+    QPen pen;
+    pen.setJoinStyle(Qt::MiterJoin);
+    pen.setCosmetic(true);
+
+    QColor flowColor = "#e71919";
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
+        flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
+
+    const qreal scaleFactor = viewportTransform().m11();
+    qreal width = 2;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
+        width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+
+    bool dash = false;
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
+        dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
+
+    pen.setColor(flowColor);
+    if (dash)
+        pen.setStyle(Qt::DashLine);
+    else
+        pen.setStyle(Qt::SolidLine);
+
+    pen.setWidthF(width);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor")) {
+
+       const QColor fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
+       painter->fillRect(boundingRect(), fillColor);
+    }
+
+    painter->drawLine(boundingRect().left(), boundingRect().center().y(),
+                      boundingRect().center().x(), boundingRect().top());
+
+    painter->drawLine(boundingRect().center().x(), boundingRect().top(),
+                      boundingRect().right(), boundingRect().center().y());
+
+    painter->drawLine(boundingRect().right(), boundingRect().center().y(),
+                      boundingRect().center().x(), boundingRect().bottom());
+
+    painter->drawLine(boundingRect().center().x(), boundingRect().bottom(),
+                      boundingRect().left(), boundingRect().center().y());
+
+    painter->restore();
+}
+
+bool FormEditorFlowDecisionItem::flowHitTest(const QPointF &point) const
+{
+    return true;
+}
+
+void FormEditorFlowWildcardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    FormEditorFlowDecisionItem::paint(painter, option, widget);
 }
 
 } //QmlDesigner

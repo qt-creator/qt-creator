@@ -64,14 +64,22 @@ void KeyframeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
+    QColor mainColor = selected() ? m_style.selectionColor : m_style.color;
+    QColor borderColor = isUnified() ? m_style.unifiedColor : m_style.splitColor;
+
+    if (locked()) {
+        mainColor = m_style.lockedColor;
+        borderColor = m_style.lockedColor;
+    }
+
     QPen pen = painter->pen();
-    pen.setColor(Qt::black);
+    pen.setWidthF(1.);
+    pen.setColor(borderColor);
 
     painter->save();
     painter->setPen(pen);
-    painter->setBrush(locked() ? Qt::black : (selected() ? Qt::red : m_style.color));
+    painter->setBrush(mainColor);
     painter->drawEllipse(boundingRect());
-
     painter->restore();
 }
 
@@ -93,6 +101,11 @@ Keyframe KeyframeItem::keyframe() const
     return m_frame;
 }
 
+bool KeyframeItem::isUnified() const
+{
+    return m_frame.isUnified();
+}
+
 bool KeyframeItem::hasLeftHandle() const
 {
     return m_frame.hasLeftHandle();
@@ -106,11 +119,6 @@ bool KeyframeItem::hasRightHandle() const
 QTransform KeyframeItem::transform() const
 {
     return m_transform;
-}
-
-bool KeyframeItem::contains(HandleItem *handle, const QPointF &point) const
-{
-    return false;
 }
 
 void KeyframeItem::setHandleVisibility(bool visible)
@@ -193,6 +201,31 @@ void KeyframeItem::setKeyframe(const Keyframe &keyframe)
     }
 
     setPos(m_transform.map(m_frame.position()));
+}
+
+void KeyframeItem::toggleUnified()
+{
+    if (!m_left || !m_right)
+        return;
+
+    if (m_frame.isUnified())
+        m_frame.setUnified(false);
+    else
+        m_frame.setUnified(true);
+}
+
+void KeyframeItem::setActivated(bool active, HandleItem::Slot slot)
+{
+    if (isUnified() && m_left && m_right) {
+        m_left->setActivated(active);
+        m_right->setActivated(active);
+        return;
+    }
+
+    if (slot == HandleItem::Slot::Left && m_left)
+        m_left->setActivated(active);
+    else if (slot == HandleItem::Slot::Right && m_right)
+        m_right->setActivated(active);
 }
 
 void KeyframeItem::setInterpolation(Keyframe::Interpolation interpolation)

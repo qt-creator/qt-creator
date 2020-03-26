@@ -103,6 +103,15 @@ bool AnimationCurve::isFromData() const
     return m_fromData;
 }
 
+bool AnimationCurve::hasUnified() const
+{
+    for (auto &&frame : m_frames) {
+        if (frame.isUnified())
+            return true;
+    }
+    return false;
+}
+
 double AnimationCurve::minimumTime() const
 {
     if (!m_frames.empty())
@@ -142,6 +151,18 @@ std::string AnimationCurve::string() const
     sstream << " }";
 
     return sstream.str();
+}
+
+QString AnimationCurve::unifyString() const
+{
+    QString out;
+    for (auto &&frame : m_frames) {
+        if (frame.isUnified())
+            out.append("1");
+        else
+            out.append("0");
+    }
+    return out;
 }
 
 CurveSegment AnimationCurve::segment(double time) const

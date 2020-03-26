@@ -195,10 +195,14 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
 
 void FormEditorWidget::changeBackgound(const QColor &color)
 {
-    if (color.alpha() == 0)
+    if (color.alpha() == 0) {
         m_graphicsView->activateCheckboardBackground();
-    else
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorColor"))
+            m_formEditorView->rootModelNode().setAuxiliaryData("formeditorColor", {});
+    } else {
         m_graphicsView->activateColoredBackground(color);
+        m_formEditorView->rootModelNode().setAuxiliaryData("formeditorColor", color);
+    }
 }
 
 void FormEditorWidget::registerActionAsCommand(QAction *action, Core::Id id, const QKeySequence &keysequence)
@@ -236,6 +240,17 @@ void FormEditorWidget::updateActions()
             m_rootHeightAction->setLineEditText(m_formEditorView->rootModelNode().auxiliaryData("height").toString());
         else
             m_rootHeightAction->clearLineEditText();
+
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorColor"))
+            m_backgroundAction->setColor(m_formEditorView->rootModelNode().auxiliaryData("formeditorColor").value<QColor>());
+        else
+            m_backgroundAction->setColor(Qt::transparent);
+
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorZoom"))
+            m_zoomAction->setZoomLevel(m_formEditorView->rootModelNode().auxiliaryData("formeditorZoom").toDouble());
+        else
+            m_zoomAction->setZoomLevel(1.0);
+
     } else {
         m_rootWidthAction->clearLineEditText();
         m_rootHeightAction->clearLineEditText();
@@ -314,6 +329,13 @@ void FormEditorWidget::setZoomLevel(double zoomLevel)
     m_graphicsView->resetTransform();
 
     m_graphicsView->scale(zoomLevel, zoomLevel);
+
+    if (zoomLevel == 1.0) {
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData("formeditorZoom"))
+            m_formEditorView->rootModelNode().setAuxiliaryData("formeditorZoom", {});
+    } else {
+        m_formEditorView->rootModelNode().setAuxiliaryData("formeditorZoom", zoomLevel);
+    }
 }
 
 void FormEditorWidget::setScene(FormEditorScene *scene)

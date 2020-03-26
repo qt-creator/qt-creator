@@ -112,6 +112,8 @@ public:
 
     void setInterpolation(Keyframe::Interpolation interpol);
 
+    void toggleUnified();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 

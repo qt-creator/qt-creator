@@ -37,6 +37,7 @@ Rectangle {
 
     property bool hover: false
     property bool pressed: false
+    property bool forceVisible: false
 
     color: actionIndicator.showBackground ? StudioTheme.Values.themeControlBackground : "transparent"
     border.color: actionIndicator.showBackground ? StudioTheme.Values.themeControlOutline : "transparent"
@@ -50,6 +51,7 @@ Rectangle {
         id: actionIndicatorIcon
         anchors.fill: parent
         text: StudioTheme.Constants.actionIcon
+        visible: text != StudioTheme.Constants.actionIcon || actionIndicator.forceVisible
         color: StudioTheme.Values.themeTextColor
         font.family: StudioTheme.Constants.iconFont.family
         font.pixelSize: StudioTheme.Values.myIconFontSize
@@ -65,6 +67,7 @@ Rectangle {
                 PropertyChanges {
                     target: actionIndicatorIcon
                     scale: 1.2
+                    visible: true
                 }
             },
             State {

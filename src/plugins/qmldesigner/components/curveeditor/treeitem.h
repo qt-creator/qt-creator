@@ -155,6 +155,10 @@ public:
 
     AnimationCurve curve() const;
 
+    bool hasUnified() const;
+
+    QString unifyString() const;
+
     void setCurve(const AnimationCurve &curve);
 
     void setComponent(const Component &comp);

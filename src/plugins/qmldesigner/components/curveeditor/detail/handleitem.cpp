@@ -130,7 +130,7 @@ void HandleItem::setStyle(const CurveEditorStyle &style)
 QVariant HandleItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if (change == ItemPositionChange) {
-        if (KeyframeItem *parent = qgraphicsitem_cast<KeyframeItem *>(parentItem())) {
+        if (qgraphicsitem_cast<KeyframeItem *>(parentItem())) {
             QPointF pos = value.toPointF();
             if (m_slot == HandleItem::Slot::Left) {
                 if (pos.x() > 0.0)

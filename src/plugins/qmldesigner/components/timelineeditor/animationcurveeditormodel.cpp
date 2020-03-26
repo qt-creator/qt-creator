@@ -230,6 +230,19 @@ DesignTools::AnimationCurve AnimationCurveEditorModel::createDoubleCurve(
 {
     std::vector<DesignTools::Keyframe> keyframes = createKeyframes(group.keyframePositions());
     keyframes = resolveSmallCurves(keyframes);
+
+    QString str;
+    ModelNode target = group.modelNode();
+    if (target.hasAuxiliaryData("unified"))
+        str = target.auxiliaryData("unified").toString();
+
+    if (str.size() == static_cast<int>(keyframes.size())) {
+        for (int i = 0; i < str.size(); ++i) {
+            if (str.at(i) == '1')
+                keyframes[i].setUnified(true);
+        }
+    }
+
     return DesignTools::AnimationCurve(keyframes);
 }
 

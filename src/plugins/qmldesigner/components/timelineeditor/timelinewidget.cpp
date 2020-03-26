@@ -340,6 +340,11 @@ void TimelineWidget::updateAnimationCurve(DesignTools::PropertyTreeItem *item)
                 groupNode.setAuxiliaryData("pinned", true);
             else
                 groupNode.removeAuxiliaryData("pinned");
+
+            if (item->hasUnified())
+                groupNode.setAuxiliaryData("unified", item->unifyString());
+            else
+                groupNode.removeAuxiliaryData("unified");
         }
 
         auto replaceKeyframes = [&group, item, this]() {

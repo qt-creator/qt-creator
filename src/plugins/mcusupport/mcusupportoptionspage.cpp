@@ -223,13 +223,14 @@ void McuSupportOptionsWidget::showEvent(QShowEvent *event)
 
 void McuSupportOptionsWidget::apply()
 {
+    m_options.qtForMCUsSdkPackage->writeToSettings();
     for (auto package : m_options.packages)
         package->writeToSettings();
 
-    QTC_ASSERT(m_options.qtForMCUsSdkPackage, return);
-
     if (!isVisible())
         return;
+
+    McuSupportOptions::registerQchFiles();
 
     const McuTarget *mcuTarget = currentMcuTarget();
     if (!mcuTarget)

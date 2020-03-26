@@ -549,6 +549,7 @@ public:
 
     QTextBlock foldedBlockAt(const QPoint &pos, QRect *box = nullptr) const;
 
+    bool isMouseNavigationEvent(QMouseEvent *e) const;
     void requestUpdateLink(QMouseEvent *e);
     void updateLink();
     void showLink(const Utils::Link &);
@@ -5553,7 +5554,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
                 if (refactorMarker.callback)
                     refactorMarker.callback(this);
             } else {
-                d->m_linkPressed = true;
+                d->m_linkPressed = d->isMouseNavigationEvent(e);
             }
         }
     } else if (e->button() == Qt::RightButton) {
@@ -5572,13 +5573,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
 
 void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (mouseNavigationEnabled()
-            && d->m_linkPressed
-            && e->modifiers() & Qt::ControlModifier
-            && !(e->modifiers() & Qt::ShiftModifier)
-            && e->button() == Qt::LeftButton
-            ) {
-
+    if (d->m_linkPressed && d->isMouseNavigationEvent(e) && e->button() == Qt::LeftButton) {
         EditorManager::addCurrentPositionToNavigationHistory();
         bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
                 || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
@@ -6167,32 +6162,36 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
                                        Id(), flags);
 }
 
+bool TextEditorWidgetPrivate::isMouseNavigationEvent(QMouseEvent *e) const
+{
+    return q->mouseNavigationEnabled() && e->modifiers() & Qt::ControlModifier
+           && !(e->modifiers() & Qt::ShiftModifier);
+}
+
 void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e)
 {
-    if (!q->mouseNavigationEnabled())
+    if (!isMouseNavigationEvent(e))
         return;
-    if (e->modifiers() & Qt::ControlModifier) {
-        // Link emulation behaviour for 'go to definition'
-        const QTextCursor cursor = q->cursorForPosition(e->pos());
+    // Link emulation behaviour for 'go to definition'
+    const QTextCursor cursor = q->cursorForPosition(e->pos());
 
-        // Avoid updating the link we already found
-        if (cursor.position() >= m_currentLink.linkTextStart
-                && cursor.position() <= m_currentLink.linkTextEnd)
-            return;
+    // Avoid updating the link we already found
+    if (cursor.position() >= m_currentLink.linkTextStart
+        && cursor.position() <= m_currentLink.linkTextEnd)
+        return;
 
-        // Check that the mouse was actually on the text somewhere
-        bool onText = q->cursorRect(cursor).right() >= e->x();
-        if (!onText) {
-            QTextCursor nextPos = cursor;
-            nextPos.movePosition(QTextCursor::Right);
-            onText = q->cursorRect(nextPos).right() >= e->x();
-        }
+    // Check that the mouse was actually on the text somewhere
+    bool onText = q->cursorRect(cursor).right() >= e->x();
+    if (!onText) {
+        QTextCursor nextPos = cursor;
+        nextPos.movePosition(QTextCursor::Right);
+        onText = q->cursorRect(nextPos).right() >= e->x();
+    }
 
-        if (onText) {
-            m_pendingLinkUpdate = cursor;
-            QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateLink);
-            return;
-        }
+    if (onText) {
+        m_pendingLinkUpdate = cursor;
+        QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateLink);
+        return;
     }
 
     clearLink();

@@ -84,6 +84,8 @@ Item {
         actionIndicator.icon.text: extFuncLogic.glyph
         actionIndicator.onClicked: extFuncLogic.show()
 
+        actionIndicator.forceVisible: extFuncLogic.menuVisible
+
         ColorLogic {
             id: colorLogic
             backendValue: spinBox.backendValue

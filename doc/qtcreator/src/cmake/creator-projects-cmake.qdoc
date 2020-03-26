@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -50,6 +50,10 @@
     You can add paths to other CMake executables and use them in different
     build and run \l{glossary-buildandrun-kit}{kits}.
 
+    CMake documentation is installed in Qt help file format (.qch) when you
+    install CMake. It is automatically registered by \QC, and you can view it
+    in the Help mode.
+
     \QC automatically runs CMake to refresh project information when you edit
     a \c CMakeLists.txt configuration file in a project. Project information is
     also automatically refreshed when you build the project.
@@ -78,6 +82,9 @@
 
         \li In the \uicontrol Path field, specify the path to the CMake
             executable.
+
+        \li In the \uicontrol {Help file} field, specify the path to the
+            CMake help file (.qch) provided by and installed with CMake.
 
         \li Select the \uicontrol {Auto-create build directories} check box to
             automatically create build directories for CMake projects.
