@@ -35,6 +35,7 @@
 #include <utils/qrcparser.h>
 
 #include <QDir>
+#include <QDirIterator>
 
 using namespace LanguageUtils;
 using namespace QmlJS::AST;
@@ -385,8 +386,10 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
 
     if (!importFound) {
         for (const QString &dir : qAsConst(m_applicationDirectories)) {
+            QDirIterator it(dir, QStringList { "*.qmltypes" }, QDir::Files);
+
             // This adds the types to the C++ types, to be found below if applicable.
-            if (QFile::exists(dir + "/app.qmltypes"))
+            if (it.hasNext())
                 importLibrary(doc, dir, &import);
         }
     }
