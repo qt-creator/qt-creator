@@ -94,13 +94,11 @@ public:
                                              const Position &position,
                                              QmlVisualNode parentQmlItemNode);
 
-
-
-
     static QmlObjectNode createQmlObjectNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,
                                              const Position &position,
-                                             NodeAbstractProperty parentproperty);
+                                             NodeAbstractProperty parentProperty,
+                                             bool createInTransaction = true);
 
     static QmlVisualNode createQml3DNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,

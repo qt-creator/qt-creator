@@ -243,11 +243,12 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
                                                  const Position &position,
-                                                 NodeAbstractProperty parentproperty)
+                                                 NodeAbstractProperty parentProperty,
+                                                 bool createInTransaction)
 {
     QmlObjectNode newQmlObjectNode;
 
-    view->executeInTransaction("QmlItemNode::createQmlItemNode", [=, &newQmlObjectNode, &parentproperty](){
+    auto createNodeFunc = [=, &newQmlObjectNode, &parentProperty]() {
         NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
 
         int minorVersion = metaInfo.minorVersion();
@@ -274,8 +275,8 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             newQmlObjectNode = createQmlObjectNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
         }
 
-        if (parentproperty.isValid())
-            parentproperty.reparentHere(newQmlObjectNode);
+        if (parentProperty.isValid())
+            parentProperty.reparentHere(newQmlObjectNode);
 
         if (!newQmlObjectNode.isValid())
             return;
@@ -289,7 +290,12 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             newQmlObjectNode.modelNode().variantProperty(propertyBindingEntry.first).setEnumeration(propertyBindingEntry.second.toUtf8());
 
         Q_ASSERT(newQmlObjectNode.isValid());
-    });
+    };
+
+    if (createInTransaction)
+        view->executeInTransaction("QmlItemNode::createQmlItemNode", createNodeFunc);
+    else
+        createNodeFunc();
 
     Q_ASSERT(newQmlObjectNode.isValid());
 
