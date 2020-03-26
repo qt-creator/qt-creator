@@ -76,7 +76,7 @@
             instructed in \l {Qt for WebAssembly}.
         \li On Windows, you have to download and install \c sed, as instructed
             in \l{http://gnuwin32.sourceforge.net/packages/sed.htm}
-            {sed for Windows}, and add its location to the system PATH.
+            {sed for Windows}.
         \li In \QC, select \uicontrol Help > \uicontrol {About Plugins} >
             \uicontrol {Device Support} > \uicontrol {WebAssembly} to enable
             the plugin.
