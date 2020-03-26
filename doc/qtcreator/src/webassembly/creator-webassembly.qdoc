@@ -74,6 +74,10 @@
             Windows, \MinGW (found in \uicontrol {Developer and Designer Tools}).
         \li Check out \c emsdk and install and activate \c emscripten, as
             instructed in \l {Qt for WebAssembly}.
+            \note Do not use the \c{--embedded} option for activating the
+            \c emscripten version in the \c emsdk, because \QC
+            expects to find the \c{.emscripten} file describing the toolchain in
+            your home directory.
         \li On Windows, you have to download and install \c sed, as instructed
             in \l{http://gnuwin32.sourceforge.net/packages/sed.htm}
             {sed for Windows}.
