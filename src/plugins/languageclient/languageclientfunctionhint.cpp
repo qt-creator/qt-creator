@@ -96,6 +96,7 @@ void FunctionHintProcessor::cancel()
 {
     if (running()) {
         m_client->cancelRequest(m_currentRequest);
+        m_client->removeAssistProcessor(this);
         m_currentRequest = MessageId();
     }
 }
@@ -107,6 +108,7 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
         m_client->log(error.value());
     FunctionHintProposalModelPtr model(
         new FunctionHintProposalModel(response.result().value().value()));
+    m_client->removeAssistProcessor(this);
     setAsyncProposalAvailable(new FunctionHintProposal(m_pos, model));
 }
 

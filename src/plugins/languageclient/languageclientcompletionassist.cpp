@@ -342,6 +342,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     });
     completionRequest.setParams(params);
     m_client->sendContent(completionRequest);
+    m_client->addAssistProcessor(this);
     m_currentRequest = completionRequest.id();
     m_document = interface->textDocument();
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime()
@@ -359,6 +360,7 @@ void LanguageClientCompletionAssistProcessor::cancel()
 {
     if (running()) {
         m_client->cancelRequest(m_currentRequest);
+        m_client->removeAssistProcessor(this);
         m_currentRequest = MessageId();
     }
 }
@@ -376,6 +378,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     const Utils::optional<CompletionResult> &result = response.result();
     if (!result || Utils::holds_alternative<std::nullptr_t>(*result)) {
         setAsyncProposalAvailable(nullptr);
+        m_client->removeAssistProcessor(this);
         return;
     }
 
@@ -396,6 +399,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     proposal->setFragile(true);
     proposal->setSupportsPrefix(false);
     setAsyncProposalAvailable(proposal);
+    m_client->removeAssistProcessor(this);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "
                               << items.count() << " completions handled";
 }

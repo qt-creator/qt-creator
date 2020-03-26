@@ -190,8 +190,7 @@ void BackendReceiver::completions(const CompletionsMessage &message)
                  << "items";
 
     const quint64 ticket = message.ticketNumber;
-    QScopedPointer<ClangCompletionAssistProcessor> processor(m_assistProcessorsTable.take(ticket));
-    if (processor)
+    if (ClangCompletionAssistProcessor *processor = m_assistProcessorsTable.take(ticket))
         processor->handleAvailableCompletions(message.codeCompletions);
 }
 

@@ -132,6 +132,7 @@ void LanguageClientQuickFixAssistProcessor::cancel()
 {
     if (running()) {
         m_client->cancelRequest(m_currentRequest);
+        m_client->removeAssistProcessor(this);
         m_currentRequest = MessageId();
     }
 }
@@ -154,6 +155,7 @@ void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(
             }
         }
     }
+    m_client->removeAssistProcessor(this);
     setAsyncProposalAvailable(GenericProposal::createProposal(m_assistInterface.data(), ops));
 }
 

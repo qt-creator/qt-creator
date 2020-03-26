@@ -252,8 +252,9 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         break;
     }
     case IAssistProvider::Asynchronous: {
-        processor->setAsyncCompletionAvailableHandler(
-            [this, reason](IAssistProposal *newProposal){
+        processor->setAsyncCompletionAvailableHandler([this, reason](IAssistProposal *newProposal) {
+            // do not delete this processor directly since this function is called from within the processor
+            QTimer::singleShot(0, [processor = m_asyncProcessor]() { delete processor; });
                 if (m_asyncProcessor && m_asyncProcessor->needsRestart() && m_receivedContentWhileWaiting) {
                     delete newProposal;
                     m_receivedContentWhileWaiting = false;
@@ -288,8 +289,10 @@ void CodeAssistantPrivate::cancelCurrentRequest()
         m_requestRunner->setDiscardProposal(true);
         disconnect(m_runnerConnection);
     }
-    if (m_asyncProcessor)
+    if (m_asyncProcessor) {
         m_asyncProcessor->cancel();
+        m_asyncProcessor->setAsyncProposalAvailable(nullptr);
+    }
     invalidateCurrentRequestData();
 }
 

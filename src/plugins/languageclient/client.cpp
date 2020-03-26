@@ -40,6 +40,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
@@ -146,6 +147,8 @@ Client::~Client()
                 highlighter->clearAllExtraFormats();
         }
     }
+    for (IAssistProcessor *processor : m_runningAssistProcessors)
+        processor->setAsyncProposalAvailable(nullptr);
     updateEditorToolBar(m_openedDocument.keys());
 }
 
@@ -902,6 +905,16 @@ bool Client::isSupportedUri(const DocumentUri &uri) const
                                        Utils::mimeTypeForFile(uri.toFilePath().fileName()).name());
 }
 
+void Client::addAssistProcessor(TextEditor::IAssistProcessor *processor)
+{
+    m_runningAssistProcessors.insert(processor);
+}
+
+void Client::removeAssistProcessor(TextEditor::IAssistProcessor *processor)
+{
+    m_runningAssistProcessors.remove(processor);
+}
+
 bool Client::needsRestart(const BaseSettings *settings) const
 {
     QTC_ASSERT(settings, return false);
@@ -942,6 +955,9 @@ bool Client::reset()
         document->disconnect(this);
     for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
         resetAssistProviders(document);
+    for (TextEditor::IAssistProcessor *processor : m_runningAssistProcessors)
+        processor->setAsyncProposalAvailable(nullptr);
+    m_runningAssistProcessors.clear();
     return true;
 }
 
