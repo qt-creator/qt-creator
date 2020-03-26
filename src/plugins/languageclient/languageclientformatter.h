@@ -25,12 +25,15 @@
 
 #pragma once
 
-#include "client.h"
+#include <languageserverprotocol/icontent.h>
+#include <languageserverprotocol/languagefeatures.h>
 
 #include <texteditor/formatter.h>
 
 namespace TextEditor { class TextDocument; }
 namespace LanguageClient {
+
+class Client;
 
 class LanguageClientFormatter : public TextEditor::Formatter
 {
