@@ -49,6 +49,11 @@ using namespace Utils;
 
 namespace Autotest {
 
+TestConfiguration::TestConfiguration(ITestFramework *framework)
+    : m_framework(framework)
+{
+}
+
 TestConfiguration::~TestConfiguration()
 {
     m_testCases.clear();
@@ -349,6 +354,11 @@ bool DebuggableTestConfiguration::isDebugRunMode() const
 bool TestConfiguration::hasExecutable() const
 {
     return !m_runnable.executable.isEmpty();
+}
+
+ITestFramework *TestConfiguration::framework() const
+{
+    return m_framework;
 }
 
 } // namespace Autotest

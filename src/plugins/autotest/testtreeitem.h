@@ -46,6 +46,7 @@ namespace Utils { class FilePath; }
 
 namespace Autotest {
 
+class ITestFramework;
 class TestConfiguration;
 class TestParseResult;
 enum class TestRunMode;
@@ -71,7 +72,9 @@ public:
         Naturally
     };
 
-    explicit TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+    explicit TestTreeItem(ITestFramework *framework,
+                          const QString &name = QString(),
+                          const QString &filePath = QString(),
                           Type type = Root);
 
     virtual TestTreeItem *copyWithoutChildren() = 0;
@@ -83,6 +86,7 @@ public:
     bool modifyDataTagContent(const TestParseResult *result);
     bool modifyLineAndColumn(const TestParseResult *result);
 
+    ITestFramework *framework() const;
     const QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }
     const QString filePath() const { return m_filePath; }
@@ -129,6 +133,7 @@ public:
     // decide whether an item should still be added to the treemodel
     virtual bool shouldBeAddedAfterFiltering() const { return true; }
     virtual QSet<QString> internalTargets() const;
+
 protected:
     void copyBasicDataFrom(const TestTreeItem *other);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
@@ -146,6 +151,7 @@ private:
         Cleared
     };
 
+    ITestFramework *m_framework = nullptr;
     QString m_name;
     QString m_filePath;
     Qt::CheckState m_checked;

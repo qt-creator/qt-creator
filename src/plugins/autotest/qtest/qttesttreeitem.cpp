@@ -34,8 +34,9 @@
 namespace Autotest {
 namespace Internal {
 
-QtTestTreeItem::QtTestTreeItem(const QString &name, const QString &filePath, TestTreeItem::Type type)
-    : TestTreeItem(name, filePath, type)
+QtTestTreeItem::QtTestTreeItem(ITestFramework *framework, const QString &name,
+                               const QString &filePath, TestTreeItem::Type type)
+    : TestTreeItem(framework, name, filePath, type)
 {
     if (type == TestDataTag)
         setData(0, Qt::Checked, Qt::CheckStateRole);
@@ -43,7 +44,7 @@ QtTestTreeItem::QtTestTreeItem(const QString &name, const QString &filePath, Tes
 
 TestTreeItem *QtTestTreeItem::copyWithoutChildren()
 {
-    QtTestTreeItem *copied = new QtTestTreeItem;
+    QtTestTreeItem *copied = new QtTestTreeItem(framework());
     copied->copyBasicDataFrom(this);
     copied->m_inherited = m_inherited;
     return copied;
@@ -114,14 +115,14 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
     QtTestConfiguration *config = nullptr;
     switch (type()) {
     case TestCase:
-        config = new QtTestConfiguration;
+        config = new QtTestConfiguration(framework());
         config->setTestCaseCount(childCount());
         config->setProjectFile(proFile());
         config->setProject(project);
         break;
     case TestFunction: {
         TestTreeItem *parent = parentItem();
-        config = new QtTestConfiguration();
+        config = new QtTestConfiguration(framework());
         config->setTestCases(QStringList(name()));
         config->setProjectFile(parent->proFile());
         config->setProject(project);
@@ -133,7 +134,7 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
         if (!parent)
             return nullptr;
         const QString functionWithTag = function->name() + ':' + name();
-        config = new QtTestConfiguration();
+        config = new QtTestConfiguration(framework());
         config->setTestCases(QStringList(functionWithTag));
         config->setProjectFile(parent->proFile());
         config->setProject(project);
@@ -180,7 +181,7 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
             }
         });
 
-        testConfig = new QtTestConfiguration();
+        testConfig = new QtTestConfiguration(item->framework());
         testConfig->setTestCases(testCases);
         testConfig->setProjectFile(item->proFile());
         testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
@@ -342,7 +343,7 @@ TestTreeItem *QtTestTreeItem::createParentGroupNode() const
 {
     const QFileInfo fileInfo(filePath());
     const QFileInfo base(fileInfo.absolutePath());
-    return new QtTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+    return new QtTestTreeItem(framework(), base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
 }
 
 bool QtTestTreeItem::isGroupable() const

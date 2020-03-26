@@ -32,8 +32,6 @@
 namespace Autotest {
 namespace Internal {
 
-class GTestResult;
-
 class GTestOutputReader : public TestOutputReader
 {
     Q_DECLARE_TR_FUNCTIONS(Autotest::Internal::GTestOutputReader)

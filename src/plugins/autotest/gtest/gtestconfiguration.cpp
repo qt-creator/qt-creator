@@ -28,7 +28,7 @@
 #include "gtestoutputreader.h"
 #include "gtestsettings.h"
 #include "../autotestplugin.h"
-#include "../testframeworkmanager.h"
+#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
@@ -73,9 +73,6 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
 
 QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
-    static const Core::Id id
-            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
-
     QStringList arguments;
     if (AutotestPlugin::settings()->processArgs) {
         arguments << filterInterfering(runnable().commandLineArguments.split(
@@ -86,8 +83,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     if (!testSets.isEmpty())
         arguments << "--gtest_filter=" + testSets.join(':');
 
-    TestFrameworkManager *manager = TestFrameworkManager::instance();
-    auto gSettings = dynamic_cast<GTestSettings *>(manager->settingsForTestFramework(id));
+    auto gSettings = dynamic_cast<GTestSettings *>(framework()->frameworkSettings());
     if (!gSettings)
         return arguments;
 

@@ -61,7 +61,6 @@ public:
     TestFrameworks sortedRegisteredFrameworks() const;
     TestFrameworks sortedActiveFrameworks() const;
 
-    IFrameworkSettings *settingsForTestFramework(const Core::Id &frameworkId) const;
     void synchronizeSettings(QSettings *s);
     bool hasActiveFrameworks() const;
 

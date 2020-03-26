@@ -37,9 +37,10 @@ ITestParser *BoostTestFramework::createTestParser()
     return new BoostTestParser(this);
 }
 
-TestTreeItem *BoostTestFramework::createRootNode() const
+TestTreeItem *BoostTestFramework::createRootNode()
 {
     return new BoostTestTreeItem(
+                this,
                 QCoreApplication::translate("BoostTestFramework",
                                             BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
                 QString(), TestTreeItem::Root);

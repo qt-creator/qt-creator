@@ -38,7 +38,7 @@ namespace Internal {
 
 TestTreeItem *QuickTestTreeItem::copyWithoutChildren()
 {
-    QuickTestTreeItem *copied = new QuickTestTreeItem;
+    QuickTestTreeItem *copied = new QuickTestTreeItem(framework());
     copied->copyBasicDataFrom(this);
     return copied;
 }
@@ -137,7 +137,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
             if (child->type() == TestTreeItem::TestFunction)
                 testFunctions << testName + "::" + child->name();
         });
-        config = new QuickTestConfiguration;
+        config = new QuickTestConfiguration(framework());
         config->setTestCases(testFunctions);
         config->setProjectFile(proFile());
         config->setProject(project);
@@ -146,7 +146,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     case TestFunction: {
         TestTreeItem *parent = parentItem();
         QStringList testFunction(parent->name() + "::" + name());
-        config = new QuickTestConfiguration;
+        config = new QuickTestConfiguration(framework());
         config->setTestCases(testFunction);
         config->setProjectFile(parent->proFile());
         config->setProject(project);
@@ -186,7 +186,7 @@ static void testConfigurationFromCheckState(const TestTreeItem *item,
         oldFunctions << testFunctions;
         tc->setTestCases(oldFunctions);
     } else {
-        tc = new QuickTestConfiguration;
+        tc = new QuickTestConfiguration(item->framework());
         tc->setTestCases(testFunctions);
         tc->setProjectFile(item->proFile());
         tc->setProject(ProjectExplorer::SessionManager::startupProject());
@@ -244,7 +244,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
     });
     // create TestConfiguration for each project file
     for (auto it = testsForProfile.begin(), end = testsForProfile.end(); it != end; ++it) {
-        QuickTestConfiguration *tc = new QuickTestConfiguration;
+        QuickTestConfiguration *tc = new QuickTestConfiguration(framework());
         tc->setTestCaseCount(it.value().testCount);
         tc->setProjectFile(it.key());
         tc->setProject(project);
@@ -404,7 +404,7 @@ TestTreeItem *QuickTestTreeItem::createParentGroupNode() const
 {
     const QFileInfo fileInfo(filePath());
     const QFileInfo base(fileInfo.absolutePath());
-    return new QuickTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+    return new QuickTestTreeItem(framework(), base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
 }
 
 bool QuickTestTreeItem::isGroupable() const

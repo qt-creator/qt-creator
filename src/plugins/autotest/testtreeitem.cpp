@@ -38,8 +38,10 @@
 
 namespace Autotest {
 
-TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type)
-    : m_name(name),
+TestTreeItem::TestTreeItem(ITestFramework *framework, const QString &name,
+                           const QString &filePath, Type type)
+    : m_framework(framework),
+      m_name(name),
       m_filePath(filePath),
       m_type(type)
 {
@@ -353,6 +355,11 @@ inline bool TestTreeItem::modifyName(const QString &name)
         return true;
     }
     return false;
+}
+
+ITestFramework *TestTreeItem::framework() const
+{
+    return m_framework;
 }
 
 /*

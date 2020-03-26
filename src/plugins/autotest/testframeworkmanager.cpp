@@ -120,14 +120,6 @@ ITestFramework *TestFrameworkManager::frameworkForId(Id frameworkId)
             });
 }
 
-IFrameworkSettings *TestFrameworkManager::settingsForTestFramework(
-            const Id &frameworkId) const
-{
-    ITestFramework *framework = frameworkForId(frameworkId);
-    QTC_ASSERT(framework, return nullptr);
-    return framework->frameworkSettings();
-}
-
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
     Internal::AutotestPlugin::settings()->fromSettings(s);

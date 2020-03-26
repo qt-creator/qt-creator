@@ -56,7 +56,7 @@ TestTreeItem *BoostTestParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root)
         return nullptr;
 
-    BoostTestTreeItem *item = new BoostTestTreeItem(displayName, fileName, itemType);
+    BoostTestTreeItem *item = new BoostTestTreeItem(framework, displayName, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);

@@ -42,7 +42,7 @@ private:
     const char *name() const override;
     unsigned priority() const override;
     ITestParser *createTestParser() override;
-    TestTreeItem *createRootNode() const override;
+    TestTreeItem *createRootNode() override;
     IFrameworkSettings *frameworkSettings() override { return &m_settings; }
 
     QtTestSettings m_settings;

@@ -83,7 +83,7 @@ public:
 
 protected:
     virtual ITestParser *createTestParser() = 0;
-    virtual TestTreeItem *createRootNode() const = 0;
+    virtual TestTreeItem *createRootNode() = 0;
 
 private:
     TestTreeItem *m_rootNode = nullptr;

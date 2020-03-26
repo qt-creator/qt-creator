@@ -40,7 +40,7 @@ namespace Internal {
 
 TestTreeItem *BoostTestTreeItem::copyWithoutChildren()
 {
-    BoostTestTreeItem *copied = new BoostTestTreeItem;
+    BoostTestTreeItem *copied = new BoostTestTreeItem(framework());
     copied->copyBasicDataFrom(this);
     copied->m_state = m_state;
     copied->m_fullName = m_fullName;
@@ -146,7 +146,7 @@ TestTreeItem *BoostTestTreeItem::createParentGroupNode() const
 {
     const QFileInfo fileInfo(filePath());
     const QFileInfo base(fileInfo.absolutePath());
-    return new BoostTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+    return new BoostTestTreeItem(framework(), base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
 }
 
 QString BoostTestTreeItem::prependWithParentsSuitePaths(const QString &testName) const
@@ -204,7 +204,7 @@ QList<TestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
 
     for (auto it = testsPerProjectfile.begin(), end = testsPerProjectfile.end(); it != end; ++it) {
         for (const QString &target : qAsConst(it.value().internalTargets)) {
-            BoostTestConfiguration *config = new BoostTestConfiguration;
+            BoostTestConfiguration *config = new BoostTestConfiguration(framework());
             config->setProject(project);
             config->setProjectFile(it.key());
             config->setTestCaseCount(it.value().testCases);
@@ -250,7 +250,7 @@ QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() co
     auto end = testCasesForProjectFile.cend();
     for (auto it = testCasesForProjectFile.cbegin(); it != end; ++it) {
         for (const QString &target : it.value().internalTargets) {
-            BoostTestConfiguration *config = new BoostTestConfiguration;
+            BoostTestConfiguration *config = new BoostTestConfiguration(framework());
             config->setProject(project);
             config->setProjectFile(it.key());
             config->setTestCases(it.value().testCases);
@@ -294,7 +294,7 @@ TestConfiguration *BoostTestTreeItem::testConfiguration() const
             testCases.append(prependWithParentsSuitePaths(handleSpecialFunctionNames(tcName)));
         }
 
-        BoostTestConfiguration *config = new BoostTestConfiguration;
+        BoostTestConfiguration *config = new BoostTestConfiguration(framework());
         config->setProjectFile(proFile());
         config->setProject(project);
         config->setTestCases(testCases);

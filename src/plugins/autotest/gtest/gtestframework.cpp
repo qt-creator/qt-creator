@@ -44,9 +44,10 @@ ITestParser *GTestFramework::createTestParser()
     return new GTestParser(this);
 }
 
-TestTreeItem *GTestFramework::createRootNode() const
+TestTreeItem *GTestFramework::createRootNode()
 {
     return new GTestTreeItem(
+                this,
                 QCoreApplication::translate("GTestFramework",
                                             GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
                 QString(), TestTreeItem::Root);
