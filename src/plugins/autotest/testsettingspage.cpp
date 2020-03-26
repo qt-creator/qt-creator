@@ -93,8 +93,7 @@ TestSettings TestSettingsWidget::settings() const
 
 void TestSettingsWidget::populateFrameworksListWidget(const QHash<Core::Id, bool> &frameworks)
 {
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    const TestFrameworks &registered = frameworkManager->sortedRegisteredFrameworks();
+    const TestFrameworks &registered = TestFrameworkManager::registeredFrameworks();
     m_ui.frameworkTreeWidget->clear();
     for (const ITestFramework *framework : registered) {
         const Core::Id id = framework->id();
@@ -169,8 +168,12 @@ void TestSettingsPage::apply()
     });
     *m_settings = newSettings;
     m_settings->toSettings(Core::ICore::settings());
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    frameworkManager->activateFrameworksFromSettings(m_settings);
+
+    for (ITestFramework *framework : TestFrameworkManager::registeredFrameworks()) {
+        framework->setActive(m_settings->frameworks.value(framework->id(), false));
+        framework->setGrouping(m_settings->frameworksGrouping.value(framework->id(), false));
+    }
+
     TestTreeModel::instance()->synchronizeTestFrameworks();
     if (!changedIds.isEmpty())
         TestTreeModel::instance()->rebuild(changedIds);

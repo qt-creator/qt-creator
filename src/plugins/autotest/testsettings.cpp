@@ -92,8 +92,7 @@ void TestSettings::fromSettings(QSettings *s)
     runAfterBuild = RunAfterBuildMode(s->value(runAfterBuildKey,
                                                int(RunAfterBuildMode::None)).toInt());
     // try to get settings for registered frameworks
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    const TestFrameworks &registered = frameworkManager->registeredFrameworks();
+    const TestFrameworks &registered = TestFrameworkManager::registeredFrameworks();
     frameworks.clear();
     frameworksGrouping.clear();
     for (const ITestFramework *framework : registered) {

@@ -27,8 +27,6 @@
 
 #include "itestframework.h"
 
-#include <QHash>
-
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
@@ -40,9 +38,6 @@ namespace Internal {
 struct TestSettings;
 }
 
-class IFrameworkSettings;
-class ITestParser;
-
 class TestFrameworkManager final
 {
 
@@ -50,23 +45,14 @@ public:
     TestFrameworkManager();
     ~TestFrameworkManager();
 
-    static TestFrameworkManager *instance();
+    bool registerTestFramework(ITestFramework *framework);
+    void synchronizeSettings(QSettings *s);
 
     static ITestFramework *frameworkForId(Core::Id frameworkId);
-
-    bool registerTestFramework(ITestFramework *framework);
-
-    void activateFrameworksFromSettings(const Internal::TestSettings *settings);
-    TestFrameworks registeredFrameworks() const;
-    TestFrameworks sortedRegisteredFrameworks() const;
-    TestFrameworks sortedActiveFrameworks() const;
-
-    void synchronizeSettings(QSettings *s);
-    bool hasActiveFrameworks() const;
+    static void activateFrameworksFromSettings(const Internal::TestSettings *settings);
+    static TestFrameworks registeredFrameworks();
 
 private:
-    TestFrameworks activeFrameworks() const;
-
     TestFrameworks m_registeredFrameworks;
 };
 

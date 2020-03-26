@@ -36,6 +36,8 @@ namespace Internal {
 static const char SK_ACTIVE_FRAMEWORKS[]        = "AutoTest.ActiveFrameworks";
 static const char SK_RUN_AFTER_BUILD[]          = "AutoTest.RunAfterBuild";
 
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
+
 TestProjectSettings::TestProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
 {
@@ -60,7 +62,7 @@ void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
 
 void TestProjectSettings::activateFramework(const Core::Id &id, bool activate)
 {
-    ITestFramework *framework = TestFrameworkManager::instance()->frameworkForId(id);
+    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
     m_activeTestFrameworks[framework] = activate;
     if (!activate)
         framework->resetRootNode();
@@ -71,8 +73,8 @@ void TestProjectSettings::load()
     const QVariant useGlobal = m_project->namedSettings(Constants::SK_USE_GLOBAL);
     m_useGlobalSettings = useGlobal.isValid() ? useGlobal.toBool() : true;
 
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    const TestFrameworks registered = frameworkManager->sortedRegisteredFrameworks();
+    const TestFrameworks registered = TestFrameworkManager::registeredFrameworks();
+    qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
     const QVariant activeFrameworks = m_project->namedSettings(SK_ACTIVE_FRAMEWORKS);
 
     m_activeTestFrameworks.clear();

@@ -44,6 +44,8 @@ using namespace Autotest::Internal;
 
 namespace Autotest {
 
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
+
 static TestTreeModel *s_instance = nullptr;
 
 TestTreeModel::TestTreeModel(TestCodeParser *parser) :
@@ -211,11 +213,12 @@ void TestTreeModel::synchronizeTestFrameworks()
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     TestFrameworks sorted;
-    TestFrameworkManager *manager = TestFrameworkManager::instance();
     const QVariant useGlobal = project ? project->namedSettings(Constants::SK_USE_GLOBAL)
                                        : QVariant();
     if (!useGlobal.isValid() || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
-        sorted = manager->sortedActiveFrameworks();
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 &ITestFramework::active);
+        qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
     } else { // we've got custom project settings
         const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
         const QMap<ITestFramework *, bool> active = settings->activeFrameworks();

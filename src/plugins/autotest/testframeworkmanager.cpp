@@ -27,20 +27,12 @@
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "iframeworksettings.h"
-#include "itestparser.h"
 #include "testsettings.h"
-#include "testtreeitem.h"
-#include "testtreemodel.h"
-
-#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QLoggingCategory>
 #include <QSettings>
-
-static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
 
 using namespace Core;
 
@@ -51,11 +43,6 @@ static TestFrameworkManager *s_instance = nullptr;
 TestFrameworkManager::TestFrameworkManager()
 {
     s_instance = this;
-}
-
-TestFrameworkManager *TestFrameworkManager::instance()
-{
-    return s_instance;
 }
 
 TestFrameworkManager::~TestFrameworkManager()
@@ -70,46 +57,21 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     QTC_ASSERT(!m_registeredFrameworks.contains(framework), return false);
     // TODO check for unique priority before registering
     m_registeredFrameworks.append(framework);
+    Utils::sort(m_registeredFrameworks, &ITestFramework::priority);
     return true;
 }
 
 void TestFrameworkManager::activateFrameworksFromSettings(const Internal::TestSettings *settings)
 {
-    for (ITestFramework *framework : qAsConst(m_registeredFrameworks)) {
+    for (ITestFramework *framework : qAsConst(s_instance->m_registeredFrameworks)) {
         framework->setActive(settings->frameworks.value(framework->id(), false));
         framework->setGrouping(settings->frameworksGrouping.value(framework->id(), false));
     }
 }
 
-TestFrameworks TestFrameworkManager::registeredFrameworks() const
+TestFrameworks TestFrameworkManager::registeredFrameworks()
 {
-    return m_registeredFrameworks;
-}
-
-TestFrameworks TestFrameworkManager::sortedRegisteredFrameworks() const
-{
-    TestFrameworks registered = m_registeredFrameworks;
-    Utils::sort(registered, &ITestFramework::priority);
-    qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
-    return registered;
-}
-
-TestFrameworks TestFrameworkManager::activeFrameworks() const
-{
-    TestFrameworks active;
-    for (ITestFramework *framework : qAsConst(m_registeredFrameworks)) {
-        if (framework->active())
-            active.append(framework);
-    }
-    return active;
-}
-
-TestFrameworks TestFrameworkManager::sortedActiveFrameworks() const
-{
-    TestFrameworks active = activeFrameworks();
-    Utils::sort(active, &ITestFramework::priority);
-    qCDebug(LOG) << "Active frameworks sorted by priority" << active;
-    return active;
+    return s_instance->m_registeredFrameworks;
 }
 
 ITestFramework *TestFrameworkManager::frameworkForId(Id frameworkId)
@@ -127,11 +89,6 @@ void TestFrameworkManager::synchronizeSettings(QSettings *s)
         if (IFrameworkSettings *fSettings = framework->frameworkSettings())
             fSettings->fromSettings(s);
     }
-}
-
-bool TestFrameworkManager::hasActiveFrameworks() const
-{
-    return Utils::anyOf(m_registeredFrameworks, &ITestFramework::active);
 }
 
 Id ITestFramework::settingsId() const
