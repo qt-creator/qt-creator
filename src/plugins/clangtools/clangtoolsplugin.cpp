@@ -48,6 +48,8 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanager.h>
 
+#include <cppeditor/cppeditorconstants.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
@@ -95,8 +97,16 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     d = new ClangToolsPluginPrivate;
 
     ActionManager::registerAction(d->clangTool.startAction(), Constants::RUN_ON_PROJECT);
-    ActionManager::registerAction(d->clangTool.startOnCurrentFileAction(),
-                                  Constants::RUN_ON_CURRENT_FILE);
+    Command *cmd = ActionManager::registerAction(d->clangTool.startOnCurrentFileAction(),
+                                                 Constants::RUN_ON_CURRENT_FILE);
+    ActionContainer *mtoolscpp = ActionManager::actionContainer(CppTools::Constants::M_TOOLS_CPP);
+    if (mtoolscpp)
+        mtoolscpp->addAction(cmd);
+
+    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(
+        CppEditor::Constants::M_CONTEXT);
+    if (mcontext)
+        mcontext->addAction(cmd, CppEditor::Constants::G_CONTEXT_FIRST); // TODO
 
     auto panelFactory = m_projectPanelFactoryInstance = new ProjectPanelFactory;
     panelFactory->setPriority(100);

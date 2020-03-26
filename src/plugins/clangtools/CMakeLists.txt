@@ -8,6 +8,7 @@ add_qtc_plugin(ClangTools
   CONDITION TARGET libclang AND TARGET yaml-cpp
   DEPENDS ClangSupport libclang yaml-cpp
   PLUGIN_DEPENDS Core Debugger CppTools ${TST_COMPONENT}
+  PLUGIN_RECOMMENDS CppEditor
   INCLUDES ${CLANG_INCLUDE_DIRS}
   SOURCES
     clangfileinfo.h
