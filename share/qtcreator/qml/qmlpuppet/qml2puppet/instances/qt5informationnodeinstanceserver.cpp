@@ -1162,19 +1162,19 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 
     switch (command.type()) {
     case View3DActionCommand::MoveTool:
-        updatedState.insert("groupTransform", 0);
+        updatedState.insert("transformMode", 0);
         break;
     case View3DActionCommand::RotateTool:
-        updatedState.insert("groupTransform", 1);
+        updatedState.insert("transformMode", 1);
         break;
     case View3DActionCommand::ScaleTool:
-        updatedState.insert("groupTransform", 2);
+        updatedState.insert("transformMode", 2);
         break;
     case View3DActionCommand::FitToView:
         QMetaObject::invokeMethod(m_editView3DRootItem, "fitToView");
         break;
     case View3DActionCommand::SelectionModeToggle:
-        updatedState.insert("groupSelect", command.isEnabled() ? 0 : 1);
+        updatedState.insert("selectionMode", command.isEnabled() ? 1 : 0);
         break;
     case View3DActionCommand::CameraToggle:
         updatedState.insert("usePerspective", command.isEnabled());
@@ -1186,6 +1186,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
     case View3DActionCommand::EditLightToggle:
         updatedState.insert("showEditLight", command.isEnabled());
+        break;
+    case View3DActionCommand::ShowGrid:
+        updatedState.insert("showGrid", command.isEnabled());
         break;
     default:
         break;

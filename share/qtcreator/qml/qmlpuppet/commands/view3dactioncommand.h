@@ -43,7 +43,8 @@ public:
                 SelectionModeToggle,
                 CameraToggle,
                 OrientationToggle,
-                EditLightToggle
+                EditLightToggle,
+                ShowGrid
               };
 
     explicit View3DActionCommand(Type type, bool enable);
