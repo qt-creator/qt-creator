@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -39,8 +39,8 @@
 
     \table
         \row
-            \li \inlineimage creator-gs-01.png
-            \li \inlineimage creator-gs-02.png
+            \li \inlineimage creator_gettingstarted.png
+            \li \inlineimage creator_designinguserinterface.png
             \li \inlineimage creator_advanceduse.png
         \row
             \li \b {\l{IDE Overview}}
@@ -60,8 +60,8 @@
                 control systems. For an overview of the options you have, go to
                 \l{Configuring Qt Creator}.
         \row
-            \li \inlineimage creator-gs-03.png
-            \li \inlineimage creator-gs-04.png
+            \li \inlineimage creator_buildingrunning.png
+            \li \inlineimage creator_gettinghelp.png
             \li
         \row
             \li \b {\l{Building and Running an Example}}

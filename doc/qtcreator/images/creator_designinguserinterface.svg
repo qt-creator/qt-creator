@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" viewBox="0 0 450 272" xml:space="preserve">
+<g>
+	<path fill="#C9C7C7" d="M435.81,271.62H14.83c-7.84,0-14.19-6.36-14.19-14.19V14.19C0.63,6.36,6.99,0,14.83,0h420.98
+		C443.64,0,450,6.36,450,14.19v243.23C450,265.27,443.64,271.62,435.81,271.62z"/>
+	<path fill="#878686" d="M1.08,19.62l-0.44-5.45C0.63,6.34,6.97,0,14.8,0h421.04C443.66,0,450,6.34,450,14.16v6.83"/>
+	<circle fill="#DD5958" cx="18.04" cy="10.64" r="4.99"/>
+	<circle fill="#DBC558" cx="35" cy="10.64" r="4.99"/>
+	<circle fill="#52B257" cx="51.96" cy="10.64" r="4.99"/>
+</g>
+<path fill="#949292" d="M98.62,245.03H18.8c-2.75,0-5-2.25-5-5V47.72c0-2.75,2.25-5,5-5h79.81c2.75,0,5,2.25,5,5v192.3
+	C103.62,242.78,101.37,245.03,98.62,245.03z"/>
+<path fill="none" stroke="#FFFFFF" stroke-width="11.8898" stroke-linecap="round" stroke-miterlimit="10" d="M177.01,125.88
+	c0-39.4,31.94-71.34,71.34-71.34s71.34,31.94,71.34,71.34s-31.94,71.34-71.34,71.34"/>
+<path fill="none" stroke="#FFFFFF" stroke-width="2.5935" stroke-linecap="round" stroke-miterlimit="10" d="M44.02,68.87
+	c0-8.59,6.97-15.56,15.56-15.56s15.56,6.97,15.56,15.56s-6.97,15.56-15.56,15.56"/>
+<circle fill="#FFFFFF" cx="246.85" cy="125.38" r="31.93"/>
+<polygon fill="#878686" points="252.27,115.11 247.86,173.16 266.03,151.21 293.54,155.76 "/>
+<text transform="matrix(1 0 0 1 131.1162 120.6279)" fill="#FFFFFF" font-family="'TitilliumWeb-Bold'" font-size="39.5765px">1</text>
+<text transform="matrix(1 0 0 1 320.6885 65.7515)" fill="#FFFFFF" font-family="'TitilliumWeb-Bold'" font-size="39.5765px">2</text>
+<text transform="matrix(1 0 0 1 249.8477 245.3447)" fill="#FFFFFF" font-family="'TitilliumWeb-Bold'" font-size="39.5765px">3</text>
+<g>
+	<path fill="#FFFFFF" d="M72.84,134.43H42.91c-2.75,0-5-2.25-5-5v-9.3c0-2.75,2.25-5,5-5h29.93c2.75,0,5,2.25,5,5v9.3
+		C77.84,132.18,75.59,134.43,72.84,134.43z"/>
+	<text transform="matrix(1 0 0 1 49.1719 128.6772)" fill="#C9C7C7" font-family="'TitilliumWeb-Bold'" font-size="11.9663px">ON</text>
+</g>
+<g>
+	<path fill="#FFFFFF" d="M57.58,180.2h0.19c0.62,0,1.13-0.51,1.13-1.13v-10.95c0-0.62-0.51-1.13-1.13-1.13h-0.19
+		c-0.62,0-1.13,0.51-1.13,1.13v10.95C56.45,179.69,56.96,180.2,57.58,180.2z"/>
+	<path fill="#FFFFFF" d="M84.49,175.31H31.25c-0.95,0-1.72-0.77-1.72-1.72v0c0-0.95,0.77-1.72,1.72-1.72h53.23
+		c0.95,0,1.72,0.77,1.72,1.72v0C86.21,174.54,85.43,175.31,84.49,175.31z"/>
+	<path fill="#E0E1E0" d="M58.93,171.87h25.55c0.95,0,1.73,0.77,1.73,1.72v0c0,0.95-0.78,1.72-1.73,1.72H58.93V171.87z"/>
+</g>
+<g>
+	<path fill="none" stroke="#FFFFFF" stroke-width="0.5769" stroke-miterlimit="10" d="M74.13,228.45H42.6
+		c-6.13,0-11.15-5.02-11.15-11.15v0c0-6.13,5.02-11.15,11.15-11.15h31.54c6.13,0,11.15,5.02,11.15,11.15v0
+		C85.29,223.43,80.27,228.45,74.13,228.45z"/>
+	<circle fill="#FFFFFF" cx="43.65" cy="217.2" r="7.88"/>
+</g>
+<line fill="none" stroke="#C9C7C7" stroke-width="0.9977" stroke-miterlimit="10" x1="13.16" y1="98.25" x2="103.47" y2="98.25"/>
+<line fill="none" stroke="#C9C7C7" stroke-width="0.9977" stroke-miterlimit="10" x1="13.16" y1="150.11" x2="103.47" y2="150.11"/>
+<line fill="none" stroke="#C9C7C7" stroke-width="0.9977" stroke-miterlimit="10" x1="13.16" y1="195.79" x2="103.47" y2="195.79"/>
+</svg>

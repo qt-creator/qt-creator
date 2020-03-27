@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" viewBox="0 0 450 272" xml:space="preserve">
+<g>
+	<path fill="#C9C7C7" d="M434.78,272H14.41c-7.84,0-14.19-6.36-14.19-14.19V14.94c0-7.84,6.36-14.19,14.19-14.19h420.37
+		c7.84,0,14.19,6.36,14.19,14.19V257.8C448.97,265.64,442.61,272,434.78,272z"/>
+	<path fill="#878686" d="M0.66,20.34l-0.44-5.45c0-7.81,6.33-14.14,14.14-14.14h420.47c7.81,0,14.14,6.33,14.14,14.14v6.82"/>
+	<circle fill="#DD5958" cx="17.6" cy="11.37" r="4.98"/>
+	<circle fill="#DBC558" cx="34.53" cy="11.37" r="4.98"/>
+	<circle fill="#52B257" cx="51.47" cy="11.37" r="4.98"/>
+</g>
+<g transform="translate(0,-280.06666)">
+	<path fill="#878686" d="M154.99,354.72c-3,0-5.44,2.44-5.44,5.44l0,0v27.15v97.8c0,3,2.44,5.44,5.44,5.44h141.27
+		c3,0,5.44-2.44,5.44-5.44v-97.8c0-3-2.44-5.44-5.44-5.44H252.9l-17.39-24.85c-1.02-1.45-2.68-2.31-4.45-2.31h-76.07V354.72z"/>
+</g>
+<path fill="#878686" d="M107.69,205.06h-96.9V79.34h79.11c0.34,0,17.09,18.5,17.79,17.79C107.69,97.14,107.69,205.06,107.69,205.06z
+	"/>
+<path fill="#878686" d="M440.85,206.15h-96.9V80.43h79.11c0.34,0,17.09,18.5,17.79,17.79L440.85,206.15L440.85,206.15z"/>
+<text transform="matrix(1 0 0 1 14.9414 160.6211)" fill="#F2F2F3" font-family="'TitilliumWeb-Regular'" font-size="52.0199px">C++</text>
+<text transform="matrix(1 0 0 1 349.8203 164.9639)" fill="#F2F2F3" font-family="'TitilliumWeb-Regular'" font-size="52.0199px">qml</text>
+<polygon fill="#F2F2F3" points="200.89,150.65 162.96,128.75 162.96,172.55 "/>
+<rect x="288.68" y="143.6" fill="#F2F2F3" width="55.28" height="16.26"/>
+<rect x="107.69" y="143.6" fill="#F2F2F3" width="55.28" height="16.26"/>
+<polygon fill="#F2F2F3" points="250.75,150.65 288.68,172.55 288.68,128.75 "/>
+</svg>
