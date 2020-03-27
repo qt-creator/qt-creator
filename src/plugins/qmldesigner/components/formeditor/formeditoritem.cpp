@@ -46,6 +46,8 @@
 
 namespace QmlDesigner {
 
+const int flowBlockSize = 200;
+
 FormEditorScene *FormEditorItem::scene() const {
     return qobject_cast<FormEditorScene*>(QGraphicsItem::scene());
 }
@@ -710,7 +712,7 @@ void FormEditorTransitionItem::updateGeometry()
     QPointF toP = QmlItemNode(resolved.to).flowPosition();
 
     if (QmlItemNode(resolved.to).isFlowDecision())
-        sizeTo = QRectF(0,0,200,200);
+        sizeTo = QRectF(0, 0, flowBlockSize, flowBlockSize);
 
     qreal x1 = fromP.x();
     qreal x2 = toP.x();
@@ -989,10 +991,10 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QRectF fromRect = QmlItemNode(resolved.from).instanceBoundingRect();
     if (QmlItemNode(resolved.from).isFlowDecision())
-        fromRect = QRectF(0,0,200,200);
+        fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
 
     if (QmlItemNode(resolved.from).isFlowWildcard())
-        fromRect = QRectF(0,0,200,200);
+        fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
     fromRect.translate(QmlItemNode(resolved.from).flowPosition());
 
     if (resolved.isStartLine) {
@@ -1008,7 +1010,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QRectF toRect = QmlItemNode(resolved.to).instanceBoundingRect();
     if (QmlItemNode(resolved.to).isFlowDecision())
-        toRect = QRectF(0,0,200,200);
+        toRect = QRectF(0, 0, flowBlockSize,flowBlockSize);
 
     toRect.translate(QmlItemNode(resolved.to).flowPosition());
 
@@ -1112,7 +1114,7 @@ QTransform FormEditorItem::viewportTransform() const
 void FormEditorFlowDecisionItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_selectionBoundingRect = QRectF(0,0, 200, 200);
+    m_selectionBoundingRect = QRectF(0,0, flowBlockSize, flowBlockSize);
     m_paintedBoundingRect = m_selectionBoundingRect;
     m_boundingRect = m_paintedBoundingRect;
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
