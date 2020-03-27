@@ -154,7 +154,7 @@ AddRunConfigDialog::AddRunConfigDialog(Target *target, QWidget *parent)
     buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Create"));
 
     connect(filterEdit, &QLineEdit::textChanged, this, [proxyModel](const QString &text) {
-        proxyModel->setFilterRegExp(QRegExp(text, Qt::CaseInsensitive));
+        proxyModel->setFilterRegularExpression(QRegularExpression(text, QRegularExpression::CaseInsensitiveOption));
     });
     connect(m_view, &TreeView::doubleClicked, this, [this] { accept(); });
     const auto updateOkButton = [buttonBox, this] {

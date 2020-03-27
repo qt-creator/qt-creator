@@ -182,10 +182,10 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 //    line->setFrameShape(QFrame::HLine);
 //    line->setFrameShadow(QFrame::Sunken);
 
-    proxyModel.setFilterRegExp(processFilterLineEdit->text());
+    proxyModel.setFilterRegularExpression(processFilterLineEdit->text());
 
     connect(processFilterLineEdit, QOverload<const QString &>::of(&FancyLineEdit::textChanged),
-            &proxyModel, QOverload<const QString &>::of(&ProcessListFilterModel::setFilterRegExp));
+            &proxyModel, QOverload<const QString &>::of(&ProcessListFilterModel::setFilterRegularExpression));
     connect(procView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &DeviceProcessesDialogPrivate::updateButtons);
     connect(updateListButton, &QAbstractButton::clicked,

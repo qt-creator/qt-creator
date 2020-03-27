@@ -554,7 +554,7 @@ void CallgrindToolPrivate::doClear(bool clearParseData)
     m_proxyModel.setFilterBaseDir(QString());
     if (m_searchFilter)
         m_searchFilter->clear();
-    m_proxyModel.setFilterFixedString(QString());
+    m_proxyModel.setFilterRegularExpression(QRegularExpression());
 }
 
 void CallgrindToolPrivate::setBusyCursor(bool busy)
@@ -609,7 +609,7 @@ void CallgrindToolPrivate::stackBrowserChanged()
 
 void CallgrindToolPrivate::updateFilterString()
 {
-    m_proxyModel.setFilterFixedString(m_searchFilter->text());
+    m_proxyModel.setFilterRegularExpression(QRegularExpression::escape(m_searchFilter->text()));
 }
 
 void CallgrindToolPrivate::setCostFormat(CostDelegate::CostFormat format)

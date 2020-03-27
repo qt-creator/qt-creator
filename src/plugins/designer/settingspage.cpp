@@ -85,7 +85,7 @@ QList<Core::IOptionsPage *> SettingsPageProvider::pages() const
     return FormEditorW::optionsPages();
 }
 
-bool SettingsPageProvider::matches(const QString &searchKeyWord) const
+bool SettingsPageProvider::matches(const QRegularExpression &regex) const
 {
     // to avoid fully initializing designer when typing something in the options' filter edit
     // we hardcode matching of UI text from the designer pages, which are taken if the designer pages
@@ -119,7 +119,7 @@ bool SettingsPageProvider::matches(const QString &searchKeyWord) const
             m_keywords << Utils::stripAccelerator(QCoreApplication::translate(uitext[i].context, uitext[i].value));
     }
     for (const QString &key : qAsConst(m_keywords)) {
-        if (key.contains(searchKeyWord, Qt::CaseInsensitive))
+        if (key.contains(regex))
             return true;
     }
     return false;

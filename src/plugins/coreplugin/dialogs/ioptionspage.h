@@ -64,7 +64,7 @@ public:
     using WidgetCreator = std::function<IOptionsPageWidget *()>;
     void setWidgetCreator(const WidgetCreator &widgetCreator);
 
-    virtual bool matches(const QString &searchKeyWord) const;
+    virtual bool matches(const QRegularExpression &regexp) const;
     virtual QWidget *widget();
     virtual void apply();
     virtual void finish();
@@ -112,7 +112,7 @@ public:
     QIcon categoryIcon() const;
 
     virtual QList<IOptionsPage *> pages() const = 0;
-    virtual bool matches(const QString & /* searchKeyWord*/) const = 0;
+    virtual bool matches(const QRegularExpression &regexp) const = 0;
 
 protected:
     void setCategory(Id category) { m_category = category; }

@@ -106,7 +106,7 @@ BranchView::BranchView() :
     auto filterEdit = new Utils::FancyLineEdit(this);
     filterEdit->setFiltering(true);
     connect(filterEdit, &Utils::FancyLineEdit::textChanged,
-            m_filterModel, QOverload<const QString &>::of(&BranchFilterModel::setFilterRegExp));
+            m_filterModel, QOverload<const QString &>::of(&BranchFilterModel::setFilterRegularExpression));
     auto layout = new QVBoxLayout(this);
     layout->addWidget(filterEdit);
     layout->addWidget(m_repositoryLabel);

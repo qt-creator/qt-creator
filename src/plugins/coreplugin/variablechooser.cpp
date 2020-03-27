@@ -90,8 +90,8 @@ public:
         if (!index.isValid())
             return false;
 
-        const QRegExp regexp = filterRegExp();
-        if (regexp.isEmpty() || sourceModel()->rowCount(index) > 0)
+        const QRegularExpression regexp = filterRegularExpression();
+        if (regexp.pattern().isEmpty() || sourceModel()->rowCount(index) > 0)
             return true;
 
         const QString displayText = index.data(Qt::DisplayRole).toString();
@@ -548,7 +548,7 @@ void VariableChooserPrivate::updatePositionAndShow(bool)
 
 void VariableChooserPrivate::updateFilter(const QString &filterText)
 {
-    m_sortModel->setFilterWildcard(filterText);
+    m_sortModel->setFilterRegularExpression(QRegularExpression::wildcardToRegularExpression(filterText));
     m_variableTree->expandAll();
 }
 

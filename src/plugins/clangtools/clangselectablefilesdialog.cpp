@@ -264,30 +264,6 @@ private:
     }
 };
 
-class FileFilterModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
-
-public:
-    FileFilterModel(QObject *parent = nullptr)
-        : QSortFilterProxyModel(parent)
-    {}
-
-private:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
-    {
-        QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-        const int rowCount = sourceModel()->rowCount(index);
-        if (rowCount == 0) // No children -> file node!
-            return sourceModel()->data(index).toString().contains(filterRegExp());
-        for (int row = 0; row < rowCount; ++row) {
-            if (filterAcceptsRow(row, index))
-                return true;
-        }
-        return false;
-    }
-};
-
 SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
                                              const FileInfoProviders &fileInfoProviders,
                                              int initialProviderIndex)

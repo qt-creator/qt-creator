@@ -109,7 +109,7 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
         return false;
 
     // if the filter regexp is a non-empty string, ignore our filters
-    if (!filterRegExp().isEmpty())
+    if (!filterRegularExpression().pattern().isEmpty())
         return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 
     // check max rows
