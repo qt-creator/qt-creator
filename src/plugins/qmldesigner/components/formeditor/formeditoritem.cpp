@@ -1104,6 +1104,8 @@ void FormEditorFlowDecisionItem::updateGeometry()
 
 void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
     if (!painter->isActive())
         return;
 
@@ -1162,6 +1164,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
 bool FormEditorFlowDecisionItem::flowHitTest(const QPointF &point) const
 {
+    Q_UNUSED(point)
     return true;
 }
 
