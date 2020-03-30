@@ -18,6 +18,10 @@ QtcPlugin {
 
     Depends { name: "Qt.widgets" }
 
+    pluginRecommends: [
+        "CppEditor"
+    ]
+
     pluginTestDepends: [
         "QbsProjectManager",
         "QmakeProjectManager",

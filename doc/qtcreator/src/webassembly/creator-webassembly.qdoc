@@ -54,7 +54,7 @@
 
     \list
         \li Qt for WebAssembly 5.13.1, or later
-        \li On Windows: \l{http://mingw.org/}{MinGW} 7.3.0, or later
+        \li On Windows: \l{http://wiki.qt.io/MinGW}{MinGW} 7.3.0, or later
         \li \l{https://emscripten.org/docs/introducing_emscripten/index.html}
             {emscripten} tool chain for compiling to WebAssembly
         \li \c sed stream editor
@@ -74,9 +74,13 @@
             Windows, \MinGW (found in \uicontrol {Developer and Designer Tools}).
         \li Check out \c emsdk and install and activate \c emscripten, as
             instructed in \l {Qt for WebAssembly}.
+            \note Do not use the \c{--embedded} option for activating the
+            \c emscripten version in the \c emsdk, because \QC
+            expects to find the \c{.emscripten} file describing the toolchain in
+            your home directory.
         \li On Windows, you have to download and install \c sed, as instructed
             in \l{http://gnuwin32.sourceforge.net/packages/sed.htm}
-            {sed for Windows}, and add its location to the system PATH.
+            {sed for Windows}.
         \li In \QC, select \uicontrol Help > \uicontrol {About Plugins} >
             \uicontrol {Device Support} > \uicontrol {WebAssembly} to enable
             the plugin.

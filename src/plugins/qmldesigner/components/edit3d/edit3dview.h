@@ -87,6 +87,7 @@ private:
     Edit3DAction *m_cameraModeAction = nullptr;
     Edit3DAction *m_orientationModeAction = nullptr;
     Edit3DAction *m_editLightAction = nullptr;
+    Edit3DAction *m_showGridAction = nullptr;
     Edit3DAction *m_resetAction = nullptr;
 };
 

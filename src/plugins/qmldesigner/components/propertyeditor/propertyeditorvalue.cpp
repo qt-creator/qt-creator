@@ -265,7 +265,8 @@ bool PropertyEditorValue::isTranslated() const
 
 bool PropertyEditorValue::isAvailable() const
 {
-    const QList<QByteArray> mcuProperties = {"layer", "opacity", "rotation", "scale", "transformOrigin", "smooth", "antialiasing", "border"};
+    const QList<QByteArray> mcuProperties = {"layer", "opacity", "rotation", "scale", "gradient",
+                                             "transformOrigin", "smooth", "antialiasing", "border"};
     const QList<QByteArray> list = name().split('.');
     const QByteArray pureName = list.first();
 

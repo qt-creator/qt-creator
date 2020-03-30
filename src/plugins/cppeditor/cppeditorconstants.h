@@ -29,6 +29,7 @@ namespace CppEditor {
 namespace Constants {
 
 const char M_CONTEXT[] = "CppEditor.ContextMenu";
+const char G_CONTEXT_FIRST[] = "CppEditor.GFirst";
 const char CPPEDITOR_ID[] = "CppEditor.C++Editor";
 const char CPPEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "C++ Editor");
 const char SWITCH_DECLARATION_DEFINITION[] = "CppEditor.SwitchDeclarationDefinition";

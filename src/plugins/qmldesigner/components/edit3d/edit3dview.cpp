@@ -101,12 +101,13 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
-    const QString sceneKey = QStringLiteral("sceneInstanceId");
-    const QString selectKey = QStringLiteral("groupSelect");
-    const QString transformKey = QStringLiteral("groupTransform");
+    const QString sceneKey       = QStringLiteral("sceneInstanceId");
+    const QString selectKey      = QStringLiteral("selectionMode");
+    const QString transformKey   = QStringLiteral("transformMode");
     const QString perspectiveKey = QStringLiteral("usePerspective");
     const QString orientationKey = QStringLiteral("globalOrientation");
-    const QString editLightKey = QStringLiteral("showEditLight");
+    const QString editLightKey   = QStringLiteral("showEditLight");
+    const QString gridKey        = QStringLiteral("showGrid");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -115,7 +116,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     }
 
     if (sceneState.contains(selectKey))
-        m_selectionModeAction->action()->setChecked(sceneState[selectKey].toInt() == 0);
+        m_selectionModeAction->action()->setChecked(sceneState[selectKey].toInt() == 1);
     else
         m_selectionModeAction->action()->setChecked(false);
 
@@ -135,14 +136,21 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_cameraModeAction->action()->setChecked(sceneState[perspectiveKey].toBool());
     else
         m_cameraModeAction->action()->setChecked(false);
+
     if (sceneState.contains(orientationKey))
         m_orientationModeAction->action()->setChecked(sceneState[orientationKey].toBool());
     else
         m_orientationModeAction->action()->setChecked(false);
+
     if (sceneState.contains(editLightKey))
         m_editLightAction->action()->setChecked(sceneState[editLightKey].toBool());
     else
         m_editLightAction->action()->setChecked(false);
+
+    if (sceneState.contains(gridKey))
+        m_showGridAction->action()->setChecked(sceneState[gridKey].toBool());
+    else
+        m_showGridAction->action()->setChecked(false);
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -247,6 +255,12 @@ void Edit3DView::createEdit3DActions()
                 QKeySequence(Qt::Key_U), true, false, Icons::EDIT3D_LIGHT_OFF.icon(),
                 Icons::EDIT3D_LIGHT_ON.icon());
 
+    m_showGridAction = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_EDIT_SHOW_GRID, View3DActionCommand::ShowGrid,
+                QCoreApplication::translate("ShowGridAction", "Toggle grid visibility"),
+                QKeySequence(Qt::Key_G), true, true, Icons::EDIT3D_GRID_OFF.icon(),
+                Icons::EDIT3D_GRID_ON.icon());
+
     SelectionContextOperation resetTrigger = [this](const SelectionContext &) {
         setCurrentStateNode(rootModelNode());
         resetPuppet();
@@ -270,6 +284,7 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_cameraModeAction;
     m_leftActions << m_orientationModeAction;
     m_leftActions << m_editLightAction;
+    m_leftActions << m_showGridAction;
 
     m_rightActions << m_resetAction;
 }

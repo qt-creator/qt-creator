@@ -28,6 +28,7 @@
 
 #include "rewriterview.h"
 #include "model.h"
+#include "puppetcreator.h"
 
 #include <QtCore/qdir.h>
 #include <QtCore/qdiriterator.h>
@@ -84,44 +85,14 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
     parseFiles(inputFiles, options, extToImportOptionsMap);
 
     if (!isCancelled()) {
-        // Don't allow cancel anymore as existing asset overwrites are not trivially recoverable.
-        // Also, on Windows at least you can't delete a subdirectory of a watched directory,
-        // so complete rollback is no longer possible in any case.
-        emit importNearlyFinished();
-
-        copyImportedFiles();
-
-        auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
-        Model *model = doc ? doc->currentModel() : nullptr;
-        if (model && !m_importFiles.isEmpty()) {
-            const QString progressTitle = tr("Updating data model.");
+        // Wait for icon generation processes to finish
+        if (m_qmlPuppetProcesses.isEmpty()) {
+            finalizeQuick3DImport();
+        } else {
+            m_qmlPuppetCount = m_qmlPuppetProcesses.size();
+            const QString progressTitle = tr("Generating icons.");
             addInfo(progressTitle);
             notifyProgress(0, progressTitle);
-
-            // Trigger underlying qmljs snapshot update by making a non-change to the doc
-            model->rewriterView()->textModifier()->replace(0, 0, {});
-
-            // There is a inbuilt delay before rewriter change actually updates the data model,
-            // so we need to wait for a moment to allow the change to take effect.
-            // Otherwise subsequent subcomponent manager update won't detect new imports properly.
-            QTimer *timer = new QTimer(parent());
-            static int counter;
-            counter = 0;
-            timer->callOnTimeout([this, timer, progressTitle, doc]() {
-                if (!isCancelled()) {
-                    notifyProgress(++counter * 10, progressTitle);
-                    if (counter >= 10) {
-                        doc->updateSubcomponentManager();
-                        timer->stop();
-                        notifyFinished();
-                    }
-                } else {
-                    timer->stop();
-                }
-            });
-            timer->start(100);
-        } else {
-            notifyFinished();
         }
     }
 #else
@@ -208,6 +179,26 @@ QHash<QString, QStringList> ItemLibraryAssetImporter::supportedExtensions() cons
 #endif
 }
 
+void ItemLibraryAssetImporter::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    Q_UNUSED(exitCode)
+    Q_UNUSED(exitStatus)
+
+    auto process = qobject_cast<QProcess *>(sender());
+    if (process) {
+        m_qmlPuppetProcesses.remove(process);
+        process->deleteLater();
+        const QString progressTitle = tr("Generating icons.");
+        if (m_qmlPuppetProcesses.isEmpty()) {
+            notifyProgress(100, progressTitle);
+            finalizeQuick3DImport();
+        } else {
+            notifyProgress(int(100. * (1. - double(m_qmlPuppetCount) / double(m_qmlPuppetProcesses.size()))),
+                           progressTitle);
+        }
+    }
+}
+
 void ItemLibraryAssetImporter::notifyFinished()
 {
     m_isImporting = false;
@@ -224,6 +215,9 @@ void ItemLibraryAssetImporter::reset()
     m_tempDir = new QTemporaryDir;
     m_importFiles.clear();
     m_overwrittenImports.clear();
+    qDeleteAll(m_qmlPuppetProcesses);
+    m_qmlPuppetProcesses.clear();
+    m_qmlPuppetCount = 0;
 #endif
 }
 
@@ -307,6 +301,14 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
         return;
     }
 
+    QHash<QString, QString> assetFiles;
+    const int outDirPathSize = outDir.path().size();
+    auto insertAsset = [&](const QString &filePath) {
+        QString targetPath = filePath.mid(outDirPathSize);
+        targetPath.prepend(targetDirPath);
+        assetFiles.insert(filePath, targetPath);
+    };
+
     // Generate qmldir file if importer doesn't already make one
     QString qmldirFileName = outDir.absoluteFilePath(QStringLiteral("qmldir"));
     if (!QFileInfo(qmldirFileName).exists()) {
@@ -349,8 +351,6 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
                             int nlIdx = content.lastIndexOf('\n', braceIdx);
                             QByteArray rootItem = content.mid(nlIdx, braceIdx - nlIdx).trimmed();
                             if (rootItem == "Node") { // a 3D object
-                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon.png", iconFileName);
-                                QFile::copy(":/ItemLibrary/images/item-3D_model-icon@2x.png", iconFileName2x);
                                 // create hints file with proper hints
                                 QFile file(outDir.path() + '/' + fi.baseName() + ".hints");
                                 file.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -359,9 +359,14 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
                                 out << "canBeDroppedInFormEditor: false" << endl;
                                 out << "canBeDroppedInView3D: true" << endl;
                                 file.close();
-                            } else {
-                                QFile::copy(":/ItemLibrary/images/item-default-icon.png", iconFileName);
-                                QFile::copy(":/ItemLibrary/images/item-default-icon@2x.png", iconFileName2x);
+                            }
+                            QString outIconSource = QString::fromUtf8(content);
+                            if (generateComponentIcon(24, iconFileName, qmlIt.filePath())) {
+                                // Since icon is generated by external process, the file won't be
+                                // ready for asset gathering below, so assume its generation succeeds
+                                // and add it now.
+                                insertAsset(iconFileName);
+                                insertAsset(iconFileName2x);
                             }
                         }
                     }
@@ -375,15 +380,10 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
     }
 
     // Gather all generated files
-    const int outDirPathSize = outDir.path().size();
     QDirIterator dirIt(outDir.path(), QDir::Files, QDirIterator::Subdirectories);
-    QHash<QString, QString> assetFiles;
     while (dirIt.hasNext()) {
         dirIt.next();
-        const QString filePath = dirIt.filePath();
-        QString targetPath = filePath.mid(outDirPathSize);
-        targetPath.prepend(targetDirPath);
-        assetFiles.insert(filePath, targetPath);
+        insertAsset(dirIt.filePath());
     }
 
     // Copy the original asset into a subdirectory
@@ -428,10 +428,12 @@ void ItemLibraryAssetImporter::copyImportedFiles()
             // by filesystem watchers.
             QHash<QString, QString>::const_iterator it = assetFiles.begin();
             while (it != assetFiles.end()) {
-                QDir targetDir = QFileInfo(it.value()).dir();
-                if (!targetDir.exists())
-                    targetDir.mkpath(QStringLiteral("."));
-                QFile::copy(it.key(), it.value());
+                if (QFileInfo(it.key()).exists()) {
+                    QDir targetDir = QFileInfo(it.value()).dir();
+                    if (!targetDir.exists())
+                        targetDir.mkpath(".");
+                    QFile::copy(it.key(), it.value());
+                }
                 ++it;
             }
             notifyProgress((100 * ++counter) / m_importFiles.size(), progressTitle);
@@ -459,6 +461,79 @@ bool ItemLibraryAssetImporter::confirmAssetOverwrite(const QString &assetName)
     return QMessageBox::question(qobject_cast<QWidget *>(parent()),
                                  title, question,
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+}
+
+bool ItemLibraryAssetImporter::generateComponentIcon(int size, const QString &iconFile,
+                                                     const QString &iconSource)
+{
+    auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+    Model *model = doc ? doc->currentModel() : nullptr;
+
+    if (model) {
+        PuppetCreator puppetCreator(doc->currentTarget(), model);
+        puppetCreator.createQml2PuppetExecutableIfMissing();
+        QStringList puppetArgs;
+        puppetArgs << "--rendericon" << QString::number(size) << iconFile << iconSource;
+        QProcess *process = puppetCreator.createPuppetProcess(
+                    "custom", {}, this, "", SLOT(processFinished(int, QProcess::ExitStatus)), puppetArgs);
+
+        if (process->waitForStarted(5000)) {
+            connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                    process, &QProcess::deleteLater);
+            m_qmlPuppetProcesses << process;
+            return true;
+        } else {
+            delete process;
+        }
+    }
+    return false;
+}
+
+void ItemLibraryAssetImporter::finalizeQuick3DImport()
+{
+#ifdef IMPORT_QUICK3D_ASSETS
+    if (!isCancelled()) {
+        // Don't allow cancel anymore as existing asset overwrites are not trivially recoverable.
+        // Also, on Windows at least you can't delete a subdirectory of a watched directory,
+        // so complete rollback is no longer possible in any case.
+        emit importNearlyFinished();
+
+        copyImportedFiles();
+
+        auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+        Model *model = doc ? doc->currentModel() : nullptr;
+        if (model && !m_importFiles.isEmpty()) {
+            const QString progressTitle = tr("Updating data model.");
+            addInfo(progressTitle);
+            notifyProgress(0, progressTitle);
+
+            // Trigger underlying qmljs snapshot update by making a non-change to the doc
+            model->rewriterView()->textModifier()->replace(0, 0, {});
+
+            // There is an inbuilt delay before rewriter change actually updates the data model,
+            // so we need to wait for a moment to allow the change to take effect.
+            // Otherwise subsequent subcomponent manager update won't detect new imports properly.
+            QTimer *timer = new QTimer(parent());
+            static int counter;
+            counter = 0;
+            timer->callOnTimeout([this, timer, progressTitle, doc]() {
+                if (!isCancelled()) {
+                    notifyProgress(++counter * 10, progressTitle);
+                    if (counter >= 10) {
+                        doc->updateSubcomponentManager();
+                        timer->stop();
+                        notifyFinished();
+                    }
+                } else {
+                    timer->stop();
+                }
+            });
+            timer->start(100);
+        } else {
+            notifyFinished();
+        }
+    }
+#endif
 }
 
 bool ItemLibraryAssetImporter::isCancelled() const

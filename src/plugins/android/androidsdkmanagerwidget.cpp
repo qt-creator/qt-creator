@@ -444,6 +444,9 @@ void AndroidSdkManagerWidget::switchView(AndroidSdkManagerWidget::View view)
     else
         emit updatingSdk();
 
+    if (m_currentView == LicenseWorkflow)
+        emit licenseWorkflowStarted();
+
     m_ui->operationProgress->setValue(0);
     m_ui->viewStack->setCurrentWidget(m_currentView == PackageListing ?
                                           m_ui->packagesStack : m_ui->outputStack);

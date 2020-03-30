@@ -29,6 +29,7 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qjsonobject.h>
+#include <QtCore/qprocess.h>
 
 #include "import.h"
 
@@ -72,6 +73,9 @@ signals:
     void importNearlyFinished() const;
     void importFinished();
 
+private slots:
+    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
 private:
     void notifyFinished();
     void reset();
@@ -83,6 +87,8 @@ private:
     void notifyProgress(int value, const QString &text) const;
     void keepUiAlive() const;
     bool confirmAssetOverwrite(const QString &assetName);
+    bool generateComponentIcon(int size, const QString &iconFile, const QString &iconSource);
+    void finalizeQuick3DImport();
 
 #ifdef IMPORT_QUICK3D_ASSETS
     QScopedPointer<QSSGAssetImportManager> m_quick3DAssetImporter;
@@ -93,5 +99,7 @@ private:
     bool m_cancelled = false;
     QString m_importPath;
     QTemporaryDir *m_tempDir = nullptr;
+    QSet<QProcess *> m_qmlPuppetProcesses;
+    int m_qmlPuppetCount = 0;
 };
 } // QmlDesigner

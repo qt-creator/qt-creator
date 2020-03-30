@@ -653,7 +653,6 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
             || typeName == "QtQuick.Controls/Drawer"
             || typeName == "QtQuick.Controls/Dialog"
             || typeName == "QtQuick.Controls/Menu"
-            || typeName == "QtQuick.Controls/Pane"
             || typeName == "QtQuick.Controls/ToolTip")
         polishTypeName = "QtQuick/Item";
 

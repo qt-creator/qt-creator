@@ -225,6 +225,10 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
 
 QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
 {
+    // Clear containers so that we don't simply append to them in case the object is reused
+    itemLibraryEntry.m_data->hints.clear();
+    itemLibraryEntry.m_data->properties.clear();
+
     stream >> itemLibraryEntry.m_data->name;
     stream >> itemLibraryEntry.m_data->typeName;
     stream >> itemLibraryEntry.m_data->majorVersion;

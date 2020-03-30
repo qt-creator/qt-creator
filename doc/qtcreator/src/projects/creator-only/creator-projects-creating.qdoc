@@ -98,15 +98,9 @@
 
     \list
 
-        \li Applications
+        \li Application (Qt Quick)
 
         \list
-
-            \li Qt Widgets Application
-
-                Use \QD forms to design a Qt widget based user interface for the
-                desktop and C++ to implement the application logic
-
             \li Qt Quick Application - Empty
 
                 Create an empty Qt Quick application that uses Qt Quick 2 types.
@@ -121,10 +115,25 @@
                 {Qt Quick Controls} to implement a scrollable list (requires
                 Qt 5.9 or later) or a set of pages with a stack-based or
                 swipe-based navigation model (requires Qt 5.7 or later).
+        \endlist
+
+        \li Application (Qt)
+
+        \list
+
+            \li Qt Widgets Application
+
+                Use \QD forms to design a Qt widget based user interface for the
+                desktop and C++ to implement the application logic
 
             \li Qt Console Application
 
                 Use a single main.cpp file
+        \endlist
+
+        \li Application (Qt for Python)
+
+            \list
 
             \li Qt for Python Application - Empty, Window, Window (UI file), or
                 Qt Quick Application (Empty)
@@ -135,14 +144,18 @@
                 a widget-based UI. Alternatively, you can create an empty
                 Qt Quick Application.
 
-            \li MCU Support Application
+            \endlist
 
-                Creates an application that uses a subset of QML and
-                Qt Quick Controls (as supported by Qt for MCUs) that
-                you can deploy, run, and debug on MCU boards. For more
-                information, see \l {Connecting MCUs}.
+        \li Application (Qt for MCU)
 
-        \endlist
+            \list
+                \li MCU Support Application
+
+                    Creates an application that uses a subset of QML and
+                    Qt Quick Controls (as supported by Qt for MCUs) that
+                    you can deploy, run, and debug on MCU boards. For more
+                    information, see \l {Connecting MCUs}.
+            \endlist
 
         \li Libraries
 

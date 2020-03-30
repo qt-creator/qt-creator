@@ -40,6 +40,7 @@
 #include <utils/runextensions.h>
 
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 #include <QMetaObject>
@@ -781,13 +782,17 @@ static bool findNewQmlApplicationInPath(const QString &path,
     default: break;
     }
 
-    const QDir dir(path);
-    const QLatin1String appQmltypes("app.qmltypes");
-    QFile appQmltypesFile(dir.filePath(appQmltypes));
-    if (!appQmltypesFile.exists())
+    QString qmltypesFile;
+
+    QDir dir(path);
+    QDirIterator it(path, QStringList { "*.qmltypes" }, QDir::Files);
+
+    if (!it.hasNext())
         return false;
 
-    LibraryInfo libraryInfo = LibraryInfo(QmlDirParser::TypeInfo(appQmltypes));
+    qmltypesFile = it.next();
+
+    LibraryInfo libraryInfo = LibraryInfo(QmlDirParser::TypeInfo(qmltypesFile));
     const QString libraryPath = dir.absolutePath();
     newLibraries->insert(libraryPath);
     modelManager->updateLibraryInfo(path, libraryInfo);

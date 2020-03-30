@@ -51,6 +51,10 @@ const Utils::Icon EDIT3D_LIGHT_ON({
         {QLatin1String(":/edit3d/images/edit_light_on.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_LIGHT_OFF({
         {QLatin1String(":/edit3d/images/edit_light_off.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_GRID_ON({
+        {QLatin1String(":/edit3d/images/grid_on.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_GRID_OFF({
+        {QLatin1String(":/edit3d/images/grid_off.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_SELECTION_MODE_ON({
         {QLatin1String(":/edit3d/images/select_group.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_SELECTION_MODE_OFF({

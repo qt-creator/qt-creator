@@ -551,20 +551,46 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
     NodeAbstractProperty targetProperty;
 
     bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber);
-
     if (foundTarget) {
-        const QString imageFileName = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource"));
-        const QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageFileName, QPointF(), targetProperty);
+        ModelNode targetNode(modelNodeForIndex(rowModelIndex));
 
-        if (newQmlItemNode.isValid()) {
-            QList<ModelNode> newModelNodeList;
-            newModelNodeList.append(newQmlItemNode);
+        const QString imageSource = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource")); // absolute path
+        const QString imageFileName = imageSource.mid(imageSource.lastIndexOf('/') + 1);
+        ModelNode newModelNode;
 
-            moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
+        if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial")) {
+            // if dropping an image on a default material, create a texture instead of image
+            m_view->executeInTransaction("QmlItemNode::createQmlItemNode", [&] {
+                // create a texture item lib
+                ItemLibraryEntry itemLibraryEntry;
+                itemLibraryEntry.setName("Texture");
+                itemLibraryEntry.setType("QtQuick3D.Texture", 1, 0);
+
+                // set texture source
+                PropertyName prop = "source";
+                QString type = "QUrl";
+                QVariant val = imageFileName;
+                itemLibraryEntry.addProperty(prop, type, val);
+
+                // create a texture
+                newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {}, targetProperty, false);
+
+                // set the texture to parent material's diffuseMap property
+                // TODO: allow the user to choose which map property to set the texture for
+                targetNode.bindingProperty("diffuseMap").setExpression(newModelNode.validId());
+            });
+        } else if (targetNode.isSubclassOf("QtQuick3D.Texture")) {
+            // if dropping an image on a texture, set the texture source
+            targetNode.variantProperty("source").setValue(imageFileName);
+        } else {
+            // create an image
+            newModelNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageSource , QPointF(), targetProperty);
         }
 
-        if (newQmlItemNode.isValid())
-            m_view->selectModelNode(newQmlItemNode.modelNode());
+        if (newModelNode.isValid()) {
+            moveNodesInteractive(targetProperty, {newModelNode}, targetRowNumber);
+            m_view->setSelectedModelNode(newModelNode);
+        }
     }
 }
 

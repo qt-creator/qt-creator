@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" viewBox="0 0 450 272" xml:space="preserve">
+<g>
+	<path fill="#C9C7C7" d="M435.81,271.62H14.41c-7.84,0-14.19-6.36-14.19-14.19V13.94c0-7.84,6.36-14.19,14.19-14.19h421.4
+		c7.84,0,14.19,6.36,14.19,14.19v243.49C450,265.27,443.64,271.62,435.81,271.62z"/>
+	<path fill="#878686" d="M0.66,19.38l-0.44-5.46c0-7.83,6.35-14.18,14.18-14.18h421.43c7.83,0,14.18,6.35,14.18,14.18v6.84"/>
+	<circle fill="#DD5958" cx="17.63" cy="10.39" r="4.99"/>
+	<circle fill="#DBC558" cx="34.61" cy="10.39" r="4.99"/>
+	<circle fill="#52B257" cx="51.59" cy="10.39" r="4.99"/>
+</g>
+<rect x="66.15" y="30.54" fill="#444345" width="343.54" height="233.69"/>
+<rect x="40.18" y="30.54" fill="#333333" width="25.97" height="233.69"/>
+<text transform="matrix(1 0 0 1 51.6992 49.5161)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">1</text>
+<text transform="matrix(1 0 0 1 51.6992 67.8916)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">2</text>
+<text transform="matrix(1 0 0 1 51.6992 86.2676)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">3</text>
+<text transform="matrix(1 0 0 1 51.6992 104.6431)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">4</text>
+<text transform="matrix(1 0 0 1 51.6992 123.0186)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">5</text>
+<text transform="matrix(1 0 0 1 51.6992 141.3945)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">6</text>
+<text transform="matrix(1 0 0 1 51.6992 159.7695)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">7</text>
+<text transform="matrix(1 0 0 1 51.6992 178.1455)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">8</text>
+<text transform="matrix(1 0 0 1 51.6992 196.5215)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">9</text>
+<text transform="matrix(1 0 0 1 43.3105 214.8965)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">10</text>
+<text transform="matrix(1 0 0 1 43.3105 233.2725)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">11</text>
+<text transform="matrix(1 0 0 1 43.3105 251.6484)" fill="#FFFFFF" font-family="'IBMPlexMono'" font-size="13.9815px">12</text>
+<text transform="matrix(1 0 0 1 78.064 49.5161)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">// main.cpp</text>
+<text transform="matrix(1 0 0 1 78.064 67.8916)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">#include &lt;QApplication&gt;</text>
+<text transform="matrix(1 0 0 1 78.064 86.2676)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">#include &lt;QTableView&gt;</text>
+<text transform="matrix(1 0 0 1 78.064 104.6431)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">#include &quot;mymodel.h&quot;</text>
+<text transform="matrix(1 0 0 1 78.064 141.3945)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">int main(int argc, char *argv[])</text>
+<text transform="matrix(1 0 0 1 78.064 178.1455)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">{</text>
+<text transform="matrix(1 0 0 1 78.064 196.5215)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">    QApplication a(argc, argv);</text>
+<text transform="matrix(1 0 0 1 78.064 214.8965)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">    QTableView tableView;</text>
+<text transform="matrix(1 0 0 1 78.064 233.2725)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">    MyModel myModel;</text>
+<text transform="matrix(1 0 0 1 78.064 251.6484)" fill="#FFFFFF" font-family="'IBMPlexMono-Light'" font-size="13.9815px">}</text>
+</svg>
