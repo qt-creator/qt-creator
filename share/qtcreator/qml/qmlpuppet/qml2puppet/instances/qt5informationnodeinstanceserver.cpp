@@ -1045,24 +1045,26 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
             if (firstSceneRoot && sceneRoot == firstSceneRoot && instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
 
-            auto instanceIsModelOrComponent = [&]() -> bool {
-                bool retval = instance.isSubclassOf("QQuick3DModel");
+            auto isSelectableAsRoot = [&]() -> bool {
 #ifdef QUICK3D_MODULE
-                if (!retval) {
-                    // Node is a component if it has node children that have no instances
-                    auto node = qobject_cast<QQuick3DNode *>(object);
-                    if (node) {
-                        const auto childItems = node->childItems();
-                        for (const auto &childItem : childItems) {
-                            if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
-                                return true;
-                        }
+                if (qobject_cast<QQuick3DModel *>(object)
+                    || qobject_cast<QQuick3DCamera *>(object)
+                    || qobject_cast<QQuick3DAbstractLight *>(object)) {
+                    return true;
+                }
+                // Node is a component if it has node children that have no instances
+                auto node = qobject_cast<QQuick3DNode *>(object);
+                if (node) {
+                    const auto childItems = node->childItems();
+                    for (const auto &childItem : childItems) {
+                        if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
+                            return true;
                     }
                 }
 #endif
-                return retval;
+                return false;
             };
-            if (object && (firstSceneRoot != object || instanceIsModelOrComponent()))
+            if (object && (firstSceneRoot != object || isSelectableAsRoot()))
                 selectedObjs << objectToVariant(object);
         }
     }
