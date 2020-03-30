@@ -745,7 +745,7 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(const ServerNodeInsta
             view = qobject_cast<QQuick3DViewport *>(parentInstance.internalObject());
             int nodeCount = countChildNodes(view);
             if (nodeCount == 1)
-                return checkInstance.internalObject();
+                return childNode;
             else
                 return view->scene();
         } else if (parentInstance.isSubclassOf("QQuick3DNode")) {
