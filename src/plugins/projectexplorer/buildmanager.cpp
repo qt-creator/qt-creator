@@ -652,7 +652,7 @@ void BuildManager::nextBuildQueue()
 void BuildManager::progressChanged(int percent, const QString &text)
 {
     if (d->m_progressFutureInterface)
-        d->m_progressFutureInterface->setProgressValueAndText(percent, text);
+        d->m_progressFutureInterface->setProgressValueAndText(percent + 100 * d->m_progress, text);
 }
 
 void BuildManager::nextStep()
