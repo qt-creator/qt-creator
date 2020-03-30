@@ -34,6 +34,7 @@
 #include <nodemetainfo.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QVariant>
 #include <QMetaProperty>
@@ -290,13 +291,15 @@ void ItemLibraryModel::addRoleNames()
 
 void ItemLibraryModel::sortSections()
 {
+    int nullPointerSectionCount = m_sections.removeAll(QPointer<ItemLibrarySection>());
+    QTC_ASSERT(nullPointerSectionCount == 0,;);
     auto sectionSort = [](ItemLibrarySection *first, ItemLibrarySection *second) {
         return QString::localeAwareCompare(first->sortingName(), second->sortingName()) < 1;
     };
 
     std::sort(m_sections.begin(), m_sections.end(), sectionSort);
 
-    foreach (ItemLibrarySection *itemLibrarySection, m_sections)
+    for (auto itemLibrarySection : m_sections)
         itemLibrarySection->sortItems();
 }
 
