@@ -491,6 +491,7 @@ bool ItemLibraryAssetImporter::generateComponentIcon(int size, const QString &ic
 
 void ItemLibraryAssetImporter::finalizeQuick3DImport()
 {
+#ifdef IMPORT_QUICK3D_ASSETS
     if (!isCancelled()) {
         // Don't allow cancel anymore as existing asset overwrites are not trivially recoverable.
         // Also, on Windows at least you can't delete a subdirectory of a watched directory,
@@ -532,6 +533,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             notifyFinished();
         }
     }
+#endif
 }
 
 bool ItemLibraryAssetImporter::isCancelled() const
