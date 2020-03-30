@@ -23,41 +23,19 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick3D 1.15
-import LightGeometry 1.0
+#pragma once
 
-Model {
-    id: lightModel
+#include <QtQuick/qquickimageprovider.h>
 
-    property string geometryName
-    property alias geometryName: lightGeometry.name // Name must be unique for each geometry
-    property Node targetNode: null
-    property Node scene: null
-    property bool selected: false
-    property color color
+namespace QmlDesigner {
+namespace Internal {
 
-    function updateGeometry()
-    {
-        lightGeometry.update();
-    }
+class IconGizmoImageProvider : public QQuickImageProvider
+{
+public:
+    IconGizmoImageProvider();
 
-    position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
-    rotation: targetNode ? targetNode.sceneRotation : Qt.quaternion(1, 0, 0, 0)
-    scale: Qt.vector3d(50, 50, 50)
-
-    geometry: lightGeometry
-    materials: [
-        DefaultMaterial {
-            id: defaultMaterial
-            emissiveColor: lightModel.selected ? lightModel.color : "#555555"
-            lighting: DefaultMaterial.NoLighting
-            cullMode: Material.NoCulling
-        }
-    ]
-
-    LightGeometry {
-        id: lightGeometry
-        light: lightModel.scene && lightModel.targetNode ? lightModel.targetNode : null
-    }
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
+};
+}
 }
