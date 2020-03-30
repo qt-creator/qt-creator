@@ -508,7 +508,6 @@ Item {
         Rectangle {
             id: viewRect
             anchors.fill: parent
-            focus: true
 
             gradient: Gradient {
                 GradientStop { position: 1.0; color: "#222222" }
