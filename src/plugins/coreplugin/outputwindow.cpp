@@ -555,6 +555,7 @@ void Internal::CorePlugin::testOutputFormatter()
             "A next A\n"
             "A end of next A\n"
             " A trick\r\n"
+            "line with \r embedded carriage return\n"
             "B to be handled by B\n";
     const QString output =
             "handled by B\n"
@@ -566,6 +567,7 @@ void Internal::CorePlugin::testOutputFormatter()
             "handled by A\n"
             "handled by A\n"
             " A trick\n"
+            " embedded carriage return\n"
             "handled by B\n";
     TestFormatterA formatterA;
     TestFormatterB formatterB;

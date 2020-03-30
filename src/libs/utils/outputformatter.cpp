@@ -108,8 +108,16 @@ QList<FormattedText> OutputFormatter::parseAnsi(const QString &text, const QText
 
 void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
 {
-    if (!text.isEmpty())
-        d->cursor.insertText(text, format);
+    int startPos = 0;
+    int crPos = -1;
+    while ((crPos = text.indexOf('\r', startPos)) >= 0)  {
+        d->cursor.insertText(text.mid(startPos, crPos - startPos), format);
+        d->cursor.clearSelection();
+        d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+        startPos = crPos + 1;
+    }
+    if (startPos < text.count())
+        d->cursor.insertText(text.mid(startPos), format);
 }
 
 QTextCursor &OutputFormatter::cursor() const
