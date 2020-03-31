@@ -226,8 +226,6 @@ def main():
     waitFor('str(changed.plainText) != "Waiting for data..."', 5000)
     test.compare(str(changed.plainText), "Retrieving data failed.",
                  "Showing an invalid commit can't succeed but Creator survived.")
-
-    invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")
 
 def deleteProject():
