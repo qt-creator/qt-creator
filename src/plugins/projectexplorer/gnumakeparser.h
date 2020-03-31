@@ -42,8 +42,6 @@ public:
     void stdOutput(const QString &line) override;
     void stdError(const QString &line) override;
 
-    void setWorkingDirectory(const QString &workingDirectory) override;
-
     QStringList searchDirectories() const;
 
     bool hasFatalErrors() const override;

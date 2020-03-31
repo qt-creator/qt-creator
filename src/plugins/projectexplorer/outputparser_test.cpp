@@ -38,8 +38,6 @@ static inline QByteArray msgFileComparisonFail(const Utils::FilePath &f1, const 
     return result.toLocal8Bit();
 }
 
-OutputParserTester::OutputParserTester() = default;
-
 // test functions:
 void OutputParserTester::testParsing(const QString &lines,
                                      Channel inputChannel,
@@ -48,6 +46,10 @@ void OutputParserTester::testParsing(const QString &lines,
                                      const QString &childStdErrLines,
                                      const QString &outputLines)
 {
+    if (!m_terminator) {
+        m_terminator = new TestTerminator(this);
+        appendOutputParser(m_terminator);
+    }
     reset();
     Q_ASSERT(childParser());
 
@@ -60,18 +62,8 @@ void OutputParserTester::testParsing(const QString &lines,
     }
     childParser()->flush();
 
-     // first disconnect ourselves from the end of the parser chain again
-    IOutputParser *parser = this;
-    while ( (parser = parser->childParser()) ) {
-        if (parser->childParser() == this) {
-            childParser()->takeOutputParserChain();
-            break;
-        }
-    }
-    parser = nullptr;
+    // delete the parser(s) to test
     emit aboutToDeleteParser();
-
-    // then delete the parser(s) to test
     setChildParser(nullptr);
 
     QCOMPARE(m_receivedOutput, outputLines);
@@ -110,37 +102,9 @@ void OutputParserTester::testTaskMangling(const Task &input,
     }
 }
 
-void OutputParserTester::testOutputMangling(const QString &input,
-                                            const QString &output)
-{
-    reset();
-
-    childParser()->outputAdded(input, BuildStep::OutputFormat::Stdout);
-
-    QCOMPARE(m_receivedOutput, output);
-    QVERIFY(m_receivedStdErrChildLine.isNull());
-    QVERIFY(m_receivedStdOutChildLine.isNull());
-    QVERIFY(m_receivedTasks.isEmpty());
-}
-
 void OutputParserTester::setDebugEnabled(bool debug)
 {
     m_debug = debug;
-}
-
-void OutputParserTester::appendOutputParser(IOutputParser *parser)
-{
-    Q_ASSERT(!childParser());
-    parser->appendOutputParser(new TestTerminator(this));
-    IOutputParser::appendOutputParser(parser);
-}
-
-void OutputParserTester::outputAdded(const QString &line, BuildStep::OutputFormat format)
-{
-    Q_UNUSED(format)
-    if (!m_receivedOutput.isEmpty())
-        m_receivedOutput.append('\n');
-    m_receivedOutput.append(line);
 }
 
 void OutputParserTester::taskAdded(const Task &task, int linkedLines, int skipLines)

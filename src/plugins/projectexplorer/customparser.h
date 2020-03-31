@@ -89,8 +89,6 @@ public:
     void stdError(const QString &line) override;
     void stdOutput(const QString &line) override;
 
-    void setWorkingDirectory(const QString &workingDirectory) override;
-
     void setSettings(const CustomParserSettings &settings);
 
     static Core::Id id();
@@ -103,8 +101,6 @@ private:
 
     CustomParserExpression m_error;
     CustomParserExpression m_warning;
-
-    QString m_workingDirectory;
 };
 
 } // namespace ProjectExplorer

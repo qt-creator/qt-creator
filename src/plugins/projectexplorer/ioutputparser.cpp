@@ -138,19 +138,7 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
     }
 
     m_parser = parser;
-    connect(parser, &IOutputParser::addOutput,
-            this, &IOutputParser::outputAdded, Qt::DirectConnection);
-    connect(parser, &IOutputParser::addTask,
-            this, &IOutputParser::taskAdded, Qt::DirectConnection);
-}
-
-IOutputParser *IOutputParser::takeOutputParserChain()
-{
-    IOutputParser *parser = m_parser;
-    disconnect(parser, &IOutputParser::addOutput, this, &IOutputParser::outputAdded);
-    disconnect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
-    m_parser = nullptr;
-    return parser;
+    connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
 }
 
 IOutputParser *IOutputParser::childParser() const
@@ -163,12 +151,8 @@ void IOutputParser::setChildParser(IOutputParser *parser)
     if (m_parser != parser)
         delete m_parser;
     m_parser = parser;
-    if (parser) {
-        connect(parser, &IOutputParser::addOutput,
-                this, &IOutputParser::outputAdded, Qt::DirectConnection);
-        connect(parser, &IOutputParser::addTask,
-                this, &IOutputParser::taskAdded, Qt::DirectConnection);
-    }
+    if (parser)
+        connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
 }
 
 void IOutputParser::stdOutput(const QString &line)
@@ -181,11 +165,6 @@ void IOutputParser::stdError(const QString &line)
 {
     if (m_parser)
         m_parser->stdError(line);
-}
-
-void IOutputParser::outputAdded(const QString &string, BuildStep::OutputFormat format)
-{
-    emit addOutput(string, format);
 }
 
 void IOutputParser::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
@@ -201,15 +180,11 @@ bool IOutputParser::hasFatalErrors() const
     return m_parser && m_parser->hasFatalErrors();
 }
 
-void IOutputParser::setWorkingDirectory(const QString &workingDirectory)
-{
-    if (m_parser)
-        m_parser->setWorkingDirectory(workingDirectory);
-}
-
 void IOutputParser::setWorkingDirectory(const Utils::FilePath &fn)
 {
-    setWorkingDirectory(fn.toString());
+    m_workingDir = fn;
+    if (m_parser)
+        m_parser->setWorkingDirectory(fn);
 }
 
 void IOutputParser::flush()

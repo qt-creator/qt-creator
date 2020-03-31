@@ -56,12 +56,6 @@ GnuMakeParser::GnuMakeParser()
     QTC_CHECK(m_errorInMakefile.isValid());
 }
 
-void GnuMakeParser::setWorkingDirectory(const QString &workingDirectory)
-{
-    addDirectory(workingDirectory);
-    IOutputParser::setWorkingDirectory(workingDirectory);
-}
-
 bool GnuMakeParser::hasFatalErrors() const
 {
     return (m_fatalErrorCount > 0) || IOutputParser::hasFatalErrors();
@@ -180,7 +174,7 @@ void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLine
 
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
         QFileInfoList possibleFiles;
-        foreach (const QString &dir, m_directories) {
+        foreach (const QString &dir, searchDirectories()) {
             QFileInfo candidate(dir + QLatin1Char('/') + filePath);
             if (candidate.exists()
                 && !possibleFiles.contains(candidate)) {
@@ -197,6 +191,14 @@ void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLine
     IOutputParser::taskAdded(editable, linkedLines, skippedLines);
 }
 
+QStringList GnuMakeParser::searchDirectories() const
+{
+    QStringList dirs = m_directories;
+    if (!workingDirectory().isEmpty())
+        dirs << workingDirectory().toString();
+    return dirs;
+}
+
 } // ProjectExplorer
 
 #ifdef WITH_TESTS
@@ -209,11 +211,6 @@ void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLine
 #   include "projectexplorerconstants.h"
 
 namespace ProjectExplorer {
-
-QStringList GnuMakeParser::searchDirectories() const
-{
-    return m_directories;
-}
 
 GnuMakeParserTester::GnuMakeParserTester(GnuMakeParser *p, QObject *parent) :
     QObject(parent),

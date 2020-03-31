@@ -29,8 +29,6 @@
 
 #include <projectexplorer/ioutputparser.h>
 
-#include <QDir>
-
 namespace QbsProjectManager {
 namespace Internal {
 
@@ -42,10 +40,7 @@ public:
     explicit QbsParser();
 
 private:
-    void setWorkingDirectory(const QString &workingDirectory) override;
     void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines) override;
-
-    QDir m_workingDirectory;
 };
 
 } // namespace Internal

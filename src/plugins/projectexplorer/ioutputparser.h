@@ -28,7 +28,7 @@
 #include "projectexplorer_export.h"
 #include "buildstep.h"
 
-namespace Utils { class FilePath; }
+#include <utils/fileutils.h>
 
 namespace ProjectExplorer {
 class Task;
@@ -41,9 +41,7 @@ public:
     IOutputParser() = default;
     ~IOutputParser() override;
 
-    virtual void appendOutputParser(IOutputParser *parser);
-
-    IOutputParser *takeOutputParserChain();
+    void appendOutputParser(IOutputParser *parser);
 
     IOutputParser *childParser() const;
     void setChildParser(IOutputParser *parser);
@@ -52,25 +50,26 @@ public:
     virtual void stdError(const QString &line);
 
     virtual bool hasFatalErrors() const;
-    virtual void setWorkingDirectory(const QString &workingDirectory);
+
     void setWorkingDirectory(const Utils::FilePath &fn);
 
     void flush(); // flush out pending tasks
 
     static QString rightTrimmed(const QString &in);
 
+    virtual void taskAdded(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
+
 signals:
-    void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
     void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
-public slots:
-    virtual void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-    virtual void taskAdded(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
+protected:
+    Utils::FilePath workingDirectory() const { return m_workingDir; }
 
 private:
     virtual void doFlush();
 
     IOutputParser *m_parser = nullptr;
+    Utils::FilePath m_workingDir;
 };
 
 } // namespace ProjectExplorer

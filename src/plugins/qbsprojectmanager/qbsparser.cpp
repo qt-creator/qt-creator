@@ -29,6 +29,7 @@
 
 #include <utils/fileutils.h>
 
+#include <QDir>
 #include <QFileInfo>
 
 namespace QbsProjectManager {
@@ -39,21 +40,13 @@ QbsParser::QbsParser()
     setObjectName(QLatin1String("QbsParser"));
 }
 
-void QbsParser::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_workingDirectory = QDir(workingDirectory);
-    IOutputParser::setWorkingDirectory(workingDirectory);
-}
-
+// TODO: Is this really needed? qbs never emits relative paths...
 void QbsParser::taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines)
 {
     ProjectExplorer::Task editable(task);
-
-    QString filePath = task.file.toString();
-
+    const QString filePath = task.file.toString();
     if (!filePath.isEmpty())
-        editable.file = Utils::FilePath::fromUserInput(m_workingDirectory.absoluteFilePath(filePath));
-
+        editable.file = workingDirectory().pathAppended(filePath);
     IOutputParser::taskAdded(editable, linkedLines, skipLines);
 }
 

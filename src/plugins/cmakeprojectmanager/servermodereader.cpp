@@ -73,8 +73,6 @@ const int MAX_PROGRESS = 1400;
 
 ServerModeReader::ServerModeReader()
 {
-    connect(&m_parser, &CMakeParser::addOutput,
-            this, [](const QString &m) { Core::MessageManager::write(m); });
     connect(&m_parser, &CMakeParser::addTask, this, [this](const Task &t) {
         Task editable(t);
         if (!editable.file.isEmpty()) {

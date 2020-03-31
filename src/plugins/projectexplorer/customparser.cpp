@@ -134,11 +134,6 @@ void CustomParser::stdOutput(const QString &line)
     IOutputParser::stdOutput(line);
 }
 
-void CustomParser::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_workingDirectory = workingDirectory;
-}
-
 void CustomParser::setSettings(const CustomParserSettings &settings)
 {
     m_error = settings.error;
@@ -152,10 +147,9 @@ Core::Id CustomParser::id()
 
 FilePath CustomParser::absoluteFilePath(const QString &filePath) const
 {
-    if (m_workingDirectory.isEmpty())
+    if (workingDirectory().isEmpty())
         return FilePath::fromUserInput(filePath);
-
-    return FilePath::fromString(m_workingDirectory).resolvePath(filePath);
+    return workingDirectory().resolvePath(filePath);
 }
 
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
@@ -481,7 +475,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers()
 
     CustomParser *parser = new CustomParser;
     parser->setSettings(settings);
-    parser->setWorkingDirectory(workDir);
+    parser->setWorkingDirectory(FilePath::fromString(workDir));
 
     OutputParserTester testbench;
     testbench.appendOutputParser(parser);

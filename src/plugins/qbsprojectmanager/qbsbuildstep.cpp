@@ -179,10 +179,6 @@ bool QbsBuildStep::init()
     m_activeFileTags = bc->activeFileTags();
     m_products = bc->products();
 
-    connect(m_parser, &ProjectExplorer::IOutputParser::addOutput,
-            this, [this](const QString &string, ProjectExplorer::BuildStep::OutputFormat format) {
-        emit addOutput(string, format);
-    });
     connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
 
     return true;
@@ -383,7 +379,7 @@ void QbsBuildStep::handleProcessResult(
     if (success && !hasOutput)
         return;
 
-    m_parser->setWorkingDirectory(workingDir.toString());
+    m_parser->setWorkingDirectory(workingDir);
     emit addOutput(executable.toUserOutput() + ' '  + QtcProcess::joinArgs(arguments),
                    OutputFormat::Stdout);
     for (const QString &line : stdErr) {

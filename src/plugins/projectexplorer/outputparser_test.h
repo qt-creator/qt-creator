@@ -46,8 +46,6 @@ public:
         STDERR
     };
 
-    OutputParserTester();
-
     // test functions:
     void testParsing(const QString &lines, Channel inputChannel,
                      Tasks tasks,
@@ -56,18 +54,13 @@ public:
                      const QString &outputLines);
     void testTaskMangling(const Task &input,
                           const Task &output);
-    void testOutputMangling(const QString &input,
-                            const QString &output);
 
     void setDebugEnabled(bool);
-
-    void appendOutputParser(IOutputParser *parser) override;
 
 signals:
     void aboutToDeleteParser();
 
 private:
-    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format) override;
     void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines) override;
 
     void reset();
@@ -78,6 +71,7 @@ private:
     QString m_receivedStdOutChildLine;
     Tasks m_receivedTasks;
     QString m_receivedOutput;
+    TestTerminator *m_terminator = nullptr;
 
     friend class TestTerminator;
 };
