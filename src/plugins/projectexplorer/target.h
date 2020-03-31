@@ -123,6 +123,8 @@ public:
     DeploymentData buildSystemDeploymentData() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;
 
+    QString activeBuildKey() const; // Build key of active run configuaration
+
 signals:
     void targetEnabled(bool);
     void iconChanged();

@@ -238,6 +238,15 @@ BuildTargetInfo Target::buildTarget(const QString &buildKey) const
     return buildSystem()->buildTarget(buildKey);
 }
 
+QString Target::activeBuildKey() const
+{
+    // Should not happen. If it does, return a buildKey that wont be found in
+    // the project tree, so that the project()->findNodeForBuildKey(buildKey)
+    // returns null.
+    QTC_ASSERT(d->m_activeRunConfiguration, return QString(QChar(0)));
+    return d->m_activeRunConfiguration->buildKey();
+}
+
 Core::Id Target::id() const
 {
     return d->m_kit->id();
