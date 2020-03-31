@@ -38,7 +38,6 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -329,8 +328,8 @@ QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
     });
 
     Target *target = m_step->target();
-    RunConfiguration *rc = target->activeRunConfiguration();
-    const ProjectNode *node = rc ? target->project()->findNodeForBuildKey(rc->buildKey()) : nullptr;
+    const QString buildKey = target->activeBuildKey();
+    const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey);
     group->setEnabled(node && !node->parseInProgress());
 
     return group;

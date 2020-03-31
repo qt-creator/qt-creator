@@ -34,6 +34,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
+#include <utils/qtcassert.h>
+
 using namespace ProjectExplorer;
 
 namespace Android {
@@ -49,6 +51,7 @@ AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(ProjectExplorer::Targ
             this, &AndroidExtraLibraryListModel::updateModel);
     connect(target, &Target::parsingFinished,
             this, &AndroidExtraLibraryListModel::updateModel);
+    // Causes target()->activeBuildKey() result to change.
     connect(target, &Target::activeRunConfigurationChanged,
             this, &AndroidExtraLibraryListModel::updateModel);
 }
@@ -83,10 +86,8 @@ QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) 
 
 void AndroidExtraLibraryListModel::updateModel()
 {
-    RunConfiguration *rc = m_target->activeRunConfiguration();
-    QTC_ASSERT(rc, return);
-
-    const ProjectNode *node = m_target->project()->findNodeForBuildKey(rc->buildKey());
+    const QString buildKey = m_target->activeBuildKey();
+    const ProjectNode *node = m_target->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
 
     if (node->parseInProgress()) {
@@ -111,10 +112,8 @@ void AndroidExtraLibraryListModel::updateModel()
 
 void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 {
-    RunConfiguration *rc = m_target->activeRunConfiguration();
-    QTC_ASSERT(rc, return);
-
-    const ProjectNode *node = m_target->project()->findNodeForBuildKey(rc->buildKey());
+    const QString buildKey = m_target->activeBuildKey();
+    const ProjectNode *node = m_target->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
@@ -153,9 +152,8 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
         endRemoveRows();
     }
 
-    RunConfiguration *rc = m_target->activeRunConfiguration();
-    QTC_ASSERT(rc, return);
-    const ProjectNode *node = m_target->project()->findNodeForBuildKey(rc->buildKey());
+    const QString buildKey = m_target->activeBuildKey();
+    const ProjectNode *node = m_target->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
     node->setData(Constants::AndroidExtraLibs, m_entries);
 }

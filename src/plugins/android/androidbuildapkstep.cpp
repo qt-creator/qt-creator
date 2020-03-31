@@ -40,11 +40,11 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -181,9 +181,8 @@ bool AndroidBuildApkStep::init()
     parser->setProjectFileList(Utils::transform(target()->project()->files(ProjectExplorer::Project::AllFiles),
                                                 &Utils::FilePath::toString));
 
-    RunConfiguration *rc = target()->activeRunConfiguration();
-    const QString buildKey = rc ? rc->buildKey() : QString();
-    const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(buildKey) : nullptr;
+    const QString buildKey = target()->activeBuildKey();
+    const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
 
     QString sourceDirName;
     if (node)
@@ -222,7 +221,7 @@ bool AndroidBuildApkStep::init()
         m_inputFile = node->data(Constants::AndroidDeploySettingsFile).toString();
 
     if (m_inputFile.isEmpty()) {
-        qCDebug(buildapkstepLog) << "no input file" << rc << node << buildKey;
+        qCDebug(buildapkstepLog) << "no input file" << node << buildKey;
         m_skipBuilding = true;
         return true;
     }
@@ -384,9 +383,8 @@ void AndroidBuildApkStep::doRun()
                 return false;
         }
 
-        RunConfiguration *rc = target()->activeRunConfiguration();
-        const QString buildKey = rc ? rc->buildKey() : QString();
-        const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(buildKey) : nullptr;
+        const QString buildKey = target()->activeBuildKey();
+        const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
 
         if (!node)
             return false;
@@ -408,7 +406,7 @@ void AndroidBuildApkStep::doRun()
         QString applicationBinary;
         if (version->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
-            applicationBinary = target()->activeRunConfiguration()->buildTargetInfo().targetFilePath.toString();
+            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
             Utils::FilePath androidLibsDir = buildDirectory().pathAppended("android-build/libs").pathAppended(androidAbis.first());
             for (const auto &target : targets) {
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
@@ -416,7 +414,7 @@ void AndroidBuildApkStep::doRun()
             }
             deploySettings["target-architecture"] = androidAbis.first();
         } else {
-            applicationBinary = target()->activeRunConfiguration()->buildTargetInfo().targetFilePath.toFileInfo().fileName();
+            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toFileInfo().fileName();
             QJsonObject architectures;
 
             // Copy targets to android build folder

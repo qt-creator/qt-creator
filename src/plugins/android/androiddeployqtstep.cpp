@@ -222,7 +222,8 @@ bool AndroidDeployQtStep::init()
     m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     if (m_useAndroiddeployqt) {
-        const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey());
+        const QString buildKey = target()->activeBuildKey();
+        const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
         if (!node)
             return false;
         m_apkPath = Utils::FilePath::fromString(node->data(Constants::AndroidApk).toString());
