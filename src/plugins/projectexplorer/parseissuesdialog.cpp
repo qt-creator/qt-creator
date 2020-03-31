@@ -140,9 +140,9 @@ static void parse(QFutureInterface<void> &future, const QString &output,
 {
     const QStringList lines = output.split('\n');
     future.setProgressRange(0, lines.count());
-    const auto parserFunc = isStderr ? &IOutputParser::stdError : &IOutputParser::stdOutput;
+    const auto parserFunc = isStderr ? &IOutputParser::handleStderr : &IOutputParser::handleStdout;
     for (const QString &line : lines) {
-        (parser.get()->*parserFunc)(line);
+        (parser.get()->*parserFunc)(line + '\n');
         future.setProgressValue(future.progressValue() + 1);
         if (future.isCanceled())
             return;

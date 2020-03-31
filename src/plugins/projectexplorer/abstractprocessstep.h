@@ -64,8 +64,8 @@ protected:
     virtual void processFinished(int exitCode, QProcess::ExitStatus status);
     virtual void processStartupFailed();
     virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
+    virtual void stdOutput(const QString &output);
+    virtual void stdError(const QString &output);
 
     void doCancel() override;
 

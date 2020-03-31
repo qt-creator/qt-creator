@@ -53,14 +53,11 @@ void OutputParserTester::testParsing(const QString &lines,
     reset();
     Q_ASSERT(childParser());
 
-    const QStringList inputLines = lines.split('\n');
-    for (const QString &input : inputLines) {
-        if (inputChannel == STDOUT)
-            childParser()->stdOutput(input + '\n');
-        else
-            childParser()->stdError(input + '\n');
-    }
-    childParser()->flush();
+    if (inputChannel == STDOUT)
+        handleStdout(lines + '\n');
+    else
+        handleStderr(lines + '\n');
+    flush();
 
     // delete the parser(s) to test
     emit aboutToDeleteParser();

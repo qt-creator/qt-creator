@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QHash>
 #include <QPair>
+#include <QTextDecoder>
 #include <QUrl>
 
 #include <algorithm>
@@ -108,15 +109,11 @@ public:
     std::unique_ptr<IOutputParser> m_outputParserChain;
     ProcessParameters m_param;
     Utils::FileInProjectFinder m_fileFinder;
-    QByteArray deferredText;
     bool m_ignoreReturnValue = false;
     bool m_skipFlush = false;
     bool m_lowPriority = false;
-
-    void readData(void (AbstractProcessStep::*func)(const QString &), bool isUtf8 = false);
-    void processLine(const QByteArray &data,
-                     void (AbstractProcessStep::*func)(const QString &),
-                     bool isUtf8 = false);
+    std::unique_ptr<QTextDecoder> stdoutStream;
+    std::unique_ptr<QTextDecoder> stderrStream;
 };
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
@@ -223,6 +220,10 @@ void AbstractProcessStep::doRun()
         finish(false);
         return;
     }
+
+    d->stdoutStream = std::make_unique<QTextDecoder>(buildEnvironment().hasKey("VSLANG")
+            ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
+    d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
 
     d->m_process.reset(new Utils::QtcProcess());
     d->m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
@@ -347,40 +348,7 @@ void AbstractProcessStep::processReadyReadStdOutput()
 {
     if (!d->m_process)
         return;
-    d->m_process->setReadChannel(QProcess::StandardOutput);
-    const bool utf8Output = buildEnvironment().hasKey("VSLANG");
-    d->readData(&AbstractProcessStep::stdOutput, utf8Output);
-}
-
-void AbstractProcessStep::Private::readData(void (AbstractProcessStep::*func)(const QString &),
-                                            bool isUtf8)
-{
-    while (m_process->bytesAvailable()) {
-        const bool hasLine = m_process->canReadLine();
-        const QByteArray data = hasLine ? m_process->readLine() : m_process->readAll();
-        int startPos = 0;
-        int crPos = -1;
-        while ((crPos = data.indexOf('\r', startPos)) >= 0)  {
-            if (data.size() > crPos + 1 && data.at(crPos + 1) == '\n')
-                break;
-            processLine(data.mid(startPos, crPos - startPos + 1), func, isUtf8);
-            startPos = crPos + 1;
-        }
-        if (hasLine)
-            processLine(data.mid(startPos), func, isUtf8);
-        else if (startPos < data.count())
-            deferredText += data.mid(startPos);
-    }
-}
-
-void AbstractProcessStep::Private::processLine(const QByteArray &data,
-                                               void (AbstractProcessStep::*func)(const QString &),
-                                               bool isUtf8)
-{
-    const QByteArray text = deferredText + data;
-    deferredText.clear();
-    const QString line = isUtf8 ? QString::fromUtf8(text) : QString::fromLocal8Bit(text);
-    (q->*func)(line);
+    stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
 }
 
 /*!
@@ -389,19 +357,18 @@ void AbstractProcessStep::Private::processLine(const QByteArray &data,
     The default implementation adds the line to the application output window.
 */
 
-void AbstractProcessStep::stdOutput(const QString &line)
+void AbstractProcessStep::stdOutput(const QString &output)
 {
     if (d->m_outputParserChain)
-        d->m_outputParserChain->stdOutput(line);
-    emit addOutput(line, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
+        d->m_outputParserChain->handleStdout(output);
+    emit addOutput(output, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
 }
 
 void AbstractProcessStep::processReadyReadStdError()
 {
     if (!d->m_process)
         return;
-    d->m_process->setReadChannel(QProcess::StandardError);
-    d->readData(&AbstractProcessStep::stdError);
+    stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
 }
 
 /*!
@@ -410,11 +377,11 @@ void AbstractProcessStep::processReadyReadStdError()
     The default implementation adds the line to the application output window.
 */
 
-void AbstractProcessStep::stdError(const QString &line)
+void AbstractProcessStep::stdError(const QString &output)
 {
     if (d->m_outputParserChain)
-        d->m_outputParserChain->stdError(line);
-    emit addOutput(line, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
+        d->m_outputParserChain->handleStderr(output);
+    emit addOutput(output, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
 }
 
 void AbstractProcessStep::finish(bool success)
@@ -432,7 +399,7 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
     // flush out any pending tasks before proceeding:
     if (!d->m_skipFlush && d->m_outputParserChain) {
         d->m_skipFlush = true;
-        d->m_outputParserChain->flush();
+        d->m_outputParserChain->flushTasks();
         d->m_skipFlush = false;
     }
 
@@ -463,15 +430,10 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
     QProcess *process = d->m_process.get();
     if (!process) // Happens when the process was canceled and handed over to the Reaper.
         process = qobject_cast<QProcess *>(sender()); // The process was canceled!
-
-    const QString stdErrLine = process ? QString::fromLocal8Bit(process->readAllStandardError()) : QString();
-    for (const QString &l : stdErrLine.split('\n'))
-        stdError(l);
-
-    const QString stdOutLine = process ? QString::fromLocal8Bit(process->readAllStandardOutput()) : QString();
-    for (const QString &l : stdOutLine.split('\n'))
-        stdOutput(l);
-
+    if (process) {
+        stdError(d->stderrStream->toUnicode(process->readAllStandardError()));
+        stdOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()));
+    }
     cleanUp(process);
 }
 

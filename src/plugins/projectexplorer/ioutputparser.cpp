@@ -26,6 +26,8 @@
 #include "ioutputparser.h"
 #include "task.h"
 
+#include <utils/synchronousprocess.h>
+
 /*!
     \class ProjectExplorer::IOutputParser
 
@@ -40,13 +42,6 @@
 
     Appends a subparser to this parser, of which IOutputParser will take
     ownership.
-*/
-
-/*!
-    \fn IOutputParser *ProjectExplorer::IOutputParser::takeOutputParserChain()
-
-    Removes the appended outputparser chain from this parser, transferring
-           ownership of the parser chain to the caller.
 */
 
 /*!
@@ -90,18 +85,6 @@
 */
 
 /*!
-   \fn void ProjectExplorer::IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
-
-   Subparsers have their addOutput signal connected to this slot.
-*/
-
-/*!
-   \fn void ProjectExplorer::IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
-
-   This function can be overwritten to change the string.
-*/
-
-/*!
    \fn void ProjectExplorer::IOutputParser::taskAdded(const ProjectExplorer::Task &task)
 
    Subparsers have their addTask signal connected to this slot.
@@ -123,49 +106,115 @@
 
 namespace ProjectExplorer {
 
+class OutputChannelState
+{
+public:
+    using LineHandler = void (IOutputParser::*)(const QString &line);
+
+    OutputChannelState(IOutputParser *parser, LineHandler lineHandler)
+        : parser(parser), lineHandler(lineHandler) {}
+
+    void handleData(const QString &newData)
+    {
+        pendingData += newData;
+        pendingData = Utils::SynchronousProcess::normalizeNewlines(pendingData);
+        while (true) {
+            const int eolPos = pendingData.indexOf('\n');
+            if (eolPos == -1)
+                break;
+            const QString line = pendingData.left(eolPos + 1);
+            pendingData.remove(0, eolPos + 1);
+            (parser->*lineHandler)(line);
+        }
+    }
+
+    void flush()
+    {
+        if (!pendingData.isEmpty()) {
+            (parser->*lineHandler)(pendingData);
+            pendingData.clear();
+        }
+    }
+
+    IOutputParser * const parser;
+    LineHandler lineHandler;
+    QString pendingData;
+};
+
+class IOutputParser::IOutputParserPrivate
+{
+public:
+    IOutputParserPrivate(IOutputParser *parser)
+        : stdoutState(parser, &IOutputParser::stdOutput),
+          stderrState(parser, &IOutputParser::stdError)
+    {}
+
+    IOutputParser *childParser = nullptr;
+    Utils::FilePath workingDir;
+    OutputChannelState stdoutState;
+    OutputChannelState stderrState;
+};
+
+IOutputParser::IOutputParser() : d(new IOutputParserPrivate(this))
+{
+}
+
 IOutputParser::~IOutputParser()
 {
-    delete m_parser;
+    delete d->childParser;
+    delete d;
+}
+
+void IOutputParser::handleStdout(const QString &data)
+{
+    d->stdoutState.handleData(data);
+}
+
+void IOutputParser::handleStderr(const QString &data)
+{
+    d->stderrState.handleData(data);
 }
 
 void IOutputParser::appendOutputParser(IOutputParser *parser)
 {
     if (!parser)
         return;
-    if (m_parser) {
-        m_parser->appendOutputParser(parser);
+    if (d->childParser) {
+        d->childParser->appendOutputParser(parser);
         return;
     }
 
-    m_parser = parser;
+    d->childParser = parser;
     connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
 }
 
 IOutputParser *IOutputParser::childParser() const
 {
-    return m_parser;
+    return d->childParser;
 }
 
 void IOutputParser::setChildParser(IOutputParser *parser)
 {
-    if (m_parser != parser)
-        delete m_parser;
-    m_parser = parser;
+    if (d->childParser != parser)
+        delete d->childParser;
+    d->childParser = parser;
     if (parser)
         connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
 }
 
 void IOutputParser::stdOutput(const QString &line)
 {
-    if (m_parser)
-        m_parser->stdOutput(line);
+    if (d->childParser)
+        d->childParser->stdOutput(line);
 }
 
 void IOutputParser::stdError(const QString &line)
 {
-    if (m_parser)
-        m_parser->stdError(line);
+    if (d->childParser)
+        d->childParser->stdError(line);
 }
+
+Utils::FilePath IOutputParser::workingDirectory() const { return d->workingDir; }
 
 void IOutputParser::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
 {
@@ -177,21 +226,29 @@ void IOutputParser::doFlush()
 
 bool IOutputParser::hasFatalErrors() const
 {
-    return m_parser && m_parser->hasFatalErrors();
+    return d->childParser && d->childParser->hasFatalErrors();
 }
 
 void IOutputParser::setWorkingDirectory(const Utils::FilePath &fn)
 {
-    m_workingDir = fn;
-    if (m_parser)
-        m_parser->setWorkingDirectory(fn);
+    d->workingDir = fn;
+    if (d->childParser)
+        d->childParser->setWorkingDirectory(fn);
 }
 
 void IOutputParser::flush()
 {
+    flushTasks();
+    d->stdoutState.flush();
+    d->stderrState.flush();
+    flushTasks();
+}
+
+void IOutputParser::flushTasks()
+{
     doFlush();
-    if (m_parser)
-        m_parser->flush();
+    if (d->childParser)
+        d->childParser->flushTasks();
 }
 
 QString IOutputParser::rightTrimmed(const QString &in)

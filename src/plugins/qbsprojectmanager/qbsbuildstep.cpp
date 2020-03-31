@@ -383,11 +383,11 @@ void QbsBuildStep::handleProcessResult(
     emit addOutput(executable.toUserOutput() + ' '  + QtcProcess::joinArgs(arguments),
                    OutputFormat::Stdout);
     for (const QString &line : stdErr) {
-        m_parser->stdError(line);
+        m_parser->handleStderr(line + '\n');
         emit addOutput(line, OutputFormat::Stderr);
     }
     for (const QString &line : stdOut) {
-        m_parser->stdOutput(line);
+        m_parser->handleStdout(line + '\n');
         emit addOutput(line, OutputFormat::Stdout);
     }
     m_parser->flush();

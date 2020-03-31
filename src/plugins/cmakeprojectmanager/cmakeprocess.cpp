@@ -201,7 +201,7 @@ void CMakeProcess::processStandardError()
 
     static QString rest;
     rest = lineSplit(rest, m_process->readAllStandardError(), [this](const QString &s) {
-        m_parser->stdError(s);
+        m_parser->handleStderr(s);
         Core::MessageManager::write(s);
     });
 }

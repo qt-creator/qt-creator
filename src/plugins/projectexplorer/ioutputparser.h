@@ -38,22 +38,23 @@ class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
 {
     Q_OBJECT
 public:
-    IOutputParser() = default;
+    IOutputParser();
     ~IOutputParser() override;
+
+    void handleStdout(const QString &data);
+    void handleStderr(const QString &data);
 
     void appendOutputParser(IOutputParser *parser);
 
     IOutputParser *childParser() const;
     void setChildParser(IOutputParser *parser);
 
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
-
     virtual bool hasFatalErrors() const;
 
     void setWorkingDirectory(const Utils::FilePath &fn);
 
-    void flush(); // flush out pending tasks
+    void flush(); // flush pending tasks & output
+    void flushTasks(); // flush pending tasks only
 
     static QString rightTrimmed(const QString &in);
 
@@ -63,13 +64,16 @@ signals:
     void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
 protected:
-    Utils::FilePath workingDirectory() const { return m_workingDir; }
+    virtual void stdOutput(const QString &line);
+    virtual void stdError(const QString &line);
+
+    Utils::FilePath workingDirectory() const;
 
 private:
     virtual void doFlush();
 
-    IOutputParser *m_parser = nullptr;
-    Utils::FilePath m_workingDir;
+    class IOutputParserPrivate;
+    IOutputParserPrivate * const d;
 };
 
 } // namespace ProjectExplorer
