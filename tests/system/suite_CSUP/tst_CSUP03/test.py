@@ -83,7 +83,7 @@ def main():
                 continue
             if not startCreatorVerifyingClang(useClang):
                 continue
-            projectName = createNewNonQtProject(tempDir(), "project_csup03",
+            projectName = createNewNonQtProject(tempDir(), "project-csup03",
                                                 [Targets.DESKTOP_4_8_7_DEFAULT])
             checkCodeModelSettings(useClang)
             openDocument("%s.Sources.main\\.cpp" % projectName)
