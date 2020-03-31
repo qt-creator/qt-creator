@@ -2177,7 +2177,7 @@ See Google Test documentation for further information on GTest filters.</source>
     <name>Autotest::Internal::QtTestSettingsPage</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
-        <translation>Влючение прерывания тестов на утверждениях.</translation>
+        <translation>Включение прерывания тестов на утверждениях.</translation>
     </message>
     <message>
         <source>Disable crash handler while debugging</source>
@@ -2444,7 +2444,7 @@ Warning: Plain text misses some information, such as duration.</source>
     </message>
     <message>
         <source>expected fails</source>
-        <translation>ожиданных ошибок</translation>
+        <translation>ожидаемых ошибок</translation>
     </message>
     <message>
         <source>fatals</source>
@@ -2707,7 +2707,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Clear all cached choices of run configurations for tests where the executable could not be deduced.</source>
-        <translation>Очистка кэша сохраннённых предпочтений для конфигураций запуска тестов, исполняемые файлы которых не удалось определить.</translation>
+        <translation>Очистка кэша сохранённых предпочтений для конфигураций запуска тестов, исполняемые файлы которых не удалось определить.</translation>
     </message>
     <message>
         <source>Reset Cached Choices</source>
@@ -4861,11 +4861,11 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
     <message>
         <source>CMake configuration has no path to a C compiler set, even though the kit has a valid tool chain.</source>
-        <translation>В концигурации CMake не задан путь к компилятору C, но в комплекте указан корректный иструментарий.</translation>
+        <translation>В конфигурации CMake не задан путь к компилятору C, но в комплекте указан корректный иструментарий.</translation>
     </message>
     <message>
         <source>CMake configuration has a path to a C compiler set, even though the kit has no valid tool chain.</source>
-        <translation>В концигурации CMake задан путь к компилятору C, но в комплекте не указан корректный иструментарий.</translation>
+        <translation>В конфигурации CMake задан путь к компилятору C, но в комплекте не указан корректный иструментарий.</translation>
     </message>
     <message>
         <source>CMake configuration has a path to a C compiler set that does not match the compiler path configured in the tool chain of the kit.</source>
@@ -5349,7 +5349,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
     <message>
         <source>A CMake tool must be set up for building. Configure a CMake tool in the kit options.</source>
-        <translation>Для сборки необходимо, чтобы была задана программа CMake. Задайте её в настройках комлекта.</translation>
+        <translation>Для сборки необходимо, чтобы была задана программа CMake. Задайте её в настройках комплекта.</translation>
     </message>
     <message>
         <source>There is a CMakeCache.txt file in &quot;%1&quot;, which suggest an in-source build was done before. You are now building in &quot;%2&quot;, and the CMakeCache.txt file might confuse CMake.</source>
@@ -6623,7 +6623,7 @@ Output:
     <name>ClassView::Internal::NavigationWidget</name>
     <message>
         <source>Show Subprojects</source>
-        <translation>Показать подроекты</translation>
+        <translation>Показать подпроекты</translation>
     </message>
 </context>
 <context>
@@ -7618,7 +7618,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>The image is duplicated horizontally and vertically.</source>
-        <translation>Размножить изображение горизнтально и вертикально.</translation>
+        <translation>Размножить изображение горизонтально и вертикально.</translation>
     </message>
     <message>
         <source>The image is scaled uniformly to fit without cropping.</source>
@@ -8367,7 +8367,7 @@ You will not be able to store any %2 settings.</source>
         <source>Error reading settings file &quot;%1&quot;: %2
 You will likely experience further problems using this instance of %3.</source>
         <translation>При чтении файла настроек «%1» возникла ошибка: %2
-Возможны проблемы при дальнейшем использованнии %3 без перезапуска.</translation>
+Возможны проблемы при дальнейшем использовании %3 без перезапуска.</translation>
     </message>
 </context>
 <context>
@@ -8938,7 +8938,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>This tool prints a line of useful text</source>
-        <translation>Этаутилита выводит строку полезного текста</translation>
+        <translation>Эта утилита выводит строку полезного текста</translation>
     </message>
     <message>
         <source>Useful text</source>
@@ -11067,7 +11067,7 @@ to version control (%2)
     <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Активный контекст разбора&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Для этого файла доступно несколько контекстов разбора (набор определений, путей включения и пр.).&lt;/p&gt;&lt;p&gt;Выберите контекст разбора и задайте его предпочтительным. Убрать предпочтение можно через котекстное меню.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Активный контекст разбора&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Для этого файла доступно несколько контекстов разбора (набор определений, путей включения и пр.).&lt;/p&gt;&lt;p&gt;Выберите контекст разбора и задайте его предпочтительным. Убрать предпочтение можно через контекстное меню.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -11957,7 +11957,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>Move Declaration out of Condition</source>
-        <translation>Вынести обявление из условия</translation>
+        <translation>Вынести объявление из условия</translation>
     </message>
     <message>
         <source>Split if Statement</source>
@@ -12706,7 +12706,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
-        <translation>Если включено, по щелчку на номере равизии при просмотре аннотации (полученной по идентификатору фиксации) будут отображаться все зафиксированные файлы. В противном случае, только соответствующий файл.</translation>
+        <translation>Если включено, по щелчку на номере ревизии при просмотре аннотации (полученной по идентификатору фиксации) будут отображаться все зафиксированные файлы. В противном случае, только соответствующий файл.</translation>
     </message>
 </context>
 <context>
@@ -13431,7 +13431,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Internal ID:</source>
-        <translation>Внутрениий ID:</translation>
+        <translation>Внутренний ID:</translation>
     </message>
     <message>
         <source>State:</source>
@@ -14139,7 +14139,7 @@ If you build %2 from sources and want to use a CDB executable with another bitne
     </message>
     <message>
         <source>Could not find a widget.</source>
-        <translation>Не удалсь найти виджет.</translation>
+        <translation>Не удалось найти виджет.</translation>
     </message>
     <message>
         <source>%1 for &quot;%2&quot;</source>
@@ -14253,7 +14253,7 @@ Examining symbols and setting breakpoints by file name and line number may fail.
     <message>
         <source>The inferior is in the ELF format.
 Selecting GDB or LLDB as debugger would improve the debugging experience for this binary format.</source>
-        <translation>Программа имеет формает ELF.
+        <translation>Программа имеет формат ELF.
 Рекомендуется использовать отладчик GDB или LLDB для улучшения отладочных возможностей.</translation>
     </message>
     <message>
@@ -14447,7 +14447,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.</source>
-        <translation>Эта возможность очень медленная и настабильная на стороне GDB. Приводит к непредсказуемым результатам при обратном переходе через системный вызов и может разрушить сессию отладки.</translation>
+        <translation>Эта возможность очень медленная и нестабильная на стороне GDB. Приводит к непредсказуемым результатам при обратном переходе через системный вызов и может разрушить сессию отладки.</translation>
     </message>
 </context>
 <context>
@@ -14986,7 +14986,7 @@ Affected are breakpoints %1</source>
     </message>
     <message>
         <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation>&lt;p&gt;Отображать приставку пространтсва имён Qt для типов Qt. Имеет смысл только тогда, когда Qt собран с параметром «-qtnamespace».</translation>
+        <translation>&lt;p&gt;Отображать приставку пространства имён Qt для типов Qt. Имеет смысл только тогда, когда Qt собран с параметром «-qtnamespace».</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
@@ -16877,7 +16877,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
     <message>
         <source>Internal ID</source>
-        <translation>Внутрениий ID</translation>
+        <translation>Внутренний ID</translation>
     </message>
     <message>
         <source>Creation Time in ms</source>
@@ -21077,7 +21077,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
-        <translation>Восстанавить изменения сохранённые в список спрятанного командой «Спрятать».</translation>
+        <translation>Восстановить изменения сохранённые в список спрятанного командой «Спрятать».</translation>
     </message>
     <message>
         <source>Commit...</source>
@@ -22308,7 +22308,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <name>Help::Internal::HelpManager</name>
     <message>
         <source>Update Documentation</source>
-        <translation>Обновить документацию</translation>
+        <translation>Обновление документации</translation>
     </message>
 </context>
 <context>
@@ -22623,7 +22623,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <name>Help::Internal::SearchWidget</name>
     <message>
         <source>Indexing Documentation</source>
-        <translation>Идексация документации</translation>
+        <translation>Индексация документации</translation>
     </message>
     <message>
         <source>Open Link</source>
@@ -22727,7 +22727,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Extra console.</source>
-        <translation>Допольнительная консоль.</translation>
+        <translation>Дополнительная консоль.</translation>
     </message>
     <message>
         <source>Unknown exit reason.</source>
@@ -22743,7 +22743,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Heob: Failure in process attach handshake (%1).</source>
-        <translation>Heob: не удалось выполнить рукопожание при подключении к процессу (%1).</translation>
+        <translation>Heob: не удалось выполнить рукопожатие при подключении к процессу (%1).</translation>
     </message>
 </context>
 <context>
@@ -23170,7 +23170,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>OS version:</source>
-        <translation>Верия OS:</translation>
+        <translation>Версия OS:</translation>
     </message>
     <message>
         <source>None</source>
@@ -23446,7 +23446,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>To use this device you need to enable developer mode on it.</source>
-        <translation>Для использования этого устройтсва необходимо включить в нём режим разработки.</translation>
+        <translation>Для использования этого устройства необходимо включить в нём режим разработки.</translation>
     </message>
     <message>
         <source>%1 is not connected. Select %2?</source>
@@ -24236,7 +24236,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Preferred size of an item in a layout. If the preferred height or width is -1, it is ignored.</source>
-        <translation>Предпочтительный резмер элемента в компоновщике. Если он -1, то игнорируется.</translation>
+        <translation>Предпочтительный размер элемента в компоновщике. Если он -1, то игнорируется.</translation>
     </message>
     <message>
         <source>Minimum size</source>
@@ -24670,7 +24670,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Texture Mipmap</source>
-        <translation>Текстуры - мипмамминг</translation>
+        <translation>Текстуры - мипмаппинг</translation>
     </message>
     <message>
         <source>Texture Delete</source>
@@ -24753,7 +24753,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>In addition, we send a Microsoft Minidump file, which contains information about this computer, such as the operating system and CPU, and most importantly, it contains the stacktrace, which is an internal structure that shows where the program crashed. This information will help us to identify the cause of the crash and to fix it.</source>
-        <translation>И ещё, мы отправим файл Microsoft Minidump, который содержит информацию об этом компьютере, такую как операционная система и процессор, а также, что особенно важно, он содержит стек вызовов — внутреннюю стуктуру показывающую, где возник сбой. Эта информация поможет нам определить причину сбоя и устранить её.</translation>
+        <translation>И ещё, мы отправим файл Microsoft Minidump, который содержит информацию об этом компьютере, такую как операционная система и процессор, а также, что особенно важно, он содержит стек вызовов — внутреннюю структуру показывающую, где возник сбой. Эта информация поможет нам определить причину сбоя и устранить её.</translation>
     </message>
 </context>
 <context>
@@ -26431,7 +26431,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Failed to replay Perf events from stash file.</source>
-        <translation>Не удалось вопроизвести события Perfs из файла.</translation>
+        <translation>Не удалось воспроизвести события Perfs из файла.</translation>
     </message>
     <message>
         <source>Loading Trace Data</source>
@@ -27104,7 +27104,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
-        <translation>Не удалось зафиксировать измененения, так как рабочая копия устарела. Создана фиксация для рассмотрения.</translation>
+        <translation>Не удалось зафиксировать изменения, так как рабочая копия устарела. Создана фиксация для рассмотрения.</translation>
     </message>
 </context>
 <context>
@@ -28755,7 +28755,7 @@ Excluding: %2
     <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
-        <translation>Настроть обработчик...</translation>
+        <translation>Настроить обработчик...</translation>
     </message>
     <message>
         <source>MACRO[=VALUE]</source>
@@ -28839,7 +28839,7 @@ Excluding: %2
     </message>
     <message>
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
-        <translation>Сихронизировать у проектов текущий комплект и конфигурации сборки и развёртывания.</translation>
+        <translation>Синхронизировать у проектов текущий комплект и конфигурации сборки и развёртывания.</translation>
     </message>
 </context>
 <context>
@@ -29542,7 +29542,7 @@ What should Qt Creator do now?</source>
     </message>
     <message>
         <source>Cannot parse: The chosen kit does not provide an output parser.</source>
-        <translation>Не удалось разобрать: выбранный комплект не подоставляет разборщик вывода.</translation>
+        <translation>Не удалось разобрать: выбранный комплект не предоставляет разборщик вывода.</translation>
     </message>
     <message>
         <source>Parsing build output</source>
@@ -30252,7 +30252,7 @@ to project &quot;%2&quot;.</source>
 One for the native x86_64 target, and one for a plain x86 target.
 Enable this if you plan to create 32-bit x86 binaries without using a dedicated cross compiler.</source>
         <translation>При включении Qt Creator будет настраивать два экземпляра для каждого компилятора x86_64:
-Один для целей x86_64, адругой для x86.
+Один для целей x86_64, а другой для x86.
 Включайте, если планируете создавать 32-битные программы без отдельного кросс-компилятора.</translation>
     </message>
     <message>
@@ -30480,7 +30480,7 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     <name>ProjectExplorer::JsonKitsPage</name>
     <message>
         <source>Feature list is set and not of type list.</source>
-        <translation>Список особенностей задан, но не явлется типом list.</translation>
+        <translation>Список особенностей задан, но не является типом list.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; key found in feature list object.</source>
@@ -31104,11 +31104,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation>Создание вершинного шейдера на языке Desktop OpenGL Shading Language (GLSL). Вершинные шейдеры изменяют положение, нормали и текстурные координаты теугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
+        <translation>Создание вершинного шейдера на языке Desktop OpenGL Shading Language (GLSL). Вершинные шейдеры изменяют положение, нормали и текстурные координаты треугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
     </message>
     <message>
         <source>Creates a vertex shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation>Создание вершинного шейдера на языке OpenGL/ES 2.0 Shading Language (GLSL/ES). Вершинные шейдеры изменяют положение, нормали и текстурные координаты теугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
+        <translation>Создание вершинного шейдера на языке OpenGL/ES 2.0 Shading Language (GLSL/ES). Вершинные шейдеры изменяют положение, нормали и текстурные координаты треугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
     </message>
     <message>
         <source>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; exists in the filesystem.</source>
@@ -31711,7 +31711,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Creates a fragment shader in the Desktop OpenGL Shading Language (GLSL). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation>Создание фрагментного шейдера на языке Desktop OpenGL Shading Language (GLSL). Фрагментные шейдеры создают конечный цвет пикселя для теугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
+        <translation>Создание фрагментного шейдера на языке Desktop OpenGL Shading Language (GLSL). Фрагментные шейдеры создают конечный цвет пикселя для треугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
     </message>
     <message>
         <source>GLSL</source>
@@ -31727,7 +31727,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Creates a fragment shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation>Создание фрагментного шейдера на языке OpenGL/ES 2.0 Shading Language (GLSL/ES). Фрагментные шейдеры создают конечный цвет пикселя для теугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
+        <translation>Создание фрагментного шейдера на языке OpenGL/ES 2.0 Shading Language (GLSL/ES). Фрагментные шейдеры создают конечный цвет пикселя для треугольников, точек и линий, отрисовываемых с помощью OpenGL.</translation>
     </message>
     <message>
         <source>Fragment Shader (OpenGL/ES 2.0)</source>
@@ -32032,7 +32032,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Make command missing. Specify Make command in step configuration.</source>
-        <translation>Отсутвует команда Make. Укажите её в настройках шага.</translation>
+        <translation>Отсутствует команда Make. Укажите её в настройках шага.</translation>
     </message>
 </context>
 <context>
@@ -32984,7 +32984,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Select files matching:</source>
-        <translation>Выбрать файлы соответствущие:</translation>
+        <translation>Выбрать файлы соответствующие:</translation>
     </message>
     <message>
         <source>Apply Filters</source>
@@ -33167,7 +33167,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Select all kits</source>
-        <translation>Выбрать все комлекты</translation>
+        <translation>Выбрать все комплекты</translation>
     </message>
     <message>
         <source>Type to filter kits by name...</source>
@@ -33296,15 +33296,15 @@ These files are preserved.</source>
     <name>ProjectExplorer::UseLibraryPathsAspect</name>
     <message>
         <source>Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</source>
-        <translation>Добавить путь к собираемой библитеке в DYLD_LIBRARY_PATH и DYLD_FRAMEWORK_PATH</translation>
+        <translation>Добавить путь к собираемой библиотеке в DYLD_LIBRARY_PATH и DYLD_FRAMEWORK_PATH</translation>
     </message>
     <message>
         <source>Add build library search path to PATH</source>
-        <translation>Добавить путь к собираемой библитеке в PATH</translation>
+        <translation>Добавить путь к собираемой библиотеке в PATH</translation>
     </message>
     <message>
         <source>Add build library search path to LD_LIBRARY_PATH</source>
-        <translation>Добавить путь к собираемой библитеке в LD_LIBRARY_PATH</translation>
+        <translation>Добавить путь к собираемой библиотеке в LD_LIBRARY_PATH</translation>
     </message>
 </context>
 <context>
@@ -35710,7 +35710,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Show bounding rectangles and stripes for empty items (A).</source>
-        <translation>Показавать границы и контуры пустых объектов (A).</translation>
+        <translation>Показывать границы и контуры пустых объектов (A).</translation>
     </message>
     <message>
         <source>Override Width</source>
@@ -35767,7 +35767,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Singleton</source>
-        <translation>Единственнная</translation>
+        <translation>Единственная</translation>
     </message>
     <message>
         <source>Local</source>
@@ -37048,7 +37048,7 @@ This is independent of the visibility property in QML.</source>
     </message>
     <message>
         <source>Remove Timeline</source>
-        <translation>Удалить временую шкалу</translation>
+        <translation>Удалить временную шкалу</translation>
     </message>
     <message>
         <source>Add Animation</source>
@@ -37969,7 +37969,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
     <message>
         <source>Minimum number value is %1.</source>
-        <translation>Миничальное числовое значение: %1.</translation>
+        <translation>Минимальное числовое значение: %1.</translation>
     </message>
     <message>
         <source>Maximum number value is exclusive.</source>
@@ -38249,7 +38249,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>// TODO: Move position bindings from the component to the Loader.
 //       Check all uses of &apos;parent&apos; inside the root element of the component.</source>
         <translation>// TODO: Переместить привязки позиций из компонента в загрузчик.
-//        Проверить каждое использовние «parent» в корневом элементе компонента.</translation>
+//        Проверить каждое использование «parent» в корневом элементе компонента.</translation>
     </message>
     <message>
         <source>//       Rename all outer uses of the id &quot;%1&quot; to &quot;%2.item&quot;.</source>
@@ -38491,7 +38491,7 @@ the QML editor know about a likely URI.</source>
     <name>QmlParser</name>
     <message>
         <source>Illegal syntax for exponential number</source>
-        <translation>Некорректная форма экпоненциального числа</translation>
+        <translation>Некорректная форма экспоненциального числа</translation>
     </message>
     <message>
         <source>Stray newline in string literal</source>
@@ -38714,7 +38714,7 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Double Click</source>
-        <translation>Двойной щелчёк</translation>
+        <translation>Двойной щелчок</translation>
     </message>
     <message>
         <source>Mouse Press</source>
@@ -38833,7 +38833,7 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Double Click</source>
-        <translation>Двойной щелчёк</translation>
+        <translation>Двойной щелчок</translation>
     </message>
     <message>
         <source>Mouse Wheel</source>
@@ -39496,7 +39496,7 @@ Saving failed.</source>
     </message>
     <message>
         <source>+%1 in recursive calls</source>
-        <translation>+%1 в рекурсивых вызовах</translation>
+        <translation>+%1 в рекурсивных вызовах</translation>
     </message>
     <message>
         <source>&lt;bytecode&gt;</source>
@@ -39536,7 +39536,7 @@ Saving failed.</source>
     </message>
     <message>
         <source>Shortest Time</source>
-        <translation>Наименьше время</translation>
+        <translation>Наименьшее время</translation>
     </message>
     <message>
         <source>Time in Percent</source>
@@ -39902,7 +39902,7 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <source>Files can be created in /var/run.</source>
-        <translation>Файлы можно создаватьв /var/run.</translation>
+        <translation>Файлы можно создавать в /var/run.</translation>
     </message>
     <message>
         <source>Files cannot be created in /var/run.</source>
@@ -41106,7 +41106,7 @@ If you do not have a private key yet, you can also create one here.</source>
     <message>
         <source>rsync crashed.
 </source>
-        <translation>rsync аварийно завершися.
+        <translation>rsync аварийно завершился.
 </translation>
     </message>
     <message>
@@ -41445,7 +41445,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
     <message>
         <source>Run custom remote command</source>
-        <translation>Выполнить особую внешную команду</translation>
+        <translation>Выполнить особую внешнюю команду</translation>
     </message>
 </context>
 <context>
@@ -42418,19 +42418,19 @@ Description:	%4</source>
     </message>
     <message>
         <source>Align Horizontal</source>
-        <translation>Выравнить гоизонтально</translation>
+        <translation>Выровнить горизонтально</translation>
     </message>
     <message>
         <source>Align Horizontal (Ctrl+L,5)</source>
-        <translation>Выравнить гоизонтально (Ctrl+L,5)</translation>
+        <translation>Выровнить горизонтально (Ctrl+L,5)</translation>
     </message>
     <message>
         <source>Align Vertical</source>
-        <translation>Выравнить вертикально</translation>
+        <translation>Выровнить вертикально</translation>
     </message>
     <message>
         <source>Align Vertical (Ctrl+L,6)</source>
-        <translation>Выравнить гоизонтально (Ctrl+L,6)</translation>
+        <translation>Выровнить горизонтально (Ctrl+L,6)</translation>
     </message>
     <message>
         <source>Adjust Width</source>
@@ -42487,7 +42487,7 @@ Description:	%4</source>
     <name>ScxmlEditor::PluginInterface::GraphicsScene</name>
     <message>
         <source>Align states</source>
-        <translation>Выравнить состояния</translation>
+        <translation>Выровнить состояния</translation>
     </message>
     <message>
         <source>Adjust states</source>
@@ -45194,7 +45194,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Move the View a Line Up and Keep the Cursor Position</source>
-        <translation>Сдвинуть отображаемый текст настроку выше с сохранением позиции курсора</translation>
+        <translation>Сдвинуть отображаемый текст на строку выше с сохранением позиции курсора</translation>
     </message>
     <message>
         <source>Ctrl+Up</source>
@@ -45462,11 +45462,11 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Go to Previous Word Camel Case</source>
-        <translation>Перейти к предыдущему слову с учётом Верблюжего Регистра</translation>
+        <translation>Перейти к предыдущему слову с учётом Верблюжьего Регистра</translation>
     </message>
     <message>
         <source>Go to Next Word Camel Case</source>
-        <translation>Перейти к следующему слову с учётом Верблюжего Регистра</translation>
+        <translation>Перейти к следующему слову с учётом Верблюжьего Регистра</translation>
     </message>
     <message>
         <source>Go to Line Start with Selection</source>
@@ -45502,11 +45502,11 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Go to Previous Word Camel Case with Selection</source>
-        <translation>Перейти к предыдущему слову с выделением с учётом Верблюжего Регистра</translation>
+        <translation>Перейти к предыдущему слову с выделением с учётом Верблюжьего Регистра</translation>
     </message>
     <message>
         <source>Go to Next Word Camel Case with Selection</source>
-        <translation>Перейти к следующему слову с выделением с учётом Верблюжего Регистра</translation>
+        <translation>Перейти к следующему слову с выделением с учётом Верблюжьего Регистра</translation>
     </message>
 </context>
 <context>
@@ -45558,7 +45558,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Number of columns visible in current document.</source>
-        <translation>Количество видимых стобцов текущего документа.</translation>
+        <translation>Количество видимых столбцов текущего документа.</translation>
     </message>
     <message>
         <source>Current document&apos;s font size in points.</source>
@@ -45810,7 +45810,7 @@ Applied to text that matched no other rule.</source>
     </message>
     <message>
         <source>QML property of a parent item.</source>
-        <translation>Свойство QML родительсвого элемента.</translation>
+        <translation>Свойство QML родительского элемента.</translation>
     </message>
     <message>
         <source>QML Scope Object Property</source>
@@ -45854,7 +45854,7 @@ Applied to text that matched no other rule.</source>
     </message>
     <message>
         <source>JavaScript Scope Var</source>
-        <translation>Локальная перменная JavaScript</translation>
+        <translation>Локальная переменная JavaScript</translation>
     </message>
     <message>
         <source>Variables defined inside the JavaScript file.</source>
@@ -45908,7 +45908,7 @@ To style user-defined operators, use Overloaded Operator.</source>
     </message>
     <message>
         <source>Preprocessor directives.</source>
-        <translation>Дериктивы препроцессора.</translation>
+        <translation>Директивы препроцессора.</translation>
     </message>
     <message>
         <source>Label</source>
@@ -45958,7 +45958,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Code disabled by preprocessor directives.</source>
-        <translation>Код отключённый дериктивами препроцессора.</translation>
+        <translation>Код отключённый директивами препроцессора.</translation>
     </message>
     <message>
         <source>Added Line</source>
@@ -46827,7 +46827,7 @@ To disable a variable, prefix the line with &quot;#&quot;</source>
     </message>
     <message>
         <source>&lt;p&gt;No settings file created by this instance of %1 was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &quot;%2&quot;?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Не удалось найти файл настроек от этого экземляра %1.&lt;/p&gt;&lt;p&gt;Возможно вы работали с этим проектом на другой машине или использовали другой путь к настройкам.&lt;/p&gt;&lt;p&gt;Продолжить загрузку файла настроек «%2»?&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Не удалось найти файл настроек от этого экземпляра %1.&lt;/p&gt;&lt;p&gt;Возможно вы работали с этим проектом на другой машине или использовали другой путь к настройкам.&lt;/p&gt;&lt;p&gt;Продолжить загрузку файла настроек «%2»?&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -47936,7 +47936,7 @@ To disable a variable, prefix the line with &quot;#&quot;</source>
     </message>
     <message>
         <source>Callees</source>
-        <translation>Вызывемые</translation>
+        <translation>Вызываемые</translation>
     </message>
     <message>
         <source>Functions</source>
@@ -48187,7 +48187,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
     <message>
         <source>The %1 executables must be in the appropriate location.</source>
-        <translation>Программы %1 должны быть в соответствущем месте.</translation>
+        <translation>Программы %1 должны быть в соответствующем месте.</translation>
     </message>
     <message>
         <source>Heob used with MinGW projects needs the %1 DLLs for proper stacktrace resolution.</source>
@@ -49050,7 +49050,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
-        <translation>Проверие сообщение</translation>
+        <translation>Проверить сообщение</translation>
     </message>
     <message>
         <source>Insert Name...</source>
