@@ -31,19 +31,16 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
-namespace ProjectExplorer {
-class RunConfiguration;
-class Target;
-}
+namespace ProjectExplorer { class BuildSystem; }
 
 namespace Android {
 
 class ANDROID_EXPORT AndroidExtraLibraryListModel : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
-    explicit AndroidExtraLibraryListModel(ProjectExplorer::Target *target,
-                                          QObject *parent = nullptr);
+    AndroidExtraLibraryListModel(ProjectExplorer::BuildSystem *buildSystem, QObject *parent);
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const override;
     QModelIndex parent(const QModelIndex &child) const override;
@@ -60,7 +57,7 @@ signals:
 private:
     void updateModel();
 
-    ProjectExplorer::Target *m_target;
+    ProjectExplorer::BuildSystem *m_buildSystem;
     QStringList m_entries;
 };
 

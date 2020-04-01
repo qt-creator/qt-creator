@@ -29,6 +29,7 @@
 #include <android/androidconstants.h>
 #include <android/androidmanager.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
@@ -40,19 +41,20 @@ using namespace ProjectExplorer;
 
 namespace Android {
 
-AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(ProjectExplorer::Target *target,
+AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(BuildSystem *buildSystem,
                                                            QObject *parent)
     : QAbstractItemModel(parent),
-      m_target(target)
+      m_buildSystem(buildSystem)
 {
     updateModel();
 
-    connect(target, &Target::parsingStarted,
+    connect(buildSystem, &BuildSystem::parsingStarted,
             this, &AndroidExtraLibraryListModel::updateModel);
-    connect(target, &Target::parsingFinished,
+    connect(buildSystem, &BuildSystem::parsingFinished,
             this, &AndroidExtraLibraryListModel::updateModel);
-    // Causes target()->activeBuildKey() result to change.
-    connect(target, &Target::activeRunConfigurationChanged,
+    // Causes target()->activeBuildKey() result and consequently the node data
+    // extracted below to change.
+    connect(buildSystem->target(), &Target::activeRunConfigurationChanged,
             this, &AndroidExtraLibraryListModel::updateModel);
 }
 
@@ -86,8 +88,8 @@ QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) 
 
 void AndroidExtraLibraryListModel::updateModel()
 {
-    const QString buildKey = m_target->activeBuildKey();
-    const ProjectNode *node = m_target->project()->findNodeForBuildKey(buildKey);
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
 
     if (node->parseInProgress()) {
@@ -112,8 +114,8 @@ void AndroidExtraLibraryListModel::updateModel()
 
 void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 {
-    const QString buildKey = m_target->activeBuildKey();
-    const ProjectNode *node = m_target->project()->findNodeForBuildKey(buildKey);
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
@@ -122,7 +124,7 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
     for (const QString &path : list)
         m_entries += "$$PWD/" + dir.relativeFilePath(path);
 
-    node->setData(Constants::AndroidExtraLibs, m_entries);
+    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
     endInsertRows();
 }
 
@@ -152,10 +154,8 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
         endRemoveRows();
     }
 
-    const QString buildKey = m_target->activeBuildKey();
-    const ProjectNode *node = m_target->project()->findNodeForBuildKey(buildKey);
-    QTC_ASSERT(node, return);
-    node->setData(Constants::AndroidExtraLibs, m_entries);
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
 }
 
 } // Android

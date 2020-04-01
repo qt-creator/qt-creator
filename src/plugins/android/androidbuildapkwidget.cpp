@@ -272,7 +272,7 @@ QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
     auto group = new QGroupBox(tr("Additional Libraries"));
     group->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
-    auto libsModel = new AndroidExtraLibraryListModel(m_step->target(), this);
+    auto libsModel = new AndroidExtraLibraryListModel(m_step->buildSystem(), this);
     connect(libsModel, &AndroidExtraLibraryListModel::enabledChanged, this,
             [this, group](const bool enabled) {
                 group->setEnabled(enabled);
