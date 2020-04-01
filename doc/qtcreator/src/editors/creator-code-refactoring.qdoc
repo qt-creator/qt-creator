@@ -153,9 +153,14 @@
 
     \section1 Column Editing
 
-    To apply a change to several rows in a column simultaneously, press
-    \key Alt, select the rows, and enter or remove text. The changes are made
-    simultaneously at the cursor position on all the selected rows.
+    To apply a change to several rows in a column simultaneously, hold
+    \key Alt, select the rows using the mouse, and enter or remove text.
+    The changes are made simultaneously at the cursor position on all the
+    selected rows.
+
+    On Windows and Linux, you can also hold \key {Alt+Shift} and select
+    the rows using the arrow keys and the \key PageUp, \key PageDown,
+    \key Home, \key End keys.
 
     \section1 Applying Refactoring Actions
 

@@ -2496,6 +2496,10 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Down:
     case Qt::Key_Right:
     case Qt::Key_Left:
+    case Qt::Key_PageUp:
+    case Qt::Key_PageDown:
+    case Qt::Key_Home:
+    case Qt::Key_End:
         if (HostOsInfo::isMacHost())
             break;
         if ((e->modifiers()
@@ -2517,6 +2521,22 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 break;
             case Qt::Key_Right:
                 ++d->m_blockSelection.positionColumn;
+                break;
+            case Qt::Key_PageUp:
+                d->m_blockSelection.positionBlock -= verticalScrollBar()->pageStep();
+                if (d->m_blockSelection.positionBlock < 0)
+                    d->m_blockSelection.positionBlock = 0;
+                break;
+            case Qt::Key_PageDown:
+                d->m_blockSelection.positionBlock += verticalScrollBar()->pageStep();
+                if (d->m_blockSelection.positionBlock > document()->blockCount() - 1)
+                    d->m_blockSelection.positionBlock = document()->blockCount() - 1;
+                break;
+            case Qt::Key_Home:
+                d->m_blockSelection.positionBlock = 0;
+                break;
+            case Qt::Key_End:
+                d->m_blockSelection.positionBlock = document()->blockCount() - 1;
                 break;
             default:
                 break;
