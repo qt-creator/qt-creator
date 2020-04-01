@@ -41,10 +41,10 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
     addQmlServerInferiorCommandLineArgumentIfNeeded();
 
-    auto gdbServer = new DebugServerRunner(runControl, portsGatherer());
-    gdbServer->setEssential(true);
+    auto debugServer = new DebugServerRunner(runControl, portsGatherer());
+    debugServer->setEssential(true);
 
-    addStartDependency(gdbServer);
+    addStartDependency(debugServer);
 
     setStartMode(AttachToRemoteServer);
     setCloseMode(KillAndExitMonitorAtClose);
