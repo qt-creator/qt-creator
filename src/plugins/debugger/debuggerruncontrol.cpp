@@ -1078,9 +1078,9 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
     setStarter([this, runControl, mainRunnable, portsGatherer] {
         QTC_ASSERT(portsGatherer, reportFailure(); return);
 
-        Runnable gdbserver;
-        gdbserver.environment = mainRunnable.environment;
-        gdbserver.workingDirectory = mainRunnable.workingDirectory;
+        Runnable debugServer;
+        debugServer.environment = mainRunnable.environment;
+        debugServer.workingDirectory = mainRunnable.workingDirectory;
 
         QStringList args = QtcProcess::splitArgs(mainRunnable.commandLineArguments, OsTypeLinux);
 
@@ -1092,11 +1092,11 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                                                         portsGatherer->qmlServer()));
         }
         if (isQmlDebugging && !isCppDebugging) {
-            gdbserver.executable = mainRunnable.executable; // FIXME: Case should not happen?
+            debugServer.executable = mainRunnable.executable; // FIXME: Case should not happen?
         } else {
-            gdbserver.executable = FilePath::fromString(runControl->device()->debugServerPath());
-            if (gdbserver.executable.isEmpty())
-                gdbserver.executable = FilePath::fromString("gdbserver");
+            debugServer.executable = FilePath::fromString(runControl->device()->debugServerPath());
+            if (debugServer.executable.isEmpty())
+                debugServer.executable = FilePath::fromString("gdbserver");
             args.clear();
             if (m_useMulti)
                 args.append("--multi");
@@ -1106,9 +1106,9 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
             if (m_pid.isValid())
                 args.append(QString::number(m_pid.pid()));
         }
-        gdbserver.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
+        debugServer.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
 
-        doStart(gdbserver, runControl->device());
+        doStart(debugServer, runControl->device());
     });
 }
 
