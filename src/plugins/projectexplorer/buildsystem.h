@@ -121,6 +121,9 @@ public:
 
     void emitBuildSystemUpdated();
 
+    void setExtraData(const QString &buildKey, Core::Id dataKey, const QVariant &data);
+    QVariant extraData(const QString &buildKey, Core::Id dataKey) const;
+
 public:
     // FIXME: Make this private and the BuildSystem a friend
     ParseGuard guardParsingRun() { return ParseGuard(this); }

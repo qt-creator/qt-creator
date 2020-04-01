@@ -341,6 +341,20 @@ void BuildSystem::emitBuildSystemUpdated()
     target()->buildSystemUpdated(this);
 }
 
+void BuildSystem::setExtraData(const QString &buildKey, Core::Id dataKey, const QVariant &data)
+{
+    const ProjectNode *node = d->m_target->project()->findNodeForBuildKey(buildKey);
+    QTC_ASSERT(node, return);
+    node->setData(dataKey, data);
+}
+
+QVariant BuildSystem::extraData(const QString &buildKey, Core::Id dataKey) const
+{
+    const ProjectNode *node = d->m_target->project()->findNodeForBuildKey(buildKey);
+    QTC_ASSERT(node, return {});
+    return node->data(dataKey);
+}
+
 QString BuildSystem::disabledReason(const QString &buildKey) const
 {
     if (!hasParsingData()) {
