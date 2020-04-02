@@ -8,4 +8,5 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
     debugger \
-    cmakeprojectmanager
+    cmakeprojectmanager \
+    qtsupport
