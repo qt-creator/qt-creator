@@ -58,7 +58,7 @@ public:
     void setParameters(const BuildDirParameters &p);
 
     void resetData();
-    void parse(bool forceCMakeRun, bool forceConfiguration);
+    void parse(bool forceCMakeRun, bool forceInitialConfiguration, bool forceExtraConfiguration);
     void stop();
 
     bool isParsing() const;

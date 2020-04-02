@@ -68,7 +68,6 @@ private:
     void updateFromKit();
     void handleQmlDebugCxxFlags();
 
-    void setConfigurationForCMake();
     void updateSelection(const QModelIndex &current, const QModelIndex &previous);
     QAction *createForceAction(int type, const QModelIndex &idx);
 

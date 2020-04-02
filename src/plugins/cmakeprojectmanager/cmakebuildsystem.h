@@ -63,7 +63,7 @@ public:
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
-                        const ProjectExplorer::Node *node) const override;
+                        const ProjectExplorer::Node *node) const final;
 
     bool addFiles(ProjectExplorer::Node *context,
                   const QStringList &filePaths, QStringList *) final;
@@ -73,6 +73,7 @@ public:
     // Actions:
     void runCMake();
     void runCMakeAndScanProjectTree();
+    void runCMakeWithExtraArguments();
 
     bool persistCMakeState();
     void clearCMakeCache();
@@ -95,19 +96,20 @@ public:
 private:
     // Actually ask for parsing:
     enum ReparseParameters {
-        REPARSE_DEFAULT = 0,                    // Nothing special:-)
-        REPARSE_FORCE_CMAKE_RUN = (1 << 0),     // Force cmake to run
-        REPARSE_FORCE_CONFIGURATION = (1 << 1), // Force configuration arguments to cmake
-        REPARSE_CHECK_CONFIGURATION
-        = (1 << 2), // Check for on-disk config and QtC config diff // FIXME: Remove this!
-        REPARSE_SCAN = (1 << 3),   // Run filesystem scan
-        REPARSE_URGENT = (1 << 4), // Do not delay the parser run by 1s
+        REPARSE_DEFAULT = 0, // Nothing special:-)
+        REPARSE_FORCE_CMAKE_RUN
+        = (1 << 0), // Force cmake to run, apply extraCMakeArguments if non-empty
+        REPARSE_FORCE_INITIAL_CONFIGURATION
+        = (1 << 1), // Force initial configuration arguments to cmake
+        REPARSE_FORCE_EXTRA_CONFIGURATION = (1 << 2), // Force extra configuration arguments to cmake
+        REPARSE_SCAN = (1 << 3),                      // Run filesystem scan
+        REPARSE_URGENT = (1 << 4),                    // Do not delay the parser run by 1s
     };
     QString reparseParametersString(int reparseFlags);
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
                                       const int reparseParameters);
 
-    void writeConfigurationIntoBuildDirectory(const Utils::MacroExpander *expander);
+    bool mustApplyExtraArguments() const;
 
     // State handling:
     // Parser states:
@@ -155,12 +157,9 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
 
-    bool checkConfiguration();
-    bool hasConfigChanged();
-
     // Parsing state:
     BuildDirParameters m_parameters;
-    int m_reparseParameters;
+    int m_reparseParameters = REPARSE_DEFAULT;
     mutable std::unordered_map<Utils::FilePath, std::unique_ptr<Utils::TemporaryDirectory>>
         m_buildDirToTempDir;
     FileApiReader m_reader;

@@ -974,6 +974,12 @@ void CMakeConfigurationKitAspect::fromStringList(Kit *k, const QStringList &in)
     setConfiguration(k, result);
 }
 
+QStringList CMakeConfigurationKitAspect::toArgumentsList(const Kit *k)
+{
+    return Utils::transform(CMakeConfigurationKitAspect::configuration(k),
+                            [](const CMakeConfigItem &i) { return i.toArgument(nullptr); });
+}
+
 CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
 {
     Q_UNUSED(k)

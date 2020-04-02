@@ -49,6 +49,17 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 {
     QTC_ASSERT(bc, return );
 
+    const Utils::MacroExpander *expander = bc->macroExpander();
+
+    initialCMakeArguments = Utils::transform(bc->initialCMakeArguments(),
+                                             [expander](const QString &s) {
+                                                 return expander->expand(s);
+                                             });
+    extraCMakeArguments = Utils::transform(bc->extraCMakeArguments(),
+                                             [expander](const QString &s) {
+                                                 return expander->expand(s);
+                                             });
+
     const Target *t = bc->target();
     const Kit *k = t->kit();
     const Project *p = t->project();
@@ -70,23 +81,6 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
         environment.appendOrSetPath(settings->ninjaPath().toString());
 
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
-
-    auto tc = ToolChainKitAspect::cxxToolChain(k);
-    if (tc)
-        cxxToolChainId = tc->id();
-    tc = ToolChainKitAspect::cToolChain(k);
-    if (tc)
-        cToolChainId = tc->id();
-
-    expander = k->macroExpander();
-
-    configuration = bc->configurationForCMake();
-
-    generator = CMakeGeneratorKitAspect::generator(k);
-    extraGenerator = CMakeGeneratorKitAspect::extraGenerator(k);
-    platform = CMakeGeneratorKitAspect::platform(k);
-    toolset = CMakeGeneratorKitAspect::toolset(k);
-    generatorArguments = CMakeGeneratorKitAspect::generatorArguments(k);
 }
 
 bool BuildDirParameters::isValid() const

@@ -99,47 +99,63 @@ void FileApiReader::resetData()
     m_knownHeaders.clear();
 }
 
-void FileApiReader::parse(bool forceCMakeRun, bool forceConfiguration)
+void FileApiReader::parse(bool forceCMakeRun,
+                          bool forceInitialConfiguration,
+                          bool forceExtraConfiguration)
 {
     qCDebug(cmakeFileApiMode) << "Parse called with arguments: ForceCMakeRun:" << forceCMakeRun
-                              << " - forceConfiguration:" << forceConfiguration;
+                              << " - forceConfiguration:" << forceInitialConfiguration
+                              << " - forceExtraConfiguration:" << forceExtraConfiguration;
     startState();
 
-    if (forceConfiguration) {
-        // Initial create:
-        qCDebug(cmakeFileApiMode) << "FileApiReader: Starting CMake with forced configuration.";
-        const FilePath path = m_parameters.workDirectory.pathAppended("qtcsettings.cmake");
-        startCMakeState(QStringList({QString("-C"), path.toUserOutput()}));
-        // Keep m_isParsing enabled!
-        return;
-    }
+    const QStringList args = (forceInitialConfiguration ? m_parameters.initialCMakeArguments
+                                                        : QStringList())
+                             + (forceExtraConfiguration ? m_parameters.extraCMakeArguments
+                                                        : QStringList());
+    qCDebug(cmakeFileApiMode) << "Parameters request these CMake arguments:" << args;
 
     const QFileInfo replyFi = FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory);
     // Only need to update when one of the following conditions is met:
-    //  * The user forces the update,
+    //  * The user forces the cmake run,
+    //  * The user provided arguments,
     //  * There is no reply file,
     //  * One of the cmakefiles is newer than the replyFile and the user asked
     //    for creator to run CMake as needed,
     //  * A query file is newer than the reply file
-    const bool mustUpdate = forceCMakeRun || !replyFi.exists()
-                            || (m_parameters.cmakeTool() && m_parameters.cmakeTool()->isAutoRun()
-                                && anyOf(m_cmakeFiles,
-                                         [&replyFi](const FilePath &f) {
-                                             return f.toFileInfo().lastModified()
-                                                    > replyFi.lastModified();
-                                         }))
-                            || anyOf(FileApiParser::cmakeQueryFilePaths(m_parameters.workDirectory), [&replyFi](const QString &qf) {
-                                   return QFileInfo(qf).lastModified() > replyFi.lastModified();
-                               });
+    const bool hasArguments = !args.isEmpty();
+    const bool replyFileMissing = !replyFi.exists();
+    const bool cmakeFilesChanged = m_parameters.cmakeTool() && m_parameters.cmakeTool()->isAutoRun()
+                                   && anyOf(m_cmakeFiles, [&replyFi](const FilePath &f) {
+                                          return f.toFileInfo().lastModified()
+                                                 > replyFi.lastModified();
+                                      });
+    const bool queryFileChanged = anyOf(FileApiParser::cmakeQueryFilePaths(
+                                            m_parameters.workDirectory),
+                                        [&replyFi](const QString &qf) {
+                                            return QFileInfo(qf).lastModified()
+                                                   > replyFi.lastModified();
+                                        });
+
+    const bool mustUpdate = forceCMakeRun || hasArguments || replyFileMissing || cmakeFilesChanged
+                            || queryFileChanged;
+    qCDebug(cmakeFileApiMode) << QString("Do I need to run CMake? %1 "
+                                         "(force: %2 | args: %3 | missing reply: %4 | "
+                                         "cmakeFilesChanged: %5 | "
+                                         "queryFileChanged: %6)")
+                                     .arg(mustUpdate)
+                                     .arg(forceCMakeRun)
+                                     .arg(hasArguments)
+                                     .arg(replyFileMissing)
+                                     .arg(cmakeFilesChanged)
+                                     .arg(queryFileChanged);
 
     if (mustUpdate) {
-        qCDebug(cmakeFileApiMode) << "FileApiReader: Starting CMake with no arguments.";
-        startCMakeState(QStringList());
-        // Keep m_isParsing enabled!
-        return;
+        qCDebug(cmakeFileApiMode) << QString("FileApiReader: Starting CMake with \"%1\".")
+                                         .arg(args.join("\", \""));
+        startCMakeState(args);
+    } else {
+        endState(replyFi);
     }
-
-    endState(replyFi);
 }
 
 void FileApiReader::stop()

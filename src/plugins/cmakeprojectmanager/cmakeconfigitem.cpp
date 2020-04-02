@@ -284,6 +284,54 @@ static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
                             << line.mid(equalPos + 1);
 }
 
+static CMakeConfigItem setItemFromString(const QString &input)
+{
+    return CMakeConfigItem::fromString(input);
+}
+
+static CMakeConfigItem unsetItemFromString(const QString &input)
+{
+    CMakeConfigItem item(input.toUtf8(), QByteArray());
+    item.isUnset = true;
+    return item;
+}
+
+QList<CMakeConfigItem> CMakeConfigItem::itemsFromArguments(const QStringList &list)
+{
+    CMakeConfig result;
+    bool inSet = false;
+    bool inUnset = false;
+    for (const QString &i : list) {
+        if (inSet) {
+            inSet = false;
+            result.append(setItemFromString(i));
+            continue;
+        }
+        if (inUnset) {
+            inUnset = false;
+            result.append(unsetItemFromString(i));
+            continue;
+        }
+        if (i == "-U") {
+            inUnset = true;
+            continue;
+        }
+        if (i == "-D") {
+            inSet = true;
+            continue;
+        }
+        if (i.startsWith("-U")) {
+            result.append(unsetItemFromString(i.mid(2)));
+            continue;
+        }
+        if (i.startsWith("-D")) {
+            result.append(setItemFromString(i.mid(2)));
+        }
+        // ignore everything else as that does not define a configuration option
+    }
+    return result;
+}
+
 QList<CMakeConfigItem> CMakeConfigItem::itemsFromFile(const Utils::FilePath &cacheFile, QString *errorMessage)
 {
     CMakeConfig result;

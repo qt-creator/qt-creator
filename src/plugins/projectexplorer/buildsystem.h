@@ -42,6 +42,7 @@ class Node;
 // BuildSystem:
 // --------------------------------------------------------------------
 
+// Check buildsystem.md for more information
 class PROJECTEXPLORER_EXPORT BuildSystem : public QObject
 {
     Q_OBJECT

@@ -54,21 +54,13 @@ public:
     Utils::FilePath sourceDirectory;
     Utils::FilePath buildDirectory;
     Utils::FilePath workDirectory; // either buildDirectory or a QTemporaryDirectory!
+
     Utils::Environment environment;
+
     Core::Id cmakeToolId;
 
-    QByteArray cxxToolChainId;
-    QByteArray cToolChainId;
-
-    Utils::MacroExpander *expander = nullptr;
-
-    CMakeConfig configuration;
-
-    QString generator;
-    QString extraGenerator;
-    QString platform;
-    QString toolset;
-    QStringList generatorArguments;
+    QStringList initialCMakeArguments;
+    QStringList extraCMakeArguments;
 };
 
 } // namespace Internal

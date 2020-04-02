@@ -101,6 +101,8 @@ public:
     static QStringList toStringList(const ProjectExplorer::Kit *k);
     static void fromStringList(ProjectExplorer::Kit *k, const QStringList &in);
 
+    static QStringList toArgumentsList(const ProjectExplorer::Kit *k);
+
     static CMakeConfig defaultConfiguration(const ProjectExplorer::Kit *k);
 
     // KitAspect interface

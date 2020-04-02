@@ -96,24 +96,6 @@ void ConfigModel::setConfigurationFromKit(const QHash<QString, QString> &kitConf
     setConfiguration(m_configuration);
 }
 
-void ConfigModel::setConfigurationForCMake(const QHash<QString, QString> &config)
-{
-    for (InternalDataItem &i : m_configuration) {
-        if (!config.contains(i.key))
-            continue;
-
-        const QString v = config.value(i.key);
-        if (i.value == v) {
-            i.newValue.clear();
-            i.isUserChanged = false;
-        } else {
-            i.newValue = v;
-            i.isUserChanged = true;
-        }
-    }
-    setConfiguration(m_configuration);
-}
-
 void ConfigModel::flush()
 {
     setConfiguration(QList<InternalDataItem>());

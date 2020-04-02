@@ -64,6 +64,7 @@ public:
 
     static std::function<bool(const CMakeConfigItem &a, const CMakeConfigItem &b)> sortOperator();
     static CMakeConfigItem fromString(const QString &s);
+    static QList<CMakeConfigItem> itemsFromArguments(const QStringList &list);
     static QList<CMakeConfigItem> itemsFromFile(const Utils::FilePath &input, QString *errorMessage);
     QString toString(const Utils::MacroExpander *expander = nullptr) const;
     QString toArgument(const Utils::MacroExpander *expander = nullptr) const;
