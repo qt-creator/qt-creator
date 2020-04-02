@@ -753,18 +753,20 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent component(context->engine(), fixComponentPathForIncompatibleQt(componentPath));
-    QObject *object = component.beginCreate(context);
 
-    QmlPrivateGate::tweakObjects(object);
-    component.completeCreate();
+    QObject *object = nullptr;
+    if (!component.isError()) {
+        object = component.beginCreate(context);
+        QmlPrivateGate::tweakObjects(object);
+        component.completeCreate();
+        QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
+    }
 
     if (component.isError()) {
         qDebug() << componentPath;
         foreach (const QQmlError &error, component.errors())
             qWarning() << error;
     }
-
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
     return object;
 }
