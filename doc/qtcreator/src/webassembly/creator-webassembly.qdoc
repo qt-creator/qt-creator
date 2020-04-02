@@ -44,8 +44,7 @@
     You can change the web browser in the project run settings.
 
     To build applications for the web and run them in a web browser, you need to
-    install Qt for WebAssembly and the tool chain for compiling to WebAssembly,
-    as well as add a build and run kit in \QC.
+    install Qt for WebAssembly and the tool chain for compiling to WebAssembly.
 
     \section1 Requirements
 
@@ -66,10 +65,15 @@
 
     \section1 Setting Up the Development Environment
 
-    To configure \QC for building Qt apps for the web and running them in a
-    web browser:
+    You need to install and configure Qt for WebAssembly and the tool chain for
+    compiling to WebAssembly. The installer automatically adds a build and run
+    kit to \QC.
 
-    \list 1
+    \section2 Setting Up Qt for WebAssembly
+
+    To set up Qt for WebAssembly:
+
+        \list 1
         \li Use the Qt maintenance tool to install Qt for WebAssembly and, on
             Windows, \MinGW (found in \uicontrol {Developer and Designer Tools}).
         \li Check out \c emsdk and install and activate \c emscripten, as
@@ -81,30 +85,62 @@
         \li On Windows, you have to download and install \c sed, as instructed
             in \l{http://gnuwin32.sourceforge.net/packages/sed.htm}
             {sed for Windows}.
+        \endlist
+
+    \section2 Enabling the WebAssembly Plugin
+
+    To enable the plugin:
+
+    \list 1
         \li In \QC, select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Device Support} > \uicontrol {WebAssembly} to enable
-            the plugin.
+            \uicontrol {Device Support} > \uicontrol {WebAssembly}.
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
-            \uicontrol {Qt Versions} > \uicontrol Add to add Qt for WebAssembly
-            (wasm_32).
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
-            \uicontrol Add to add a kit for building applications for the web:
+    \endlist
+
+    \section2 Specifying WebAssembly Settings
+
+    To configure \QC for building Qt apps for the web:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
             \image qtcreator-kit-webassembly.png "Qt for WebAssembly kit"
-            \list 1
-                \li In the \uicontrol Name field, specify a name for the kit.
-                \li In the \uicontrol {Device type} field, select
-                    \uicontrol {WebAssembly Runtime}.
-                    The value of the \uicontrol Device field is automatically
-                    set to \uicontrol {Web Browser}.
-                \li In the \uicontrol Compiler field, select
-                    \uicontrol {Emscripten Compiler} for both C and C++.
-                \li Select \uicontrol Change next to the \uicontrol Environment
-                    field to append the locations where you installed \MinGW and
-                    \c sed to the PATH variable. For example, on Windows:
-                    \c {PATH=C:\Qt\Tools\mingw730_64\bin;C:\Program Files (x86)\GnuWin32\bin;${PATH}}
-                \li Select \uicontrol Apply to add the kit.
-            \endlist
+        \li In the \uicontrol Compiler group, \uicontrol {Emscripten Compiler}
+            should have been automatically detected for both C++ and C. If not,
+            check that emscripten is set up correctly and your home directory
+            contains an \c{.emscripten} file.
+        \li Select \uicontrol Change next to the \uicontrol Environment
+            field to append the locations where you installed \MinGW and
+            \c sed to the PATH variable. For example, on Windows:
+            \c {PATH=C:\Qt\Tools\mingw730_64\bin;C:\Program Files (x86)\GnuWin32\bin;${PATH}}
+            \li Select \uicontrol Apply to save the changes to the kit.
+    \endlist
+
+    \section2 Adding WebAssembly Kits
+
+    The Qt for Web Assembly installation automatically adds build and run kits
+    to \QC. To add kits:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+            \uicontrol Add.
+        \li In the \uicontrol Name field, specify a name for the kit.
+        \li In the \uicontrol {Device type} field, select
+            \uicontrol {WebAssembly Runtime}.
+            The value of the \uicontrol Device field is automatically
+            set to \uicontrol {Web Browser}.
+        \li In the \uicontrol Compiler field, select
+            \uicontrol {Emscripten Compiler} for both C and C++.
+        \li Select \uicontrol Change next to the \uicontrol Environment
+            field to append the locations where you installed \MinGW and
+            \c sed to the PATH variable.
+        \li Select \uicontrol Apply to add the kit.
+    \endlist
+
+    \section1 Running Applications in a Web Browser
+
+    To run a project:
+
+    \list 1
         \li Open a project for an application you want to run in a web browser.
         \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
             select the WebAssembly kit as the build and run kit for the project.
