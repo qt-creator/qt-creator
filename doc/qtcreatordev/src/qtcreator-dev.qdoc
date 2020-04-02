@@ -121,8 +121,8 @@
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-highlighting.html#generic-highlighting}
             {Generic Highlighting}
-        \li \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
-            {Writing a Syntax Highlighting File}
+        \li \l{https://docs.kde.org/stable5/en/applications/katepart/highlight.html}
+            {Working with Syntax Highlighting}
     \endlist
 
     \section2 Custom Text Editors
