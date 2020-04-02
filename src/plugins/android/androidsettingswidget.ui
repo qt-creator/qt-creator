@@ -129,62 +129,6 @@
           <string>Android Settings</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="SDKLocationLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Android SDK location:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
-           <widget class="QToolButton" name="sdkToolsAutoDownloadButton">
-            <property name="toolTip">
-             <string>Automatically download Android SDK Tools to selected location.</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="6">
-           <widget class="QToolButton" name="downloadSDKToolButton">
-            <property name="toolTip">
-             <string>Open Android SDK download URL in the system's browser.</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="6">
-           <widget class="QToolButton" name="downloadNDKToolButton">
-            <property name="toolTip">
-             <string>Open Android NDK download URL in the system's browser.</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="4">
-           <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
-          </item>
-          <item row="5" column="0" colspan="7">
-           <widget class="Utils::DetailsWidget" name="androidDetailsWidget" native="true"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="ndkComboBoxLabel">
-            <property name="text">
-             <string>Android NDK list:</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="1" rowspan="3">
            <widget class="QListWidget" name="ndkListWidget">
             <property name="sizeAdjustPolicy">
@@ -255,6 +199,59 @@
              </spacer>
             </item>
            </layout>
+          </item>
+          <item row="5" column="0" colspan="7">
+           <widget class="Utils::DetailsWidget" name="androidDetailsWidget" native="true"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="ndkComboBoxLabel">
+            <property name="text">
+             <string>Android NDK list:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6">
+           <widget class="QToolButton" name="downloadSDKToolButton">
+            <property name="toolTip">
+             <string>Open Android SDK download URL in the system's browser.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="SDKLocationLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Android SDK location:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="6">
+           <widget class="QToolButton" name="downloadNDKToolButton">
+            <property name="toolTip">
+             <string>Open Android NDK download URL in the system's browser.</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
+          </item>
+          <item row="0" column="2" colspan="3">
+           <widget class="QPushButton" name="sdkToolsAutoDownloadButton">
+            <property name="text">
+             <string>Set Up SDK</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
