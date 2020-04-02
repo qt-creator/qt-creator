@@ -104,12 +104,32 @@ static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const QStringLis
     fakeIn.write("#  if defined(__CX51__)\n");
     fakeIn.write("#    pragma message (VAR_NAME_VALUE(__CX51__))\n");
     fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__MODEL__)\n");
+    fakeIn.write("#    pragma message (VAR_NAME_VALUE(__MODEL__))\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__STDC__)\n");
+    fakeIn.write("#    pragma message (VAR_NAME_VALUE(__STDC__))\n");
+    fakeIn.write("#  endif\n");
     fakeIn.write("#endif\n");
 
     // Prepare for C251 compiler.
     fakeIn.write("#if defined(__C251__)\n");
     fakeIn.write("#  define VAR_NAME_VALUE(var) \"\"|#var|VALUE(var)|\"\"\n");
-    fakeIn.write("#  warning (VAR_NAME_VALUE(__C251__))\n");
+    fakeIn.write("#  if defined(__C251__)\n");
+    fakeIn.write("#    warning (VAR_NAME_VALUE(__C251__))\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__MODEL__)\n");
+    fakeIn.write("#    warning (VAR_NAME_VALUE(__MODEL__))\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__STDC__)\n");
+    fakeIn.write("#    warning (VAR_NAME_VALUE(__STDC__))\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__FLOAT64__)\n");
+    fakeIn.write("#    warning (VAR_NAME_VALUE(__FLOAT64__))\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__MODSRC__)\n");
+    fakeIn.write("#    warning (VAR_NAME_VALUE(__MODSRC__))\n");
+    fakeIn.write("#  endif\n");
     fakeIn.write("#endif\n");
 
     fakeIn.close();
