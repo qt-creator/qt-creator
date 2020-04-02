@@ -27,7 +27,7 @@ Product {
             enableFallback: false
         }
     }
-    Depends { name: "Qt.core"; versionAtLeast: "5.11.0" }
+    Depends { name: "Qt.core"; versionAtLeast: "5.12.0" }
 
     // TODO: Should fall back to what came from Qt.core for Qt < 5.7, but we cannot express that
     //       atm. Conditionally pulling in a module that sets the property is also not possible,
