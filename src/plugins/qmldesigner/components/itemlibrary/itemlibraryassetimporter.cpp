@@ -275,6 +275,11 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
 
     QString targetDirPath = targetDir.filePath(assetName);
 
+    if (outDir.exists(assetName)) {
+        addWarning(tr("Skipped import of duplicate asset: \"%1\"").arg(assetName));
+        return;
+    }
+
     if (targetDir.exists(assetName)) {
         if (!confirmAssetOverwrite(assetName)) {
             addWarning(tr("Skipped import of existing asset: \"%1\"").arg(assetName));
