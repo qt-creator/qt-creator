@@ -1081,6 +1081,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
                 showMessage(response.data["msg"].data(), LogError);
             }
             watchHandler()->notifyUpdateFinished();
+            updateToolTips();
         };
 
         runCommand(cmd);

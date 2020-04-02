@@ -786,6 +786,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.callback = [this](const DebuggerResponse &response) {
         updateLocalsView(response.data);
         watchHandler()->notifyUpdateFinished();
+        updateToolTips();
     };
 
     runCommand(cmd);
