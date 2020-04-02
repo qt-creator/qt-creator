@@ -386,7 +386,7 @@
     \else
     \l{Using Git}{Version Control}
     \endif
-     panes, select \uicontrol {Window > Output Panes}.
+     panes, select \uicontrol Window > \uicontrol {Output Panes}.
     \if defined(qtcreator)
     To display the \uicontrol {To-Do Entries} pane, enable the Todo plugin.
     \endif

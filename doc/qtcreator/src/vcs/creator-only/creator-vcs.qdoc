@@ -97,10 +97,10 @@
     You can also select \uicontrol Tools and then select \uicontrol {Create Repository}
     in the submenu for the version control system.
 
-    To import a project that is under version control, choose \uicontrol {File >
-    New File or Project > Project from Version Control} and select the
-    version control system that you use. Follow the instructions of the
-    wizard to import the project.
+    To import a project that is under version control, choose \uicontrol File >
+    \uicontrol {New File or Project} > \uicontrol {Project from Version Control}
+    and select the version control system that you use. Follow the instructions
+    of the wizard to import the project.
 
     \section1 Using Common Functions
 
@@ -121,8 +121,8 @@
     \endlist
 
     The \uicontrol{Version Control} output pane displays the commands that are
-    executed, a timestamp, and the relevant output. Select \uicontrol {Window > Output
-    Panes > Version Control} to open the pane.
+    executed, a timestamp, and the relevant output. Select \uicontrol Window >
+    \uicontrol {Output Panes} > \uicontrol {Version Control} to open the pane.
 
     \image qtcreator-vcs-pane.png
 

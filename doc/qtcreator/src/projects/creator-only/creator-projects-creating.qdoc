@@ -480,8 +480,9 @@
     subproject in the \uicontrol{Project Management} dialog. However, the root project
     must specify that qmake uses the \c subdirs template to build the project.
 
-    To create a root project, select \uicontrol {File > New File or Project >
-    Other Project > Subdirs Project > Choose}.
+    To create a root project, select \uicontrol File >
+    \uicontrol {New File or Project} > \uicontrol {Other Project} >
+    \uicontrol {Subdirs Project} > \uicontrol Choose.
 
     On the \uicontrol Summary page, select \uicontrol {Finish & Add Subproject} to create
     the root project and to add another project, such as a C++ library.

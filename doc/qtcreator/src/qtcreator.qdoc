@@ -29,7 +29,6 @@
 // Run the fixnavi.pl script to adjust the links to the index order.
 // **********************************************************************
 
-
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
@@ -132,7 +131,7 @@
         \row
             \li {4,1} \note To report bugs and suggestions to the
                 \l{https://bugreports.qt.io/}{Qt Project Bug Tracker},
-                select \uicontrol {Help > Report Bug}.
+                select \uicontrol Help > \uicontrol {Report Bug}.
                 To copy and paste detailed information about your system to the
                 bug report, select \uicontrol Help >
                 \uicontrol {System Information}.

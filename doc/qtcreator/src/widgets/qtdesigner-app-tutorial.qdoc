@@ -48,8 +48,9 @@
 
     \list 1
 
-        \li Select \uicontrol{File > New File or Project > Application > Qt Widgets
-            Application > Choose}.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Application > \uicontrol {Qt Widgets Application} >
+            \uicontrol Choose.
 
             \image qtcreator-new-qt-gui-application.png "New File or Project dialog"
 
@@ -190,8 +191,8 @@
 
                 \li Right-click the \uicontrol Find button to open a context-menu.
 
-                \li Select \uicontrol {Go to Slot > clicked()}, and then select
-                    \uicontrol OK.
+                \li Select \uicontrol {Go to Slot} > \uicontrol {clicked()}, and
+                    then select \uicontrol OK.
 
                     A private slot, \c{on_findButton_clicked()}, is added to the
                     header file, textfinder.h and a private function,
@@ -282,8 +283,8 @@
 
     \list 1
 
-        \li Select \uicontrol{File > New File or Project > Qt > Qt Resource File >
-            Choose}.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Qt > \uicontrol {Qt Resource File} > \uicontrol Choose.
 
             \image qtcreator-add-resource-wizard.png "New File or Project dialog"
 
@@ -305,12 +306,13 @@
             and click \uicontrol{Finish} or \uicontrol Done to open the file in the code
             editor.
 
-        \li Select \uicontrol{Add > Add Prefix}.
+        \li Select \uicontrol Add > \uicontrol {Add Prefix}.
 
         \li In the \uicontrol{Prefix} field, replace the default prefix with a slash
             (/).
 
-        \li Select \uicontrol{Add > Add Files}, to locate and add input.txt.
+        \li Select \uicontrol Add > \uicontrol {Add Files}, to locate and add
+            input.txt.
 
             \image qtcreator-add-resource.png "Editing resource files"
 
