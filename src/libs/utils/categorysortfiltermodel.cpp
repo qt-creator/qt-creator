@@ -25,6 +25,8 @@
 
 #include "categorysortfiltermodel.h"
 
+#include <QRegularExpression>
+
 namespace Utils {
 
 CategorySortFilterModel::CategorySortFilterModel(QObject *parent)
