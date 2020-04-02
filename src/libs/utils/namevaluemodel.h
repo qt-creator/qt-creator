@@ -70,6 +70,7 @@ public:
     void setBaseNameValueDictionary(const NameValueDictionary &dictionary);
     NameValueItems userChanges() const;
     void setUserChanges(const NameValueItems &items);
+    bool currentEntryIsPathList(const QModelIndex &current) const;
 
 signals:
     void userChangesChanged();

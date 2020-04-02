@@ -80,7 +80,6 @@ private:
     void focusIndex(const QModelIndex &index);
     void updateButtons();
     void linkActivated(const QString &link);
-    bool currentEntryIsPathList(const QModelIndex &current) const;
 
     using PathListModifier = std::function<QString(const QString &oldList, const QString &newDir)>;
     void amendPathList(Utils::NameValueItem::Operation op);

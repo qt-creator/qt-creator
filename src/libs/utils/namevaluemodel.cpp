@@ -167,10 +167,16 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
             }
             QString value = d->m_resultNameValueDictionary.value(resultIterator);
             if (role == Qt::ToolTipRole && value.length() > 80) {
-                // Use html to enable text wrapping
-                value = value.toHtmlEscaped();
-                value.prepend(QLatin1String("<html><body>"));
-                value.append(QLatin1String("</body></html>"));
+                if (currentEntryIsPathList(index)) {
+                    // For path lists, display one entry per line without separator
+                    const QChar sep = Utils::HostOsInfo::pathListSeparator();
+                    value = value.replace(sep, '\n');
+                } else {
+                    // Use html to enable text wrapping
+                    value = value.toHtmlEscaped();
+                    value.prepend(QLatin1String("<html><body>"));
+                    value.append(QLatin1String("</body></html>"));
+                }
             }
             return value;
         }
@@ -435,6 +441,38 @@ void NameValueModel::setUserChanges(const NameValueItems &items)
     d->updateResultNameValueDictionary();
     endResetModel();
     emit userChangesChanged();
+}
+
+bool NameValueModel::currentEntryIsPathList(const QModelIndex &current) const
+{
+    if (!current.isValid())
+        return false;
+
+    // Look at the name first and check it against some well-known path variables. Extend as needed.
+    const QString varName = indexToVariable(current);
+    if (varName.compare("PATH", Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
+        return true;
+    if (Utils::HostOsInfo::isMacHost() && varName == "DYLD_LIBRARY_PATH")
+        return true;
+    if (Utils::HostOsInfo::isAnyUnixHost() && varName == "LD_LIBRARY_PATH")
+        return true;
+    if (varName == "PKG_CONFIG_DIR")
+        return true;
+    if (Utils::HostOsInfo::isWindowsHost()
+            && QStringList{"INCLUDE", "LIB", "LIBPATH"}.contains(varName)) {
+        return true;
+    }
+
+    // Now check the value: If it's a list of strings separated by the platform's path separator
+    // and at least one of the strings is an existing directory, then that's enough proof for us.
+    QModelIndex valueIndex = current;
+    if (valueIndex.column() == 0)
+        valueIndex = valueIndex.siblingAtColumn(1);
+    const QStringList entries = data(valueIndex).toString()
+            .split(Utils::HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
+    if (entries.length() < 2)
+        return false;
+    return Utils::anyOf(entries, [](const QString &d) { return QFileInfo(d).isDir(); });
 }
 
 } // namespace Utils

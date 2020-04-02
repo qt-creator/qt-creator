@@ -437,38 +437,6 @@ void EnvironmentWidget::linkActivated(const QString &link)
     focusIndex(idx);
 }
 
-bool EnvironmentWidget::currentEntryIsPathList(const QModelIndex &current) const
-{
-    if (!current.isValid())
-        return false;
-
-    // Look at the name first and check it against some well-known path variables. Extend as needed.
-    const QString varName = d->m_model->indexToVariable(current);
-    if (varName.compare("PATH", Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
-        return true;
-    if (Utils::HostOsInfo::isMacHost() && varName == "DYLD_LIBRARY_PATH")
-        return true;
-    if (Utils::HostOsInfo::isAnyUnixHost() && varName == "LD_LIBRARY_PATH")
-        return true;
-    if (varName == "PKG_CONFIG_DIR")
-        return true;
-    if (Utils::HostOsInfo::isWindowsHost()
-        && QStringList{"INCLUDE", "LIB", "LIBPATH"}.contains(varName)) {
-        return true;
-    }
-
-    // Now check the value: If it's a list of strings separated by the platform's path separator
-    // and at least one of the strings is an existing directory, then that's enough proof for us.
-    QModelIndex valueIndex = current;
-    if (valueIndex.column() == 0)
-        valueIndex = valueIndex.siblingAtColumn(1);
-    const QStringList entries = d->m_model->data(valueIndex).toString()
-            .split(Utils::HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
-    if (entries.length() < 2)
-        return false;
-    return Utils::anyOf(entries, [](const QString &d) { return QFileInfo(d).isDir(); });
-}
-
 void EnvironmentWidget::updateButtons()
 {
     environmentCurrentIndexChanged(d->m_environmentView->currentIndex());
@@ -477,7 +445,9 @@ void EnvironmentWidget::updateButtons()
 void EnvironmentWidget::editEnvironmentButtonClicked()
 {
     const QModelIndex current = d->m_environmentView->currentIndex();
-    if (current.column() == 1 && d->m_type == TypeLocal && currentEntryIsPathList(current)) {
+    if (current.column() == 1
+            && d->m_type == TypeLocal
+            && d->m_model->currentEntryIsPathList(current)) {
         PathListDialog dlg(d->m_model->indexToVariable(current),
                            d->m_model->data(current).toString(), this);
         if (dlg.exec() == QDialog::Accepted)
@@ -562,8 +532,9 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
         d->m_toggleButton->setText(tr("Disable"));
     }
     if (d->m_appendPathButton) {
-        d->m_appendPathButton->setEnabled(currentEntryIsPathList(current));
-        d->m_prependPathButton->setEnabled(currentEntryIsPathList(current));
+        const bool isPathList = d->m_model->currentEntryIsPathList(current);
+        d->m_appendPathButton->setEnabled(isPathList);
+        d->m_prependPathButton->setEnabled(isPathList);
     }
 }
 
