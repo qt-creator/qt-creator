@@ -49,6 +49,7 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     setStartMode(AttachToRemoteServer);
     setCloseMode(KillAndExitMonitorAtClose);
     setUseExtendedRemote(true);
+    setLldbPlatform("remote-linux");
 }
 
 } // namespace Internal

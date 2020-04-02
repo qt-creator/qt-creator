@@ -325,6 +325,11 @@ void DebuggerRunTool::setSymbolFile(const FilePath &symbolFile)
     m_runParameters.symbolFile = symbolFile;
 }
 
+void DebuggerRunTool::setLldbPlatform(const QString &platform)
+{
+    m_runParameters.platform = platform;
+}
+
 void DebuggerRunTool::setRemoteChannel(const QString &channel)
 {
     m_runParameters.remoteChannel = channel;
