@@ -1103,13 +1103,21 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
             if (debugServer.executable.isEmpty())
                 debugServer.executable = FilePath::fromString("gdbserver");
             args.clear();
-            if (m_useMulti)
-                args.append("--multi");
-            if (m_pid.isValid())
-                args.append("--attach");
-            args.append(QString(":%1").arg(portsGatherer->gdbServer().port()));
-            if (m_pid.isValid())
-                args.append(QString::number(m_pid.pid()));
+            if (debugServer.executable.toString().contains("lldb-server")) {
+                args.append("platform");
+                args.append("--listen");
+                args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
+                args.append("--server");
+            } else {
+                // Something resembling gdbserver
+                if (m_useMulti)
+                    args.append("--multi");
+                if (m_pid.isValid())
+                    args.append("--attach");
+                args.append(QString(":%1").arg(portsGatherer->gdbServer().port()));
+                if (m_pid.isValid())
+                    args.append(QString::number(m_pid.pid()));
+            }
         }
         debugServer.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
 
