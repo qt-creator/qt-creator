@@ -40,11 +40,13 @@
     types: cube, cone, cylinder, plane (rectangle) or sphere. You can drag and
     drop a model from the \uicontrol Library to a 3D scene.
 
-    \image studio-qtquick-3d-components.png
+    \image studio-qtquick-3d-components.png "Library view QML Types tab Qt Quick 3D section"
 
     You can change the model type in the \uicontrol Source field in the
     \uicontrol Properties view. Select the \inlineimage plus.png
     button to add custom model types to the list.
+
+    \image studio-qtquick-3d-model.png "Model properties"
 
     To enable picking the model against the scene, select the
     \uicontrol Pickable check box. Picking transforms the screen

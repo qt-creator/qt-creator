@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,42 +25,17 @@
 
 #pragma once
 
-#include "itemlibrarymodel.h"
-
-#include <QObject>
-#include <QPointer>
+#include <QtQuick/qquickimageprovider.h>
 
 namespace QmlDesigner {
+namespace Internal {
 
-class ItemLibraryItem;
-
-class ItemLibrarySectionModel: public QAbstractListModel {
-
-    Q_OBJECT
-
+class IconGizmoImageProvider : public QQuickImageProvider
+{
 public:
-    ItemLibrarySectionModel(QObject *parent = nullptr);
-    ~ItemLibrarySectionModel() override;
+    IconGizmoImageProvider();
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
-    void addItem(ItemLibraryItem *item);
-
-    const QList<QPointer<ItemLibraryItem> > &items() const;
-
-    void sortItems();
-    void resetModel();
-
-private: // functions
-    void addRoleNames();
-
-private: // variables
-    QList<QPointer<ItemLibraryItem>> m_itemList;
-    QHash<int, QByteArray> m_roleNames;
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
 };
-
-} // namespace QmlDesigner
-
-QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySectionModel)
+}
+}

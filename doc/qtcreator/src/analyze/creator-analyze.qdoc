@@ -45,8 +45,9 @@
 
     You can drag and drop the views in the \uicontrol Debug mode to new
     positions on the screen. The size and position of views are saved for future
-    sessions. Select \uicontrol {Window > Views > Reset to Default Layout} to
-    reset the views to their original sizes and positions.
+    sessions. Select \uicontrol Window > \uicontrol Views >
+    \uicontrol {Reset to Default Layout} to reset the views to their original
+    sizes and positions.
 
     You can use the following code analysis tools in the \uicontrol Debug
     mode:

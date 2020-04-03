@@ -74,7 +74,7 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
 
     *changed = false;
 
-    foreach(ItemLibraryItem *itemLibraryItem, m_sectionEntries.items()) {
+    for (auto itemLibraryItem : m_sectionEntries.items()) {
         bool itemVisible = itemLibraryItem->itemName().toLower().contains(searchText)
                 || itemLibraryItem->typeName().toLower().contains(searchText);
 

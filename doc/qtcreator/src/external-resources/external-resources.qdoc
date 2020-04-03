@@ -34,3 +34,24 @@
     \title macOS
     \internal
 */
+
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-environment.html
+    \title Qt for MCUs - Supported Target Platforms
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-stm.html
+    \title Getting Started on STM
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-stm.html
+    \title Getting Started on STM
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-nxp.html
+    \title Getting Started on NXP
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-windows.html
+    \title Getting Started on Windows
+*/

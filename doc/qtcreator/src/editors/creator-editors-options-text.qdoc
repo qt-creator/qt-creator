@@ -42,7 +42,8 @@
     \title Specifying Text Editor Settings
 
     Set the font preferences and apply color schemes for syntax highlighting in
-    \uicontrol {Tools > Options > Text Editor > Font & Colors}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol {Font & Colors}.
 
     \image qtcreator-font-colors.png "Text editor options"
 

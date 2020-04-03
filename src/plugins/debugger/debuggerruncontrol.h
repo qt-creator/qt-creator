@@ -92,6 +92,7 @@ public:
 
     void setSysRoot(const Utils::FilePath &sysRoot);
     void setSymbolFile(const Utils::FilePath &symbolFile);
+    void setLldbPlatform(const QString &platform);
     void setRemoteChannel(const QString &channel);
     void setRemoteChannel(const QString &host, int port);
     void setRemoteChannel(const QUrl &url);

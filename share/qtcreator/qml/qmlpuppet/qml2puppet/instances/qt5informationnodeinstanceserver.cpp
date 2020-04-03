@@ -71,6 +71,7 @@
 #include "../editor3d/gridgeometry.h"
 #include "../editor3d/selectionboxgeometry.h"
 #include "../editor3d/linegeometry.h"
+#include "../editor3d/icongizmoimageprovider.h"
 
 #include <designersupportdelegate.h>
 #include <qmlprivategate.h>
@@ -114,6 +115,8 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
                      this, &Qt5InformationNodeInstanceServer::handleToolStateChanged);
     engine()->rootContext()->setContextProperty("_generalHelper", helper);
+    engine()->addImageProvider(QLatin1String("IconGizmoImageProvider"),
+                               new QmlDesigner::Internal::IconGizmoImageProvider);
     m_3dHelper = helper;
 
     m_editView3D = new QQuickView(quickView()->engine(), quickView());

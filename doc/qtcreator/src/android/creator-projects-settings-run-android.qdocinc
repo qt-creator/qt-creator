@@ -37,6 +37,18 @@
     \uicontrol {Activity manager start options} field. However, if the default
     options conflict with the added options, the application might not start.
 
+    The default arguments for the Activity manager for a normal run:
+
+    \badcode
+    am start -n org.qtproject.example.notification/org.qtproject.qt5.android.bindings.QtActivity
+    \endcode
+
+    The default arguments for the Activity manager for the debugger mode:
+
+    \badcode
+    am start -n org.qtproject.example.notification/org.qtproject.qt5.android.bindings.QtActivity -D
+    \endcode
+
     For example, to run the application as a particular user, enter the start
     option \c {--user 10}, where \c 10 is the user ID of the user account.
 

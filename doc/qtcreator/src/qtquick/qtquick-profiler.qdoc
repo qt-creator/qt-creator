@@ -99,8 +99,8 @@
             \note To profile applications on \l{glossary-device}{devices}, you
             must install Qt 4.7.4 or later libraries on them.
 
-        \li Select \uicontrol {Analyze > QML Profiler} to profile the current
-            application.
+        \li Select \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
+            current application.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png
@@ -169,9 +169,9 @@
     \section1 Attaching to Running Qt Quick Applications
 
     To profile Qt Quick applications that are not launched by \QC, select
-    \uicontrol {Analyze > QML Profiler (External)}. You must enable QML debugging and profiling for
-    the application in the project build settings. For more information, see
-    \l{Setting Up QML Debugging}.
+    \uicontrol Analyze > \uicontrol {QML Profiler (External)}. You must enable
+    QML debugging and profiling for the application in the project build
+    settings. For more information, see \l{Setting Up QML Debugging}.
 
     In the \uicontrol {QML Profiler} dialog, \uicontrol Port field, specify the port to
     listen to.

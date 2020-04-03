@@ -471,7 +471,7 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 
     const QString stdOutLine = process ? QString::fromLocal8Bit(process->readAllStandardOutput()) : QString();
     for (const QString &l : stdOutLine.split('\n'))
-        stdError(l);
+        stdOutput(l);
 
     cleanUp(process);
 }

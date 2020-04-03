@@ -46,18 +46,13 @@
 
     \QC supports the following methods of deployment for Android applications:
 
-     \list
-
+    \list
         \li As a stand-alone, distributable application package (APK).
-
-        \li As a minimal APK that contains a dependency to the Ministro tool.
-            The Ministro tool downloads the necessary Qt libraries from a
-            repository of your choice.
-
         \li Since Qt 5.14.0, as an app bundle (AAB), intended for distribution
             in the Google Play store.
-
     \endlist
+
+    \note Since \QC 4.12, Ministro is not supported.
 
     To specify settings for application packages, select \uicontrol Projects >
     \uicontrol {Build Android APK} > \uicontrol Details.
@@ -66,23 +61,6 @@
     For more information about options that you have for running applications,
     see \l {Specifying Run Settings for Android Devices}.
     \endif
-
-    \section1 Using Ministro to Install Qt Libraries
-
-    To minimize the size of your APK, you can package the application with an
-    external dependency called Ministro. If a user downloads your application,
-    and it is the first application on their device to depend on Ministro, they
-    are asked to install Ministro before they can run your application.
-
-    Ministro serves as a central repository for Qt libraries. This enables
-    several applications to share the libraries, which only need to be installed
-    once. To use this deployment method, you must set up a repository for the
-    libraries that you want to distribute. To specify the
-    repository URL, edit the file \c {android/res/values/libs.xml}, which is
-    created by \QC.
-
-    To use Ministro to install the Qt libraries, select the
-    \uicontrol {Use Ministro service to install Qt} option.
 
     \section1 Packaging Applications
 
@@ -126,8 +104,8 @@
 
     The packages are deployed on the connected Android devices. To switch the
     device used as a default device for the selected kit, select
-    \uicontrol Projects > \uicontrol Run >
-    \uicontrol {Reset Default Devices}. The setting applies until you restart \QC.
+    \uicontrol Projects > \uicontrol Run > \uicontrol {Deploy to Android device}
+    > \uicontrol {Reset Default Devices}. The setting applies until you restart \QC.
     For more information, see \l{Selecting Android Devices}.
 
     For more information about the \c androiddeployqt tool, see
@@ -137,7 +115,7 @@
 
     You can specify settings for the \c androiddeployqt tool in \QC and in the
     project .pro file. To specify settings in \QC, select \uicontrol Projects >
-    \uicontrol {Build Android APK} > \uicontrol Details.
+    \uicontrol Build > \uicontrol {Build Android APK} > \uicontrol Details.
 
     \image qtcreator-android-deploy-configurations.png "Deploy configurations"
 
@@ -149,6 +127,22 @@
     You can view information about what the anddroiddeployqt tool is doing in
     the \uicontrol {Compile Output} pane. To view additional information, select the
     \uicontrol {Verbose output} check box.
+
+    \section3 Selecting API Level
+
+    In the \uicontrol {Android build SDK} field, you can select the API level to use
+    for building the application. Usually, you should select the newest API
+    level available.
+
+    \note For Qt 5.12.0 to 5.12.5 and Qt 5.13.0 to 5.13.1, Android build SDK 28 should
+    be used. For recent versions than the latter, build SDK 29, or the most recent
+    should be used.
+
+    This field does not specify the minimum supported API level nor the target
+    API level, which you can specify in the Android manifest. See
+    \l{Editing Manifest Files}. For more information about Android API levels, see
+    \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
+    {What is API Level?}.
 
     \section3 Building AABs
 
@@ -166,18 +160,6 @@
     field in the \uicontrol {Build Steps}:
 
     \image qtcreator-android-build-steps.png "Android Build Steps"
-
-    \section3 Selecting API Level
-
-    In the \uicontrol {Android build SDK} field, you can select the API level to use
-    for building the application. Usually, you should select the newest API
-    level available.
-
-    This field does not specify the minimum supported API level nor the target
-    API level, which you can specify in the Android manifest file.
-    For more information about Android API levels, see
-    \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
-    {What is API Level?}.
 
     \section3 Signing Android Packages
 
@@ -211,9 +193,9 @@
 
     \list 1
 
-        \li In the \uicontrol Keystore field, select \uicontrol Create to create a new
-            keystore that contains one key pair in the \uicontrol {Create Keystore and
-            a Certificate} dialog:
+        \li In the \uicontrol Keystore field, select \uicontrol Create to create
+            a new keystore that contains one key pair in the
+            \uicontrol {Create a Keystore and a Certificate} dialog:
 
             \image qtcreator-android-certificate.png
 
@@ -238,8 +220,8 @@
 
     \endlist
 
-    To sign an Android package by using a key pair, specify settings in the
-    \uicontrol {Sign package} group:
+    To sign an Android package by using a key pair, set the \uicontrol {Sign package}
+    group settings described in \l{Specifying Settings for Packages}:
 
     \list 1
 
@@ -258,21 +240,29 @@
 
     \QC automatically detects which Qt libraries the application uses and adds
     them as dependencies. If the application needs external libraries, specify
-    them in the \uicontrol {Additional Libraries} field. The libraries are copied into
+    them in \uicontrol Projects > \uicontrol Build > \uicontrol {Build Android APK}
+    > \uicontrol {Additional Libraries} field. The libraries are copied into
     your application's library folder and loaded on startup.
 
-    For example, to enable OpenSSL in your application, add the paths to the
-    required \c libssl.so and \c libcrypto.so libraries to the
-    \uicontrol {Additional Libraries} field.
+    To add OpenSSL libraries, select \uicontrol {Include prebuilt OpenSSL libraries}
+    in the \uicontrol {Additional Libraries} group. This will add the OpenSSL
+    include project defined in \l{Specifying Android Device Settings}{device settings}
+    in \uicontrol {Android OpenSSL} group. This can be used for QMake and CMake
+    projects.
 
-    \section3 Editing Manifest Files
+    Otherwise, you can manually add the paths to the required \c libssl.so and
+    \c libcrypto.so libraries to the \uicontrol {Additional Libraries} field.
+
+    \section1 Editing Manifest Files
 
     You can use the qmake variables to specify all
     the settings you need for the \c androiddeployqt tool and you do not need an
-    Android manifest file until you want to publish the package in an
-    application store. To specify additional settings for APK packages, you can
-    create an Android manifest file and edit it in \QC. Select
-    \uicontrol {Create Templates} to create the file and to open it in the
+    Android manifest file unless you need to specify Android specific settings
+    like the application's icon. Also, the manifest file is needed if you want
+    to publish the package in the Play Store.
+    You can create an Android manifest file and edit it in \QC. Select
+    \uicontrol Projects > \uicontrol Build > \uicontrol {Build Android APK}
+    > \uicontrol {Create Templates} to create the file and to open it in the
     Android Manifest Editor.
 
     \image qtcreator-android-manifest-editor.png "Android Manifest Editor"
@@ -292,9 +282,10 @@
     field, specify the version number that is shown to users.
 
     \li In the \uicontrol {Minimum required SDK} field, select the minimum API level
-    required to run the application. The minimum supported API level is
-    android-9. \QC does not allow you to select an API
-    level that the Qt version specified for the kit does not support.
+    required to run the application. The minimum supported API level for \QC is
+    android-9. However, Qt versions might have different minimum API levels, and
+    therefore \QC does not allow you to select an API level that the Qt version
+    specified for the kit does not support.
 
     \li In the \uicontrol {Target SDK} field, select the targeted API level of the
     application. This affects the activation of some compatibility features in
@@ -302,42 +293,49 @@
     means that the overflow button in the system navigation bar will not be
     enabled by default.
 
-    \li In the \uicontrol Application group, you can give the application a name and
-    select an icon for it. The three icon fields can contain different versions
-    of the icon with low, medium, and high DPI values, from left to right.
-    You can also give an activity a name and select the activity to run.
+    \li In the \uicontrol Application group, you can set the application's name.
+        You can also give an activity a name and select the activity to run.
+
+    \li The \uicontrol {Style extraction} combo box sets the used method that Qt
+        uses to extract style information. It has the following values:
+        \list
+            \li \uicontrol Default or \uicontrol Full: Use this when working with
+                Qt Widgets or Qt Quick Controls 1.
+
+                \note This method uses some Android non-SDK interfaces,
+                      that are being restricted by Google starting from Android 9.0
+                      (API 28).
+            \li \uicontrol minimal: Use this when working with Qt Quick Controls 2
+                with no Qt Widgets or Qt Quick Controls 1. This is faster than
+                \uicontrol full or \uicontrol default.
+            \li \uicontrol none: Use this if you're not working with Qt Widgets,
+                or Qt Quick Controls 1 or 2 in your project.
+        \endlist
+
+    \li In \uicontrol {Application icon}, select an icon. Click the
+    \uicontrol {Master icon} button to select an icon with the highest resolution,
+    then, it will resize and set the three icon fields for low, medium, and high DPI icons
+    as needed.
 
     \li In the \uicontrol Permissions field, you can specify the permissions that your
-    application needs. Users are asked to grant the permissions when they
-    install the application. Android OS then grants the application access to
-    the appropriate data and features.
+    application needs. Starting from Android 6.0 (API 23), permissions have to be
+    requested at runtime (See \l{QtAndroidExtras}{requestPermissionsSync} or
+    \l{QtAndroidExtras}{requestPermissions}). For lower Android API levels,
+    users are asked to grant the permissions when they install the application.
+    Android OS then grants the application access to the appropriate data and features.
 
     \li Select the \uicontrol {Include default permissions for Qt modules} and
     \uicontrol {Include default features for Qt modules} check boxes to add the
-    permissions needed by Qt libraries.
+    permissions needed by Qt libraries. This can be
+    android.permission.WRITE_EXTERNAL_STORAGE for QtCore, or
+    android.permission.ACCESS_COARSE_LOCATION for QtLocation.
 
-    \li To add permissions, select them in the list, and then select \uicontrol Add.
+    \li To add a permission, select it from the list, and then click \uicontrol Add.
 
     \endlist
 
-    Select the \uicontrol {XML Source} tab to edit the file in XML format.
-
-    \section1 Installing Ministro
-
-    The easiest way to install Ministro is to do it on the device via Google
-    Play. When you run the application for the first time, a dialog pops up and
-    guides you through the installation.
-
-    To use \QC to install Ministro, you must first download the Ministro .apk
-    from the Google Market or from the
-    \l{http://necessitas.kde.org/necessitas/ministro.php}{Ministro} home page.
-
-    Then select \uicontrol Projects > \uicontrol Run > \uicontrol {Install Ministro from APK}.
-
-    You can use this option also to install any Android package (.apk).
-
-    You can use this option to install applications on an Android Virtual
-    Device (AVD).
+    On the top header, select the \uicontrol {XML Source} tab to edit the file
+    in XML format.
 
 */
 

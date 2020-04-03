@@ -626,7 +626,7 @@ Column {
 
             sliderMargins: 4
 
-            onClicked: {
+            onUpdateColor: {
                 colorEditor.color = colorButton.color
                 if (contextMenu.opened)
                     contextMenu.close()

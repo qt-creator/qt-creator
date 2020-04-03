@@ -150,10 +150,10 @@ void IconRenderer::setupRender()
                 QTimer::singleShot(1000, qGuiApp, &QGuiApplication::quit);
             });
         } else {
-            qGuiApp->quit();
+            QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
         }
     } else {
-        qGuiApp->quit();
+        QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
     }
 }
 

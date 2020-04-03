@@ -96,7 +96,5 @@ def main():
                     __verifyLineUnderCursor__(cppwindow, record)
                 invokeMenuItem("File", 'Revert "main.cpp" to Saved')
                 clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-            snooze(1)
-            invokeMenuItem("File", "Close All")
             invokeMenuItem("File", "Exit")
             waitForCleanShutdown()

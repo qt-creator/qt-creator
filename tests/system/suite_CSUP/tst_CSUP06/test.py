@@ -172,8 +172,5 @@ def main():
                 checkSymbolCompletion(editor, useClang)
                 invokeMenuItem('File', 'Revert "main.cpp" to Saved')
                 clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-            snooze(1)   # 'Close "main.cpp"' might still be disabled
-            # editor must be closed to get the second code model applied on re-opening the file
-            invokeMenuItem('File', 'Close "main.cpp"')
             invokeMenuItem("File", "Exit")
             waitForCleanShutdown()

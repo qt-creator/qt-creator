@@ -35,6 +35,7 @@ Model {
     property Node targetNode: null
     property Node scene: null
     property bool selected: false
+    property color color
 
     function updateGeometry()
     {
@@ -49,7 +50,7 @@ Model {
     materials: [
         DefaultMaterial {
             id: defaultMaterial
-            emissiveColor: lightModel.selected ? "#FF0000" : "#555555"
+            emissiveColor: lightModel.selected ? lightModel.color : "#555555"
             lighting: DefaultMaterial.NoLighting
             cullMode: Material.NoCulling
         }

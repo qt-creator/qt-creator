@@ -471,12 +471,17 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
 
     // This code expects proVars to be sorted by the variables' appearance in the file.
     int delta = 1;
-    for (const VarLocation &loc : qAsConst(varLocations)) {
+    for (int varIndex = 0; varIndex < varLocations.count(); ++varIndex) {
+       const VarLocation &loc = varLocations[varIndex];
        bool first = true;
        int lineNo = loc.second - delta;
        typedef QPair<int, int> ContPos;
        QList<ContPos> contPos;
-       while (lineNo < lines->count()) {
+       const auto nextSegmentStart = [varIndex, lines, &delta, &varLocations] {
+           return varIndex == varLocations.count() - 1
+                   ? lines->count() : varLocations[varIndex + 1].second - delta;
+       };
+       while (lineNo < nextSegmentStart()) {
            QString &line = (*lines)[lineNo];
            int lineLen = line.length();
            bool killed = false;

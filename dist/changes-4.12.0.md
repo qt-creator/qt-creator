@@ -202,6 +202,7 @@ Platforms
 
 ### Android
 
+* Discontinued support for Ministro
 * Added auto-detection of Java JDK (QTCREATORBUG-23407)
 * Added option to automatically download and install required Android tools (QTCREATORBUG-23285)
 * Added option to register multiple NDKs (QTCREATORBUG-23286)

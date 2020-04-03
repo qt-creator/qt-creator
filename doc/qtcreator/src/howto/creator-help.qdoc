@@ -78,11 +78,11 @@
 
     \section1 Viewing Function Tooltips
 
-    To hide function tooltips by default, select \uicontrol {Tools > Options >
-    Text Editor > Behavior > Show help tooltips using the mouse >
-    On Shift+Mouseover}. You
-    can still view the tooltips by pressing and holding down the \key Shift
-    key.
+    To hide function tooltips by default, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior >
+    \uicontrol {Show help tooltips using the mouse} >
+    \uicontrol {On Shift+Mouseover}. You can still view the tooltips by pressing
+    and holding down the \key Shift key.
 
     To use a keyboard shortcut for viewing help tooltips, select
     \uicontrol {Show help tooltips using keyboard shortcut (Alt)}.
@@ -256,7 +256,8 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > Options > Help > Filters > Add}.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Help >
+            \uicontrol Filters > \uicontrol Add.
 
         \li Enter a name for the filter and press \uicontrol {OK}.
 

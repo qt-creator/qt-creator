@@ -278,6 +278,7 @@ void LldbEngine::setupEngine()
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
     cmd2.arg("environment", rp.inferior.environment.toStringList());
     cmd2.arg("processargs", toHex(QtcProcess::splitArgs(rp.inferior.commandLineArguments).join(QChar(0))));
+    cmd2.arg("platform", rp.platform);
 
     if (terminal()) {
         const qint64 attachedPID = terminal()->applicationPid();

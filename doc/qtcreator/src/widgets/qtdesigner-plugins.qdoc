@@ -141,8 +141,8 @@
     building applications is configured and built to use the MinGW/g++ compiler.
     Plugins built by using this version of Qt cannot be loaded by \QC because
     the build-keys do not match. The plugins can only be used in the standalone
-    version of \QD. Choose \uicontrol{Help > About \QC} to check the Qt version \QC
-    was built with.
+    version of \QD. Choose \uicontrol Help > \uicontrol {About \QC} to check the
+    Qt version \QC was built with.
 
     To use \QD plugins that were built for the shipped Qt version, make sure
     that \QC is built with the same compiler by either recompiling \QC using

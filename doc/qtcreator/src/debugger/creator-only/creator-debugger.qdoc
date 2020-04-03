@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -380,6 +380,11 @@
             debugger at the main function.
         \li In the \uicontrol {Server start script} field, specify a
             script file to run when the server starts.
+        \li In the \uicontrol {Init commands} field, enter the commands
+            to execute immediately after the connection to a target has
+            been established.
+        \li In the \uicontrol {Reset commands} field, enter the commands
+            to execute when resetting the connection to a target.
         \li In the \uicontrol {Debug information} field, specify the location
             for storing debug information. You cannot use an empty path.
         \li In the \uicontrol {Override server channel} field, specify a
@@ -619,6 +624,9 @@
 
     To save space on the screen, select \uicontrol Window > \uicontrol Views >
     \uicontrol {Automatically Hide View Titlebars}.
+
+    To show and hide columns in views, toggle \uicontrol {Show Column} in
+    the context menu.
 
     Once the program starts running under the control of the debugger, it
     behaves and performs as usual. You can interrupt a running C++ program by

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -41,11 +41,16 @@
     for detecting buffer overruns and memory leaks. You must download and
     install Heob to run it from \QC.
 
+    \image qtcreator-heob-settings.png
+
     To run Heob on the currently open project:
 
     \list 1
 
         \li Select \uicontrol Analyze > \uicontrol Heob.
+
+        \li Select the Heob settings profile to use, or select \uicontrol New
+            to create a new profile.
 
         \li In the \uicontrol {Heob path} field, enter the path to the Heob
             executable.
@@ -72,8 +77,6 @@
 
     To specify settings for Heob, select \uicontrol Analyze > \uicontrol Heob.
 
-    \image qtcreator-heob-settings.png
-
     In the \uicontrol {Extra arguments} field, enter additional arguments for
     running Heob. To list the available arguments in the Heob console, enter
     \c -H in this field and press \key Enter.
@@ -83,7 +86,10 @@
     leaks visually in the file and the \c -L1024 option to record leak contents
     up to 1024 bytes in the file. For example, \c {-oleaks.html -g2 -L1024}
 
-    Select \uicontrol Save to save the current settings as default.
+    To save the settings profile, select \uicontrol Save.
+
+    To remove a customized settings profile, select the profile, and then
+    select \uicontrol Delete.
 
     The following sections describe the available options in more detail.
 
