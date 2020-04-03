@@ -49,7 +49,6 @@ public:
     bool isValid() const;
     CMakeTool *cmakeTool() const;
 
-    bool initialized = false;
     QString projectName;
 
     Utils::FilePath sourceDirectory;

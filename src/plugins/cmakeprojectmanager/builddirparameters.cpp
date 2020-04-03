@@ -47,13 +47,15 @@ BuildDirParameters::BuildDirParameters() = default;
 
 BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 {
-    initialized = bc != nullptr;
+    QTC_ASSERT(bc, return );
 
-    const Kit *k = bc->target()->kit();
+    const Target *t = bc->target();
+    const Kit *k = t->kit();
+    const Project *p = t->project();
 
-    projectName = bc->target()->project()->displayName();
+    projectName = p->displayName();
 
-    sourceDirectory = bc->target()->project()->projectDirectory();
+    sourceDirectory = p->projectDirectory();
     buildDirectory = bc->buildDirectory();
 
     environment = bc->environment();
@@ -87,7 +89,10 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     generatorArguments = CMakeGeneratorKitAspect::generatorArguments(k);
 }
 
-bool BuildDirParameters::isValid() const { return initialized && cmakeTool(); }
+bool BuildDirParameters::isValid() const
+{
+    return cmakeTool();
+}
 
 CMakeTool *BuildDirParameters::cmakeTool() const
 {
