@@ -36,9 +36,7 @@ HEADERS = builddirmanager.h \
     fileapidataextractor.h \
     fileapiparser.h \
     fileapireader.h \
-    projecttreehelper.h \
-    servermode.h \
-    servermodereader.h
+    projecttreehelper.h
 
 SOURCES = builddirmanager.cpp \
     builddirparameters.cpp \
@@ -72,9 +70,7 @@ SOURCES = builddirmanager.cpp \
     fileapidataextractor.cpp \
     fileapiparser.cpp \
     fileapireader.cpp \
-    projecttreehelper.cpp \
-    servermode.cpp \
-    servermodereader.cpp
+    projecttreehelper.cpp
 
 RESOURCES += cmakeproject.qrc
 

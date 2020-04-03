@@ -40,6 +40,4 @@ add_qtc_plugin(CMakeProjectManager
     fileapiparser.cpp fileapiparser.h
     fileapireader.cpp fileapireader.h
     projecttreehelper.cpp projecttreehelper.h
-    servermode.cpp servermode.h
-    servermodereader.cpp servermodereader.h
 )

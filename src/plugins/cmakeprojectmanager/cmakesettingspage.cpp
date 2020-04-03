@@ -114,14 +114,13 @@ public:
         , m_isAutoRun(item->isAutoRun())
         , m_autoCreateBuildDirectory(item->autoCreateBuildDirectory())
         , m_autodetected(item->isAutoDetected())
-        , m_isSupported(item->hasFileApi() || item->hasServerMode())
+        , m_isSupported(item->hasFileApi())
         , m_changed(changed)
     {
         updateErrorFlags();
-        m_tooltip = tr("Version: %1<br>Supports fileApi: %2<br>Supports server-mode: %3")
+        m_tooltip = tr("Version: %1<br>Supports fileApi: %2")
                         .arg(QString::fromUtf8(item->version().fullVersion))
-                        .arg(item->hasFileApi() ? tr("yes") : tr("no"))
-                        .arg(item->hasServerMode() ? tr("yes") : tr("no"));
+                        .arg(item->hasFileApi() ? tr("yes") : tr("no"));
     }
 
     CMakeToolTreeItem(const QString &name,

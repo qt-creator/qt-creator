@@ -254,10 +254,10 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
     if (tool) {
         CMakeTool::Version version = tool->version();
-        if (version.major < 3 || (version.major == 3 && version.minor < 7)) {
+        if (version.major < 3 || (version.major == 3 && version.minor < 14)) {
             result << BuildSystemTask(Task::Warning,
                                       tr("CMake version %1 is unsupported. Please update to "
-                                         "version 3.7 or later.")
+                                         "version 3.14 (with file-api) or later.")
                                           .arg(QString::fromUtf8(version.fullVersion)));
         }
     }
@@ -717,9 +717,8 @@ Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
             if (!it->supportsToolset && !info.toolset.isEmpty())
                 addWarning(tr("Toolset is not supported by the selected CMake generator."));
         }
-        if (!tool->hasServerMode() && !tool->hasFileApi() && info.extraGenerator != "CodeBlocks") {
-            addWarning(tr("The selected CMake binary has no server-mode and the CMake "
-                          "generator does not generate a CodeBlocks file. "
+        if (!tool->hasFileApi()) {
+            addWarning(tr("The selected CMake binary does not support file-api. "
                           "%1 will not be able to parse CMake projects.")
                            .arg(Core::Constants::IDE_DISPLAY_NAME));
         }

@@ -26,7 +26,6 @@
 #include "builddirreader.h"
 
 #include "fileapireader.h"
-#include "servermodereader.h"
 
 #include <utils/qtcassert.h>
 
@@ -50,8 +49,6 @@ std::unique_ptr<BuildDirReader> BuildDirReader::createReader(const BuildDirParam
     switch (type.value()) {
     case CMakeTool::FileApi:
         return std::make_unique<FileApiReader>();
-    case CMakeTool::ServerMode:
-        return std::make_unique<ServerModeReader>();
     }
 }
 

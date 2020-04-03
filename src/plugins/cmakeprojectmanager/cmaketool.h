@@ -47,7 +47,7 @@ class CMAKE_EXPORT CMakeTool
 public:
     enum Detection { ManualDetection, AutoDetection };
 
-    enum ReaderType { ServerMode, FileApi };
+    enum ReaderType { FileApi };
 
     struct Version
     {
@@ -98,7 +98,6 @@ public:
     bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;
     TextEditor::Keywords keywords();
-    bool hasServerMode() const;
     bool hasFileApi() const;
     QVector<std::pair<QString, int>> supportedFileApiObjects() const;
     Version version() const;
@@ -115,21 +114,12 @@ public:
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
 private:
-    enum class QueryType {
-        GENERATORS,
-        SERVER_MODE,
-        VERSION
-    };
-    void readInformation(QueryType type) const;
+    void readInformation() const;
 
     Utils::SynchronousProcessResponse run(const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
 
-    void fetchGeneratorsFromHelp() const;
-    void parseGeneratorsFromHelp(const QStringList &lines) const;
-    void fetchVersionFromVersionOutput() const;
-    void parseVersionFormVersionOutput(const QStringList &lines) const;
     void fetchFromCapabilities() const;
     void parseFromCapabilities(const QString &input) const;
 
