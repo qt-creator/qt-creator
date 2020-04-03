@@ -25,7 +25,18 @@
 
 #include "ansifilterparser.h"
 
-namespace {
+#ifdef WITH_TESTS
+#include "projectexplorer.h"
+#include "outputparser_test.h"
+#include "task.h"
+
+#include <QTest>
+#endif // WITH_TESTS
+
+
+namespace ProjectExplorer {
+namespace Internal {
+
 enum AnsiState {
     PLAIN,
     ANSI_START,
@@ -34,26 +45,8 @@ enum AnsiState {
     ANSI_WAITING_FOR_ST,
     ANSI_ST_STARTED
 };
-} // namespace
 
-using namespace ProjectExplorer;
-
-AnsiFilterParser::AnsiFilterParser()
-{
-    setObjectName(QLatin1String("AnsiFilterParser"));
-}
-
-void AnsiFilterParser::stdOutput(const QString &line)
-{
-    IOutputParser::stdOutput(filterLine(line));
-}
-
-void AnsiFilterParser::stdError(const QString &line)
-{
-    IOutputParser::stdError(filterLine(line));
-}
-
-QString AnsiFilterParser::filterLine(const QString &line)
+QString filterAnsiEscapeCodes(const QString &line)
 {
     QString result;
     result.reserve(line.count());
@@ -104,15 +97,9 @@ QString AnsiFilterParser::filterLine(const QString &line)
     }
     return result;
 }
+} // namespace Internal
 
-// Unit tests:
 #ifdef WITH_TESTS
-#   include <QTest>
-
-#   include "projectexplorer.h"
-#   include "outputparser_test.h"
-#   include "task.h"
-
 void ProjectExplorerPlugin::testAnsiFilterOutputParser_data()
 {
     QTest::addColumn<QString>("input");
@@ -161,7 +148,7 @@ void ProjectExplorerPlugin::testAnsiFilterOutputParser_data()
 void ProjectExplorerPlugin::testAnsiFilterOutputParser()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new AnsiFilterParser);
+    testbench.addFilter(&Internal::filterAnsiEscapeCodes);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(QString, childStdOutLines);
@@ -173,3 +160,5 @@ void ProjectExplorerPlugin::testAnsiFilterOutputParser()
 }
 
 #endif
+
+} // namespace ProjectExplorer

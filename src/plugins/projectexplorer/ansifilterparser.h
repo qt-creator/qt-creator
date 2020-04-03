@@ -30,18 +30,9 @@
 #include "projectexplorer_export.h"
 
 namespace ProjectExplorer {
+namespace Internal {
 
-class PROJECTEXPLORER_EXPORT AnsiFilterParser : public IOutputParser
-{
-    Q_OBJECT
+QString filterAnsiEscapeCodes(const QString &line);
 
-public:
-    AnsiFilterParser();
-    void stdOutput(const QString &line) override;
-    void stdError(const QString &line) override;
-
-private:
-    QString filterLine(const QString &line);
-};
-
+} // namespace Internal
 } // namespace ProjectExplorer

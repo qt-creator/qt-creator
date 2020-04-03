@@ -111,8 +111,9 @@ class OutputChannelState
 public:
     using LineHandler = void (IOutputParser::*)(const QString &line);
 
-    OutputChannelState(IOutputParser *parser, LineHandler lineHandler)
-        : parser(parser), lineHandler(lineHandler) {}
+    OutputChannelState(IOutputParser *parser, LineHandler lineHandler,
+                       QList<IOutputParser::Filter> &filters)
+        : parser(parser), lineHandler(lineHandler), filters(filters) {}
 
     void handleData(const QString &newData)
     {
@@ -124,20 +125,30 @@ public:
                 break;
             const QString line = pendingData.left(eolPos + 1);
             pendingData.remove(0, eolPos + 1);
-            (parser->*lineHandler)(line);
+            (parser->*lineHandler)(filteredLine(line));
         }
     }
 
     void flush()
     {
         if (!pendingData.isEmpty()) {
-            (parser->*lineHandler)(pendingData);
+            (parser->*lineHandler)(filteredLine(pendingData));
             pendingData.clear();
         }
     }
 
+    QString filteredLine(const QString &line)
+    {
+        QString l = line;
+        for (const IOutputParser::Filter &f : filters)
+            l = f(l);
+        return l;
+    }
+
+
     IOutputParser * const parser;
-    LineHandler lineHandler;
+    const LineHandler lineHandler;
+    QList<IOutputParser::Filter> &filters;
     QString pendingData;
 };
 
@@ -145,11 +156,12 @@ class IOutputParser::IOutputParserPrivate
 {
 public:
     IOutputParserPrivate(IOutputParser *parser)
-        : stdoutState(parser, &IOutputParser::stdOutput),
-          stderrState(parser, &IOutputParser::stdError)
+        : stdoutState(parser, &IOutputParser::stdOutput, filters),
+          stderrState(parser, &IOutputParser::stdError, filters)
     {}
 
     IOutputParser *childParser = nullptr;
+    QList<Filter> filters;
     Utils::FilePath workingDir;
     OutputChannelState stdoutState;
     OutputChannelState stderrState;
@@ -259,6 +271,11 @@ QString IOutputParser::rightTrimmed(const QString &in)
             break;
     }
     return in.mid(0, pos);
+}
+
+void IOutputParser::addFilter(const Filter &filter)
+{
+    d->filters << filter;
 }
 
 } // namespace ProjectExplorer

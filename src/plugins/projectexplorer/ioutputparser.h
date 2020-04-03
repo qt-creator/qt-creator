@@ -30,6 +30,8 @@
 
 #include <utils/fileutils.h>
 
+#include <functional>
+
 namespace ProjectExplorer {
 class Task;
 
@@ -50,6 +52,9 @@ public:
     void setChildParser(IOutputParser *parser);
 
     virtual bool hasFatalErrors() const;
+
+    using Filter = std::function<QString(const QString &)>;
+    void addFilter(const Filter &filter);
 
     void setWorkingDirectory(const Utils::FilePath &fn);
 

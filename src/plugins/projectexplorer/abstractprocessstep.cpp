@@ -136,10 +136,10 @@ AbstractProcessStep::~AbstractProcessStep()
 
 void AbstractProcessStep::setOutputParser(IOutputParser *parser)
 {
-    d->m_outputParserChain.reset(new AnsiFilterParser);
-    d->m_outputParserChain->appendOutputParser(parser);
-
-    connect(d->m_outputParserChain.get(), &IOutputParser::addTask, this, &AbstractProcessStep::taskAdded);
+    parser->addFilter(&Internal::filterAnsiEscapeCodes);
+    d->m_outputParserChain.reset(parser);
+    connect(d->m_outputParserChain.get(), &IOutputParser::addTask,
+            this, &AbstractProcessStep::taskAdded);
 }
 
 /*!
