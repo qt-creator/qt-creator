@@ -54,6 +54,8 @@ FileApiReader::FileApiReader() {}
 
 FileApiReader::~FileApiReader()
 {
+    if (isParsing())
+        emit errorOccurred(tr("Parsing has been canceled."));
     stop();
     resetData();
 }
@@ -74,15 +76,6 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
         if (!m_isParsing)
             emit dirty();
     });
-
-    qCDebug(cmakeFileApiMode) << "FileApiReader: IS READY NOW SIGNAL";
-    emit isReadyNow();
-}
-
-bool FileApiReader::isCompatible(const BuildDirParameters &p)
-{
-    const CMakeTool *cmakeTool = p.cmakeTool();
-    return cmakeTool && cmakeTool->readerType() == CMakeTool::FileApi;
 }
 
 void FileApiReader::resetData()

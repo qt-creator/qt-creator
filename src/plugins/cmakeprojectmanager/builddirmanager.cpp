@@ -131,46 +131,6 @@ void BuildDirManager::emitReparseRequest() const
     }
 }
 
-void BuildDirManager::updateReaderType(const BuildDirParameters &p,
-                                       std::function<void()> todo)
-{
-    if (!m_reader || !m_reader->isCompatible(p)) {
-        if (m_reader) {
-            stopParsingAndClearState();
-            qCDebug(cmakeBuildDirManagerLog) << "Creating new reader do to incompatible parameters";
-        } else {
-            qCDebug(cmakeBuildDirManagerLog) << "Creating first reader";
-        }
-        m_reader = BuildDirReader::createReader(p);
-
-        if (!m_reader) {
-            TaskHub::addTask(BuildSystemTask(
-                Task::Error,
-                tr("The kit does not define a valid CMake tool to parse this project with.")));
-            return;
-        }
-
-        connect(m_reader.get(),
-                &BuildDirReader::configurationStarted,
-                this,
-                &BuildDirManager::parsingStarted);
-        connect(m_reader.get(),
-                &BuildDirReader::dataAvailable,
-                this,
-                &BuildDirManager::emitDataAvailable);
-        connect(m_reader.get(),
-                &BuildDirReader::errorOccurred,
-                this,
-                &BuildDirManager::emitErrorOccurred);
-        connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
-        connect(m_reader.get(), &BuildDirReader::isReadyNow, this, todo);
-    }
-
-    QTC_ASSERT(m_reader, return );
-
-    m_reader->setParameters(p);
-}
-
 bool BuildDirManager::hasConfigChanged()
 {
     checkConfiguration();
@@ -265,14 +225,7 @@ bool BuildDirManager::isParsing() const
 void BuildDirManager::stopParsingAndClearState()
 {
     qCDebug(cmakeBuildDirManagerLog) << "stopping parsing run!";
-    if (m_reader) {
-        if (m_reader->isParsing())
-            m_reader->errorOccurred(tr("Parsing has been canceled."));
-        disconnect(m_reader.get(), nullptr, this, nullptr);
-        m_reader->stop();
-    }
     m_reader.reset();
-    resetData();
 }
 
 void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &parameters,
@@ -290,7 +243,25 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
     m_parameters.workDirectory = workDirectory(parameters);
     updateReparseParameters(reparseParameters);
 
-    updateReaderType(m_parameters, [this]() { emitReparseRequest(); });
+    QTC_CHECK(!m_reader); // The parsing should have stopped at this time already!
+    m_reader = std::make_unique<FileApiReader>();
+
+    connect(m_reader.get(),
+            &FileApiReader::configurationStarted,
+            this,
+            &BuildDirManager::parsingStarted);
+    connect(m_reader.get(),
+            &FileApiReader::dataAvailable,
+            this,
+            &BuildDirManager::emitDataAvailable);
+    connect(m_reader.get(),
+            &FileApiReader::errorOccurred,
+            this,
+            &BuildDirManager::emitErrorOccurred);
+    connect(m_reader.get(), &FileApiReader::dirty, this, &BuildDirManager::becameDirty);
+
+    m_reader->setParameters(m_parameters);
+    emitReparseRequest();
 }
 
 CMakeBuildSystem *BuildDirManager::buildSystem() const
@@ -319,8 +290,7 @@ void BuildDirManager::becameDirty()
 
 void BuildDirManager::resetData()
 {
-    if (m_reader)
-        m_reader->resetData();
+    m_reader.reset();
 }
 
 bool BuildDirManager::persistCMakeState()

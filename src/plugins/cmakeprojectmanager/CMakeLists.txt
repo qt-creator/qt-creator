@@ -5,7 +5,6 @@ add_qtc_plugin(CMakeProjectManager
   SOURCES
     builddirmanager.cpp builddirmanager.h
     builddirparameters.cpp builddirparameters.h
-    builddirreader.cpp builddirreader.h
     cmake_global.h
     cmakeautocompleter.cpp cmakeautocompleter.h
     cmakebuildconfiguration.cpp cmakebuildconfiguration.h

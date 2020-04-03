@@ -3,7 +3,6 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS = builddirmanager.h \
     builddirparameters.h \
-    builddirreader.h \
     cmakebuildstep.h \
     cmakebuildsystem.h \
     cmakebuildtarget.h \
@@ -40,7 +39,6 @@ HEADERS = builddirmanager.h \
 
 SOURCES = builddirmanager.cpp \
     builddirparameters.cpp \
-    builddirreader.cpp \
     cmakebuildstep.cpp \
     cmakebuildsystem.cpp \
     cmakeconfigitem.cpp \

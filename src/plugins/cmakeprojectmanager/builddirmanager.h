@@ -26,8 +26,8 @@
 #pragma once
 
 #include "builddirparameters.h"
-#include "builddirreader.h"
 #include "cmakebuildtarget.h"
+#include "fileapireader.h"
 
 #include <projectexplorer/rawprojectpart.h>
 
@@ -116,8 +116,6 @@ private:
 
     Utils::FilePath workDirectory(const BuildDirParameters &parameters) const;
 
-    void updateReaderType(const BuildDirParameters &p, std::function<void()> todo);
-
     bool hasConfigChanged();
 
     void writeConfigurationIntoBuildDirectory(const Utils::MacroExpander *expander);
@@ -128,7 +126,7 @@ private:
     int m_reparseParameters;
     CMakeBuildSystem *m_buildSystem = nullptr;
     mutable std::unordered_map<Utils::FilePath, std::unique_ptr<Utils::TemporaryDirectory>> m_buildDirToTempDir;
-    mutable std::unique_ptr<BuildDirReader> m_reader;
+    mutable std::unique_ptr<FileApiReader> m_reader;
     mutable bool m_isHandlingError = false;
 };
 
