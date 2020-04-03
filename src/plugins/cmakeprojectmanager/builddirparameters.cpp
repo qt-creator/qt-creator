@@ -75,7 +75,6 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     tc = ToolChainKitAspect::cToolChain(k);
     if (tc)
         cToolChainId = tc->id();
-    sysRoot = SysRootKitAspect::sysRoot(k);
 
     expander = k->macroExpander();
 

@@ -61,8 +61,6 @@ public:
     QByteArray cxxToolChainId;
     QByteArray cToolChainId;
 
-    Utils::FilePath sysRoot;
-
     Utils::MacroExpander *expander = nullptr;
 
     CMakeConfig configuration;
