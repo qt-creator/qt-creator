@@ -26,7 +26,7 @@
 #include "setframevaluedialog.h"
 #include "ui_setframevaluedialog.h"
 
-#include <QIntValidator>
+#include <QtGui/qvalidator.h>
 
 namespace QmlDesigner {
 
@@ -40,9 +40,13 @@ SetFrameValueDialog::SetFrameValueDialog(qreal frame, const QVariant &value,
     setFixedSize(size());
 
     ui->lineEditFrame->setValidator(new QIntValidator(0, 99999, this));
+    auto dv = new QDoubleValidator(this);
+    dv->setDecimals(2);
+    ui->lineEditValue->setValidator(dv);
 
-    ui->lineEditFrame->setText(QString::number(frame));
-    ui->lineEditValue->setText(value.toString());
+    QLocale l;
+    ui->lineEditFrame->setText(l.toString(qRound(frame)));
+    ui->lineEditValue->setText(l.toString(value.toDouble(), 'f', 2));
     ui->labelValue->setText(propertyName);
 }
 
@@ -53,12 +57,14 @@ SetFrameValueDialog::~SetFrameValueDialog()
 
 qreal SetFrameValueDialog::frame() const
 {
-    return ui->lineEditFrame->text().toDouble();
+    QLocale l;
+    return l.toDouble(ui->lineEditFrame->text());
 }
 
 QVariant SetFrameValueDialog::value() const
 {
-    return QVariant(ui->lineEditValue->text());
+    QLocale l;
+    return QVariant(l.toDouble(ui->lineEditValue->text()));
 }
 
 } // namespace QmlDesigner
