@@ -176,8 +176,8 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {MCU Support Application} >
-            \uicontrol Choose.
+            \uicontrol {Application (Qt Quick)} >
+            \uicontrol {MCU Support Application} > \uicontrol Choose.
         \li Follow the instructions of the wizard to create the project.
         \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
             select the kit for building the application and running it on the
