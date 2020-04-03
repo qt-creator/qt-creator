@@ -252,6 +252,12 @@ ConnectionDelegate::ConnectionDelegate(QWidget *parent) : ConnectionEditorDelega
     setItemEditorFactory(factory);
 }
 
+static QString nameForAction(const QString &input)
+{
+    QStringList list = input.split('.');
+    return list.first();
+}
+
 QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 
@@ -300,6 +306,11 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
                 QString itemText = tr("Change state to %1").arg(state.name());
                 QString source = QString::fromLatin1("{ %1.state = \"%2\" }").arg(rootModelNode.id()).arg(state.name());
                 connectionComboBox->addItem(itemText, source);
+            }
+
+            QStringList trigger = connectionModel->getflowActionTriggerForRow(index.row());
+            for (const QString action : trigger) {
+                connectionComboBox->addItem(tr("Activate FlowAction %1").arg(nameForAction(action)), action);
             }
         }
         connectionComboBox->disableValidator();
