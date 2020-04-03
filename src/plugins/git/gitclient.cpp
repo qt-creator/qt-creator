@@ -1285,7 +1285,9 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
         }
     }
 
+    const QString suggestedName = suggestedLocalBranchName(localBranches, remoteBranch);
     BranchAddDialog branchAddDialog(localBranches, BranchAddDialog::Type::AddBranch, ICore::dialogParent());
+    branchAddDialog.setBranchName(suggestedName);
     branchAddDialog.setTrackedBranchName(remoteBranch, true);
 
     if (branchAddDialog.exec() != QDialog::Accepted)
@@ -3594,6 +3596,20 @@ GitRemote::GitRemote(const QString &location) : Core::IVersionControl::RepoUrl(l
 {
     if (isValid && protocol == "file")
         isValid = QDir(path).exists() || QDir(path + ".git").exists();
+}
+
+QString GitClient::suggestedLocalBranchName(const QStringList localNames,
+                                            const QString trackedBranch)
+{
+    const QString suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf('/') + 1);
+    QString suggestedName = suggestedNameBase;
+    int i = 2;
+    while (localNames.contains(suggestedName)) {
+        suggestedName = suggestedNameBase + QString::number(i);
+        ++i;
+    }
+
+    return suggestedName;
 }
 
 void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const QString &change)

@@ -319,19 +319,11 @@ bool BranchView::add()
 
     const QStringList localNames = m_model->localBranchNames();
 
-    QString suggestedName;
-    if (isTracked) {
-        const QString suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf('/') + 1);
-        suggestedName = suggestedNameBase;
-        int i = 2;
-        while (localNames.contains(suggestedName)) {
-            suggestedName = suggestedNameBase + QString::number(i);
-            ++i;
-        }
-    }
-
     BranchAddDialog branchAddDialog(localNames, BranchAddDialog::Type::AddBranch, this);
-    branchAddDialog.setBranchName(suggestedName);
+    if (isTracked) {
+        const QString suggestedName = GitClient::suggestedLocalBranchName(localNames, trackedBranch);
+        branchAddDialog.setBranchName(suggestedName);
+    }
     branchAddDialog.setTrackedBranchName(isTracked ? trackedBranch : QString(), !isLocal);
     branchAddDialog.setCheckoutVisible(true);
 

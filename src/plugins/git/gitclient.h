@@ -354,6 +354,8 @@ public:
     VcsBase::VcsCommand *asyncUpstreamStatus(const QString &workingDirectory,
                                              const QString &branch, const QString &upstream);
 
+    static QString suggestedLocalBranchName(const QStringList existingLocalNames,
+                                            const QString trackedBranch);
     static void addChangeActions(QMenu *menu, const QString &workingDir, const QString &change);
 
 private:
