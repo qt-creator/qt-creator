@@ -63,6 +63,7 @@
 
     \list
         \li \l{The Plugin Manager, the Object Pool, and Registered Objects}
+        \li \l{The Action Manager and Commands}
     \omit
         \li \l{Aggregations}
         \li \l{Extending and Providing Interfaces}
