@@ -493,7 +493,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     m_disabledText = JsonWizardFactory::localizedString(consumeValue(tmp, "trDisabledText").toString());
     m_placeholderText = JsonWizardFactory::localizedString(consumeValue(tmp, "trPlaceholder").toString());
     m_historyId = consumeValue(tmp, "historyId").toString();
-    m_restoreLastHistoryItem = consumeValue(tmp, "restoreLastHistoyItem", false).toBool();
+    m_restoreLastHistoryItem = consumeValue(tmp, "restoreLastHistoryItem", false).toBool();
     QString pattern = consumeValue(tmp, "validator").toString();
     if (!pattern.isEmpty()) {
         m_validatorRegExp = QRegularExpression(pattern);
