@@ -785,7 +785,9 @@
         "data":
         {
             "trText": "%{BaseCB}",
-            "trDisabledText": "%{BaseCB}"
+            "trDisabledText": "%{BaseCB}",
+            "historyId": "EditValues",
+            "restoreLastHistoryItem": false
         }
     },
     \endcode
@@ -807,6 +809,14 @@
 
         \li \c isPassword is a boolean value that specifies that the line edit
             contains a password, which will be masked.
+
+        \li \c historyId is a key that specifies the name for a list of items
+            for the history completer.
+
+        \li \c restoreLastHistoryItem is a boolean that specifies that the
+            last history item is automatically set as the default text in
+            the line edit. This key can only be set to true if \c historyId
+            is also set.
 
     \endlist
 
