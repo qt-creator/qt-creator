@@ -53,6 +53,7 @@ public:
         m_remoteNames(remoteNames)
     {
         m_ui.setupUi(this);
+        m_ui.nameEdit->setHistoryCompleter("Git.RemoteNames");
         m_ui.nameEdit->setValidationFunction([this](Utils::FancyLineEdit *edit, QString *errorMessage) {
             if (!edit)
                 return false;
@@ -84,6 +85,7 @@ public:
             m_ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_ui.nameEdit->isValid());
         });
 
+        m_ui.urlEdit->setHistoryCompleter("Git.RemoteUrls");
         m_ui.urlEdit->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
             if (!edit || edit->text().isEmpty())
                 return false;
