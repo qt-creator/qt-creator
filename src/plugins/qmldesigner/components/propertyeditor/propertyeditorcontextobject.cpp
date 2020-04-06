@@ -39,6 +39,7 @@
 
 #include <QApplication>
 #include <QCursor>
+#include <QFontDatabase>
 #include <QQmlContext>
 
 #include <coreplugin/icore.h>
@@ -408,6 +409,12 @@ void PropertyEditorContextObject::restoreCursor()
 
     QCursor::setPos(m_lastPos);
     QApplication::restoreOverrideCursor();
+}
+
+QStringList PropertyEditorContextObject::styleNamesForFamily(const QString &family)
+{
+    const QFontDatabase dataBase;
+    return dataBase.styles(family);
 }
 
 void EasingCurveEditor::registerDeclarativeType()
