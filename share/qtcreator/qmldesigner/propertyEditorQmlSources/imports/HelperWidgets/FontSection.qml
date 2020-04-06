@@ -68,9 +68,12 @@ Section {
             text: qsTr("Font")
         }
         FontComboBox {
+            id: fontComboBox
             backendValue: fontSection.fontFamily
             Layout.fillWidth: true
             width: 160
+            property string familyName: backendValue.value
+            onFamilyNameChanged: print(styleNamesForFamily(familyName))
         }
 
         Label {
@@ -151,6 +154,7 @@ Section {
             italic: fontSection.italicStyle
             underline: fontSection.underlineStyle
             strikeout: fontSection.strikeoutStyle
+            enabled: !styleComboBox.styleSet
         }
 
         Label {
@@ -175,6 +179,21 @@ Section {
             backendValue: getBackendValue("weight")
             model:  ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
             scope: "Font"
+            enabled: !styleComboBox.styleSet
+        }
+
+        Label {
+            text: qsTr("Style name")
+            toolTip: qsTr("Sets the font's style.")
+        }
+
+        ComboBox {
+            id: styleComboBox
+            property bool styleSet: backendValue.isInModel
+            Layout.fillWidth: true
+            backendValue: getBackendValue("styleName")
+            model: styleNamesForFamily(fontComboBox.familyName)
+            useString: true
         }
 
         Label {
