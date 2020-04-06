@@ -185,6 +185,17 @@ public:
     enum eInsertMode { AutoScrollArea, ForceScrollArea, ForceNoScrollArea };
 
     /**
+     * The mode of the minimumSizeHint() that is returned by the DockWidget
+     * minimumSizeHint() function.
+     * To ensure, that a dock widget does not block resizing, the dock widget
+     * reimplements minimumSizeHint() function to return a very small minimum
+     * size hint. If you would like to adhere the minimumSizeHint() from the
+     * content widget, the set the minimumSizeHintMode() to
+     * MinimumSizeHintFromContent.
+     */
+    enum eMinimumSizeHintMode { MinimumSizeHintFromDockWidget, MinimumSizeHintFromContent };
+
+    /**
      * This mode configures the behavior of the toggle view action.
      * If the mode if ActionModeToggle, then the toggle view action is
      * a checkable action to show / hide the dock widget. If the mode
@@ -218,7 +229,8 @@ public:
     virtual ~DockWidget() override;
 
     /**
-     * We return a fixed minimum size hint for all dock widgets
+     * We return a fixed minimum size hint or the size hint of the content
+     * widget if minimum size hint mode is MinimumSizeHintFromContent
      */
     virtual QSize minimumSizeHint() const override;
 
@@ -328,6 +340,13 @@ public:
     void setToggleViewActionMode(eToggleViewActionMode mode);
 
     /**
+     * Configures the minimum size hint that is returned by the
+     * minimumSizeHint() function.
+     * \see eMinimumSizeHintMode for a detailed description
+     */
+    void setMinimumSizeHintMode(eMinimumSizeHintMode mode);
+
+    /**
      * Sets the dock widget icon that is shown in tabs and in toggle view
      * actions
      */
@@ -339,13 +358,10 @@ public:
     QIcon icon() const;
 
     /**
-     * If the WithToolBar layout flag is enabled, then this function returns
-     * the dock widget toolbar. If the flag is disabled, the function returns
-     * a nullptr.
      * This function returns the dock widget top tool bar.
      * If no toolbar is assigned, this function returns nullptr. To get a valid
      * toolbar you either need to create a default empty toolbar via
-     * createDefaultToolBar() function or you need to assign you custom
+     * createDefaultToolBar() function or you need to assign your custom
      * toolbar via setToolBar().
      */
     QToolBar *toolBar() const;
