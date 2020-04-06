@@ -907,10 +907,11 @@ static bool validateQtInstallDir(FancyLineEdit *input, QString *errorString)
                                                               [](const QString &dir) {
                                                                   return settingsFile(dir);
                                                               });
-            *errorString = QtOptionsPageWidget::tr(
-                               "<html><body>Qt installation information was not found in \"%1\". "
-                               "Choose a directory that contains one of the files <pre>%2</pre>")
-                               .arg(qtDir, filesToCheck.join('\n'));
+            *errorString = "<html><body>" + QtOptionsPageWidget::tr(
+                               "Qt installation information was not found in \"%1\". "
+                               "Choose a directory that contains one of the files %2")
+                               .arg(qtDir, "<pre>" + filesToCheck.join('\n') + "</pre>")
+                           + "</body></html>";
         }
         return false;
     }
