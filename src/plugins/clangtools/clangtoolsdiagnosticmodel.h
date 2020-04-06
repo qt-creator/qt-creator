@@ -69,6 +69,8 @@ private:
     const QString m_filePath;
 };
 
+class DiagnosticMark;
+
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
@@ -101,6 +103,7 @@ private:
     ReplacementOperations  m_fixitOperations;
     FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
     ClangToolsDiagnosticModel *m_parentModel = nullptr;
+    TextEditor::TextMark *m_mark = nullptr;
 };
 
 class ExplainingStepItem;

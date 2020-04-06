@@ -32,6 +32,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <texteditor/textmark.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -217,7 +218,15 @@ static QString fixitStatus(FixitStatus status)
     return QString();
 }
 
-static QString createDiagnosticToolTipString(const Diagnostic &diagnostic, FixitStatus fixItStatus)
+static QString lineColumnString(const Debugger::DiagnosticLocation &location)
+{
+    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
+}
+
+static QString createDiagnosticToolTipString(
+    const Diagnostic &diagnostic,
+    Utils::optional<FixitStatus> fixItStatus = Utils::nullopt,
+    bool showSteps = true)
 {
     using StringPair = QPair<QString, QString>;
     QList<StringPair> lines;
@@ -244,9 +253,24 @@ static QString createDiagnosticToolTipString(const Diagnostic &diagnostic, Fixit
         QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
                 createFullLocationString(diagnostic.location));
 
-    lines << qMakePair(
-        QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
-        fixitStatus(fixItStatus));
+    if (fixItStatus.has_value()) {
+        lines << qMakePair(QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
+                           fixitStatus(fixItStatus.value()));
+    }
+
+    if (showSteps && !diagnostic.explainingSteps.isEmpty()) {
+        StringPair steps;
+        steps.first = QCoreApplication::translate("ClangTools::Diagnostic", "Steps:");
+        for (const ExplainingStep &step : diagnostic.explainingSteps) {
+            if (!steps.second.isEmpty())
+                steps.second += "<br>";
+            steps.second += QString("%1:%2: %3")
+                                .arg(step.location.filePath,
+                                     lineColumnString(step.location),
+                                     step.message);
+        }
+        lines << steps;
+    }
 
     QString html = QLatin1String("<html>"
                    "<head>"
@@ -319,11 +343,6 @@ static QString createExplainingStepString(const ExplainingStep &explainingStep, 
 }
 
 
-static QString lineColumnString(const Debugger::DiagnosticLocation &location)
-{
-    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
-}
-
 static QString fullText(const Diagnostic &diagnostic)
 {
     QString text = diagnostic.location.filePath + QLatin1Char(':');
@@ -346,6 +365,35 @@ static QString fullText(const Diagnostic &diagnostic)
     return text;
 }
 
+static Utils::optional<QIcon> iconForType(const QString &type)
+{
+    if (type == "warning")
+        return Utils::Icons::CODEMODEL_WARNING.icon();
+    if (type == "error" || type == "fatal")
+        return Utils::Icons::CODEMODEL_ERROR.icon();
+    if (type == "note")
+        return Utils::Icons::INFO.icon();
+    if (type == "fix-it")
+        return Utils::Icons::CODEMODEL_FIXIT.icon();
+    return Utils::nullopt;
+}
+
+static TextEditor::TextMark *generateDiagnosticTextMark(const Diagnostic &diag)
+{
+    auto mark = new TextEditor::TextMark(Utils::FilePath::fromString(diag.location.filePath),
+                                         diag.location.line,
+                                         Core::Id("ClangTool.DiagnosticMark"));
+    if (diag.type == "error" || diag.type == "fatal")
+        mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
+    else
+        mark->setColor(Utils::Theme::CodeModel_Warning_TextMarkColor);
+    mark->setPriority(TextEditor::TextMark::HighPriority);
+    mark->setIcon(iconForType(diag.type).value_or(Utils::Icons::CODEMODEL_WARNING.icon()));
+    mark->setToolTip(createDiagnosticToolTipString(diag));
+    mark->setLineAnnotation(diag.description);
+    return mark;
+}
+
 DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
                                const OnFixitStatusChanged &onFixitStatusChanged,
                                ClangToolsDiagnosticModel *parent)
@@ -355,6 +403,8 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
 {
     if (diag.hasFixits)
         m_fixitStatus = FixitStatus::NotScheduled;
+
+    m_mark = generateDiagnosticTextMark(diag);
 
     // Don't show explaining steps if they add no information.
     if (diag.explainingSteps.count() == 1) {
@@ -373,6 +423,7 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
 DiagnosticItem::~DiagnosticItem()
 {
     setFixitOperations(ReplacementOperations());
+    delete m_mark;
 }
 
 Qt::ItemFlags DiagnosticItem::flags(int column) const
@@ -385,15 +436,8 @@ Qt::ItemFlags DiagnosticItem::flags(int column) const
 
 static QVariant iconData(const QString &type)
 {
-    if (type == "warning")
-        return Utils::Icons::CODEMODEL_WARNING.icon();
-    if (type == "error" || type == "fatal")
-        return Utils::Icons::CODEMODEL_ERROR.icon();
-    if (type == "note")
-        return Utils::Icons::INFO.icon();
-    if (type == "fix-it")
-        return Utils::Icons::CODEMODEL_FIXIT.icon();
-    return QVariant();
+    Utils::optional<QIcon> icon = iconForType(type);
+    return icon.has_value() ? QVariant(*icon) : QVariant();
 }
 
 QVariant DiagnosticItem::data(int column, int role) const
@@ -439,7 +483,7 @@ QVariant DiagnosticItem::data(int column, int role) const
             return QString("%1: %2").arg(lineColumnString(m_diagnostic.location),
                                          m_diagnostic.description);
         case Qt::ToolTipRole:
-            return createDiagnosticToolTipString(m_diagnostic, m_fixitStatus);
+            return createDiagnosticToolTipString(m_diagnostic, m_fixitStatus, false);
         case Qt::DecorationRole:
             return iconData(m_diagnostic.type);
         default:
@@ -475,6 +519,10 @@ void DiagnosticItem::setFixItStatus(const FixitStatus &status)
     update();
     if (m_onFixitStatusChanged && status != oldStatus)
         m_onFixitStatusChanged(index(), oldStatus, status);
+    if (status == FixitStatus::Applied || status == FixitStatus::Invalidated) {
+        delete m_mark;
+        m_mark = nullptr;
+    }
 }
 
 void DiagnosticItem::setFixitOperations(const ReplacementOperations &replacements)
