@@ -214,10 +214,6 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             }
         }
     });
-
-    qCDebug(cmakeBuildSystemLog) << "Requesting parse due to initial CMake BuildSystem setup";
-    m_buildDirManager.setParametersAndRequestParse(BuildDirParameters(m_buildConfiguration),
-                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION);
 }
 
 CMakeBuildSystem::~CMakeBuildSystem()
