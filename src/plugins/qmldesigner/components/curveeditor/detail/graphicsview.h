@@ -52,15 +52,11 @@ signals:
 public:
     GraphicsView(CurveEditorModel *model, QWidget *parent = nullptr);
 
+    ~GraphicsView() override;
+
     CurveEditorModel *model() const;
 
     CurveEditorStyle editorStyle() const;
-
-    bool hasActiveItem() const;
-
-    bool hasActiveHandle() const;
-
-    bool hasSelectedKeyframe() const;
 
     int mapTimeToX(double time) const;
 
@@ -136,10 +132,6 @@ protected:
 private:
     void applyZoom(double x, double y, const QPoint &pivot = QPoint());
 
-    void insertKeyframe(double time, bool allVisibleCurves = false);
-
-    void deleteSelectedKeyframes();
-
     void drawGrid(QPainter *painter, const QRectF &rect);
 
 #if 0
@@ -167,7 +159,7 @@ private:
 
     QTransform m_transform;
 
-    GraphicsScene m_scene;
+    GraphicsScene *m_scene;
 
     CurveEditorModel *m_model;
 

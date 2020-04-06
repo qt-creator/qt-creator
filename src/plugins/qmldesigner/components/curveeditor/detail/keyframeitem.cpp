@@ -116,6 +116,27 @@ bool KeyframeItem::hasRightHandle() const
     return m_frame.hasRightHandle();
 }
 
+bool KeyframeItem::hasActiveHandle() const
+{
+    if (m_left && m_left->activated())
+        return true;
+
+    if (m_right && m_right->activated())
+        return true;
+
+    return false;
+}
+
+HandleItem *KeyframeItem::leftHandle() const
+{
+    return m_left;
+}
+
+HandleItem *KeyframeItem::rightHandle() const
+{
+    return m_right;
+}
+
 QTransform KeyframeItem::transform() const
 {
     return m_transform;

@@ -73,6 +73,8 @@ struct CurveItemStyleOption
     QColor color = QColor(0, 200, 0);
     QColor selectionColor = QColor(200, 200, 200);
     QColor easingCurveColor = QColor(200, 0, 200);
+    QColor lockedColor = QColor(50, 50, 50);
+    QColor hoverColor = QColor(200, 0, 200);
 };
 
 struct PlayheadStyleOption

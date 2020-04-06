@@ -118,10 +118,10 @@ void CurveItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
                 pen.setColor(m_style.easingCurveColor);
             } else {
                 if (locked())
-                    pen.setColor(Qt::black);
+                    pen.setColor(m_style.lockedColor);
                 else if (isUnderMouse())
-                    pen.setColor(Qt::red);
-                else if (hasSelection())
+                    pen.setColor(m_style.hoverColor);
+                else if (hasSelectedKeyframe())
                     pen.setColor(m_style.selectionColor);
                 else
                     pen.setColor(m_style.color);
@@ -146,7 +146,25 @@ bool CurveItem::isDirty() const
     return m_itemDirty;
 }
 
-bool CurveItem::hasSelection() const
+bool CurveItem::hasActiveKeyframe() const
+{
+    for (auto *frame : m_keyframes) {
+        if (frame->activated())
+            return true;
+    }
+    return false;
+}
+
+bool CurveItem::hasActiveHandle() const
+{
+    for (auto *frame : m_keyframes) {
+        if (frame->hasActiveHandle())
+            return true;
+    }
+    return false;
+}
+
+bool CurveItem::hasSelectedKeyframe() const
 {
     for (auto *frame : m_keyframes) {
         if (frame->selected())
@@ -203,7 +221,7 @@ std::vector<AnimationCurve> CurveItem::curves() const
 
     std::vector<Keyframe> tmp;
 
-    for (size_t i = 0; i < m_keyframes.size(); ++i) {
+    for (int i = 0; i < m_keyframes.size(); ++i) {
         KeyframeItem *item = m_keyframes[i];
 
         Keyframe current = item->keyframe();
@@ -233,6 +251,33 @@ std::vector<AnimationCurve> CurveItem::curves() const
     return out;
 }
 
+QVector<KeyframeItem *> CurveItem::keyframes() const
+{
+    return m_keyframes;
+}
+
+QVector<KeyframeItem *> CurveItem::selectedKeyframes() const
+{
+    QVector<KeyframeItem *> out;
+    for (auto *frame : m_keyframes) {
+        if (frame->selected())
+            out.push_back(frame);
+    }
+    return out;
+}
+
+QVector<HandleItem *> CurveItem::handles() const
+{
+    QVector<HandleItem *> out;
+    for (auto *frame : m_keyframes) {
+        if (auto *left = frame->leftHandle())
+            out.push_back(left);
+        if (auto *right = frame->rightHandle())
+            out.push_back(right);
+    }
+    return out;
+}
+
 void CurveItem::restore()
 {
     if (m_keyframes.empty())
@@ -248,7 +293,7 @@ void CurveItem::restore()
     if (prevItem->hasLeftHandle())
         prevItem->setLeftHandle(QPointF());
 
-    for (size_t i = 1; i < m_keyframes.size(); ++i) {
+    for (int i = 1; i < m_keyframes.size(); ++i) {
         KeyframeItem *currItem = m_keyframes[i];
 
         bool left = prevItem->hasRightHandle();
@@ -328,7 +373,7 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
         return;
 
     KeyframeItem *prevItem = m_keyframes[0];
-    for (size_t i = 1; i < m_keyframes.size(); ++i) {
+    for (int i = 1; i < m_keyframes.size(); ++i) {
         KeyframeItem *currItem = m_keyframes[i];
         if (currItem->selected()) {
             Keyframe prev = prevItem->keyframe();

@@ -45,6 +45,8 @@ signals:
 public:
     GraphicsScene(QObject *parent = nullptr);
 
+    ~GraphicsScene() override;
+
     bool empty() const;
 
     bool hasActiveKeyframe() const;
@@ -53,6 +55,8 @@ public:
 
     bool hasActiveItem() const;
 
+    bool hasSelectedKeyframe() const;
+
     double minimumTime() const;
 
     double maximumTime() const;
@@ -60,6 +64,28 @@ public:
     double minimumValue() const;
 
     double maximumValue() const;
+
+    QRectF rect() const;
+
+    QVector<CurveItem *> curves() const;
+
+    QVector<CurveItem *> selectedCurves() const;
+
+    QVector<KeyframeItem *> keyframes() const;
+
+    QVector<KeyframeItem *> selectedKeyframes() const;
+
+    QVector<HandleItem *> handles() const;
+
+    CurveItem *findCurve(unsigned int id) const;
+
+    SelectableItem *intersect(const QPointF &pos) const;
+
+    void reset();
+
+    void deleteSelectedKeyframes();
+
+    void insertKeyframe(double time, bool all = false);
 
     void doNotMoveItems(bool tmp);
 
@@ -85,9 +111,15 @@ protected:
 private:
     using QGraphicsScene::addItem;
 
+    using QGraphicsScene::clear;
+
+    using QGraphicsScene::removeItem;
+
     GraphicsView *graphicsView() const;
 
     QRectF limits() const;
+
+    QVector<CurveItem *> m_curves;
 
     mutable bool m_dirty;
 
