@@ -589,6 +589,13 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/richtexteditor
+  SOURCES
+    hyperlinkdialog.cpp hyperlinkdialog.h hyperlinkdialog.ui
+    richtexteditor.cpp richtexteditor.h hyperlinkdialog.ui
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/timelineeditor
   SOURCES
     animationcurvedialog.cpp animationcurvedialog.h
