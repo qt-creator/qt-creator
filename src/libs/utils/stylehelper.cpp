@@ -35,6 +35,7 @@
 #include <QCommonStyle>
 #include <QStyleOption>
 #include <QWindow>
+#include <QFontDatabase>
 #include <qmath.h>
 
 // Clamps float color values within (0, 255)
@@ -540,6 +541,33 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     grad.setColorAt(0, startColor);
     grad.setColorAt(1, endColor);
     return grad;
+}
+
+QPixmap StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize)
+{
+    QFontDatabase a;
+
+    Q_ASSERT(a.hasFamily(fontName));
+
+    if (a.hasFamily(fontName)) {
+        QPixmap icon(iconSize, iconSize);
+        icon.fill(Qt::transparent);
+        QPainter painter(&icon);
+        QFont font(fontName);
+        font.setPixelSize(fontSize);
+        QColor penColor = QApplication::palette("QWidget").color(QPalette::Normal, QPalette::ButtonText);
+
+        painter.save();
+        painter.setPen(penColor);
+        painter.setFont(font);
+        painter.drawText(QRectF(0, 0, iconSize, iconSize), iconSymbol);
+
+        painter.restore();
+
+        return icon;
+    }
+
+    return {};
 }
 
 QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
