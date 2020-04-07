@@ -54,6 +54,7 @@ public:
     bool isReaderActive();
     void setActive(bool readerStatus);
 
+    void quickResetReader();
     void resetReader();
 
 protected:
@@ -68,7 +69,10 @@ protected:
 private:
     void drawReader();
     void hideReader();
-    QGraphicsItem *createCommentBubble(const QRectF &rect, const QString &title,
+
+    void createReader();
+    void removeReader();
+    QGraphicsItem *createCommentBubble(QRectF rect, const QString &title,
                                        const QString &author, const QString  &text,
                                        const QString &date, QGraphicsItem *parent);
     QGraphicsItem *createTitleBubble(const QRectF &rect, const QString &text, QGraphicsItem *parent);
