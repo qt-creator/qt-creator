@@ -101,10 +101,14 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
 
     const bool rootIsFlow = QmlItemNode(view()->rootModelNode()).isFlowView();
 
-    if (rootIsFlow)
-        itemPos = QPointF();
+    QmlItemNode adjustedParentNode = parentNode;
 
-    m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, parentNode);
+    if (rootIsFlow) {
+        itemPos = QPointF();
+        adjustedParentNode = view()->rootModelNode();
+    }
+
+    m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, adjustedParentNode);
 
     if (rootIsFlow)
         m_dragNode.setFlowItemPosition(positonInItemSpace);
