@@ -109,7 +109,8 @@ public:
     enum Type {
         TypeArmGcc,
         TypeIAR,
-        TypeKEIL
+        TypeKEIL,
+        TypeDesktop
     };
 
     McuToolChainPackage(const QString &label, const QString &defaultPath,

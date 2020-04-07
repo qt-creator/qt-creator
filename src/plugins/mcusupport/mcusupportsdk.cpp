@@ -60,6 +60,11 @@ McuPackage *createQtForMCUsPackage()
     return result;
 }
 
+static McuToolChainPackage *createDesktopToolChainPackage()
+{
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeDesktop);
+}
+
 static McuToolChainPackage *createArmGccPackage()
 {
     const char envVar[] = "ARMGCC_DIR";
@@ -162,6 +167,7 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
                                  QVector<McuTarget *> *mcuTargets)
 {
     McuToolChainPackage* armGccPackage = Sdk::createArmGccPackage();
+    McuToolChainPackage* desktopToolChainPackage = createDesktopToolChainPackage();
     McuPackage* stm32CubeFwF7SdkPackage = Sdk::createStm32CubeFwF7SdkPackage();
     McuPackage* stm32CubeProgrammerPackage = Sdk::createStm32CubeProgrammerPackage();
     McuPackage* evkbImxrt1050SdkPackage = Sdk::createEvkbImxrt1050SdkPackage();
@@ -175,8 +181,8 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
         armGccPackage, seggerJLinkPackage};
     QVector<McuPackage*> desktopPackages = {};
     *packages = {
-        armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
-        seggerJLinkPackage};
+        armGccPackage, desktopToolChainPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
+        evkbImxrt1050SdkPackage, seggerJLinkPackage};
 
     const QString vendorStm = "STM";
     const QString vendorNxp = "NXP";
@@ -192,7 +198,7 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
     } targets[] = {
         {vendorNxp, {"MIMXRT1050-EVK"}, nxpEvalPackages, armGccPackage, {16}},
         {vendorNxp, {"MIMXRT1064-EVK"}, nxpEvalPackages, armGccPackage, {16}},
-        {vendorQt, {"Qt"}, desktopPackages, nullptr, {32}},
+        {vendorQt, {"Qt"}, desktopPackages, desktopToolChainPackage, {32}},
         {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, armGccPackage, {32}},
         {vendorStm, {"STM32F469I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
         {vendorStm, {"STM32F7508-DISCOVERY"}, stmEvalPackages, armGccPackage, {32, 16}},
