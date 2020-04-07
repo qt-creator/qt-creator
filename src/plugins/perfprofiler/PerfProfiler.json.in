@@ -2,7 +2,6 @@
     \"Name\" : \"PerfProfiler\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Revision\" : \"$$QTC_PLUGIN_REVISION\",
     \"Vendor\" : \"The Qt Company Ltd\",
     \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
