@@ -274,9 +274,6 @@ void ItemLibraryModel::updateVisibility(bool *changed)
         bool sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
                                                                              &sectionChanged);
 
-        if (m_flowMode  && itemLibrarySection->sectionName() != "My QML Components")
-            sectionVisibility= false;
-
         *changed |= sectionChanged;
         *changed |= itemLibrarySection->setVisible(sectionVisibility);
     }
