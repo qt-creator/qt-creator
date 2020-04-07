@@ -80,7 +80,7 @@ void QtTestParser::stdOutput(const QString &line)
 void QtTestParser::emitCurrentTask()
 {
     if (!m_currentTask.isNull()) {
-        emit taskAdded(m_currentTask);
+        emit addTask(m_currentTask);
         m_currentTask.clear();
     }
 }

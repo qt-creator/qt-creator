@@ -76,7 +76,7 @@ void XcodebuildParser::stdOutput(const QString &line)
                              tr("Replacing signature"),
                              FilePath::fromString(
                                  lne.left(lne.size() - QLatin1String(signatureChangeEndsWithPattern).size())));
-            taskAdded(task, 1);
+            emit addTask(task, 1);
             return;
         }
         IOutputParser::stdError(line);
@@ -92,7 +92,7 @@ void XcodebuildParser::stdError(const QString &line)
         ++m_fatalErrorCount;
         m_xcodeBuildParserState = UnknownXcodebuildState;
         // unfortunately the m_lastTarget, m_lastProject might not be in sync
-        taskAdded(CompileTask(Task::Error, tr("Xcodebuild failed.")));
+        emit addTask(CompileTask(Task::Error, tr("Xcodebuild failed.")));
         return;
     }
     if (m_xcodeBuildParserState == OutsideXcodebuild) { // also forward if UnknownXcodebuildState ?
