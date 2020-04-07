@@ -35,8 +35,6 @@ QtcPlugin {
         "cmakebuildsystem.cpp",
         "cmakebuildsystem.h",
         "cmakebuildtarget.h",
-        "cmakecbpparser.cpp",
-        "cmakecbpparser.h",
         "cmakeconfigitem.cpp",
         "cmakeconfigitem.h",
         "cmakeeditor.cpp",
