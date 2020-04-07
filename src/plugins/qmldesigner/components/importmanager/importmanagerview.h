@@ -35,6 +35,7 @@ class ImportsWidget;
 class ImportManagerView : public AbstractView
 {
     Q_OBJECT
+
 public:
     explicit ImportManagerView(QObject *parent = nullptr);
     ~ImportManagerView() override;
@@ -45,17 +46,16 @@ public:
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
 
-    void nodeCreated(const ModelNode &createdNode) override;
-    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
-
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void possibleImportsChanged(const QList<Import> &possibleImports) override;
+    void usedImportsChanged(const QList<Import> &usedImports) override;
 
 private:
     void removeImport(const Import &import);
     void addImport(const Import &import);
 
 private:
-    QPointer<ImportsWidget> m_importsWidget;
+    QPointer<ImportsWidget> m_importsWidget = nullptr;
 };
 
 } // namespace QmlDesigner

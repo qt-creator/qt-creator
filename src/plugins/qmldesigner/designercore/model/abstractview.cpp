@@ -345,6 +345,14 @@ void AbstractView::importsChanged(const QList<Import> &/*addedImports*/, const Q
 {
 }
 
+void AbstractView::possibleImportsChanged(const QList<Import> &/*possibleImports*/)
+{
+}
+
+void AbstractView::usedImportsChanged(const QList<Import> &/*usedImports*/)
+{
+}
+
 void AbstractView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)
 {
 }

@@ -170,6 +170,22 @@ void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports, const
         resetModelByRewriter(description);
 }
 
+void ModelPrivate::notifyPossibleImportsChanged(const QList<Import> &possibleImports)
+{
+    for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
+        Q_ASSERT(view != nullptr);
+        view->possibleImportsChanged(possibleImports);
+    }
+}
+
+void ModelPrivate::notifyUsedImportsChanged(const QList<Import> &usedImports)
+{
+    for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
+        Q_ASSERT(view != nullptr);
+        view->usedImportsChanged(usedImports);
+    }
+}
+
 QUrl ModelPrivate::fileUrl() const
 {
     return m_fileUrl;
@@ -1879,13 +1895,14 @@ void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Imp
 void Model::setPossibleImports(const QList<Import> &possibleImports)
 {
     d->m_possibleImportList = possibleImports;
+    d->notifyPossibleImportsChanged(possibleImports);
 }
 
 void Model::setUsedImports(const QList<Import> &usedImports)
 {
     d->m_usedImportList = usedImports;
+    d->notifyUsedImportsChanged(usedImports);
 }
-
 
 static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
 {
