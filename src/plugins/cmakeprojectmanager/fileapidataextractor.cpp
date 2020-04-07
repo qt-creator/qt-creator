@@ -78,7 +78,7 @@ CMakeFileResult extractCMakeFilesData(const std::vector<FileApiDetails::CMakeFil
         if (oldCount < result.cmakeFiles.count()) {
             if (info.isCMake && !info.isCMakeListsDotTxt) {
                 // Skip files that cmake considers to be part of the installation -- but include
-                // CMakeLists.txt files. This unbreaks cmake binaries running from their own
+                // CMakeLists.txt files. This fixes cmake binaries running from their own
                 // build directory.
                 continue;
             }

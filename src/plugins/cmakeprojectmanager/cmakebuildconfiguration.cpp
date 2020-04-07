@@ -401,8 +401,8 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
     registerBuildConfiguration<CMakeBuildConfiguration>(
         "CMakeProjectManager.CMakeBuildConfiguration");
 
-    setSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::CMAKEPROJECTMIMETYPE);
+    setSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+    setSupportedProjectMimeTypeName(Constants::CMAKE_PROJECT_MIMETYPE);
 
     setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;

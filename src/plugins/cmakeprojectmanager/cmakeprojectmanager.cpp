@@ -70,11 +70,12 @@ CMakeManager::CMakeManager() :
     Core::ActionContainer *mfile =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
 
-    const Core::Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
+    const Core::Context projectContext(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
 
     Core::Command *command = Core::ActionManager::registerAction(m_runCMakeAction,
-                                                                 Constants::RUNCMAKE, globalContext);
+                                                                 Constants::RUN_CMAKE,
+                                                                 globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_runCMakeAction, &QAction::triggered, [this]() {
@@ -82,7 +83,8 @@ CMakeManager::CMakeManager() :
     });
 
     command = Core::ActionManager::registerAction(m_clearCMakeCacheAction,
-                                                  Constants::CLEARCMAKECACHE, globalContext);
+                                                  Constants::CLEAR_CMAKE_CACHE,
+                                                  globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_clearCMakeCacheAction, &QAction::triggered, [this]() {
@@ -90,7 +92,8 @@ CMakeManager::CMakeManager() :
     });
 
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
-                                                  Constants::RUNCMAKECONTEXTMENU, projectContext);
+                                                  Constants::RUN_CMAKE_CONTEXT_MENU,
+                                                  projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
@@ -100,23 +103,27 @@ CMakeManager::CMakeManager() :
 
     m_buildFileContextMenu = new QAction(tr("Build"), this);
     command = Core::ActionManager::registerAction(m_buildFileContextMenu,
-                                                  Constants::BUILDFILECONTEXTMENU, projectContext);
+                                                  Constants::BUILD_FILE_CONTEXT_MENU,
+                                                  projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
     connect(m_buildFileContextMenu, &QAction::triggered,
             this, &CMakeManager::buildFileContextMenu);
 
     command = Core::ActionManager::registerAction(m_rescanProjectAction,
-                                                  Constants::RESCANPROJECT, globalContext);
+                                                  Constants::RESCAN_PROJECT,
+                                                  globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_rescanProjectAction, &QAction::triggered, [this]() {
         rescanProject(ProjectTree::currentBuildSystem());
     });
 
-    m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
-                                                   Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE);
+    m_buildFileAction = new Utils::ParameterAction(tr("Build File"),
+                                                   tr("Build File \"%1\""),
+                                                   Utils::ParameterAction::AlwaysEnabled,
+                                                   this);
+    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILD_FILE);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFileAction->text());

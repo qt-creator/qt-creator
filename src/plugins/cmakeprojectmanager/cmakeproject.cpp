@@ -77,9 +77,9 @@ using namespace Internal;
   \class CMakeProject
 */
 CMakeProject::CMakeProject(const FilePath &fileName)
-    : Project(Constants::CMAKEMIMETYPE, fileName)
+    : Project(Constants::CMAKE_MIMETYPE, fileName)
 {
-    setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
+    setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();

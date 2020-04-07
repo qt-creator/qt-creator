@@ -168,7 +168,7 @@ void FilesSelectionWizardPage::initializePage()
 SimpleProjectWizard::SimpleProjectWizard()
 {
     setSupportedProjectTypes({QmakeProjectManager::Constants::QMAKEPROJECT_ID,
-                              CMakeProjectManager::Constants::CMAKEPROJECT_ID});
+                              CMakeProjectManager::Constants::CMAKE_PROJECT_ID});
     setIcon(QIcon(QLatin1String(":/projectexplorer/images/importasproject.png")));
     setDisplayName(tr("Import as qmake or cmake Project (Limited Functionality)"));
     setId("Z.DummyProFile");

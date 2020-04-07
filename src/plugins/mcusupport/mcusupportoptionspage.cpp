@@ -90,7 +90,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         mainLayout->addWidget(m_statusInfoLabel);
         connect(m_statusInfoLabel, &QLabel::linkActivated, this, []{
             Core::ICore::showOptionsDialog(
-                        CMakeProjectManager::Constants::CMAKE_SETTINGSPAGE_ID,
+                        CMakeProjectManager::Constants::CMAKE_SETTINGS_PAGE_ID,
                         Core::ICore::mainWindow());
         });
     }

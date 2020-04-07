@@ -195,8 +195,7 @@ private:
 
     void manageCMakeTools()
     {
-        Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGSPAGE_ID,
-                                       buttonWidget());
+        Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGS_PAGE_ID, buttonWidget());
     }
 
     bool m_removingItem = false;

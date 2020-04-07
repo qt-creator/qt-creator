@@ -30,33 +30,33 @@
 namespace CMakeProjectManager {
 namespace Constants {
 
-const char CMAKEMIMETYPE[]  = "text/x-cmake";
-const char CMAKEPROJECTMIMETYPE[]  = "text/x-cmake-project";
+const char CMAKE_MIMETYPE[] = "text/x-cmake";
+const char CMAKE_PROJECT_MIMETYPE[] = "text/x-cmake-project";
 const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
-const char RUNCMAKE[] = "CMakeProject.RunCMake";
-const char CLEARCMAKECACHE[] = "CMakeProject.ClearCache";
-const char RESCANPROJECT[] = "CMakeProject.RescanProject";
-const char RUNCMAKECONTEXTMENU[] = "CMakeProject.RunCMakeContextMenu";
-const char BUILDFILECONTEXTMENU[] = "CMakeProject.BuildFileContextMenu";
-const char BUILDFILE[] = "CMakeProject.BuildFile";
+const char RUN_CMAKE[] = "CMakeProject.RunCMake";
+const char CLEAR_CMAKE_CACHE[] = "CMakeProject.ClearCache";
+const char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
+const char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";
+const char BUILD_FILE_CONTEXT_MENU[] = "CMakeProject.BuildFileContextMenu";
+const char BUILD_FILE[] = "CMakeProject.BuildFile";
 
 // Project
-const char CMAKEPROJECT_ID[] = "CMakeProjectManager.CMakeProject";
+const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
 // Menu
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 
 // Settings page
-const char CMAKE_SETTINGSPAGE_ID[] = "Z.CMake";
+const char CMAKE_SETTINGS_PAGE_ID[] = "Z.CMake";
 
 // Snippets
 const char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
 
 // Icons
-const char FILEOVERLAY_CMAKE[] = ":/cmakeproject/images/fileoverlay_cmake.png";
+const char FILE_OVERLAY_CMAKE[] = ":/cmakeproject/images/fileoverlay_cmake.png";
 
 // Actions
-const char BUILD_TARGET_CONTEXTMENU[] = "CMake.BuildTargetContextMenu";
+const char BUILD_TARGET_CONTEXT_MENU[] = "CMake.BuildTargetContextMenu";
 
 // Build Step
 const char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";

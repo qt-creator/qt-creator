@@ -129,7 +129,7 @@ CMakeInputsNode::CMakeInputsNode(const Utils::FilePath &cmakeLists) :
 CMakeListsNode::CMakeListsNode(const Utils::FilePath &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {
-    static QIcon folderIcon = Core::FileIconProvider::directoryIcon(Constants::FILEOVERLAY_CMAKE);
+    static QIcon folderIcon = Core::FileIconProvider::directoryIcon(Constants::FILE_OVERLAY_CMAKE);
     setIcon(folderIcon);
     setListInProject(false);
 }

@@ -212,7 +212,7 @@ static TextDocument *createCMakeDocument()
 {
     auto doc = new TextDocument;
     doc->setId(Constants::CMAKE_EDITOR_ID);
-    doc->setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
+    doc->setMimeType(QLatin1String(Constants::CMAKE_MIMETYPE));
     return doc;
 }
 
@@ -224,8 +224,8 @@ CMakeEditorFactory::CMakeEditorFactory()
 {
     setId(Constants::CMAKE_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", "CMake Editor"));
-    addMimeType(Constants::CMAKEMIMETYPE);
-    addMimeType(Constants::CMAKEPROJECTMIMETYPE);
+    addMimeType(Constants::CMAKE_MIMETYPE);
+    addMimeType(Constants::CMAKE_PROJECT_MIMETYPE);
 
     setEditorCreator([]() { return new CMakeEditor; });
     setEditorWidgetCreator([]() { return new CMakeEditorWidget; });

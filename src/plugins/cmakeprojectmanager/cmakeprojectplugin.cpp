@@ -105,19 +105,20 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     d = new CMakeProjectPluginPrivate;
     projectTypeSpecificSettings()->fromSettings(ICore::settings());
 
-    const Context projectContext{CMakeProjectManager::Constants::CMAKEPROJECT_ID};
+    const Context projectContext{CMakeProjectManager::Constants::CMAKE_PROJECT_ID};
 
-    FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
-    FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE,
+    FileIconProvider::registerIconOverlayForSuffix(Constants::FILE_OVERLAY_CMAKE, "cmake");
+    FileIconProvider::registerIconOverlayForFilename(Constants::FILE_OVERLAY_CMAKE,
                                                      "CMakeLists.txt");
 
     TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
                                                tr("CMake", "SnippetProvider"));
-    ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKEPROJECTMIMETYPE);
+    ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKE_PROJECT_MIMETYPE);
 
     //register actions
     Command *command = ActionManager::registerAction(&d->buildTargetContextAction,
-                         Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
+                                                     Constants::BUILD_TARGET_CONTEXT_MENU,
+                                                     projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(d->buildTargetContextAction.text());

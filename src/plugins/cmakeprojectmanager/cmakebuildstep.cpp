@@ -556,7 +556,7 @@ CMakeBuildStepFactory::CMakeBuildStepFactory()
 {
     registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
     setDisplayName(CMakeBuildStep::tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
-    setSupportedProjectType(Constants::CMAKEPROJECT_ID);
+    setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
 }
 
 void CMakeBuildStep::processStarted()

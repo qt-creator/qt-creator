@@ -96,8 +96,8 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
         if (type == FileType::Unknown) {
             if (mimeType.isValid()) {
                 const QString mt = mimeType.name();
-                if (mt == CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE
-                    || mt == CMakeProjectManager::Constants::CMAKEMIMETYPE)
+                if (mt == CMakeProjectManager::Constants::CMAKE_PROJECT_MIMETYPE
+                    || mt == CMakeProjectManager::Constants::CMAKE_MIMETYPE)
                     type = FileType::Project;
             }
         }

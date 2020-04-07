@@ -196,7 +196,7 @@ const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
     registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RUNCONFIG_ID);
-    addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
+    addSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
 
