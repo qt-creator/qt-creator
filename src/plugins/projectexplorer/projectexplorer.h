@@ -229,7 +229,6 @@ private slots:
 
     void testGnuMakeParserParsing_data();
     void testGnuMakeParserParsing();
-    void testGnuMakeParserTaskMangling_data();
     void testGnuMakeParserTaskMangling();
 
     void testXcodebuildParserParsing_data();

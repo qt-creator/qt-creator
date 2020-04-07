@@ -106,7 +106,7 @@ void SdccParser::stdError(const QString &line)
         const int lineno = match.captured(LineNumberIndex).toInt();
         const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
         const QString descr = match.captured(MessageTextIndex);
-        newTask(CompileTask(type, descr, fileName, lineno));
+        newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
         return;
     }
 
@@ -120,7 +120,7 @@ void SdccParser::stdError(const QString &line)
         const int lineno = match.captured(LineNumberIndex).toInt();
         const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
         const QString descr = match.captured(MessageTextIndex);
-        newTask(CompileTask(type, descr, fileName, lineno));
+        newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
         return;
     }
 

@@ -338,7 +338,7 @@ void QMakeStep::runNextCommand()
     case State::RUN_MAKE_QMAKE_ALL:
         {
             auto *parser = new GnuMakeParser;
-            parser->setWorkingDirectory(processParameters()->workingDirectory());
+            parser->addSearchDir(processParameters()->workingDirectory());
             setOutputParser(parser);
             m_nextState = State::POST_PROCESS;
             startOneCommand(m_makeCommand);

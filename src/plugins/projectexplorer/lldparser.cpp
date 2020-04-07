@@ -64,7 +64,8 @@ void LldParser::stdError(const QString &line)
         const int filePathLen = locOffset == -1 ? -1 : locOffset - filePathOffset;
         const auto file = Utils::FilePath::fromUserInput(
                     trimmedLine.mid(filePathOffset, filePathLen).trimmed());
-        emit addTask(CompileTask(Task::Unknown, trimmedLine.mid(4).trimmed(), file, lineNo));
+        emit addTask(CompileTask(Task::Unknown, trimmedLine.mid(4).trimmed(),
+                                 absoluteFilePath(file), lineNo));
         return;
     }
     IOutputParser::stdError(line);

@@ -115,7 +115,7 @@ bool AndroidPackageInstallationStep::init()
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);
-    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
+    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.

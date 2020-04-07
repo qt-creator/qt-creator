@@ -61,7 +61,7 @@ void QMakeParser::stdError(const QString &line)
             type = Task::Error;
         emit addTask(BuildSystemTask(type,
                                      description,
-                                     FilePath::fromUserInput(fileName),
+                                     absoluteFilePath(FilePath::fromUserInput(fileName)),
                                      m_error.cap(2).toInt() /* line */),
                      1);
         return;

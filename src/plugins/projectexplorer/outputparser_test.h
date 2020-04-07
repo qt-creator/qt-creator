@@ -46,14 +46,14 @@ public:
         STDERR
     };
 
+    OutputParserTester();
+
     // test functions:
     void testParsing(const QString &lines, Channel inputChannel,
                      Tasks tasks,
                      const QString &childStdOutLines,
                      const QString &childStdErrLines,
                      const QString &outputLines);
-    void testTaskMangling(const Task &input,
-                          const Task &output);
 
     void setDebugEnabled(bool);
 
@@ -61,8 +61,6 @@ signals:
     void aboutToDeleteParser();
 
 private:
-    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines) override;
-
     void reset();
 
     bool m_debug = false;

@@ -106,7 +106,7 @@ bool KeilParser::parseArmWarningOrErrorDetailsMessage(const QString &lne)
     const int lineno = match.captured(LineNumberIndex).toInt();
     const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
     const QString descr = match.captured(DescriptionIndex);
-    newTask(CompileTask(type, descr, fileName, lineno));
+    newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     return true;
 }
 
@@ -139,7 +139,7 @@ bool KeilParser::parseMcs51WarningOrErrorDetailsMessage1(const QString &lne)
                 match.captured(FilePathIndex));
     const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
                                                 match.captured(MessageTextIndex));
-    newTask(CompileTask(type, descr, fileName, lineno));
+    newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     return true;
 }
 
@@ -157,7 +157,7 @@ bool KeilParser::parseMcs51WarningOrErrorDetailsMessage2(const QString &lne)
                 match.captured(FilePathIndex));
     const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
                                                 match.captured(MessageTextIndex));
-    newTask(CompileTask(type, descr, fileName, lineno));
+    newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     return true;
 }
 

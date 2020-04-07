@@ -226,7 +226,7 @@ bool IosBuildStep::init()
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);
-    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
+    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
 }

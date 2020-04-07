@@ -86,7 +86,7 @@ void JavaParser::parse(const QString &line)
 
         CompileTask task(Task::Error,
                          m_javaRegExp.cap(4).trimmed(),
-                         file /* filename */,
+                         absoluteFilePath(file),
                          lineno);
         emit addTask(task, 1);
         return;

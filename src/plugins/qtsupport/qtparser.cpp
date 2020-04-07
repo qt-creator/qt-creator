@@ -58,7 +58,7 @@ void QtParser::stdError(const QString &line)
         if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
             type = Task::Unknown;
         CompileTask task(type, m_mocRegExp.cap(5).trimmed() /* description */,
-                         Utils::FilePath::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
+                         absoluteFilePath(Utils::FilePath::fromUserInput(m_mocRegExp.cap(1))),
                          lineno);
         emit addTask(task, 1);
         return;
@@ -68,7 +68,7 @@ void QtParser::stdError(const QString &line)
         if (m_translationRegExp.cap(1) == QLatin1String("Error"))
             type = Task::Error;
         CompileTask task(type, m_translationRegExp.cap(2),
-                         Utils::FilePath::fromUserInput(m_translationRegExp.cap(3)));
+                         absoluteFilePath(Utils::FilePath::fromUserInput(m_translationRegExp.cap(3))));
         emit addTask(task, 1);
         return;
     }

@@ -56,14 +56,15 @@ public:
     using Filter = std::function<QString(const QString &)>;
     void addFilter(const Filter &filter);
 
-    void setWorkingDirectory(const Utils::FilePath &fn);
+    void addSearchDir(const Utils::FilePath &dir);
+    void dropSearchDir(const Utils::FilePath &dir);
+    const Utils::FilePaths searchDirectories() const;
+    void skipFileExistsCheck(); // For testing only
 
     void flush(); // flush pending tasks & output
     void flushTasks(); // flush pending tasks only
 
     static QString rightTrimmed(const QString &in);
-
-    virtual void taskAdded(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
 signals:
     void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
@@ -72,7 +73,7 @@ protected:
     virtual void stdOutput(const QString &line);
     virtual void stdError(const QString &line);
 
-    Utils::FilePath workingDirectory() const;
+    Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath);
 
 private:
     virtual void doFlush();

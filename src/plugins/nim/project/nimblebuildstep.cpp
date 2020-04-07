@@ -87,7 +87,8 @@ private:
         else
             return;
 
-        emit addTask(CompileTask(type, message, FilePath::fromUserInput(filename), lineNumber));
+        emit addTask(CompileTask(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
+                                 lineNumber));
     }
 };
 
@@ -107,7 +108,7 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Core::Id id)
 bool NimbleBuildStep::init()
 {
     auto parser = new NimParser();
-    parser->setWorkingDirectory(project()->projectDirectory());
+    parser->addSearchDir(project()->projectDirectory());
     setOutputParser(parser);
 
     ProcessParameters* params = processParameters();

@@ -158,7 +158,7 @@ bool IarParser::parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &ln
     const int lineno = match.captured(LineNumberIndex).toInt();
     const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
     // A full description will be received later on next lines.
-    newTask(CompileTask(type, {}, fileName, lineno));
+    newTask(CompileTask(type, {}, absoluteFilePath(fileName), lineno));
     const QString firstPart = QString("[%1]: ").arg(match.captured(MessageCodeIndex));
     m_descriptionParts.append(firstPart);
     m_expectDescription = true;

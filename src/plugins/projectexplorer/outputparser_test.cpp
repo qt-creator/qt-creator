@@ -39,6 +39,13 @@ static inline QByteArray msgFileComparisonFail(const Utils::FilePath &f1, const 
 }
 
 // test functions:
+OutputParserTester::OutputParserTester()
+{
+    connect(this, &IOutputParser::addTask, this, [this](const Task &t) {
+        m_receivedTasks.append(t);
+    });
+}
+
 void OutputParserTester::testParsing(const QString &lines,
                                      Channel inputChannel,
                                      Tasks tasks,
@@ -79,36 +86,9 @@ void OutputParserTester::testParsing(const QString &lines,
     }
 }
 
-void OutputParserTester::testTaskMangling(const Task &input,
-                                          const Task &output)
-{
-    reset();
-    childParser()->taskAdded(input);
-
-    QVERIFY(m_receivedOutput.isNull());
-    QVERIFY(m_receivedStdErrChildLine.isNull());
-    QVERIFY(m_receivedStdOutChildLine.isNull());
-    QVERIFY(m_receivedTasks.size() == 1);
-    if (m_receivedTasks.size() == 1) {
-        QCOMPARE(m_receivedTasks.at(0).category, output.category);
-        QCOMPARE(m_receivedTasks.at(0).description, output.description);
-        QVERIFY2(m_receivedTasks.at(0).file == output.file,
-                 msgFileComparisonFail(m_receivedTasks.at(0).file, output.file));
-        QCOMPARE(m_receivedTasks.at(0).line, output.line);
-        QCOMPARE(m_receivedTasks.at(0).type, output.type);
-    }
-}
-
 void OutputParserTester::setDebugEnabled(bool debug)
 {
     m_debug = debug;
-}
-
-void OutputParserTester::taskAdded(const Task &task, int linkedLines, int skipLines)
-{
-    Q_UNUSED(linkedLines)
-    Q_UNUSED(skipLines)
-    m_receivedTasks.append(task);
 }
 
 void OutputParserTester::reset()

@@ -89,7 +89,8 @@ private:
         else
             return;
 
-        emit addTask(CompileTask(type, message, FilePath::fromUserInput(filename), lineNumber));
+        emit addTask(CompileTask(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
+                                 lineNumber));
     }
 };
 
@@ -116,7 +117,7 @@ bool NimCompilerBuildStep::init()
     setOutputParser(new NimParser());
     if (IOutputParser *parser = target()->kit()->createOutputParser())
         appendOutputParser(parser);
-    outputParser()->setWorkingDirectory(processParameters()->effectiveWorkingDirectory());
+    outputParser()->addSearchDir(processParameters()->effectiveWorkingDirectory());
     return AbstractProcessStep::init();
 }
 

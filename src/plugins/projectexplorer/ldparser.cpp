@@ -133,7 +133,7 @@ void LdParser::stdError(const QString &line)
             type = Task::Warning;
             description = description.mid(9);
         }
-        emit addTask(CompileTask(type, description, filename, lineno), 1);
+        emit addTask(CompileTask(type, description, absoluteFilePath(filename), lineno), 1);
         return;
     }
 

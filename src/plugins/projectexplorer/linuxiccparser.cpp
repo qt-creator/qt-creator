@@ -85,7 +85,7 @@ void LinuxIccParser::stdError(const QString &line)
             type = Task::Warning;
         m_temporary = CompileTask(type,
                                   m_firstLine.cap(6).trimmed(),
-                                  Utils::FilePath::fromUserInput(m_firstLine.cap(1)),
+                                  absoluteFilePath(Utils::FilePath::fromUserInput(m_firstLine.cap(1))),
                                   m_firstLine.cap(2).toInt());
 
         m_lines = 1;

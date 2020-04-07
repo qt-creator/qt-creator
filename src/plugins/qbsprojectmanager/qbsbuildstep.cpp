@@ -376,7 +376,7 @@ void QbsBuildStep::handleProcessResult(
         return;
 
     if (m_parser)
-        m_parser->setWorkingDirectory(workingDir);
+        m_parser->addSearchDir(workingDir);
     emit addOutput(executable.toUserOutput() + ' '  + QtcProcess::joinArgs(arguments),
                    OutputFormat::Stdout);
     for (const QString &line : stdErr) {
@@ -389,8 +389,10 @@ void QbsBuildStep::handleProcessResult(
             m_parser->handleStdout(line + '\n');
         emit addOutput(line, OutputFormat::Stdout);
     }
-    if (m_parser)
+    if (m_parser) {
         m_parser->flush();
+        m_parser->dropSearchDir(workingDir);
+    }
 }
 
 void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message,

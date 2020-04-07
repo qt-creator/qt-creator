@@ -74,8 +74,8 @@ void XcodebuildParser::stdOutput(const QString &line)
         if (lne.endsWith(QLatin1String(signatureChangeEndsWithPattern))) {
             CompileTask task(Task::Warning,
                              tr("Replacing signature"),
-                             FilePath::fromString(
-                                 lne.left(lne.size() - QLatin1String(signatureChangeEndsWithPattern).size())));
+                             absoluteFilePath(FilePath::fromString(
+                                 lne.left(lne.size() - QLatin1String(signatureChangeEndsWithPattern).size()))));
             emit addTask(task, 1);
             return;
         }

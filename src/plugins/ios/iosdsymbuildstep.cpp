@@ -82,7 +82,7 @@ bool IosDsymBuildStep::init()
 
     setOutputParser(target()->kit()->createOutputParser());
     if (outputParser())
-        outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
+        outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
 }

@@ -76,7 +76,7 @@ void ClangParser::stdError(const QString &line)
         m_expectSnippet = true;
         newTask(CompileTask(Task::Unknown,
                             lne.trimmed(),
-                            FilePath::fromUserInput(match.captured(2)), /* filename */
+                            absoluteFilePath(FilePath::fromUserInput(match.captured(2))),
                             match.captured(3).toInt() /* line */));
         return;
     }
@@ -90,7 +90,7 @@ void ClangParser::stdError(const QString &line)
             lineNo = match.captured(5).toInt(&ok);
         newTask(CompileTask(taskType(match.captured(7)),
                             match.captured(8),
-                            FilePath::fromUserInput(match.captured(1)), /* filename */
+                            absoluteFilePath(FilePath::fromUserInput(match.captured(1))),
                             lineNo));
         return;
     }

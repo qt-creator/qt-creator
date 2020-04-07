@@ -145,13 +145,6 @@ Core::Id CustomParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Custom");
 }
 
-FilePath CustomParser::absoluteFilePath(const QString &filePath) const
-{
-    if (workingDirectory().isEmpty())
-        return FilePath::fromUserInput(filePath);
-    return workingDirectory().resolvePath(filePath);
-}
-
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                             const CustomParserExpression &expression, Task::TaskType taskType)
 {
@@ -165,7 +158,8 @@ bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomP
     if (!match.hasMatch())
         return false;
 
-    const FilePath fileName = absoluteFilePath(match.captured(expression.fileNameCap()));
+    const FilePath fileName = absoluteFilePath(FilePath::fromString(
+                                                   match.captured(expression.fileNameCap())));
     const int lineNumber = match.captured(expression.lineNumberCap()).toInt();
     const QString message = match.captured(expression.messageCap());
 
@@ -475,7 +469,8 @@ void ProjectExplorerPlugin::testCustomOutputParsers()
 
     CustomParser *parser = new CustomParser;
     parser->setSettings(settings);
-    parser->setWorkingDirectory(FilePath::fromString(workDir));
+    parser->addSearchDir(FilePath::fromString(workDir));
+    parser->skipFileExistsCheck();
 
     OutputParserTester testbench;
     testbench.appendOutputParser(parser);

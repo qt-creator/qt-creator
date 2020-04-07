@@ -68,8 +68,8 @@ void QtTestParser::stdOutput(const QString &line)
     QTC_CHECK(locationPattern.isValid());
     const QRegularExpressionMatch match = locationPattern.match(theLine);
     if (match.hasMatch()) {
-        m_currentTask.file = FilePath::fromString(
-                    QDir::fromNativeSeparators(match.captured("file")));
+        m_currentTask.file = absoluteFilePath(FilePath::fromString(
+                    QDir::fromNativeSeparators(match.captured("file"))));
         m_currentTask.line = match.captured("line").toInt();
         emitCurrentTask();
         return;

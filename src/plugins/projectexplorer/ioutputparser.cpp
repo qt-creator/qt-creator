@@ -28,6 +28,9 @@
 
 #include <utils/synchronousprocess.h>
 
+#include <QDir>
+#include <QFileInfo>
+
 /*!
     \class ProjectExplorer::IOutputParser
 
@@ -162,9 +165,10 @@ public:
 
     IOutputParser *childParser = nullptr;
     QList<Filter> filters;
-    Utils::FilePath workingDir;
+    Utils::FilePaths searchDirs;
     OutputChannelState stdoutState;
     OutputChannelState stderrState;
+    bool skipFileExistsCheck = false;
 };
 
 IOutputParser::IOutputParser() : d(new IOutputParserPrivate(this))
@@ -197,7 +201,7 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
     }
 
     d->childParser = parser;
-    connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
+    connect(parser, &IOutputParser::addTask, this, &IOutputParser::addTask);
 }
 
 IOutputParser *IOutputParser::childParser() const
@@ -211,7 +215,7 @@ void IOutputParser::setChildParser(IOutputParser *parser)
         delete d->childParser;
     d->childParser = parser;
     if (parser)
-        connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
+        connect(parser, &IOutputParser::addTask, this, &IOutputParser::addTask);
 }
 
 void IOutputParser::stdOutput(const QString &line)
@@ -226,26 +230,16 @@ void IOutputParser::stdError(const QString &line)
         d->childParser->stdError(line);
 }
 
-Utils::FilePath IOutputParser::workingDirectory() const { return d->workingDir; }
-
-void IOutputParser::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
+void IOutputParser::skipFileExistsCheck()
 {
-    emit addTask(task, linkedOutputLines, skipLines);
+    d->skipFileExistsCheck = true;
 }
 
-void IOutputParser::doFlush()
-{ }
+void IOutputParser::doFlush() { }
 
 bool IOutputParser::hasFatalErrors() const
 {
     return d->childParser && d->childParser->hasFatalErrors();
-}
-
-void IOutputParser::setWorkingDirectory(const Utils::FilePath &fn)
-{
-    d->workingDir = fn;
-    if (d->childParser)
-        d->childParser->setWorkingDirectory(fn);
 }
 
 void IOutputParser::flush()
@@ -276,6 +270,42 @@ QString IOutputParser::rightTrimmed(const QString &in)
 void IOutputParser::addFilter(const Filter &filter)
 {
     d->filters << filter;
+}
+
+void IOutputParser::addSearchDir(const Utils::FilePath &dir)
+{
+    d->searchDirs << dir;
+    if (d->childParser)
+        d->childParser->addSearchDir(dir);
+}
+
+void IOutputParser::dropSearchDir(const Utils::FilePath &dir)
+{
+    const int idx = d->searchDirs.lastIndexOf(dir);
+    QTC_ASSERT(idx != -1, return);
+    d->searchDirs.removeAt(idx);
+    if (d->childParser)
+        d->childParser->dropSearchDir(dir);
+}
+
+const Utils::FilePaths IOutputParser::searchDirectories() const
+{
+    return d->searchDirs;
+}
+
+Utils::FilePath IOutputParser::absoluteFilePath(const Utils::FilePath &filePath)
+{
+    if (filePath.isEmpty() || filePath.toFileInfo().isAbsolute())
+        return filePath;
+    Utils::FilePaths candidates;
+    for (const Utils::FilePath &dir : searchDirectories()) {
+        const Utils::FilePath candidate = dir.pathAppended(filePath.toString());
+        if (candidate.exists() || d->skipFileExistsCheck)
+            candidates << candidate;
+    }
+    if (candidates.count() == 1)
+        return Utils::FilePath::fromString(QDir::cleanPath(candidates.first().toString()));
+    return filePath;
 }
 
 } // namespace ProjectExplorer

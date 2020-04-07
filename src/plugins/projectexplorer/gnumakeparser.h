@@ -42,22 +42,15 @@ public:
     void stdOutput(const QString &line) override;
     void stdError(const QString &line) override;
 
-    QStringList searchDirectories() const;
-
     bool hasFatalErrors() const override;
 
-    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skippedLines) override;
-
 private:
-    void addDirectory(const QString &dir);
-    void removeDirectory(const QString &dir);
+    void emitTask(const ProjectExplorer::Task &task);
 
     QRegularExpression m_makeDir;
     QRegularExpression m_makeLine;
     QRegularExpression m_threeStarError;
     QRegularExpression m_errorInMakefile;
-
-    QStringList m_directories;
 
     bool m_suppressIssues = false;
 
@@ -77,7 +70,7 @@ public:
     explicit GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = nullptr);
     void parserIsAboutToBeDeleted();
 
-    QStringList directories;
+    Utils::FilePaths directories;
     GnuMakeParser *parser;
 };
 #endif

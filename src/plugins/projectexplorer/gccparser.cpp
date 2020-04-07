@@ -113,7 +113,7 @@ void GccParser::stdError(const QString &line)
         if (match.captured(5).startsWith(QLatin1Char('#')))
             description = match.captured(5) + description;
 
-        newTask(CompileTask(type, description, filename, lineno));
+        newTask(CompileTask(type, description, absoluteFilePath(filename), lineno));
         return;
     }
 
@@ -121,7 +121,7 @@ void GccParser::stdError(const QString &line)
     if (match.hasMatch()) {
         newTask(CompileTask(Task::Unknown,
                             lne.trimmed() /* description */,
-                            Utils::FilePath::fromUserInput(match.captured(1)) /* filename */,
+                            absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1))),
                             match.captured(3).toInt() /* linenumber */));
         return;
     } else if (lne.startsWith(' ') && !m_currentTask.isNull()) {

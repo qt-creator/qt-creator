@@ -80,13 +80,13 @@ void CMakeParser::stdError(const QString &line)
 
             m_lastTask = BuildSystemTask(Task::Error,
                                          QString(),
-                                         FilePath::fromUserInput(path),
+                                         absoluteFilePath(FilePath::fromUserInput(path)),
                                          m_commonError.cap(2).toInt());
             m_lines = 1;
             return;
         } else if (m_nextSubError.indexIn(trimmedLine) != -1) {
             m_lastTask = BuildSystemTask(Task::Error, QString(),
-                                         FilePath::fromUserInput(m_nextSubError.cap(1)));
+                                         absoluteFilePath(FilePath::fromUserInput(m_nextSubError.cap(1))));
             m_lines = 1;
             return;
         } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {

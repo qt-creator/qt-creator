@@ -142,7 +142,7 @@ void MsvcParser::stdOutput(const QString &line)
         if (!match.captured(1).isEmpty())
             description.chop(1); // Remove trailing quote
         m_lastTask = CompileTask(Task::Unknown, description,
-                                 FilePath::fromUserInput(match.captured(2)), /* fileName */
+                                 absoluteFilePath(FilePath::fromUserInput(match.captured(2))),
                                  match.captured(3).toInt() /* linenumber */);
         m_lines = 1;
         return;
@@ -176,7 +176,7 @@ bool MsvcParser::processCompileLine(const QString &line)
         QPair<FilePath, int> position = parseFileName(match.captured(1));
         m_lastTask = CompileTask(taskType(match.captured(2)),
                                  match.captured(3) + match.captured(4).trimmed(), // description
-                                 position.first, position.second);
+                                 absoluteFilePath(position.first), position.second);
         m_lines = 1;
         return true;
     }
@@ -257,7 +257,7 @@ void ClangClParser::stdError(const QString &lineIn)
         doFlush();
         const QPair<FilePath, int> position = parseFileName(match.captured(1));
         m_lastTask = CompileTask(taskType(match.captured(2)), match.captured(3).trimmed(),
-                                 position.first, position.second);
+                                 absoluteFilePath(position.first), position.second);
         m_linkedLines = 1;
         return;
     }

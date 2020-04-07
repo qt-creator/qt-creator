@@ -94,7 +94,6 @@ public:
     static Core::Id id();
 
 private:
-    Utils::FilePath absoluteFilePath(const QString &filePath) const;
     bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                   const CustomParserExpression &expression, Task::TaskType taskType);
     bool parseLine(const QString &rawLine, CustomParserExpression::CustomParserChannel channel);
