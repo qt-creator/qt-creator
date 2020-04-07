@@ -209,6 +209,14 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
+
+    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+    const PropertyName forceNonDefaultProperty = hints.forceNonDefaultProperty().toUtf8();
+    if (!forceNonDefaultProperty.isEmpty()) {
+        if (parentQmlItemNode.modelNode().metaInfo().hasProperty(forceNonDefaultProperty))
+            parentProperty = parentQmlItemNode.nodeAbstractProperty(forceNonDefaultProperty);
+    }
+
     return QmlItemNode::createQmlObjectNode(view, itemLibraryEntry, position, parentProperty);
 }
 
