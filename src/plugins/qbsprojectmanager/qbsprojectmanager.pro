@@ -16,7 +16,6 @@ HEADERS = \
     qbsinstallstep.h \
     qbsnodes.h \
     qbsnodetreebuilder.h \
-    qbsparser.h \
     qbspmlogging.h \
     qbsprofilemanager.h \
     qbsprofilessettingspage.h \
@@ -39,7 +38,6 @@ SOURCES = \
     qbskitinformation.cpp \
     qbsnodes.cpp \
     qbsnodetreebuilder.cpp \
-    qbsparser.cpp \
     qbspmlogging.cpp \
     qbsprofilemanager.cpp \
     qbsprofilessettingspage.cpp \

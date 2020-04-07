@@ -26,7 +26,6 @@
 #include "qbsbuildstep.h"
 
 #include "qbsbuildconfiguration.h"
-#include "qbsparser.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbssession.h"
@@ -35,6 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -60,7 +60,6 @@
 // --------------------------------------------------------------------
 
 const char QBS_CONFIG[] = "Qbs.Configuration";
-const char QBS_DRY_RUN[] = "Qbs.DryRun";
 const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 const char QBS_MAXJOBCOUNT[] = "Qbs.MaxJobs";
 const char QBS_SHOWCOMMANDLINES[] = "Qbs.ShowCommandLines";
@@ -170,16 +169,13 @@ bool QbsBuildStep::init()
         return false;
 
     delete m_parser;
-    m_parser = new Internal::QbsParser;
-    ProjectExplorer::IOutputParser *parser = target()->kit()->createOutputParser();
-    if (parser)
-        m_parser->appendOutputParser(parser);
+    m_parser = target()->kit()->createOutputParser();
+    if (m_parser)
+        connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
 
     m_changedFiles = bc->changedFiles();
     m_activeFileTags = bc->activeFileTags();
     m_products = bc->products();
-
-    connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
 
     return true;
 }
@@ -379,18 +375,22 @@ void QbsBuildStep::handleProcessResult(
     if (success && !hasOutput)
         return;
 
-    m_parser->setWorkingDirectory(workingDir);
+    if (m_parser)
+        m_parser->setWorkingDirectory(workingDir);
     emit addOutput(executable.toUserOutput() + ' '  + QtcProcess::joinArgs(arguments),
                    OutputFormat::Stdout);
     for (const QString &line : stdErr) {
-        m_parser->handleStderr(line + '\n');
+        if (m_parser)
+            m_parser->handleStderr(line + '\n');
         emit addOutput(line, OutputFormat::Stderr);
     }
     for (const QString &line : stdOut) {
-        m_parser->handleStdout(line + '\n');
+        if (m_parser)
+            m_parser->handleStdout(line + '\n');
         emit addOutput(line, OutputFormat::Stdout);
     }
-    m_parser->flush();
+    if (m_parser)
+        m_parser->flush();
 }
 
 void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message,

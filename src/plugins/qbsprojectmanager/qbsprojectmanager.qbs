@@ -40,8 +40,6 @@ QtcPlugin {
         "qbsnodes.h",
         "qbsnodetreebuilder.cpp",
         "qbsnodetreebuilder.h",
-        "qbsparser.cpp",
-        "qbsparser.h",
         "qbspmlogging.cpp",
         "qbspmlogging.h",
         "qbsprofilemanager.cpp",

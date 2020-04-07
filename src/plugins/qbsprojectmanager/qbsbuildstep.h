@@ -30,6 +30,7 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/task.h>
 
+namespace ProjectExplorer { class IOutputParser; }
 namespace Utils { class FancyLineEdit; }
 
 namespace QbsProjectManager {
