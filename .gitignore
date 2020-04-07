@@ -115,6 +115,7 @@ compile_commands.json
 .pch/
 .rcc/
 .uic/
+.clangd/
 /*-debug/
 /*-release/
 /dist/gdb/*.gz
