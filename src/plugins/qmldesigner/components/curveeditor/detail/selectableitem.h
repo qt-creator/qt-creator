@@ -99,8 +99,6 @@ private:
 
     bool m_selected;
 
-    bool m_locked;
-
     SelectionMode m_preSelected;
 };
 

@@ -168,6 +168,7 @@ public:
     ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
     void populatePackagesAndTargets();
     static void registerQchFiles();
+    static void registerExamples();
 
 private:
     void deletePackagesAndTargets();

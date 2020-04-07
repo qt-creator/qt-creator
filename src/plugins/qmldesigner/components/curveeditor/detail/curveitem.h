@@ -73,7 +73,11 @@ public:
 
     bool isDirty() const;
 
-    bool hasSelection() const;
+    bool hasActiveKeyframe() const;
+
+    bool hasActiveHandle() const;
+
+    bool hasSelectedKeyframe() const;
 
     unsigned int id() const;
 
@@ -86,6 +90,12 @@ public:
     AnimationCurve resolvedCurve() const;
 
     std::vector<AnimationCurve> curves() const;
+
+    QVector<KeyframeItem *> keyframes() const;
+
+    QVector<KeyframeItem *> selectedKeyframes() const;
+
+    QVector<HandleItem *> handles() const;
 
     void restore();
 
@@ -126,7 +136,7 @@ private:
 
     QTransform m_transform;
 
-    std::vector<KeyframeItem *> m_keyframes;
+    QVector<KeyframeItem *> m_keyframes;
 
     bool m_itemDirty;
 };

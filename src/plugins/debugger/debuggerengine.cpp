@@ -2358,6 +2358,10 @@ void DebuggerEngine::updateItem(const QString &iname)
         QTC_CHECK(item);
         WatchModelBase *model = handler->model();
         QTC_CHECK(model);
+        if (item && !item->wantsChildren) {
+            updateToolTips();
+            return;
+        }
         if (item && !model->hasChildren(model->indexForItem(item))) {
             handler->notifyUpdateStarted(UpdateParameters(iname));
             item->setValue(decodeData({}, "notaccessible"));

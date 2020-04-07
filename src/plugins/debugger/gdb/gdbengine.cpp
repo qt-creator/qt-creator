@@ -4818,6 +4818,7 @@ void GdbEngine::handleFetchVariables(const DebuggerResponse &response)
     m_inUpdateLocals = false;
     updateLocalsView(response.data);
     watchHandler()->notifyUpdateFinished();
+    updateToolTips();
 }
 
 QString GdbEngine::msgPtraceError(DebuggerStartMode sm)

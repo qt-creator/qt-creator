@@ -31,6 +31,7 @@
 namespace DesignTools {
 
 class GraphicsView;
+class GraphicsScene;
 class Playhead;
 
 enum class SelectionTool { Undefined, Lasso, Rectangle };
@@ -42,26 +43,28 @@ public:
 
     void paint(QPainter *painter);
 
-    void mousePress(QMouseEvent *event, GraphicsView *view);
+    void mousePress(QMouseEvent *event, GraphicsView *view, GraphicsScene *scene);
 
-    void mouseMove(QMouseEvent *event, GraphicsView *view, Playhead &playhead);
+    void mouseMove(QMouseEvent *event, GraphicsView *view, GraphicsScene *scene, Playhead &playhead);
 
-    void mouseRelease(QMouseEvent *event, GraphicsView *view);
+    void mouseRelease(QMouseEvent *event, GraphicsScene *scene);
 
 private:
-    bool isOverSelectedKeyframe(const QPointF &pos, GraphicsView *view);
+    bool isOverSelectedKeyframe(const QPointF &pos, GraphicsScene *scene);
 
-    bool select(const SelectionTool &tool, const QPointF &pos, GraphicsView *view);
+    bool isOverMovableItem(const QPointF &pos, GraphicsScene *scene);
 
-    bool pressSelection(SelectionMode mode, const QPointF &pos, GraphicsView *view);
+    bool select(const SelectionTool &tool, const QPointF &pos, GraphicsScene *scene);
 
-    bool rectangleSelection(SelectionMode mode, const QPointF &pos, GraphicsView *view);
+    bool pressSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene);
 
-    bool lassoSelection(SelectionMode mode, const QPointF &pos, GraphicsView *view);
+    bool rectangleSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene);
 
-    void clearSelection(GraphicsView *view);
+    bool lassoSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene);
 
-    void applyPreSelection(GraphicsView *view);
+    void clearSelection(GraphicsScene *scene);
+
+    void applyPreSelection(GraphicsScene *scene);
 
     Shortcuts m_shortcuts;
 

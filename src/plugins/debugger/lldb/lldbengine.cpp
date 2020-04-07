@@ -279,6 +279,7 @@ void LldbEngine::setupEngine()
     cmd2.arg("environment", rp.inferior.environment.toStringList());
     cmd2.arg("processargs", toHex(QtcProcess::splitArgs(rp.inferior.commandLineArguments).join(QChar(0))));
     cmd2.arg("platform", rp.platform);
+    cmd2.arg("symbolfile", rp.symbolFile);
 
     if (terminal()) {
         const qint64 attachedPID = terminal()->applicationPid();
@@ -785,6 +786,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.callback = [this](const DebuggerResponse &response) {
         updateLocalsView(response.data);
         watchHandler()->notifyUpdateFinished();
+        updateToolTips();
     };
 
     runCommand(cmd);

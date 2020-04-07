@@ -41,6 +41,14 @@
                         "items":
                         [
                             {
+                                "trKey": "PySide 5.15",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.15",
+                                    "QtQuickWindowVersion": "2.15"
+                                }
+                            },
+                            {
                                 "trKey": "PySide 5.14",
                                 "value":
                                 {

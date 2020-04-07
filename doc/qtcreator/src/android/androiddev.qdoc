@@ -274,8 +274,9 @@
             check box to allow \QC to create the kits for you. \QC displays a
             warning if it cannot find a suitable Qt version.
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
-            \uicontrol {Qt Quick Application} > \uicontrol Choose, and
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Application (Qt Quick)} >
+            \uicontrol {Qt Quick Application - Empty} > \uicontrol Choose, and
             follow the instructions of the wizard to create a project. For more
             information, see
             \if defined(qtcreator)
