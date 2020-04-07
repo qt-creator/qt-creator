@@ -76,8 +76,8 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Quick Application - Empty} >
-            \uicontrol Choose.
+            \uicontrol {Application (Qt Quick)} >
+            \uicontrol {Qt Quick Application - Empty} > \uicontrol Choose.
         \li In the \uicontrol {Build system} field, select \l qmake as the build
             system to use for building and running the project, and then select
             \uicontrol Next (or \uicontrol Continue on \macos).

@@ -111,6 +111,7 @@ class Dumper(DumperBase):
         self.runEngineAttempted = False
 
         self.executable_ = None
+        self.symbolFile_ = None
         self.startMode_ = None
         self.processArgs_ = None
         self.attachPid_ = None
@@ -857,6 +858,7 @@ class Dumper(DumperBase):
         self.remoteChannel_ = args.get('remotechannel', '')
         self.platform_ = args.get('platform', '')
         self.nativeMixed = int(args.get('nativemixed', 0))
+        self.symbolFile_ = args['symbolfile'];
         self.workingDirectory_ = args.get('workingdirectory', '')
         if self.workingDirectory_ == '':
             try:
@@ -878,10 +880,8 @@ class Dumper(DumperBase):
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
 
-        exefile = None if self.attachPid_ > 0 else self.executable_
-
         self.target = self.debugger.CreateTarget(
-            exefile, None, self.platform_, True, error)
+            self.symbolFile_, None, self.platform_, True, error)
 
         if not error.Success():
             self.report(self.describeError(error))

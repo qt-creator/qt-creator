@@ -72,6 +72,12 @@ public:
 
     bool hasRightHandle() const;
 
+    bool hasActiveHandle() const;
+
+    HandleItem *leftHandle() const;
+
+    HandleItem *rightHandle() const;
+
     QTransform transform() const;
 
     void setHandleVisibility(bool visible);

@@ -64,6 +64,22 @@ int HandleItem::type() const
     return Type;
 }
 
+bool HandleItem::keyframeSelected() const
+{
+    if (auto *frame = keyframe())
+        return frame->selected();
+
+    return false;
+}
+
+KeyframeItem *HandleItem::keyframe() const
+{
+    if (KeyframeItem *parent = qgraphicsitem_cast<KeyframeItem *>(parentItem()))
+        return parent;
+
+    return nullptr;
+}
+
 HandleItem::Slot HandleItem::slot() const
 {
     return m_slot;
@@ -77,7 +93,7 @@ QRectF HandleItem::boundingRect() const
 
 bool HandleItem::contains(const QPointF &point) const
 {
-    if (KeyframeItem *parent = qgraphicsitem_cast<KeyframeItem *>(parentItem())) {
+    if (KeyframeItem *parent = keyframe()) {
         HandleGeometry geom(pos(), m_style);
         geom.handle.moveCenter(parent->pos() + pos());
         return geom.handle.contains(point);
@@ -130,7 +146,7 @@ void HandleItem::setStyle(const CurveEditorStyle &style)
 QVariant HandleItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if (change == ItemPositionChange) {
-        if (qgraphicsitem_cast<KeyframeItem *>(parentItem())) {
+        if (keyframe()) {
             QPointF pos = value.toPointF();
             if (m_slot == HandleItem::Slot::Left) {
                 if (pos.x() > 0.0)

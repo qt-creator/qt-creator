@@ -63,6 +63,11 @@ public:
     static void addVersion(BaseQtVersion *version);
     static void removeVersion(BaseQtVersion *version);
 
+    // Call latest in extensionsInitialized of plugin depending on QtSupport
+    static void registerExampleSet(const QString &displayName,
+                                   const QString &manifestPath,
+                                   const QString &examplesPath);
+
 signals:
     // content of BaseQtVersion objects with qmake path might have changed
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);

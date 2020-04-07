@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "Debugger" }
     Depends { name: "CMakeProjectManager" }
+    Depends { name: "QtSupport" }
 
     files: [
         "mcusupport.qrc",

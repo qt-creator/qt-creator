@@ -515,7 +515,7 @@ public:
         documentAndRightPane->setStretchFactor(0, 1);
         documentAndRightPane->setStretchFactor(1, 0);
 
-        auto centralEditorWidget = new QWidget;
+        auto centralEditorWidget = mainWindow->centralWidget();
         auto centralLayout = new QVBoxLayout(centralEditorWidget);
         centralEditorWidget->setLayout(centralLayout);
         centralLayout->setContentsMargins(0, 0, 0, 0);
@@ -544,7 +544,6 @@ public:
         splitter->setStretchFactor(1, 1);
         splitter->setObjectName("DebugModeWidget");
 
-        mainWindow->setCentralWidget(centralEditorWidget);
         mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
 
         setWidget(splitter);

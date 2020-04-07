@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 #include "selector.h"
+#include "graphicsscene.h"
 #include "graphicsview.h"
 #include "keyframeitem.h"
 #include "playhead.h"
@@ -55,29 +56,40 @@ void Selector::paint(QPainter *painter)
     painter->restore();
 }
 
-void Selector::mousePress(QMouseEvent *event, GraphicsView *view)
+void Selector::mousePress(QMouseEvent *event, GraphicsView *view, GraphicsScene *scene)
 {
     m_shortcut = Shortcut(event);
 
-    if (view->hasActiveHandle())
-        return;
+    QPointF click = view->globalToScene(event->globalPos());
 
-    m_mouseInit = event->globalPos();
-    m_mouseCurr = event->globalPos();
+    if (SelectableItem *sitem = scene->intersect(click)) {
+        KeyframeItem *kitem = qobject_cast<KeyframeItem *>(sitem);
+        if (HandleItem *hitem = qobject_cast<HandleItem *>(sitem))
+            kitem = hitem->keyframe();
 
-    QPointF click = view->globalToScene(m_mouseInit);
+        if (!kitem->selected()) {
+            if (select(SelectionTool::Undefined, click, scene))
+                applyPreSelection(scene);
+        }
+    } else {
+        if (select(SelectionTool::Undefined, click, scene))
+            applyPreSelection(scene);
 
-    if (!isOverSelectedKeyframe(click, view))
-        if (select(SelectionTool::Undefined, click, view))
-            applyPreSelection(view);
+        // Init selection tools.
+        m_mouseInit = event->globalPos();
+        m_mouseCurr = event->globalPos();
 
-    m_lasso = QPainterPath(click);
-    m_lasso.closeSubpath();
+        m_lasso = QPainterPath(click);
+        m_lasso.closeSubpath();
 
-    m_rect = QRectF(click, click);
+        m_rect = QRectF(click, click);
+    }
 }
 
-void Selector::mouseMove(QMouseEvent *event, GraphicsView *view, Playhead &playhead)
+void Selector::mouseMove(QMouseEvent *event,
+                         GraphicsView *view,
+                         GraphicsScene *scene,
+                         Playhead &playhead)
 {
     if (m_mouseInit.isNull())
         return;
@@ -89,10 +101,10 @@ void Selector::mouseMove(QMouseEvent *event, GraphicsView *view, Playhead &playh
     if (m_shortcut == m_shortcuts.newSelection || m_shortcut == m_shortcuts.addToSelection
         || m_shortcut == m_shortcuts.removeFromSelection
         || m_shortcut == m_shortcuts.toggleSelection) {
-        if (view->hasActiveItem())
+        if (scene->hasActiveItem())
             return;
 
-        select(m_tool, view->globalToScene(event->globalPos()), view);
+        select(m_tool, view->globalToScene(event->globalPos()), scene);
 
         event->accept();
         view->viewport()->update();
@@ -111,11 +123,11 @@ void Selector::mouseMove(QMouseEvent *event, GraphicsView *view, Playhead &playh
     }
 }
 
-void Selector::mouseRelease(QMouseEvent *event, GraphicsView *view)
+void Selector::mouseRelease(QMouseEvent *event, GraphicsScene *scene)
 {
     Q_UNUSED(event)
 
-    applyPreSelection(view);
+    applyPreSelection(scene);
 
     m_shortcut = Shortcut();
     m_mouseInit = QPoint();
@@ -124,50 +136,73 @@ void Selector::mouseRelease(QMouseEvent *event, GraphicsView *view)
     m_rect = QRectF();
 }
 
-bool Selector::isOverSelectedKeyframe(const QPointF &pos, GraphicsView *view)
+bool Selector::isOverMovableItem(const QPointF &pos, GraphicsScene *scene)
 {
-    const auto itemList = view->items();
-    for (auto *item : itemList) {
-        if (auto *frame = qgraphicsitem_cast<KeyframeItem *>(item)) {
-            QRectF itemRect = frame->mapRectToScene(frame->boundingRect());
-            if (itemRect.contains(pos))
-                return frame->selected();
+    auto intersect = [pos](QGraphicsObject *item) {
+        return item->mapRectToScene(item->boundingRect()).contains(pos);
+    };
+
+    const auto frames = scene->keyframes();
+    for (auto *frame : frames) {
+        if (intersect(frame))
+            return true;
+
+        if (auto *leftHandle = frame->leftHandle()) {
+            if (intersect(leftHandle))
+                return true;
+        }
+
+        if (auto *rightHandle = frame->rightHandle()) {
+            if (intersect(rightHandle))
+                return true;
         }
     }
     return false;
 }
 
-bool Selector::select(const SelectionTool &tool, const QPointF &pos, GraphicsView *view)
+bool Selector::isOverSelectedKeyframe(const QPointF &pos, GraphicsScene *scene)
 {
-    auto selectWidthTool = [this, tool](SelectionMode mode, const QPointF &pos, GraphicsView *view) {
+    const auto frames = scene->selectedKeyframes();
+    for (auto *frame : frames) {
+        QRectF frameRect = frame->mapRectToScene(frame->boundingRect());
+        if (frameRect.contains(pos))
+            return true;
+    }
+    return false;
+}
+
+bool Selector::select(const SelectionTool &tool, const QPointF &pos, GraphicsScene *scene)
+{
+    auto selectWidthTool = [this,
+                            tool](SelectionMode mode, const QPointF &pos, GraphicsScene *scene) {
         switch (tool) {
         case SelectionTool::Lasso:
-            return lassoSelection(mode, pos, view);
+            return lassoSelection(mode, pos, scene);
         case SelectionTool::Rectangle:
-            return rectangleSelection(mode, pos, view);
+            return rectangleSelection(mode, pos, scene);
         default:
-            return pressSelection(mode, pos, view);
+            return pressSelection(mode, pos, scene);
         }
     };
 
     if (m_shortcut == m_shortcuts.newSelection) {
-        clearSelection(view);
-        return selectWidthTool(SelectionMode::New, pos, view);
+        clearSelection(scene);
+        return selectWidthTool(SelectionMode::New, pos, scene);
     } else if (m_shortcut == m_shortcuts.addToSelection) {
-        return selectWidthTool(SelectionMode::Add, pos, view);
+        return selectWidthTool(SelectionMode::Add, pos, scene);
     } else if (m_shortcut == m_shortcuts.removeFromSelection) {
-        return selectWidthTool(SelectionMode::Remove, pos, view);
+        return selectWidthTool(SelectionMode::Remove, pos, scene);
     } else if (m_shortcut == m_shortcuts.toggleSelection) {
-        return selectWidthTool(SelectionMode::Toggle, pos, view);
+        return selectWidthTool(SelectionMode::Toggle, pos, scene);
     }
 
     return false;
 }
 
-bool Selector::pressSelection(SelectionMode mode, const QPointF &pos, GraphicsView *view)
+bool Selector::pressSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
 {
     bool out = false;
-    const auto itemList = view->items();
+    const auto itemList = scene->items();
     for (auto *item : itemList) {
         if (auto *frame = qgraphicsitem_cast<KeyframeItem *>(item)) {
             QRectF itemRect = frame->mapRectToScene(frame->boundingRect());
@@ -176,15 +211,25 @@ bool Selector::pressSelection(SelectionMode mode, const QPointF &pos, GraphicsVi
                 out = true;
             }
         }
+
+        if (auto *handle = qgraphicsitem_cast<HandleItem *>(item)) {
+            QRectF itemRect = handle->mapRectToScene(handle->boundingRect());
+            if (itemRect.contains(pos)) {
+                if (auto *frame = handle->keyframe()) {
+                    frame->setPreselected(mode);
+                    out = true;
+                }
+            }
+        }
     }
     return out;
 }
 
-bool Selector::rectangleSelection(SelectionMode mode, const QPointF &pos, GraphicsView *view)
+bool Selector::rectangleSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
 {
     bool out = false;
     m_rect.setBottomRight(pos);
-    const auto itemList = view->items();
+    const auto itemList = scene->items();
     for (auto *item : itemList) {
         if (auto *keyframeItem = qgraphicsitem_cast<KeyframeItem *>(item)) {
             if (m_rect.contains(keyframeItem->pos())) {
@@ -198,11 +243,11 @@ bool Selector::rectangleSelection(SelectionMode mode, const QPointF &pos, Graphi
     return out;
 }
 
-bool Selector::lassoSelection(SelectionMode mode, const QPointF &pos, GraphicsView *view)
+bool Selector::lassoSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
 {
     bool out = false;
     m_lasso.lineTo(pos);
-    const auto itemList = view->items();
+    const auto itemList = scene->items();
     for (auto *item : itemList) {
         if (auto *keyframeItem = qgraphicsitem_cast<KeyframeItem *>(item)) {
             if (m_lasso.contains(keyframeItem->pos())) {
@@ -216,20 +261,22 @@ bool Selector::lassoSelection(SelectionMode mode, const QPointF &pos, GraphicsVi
     return out;
 }
 
-void Selector::clearSelection(GraphicsView *view)
+void Selector::clearSelection(GraphicsScene *scene)
 {
-    const auto itemList = view->items();
+    const auto itemList = scene->items();
     for (auto *item : itemList) {
         if (auto *frameItem = qgraphicsitem_cast<KeyframeItem *>(item)) {
             frameItem->setPreselected(SelectionMode::Clear);
             frameItem->applyPreselection();
+            frameItem->setActivated(false, HandleItem::Slot::Left);
+            frameItem->setActivated(false, HandleItem::Slot::Right);
         }
     }
 }
 
-void Selector::applyPreSelection(GraphicsView *view)
+void Selector::applyPreSelection(GraphicsScene *scene)
 {
-    const auto itemList = view->items();
+    const auto itemList = scene->items();
     for (auto *item : itemList) {
         if (auto *keyframeItem = qgraphicsitem_cast<KeyframeItem *>(item))
             keyframeItem->applyPreselection();

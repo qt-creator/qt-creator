@@ -76,6 +76,7 @@ bool McuSupportPlugin::initialize(const QStringList& arguments, QString* errorSt
     dd = new McuSupportPluginPrivate;
 
     McuSupportOptions::registerQchFiles();
+    McuSupportOptions::registerExamples();
     ProjectExplorer::JsonWizardFactory::addWizardPath(
                 Utils::FilePath::fromString(":/mcusupport/wizards/"));
 

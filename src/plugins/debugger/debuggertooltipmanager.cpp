@@ -1179,7 +1179,7 @@ DebuggerToolTipManagerPrivate::DebuggerToolTipManagerPrivate(DebuggerEngine *eng
             this, &DebuggerToolTipManagerPrivate::saveSessionData);
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
             this, &DebuggerToolTipManagerPrivate::sessionAboutToChange);
-    setupEditors();
+    debugModeEntered();
 }
 
 void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
@@ -1241,8 +1241,6 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
         DEBUG("SYNC IN STATE" << tooltip->state);
         tooltip->updateTooltip(m_engine);
 
-        *handled = true;
-
     } else {
 
         context.iname = "tooltip." + toHex(context.expression);
@@ -1256,7 +1254,6 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
             tooltip->context.mousePosition = point;
             ToolTip::move(point, DebuggerMainWindow::instance());
             DEBUG("UPDATING DELAYED.");
-            *handled = true;
         } else {
             DEBUG("CREATING DELAYED.");
             tooltip = new DebuggerToolTipHolder(context);
@@ -1272,6 +1269,8 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
             }
         }
     }
+
+    *handled = true;
 }
 
 void DebuggerToolTipManagerPrivate::slotEditorOpened(IEditor *e)
@@ -1323,6 +1322,7 @@ void DebuggerToolTipManagerPrivate::leavingDebugMode()
         foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments()) {
             if (auto toolTipEditor = qobject_cast<BaseTextEditor *>(e)) {
                 toolTipEditor->editorWidget()->verticalScrollBar()->disconnect(this);
+                toolTipEditor->editorWidget()->disconnect(this);
                 toolTipEditor->disconnect(this);
             }
         }
