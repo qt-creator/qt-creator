@@ -577,7 +577,7 @@ ModelNode QmlFlowActionAreaNode::targetTransition() const
     return modelNode().bindingProperty("target").resolveToModelNode();
 }
 
-void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowItemNode &flowItem)
+void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowTargetNode &flowItem)
 {
      QTC_ASSERT(isValid(), return);
      QTC_ASSERT(flowItem.isValid(), return);
@@ -592,7 +592,8 @@ void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowItemNode &flowItem
 
      destroyTarget();
 
-     ModelNode transition = flowView.addTransition(flowParent, flowItem);
+     ModelNode transition = flowView.addTransition(flowParent.modelNode(),
+                                                   flowItem.modelNode());
 
      modelNode().bindingProperty("target").setExpression(transition.validId());
 }
@@ -625,6 +626,14 @@ ModelNode QmlFlowActionAreaNode::decisionNodeForTransition(const ModelNode &tran
                     && finalTarget.bindingProperty("targets").resolveToModelNodeList().contains(transition))
                 return finalTarget;
         }
+        QmlFlowViewNode flowView(view()->rootModelNode());
+        if (flowView.isValid()) {
+            for (const ModelNode target : flowView.decicions()) {
+                if (target.hasBindingProperty("targets")
+                        && target.bindingProperty("targets").resolveToModelNodeList().contains(transition))
+                    return target;
+            }
+        }
     }
 
     return {};
@@ -645,22 +654,25 @@ QList<QmlFlowItemNode> QmlFlowViewNode::flowItems() const
 {
     QList<QmlFlowItemNode> list;
     for (const ModelNode &node : allDirectSubModelNodes())
-        if (QmlFlowItemNode::isValidQmlFlowItemNode(node))
+        if (QmlFlowItemNode::isValidQmlFlowItemNode(node)
+                || QmlVisualNode::isFlowDecision(node)
+                || QmlVisualNode::isFlowWildcard(node))
             list.append(node);
 
     return list;
 }
 
-ModelNode QmlFlowViewNode::addTransition(const QmlFlowItemNode &from, const QmlFlowItemNode &to)
+ModelNode QmlFlowViewNode::addTransition(const QmlFlowTargetNode &from, const QmlFlowTargetNode &to)
 {
-    ModelNode transition = from.view()->createModelNode("FlowView.FlowTransition", 1, 0);
+    ModelNode transition = view()->createModelNode("FlowView.FlowTransition", 1, 0);
 
-    from.flowView().modelNode().nodeListProperty("flowTransitions").reparentHere(transition);
+    nodeListProperty("flowTransitions").reparentHere(transition);
 
-    QmlFlowItemNode f = from;
-    QmlFlowItemNode t = to;
+    QmlFlowTargetNode f = from;
+    QmlFlowTargetNode t = to;
 
-    transition.bindingProperty("from").setExpression(f.validId());
+    if (f.isValid())
+        transition.bindingProperty("from").setExpression(f.validId());
     transition.bindingProperty("to").setExpression(t.validId());
 
     return transition;
@@ -682,6 +694,67 @@ const QList<ModelNode> QmlFlowViewNode::wildcards() const
         return modelNode().nodeListProperty("flowWildcards").toModelNodeList();
 
     return {};
+}
+
+const QList<ModelNode> QmlFlowViewNode::decicions() const
+{
+    if (modelNode().nodeListProperty("flowDecisions").isValid())
+        return modelNode().nodeListProperty("flowDecisions").toModelNodeList();
+
+    return {};
+}
+
+bool QmlFlowTargetNode::isValid() const
+{
+     return QmlItemNode(modelNode()).isFlowItem()
+             || QmlItemNode(modelNode()).isFlowActionArea()
+             || QmlVisualNode::isFlowDecision(modelNode())
+             || QmlVisualNode::isFlowWildcard(modelNode());
+}
+
+void QmlFlowTargetNode::assignTargetItem(const QmlFlowTargetNode &node)
+{
+    if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(modelNode())) {
+        QmlFlowActionAreaNode(modelNode()).assignTargetFlowItem(node);
+    } else if (isFlowWildcard()) {
+        destroyTargets();
+        ModelNode transition = flowView().addTransition(ModelNode(),
+                                                        node);
+        modelNode().bindingProperty("target").setExpression(transition.validId());
+    } else if (isFlowDecision()) {
+        destroyTargets();
+    }
+}
+
+void QmlFlowTargetNode::destroyTargets()
+{
+
+    QTC_ASSERT(isValid(), return);
+
+    if (targetTransition().isValid()) {
+        QmlObjectNode(targetTransition()).destroy();
+        modelNode().removeProperty("target");
+    }
+
+    if (hasBindingProperty("targets")) {
+        for (ModelNode &node : modelNode().bindingProperty("targets").resolveToModelNodeList())
+            QmlItemNode(node).destroy();
+        modelNode().removeProperty("targets");
+    }
+
+}
+
+ModelNode QmlFlowTargetNode::targetTransition() const
+{
+    if (!modelNode().hasBindingProperty("target"))
+        return {};
+
+    return modelNode().bindingProperty("target").resolveToModelNode();
+}
+
+QmlFlowViewNode QmlFlowTargetNode::flowView() const
+{
+    return view()->rootModelNode();
 }
 
 } //QmlDesigner

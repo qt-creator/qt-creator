@@ -132,6 +132,18 @@ public:
 class QmlFlowItemNode;
 class QmlFlowViewNode;
 
+class QMLDESIGNERCORE_EXPORT QmlFlowTargetNode : public QmlItemNode
+{
+public:
+    QmlFlowTargetNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
+    bool isValid() const override;
+
+    void assignTargetItem(const QmlFlowTargetNode &node);
+    void destroyTargets();
+    ModelNode targetTransition() const;
+    QmlFlowViewNode flowView() const;
+};
+
 class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode : public QmlItemNode
 {
 public:
@@ -139,7 +151,7 @@ public:
     bool isValid() const override;
     static bool isValidQmlFlowActionAreaNode(const ModelNode &modelNode);
     ModelNode targetTransition() const;
-    void assignTargetFlowItem(const QmlFlowItemNode &flowItem);
+    void assignTargetFlowItem(const QmlFlowTargetNode &flowItem);
     QmlFlowItemNode flowItemParent() const;
     void destroyTarget();
     ModelNode decisionNodeForTransition(const ModelNode &transition) const;
@@ -162,9 +174,10 @@ public:
     bool isValid() const override;
     static bool isValidQmlFlowViewNode(const ModelNode &modelNode);
     QList<QmlFlowItemNode> flowItems() const;
-    ModelNode addTransition(const QmlFlowItemNode &from, const QmlFlowItemNode &to);
+    ModelNode addTransition(const QmlFlowTargetNode &from, const QmlFlowTargetNode &to);
     const QList<ModelNode> transitions() const;
     const QList<ModelNode> wildcards() const;
+    const QList<ModelNode> decicions() const;
 };
 
 
