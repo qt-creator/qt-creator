@@ -497,17 +497,20 @@ bool QmlItemNode::isInStackedContainer() const
 
 bool QmlItemNode::isFlowView() const
 {
-    return modelNode().metaInfo().isSubclassOf("FlowView.FlowView");
+    return modelNode().isValid()
+            && modelNode().metaInfo().isSubclassOf("FlowView.FlowView");
 }
 
 bool QmlItemNode::isFlowItem() const
 {
-    return modelNode().metaInfo().isSubclassOf("FlowView.FlowItem");
+    return modelNode().isValid()
+            && modelNode().metaInfo().isSubclassOf("FlowView.FlowItem");
 }
 
 bool QmlItemNode::isFlowActionArea() const
 {
-    return modelNode().metaInfo().isSubclassOf("FlowView.FlowActionArea");
+    return modelNode().isValid()
+            && modelNode().metaInfo().isSubclassOf("FlowView.FlowActionArea");
 }
 
 ModelNode QmlItemNode::rootModelNode() const
