@@ -103,16 +103,13 @@ TestTerminator::TestTerminator(OutputParserTester *t) :
     m_tester(t)
 { }
 
-void TestTerminator::stdOutput(const QString &line)
+void TestTerminator::handleLine(const QString &line, Utils::OutputFormat type)
 {
     QVERIFY(line.endsWith('\n'));
-    m_tester->m_receivedStdOutChildLine.append(line);
-}
-
-void TestTerminator::stdError(const QString &line)
-{
-    QVERIFY(line.endsWith('\n'));
-    m_tester->m_receivedStdErrChildLine.append(line);
+    if (type == Utils::StdOutFormat)
+        m_tester->m_receivedStdOutChildLine.append(line);
+    else
+        m_tester->m_receivedStdErrChildLine.append(line);
 }
 
 } // namespace ProjectExplorer

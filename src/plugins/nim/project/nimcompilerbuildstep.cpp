@@ -47,20 +47,12 @@ namespace Nim {
 
 class NimParser : public ProjectExplorer::IOutputParser
 {
-public:
-    void stdOutput(const QString &line) final
+    void handleLine(const QString &line, Utils::OutputFormat type) override
     {
         parseLine(line.trimmed());
-        IOutputParser::stdOutput(line);
+        IOutputParser::handleLine(line, type);
     }
 
-    void stdError(const QString &line) final
-    {
-        parseLine(line.trimmed());
-        IOutputParser::stdError(line);
-    }
-
-private:
     void parseLine(const QString &line)
     {
         static QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)",

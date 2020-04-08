@@ -40,9 +40,6 @@ class PROJECTEXPLORER_EXPORT GccParser : public ProjectExplorer::IOutputParser
 public:
     GccParser();
 
-    void stdError(const QString &line) override;
-    void stdOutput(const QString &line) override;
-
     static Core::Id id();
 
 protected:
@@ -52,6 +49,11 @@ protected:
     void amendDescription(const QString &desc, bool monospaced);
 
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
+
+    void stdError(const QString &line);
+    void stdOutput(const QString &line);
+
     QRegularExpression m_regExp;
     QRegularExpression m_regExpIncluded;
     QRegularExpression m_regExpGccNames;

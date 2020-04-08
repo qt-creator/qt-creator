@@ -29,6 +29,7 @@
 #include "buildstep.h"
 
 #include <utils/fileutils.h>
+#include <utils/outputformat.h>
 
 #include <functional>
 
@@ -70,14 +71,16 @@ signals:
     void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
 protected:
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
+    virtual void handleLine(const QString &line, Utils::OutputFormat type);
 
     Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath);
 
 private:
     virtual void doFlush();
 
+    QString filteredLine(const QString &line) const;
+
+    class OutputChannelState;
     class IOutputParserPrivate;
     IOutputParserPrivate * const d;
 };

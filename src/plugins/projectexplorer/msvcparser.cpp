@@ -147,7 +147,7 @@ void MsvcParser::stdOutput(const QString &line)
         m_lines = 1;
         return;
     }
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, StdOutFormat);
 }
 
 void MsvcParser::stdError(const QString &line)
@@ -159,12 +159,20 @@ void MsvcParser::stdError(const QString &line)
         m_lines = 1;
         return;
     }
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 }
 
 Core::Id MsvcParser::id()
 {
     return Core::Id("ProjectExplorer.OutputParser.Msvc");
+}
+
+void MsvcParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == OutputFormat::StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
 }
 
 bool MsvcParser::processCompileLine(const QString &line)
@@ -212,6 +220,14 @@ ClangClParser::ClangClParser()
     QTC_CHECK(m_compileRegExp.isValid());
 }
 
+void ClangClParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
+}
+
 void ClangClParser::stdOutput(const QString &line)
 {
     if (handleNmakeJomMessage(line, &m_lastTask)) {
@@ -219,7 +235,7 @@ void ClangClParser::stdOutput(const QString &line)
         doFlush();
         return;
     }
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, StdOutFormat);
 }
 
 // Check for a code marker '~~~~ ^ ~~~~~~~~~~~~' underlining above code.
@@ -274,7 +290,7 @@ void ClangClParser::stdError(const QString &lineIn)
         return;
     }
 
-    IOutputParser::stdError(lineIn);
+    IOutputParser::handleLine(lineIn, StdErrFormat);
 }
 
 void ClangClParser::doFlush()

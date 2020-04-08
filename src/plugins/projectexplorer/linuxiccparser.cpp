@@ -68,8 +68,12 @@ LinuxIccParser::LinuxIccParser() :
     appendOutputParser(new LdParser);
 }
 
-void LinuxIccParser::stdError(const QString &line)
+void LinuxIccParser::handleLine(const QString &line, OutputFormat type)
 {
+    if (type != Utils::StdErrFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
     if (m_pchInfoLine.indexIn(line) != -1) {
         // totally ignore this line
         return;
@@ -115,7 +119,7 @@ void LinuxIccParser::stdError(const QString &line)
         m_temporary.description.append(m_continuationLines.cap(1).trimmed());
         ++m_lines;
     } else {
-        IOutputParser::stdError(line);
+        IOutputParser::handleLine(line, StdErrFormat);
     }
 }
 

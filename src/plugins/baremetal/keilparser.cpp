@@ -190,9 +190,17 @@ bool KeilParser::parseMcs51FatalErrorMessage2(const QString &lne)
     return true;
 }
 
+void KeilParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
+}
+
 void KeilParser::stdError(const QString &line)
 {
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 
     const QString lne = rightTrimmed(line);
 
@@ -228,7 +236,7 @@ static bool hasDetailsPointer(const QString &trimmedLine)
 
 void KeilParser::stdOutput(const QString &line)
 {
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, StdOutFormat);
 
     QString lne = rightTrimmed(line);
 

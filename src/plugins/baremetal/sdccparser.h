@@ -45,8 +45,9 @@ private:
     void newTask(const ProjectExplorer::Task &task);
     void amendDescription(const QString &desc);
 
-    void stdError(const QString &line) final;
-    void stdOutput(const QString &line) final;
+    void handleLine(const QString &line, Utils::OutputFormat type) final;
+    void stdError(const QString &line);
+    void stdOutput(const QString &line);
     void doFlush() final;
 
     ProjectExplorer::Task m_lastTask;

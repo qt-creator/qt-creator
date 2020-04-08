@@ -81,10 +81,9 @@ class TestTerminator : public IOutputParser
 public:
     TestTerminator(OutputParserTester *t);
 
-    void stdOutput(const QString &line) override;
-    void stdError(const QString &line) override;
-
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
+
     OutputParserTester *m_tester = nullptr;
 };
 

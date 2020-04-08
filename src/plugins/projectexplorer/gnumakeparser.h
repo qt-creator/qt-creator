@@ -39,12 +39,13 @@ class PROJECTEXPLORER_EXPORT GnuMakeParser : public ProjectExplorer::IOutputPars
 public:
     explicit GnuMakeParser();
 
-    void stdOutput(const QString &line) override;
-    void stdError(const QString &line) override;
-
+private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
     bool hasFatalErrors() const override;
 
-private:
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
+
     void emitTask(const ProjectExplorer::Task &task);
 
     QRegularExpression m_makeDir;

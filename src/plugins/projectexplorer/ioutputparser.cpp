@@ -55,15 +55,9 @@
 */
 
 /*!
-   \fn void ProjectExplorer::IOutputParser::stdOutput(const QString &line)
+   \fn void ProjectExplorer::IOutputParser::handleLine(const QString &line, Utils::OutputFormat type)
 
-   Called once for each line if standard output to parse.
-*/
-
-/*!
-   \fn void ProjectExplorer::IOutputParser::stdError(const QString &line)
-
-   Called once for each line if standard error to parse.
+   Called once for each line of standard output or standard error to parse.
 */
 
 /*!
@@ -109,14 +103,13 @@
 
 namespace ProjectExplorer {
 
-class OutputChannelState
+class IOutputParser::OutputChannelState
 {
 public:
     using LineHandler = void (IOutputParser::*)(const QString &line);
 
-    OutputChannelState(IOutputParser *parser, LineHandler lineHandler,
-                       QList<IOutputParser::Filter> &filters)
-        : parser(parser), lineHandler(lineHandler), filters(filters) {}
+    OutputChannelState(IOutputParser *parser, Utils::OutputFormat type)
+        : parser(parser), type(type) {}
 
     void handleData(const QString &newData)
     {
@@ -128,30 +121,20 @@ public:
                 break;
             const QString line = pendingData.left(eolPos + 1);
             pendingData.remove(0, eolPos + 1);
-            (parser->*lineHandler)(filteredLine(line));
+            parser->handleLine(parser->filteredLine(line), type);
         }
     }
 
     void flush()
     {
         if (!pendingData.isEmpty()) {
-            (parser->*lineHandler)(filteredLine(pendingData));
+            parser->handleLine(parser->filteredLine(pendingData), type);
             pendingData.clear();
         }
     }
 
-    QString filteredLine(const QString &line)
-    {
-        QString l = line;
-        for (const IOutputParser::Filter &f : filters)
-            l = f(l);
-        return l;
-    }
-
-
     IOutputParser * const parser;
-    const LineHandler lineHandler;
-    QList<IOutputParser::Filter> &filters;
+    const Utils::OutputFormat type;
     QString pendingData;
 };
 
@@ -159,8 +142,8 @@ class IOutputParser::IOutputParserPrivate
 {
 public:
     IOutputParserPrivate(IOutputParser *parser)
-        : stdoutState(parser, &IOutputParser::stdOutput, filters),
-          stderrState(parser, &IOutputParser::stdError, filters)
+        : stdoutState(parser, Utils::StdOutFormat),
+          stderrState(parser, Utils::StdErrFormat)
     {}
 
     IOutputParser *childParser = nullptr;
@@ -218,16 +201,10 @@ void IOutputParser::setChildParser(IOutputParser *parser)
         connect(parser, &IOutputParser::addTask, this, &IOutputParser::addTask);
 }
 
-void IOutputParser::stdOutput(const QString &line)
+void IOutputParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     if (d->childParser)
-        d->childParser->stdOutput(line);
-}
-
-void IOutputParser::stdError(const QString &line)
-{
-    if (d->childParser)
-        d->childParser->stdError(line);
+        d->childParser->handleLine(line, type);
 }
 
 void IOutputParser::skipFileExistsCheck()
@@ -236,6 +213,14 @@ void IOutputParser::skipFileExistsCheck()
 }
 
 void IOutputParser::doFlush() { }
+
+QString IOutputParser::filteredLine(const QString &line) const
+{
+    QString l = line;
+    for (const IOutputParser::Filter &f : qAsConst(d->filters))
+        l = f(l);
+    return l;
+}
 
 bool IOutputParser::hasFatalErrors() const
 {

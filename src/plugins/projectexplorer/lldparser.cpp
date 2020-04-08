@@ -35,8 +35,12 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-void LldParser::stdError(const QString &line)
+void LldParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
+    if (type != Utils::StdErrFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
     const QString trimmedLine = rightTrimmed(line);
     if (trimmedLine.contains("error:") && trimmedLine.contains("lld")) {
         emit addTask(CompileTask(Task::Error, trimmedLine));
@@ -68,7 +72,7 @@ void LldParser::stdError(const QString &line)
                                  absoluteFilePath(file), lineNo));
         return;
     }
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, Utils::StdErrFormat);
 }
 
 } // namespace Internal

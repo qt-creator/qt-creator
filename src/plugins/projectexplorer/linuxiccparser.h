@@ -39,11 +39,10 @@ class LinuxIccParser : public ProjectExplorer::IOutputParser
 public:
     LinuxIccParser();
 
-    void stdError(const QString &line) override;
-
     static Core::Id id();
 
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
     void doFlush() override;
 
     QRegExp m_firstLine;

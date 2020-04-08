@@ -40,13 +40,14 @@ class PROJECTEXPLORER_EXPORT MsvcParser :  public ProjectExplorer::IOutputParser
 public:
     MsvcParser();
 
-    void stdOutput(const QString &line) override;
-    void stdError(const QString &line) override;
-
     static Core::Id id();
 
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
     void doFlush() override;
+
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
     bool processCompileLine(const QString &line);
 
     QRegularExpression m_compileRegExp;
@@ -63,11 +64,12 @@ class PROJECTEXPLORER_EXPORT ClangClParser :  public ProjectExplorer::IOutputPar
 public:
     ClangClParser();
 
-    void stdOutput(const QString &line) override;
-    void stdError(const QString &line) override;
-
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
     void doFlush() override;
+
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
 
     const QRegularExpression m_compileRegExp;
     Task m_lastTask;

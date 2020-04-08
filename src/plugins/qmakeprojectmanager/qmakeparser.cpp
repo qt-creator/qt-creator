@@ -40,8 +40,12 @@ QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
     m_error.setMinimal(true);
 }
 
-void QMakeParser::stdError(const QString &line)
+void QMakeParser::handleLine(const QString &line, OutputFormat type)
 {
+    if (type != Utils::StdErrFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
     QString lne = rightTrimmed(line);
     if (m_error.indexIn(lne) > -1) {
         QString fileName = m_error.cap(1);
@@ -78,7 +82,7 @@ void QMakeParser::stdError(const QString &line)
         emit addTask(BuildSystemTask(Task::Warning, description), 1);
         return;
     }
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 }
 
 } // QmakeProjectManager

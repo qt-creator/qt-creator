@@ -57,10 +57,14 @@ void CMakeParser::setSourceDirectory(const QString &sourceDir)
     m_sourceDirectory = QDir(sourceDir);
 }
 
-void CMakeParser::stdError(const QString &line)
+void CMakeParser::handleLine(const QString &line, OutputFormat type)
 {
-    QString trimmedLine = rightTrimmed(line);
+    if (type != StdErrFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
 
+    QString trimmedLine = rightTrimmed(line);
     switch (m_expectTripleLineErrorData) {
     case NONE:
         if (trimmedLine.isEmpty() && !m_lastTask.isNull()) {
@@ -110,7 +114,7 @@ void CMakeParser::stdError(const QString &line)
             // Do not pass on lines starting with "-- " or "* ". Those are typical CMake output
             return;
         }
-        IOutputParser::stdError(line);
+        IOutputParser::handleLine(line, StdErrFormat);
         return;
     case LINE_LOCATION:
         {

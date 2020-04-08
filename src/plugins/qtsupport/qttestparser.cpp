@@ -47,8 +47,12 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-void QtTestParser::stdOutput(const QString &line)
+void QtTestParser::handleLine(const QString &line, OutputFormat type)
 {
+    if (type != StdOutFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
     const QString theLine = rightTrimmed(line);
     static const QRegularExpression triggerPattern("^(?:XPASS|FAIL!)  : .+$");
     QTC_CHECK(triggerPattern.isValid());
@@ -59,7 +63,7 @@ void QtTestParser::stdOutput(const QString &line)
         return;
     }
     if (m_currentTask.isNull()) {
-        IOutputParser::stdOutput(line);
+        IOutputParser::handleLine(line, StdOutFormat);
         return;
     }
     static const QRegularExpression locationPattern(HostOsInfo::isWindowsHost()

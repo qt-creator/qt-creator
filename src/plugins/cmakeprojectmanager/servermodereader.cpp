@@ -361,7 +361,7 @@ void ServerModeReader::createNewServer()
     connect(m_cmakeServer.get(), &ServerMode::cmakeMessage, [this](const QString &m) {
         const QStringList lines = m.split('\n');
         for (const QString &l : lines) {
-            m_parser.stdError(l);
+            m_parser.handleStderr(l);
             Core::MessageManager::write(l);
         }
     });

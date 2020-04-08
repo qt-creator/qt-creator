@@ -86,14 +86,13 @@ class CustomParser : public ProjectExplorer::IOutputParser
 public:
     CustomParser(const CustomParserSettings &settings = CustomParserSettings());
 
-    void stdError(const QString &line) override;
-    void stdOutput(const QString &line) override;
-
     void setSettings(const CustomParserSettings &settings);
 
     static Core::Id id();
 
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
+
     bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                   const CustomParserExpression &expression, Task::TaskType taskType);
     bool parseLine(const QString &rawLine, CustomParserExpression::CustomParserChannel channel);

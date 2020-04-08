@@ -56,6 +56,14 @@ GnuMakeParser::GnuMakeParser()
     QTC_CHECK(m_errorInMakefile.isValid());
 }
 
+void GnuMakeParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
+}
+
 bool GnuMakeParser::hasFatalErrors() const
 {
     return (m_fatalErrorCount > 0) || IOutputParser::hasFatalErrors();
@@ -74,7 +82,7 @@ void GnuMakeParser::stdOutput(const QString &line)
         return;
     }
 
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, StdOutFormat);
 }
 
 class Result {
@@ -145,7 +153,7 @@ void GnuMakeParser::stdError(const QString &line)
         return;
     }
 
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 }
 
 void GnuMakeParser::emitTask(const ProjectExplorer::Task &task)

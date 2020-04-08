@@ -43,8 +43,12 @@ QtParser::QtParser() :
     m_translationRegExp.setMinimal(true);
 }
 
-void QtParser::stdError(const QString &line)
+void QtParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
+    if (type != Utils::StdErrFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
     QString lne = rightTrimmed(line);
     if (m_mocRegExp.indexIn(lne) > -1) {
         bool ok;
@@ -72,7 +76,7 @@ void QtParser::stdError(const QString &line)
         emit addTask(task, 1);
         return;
     }
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, Utils::StdErrFormat);
 }
 
 // Unit tests:

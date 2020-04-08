@@ -52,6 +52,14 @@ XcodebuildParser::XcodebuildParser()
     QTC_CHECK(m_buildRe.isValid());
 }
 
+void XcodebuildParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
+}
+
 bool XcodebuildParser::hasFatalErrors() const
 {
     return (m_fatalErrorCount > 0) || IOutputParser::hasFatalErrors();
@@ -79,9 +87,9 @@ void XcodebuildParser::stdOutput(const QString &line)
             emit addTask(task, 1);
             return;
         }
-        IOutputParser::stdError(line);
+        IOutputParser::handleLine(line, StdErrFormat); // ??
     } else {
-        IOutputParser::stdOutput(line);
+        IOutputParser::handleLine(line, StdOutFormat);
     }
 }
 
@@ -96,7 +104,7 @@ void XcodebuildParser::stdError(const QString &line)
         return;
     }
     if (m_xcodeBuildParserState == OutsideXcodebuild) { // also forward if UnknownXcodebuildState ?
-        IOutputParser::stdError(line);
+        IOutputParser::handleLine(line, StdErrFormat);
         return;
     }
 }

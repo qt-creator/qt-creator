@@ -39,14 +39,13 @@ class JavaParser : public ProjectExplorer::IOutputParser
 
 public:
     JavaParser();
-    void stdOutput(const QString &line) override;
-    void stdError(const QString &line) override;
     void setProjectFileList(const QStringList &fileList);
 
     void setBuildDirectory(const Utils::FilePath &buildDirectory);
     void setSourceDirectory(const Utils::FilePath &sourceDirectory);
 
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
     void parse(const QString &line);
 
     QRegExp m_javaRegExp;

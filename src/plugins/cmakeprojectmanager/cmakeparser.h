@@ -43,12 +43,11 @@ class CMAKE_EXPORT CMakeParser : public ProjectExplorer::IOutputParser
 public:
     explicit CMakeParser();
     void setSourceDirectory(const QString &sourceDir);
-    void stdError(const QString &line) override;
-
-protected:
-    void doFlush() override;
 
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    void doFlush() override;
+
     enum TripleLineError { NONE, LINE_LOCATION, LINE_DESCRIPTION, LINE_DESCRIPTION2 };
 
     TripleLineError m_expectTripleLineErrorData = NONE;

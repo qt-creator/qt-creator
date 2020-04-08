@@ -118,22 +118,6 @@ CustomParser::CustomParser(const CustomParserSettings &settings)
     setSettings(settings);
 }
 
-void CustomParser::stdError(const QString &line)
-{
-    if (parseLine(line, CustomParserExpression::ParseStdErrChannel))
-        return;
-
-    IOutputParser::stdError(line);
-}
-
-void CustomParser::stdOutput(const QString &line)
-{
-    if (parseLine(line, CustomParserExpression::ParseStdOutChannel))
-        return;
-
-    IOutputParser::stdOutput(line);
-}
-
 void CustomParser::setSettings(const CustomParserSettings &settings)
 {
     m_error = settings.error;
@@ -143,6 +127,16 @@ void CustomParser::setSettings(const CustomParserSettings &settings)
 Core::Id CustomParser::id()
 {
     return Core::Id("ProjectExplorer.OutputParser.Custom");
+}
+
+void CustomParser::handleLine(const QString &line, OutputFormat type)
+{
+    const CustomParserExpression::CustomParserChannel channel = type == StdErrFormat
+            ? CustomParserExpression::ParseStdErrChannel
+            : CustomParserExpression::ParseStdOutChannel;
+    if (parseLine(line, channel))
+        return;
+    IOutputParser::handleLine(line, type);
 }
 
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,

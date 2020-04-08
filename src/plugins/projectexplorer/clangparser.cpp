@@ -54,8 +54,12 @@ ClangParser::ClangParser() :
     setObjectName(QLatin1String("ClangParser"));
 }
 
-void ClangParser::stdError(const QString &line)
+void ClangParser::handleLine(const QString &line, OutputFormat type)
 {
+    if (type != StdErrFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
     const QString lne = rightTrimmed(line);
     QRegularExpressionMatch match = m_summaryRegExp.match(lne);
     if (match.hasMatch()) {
@@ -107,7 +111,7 @@ void ClangParser::stdError(const QString &line)
         return;
     }
 
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 }
 
 Core::Id ClangParser::id()

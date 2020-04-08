@@ -39,9 +39,10 @@ class QMAKEPROJECTMANAGER_EXPORT QMakeParser : public ProjectExplorer::IOutputPa
 
 public:
     QMakeParser();
-    void stdError(const QString &line) override;
 
 private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
+
     QRegExp m_error;
 };
 

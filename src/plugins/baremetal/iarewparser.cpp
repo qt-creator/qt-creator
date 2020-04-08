@@ -190,9 +190,17 @@ bool IarParser::parseErrorMessage1(const QString &lne)
     return true;
 }
 
+void IarParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
+}
+
 void IarParser::stdError(const QString &line)
 {
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 
     const QString lne = rightTrimmed(line);
 
@@ -232,7 +240,7 @@ void IarParser::stdError(const QString &line)
 
 void IarParser::stdOutput(const QString &line)
 {
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, StdOutFormat);
 
     const QString lne = rightTrimmed(line);
 

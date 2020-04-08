@@ -71,7 +71,7 @@ void GccParser::stdError(const QString &line)
     // Blacklist some lines to not handle them:
     if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
         lne.startsWith(QLatin1String("distcc["))) {
-        IOutputParser::stdError(line);
+        IOutputParser::handleLine(line, StdErrFormat);
         return;
     }
 
@@ -130,13 +130,13 @@ void GccParser::stdError(const QString &line)
     }
 
     doFlush();
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 }
 
 void GccParser::stdOutput(const QString &line)
 {
     doFlush();
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, StdOutFormat);
 }
 
 Core::Id GccParser::id()
@@ -178,6 +178,14 @@ void GccParser::amendDescription(const QString &desc, bool monospaced)
     }
     ++m_lines;
     return;
+}
+
+void GccParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
 }
 
 // Unit tests:

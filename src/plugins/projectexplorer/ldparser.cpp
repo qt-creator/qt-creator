@@ -54,8 +54,12 @@ LdParser::LdParser()
     QTC_CHECK(m_regExpGccNames.isValid());
 }
 
-void LdParser::stdError(const QString &line)
+void LdParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
+    if (type != Utils::StdErrFormat) {
+        IOutputParser::handleLine(line, type);
+        return;
+    }
     QString lne = rightTrimmed(line);
     if (!lne.isEmpty() && !lne.at(0).isSpace() && !m_incompleteTask.isNull())
         flush();
@@ -63,7 +67,7 @@ void LdParser::stdError(const QString &line)
     if (lne.startsWith(QLatin1String("TeamBuilder "))
             || lne.startsWith(QLatin1String("distcc["))
             || lne.contains(QLatin1String("ar: creating "))) {
-        IOutputParser::stdError(line);
+        IOutputParser::handleLine(line, Utils::StdErrFormat);
         return;
     }
 
@@ -137,7 +141,7 @@ void LdParser::stdError(const QString &line)
         return;
     }
 
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, Utils::StdErrFormat);
 }
 
 void LdParser::doFlush()

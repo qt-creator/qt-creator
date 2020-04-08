@@ -36,6 +36,14 @@ OsParser::OsParser()
     setObjectName(QLatin1String("OsParser"));
 }
 
+void OsParser::handleLine(const QString &line, Utils::OutputFormat type)
+{
+    if (type == Utils::StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
+}
+
 void OsParser::stdError(const QString &line)
 {
     if (Utils::HostOsInfo::isLinuxHost()) {
@@ -43,7 +51,7 @@ void OsParser::stdError(const QString &line)
         if (trimmed.contains(QLatin1String(": error while loading shared libraries:")))
             emit addTask(CompileTask(Task::Error, trimmed));
     }
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, Utils::StdErrFormat);
 }
 
 void OsParser::stdOutput(const QString &line)
@@ -57,7 +65,7 @@ void OsParser::stdOutput(const QString &line)
             m_hasFatalError = true;
         }
     }
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, Utils::StdOutFormat);
 }
 
 bool OsParser::hasFatalErrors() const

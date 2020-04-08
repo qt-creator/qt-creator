@@ -36,18 +36,6 @@ JavaParser::JavaParser() :
   m_javaRegExp(QLatin1String("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$"))
 { }
 
-void JavaParser::stdOutput(const QString &line)
-{
-    parse(line);
-    IOutputParser::stdOutput(line);
-}
-
-void JavaParser::stdError(const QString &line)
-{
-    parse(line);
-    IOutputParser::stdError(line);
-}
-
 void JavaParser::setProjectFileList(const QStringList &fileList)
 {
     m_fileList = fileList;
@@ -61,6 +49,12 @@ void JavaParser::setBuildDirectory(const Utils::FilePath &buildDirectory)
 void JavaParser::setSourceDirectory(const Utils::FilePath &sourceDirectory)
 {
     m_sourceDirectory = sourceDirectory;
+}
+
+void JavaParser::handleLine(const QString &line, Utils::OutputFormat type)
+{
+    parse(line);
+    IOutputParser::handleLine(line, type);
 }
 
 void JavaParser::parse(const QString &line)

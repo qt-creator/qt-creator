@@ -87,9 +87,17 @@ void SdccParser::amendDescription(const QString &desc)
     ++m_lines;
 }
 
+void SdccParser::handleLine(const QString &line, OutputFormat type)
+{
+    if (type == StdOutFormat)
+        stdOutput(line);
+    else
+        stdError(line);
+}
+
 void SdccParser::stdError(const QString &line)
 {
-    IOutputParser::stdError(line);
+    IOutputParser::handleLine(line, StdErrFormat);
 
     const QString lne = rightTrimmed(line);
 
@@ -154,7 +162,7 @@ void SdccParser::stdError(const QString &line)
 
 void SdccParser::stdOutput(const QString &line)
 {
-    IOutputParser::stdOutput(line);
+    IOutputParser::handleLine(line, StdOutFormat);
 }
 
 void SdccParser::doFlush()

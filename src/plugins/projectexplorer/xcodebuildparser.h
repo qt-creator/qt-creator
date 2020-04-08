@@ -46,11 +46,13 @@ public:
 
     XcodebuildParser();
 
-    void stdOutput(const QString &line) override;
-    void stdError(const QString &line) override;
+private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
     bool hasFatalErrors() const override;
 
-private:
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
+
     int m_fatalErrorCount = 0;
     QRegExp m_failureRe;
     QRegExp m_successRe;

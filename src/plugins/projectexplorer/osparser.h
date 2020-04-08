@@ -40,12 +40,13 @@ class PROJECTEXPLORER_EXPORT OsParser : public ProjectExplorer::IOutputParser
 public:
     OsParser();
 
-    void stdError(const QString &line) override;
-    void stdOutput(const QString &line) override;
-
+private:
+    void handleLine(const QString &line, Utils::OutputFormat type) override;
     bool hasFatalErrors() const override;
 
-private:
+    void stdError(const QString &line);
+    void stdOutput(const QString &line);
+
     bool m_hasFatalError = false;
 };
 
