@@ -33,13 +33,6 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QTextEdit" name="textEdit">
-       <property name="tabChangesFocus">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="authorLabel">
        <property name="text">
@@ -64,7 +57,6 @@
  <tabstops>
   <tabstop>titleEdit</tabstop>
   <tabstop>authorEdit</tabstop>
-  <tabstop>textEdit</tabstop>
  </tabstops>
  <resources/>
  <connections/>
