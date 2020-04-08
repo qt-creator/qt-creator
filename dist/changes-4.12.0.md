@@ -104,6 +104,7 @@ Projects
 
 ### Qbs
 
+* Updated included Qbs version to 1.16.0
 * Changed to use separate Qbs executable instead of direcly linking to Qbs (QTCREATORBUG-20622)
 * Added option for default install root (QTCREATORBUG-12983)
 
@@ -139,6 +140,7 @@ Analyzer
 ### Clang
 
 * Improved filtering
+* Added `Analyze Current File` to `Tools` menu and editor context menu
 * Added context menu item that opens help on diagnostics
 
 ### CppCheck
@@ -161,6 +163,7 @@ Qt Quick Designer
 * Added locking and pinning of animation curves (QDS-550, QDS-551)
 * Added support for annotations (QDS-39)
 * Fixed dragging of keyframes in curve editor (QDS-1405)
+* Fixed crash when selecting icon (QTCREATORBUG-23773)
 
 Version Control Systems
 -----------------------
@@ -181,6 +184,7 @@ Test Integration
 ### Google Test
 
 * Added support for internal logging (QTCREATORBUG-23354)
+* Added support for `GTEST_SKIP` (QTCREATORBUG-23736)
 
 Platforms
 ---------
@@ -198,10 +202,13 @@ Platforms
 
 ### Android
 
+* Discontinued support for Ministro
 * Added auto-detection of Java JDK (QTCREATORBUG-23407)
 * Added option to automatically download and install required Android tools (QTCREATORBUG-23285)
 * Added option to register multiple NDKs (QTCREATORBUG-23286)
 * Added automatic selection of correct NDK for Qt version (QTCREATORBUG-23583)
+* Added option to download and use [OpenSSL for Android](https://github.com/KDAB/android_openssl)
+  (QTBUG-80625)
 * Added support for Android 11 with API level 30
 * Improved examples browser to only show items tagged with `android` (QTBUG-80716)
 * Improved manifest editor (QTCREATORBUG-23283)
@@ -221,6 +228,10 @@ Platforms
 * Added support for RL78 architecture
 * Added support for J-Link and EBlink GDB servers
 * Added support for KEIL uVision v5.x debugger
+
+### MCU
+
+* Added auto-registration of documentation (UL-1685)
 
 Credits for these changes go to:
 --------------------------------
@@ -243,6 +254,7 @@ Eike Ziller
 Fawzi Mohamed  
 Federico Guerinoni  
 Filippo Cucchetto  
+Friedemann Kleint  
 Halfdan Ingvarsson  
 Hannes Domani  
 Henning Gruendl  
@@ -266,6 +278,7 @@ Nikolai Kosjar
 Nikolay Panov  
 Oliver Wolff  
 Orgad Shaneh  
+Richard Weickelt  
 Robert Löhning  
 Sergey Morozov  
 Tasuku Suzuki  
@@ -276,6 +289,8 @@ Tim Jenssen
 Tobias Hunger  
 Topi Reinio  
 Ulf Hermann  
+Unseon Ryu  
+Venugopal Shivashankar  
 Vikas Pachdha  
 Ville Voutilainen  
 Volodymyr Samokhatko  

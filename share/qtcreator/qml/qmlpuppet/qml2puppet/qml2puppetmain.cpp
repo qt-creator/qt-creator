@@ -32,6 +32,7 @@
 #include <iostream>
 
 #include <qt5nodeinstanceclientproxy.h>
+#include "iconrenderer/iconrenderer.h"
 
 #include <QQmlComponent>
 #include <QQmlEngine>
@@ -52,11 +53,13 @@ int internalMain(QGuiApplication *application)
     QCoreApplication::setApplicationVersion("1.0.0");
 
     if (application->arguments().count() < 2
-            || (application->arguments().at(1) == "--readcapturedstream" && application->arguments().count() < 3)) {
+            || (application->arguments().at(1) == "--readcapturedstream" && application->arguments().count() < 3)
+            || (application->arguments().at(1) == "--rendericon" && application->arguments().count() < 5)) {
         qDebug() << "Usage:\n";
         qDebug() << "--test";
         qDebug() << "--version";
         qDebug() << "--readcapturedstream <stream file> [control stream file]";
+        qDebug() << "--rendericon <icon size> <icon file name> <icon source qml>";
 
         return -1;
     }
@@ -108,7 +111,16 @@ int internalMain(QGuiApplication *application)
         return -1;
     }
 
+    if (application->arguments().at(1) == "--rendericon") {
+        int size = application->arguments().at(2).toInt();
+        QString iconFileName = application->arguments().at(3);
+        QString iconSource = application->arguments().at(4);
 
+        IconRenderer *iconRenderer = new IconRenderer(size, iconFileName, iconSource);
+        iconRenderer->setupRender();
+
+        return application->exec();
+    }
 
 #ifdef ENABLE_QT_BREAKPAD
     const QString libexecPath = QCoreApplication::applicationDirPath() + '/' + RELATIVE_LIBEXEC_PATH;

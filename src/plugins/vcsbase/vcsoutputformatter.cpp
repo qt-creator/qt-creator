@@ -38,7 +38,7 @@ VcsOutputFormatter::VcsOutputFormatter() :
     m_regexp(
         "(https?://\\S*)"                             // https://codereview.org/c/1234
         "|(v[0-9]+\\.[0-9]+\\.[0-9]+[\\-A-Za-z0-9]*)" // v0.1.2-beta3
-        "|([0-9a-f]{6,}(?:\\.\\.[0-9a-f]{6,}"         // 789acf or 123abc..456cde
+        "|([0-9a-f]{6,}(?:\\.{2,3}[0-9a-f]{6,}"       // 789acf or 123abc..456cde
         "|\\^+|~\\d+)?)")                             // or 789acf^ or 123abc~99
 {
 }

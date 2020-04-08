@@ -50,13 +50,14 @@ Item {
     }
 
     ActionIndicator {
-        anchors.left: grid.right
+        anchors.right: grid.left
         anchors.leftMargin: grid.spacing
 
         visible: originControl.enabled
         icon.color: extFuncLogic.color
         icon.text: extFuncLogic.glyph
         onClicked: extFuncLogic.show()
+        forceVisible: true
     }
 
     ColorLogic {
@@ -71,6 +72,7 @@ Item {
     }
 
     Grid {
+        x: StudioTheme.Values.squareComponentWidth
         opacity: originControl.enabled ? 1 : 0.5
         rows: 3
         columns: 3

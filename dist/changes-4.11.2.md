@@ -33,6 +33,18 @@ Projects
 
 * Fixed wrong default project for adding files via wizards (QTCREATORBUG-23603)
 
+Debugging
+---------
+
+### CDB
+
+* Fixed startup if `_NT_DEBUGGER_EXTENSION_PATH` is set
+
+Test Integration
+----------------
+
+* Fixed debugging of Qt Quick tests (QTCREATORBUG-23709)
+
 Platforms
 ---------
 
@@ -46,8 +58,10 @@ Credits for these changes go to:
 André Pönitz  
 Andy Shaw  
 Christian Kandeler  
+Christian Stenger  
 David Schulz  
 Eike Ziller  
+Kai Köhne  
 Leena Miettinen  
 Orgad Shaneh  
 Richard Weickelt  

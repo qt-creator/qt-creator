@@ -93,8 +93,9 @@
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
-    too big, select \uicontrol {Tools > Options > Analyzer} and define the
-    length of the stack trace in the \uicontrol {Backtrace frame count} field.
+    too big, select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer
+    and define the length of the stack trace in the
+    \uicontrol {Backtrace frame count} field.
 
     \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
 
@@ -137,7 +138,6 @@
     {Suppressing Errors} in the Valgrind documentation.
 
 */
-
 
 /*!
     \contentspage index.html
@@ -221,8 +221,9 @@
     separately for each project in the \l{Specifying Run Settings}{run settings}
     of the project.
 
-    To specify settings for Valgrind, select \uicontrol {Tools > Options >
-    Analyzer}. The \uicontrol {Profiling Options} group contains Callgrind options.
+    To specify settings for Valgrind, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Analyzer. The \uicontrol {Profiling Options}
+    group contains Callgrind options.
 
     \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
 
@@ -268,7 +269,6 @@
     \endlist
 
 */
-
 
 /*!
     \contentspage index.html

@@ -27,6 +27,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QVersionNumber>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
 
@@ -168,6 +169,9 @@ public:
     ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
     void populatePackagesAndTargets();
     static void registerQchFiles();
+    static void registerExamples();
+
+    static const QVersionNumber &supportedQulVersion();
 
 private:
     void deletePackagesAndTargets();

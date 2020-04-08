@@ -91,7 +91,6 @@ def main():
             clickButton(waitForObject(":Qt Creator.CloseFind_QToolButton"))
             test.verify(checkIfObjectExists(":*Qt Creator.Find_Find::Internal::FindToolBar", False),
                         "Verifying if: Find/Replace tab is closed.")
-            invokeMenuItem("File", "Close All")
-            clickButton(waitForObject(":Save Changes.Do not Save_QPushButton"))
             invokeMenuItem("File", "Exit")
+            clickButton(waitForObject(":Save Changes.Do not Save_QPushButton"))
             waitForCleanShutdown()

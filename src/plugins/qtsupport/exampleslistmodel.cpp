@@ -107,6 +107,7 @@ ExampleSetModel::ExampleSetModel()
                        << ", examplesPath=" << set.examplesPath;
         }
     }
+    m_extraExampleSets += pluginRegisteredExampleSets();
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsLoaded,
             this, &ExampleSetModel::qtVersionManagerLoaded);

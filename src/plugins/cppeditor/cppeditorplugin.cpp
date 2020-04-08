@@ -174,6 +174,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     Context context(Constants::CPPEDITOR_ID);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
+    contextMenu->insertGroup(Core::Constants::G_DEFAULT_ONE, Constants::G_CONTEXT_FIRST);
 
     Command *cmd;
     ActionContainer *cppToolsMenu = ActionManager::actionContainer(CppTools::Constants::M_TOOLS_CPP);
@@ -181,12 +182,12 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     cmd = ActionManager::command(CppTools::Constants::SWITCH_HEADER_SOURCE);
     cmd->setTouchBarText(tr("Header/Source", "text on macOS touch bar"));
-    contextMenu->addAction(cmd);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
     cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     cmd->setTouchBarText(tr("Follow", "text on macOS touch bar"));
-    contextMenu->addAction(cmd);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
@@ -204,7 +205,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd->setTouchBarText(tr("Decl/Def", "text on macOS touch bar"));
     connect(switchDeclarationDefinition, &QAction::triggered,
             this, &CppEditorPlugin::switchDeclarationDefinition);
-    contextMenu->addAction(cmd);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
@@ -223,21 +224,21 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addAction(cmd);
 
     cmd = ActionManager::command(TextEditor::Constants::FIND_USAGES);
-    contextMenu->addAction(cmd);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
 
     d->m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
     cmd = ActionManager::registerAction(d->m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+T") : tr("Ctrl+Shift+T")));
     connect(d->m_openTypeHierarchyAction, &QAction::triggered, this, &CppEditorPlugin::openTypeHierarchy);
-    contextMenu->addAction(cmd);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
 
     d->m_openIncludeHierarchyAction = new QAction(tr("Open Include Hierarchy"), this);
     cmd = ActionManager::registerAction(d->m_openIncludeHierarchyAction, Constants::OPEN_INCLUDE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+I") : tr("Ctrl+Shift+I")));
     connect(d->m_openIncludeHierarchyAction, &QAction::triggered, this, &CppEditorPlugin::openIncludeHierarchy);
-    contextMenu->addAction(cmd);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
 
     // Refactoring sub-menu
@@ -256,19 +257,19 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addAction(cmd);
 
     // Update context in global context
-    cppToolsMenu->addSeparator();
+    cppToolsMenu->addSeparator(Core::Constants::G_DEFAULT_THREE);
     d->m_reparseExternallyChangedFiles = new QAction(tr("Reparse Externally Changed Files"), this);
     cmd = ActionManager::registerAction(d->m_reparseExternallyChangedFiles, Constants::UPDATE_CODEMODEL);
     CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
     connect(d->m_reparseExternallyChangedFiles, &QAction::triggered, cppModelManager, &CppTools::CppModelManager::updateModifiedSourceFiles);
-    cppToolsMenu->addAction(cmd);
+    cppToolsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
-    cppToolsMenu->addSeparator();
+    cppToolsMenu->addSeparator(Core::Constants::G_DEFAULT_THREE);
     QAction *inspectCppCodeModel = new QAction(tr("Inspect C++ Code Model..."), this);
     cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
     connect(inspectCppCodeModel, &QAction::triggered, d, &CppEditorPluginPrivate::inspectCppCodeModel);
-    cppToolsMenu->addAction(cmd);
+    cppToolsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     contextMenu->addSeparator(context);
 

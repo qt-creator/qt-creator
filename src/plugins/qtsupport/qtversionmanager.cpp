@@ -25,10 +25,11 @@
 
 #include "qtversionmanager.h"
 
-#include "qtkitinformation.h"
-#include "qtversionfactory.h"
 #include "baseqtversion.h"
+#include "exampleslistmodel.h"
+#include "qtkitinformation.h"
 #include "qtsupportconstants.h"
+#include "qtversionfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -77,6 +78,7 @@ static QtVersionManager *m_instance = nullptr;
 static FileSystemWatcher *m_configFileWatcher = nullptr;
 static QTimer *m_fileWatcherTimer = nullptr;
 static PersistentSettingsWriter *m_writer = nullptr;
+static QVector<ExampleSetModel::ExtraExampleSet> m_pluginRegisteredExampleSets;
 
 static Q_LOGGING_CATEGORY(log, "qtc.qt.versions", QtWarningMsg);
 
@@ -99,6 +101,11 @@ bool qtVersionNumberCompare(BaseQtVersion *a, BaseQtVersion *b)
 static bool restoreQtVersions();
 static void findSystemQt();
 static void saveQtVersions();
+
+QVector<ExampleSetModel::ExtraExampleSet> ExampleSetModel::pluginRegisteredExampleSets()
+{
+    return m_pluginRegisteredExampleSets;
+}
 
 // --------------------------------------------------------------------------
 // QtVersionManager
@@ -469,6 +476,13 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
     emit m_instance->qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
     saveQtVersions();
     delete version;
+}
+
+void QtVersionManager::registerExampleSet(const QString &displayName,
+                                          const QString &manifestPath,
+                                          const QString &examplesPath)
+{
+    m_pluginRegisteredExampleSets.append({displayName, manifestPath, examplesPath});
 }
 
 using Path = QString;

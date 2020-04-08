@@ -67,6 +67,8 @@ void Qt5NodeInstanceServer::initializeView()
     QSurfaceFormat surfaceFormat = m_quickView->requestedFormat();
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(surfaceFormat);
+
     m_quickView->setFormat(surfaceFormat);
 
     DesignerSupport::createOpenGLContext(m_quickView.data());

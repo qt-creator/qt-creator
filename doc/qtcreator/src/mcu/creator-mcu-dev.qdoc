@@ -47,22 +47,11 @@
     Linux, and macOS. However, the Qt for MCU SDK is currently only available
     for Windows.
 
-    The following MCU boards are currently supported:
-
-    \list
-        \li \l{https://www.st.com/en/evaluation-tools/stm32f7508-dk.html}
-            {STM32F7508-DK}
-        \li \l{https://www.st.com/en/evaluation-tools/32f769idiscovery.html}
-            {STM32F769I-DISCO}
-        \li \l{https://www.nxp.com/design/development-boards/i.mx-evaluation-and-development-boards/i.mx-rt1050-evaluation-kit:MIMXRT1050-EVK}
-            {NXP i.MX RT1050 EVK}
-    \endlist
-
-    For a list of Qt for MCU reference implementations, see the Qt for MCU
-    documentation.
+    For a list of Qt for MCU reference implementations, see the
+    \l{Qt for MCUs - Supported Target Platforms}{Qt for MCUs} documentation.
 
     You use the \l{Connecting Bare Metal Devices}{Bare metal plugin} to connect
-    to OpenOCD or ST-LINK Utility for debugging on MCUs.
+    to a debug server provider for debugging on MCUs.
 
     \section1 Requirements
 
@@ -73,25 +62,18 @@
         \li The Bare Metal plugin
         \li \l{https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm}
             {GNU ARM Embedded Toolchain}
-        \li For STM32 boards:
-        \list
-            \li \l{https://www.st.com/en/embedded-software/stm32cubef7.html}
-                {STM32Cube SDK}
-            \li \l{https://www.st.com/en/development-tools/stm32cubeprog.html}
-                {STM32Cube Programmer}
-        \endlist
-        \li For NXP boards:
-        \list
-            \li \l{https://www.nxp.com/design/development-boards/i.mx-evaluation-and-development-boards/i.mx-rt1050-evaluation-kit:MIMXRT1050-EVK}
-                {NXP EVKB-IMXRT 1050 SDK}
-            \li \l{https://www.segger.com/downloads/jlink}{SEGGER JLink}
-        \endlist
+        \li The hardware specific requirements vary depending on the hardware platform you are developing for.
+            For more information see:
+            \list
+                \li \l{Getting Started on NXP}
+                \li \l{Getting Started on STM}
+             \endlist
     \endlist
 
     \section1 Setting Up the Development Environment
 
     You must download and install the required software and create connections
-    between \QC and MCUs.
+    between \QC and MCUs. For more information, see \l{Getting Started on Windows}.
 
     \section2 Enabling Bare Metal and MCU Plugins
 
@@ -117,7 +99,10 @@
     \image qtcreator-mcu-options.png "MCU options"
 
     \list 1
-        \li In the \uicontrol {MCU board} field, select your MCU board.
+        \li In the \uicontrol {Qt for MCUs SDK} field, specify the path
+            to the directory where you installed Qt for MCUs SDK.
+        \li In the \uicontrol {Targets supported by the Qt for MCUs SDK}
+            field, select your MCU board.
         \li In the \uicontrol {GNU ARM Embedded Toolchain} field,
             specify the path to the directory where you installed the
             tool chain.
@@ -137,8 +122,6 @@
                 \li In the \uicontrol {SEGGER JLink} field, specify the
                     path to the directory where you installed the tool.
             \endlist
-        \li In the \uicontrol {Qt MCU SDK} field, specify the path to the
-            directory where you installed Qt MCU.
         \li Select \uicontrol Apply to save the settings and to generate
             a MCU device and kit.
     \endlist
@@ -193,8 +176,8 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {MCU Support Application} >
-            \uicontrol Choose.
+            \uicontrol {Application (Qt Quick)} >
+            \uicontrol {MCU Support Application} > \uicontrol Choose.
         \li Follow the instructions of the wizard to create the project.
         \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
             select the kit for building the application and running it on the

@@ -367,11 +367,18 @@ void QmlObjectNode::destroy()
         stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
     }
 
-    for (const ModelNode &timelineNode : view()->allModelNodes()) {
-        if (QmlTimeline::isValidQmlTimeline(timelineNode)) {
-            QmlTimeline timeline(timelineNode);
-            timeline.destroyKeyframesForTarget(modelNode());
-        }
+    QVector<ModelNode> timelineNodes;
+    const auto allNodes = view()->allModelNodes();
+    for (const auto &timelineNode : allNodes) {
+        if (QmlTimeline::isValidQmlTimeline(timelineNode))
+            timelineNodes.append(timelineNode);
+    }
+
+    const auto subNodes = modelNode().allSubModelNodesAndThisNode();
+    for (auto &timelineNode : qAsConst(timelineNodes)) {
+        QmlTimeline timeline(timelineNode);
+        for (const auto &subNode : subNodes)
+            timeline.destroyKeyframesForTarget(subNode);
     }
 
     if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(modelNode()))

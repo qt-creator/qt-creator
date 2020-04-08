@@ -185,6 +185,8 @@ public:
     void removeImport(const Import &import);
     void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importToBeRemoved);
     void notifyImportsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
+    void notifyPossibleImportsChanged(const QList<Import> &possibleImports);
+    void notifyUsedImportsChanged(const QList<Import> &usedImportsChanged);
 
 
     //node state property manipulation

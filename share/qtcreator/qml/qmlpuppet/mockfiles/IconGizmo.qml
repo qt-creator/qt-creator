@@ -25,7 +25,6 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
-import QtGraphicalEffects 1.12
 
 Item {
     id: iconGizmo
@@ -45,7 +44,6 @@ Item {
     }
 
     property alias iconSource: iconImage.source
-    //property alias overlayColor: colorOverlay.color
 
     signal positionCommit()
     signal clicked(Node node, bool multi)
@@ -91,15 +89,6 @@ Item {
                     acceptedButtons: Qt.LeftButton
                 }
             }
-// ColorOverlay doesn't work correctly with hidden windows so commenting it out for now
-//            ColorOverlay {
-//                id: colorOverlay
-//                anchors.fill: parent
-//                cached: true
-//                source: iconImage
-//                color: "#00000000"
-//                opacity: 0.6
-//            }
         }
     }
 }

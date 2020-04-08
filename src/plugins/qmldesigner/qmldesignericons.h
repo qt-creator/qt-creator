@@ -48,33 +48,37 @@ const Utils::Icon NO_SNAPPING_AND_ANCHORING({
         {QLatin1String(":/icon/layout/snapping_and_anchoring.png"), Utils::Theme::IconsBaseColor}});
 
 const Utils::Icon EDIT3D_LIGHT_ON({
-        {QLatin1String(":/edit3d/images/edit_light_on.png"), Utils::Theme::IconsBaseColor}});
+        {QLatin1String(":/edit3d/images/edit_light_on.png"), Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_LIGHT_OFF({
         {QLatin1String(":/edit3d/images/edit_light_off.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_GRID_ON({
+        {QLatin1String(":/edit3d/images/grid_on.png"), Utils::Theme::QmlDesigner_HighlightColor}});
+const Utils::Icon EDIT3D_GRID_OFF({
+        {QLatin1String(":/edit3d/images/grid_off.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_SELECTION_MODE_ON({
-        {QLatin1String(":/edit3d/images/select_group.png"), Utils::Theme::IconsBaseColor}});
+        {QLatin1String(":/edit3d/images/select_group.png"), Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_SELECTION_MODE_OFF({
         {QLatin1String(":/edit3d/images/select_item.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_MOVE_TOOL_ON({
-        {QLatin1String(":/edit3d/images/move_on.png"), Utils::Theme::IconsBaseColor}});
+        {QLatin1String(":/edit3d/images/move_on.png"), Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_MOVE_TOOL_OFF({
         {QLatin1String(":/edit3d/images/move_off.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_ROTATE_TOOL_ON({
-        {QLatin1String(":/edit3d/images/rotate_on.png"), Utils::Theme::IconsBaseColor}});
+        {QLatin1String(":/edit3d/images/rotate_on.png"), Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_ROTATE_TOOL_OFF({
         {QLatin1String(":/edit3d/images/rotate_off.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_SCALE_TOOL_ON({
-        {QLatin1String(":/edit3d/images/scale_on.png"), Utils::Theme::IconsBaseColor}});
+        {QLatin1String(":/edit3d/images/scale_on.png"), Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_SCALE_TOOL_OFF({
         {QLatin1String(":/edit3d/images/scale_off.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_FIT_SELECTED_OFF({
         {QLatin1String(":/edit3d/images/fit_selected.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_EDIT_CAMERA_ON({
-        {QLatin1String(":/edit3d/images/perspective_camera.png"), Utils::Theme::IconsBaseColor}});
+        {QLatin1String(":/edit3d/images/perspective_camera.png"), Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_EDIT_CAMERA_OFF({
         {QLatin1String(":/edit3d/images/orthographic_camera.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_ORIENTATION_ON({
-        {QLatin1String(":/edit3d/images/global.png"), Utils::Theme::IconsBaseColor}});
+        {QLatin1String(":/edit3d/images/global.png"), Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_ORIENTATION_OFF({
         {QLatin1String(":/edit3d/images/local.png"), Utils::Theme::IconsBaseColor}});
 

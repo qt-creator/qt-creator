@@ -124,7 +124,8 @@
 
         \li In the \uicontrol Projects view, right-click the project name to open the
             context menu and select
-            \uicontrol {Add Library > Internal Library > Next}.
+            \uicontrol {Add Library} > \uicontrol {Internal Library} >
+            \uicontrol Next.
 
         \li In the \uicontrol Library field, select \b mylib and click \uicontrol Next.
 

@@ -14,6 +14,9 @@ the doc folder:
 - qtcreatordev
 - qtdesignstudio
 
+For more information, see:
+[Writing Documentation](https://doc.qt.io/qtcreator-extending/qtcreator-documentation.html)
+
 The Qt Design Studio Manual is based on the Qt Creator Manual, with
 additional topics. For more information, see the `README` file in the
 qtdesignstudio subfolder.
@@ -21,16 +24,20 @@ qtdesignstudio subfolder.
 The Extending Qt Creator Manual has its own sources. In addition, it
 pulls in API reference documentation from the Qt Creator source files.
 
-# QDoc Warnings
+# QDoc
 
 All the documents are built when you enter `make docs` on Linux or
-macOS or `nmake docs` on Windows. At the time of this writing, this
-leads to QDoc warnings being generated, because the Qt Creator Manual
-requires QDoc from Qt 5.14 or later (it links to new modules), whereas
-the Extending Qt Creator Manual requires QDoc from Qt 5.10 or earlier,
-because the doc configuration is not supported when using the Clang
-parser.
+macOS or `nmake docs` on Windows.
 
-To hide the doc errors and make doc builds faster, enter an option
-to write the doc errors to the log. For example, on Windows enter
-`nmake docs 2> log.txt`.
+Since Qt Creator 4.12, you need to use QDoc Qt 5.14 or later to build
+the docs. While building with QDoc from Qt 5.11 or later technically
+works, the Qt Creator Manual and Qt Design Studio Manual link to newer
+Qt modules, which means link errors will be printed.
+
+Please make the docs before submitting code changes to make sure that
+you do not introduce new QDoc warnings.
+
+While working on changes that introduce lots of warnings about missing API
+documentation, for example, you can enter an option to write the doc
+errors to the log. This helps make doc builds faster until you have
+fixed the errors. For example, on Windows enter `nmake docs 2> log.txt`.

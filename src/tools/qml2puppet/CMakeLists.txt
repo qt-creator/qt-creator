@@ -118,6 +118,13 @@ extend_qtc_executable(qml2puppet
     gridgeometry.cpp gridgeometry.h
     selectionboxgeometry.cpp selectionboxgeometry.h
     linegeometry.cpp linegeometry.h
+    icongizmoimageprovider.cpp icongizmoimageprovider.h
+)
+
+extend_qtc_executable(qml2puppet
+  SOURCES_PREFIX "${SRCDIR}/qml2puppet/iconrenderer"
+  SOURCES
+    iconrenderer.cpp iconrenderer.h
 )
 
 extend_qtc_executable(qml2puppet

@@ -50,7 +50,7 @@ QRectF bbox(const QRectF &rect, const QTransform &transform);
 QPalette singleColorPalette(const QColor &color);
 
 template<typename T>
-inline void freeClear(std::vector<T *> &vec)
+inline void freeClear(T &vec)
 {
     for (auto *&el : vec)
         delete el;

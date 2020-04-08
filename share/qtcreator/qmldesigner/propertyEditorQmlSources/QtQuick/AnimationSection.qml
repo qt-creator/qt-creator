@@ -37,7 +37,7 @@ Section {
     SectionLayout {
         Label {
             text: qsTr("Running")
-            tooltip: qsTr("Sets whether the animation should run to completion when it is stopped.")
+            tooltip: qsTr("Sets whether the animation is currently running.")
         }
 
         CheckBox {

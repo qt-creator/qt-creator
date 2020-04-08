@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 import QtQuick 2.12
-import QtQuick.Window 2.12
 import QtQuick3D 1.15
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
@@ -40,10 +39,17 @@ Item {
     property View3D editView: null
     property string sceneId
 
-    property alias showEditLight: btnEditViewLight.toggled
-    property alias usePerspective: btnPerspective.toggled
-    property alias globalOrientation: btnLocalGlobal.toggled
+    property bool showEditLight: false
+    property bool showGrid: true
+    property bool usePerspective: true
+    property bool globalOrientation: false
     property alias contentItem: contentItem
+
+    enum SelectionMode { Item, Group }
+    enum TransformMode { Move, Rotate, Scale }
+
+    property int selectionMode: EditView3D.SelectionMode.Item
+    property int transformMode: EditView3D.TransformMode.Move
 
     property Node selectedNode: null // This is non-null only in single selection case
     property var selectedNodes: [] // All selected nodes
@@ -53,16 +59,18 @@ Item {
     property var selectionBoxes: []
     property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
 
-    property bool showButtons: false
-
     signal selectionChanged(var selectedNodes)
     signal commitObjectProperty(var object, var propName)
     signal changeObjectProperty(var object, var propName)
     signal notifyActiveSceneChange()
 
-    onUsePerspectiveChanged: _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
-    onShowEditLightChanged: _generalHelper.storeToolState(sceneId,"showEditLight", showEditLight)
+    onUsePerspectiveChanged:    _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
+    onShowEditLightChanged:     _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
     onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
+    onShowGridChanged:          _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
+    onSelectionModeChanged:     _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
+    onTransformModeChanged:     _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
+
     onActiveSceneChanged: updateActiveScene()
 
     function createEditView()
@@ -72,11 +80,13 @@ Item {
             editView = component.createObject(viewRect,
                                               {"usePerspective": usePerspective,
                                                "showSceneLight": showEditLight,
+                                               "showGrid": showGrid,
                                                "importScene": activeScene,
                                                "cameraZoomFactor": cameraControl._zoomFactor,
                                                "z": 1});
             editView.usePerspective = Qt.binding(function() {return usePerspective;});
             editView.showSceneLight = Qt.binding(function() {return showEditLight;});
+            editView.showGrid = Qt.binding(function() {return showGrid;});
             editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
             selectionBoxes.length = 0;
@@ -148,41 +158,31 @@ Item {
             showEditLight = toolStates.showEditLight;
         else if (resetToDefault)
             showEditLight = false;
+
+        if ("showGrid" in toolStates)
+            showGrid = toolStates.showGrid;
+        else if (resetToDefault)
+            showGrid = true;
+
         if ("usePerspective" in toolStates)
             usePerspective = toolStates.usePerspective;
         else if (resetToDefault)
-            usePerspective = false;
+            usePerspective = true;
+
         if ("globalOrientation" in toolStates)
             globalOrientation = toolStates.globalOrientation;
         else if (resetToDefault)
             globalOrientation = false;
 
-        var groupIndex;
-        var group;
-        var i;
+        if ("selectionMode" in toolStates)
+            selectionMode = toolStates.selectionMode;
+        else if (resetToDefault)
+            selectionMode = EditView3D.SelectionMode.Item;
 
-        if ("groupSelect" in toolStates) {
-            groupIndex = toolStates.groupSelect;
-            group = toolbarButtons.buttonGroups["groupSelect"];
-            for (i = 0; i < group.length; ++i)
-                group[i].selected = (i === groupIndex);
-            _generalHelper.storeToolState(sceneId, "groupSelect", groupIndex)
-        } else if (resetToDefault) {
-            btnSelectItem.selected = true;
-            btnSelectGroup.selected = false;
-        }
-
-        if ("groupTransform" in toolStates) {
-            groupIndex = toolStates.groupTransform;
-            group = toolbarButtons.buttonGroups["groupTransform"];
-            for (i = 0; i < group.length; ++i)
-                group[i].selected = (i === groupIndex);
-            _generalHelper.storeToolState(sceneId, "groupTransform", groupIndex)
-        } else if (resetToDefault) {
-            btnRotate.selected = false;
-            btnScale.selected = false;
-            btnMove.selected = true;
-        }
+        if ("transformMode" in toolStates)
+            transformMode = toolStates.transformMode;
+        else if (resetToDefault)
+            selectionMode = EditView3D.TransformMode.Move;
 
         if ("editCamState" in toolStates)
             cameraControl.restoreCameraState(toolStates.editCamState);
@@ -193,25 +193,11 @@ Item {
     function storeCurrentToolStates()
     {
         _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
+        _generalHelper.storeToolState(sceneId, "showGrid", showGrid)
         _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
         _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
-
-        var group = toolbarButtons.buttonGroups["groupSelect"];
-        var i;
-        for (i = 0; i < group.length; ++i) {
-            if (group[i].selected) {
-                _generalHelper.storeToolState(sceneId, "groupSelect", i)
-                break;
-            }
-        }
-
-        group = toolbarButtons.buttonGroups["groupTransform"];
-        for (i = 0; i < group.length; ++i) {
-            if (group[i].selected) {
-                _generalHelper.storeToolState(sceneId, "groupTransform", i)
-                break;
-            }
-        }
+        _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
+        _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
 
         cameraControl.storeCameraState(0);
     }
@@ -259,7 +245,7 @@ Item {
     function handleObjectClicked(object, multi)
     {
         var theObject = object;
-        if (btnSelectGroup.selected) {
+        if (selectionMode === EditView3D.SelectionMode.Group) {
             while (theObject && theObject !== activeScene && theObject.parent !== activeScene)
                 theObject = theObject.parent;
         }
@@ -434,7 +420,7 @@ Item {
             highlightOnHover: true
             targetNode: viewRoot.selectedNode
             globalOrientation: viewRoot.globalOrientation
-            visible: viewRoot.selectedNode && btnMove.selected
+            visible: viewRoot.selectedNode && transformMode === EditView3D.TransformMode.Move
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
@@ -447,7 +433,7 @@ Item {
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
             highlightOnHover: true
             targetNode: viewRoot.selectedNode
-            visible: viewRoot.selectedNode && btnScale.selected
+            visible: viewRoot.selectedNode && transformMode === EditView3D.TransformMode.Scale
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
@@ -461,7 +447,7 @@ Item {
             highlightOnHover: true
             targetNode: viewRoot.selectedNode
             globalOrientation: viewRoot.globalOrientation
-            visible: viewRoot.selectedNode && btnRotate.selected
+            visible: viewRoot.selectedNode && transformMode === EditView3D.TransformMode.Rotate
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
@@ -522,7 +508,6 @@ Item {
         Rectangle {
             id: viewRect
             anchors.fill: parent
-            focus: true
 
             gradient: Gradient {
                 GradientStop { position: 1.0; color: "#222222" }
@@ -626,107 +611,6 @@ Item {
             }
         }
 
-        Rectangle { // toolbar
-            id: toolbar
-            color: "#9F000000"
-            width: 35
-            height: toolbarButtons.height
-            visible: viewRoot.showButtons
-
-            Column {
-                id: toolbarButtons
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 5
-                padding: 5
-
-                // Button groups must be defined in parent object of buttons
-                property var buttonGroups: {
-                    "groupSelect": [btnSelectGroup, btnSelectItem],
-                    "groupTransform": [btnMove, btnRotate, btnScale]
-                }
-
-                ToolBarButton {
-                    id: btnSelectItem
-                    selected: true
-                    tooltip: qsTr("Select Item")
-                    shortcut: "Q"
-                    currentShortcut: selected ? "" : shortcut
-                    tool: "item_selection"
-                    buttonGroup: "groupSelect"
-                    sceneId: viewRoot.sceneId
-                }
-
-                ToolBarButton {
-                    id: btnSelectGroup
-                    tooltip: qsTr("Select Group")
-                    shortcut: "Q"
-                    currentShortcut: btnSelectItem.currentShortcut === shortcut ? "" : shortcut
-                    tool: "group_selection"
-                    buttonGroup: "groupSelect"
-                    sceneId: viewRoot.sceneId
-                }
-
-                Rectangle { // separator
-                    width: 25
-                    height: 1
-                    color: "#f1f1f1"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-
-                ToolBarButton {
-                    id: btnMove
-                    selected: true
-                    tooltip: qsTr("Move current selection")
-                    shortcut: "W"
-                    currentShortcut: shortcut
-                    tool: "move"
-                    buttonGroup: "groupTransform"
-                    sceneId: viewRoot.sceneId
-                }
-
-                ToolBarButton {
-                    id: btnRotate
-                    tooltip: qsTr("Rotate current selection")
-                    shortcut: "E"
-                    currentShortcut: shortcut
-                    tool: "rotate"
-                    buttonGroup: "groupTransform"
-                    sceneId: viewRoot.sceneId
-                }
-
-                ToolBarButton {
-                    id: btnScale
-                    tooltip: qsTr("Scale current selection")
-                    shortcut: "R"
-                    currentShortcut: shortcut
-                    tool: "scale"
-                    buttonGroup: "groupTransform"
-                    sceneId: viewRoot.sceneId
-                }
-
-                Rectangle { // separator
-                    width: 25
-                    height: 1
-                    color: "#f1f1f1"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-
-                ToolBarButton {
-                    id: btnFit
-                    tooltip: qsTr("Fit camera to current selection")
-                    shortcut: "F"
-                    currentShortcut: shortcut
-                    tool: "fit"
-                    togglable: false
-
-                    onSelectedChanged: {
-                        if (selected)
-                            viewRoot.fitToView();
-                    }
-                }
-            }
-        }
-
         AxisHelper {
             anchors.right: parent.right
             anchors.top: parent.top
@@ -734,42 +618,6 @@ Item {
             height: width
             editCameraCtrl: cameraControl
             selectedNode : viewRoot.selectedNodes.length ? selectionBoxes[0].model : null
-        }
-
-        Rectangle { // top controls bar
-            color: "#aa000000"
-            width: 290
-            height: btnPerspective.height + 10
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.rightMargin: 100
-            visible: viewRoot.showButtons
-
-            Row {
-                padding: 5
-                anchors.fill: parent
-                ToggleButton {
-                    id: btnPerspective
-                    width: 105
-                    tooltip: qsTr("Toggle Perspective / Orthographic Projection")
-                    states: [{iconId: "ortho", text: qsTr("Orthographic")}, {iconId: "persp",  text: qsTr("Perspective")}]
-                }
-
-                ToggleButton {
-                    id: btnLocalGlobal
-                    width: 65
-                    tooltip: qsTr("Toggle Global / Local Orientation")
-                    states: [{iconId: "local",  text: qsTr("Local")}, {iconId: "global", text: qsTr("Global")}]
-                }
-
-                ToggleButton {
-                    id: btnEditViewLight
-                    width: 110
-                    toggleBackground: true
-                    tooltip: qsTr("Toggle Edit Light")
-                    states: [{iconId: "edit_light_off",  text: qsTr("Edit Light Off")}, {iconId: "edit_light_on", text: qsTr("Edit Light On")}]
-                }
-            }
         }
     }
 }

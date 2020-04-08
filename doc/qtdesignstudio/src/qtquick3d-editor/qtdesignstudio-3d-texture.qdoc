@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Design Studio.
@@ -35,6 +35,8 @@
 
     You can use the Texture 3D QML type to attach textures to materials.
     You specify an image and how it is mapped to meshes in a 3D scene.
+
+    \image studio-qtquick-3d-texture.png "Texture attached to a material in Design mode"
 
     \section1 Selecting the Mapping Method
 
@@ -108,4 +110,24 @@
 
     For more information about rotating and pivoting components in the local
     coordinate space, see \l {Setting Transform Properties}.
+
+    \section1 Applying Textures to Materials
+
+    You drag and drop an image from \uicontrol Library > \uicontrol Assets
+    on a material to create and set the texture automatically, or you can use
+    a Texture component.
+
+    To use Texture components to apply textures to materials:
+
+    \list 1
+        \li Drag and drop a Texture component from the \uicontrol Library to a
+            material component in the \uicontrol Navigator.
+        \li In the \uicontrol Properties view, specify the image to use in the
+            \uicontrol Source field.
+            \image studio-qtquick-3d-texture-properties.png "Texture properties"
+        \li Select the material component and specify the id of the texture to
+            use in the \uicontrol Properties view, \uicontrol {Diffuse map}
+            field.
+            \image studio-qtquick-3d-material-texture.png "Material properties"
+    \endlist
 */

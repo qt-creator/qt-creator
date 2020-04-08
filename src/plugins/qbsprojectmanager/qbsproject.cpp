@@ -540,10 +540,20 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     bool dataChanged = false;
     bool envChanged = m_lastParseEnv != m_qbsProjectParser->environment();
     m_lastParseEnv = m_qbsProjectParser->environment();
+    const bool isActiveBuildSystem = project()->activeTarget()
+            && project()->activeTarget()->buildSystem() == this;
     if (success) {
         const QJsonObject projectData = m_qbsProjectParser->session()->projectData();
         if (projectData != m_projectData) {
             m_projectData = projectData;
+            dataChanged = isActiveBuildSystem;
+        } else if (isActiveBuildSystem
+                   && (!project()->rootProjectNode() || static_cast<QbsProjectNode *>(
+                           project()->rootProjectNode())->projectData() != projectData)) {
+            // This is needed to trigger the necessary updates when switching targets.
+            // Nothing has changed on the BuildSystem side, but this build system's data now
+            // represents the project, so the data has changed from the overall project's
+            // point of view.
             dataChanged = true;
         }
     } else {

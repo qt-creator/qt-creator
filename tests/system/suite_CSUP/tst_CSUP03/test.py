@@ -83,7 +83,7 @@ def main():
                 continue
             if not startCreatorVerifyingClang(useClang):
                 continue
-            projectName = createNewNonQtProject(tempDir(), "project_csup03",
+            projectName = createNewNonQtProject(tempDir(), "project-csup03",
                                                 [Targets.DESKTOP_4_8_7_DEFAULT])
             checkCodeModelSettings(useClang)
             openDocument("%s.Sources.main\\.cpp" % projectName)
@@ -120,7 +120,5 @@ def main():
                 test.compare(modifiedCode, expectedCode, "Verifying whether code matches expected.")
                 # reverting to initial state of main.cpp
                 revertMainCpp()
-            snooze(1)   # "Close All" might be disabled
-            invokeMenuItem('File', 'Close All')
             invokeMenuItem('File', 'Exit')
             waitForCleanShutdown()

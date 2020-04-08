@@ -50,8 +50,8 @@
 
     To view all functions available in \QC and the keyboard shortcuts defined
     for them, select
-    \uicontrol {Tools > Options > Environment > Keyboard}. The shortcuts are listed by
-    category. To find a keyboard
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Keyboard. The shortcuts are listed by category. To find a keyboard
     shortcut in the list, enter a function name or shortcut in the \uicontrol Filter
     field.
 

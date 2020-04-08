@@ -111,6 +111,7 @@ class Dumper(DumperBase):
         self.runEngineAttempted = False
 
         self.executable_ = None
+        self.symbolFile_ = None
         self.startMode_ = None
         self.processArgs_ = None
         self.attachPid_ = None
@@ -857,6 +858,7 @@ class Dumper(DumperBase):
         self.remoteChannel_ = args.get('remotechannel', '')
         self.platform_ = args.get('platform', '')
         self.nativeMixed = int(args.get('nativemixed', 0))
+        self.symbolFile_ = args['symbolfile'];
         self.workingDirectory_ = args.get('workingdirectory', '')
         if self.workingDirectory_ == '':
             try:
@@ -878,8 +880,34 @@ class Dumper(DumperBase):
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
 
-        exefile = None if self.attachPid_ > 0 else self.executable_
-        self.target = self.debugger.CreateTarget(exefile, None, None, True, error)
+        self.target = self.debugger.CreateTarget(
+            self.symbolFile_, None, self.platform_, True, error)
+
+        if not error.Success():
+            self.report(self.describeError(error))
+            self.reportState('enginerunfailed')
+            return
+
+        if (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
+              or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
+
+
+            remote_channel = 'connect://' + self.remoteChannel_
+            connect_options = lldb.SBPlatformConnectOptions(remote_channel)
+
+            res = self.target.GetPlatform().ConnectRemote(connect_options)
+            DumperBase.warn("CONNECT: %s %s %s" % (res,
+                        self.target.GetPlatform().GetName(),
+                        self.target.GetPlatform().IsConnected()))
+
+
+        broadcaster = self.target.GetBroadcaster()
+        listener = self.debugger.GetListener()
+        broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
+        listener.StartListeningForEvents(broadcaster, lldb.SBProcess.eBroadcastBitStateChanged)
+        broadcaster.AddListener(listener, lldb.SBTarget.eBroadcastBitBreakpointChanged)
+        listener.StartListeningForEvents(
+            broadcaster, lldb.SBTarget.eBroadcastBitBreakpointChanged)
 
         if self.nativeMixed:
             self.interpreterEventBreakpoint = \
@@ -918,17 +946,29 @@ class Dumper(DumperBase):
                 self.reportState('enginerunandinferiorrunok')
         elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
               or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
-            self.process = self.target.ConnectRemote(
-                self.debugger.GetListener(),
-                self.remoteChannel_, None, error)
+
+            f = lldb.SBFileSpec()
+            f.SetFilename(self.executable_)
+
+            launchInfo = lldb.SBLaunchInfo(self.processArgs_)
+            #launchInfo.SetWorkingDirectory(self.workingDirectory_)
+            launchInfo.SetWorkingDirectory('/tmp')
+            launchInfo.SetExecutableFile(f, True)
+
+            DumperBase.warn("TARGET: %s" % self.target)
+            self.process = self.target.Launch(launchInfo, error)
+            DumperBase.warn("PROCESS: %s" % self.process)
+
             if not error.Success():
                 self.report(self.describeError(error))
                 self.reportState('enginerunfailed')
                 return
+
             # Even if it stops it seems that LLDB assumes it is running
             # and later detects that it did stop after all, so it is be
             # better to mirror that and wait for the spontaneous stop.
             self.reportState('enginerunandinferiorrunok')
+
         elif self.startMode_ == DebuggerStartMode.AttachCore:
             coreFile = args.get('coreFile', '')
             self.process = self.target.LoadCore(coreFile)
@@ -949,14 +989,6 @@ class Dumper(DumperBase):
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
             self.reportState('enginerunandinferiorrunok')
-        if self.target is not None:
-            broadcaster = self.target.GetBroadcaster()
-            listener = self.debugger.GetListener()
-            broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
-            listener.StartListeningForEvents(broadcaster, lldb.SBProcess.eBroadcastBitStateChanged)
-            broadcaster.AddListener(listener, lldb.SBTarget.eBroadcastBitBreakpointChanged)
-            listener.StartListeningForEvents(
-                broadcaster, lldb.SBTarget.eBroadcastBitBreakpointChanged)
 
     def loop(self):
         event = lldb.SBEvent()

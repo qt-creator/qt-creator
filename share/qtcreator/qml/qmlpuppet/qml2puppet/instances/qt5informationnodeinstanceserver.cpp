@@ -71,6 +71,7 @@
 #include "../editor3d/gridgeometry.h"
 #include "../editor3d/selectionboxgeometry.h"
 #include "../editor3d/linegeometry.h"
+#include "../editor3d/icongizmoimageprovider.h"
 
 #include <designersupportdelegate.h>
 #include <qmlprivategate.h>
@@ -114,6 +115,8 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
                      this, &Qt5InformationNodeInstanceServer::handleToolStateChanged);
     engine()->rootContext()->setContextProperty("_generalHelper", helper);
+    engine()->addImageProvider(QLatin1String("IconGizmoImageProvider"),
+                               new QmlDesigner::Internal::IconGizmoImageProvider);
     m_3dHelper = helper;
 
     m_editView3D = new QQuickView(quickView()->engine(), quickView());
@@ -745,7 +748,7 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot(const ServerNodeInsta
             view = qobject_cast<QQuick3DViewport *>(parentInstance.internalObject());
             int nodeCount = countChildNodes(view);
             if (nodeCount == 1)
-                return checkInstance.internalObject();
+                return childNode;
             else
                 return view->scene();
         } else if (parentInstance.isSubclassOf("QQuick3DNode")) {
@@ -1045,24 +1048,26 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
             if (firstSceneRoot && sceneRoot == firstSceneRoot && instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
 
-            auto instanceIsModelOrComponent = [&]() -> bool {
-                bool retval = instance.isSubclassOf("QQuick3DModel");
+            auto isSelectableAsRoot = [&]() -> bool {
 #ifdef QUICK3D_MODULE
-                if (!retval) {
-                    // Node is a component if it has node children that have no instances
-                    auto node = qobject_cast<QQuick3DNode *>(object);
-                    if (node) {
-                        const auto childItems = node->childItems();
-                        for (const auto &childItem : childItems) {
-                            if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
-                                return true;
-                        }
+                if (qobject_cast<QQuick3DModel *>(object)
+                    || qobject_cast<QQuick3DCamera *>(object)
+                    || qobject_cast<QQuick3DAbstractLight *>(object)) {
+                    return true;
+                }
+                // Node is a component if it has node children that have no instances
+                auto node = qobject_cast<QQuick3DNode *>(object);
+                if (node) {
+                    const auto childItems = node->childItems();
+                    for (const auto &childItem : childItems) {
+                        if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
+                            return true;
                     }
                 }
 #endif
-                return retval;
+                return false;
             };
-            if (object && (firstSceneRoot != object || instanceIsModelOrComponent()))
+            if (object && (firstSceneRoot != object || isSelectableAsRoot()))
                 selectedObjs << objectToVariant(object);
         }
     }
@@ -1162,19 +1167,19 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 
     switch (command.type()) {
     case View3DActionCommand::MoveTool:
-        updatedState.insert("groupTransform", 0);
+        updatedState.insert("transformMode", 0);
         break;
     case View3DActionCommand::RotateTool:
-        updatedState.insert("groupTransform", 1);
+        updatedState.insert("transformMode", 1);
         break;
     case View3DActionCommand::ScaleTool:
-        updatedState.insert("groupTransform", 2);
+        updatedState.insert("transformMode", 2);
         break;
     case View3DActionCommand::FitToView:
         QMetaObject::invokeMethod(m_editView3DRootItem, "fitToView");
         break;
     case View3DActionCommand::SelectionModeToggle:
-        updatedState.insert("groupSelect", command.isEnabled() ? 0 : 1);
+        updatedState.insert("selectionMode", command.isEnabled() ? 1 : 0);
         break;
     case View3DActionCommand::CameraToggle:
         updatedState.insert("usePerspective", command.isEnabled());
@@ -1186,6 +1191,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
     case View3DActionCommand::EditLightToggle:
         updatedState.insert("showEditLight", command.isEnabled());
+        break;
+    case View3DActionCommand::ShowGrid:
+        updatedState.insert("showGrid", command.isEnabled());
         break;
     default:
         break;

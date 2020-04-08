@@ -255,7 +255,8 @@
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
 
-    To create locator filters, select \uicontrol {Tools > Options > Locator > Add}.
+    To create locator filters, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Locator > \uicontrol Add.
 
     For more information, see \l{Creating Locator Filters}.
 
@@ -275,9 +276,9 @@
     \section1 Add a license header template for C++ code
 
     A file containing a license header for C++ can be specified under
-    \uicontrol{Tools > Options > C++ > License Template}. It may contain special
-    placeholders enclosed in \c{%%} that are replaced when generating a
-    new file:
+    \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
+    \uicontrol {License Template}. It may contain special placeholders enclosed
+    in \c{%%} that are replaced when generating a new file:
 
     \list 1
 

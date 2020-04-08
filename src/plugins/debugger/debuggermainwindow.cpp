@@ -302,6 +302,11 @@ DebuggerMainWindow::DebuggerMainWindow()
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
+    // HACK: See QTCREATORBUG-23755. This ensures the showCentralWidget()
+    // call in restorePersistentSettings() below has something to operate on,
+    // and a plain QWidget is what we'll use anyway as central widget.
+    setCentralWidget(new QWidget);
+
     restorePersistentSettings();
 }
 

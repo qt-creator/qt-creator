@@ -27,6 +27,8 @@
 
 #include "itemlibraryitem.h"
 
+#include <utils/qtcassert.h>
+
 #include <QDebug>
 
 namespace QmlDesigner {
@@ -79,13 +81,15 @@ void ItemLibrarySectionModel::addItem(ItemLibraryItem *element)
     element->setVisible(true);
 }
 
-const QList<ItemLibraryItem *> &ItemLibrarySectionModel::items() const
+const QList<QPointer<ItemLibraryItem>> &ItemLibrarySectionModel::items() const
 {
     return m_itemList;
 }
 
 void ItemLibrarySectionModel::sortItems()
 {
+    int nullPointerSectionCount = m_itemList.removeAll(QPointer<ItemLibraryItem>());
+    QTC_ASSERT(nullPointerSectionCount == 0,;);
     auto itemSort = [](ItemLibraryItem *first, ItemLibraryItem *second) {
         return QString::localeAwareCompare(first->itemName(), second->itemName()) < 1;
     };

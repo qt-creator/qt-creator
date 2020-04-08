@@ -39,6 +39,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <qtsupport/qtversionmanager.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
@@ -356,20 +357,43 @@ void McuSupportOptions::populatePackagesAndTargets()
     setQulDir(Utils::FilePath::fromUserInput(qtForMCUsSdkPackage->path()));
 }
 
+static Utils::FilePath qulDocsDir()
+{
+    const Utils::FilePath qulDir = McuSupportOptions::qulDirFromSettings();
+    if (qulDir.isEmpty() || !qulDir.exists())
+        return {};
+    const Utils::FilePath docsDir = qulDir.pathAppended("docs");
+    return docsDir.exists() ? docsDir : Utils::FilePath();
+}
+
 void McuSupportOptions::registerQchFiles()
 {
-    const QString qulDir = qulDirFromSettings().toString();
-    if (qulDir.isEmpty() || !QFileInfo::exists(qulDir))
+    const QString docsDir = qulDocsDir().toString();
+    if (docsDir.isEmpty())
         return;
 
-    const QString docsPath = qulDir + "/docs/";
     const QStringList qchFiles = {
-        docsPath + "quickultralite.qch",
-        docsPath + "quickultralitecmake.qch"
+        docsDir + "/quickultralite.qch",
+        docsDir + "/quickultralitecmake.qch"
     };
     Core::HelpManager::registerDocumentation(
                 Utils::filtered(qchFiles,
                                 [](const QString &file) { return QFileInfo::exists(file); }));
+}
+
+void McuSupportOptions::registerExamples()
+{
+    const Utils::FilePath docsDir = qulDocsDir();
+    if (docsDir.isEmpty())
+        return;
+
+    const Utils::FilePath examplesDir =
+            McuSupportOptions::qulDirFromSettings().pathAppended("demos");
+    if (!examplesDir.exists())
+        return;
+
+    QtSupport::QtVersionManager::registerExampleSet("Qt for MCUs", docsDir.toString(),
+                                                    examplesDir.toString());
 }
 
 void McuSupportOptions::deletePackagesAndTargets()
@@ -378,6 +402,12 @@ void McuSupportOptions::deletePackagesAndTargets()
     packages.clear();
     qDeleteAll(mcuTargets);
     mcuTargets.clear();
+}
+
+const QVersionNumber &McuSupportOptions::supportedQulVersion()
+{
+    static const QVersionNumber v({1, 1, 0});
+    return v;
 }
 
 void McuSupportOptions::setQulDir(const Utils::FilePath &dir)
@@ -419,6 +449,8 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->setUnexpandedDisplayName(kitName);
     k->setValue(Constants::KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
     k->setValue(Constants::KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
+    k->setValue(Constants::KIT_MCUTARGET_SDKVERSION_KEY,
+                McuSupportOptions::supportedQulVersion().toString());
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTargetIsDesktop(mcuTarget)) {
@@ -515,8 +547,8 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget) const
     const QString colorDepth = mcuTarget->colorDepth() > 0
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
-    return QString::fromLatin1("Qt for MCUs - %1%2")
-            .arg(mcuTarget->qulPlatform(), colorDepth);
+    return QString::fromLatin1("Qt for MCUs %1 - %2%3")
+            .arg(supportedQulVersion().toString(), mcuTarget->qulPlatform(), colorDepth);
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTargt)

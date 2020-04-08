@@ -30,6 +30,8 @@
 
 namespace DesignTools {
 
+class KeyframeItem;
+
 class HandleItem : public SelectableItem
 {
     Q_OBJECT
@@ -52,6 +54,10 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     void underMouseCallback() override;
+
+    bool keyframeSelected() const;
+
+    KeyframeItem *keyframe() const;
 
     Slot slot() const;
 

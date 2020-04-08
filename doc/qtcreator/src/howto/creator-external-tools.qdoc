@@ -70,8 +70,8 @@
     \uicontrol Linguist > \uicontrol {Release Translations (lrelease)}.
 
     By default, the project .pro file is passed to the tools as an argument. To
-    specify other command line arguments for the tools, select \uicontrol {Tools >
-    External > Configure}.
+    specify other command line arguments for the tools, select \uicontrol Tools >
+    \uicontrol External > \uicontrol Configure}.
 
     To open TS files in Qt Linguist, right-click a TS file in the
     \uicontrol Projects or \uicontrol {File System} view and select
@@ -111,9 +111,10 @@
 
     \list 1
 
-        \li Select \uicontrol {Tools > External > Configure}.
+        \li Select \uicontrol Tools > \uicontrol External >
+            \uicontrol Configure.
 
-        \li Select \uicontrol {Add > Add Tool}
+        \li Select \uicontrol Add > \uicontrol {Add Tool}
             to add a new tool. You can also select \uicontrol {Add Category} to add a
             new category.
 
@@ -163,7 +164,8 @@
 
     \endlist
 
-    The category and tool are added to the \uicontrol {Tools > External} menu.
+    The category and tool are added to the \uicontrol Tools >
+    \uicontrol External menu.
 
     If you change the configuration of preconfigured tools, you can later
     revert the changes by selecting the \uicontrol Reset button.

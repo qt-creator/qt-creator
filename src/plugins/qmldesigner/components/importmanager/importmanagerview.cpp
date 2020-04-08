@@ -31,10 +31,8 @@
 
 namespace QmlDesigner {
 
-ImportManagerView::ImportManagerView(QObject *parent) :
-    AbstractView(parent),
-    m_importsWidget(nullptr)
-
+ImportManagerView::ImportManagerView(QObject *parent)
+    : AbstractView(parent)
 {
 }
 
@@ -81,25 +79,22 @@ void ImportManagerView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void ImportManagerView::nodeCreated(const ModelNode &/*createdNode*/)
-{
-    if (m_importsWidget)
-        m_importsWidget->setUsedImports(model()->usedImports());
-}
-
-void ImportManagerView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/)
-{
-    if (m_importsWidget)
-        m_importsWidget->setUsedImports(model()->usedImports());
-}
-
 void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
-    if (m_importsWidget) {
+    if (m_importsWidget)
         m_importsWidget->setImports(model()->imports());
+}
+
+void ImportManagerView::possibleImportsChanged(const QList<Import> &/*possibleImports*/)
+{
+    if (m_importsWidget)
         m_importsWidget->setPossibleImports(model()->possibleImports());
+}
+
+void ImportManagerView::usedImportsChanged(const QList<Import> &/*usedImports*/)
+{
+    if (m_importsWidget)
         m_importsWidget->setUsedImports(model()->usedImports());
-    }
 }
 
 void ImportManagerView::removeImport(const Import &import)

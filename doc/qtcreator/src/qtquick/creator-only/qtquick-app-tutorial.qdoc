@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -72,14 +72,17 @@
 
             \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
 
+            \note If a view is hidden, you can show it by selecting
+            \uicontrol Window > \uicontrol Views.
+
         \li In the \uicontrol Navigator, select \uicontrol Label and press
             \key Delete to delete it.
 
-        \li Select \uicontrol Page in the navigator, and enter \e page in the
-            \uicontrol Id field.
+        \li Select \uicontrol Page in \uicontrol Navigator, and enter \e page in
+            the \uicontrol Id field in the \uicontrol Properties view.
 
         \li In \uicontrol Library > \uicontrol Assets, select qt-logo.png and
-            drag and drop it to the \e page in the navigator.
+            drag and drop it to the \e page in \uicontrol Navigator.
 
             \image qmldesigner-tutorial-user-icon.png "Image properties"
 
@@ -92,12 +95,14 @@
 
         \endlist
 
-        \li Right-click the resource file, qml.qrc, in the \uicontrol Projects
-            view, and select \uicontrol {Add Existing File} to add qt-logo.png
-            to the resource file for deployment.
+        \li In the \uicontrol Projects view, right-click the resource file,
+            qml.qrc, and select \uicontrol {Add Existing File} to add
+            qt-logo.png to the resource file for deployment.
 
-        \li Drag and drop a \uicontrol Rectangle to \e page in the navigator and
-            edit its properties.
+        \li In \uicontrol Library > \uicontrol {QML Types} >
+            \uicontrol {Qt Quick - Basic}, select \uicontrol Rectangle,
+            drag and drop it to \e page in \uicontrol Navigator, and
+            edit its properties in the \uicontrol Properties view.
 
             \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
 
@@ -131,7 +136,7 @@
         \endlist
 
         \li Drag and drop a \uicontrol {Mouse Area} type from the
-            \uicontrol Library to \e topLeftRect in the navigator.
+            \uicontrol Library to \e topLeftRect in \uicontrol Navigator.
 
         \li Click \uicontrol {Layout}, and then click the
             \inlineimage anchor-fill.png
@@ -139,9 +144,9 @@
             rectangle.
 
         \li In the \uicontrol Navigator, copy topLeftRect (by pressing
-            \key {Ctrl+C}) and paste it to the \e page in the navigator twice
-            (by pressing \key {Ctrl+V}). \QC renames the new instances of the
-            type topLeftRect1 and topLeftRect2.
+            \key {Ctrl+C}) and paste it to \e page in \uicontrol Navigator
+            twice (by pressing \key {Ctrl+V}). \QC renames the new instances
+            of the type topLeftRect1 and topLeftRect2.
 
         \li  Select topLeftRect1 and edit its properties:
 
@@ -213,16 +218,11 @@
 
     \list 1
 
-        \li Specify the window size and background color as properties of
-            the ApplicationWindow type:
-
-            \quotefromfile transitions/main.qml
-            \skipto ApplicationWindow
-            \printuntil title
-
         \li Specify an id for the Page1 type to be able to use the properties
             that you exported in \e Page1Form.ui.qml:
 
+            \quotefromfile transitions/main.qml
+            \skipto ApplicationWindow
             \printuntil page
 
         \li Add a pointer to the clicked expressions in \uicontrol mouseArea:

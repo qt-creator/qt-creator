@@ -85,6 +85,7 @@ QByteArray Edit3DAction::category() const
 
 bool Edit3DAction::isVisible(const SelectionContext &selectionContext) const
 {
+    Q_UNUSED(selectionContext)
     return true;
 }
 

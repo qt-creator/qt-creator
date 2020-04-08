@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator
@@ -47,13 +47,20 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick 2.12
+import QtQuick.Controls 2.5
 
 Page {
     id: page
     width: 600
     height: 400
+    property alias mouseArea2: mouseArea2
+    property alias mouseArea1: mouseArea1
+    property alias mouseArea: mouseArea
+    property alias icon: icon
+    property alias bottomLeftRect: bottomLeftRect
+    property alias middleRightRect: middleRightRect
+    property alias topLeftRect: topLeftRect
 
     header: Label {
         text: qsTr("Page 1")
@@ -61,20 +68,12 @@ Page {
         padding: 10
     }
 
-    property alias icon: icon
-    property alias topLeftRect: topLeftRect
-    property alias bottomLeftRect: bottomLeftRect
-    property alias middleRightRect: middleRightRect
-
-    property alias mouseArea2: mouseArea2
-    property alias mouseArea1: mouseArea1
-    property alias mouseArea: mouseArea
-
     Image {
         id: icon
         x: 10
         y: 20
         source: "qt-logo.png"
+        fillMode: Image.PreserveAspectFit
     }
 
     Rectangle {
@@ -82,11 +81,11 @@ Page {
         width: 55
         height: 41
         color: "#00000000"
+        border.color: "#808080"
         anchors.left: parent.left
         anchors.leftMargin: 10
         anchors.top: parent.top
         anchors.topMargin: 20
-        border.color: "#808080"
 
         MouseArea {
             id: mouseArea
@@ -99,10 +98,10 @@ Page {
         width: 55
         height: 41
         color: "#00000000"
+        border.color: "#808080"
+        anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: 10
-        anchors.verticalCenter: parent.verticalCenter
-        border.color: "#808080"
         MouseArea {
             id: mouseArea1
             anchors.fill: parent
@@ -114,14 +113,26 @@ Page {
         width: 55
         height: 41
         color: "#00000000"
+        border.color: "#808080"
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 20
-        border.color: "#808080"
+        anchors.left: parent.left
+        anchors.leftMargin: 10
         MouseArea {
             id: mouseArea2
             anchors.fill: parent
         }
-        anchors.left: parent.left
-        anchors.leftMargin: 10
+    }
+
+    NumberAnimation {
+        id: numberAnimation
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:0.75}D{i:4;anchors_height:100;anchors_width:100}D{i:6;anchors_height:100;anchors_width:100}
+D{i:8;anchors_height:100;anchors_width:100}
+}
+##^##*/
+

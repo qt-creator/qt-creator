@@ -60,7 +60,8 @@
 
         \image qtcreator-kit-selector.png "Kit selector"
 
-        \li  Choose \uicontrol {Build > Build Project} or press \key {Ctrl+B}.
+        \li  Choose \uicontrol Build > \uicontrol {Build Project} or press
+             \key {Ctrl+B}.
 
              You can also select the \uicontrol Run button (2) to also deploy and run
              the application after building it.

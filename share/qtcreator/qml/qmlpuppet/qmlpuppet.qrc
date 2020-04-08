@@ -7,6 +7,7 @@
         <file>mockfiles/SwipeView.qml</file>
         <file>mockfiles/GenericBackend.qml</file>
         <file>mockfiles/Dialog.qml</file>
+        <file>mockfiles/IconRenderer3D.qml</file>
         <file>mockfiles/EditView3D.qml</file>
         <file>mockfiles/EditCameraController.qml</file>
         <file>mockfiles/Arrow.qml</file>

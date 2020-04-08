@@ -43,8 +43,8 @@
 
     You can configure the text editor according to your needs. You can specify
     editor behavior either globally for all projects or separately for each
-    project. To specify global editor behavior, select \uicontrol {Tools > Options
-    > Text Editor > Behavior}.
+    project. To specify global editor behavior, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior.
 
     To configure the text editor behavior for the current project:
 

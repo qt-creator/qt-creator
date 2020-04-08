@@ -79,8 +79,8 @@
             the \uicontrol {Enable QML} check box to enable
             QML debugging.
 
-        \li Select \uicontrol {Build > Rebuild Project} to clean and rebuild the
-            project.
+        \li Select \uicontrol Build > \uicontrol {Rebuild Project} to clean and
+            rebuild the project.
 
         \li To debug applications on \l{glossary-device}{devices}, check that
             Qt 5.0, or later, libraries are installed on the device and
@@ -144,7 +144,8 @@
             the application from running until the debug client connects to the
             server. This enables debugging from the start.
 
-        \li Select \uicontrol {Debug > Start Debugging > Attach to QML Port}.
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Attach to QML Port}.
 
             Choose the kit configured for the device where the application to
             be debugged is running. The port number to use is displayed in the

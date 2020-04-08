@@ -143,6 +143,7 @@ void Edit3DWidget::showCanvas(bool show)
 
 void Edit3DWidget::linkActivated(const QString &link)
 {
+    Q_UNUSED(link)
     if (m_view)
         m_view->addQuick3DImport();
 }

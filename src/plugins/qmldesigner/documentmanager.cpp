@@ -398,19 +398,20 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
         qCDebug(documentManagerLog) << "Checking" << node->displayName() << "(" << node << ")";
 
         if (node->isVirtualFolderType() && node->displayName() == "Resources") {
-            auto virtualFolderNode = dynamic_cast<ProjectExplorer::VirtualFolderNode*>(node);
+            ProjectExplorer::FolderNode *virtualFolderNode = node->asFolderNode();
+            if (QTC_GUARD(virtualFolderNode)) {
+                for (int subFolderIndex = 0; subFolderIndex < virtualFolderNode->folderNodes().size() && !iconQrcFileNode; ++subFolderIndex) {
+                    ProjectExplorer::FolderNode *subFolderNode = virtualFolderNode->folderNodes().at(subFolderIndex);
 
-            for (int subFolderIndex = 0; subFolderIndex < virtualFolderNode->folderNodes().size() && !iconQrcFileNode; ++subFolderIndex) {
-                ProjectExplorer::FolderNode *subFolderNode = virtualFolderNode->folderNodes().at(subFolderIndex);
+                    qCDebug(documentManagerLog) << "Checking if" << subFolderNode->displayName() << "("
+                        << subFolderNode << ") is" << isoIconsQrcFile;
 
-                qCDebug(documentManagerLog) << "Checking if" << subFolderNode->displayName() << "("
-                    << subFolderNode << ") is" << isoIconsQrcFile;
+                    if (subFolderNode->isFolderNodeType() && subFolderNode->displayName() == isoIconsQrcFile) {
+                        qCDebug(documentManagerLog) << "Found" << isoIconsQrcFile << "in" << virtualFolderNode->filePath();
 
-                if (subFolderNode->isFolderNodeType() && subFolderNode->displayName() == isoIconsQrcFile) {
-                    qCDebug(documentManagerLog) << "Found" << isoIconsQrcFile << "in" << virtualFolderNode->filePath();
-
-                    iconQrcFileNode = subFolderNode;
-                    *resourceFileProPath = iconQrcFileNode->parentProjectNode()->filePath().toString();
+                        iconQrcFileNode = subFolderNode;
+                        *resourceFileProPath = iconQrcFileNode->parentProjectNode()->filePath().toString();
+                    }
                 }
             }
         }

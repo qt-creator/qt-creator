@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
 import QtQuick3D 1.15
 
 View3D {
@@ -31,7 +30,8 @@ View3D {
     anchors.fill: parent
 
     property bool usePerspective: false
-    property bool showSceneLight: false
+    property alias showSceneLight: sceneLight.visible
+    property alias showGrid: helperGrid.visible
     property alias sceneHelpers: sceneHelpers
     property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera
@@ -62,7 +62,6 @@ View3D {
 
         PointLight {
             id: sceneLight
-            visible: showSceneLight
             position: usePerspective ? scenePerspectiveCamera.position
                                      : sceneOrthoCamera.position
             quadraticFade: 0

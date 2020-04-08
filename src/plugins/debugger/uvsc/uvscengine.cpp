@@ -735,6 +735,7 @@ void UvscEngine::handleUpdateLocals(bool partial)
 
     updateLocalsView(all);
     watchHandler()->notifyUpdateFinished();
+    updateToolTips();
 }
 
 void UvscEngine::handleInsertBreakpoint(const QString &exp, const Breakpoint &bp)

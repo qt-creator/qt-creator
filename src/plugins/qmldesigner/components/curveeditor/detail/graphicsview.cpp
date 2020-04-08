@@ -43,7 +43,7 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
     , m_zoomX(0.0)
     , m_zoomY(0.0)
     , m_transform()
-    , m_scene()
+    , m_scene(new GraphicsScene())
     , m_model(model)
     , m_playhead(this)
     , m_selector()
@@ -52,7 +52,7 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
 {
     model->setGraphicsView(this);
 
-    setScene(&m_scene);
+    setScene(m_scene);
     setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     setResizeAnchor(QGraphicsView::NoAnchor);
     setRenderHint(QPainter::Antialiasing, true);
@@ -68,13 +68,21 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
         m_model->setCurve(id, curve);
     };
 
-    connect(&m_scene, &GraphicsScene::curveChanged, itemSlot);
+    connect(m_scene, &GraphicsScene::curveChanged, itemSlot);
 
-    auto pinSlot = [this](PropertyTreeItem *pti) { m_scene.setPinned(pti->id(), pti->pinned()); };
+    auto pinSlot = [this](PropertyTreeItem *pti) { m_scene->setPinned(pti->id(), pti->pinned()); };
     connect(m_model, &CurveEditorModel::curveChanged, pinSlot);
 
     applyZoom(m_zoomX, m_zoomY);
     update();
+}
+
+GraphicsView::~GraphicsView()
+{
+    if (m_scene) {
+        delete m_scene;
+        m_scene = nullptr;
+    }
 }
 
 CurveEditorModel *GraphicsView::model() const
@@ -87,48 +95,26 @@ CurveEditorStyle GraphicsView::editorStyle() const
     return m_style;
 }
 
-bool GraphicsView::hasActiveItem() const
-{
-    return m_scene.hasActiveItem();
-}
-
-bool GraphicsView::hasActiveHandle() const
-{
-    return m_scene.hasActiveHandle();
-}
-
-bool GraphicsView::hasSelectedKeyframe() const
-{
-    const auto itemList = items();
-    for (auto *item : itemList) {
-        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
-            if (curveItem->hasSelection())
-                return true;
-        }
-    }
-    return false;
-}
-
 double GraphicsView::minimumTime() const
 {
-    bool check = m_model->minimumTime() < m_scene.minimumTime();
-    return check ? m_model->minimumTime() : m_scene.minimumTime();
+    bool check = m_model->minimumTime() < m_scene->minimumTime();
+    return check ? m_model->minimumTime() : m_scene->minimumTime();
 }
 
 double GraphicsView::maximumTime() const
 {
-    bool check = m_model->maximumTime() > m_scene.maximumTime();
-    return check ? m_model->maximumTime() : m_scene.maximumTime();
+    bool check = m_model->maximumTime() > m_scene->maximumTime();
+    return check ? m_model->maximumTime() : m_scene->maximumTime();
 }
 
 double GraphicsView::minimumValue() const
 {
-    return m_scene.empty() ? -1.0 : m_scene.minimumValue();
+    return m_scene->empty() ? -1.0 : m_scene->minimumValue();
 }
 
 double GraphicsView::maximumValue() const
 {
-    return m_scene.empty() ? 1.0 : m_scene.maximumValue();
+    return m_scene->empty() ? 1.0 : m_scene->maximumValue();
 }
 
 double GraphicsView::zoomX() const
@@ -179,11 +165,9 @@ void GraphicsView::setStyle(const CurveEditorStyle &style)
 {
     m_style = style;
 
-    const auto itemList = items();
-    for (auto *item : itemList) {
-        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item))
-            curveItem->setStyle(style);
-    }
+    const auto curves = m_scene->curves();
+    for (auto *curve : curves)
+        curve->setStyle(style);
 
     applyZoom(m_zoomX, m_zoomY);
     viewport()->update();
@@ -191,12 +175,8 @@ void GraphicsView::setStyle(const CurveEditorStyle &style)
 
 void GraphicsView::setLocked(PropertyTreeItem *item)
 {
-    const auto itemList = items();
-    for (auto *gitem : itemList) {
-        if (auto *citem = qgraphicsitem_cast<CurveItem *>(gitem))
-            if (item->id() == citem->id())
-                citem->setLocked(item->locked());
-    }
+    if (CurveItem *curve = m_scene->findCurve(item->id()))
+        curve->setLocked(item->locked());
 }
 
 void GraphicsView::setZoomX(double zoom, const QPoint &pivot)
@@ -231,9 +211,9 @@ void GraphicsView::scrollContent(double x, double y)
 
 void GraphicsView::reset(const std::vector<CurveItem *> &items)
 {
-    m_scene.clear();
+    m_scene->reset();
     for (auto *item : items)
-        m_scene.addCurveItem(item);
+        m_scene->addCurveItem(item);
 
     applyZoom(m_zoomX, m_zoomY);
     viewport()->update();
@@ -241,49 +221,31 @@ void GraphicsView::reset(const std::vector<CurveItem *> &items)
 
 void GraphicsView::updateSelection(const std::vector<CurveItem *> &items)
 {
-    const std::vector<CurveItem *> pinnedItems = m_scene.takePinnedItems();
-    auto notPinned = [pinnedItems](CurveItem *item) {
-        for (auto *pinned : pinnedItems) {
-            if (pinned->id() == item->id())
-                return false;
-        }
-        return true;
-    };
-
-    m_scene.clear();
-    for (auto *item : items) {
-        if (notPinned(item))
-            m_scene.addCurveItem(item);
+    std::vector<CurveItem *> preservedItems = m_scene->takePinnedItems();
+    for (auto *curve : items) {
+        auto finder = [curve](CurveItem *item) { return curve->id() == item->id(); };
+        auto iter = std::find_if(preservedItems.begin(), preservedItems.end(), finder);
+        if (iter == preservedItems.end())
+            preservedItems.push_back(curve);
     }
-
-    for (auto *item : pinnedItems)
-        m_scene.addCurveItem(item);
-
-    applyZoom(m_zoomX, m_zoomY);
-    viewport()->update();
+    reset(preservedItems);
 }
 
 void GraphicsView::setInterpolation(Keyframe::Interpolation interpol)
 {
-    const auto itemList = items();
-    for (auto *item : itemList) {
-        if (auto *citem = qgraphicsitem_cast<CurveItem *>(item))
-            if (citem->hasSelection())
-                citem->setInterpolation(interpol);
-    }
+    const auto selectedCurves = m_scene->selectedCurves();
+    for (auto *curve : selectedCurves)
+        curve->setInterpolation(interpol);
 
     viewport()->update();
 }
 
 void GraphicsView::toggleUnified()
 {
-    const auto itemList = items();
-    for (auto *item : itemList) {
-        if (auto *citem = qgraphicsitem_cast<CurveItem *>(item)) {
-            if (citem->hasSelection())
-                citem->toggleUnified();
-        }
-    }
+    const auto selectedCurves = m_scene->selectedCurves();
+    for (auto *curve : selectedCurves)
+        curve->toggleUnified();
+
     viewport()->update();
 }
 
@@ -299,7 +261,7 @@ void GraphicsView::keyPressEvent(QKeyEvent *event)
     if (shortcut == m_style.shortcuts.frameAll)
         applyZoom(0.0, 0.0);
     else if (shortcut == m_style.shortcuts.deleteKeyframe)
-        deleteSelectedKeyframes();
+        m_scene->deleteSelectedKeyframes();
 }
 
 void GraphicsView::mousePressEvent(QMouseEvent *event)
@@ -309,7 +271,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
 
     Shortcut shortcut(event);
     if (shortcut == m_style.shortcuts.insertKeyframe) {
-        insertKeyframe(globalToRaster(event->globalPos()).x());
+        m_scene->insertKeyframe(globalToRaster(event->globalPos()).x());
         return;
     }
 
@@ -325,7 +287,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
 
     QGraphicsView::mousePressEvent(event);
 
-    m_selector.mousePress(event, this);
+    m_selector.mousePress(event, this, m_scene);
 }
 
 void GraphicsView::mouseMoveEvent(QMouseEvent *event)
@@ -335,7 +297,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 
     QGraphicsView::mouseMoveEvent(event);
 
-    m_selector.mouseMove(event, this, m_playhead);
+    m_selector.mouseMove(event, this, m_scene, m_playhead);
 }
 
 void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
@@ -343,7 +305,7 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
     QGraphicsView::mouseReleaseEvent(event);
 
     m_playhead.mouseRelease(this);
-    m_selector.mouseRelease(event, this);
+    m_selector.mouseRelease(event, m_scene);
     this->viewport()->update();
 }
 
@@ -371,16 +333,16 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
 
     menu.addSeparator();
     auto insertKeyframes = [this, event]() {
-        insertKeyframe(globalToRaster(event->globalPos()).x(), true);
+        m_scene->insertKeyframe(globalToRaster(event->globalPos()).x(), true);
     };
     QAction *insertKeyframeAction = menu.addAction(tr("Insert Keyframe"));
     connect(insertKeyframeAction, &QAction::triggered, insertKeyframes);
 
-    auto deleteKeyframes = [this, event] { deleteSelectedKeyframes(); };
+    auto deleteKeyframes = [this, event] { m_scene->deleteSelectedKeyframes(); };
     QAction *deleteKeyframeAction = menu.addAction(tr("Delete Selected Keyframes"));
     connect(deleteKeyframeAction, &QAction::triggered, deleteKeyframes);
 
-    if (!hasSelectedKeyframe())
+    if (!m_scene->hasSelectedKeyframe())
         deleteKeyframeAction->setEnabled(false);
 
     menu.exec(event->globalPos());
@@ -445,7 +407,7 @@ QPointF GraphicsView::globalToRaster(const QPoint &point) const
 
 void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
 {
-    m_scene.doNotMoveItems(true);
+    m_scene->doNotMoveItems(true);
 
     QPointF pivotRaster(globalToRaster(pivot));
 
@@ -469,9 +431,9 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     double scaleY = lerp(clamp(m_zoomY, 0.0, 1.0), -yZoomedOut, -yZoomedIn);
 
     m_transform = QTransform::fromScale(scaleX, scaleY);
-    m_scene.setComponentTransform(m_transform);
+    m_scene->setComponentTransform(m_transform);
 
-    QRectF sr = m_scene.sceneRect().adjusted(
+    QRectF sr = m_scene->rect().adjusted(
         -m_style.valueAxisWidth - m_style.canvasMargin,
         -m_style.timeAxisHeight - m_style.canvasMargin,
         m_style.canvasMargin,
@@ -486,29 +448,7 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
         scrollContent(mapTimeToX(deltaTransformed.x()), mapValueToY(deltaTransformed.y()));
     }
 
-    m_scene.doNotMoveItems(false);
-}
-
-void GraphicsView::insertKeyframe(double time, bool allVisibleCurves)
-{
-    const auto itemList = items();
-    for (auto *item : itemList) {
-        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
-            if (allVisibleCurves)
-                curveItem->insertKeyframeByTime(std::round(time));
-            else if (curveItem->isUnderMouse())
-                curveItem->insertKeyframeByTime(std::round(time));
-        }
-    }
-}
-
-void GraphicsView::deleteSelectedKeyframes()
-{
-    const auto itemList = items();
-    for (auto *item : itemList) {
-        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item))
-            curveItem->deleteSelectedKeyframes();
-    }
+    m_scene->doNotMoveItems(false);
 }
 
 void GraphicsView::drawGrid(QPainter *painter, const QRectF &rect)
@@ -551,7 +491,7 @@ void GraphicsView::drawExtremaX(QPainter *painter, const QRectF &rect)
 
 void GraphicsView::drawExtremaY(QPainter *painter, const QRectF &rect)
 {
-    if (m_scene.empty())
+    if (m_scene->empty())
         return;
 
     auto drawHorizontalLine = [rect, painter](double position) {
@@ -560,8 +500,8 @@ void GraphicsView::drawExtremaY(QPainter *painter, const QRectF &rect)
 
     painter->save();
     painter->setPen(Qt::blue);
-    drawHorizontalLine(mapValueToY(m_scene.minimumValue()));
-    drawHorizontalLine(mapValueToY(m_scene.maximumValue()));
+    drawHorizontalLine(mapValueToY(m_scene->minimumValue()));
+    drawHorizontalLine(mapValueToY(m_scene->maximumValue()));
 
     painter->restore();
 }

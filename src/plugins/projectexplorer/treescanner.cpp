@@ -51,6 +51,8 @@ TreeScanner::TreeScanner(QObject *parent) : QObject(parent)
 
 TreeScanner::~TreeScanner()
 {
+    disconnect(&m_futureWatcher, nullptr, nullptr, nullptr); // Do not trigger signals anymore!
+
     if (!m_futureWatcher.isFinished()) {
         m_futureWatcher.cancel();
         m_futureWatcher.waitForFinished();
