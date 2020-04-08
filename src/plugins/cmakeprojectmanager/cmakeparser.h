@@ -45,7 +45,7 @@ public:
     void setSourceDirectory(const QString &sourceDir);
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
     void doFlush() override;
 
     enum TripleLineError { NONE, LINE_LOCATION, LINE_DESCRIPTION, LINE_DESCRIPTION2 };

@@ -54,27 +54,27 @@ LdParser::LdParser()
     QTC_CHECK(m_regExpGccNames.isValid());
 }
 
-void LdParser::handleLine(const QString &line, Utils::OutputFormat type)
+IOutputParser::Status LdParser::doHandleLine(const QString &line, Utils::OutputFormat type)
 {
-    if (type != Utils::StdErrFormat) {
-        IOutputParser::handleLine(line, type);
-        return;
-    }
+    if (type != Utils::StdErrFormat)
+        return Status::NotHandled;
+
     QString lne = rightTrimmed(line);
-    if (!lne.isEmpty() && !lne.at(0).isSpace() && !m_incompleteTask.isNull())
-        flush();
+    if (!lne.isEmpty() && !lne.at(0).isSpace() && !m_incompleteTask.isNull()) {
+        doFlush();
+        return Status::NotHandled;
+    }
 
     if (lne.startsWith(QLatin1String("TeamBuilder "))
             || lne.startsWith(QLatin1String("distcc["))
             || lne.contains(QLatin1String("ar: creating "))) {
-        IOutputParser::handleLine(line, Utils::StdErrFormat);
-        return;
+        return Status::NotHandled;
     }
 
     // ld on macOS
     if (lne.startsWith("Undefined symbols for architecture") && lne.endsWith(":")) {
         m_incompleteTask = CompileTask(Task::Error, lne);
-        return;
+        return Status::InProgress;
     }
     if (!m_incompleteTask.isNull() && lne.startsWith("  ")) {
         m_incompleteTask.description.append('\n').append(lne);
@@ -82,19 +82,19 @@ void LdParser::handleLine(const QString &line, Utils::OutputFormat type)
         const QRegularExpressionMatch match = locRegExp.match(lne);
         if (match.hasMatch())
             m_incompleteTask.setFile(Utils::FilePath::fromString(match.captured("file")));
-        return;
+        return Status::InProgress;
     }
 
     if (lne.startsWith("collect2:") || lne.startsWith("collect2.exe:")) {
         emit addTask(CompileTask(Task::Error, lne /* description */), 1);
-        return;
+        return Status::Done;
     }
 
     QRegularExpressionMatch match = m_ranlib.match(lne);
     if (match.hasMatch()) {
         QString description = match.captured(2);
         emit addTask(CompileTask(Task::Warning, description), 1);
-        return;
+        return Status::Done;
     }
 
     match = m_regExpGccNames.match(lne);
@@ -108,7 +108,7 @@ void LdParser::handleLine(const QString &line, Utils::OutputFormat type)
             description = description.mid(7);
         }
         emit addTask(CompileTask(type, description), 1);
-        return;
+        return Status::Done;
     }
 
     match = m_regExpLinker.match(lne);
@@ -138,10 +138,10 @@ void LdParser::handleLine(const QString &line, Utils::OutputFormat type)
             description = description.mid(9);
         }
         emit addTask(CompileTask(type, description, absoluteFilePath(filename), lineno), 1);
-        return;
+        return Status::Done;
     }
 
-    IOutputParser::handleLine(line, Utils::StdErrFormat);
+    return Status::NotHandled;
 }
 
 void LdParser::doFlush()

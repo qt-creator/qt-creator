@@ -169,9 +169,9 @@ bool QbsBuildStep::init()
         return false;
 
     delete m_parser;
-    m_parser = target()->kit()->createOutputParser();
-    if (m_parser)
-        connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
+    m_parser = new IOutputParser;
+    m_parser->setLineParsers(target()->kit()->createOutputParsers());
+    connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
 
     m_changedFiles = bc->changedFiles();
     m_activeFileTags = bc->activeFileTags();

@@ -129,14 +129,14 @@ Core::Id CustomParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Custom");
 }
 
-void CustomParser::handleLine(const QString &line, OutputFormat type)
+IOutputParser::Status CustomParser::doHandleLine(const QString &line, OutputFormat type)
 {
     const CustomParserExpression::CustomParserChannel channel = type == StdErrFormat
             ? CustomParserExpression::ParseStdErrChannel
             : CustomParserExpression::ParseStdOutChannel;
     if (parseLine(line, channel))
-        return;
-    IOutputParser::handleLine(line, type);
+        return Status::Done;
+    return Status::NotHandled;
 }
 
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
@@ -467,7 +467,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers()
     parser->skipFileExistsCheck();
 
     OutputParserTester testbench;
-    testbench.appendOutputParser(parser);
+    testbench.addLineParser(parser);
     testbench.testParsing(input, inputChannel,
                           tasks, childStdOutLines, childStdErrLines,
                           outputLines);

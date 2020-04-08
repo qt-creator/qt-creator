@@ -56,35 +56,6 @@ GnuMakeParser::GnuMakeParser()
     QTC_CHECK(m_errorInMakefile.isValid());
 }
 
-void GnuMakeParser::handleLine(const QString &line, OutputFormat type)
-{
-    if (type == StdOutFormat)
-        stdOutput(line);
-    else
-        stdError(line);
-}
-
-bool GnuMakeParser::hasFatalErrors() const
-{
-    return (m_fatalErrorCount > 0) || IOutputParser::hasFatalErrors();
-}
-
-void GnuMakeParser::stdOutput(const QString &line)
-{
-    const QString lne = rightTrimmed(line);
-
-    QRegularExpressionMatch match = m_makeDir.match(lne);
-    if (match.hasMatch()) {
-        if (match.captured(6) == QLatin1String("Leaving"))
-            dropSearchDir(FilePath::fromString(match.captured(7)));
-        else
-            addSearchDir(FilePath::fromString(match.captured(7)));
-        return;
-    }
-
-    IOutputParser::handleLine(line, StdOutFormat);
-}
-
 class Result {
 public:
     Result() = default;
@@ -125,13 +96,29 @@ static Result parseDescription(const QString &description)
     return result;
 }
 
-void GnuMakeParser::stdError(const QString &line)
+void GnuMakeParser::emitTask(const ProjectExplorer::Task &task)
+{
+    if (task.type == Task::Error) // Assume that all make errors will be follow up errors.
+        m_suppressIssues = true;
+    emit addTask(task, 1, 0);
+}
+
+IOutputParser::Status GnuMakeParser::doHandleLine(const QString &line, OutputFormat type)
 {
     const QString lne = rightTrimmed(line);
-
+    if (type == StdOutFormat) {
+        QRegularExpressionMatch match = m_makeDir.match(lne);
+        if (match.hasMatch()) {
+            if (match.captured(6) == QLatin1String("Leaving"))
+                emit searchDirOut(FilePath::fromString(match.captured(7)));
+            else
+                emit searchDirIn(FilePath::fromString(match.captured(7)));
+            return Status::Done;
+        }
+        return Status::NotHandled;
+    }
     QRegularExpressionMatch match = m_errorInMakefile.match(lne);
     if (match.hasMatch()) {
-        flush();
         Result res = parseDescription(match.captured(5));
         if (res.isFatal)
             ++m_fatalErrorCount;
@@ -140,27 +127,24 @@ void GnuMakeParser::stdError(const QString &line)
                                       absoluteFilePath(FilePath::fromUserInput(match.captured(1))),
                                       match.captured(4).toInt() /* line */));
         }
-        return;
+        return Status::Done;
     }
     match = m_makeLine.match(lne);
     if (match.hasMatch()) {
-        flush();
         Result res = parseDescription(match.captured(6));
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues)
             emitTask(BuildSystemTask(res.type, res.description));
-        return;
+        return Status::Done;
     }
 
-    IOutputParser::handleLine(line, StdErrFormat);
+    return Status::NotHandled;
 }
 
-void GnuMakeParser::emitTask(const ProjectExplorer::Task &task)
+bool GnuMakeParser::hasFatalErrors() const
 {
-    if (task.type == Task::Error) // Assume that all make errors will be follow up errors.
-        m_suppressIssues = true;
-    emit addTask(task, 1, 0);
+    return (m_fatalErrorCount > 0) || IOutputParser::hasFatalErrors();
 }
 
 } // ProjectExplorer
@@ -371,7 +355,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     connect(&testbench, &OutputParserTester::aboutToDeleteParser,
             tester, &GnuMakeParserTester::parserIsAboutToBeDeleted);
 
-    testbench.appendOutputParser(childParser);
+    testbench.addLineParser(childParser);
     QFETCH(QStringList, extraSearchDirs);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
@@ -381,11 +365,11 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     QFETCH(QString, outputLines);
     QFETCH(QStringList, additionalSearchDirs);
 
-    FilePaths searchDirs = childParser->searchDirectories();
+    FilePaths searchDirs = testbench.searchDirectories();
 
     // add extra directories:
     foreach (const QString &dir, extraSearchDirs)
-        childParser->addSearchDir(FilePath::fromString(dir));
+        testbench.addSearchDir(FilePath::fromString(dir));
 
     testbench.testParsing(input, inputChannel,
                           tasks, childStdOutLines, childStdErrLines,
@@ -418,7 +402,7 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()
 
     OutputParserTester testbench;
     auto *childParser = new GnuMakeParser;
-    testbench.appendOutputParser(childParser);
+    testbench.addLineParser(childParser);
     childParser->addSearchDir(FilePath::fromString(fi.absolutePath()));
     testbench.testParsing(
         fi.fileName() + ":360: *** missing separator (did you mean TAB instead of 8 spaces?). Stop.",

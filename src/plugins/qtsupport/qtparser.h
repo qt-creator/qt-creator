@@ -42,7 +42,7 @@ public:
     QtParser();
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
 
     QRegExp m_mocRegExp;
     QRegExp m_translationRegExp;

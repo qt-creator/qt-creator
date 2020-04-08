@@ -731,9 +731,9 @@ FilePath GccToolChain::makeCommand(const Environment &environment) const
     return tmp.isEmpty() ? FilePath::fromString("make") : tmp;
 }
 
-IOutputParser *GccToolChain::outputParser() const
+QList<IOutputParser *> GccToolChain::outputParsers() const
 {
-    return new GccParser;
+    return GccParser::gccParserSuite();
 }
 
 void GccToolChain::resetToolChain(const FilePath &path)
@@ -1628,9 +1628,9 @@ LanguageExtensions ClangToolChain::defaultLanguageExtensions() const
     return LanguageExtension::Gnu;
 }
 
-IOutputParser *ClangToolChain::outputParser() const
+QList<IOutputParser *> ClangToolChain::outputParsers() const
 {
-    return new ClangParser;
+    return ClangParser::clangParserSuite();
 }
 
 // --------------------------------------------------------------------------
@@ -1898,9 +1898,9 @@ LanguageExtensions LinuxIccToolChain::languageExtensions(const QStringList &cxxf
     return extensions;
 }
 
-IOutputParser *LinuxIccToolChain::outputParser() const
+QList<IOutputParser *> LinuxIccToolChain::outputParsers() const
 {
-    return new LinuxIccParser;
+    return LinuxIccParser::iccParserSuite();
 }
 
 QStringList LinuxIccToolChain::suggestedMkspecList() const

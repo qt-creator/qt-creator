@@ -48,6 +48,7 @@ public:
 
     void setOutputParser(IOutputParser *parser);
     void appendOutputParser(IOutputParser *parser);
+    void appendOutputParsers(const QList<IOutputParser *> &parsers);
     IOutputParser *outputParser() const;
 
     void emitFaultyConfigurationMessage();

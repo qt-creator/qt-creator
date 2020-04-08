@@ -35,16 +35,15 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-void LldParser::handleLine(const QString &line, Utils::OutputFormat type)
+IOutputParser::Status LldParser::doHandleLine(const QString &line, Utils::OutputFormat type)
 {
-    if (type != Utils::StdErrFormat) {
-        IOutputParser::handleLine(line, type);
-        return;
-    }
+    if (type != Utils::StdErrFormat)
+        return Status::NotHandled;
+
     const QString trimmedLine = rightTrimmed(line);
     if (trimmedLine.contains("error:") && trimmedLine.contains("lld")) {
         emit addTask(CompileTask(Task::Error, trimmedLine));
-        return;
+        return Status::Done;
     }
     static const QStringList prefixes{">>> referenced by ", ">>> defined at ", ">>> "};
     for (const QString &prefix : prefixes) {
@@ -70,9 +69,9 @@ void LldParser::handleLine(const QString &line, Utils::OutputFormat type)
                     trimmedLine.mid(filePathOffset, filePathLen).trimmed());
         emit addTask(CompileTask(Task::Unknown, trimmedLine.mid(4).trimmed(),
                                  absoluteFilePath(file), lineNo));
-        return;
+        return Status::Done;
     }
-    IOutputParser::handleLine(line, Utils::StdErrFormat);
+    return Status::NotHandled;
 }
 
 } // namespace Internal

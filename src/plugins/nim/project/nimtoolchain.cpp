@@ -120,9 +120,9 @@ void NimToolChain::setCompilerCommand(const FilePath &compilerCommand)
     parseVersion(compilerCommand, m_version);
 }
 
-IOutputParser *NimToolChain::outputParser() const
+QList<IOutputParser *> NimToolChain::outputParsers() const
 {
-    return nullptr;
+    return {};
 }
 
 std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> NimToolChain::createConfigurationWidget()

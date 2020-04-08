@@ -47,11 +47,9 @@ public:
     XcodebuildParser();
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
-    bool hasFatalErrors() const override;
-
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    bool hasDetectedRedirection() const override;
+    bool hasFatalErrors() const override { return m_fatalErrorCount > 0; }
 
     int m_fatalErrorCount = 0;
     QRegExp m_failureRe;

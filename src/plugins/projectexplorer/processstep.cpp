@@ -100,7 +100,7 @@ ProcessStep::ProcessStep(BuildStepList *bsl, Core::Id id)
 bool ProcessStep::init()
 {
     setupProcessParameters(processParameters());
-    setOutputParser(target()->kit()->createOutputParser());
+    appendOutputParsers(target()->kit()->createOutputParsers());
     return AbstractProcessStep::init();
 }
 

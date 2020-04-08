@@ -91,7 +91,7 @@ public:
     static Core::Id id();
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
 
     bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                   const CustomParserExpression &expression, Task::TaskType taskType);

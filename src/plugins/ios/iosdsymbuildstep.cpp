@@ -80,9 +80,8 @@ bool IosDsymBuildStep::init()
     // That is mostly so that rebuild works on an already clean project
     setIgnoreReturnValue(m_clean);
 
-    setOutputParser(target()->kit()->createOutputParser());
-    if (outputParser())
-        outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
+    appendOutputParsers(target()->kit()->createOutputParsers());
+    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
 }

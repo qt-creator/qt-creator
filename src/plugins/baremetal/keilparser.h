@@ -55,9 +55,7 @@ private:
     bool parseMcs51WarningOrFatalErrorMessage(const QString &lne);
     bool parseMcs51FatalErrorMessage2(const QString &lne);
 
-    void handleLine(const QString &line, Utils::OutputFormat type) final;
-    void stdError(const QString &line);
-    void stdOutput(const QString &line);
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) final;
     void doFlush() final;
 
     ProjectExplorer::Task m_lastTask;

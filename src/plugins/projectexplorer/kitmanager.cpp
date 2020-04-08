@@ -677,10 +677,10 @@ void KitAspect::addToEnvironment(const Kit *k, Environment &env) const
     Q_UNUSED(env)
 }
 
-IOutputParser *KitAspect::createOutputParser(const Kit *k) const
+QList<IOutputParser *> KitAspect::createOutputParsers(const Kit *k) const
 {
     Q_UNUSED(k)
-    return nullptr;
+    return {};
 }
 
 QString KitAspect::displayNamePostfix(const Kit *k) const

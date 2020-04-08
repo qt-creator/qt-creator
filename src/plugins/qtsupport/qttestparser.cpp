@@ -47,12 +47,11 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-void QtTestParser::handleLine(const QString &line, OutputFormat type)
+IOutputParser::Status QtTestParser::doHandleLine(const QString &line, OutputFormat type)
 {
-    if (type != StdOutFormat) {
-        IOutputParser::handleLine(line, type);
-        return;
-    }
+    if (type != StdOutFormat)
+        return Status::NotHandled;
+
     const QString theLine = rightTrimmed(line);
     static const QRegularExpression triggerPattern("^(?:XPASS|FAIL!)  : .+$");
     QTC_CHECK(triggerPattern.isValid());
@@ -60,12 +59,10 @@ void QtTestParser::handleLine(const QString &line, OutputFormat type)
         emitCurrentTask();
         m_currentTask = Task(Task::Error, theLine, FilePath(), -1,
                              Constants::TASK_CATEGORY_AUTOTEST);
-        return;
+        return Status::InProgress;
     }
-    if (m_currentTask.isNull()) {
-        IOutputParser::handleLine(line, StdOutFormat);
-        return;
-    }
+    if (m_currentTask.isNull())
+        return Status::NotHandled;
     static const QRegularExpression locationPattern(HostOsInfo::isWindowsHost()
         ? QString(QT_TEST_FAIL_WIN_REGEXP)
         : QString(QT_TEST_FAIL_UNIX_REGEXP));
@@ -76,9 +73,10 @@ void QtTestParser::handleLine(const QString &line, OutputFormat type)
                     QDir::fromNativeSeparators(match.captured("file"))));
         m_currentTask.line = match.captured("line").toInt();
         emitCurrentTask();
-        return;
+        return Status::Done;
     }
     m_currentTask.description.append('\n').append(theLine);
+    return Status::InProgress;
 }
 
 void QtTestParser::emitCurrentTask()
@@ -93,7 +91,7 @@ void QtTestParser::emitCurrentTask()
 void QtSupportPlugin::testQtTestOutputParser()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new QtTestParser);
+    testbench.addLineParser(new QtTestParser);
     const QString input = "random output\n"
             "PASS   : MyTest::someTest()\n"
             "XPASS  : MyTest::someTest()\n"

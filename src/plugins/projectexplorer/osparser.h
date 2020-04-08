@@ -41,11 +41,8 @@ public:
     OsParser();
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
-    bool hasFatalErrors() const override;
-
-    void stdError(const QString &line);
-    void stdOutput(const QString &line);
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    bool hasFatalErrors() const override { return m_hasFatalError; }
 
     bool m_hasFatalError = false;
 };

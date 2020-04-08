@@ -35,7 +35,7 @@ class QtTestParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
     void doFlush() override { emitCurrentTask(); }
 
     void emitCurrentTask();

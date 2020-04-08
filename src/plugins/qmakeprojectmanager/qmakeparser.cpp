@@ -40,12 +40,10 @@ QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
     m_error.setMinimal(true);
 }
 
-void QMakeParser::handleLine(const QString &line, OutputFormat type)
+IOutputParser::Status QMakeParser::doHandleLine(const QString &line, OutputFormat type)
 {
-    if (type != Utils::StdErrFormat) {
-        IOutputParser::handleLine(line, type);
-        return;
-    }
+    if (type != Utils::StdErrFormat)
+        return Status::NotHandled;
     QString lne = rightTrimmed(line);
     if (m_error.indexIn(lne) > -1) {
         QString fileName = m_error.cap(1);
@@ -68,21 +66,21 @@ void QMakeParser::handleLine(const QString &line, OutputFormat type)
                                      absoluteFilePath(FilePath::fromUserInput(fileName)),
                                      m_error.cap(2).toInt() /* line */),
                      1);
-        return;
+        return Status::Done;
     }
     if (lne.startsWith(QLatin1String("Project ERROR: "))
             || lne.startsWith(QLatin1String("ERROR: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
         emit addTask(BuildSystemTask(Task::Error, description), 1);
-        return;
+        return Status::Done;
     }
     if (lne.startsWith(QLatin1String("Project WARNING: "))
             || lne.startsWith(QLatin1String("WARNING: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
         emit addTask(BuildSystemTask(Task::Warning, description), 1);
-        return;
+        return Status::Done;
     }
-    IOutputParser::handleLine(line, StdErrFormat);
+    return Status::NotHandled;
 }
 
 } // QmakeProjectManager
@@ -183,7 +181,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
 void QmakeProjectManagerPlugin::testQmakeOutputParsers()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new QMakeParser);
+    testbench.addLineParser(new QMakeParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);

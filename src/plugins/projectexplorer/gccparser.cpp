@@ -59,89 +59,16 @@ GccParser::GccParser()
     // optional .exe postfix
     m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
     QTC_CHECK(m_regExpGccNames.isValid());
-
-    appendOutputParser(new Internal::LldParser);
-    appendOutputParser(new LdParser);
-}
-
-void GccParser::stdError(const QString &line)
-{
-    QString lne = rightTrimmed(line);
-
-    // Blacklist some lines to not handle them:
-    if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
-        lne.startsWith(QLatin1String("distcc["))) {
-        IOutputParser::handleLine(line, StdErrFormat);
-        return;
-    }
-
-    // Handle misc issues:
-    if (lne.startsWith(QLatin1String("ERROR:")) ||
-        lne == QLatin1String("* cpp failed")) {
-        newTask(CompileTask(Task::Error, lne /* description */));
-        return;
-    }
-
-    QRegularExpressionMatch match = m_regExpGccNames.match(lne);
-    if (match.hasMatch()) {
-        QString description = lne.mid(match.capturedLength());
-        Task::TaskType type = Task::Error;
-        if (description.startsWith(QLatin1String("warning: "))) {
-            type = Task::Warning;
-            description = description.mid(9);
-        } else if (description.startsWith(QLatin1String("fatal: ")))  {
-            description = description.mid(7);
-        }
-        newTask(CompileTask(type, description));
-        return;
-    }
-
-    match = m_regExp.match(lne);
-    if (match.hasMatch()) {
-        Utils::FilePath filename = Utils::FilePath::fromUserInput(match.captured(1));
-        int lineno = match.captured(3).toInt();
-        Task::TaskType type = Task::Unknown;
-        QString description = match.captured(8);
-        if (match.captured(7) == QLatin1String("warning"))
-            type = Task::Warning;
-        else if (match.captured(7) == QLatin1String("error") ||
-                 description.startsWith(QLatin1String("undefined reference to")) ||
-                 description.startsWith(QLatin1String("multiple definition of")))
-            type = Task::Error;
-        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
-        // We want those to show how the warning was triggered
-        if (match.captured(5).startsWith(QLatin1Char('#')))
-            description = match.captured(5) + description;
-
-        newTask(CompileTask(type, description, absoluteFilePath(filename), lineno));
-        return;
-    }
-
-    match = m_regExpIncluded.match(lne);
-    if (match.hasMatch()) {
-        newTask(CompileTask(Task::Unknown,
-                            lne.trimmed() /* description */,
-                            absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1))),
-                            match.captured(3).toInt() /* linenumber */));
-        return;
-    } else if (lne.startsWith(' ') && !m_currentTask.isNull()) {
-        amendDescription(lne, true);
-        return;
-    }
-
-    doFlush();
-    IOutputParser::handleLine(line, StdErrFormat);
-}
-
-void GccParser::stdOutput(const QString &line)
-{
-    doFlush();
-    IOutputParser::handleLine(line, StdOutFormat);
 }
 
 Core::Id GccParser::id()
 {
     return Core::Id("ProjectExplorer.OutputParser.Gcc");
+}
+
+QList<IOutputParser *> GccParser::gccParserSuite()
+{
+    return {new GccParser, new Internal::LldParser, new LdParser};
 }
 
 void GccParser::newTask(const Task &task)
@@ -180,12 +107,78 @@ void GccParser::amendDescription(const QString &desc, bool monospaced)
     return;
 }
 
-void GccParser::handleLine(const QString &line, OutputFormat type)
+IOutputParser::Status GccParser::doHandleLine(const QString &line, OutputFormat type)
 {
-    if (type == StdOutFormat)
-        stdOutput(line);
-    else
-        stdError(line);
+    if (type == StdOutFormat) {
+        // TODO: The "flush on channel switch" logic could possibly also done centrally.
+        //       But see MSVC with the stdout/stderr switches because of jom
+        doFlush();
+        return Status::NotHandled;
+    }
+
+    const QString lne = rightTrimmed(line);
+
+    // Blacklist some lines to not handle them:
+    if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
+        lne.startsWith(QLatin1String("distcc["))) {
+        return Status::NotHandled;
+    }
+
+    // Handle misc issues:
+    if (lne.startsWith(QLatin1String("ERROR:")) || lne == QLatin1String("* cpp failed")) {
+        newTask(CompileTask(Task::Error, lne /* description */));
+        return Status::InProgress;
+    }
+
+    QRegularExpressionMatch match = m_regExpGccNames.match(lne);
+    if (match.hasMatch()) {
+        QString description = lne.mid(match.capturedLength());
+        Task::TaskType type = Task::Error;
+        if (description.startsWith(QLatin1String("warning: "))) {
+            type = Task::Warning;
+            description = description.mid(9);
+        } else if (description.startsWith(QLatin1String("fatal: ")))  {
+            description = description.mid(7);
+        }
+        newTask(CompileTask(type, description));
+        return Status::InProgress;
+    }
+
+    match = m_regExp.match(lne);
+    if (match.hasMatch()) {
+        Utils::FilePath filename = Utils::FilePath::fromUserInput(match.captured(1));
+        int lineno = match.captured(3).toInt();
+        Task::TaskType type = Task::Unknown;
+        QString description = match.captured(8);
+        if (match.captured(7) == QLatin1String("warning"))
+            type = Task::Warning;
+        else if (match.captured(7) == QLatin1String("error") ||
+                 description.startsWith(QLatin1String("undefined reference to")) ||
+                 description.startsWith(QLatin1String("multiple definition of")))
+            type = Task::Error;
+        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
+        // We want those to show how the warning was triggered
+        if (match.captured(5).startsWith(QLatin1Char('#')))
+            description = match.captured(5) + description;
+
+        newTask(CompileTask(type, description, absoluteFilePath(filename), lineno));
+        return Status::InProgress;
+    }
+
+    match = m_regExpIncluded.match(lne);
+    if (match.hasMatch()) {
+        newTask(CompileTask(Task::Unknown,
+                            lne.trimmed() /* description */,
+                            absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1))),
+                            match.captured(3).toInt() /* linenumber */));
+        return Status::InProgress;
+    } else if (lne.startsWith(' ') && !m_currentTask.isNull()) {
+        amendDescription(lne, true);
+        return Status::InProgress;
+    }
+
+    doFlush();
+    return Status::NotHandled;
 }
 
 // Unit tests:
@@ -1130,7 +1123,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
 void ProjectExplorerPlugin::testGccOutputParsers()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new GccParser);
+    testbench.setLineParsers(GccParser::gccParserSuite());
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);

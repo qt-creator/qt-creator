@@ -53,12 +53,11 @@ void OutputParserTester::testParsing(const QString &lines,
                                      const QString &childStdErrLines,
                                      const QString &outputLines)
 {
-    if (!m_terminator) {
-        m_terminator = new TestTerminator(this);
-        appendOutputParser(m_terminator);
-    }
+    const auto terminator = new TestTerminator(this);
+    if (!lineParsers().isEmpty())
+        terminator->setRedirectionDetector(lineParsers().last());
+    addLineParser(terminator);
     reset();
-    Q_ASSERT(childParser());
 
     if (inputChannel == STDOUT)
         handleStdout(lines + '\n');
@@ -68,7 +67,7 @@ void OutputParserTester::testParsing(const QString &lines,
 
     // delete the parser(s) to test
     emit aboutToDeleteParser();
-    setChildParser(nullptr);
+    setLineParsers({});
 
     QCOMPARE(m_receivedOutput, outputLines);
     QCOMPARE(m_receivedStdErrChildLine, childStdErrLines);
@@ -103,13 +102,14 @@ TestTerminator::TestTerminator(OutputParserTester *t) :
     m_tester(t)
 { }
 
-void TestTerminator::handleLine(const QString &line, Utils::OutputFormat type)
+IOutputParser::Status TestTerminator::doHandleLine(const QString &line, Utils::OutputFormat type)
 {
-    QVERIFY(line.endsWith('\n'));
+    QTC_CHECK(line.endsWith('\n'));
     if (type == Utils::StdOutFormat)
         m_tester->m_receivedStdOutChildLine.append(line);
     else
         m_tester->m_receivedStdErrChildLine.append(line);
+    return Status::Done;
 }
 
 } // namespace ProjectExplorer

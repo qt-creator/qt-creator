@@ -100,79 +100,71 @@ MsvcParser::MsvcParser()
     QTC_CHECK(m_additionalInfoRegExp.isValid());
 }
 
-void MsvcParser::stdOutput(const QString &line)
-{
-    QRegularExpressionMatch match = m_additionalInfoRegExp.match(line);
-    if (line.startsWith("        ") && !match.hasMatch()) {
-        if (m_lastTask.isNull())
-            return;
-
-        m_lastTask.description.append('\n');
-        m_lastTask.description.append(line.mid(8));
-        // trim trailing spaces:
-        int i = 0;
-        for (i = m_lastTask.description.length() - 1; i >= 0; --i) {
-            if (!m_lastTask.description.at(i).isSpace())
-                break;
-        }
-        m_lastTask.description.truncate(i + 1);
-
-        if (m_lastTask.formats.isEmpty()) {
-            QTextLayout::FormatRange fr;
-            fr.start = m_lastTask.description.indexOf('\n') + 1;
-            fr.length = m_lastTask.description.length() - fr.start;
-            fr.format.setFontItalic(true);
-            m_lastTask.formats.append(fr);
-        } else {
-            m_lastTask.formats[0].length = m_lastTask.description.length() - m_lastTask.formats[0].start;
-        }
-        ++m_lines;
-        return;
-    }
-
-    if (processCompileLine(line))
-        return;
-    if (handleNmakeJomMessage(line, &m_lastTask)) {
-        m_lines = 1;
-        return;
-    }
-    if (match.hasMatch()) {
-        QString description = match.captured(1)
-                + match.captured(4).trimmed();
-        if (!match.captured(1).isEmpty())
-            description.chop(1); // Remove trailing quote
-        m_lastTask = CompileTask(Task::Unknown, description,
-                                 absoluteFilePath(FilePath::fromUserInput(match.captured(2))),
-                                 match.captured(3).toInt() /* linenumber */);
-        m_lines = 1;
-        return;
-    }
-    IOutputParser::handleLine(line, StdOutFormat);
-}
-
-void MsvcParser::stdError(const QString &line)
-{
-    if (processCompileLine(line))
-        return;
-    // Jom outputs errors to stderr
-    if (handleNmakeJomMessage(line, &m_lastTask)) {
-        m_lines = 1;
-        return;
-    }
-    IOutputParser::handleLine(line, StdErrFormat);
-}
-
 Core::Id MsvcParser::id()
 {
     return Core::Id("ProjectExplorer.OutputParser.Msvc");
 }
 
-void MsvcParser::handleLine(const QString &line, OutputFormat type)
+IOutputParser::Status MsvcParser::doHandleLine(const QString &line, OutputFormat type)
 {
-    if (type == OutputFormat::StdOutFormat)
-        stdOutput(line);
-    else
-        stdError(line);
+    if (type == OutputFormat::StdOutFormat) {
+        QRegularExpressionMatch match = m_additionalInfoRegExp.match(line);
+        if (line.startsWith("        ") && !match.hasMatch()) {
+            if (m_lastTask.isNull())
+                return Status::NotHandled;
+
+            m_lastTask.description.append('\n');
+            m_lastTask.description.append(line.mid(8));
+            // trim trailing spaces:
+            int i = 0;
+            for (i = m_lastTask.description.length() - 1; i >= 0; --i) {
+                if (!m_lastTask.description.at(i).isSpace())
+                    break;
+            }
+            m_lastTask.description.truncate(i + 1);
+
+            if (m_lastTask.formats.isEmpty()) {
+                QTextLayout::FormatRange fr;
+                fr.start = m_lastTask.description.indexOf('\n') + 1;
+                fr.length = m_lastTask.description.length() - fr.start;
+                fr.format.setFontItalic(true);
+                m_lastTask.formats.append(fr);
+            } else {
+                m_lastTask.formats[0].length = m_lastTask.description.length()
+                        - m_lastTask.formats[0].start;
+            }
+            ++m_lines;
+            return Status::InProgress;
+        }
+
+        if (processCompileLine(line))
+            return Status::InProgress;
+        if (handleNmakeJomMessage(line, &m_lastTask)) {
+            m_lines = 1;
+            return Status::InProgress;
+        }
+        if (match.hasMatch()) {
+            QString description = match.captured(1)
+                    + match.captured(4).trimmed();
+            if (!match.captured(1).isEmpty())
+                description.chop(1); // Remove trailing quote
+            m_lastTask = CompileTask(Task::Unknown, description,
+                                     absoluteFilePath(FilePath::fromUserInput(match.captured(2))),
+                                     match.captured(3).toInt() /* linenumber */);
+            m_lines = 1;
+            return Status::InProgress;
+        }
+        return Status::NotHandled;
+    }
+
+    if (processCompileLine(line))
+        return Status::InProgress;
+    // Jom outputs errors to stderr
+    if (handleNmakeJomMessage(line, &m_lastTask)) {
+        m_lines = 1;
+        return Status::InProgress;
+    }
+    return Status::NotHandled;
 }
 
 bool MsvcParser::processCompileLine(const QString &line)
@@ -220,24 +212,6 @@ ClangClParser::ClangClParser()
     QTC_CHECK(m_compileRegExp.isValid());
 }
 
-void ClangClParser::handleLine(const QString &line, OutputFormat type)
-{
-    if (type == StdOutFormat)
-        stdOutput(line);
-    else
-        stdError(line);
-}
-
-void ClangClParser::stdOutput(const QString &line)
-{
-    if (handleNmakeJomMessage(line, &m_lastTask)) {
-        m_linkedLines = 1;
-        doFlush();
-        return;
-    }
-    IOutputParser::handleLine(line, StdOutFormat);
-}
-
 // Check for a code marker '~~~~ ^ ~~~~~~~~~~~~' underlining above code.
 static inline bool isClangCodeMarker(const QString &trimmedLine)
 {
@@ -246,51 +220,59 @@ static inline bool isClangCodeMarker(const QString &trimmedLine)
                          [] (QChar c) { return c != ' ' && c != '^' && c != '~'; });
 }
 
-void ClangClParser::stdError(const QString &lineIn)
+IOutputParser::Status ClangClParser::doHandleLine(const QString &line, OutputFormat type)
 {
-    const QString line = IOutputParser::rightTrimmed(lineIn); // Strip \r\n.
+    if (type == StdOutFormat) {
+        if (handleNmakeJomMessage(line, &m_lastTask)) {
+            m_linkedLines = 1;
+            doFlush();
+            return Status::Done;
+        }
+        return Status::NotHandled;
+    }
+    const QString lne = IOutputParser::rightTrimmed(line); // Strip \n.
 
-    if (handleNmakeJomMessage(line, &m_lastTask)) {
+    if (handleNmakeJomMessage(lne, &m_lastTask)) {
         m_linkedLines = 1;
         doFlush();
-        return;
+        return Status::Done;
     }
 
     // Finish a sequence of warnings/errors: "2 warnings generated."
-    if (!line.isEmpty() && line.at(0).isDigit() && line.endsWith("generated.")) {
+    if (!lne.isEmpty() && lne.at(0).isDigit() && lne.endsWith("generated.")) {
         doFlush();
-        return;
+        return Status::Done;
     }
 
     // Start a new error message by a sequence of "In file included from " which is to be skipped.
-    if (line.startsWith("In file included from ")) {
+    if (lne.startsWith("In file included from ")) {
         doFlush();
-        return;
+        return Status::Done;
     }
 
-    QRegularExpressionMatch match = m_compileRegExp.match(line);
+    QRegularExpressionMatch match = m_compileRegExp.match(lne);
     if (match.hasMatch()) {
         doFlush();
         const QPair<FilePath, int> position = parseFileName(match.captured(1));
         m_lastTask = CompileTask(taskType(match.captured(2)), match.captured(3).trimmed(),
                                  absoluteFilePath(position.first), position.second);
         m_linkedLines = 1;
-        return;
+        return Status::InProgress;
     }
 
     if (!m_lastTask.isNull()) {
-        const QString trimmed = line.trimmed();
+        const QString trimmed = lne.trimmed();
         if (isClangCodeMarker(trimmed)) {
             doFlush();
-            return;
+            return Status::Done;
         }
         m_lastTask.description.append('\n');
         m_lastTask.description.append(trimmed);
         ++m_linkedLines;
-        return;
+        return Status::InProgress;
     }
 
-    IOutputParser::handleLine(lineIn, StdErrFormat);
+    return Status::NotHandled;
 }
 
 void ClangClParser::doFlush()
@@ -566,7 +548,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
 void ProjectExplorerPlugin::testMsvcOutputParsers()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new MsvcParser);
+    testbench.addLineParser(new MsvcParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
@@ -645,7 +627,7 @@ void ProjectExplorerPlugin::testClangClOutputParsers_data()
 void ProjectExplorerPlugin::testClangClOutputParsers()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new ClangClParser);
+    testbench.addLineParser(new ClangClParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);

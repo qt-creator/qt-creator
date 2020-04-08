@@ -69,7 +69,6 @@ private:
     QString m_receivedStdOutChildLine;
     Tasks m_receivedTasks;
     QString m_receivedOutput;
-    TestTerminator *m_terminator = nullptr;
 
     friend class TestTerminator;
 };
@@ -82,7 +81,7 @@ public:
     TestTerminator(OutputParserTester *t);
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
 
     OutputParserTester *m_tester = nullptr;
 };

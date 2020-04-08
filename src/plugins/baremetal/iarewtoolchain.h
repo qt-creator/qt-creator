@@ -68,7 +68,7 @@ public:
                                                     const Utils::FilePath &,
                                                     const Utils::Environment &env) const final;
     void addToEnvironment(Utils::Environment &env) const final;
-    ProjectExplorer::IOutputParser *outputParser() const final;
+    QList<ProjectExplorer::IOutputParser *> outputParsers() const final;
 
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;

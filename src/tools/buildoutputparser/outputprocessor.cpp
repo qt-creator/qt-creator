@@ -54,19 +54,20 @@ CompilerOutputProcessor::~CompilerOutputProcessor()
 
 void CompilerOutputProcessor::start()
 {
-    ProjectExplorer::OsParser parser;
-    parser.appendOutputParser(new QmakeProjectManager::QMakeParser);
-    parser.appendOutputParser(new ProjectExplorer::GnuMakeParser);
-    parser.appendOutputParser(new QtSupport::QtParser);
+    ProjectExplorer::IOutputParser parser;
+    parser.addLineParser(new ProjectExplorer::OsParser);
+    parser.addLineParser(new QmakeProjectManager::QMakeParser);
+    parser.addLineParser(new ProjectExplorer::GnuMakeParser);
+    parser.addLineParser(new QtSupport::QtParser);
     switch (m_compilerType) {
     case CompilerTypeGcc:
-        parser.appendOutputParser(new ProjectExplorer::GccParser);
+        parser.addLineParsers(ProjectExplorer::GccParser::gccParserSuite());
         break;
     case CompilerTypeClang:
-        parser.appendOutputParser(new ProjectExplorer::ClangParser);
+        parser.addLineParsers(ProjectExplorer::ClangParser::clangParserSuite());
         break;
     case CompilerTypeMsvc:
-        parser.appendOutputParser(new ProjectExplorer::MsvcParser);
+        parser.addLineParser(new ProjectExplorer::MsvcParser);
         break;
     }
 

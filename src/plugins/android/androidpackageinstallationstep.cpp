@@ -112,9 +112,7 @@ bool AndroidPackageInstallationStep::init()
     pp->setCommandLine(cmd);
 
     setOutputParser(new GnuMakeParser());
-    IOutputParser *parser = target()->kit()->createOutputParser();
-    if (parser)
-        appendOutputParser(parser);
+    appendOutputParsers(target()->kit()->createOutputParsers());
     outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
 
     m_androidDirsToClean.clear();

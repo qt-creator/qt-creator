@@ -223,9 +223,7 @@ bool IosBuildStep::init()
     setIgnoreReturnValue(m_clean);
 
     setOutputParser(new GnuMakeParser());
-    IOutputParser *parser = target()->kit()->createOutputParser();
-    if (parser)
-        appendOutputParser(parser);
+    appendOutputParsers(target()->kit()->createOutputParsers());
     outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();

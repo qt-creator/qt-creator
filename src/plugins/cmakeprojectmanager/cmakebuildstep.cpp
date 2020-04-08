@@ -214,9 +214,7 @@ bool CMakeBuildStep::init()
     cmakeParser->setSourceDirectory(projectDirectory.toString());
     setOutputParser(cmakeParser);
     appendOutputParser(new GnuMakeParser);
-    IOutputParser *parser = target()->kit()->createOutputParser();
-    if (parser)
-        appendOutputParser(parser);
+    appendOutputParsers(target()->kit()->createOutputParsers());
     outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();

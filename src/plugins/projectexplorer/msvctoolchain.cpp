@@ -1169,9 +1169,9 @@ void MsvcToolChain::rescanForCompiler()
           });
 }
 
-IOutputParser *MsvcToolChain::outputParser() const
+QList<IOutputParser *> MsvcToolChain::outputParsers() const
 {
-    return new MsvcParser;
+    return {new MsvcParser};
 }
 
 void MsvcToolChain::setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg)
@@ -1656,9 +1656,9 @@ QStringList ClangClToolChain::suggestedMkspecList() const
     return {mkspec, "win32-clang-msvc"};
 }
 
-IOutputParser *ClangClToolChain::outputParser() const
+QList<IOutputParser *> ClangClToolChain::outputParsers() const
 {
-    return new ClangClParser;
+    return {new ClangClParser};
 }
 
 static inline QString llvmDirKey()

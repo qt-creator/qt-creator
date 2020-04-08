@@ -63,21 +63,15 @@ LinuxIccParser::LinuxIccParser() :
     m_pchInfoLine.setPattern(QLatin1String("^\".*\": (creating|using) precompiled header file \".*\"\n$"));
     m_pchInfoLine.setMinimal(true);
     QTC_CHECK(m_pchInfoLine.isValid());
-
-    appendOutputParser(new Internal::LldParser);
-    appendOutputParser(new LdParser);
 }
 
-void LinuxIccParser::handleLine(const QString &line, OutputFormat type)
+IOutputParser::Status LinuxIccParser::doHandleLine(const QString &line, OutputFormat type)
 {
-    if (type != Utils::StdErrFormat) {
-        IOutputParser::handleLine(line, type);
-        return;
-    }
-    if (m_pchInfoLine.indexIn(line) != -1) {
-        // totally ignore this line
-        return;
-    }
+    if (type != Utils::StdErrFormat)
+        return Status::NotHandled;
+
+    if (m_pchInfoLine.indexIn(line) != -1)
+        return Status::Done; // totally ignore this line
 
     if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
         // Clear out old task
@@ -94,7 +88,9 @@ void LinuxIccParser::handleLine(const QString &line, OutputFormat type)
 
         m_lines = 1;
         m_expectFirstLine = false;
-    } else if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {
+        return Status::InProgress;
+    }
+    if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {
         // Format the last line as code
         QTextLayout::FormatRange fr;
         fr.start = m_temporary.description.lastIndexOf(QLatin1Char('\n')) + 1;
@@ -107,25 +103,35 @@ void LinuxIccParser::handleLine(const QString &line, OutputFormat type)
         fr2.length = 1;
         fr2.format.setFontWeight(QFont::Bold);
         m_temporary.formats.append(fr2);
-    } else if (!m_expectFirstLine && line.trimmed().isEmpty()) { // last Line
+        return Status::InProgress;
+    }
+    if (!m_expectFirstLine && line.trimmed().isEmpty()) { // last Line
         m_expectFirstLine = true;
         emit addTask(m_temporary, m_lines);
         m_temporary = Task();
-    } else if (!m_expectFirstLine && m_continuationLines.indexIn(line) != -1) {
+        return Status::Done;
+    }
+    if (!m_expectFirstLine && m_continuationLines.indexIn(line) != -1) {
         m_temporary.description.append(QLatin1Char('\n'));
         m_indent = 0;
         while (m_indent < line.length() && line.at(m_indent).isSpace())
             m_indent++;
         m_temporary.description.append(m_continuationLines.cap(1).trimmed());
         ++m_lines;
-    } else {
-        IOutputParser::handleLine(line, StdErrFormat);
+        return Status::InProgress;
     }
+    QTC_CHECK(m_temporary.isNull());
+    return Status::NotHandled;
 }
 
 Core::Id LinuxIccParser::id()
 {
     return Core::Id("ProjectExplorer.OutputParser.Icc");
+}
+
+QList<IOutputParser *> LinuxIccParser::iccParserSuite()
+{
+    return {new LinuxIccParser, new Internal::LldParser, new LdParser};
 }
 
 void LinuxIccParser::doFlush()
@@ -238,7 +244,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
 void ProjectExplorerPlugin::testLinuxIccOutputParsers()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new LinuxIccParser);
+    testbench.setLineParsers(LinuxIccParser::iccParserSuite());
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);

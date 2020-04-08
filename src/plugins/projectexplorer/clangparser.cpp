@@ -25,6 +25,7 @@
 
 #include "clangparser.h"
 #include "ldparser.h"
+#include "lldparser.h"
 #include "projectexplorerconstants.h"
 
 using namespace ProjectExplorer;
@@ -54,25 +55,28 @@ ClangParser::ClangParser() :
     setObjectName(QLatin1String("ClangParser"));
 }
 
-void ClangParser::handleLine(const QString &line, OutputFormat type)
+QList<IOutputParser *> ClangParser::clangParserSuite()
 {
-    if (type != StdErrFormat) {
-        IOutputParser::handleLine(line, type);
-        return;
-    }
+    return {new ClangParser, new Internal::LldParser, new LdParser};
+}
+
+IOutputParser::Status ClangParser::doHandleLine(const QString &line, OutputFormat type)
+{
+    if (type != StdErrFormat)
+        return Status::NotHandled;
     const QString lne = rightTrimmed(line);
     QRegularExpressionMatch match = m_summaryRegExp.match(lne);
     if (match.hasMatch()) {
         doFlush();
         m_expectSnippet = false;
-        return;
+        return Status::Done;
     }
 
     match = m_commandRegExp.match(lne);
     if (match.hasMatch()) {
         m_expectSnippet = true;
         newTask(CompileTask(taskType(match.captured(3)), match.captured(4)));
-        return;
+        return Status::InProgress;
     }
 
     match = m_inLineRegExp.match(lne);
@@ -82,7 +86,7 @@ void ClangParser::handleLine(const QString &line, OutputFormat type)
                             lne.trimmed(),
                             absoluteFilePath(FilePath::fromUserInput(match.captured(2))),
                             match.captured(3).toInt() /* line */));
-        return;
+        return Status::InProgress;
     }
 
     match = m_messageRegExp.match(lne);
@@ -96,22 +100,22 @@ void ClangParser::handleLine(const QString &line, OutputFormat type)
                             match.captured(8),
                             absoluteFilePath(FilePath::fromUserInput(match.captured(1))),
                             lineNo));
-        return;
+        return Status::InProgress;
     }
 
     match = m_codesignRegExp.match(lne);
     if (match.hasMatch()) {
         m_expectSnippet = true;
         newTask(CompileTask(Task::Error, match.captured(1)));
-        return;
+        return Status::InProgress;
     }
 
     if (m_expectSnippet) {
         amendDescription(lne, true);
-        return;
+        return Status::InProgress;
     }
 
-    IOutputParser::handleLine(line, StdErrFormat);
+    return Status::NotHandled;
 }
 
 Core::Id ClangParser::id()
@@ -259,7 +263,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
 void ProjectExplorerPlugin::testClangOutputParser()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new ClangParser);
+    testbench.setLineParsers(ClangParser::clangParserSuite());
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);

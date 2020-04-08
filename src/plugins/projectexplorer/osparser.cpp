@@ -36,39 +36,30 @@ OsParser::OsParser()
     setObjectName(QLatin1String("OsParser"));
 }
 
-void OsParser::handleLine(const QString &line, Utils::OutputFormat type)
+IOutputParser::Status OsParser::doHandleLine(const QString &line, Utils::OutputFormat type)
 {
-    if (type == Utils::StdOutFormat)
-        stdOutput(line);
-    else
-        stdError(line);
-}
-
-void OsParser::stdError(const QString &line)
-{
+    if (type == Utils::StdOutFormat) {
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            const QString trimmed = line.trimmed();
+            if (trimmed == QLatin1String("The process cannot access the file because it is "
+                                         "being used by another process.")) {
+                emit addTask(CompileTask(Task::Error, tr(
+                       "The process cannot access the file because it is being used "
+                       "by another process.\n"
+                       "Please close all running instances of your application before "
+                       "starting a build.")));
+                m_hasFatalError = true;
+                return Status::Done;
+            }
+        }
+        return Status::NotHandled;
+    }
     if (Utils::HostOsInfo::isLinuxHost()) {
         const QString trimmed = line.trimmed();
-        if (trimmed.contains(QLatin1String(": error while loading shared libraries:")))
+        if (trimmed.contains(QLatin1String(": error while loading shared libraries:"))) {
             emit addTask(CompileTask(Task::Error, trimmed));
-    }
-    IOutputParser::handleLine(line, Utils::StdErrFormat);
-}
-
-void OsParser::stdOutput(const QString &line)
-{
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        const QString trimmed = line.trimmed();
-        if (trimmed == QLatin1String("The process cannot access the file because it is being used by another process.")) {
-            emit addTask(CompileTask(Task::Error, tr(
-                   "The process cannot access the file because it is being used by another process.\n"
-                   "Please close all running instances of your application before starting a build.")));
-            m_hasFatalError = true;
+            return Status::Done;
         }
     }
-    IOutputParser::handleLine(line, Utils::StdOutFormat);
-}
-
-bool OsParser::hasFatalErrors() const
-{
-    return m_hasFatalError || IOutputParser::hasFatalErrors();
+    return Status::NotHandled;
 }

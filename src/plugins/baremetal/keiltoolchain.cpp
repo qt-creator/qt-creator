@@ -374,9 +374,9 @@ void KeilToolChain::addToEnvironment(Environment &env) const
     }
 }
 
-IOutputParser *KeilToolChain::outputParser() const
+QList<IOutputParser *> KeilToolChain::outputParsers() const
 {
-    return new KeilParser;
+    return {new KeilParser};
 }
 
 QVariantMap KeilToolChain::toMap() const

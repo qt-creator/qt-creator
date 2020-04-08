@@ -116,7 +116,7 @@ public:
     bool isEqual(const Kit *other) const;
 
     void addToEnvironment(Utils::Environment &env) const;
-    IOutputParser *createOutputParser() const;
+    QList<IOutputParser *> createOutputParsers() const;
 
     QString toHtml(const Tasks &additional = Tasks(), const QString &extraText = QString()) const;
     Kit *clone(bool keepName = false) const;

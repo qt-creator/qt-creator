@@ -39,7 +39,7 @@ class LdParser : public ProjectExplorer::IOutputParser
 public:
     LdParser();
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
     void doFlush() override;
 
     QRegularExpression m_ranlib;

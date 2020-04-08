@@ -307,9 +307,9 @@ void SdccToolChain::addToEnvironment(Environment &env) const
     }
 }
 
-IOutputParser *SdccToolChain::outputParser() const
+QList<IOutputParser *> SdccToolChain::outputParsers() const
 {
-    return new SdccParser;
+    return {new SdccParser};
 }
 
 QVariantMap SdccToolChain::toMap() const

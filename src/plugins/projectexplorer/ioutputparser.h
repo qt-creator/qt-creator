@@ -47,11 +47,6 @@ public:
     void handleStdout(const QString &data);
     void handleStderr(const QString &data);
 
-    void appendOutputParser(IOutputParser *parser);
-
-    IOutputParser *childParser() const;
-    void setChildParser(IOutputParser *parser);
-
     virtual bool hasFatalErrors() const;
 
     using Filter = std::function<QString(const QString &)>;
@@ -60,25 +55,44 @@ public:
     void addSearchDir(const Utils::FilePath &dir);
     void dropSearchDir(const Utils::FilePath &dir);
     const Utils::FilePaths searchDirectories() const;
-    void skipFileExistsCheck(); // For testing only
 
-    void flush(); // flush pending tasks & output
-    void flushTasks(); // flush pending tasks only
+    void flush();
+    void clear();
+
+    void addLineParser(IOutputParser *parser);
+    void addLineParsers(const QList<IOutputParser *> &parsers);
+    void setLineParsers(const QList<IOutputParser *> &parsers);
+
+#ifdef WITH_TESTS
+    QList<IOutputParser *> lineParsers() const;
+    void skipFileExistsCheck();
+#endif
+
+    void setRedirectionDetector(const IOutputParser *detector);
 
     static QString rightTrimmed(const QString &in);
 
 signals:
+    void searchDirIn(const Utils::FilePath &dir);
+    void searchDirOut(const Utils::FilePath &dir);
     void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
 protected:
-    virtual void handleLine(const QString &line, Utils::OutputFormat type);
+    enum class Status { Done, InProgress, NotHandled };
 
     Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath);
 
 private:
+    virtual Status doHandleLine(const QString &line, Utils::OutputFormat type);
     virtual void doFlush();
+    virtual bool hasDetectedRedirection() const { return false; }
 
+    void handleLine(const QString &line, Utils::OutputFormat type);
     QString filteredLine(const QString &line) const;
+    void connectLineParser(IOutputParser *parser);
+    bool needsRedirection() const;
+    Utils::OutputFormat outputTypeForParser(const IOutputParser *parser,
+                                            Utils::OutputFormat type) const;
 
     class OutputChannelState;
     class IOutputParserPrivate;

@@ -45,8 +45,7 @@ public:
     void setSourceDirectory(const Utils::FilePath &sourceDirectory);
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
-    void parse(const QString &line);
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
 
     QRegExp m_javaRegExp;
     QStringList m_fileList;

@@ -150,7 +150,7 @@ public:
     Core::Id language() const;
 
     virtual Utils::FilePath compilerCommand() const = 0;
-    virtual IOutputParser *outputParser() const = 0;
+    virtual QList<IOutputParser *> outputParsers() const = 0;
 
     virtual bool operator ==(const ToolChain &) const;
 

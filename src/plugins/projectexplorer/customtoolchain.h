@@ -84,7 +84,7 @@ public:
                                    const Utils::Environment &env) const override;
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
-    IOutputParser *outputParser() const override;
+    QList<IOutputParser *> outputParsers() const override;
     QStringList headerPathsList() const;
     void setHeaderPaths(const QStringList &list);
 

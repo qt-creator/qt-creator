@@ -40,11 +40,8 @@ public:
     explicit GnuMakeParser();
 
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
     bool hasFatalErrors() const override;
-
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
 
     void emitTask(const ProjectExplorer::Task &task);
 

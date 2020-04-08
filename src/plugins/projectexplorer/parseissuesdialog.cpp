@@ -151,12 +151,14 @@ static void parse(QFutureInterface<void> &future, const QString &output,
 
 void ParseIssuesDialog::accept()
 {
-    std::unique_ptr<IOutputParser> parser(d->kitChooser.currentKit()->createOutputParser());
-    if (!parser) {
+    const QList<IOutputParser *> lineParsers = d->kitChooser.currentKit()->createOutputParsers();
+    if (lineParsers.isEmpty()) {
         QMessageBox::critical(this, tr("Cannot Parse"), tr("Cannot parse: The chosen kit does "
                                                            "not provide an output parser."));
         return;
     }
+    std::unique_ptr<IOutputParser> parser(new IOutputParser);
+    parser->setLineParsers(lineParsers);
     if (d->clearTasksCheckBox.isChecked())
         TaskHub::clearTasks();
     connect(parser.get(), &IOutputParser::addTask, [](const Task &t) { TaskHub::addTask(t); });

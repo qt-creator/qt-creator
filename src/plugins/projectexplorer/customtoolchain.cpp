@@ -196,19 +196,19 @@ QStringList CustomToolChain::suggestedMkspecList() const
     return m_mkspecs;
 }
 
-IOutputParser *CustomToolChain::outputParser() const
+QList<IOutputParser *> CustomToolChain::outputParsers() const
 {
     if (m_outputParserId == GccParser::id())
-        return new GccParser;
+        return GccParser::gccParserSuite();
     if (m_outputParserId == ClangParser::id())
-        return new ClangParser;
+        return ClangParser::clangParserSuite();
     if (m_outputParserId == LinuxIccParser::id())
-        return new LinuxIccParser;
+        return LinuxIccParser::iccParserSuite();
     if (m_outputParserId == MsvcParser::id())
-        return new MsvcParser;
+        return {new MsvcParser};
     if (m_outputParserId == CustomParser::id())
-        return new CustomParser(m_customParserSettings);
-    return nullptr;
+        return {new CustomParser(m_customParserSettings)};
+    return {};
 }
 
 QStringList CustomToolChain::headerPathsList() const

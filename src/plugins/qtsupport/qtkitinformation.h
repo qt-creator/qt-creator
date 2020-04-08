@@ -54,7 +54,7 @@ public:
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
-    ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const override;
+    QList<ProjectExplorer::IOutputParser *> createOutputParsers(const ProjectExplorer::Kit *k) const override;
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Core::Id id();

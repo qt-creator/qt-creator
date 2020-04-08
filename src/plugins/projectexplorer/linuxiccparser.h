@@ -41,8 +41,10 @@ public:
 
     static Core::Id id();
 
+    static QList<IOutputParser *> iccParserSuite();
+
 private:
-    void handleLine(const QString &line, Utils::OutputFormat type) override;
+    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
     void doFlush() override;
 
     QRegExp m_firstLine;

@@ -43,12 +43,11 @@ QtParser::QtParser() :
     m_translationRegExp.setMinimal(true);
 }
 
-void QtParser::handleLine(const QString &line, Utils::OutputFormat type)
+IOutputParser::Status QtParser::doHandleLine(const QString &line, Utils::OutputFormat type)
 {
-    if (type != Utils::StdErrFormat) {
-        IOutputParser::handleLine(line, type);
-        return;
-    }
+    if (type != Utils::StdErrFormat)
+        return Status::NotHandled;
+
     QString lne = rightTrimmed(line);
     if (m_mocRegExp.indexIn(lne) > -1) {
         bool ok;
@@ -65,7 +64,7 @@ void QtParser::handleLine(const QString &line, Utils::OutputFormat type)
                          absoluteFilePath(Utils::FilePath::fromUserInput(m_mocRegExp.cap(1))),
                          lineno);
         emit addTask(task, 1);
-        return;
+        return Status::Done;
     }
     if (m_translationRegExp.indexIn(lne) > -1) {
         Task::TaskType type = Task::Warning;
@@ -74,9 +73,9 @@ void QtParser::handleLine(const QString &line, Utils::OutputFormat type)
         CompileTask task(type, m_translationRegExp.cap(2),
                          absoluteFilePath(Utils::FilePath::fromUserInput(m_translationRegExp.cap(3))));
         emit addTask(task, 1);
-        return;
+        return Status::Done;
     }
-    IOutputParser::handleLine(line, Utils::StdErrFormat);
+    return Status::NotHandled;
 }
 
 // Unit tests:
@@ -179,7 +178,7 @@ void QtSupportPlugin::testQtOutputParser_data()
 void QtSupportPlugin::testQtOutputParser()
 {
     OutputParserTester testbench;
-    testbench.appendOutputParser(new QtParser);
+    testbench.addLineParser(new QtParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
