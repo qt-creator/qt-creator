@@ -5851,7 +5851,7 @@ void tst_Dumpers::dumper_data()
 //         + Check("c.r", "1", "int");
 
 //        // Manual: Toogle "Sort Member Alphabetically" in context menu
-//        // Manual: of "Locals and Expressions" view");
+//        // Manual: of "Locals" and "Expressions" views");
 //        // Manual: Check that order of displayed members changes");
 
     QTest::newRow("Typedef")
@@ -5966,7 +5966,7 @@ void tst_Dumpers::dumper_data()
 //    QTest::newRow("TypeFormats")
 //                  << Data(
 //    "// These tests should result in properly displayed umlauts in the\n"
-//    "// Locals and Expressions view. It is only support on gdb with Python");\n"
+//    "// Locals and Expressions views. It is only support on gdb with Python");\n"
 //    "const char *s = "aöa";\n"
 //    "const wchar_t *w = L"aöa";\n"
 //    "QString u;\n"

@@ -5304,7 +5304,7 @@ namespace basic {
         // Continue.
 
         // Manual: Toogle "Sort Member Alphabetically" in context menu
-        // Manual: of "Locals and Expressions" view.
+        // Manual: of "Locals" and "Expressions" views.
         // Manual: Check that order of displayed members changes.
         dummyStatement(&c);
     }
@@ -5436,7 +5436,7 @@ namespace basic {
     void testTypeFormats()
     {
         // These tests should result in properly displayed umlauts in the
-        // Locals and Expressions view. It is only support on gdb with Python.
+        // Locals and Expressions views. It is only support on gdb with Python.
 
         const char *s = "aöa";
         const char cs[] = "aöa";

@@ -169,7 +169,7 @@ DebuggerSettings::DebuggerSettings()
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup, "AutoDerefPointers");
-    item->setToolTip(tr("<p>This switches the Locals and Expressions view to "
+    item->setToolTip(tr("<p>This switches the Locals and Expressions views to "
         "automatically dereference pointers. This saves a level in the "
         "tree view, but also loses data for the now-missing intermediate "
         "level."));
@@ -587,7 +587,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction;
     item->setSettingsKey(debugModeGroup, "DisplayStringLimit");
     item->setToolTip(tr("<p>The maximum length of string entries in the "
-        "Locals and Expressions pane. Longer than that are cut off "
+        "Locals and Expressions views. Longer than that are cut off "
         "and displayed with an ellipsis attached."));
     item->setDefaultValue(100);
     insertItem(DisplayStringLimit, item);
