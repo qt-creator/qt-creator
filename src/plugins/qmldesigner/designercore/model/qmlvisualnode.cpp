@@ -327,17 +327,23 @@ NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32
 
 bool QmlVisualNode::isFlowTransition(const ModelNode &node)
 {
-    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
+    return node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
 }
 
 bool QmlVisualNode::isFlowDecision(const ModelNode &node)
 {
-    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowDecision");
+    return node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("FlowView.FlowDecision");
 }
 
 bool QmlVisualNode::isFlowWildcard(const ModelNode &node)
 {
-    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowWildcard");
+    return node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("FlowView.FlowWildcard");
 }
 
 bool QmlVisualNode::isFlowTransition() const
