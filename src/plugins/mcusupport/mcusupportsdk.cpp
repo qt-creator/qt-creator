@@ -145,21 +145,34 @@ static McuPackage *createEvkbImxrt1050SdkPackage()
     return result;
 }
 
-static McuPackage *createSeggerJLinkPackage()
+static McuPackage *createMcuXpressoIdePackage()
 {
-    QString defaultPath = QString("%{Env:SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH}");
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        const QString programPath = findInProgramFiles("/SEGGER/JLink");
-        if (!programPath.isEmpty())
-            defaultPath = programPath;
+    const char envVar[] = "MCUXpressoIDE_PATH";
+
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar)) {
+        defaultPath = qEnvironmentVariable(envVar);
+    } else if (Utils::HostOsInfo::isWindowsHost()) {
+        defaultPath = QDir::rootPath() + "nxp";
+        if (QFileInfo::exists(defaultPath)) {
+            // If default dir has exactly one sub dir that could be the IDE path, pre-select that.
+            const QFileInfoList subDirs =
+                    QDir(defaultPath).entryInfoList({QLatin1String("MCUXpressoIDE*")},
+                                                    QDir::Dirs | QDir::NoDotAndDotDot);
+            if (subDirs.count() == 1)
+                defaultPath = subDirs.first().filePath() + '/';
+        }
+    } else {
+        defaultPath = "/usr/local/mcuxpressoide/";
     }
+
     auto result = new McuPackage(
-                McuPackage::tr("SEGGER JLink"),
+                "MCUXpresso IDE",
                 defaultPath,
-                Utils::HostOsInfo::withExecutableSuffix("JLink"),
-                "SeggerJLink");
-    result->setDownloadUrl("https://www.segger.com/downloads/jlink");
-    result->setEnvironmentVariableName("SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH");
+                Utils::HostOsInfo::withExecutableSuffix("ide/binaries/crt_emu_cm_redlink"),
+                "MCUXpressoIDE");
+    result->setDownloadUrl("https://www.nxp.com/mcuxpresso/ide");
+    result->setEnvironmentVariableName(envVar);
     return result;
 }
 
@@ -171,18 +184,18 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
     McuPackage* stm32CubeFwF7SdkPackage = Sdk::createStm32CubeFwF7SdkPackage();
     McuPackage* stm32CubeProgrammerPackage = Sdk::createStm32CubeProgrammerPackage();
     McuPackage* evkbImxrt1050SdkPackage = Sdk::createEvkbImxrt1050SdkPackage();
-    McuPackage* seggerJLinkPackage = Sdk::createSeggerJLinkPackage();
+    McuPackage *mcuXpressoIdePackage = createMcuXpressoIdePackage();
 
     QVector<McuPackage*> stmEvalPackages = {
         armGccPackage, stm32CubeProgrammerPackage};
     QVector<McuPackage*> nxpEvalPackages = {
-        armGccPackage, seggerJLinkPackage};
+        armGccPackage, mcuXpressoIdePackage};
     QVector<McuPackage*> renesasEvalPackages = {
-        armGccPackage, seggerJLinkPackage};
+        armGccPackage, mcuXpressoIdePackage};
     QVector<McuPackage*> desktopPackages = {};
     *packages = {
         armGccPackage, desktopToolChainPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage,
-        evkbImxrt1050SdkPackage, seggerJLinkPackage};
+        evkbImxrt1050SdkPackage, mcuXpressoIdePackage};
 
     const QString vendorStm = "STM";
     const QString vendorNxp = "NXP";
