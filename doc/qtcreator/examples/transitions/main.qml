@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator
@@ -47,9 +47,8 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick 2.12
+import QtQuick.Controls 2.5
 
 ApplicationWindow {
     visible: true
@@ -64,15 +63,14 @@ ApplicationWindow {
 
         Page1Form {
             id: page
-
             mouseArea {
-            onClicked: stateGroup.state = ' '
+                onClicked: stateGroup.state = ' '
             }
             mouseArea1 {
-            onClicked: stateGroup.state = 'State1'
+                onClicked: stateGroup.state = 'State1'
             }
             mouseArea2 {
-            onClicked: stateGroup.state = 'State2'
+                onClicked: stateGroup.state = 'State2'
             }
         }
 
@@ -102,6 +100,7 @@ ApplicationWindow {
                 }
             }
         ]
+
         transitions: [
             Transition {
                 from: "*"; to: "State1"
