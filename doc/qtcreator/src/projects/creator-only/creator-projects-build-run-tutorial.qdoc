@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -59,15 +59,15 @@
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
             If no examples are listed, check that a \l{Adding Qt Versions}
-            {Qt version} is installed and configured.
+            {Qt version} (2) is installed and configured. If you select a Qt
+            for Android or iOS, only the examples tested for Android or iOS
+            are listed.
 
         \li Select an example in the list of examples.
 
-            You can also search for examples. Enter the \uicontrol android or
-            \uicontrol ios keyword in the search field (2) to list all the
-            examples tested for Android or iOS. To list examples that you can
-            run on embedded devices, enter the \uicontrol Boot2Qt keyword in the
-            search field (commercial only).
+            You can also use tags (3) to filter examples. For instance, enter
+            the \uicontrol Boot2Qt tag (commercial only) in the search field
+            (4) to list examples that you can run on embedded devices.
 
         \li To check that the application code can be compiled and linked for a
             device, click the \uicontrol {Kit Selector} and select a
