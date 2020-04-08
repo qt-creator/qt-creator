@@ -55,7 +55,7 @@ private:
     void addImport(const Import &import);
 
 private:
-    QPointer<ImportsWidget> m_importsWidget = nullptr;
+    QPointer<ImportsWidget> m_importsWidget;
 };
 
 } // namespace QmlDesigner
