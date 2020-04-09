@@ -563,7 +563,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     connect(m_baseDirChooser, &Utils::PathChooser::validChanged,
             this, &SelectableFilesWidget::baseDirectoryChanged);
     connect(m_startParsingButton, &QAbstractButton::clicked,
-            this, [this]() { startParsing(m_baseDirChooser->fileName()); });
+            this, [this]() { startParsing(m_baseDirChooser->filePath()); });
 
     m_selectFilesFilterLabel->setText(tr("Select files matching:"));
     m_selectFilesFilterEdit->setText(selectFilter);
@@ -645,7 +645,7 @@ void SelectableFilesWidget::resetModel(const Utils::FilePath &path, const Utils:
     connect(m_model, &SelectableFilesModel::checkedFilesChanged,
             this, &SelectableFilesWidget::selectedFilesChanged);
 
-    m_baseDirChooser->setFileName(path);
+    m_baseDirChooser->setFilePath(path);
     m_view->setModel(m_model);
 
     startParsing(path);

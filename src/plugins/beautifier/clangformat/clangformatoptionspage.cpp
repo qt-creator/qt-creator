@@ -71,7 +71,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     });
     ui.configurations->setSettings(m_settings);
 
-    ui.command->setFileName(m_settings->command());
+    ui.command->setFilePath(m_settings->command());
     ui.mime->setText(m_settings->supportedMimeTypesAsString());
     const int predefinedStyleIndex = ui.predefinedStyle->findText(m_settings->predefinedStyle());
     if (predefinedStyleIndex != -1)

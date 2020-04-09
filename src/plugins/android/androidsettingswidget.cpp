@@ -477,21 +477,21 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     Utils::FilePath currentJdkPath = m_androidConfig.openJDKLocation();
     if (currentJdkPath.isEmpty())
         currentJdkPath = findJdkInCommonPaths();
-    m_ui->OpenJDKLocationPathChooser->setFileName(currentJdkPath);
+    m_ui->OpenJDKLocationPathChooser->setFilePath(currentJdkPath);
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
 
     Utils::FilePath currentSDKPath = m_androidConfig.sdkLocation();
     if (currentSDKPath.isEmpty())
         currentSDKPath = getDefaultSdkPath();
 
-    m_ui->SDKLocationPathChooser->setFileName(currentSDKPath);
+    m_ui->SDKLocationPathChooser->setFilePath(currentSDKPath);
     m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
 
     m_ui->openSslPathChooser->setPromptDialogTitle(tr("Select OpenSSL Include Project File"));
     Utils::FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
     if (currentOpenSslPath.isEmpty())
         currentOpenSslPath = currentSDKPath.pathAppended("android_openssl");
-    m_ui->openSslPathChooser->setFileName(currentOpenSslPath);
+    m_ui->openSslPathChooser->setFilePath(currentOpenSslPath);
 
     m_ui->DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
@@ -808,7 +808,7 @@ void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 
 void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 {
-    const Utils::FilePath openSslPath = m_ui->openSslPathChooser->fileName();
+    const Utils::FilePath openSslPath = m_ui->openSslPathChooser->filePath();
     const QString openSslCloneTitle(tr("OpenSSL Cloning"));
 
     auto openSslSummaryWidget = static_cast<SummaryWidget *>(m_ui->openSslDetailsWidget->widget());

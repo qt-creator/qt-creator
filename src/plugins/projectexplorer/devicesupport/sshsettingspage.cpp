@@ -109,13 +109,13 @@ void SshSettingsWidget::saveSettings()
     SshSettings::setConnectionSharingEnabled(m_connectionSharingCheckBox.isChecked());
     SshSettings::setConnectionSharingTimeout(m_connectionSharingSpinBox.value());
     if (m_sshPathChanged)
-        SshSettings::setSshFilePath(m_sshChooser.fileName());
+        SshSettings::setSshFilePath(m_sshChooser.filePath());
     if (m_sftpPathChanged)
-        SshSettings::setSftpFilePath(m_sftpChooser.fileName());
+        SshSettings::setSftpFilePath(m_sftpChooser.filePath());
     if (m_askpassPathChanged)
-        SshSettings::setAskpassFilePath(m_askpassChooser.fileName());
+        SshSettings::setAskpassFilePath(m_askpassChooser.filePath());
     if (m_keygenPathChanged)
-        SshSettings::setKeygenFilePath(m_keygenChooser.fileName());
+        SshSettings::setKeygenFilePath(m_keygenChooser.filePath());
     SshSettings::storeSettings(Core::ICore::settings());
 }
 
@@ -157,7 +157,7 @@ void SshSettingsWidget::setupPathChooser(PathChooser &chooser, const FilePath &i
                                          bool &changedFlag)
 {
     chooser.setExpectedKind(PathChooser::ExistingCommand);
-    chooser.setFileName(initialPath);
+    chooser.setFilePath(initialPath);
     connect(&chooser, &PathChooser::pathChanged, [&changedFlag] { changedFlag = true; });
 }
 

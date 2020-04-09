@@ -311,12 +311,12 @@ void GdbServerProviderConfigWidget::populateStartupModes()
 
 Utils::FilePath GdbServerProviderConfigWidget::peripheralDescriptionFile() const
 {
-    return m_peripheralDescriptionFileChooser->fileName();
+    return m_peripheralDescriptionFileChooser->filePath();
 }
 
 void GdbServerProviderConfigWidget::setPeripheralDescriptionFile(const Utils::FilePath &file)
 {
-    m_peripheralDescriptionFileChooser->setFileName(file);
+    m_peripheralDescriptionFileChooser->setFilePath(file);
 }
 
 void GdbServerProviderConfigWidget::setFromProvider()

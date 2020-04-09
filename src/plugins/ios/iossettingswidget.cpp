@@ -73,7 +73,7 @@ IosSettingsWidget::IosSettingsWidget()
     m_ui->deviceView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_ui->pathWidget->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_ui->pathWidget->lineEdit()->setReadOnly(true);
-    m_ui->pathWidget->setFileName(IosConfigurations::screenshotDir());
+    m_ui->pathWidget->setFilePath(IosConfigurations::screenshotDir());
     m_ui->pathWidget->addButton(tr("Screenshot"), this,
                                 std::bind(&IosSettingsWidget::onScreenshot, this));
 
@@ -280,7 +280,7 @@ void IosSettingsWidget::onScreenshot()
     const auto generatePath = [this](const SimulatorInfo &info) {
         const QString fileName = QString("%1_%2_%3.png").arg(info.name).arg(info.runtimeName)
                 .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss-z")).replace(' ', '_');
-        return m_ui->pathWidget->fileName().pathAppended(fileName).toString();
+        return m_ui->pathWidget->filePath().pathAppended(fileName).toString();
     };
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
@@ -318,7 +318,7 @@ void IosSettingsWidget::onSelectionChanged()
 void IosSettingsWidget::saveSettings()
 {
     IosConfigurations::setIgnoreAllDevices(!m_ui->deviceAskCheckBox->isChecked());
-    IosConfigurations::setScreenshotDir(m_ui->pathWidget->fileName());
+    IosConfigurations::setScreenshotDir(m_ui->pathWidget->filePath());
 }
 
 } // namespace Internal

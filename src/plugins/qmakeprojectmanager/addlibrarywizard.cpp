@@ -195,7 +195,7 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
 
     const auto pathValidator = [libPathChooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
         return libPathChooser->defaultValidationFunction()(edit, errorMessage)
-                && validateLibraryPath(libPathChooser->fileName(),
+                && validateLibraryPath(libPathChooser->filePath(),
                                        libPathChooser, errorMessage);
     };
     libPathChooser->setValidationFunction(pathValidator);

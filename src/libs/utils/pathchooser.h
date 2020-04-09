@@ -55,7 +55,7 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(QStringList commandVersionArguments READ commandVersionArguments WRITE setCommandVersionArguments)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE true)
     // Designer does not know this type, so force designable to false:
-    Q_PROPERTY(Utils::FilePath fileName READ fileName WRITE setFileName DESIGNABLE false)
+    Q_PROPERTY(Utils::FilePath filePath READ filePath WRITE setFilePath DESIGNABLE false)
 
 public:
     static QString browseButtonLabel();
@@ -88,10 +88,15 @@ public:
     bool isValid() const;
     QString errorMessage() const;
 
+    FilePath filePath() const;
+
+    // Deprecated. Use filePath().toString()
     QString path() const;
+    // Deprecated. Use filePath()
+    FilePath fileName() const { return filePath(); }
+
     QString rawPath() const; // The raw unexpanded input.
     FilePath rawFileName() const; // The raw unexpanded input.
-    FilePath fileName() const;
 
     static QString expandedDirectory(const QString &input, const Environment &env,
                                      const QString &baseDir);
@@ -163,7 +168,9 @@ signals:
 
 public slots:
     void setPath(const QString &);
-    void setFileName(const FilePath &);
+    // Deprecated: Use setFilePath()
+    void setFileName(const FilePath &path) { setFilePath(path); }
+    void setFilePath(const FilePath &);
 
 private:
     PathChooserPrivate *d = nullptr;

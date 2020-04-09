@@ -370,9 +370,9 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
         Runnable debugger = DebuggerKitAspect::runnable(k);
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
-            d->symbolFileName->setFileName(FilePath::fromString(cinfo.foundExecutableName));
+            d->symbolFileName->setFilePath(FilePath::fromString(cinfo.foundExecutableName));
         else if (!d->symbolFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
-            d->symbolFileName->setFileName(FilePath::fromString(cinfo.rawStringFromCore));
+            d->symbolFileName->setFilePath(FilePath::fromString(cinfo.rawStringFromCore));
     }
     changed();
 }
@@ -417,7 +417,7 @@ QString AttachCoreDialog::localCoreFile() const
 
 FilePath AttachCoreDialog::symbolFile() const
 {
-    return d->symbolFileName->fileName();
+    return d->symbolFileName->filePath();
 }
 
 void AttachCoreDialog::setSymbolFile(const QString &symbolFileName)

@@ -1274,7 +1274,7 @@ void GccToolChainConfigWidget::applyImpl()
     auto tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
-    tc->setCompilerCommand(m_compilerCommand->fileName());
+    tc->setCompilerCommand(m_compilerCommand->filePath());
     if (m_abiWidget) {
         tc->setSupportedAbis(m_abiWidget->supportedAbis());
         tc->setTargetAbi(m_abiWidget->currentAbi());
@@ -1300,7 +1300,7 @@ void GccToolChainConfigWidget::setFromToolchain()
     // subwidgets are not yet connected!
     QSignalBlocker blocker(this);
     auto tc = static_cast<GccToolChain *>(toolChain());
-    m_compilerCommand->setFileName(tc->compilerCommand());
+    m_compilerCommand->setFilePath(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));
     m_platformLinkerFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformLinkerFlags()));
     if (m_abiWidget) {
@@ -1314,7 +1314,7 @@ bool GccToolChainConfigWidget::isDirtyImpl() const
 {
     auto tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
-    return m_compilerCommand->fileName() != tc->compilerCommand()
+    return m_compilerCommand->filePath() != tc->compilerCommand()
            || m_platformCodeGenFlagsLineEdit->text()
                   != QtcProcess::joinArgs(tc->platformCodeGenFlags())
            || m_platformLinkerFlagsLineEdit->text()
@@ -1356,7 +1356,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
     bool haveCompiler = false;
     Abi currentAbi = m_abiWidget->currentAbi();
     bool customAbi = m_abiWidget->isCustomAbi() && m_abiWidget->isEnabled();
-    FilePath path = m_compilerCommand->fileName();
+    FilePath path = m_compilerCommand->filePath();
     Abis abiList;
 
     if (!path.isEmpty()) {

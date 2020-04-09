@@ -348,8 +348,8 @@ DebuggerItem DebuggerItemConfigWidget::item() const
 {
     DebuggerItem item(m_id);
     item.setUnexpandedDisplayName(m_displayNameLineEdit->text());
-    item.setCommand(m_binaryChooser->fileName());
-    item.setWorkingDirectory(m_workingDirectoryChooser->fileName());
+    item.setCommand(m_binaryChooser->filePath());
+    item.setWorkingDirectory(m_workingDirectoryChooser->filePath());
     item.setAutoDetected(m_autodetected);
     Abis abiList;
     const QStringList abis = m_abis->text().split(QRegExp("[^A-Za-z0-9-_]+"));
@@ -390,10 +390,10 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
     m_typeLineEdit->setText(item->engineTypeName());
 
     m_binaryChooser->setReadOnly(item->isAutoDetected());
-    m_binaryChooser->setFileName(item->command());
+    m_binaryChooser->setFilePath(item->command());
 
     m_workingDirectoryChooser->setReadOnly(item->isAutoDetected());
-    m_workingDirectoryChooser->setFileName(item->workingDirectory());
+    m_workingDirectoryChooser->setFilePath(item->workingDirectory());
 
     QString text;
     QString versionCommand;

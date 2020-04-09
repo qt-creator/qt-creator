@@ -356,9 +356,9 @@ void EBlinkGdbServerProviderConfigWidget::setFromProvider()
     Q_ASSERT(p);
 
     m_gdbHostWidget->setChannel(p->channel());
-    m_executableFileChooser->setFileName(p->m_executableFile);
+    m_executableFileChooser->setFilePath(p->m_executableFile);
     m_verboseLevelSpinBox->setValue(p->m_verboseLevel);
-    m_scriptFileChooser->setFileName(p->m_deviceScript);
+    m_scriptFileChooser->setFilePath(p->m_deviceScript);
     m_interfaceTypeComboBox->setCurrentIndex(p->m_interfaceType);
     m_resetOnConnectCheckBox->setChecked(p->m_interfaceResetOnConnect);
     m_interfaceSpeedSpinBox->setValue(p->m_interfaceSpeed);
@@ -376,9 +376,9 @@ void EBlinkGdbServerProviderConfigWidget::apply()
     Q_ASSERT(p);
 
     p->setChannel(m_gdbHostWidget->channel());
-    p->m_executableFile = m_executableFileChooser->fileName();
+    p->m_executableFile = m_executableFileChooser->filePath();
     p->m_verboseLevel = m_verboseLevelSpinBox->value();
-    p->m_deviceScript = m_scriptFileChooser->fileName();
+    p->m_deviceScript = m_scriptFileChooser->filePath();
     p->m_interfaceType = interfaceTypeFromWidget();
     p->m_interfaceResetOnConnect = m_resetOnConnectCheckBox->isChecked();
     p->m_interfaceSpeed = m_interfaceSpeedSpinBox->value();

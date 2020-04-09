@@ -680,7 +680,7 @@ void QbsBuildStepConfigWidget::updateState()
         cleanInstallRootCheckBox->setChecked(qbsStep()->cleanInstallRoot());
         forceProbesCheckBox->setChecked(qbsStep()->forceProbes());
         updatePropertyEdit(qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables));
-        installDirChooser->setFileName(qbsStep()->installRoot(QbsBuildStep::PreserveVariables));
+        installDirChooser->setFilePath(qbsStep()->installRoot(QbsBuildStep::PreserveVariables));
         defaultInstallDirCheckBox->setChecked(!qbsStep()->hasCustomInstallRoot());
     }
 

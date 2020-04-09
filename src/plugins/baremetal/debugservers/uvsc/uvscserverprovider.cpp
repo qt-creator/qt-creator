@@ -298,7 +298,7 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
             this, &UvscServerProviderConfigWidget::dirty);
 
     auto updateSelectors = [this]() {
-        const FilePath toolsIniFile = m_toolsIniChooser->fileName();
+        const FilePath toolsIniFile = m_toolsIniChooser->filePath();
         m_deviceSelector->setToolsIniFile(toolsIniFile);
         m_driverSelector->setToolsIniFile(toolsIniFile);
     };
@@ -324,12 +324,12 @@ void UvscServerProviderConfigWidget::discard()
 
 void UvscServerProviderConfigWidget::setToolsIniFile(const Utils::FilePath &toolsIniFile)
 {
-    m_toolsIniChooser->setFileName(toolsIniFile);
+    m_toolsIniChooser->setFilePath(toolsIniFile);
 }
 
 Utils::FilePath UvscServerProviderConfigWidget::toolsIniFile() const
 {
-    return m_toolsIniChooser->fileName();
+    return m_toolsIniChooser->filePath();
 }
 
 void UvscServerProviderConfigWidget::setDeviceSelection(const DeviceSelection &deviceSelection)
@@ -356,7 +356,7 @@ void UvscServerProviderConfigWidget::setFromProvider()
 {
     const auto p = static_cast<UvscServerProvider *>(m_provider);
     m_hostWidget->setChannel(p->channel());
-    m_toolsIniChooser->setFileName(p->toolsIniFile());
+    m_toolsIniChooser->setFilePath(p->toolsIniFile());
     m_deviceSelector->setSelection(p->deviceSelection());
     m_driverSelector->setSelection(p->driverSelection());
 }

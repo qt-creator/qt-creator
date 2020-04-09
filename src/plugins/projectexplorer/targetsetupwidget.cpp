@@ -160,7 +160,7 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
 
         store.pathChooser = new Utils::PathChooser();
         store.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
-        store.pathChooser->setFileName(info.buildDirectory);
+        store.pathChooser->setFilePath(info.buildDirectory);
         store.pathChooser->setHistoryCompleter(QLatin1String("TargetSetup.BuildDir.History"));
         store.pathChooser->setReadOnly(isImport);
         m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
@@ -302,7 +302,7 @@ void TargetSetupWidget::updateDefaultBuildDirectories()
             if (buildInfoStore.buildInfo.typeName == buildInfo.typeName) {
                 if (!buildInfoStore.customBuildDir) {
                     m_ignoreChange = true;
-                    buildInfoStore.pathChooser->setFileName(buildInfo.buildDirectory);
+                    buildInfoStore.pathChooser->setFilePath(buildInfo.buildDirectory);
                     m_ignoreChange = false;
                 }
                 found = true;
@@ -344,7 +344,7 @@ void TargetSetupWidget::pathChanged()
         return store.pathChooser == pathChooser;
     });
     QTC_ASSERT(it != m_infoStore.end(), return);
-    it->buildInfo.buildDirectory = pathChooser->fileName();
+    it->buildInfo.buildDirectory = pathChooser->filePath();
     it->customBuildDir = true;
     reportIssues(static_cast<int>(std::distance(m_infoStore.begin(), it)));
 }

@@ -313,7 +313,7 @@ void JLinkGdbServerProviderConfigWidget::apply()
     Q_ASSERT(p);
 
     p->setChannel(m_hostWidget->channel());
-    p->m_executableFile = m_executableFileChooser->fileName();
+    p->m_executableFile = m_executableFileChooser->filePath();
     p->m_jlinkDevice = m_jlinkDeviceLineEdit->text();
     p->m_jlinkHost = m_hostInterfaceComboBox->currentText();
     p->m_jlinkHostAddr = m_hostInterfaceAddressLineEdit->text();
@@ -357,7 +357,7 @@ void JLinkGdbServerProviderConfigWidget::setFromProvider()
 
     const QSignalBlocker blocker(this);
     m_hostWidget->setChannel(p->channel());
-    m_executableFileChooser->setFileName(p->m_executableFile);
+    m_executableFileChooser->setFilePath(p->m_executableFile);
     m_jlinkDeviceLineEdit->setText(p->m_jlinkDevice);
     m_additionalArgumentsTextEdit->setPlainText(p->m_additionalArguments);
     m_jlinkDeviceLineEdit->setText( p->m_jlinkDevice);

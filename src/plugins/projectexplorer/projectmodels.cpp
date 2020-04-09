@@ -516,7 +516,7 @@ public:
             targetDirLayout->addWidget(new QLabel(tr("Target directory:"), this));
             m_targetDirChooser = new PathChooser(this);
             m_targetDirChooser->setExpectedKind(PathChooser::ExistingDirectory);
-            m_targetDirChooser->setFileName(defaultTargetDir);
+            m_targetDirChooser->setFilePath(defaultTargetDir);
             connect(m_targetDirChooser, &PathChooser::validChanged, this, [this](bool valid) {
                 m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
             });
@@ -549,7 +549,7 @@ public:
     DropAction dropAction() const { return static_cast<DropAction>(m_buttonGroup->checkedId()); }
     FilePath targetDir() const
     {
-        return m_targetDirChooser ? m_targetDirChooser->fileName() : FilePath();
+        return m_targetDirChooser ? m_targetDirChooser->filePath() : FilePath();
     }
 
 private:

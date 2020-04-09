@@ -310,7 +310,7 @@ QString PathChooser::rawPath() const
 
 QString PathChooser::path() const
 {
-    return fileName().toString();
+    return filePath().toString();
 }
 
 FilePath PathChooser::rawFileName() const
@@ -318,7 +318,7 @@ FilePath PathChooser::rawFileName() const
     return FilePath::fromString(QDir::fromNativeSeparators(d->m_lineEdit->text()));
 }
 
-FilePath PathChooser::fileName() const
+FilePath PathChooser::filePath() const
 {
     return FilePath::fromUserInput(d->expandedPath(rawFileName().toString()));
 }
@@ -342,7 +342,7 @@ void PathChooser::setPath(const QString &path)
     d->m_lineEdit->setTextKeepingActiveCursor(QDir::toNativeSeparators(path));
 }
 
-void PathChooser::setFileName(const FilePath &fn)
+void PathChooser::setFilePath(const FilePath &fn)
 {
     d->m_lineEdit->setTextKeepingActiveCursor(fn.toUserOutput());
 }

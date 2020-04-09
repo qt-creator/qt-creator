@@ -54,7 +54,7 @@ static void setupPathChooser(Utils::PathChooser *const chooser,
     chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     chooser->setHistoryCompleter(historyCompleterId);
     chooser->setValidationFunction([chooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
-        const QString currentFilePath = chooser->fileName().toString();
+        const QString currentFilePath = chooser->filePath().toString();
         Utils::PathChooser pc;
         Utils::PathChooser *helperPathChooser;
         if (currentFilePath.isEmpty()) {

@@ -528,7 +528,7 @@ void SdccToolChainConfigWidget::applyImpl()
 
     const auto tc = static_cast<SdccToolChain *>(toolChain());
     const QString displayName = tc->displayName();
-    tc->setCompilerCommand(m_compilerCommand->fileName());
+    tc->setCompilerCommand(m_compilerCommand->filePath());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName);
 
@@ -544,7 +544,7 @@ void SdccToolChainConfigWidget::applyImpl()
 bool SdccToolChainConfigWidget::isDirtyImpl() const
 {
     const auto tc = static_cast<SdccToolChain *>(toolChain());
-    return m_compilerCommand->fileName() != tc->compilerCommand()
+    return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
 }
@@ -559,15 +559,15 @@ void SdccToolChainConfigWidget::setFromToolchain()
 {
     const QSignalBlocker blocker(this);
     const auto tc = static_cast<SdccToolChain *>(toolChain());
-    m_compilerCommand->setFileName(tc->compilerCommand());
+    m_compilerCommand->setFilePath(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = compilerExists(m_compilerCommand->fileName());
+    const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void SdccToolChainConfigWidget::handleCompilerCommandChange()
 {
-    const FilePath compilerPath = m_compilerCommand->fileName();
+    const FilePath compilerPath = m_compilerCommand->filePath();
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();

@@ -469,7 +469,7 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
 
     connect(m_binaryChooser, &PathChooser::rawPathChanged, this, [this]() {
         updateQchFilePath();
-        m_qchFileChooser->setBaseDirectory(m_binaryChooser->fileName().parentDir());
+        m_qchFileChooser->setBaseDirectory(m_binaryChooser->filePath().parentDir());
         store();
     });
     connect(m_qchFileChooser, &PathChooser::rawPathChanged, this, &CMakeToolItemConfigWidget::store);
@@ -485,16 +485,16 @@ void CMakeToolItemConfigWidget::store() const
     if (!m_loadingItem && m_id.isValid())
         m_model->updateCMakeTool(m_id,
                                  m_displayNameLineEdit->text(),
-                                 m_binaryChooser->fileName(),
-                                 m_qchFileChooser->fileName(),
+                                 m_binaryChooser->filePath(),
+                                 m_qchFileChooser->filePath(),
                                  m_autoRunCheckBox->checkState() == Qt::Checked,
                                  m_autoCreateBuildDirectoryCheckBox->checkState() == Qt::Checked);
 }
 
 void CMakeToolItemConfigWidget::updateQchFilePath()
 {
-    if (m_qchFileChooser->fileName().isEmpty())
-        m_qchFileChooser->setFileName(CMakeTool::searchQchFile(m_binaryChooser->fileName()));
+    if (m_qchFileChooser->filePath().isEmpty())
+        m_qchFileChooser->setFilePath(CMakeTool::searchQchFile(m_binaryChooser->filePath()));
 }
 
 void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
@@ -511,11 +511,11 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_displayNameLineEdit->setText(item->m_name);
 
     m_binaryChooser->setReadOnly(item->m_autodetected);
-    m_binaryChooser->setFileName(item->m_executable);
+    m_binaryChooser->setFilePath(item->m_executable);
 
     m_qchFileChooser->setReadOnly(item->m_autodetected);
     m_qchFileChooser->setBaseDirectory(item->m_executable.parentDir());
-    m_qchFileChooser->setFileName(item->m_qchFile);
+    m_qchFileChooser->setFilePath(item->m_qchFile);
 
     m_autoRunCheckBox->setChecked(item->m_isAutoRun);
     m_autoCreateBuildDirectoryCheckBox->setChecked(item->m_autoCreateBuildDirectory);

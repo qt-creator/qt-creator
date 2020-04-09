@@ -77,7 +77,7 @@ public:
         m_chooser = new Utils::PathChooser;
         m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
         m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
-        m_chooser->setFileName(SysRootKitAspect::sysRoot(k));
+        m_chooser->setFilePath(SysRootKitAspect::sysRoot(k));
         connect(m_chooser, &Utils::PathChooser::pathChanged,
                 this, &SysRootKitAspectWidget::pathWasChanged);
     }
@@ -92,13 +92,13 @@ private:
     void refresh() override
     {
         if (!m_ignoreChange)
-            m_chooser->setFileName(SysRootKitAspect::sysRoot(m_kit));
+            m_chooser->setFilePath(SysRootKitAspect::sysRoot(m_kit));
     }
 
     void pathWasChanged()
     {
         m_ignoreChange = true;
-        SysRootKitAspect::setSysRoot(m_kit, m_chooser->fileName());
+        SysRootKitAspect::setSysRoot(m_kit, m_chooser->filePath());
         m_ignoreChange = false;
     }
 

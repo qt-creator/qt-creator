@@ -111,7 +111,7 @@ void NimToolChainConfigWidget::applyImpl()
     Q_ASSERT(tc);
     if (tc->isAutoDetected())
         return;
-    tc->setCompilerCommand(m_compilerCommand->fileName());
+    tc->setCompilerCommand(m_compilerCommand->filePath());
 }
 
 void NimToolChainConfigWidget::discardImpl()

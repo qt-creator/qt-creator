@@ -1466,7 +1466,7 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
     if (clangClToolChain->isAutoDetected())
         m_llvmDirLabel->setText(QDir::toNativeSeparators(clangClToolChain->clangPath()));
     else
-        m_compilerCommand->setFileName(Utils::FilePath::fromString(clangClToolChain->clangPath()));
+        m_compilerCommand->setFilePath(Utils::FilePath::fromString(clangClToolChain->clangPath()));
 }
 
 static const MsvcToolChain *findMsvcToolChain(unsigned char wordWidth, Abi::OSFlavor flavor)
@@ -1579,7 +1579,7 @@ static QString compilerFromPath(const QString &path)
 
 void ClangClToolChainConfigWidget::applyImpl()
 {
-    Utils::FilePath clangClPath = m_compilerCommand->fileName();
+    Utils::FilePath clangClPath = m_compilerCommand->filePath();
     auto clangClToolChain = static_cast<ClangClToolChain *>(toolChain());
     clangClToolChain->setClangPath(clangClPath.toString());
 

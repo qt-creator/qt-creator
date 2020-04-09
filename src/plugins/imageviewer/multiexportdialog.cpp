@@ -329,7 +329,7 @@ void MultiExportDialog::accept()
 
 QString MultiExportDialog::exportFileName() const
 {
-    return m_pathChooser->fileName().toString();
+    return m_pathChooser->filePath().toString();
 }
 
 void MultiExportDialog::setExportFileName(QString f)
@@ -337,7 +337,7 @@ void MultiExportDialog::setExportFileName(QString f)
     const int lastDot = f.lastIndexOf('.');
     if (lastDot != -1)
         f.insert(lastDot, "-%1");
-    m_pathChooser->setFileName(Utils::FilePath::fromString(f));
+    m_pathChooser->setFilePath(Utils::FilePath::fromString(f));
 }
 
 } // namespace Internal

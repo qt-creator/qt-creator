@@ -702,7 +702,7 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
     m_lineEditMessage->setText(data.message);
 
     if (mask & FileAndLinePart) {
-        m_pathChooserFileName->setFileName(data.fileName);
+        m_pathChooserFileName->setFilePath(data.fileName);
         m_lineEditLineNumber->setText(QString::number(data.lineNumber));
     }
 

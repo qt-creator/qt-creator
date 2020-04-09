@@ -138,7 +138,7 @@ public:
     SettingsWidget()
     {
         m_qbsExePathChooser.setExpectedKind(PathChooser::ExistingCommand);
-        m_qbsExePathChooser.setFileName(QbsSettings::qbsExecutableFilePath());
+        m_qbsExePathChooser.setFilePath(QbsSettings::qbsExecutableFilePath());
         m_defaultInstallDirLineEdit.setText(QbsSettings::defaultInstallDirTemplate());
         m_versionLabel.setText(getQbsVersion());
         m_settingsDirCheckBox.setText(tr("Use %1 settings directory for Qbs")
@@ -155,8 +155,8 @@ public:
     void apply()
     {
         QbsSettingsData settings = QbsSettings::rawSettingsData();
-        if (m_qbsExePathChooser.fileName() != QbsSettings::qbsExecutableFilePath())
-            settings.qbsExecutableFilePath = m_qbsExePathChooser.fileName();
+        if (m_qbsExePathChooser.filePath() != QbsSettings::qbsExecutableFilePath())
+            settings.qbsExecutableFilePath = m_qbsExePathChooser.filePath();
         settings.defaultInstallDirTemplate = m_defaultInstallDirLineEdit.text();
         settings.useCreatorSettings = m_settingsDirCheckBox.isChecked();
         QbsSettings::setSettingsData(settings);

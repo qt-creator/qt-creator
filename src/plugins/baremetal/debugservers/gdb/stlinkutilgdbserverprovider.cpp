@@ -254,7 +254,7 @@ void StLinkUtilGdbServerProviderConfigWidget::apply()
     Q_ASSERT(p);
 
     p->setChannel(m_hostWidget->channel());
-    p->m_executableFile = m_executableFileChooser->fileName();
+    p->m_executableFile = m_executableFileChooser->filePath();
     p->m_verboseLevel = m_verboseLevelSpinBox->value();
     p->m_extendedMode = m_extendedModeCheckBox->isChecked();
     p->m_resetBoard = m_resetBoardCheckBox->isChecked();
@@ -312,7 +312,7 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
 
     const QSignalBlocker blocker(this);
     m_hostWidget->setChannel(p->channel());
-    m_executableFileChooser->setFileName(p->m_executableFile);
+    m_executableFileChooser->setFilePath(p->m_executableFile);
     m_verboseLevelSpinBox->setValue(p->m_verboseLevel);
     m_extendedModeCheckBox->setChecked(p->m_extendedMode);
     m_resetBoardCheckBox->setChecked(p->m_resetBoard);

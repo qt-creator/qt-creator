@@ -178,7 +178,7 @@ public:
     }
 
     QString projectSource() const { return m_projectSource->path(); }
-    FilePath localExecutable() const { return m_localExecutable->fileName(); }
+    FilePath localExecutable() const { return m_localExecutable->filePath(); }
 
 private:
     PathChooser *m_projectSource;

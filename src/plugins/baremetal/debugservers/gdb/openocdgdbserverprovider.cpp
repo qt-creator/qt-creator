@@ -259,9 +259,9 @@ void OpenOcdGdbServerProviderConfigWidget::apply()
     Q_ASSERT(p);
 
     p->setChannel(m_hostWidget->channel());
-    p->m_executableFile = m_executableFileChooser->fileName();
-    p->m_rootScriptsDir = m_rootScriptsDirChooser->fileName().toString();
-    p->m_configurationFile = m_configurationFileChooser->fileName().toString();
+    p->m_executableFile = m_executableFileChooser->filePath();
+    p->m_rootScriptsDir = m_rootScriptsDirChooser->filePath().toString();
+    p->m_configurationFile = m_configurationFileChooser->filePath().toString();
     p->m_additionalArguments = m_additionalArgumentsLineEdit->text();
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
@@ -290,9 +290,9 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     const QSignalBlocker blocker(this);
     startupModeChanged();
     m_hostWidget->setChannel(p->channel());
-    m_executableFileChooser->setFileName(p->m_executableFile);
-    m_rootScriptsDirChooser->setFileName(Utils::FilePath::fromString(p->m_rootScriptsDir));
-    m_configurationFileChooser->setFileName(Utils::FilePath::fromString(p->m_configurationFile));
+    m_executableFileChooser->setFilePath(p->m_executableFile);
+    m_rootScriptsDirChooser->setFilePath(Utils::FilePath::fromString(p->m_rootScriptsDir));
+    m_configurationFileChooser->setFilePath(Utils::FilePath::fromString(p->m_configurationFile));
     m_additionalArgumentsLineEdit->setText(p->m_additionalArguments);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());

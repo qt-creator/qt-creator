@@ -205,7 +205,7 @@ QWidget *FindInFiles::createConfigWidget()
 
 FilePath FindInFiles::path() const
 {
-    return m_directory->fileName();
+    return m_directory->filePath();
 }
 
 void FindInFiles::writeSettings(QSettings *settings)
@@ -224,7 +224,7 @@ void FindInFiles::readSettings(QSettings *settings)
 
 void FindInFiles::setDirectory(const FilePath &directory)
 {
-    m_directory->setFileName(directory);
+    m_directory->setFilePath(directory);
 }
 
 void FindInFiles::setBaseDirectory(const FilePath &directory)
@@ -234,7 +234,7 @@ void FindInFiles::setBaseDirectory(const FilePath &directory)
 
 FilePath FindInFiles::directory() const
 {
-    return m_directory->fileName();
+    return m_directory->filePath();
 }
 
 void FindInFiles::findOnFileSystem(const QString &path)

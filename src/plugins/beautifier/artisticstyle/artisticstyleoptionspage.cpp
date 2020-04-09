@@ -82,7 +82,7 @@ void ArtisticStyleOptionsPageWidget::apply()
     m_settings->setSupportedMimeTypes(ui.mime->text());
     m_settings->setUseOtherFiles(ui.useOtherFiles->isChecked());
     m_settings->setUseSpecificConfigFile(ui.useSpecificConfigFile->isChecked());
-    m_settings->setSpecificConfigFile(ui.specificConfigFile->fileName());
+    m_settings->setSpecificConfigFile(ui.specificConfigFile->filePath());
     m_settings->setUseHomeFile(ui.useHomeFile->isChecked());
     m_settings->setUseCustomStyle(ui.useCustomStyle->isChecked());
     m_settings->setCustomStyle(ui.configurations->currentConfiguration());

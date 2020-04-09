@@ -479,8 +479,8 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     StartApplicationParameters result;
     result.serverPort = d->serverPortSpinBox->value();
     result.serverAddress = d->channelOverrideEdit->text();
-    result.runnable.executable = d->localExecutablePathChooser->fileName();
-    result.serverStartScript = d->serverStartScriptPathChooser->fileName();
+    result.runnable.executable = d->localExecutablePathChooser->filePath();
+    result.serverStartScript = d->serverStartScriptPathChooser->filePath();
     result.serverInitCommands = d->serverInitCommandsTextEdit->toPlainText();
     result.serverResetCommands = d->serverResetCommandsTextEdit->toPlainText();
     result.kitId = d->kitChooser->currentKitId();
@@ -497,8 +497,8 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->kitChooser->setCurrentKitId(p.kitId);
     d->serverPortSpinBox->setValue(p.serverPort);
     d->channelOverrideEdit->setText(p.serverAddress);
-    d->localExecutablePathChooser->setFileName(p.runnable.executable);
-    d->serverStartScriptPathChooser->setFileName(p.serverStartScript);
+    d->localExecutablePathChooser->setFilePath(p.runnable.executable);
+    d->serverStartScriptPathChooser->setFilePath(p.serverStartScript);
     d->serverInitCommandsTextEdit->setPlainText(p.serverInitCommands);
     d->serverResetCommandsTextEdit->setPlainText(p.serverResetCommands);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);

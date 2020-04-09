@@ -187,12 +187,12 @@ void ExportDialog::exportHeightChanged(int height)
 
 QString ExportDialog::exportFileName() const
 {
-    return m_pathChooser->fileName().toString();
+    return m_pathChooser->filePath().toString();
 }
 
 void ExportDialog::setExportFileName(const QString &f)
 {
-    m_pathChooser->setFileName(Utils::FilePath::fromString(f));
+    m_pathChooser->setFilePath(Utils::FilePath::fromString(f));
 }
 
 ExportData ExportDialog::exportData() const

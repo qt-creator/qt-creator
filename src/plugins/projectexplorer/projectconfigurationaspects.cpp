@@ -384,7 +384,7 @@ void BaseStringAspect::update()
                                                        : d->m_value;
 
     if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->setFileName(FilePath::fromString(displayedString));
+        d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
         d->updateWidgetFromCheckStatus(d->m_pathChooserDisplay.data());
     }
 

@@ -196,7 +196,7 @@ GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::GenericLinuxDeviceConfig
     deployLayout->addStretch();
     mainLayout->addLayout(deployLayout);
     connect(&d->keyFileChooser, &PathChooser::pathChanged, this, [this, deployButton] {
-        deployButton->setEnabled(d->keyFileChooser.fileName().exists());
+        deployButton->setEnabled(d->keyFileChooser.filePath().exists());
         d->iconLabel.clear();
         emit completeChanged();
     });
@@ -227,7 +227,7 @@ void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::initializePage()
 
 bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::isComplete() const
 {
-    return d->keyFileChooser.path().isEmpty() || d->keyFileChooser.fileName().exists();
+    return d->keyFileChooser.path().isEmpty() || d->keyFileChooser.filePath().exists();
 }
 
 bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::validatePage()

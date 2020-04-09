@@ -67,12 +67,12 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
     connect(ui.command, &Utils::PathChooser::validChanged, ui.options, &QWidget::setEnabled);
     ui.configurations->setSettings(m_settings);
 
-    ui.command->setFileName(m_settings->command());
+    ui.command->setFilePath(m_settings->command());
     ui.mime->setText(m_settings->supportedMimeTypesAsString());
     ui.useOtherFiles->setChecked(m_settings->useOtherFiles());
     ui.useHomeFile->setChecked(m_settings->useHomeFile());
     ui.useSpecificFile->setChecked(m_settings->useSpecificConfigFile());
-    ui.uncrusifyFilePath->setFileName(m_settings->specificConfigFile());
+    ui.uncrusifyFilePath->setFilePath(m_settings->specificConfigFile());
     ui.useCustomStyle->setChecked(m_settings->useCustomStyle());
     ui.configurations->setCurrentConfiguration(m_settings->customStyle());
     ui.formatEntireFileFallback->setChecked(m_settings->formatEntireFileFallback());
@@ -85,7 +85,7 @@ void UncrustifyOptionsPageWidget::apply()
     m_settings->setUseOtherFiles(ui.useOtherFiles->isChecked());
     m_settings->setUseHomeFile(ui.useHomeFile->isChecked());
     m_settings->setUseSpecificConfigFile(ui.useSpecificFile->isChecked());
-    m_settings->setSpecificConfigFile(ui.uncrusifyFilePath->fileName());
+    m_settings->setSpecificConfigFile(ui.uncrusifyFilePath->filePath());
     m_settings->setUseCustomStyle(ui.useCustomStyle->isChecked());
     m_settings->setCustomStyle(ui.configurations->currentConfiguration());
     m_settings->setFormatEntireFileFallback(ui.formatEntireFileFallback->isChecked());

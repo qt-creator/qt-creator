@@ -563,8 +563,8 @@ void CustomToolChainConfigWidget::applyImpl()
     auto tc = static_cast<CustomToolChain *>(toolChain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
-    tc->setCompilerCommand(m_compilerCommand->fileName());
-    tc->setMakeCommand(m_makeCommand->fileName());
+    tc->setCompilerCommand(m_compilerCommand->filePath());
+    tc->setMakeCommand(m_makeCommand->filePath());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     Macros macros = Utils::transform<QVector>(
                 m_predefinedDetails->text().split('\n', QString::SkipEmptyParts),
@@ -588,8 +588,8 @@ void CustomToolChainConfigWidget::setFromToolchain()
     // subwidgets are not yet connected!
     QSignalBlocker blocker(this);
     auto tc = static_cast<CustomToolChain *>(toolChain());
-    m_compilerCommand->setFileName(tc->compilerCommand());
-    m_makeCommand->setFileName(tc->makeCommand(Environment()));
+    m_compilerCommand->setFilePath(tc->compilerCommand());
+    m_makeCommand->setFilePath(tc->makeCommand(Environment()));
     m_abiWidget->setAbis(Abis(), tc->targetAbi());
     const QStringList macroLines = Utils::transform<QList>(tc->rawPredefinedMacros(), [](const Macro &m) {
         return QString::fromUtf8(m.toKeyValue(QByteArray()));
@@ -607,7 +607,7 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
 {
     auto tc = static_cast<CustomToolChain *>(toolChain());
     Q_ASSERT(tc);
-    return m_compilerCommand->fileName() != tc->compilerCommand()
+    return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_makeCommand->path() != tc->makeCommand(Environment()).toString()
             || m_abiWidget->currentAbi() != tc->targetAbi()
             || Macro::toMacros(m_predefinedDetails->text().toUtf8()) != tc->rawPredefinedMacros()
