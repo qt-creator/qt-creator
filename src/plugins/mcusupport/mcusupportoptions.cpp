@@ -185,7 +185,7 @@ void McuPackage::updateStatus()
     const Utils::FilePath detectionPath = Utils::FilePath::fromString(
                 m_fileChooser->path() + "/" + m_detectionPath);
     const QString displayDetectionPath = Utils::FilePath::fromString(m_detectionPath).toUserOutput();
-    const bool validPackage = detectionPath.exists();
+    const bool validPackage = m_detectionPath.isEmpty() || detectionPath.exists();
 
     m_status = validPath ? (validPackage ? ValidPackage : ValidPathInvalidPackage) : InvalidPath;
 
@@ -195,7 +195,9 @@ void McuPackage::updateStatus()
     QString statusText;
     switch (m_status) {
     case ValidPackage:
-        statusText = tr("Path is valid, \"%1\" was found.").arg(displayDetectionPath);
+        statusText = m_detectionPath.isEmpty()
+                ? "Path exists." // TODO tr()
+                : tr("Path is valid, \"%1\" was found.").arg(displayDetectionPath);
         break;
     case ValidPathInvalidPackage:
         statusText = tr("Path exists, but does not contain \"%1\".").arg(displayDetectionPath);
@@ -285,8 +287,9 @@ ProjectExplorer::ToolChain *McuToolChainPackage::toolChain(Core::Id language) co
 QString McuToolChainPackage::cmakeToolChainFileName() const
 {
     return QLatin1String(m_type == TypeArmGcc
-                         ? "armgcc.cmake" : m_type == McuToolChainPackage::TypeIAR
-                           ? "iar.cmake" : "keil.cmake");
+                         ? "armgcc" : m_type == McuToolChainPackage::TypeIAR
+                           ? "iar" : m_type == McuToolChainPackage::TypeKEIL
+                             ? "keil" : "ghs") + QLatin1String(".cmake");
 }
 
 QVariant McuToolChainPackage::debuggerId() const
@@ -485,6 +488,10 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
 
 static void setKitToolchains(ProjectExplorer::Kit *k, const McuToolChainPackage *tcPackage)
 {
+    // No Green Hills toolchain, because support for it is missing.
+    if (tcPackage->type() == McuToolChainPackage::TypeGHS)
+        return;
+
     ProjectExplorer::ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
                                          ProjectExplorer::Constants::C_LANGUAGE_ID));
     ProjectExplorer::ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
@@ -494,8 +501,10 @@ static void setKitToolchains(ProjectExplorer::Kit *k, const McuToolChainPackage 
 static void setKitDebugger(ProjectExplorer::Kit *k, const McuToolChainPackage *tcPackage)
 {
     // Qt Creator seems to be smart enough to deduce the right Kit debugger from the ToolChain
-    // We rely on that at least in the Desktop case
-    if (tcPackage->type() == McuToolChainPackage::TypeDesktop)
+    // We rely on that at least in the Desktop case.
+    if (tcPackage->type() == McuToolChainPackage::TypeDesktop
+            // No Green Hills debugger, because support for it is missing.
+            || tcPackage->type() == McuToolChainPackage::TypeGHS)
         return;
 
     Debugger::DebuggerKitAspect::setDebugger(k, tcPackage->debuggerId());
@@ -550,8 +559,11 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
     using namespace CMakeProjectManager;
 
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
-    config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
-    config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
+    // CMake ToolChain file for ghs handles CMAKE_*_COMPILER autonomously
+    if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeGHS) {
+        config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
+        config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
+    }
     if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeDesktop)
         config.append(CMakeConfigItem(
                           "CMAKE_TOOLCHAIN_FILE",

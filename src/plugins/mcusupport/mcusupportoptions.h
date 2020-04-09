@@ -110,6 +110,7 @@ public:
         TypeArmGcc,
         TypeIAR,
         TypeKEIL,
+        TypeGHS,
         TypeDesktop
     };
 
