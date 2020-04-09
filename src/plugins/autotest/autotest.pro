@@ -27,6 +27,7 @@ SOURCES += \
     testtreeitemdelegate.cpp \
     testtreemodel.cpp \
     testtreeview.cpp \
+    catch/catchcodeparser.cpp \
     catch/catchconfiguration.cpp \
     catch/catchframework.cpp \
     catch/catchoutputreader.cpp \
@@ -97,6 +98,7 @@ HEADERS += \
     testtreeitemdelegate.h \
     testtreemodel.h \
     testtreeview.h \
+    catch/catchcodeparser.h \
     catch/catchconfiguration.h \
     catch/catchframework.h \
     catch/catchoutputreader.h \
