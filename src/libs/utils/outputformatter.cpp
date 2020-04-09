@@ -28,11 +28,12 @@
 #include "qtcassert.h"
 #include "synchronousprocess.h"
 #include "theme/theme.h"
-#include "utils/optional.h"
 
 #include <QPair>
 #include <QPlainTextEdit>
 #include <QTextCursor>
+
+#include <numeric>
 
 namespace Utils {
 
@@ -78,32 +79,87 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
-    if (handleMessage(text, format) == Status::NotHandled)
-        appendMessageDefault(text, format);
+    const QTextCharFormat charFmt = charFormat(format);
+    const QList<FormattedText> formattedText = parseAnsi(text, charFmt);
+    const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
+            [](const FormattedText &t1, const FormattedText &t2) { return t1.text + t2.text; });
+    const Result res = handleMessage(cleanLine, format);
+    if (res.newContent) {
+        append(res.newContent.value(), charFmt);
+        return;
+    }
+    for (const FormattedText &output : linkifiedText(formattedText, res.linkSpecs))
+        append(output.text, output.format);
 }
 
-OutputFormatter::Status OutputFormatter::handleMessage(const QString &text, OutputFormat format)
+OutputFormatter::Result OutputFormatter::handleMessage(const QString &text, OutputFormat format)
 {
     Q_UNUSED(text);
     Q_UNUSED(format);
     return Status::NotHandled;
 }
 
-void OutputFormatter::doAppendMessage(const QString &text, const QTextCharFormat &format)
-{
-    const QList<FormattedText> formattedTextList = parseAnsi(text, format);
-    for (const FormattedText &output : formattedTextList)
-        append(output.text, output.format);
-}
-
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
 {
-    return d->formats[format];
+    return d->formatOverride ? d->formatOverride.value() : d->formats[format];
 }
 
 QList<FormattedText> OutputFormatter::parseAnsi(const QString &text, const QTextCharFormat &format)
 {
     return d->escapeCodeHandler.parseText(FormattedText(text, format));
+}
+
+const QList<FormattedText> OutputFormatter::linkifiedText(
+        const QList<FormattedText> &text, const OutputFormatter::LinkSpecs &linkSpecs)
+{
+    if (linkSpecs.isEmpty())
+        return text;
+
+    QList<FormattedText> linkified;
+    int totalTextLengthSoFar = 0;
+    int nextLinkSpecIndex = 0;
+
+    for (const FormattedText &t : text) {
+
+        // There is no more linkification work to be done. Just copy the text as-is.
+        if (nextLinkSpecIndex >= linkSpecs.size()) {
+            linkified << t;
+            continue;
+        }
+
+        for (int nextLocalTextPos = 0; nextLocalTextPos < t.text.size(); ) {
+
+            // There are no more links in this part, so copy the rest of the text as-is.
+            if (nextLinkSpecIndex >= linkSpecs.size()) {
+                linkified << FormattedText(t.text.mid(nextLocalTextPos), t.format);
+                totalTextLengthSoFar += t.text.length() - nextLocalTextPos;
+                break;
+            }
+
+            const LinkSpec &linkSpec = linkSpecs.at(nextLinkSpecIndex);
+            const int localLinkStartPos = linkSpec.startPos - totalTextLengthSoFar;
+            ++nextLinkSpecIndex;
+
+            // We ignore links that would cross format boundaries.
+            if (localLinkStartPos < nextLocalTextPos
+                    || localLinkStartPos + linkSpec.length > t.text.length()) {
+                linkified << FormattedText(t.text.mid(nextLocalTextPos), t.format);
+                totalTextLengthSoFar += t.text.length() - nextLocalTextPos;
+                break;
+            }
+
+            // Now we know we have a link that is fully inside this part of the text.
+            // Split the text so that the link part gets the appropriate format.
+            const int prefixLength = localLinkStartPos - nextLocalTextPos;
+            const QString textBeforeLink = t.text.mid(nextLocalTextPos, prefixLength);
+            linkified << FormattedText(textBeforeLink, t.format);
+            const QString linkedText = t.text.mid(localLinkStartPos, linkSpec.length);
+            linkified << FormattedText(linkedText, linkFormat(t.format, linkSpec.target));
+            nextLocalTextPos = localLinkStartPos + linkSpec.length;
+            totalTextLengthSoFar += prefixLength + linkSpec.length;
+        }
+    }
+    return linkified;
 }
 
 void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
@@ -120,11 +176,6 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
         d->cursor.insertText(text.mid(startPos), format);
 }
 
-QTextCursor &OutputFormatter::cursor() const
-{
-    return d->cursor;
-}
-
 QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, const QString &href)
 {
     QTextCharFormat result = inputFormat;
@@ -138,11 +189,6 @@ QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, 
 void OutputFormatter::overrideTextCharFormat(const QTextCharFormat &fmt)
 {
     d->formatOverride = fmt;
-}
-
-void OutputFormatter::appendMessageDefault(const QString &text, OutputFormat format)
-{
-    doAppendMessage(text, d->formatOverride ? d->formatOverride.value() : d->formats[format]);
 }
 
 void OutputFormatter::clearLastLine()
@@ -282,30 +328,32 @@ void AggregatingOutputFormatter::setFormatters(const QList<OutputFormatter *> &f
     d->nextFormatter = nullptr;
 }
 
-OutputFormatter::Status AggregatingOutputFormatter::handleMessage(const QString &text,
+OutputFormatter::Result AggregatingOutputFormatter::handleMessage(const QString &text,
                                                                   OutputFormat format)
 {
     if (d->nextFormatter) {
-        switch (d->nextFormatter->handleMessage(text, format)) {
+        const Result res = d->nextFormatter->handleMessage(text, format);
+        switch (res.status) {
         case Status::Done:
             d->nextFormatter = nullptr;
-            return Status::Done;
+            return res;
         case Status::InProgress:
-            return Status::InProgress;
+            return res;
         case Status::NotHandled:
-            QTC_CHECK(false);
+            QTC_CHECK(false); // TODO: This case will be legal after the merge
             d->nextFormatter = nullptr;
-            return Status::NotHandled;
+            return res;
         }
     }
     QTC_CHECK(!d->nextFormatter);
     for (OutputFormatter * const formatter : qAsConst(d->formatters)) {
-        switch (formatter->handleMessage(text, format)) {
+        const Result res = formatter->handleMessage(text, format);
+        switch (res.status) {
         case Status::Done:
-            return Status::Done;
+            return res;
         case Status::InProgress:
             d->nextFormatter = formatter;
-            return Status::InProgress;
+            return res;
         case Status::NotHandled:
             break;
         }

@@ -43,30 +43,23 @@ VcsOutputFormatter::VcsOutputFormatter() :
 {
 }
 
-VcsOutputFormatter::Status VcsOutputFormatter::handleMessage(const QString &text,
-                                                             Utils::OutputFormat format)
+Utils::OutputFormatter::Result VcsOutputFormatter::handleMessage(const QString &text,
+                                                                 Utils::OutputFormat format)
 {
+    Q_UNUSED(format);
     QRegularExpressionMatchIterator it = m_regexp.globalMatch(text);
     if (!it.hasNext())
         return Status::NotHandled;
-    int begin = 0;
+    LinkSpecs linkSpecs;
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
-        const QTextCharFormat normalFormat = charFormat(format);
-        appendMessageDefault(text.mid(begin, match.capturedStart() - begin), format);
-        QTextCursor tc = plainTextEdit()->textCursor();
+        const int startPos = match.capturedStart();
         QStringView url = match.capturedView();
-        begin = match.capturedEnd();
-        while (url.rbegin()->isPunct()) {
+        while (url.rbegin()->isPunct())
             url.chop(1);
-            --begin;
-        }
-        tc.movePosition(QTextCursor::End);
-        tc.insertText(url.toString(), linkFormat(normalFormat, url.toString()));
-        tc.movePosition(QTextCursor::End);
+        linkSpecs << LinkSpec(startPos, url.length(), url.toString());
     }
-    appendMessageDefault(text.mid(begin), format);
-    return Status::Done;
+    return {Status::Done, linkSpecs};
 }
 
 bool VcsOutputFormatter::handleLink(const QString &href)

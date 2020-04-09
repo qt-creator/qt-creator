@@ -71,30 +71,24 @@ public:
     }
 
 private:
-    Status handleMessage(const QString &text, OutputFormat format) final
+    Result handleMessage(const QString &text, OutputFormat format) final
     {
         if (!m_inTraceBack) {
             m_inTraceBack = format == StdErrFormat
                     && text.startsWith("Traceback (most recent call last):");
-            if (m_inTraceBack) {
-                OutputFormatter::appendMessageDefault(text, format);
+            if (m_inTraceBack)
                 return Status::InProgress;
-            }
             return Status::NotHandled;
         }
 
         const Core::Id category(PythonErrorTaskCategory);
         const QRegularExpressionMatch match = filePattern.match(text);
         if (match.hasMatch()) {
-            QTextCursor tc = plainTextEdit()->textCursor();
-            tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-            tc.insertText(match.captured(1));
-            tc.insertText(match.captured(2), linkFormat(charFormat(format), match.captured(2)));
-
+            const LinkSpec link(match.capturedStart(2), match.capturedLength(2), match.captured(2));
             const auto fileName = FilePath::fromString(match.captured(3));
             const int lineNumber = match.capturedRef(4).toInt();
             m_tasks.append({Task::Warning, QString(), fileName, lineNumber, category});
-            return Status::InProgress;
+            return {Status::InProgress, {link}};
         }
 
         Status status = Status::InProgress;
@@ -118,7 +112,6 @@ private:
             m_inTraceBack = false;
             status = Status::Done;
         }
-        OutputFormatter::appendMessageDefault(text, format);
         return status;
     }
 

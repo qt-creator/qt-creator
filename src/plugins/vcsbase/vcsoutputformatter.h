@@ -44,7 +44,7 @@ signals:
     void referenceClicked(const QString &reference);
 
 private:
-    Status handleMessage(const QString &text, Utils::OutputFormat format) override;
+    Result handleMessage(const QString &text, Utils::OutputFormat format) override;
 
     const QRegularExpression m_regexp;
 };

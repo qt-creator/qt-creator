@@ -506,20 +506,19 @@ void OutputWindow::setWordWrapEnabled(bool wrap)
 class TestFormatterA : public OutputFormatter
 {
 private:
-    Status handleMessage(const QString &text, OutputFormat format) override
+    Result handleMessage(const QString &text, OutputFormat) override
     {
+        static const QString replacement = "handled by A\n";
         if (m_handling) {
-            appendMessageDefault("handled by A\n", format);
             if (text.startsWith("A")) {
                 m_handling = false;
-                return Status::Done;
+                return {Status::Done, {}, replacement};
             }
-            return Status::InProgress;
+            return {Status::InProgress, {}, replacement};
         }
         if (text.startsWith("A")) {
             m_handling = true;
-            appendMessageDefault("handled by A\n", format);
-            return Status::InProgress;
+            return {Status::InProgress, {}, replacement};
         }
         return Status::NotHandled;
     }
@@ -533,12 +532,10 @@ private:
 class TestFormatterB : public OutputFormatter
 {
 private:
-    Status handleMessage(const QString &text, OutputFormat format) override
+    Result handleMessage(const QString &text, OutputFormat) override
     {
-        if (text.startsWith("B")) {
-            appendMessageDefault("handled by B\n", format);
-            return Status::Done;
-        }
+        if (text.startsWith("B"))
+            return {Status::Done, {}, QString("handled by B\n")};
         return Status::NotHandled;
     }
 };

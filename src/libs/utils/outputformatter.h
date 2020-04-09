@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+#include "optional.h"
 #include "outputformat.h"
 
 #include <QObject>
@@ -61,33 +62,49 @@ public:
     virtual bool handleLink(const QString &href);
     void clear();
     void setBoldFontEnabled(bool enabled);
-    static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
 
     // For unit testing only
     void overrideTextCharFormat(const QTextCharFormat &fmt);
 
 protected:
-    enum class Status { Done, InProgress, NotHandled };
-
-    void appendMessageDefault(const QString &text, OutputFormat format);
-    void clearLastLine();
     QTextCharFormat charFormat(OutputFormat format) const;
-    QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
-    QTextCursor &cursor() const;
+    static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
+
+    enum class Status { Done, InProgress, NotHandled };
+    class LinkSpec {
+    public:
+        LinkSpec() = default;
+        LinkSpec(int sp, int l, const QString &t) : startPos(sp), length(l), target(t) {}
+        int startPos = -1;
+        int length = -1;
+        QString target;
+    };
+    using LinkSpecs = QList<LinkSpec>;
+    class Result {
+    public:
+        Result(Status s, const LinkSpecs &l = {}, const optional<QString> &c = {})
+            : status(s), linkSpecs(l), newContent(c) {}
+        Status status;
+        LinkSpecs linkSpecs;
+        optional<QString> newContent; // Hard content override. Only to be used in extreme cases.
+    };
 
 private:
     // text contains at most one line feed character, and if it does occur, it's the last character.
     // Either way, the input is to be considered "complete" for formatting purposes.
     void doAppendMessage(const QString &text, OutputFormat format);
 
-    virtual Status handleMessage(const QString &text, OutputFormat format);
+    virtual Result handleMessage(const QString &text, OutputFormat format);
     virtual void reset() {}
 
-    void doAppendMessage(const QString &text, const QTextCharFormat &format);
     void append(const QString &text, const QTextCharFormat &format);
     void initFormats();
     void flushIncompleteLine();
     void dumpIncompleteLine(const QString &line, OutputFormat format);
+    void clearLastLine();
+    QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
+    const QList<Utils::FormattedText> linkifiedText(const QList<FormattedText> &text,
+                                                    const LinkSpecs &linkSpecs);
 
     Internal::OutputFormatterPrivate *d;
 };
@@ -102,7 +119,7 @@ public:
     bool handleLink(const QString &href) override;
 
 private:
-    Status handleMessage(const QString &text, OutputFormat format) override;
+    Result handleMessage(const QString &text, OutputFormat format) override;
 
     class Private;
     Private * const d;
