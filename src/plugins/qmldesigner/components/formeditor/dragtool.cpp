@@ -106,7 +106,8 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
 
     m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, parentNode);
 
-    m_dragNode.setFlowItemPosition(positonInItemSpace);
+    if (rootIsFlow)
+        m_dragNode.setFlowItemPosition(positonInItemSpace);
 
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);
