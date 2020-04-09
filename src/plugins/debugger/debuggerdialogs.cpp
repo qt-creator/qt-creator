@@ -484,9 +484,9 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     result.serverInitCommands = d->serverInitCommandsTextEdit->toPlainText();
     result.serverResetCommands = d->serverResetCommandsTextEdit->toPlainText();
     result.kitId = d->kitChooser->currentKitId();
-    result.debugInfoLocation = d->debuginfoPathChooser->path();
+    result.debugInfoLocation = d->debuginfoPathChooser->filePath().toString();
     result.runnable.commandLineArguments = d->arguments->text();
-    result.runnable.workingDirectory = d->workingDirectory->path();
+    result.runnable.workingDirectory = d->workingDirectory->filePath().toString();
     result.breakAtMain = d->breakAtMainCheckBox->isChecked();
     result.runInTerminal = d->runInTerminalCheckBox->isChecked();
     return result;

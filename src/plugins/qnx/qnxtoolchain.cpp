@@ -280,7 +280,7 @@ void QnxToolChainConfigWidget::discardImpl()
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_sdpPath->setPath(tc->sdpPath());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
-    if (!m_compilerCommand->path().isEmpty())
+    if (!m_compilerCommand->filePath().toString().isEmpty())
         m_abiWidget->setEnabled(true);
 }
 
@@ -289,7 +289,7 @@ bool QnxToolChainConfigWidget::isDirtyImpl() const
     auto tc = static_cast<const QnxToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->filePath() != tc->compilerCommand()
-            || m_sdpPath->path() != tc->sdpPath()
+            || m_sdpPath->filePath().toString() != tc->sdpPath()
             || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 

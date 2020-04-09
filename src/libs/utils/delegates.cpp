@@ -162,7 +162,7 @@ void PathChooserDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
     if (!pathChooser)
         return;
 
-    model->setData(index, pathChooser->path(), Qt::EditRole);
+    model->setData(index, pathChooser->filePath().toString(), Qt::EditRole);
 }
 
 void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const

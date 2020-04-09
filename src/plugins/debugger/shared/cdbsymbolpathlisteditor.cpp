@@ -75,7 +75,7 @@ void CacheDirectoryDialog::setPath(const QString &p)
 
 QString CacheDirectoryDialog::path() const
 {
-    return m_chooser->path();
+    return m_chooser->filePath().toString();
 }
 
 void CacheDirectoryDialog::accept()

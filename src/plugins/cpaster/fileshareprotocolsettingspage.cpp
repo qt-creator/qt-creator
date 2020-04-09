@@ -84,7 +84,7 @@ void FileShareProtocolSettingsWidget::setSettings(const FileShareProtocolSetting
 FileShareProtocolSettings FileShareProtocolSettingsWidget::settings() const
 {
     FileShareProtocolSettings rc;
-    rc.path = m_ui.pathChooser->path();
+    rc.path = m_ui.pathChooser->filePath().toString();
     rc.displayCount = m_ui.displayCountSpinBox->value();
     return rc;
 }

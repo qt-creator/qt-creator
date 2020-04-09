@@ -295,9 +295,9 @@ FilePath PathChooser::baseDirectory() const
 
 void PathChooser::setEnvironment(const Environment &env)
 {
-    QString oldExpand = path();
+    QString oldExpand = filePath().toString();
     d->m_environment = env;
-    if (path() != oldExpand) {
+    if (filePath().toString() != oldExpand) {
         triggerChanged();
         emit rawPathChanged(rawPath());
     }
@@ -306,11 +306,6 @@ void PathChooser::setEnvironment(const Environment &env)
 QString PathChooser::rawPath() const
 {
     return rawFileName().toString();
-}
-
-QString PathChooser::path() const
-{
-    return filePath().toString();
 }
 
 FilePath PathChooser::rawFileName() const
@@ -364,7 +359,7 @@ void PathChooser::slotBrowse()
 {
     emit beforeBrowsing();
 
-    QString predefined = path();
+    QString predefined = filePath().toString();
     QFileInfo fi(predefined);
 
     if (!predefined.isEmpty() && !fi.isDir()) {

@@ -150,7 +150,7 @@ const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const
 void HighlighterSettingsPage::settingsFromUI()
 {
     m_d->ensureInitialized();
-    m_d->m_settings.setDefinitionFilesPath(m_d->m_page->definitionFilesPath->path());
+    m_d->m_settings.setDefinitionFilesPath(m_d->m_page->definitionFilesPath->filePath().toString());
     m_d->m_settings.setIgnoredFilesPatterns(m_d->m_page->ignoreEdit->text());
     m_d->m_settings.toSettings(m_d->m_settingsPrefix, Core::ICore::settings());
 }
@@ -165,6 +165,6 @@ void HighlighterSettingsPage::settingsToUI()
 bool HighlighterSettingsPage::settingsChanged() const
 {
     m_d->ensureInitialized();
-    return (m_d->m_settings.definitionFilesPath() != m_d->m_page->definitionFilesPath->path())
+    return (m_d->m_settings.definitionFilesPath() != m_d->m_page->definitionFilesPath->filePath().toString())
             || (m_d->m_settings.ignoredFilesPatterns() != m_d->m_page->ignoreEdit->text());
 }

@@ -79,7 +79,7 @@ public:
 
     Interpreter toInterpreter()
     {
-        return {m_currentId, m_name->text(), FilePath::fromUserInput(m_executable->path())};
+        return {m_currentId, m_name->text(), FilePath::fromUserInput(m_executable->filePath().toString())};
     }
     QLineEdit *m_name = nullptr;
     PathChooser *m_executable = nullptr;

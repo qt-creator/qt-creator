@@ -890,7 +890,7 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
 
 QString StdIOSettingsWidget::executable() const
 {
-    return m_executable->path();
+    return m_executable->filePath().toString();
 }
 
 QString StdIOSettingsWidget::arguments() const

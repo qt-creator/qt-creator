@@ -274,23 +274,23 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
     QList<QAction*> actions = menu->actions();
     QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
 
-    if (QDir().exists(pathChooser->path())) {
+    if (QDir().exists(pathChooser->filePath().toString())) {
         auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
         connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
-            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->path());
+            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath().toString());
         });
         menu->insertAction(firstAction, showInGraphicalShell);
 
         auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalHereAction(), menu);
         connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
-            Core::FileUtils::openTerminal(pathChooser->path());
+            Core::FileUtils::openTerminal(pathChooser->filePath().toString());
         });
         menu->insertAction(firstAction, showInTerminal);
 
     } else {
         auto *mkPathAct = new QAction(tr("Create Folder"), menu);
         connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser]() {
-            QDir().mkpath(pathChooser->path());
+            QDir().mkpath(pathChooser->filePath().toString());
             pathChooser->triggerChanged();
         });
         menu->insertAction(firstAction, mkPathAct);

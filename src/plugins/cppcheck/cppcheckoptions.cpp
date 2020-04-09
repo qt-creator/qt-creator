@@ -121,7 +121,7 @@ void OptionsWidget::load(const CppcheckOptions &options)
 
 void OptionsWidget::save(CppcheckOptions &options) const
 {
-    options.binary = m_binary->path();
+    options.binary = m_binary->filePath().toString();
     options.customArguments = m_customArguments->text();
     options.ignoredPatterns = m_ignorePatterns->text();
     options.warning = m_warning->isChecked();

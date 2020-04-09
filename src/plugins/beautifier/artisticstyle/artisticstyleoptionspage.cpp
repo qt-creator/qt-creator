@@ -66,11 +66,11 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
     connect(ui.command, &Utils::PathChooser::validChanged, ui.options, &QWidget::setEnabled);
     ui.configurations->setSettings(m_settings);
 
-    ui.command->setFileName(m_settings->command());
+    ui.command->setFilePath(m_settings->command());
     ui.mime->setText(m_settings->supportedMimeTypesAsString());
     ui.useOtherFiles->setChecked(m_settings->useOtherFiles());
     ui.useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());
-    ui.specificConfigFile->setFileName(m_settings->specificConfigFile());
+    ui.specificConfigFile->setFilePath(m_settings->specificConfigFile());
     ui.useHomeFile->setChecked(m_settings->useHomeFile());
     ui.useCustomStyle->setChecked(m_settings->useCustomStyle());
     ui.configurations->setCurrentConfiguration(m_settings->customStyle());
@@ -78,7 +78,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
 
 void ArtisticStyleOptionsPageWidget::apply()
 {
-    m_settings->setCommand(ui.command->path());
+    m_settings->setCommand(ui.command->filePath().toString());
     m_settings->setSupportedMimeTypes(ui.mime->text());
     m_settings->setUseOtherFiles(ui.useOtherFiles->isChecked());
     m_settings->setUseSpecificConfigFile(ui.useSpecificConfigFile->isChecked());

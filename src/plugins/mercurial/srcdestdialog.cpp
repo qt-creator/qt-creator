@@ -86,7 +86,7 @@ QString SrcDestDialog::getRepositoryString() const
         return repoUrl.toString();
     }
     if (m_ui->localButton->isChecked())
-        return m_ui->localPathChooser->path();
+        return m_ui->localPathChooser->filePath().toString();
     return m_ui->urlLineEdit->text();
 }
 

@@ -137,7 +137,7 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
 
 QString ChangeSelectionDialog::workingDirectory() const
 {
-    const QString workingDir = m_ui->workingDirectoryChooser->path();
+    const QString workingDir = m_ui->workingDirectoryChooser->filePath().toString();
     if (workingDir.isEmpty() || !QDir(workingDir).exists())
         return QString();
 

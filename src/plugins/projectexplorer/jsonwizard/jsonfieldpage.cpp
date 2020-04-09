@@ -746,7 +746,7 @@ QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPag
     if (!m_historyId.isEmpty())
         w->setHistoryCompleter(m_historyId);
     QObject::connect(w, &PathChooser::pathChanged, [this, w] {
-        if (w->path() != m_path)
+        if (w->filePath().toString() != m_path)
             setHasUserChanges();
     });
     return w;
@@ -798,7 +798,7 @@ void PathChooserField::fromSettings(const QVariant &value)
 
 QVariant PathChooserField::toSettings() const
 {
-    return qobject_cast<PathChooser *>(widget())->path();
+    return qobject_cast<PathChooser *>(widget())->filePath().toString();
 }
 
 // --------------------------------------------------------------------

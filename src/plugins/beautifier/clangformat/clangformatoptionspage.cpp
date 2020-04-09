@@ -90,7 +90,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
 
 void ClangFormatOptionsPageWidget::apply()
 {
-    m_settings->setCommand(ui.command->path());
+    m_settings->setCommand(ui.command->filePath().toString());
     m_settings->setSupportedMimeTypes(ui.mime->text());
     m_settings->setUsePredefinedStyle(ui.usePredefinedStyle->isChecked());
     m_settings->setPredefinedStyle(ui.predefinedStyle->currentText());

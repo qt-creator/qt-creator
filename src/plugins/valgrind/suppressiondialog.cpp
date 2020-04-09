@@ -194,7 +194,7 @@ void SuppressionDialog::maybeShow(MemcheckErrorView *view)
 
 void SuppressionDialog::accept()
 {
-    const QString path = m_fileChooser->path();
+    const QString path = m_fileChooser->filePath().toString();
     QTC_ASSERT(!path.isEmpty(), return);
     QTC_ASSERT(!m_suppressionEdit->toPlainText().trimmed().isEmpty(), return);
 

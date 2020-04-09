@@ -47,7 +47,7 @@ NimToolsSettingsWidget::~NimToolsSettingsWidget()
 
 QString NimToolsSettingsWidget::command() const
 {
-    return ui->pathWidget->path();
+    return ui->pathWidget->filePath().toString();
 }
 
 void NimToolsSettingsWidget::setCommand(const QString &filename)

@@ -80,7 +80,7 @@ McuPackage::McuPackage(const QString &label, const QString &defaultPath,
 
 QString McuPackage::path() const
 {
-    return QFileInfo(m_fileChooser->path() + m_relativePathModifier).absoluteFilePath();
+    return QFileInfo(m_fileChooser->filePath().toString() + m_relativePathModifier).absoluteFilePath();
 }
 
 QString McuPackage::label() const
@@ -180,7 +180,7 @@ void McuPackage::updateStatus()
     m_path = m_fileChooser->rawPath();
     const bool validPath = m_fileChooser->isValid();
     const Utils::FilePath detectionPath = Utils::FilePath::fromString(
-                m_fileChooser->path() + "/" + m_detectionPath);
+                m_fileChooser->filePath().toString() + "/" + m_detectionPath);
     const QString displayDetectionPath = Utils::FilePath::fromString(m_detectionPath).toUserOutput();
     const bool validPackage = detectionPath.exists();
 

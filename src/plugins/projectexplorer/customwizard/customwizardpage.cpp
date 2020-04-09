@@ -360,8 +360,8 @@ void CustomWizardFieldPage::cleanupPage()
         PathChooserData &ped = m_pathChoosers[i];
         QString defaultText = ped.defaultText;
         CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
-        if (ped.pathChooser->path() != ped.defaultText)
-            ped.userChange = ped.pathChooser->path();
+        if (ped.pathChooser->filePath().toString() != ped.defaultText)
+            ped.userChange = ped.pathChooser->filePath().toString();
         else
             ped.userChange.clear();
     }
@@ -435,7 +435,7 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
 
 QString CustomWizardPage::path() const
 {
-    return m_pathChooser->path();
+    return m_pathChooser->filePath().toString();
 }
 
 void CustomWizardPage::setPath(const QString &path)

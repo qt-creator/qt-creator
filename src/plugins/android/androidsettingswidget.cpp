@@ -990,7 +990,7 @@ void AndroidSettingsWidget::downloadSdk()
         if (javaSummaryWidget->allRowsOk()) {
             auto javaPath = Utils::FilePath::fromUserInput(m_ui->OpenJDKLocationPathChooser->rawPath());
             m_sdkDownloader->downloadAndExtractSdk(javaPath.toString(),
-                                                 m_ui->SDKLocationPathChooser->path());
+                                                 m_ui->SDKLocationPathChooser->filePath().toString());
         }
     }
 }

@@ -412,7 +412,7 @@ void AttachCoreDialog::selectRemoteCoreFile()
 
 QString AttachCoreDialog::localCoreFile() const
 {
-    return d->localCoreFileName->path();
+    return d->localCoreFileName->filePath().toString();
 }
 
 FilePath AttachCoreDialog::symbolFile() const
@@ -462,7 +462,7 @@ Kit *AttachCoreDialog::kit() const
 
 QString AttachCoreDialog::overrideStartScript() const
 {
-    return d->overrideStartScriptFileName->path();
+    return d->overrideStartScriptFileName->filePath().toString();
 }
 
 void AttachCoreDialog::setOverrideStartScript(const QString &scriptName)

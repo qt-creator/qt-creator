@@ -95,5 +95,5 @@ BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *w) : QWizardPage(w),
 
 void BuildPathPage::buildDirectoryChanged()
 {
-    static_cast<AutotoolsOpenProjectWizard *>(wizard())->setBuildDirectory(m_pc->path());
+    static_cast<AutotoolsOpenProjectWizard *>(wizard())->setBuildDirectory(m_pc->filePath().toString());
 }

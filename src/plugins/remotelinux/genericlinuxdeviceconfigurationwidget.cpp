@@ -123,7 +123,7 @@ void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
 void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.privateKeyFile = m_ui->keyFileLineEdit->path();
+    sshParams.privateKeyFile = m_ui->keyFileLineEdit->filePath().toString();
     device()->setSshParameters(sshParams);
 }
 

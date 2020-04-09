@@ -608,7 +608,7 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
     auto tc = static_cast<CustomToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->filePath() != tc->compilerCommand()
-            || m_makeCommand->path() != tc->makeCommand(Environment()).toString()
+            || m_makeCommand->filePath().toString() != tc->makeCommand(Environment()).toString()
             || m_abiWidget->currentAbi() != tc->targetAbi()
             || Macro::toMacros(m_predefinedDetails->text().toUtf8()) != tc->rawPredefinedMacros()
             || m_headerDetails->entries() != tc->headerPathsList()

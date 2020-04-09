@@ -174,7 +174,7 @@ QString NewClassWidget::formFileName() const
 
 QString NewClassWidget::path() const
 {
-    return d->m_ui.pathChooser->path();
+    return d->m_ui.pathChooser->filePath().toString();
 }
 
 void NewClassWidget::setPath(const QString &path)

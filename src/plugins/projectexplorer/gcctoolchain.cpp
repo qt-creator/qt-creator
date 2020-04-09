@@ -1305,7 +1305,7 @@ void GccToolChainConfigWidget::setFromToolchain()
     m_platformLinkerFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformLinkerFlags()));
     if (m_abiWidget) {
         m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
-        if (!m_isReadOnly && !m_compilerCommand->path().isEmpty())
+        if (!m_isReadOnly && !m_compilerCommand->filePath().toString().isEmpty())
             m_abiWidget->setEnabled(true);
     }
 }

@@ -148,7 +148,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
     m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
-    m_chooser->setFileName(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
+    m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
     connect(m_chooser.data(), &PathChooser::pathChanged, this,
             [this]() {
                 m_workingDirectory = m_chooser->rawFileName();
@@ -183,7 +183,7 @@ QString WorkingDirectoryAspect::keyForDefaultWd() const
 
 void WorkingDirectoryAspect::resetPath()
 {
-    m_chooser->setFileName(m_defaultWorkingDirectory);
+    m_chooser->setFilePath(m_defaultWorkingDirectory);
 }
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
@@ -195,7 +195,7 @@ void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
         m_workingDirectory = m_defaultWorkingDirectory;
 
     if (m_chooser)
-        m_chooser->setFileName(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
+        m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
 }
 
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const
@@ -238,7 +238,7 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultW
 
     if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir) {
         if (m_chooser)
-            m_chooser->setFileName(m_defaultWorkingDirectory);
+            m_chooser->setFilePath(m_defaultWorkingDirectory);
         m_workingDirectory = defaultWorkingDir;
     }
 }

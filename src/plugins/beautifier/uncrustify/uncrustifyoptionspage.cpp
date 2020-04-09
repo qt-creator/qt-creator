@@ -80,7 +80,7 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
 
 void UncrustifyOptionsPageWidget::apply()
 {
-    m_settings->setCommand(ui.command->path());
+    m_settings->setCommand(ui.command->filePath().toString());
     m_settings->setSupportedMimeTypes(ui.mime->text());
     m_settings->setUseOtherFiles(ui.useOtherFiles->isChecked());
     m_settings->setUseHomeFile(ui.useHomeFile->isChecked());

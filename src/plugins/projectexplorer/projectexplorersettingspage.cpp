@@ -137,7 +137,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
 
 QString ProjectExplorerSettingsWidget::projectsDirectory() const
 {
-    return m_ui.projectsDirectoryPathChooser->path();
+    return m_ui.projectsDirectoryPathChooser->filePath().toString();
 }
 
 void ProjectExplorerSettingsWidget::setProjectsDirectory(const QString &pd)

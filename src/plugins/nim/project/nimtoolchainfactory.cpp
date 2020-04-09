@@ -123,7 +123,7 @@ bool NimToolChainConfigWidget::isDirtyImpl() const
 {
     auto tc = static_cast<NimToolChain *>(toolChain());
     Q_ASSERT(tc);
-    return tc->compilerCommand().toString() != m_compilerCommand->path();
+    return tc->compilerCommand().toString() != m_compilerCommand->filePath().toString();
 }
 
 void NimToolChainConfigWidget::makeReadOnlyImpl()

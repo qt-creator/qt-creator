@@ -74,12 +74,12 @@ CommonSettingsWidget::~CommonSettingsWidget()
 CommonVcsSettings CommonSettingsWidget::settings() const
 {
     CommonVcsSettings rc;
-    rc.nickNameMailMap = m_ui->nickNameMailMapChooser->path();
-    rc.nickNameFieldListFile = m_ui->nickNameFieldsFileChooser->path();
-    rc.submitMessageCheckScript = m_ui->submitMessageCheckScriptChooser->path();
+    rc.nickNameMailMap = m_ui->nickNameMailMapChooser->filePath().toString();
+    rc.nickNameFieldListFile = m_ui->nickNameFieldsFileChooser->filePath().toString();
+    rc.submitMessageCheckScript = m_ui->submitMessageCheckScriptChooser->filePath().toString();
     rc.lineWrap= m_ui->lineWrapCheckBox->isChecked();
     rc.lineWrapWidth = m_ui->lineWrapSpinBox->value();
-    rc.sshPasswordPrompt = m_ui->sshPromptChooser->path();
+    rc.sshPasswordPrompt = m_ui->sshPromptChooser->filePath().toString();
     return rc;
 }
 

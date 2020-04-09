@@ -227,15 +227,15 @@ void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::initializePage()
 
 bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::isComplete() const
 {
-    return d->keyFileChooser.path().isEmpty() || d->keyFileChooser.filePath().exists();
+    return d->keyFileChooser.filePath().toString().isEmpty() || d->keyFileChooser.filePath().exists();
 }
 
 bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::validatePage()
 {
-    if (!d->defaultKeys().contains(d->keyFileChooser.path())) {
+    if (!d->defaultKeys().contains(d->keyFileChooser.filePath().toString())) {
         SshConnectionParameters sshParams = d->device->sshParameters();
         sshParams.authenticationType = SshConnectionParameters::AuthenticationTypeSpecificKey;
-        sshParams.privateKeyFile = d->keyFileChooser.path();
+        sshParams.privateKeyFile = d->keyFileChooser.filePath().toString();
         d->device->setSshParameters(sshParams);
     }
     return true;
@@ -243,7 +243,7 @@ bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::validatePage()
 
 QString GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::privateKeyFilePath() const
 {
-    return d->keyFileChooser.path();
+    return d->keyFileChooser.filePath().toString();
 }
 
 void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::createKey()

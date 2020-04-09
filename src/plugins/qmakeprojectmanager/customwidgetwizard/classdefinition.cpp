@@ -140,7 +140,7 @@ PluginOptions::WidgetOptions ClassDefinition::widgetOptions(const QString &class
     wo.pluginClassName = m_ui.pluginClassEdit->text();
     wo.pluginHeaderFile = m_ui.pluginHeaderEdit->text();
     wo.pluginSourceFile = m_ui.pluginSourceEdit->text();
-    wo.iconFile = m_ui.iconPathChooser->path();
+    wo.iconFile = m_ui.iconPathChooser->filePath().toString();
     wo.group = m_ui.groupEdit->text();
     wo.toolTip = m_ui.tooltipEdit->text();
     wo.whatsThis = m_ui.whatsthisEdit->toPlainText();

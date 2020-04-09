@@ -90,11 +90,6 @@ public:
 
     FilePath filePath() const;
 
-    // Deprecated. Use filePath().toString()
-    QString path() const;
-    // Deprecated. Use filePath()
-    FilePath fileName() const { return filePath(); }
-
     QString rawPath() const; // The raw unexpanded input.
     FilePath rawFileName() const; // The raw unexpanded input.
 
@@ -149,6 +144,11 @@ public:
     // used by the coreplugin to add "Open in Terminal" and "Open in Explorer" context menu actions
     using AboutToShowContextMenuHandler = std::function<void (PathChooser *, QMenu *)>;
     static void setAboutToShowContextMenuHandler(AboutToShowContextMenuHandler handler);
+
+    // Deprecated. Use filePath().toString() or better suitable conversions.
+    QString path() const { return filePath().toString(); }
+    // Deprecated. Use filePath()
+    FilePath fileName() const { return filePath(); }
 
 private:
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;

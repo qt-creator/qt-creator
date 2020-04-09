@@ -196,7 +196,7 @@ void ChooseDirectoryPage::checkPackageSourceDir()
     const BuildTargetInfo bti = m_wizard->buildSystem()->buildTarget(buildKey);
     const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
 
-    const QString newDir = m_androidPackageSourceDir->path();
+    const QString newDir = m_androidPackageSourceDir->filePath().toString();
     bool isComplete = QFileInfo(projectDir) != QFileInfo(newDir);
 
     m_sourceDirectoryWarning->setVisible(!isComplete);
@@ -238,7 +238,7 @@ void ChooseDirectoryPage::initializePage()
     }
 
 
-    m_wizard->setDirectory(m_androidPackageSourceDir->path());
+    m_wizard->setDirectory(m_androidPackageSourceDir->filePath().toString());
 }
 
 //

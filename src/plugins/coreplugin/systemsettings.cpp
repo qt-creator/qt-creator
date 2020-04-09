@@ -182,7 +182,7 @@ void SystemSettingsWidget::apply()
                                       m_ui.externalFileBrowserEdit->text());
         }
     }
-    PatchTool::setPatchCommand(m_ui.patchChooser->path());
+    PatchTool::setPatchCommand(m_ui.patchChooser->filePath().toString());
     EditorManagerPrivate::setAutoSaveEnabled(m_ui.autoSaveCheckBox->isChecked());
     EditorManagerPrivate::setAutoSaveInterval(m_ui.autoSaveInterval->value());
     EditorManagerPrivate::setAutoSuspendEnabled(m_ui.autoSuspendCheckBox->isChecked());

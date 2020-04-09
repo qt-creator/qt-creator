@@ -427,7 +427,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
         return;
 
     DebuggerItem tmp;
-    QFileInfo fi = QFileInfo(m_binaryChooser->path());
+    QFileInfo fi = QFileInfo(m_binaryChooser->filePath().toString());
     if (fi.isExecutable()) {
         tmp = item();
         tmp.reinitializeFromFile();
