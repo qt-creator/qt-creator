@@ -37,6 +37,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
