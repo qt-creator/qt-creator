@@ -142,6 +142,7 @@ public:
     void destroyTargets();
     ModelNode targetTransition() const;
     QmlFlowViewNode flowView() const;
+    ModelNode findSourceForDecisionNode() const;
 };
 
 class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode : public QmlItemNode
@@ -178,6 +179,7 @@ public:
     const QList<ModelNode> transitions() const;
     const QList<ModelNode> wildcards() const;
     const QList<ModelNode> decicions() const;
+    QList<ModelNode> transitionsForTarget(const ModelNode &modelNode);
 };
 
 
