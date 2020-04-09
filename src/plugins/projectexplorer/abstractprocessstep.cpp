@@ -108,7 +108,6 @@ public:
     std::unique_ptr<Utils::QtcProcess> m_process;
     IOutputParser m_outputParser;
     ProcessParameters m_param;
-    Utils::FileInProjectFinder m_fileFinder;
     bool m_ignoreReturnValue = false;
     bool m_lowPriority = false;
     std::unique_ptr<QTextDecoder> stdoutStream;
@@ -119,8 +118,15 @@ AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     BuildStep(bsl, id),
     d(new Private(this))
 {
-    connect(&d->m_outputParser, &IOutputParser::addTask,
-            this, &AbstractProcessStep::taskAdded);
+    connect(&d->m_outputParser, &IOutputParser::addTask, this,
+            [this](const Task &task, int linkedLines, int skipLines) {
+        // Do not bother to report issues if we do not care about the results of
+        // the buildstep anyway:
+        // TODO: Does that make sense? The user might still want to know that
+        //       something failed, even if it wasn't fatal...
+        if (!d->m_ignoreReturnValue)
+            emit addTask(task, linkedLines, skipLines);
+    });
 }
 
 AbstractProcessStep::~AbstractProcessStep()
@@ -188,9 +194,11 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
 
 bool AbstractProcessStep::init()
 {
+    Utils::FileInProjectFinder fileFinder;
+    fileFinder.setProjectDirectory(project()->projectDirectory());
+    fileFinder.setProjectFiles(project()->files(Project::AllFiles));
     d->m_outputParser.addFilter(&Internal::filterAnsiEscapeCodes);
-    d->m_fileFinder.setProjectDirectory(project()->projectDirectory());
-    d->m_fileFinder.setProjectFiles(project()->files(Project::AllFiles));
+    d->m_outputParser.setFileFinder(fileFinder);
     return !d->m_process;
 }
 
@@ -385,30 +393,6 @@ void AbstractProcessStep::stdError(const QString &output)
 void AbstractProcessStep::finish(bool success)
 {
     emit finished(success);
-}
-
-void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
-{
-    // Do not bother to report issues if we do not care about the results of
-    // the buildstep anyway:
-    if (d->m_ignoreReturnValue)
-        return;
-
-    Task editable(task);
-    QString filePath = task.file.toString();
-    if (!filePath.isEmpty() && !filePath.startsWith('<') && !QDir::isAbsolutePath(filePath)) {
-        while (filePath.startsWith("../"))
-            filePath.remove(0, 3);
-        bool found = false;
-        const Utils::FilePaths candidates
-                = d->m_fileFinder.findFile(QUrl::fromLocalFile(filePath), &found);
-        if (found && candidates.size() == 1)
-            editable.file = candidates.first();
-        else
-            qWarning() << "Could not find absolute location of file " << filePath;
-    }
-
-    emit addTask(editable, linkedOutputLines, skipLines);
 }
 
 void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFormat format)

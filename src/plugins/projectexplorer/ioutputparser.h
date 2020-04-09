@@ -33,6 +33,8 @@
 
 #include <functional>
 
+namespace Utils { class FileInProjectFinder; }
+
 namespace ProjectExplorer {
 class Task;
 
@@ -56,6 +58,8 @@ public:
     void setRedirectionDetector(const OutputTaskParser *detector);
     bool needsRedirection() const;
     virtual bool hasDetectedRedirection() const { return false; }
+
+    void setFileFinder(Utils::FileInProjectFinder *finder);
 
 #ifdef WITH_TESTS
     void skipFileExistsCheck();
@@ -102,6 +106,8 @@ public:
     void addLineParsers(const QList<OutputTaskParser *> &parsers);
     void setLineParsers(const QList<OutputTaskParser *> &parsers);
 
+    void setFileFinder(const Utils::FileInProjectFinder &finder);
+
 #ifdef WITH_TESTS
     QList<OutputTaskParser *> lineParsers() const;
 #endif
@@ -112,7 +118,7 @@ signals:
 private:
     void handleLine(const QString &line, Utils::OutputFormat type);
     QString filteredLine(const QString &line) const;
-    void connectLineParser(OutputTaskParser *parser);
+    void setupLineParser(OutputTaskParser *parser);
     Utils::OutputFormat outputTypeForParser(const OutputTaskParser *parser,
                                             Utils::OutputFormat type) const;
 

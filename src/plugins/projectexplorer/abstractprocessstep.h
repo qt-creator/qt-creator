@@ -79,8 +79,6 @@ private:
 
     void cleanUp(QProcess *process);
 
-    void taskAdded(const Task &task, int linkedOutputLines = 0, int skipLines = 0);
-
     void outputAdded(const QString &string, BuildStep::OutputFormat format);
 
     class Private;

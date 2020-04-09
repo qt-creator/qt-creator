@@ -27,6 +27,7 @@
 #include "task.h"
 
 #include <utils/algorithm.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
@@ -76,6 +77,7 @@ class OutputTaskParser::Private
 {
 public:
     Utils::FilePaths searchDirs;
+    Utils::FileInProjectFinder *fileFinder = nullptr;
     QPointer<const OutputTaskParser> redirectionDetector;
     bool skipFileExistsCheck = false;
 };
@@ -122,6 +124,11 @@ bool OutputTaskParser::needsRedirection() const
                                       || d->redirectionDetector->needsRedirection());
 }
 
+void OutputTaskParser::setFileFinder(Utils::FileInProjectFinder *finder)
+{
+    d->fileFinder = finder;
+}
+
 Utils::FilePath OutputTaskParser::absoluteFilePath(const Utils::FilePath &filePath)
 {
     if (filePath.isEmpty() || filePath.toFileInfo().isAbsolute())
@@ -134,6 +141,15 @@ Utils::FilePath OutputTaskParser::absoluteFilePath(const Utils::FilePath &filePa
     }
     if (candidates.count() == 1)
         return Utils::FilePath::fromString(QDir::cleanPath(candidates.first().toString()));
+
+    QString fp = filePath.toString();
+    while (fp.startsWith("../"))
+        fp.remove(0, 3);
+    bool found = false;
+    candidates = d->fileFinder->findFile(QUrl::fromLocalFile(fp), &found);
+    if (found && candidates.size() == 1)
+        return candidates.first();
+
     return filePath;
 }
 
@@ -200,6 +216,7 @@ public:
     QList<OutputTaskParser *> lineParsers;
     OutputTaskParser *nextParser = nullptr;
     QList<Filter> filters;
+    Utils::FileInProjectFinder fileFinder;
     OutputChannelState stdoutState;
     OutputChannelState stderrState;
 };
@@ -261,8 +278,9 @@ QString IOutputParser::filteredLine(const QString &line) const
     return l;
 }
 
-void IOutputParser::connectLineParser(OutputTaskParser *parser)
+void IOutputParser::setupLineParser(OutputTaskParser *parser)
 {
+    parser->setFileFinder(&d->fileFinder);
     connect(parser, &OutputTaskParser::addTask, this, &IOutputParser::addTask);
     connect(parser, &OutputTaskParser::newSearchDir, this, &IOutputParser::addSearchDir);
     connect(parser, &OutputTaskParser::searchDirExpired, this, &IOutputParser::dropSearchDir);
@@ -291,11 +309,12 @@ void IOutputParser::clear()
     d->lineParsers.clear();
     d->stdoutState.pendingData.clear();
     d->stderrState.pendingData.clear();
+    d->fileFinder = Utils::FileInProjectFinder();
 }
 
 void IOutputParser::addLineParser(OutputTaskParser *parser)
 {
-    connectLineParser(parser);
+    setupLineParser(parser);
     d->lineParsers << parser;
 }
 
@@ -310,6 +329,11 @@ void IOutputParser::setLineParsers(const QList<OutputTaskParser *> &parsers)
     qDeleteAll(d->lineParsers);
     d->lineParsers.clear();
     addLineParsers(parsers);
+}
+
+void IOutputParser::setFileFinder(const Utils::FileInProjectFinder &finder)
+{
+    d->fileFinder = finder;
 }
 
 #ifdef WITH_TESTS
