@@ -338,7 +338,7 @@ void DesignModeWidget::setup()
         command->setAttribute(Core::Command::CA_Hide);
         mviews->addAction(command);
 
-        connect(outputPanePlaceholder, &Core::OutputPanePlaceHolder::visibilityAboutToChange,
+        connect(outputPanePlaceholder, &Core::OutputPanePlaceHolder::visibilityChangeRequested,
                 m_outputPaneDockWidget, &ADS::DockWidget::toggleView);
     }
 
