@@ -612,6 +612,7 @@ void OutputPaneManager::slotHide()
 {
     OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
     if (ph) {
+        emit ph->visibilityChangeRequested(false);
         ph->setVisible(false);
         int idx = currentIndex();
         QTC_ASSERT(idx >= 0, return);
@@ -654,6 +655,7 @@ void OutputPaneManager::showPage(int idx, int flags)
     if (onlyFlash) {
         g_outputPanes.at(idx).button->flash();
     } else {
+        emit ph->visibilityChangeRequested(true);
         // make the page visible
         ph->setVisible(true);
 
