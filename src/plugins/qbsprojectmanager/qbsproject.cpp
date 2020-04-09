@@ -170,12 +170,6 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
     return false;
 }
 
-static QString buildKeyValue(const QJsonObject &product)
-{
-    return product.value("name").toString() + '.'
-            + product.value("multiplex-configuration-id").toString();
-}
-
 QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
     : BuildSystem(bc->target()),
       m_session(new QbsSession(this)),
@@ -925,7 +919,7 @@ static RawProjectParts generateProjectParts(
             rpp.setProjectFileLocation(location.value("file-path").toString(),
                                        location.value("line").toInt(),
                                        location.value("column").toInt());
-            rpp.setBuildSystemTarget(buildKeyValue(prd));
+            rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(prd));
             rpp.setBuildTargetType(prd.value("is-runnable").toBool()
                                    ? BuildTargetType::Executable
                                    : BuildTargetType::Library);
@@ -1088,7 +1082,7 @@ void QbsBuildSystem::updateApplicationTargets()
             }
         }
         BuildTargetInfo bti;
-        bti.buildKey = buildKeyValue(productData);
+        bti.buildKey = QbsProductNode::getBuildKey(productData);
         bti.targetFilePath = FilePath::fromString(targetFile);
         bti.projectFilePath = FilePath::fromString(projectFile);
         bti.isQtcRunnable = isQtcRunnable; // Fixed up below.
