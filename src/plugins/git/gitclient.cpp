@@ -461,7 +461,7 @@ public:
     {
         setReloader([this, branch] {
             QStringList args = {"diff"};
-            args << addHeadWhenCommandInProgress() << branch;
+            args << branch << addHeadWhenCommandInProgress();
             runCommand({addConfigurationArguments(args)});
         });
     }
