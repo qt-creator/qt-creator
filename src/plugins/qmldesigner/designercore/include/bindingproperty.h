@@ -49,6 +49,7 @@ public:
     AbstractProperty resolveToProperty() const;
     bool isList() const;
     QList<ModelNode> resolveToModelNodeList() const;
+    void addModelNodeToArray(const ModelNode &modelNode);
 
     bool isAliasExport() const;
 
