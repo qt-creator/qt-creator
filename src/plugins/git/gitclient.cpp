@@ -265,37 +265,62 @@ void DescriptionWidgetDecorator::removeWatch(TextEditor::TextEditorWidget *widge
 
 ///////////////////////////////
 
-class GitDiffEditorController : public VcsBaseDiffEditorController
+class GitBaseDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
 
-public:
-    explicit GitDiffEditorController(IDocument *document);
+protected:
+    explicit GitBaseDiffEditorController(IDocument *document,
+                                         const QString &leftCommit);
 
 protected:
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
 
     QStringList addConfigurationArguments(const QStringList &args) const;
-    QStringList addHeadWhenCommandInProgress() const;
+    QStringList baseArguments() const;
 
 private:
     void updateBranchList();
 
     DescriptionWidgetWatcher m_watcher;
     DescriptionWidgetDecorator m_decorator;
+    QString m_leftCommit;
+    QString m_rightCommit;
 };
 
-GitDiffEditorController::GitDiffEditorController(IDocument *document) :
+class GitDiffEditorController : public GitBaseDiffEditorController
+{
+public:
+    explicit GitDiffEditorController(IDocument *document,
+                                     const QString &leftCommit,
+                                     const QStringList &extraArgs)
+        : GitBaseDiffEditorController(document, leftCommit)
+    {
+        setReloader([this, extraArgs] {
+            runCommand({addConfigurationArguments(baseArguments() << extraArgs)});
+        });
+    }
+};
+
+GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document,
+                                                         const QString &leftCommit) :
     VcsBaseDiffEditorController(document),
     m_watcher(this),
-    m_decorator(&m_watcher)
+    m_decorator(&m_watcher),
+    m_leftCommit(leftCommit)
 {
     connect(&m_decorator, &DescriptionWidgetDecorator::branchListRequested,
-            this, &GitDiffEditorController::updateBranchList);
+            this, &GitBaseDiffEditorController::updateBranchList);
     setDisplayName("Git Diff");
+    // This is workaround for lack of support for merge commits and resolving conflicts,
+    // we compare the current state of working tree to the HEAD of current branch
+    // instead of showing unsupported combined diff format.
+    GitClient::CommandInProgress commandInProgress = m_instance->checkCommandInProgress(workingDirectory());
+    if (commandInProgress != GitClient::NoCommand)
+        m_rightCommit = HEAD;
 }
 
-void GitDiffEditorController::updateBranchList()
+void GitBaseDiffEditorController::updateBranchList()
 {
     const QString revision = description().mid(7, 12);
     if (revision.isEmpty())
@@ -347,12 +372,12 @@ void GitDiffEditorController::updateBranchList()
 
 ///////////////////////////////
 
-void GitDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
+void GitBaseDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
 {
     VcsBaseDiffEditorController::runCommand(args, diffExecutionFlags(), codec);
 }
 
-QStringList GitDiffEditorController::addConfigurationArguments(const QStringList &args) const
+QStringList GitBaseDiffEditorController::addConfigurationArguments(const QStringList &args) const
 {
     QTC_ASSERT(!args.isEmpty(), return args);
 
@@ -372,66 +397,32 @@ QStringList GitDiffEditorController::addConfigurationArguments(const QStringList
     return realArgs;
 }
 
-QStringList GitDiffEditorController::addHeadWhenCommandInProgress() const
+QStringList GitBaseDiffEditorController::baseArguments() const
 {
-    // This is workaround for lack of support for merge commits and resolving conflicts,
-    // we compare the current state of working tree to the HEAD of current branch
-    // instead of showing unsupported combined diff format.
-    GitClient::CommandInProgress commandInProgress = m_instance->checkCommandInProgress(workingDirectory());
-    if (commandInProgress != GitClient::NoCommand)
-        return {HEAD};
-    return QStringList();
+    QStringList res = {"diff"};
+    if (!m_leftCommit.isEmpty())
+        res << m_leftCommit;
+    if (!m_rightCommit.isEmpty())
+        res << m_rightCommit;
+    return res;
 }
 
-class RepositoryDiffController : public GitDiffEditorController
-{
-public:
-    explicit RepositoryDiffController(IDocument *document) :
-        GitDiffEditorController(document)
-    {
-        setReloader([this] {
-            QStringList args = {"diff"};
-            args.append(addHeadWhenCommandInProgress());
-            runCommand({addConfigurationArguments(args)});
-        });
-    }
-};
-
-class FileDiffController : public GitDiffEditorController
-{
-public:
-    FileDiffController(IDocument *document, const QString &fileName) :
-        GitDiffEditorController(document)
-    {
-        setReloader([this, fileName] {
-            QStringList args = {"diff"};
-            args.append(addHeadWhenCommandInProgress());
-            args << "--" << fileName;
-            runCommand({addConfigurationArguments(args)});
-        });
-    }
-};
-
-class FileListDiffController : public GitDiffEditorController
+class FileListDiffController : public GitBaseDiffEditorController
 {
 public:
     FileListDiffController(IDocument *document,
                            const QStringList &stagedFiles, const QStringList &unstagedFiles) :
-        GitDiffEditorController(document)
+        GitBaseDiffEditorController(document, {})
     {
         setReloader([this, stagedFiles, unstagedFiles] {
             QList<QStringList> argLists;
             if (!stagedFiles.isEmpty()) {
-                QStringList stagedArgs = {"diff", "--cached", "--"};
-                stagedArgs << stagedFiles;
+                QStringList stagedArgs = QStringList({"diff", "--cached", "--"}) << stagedFiles;
                 argLists << addConfigurationArguments(stagedArgs);
             }
 
-            if (!unstagedFiles.isEmpty()) {
-                QStringList unstagedArgs = {"diff"};
-                unstagedArgs << addHeadWhenCommandInProgress() << "--" << unstagedFiles;
-                argLists << addConfigurationArguments(unstagedArgs);
-            }
+            if (!unstagedFiles.isEmpty())
+                argLists << addConfigurationArguments(baseArguments() << "--" << unstagedFiles);
 
             if (!argLists.isEmpty())
                 runCommand(argLists);
@@ -439,40 +430,12 @@ public:
     }
 };
 
-class ProjectDiffController : public GitDiffEditorController
-{
-public:
-    ProjectDiffController(IDocument *document, const QStringList &projectPaths) :
-        GitDiffEditorController(document)
-    {
-        setReloader([this, projectPaths] {
-            QStringList args = {"diff"};
-            args << addHeadWhenCommandInProgress() << "--" << projectPaths;
-            runCommand({addConfigurationArguments(args)});
-        });
-    }
-};
-
-class BranchDiffController : public GitDiffEditorController
-{
-public:
-    BranchDiffController(IDocument *document, const QString &branch) :
-        GitDiffEditorController(document)
-    {
-        setReloader([this, branch] {
-            QStringList args = {"diff"};
-            args << branch << addHeadWhenCommandInProgress();
-            runCommand({addConfigurationArguments(args)});
-        });
-    }
-};
-
-class ShowController : public GitDiffEditorController
+class ShowController : public GitBaseDiffEditorController
 {
     Q_OBJECT
 public:
     ShowController(IDocument *document, const QString &id) :
-        GitDiffEditorController(document),
+        GitBaseDiffEditorController(document, {}),
         m_id(id),
         m_state(Idle)
     {
@@ -505,7 +468,7 @@ void ShowController::processCommandOutput(const QString &output)
         runCommand(QList<QStringList>() << addConfigurationArguments(args));
     } else if (m_state == GettingDiff) {
         m_state = Idle;
-        GitDiffEditorController::processCommandOutput(output);
+        GitBaseDiffEditorController::processCommandOutput(output);
     }
 }
 
@@ -978,7 +941,7 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
     requestReload(documentId,
                   workingDirectory, tr("Git Diff Project"), workingDirectory,
                   [projectDirectory](IDocument *doc){
-                      return new ProjectDiffController(doc, {projectDirectory});
+                      return new GitDiffEditorController(doc, {}, {"--", projectDirectory});
                   });
 }
 
@@ -986,9 +949,10 @@ void GitClient::diffRepository(const QString &workingDirectory) const
 {
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffRepository.") + workingDirectory;
-    requestReload(documentId,
-                  workingDirectory, tr("Git Diff Repository"), workingDirectory,
-                  [](IDocument *doc) { return new RepositoryDiffController(doc); });
+    requestReload(documentId, workingDirectory, tr("Git Diff Repository"), workingDirectory,
+                  [](IDocument *doc) {
+        return new GitDiffEditorController(doc, {}, {});
+    });
 }
 
 void GitClient::diffFile(const QString &workingDirectory, const QString &fileName) const
@@ -998,7 +962,9 @@ void GitClient::diffFile(const QString &workingDirectory, const QString &fileNam
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DifFile.") + sourceFile;
     requestReload(documentId, sourceFile, title, workingDirectory,
-                  [fileName](IDocument *doc) { return new FileDiffController(doc, fileName); });
+                  [&fileName](IDocument *doc) {
+        return new GitDiffEditorController(doc, {}, {"--", fileName});
+    });
 }
 
 void GitClient::diffBranch(const QString &workingDirectory, const QString &branchName) const
@@ -1007,7 +973,9 @@ void GitClient::diffBranch(const QString &workingDirectory, const QString &branc
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffBranch.") + branchName;
     requestReload(documentId, workingDirectory, title, workingDirectory,
-                  [branchName](IDocument *doc) { return new BranchDiffController(doc, branchName); });
+                  [branchName](IDocument *doc) {
+        return new GitDiffEditorController(doc, branchName, {});
+    });
 }
 
 void GitClient::merge(const QString &workingDirectory,
