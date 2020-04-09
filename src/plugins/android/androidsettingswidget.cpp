@@ -623,8 +623,7 @@ void AndroidSettingsWidget::updateAvds()
 
 void AndroidSettingsWidget::validateJdk()
 {
-    auto javaPath = Utils::FilePath::fromUserInput(m_ui->OpenJDKLocationPathChooser->rawPath());
-    m_androidConfig.setOpenJDKLocation(javaPath);
+    m_androidConfig.setOpenJDKLocation(m_ui->OpenJDKLocationPathChooser->filePath());
     bool jdkPathExists = m_androidConfig.openJDKLocation().exists();
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
     summaryWidget->setPointValid(JavaPathExistsRow, jdkPathExists);
@@ -655,8 +654,7 @@ void AndroidSettingsWidget::validateJdk()
 
 void AndroidSettingsWidget::validateOpenSsl()
 {
-    auto openSslPath = Utils::FilePath::fromUserInput(m_ui->openSslPathChooser->rawPath());
-    m_androidConfig.setOpenSslLocation(openSslPath);
+    m_androidConfig.setOpenSslLocation(m_ui->openSslPathChooser->filePath());
 
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->openSslDetailsWidget->widget());
     summaryWidget->setPointValid(OpenSslPathExistsRow, m_androidConfig.openSslLocation().exists());
