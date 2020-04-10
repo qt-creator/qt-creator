@@ -982,7 +982,7 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
                   });
 }
 
-void GitClient::diffRepository(const QString &workingDirectory)
+void GitClient::diffRepository(const QString &workingDirectory) const
 {
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffRepository.") + workingDirectory;
@@ -1018,7 +1018,7 @@ void GitClient::merge(const QString &workingDirectory,
         delete mergeTool;
 }
 
-void GitClient::status(const QString &workingDirectory)
+void GitClient::status(const QString &workingDirectory) const
 {
     VcsOutputWindow::setRepository(workingDirectory);
     VcsCommand *command = vcsExec(workingDirectory, {"status", "-u"}, nullptr, true);
@@ -2433,7 +2433,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     return branches;
 }
 
-void GitClient::launchGitK(const QString &workingDirectory, const QString &fileName)
+void GitClient::launchGitK(const QString &workingDirectory, const QString &fileName) const
 {
     const QFileInfo binaryInfo = vcsBinary().toFileInfo();
     QDir foundBinDir(binaryInfo.dir());
@@ -2469,7 +2469,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
     VcsOutputWindow::appendError(msgCannotLaunch("gitk"));
 }
 
-void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
+void GitClient::launchRepositoryBrowser(const QString &workingDirectory) const
 {
     const QString repBrowserBinary = settings().stringValue(GitSettings::repositoryBrowserCmd);
     if (!repBrowserBinary.isEmpty())
@@ -2479,7 +2479,7 @@ void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
 bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
                                 const QString &workingDirectory,
                                 const QString &fileName,
-                                const QString &gitBinDirectory)
+                                const QString &gitBinDirectory) const
 {
     QString binary = gitBinDirectory + "/gitk";
     QStringList arguments;
@@ -2501,7 +2501,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     // the child), but that does not have an environment parameter.
     bool success = false;
     if (!settings().stringValue(GitSettings::pathKey).isEmpty()) {
-        auto process = new QProcess(this);
+        auto process = new QProcess;
         process->setWorkingDirectory(workingDirectory);
         process->setProcessEnvironment(env);
         process->start(binary, arguments);
@@ -3118,7 +3118,7 @@ void GitClient::addFuture(const QFuture<void> &future)
 }
 
 // Subversion: git svn
-void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
+void GitClient::synchronousSubversionFetch(const QString &workingDirectory) const
 {
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsCommand::SshPasswordPrompt
@@ -3127,7 +3127,7 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
     vcsSynchronousExec(workingDirectory, {"svn", "fetch"}, flags);
 }
 
-void GitClient::subversionLog(const QString &workingDirectory)
+void GitClient::subversionLog(const QString &workingDirectory) const
 {
     QStringList arguments = {"svn", "log"};
     int logCount = settings().intValue(GitSettings::logCountKey);
@@ -3144,7 +3144,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
     vcsExec(workingDirectory, arguments, editor);
 }
 
-void GitClient::subversionDeltaCommit(const QString &workingDirectory)
+void GitClient::subversionDeltaCommit(const QString &workingDirectory) const
 {
     vcsExec(workingDirectory, {"svn", "dcommit"}, nullptr, true,
             VcsCommand::ShowSuccessMessage);

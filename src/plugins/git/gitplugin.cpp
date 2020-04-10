@@ -103,7 +103,7 @@ using namespace std::placeholders;
 namespace Git {
 namespace Internal {
 
-using GitClientMemberFunc = void (GitClient::*)(const QString &);
+using GitClientMemberFunc = void (GitClient::*)(const QString &) const;
 
 class GitTopicCache : public Core::IVersionControl::TopicCache
 {
