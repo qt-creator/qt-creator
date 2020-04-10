@@ -160,7 +160,13 @@ public:
                    const QStringList &stagedFileNames) const;
     void diffProject(const QString &workingDirectory,
                      const QString &projectDirectory) const;
-    void diffRepository(const QString &workingDirectory) const;
+    void diffRepository(const QString &workingDirectory) const
+    {
+        return diffRepository(workingDirectory, {}, {});
+    }
+    void diffRepository(const QString &workingDirectory,
+                        const QString &leftCommit,
+                        const QString &rightCommit) const;
     void diffBranch(const QString &workingDirectory,
                     const QString &branchName) const;
     void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
@@ -407,6 +413,7 @@ private:
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;
     QString m_pushFallbackCommand;
+    QString m_diffCommit;
     QStringList m_updatedSubmodules;
     bool m_disableEditor;
     QFutureSynchronizer<void> m_synchronizer; // for commit updates

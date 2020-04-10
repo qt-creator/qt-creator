@@ -271,7 +271,8 @@ class GitBaseDiffEditorController : public VcsBaseDiffEditorController
 
 protected:
     explicit GitBaseDiffEditorController(IDocument *document,
-                                         const QString &leftCommit);
+                                         const QString &leftCommit,
+                                         const QString &rightCommit);
 
 protected:
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
@@ -293,8 +294,9 @@ class GitDiffEditorController : public GitBaseDiffEditorController
 public:
     explicit GitDiffEditorController(IDocument *document,
                                      const QString &leftCommit,
+                                     const QString &rightCommit,
                                      const QStringList &extraArgs)
-        : GitBaseDiffEditorController(document, leftCommit)
+        : GitBaseDiffEditorController(document, leftCommit, rightCommit)
     {
         setReloader([this, extraArgs] {
             runCommand({addConfigurationArguments(baseArguments() << extraArgs)});
@@ -303,21 +305,25 @@ public:
 };
 
 GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document,
-                                                         const QString &leftCommit) :
+                                                         const QString &leftCommit,
+                                                         const QString &rightCommit) :
     VcsBaseDiffEditorController(document),
     m_watcher(this),
     m_decorator(&m_watcher),
-    m_leftCommit(leftCommit)
+    m_leftCommit(leftCommit),
+    m_rightCommit(rightCommit)
 {
     connect(&m_decorator, &DescriptionWidgetDecorator::branchListRequested,
             this, &GitBaseDiffEditorController::updateBranchList);
     setDisplayName("Git Diff");
-    // This is workaround for lack of support for merge commits and resolving conflicts,
-    // we compare the current state of working tree to the HEAD of current branch
-    // instead of showing unsupported combined diff format.
-    GitClient::CommandInProgress commandInProgress = m_instance->checkCommandInProgress(workingDirectory());
-    if (commandInProgress != GitClient::NoCommand)
-        m_rightCommit = HEAD;
+    if (rightCommit.isEmpty()) {
+        // This is workaround for lack of support for merge commits and resolving conflicts,
+        // we compare the current state of working tree to the HEAD of current branch
+        // instead of showing unsupported combined diff format.
+        GitClient::CommandInProgress commandInProgress = m_instance->checkCommandInProgress(workingDirectory());
+        if (commandInProgress != GitClient::NoCommand)
+            m_rightCommit = HEAD;
+    }
 }
 
 void GitBaseDiffEditorController::updateBranchList()
@@ -412,7 +418,7 @@ class FileListDiffController : public GitBaseDiffEditorController
 public:
     FileListDiffController(IDocument *document,
                            const QStringList &stagedFiles, const QStringList &unstagedFiles) :
-        GitBaseDiffEditorController(document, {})
+        GitBaseDiffEditorController(document, {}, {})
     {
         setReloader([this, stagedFiles, unstagedFiles] {
             QList<QStringList> argLists;
@@ -435,7 +441,7 @@ class ShowController : public GitBaseDiffEditorController
     Q_OBJECT
 public:
     ShowController(IDocument *document, const QString &id) :
-        GitBaseDiffEditorController(document, {}),
+        GitBaseDiffEditorController(document, {}, {}),
         m_id(id),
         m_state(Idle)
     {
@@ -941,17 +947,19 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
     requestReload(documentId,
                   workingDirectory, tr("Git Diff Project"), workingDirectory,
                   [projectDirectory](IDocument *doc){
-                      return new GitDiffEditorController(doc, {}, {"--", projectDirectory});
+                      return new GitDiffEditorController(doc, {}, {}, {"--", projectDirectory});
                   });
 }
 
-void GitClient::diffRepository(const QString &workingDirectory) const
+void GitClient::diffRepository(const QString &workingDirectory,
+                               const QString &leftCommit,
+                               const QString &rightCommit) const
 {
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffRepository.") + workingDirectory;
     requestReload(documentId, workingDirectory, tr("Git Diff Repository"), workingDirectory,
-                  [](IDocument *doc) {
-        return new GitDiffEditorController(doc, {}, {});
+                  [&leftCommit, &rightCommit](IDocument *doc) {
+        return new GitDiffEditorController(doc, leftCommit, rightCommit, {});
     });
 }
 
@@ -963,7 +971,7 @@ void GitClient::diffFile(const QString &workingDirectory, const QString &fileNam
             + QLatin1String(".DifFile.") + sourceFile;
     requestReload(documentId, sourceFile, title, workingDirectory,
                   [&fileName](IDocument *doc) {
-        return new GitDiffEditorController(doc, {}, {"--", fileName});
+        return new GitDiffEditorController(doc, {}, {}, {"--", fileName});
     });
 }
 
@@ -974,7 +982,7 @@ void GitClient::diffBranch(const QString &workingDirectory, const QString &branc
             + QLatin1String(".DiffBranch.") + branchName;
     requestReload(documentId, workingDirectory, title, workingDirectory,
                   [branchName](IDocument *doc) {
-        return new GitDiffEditorController(doc, branchName, {});
+        return new GitDiffEditorController(doc, branchName, {}, {});
     });
 }
 
@@ -3630,6 +3638,21 @@ void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const Q
     resetMenu->addAction(tr("&Mixed"), std::bind(resetChange, "mixed"));
     resetMenu->addAction(tr("&Soft"), std::bind(resetChange, "soft"));
     menu->addMenu(resetMenu);
+
+    menu->addAction(tr("Di&ff Against %1").arg(change),
+                    [workingDir, change] {
+        m_instance->diffRepository(workingDir, change, {});
+    });
+    if (!m_instance->m_diffCommit.isEmpty()) {
+        menu->addAction(tr("Diff &Against Saved %1").arg(m_instance->m_diffCommit),
+                        [workingDir, change] {
+            m_instance->diffRepository(workingDir, m_instance->m_diffCommit, change);
+            m_instance->m_diffCommit.clear();
+        });
+    }
+    menu->addAction(tr("&Save for Diff"), [change] {
+        m_instance->m_diffCommit = change;
+    });
 }
 
 } // namespace Internal
