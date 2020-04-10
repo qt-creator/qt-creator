@@ -63,6 +63,7 @@ public:
         Stm8Architecture,
         Msp430Architecture,
         Rl78Architecture,
+        C166Architecture,
         UnknownArchitecture
     };
 

@@ -76,6 +76,8 @@ static Abi::Architecture guessArchitecture(const FilePath &compilerPath)
         return Abi::Architecture::Mcs51Architecture;
     if (bn == "c251")
         return Abi::Architecture::Mcs251Architecture;
+    if (bn == "c166")
+        return Abi::Architecture::C166Architecture;
     if (bn == "armcc")
         return Abi::Architecture::ArmArchitecture;
     return Abi::Architecture::UnknownArchitecture;
@@ -154,6 +156,126 @@ static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const QStringLis
     return macros;
 }
 
+static Macros dumpC166PredefinedMacros(const FilePath &compiler, const QStringList &env)
+{
+    // Note: The KEIL C166 compiler does not support the predefined
+    // macros dumping. Also, it does not support the '#pragma' and
+    // '#message|warning|error' directives properly (it is impossible
+    // to print to console the value of macro).
+    // So, we do it with the following trick, where we try
+    // to create and compile a special temporary file and to parse the console
+    // output with the own magic pattern, e.g:
+    //
+    // *** WARNING C320 IN LINE 41 OF c51.c: __C166__
+    // *** WARNING C2 IN LINE 42 OF c51.c: '757': unknown #pragma/control, line ignored
+    //
+    // where the '__C166__' is a key, and the '757' is a value.
+
+    QTemporaryFile fakeIn;
+    if (!fakeIn.open())
+        return {};
+
+    // Prepare for C166 compiler.
+    fakeIn.write("#if defined(__C166__)\n");
+    fakeIn.write("#  if defined(__C166__)\n");
+    fakeIn.write("#   warning __C166__\n");
+    fakeIn.write("#   pragma __C166__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__DUS__)\n");
+    fakeIn.write("#   warning __DUS__\n");
+    fakeIn.write("#   pragma __DUS__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__MAC__)\n");
+    fakeIn.write("#   warning __MAC__\n");
+    fakeIn.write("#   pragma __MAC__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__MOD167__)\n");
+    fakeIn.write("#   warning __MOD167__\n");
+    fakeIn.write("#   pragma __MOD167__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__MODEL__)\n");
+    fakeIn.write("#   warning __MODEL__\n");
+    fakeIn.write("#   pragma __MODEL__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__MODV2__)\n");
+    fakeIn.write("#   warning __MODV2__\n");
+    fakeIn.write("#   pragma __MODV2__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__SAVEMAC__)\n");
+    fakeIn.write("#   warning __SAVEMAC__\n");
+    fakeIn.write("#   pragma __SAVEMAC__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#  if defined(__STDC__)\n");
+    fakeIn.write("#   warning __STDC__\n");
+    fakeIn.write("#   pragma __STDC__\n");
+    fakeIn.write("#  endif\n");
+    fakeIn.write("#endif\n");
+
+    fakeIn.close();
+
+    SynchronousProcess cpp;
+    cpp.setEnvironment(env);
+    cpp.setTimeoutS(10);
+
+    Macros macros;
+    auto extractMacros = [&macros](const QString &output) {
+        const QStringList lines = output.split('\n');
+        for (auto it = lines.cbegin(); it != lines.cend();) {
+            if (!it->startsWith("***")) {
+                ++it;
+                continue;
+            }
+
+            // Search for the key at a first line.
+            QByteArray key;
+            if (it->endsWith("__C166__"))
+                key = "__C166__";
+            else if (it->endsWith("__DUS__"))
+                key = "__DUS__";
+            else if (it->endsWith("__MAC__"))
+                key = "__MAC__";
+            else if (it->endsWith("__MOD167__"))
+                key = "__MOD167__";
+            else if (it->endsWith("__MODEL__"))
+                key = "__MODEL__";
+            else if (it->endsWith("__MODV2__"))
+                key = "__MODV2__";
+            else if (it->endsWith("__SAVEMAC__"))
+                key = "__SAVEMAC__";
+            else if (it->endsWith("__STDC__"))
+                key = "__STDC__";
+
+            if (key.isEmpty()) {
+                ++it;
+                continue;
+            }
+
+            ++it;
+            if (it == lines.cend() || !it->startsWith("***"))
+                break;
+
+            // Search for the value at a second line.
+            const int startIndex = it->indexOf('\'');
+            if (startIndex == -1)
+                break;
+            const int stopIndex = it->indexOf('\'', startIndex + 1);
+            if (stopIndex == -1)
+                break;
+            const QByteArray value = it->mid(startIndex + 1, stopIndex - startIndex - 1).toLatin1();
+
+            macros.append(Macro{key, value});
+
+            ++it;
+        }
+    };
+
+    const CommandLine cmd(compiler, {fakeIn.fileName()});
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
+    const QString output = response.allOutput();
+    extractMacros(output);
+    return macros;
+}
+
 static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &env)
 {
     SynchronousProcess cpp;
@@ -179,6 +301,11 @@ static bool isMcsArchitecture(Abi::Architecture arch)
             || arch == Abi::Architecture::Mcs251Architecture;
 }
 
+static bool isC166Architecture(Abi::Architecture arch)
+{
+    return arch == Abi::Architecture::C166Architecture;
+}
+
 static bool isArmArchitecture(Abi::Architecture arch)
 {
     return arch == Abi::Architecture::ArmArchitecture;
@@ -192,6 +319,8 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     const Abi::Architecture arch = guessArchitecture(compiler);
     if (isMcsArchitecture(arch))
         return dumpMcsPredefinedMacros(compiler, env);
+    if (isC166Architecture(arch))
+        return dumpC166PredefinedMacros(compiler, env);
     if (isArmArchitecture(arch))
         return dumpArmPredefinedMacros(compiler, env);
     return {};
@@ -209,7 +338,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
     HeaderPaths headerPaths;
 
     const Abi::Architecture arch = guessArchitecture(compiler);
-    if (isMcsArchitecture(arch)) {
+    if (isMcsArchitecture(arch) || isC166Architecture(arch)) {
         QDir includeDir(toolkitDir);
         if (includeDir.cd("inc"))
             headerPaths.push_back({includeDir.canonicalPath(), HeaderPathType::BuiltIn});
@@ -231,6 +360,8 @@ static Abi::Architecture guessArchitecture(const Macros &macros)
             return Abi::Architecture::Mcs51Architecture;
         if (macro.key == "__C251__")
             return Abi::Architecture::Mcs251Architecture;
+        if (macro.key == "__C166__")
+            return Abi::Architecture::C166Architecture;
     }
     return Abi::Architecture::UnknownArchitecture;
 }
@@ -240,7 +371,8 @@ static unsigned char guessWordWidth(const Macros &macros, Abi::Architecture arch
     // Check for C51 or C251 compiler first, which are always have 16-bit word width:
     // * http://www.keil.com/support/man/docs/c51/c51_le_datatypes.htm
     // * http://www.keil.com/support/man/docs/c251/c251_le_datatypes.htm
-    if (isMcsArchitecture(arch))
+    // * http://www.keil.com/support/man/docs/c166/c166_le_datatypes.htm
+    if (isMcsArchitecture(arch) || isC166Architecture(arch))
         return 16;
 
     const Macro sizeMacro = Utils::findOrDefault(macros, [](const Macro &m) {
@@ -255,7 +387,7 @@ static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
 {
     if (isArmArchitecture(arch))
         return Abi::BinaryFormat::ElfFormat;
-    if (isMcsArchitecture(arch))
+    if (isMcsArchitecture(arch) || isC166Architecture(arch))
         return Abi::BinaryFormat::OmfFormat;
     return Abi::BinaryFormat::UnknownFormat;
 }
@@ -515,6 +647,8 @@ QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &al
             compilerPath = productPath.pathAppended("\\BIN\\c51.exe");
         else if (productPath.endsWith("C251"))
             compilerPath = productPath.pathAppended("\\BIN\\c251.exe");
+        else if (productPath.endsWith("C166"))
+            compilerPath = productPath.pathAppended("\\BIN\\c166.exe");
 
         if (compilerPath.exists()) {
             // Fetch the toolchain version.
@@ -573,8 +707,9 @@ QList<ToolChain *> KeilToolChainFactory::autoDetectToolchain(
 
     const Abi abi = guessAbi(macros);
     const Abi::Architecture arch = abi.architecture();
-    if (isMcsArchitecture(arch) && language == ProjectExplorer::Constants::CXX_LANGUAGE_ID) {
-        // KEIL C51 or C251 compiler does not support C++ language.
+    if ((isMcsArchitecture(arch) || isC166Architecture(arch))
+            && language == ProjectExplorer::Constants::CXX_LANGUAGE_ID) {
+        // KEIL C51/C251/C166 compilers does not support C++ language.
         return {};
     }
 
