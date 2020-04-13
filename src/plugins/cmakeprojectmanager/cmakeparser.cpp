@@ -140,6 +140,7 @@ IOutputParser::Status CMakeParser::doHandleLine(const QString &line, OutputForma
         doFlush();
         return Status::Done;
     }
+    return Status::NotHandled;
 }
 
 void CMakeParser::doFlush()
