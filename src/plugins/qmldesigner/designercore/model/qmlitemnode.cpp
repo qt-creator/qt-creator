@@ -717,10 +717,7 @@ QList<ModelNode> QmlFlowViewNode::transitionsForTarget(const ModelNode &modelNod
 
 bool QmlFlowTargetNode::isValid() const
 {
-     return QmlItemNode(modelNode()).isFlowItem()
-             || QmlItemNode(modelNode()).isFlowActionArea()
-             || QmlVisualNode::isFlowDecision(modelNode())
-             || QmlVisualNode::isFlowWildcard(modelNode());
+     return isFlowEditorTarget(modelNode());
 }
 
 void QmlFlowTargetNode::assignTargetItem(const QmlFlowTargetNode &node)
@@ -795,6 +792,14 @@ ModelNode QmlFlowTargetNode::findSourceForDecisionNode() const
     }
 
     return {};
+}
+
+bool QmlFlowTargetNode::isFlowEditorTarget(const ModelNode &modelNode)
+{
+    return QmlItemNode(modelNode).isFlowItem()
+            || QmlItemNode(modelNode).isFlowActionArea()
+            || QmlVisualNode::isFlowDecision(modelNode)
+            || QmlVisualNode::isFlowWildcard(modelNode);
 }
 
 } //QmlDesigner

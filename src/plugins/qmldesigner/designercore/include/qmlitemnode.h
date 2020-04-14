@@ -143,6 +143,7 @@ public:
     ModelNode targetTransition() const;
     QmlFlowViewNode flowView() const;
     ModelNode findSourceForDecisionNode() const;
+    static bool isFlowEditorTarget(const ModelNode &modelNode);
 };
 
 class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode : public QmlItemNode
