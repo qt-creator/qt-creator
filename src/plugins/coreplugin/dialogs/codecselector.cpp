@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "codecselector.h"
-#include "textdocument.h"
+#include <coreplugin/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -36,11 +36,7 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
-
-namespace TextEditor {
-namespace Internal {
+namespace Core {
 
 /* custom class to make sure the width is wide enough for the
  * contents. Should be easier with Qt. */
@@ -53,10 +49,6 @@ public:
             QSize(sizeHintForColumn(0) + verticalScrollBar()->sizeHint().width() + 4, 0));
     }
 };
-
-} // namespace Internal
-} // namespace TextEditor
-
 
 CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     : QDialog(parent)
@@ -166,3 +158,4 @@ void CodecSelector::buttonClicked(QAbstractButton *button)
     done(result);
 }
 
+} // namespace Core

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "../core_global.h"
+
 #include <QDialog>
 #include <QLabel>
 #include <QDialogButtonBox>
@@ -33,10 +35,9 @@
 namespace Utils { class ListWidget; }
 namespace Core { class BaseTextDocument; }
 
-namespace TextEditor {
-namespace Internal {
+namespace Core {
 
-class CodecSelector : public QDialog
+class CORE_EXPORT CodecSelector : public QDialog
 {
     Q_OBJECT
 
@@ -65,5 +66,4 @@ private:
     QAbstractButton *m_saveButton;
 };
 
-} // namespace Internal
-} // namespace TextEditor
+} // namespace Core

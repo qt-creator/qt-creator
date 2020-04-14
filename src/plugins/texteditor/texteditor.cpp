@@ -35,7 +35,6 @@
 #include "behaviorsettings.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
-#include "codecselector.h"
 #include "completionsettings.h"
 #include "extraencodingsettings.h"
 #include "highlighter.h"
@@ -59,6 +58,7 @@
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
 
+#include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/icore.h>
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>

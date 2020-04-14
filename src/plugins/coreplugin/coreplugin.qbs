@@ -208,6 +208,7 @@ Project {
             prefix: "dialogs/"
             files: [
                 "addtovcsdialog.cpp", "addtovcsdialog.h", "addtovcsdialog.ui",
+                "codecselector.cpp", "codecselector.h",
                 "externaltoolconfig.cpp", "externaltoolconfig.h", "externaltoolconfig.ui",
                 "filepropertiesdialog.cpp", "filepropertiesdialog.h", "filepropertiesdialog.ui",
                 "ioptionspage.cpp", "ioptionspage.h",

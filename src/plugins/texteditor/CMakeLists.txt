@@ -34,7 +34,6 @@ add_qtc_plugin(TextEditor
     codeassist/runner.cpp codeassist/runner.h
     codeassist/textdocumentmanipulator.cpp codeassist/textdocumentmanipulator.h
     codeassist/textdocumentmanipulatorinterface.h
-    codecselector.cpp codecselector.h
     codestyleeditor.cpp codestyleeditor.h
     codestylepool.cpp codestylepool.h
     codestyleselectorwidget.cpp codestyleselectorwidget.h codestyleselectorwidget.ui
