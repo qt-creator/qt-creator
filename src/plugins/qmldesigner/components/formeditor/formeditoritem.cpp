@@ -585,6 +585,9 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QColor flowColor = "#e71919";
 
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("areaColor"))
+        flowColor = qmlItemNode().rootModelNode().auxiliaryData("areaColor").value<QColor>();
+
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
@@ -600,7 +603,6 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
         dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
 
-
     pen.setColor(flowColor);
     if (dash)
         pen.setStyle(Qt::DashLine);
@@ -611,11 +613,16 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor")) {
+    QColor fillColor = QColor(Qt::transparent);
 
-       const QColor fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
-       painter->fillRect(boundingRect(), fillColor);
-    }
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("areaFillColor"))
+        fillColor = qmlItemNode().rootModelNode().auxiliaryData("areaFillColor").value<QColor>();
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor"))
+        fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
+
+    if (fillColor.alpha() > 0)
+        painter->fillRect(boundingRect(), fillColor);
 
     painter->drawRect(boundingRect());
 
@@ -1046,6 +1053,9 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     bool dash = false;
 
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("transitionColor"))
+        color = qmlItemNode().rootModelNode().auxiliaryData("transitionColor").value<QColor>();
+
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         color = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
@@ -1137,6 +1147,9 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
     QColor flowColor = "#e71919";
 
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("blockColor"))
+        flowColor = qmlItemNode().rootModelNode().auxiliaryData("blockColor").value<QColor>();
+
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
@@ -1161,11 +1174,13 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor")) {
+    QColor fillColor = QColor(Qt::transparent);
 
-       const QColor fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
-       painter->fillRect(boundingRect(), fillColor);
-    }
+    if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor"))
+       fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
+
+    if (fillColor.alpha() > 0)
+        painter->fillRect(boundingRect(), fillColor);
 
     painter->drawLine(boundingRect().left(), boundingRect().center().y(),
                       boundingRect().center().x(), boundingRect().top());
