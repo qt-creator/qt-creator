@@ -49,7 +49,7 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application > \uicontrol {Qt Widgets Application} >
+            \uicontrol Application (Qt) > \uicontrol {Qt Widgets Application} >
             \uicontrol Choose.
 
             \image qtcreator-new-qt-gui-application.png "New File or Project dialog"
@@ -61,20 +61,16 @@
         \li In the \uicontrol{Name} field, type \b {TextFinder}.
 
         \li In the \uicontrol {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}, and then click \uicontrol{Next} (on
+            For example, \c {C:\Qt\examples}, and then select \uicontrol{Next} (on
             Windows and Linux) or \uicontrol Continue (on \macos).
 
-            The \uicontrol {Kit Selection} dialog opens.
+            The \uicontrol {Define Build System} dialog opens.
 
-            \image qtcreator-new-project-qt-versions-qt-gui.png "Kit Selection dialog"
+            \image qtcreator-new-project-build-system-qt-gui.png "Define Build System dialog"
 
-        \li Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
-            and click \uicontrol Next or \uicontrol Continue.
-
-            \note If only one kit is specified in \uicontrol Tools >
-            \uicontrol Options > \uicontrol Kits (on Windows and Linux) or in
-            \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Kits
-            (on \macos), this dialog is skipped.
+        \li In the \uicontrol {Build system} field, select the build system to
+            use for building and running the project: \l qmake,
+            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
 
             The \uicontrol{Class Information} dialog opens.
 
@@ -89,13 +85,20 @@
            \note The \uicontrol{Header file}, \uicontrol{Source file} and \uicontrol{Form file}
             fields are automatically updated to match the name of the class.
 
-        \li Click \uicontrol Next or \uicontrol Continue.
+            The \uicontrol {Kit Selection} dialog opens.
+
+            \image qtcreator-new-project-qt-versions-qt-gui.png "Kit Selection dialog"
+
+        \li Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
+            and select \uicontrol Next or \uicontrol Continue.
+
+        \li Select \uicontrol Next or \uicontrol Continue.
 
             The \uicontrol{Project Management} dialog opens.
 
             \image qtcreator-new-project-summary-qt-gui.png "Project Management dialog"
 
-        \li Review the project settings, and click \uicontrol{Finish} (on Windows and
+        \li Review the project settings, and select \uicontrol{Finish} (on Windows and
             Linux) or \uicontrol Done (on \macos) to create the project.
 
     \endlist
@@ -107,9 +110,9 @@
 
     \list
 
+        \li main.cpp
         \li textfinder.h
         \li textfinder.cpp
-        \li main.cpp
         \li textfinder.ui
         \li textfinder.pro
 
@@ -150,7 +153,7 @@
         \uicontrol Sidebar. For example, to find the \uicontrol Label widget, start typing
         the word \b label.
 
-        \image qtcreator-texfinder-filter.png "Filter field"
+        \image qtcreator-textfinder-filter.png "Filter field"
 
         \li Double-click the \uicontrol{Label} widget and enter the text
             \b{Keyword}.
@@ -164,23 +167,23 @@
             \image qtcreator-textfinder-objectname.png "Changing object names"
 
         \li Press \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
-            click \uicontrol{Lay out Horizontally} (or press \uicontrol{Ctrl+H} on Linux or
+            select \uicontrol{Lay out Horizontally} (or press \key {Ctrl+H} on Linux or
             Windows or \key {Ctrl+Shift+H} on \macos) to apply a horizontal
             layout (QHBoxLayout).
 
-            \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"
+            \image qtcreator-textfinder-ui-horizontal-layout.png "Applying horizontal layout"
 
         \li Drag and drop a \uicontrol{Text Edit} widget (QTextEdit) to the form.
 
-        \li Select the screen area and click \uicontrol{Lay out Vertically} (or press
-            \uicontrol{Ctrl+L}) to apply a vertical layout (QVBoxLayout).
+        \li Select the screen area, and then select \uicontrol{Lay out Vertically}
+            (or press \key {Ctrl+L}) to apply a vertical layout (QVBoxLayout).
 
             \image qtcreator-textfinder-ui.png "Text Finder UI"
 
             Applying the horizontal and vertical layouts ensures that the
             application UI scales to different screen sizes.
 
-        \li To call a find function when users press the \uicontrol Find button, you
+        \li To call a find function when users select the \uicontrol Find button, you
             use the Qt signals and slots mechanism. A signal is emitted when a
             particular event occurs and a slot is a function that is called in
             response to a particular signal. Qt widgets have predefined signals
@@ -201,7 +204,7 @@
 
             \endlist
 
-        \li Press \uicontrol{Ctrl+S} (or \key {Cmd+S}) to save your changes.
+        \li Press \key {Ctrl+S} (or \key {Cmd+S}) to save your changes.
 
     \endlist
 
@@ -295,7 +298,7 @@
         \li In the \uicontrol{Name} field, enter \b{textfinder}.
 
         \li In the \uicontrol{Path} field, enter \c{C:\Qt\examples\TextFinder},
-            and click \uicontrol Next or \uicontrol Continue.
+            and select \uicontrol Next or \uicontrol Continue.
 
             The \uicontrol{Project Management} dialog opens.
 
@@ -303,8 +306,8 @@
 
 
         \li In the \uicontrol{Add to project} field, select \b{TextFinder.pro}
-            and click \uicontrol{Finish} or \uicontrol Done to open the file in the code
-            editor.
+            and select \uicontrol{Finish} or \uicontrol Done to open the file
+            in the code editor.
 
         \li Select \uicontrol Add > \uicontrol {Add Prefix}.
 
@@ -320,7 +323,7 @@
 
     \section1 Compiling and Running Your Program
 
-    Now that you have all the necessary files, click the
+    Now that you have all the necessary files, select the
     \inlineimage run_small.png
     button to compile and run your program.
 
