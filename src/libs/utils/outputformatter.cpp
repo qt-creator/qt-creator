@@ -48,6 +48,8 @@ public:
     AnsiEscapeCodeHandler escapeCodeHandler;
     QPair<QString, OutputFormat> incompleteLine;
     optional<QTextCharFormat> formatOverride;
+    QList<OutputFormatter *> formatters;
+    OutputFormatter *nextFormatter = nullptr;
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
 };
@@ -77,6 +79,14 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
     initFormats();
 }
 
+void OutputFormatter::setFormatters(const QList<OutputFormatter *> &formatters)
+{
+    for (OutputFormatter * const f : formatters)
+        f->setPlainTextEdit(plainTextEdit());
+    d->formatters = formatters;
+    d->nextFormatter = nullptr;
+}
+
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
     const QTextCharFormat charFmt = charFormat(format);
@@ -94,8 +104,33 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 
 OutputFormatter::Result OutputFormatter::handleMessage(const QString &text, OutputFormat format)
 {
-    Q_UNUSED(text);
-    Q_UNUSED(format);
+    if (d->nextFormatter) {
+        const Result res = d->nextFormatter->handleMessage(text, format);
+        switch (res.status) {
+        case Status::Done:
+            d->nextFormatter = nullptr;
+            return res;
+        case Status::InProgress:
+            return res;
+        case Status::NotHandled:
+            QTC_CHECK(false); // TODO: This case will be legal after the merge
+            d->nextFormatter = nullptr;
+            return res;
+        }
+    }
+    QTC_CHECK(!d->nextFormatter);
+    for (OutputFormatter * const formatter : qAsConst(d->formatters)) {
+        const Result res = formatter->handleMessage(text, format);
+        switch (res.status) {
+        case Status::Done:
+            return res;
+        case Status::InProgress:
+            d->nextFormatter = formatter;
+            return res;
+        case Status::NotHandled:
+            break;
+        }
+    }
     return Status::NotHandled;
 }
 
@@ -233,7 +268,10 @@ void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat forma
 
 bool OutputFormatter::handleLink(const QString &href)
 {
-    Q_UNUSED(href)
+    for (OutputFormatter * const f : qAsConst(d->formatters)) {
+        if (f->handleLink(href))
+            return true;
+    }
     return false;
 }
 
@@ -308,66 +346,6 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         doAppendMessage(out.mid(startPos, eolPos - startPos + 1), format);
         startPos = eolPos + 1;
     }
-}
-
-class AggregatingOutputFormatter::Private
-{
-public:
-    QList<OutputFormatter *> formatters;
-    OutputFormatter *nextFormatter = nullptr;
-};
-
-AggregatingOutputFormatter::AggregatingOutputFormatter() : d(new Private) {}
-AggregatingOutputFormatter::~AggregatingOutputFormatter() { delete d; }
-
-void AggregatingOutputFormatter::setFormatters(const QList<OutputFormatter *> &formatters)
-{
-    for (OutputFormatter * const f : formatters)
-        f->setPlainTextEdit(plainTextEdit());
-    d->formatters = formatters;
-    d->nextFormatter = nullptr;
-}
-
-OutputFormatter::Result AggregatingOutputFormatter::handleMessage(const QString &text,
-                                                                  OutputFormat format)
-{
-    if (d->nextFormatter) {
-        const Result res = d->nextFormatter->handleMessage(text, format);
-        switch (res.status) {
-        case Status::Done:
-            d->nextFormatter = nullptr;
-            return res;
-        case Status::InProgress:
-            return res;
-        case Status::NotHandled:
-            QTC_CHECK(false); // TODO: This case will be legal after the merge
-            d->nextFormatter = nullptr;
-            return res;
-        }
-    }
-    QTC_CHECK(!d->nextFormatter);
-    for (OutputFormatter * const formatter : qAsConst(d->formatters)) {
-        const Result res = formatter->handleMessage(text, format);
-        switch (res.status) {
-        case Status::Done:
-            return res;
-        case Status::InProgress:
-            d->nextFormatter = formatter;
-            return res;
-        case Status::NotHandled:
-            break;
-        }
-    }
-    return Status::NotHandled;
-}
-
-bool AggregatingOutputFormatter::handleLink(const QString &href)
-{
-    for (OutputFormatter * const f : qAsConst(d->formatters)) {
-        if (f->handleLink(href))
-            return true;
-    }
-    return false;
 }
 
 } // namespace Utils

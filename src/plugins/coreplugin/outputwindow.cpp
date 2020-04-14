@@ -66,7 +66,7 @@ public:
 
     IContext *outputWindowContext = nullptr;
     QString settingsKey;
-    AggregatingOutputFormatter formatter;
+    OutputFormatter formatter;
 
     bool scrollToBottom = true;
     bool linksActive = true;
@@ -568,7 +568,7 @@ void Internal::CorePlugin::testOutputFormatter()
             "handled by B\n";
     TestFormatterA formatterA;
     TestFormatterB formatterB;
-    AggregatingOutputFormatter formatter;
+    OutputFormatter formatter;
     QPlainTextEdit textEdit;
     formatter.setPlainTextEdit(&textEdit);
     formatter.setFormatters({&formatterB, &formatterA});

@@ -43,17 +43,16 @@ class FormattedText;
 
 namespace Internal { class OutputFormatterPrivate; }
 
-class QTCREATOR_UTILS_EXPORT AggregatingOutputFormatter;
-
 class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 {
-    friend class AggregatingOutputFormatter;
 public:
     OutputFormatter();
     ~OutputFormatter() override;
 
     QPlainTextEdit *plainTextEdit() const;
     void setPlainTextEdit(QPlainTextEdit *plainText);
+
+    void setFormatters(const QList<OutputFormatter *> &formatters);
 
     void flush();
 
@@ -107,22 +106,6 @@ private:
                                                     const LinkSpecs &linkSpecs);
 
     Internal::OutputFormatterPrivate *d;
-};
-
-class QTCREATOR_UTILS_EXPORT AggregatingOutputFormatter : public OutputFormatter
-{
-public:
-    AggregatingOutputFormatter();
-    ~AggregatingOutputFormatter();
-
-    void setFormatters(const QList<OutputFormatter *> &formatters);
-    bool handleLink(const QString &href) override;
-
-private:
-    Result handleMessage(const QString &text, OutputFormat format) override;
-
-    class Private;
-    Private * const d;
 };
 
 } // namespace Utils
