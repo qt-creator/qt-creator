@@ -216,9 +216,9 @@ void OutputWindow::keyPressEvent(QKeyEvent *ev)
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 }
 
-void OutputWindow::setFormatters(const QList<OutputFormatter *> &formatters)
+void OutputWindow::setLineParsers(const QList<OutputLineParser *> &parsers)
 {
-    d->formatter.setFormatters(formatters);
+    d->formatter.setLineParsers(parsers);
 }
 
 void OutputWindow::showEvent(QShowEvent *e)
@@ -503,10 +503,10 @@ void OutputWindow::setWordWrapEnabled(bool wrap)
 
 // Handles all lines starting with "A" and the following ones up to and including the next
 // one starting with "A".
-class TestFormatterA : public OutputFormatter
+class TestFormatterA : public OutputLineParser
 {
 private:
-    Result handleMessage(const QString &text, OutputFormat) override
+    Result handleLine(const QString &text, OutputFormat) override
     {
         static const QString replacement = "handled by A\n";
         if (m_handling) {
@@ -529,10 +529,10 @@ private:
 };
 
 // Handles all lines starting with "B". No continuation logic
-class TestFormatterB : public OutputFormatter
+class TestFormatterB : public OutputLineParser
 {
 private:
-    Result handleMessage(const QString &text, OutputFormat) override
+    Result handleLine(const QString &text, OutputFormat) override
     {
         if (text.startsWith("B"))
             return {Status::Done, {}, QString("handled by B\n")};
@@ -571,7 +571,7 @@ void Internal::CorePlugin::testOutputFormatter()
     OutputFormatter formatter;
     QPlainTextEdit textEdit;
     formatter.setPlainTextEdit(&textEdit);
-    formatter.setFormatters({&formatterB, &formatterA});
+    formatter.setLineParsers({&formatterB, &formatterA});
 
     // Stress-test the implementation by providing the input in chunks, splitting at all possible
     // offsets.

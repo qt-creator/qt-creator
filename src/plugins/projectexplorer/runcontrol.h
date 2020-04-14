@@ -45,7 +45,7 @@
 
 namespace Utils {
 class MacroExpander;
-class OutputFormatter;
+class OutputLineParser;
 } // Utils
 
 namespace ProjectExplorer {
@@ -238,7 +238,7 @@ public:
     Utils::FilePath targetFilePath() const;
     Utils::FilePath projectFilePath() const;
 
-    QList<Utils::OutputFormatter *> outputFormatters() const;
+    QList<Utils::OutputLineParser *> outputParsers() const;
     Core::Id runMode() const;
 
     const Runnable &runnable() const;
@@ -309,13 +309,13 @@ protected:
 public:
     virtual ~OutputFormatterFactory();
 
-    static QList<Utils::OutputFormatter *> createFormatters(Target *target);
+    static QList<Utils::OutputLineParser *> createFormatters(Target *target);
 
 protected:
-    void setFormatterCreator(const std::function<Utils::OutputFormatter *(Target *)> &creator);
+    void setFormatterCreator(const std::function<Utils::OutputLineParser *(Target *)> &creator);
 
 private:
-    std::function<Utils::OutputFormatter *(Target *)> m_creator;
+    std::function<Utils::OutputLineParser *(Target *)> m_creator;
 };
 
 } // namespace ProjectExplorer

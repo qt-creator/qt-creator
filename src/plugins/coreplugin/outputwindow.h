@@ -34,7 +34,7 @@
 #include <QPlainTextEdit>
 #include <QTimer>
 
-namespace Utils { class OutputFormatter; }
+namespace Utils { class OutputLineParser; }
 
 namespace Core {
 
@@ -56,7 +56,7 @@ public:
     OutputWindow(Context context, const QString &settingsKey, QWidget *parent = nullptr);
     ~OutputWindow() override;
 
-    void setFormatters(const QList<Utils::OutputFormatter *> &formatters);
+    void setLineParsers(const QList<Utils::OutputLineParser *> &parsers);
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
 

@@ -48,13 +48,17 @@ public:
     AnsiEscapeCodeHandler escapeCodeHandler;
     QPair<QString, OutputFormat> incompleteLine;
     optional<QTextCharFormat> formatOverride;
-    QList<OutputFormatter *> formatters;
-    OutputFormatter *nextFormatter = nullptr;
+    QList<OutputLineParser *> lineParsers;
+    OutputLineParser *nextParser = nullptr;
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
 };
 
 } // namespace Internal
+
+OutputLineParser::~OutputLineParser()
+{
+}
 
 OutputFormatter::OutputFormatter()
     : d(new Internal::OutputFormatterPrivate)
@@ -79,12 +83,10 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
     initFormats();
 }
 
-void OutputFormatter::setFormatters(const QList<OutputFormatter *> &formatters)
+void OutputFormatter::setLineParsers(const QList<OutputLineParser *> &parsers)
 {
-    for (OutputFormatter * const f : formatters)
-        f->setPlainTextEdit(plainTextEdit());
-    d->formatters = formatters;
-    d->nextFormatter = nullptr;
+    d->lineParsers = parsers;
+    d->nextParser = nullptr;
 }
 
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
@@ -93,7 +95,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
     const QList<FormattedText> formattedText = parseAnsi(text, charFmt);
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
             [](const FormattedText &t1, const FormattedText &t2) { return t1.text + t2.text; });
-    const Result res = handleMessage(cleanLine, format);
+    const OutputLineParser::Result res = handleMessage(cleanLine, format);
     if (res.newContent) {
         append(res.newContent.value(), charFmt);
         return;
@@ -102,36 +104,42 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
         append(output.text, output.format);
 }
 
-OutputFormatter::Result OutputFormatter::handleMessage(const QString &text, OutputFormat format)
+OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, OutputFormat format)
 {
-    if (d->nextFormatter) {
-        const Result res = d->nextFormatter->handleMessage(text, format);
+    if (d->nextParser) {
+        const OutputLineParser::Result res = d->nextParser->handleLine(text, format);
         switch (res.status) {
-        case Status::Done:
-            d->nextFormatter = nullptr;
+        case OutputLineParser::Status::Done:
+            d->nextParser = nullptr;
             return res;
-        case Status::InProgress:
+        case OutputLineParser::Status::InProgress:
             return res;
-        case Status::NotHandled:
+        case OutputLineParser::Status::NotHandled:
             QTC_CHECK(false); // TODO: This case will be legal after the merge
-            d->nextFormatter = nullptr;
+            d->nextParser = nullptr;
             return res;
         }
     }
-    QTC_CHECK(!d->nextFormatter);
-    for (OutputFormatter * const formatter : qAsConst(d->formatters)) {
-        const Result res = formatter->handleMessage(text, format);
+    QTC_CHECK(!d->nextParser);
+    for (OutputLineParser * const parser : qAsConst(d->lineParsers)) {
+        const OutputLineParser::Result res = parser->handleLine(text, format);
         switch (res.status) {
-        case Status::Done:
+        case OutputLineParser::Status::Done:
             return res;
-        case Status::InProgress:
-            d->nextFormatter = formatter;
+        case OutputLineParser::Status::InProgress:
+            d->nextParser = parser;
             return res;
-        case Status::NotHandled:
+        case OutputLineParser::Status::NotHandled:
             break;
         }
     }
-    return Status::NotHandled;
+    return OutputLineParser::Status::NotHandled;
+}
+
+void OutputFormatter::reset()
+{
+    for (OutputLineParser * const p : d->lineParsers)
+        p->reset();
 }
 
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
@@ -145,7 +153,7 @@ QList<FormattedText> OutputFormatter::parseAnsi(const QString &text, const QText
 }
 
 const QList<FormattedText> OutputFormatter::linkifiedText(
-        const QList<FormattedText> &text, const OutputFormatter::LinkSpecs &linkSpecs)
+        const QList<FormattedText> &text, const OutputLineParser::LinkSpecs &linkSpecs)
 {
     if (linkSpecs.isEmpty())
         return text;
@@ -171,7 +179,7 @@ const QList<FormattedText> OutputFormatter::linkifiedText(
                 break;
             }
 
-            const LinkSpec &linkSpec = linkSpecs.at(nextLinkSpecIndex);
+            const OutputLineParser::LinkSpec &linkSpec = linkSpecs.at(nextLinkSpecIndex);
             const int localLinkStartPos = linkSpec.startPos - totalTextLengthSoFar;
             ++nextLinkSpecIndex;
 
@@ -221,10 +229,12 @@ QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, 
     return result;
 }
 
+#ifdef WITH_TESTS
 void OutputFormatter::overrideTextCharFormat(const QTextCharFormat &fmt)
 {
     d->formatOverride = fmt;
 }
+#endif // WITH_TESTS
 
 void OutputFormatter::clearLastLine()
 {
@@ -266,13 +276,12 @@ void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat forma
     d->incompleteLine.second = format;
 }
 
-bool OutputFormatter::handleLink(const QString &href)
+void OutputFormatter::handleLink(const QString &href)
 {
-    for (OutputFormatter * const f : qAsConst(d->formatters)) {
+    for (OutputLineParser * const f : qAsConst(d->lineParsers)) {
         if (f->handleLink(href))
-            return true;
+            return;
     }
-    return false;
 }
 
 void OutputFormatter::clear()

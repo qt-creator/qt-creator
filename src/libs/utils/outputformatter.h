@@ -41,33 +41,10 @@ namespace Utils {
 
 class FormattedText;
 
-namespace Internal { class OutputFormatterPrivate; }
-
-class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
+class QTCREATOR_UTILS_EXPORT OutputLineParser
 {
 public:
-    OutputFormatter();
-    ~OutputFormatter() override;
-
-    QPlainTextEdit *plainTextEdit() const;
-    void setPlainTextEdit(QPlainTextEdit *plainText);
-
-    void setFormatters(const QList<OutputFormatter *> &formatters);
-
-    void flush();
-
-    void appendMessage(const QString &text, OutputFormat format);
-
-    virtual bool handleLink(const QString &href);
-    void clear();
-    void setBoldFontEnabled(bool enabled);
-
-    // For unit testing only
-    void overrideTextCharFormat(const QTextCharFormat &fmt);
-
-protected:
-    QTextCharFormat charFormat(OutputFormat format) const;
-    static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
+    virtual ~OutputLineParser();
 
     enum class Status { Done, InProgress, NotHandled };
     class LinkSpec {
@@ -88,13 +65,51 @@ protected:
         optional<QString> newContent; // Hard content override. Only to be used in extreme cases.
     };
 
+    // line contains at most one line feed character, and if it does occur, it's the last character.
+    // Either way, the input is to be considered "complete" for parsing purposes.
+    virtual Result handleLine(const QString &line, OutputFormat format) = 0;
+
+    virtual bool handleLink(const QString &href) { Q_UNUSED(href); return false; }
+    virtual void reset() {}
+};
+
+
+
+namespace Internal { class OutputFormatterPrivate; }
+
+class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
+{
+public:
+    OutputFormatter();
+    ~OutputFormatter() override;
+
+    QPlainTextEdit *plainTextEdit() const;
+    void setPlainTextEdit(QPlainTextEdit *plainText);
+
+    void setLineParsers(const QList<OutputLineParser *> &parsers);
+
+    void appendMessage(const QString &text, OutputFormat format);
+    void flush();
+
+    void handleLink(const QString &href);
+    void clear();
+    void setBoldFontEnabled(bool enabled);
+
+#ifdef WITH_TESTS
+    void overrideTextCharFormat(const QTextCharFormat &fmt);
+#endif
+
+#ifndef WITH_TESTS
 private:
-    // text contains at most one line feed character, and if it does occur, it's the last character.
-    // Either way, the input is to be considered "complete" for formatting purposes.
+#endif
+    QTextCharFormat charFormat(OutputFormat format) const;
+    static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
+
+private:
     void doAppendMessage(const QString &text, OutputFormat format);
 
-    virtual Result handleMessage(const QString &text, OutputFormat format);
-    virtual void reset() {}
+    OutputLineParser::Result handleMessage(const QString &text, OutputFormat format);
+    void reset();
 
     void append(const QString &text, const QTextCharFormat &format);
     void initFormats();
@@ -103,9 +118,10 @@ private:
     void clearLastLine();
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
     const QList<Utils::FormattedText> linkifiedText(const QList<FormattedText> &text,
-                                                    const LinkSpecs &linkSpecs);
+                                                    const OutputLineParser::LinkSpecs &linkSpecs);
 
     Internal::OutputFormatterPrivate *d;
 };
+
 
 } // namespace Utils

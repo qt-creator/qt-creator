@@ -31,20 +31,19 @@ QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace VcsBase {
 
-class VcsOutputFormatter : public Utils::OutputFormatter
+class VcsOutputLineParser : public QObject, public Utils::OutputLineParser
 {
     Q_OBJECT
 public:
-    VcsOutputFormatter();
-    ~VcsOutputFormatter() override = default;
-    bool handleLink(const QString &href) override;
+    VcsOutputLineParser();
     void fillLinkContextMenu(QMenu *menu, const QString &workingDirectory, const QString &href);
 
 signals:
     void referenceClicked(const QString &reference);
 
 private:
-    Result handleMessage(const QString &text, Utils::OutputFormat format) override;
+    Result handleLine(const QString &text, Utils::OutputFormat format) override;
+    bool handleLink(const QString &href) override;
 
     const QRegularExpression m_regexp;
 };

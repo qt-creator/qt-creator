@@ -97,12 +97,11 @@ class OutputWindowPlainTextEdit : public Core::OutputWindow
 {
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent = nullptr);
-    ~OutputWindowPlainTextEdit() override;
 
     void appendLines(const QString &s, const QString &repository = QString());
     void appendLinesWithStyle(const QString &s, VcsOutputWindow::MessageStyle style,
                               const QString &repository = QString());
-    VcsOutputFormatter *formatter();
+    VcsOutputLineParser *parser();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
@@ -112,7 +111,8 @@ private:
     QString identifierUnderCursor(const QPoint &pos, QString *repository = nullptr) const;
 
     Utils::OutputFormat m_format;
-    VcsOutputFormatter *m_formatter = nullptr;
+    Utils::OutputFormatter m_formatter;
+    VcsOutputLineParser m_parser;
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
@@ -121,17 +121,11 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
-    m_formatter = new VcsOutputFormatter;
-    m_formatter->setBoldFontEnabled(false);
-    setFormatters({m_formatter});
+    m_formatter.setBoldFontEnabled(false);
+    setLineParsers({&m_parser});
     auto agg = new Aggregation::Aggregate;
     agg->add(this);
     agg->add(new Core::BaseTextFind(this));
-}
-
-OutputWindowPlainTextEdit::~OutputWindowPlainTextEdit()
-{
-    delete m_formatter;
 }
 
 // Search back for beginning of word
@@ -181,9 +175,9 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
     QString repository;
     const QString token = identifierUnderCursor(event->pos(), &repository);
     if (!repository.isEmpty()) {
-        if (VcsOutputFormatter *f = formatter()) {
+        if (VcsOutputLineParser * const p = parser()) {
             if (!href.isEmpty())
-                f->fillLinkContextMenu(menu, repository, href);
+                p->fillLinkContextMenu(menu, repository, href);
         }
     }
     QAction *openAction = nullptr;
@@ -228,7 +222,7 @@ void OutputWindowPlainTextEdit::appendLines(const QString &s, const QString &rep
 
     const int previousLineCount = document()->lineCount();
 
-    m_formatter->appendMessage(s, m_format);
+    m_formatter.appendMessage(s, m_format);
 
     // Scroll down
     moveCursor(QTextCursor::End);
@@ -255,14 +249,14 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
     }
 }
 
-VcsOutputFormatter *OutputWindowPlainTextEdit::formatter()
+VcsOutputLineParser *OutputWindowPlainTextEdit::parser()
 {
-    return m_formatter;
+    return &m_parser;
 }
 
 void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)
 {
-    m_formatter->setBoldFontEnabled(style == VcsOutputWindow::Command);
+    m_formatter.setBoldFontEnabled(style == VcsOutputWindow::Command);
 
     switch (style) {
     case VcsOutputWindow::Warning:
@@ -318,7 +312,7 @@ VcsOutputWindow::VcsOutputWindow()
     connect(this, &IOutputPane::resetZoom, &d->widget, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
-    connect(d->widget.formatter(), &VcsOutputFormatter::referenceClicked,
+    connect(d->widget.parser(), &VcsOutputLineParser::referenceClicked,
             VcsOutputWindow::instance(), &VcsOutputWindow::referenceClicked);
 }
 

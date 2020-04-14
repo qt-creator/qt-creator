@@ -288,7 +288,7 @@ public:
         q = nullptr;
         qDeleteAll(m_workers);
         m_workers.clear();
-        qDeleteAll(outputFormatters);
+        qDeleteAll(outputParsers);
     }
 
     Q_ENUM(RunControlState)
@@ -333,7 +333,7 @@ public:
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
     QPointer<Project> project; // Not owned.
-    QList<Utils::OutputFormatter *> outputFormatters;
+    QList<Utils::OutputLineParser *> outputParsers;
     std::function<bool(bool*)> promptToStop;
     std::vector<RunWorkerFactory> m_factories;
 
@@ -384,8 +384,8 @@ void RunControl::setTarget(Target *target)
         d->buildEnvironment = bc->environment();
     }
 
-    QTC_CHECK(d->outputFormatters.isEmpty());
-    d->outputFormatters = OutputFormatterFactory::createFormatters(target);
+    QTC_CHECK(d->outputParsers.isEmpty());
+    d->outputParsers = OutputFormatterFactory::createFormatters(target);
 
     setKit(target->kit());
     d->project = target->project();
@@ -828,9 +828,9 @@ void RunControlPrivate::showError(const QString &msg)
         q->appendMessage(msg + '\n', ErrorMessageFormat);
 }
 
-QList<Utils::OutputFormatter *> RunControl::outputFormatters() const
+QList<Utils::OutputLineParser *> RunControl::outputParsers() const
 {
-    return d->outputFormatters;
+    return d->outputParsers;
 }
 
 Core::Id RunControl::runMode() const
@@ -1606,9 +1606,9 @@ OutputFormatterFactory::~OutputFormatterFactory()
     g_outputFormatterFactories.removeOne(this);
 }
 
-QList<OutputFormatter *> OutputFormatterFactory::createFormatters(Target *target)
+QList<OutputLineParser *> OutputFormatterFactory::createFormatters(Target *target)
 {
-    QList<OutputFormatter *> formatters;
+    QList<OutputLineParser *> formatters;
     for (auto factory : qAsConst(g_outputFormatterFactories)) {
         if (auto formatter = factory->m_creator(target))
             formatters << formatter;
@@ -1617,7 +1617,7 @@ QList<OutputFormatter *> OutputFormatterFactory::createFormatters(Target *target
 }
 
 void OutputFormatterFactory::setFormatterCreator
-    (const std::function<OutputFormatter *(Target *)> &creator)
+    (const std::function<OutputLineParser *(Target *)> &creator)
 {
     m_creator = creator;
 }

@@ -60,10 +60,10 @@ using namespace Utils;
 namespace Python {
 namespace Internal {
 
-class PythonOutputFormatter : public OutputFormatter
+class PythonOutputLineParser : public OutputLineParser
 {
 public:
-    PythonOutputFormatter()
+    PythonOutputLineParser()
         // Note that moc dislikes raw string literals.
         : filePattern("^(\\s*)(File \"([^\"]+)\", line (\\d+), .*$)")
     {
@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    Result handleMessage(const QString &text, OutputFormat format) final
+    Result handleLine(const QString &text, OutputFormat format) final
     {
         if (!m_inTraceBack) {
             m_inTraceBack = format == StdErrFormat
@@ -337,9 +337,9 @@ PythonRunConfigurationFactory::PythonRunConfigurationFactory()
 
 PythonOutputFormatterFactory::PythonOutputFormatterFactory()
 {
-    setFormatterCreator([](Target *t) -> OutputFormatter * {
+    setFormatterCreator([](Target *t) -> OutputLineParser * {
         if (t->project()->mimeType() == Constants::C_PY_MIMETYPE)
-            return new PythonOutputFormatter;
+            return new PythonOutputLineParser;
         return nullptr;
     });
 }
