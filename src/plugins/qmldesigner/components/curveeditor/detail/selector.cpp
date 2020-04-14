@@ -67,7 +67,7 @@ void Selector::mousePress(QMouseEvent *event, GraphicsView *view, GraphicsScene 
         if (HandleItem *hitem = qobject_cast<HandleItem *>(sitem))
             kitem = hitem->keyframe();
 
-        if (!kitem->selected()) {
+        if (kitem && !kitem->selected()) {
             if (select(SelectionTool::Undefined, click, scene))
                 applyPreSelection(scene);
         }
