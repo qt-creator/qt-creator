@@ -665,7 +665,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
     if (partsMask & FileAndLinePart) {
         data->lineNumber = m_lineEditLineNumber->text().toInt();
         data->pathUsage = static_cast<BreakpointPathUsage>(m_comboBoxPathUsage->currentIndex());
-        data->fileName = FilePath::fromUserInput(m_pathChooserFileName->filePath().toString());
+        data->fileName = m_pathChooserFileName->filePath();
     }
     if (partsMask & FunctionPart)
         data->functionName = m_lineEditFunction->text();
