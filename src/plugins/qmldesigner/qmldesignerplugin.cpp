@@ -38,6 +38,7 @@
 #include <sourcetool/sourcetool.h>
 #include <colortool/colortool.h>
 #include <annotationeditor/annotationtool.h>
+#include <formeditor/transitiontool.h>
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <pathtool/pathtool.h>
@@ -242,6 +243,7 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::AnnotationTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
+    d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TransitionTool);
 
     return true;
 }
