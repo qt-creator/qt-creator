@@ -539,6 +539,15 @@ QbsBuildStepData QbsBuildStep::stepData() const
     return data;
 }
 
+void QbsBuildStep::dropSession()
+{
+    if (m_session) {
+        doCancel();
+        m_session->disconnect(this);
+        m_session = nullptr;
+    }
+}
+
 
 // --------------------------------------------------------------------
 // QbsBuildStepConfigWidget:

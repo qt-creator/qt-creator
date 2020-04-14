@@ -159,6 +159,14 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
 
 QbsBuildConfiguration::~QbsBuildConfiguration()
 {
+    for (BuildStep * const bs : buildSteps()->steps()) {
+        if (const auto qbs = qobject_cast<QbsBuildStep *>(bs))
+            qbs->dropSession();
+    }
+    for (BuildStep * const cs : cleanSteps()->steps()) {
+        if (const auto qcs = qobject_cast<QbsCleanStep *>(cs))
+            qcs->dropSession();
+    }
     delete m_buildSystem;
 }
 
