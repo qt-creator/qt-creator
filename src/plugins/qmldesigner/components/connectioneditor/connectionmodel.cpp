@@ -259,15 +259,17 @@ void ConnectionModel::addConnection()
                 ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
                                                                       nodeMetaInfo.majorVersion(),
                                                                       nodeMetaInfo.minorVersion());
-
-                newNode.signalHandlerProperty("onClicked").setSource(QLatin1String("print(\"clicked\")"));
+                QString source = "print(\"clicked\")";
 
                 if (connectionView()->selectedModelNodes().count() == 1) {
-                    const ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
+                    ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
                     if (QmlItemNode::isValidQmlItemNode(selectedNode))
                         selectedNode.nodeAbstractProperty("data").reparentHere(newNode);
                     else
                         rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
+
+                    if (QmlItemNode(selectedNode).isFlowActionArea())
+                        source = selectedNode.validId() + ".trigger()";
 
                     if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
                     newNode.bindingProperty("target").setExpression(selectedNode.id());
@@ -277,6 +279,8 @@ void ConnectionModel::addConnection()
                     rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
                     newNode.bindingProperty("target").setExpression(QLatin1String("parent"));
                 }
+
+                newNode.signalHandlerProperty("onClicked").setSource(source);
             });
         }
     }
@@ -376,6 +380,26 @@ QStringList ConnectionModel::getSignalsForRow(int row) const
     }
 
     return stringList;
+}
+
+QStringList ConnectionModel::getflowActionTriggerForRow(int row) const
+{
+    QStringList stringList;
+    SignalHandlerProperty signalHandlerProperty = signalHandlerPropertyForRow(row);
+
+    if (signalHandlerProperty.isValid()) {
+        const ModelNode parentModelNode = signalHandlerProperty.parentModelNode();
+        ModelNode targetNode = getTargetNodeForConnection(parentModelNode);
+        if (!targetNode.isValid() && !parentModelNode.isRootNode())
+             targetNode = parentModelNode.parentProperty().parentModelNode();
+         if (targetNode.isValid()) {
+             for (auto &node : targetNode.allSubModelNodesAndThisNode()) {
+                 if (QmlItemNode(node).isFlowActionArea() && node.hasId())
+                     stringList.append(node.id() + ".trigger()");
+             }
+         }
+     }
+     return stringList;
 }
 
 QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &connection) const

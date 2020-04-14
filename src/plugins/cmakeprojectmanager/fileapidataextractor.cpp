@@ -309,15 +309,13 @@ static QStringList splitFragments(const QStringList &fragments)
 }
 
 RawProjectParts generateRawProjectParts(const PreprocessedData &input,
-                                        const FilePath &sourceDirectory,
-                                        const FilePath &buildDirectory)
+                                        const FilePath &sourceDirectory)
 {
     RawProjectParts rpps;
 
     int counter = 0;
     for (const TargetDetails &t : input.targetDetails) {
         QDir sourceDir(sourceDirectory.toString());
-        QDir buildDir(buildDirectory.toString());
 
         bool needPostfix = t.compileGroups.size() > 1;
         int count = 1;
@@ -371,11 +369,7 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             }));
             if (!precompiled_header.isEmpty()) {
                 if (precompiled_header.toFileInfo().isRelative()) {
-                    const FilePath parentDir = FilePath::fromString(buildDir.absolutePath());
-                    const QString dirName = buildDir.dirName();
-                    if (precompiled_header.startsWith(dirName))
-                        precompiled_header = FilePath::fromString(
-                            precompiled_header.toString().mid(dirName.length() + 1));
+                    const FilePath parentDir = FilePath::fromString(sourceDir.absolutePath());
                     precompiled_header = parentDir.pathAppended(precompiled_header.toString());
                 }
                 rpp.setPreCompiledHeaders({precompiled_header.toString()});
@@ -674,7 +668,7 @@ FileApiQtcData extractData(FileApiData &input,
 
     result.buildTargets = generateBuildTargets(data, sourceDirectory, buildDirectory);
     result.cmakeFiles = std::move(data.cmakeFiles);
-    result.projectParts = generateRawProjectParts(data, sourceDirectory, buildDirectory);
+    result.projectParts = generateRawProjectParts(data, sourceDirectory);
 
     auto pair = generateRootProjectNode(data, sourceDirectory, buildDirectory);
     result.rootProjectNode = std::move(pair.first);

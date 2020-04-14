@@ -31,6 +31,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QMessageBox>
+#include <QTextDocument>
 
 #include <coreplugin/icore.h>
 #include <utils/theme/theme.h>
@@ -40,6 +41,8 @@
 
 
 namespace QmlDesigner {
+
+const int penWidth = 2;
 
 FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, QGraphicsItem *parent)
     : QGraphicsObject(parent)
@@ -64,7 +67,7 @@ FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, Q
     if (scene) {
         m_readerIsActive = scene->annotationVisibility();
         if (m_readerIsActive) {
-            drawReader();
+            createReader();
         }
     }
 
@@ -106,10 +109,12 @@ void FormEditorAnnotationIcon::paint(QPainter *painter, const QStyleOptionGraphi
         m_annotation = m_modelNode.annotation();
 
         if (m_readerIsActive)
-            resetReader();
+            drawReader();
+        else
+            hideReader();
     }
     else {
-        hideReader();
+        removeReader();
     }
 
     setEnabled(hasAuxData);
@@ -145,7 +150,7 @@ void FormEditorAnnotationIcon::setActive(bool readerStatus)
     if (m_readerIsActive)
         resetReader();
     else
-        hideReader();
+        removeReader();
 
     update();
 }
@@ -176,10 +181,10 @@ void FormEditorAnnotationIcon::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
     if (button == Qt::LeftButton) {
         if (m_readerIsActive) {
-            hideReader();
+            removeReader();
             m_readerIsActive = false;
         } else {
-            drawReader();
+            resetReader();
             m_readerIsActive = true;
         }
     }
@@ -211,13 +216,40 @@ void FormEditorAnnotationIcon::contextMenuEvent(QGraphicsSceneContextMenuEvent *
     event->accept();
 }
 
-void FormEditorAnnotationIcon::resetReader()
+void FormEditorAnnotationIcon::drawReader()
+{
+    if (!childItems().isEmpty()) {
+        for (QGraphicsItem *item : childItems()) {
+            item->show();
+        }
+    }
+    else {
+        createReader();
+    }
+}
+
+void FormEditorAnnotationIcon::hideReader()
+{
+    if (!childItems().isEmpty()) {
+        for (QGraphicsItem *item : childItems()) {
+            item->hide();
+        }
+    }
+}
+
+void FormEditorAnnotationIcon::quickResetReader()
 {
     hideReader();
     drawReader();
 }
 
-void FormEditorAnnotationIcon::drawReader()
+void FormEditorAnnotationIcon::resetReader()
+{
+    removeReader();
+    createReader();
+}
+
+void FormEditorAnnotationIcon::createReader()
 {
     const qreal width = 290;
     const qreal height = 200;
@@ -239,48 +271,48 @@ void FormEditorAnnotationIcon::drawReader()
             QGraphicsItem *commentBubble = createCommentBubble(commentRect, comment.title(),
                                                                comment.author(), comment.text(),
                                                                comment.timestampStr(), this);
-            commentBubble->setPos(commentPosition);
-
-            commentPosition += QPointF(width + offset, 0);
             comments.push_back(commentBubble);
         }
 
 
-        int currentColumn = 0;
-        qreal columnHeight = 0;
         const qreal maxHeight = 650;
         const QPointF commentsStartPosition(cornerPosition.x(), cornerPosition.y() + titleRect.height() + (offset*2));
         QPointF newPos(commentsStartPosition);
+        qreal columnHeight = commentsStartPosition.y();
 
         for (QGraphicsItem *comment : comments) {
-            qreal itemHeight = comment->boundingRect().height();
 
-            if ((columnHeight + offset + itemHeight) > maxHeight) {
-                // have no extra space
-                columnHeight = 0;
-                ++currentColumn;
+            comment->setPos(newPos); //first place comment in its new position, then calculate position for next comment
 
-                newPos = commentsStartPosition + QPointF(currentColumn * (offset + width), 0);
-            } else {
-                //few normal comments, lets stack them
+            const qreal itemHeight = comment->boundingRect().height();
+            const qreal itemWidth = comment->boundingRect().width();
+
+            const qreal possibleHeight = columnHeight + offset + itemHeight;
+            qreal newX = 0;
+
+            if ((itemWidth > (width + penWidth)) || (possibleHeight > maxHeight)) {
+                //move coords to the new column
+                columnHeight = commentsStartPosition.y();
+                newX = newPos.x() + offset + itemWidth;
+            }
+            else {
+                //move coords lower in the same column
+                columnHeight += itemHeight + offset;
+                newX = newPos.x();
             }
 
-            columnHeight += itemHeight + offset;
-
-            comment->setPos(newPos);
-
-            newPos += QPointF(0, itemHeight + offset);
+            newPos = { newX, columnHeight };
         }
     }
 }
 
-void FormEditorAnnotationIcon::hideReader()
+void FormEditorAnnotationIcon::removeReader()
 {
     if (!childItems().isEmpty())
         qDeleteAll(childItems());
 }
 
-QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(const QRectF &rect, const QString &title,
+QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const QString &title,
                                                              const QString &author, const QString &text,
                                                              const QString &date, QGraphicsItem *parent)
 {
@@ -313,13 +345,21 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(const QRectF &rect,
     textItem->setPos(authorItem->x(), authorItem->boundingRect().height() + authorItem->y() + 5);
     textItem->update();
 
-    qreal contentRect = titleItem->boundingRect().height()
+    if (textItem->boundingRect().width() > textItem->textWidth()) {
+        textItem->setTextWidth(textItem->boundingRect().width());
+        textItem->update();
+
+        rect.setWidth(textItem->boundingRect().width());
+    }
+
+    const qreal contentRect = titleItem->boundingRect().height()
             + authorItem->boundingRect().height()
             + textItem->boundingRect().height();
 
-    if ((contentRect + 60) > rect.height()) {
-        frameItem->setRect(rect.x(), rect.y(), rect.width(), contentRect+60);
-    }
+    if ((contentRect + 60) > rect.height())
+        rect.setHeight(contentRect+60);
+
+    frameItem->setRect(rect);
 
     QGraphicsTextItem *dateItem = new QGraphicsTextItem(frameItem);
     dateItem->setPlainText(tr("Edited: ") + date);
@@ -330,7 +370,7 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(const QRectF &rect,
 
     QPen pen;
     pen.setCosmetic(true);
-    pen.setWidth(2);
+    pen.setWidth(penWidth);
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::BevelJoin);
     pen.setColor(frameColor);

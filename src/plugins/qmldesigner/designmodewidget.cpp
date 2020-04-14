@@ -210,22 +210,6 @@ void DesignModeWidget::disableWidgets()
     m_isDisabled = true;
 }
 
-bool DesignModeWidget::eventFilter(QObject *obj, QEvent *event) // TODO
-{
-    if (event->type() == QEvent::Hide) {
-        qDebug() << ">>> HIDE";
-        m_outputPaneDockWidget->toggleView(false);
-        return true;
-    } else if (event->type() == QEvent::Show) {
-        qDebug() << ">>> SHOW";
-        m_outputPaneDockWidget->toggleView(true);
-        return true;
-    } else {
-        // standard event processing
-        return QObject::eventFilter(obj, event);
-    }
-}
-
 void DesignModeWidget::setup()
 {
     auto &actionManager = viewManager().designerActionManager();
@@ -354,7 +338,8 @@ void DesignModeWidget::setup()
         command->setAttribute(Core::Command::CA_Hide);
         mviews->addAction(command);
 
-        //outputPanePlaceholder->installEventFilter(this);
+        connect(outputPanePlaceholder, &Core::OutputPanePlaceHolder::visibilityChangeRequested,
+                m_outputPaneDockWidget, &ADS::DockWidget::toggleView);
     }
 
     // Create toolbars

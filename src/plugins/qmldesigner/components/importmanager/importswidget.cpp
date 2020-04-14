@@ -53,7 +53,7 @@ void ImportsWidget::removeImports()
     updateLayout();
 }
 
-static bool isImportAlreadyUsed(const Import &import, QList<ImportLabel*> importLabels)
+static bool isImportAlreadyUsed(const Import &import, QList<ImportLabel *> importLabels)
 {
     foreach (ImportLabel *importLabel, importLabels) {
         if (importLabel->import() == import)
@@ -101,12 +101,13 @@ void ImportsWidget::setPossibleImports(QList<Import> possibleImports)
 
     const QStringList mcuWhiteList = {"QtQuick", "QtQuick.Controls"};
 
-    if (isQtForMCUs)
+    if (isQtForMCUs) {
         filteredImports = Utils::filtered(possibleImports, [mcuWhiteList](const Import &import) {
             return mcuWhiteList.contains(import.url()) || !import.url().startsWith("Qt");
         });
-    else
+    } else {
         filteredImports = possibleImports;
+    }
 
     for (const Import &possibleImport : filteredImports) {
         if (!isImportAlreadyUsed(possibleImport, m_importLabels))
@@ -123,7 +124,6 @@ void ImportsWidget::setUsedImports(const QList<Import> &usedImports)
 {
     foreach (ImportLabel *importLabel, m_importLabels)
         importLabel->setReadOnly(usedImports.contains(importLabel->import()));
-
 }
 
 void ImportsWidget::removeUsedImports()

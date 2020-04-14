@@ -70,7 +70,6 @@ const char CONFIGURATION_KEY[] = "CMake.Configuration";
 CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
     : BuildConfiguration(target, id)
 {
-    m_buildSystem = new CMakeBuildSystem(this);
     setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
                                            target->kit(),
                                            displayName(),
@@ -155,6 +154,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
         }
 
         setConfigurationForCMake(config);
+
+        // Only do this after everything has been set up!
+        m_buildSystem = new CMakeBuildSystem(this);
     });
 
     const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
@@ -162,6 +164,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
     connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
             this, &CMakeBuildConfiguration::configurationForCMakeChanged);
 
+    // m_buildSystem is still nullptr here since it the build directory to be available
+    // before it can get created.
+    //
+    // This means this needs to be done in the lambda for the setInitializer(...) call
+    // defined above as well as in fromMap!
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -180,6 +187,8 @@ QVariantMap CMakeBuildConfiguration::toMap() const
 
 bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
 {
+    QTC_CHECK(!m_buildSystem);
+
     if (!BuildConfiguration::fromMap(map))
         return false;
 
@@ -189,6 +198,8 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
                               [](const CMakeConfigItem &c) { return !c.isNull(); });
 
     setConfigurationForCMake(conf);
+
+    m_buildSystem = new CMakeBuildSystem(this);
 
     return true;
 }

@@ -109,9 +109,9 @@
     them in the 3D editor.
 
     \list
-        \li In the \inlineimage item_selection_selected.png
+        \li In the \inlineimage select_item.png
             (\uicontrol {Select Item}) mode, a single item is selected.
-        \li In the \inlineimage group_selection_selected.png
+        \li In the \inlineimage select_group.png
             (\uicontrol {Select Group}) mode, the top level parent of the item
             is selected. This enables you to move, rotate, or scale a group of
             items.
@@ -127,7 +127,7 @@
     or z view axis or on the top, bottom, left, and right clip planes of the
     render camera.
 
-    To move items, select \inlineimage move_selected.png
+    To move items, select \inlineimage move_on.png
     or press \key W.
 
     To move items along an axis, click the axis and drag the item along the
@@ -145,7 +145,7 @@
 
     \image studio-3d-editor-rotate.png "3D editor in rotate mode"
 
-    To rotate items, select \inlineimage rotate_selected.png
+    To rotate items, select \inlineimage rotate_on.png
     or press \key E.
 
     To rotate an item around an axis, select the axis and drag in the direction
@@ -157,7 +157,7 @@
 
     \image studio-3d-editor-scale.png "3D editor in scale mode"
 
-    To scale items, select \inlineimage scale_selected.png
+    To scale items, select \inlineimage scale_on.png
     or press \key R.
 
     You can use the scale handles to adjust the local x, y, or z scale of an

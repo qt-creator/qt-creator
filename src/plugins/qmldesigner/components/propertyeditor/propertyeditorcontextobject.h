@@ -26,6 +26,7 @@
 #pragma once
 
 #include <model.h>
+#include <modelnode.h>
 
 #include <QObject>
 #include <QUrl>
@@ -169,5 +170,31 @@ private:
 
     bool m_setHasActiveTimeline = false;
 };
+
+class EasingCurveEditor : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
+
+public:
+    EasingCurveEditor(QObject *parent = nullptr) : QObject(parent)
+    {}
+
+    static void registerDeclarativeType();
+    Q_INVOKABLE void runDialog();
+    void setModelNodeBackend(const QVariant &modelNodeBackend);
+
+signals:
+    void modelNodeBackendChanged();
+
+private:
+    QVariant modelNodeBackend() const;
+
+private:
+    QVariant m_modelNodeBackend;
+    QmlDesigner::ModelNode m_modelNode;
+};
+
 
 } //QmlDesigner {

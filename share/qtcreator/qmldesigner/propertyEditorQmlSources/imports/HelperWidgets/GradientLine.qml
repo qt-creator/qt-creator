@@ -223,6 +223,10 @@ Item {
         }
     }
 
+    Tooltip {
+        id: myTooltip
+    }
+
     Component {
         id: component
         Item {
@@ -241,9 +245,9 @@ Item {
                 if (showToolTip) {
                     var currentPoint = Qt.point(gradientStopHandleMouseArea.mouseX, gradientStopHandleMouseArea.mouseY);
                     var fixedGradiantStopPosition = currentGradiantStopPosition();
-                    Tooltip.showText(gradientStopHandleMouseArea, currentPoint, fixedGradiantStopPosition.toFixed(3));
+                    myTooltip.showText(gradientStopHandleMouseArea, currentPoint, fixedGradiantStopPosition.toFixed(3));
                 } else {
-                    Tooltip.hideText()
+                    myTooltip.hideText()
                 }
             }
             function currentGradiantStopPosition() {

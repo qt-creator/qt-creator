@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Desing Studio.
@@ -33,7 +33,7 @@
 
     \title Using Materials and Shaders
 
-    \image materials.png
+    \image studio-qtquick-3d-material.png "Material attached to model in Design mode"
 
     Materials and shaders define how object surfaces are rendered in \QDS and
     live preview. As you change the properties of materials, new shaders are
@@ -49,26 +49,30 @@
     \list
         \li Default material
         \li Principled material
+        \li Custom material
         \li Texture
     \endlist
 
     Before a model can be rendered in a scene, it must have at least one
     material to define how the mesh is shaded. The DefaultMaterial component
     is the easiest way to define such a material. The PrincipledMaterial
-    component specifies the minimum amount of properties.
+    component specifies the minimum amount of properties. The CustomMaterial
+    component enables you to access the Qt Quick 3D material library and
+    to implement your own materials.
 
     You can use the \l Texture component to apply textures to materials. It
-    defines an image and how the image is mapped to meshes in a 3D scene. To
-    use image data from a file, set the \uicontrol Source property of the
-    Texture component in the \uicontrol Properties view.
-
-    To have the material use vertex colors from the mesh, select the
-    \uicontrol {Enable vertex colors} check box. These are multiplied
-    by any other colors specified for the material.
+    defines an image and how the image is mapped to meshes in a 3D scene. For
+    more information, see \l {Attaching Textures to Materials}.
 
     You can modify material properties in the \uicontrol Properties view, as
     instructed in the following sections. The availability of the properties
     depends on the material type.
+
+    \image studio-qtquick-3d-default-material.png "DefaultMaterial properties"
+
+    To enable the material to use vertex colors from the mesh, select the
+    \uicontrol {Enable vertex colors} check box. These are multiplied
+    by any other colors specified for the material.
 
     You can animate material properties in the \uicontrol Timeline view, as
     instructed in \l {Creating Animations}.
@@ -216,14 +220,41 @@
     is not rendered. Culling makes rendering objects quicker and more efficient
     by reducing the number of polygons to draw.
 
+    \section1 Creating Custom Materials
+
+    The material uses a Shader component to specify shader source and shader
+    stage. These are used with the \uicontrol passes property to create the
+    resulting material. The passes can contain multiple rendering passes and
+    also other commands.
+
+    Normally, only the fragment shader needs to be specified as a value for
+    the \uicontrol passes property. The material library generates the vertex
+    shader for the material. The material can also create buffers to store
+    intermediate rendering results.
+
+    The \uicontrol shaderInfo property specifies settings for the shader.
+
+    To specify that the material state is always dirty, which indicates that
+    the material needs to be refreshed every time it is used, select the
+    \uicontrol alwaysDirty check box.
+
+    To specify that the material has refraction, select the
+    \uicontrol hasRefraction check box.
+
+    To specify that the material has transparency, select the
+    \uicontrol hasTransparency check box.
+
     \section1 Applying Materials to Models
 
     To apply materials to models:
 
     \list 1
         \li Drag and drop a material component from the \uicontrol Library to a
-            Model component in the \uicontrol Navigator or 3D editor.
-        \li Edit the properties of the material in the \uicontrol Properties
-            view.
+            Model component in the \uicontrol Navigator.
+        \li Select the Model component.
+        \li In the \uicontrol Properties view, select the material for the model
+            in the \uicontrol Materials list.
+        \li Select the material component to edit the properties of the material
+            in the \uicontrol Properties view.
     \endlist
 */

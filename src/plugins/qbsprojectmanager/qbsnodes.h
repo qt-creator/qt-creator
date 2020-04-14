@@ -63,6 +63,8 @@ public:
     QString fullDisplayName() const;
     QString buildKey() const override;
 
+    static QString getBuildKey(const QJsonObject &product);
+
     const QJsonObject productData() const { return m_productData; }
     QJsonObject mainGroup() const;
     QVariant data(Core::Id role) const override;

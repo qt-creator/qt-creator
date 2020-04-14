@@ -123,15 +123,6 @@ private:
   QmakeProject manages information about an individual qmake project file (.pro).
   */
 
-static QtSupport::BaseQtVersion *projectIsPartOfQt(const Project *p)
-{
-    FilePath filePath = p->projectFilePath();
-
-    return QtSupport::QtVersionManager::version([&filePath](const QtSupport::BaseQtVersion *v) {
-        return v->isValid() && v->isSubProject(filePath);
-    });
-}
-
 QmakeProject::QmakeProject(const FilePath &fileName) :
     Project(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName)
 {
@@ -625,8 +616,16 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     if (!ToolChainKitAspect::cxxToolChain(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
 
-    const QtSupport::BaseQtVersion *const qtThatContainsProject = projectIsPartOfQt(this);
-    if (qtThatContainsProject && qtThatContainsProject != qtFromKit) {
+    // A project can be considered part of more than one Qt version, for instance if it is an
+    // example shipped via the installer.
+    // Report a problem if and only if the project is considered to be part of *only* a Qt
+    // that is not the one from the current kit.
+    const QList<BaseQtVersion *> qtsContainingThisProject
+            = QtVersionManager::versions([filePath = projectFilePath()](const BaseQtVersion *qt) {
+        return qt->isValid() && qt->isSubProject(filePath);
+    });
+    if (!qtsContainingThisProject.isEmpty()
+            && !qtsContainingThisProject.contains(const_cast<BaseQtVersion *>(qtFromKit))) {
         result.append(CompileTask(Task::Warning,
                                   tr("Project is part of Qt sources that do not match "
                                      "the Qt defined in the kit.")));
