@@ -38,6 +38,7 @@ const char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
 const char C_DIFF_EDITOR_DESCRIPTION[] = "DiffEditor.Description";
 const char SIDE_BY_SIDE_VIEW_ID[] = "DiffEditor.SideBySide";
 const char UNIFIED_VIEW_ID[] = "DiffEditor.Unified";
+const char SELECT_ENCODING[] = "DiffEditor.SelectEncoding";
 
 const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
 

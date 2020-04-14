@@ -86,6 +86,7 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
+    bool selectEncoding();
     State state() const { return m_state; }
 
     QString plainText() const;

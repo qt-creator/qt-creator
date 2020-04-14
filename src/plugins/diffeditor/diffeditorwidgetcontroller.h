@@ -61,6 +61,7 @@ public:
     void addApplyAction(QMenu *menu, int fileIndex, int chunkIndex);
     void addRevertAction(QMenu *menu, int fileIndex, int chunkIndex);
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
+    void updateCannotDecodeInfo();
 
     ChunkData chunkData(int fileIndex, int chunkIndex) const;
 
@@ -83,6 +84,7 @@ private:
     void scheduleShowProgress();
     void showProgress();
     void hideProgress();
+    void onDocumentReloadFinished();
 
     QWidget *m_diffEditorWidget = nullptr;
 

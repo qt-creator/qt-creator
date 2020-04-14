@@ -31,7 +31,9 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
 #include <QCoreApplication>
 #include <QFile>
@@ -314,10 +316,10 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
     beginReload();
     QString patch;
     ReadResult readResult = read(fileName, &patch, errorString);
-    if (readResult == TextFileFormat::ReadEncodingError)
-        return OpenResult::CannotHandle;
-    else if (readResult != TextFileFormat::ReadSuccess)
+    if (readResult == TextFileFormat::ReadIOError
+        || readResult == TextFileFormat::ReadMemoryAllocationError) {
         return OpenResult::ReadError;
+    }
 
     bool ok = false;
     QList<FileData> fileDataList = DiffUtils::readPatch(patch, &ok);
@@ -333,7 +335,27 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
         setDiffFiles(fileDataList, fi.absolutePath());
     }
     endReload(ok);
+    if (!ok && readResult == TextFileFormat::ReadEncodingError)
+        ok = selectEncoding();
     return ok ? OpenResult::Success : OpenResult::CannotHandle;
+}
+
+bool DiffEditorDocument::selectEncoding()
+{
+    Core::CodecSelector codecSelector(Core::ICore::dialogParent(), this);
+    switch (codecSelector.exec()) {
+    case Core::CodecSelector::Reload: {
+        setCodec(codecSelector.selectedCodec());
+        QString errorMessage;
+        return reload(&errorMessage, Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+    }
+    case Core::CodecSelector::Save:
+        setCodec(codecSelector.selectedCodec());
+        return Core::EditorManager::saveDocument(this);
+    case Core::CodecSelector::Cancel:
+        break;
+    }
+    return false;
 }
 
 QString DiffEditorDocument::fallbackSaveAsFileName() const
