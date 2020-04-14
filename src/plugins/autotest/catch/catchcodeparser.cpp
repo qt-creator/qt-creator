@@ -45,9 +45,9 @@ CatchCodeParser::CatchCodeParser(const QByteArray &source, const LanguageFeature
 {
 }
 
-static TestCodeLocationAndType locationAndTypeFromToken(const Token &tkn)
+static CatchTestCodeLocationAndType locationAndTypeFromToken(const Token &tkn)
 {
-    TestCodeLocationAndType locationAndType;
+    CatchTestCodeLocationAndType locationAndType;
     locationAndType.m_type = TestTreeItem::TestFunction;
     locationAndType.m_line = tkn.lineno;
     locationAndType.m_column = 0;
@@ -77,13 +77,12 @@ static QStringList parseTags(const QString &tagsString)
     return tagsList;
 }
 
-TestCodeLocationList CatchCodeParser::findTests()
+CatchTestCodeLocationList CatchCodeParser::findTests()
 {
     m_tokens = tokensForSource(m_source, m_features);
     m_currentIndex = 0;
     for ( ; m_currentIndex < m_tokens.size(); ++m_currentIndex) {
-        const Token &token = m_tokens.at(m_currentIndex);
-        if (token.kind() == T_IDENTIFIER)
+        if (m_tokens.at(m_currentIndex).kind() == T_IDENTIFIER)
             handleIdentifier();
     }
     return m_testCases;
@@ -98,6 +97,17 @@ void CatchCodeParser::handleIdentifier()
         handleTestCase(false);
     } else if (identifier == "SCENARIO") {
         handleTestCase(true);
+    } else if (identifier == "TEMPLATE_TEST_CASE" || identifier == "TEMPLATE_PRODUCT_TEST_CASE"
+               || identifier == "TEMPLATE_LIST_TEST_CASE" || identifier == "TEMPLATE_TEST_CASE_SIG"
+               || identifier == "TEMPLATE_PRODUCT_TEST_CASE_SIG") {
+        handleParameterizedTestCase(false);
+    } else if (identifier == "TEST_CASE_METHOD") {
+        handleFixtureTestCase();
+    } else if (identifier == "TEMPLATE_TEST_CASE_METHOD_SIG"
+               || identifier == "TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"
+               || identifier == "TEMPLATE_TEST_CASE_METHOD"
+               || identifier == "TEMPLATE_LIST_TEST_CASE_METHOD") {
+        handleParameterizedTestCase(true);
     }
 }
 
@@ -106,8 +116,8 @@ void CatchCodeParser::handleTestCase(bool isScenario)
     if (!skipCommentsUntil(T_LPAREN))
         return;
 
-    Token token = m_tokens.at(m_currentIndex);
-    TestCodeLocationAndType locationAndType = locationAndTypeFromToken(token);
+    CatchTestCodeLocationAndType locationAndType
+            = locationAndTypeFromToken(m_tokens.at(m_currentIndex));
 
     Kind stoppedAt;
     ++m_currentIndex;
@@ -126,6 +136,72 @@ void CatchCodeParser::handleTestCase(bool isScenario)
         testCaseName.prepend("Scenario: "); // use a flag?
 
     locationAndType.m_name = testCaseName;
+    locationAndType.tags = parseTags(tagsString);
+    m_testCases.append(locationAndType);
+}
+
+void CatchCodeParser::handleParameterizedTestCase(bool isFixture)
+{
+    if (!skipCommentsUntil(T_LPAREN))
+        return;
+
+    if (isFixture && !skipFixtureParameter())
+        return;
+
+    CatchTestCodeLocationAndType locationAndType
+            = locationAndTypeFromToken(m_tokens.at(m_currentIndex));
+
+    Kind stoppedAt;
+    ++m_currentIndex;
+    QString testCaseName = getStringLiteral(stoppedAt);
+    QString tagsString;
+
+    if (stoppedAt != T_COMMA)
+        return;
+
+    ++m_currentIndex;
+    tagsString = getStringLiteral(stoppedAt);
+
+    if (stoppedAt == T_COMMA)
+        stoppedAt = skipUntilCorrespondingRParen();
+
+    if (stoppedAt != T_RPAREN)
+        return;
+    locationAndType.m_name = testCaseName;
+    locationAndType.tags = parseTags(tagsString);
+    locationAndType.states = CatchTreeItem::Parameterized;
+    if (isFixture)
+        locationAndType.states |= CatchTreeItem::Fixture;
+    m_testCases.append(locationAndType);
+}
+
+void CatchCodeParser::handleFixtureTestCase()
+{
+    if (!skipCommentsUntil(T_LPAREN))
+        return;
+
+    if (!skipFixtureParameter())
+        return;
+
+    CatchTestCodeLocationAndType locationAndType
+            = locationAndTypeFromToken(m_tokens.at(m_currentIndex));
+
+    Kind stoppedAt;
+    ++m_currentIndex;
+    QString testCaseName = getStringLiteral(stoppedAt);
+    QString tagsString;
+
+    if (stoppedAt == T_COMMA) {
+        ++m_currentIndex;
+        tagsString = getStringLiteral(stoppedAt);
+    }
+
+    if (stoppedAt != T_RPAREN)
+        return;
+
+    locationAndType.m_name = testCaseName;
+    locationAndType.tags = parseTags(tagsString);
+    locationAndType.states = CatchTreeItem::Fixture;
     m_testCases.append(locationAndType);
 }
 
@@ -164,6 +240,31 @@ bool CatchCodeParser::skipCommentsUntil(Kind nextExpectedKind)
         return true;
     }
     return false;
+}
+
+Kind CatchCodeParser::skipUntilCorrespondingRParen()
+{
+    int openParens = 1;  // we have already one open, looking for the corresponding closing
+    int end = m_tokens.size();
+    while (m_currentIndex < end) {
+        Kind kind = m_tokens.at(m_currentIndex).kind();
+        if (kind == T_LPAREN) {
+            ++openParens;
+        } else if (kind == T_RPAREN) {
+            --openParens;
+            if (openParens == 0)
+                return T_RPAREN;
+        }
+        ++m_currentIndex;
+    }
+    return T_ERROR;
+}
+
+bool CatchCodeParser::skipFixtureParameter()
+{
+    if (!skipCommentsUntil(T_IDENTIFIER))
+        return false;
+    return skipCommentsUntil(T_COMMA);
 }
 
 } // namespace Internal

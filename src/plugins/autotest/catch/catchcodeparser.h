@@ -41,13 +41,17 @@ public:
     CatchCodeParser(const QByteArray &source, const CPlusPlus::LanguageFeatures &features,
                     const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot);
     virtual ~CatchCodeParser() = default;
-    TestCodeLocationList findTests();
+    CatchTestCodeLocationList findTests();
 private:
     void handleIdentifier();
     void handleTestCase(bool isScenario);
+    void handleParameterizedTestCase(bool isFixture);
+    void handleFixtureTestCase();
 
     QString getStringLiteral(CPlusPlus::Kind &stoppedAtKind);
     bool skipCommentsUntil(CPlusPlus::Kind nextExpectedKind);   // moves currentIndex if succeeds
+    CPlusPlus::Kind skipUntilCorrespondingRParen();             // moves currentIndex
+    bool skipFixtureParameter();
 
     const QByteArray &m_source;
     const CPlusPlus::LanguageFeatures &m_features;
@@ -55,7 +59,7 @@ private:
     const CPlusPlus::Snapshot &m_snapshot;
     CPlusPlus::Tokens m_tokens;
     int m_currentIndex = 0;
-    TestCodeLocationList m_testCases;
+    CatchTestCodeLocationList m_testCases;
     int m_lineNo = 0;
 };
 

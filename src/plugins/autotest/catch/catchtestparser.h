@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "catchtreeitem.h"
 #include "../itestparser.h"
 
 namespace Autotest {
@@ -35,6 +36,7 @@ public:
     explicit CatchParseResult(ITestFramework *framework)
         : TestParseResult(framework) {}
     TestTreeItem *createTestTreeItem() const override;
+    CatchTreeItem::TestStates states;
 };
 
 class CatchTestParser : public CppParser

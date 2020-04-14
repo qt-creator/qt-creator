@@ -33,6 +33,11 @@
 namespace Autotest {
 namespace Internal {
 
+QString CatchTreeItem::testCasesString() const
+{
+    return m_state & CatchTreeItem::Parameterized ? QString(name() + " -*") : name();
+}
+
 QVariant CatchTreeItem::data(int column, int role) const
 {
 
@@ -40,7 +45,7 @@ QVariant CatchTreeItem::data(int column, int role) const
     case Qt::DisplayRole:
         if (type() == Root)
             break;
-        return name();
+        return QString(name() + stateSuffix());
     case Qt::CheckStateRole:
         switch (type()) {
         case Root:
@@ -148,7 +153,7 @@ TestConfiguration *CatchTreeItem::testConfiguration() const
     config->setTestCaseCount(childCount());
     config->setProjectFile(proFile());
     config->setProject(project);
-    config->setTestCases(QStringList(name()));
+    config->setTestCases(QStringList(testCasesString()));
     config->setInternalTargets(internalTargets());
     return config;
 }
@@ -185,14 +190,16 @@ static void collectTestInfo(const TestTreeItem *item,
     if (ignoreCheckState || item->checked() == Qt::Checked) {
         const QString &projectFile = item->childAt(0)->proFile();
         item->forAllChildren([&testCasesForProfile, &projectFile](TestTreeItem *it) {
-            testCasesForProfile[projectFile].names.append(it->name());
+            CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
+            testCasesForProfile[projectFile].names.append(current->testCasesString());
         });
         testCasesForProfile[projectFile].internalTargets.unite(item->internalTargets());
     } else if (item->checked() == Qt::PartiallyChecked) {
         item->forFirstLevelChildren([&testCasesForProfile](TestTreeItem *child) {
             QTC_ASSERT(child->type() == TestTreeItem::TestFunction, return);
             if (child->checked() == Qt::Checked) {
-                testCasesForProfile[child->proFile()].names.append(child->name());
+                CatchTreeItem *current = static_cast<CatchTreeItem *>(child);
+                testCasesForProfile[child->proFile()].names.append(current->testCasesString());
                 testCasesForProfile[child->proFile()].internalTargets.unite(
                             child->internalTargets());
             }
@@ -230,7 +237,8 @@ QList<TestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Uti
         QStringList testCases;
 
         item->forFirstLevelChildren([&testCases](TestTreeItem *child) {
-            testCases << child->name();
+            CatchTreeItem *current = static_cast<CatchTreeItem *>(child);
+            testCases << current->testCasesString();
         });
 
         testConfig = new CatchConfiguration(framework());
@@ -242,6 +250,16 @@ QList<TestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Uti
     }
 
     return result;
+}
+
+QString CatchTreeItem::stateSuffix() const
+{
+    QStringList types;
+    if (m_state & CatchTreeItem::Parameterized)
+        types.append(QCoreApplication::translate("CatchTreeItem", "parameterized"));
+    if (m_state & CatchTreeItem::Fixture)
+        types.append(QCoreApplication::translate("CatchTreeItem", "fixture"));
+    return types.isEmpty() ? QString() : QString(" [" + types.join(", ") + ']');
 }
 
 QList<TestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreCheckState) const

@@ -32,9 +32,21 @@ namespace Internal {
 class CatchTreeItem : public TestTreeItem
 {
 public:
+    enum TestState
+    {
+        Normal        = 0x0,
+        Parameterized = 0x1,
+        Fixture       = 0x2
+    };
+    Q_FLAGS(TestState)
+    Q_DECLARE_FLAGS(TestStates, TestState)
+
     explicit CatchTreeItem(ITestFramework *framework, const QString &name = QString(),
                            const QString &filePath = QString(), Type type = Root)
         : TestTreeItem(framework, name, filePath, type) {}
+
+    void setStates(CatchTreeItem::TestStates state) { m_state = state; }
+    QString testCasesString() const;
 
     QVariant data(int column, int role) const override;
 
@@ -53,8 +65,19 @@ public:
     QList<TestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const override;
 
 private:
+    QString stateSuffix() const;
     QList<TestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;
+    TestStates m_state = Normal;
 };
+
+class CatchTestCodeLocationAndType : public TestCodeLocationAndType
+{
+public:
+    CatchTreeItem::TestStates states = CatchTreeItem::Normal;
+    QStringList tags; // TODO: use them for the item
+};
+
+typedef QVector<CatchTestCodeLocationAndType> CatchTestCodeLocationList;
 
 } // namespace Internal
 } // namespace Autotest

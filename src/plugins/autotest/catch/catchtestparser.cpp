@@ -39,7 +39,16 @@ namespace Internal {
 static bool isCatchTestCaseMacro(const QString &macroName)
 {
     const QStringList validTestCaseMacros = {
-        QStringLiteral("TEST_CASE"), QStringLiteral("SCENARIO")
+        QStringLiteral("TEST_CASE"), QStringLiteral("SCENARIO"),
+        QStringLiteral("TEMPLATE_TEST_CASE"), QStringLiteral("TEMPLATE_PRODUCT_TEST_CASE"),
+        QStringLiteral("TEMPLATE_LIST_TEST_CASE"),
+        QStringLiteral("TEMPLATE_TEST_CASE_SIG"), QStringLiteral("TEMPLATE_PRODUCT_TEST_CASE_SIG"),
+        QStringLiteral("TEST_CASE_METHOD"), QStringLiteral("TEMPLATE_TEST_CASE_METHOD"),
+        QStringLiteral("TEMPLATE_PRODUCT_TEST_CASE_METHOD"),
+        QStringLiteral("TEST_CASE_METHOD"), QStringLiteral("TEMPLATE_TEST_CASE_METHOD_SIG"),
+        QStringLiteral("TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"),
+        QStringLiteral("TEMPLATE_TEST_CASE_METHOD"),
+        QStringLiteral("TEMPLATE_LIST_TEST_CASE_METHOD")
     };
     return validTestCaseMacros.contains(macroName);
 }
@@ -102,7 +111,7 @@ static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInter
     proFile = projectPart->projectFile;
 
     CatchCodeParser codeParser(fileContent, projectPart->languageFeatures, doc, snapshot);
-    const TestCodeLocationList foundTests = codeParser.findTests();
+    const CatchTestCodeLocationList foundTests = codeParser.findTests();
 
     CatchParseResult *parseResult = new CatchParseResult(framework);
     parseResult->itemType = TestTreeItem::TestCase;
@@ -111,7 +120,7 @@ static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInter
     parseResult->displayName = filePath;
     parseResult->proFile = projectParts.first()->projectFile;
 
-    for (const TestCodeLocationAndType & testLocation : foundTests) {
+    for (const CatchTestCodeLocationAndType & testLocation : foundTests) {
         CatchParseResult *testCase = new CatchParseResult(framework);
         testCase->fileName = filePath;
         testCase->name = testLocation.m_name;
@@ -119,6 +128,7 @@ static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInter
         testCase->itemType = testLocation.m_type;
         testCase->line = testLocation.m_line;
         testCase->column = testLocation.m_column;
+        testCase->states = testLocation.states;
 
         parseResult->children.append(testCase);
     }
@@ -146,6 +156,7 @@ TestTreeItem *CatchParseResult::createTestTreeItem() const
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);
+    item->setStates(states);
 
     for (const TestParseResult *testSet : children)
         item->appendChild(testSet->createTestTreeItem());
