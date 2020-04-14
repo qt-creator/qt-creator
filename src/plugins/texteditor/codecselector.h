@@ -31,11 +31,9 @@
 #include <QListWidget>
 
 namespace Utils { class ListWidget; }
+namespace Core { class BaseTextDocument; }
 
 namespace TextEditor {
-
-class TextDocument;
-
 namespace Internal {
 
 class CodecSelector : public QDialog
@@ -44,7 +42,7 @@ class CodecSelector : public QDialog
 
 public:
 
-    CodecSelector(QWidget *parent, TextDocument *doc);
+    CodecSelector(QWidget *parent, Core::BaseTextDocument *doc);
     ~CodecSelector() override;
 
     QTextCodec *selectedCodec() const;
