@@ -87,6 +87,8 @@ void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, co
 
 void ImportManagerView::possibleImportsChanged(const QList<Import> &/*possibleImports*/)
 {
+    QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
+
     if (m_importsWidget)
         m_importsWidget->setPossibleImports(model()->possibleImports());
 }
