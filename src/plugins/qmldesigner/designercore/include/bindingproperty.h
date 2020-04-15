@@ -50,6 +50,11 @@ public:
     bool isList() const;
     QList<ModelNode> resolveToModelNodeList() const;
     void addModelNodeToArray(const ModelNode &modelNode);
+    void removeModelNodeFromArray(const ModelNode &modelNode);
+
+    static QList<BindingProperty> findAllReferencesTo(const ModelNode &modelNode);
+    static void deleteAllReferencesTo(const ModelNode &modelNode);
+
 
     bool isAliasExport() const;
 
