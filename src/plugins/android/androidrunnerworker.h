@@ -101,6 +101,7 @@ private:
     QRegExp m_logCatRegExp;
     QFuture<qint64> m_pidFinder;
     bool m_useCppDebugger = false;
+    bool m_useLldb = false; // FIXME: Un-implemented currently.
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
     Utils::Port m_localDebugServerPort; // Local end of forwarded debug socket.
     QUrl m_qmlServer;

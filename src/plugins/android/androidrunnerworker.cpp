@@ -176,6 +176,35 @@ static FilePath gdbServer(const QString &androidAbi, const QtSupport::BaseQtVers
     return {};
 }
 
+static QString lldbServerArch(const QString &androidAbi)
+{
+    if (androidAbi == "armeabi-v7a")
+        return QString("armeabi");
+    // Correct for arm64-v8a "x86_64" and "x86", and best guess at anything that will evolve:
+    return androidAbi; // arm64-v8a, x86, x86_64
+}
+
+static FilePath lldbServer(const QString &androidAbi)
+{
+    const AndroidConfig &config = AndroidConfigurations::currentConfig();
+
+    // Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
+    const QStringList packages = config.defaultEssentials();
+    for (const QString &package : packages) {
+        if (package.startsWith("lldb;")) {
+            const QString lldbVersion = package.mid(5);
+            const FilePath path = config.sdkLocation()
+                    / QString("lldb/%1/android/%2/lldb-server")
+                            .arg(lldbVersion, lldbServerArch(androidAbi));
+            if (path.exists())
+                return path;
+        }
+    }
+
+    return {};
+}
+
+
 AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packageName)
     : m_packageName(packageName)
     , m_adbLogcatProcess(nullptr, deleter)
@@ -185,6 +214,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     , m_jdbProcess(nullptr, deleter)
 
 {
+    m_useLldb = qEnvironmentVariableIsSet("QTC_ANDROID_LLDB"); // FIXME: Determine from elsewhere
     auto runControl = runner->runControl();
     auto aspect = runControl->aspect<Debugger::DebuggerRunConfigurationAspect>();
     Core::Id runMode = runControl->runMode();
@@ -247,8 +277,12 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << "After finish ADB cmds:" << m_afterFinishAdbCommands;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
-    if (!preferredAbi.isEmpty())
-        m_debugServerPath = gdbServer(preferredAbi, version).toString();
+    if (!preferredAbi.isEmpty()) {
+        if (m_useLldb)
+            m_debugServerPath = lldbServer(preferredAbi).toString();
+        else
+            m_debugServerPath = gdbServer(preferredAbi, version).toString();
+    }
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 
