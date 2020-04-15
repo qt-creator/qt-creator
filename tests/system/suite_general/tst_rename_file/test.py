@@ -53,6 +53,8 @@ def main():
                                ["Resources", "adding.qrc"],
                                ["QML", "example.qml"]]:
         filenames = ["ABCD" + filename.upper(), "abcd" + filename.lower(), "test", "TEST", filename]
+        if filename.endswith(".h"):
+            filenames.remove("TEST")
         if filename.endswith(".qrc"):
             filenames = ["ABCD" + filename.lower(), "abcd" + filename.lower(), filename]
         previous = filenames[-1]
