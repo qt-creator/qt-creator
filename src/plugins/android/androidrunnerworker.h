@@ -72,11 +72,10 @@ signals:
 
 private:
     void asyncStartHelper();
-    bool startDebuggerServer(const QString &packageDir, const QString &gdbServerPrefix,
-                             const QString &debugServerExecutable, QString *errorStr = nullptr);
+    bool startDebuggerServer(const QString &packageDir, const QString &debugServerFile, QString *errorStr = nullptr);
     bool deviceFileExists(const QString &filePath);
     bool packageFileExists(const QString& filePath);
-    bool uploadDebugServer();
+    bool uploadDebugServer(const QString &debugServerFileName);
 
     enum class JDBState {
         Idle,

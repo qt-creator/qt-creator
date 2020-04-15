@@ -105,6 +105,7 @@ AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &
     : Debugger::DebuggerRunTool(runControl)
 {
     setId("AndroidDebugger");
+    setLldbPlatform("remote-android");
     m_runner = new AndroidRunner(runControl, intentName);
     addStartDependency(m_runner);
 }

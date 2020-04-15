@@ -891,14 +891,20 @@ class Dumper(DumperBase):
         if (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
               or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
 
-
-            remote_channel = 'connect://' + self.remoteChannel_
+            # For some reason, 127.0.0.1 doesn't work with Android.
+            remote_channel = ('connect://'
+                    + self.remoteChannel_.replace('127.0.0.1', 'localhost'))
             connect_options = lldb.SBPlatformConnectOptions(remote_channel)
 
             res = self.target.GetPlatform().ConnectRemote(connect_options)
-            DumperBase.warn("CONNECT: %s %s %s" % (res,
+            DumperBase.warn("CONNECT: %s %s %s %s" % (res,
+                        remote_channel,
                         self.target.GetPlatform().GetName(),
                         self.target.GetPlatform().IsConnected()))
+            if not res.Success():
+                self.report(self.describeError(error))
+                self.reportState('enginerunfailed')
+                return
 
 
         broadcaster = self.target.GetBroadcaster()
@@ -928,7 +934,7 @@ class Dumper(DumperBase):
     def prepare(self, args):
         error = lldb.SBError()
 
-        if self.attachPid_ > 0:
+        if self.attachPid_ > 0 and self.platform_ != "remote-linux":
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
             if not error.Success():
@@ -944,6 +950,7 @@ class Dumper(DumperBase):
                 self.reportState('enginerunandinferiorstopok')
             else:
                 self.reportState('enginerunandinferiorrunok')
+
         elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
               or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
 
@@ -953,6 +960,9 @@ class Dumper(DumperBase):
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             #launchInfo.SetWorkingDirectory(self.workingDirectory_)
             launchInfo.SetWorkingDirectory('/tmp')
+            if self.platform_ == 'remote-android':
+                launchInfo.SetWorkingDirectory('/data/local/tmp')
+            launchInfo.SetEnvironmentEntries(self.environment_, False)
             launchInfo.SetExecutableFile(f, True)
 
             DumperBase.warn("TARGET: %s" % self.target)
