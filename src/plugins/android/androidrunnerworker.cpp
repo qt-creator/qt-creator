@@ -156,6 +156,26 @@ static void deleter(QProcess *p)
     p->deleteLater();
 }
 
+static QString gdbServerArch(const QString &androidAbi)
+{
+    if (androidAbi == "arm64-v8a")
+        return QString("arm64");
+    if (androidAbi == "armeabi-v7a")
+        return QString("arm");
+    // That's correct for "x86_64" and "x86", and best guess at anything that will evolve:
+    return androidAbi;
+}
+
+static FilePath gdbServer(const QString &androidAbi, const QtSupport::BaseQtVersion *qtVersion)
+{
+    const FilePath path = AndroidConfigurations::currentConfig().ndkLocation(qtVersion)
+            .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
+                          .arg(gdbServerArch(androidAbi)));
+    if (path.exists())
+        return path;
+    return {};
+}
+
 AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packageName)
     : m_packageName(packageName)
     , m_adbLogcatProcess(nullptr, deleter)
@@ -228,8 +248,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
     if (!preferredAbi.isEmpty())
-        m_debugServerPath = AndroidConfigurations::currentConfig()
-                .gdbServer(preferredAbi, version).toString();
+        m_debugServerPath = gdbServer(preferredAbi, version).toString();
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 

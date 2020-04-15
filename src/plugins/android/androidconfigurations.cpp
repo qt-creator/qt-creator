@@ -888,31 +888,6 @@ FilePath AndroidConfig::defaultNdkLocation() const
     return sdkLocation().pathAppended(m_defaultSdkDepends.ndkPath);
 }
 
-static inline QString gdbServerArch(const QString &androidAbi)
-{
-    if (androidAbi == "arm64-v8a") {
-        return QString("arm64");
-    } else if (androidAbi == "armeabi-v7a") {
-        return QString("arm");
-    } else if (androidAbi == "x86_64") {
-        return QString("x86_64");
-    } else if (androidAbi == "x86") {
-        return QString("x86");
-    } else {
-        return {};
-    }
-}
-
-FilePath AndroidConfig::gdbServer(const QString &androidAbi, const BaseQtVersion *qtVersion) const
-{
-    const FilePath path = AndroidConfigurations::currentConfig().ndkLocation(qtVersion)
-            .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
-                                                .arg(gdbServerArch(androidAbi)));
-    if (path.exists())
-        return path;
-    return {};
-}
-
 QVersionNumber AndroidConfig::ndkVersion(const BaseQtVersion *qtVersion) const
 {
     return ndkVersion(ndkLocation(qtVersion));

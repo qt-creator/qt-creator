@@ -124,7 +124,6 @@ public:
 
     Utils::FilePath ndkLocation(const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath defaultNdkLocation() const;
-    Utils::FilePath gdbServer(const QString &androidAbi, const QtSupport::BaseQtVersion *qtVersion) const;
     QVersionNumber ndkVersion(const QtSupport::BaseQtVersion *qtVersion) const;
     QVersionNumber ndkVersion(const Utils::FilePath &ndkPath) const;
 
