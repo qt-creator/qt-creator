@@ -103,16 +103,16 @@ void GnuMakeParser::emitTask(const ProjectExplorer::Task &task)
     emit addTask(task, 1, 0);
 }
 
-IOutputParser::Status GnuMakeParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status GnuMakeParser::handleLine(const QString &line, OutputFormat type)
 {
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
         QRegularExpressionMatch match = m_makeDir.match(lne);
         if (match.hasMatch()) {
             if (match.captured(6) == QLatin1String("Leaving"))
-                emit searchDirOut(FilePath::fromString(match.captured(7)));
+                emit searchDirExpired(FilePath::fromString(match.captured(7)));
             else
-                emit searchDirIn(FilePath::fromString(match.captured(7)));
+                emit newSearchDir(FilePath::fromString(match.captured(7)));
             return Status::Done;
         }
         return Status::NotHandled;
@@ -144,7 +144,7 @@ IOutputParser::Status GnuMakeParser::doHandleLine(const QString &line, OutputFor
 
 bool GnuMakeParser::hasFatalErrors() const
 {
-    return (m_fatalErrorCount > 0) || IOutputParser::hasFatalErrors();
+    return m_fatalErrorCount > 0;
 }
 
 } // ProjectExplorer
@@ -365,7 +365,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     QFETCH(QString, outputLines);
     QFETCH(QStringList, additionalSearchDirs);
 
-    FilePaths searchDirs = testbench.searchDirectories();
+    FilePaths searchDirs = childParser->searchDirectories();
 
     // add extra directories:
     foreach (const QString &dir, extraSearchDirs)

@@ -94,7 +94,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
     QStringList suggestedMkspecList() const override;
-    QList<IOutputParser *> outputParsers() const override;
+    QList<OutputTaskParser *> createOutputParsers() const override;
 
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
@@ -226,7 +226,7 @@ public:
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
 
-    QList<IOutputParser *> outputParsers() const override;
+    QList<OutputTaskParser *> createOutputParsers() const override;
 
     QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
@@ -286,7 +286,7 @@ class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 
 public:
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
-    QList<IOutputParser *> outputParsers() const override;
+    QList<OutputTaskParser *> createOutputParsers() const override;
 
     QStringList suggestedMkspecList() const override;
 

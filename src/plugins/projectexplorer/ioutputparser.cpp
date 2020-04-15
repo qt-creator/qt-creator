@@ -33,47 +33,126 @@
 #include <QFileInfo>
 #include <QPointer>
 
-/*!
-    \class ProjectExplorer::IOutputParser
 
-    \brief The IOutputParser class provides an interface for an output parser
+/*!
+    \class ProjectExplorer::OutputTaskParser
+
+    \brief The OutputTaskParser class provides an interface for an output parser
     that emits issues (tasks).
 
     \sa ProjectExplorer::Task
 */
 
 /*!
-   \fn ProjectExplorer::IOutputParser::Status ProjectExplorer::IOutputParser::doHandleLine(const QString &line, Utils::OutputFormat type)
+   \fn ProjectExplorer::OutputTaskParser::Status ProjectExplorer::OutputTaskParser::handleLine(const QString &line, Utils::OutputFormat type)
 
    Called once for each line of standard output or standard error to parse.
 */
 
 /*!
-   \fn bool ProjectExplorer::IOutputParser::hasFatalErrors() const
+   \fn bool ProjectExplorer::OutputTaskParser::hasFatalErrors() const
 
    This is mainly a Symbian specific quirk.
 */
 
 /*!
-   \fn void ProjectExplorer::IOutputParser::addTask(const ProjectExplorer::Task &task)
+   \fn void ProjectExplorer::OutputTaskParser::addTask(const ProjectExplorer::Task &task)
 
    Should be emitted for each task seen in the output.
 */
 
 /*!
-   \fn void ProjectExplorer::IOutputParser::doFlush()
+   \fn void ProjectExplorer::OutputTaskParser::flush()
 
    Instructs a parser to flush its state.
    Parsers may have state (for example, because they need to aggregate several
    lines into one task). This
    function is called when this state needs to be flushed out to be visible.
-
-   doFlush() is called by flush(). flush() is called on child parsers
-   whenever a new task is added.
-   It is also called once when all input has been parsed.
 */
 
 namespace ProjectExplorer {
+
+class OutputTaskParser::Private
+{
+public:
+    Utils::FilePaths searchDirs;
+    QPointer<const OutputTaskParser> redirectionDetector;
+    bool skipFileExistsCheck = false;
+};
+
+OutputTaskParser::OutputTaskParser() : d(new Private)
+{
+}
+
+OutputTaskParser::~OutputTaskParser() { delete d; }
+
+void OutputTaskParser::addSearchDir(const Utils::FilePath &dir)
+{
+    d->searchDirs << dir;
+}
+
+void OutputTaskParser::dropSearchDir(const Utils::FilePath &dir)
+{
+    const int idx = d->searchDirs.lastIndexOf(dir);
+
+    // TODO: This apparently triggers. Find out why and either remove the assertion (if it's legit)
+    //       or fix the culprit.
+    QTC_ASSERT(idx != -1, return);
+
+    d->searchDirs.removeAt(idx);
+}
+
+const Utils::FilePaths OutputTaskParser::searchDirectories() const
+{
+    return d->searchDirs;
+}
+
+// The redirection mechanism is needed for broken build tools (e.g. xcodebuild) that get invoked
+// indirectly as part of the build process and redirect their child processes' stderr output
+// to stdout. A parser might be able to detect this condition and inform interested
+// other parsers that they need to interpret stdout data as stderr.
+void OutputTaskParser::setRedirectionDetector(const OutputTaskParser *detector)
+{
+    d->redirectionDetector = detector;
+}
+
+bool OutputTaskParser::needsRedirection() const
+{
+    return d->redirectionDetector && (d->redirectionDetector->hasDetectedRedirection()
+                                      || d->redirectionDetector->needsRedirection());
+}
+
+Utils::FilePath OutputTaskParser::absoluteFilePath(const Utils::FilePath &filePath)
+{
+    if (filePath.isEmpty() || filePath.toFileInfo().isAbsolute())
+        return filePath;
+    Utils::FilePaths candidates;
+    for (const Utils::FilePath &dir : searchDirectories()) {
+        const Utils::FilePath candidate = dir.pathAppended(filePath.toString());
+        if (candidate.exists() || d->skipFileExistsCheck)
+            candidates << candidate;
+    }
+    if (candidates.count() == 1)
+        return Utils::FilePath::fromString(QDir::cleanPath(candidates.first().toString()));
+    return filePath;
+}
+
+QString OutputTaskParser::rightTrimmed(const QString &in)
+{
+    int pos = in.length();
+    for (; pos > 0; --pos) {
+        if (!in.at(pos - 1).isSpace())
+            break;
+    }
+    return in.mid(0, pos);
+}
+
+#ifdef WITH_TESTS
+void OutputTaskParser::skipFileExistsCheck()
+{
+    d->skipFileExistsCheck = true;
+}
+#endif
 
 class IOutputParser::OutputChannelState
 {
@@ -118,14 +197,11 @@ public:
           stderrState(parser, Utils::StdErrFormat)
     {}
 
-    QList<IOutputParser *> lineParsers;
-    IOutputParser *nextParser = nullptr;
+    QList<OutputTaskParser *> lineParsers;
+    OutputTaskParser *nextParser = nullptr;
     QList<Filter> filters;
-    Utils::FilePaths searchDirs;
     OutputChannelState stdoutState;
     OutputChannelState stderrState;
-    QPointer<const IOutputParser> redirectionDetector;
-    bool skipFileExistsCheck = false;
 };
 
 IOutputParser::IOutputParser() : d(new IOutputParserPrivate(this))
@@ -148,39 +224,30 @@ void IOutputParser::handleStderr(const QString &data)
     d->stderrState.handleData(data);
 }
 
-IOutputParser::Status IOutputParser::doHandleLine(const QString &line, Utils::OutputFormat type)
-{
-    Q_UNUSED(line);
-    Q_UNUSED(type);
-    return Status::NotHandled;
-}
-
-void IOutputParser::doFlush() { }
-
 void IOutputParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     const QString cleanLine = filteredLine(line);
     if (d->nextParser) {
-        switch (d->nextParser->doHandleLine(cleanLine, outputTypeForParser(d->nextParser, type))) {
-        case Status::Done:
+        switch (d->nextParser->handleLine(cleanLine, outputTypeForParser(d->nextParser, type))) {
+        case OutputTaskParser::Status::Done:
             d->nextParser = nullptr;
             return;
-        case Status::InProgress:
+        case OutputTaskParser::Status::InProgress:
             return;
-        case Status::NotHandled:
+        case OutputTaskParser::Status::NotHandled:
             d->nextParser = nullptr;
             break;
         }
     }
     QTC_CHECK(!d->nextParser);
-    for (IOutputParser * const lineParser : d->lineParsers) {
-        switch (lineParser->doHandleLine(cleanLine, outputTypeForParser(lineParser, type))) {
-        case Status::Done:
+    for (OutputTaskParser * const lineParser : d->lineParsers) {
+        switch (lineParser->handleLine(cleanLine, outputTypeForParser(lineParser, type))) {
+        case OutputTaskParser::Status::Done:
             return;
-        case Status::InProgress:
+        case OutputTaskParser::Status::InProgress:
             d->nextParser = lineParser;
             return;
-        case Status::NotHandled:
+        case OutputTaskParser::Status::NotHandled:
             break;
         }
     }
@@ -194,52 +261,51 @@ QString IOutputParser::filteredLine(const QString &line) const
     return l;
 }
 
-void IOutputParser::connectLineParser(IOutputParser *parser)
+void IOutputParser::connectLineParser(OutputTaskParser *parser)
 {
-    connect(parser, &IOutputParser::addTask, this, &IOutputParser::addTask);
-    connect(parser, &IOutputParser::searchDirIn, this, &IOutputParser::addSearchDir);
-    connect(parser, &IOutputParser::searchDirOut, this, &IOutputParser::dropSearchDir);
+    connect(parser, &OutputTaskParser::addTask, this, &IOutputParser::addTask);
+    connect(parser, &OutputTaskParser::newSearchDir, this, &IOutputParser::addSearchDir);
+    connect(parser, &OutputTaskParser::searchDirExpired, this, &IOutputParser::dropSearchDir);
 }
 
 bool IOutputParser::hasFatalErrors() const
 {
-    return Utils::anyOf(d->lineParsers, [](const IOutputParser *p) { return p->hasFatalErrors(); });
+    return Utils::anyOf(d->lineParsers, [](const OutputTaskParser *p) {
+        return p->hasFatalErrors();
+    });
 }
 
 void IOutputParser::flush()
 {
     d->stdoutState.flush();
     d->stderrState.flush();
-    doFlush();
-    for (IOutputParser * const p : qAsConst(d->lineParsers))
-        p->doFlush();
+    for (OutputTaskParser * const p : qAsConst(d->lineParsers))
+        p->flush();
 }
 
 void IOutputParser::clear()
 {
     d->nextParser = nullptr;
-    d->redirectionDetector.clear();
     d->filters.clear();
-    d->searchDirs.clear();
     qDeleteAll(d->lineParsers);
     d->lineParsers.clear();
     d->stdoutState.pendingData.clear();
     d->stderrState.pendingData.clear();
 }
 
-void IOutputParser::addLineParser(IOutputParser *parser)
+void IOutputParser::addLineParser(OutputTaskParser *parser)
 {
     connectLineParser(parser);
     d->lineParsers << parser;
 }
 
-void IOutputParser::addLineParsers(const QList<IOutputParser *> &parsers)
+void IOutputParser::addLineParsers(const QList<OutputTaskParser *> &parsers)
 {
-    for (IOutputParser * const p : qAsConst(parsers))
+    for (OutputTaskParser * const p : qAsConst(parsers))
         addLineParser(p);
 }
 
-void IOutputParser::setLineParsers(const QList<IOutputParser *> &parsers)
+void IOutputParser::setLineParsers(const QList<OutputTaskParser *> &parsers)
 {
     qDeleteAll(d->lineParsers);
     d->lineParsers.clear();
@@ -247,26 +313,11 @@ void IOutputParser::setLineParsers(const QList<IOutputParser *> &parsers)
 }
 
 #ifdef WITH_TESTS
-QList<IOutputParser *> IOutputParser::lineParsers() const
+QList<OutputTaskParser *> IOutputParser::lineParsers() const
 {
     return d->lineParsers;
 }
-
-void IOutputParser::skipFileExistsCheck()
-{
-    d->skipFileExistsCheck = true;
-}
 #endif // WITH_TESTS
-
-QString IOutputParser::rightTrimmed(const QString &in)
-{
-    int pos = in.length();
-    for (; pos > 0; --pos) {
-        if (!in.at(pos - 1).isSpace())
-            break;
-    }
-    return in.mid(0, pos);
-}
 
 void IOutputParser::addFilter(const Filter &filter)
 {
@@ -275,56 +326,17 @@ void IOutputParser::addFilter(const Filter &filter)
 
 void IOutputParser::addSearchDir(const Utils::FilePath &dir)
 {
-    d->searchDirs << dir;
-    for (IOutputParser * const p : qAsConst(d->lineParsers))
+    for (OutputTaskParser * const p : qAsConst(d->lineParsers))
         p->addSearchDir(dir);
 }
 
 void IOutputParser::dropSearchDir(const Utils::FilePath &dir)
 {
-    const int idx = d->searchDirs.lastIndexOf(dir);
-    QTC_ASSERT(idx != -1, return);
-    d->searchDirs.removeAt(idx);
-    for (IOutputParser * const p : qAsConst(d->lineParsers))
+    for (OutputTaskParser * const p : qAsConst(d->lineParsers))
         p->dropSearchDir(dir);
 }
 
-const Utils::FilePaths IOutputParser::searchDirectories() const
-{
-    return d->searchDirs;
-}
-
-Utils::FilePath IOutputParser::absoluteFilePath(const Utils::FilePath &filePath)
-{
-    if (filePath.isEmpty() || filePath.toFileInfo().isAbsolute())
-        return filePath;
-    Utils::FilePaths candidates;
-    for (const Utils::FilePath &dir : searchDirectories()) {
-        const Utils::FilePath candidate = dir.pathAppended(filePath.toString());
-        if (candidate.exists() || d->skipFileExistsCheck)
-            candidates << candidate;
-    }
-    if (candidates.count() == 1)
-        return Utils::FilePath::fromString(QDir::cleanPath(candidates.first().toString()));
-    return filePath;
-}
-
-// The redirection mechanism is needed for broken build tools (e.g. xcodebuild) that get invoked
-// indirectly as part of the build process and redirect their child processes' stderr output
-// to stdout. A parser might be able to detect this condition and inform interested
-// other parsers that they need to interpret stdout data as stderr.
-void IOutputParser::setRedirectionDetector(const IOutputParser *detector)
-{
-    d->redirectionDetector = detector;
-}
-
-bool IOutputParser::needsRedirection() const
-{
-    return d->redirectionDetector && (d->redirectionDetector->hasDetectedRedirection()
-                                      || d->redirectionDetector->needsRedirection());
-}
-
-Utils::OutputFormat IOutputParser::outputTypeForParser(const IOutputParser *parser,
+Utils::OutputFormat IOutputParser::outputTypeForParser(const OutputTaskParser *parser,
                                                        Utils::OutputFormat type) const
 {
     if (type == Utils::StdOutFormat && parser->needsRedirection())

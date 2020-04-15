@@ -32,7 +32,7 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT GnuMakeParser : public ProjectExplorer::IOutputParser
+class PROJECTEXPLORER_EXPORT GnuMakeParser : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -40,7 +40,7 @@ public:
     explicit GnuMakeParser();
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
     bool hasFatalErrors() const override;
 
     void emitTask(const ProjectExplorer::Task &task);

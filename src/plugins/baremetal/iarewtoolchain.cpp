@@ -354,7 +354,7 @@ void IarToolChain::addToEnvironment(Environment &env) const
     }
 }
 
-QList<IOutputParser *> IarToolChain::outputParsers() const
+QList<OutputTaskParser *> IarToolChain::createOutputParsers() const
 {
     return {new IarParser()};
 }

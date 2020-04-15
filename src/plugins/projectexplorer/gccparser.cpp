@@ -66,19 +66,19 @@ Core::Id GccParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Gcc");
 }
 
-QList<IOutputParser *> GccParser::gccParserSuite()
+QList<OutputTaskParser *> GccParser::gccParserSuite()
 {
     return {new GccParser, new Internal::LldParser, new LdParser};
 }
 
 void GccParser::newTask(const Task &task)
 {
-    doFlush();
+    flush();
     m_currentTask = task;
     m_lines = 1;
 }
 
-void GccParser::doFlush()
+void GccParser::flush()
 {
     if (m_currentTask.isNull())
         return;
@@ -107,12 +107,12 @@ void GccParser::amendDescription(const QString &desc, bool monospaced)
     return;
 }
 
-IOutputParser::Status GccParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status GccParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == StdOutFormat) {
         // TODO: The "flush on channel switch" logic could possibly also done centrally.
         //       But see MSVC with the stdout/stderr switches because of jom
-        doFlush();
+        flush();
         return Status::NotHandled;
     }
 
@@ -177,7 +177,7 @@ IOutputParser::Status GccParser::doHandleLine(const QString &line, OutputFormat 
         return Status::InProgress;
     }
 
-    doFlush();
+    flush();
     return Status::NotHandled;
 }
 

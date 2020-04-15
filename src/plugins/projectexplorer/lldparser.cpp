@@ -35,7 +35,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-IOutputParser::Status LldParser::doHandleLine(const QString &line, Utils::OutputFormat type)
+OutputTaskParser::Status LldParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;

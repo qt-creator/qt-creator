@@ -41,7 +41,7 @@ class MacroExpander;
 } // namespace Utils
 
 namespace ProjectExplorer {
-class IOutputParser;
+class OutputTaskParser;
 
 namespace Internal {
 class KitManagerPrivate;
@@ -116,7 +116,7 @@ public:
     bool isEqual(const Kit *other) const;
 
     void addToEnvironment(Utils::Environment &env) const;
-    QList<IOutputParser *> createOutputParsers() const;
+    QList<OutputTaskParser *> createOutputParsers() const;
 
     QString toHtml(const Tasks &additional = Tasks(), const QString &extraText = QString()) const;
     Kit *clone(bool keepName = false) const;

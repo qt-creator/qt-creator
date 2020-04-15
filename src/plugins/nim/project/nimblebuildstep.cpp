@@ -43,9 +43,9 @@ using namespace Utils;
 
 namespace {
 
-class NimParser : public IOutputParser
+class NimParser : public OutputTaskParser
 {
-    Status doHandleLine(const QString &lne, Utils::OutputFormat) override
+    Status handleLine(const QString &lne, Utils::OutputFormat) override
     {
         const QString line = lne.trimmed();
         static QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)",

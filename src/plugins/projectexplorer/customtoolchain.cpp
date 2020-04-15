@@ -196,7 +196,7 @@ QStringList CustomToolChain::suggestedMkspecList() const
     return m_mkspecs;
 }
 
-QList<IOutputParser *> CustomToolChain::outputParsers() const
+QList<OutputTaskParser *> CustomToolChain::createOutputParsers() const
 {
     if (m_outputParserId == GccParser::id())
         return GccParser::gccParserSuite();

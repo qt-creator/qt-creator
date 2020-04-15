@@ -40,7 +40,7 @@ QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
     m_error.setMinimal(true);
 }
 
-IOutputParser::Status QMakeParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status QMakeParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;

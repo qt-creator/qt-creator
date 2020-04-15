@@ -36,7 +36,7 @@
 
 namespace CMakeProjectManager {
 
-class CMAKE_EXPORT CMakeParser : public ProjectExplorer::IOutputParser
+class CMAKE_EXPORT CMakeParser : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -45,8 +45,8 @@ public:
     void setSourceDirectory(const QString &sourceDir);
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
-    void doFlush() override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    void flush() override;
 
     enum TripleLineError { NONE, LINE_LOCATION, LINE_DESCRIPTION, LINE_DESCRIPTION2 };
 

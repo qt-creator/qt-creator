@@ -64,7 +64,7 @@ QString languageId(Language l);
 } // namespace Deprecated
 
 class Abi;
-class IOutputParser;
+class OutputTaskParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
 class Kit;
@@ -150,7 +150,7 @@ public:
     Core::Id language() const;
 
     virtual Utils::FilePath compilerCommand() const = 0;
-    virtual QList<IOutputParser *> outputParsers() const = 0;
+    virtual QList<OutputTaskParser *> createOutputParsers() const = 0;
 
     virtual bool operator ==(const ToolChain &) const;
 

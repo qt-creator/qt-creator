@@ -47,7 +47,7 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-IOutputParser::Status QtTestParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status QtTestParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != StdOutFormat)
         return Status::NotHandled;

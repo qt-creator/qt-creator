@@ -32,7 +32,7 @@
 
 namespace ProjectExplorer {
 
-class LinuxIccParser : public ProjectExplorer::IOutputParser
+class LinuxIccParser : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -41,11 +41,11 @@ public:
 
     static Core::Id id();
 
-    static QList<IOutputParser *> iccParserSuite();
+    static QList<OutputTaskParser *> iccParserSuite();
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
-    void doFlush() override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    void flush() override;
 
     QRegExp m_firstLine;
     QRegExp m_continuationLines;

@@ -559,9 +559,9 @@ void Kit::addToEnvironment(Environment &env) const
         aspect->addToEnvironment(this, env);
 }
 
-QList<IOutputParser *> Kit::createOutputParsers() const
+QList<OutputTaskParser *> Kit::createOutputParsers() const
 {
-    QList<IOutputParser *> parsers{new OsParser};
+    QList<OutputTaskParser *> parsers{new OsParser};
     for (KitAspect *aspect : KitManager::kitAspects())
         parsers << aspect->createOutputParsers(this);
     return parsers;

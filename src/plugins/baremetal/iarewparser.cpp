@@ -64,7 +64,7 @@ Core::Id IarParser::id()
 
 void IarParser::newTask(const Task &task)
 {
-    doFlush();
+    flush();
     m_lastTask = task;
     m_lines = 1;
 }
@@ -190,7 +190,7 @@ bool IarParser::parseErrorMessage1(const QString &lne)
     return true;
 }
 
-IOutputParser::Status IarParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status IarParser::handleLine(const QString &line, OutputFormat type)
 {
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
@@ -198,7 +198,7 @@ IOutputParser::Status IarParser::doHandleLine(const QString &line, OutputFormat 
         const bool leastOneParsed = parseErrorInCommandLineMessage(lne)
                 || parseErrorMessage1(lne);
         if (!leastOneParsed) {
-            doFlush();
+            flush();
             return Status::NotHandled;
         }
         return Status::InProgress;
@@ -215,7 +215,7 @@ IOutputParser::Status IarParser::doHandleLine(const QString &line, OutputFormat 
         if (lne.endsWith(']')) {
             const QString lastPart = lne.left(lne.size() - 1);
             m_filePathParts.push_back(lastPart);
-            doFlush();
+            flush();
             return Status::Done;
         } else {
             m_filePathParts.push_back(lne);
@@ -235,14 +235,14 @@ IOutputParser::Status IarParser::doHandleLine(const QString &line, OutputFormat 
     }
 
     if (!m_lastTask.isNull()) {
-        doFlush();
+        flush();
         return Status::Done;
     }
 
     return Status::NotHandled;
 }
 
-void IarParser::doFlush()
+void IarParser::flush()
 {
     if (m_lastTask.isNull())
         return;

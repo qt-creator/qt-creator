@@ -55,19 +55,19 @@ ClangParser::ClangParser() :
     setObjectName(QLatin1String("ClangParser"));
 }
 
-QList<IOutputParser *> ClangParser::clangParserSuite()
+QList<OutputTaskParser *> ClangParser::clangParserSuite()
 {
     return {new ClangParser, new Internal::LldParser, new LdParser};
 }
 
-IOutputParser::Status ClangParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status ClangParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != StdErrFormat)
         return Status::NotHandled;
     const QString lne = rightTrimmed(line);
     QRegularExpressionMatch match = m_summaryRegExp.match(lne);
     if (match.hasMatch()) {
-        doFlush();
+        flush();
         m_expectSnippet = false;
         return Status::Done;
     }

@@ -34,7 +34,7 @@ namespace QtSupport {
 
 // Parser for Qt-specific utilities like moc, uic, etc.
 
-class QTSUPPORT_EXPORT QtParser : public ProjectExplorer::IOutputParser
+class QTSUPPORT_EXPORT QtParser : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -42,7 +42,7 @@ public:
     QtParser();
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
 
     QRegExp m_mocRegExp;
     QRegExp m_translationRegExp;

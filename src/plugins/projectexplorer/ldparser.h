@@ -32,15 +32,15 @@
 
 namespace ProjectExplorer {
 
-class LdParser : public ProjectExplorer::IOutputParser
+class LdParser : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
 public:
     LdParser();
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
-    void doFlush() override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    void flush() override;
 
     QRegularExpression m_ranlib;
     QRegularExpression m_regExpLinker;

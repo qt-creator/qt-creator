@@ -73,7 +73,9 @@ const int MAX_PROGRESS = 1400;
 
 ServerModeReader::ServerModeReader()
 {
-    connect(&m_parser, &CMakeParser::addTask, this, [this](const Task &t) {
+    m_cmakeParser = new CMakeParser;
+    m_parser.addLineParser(m_cmakeParser);
+    connect(&m_parser, &IOutputParser::addTask, this, [this](const Task &t) {
         Task editable(t);
         if (!editable.file.isEmpty()) {
             QDir srcDir(m_parameters.sourceDirectory.toString());
@@ -94,8 +96,7 @@ void ServerModeReader::setParameters(const BuildDirParameters &p)
     QTC_ASSERT(cmake, return);
 
     m_parameters = p;
-
-    m_parser.setSourceDirectory(m_parameters.sourceDirectory.toString());
+    m_cmakeParser->setSourceDirectory(m_parameters.sourceDirectory.toString());
     createNewServer();
 }
 

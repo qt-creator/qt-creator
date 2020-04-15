@@ -33,7 +33,7 @@
 namespace Android {
 namespace Internal {
 
-class JavaParser : public ProjectExplorer::IOutputParser
+class JavaParser : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -45,7 +45,7 @@ public:
     void setSourceDirectory(const Utils::FilePath &sourceDirectory);
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
 
     QRegExp m_javaRegExp;
     QStringList m_fileList;

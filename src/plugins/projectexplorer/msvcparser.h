@@ -33,7 +33,7 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT MsvcParser :  public ProjectExplorer::IOutputParser
+class PROJECTEXPLORER_EXPORT MsvcParser :  public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -43,8 +43,8 @@ public:
     static Core::Id id();
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
-    void doFlush() override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    void flush() override;
 
     bool processCompileLine(const QString &line);
 
@@ -55,7 +55,7 @@ private:
     int m_lines = 0;
 };
 
-class PROJECTEXPLORER_EXPORT ClangClParser :  public ProjectExplorer::IOutputParser
+class PROJECTEXPLORER_EXPORT ClangClParser :  public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -63,8 +63,8 @@ public:
     ClangClParser();
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
-    void doFlush() override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    void flush() override;
 
     const QRegularExpression m_compileRegExp;
     Task m_lastTask;

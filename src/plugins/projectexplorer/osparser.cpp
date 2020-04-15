@@ -36,7 +36,7 @@ OsParser::OsParser()
     setObjectName(QLatin1String("OsParser"));
 }
 
-IOutputParser::Status OsParser::doHandleLine(const QString &line, Utils::OutputFormat type)
+OutputTaskParser::Status OsParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     if (type == Utils::StdOutFormat) {
         if (Utils::HostOsInfo::isWindowsHost()) {

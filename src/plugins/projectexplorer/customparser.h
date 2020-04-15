@@ -81,7 +81,7 @@ public:
     CustomParserExpression warning;
 };
 
-class CustomParser : public ProjectExplorer::IOutputParser
+class CustomParser : public ProjectExplorer::OutputTaskParser
 {
 public:
     CustomParser(const CustomParserSettings &settings = CustomParserSettings());
@@ -91,7 +91,7 @@ public:
     static Core::Id id();
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
 
     bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                   const CustomParserExpression &expression, Task::TaskType taskType);

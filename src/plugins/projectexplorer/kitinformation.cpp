@@ -557,11 +557,11 @@ void ToolChainKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expa
                              });
 }
 
-QList<IOutputParser *> ToolChainKitAspect::createOutputParsers(const Kit *k) const
+QList<OutputTaskParser *> ToolChainKitAspect::createOutputParsers(const Kit *k) const
 {
     for (const Core::Id langId : {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID}) {
         if (const ToolChain * const tc = toolChain(k, langId))
-            return tc->outputParsers();
+            return tc->createOutputParsers();
     }
     return {};
 }

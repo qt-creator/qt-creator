@@ -33,7 +33,7 @@ namespace Internal {
 
 // KeilParser
 
-class KeilParser final : public ProjectExplorer::IOutputParser
+class KeilParser final : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -55,8 +55,8 @@ private:
     bool parseMcs51WarningOrFatalErrorMessage(const QString &lne);
     bool parseMcs51FatalErrorMessage2(const QString &lne);
 
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) final;
-    void doFlush() final;
+    Status handleLine(const QString &line, Utils::OutputFormat type) final;
+    void flush() final;
 
     ProjectExplorer::Task m_lastTask;
     int m_lines = 0;

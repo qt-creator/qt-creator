@@ -57,7 +57,7 @@ void CMakeParser::setSourceDirectory(const QString &sourceDir)
     m_sourceDirectory = QDir(sourceDir);
 }
 
-IOutputParser::Status CMakeParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status CMakeParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != StdErrFormat)
         return Status::NotHandled;
@@ -67,7 +67,7 @@ IOutputParser::Status CMakeParser::doHandleLine(const QString &line, OutputForma
     case NONE:
         if (trimmedLine.isEmpty() && !m_lastTask.isNull()) {
             if (m_skippedFirstEmptyLine) {
-                doFlush();
+                flush();
                 return Status::InProgress;
             }
             m_skippedFirstEmptyLine = true;
@@ -100,7 +100,7 @@ IOutputParser::Status CMakeParser::doHandleLine(const QString &line, OutputForma
             return Status::InProgress;
         } else if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
             m_expectTripleLineErrorData = LINE_LOCATION;
-            doFlush();
+            flush();
             const Task::TaskType type =
                     trimmedLine.contains(QLatin1String("Error")) ? Task::Error : Task::Warning;
             m_lastTask = BuildSystemTask(type, QString());
@@ -129,7 +129,7 @@ IOutputParser::Status CMakeParser::doHandleLine(const QString &line, OutputForma
             m_expectTripleLineErrorData = LINE_DESCRIPTION2;
         else {
             m_expectTripleLineErrorData = NONE;
-            doFlush();
+            flush();
             return Status::Done;
         }
         return Status::InProgress;
@@ -137,13 +137,13 @@ IOutputParser::Status CMakeParser::doHandleLine(const QString &line, OutputForma
         m_lastTask.description.append(QLatin1Char('\n'));
         m_lastTask.description.append(trimmedLine);
         m_expectTripleLineErrorData = NONE;
-        doFlush();
+        flush();
         return Status::Done;
     }
     return Status::NotHandled;
 }
 
-void CMakeParser::doFlush()
+void CMakeParser::flush()
 {
     if (m_lastTask.isNull())
         return;

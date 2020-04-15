@@ -80,7 +80,6 @@ private:
     QbsSession *m_session = nullptr;
     QString m_description;
     int m_maxProgress;
-    ProjectExplorer::IOutputParser *m_parser = nullptr;
 
     friend class QbsInstallStepConfigWidget;
 };

@@ -33,6 +33,7 @@ namespace Utils { class FilePath; }
 namespace ProjectExplorer {
 
 class IOutputParser;
+class OutputTaskParser;
 class ProcessParameters;
 
 // Documentation inside.
@@ -46,9 +47,9 @@ public:
     bool ignoreReturnValue();
     void setIgnoreReturnValue(bool b);
 
-    void setOutputParser(IOutputParser *parser);
-    void appendOutputParser(IOutputParser *parser);
-    void appendOutputParsers(const QList<IOutputParser *> &parsers);
+    void setOutputParser(OutputTaskParser *parser);
+    void appendOutputParser(OutputTaskParser *parser);
+    void appendOutputParsers(const QList<OutputTaskParser *> &parsers);
     IOutputParser *outputParser() const;
 
     void emitFaultyConfigurationMessage();

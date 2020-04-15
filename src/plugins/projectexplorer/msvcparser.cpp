@@ -105,7 +105,7 @@ Core::Id MsvcParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Msvc");
 }
 
-IOutputParser::Status MsvcParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status MsvcParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == OutputFormat::StdOutFormat) {
         QRegularExpressionMatch match = m_additionalInfoRegExp.match(line);
@@ -169,7 +169,7 @@ IOutputParser::Status MsvcParser::doHandleLine(const QString &line, OutputFormat
 
 bool MsvcParser::processCompileLine(const QString &line)
 {
-    doFlush();
+    flush();
 
     QRegularExpressionMatch match = m_compileRegExp.match(line);
     if (match.hasMatch()) {
@@ -183,7 +183,7 @@ bool MsvcParser::processCompileLine(const QString &line)
     return false;
 }
 
-void MsvcParser::doFlush()
+void MsvcParser::flush()
 {
     if (m_lastTask.isNull())
         return;
@@ -220,39 +220,39 @@ static inline bool isClangCodeMarker(const QString &trimmedLine)
                          [] (QChar c) { return c != ' ' && c != '^' && c != '~'; });
 }
 
-IOutputParser::Status ClangClParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status ClangClParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == StdOutFormat) {
         if (handleNmakeJomMessage(line, &m_lastTask)) {
             m_linkedLines = 1;
-            doFlush();
+            flush();
             return Status::Done;
         }
         return Status::NotHandled;
     }
-    const QString lne = IOutputParser::rightTrimmed(line); // Strip \n.
+    const QString lne = rightTrimmed(line); // Strip \n.
 
     if (handleNmakeJomMessage(lne, &m_lastTask)) {
         m_linkedLines = 1;
-        doFlush();
+        flush();
         return Status::Done;
     }
 
     // Finish a sequence of warnings/errors: "2 warnings generated."
     if (!lne.isEmpty() && lne.at(0).isDigit() && lne.endsWith("generated.")) {
-        doFlush();
+        flush();
         return Status::Done;
     }
 
     // Start a new error message by a sequence of "In file included from " which is to be skipped.
     if (lne.startsWith("In file included from ")) {
-        doFlush();
+        flush();
         return Status::Done;
     }
 
     QRegularExpressionMatch match = m_compileRegExp.match(lne);
     if (match.hasMatch()) {
-        doFlush();
+        flush();
         const QPair<FilePath, int> position = parseFileName(match.captured(1));
         m_lastTask = CompileTask(taskType(match.captured(2)), match.captured(3).trimmed(),
                                  absoluteFilePath(position.first), position.second);
@@ -263,7 +263,7 @@ IOutputParser::Status ClangClParser::doHandleLine(const QString &line, OutputFor
     if (!m_lastTask.isNull()) {
         const QString trimmed = lne.trimmed();
         if (isClangCodeMarker(trimmed)) {
-            doFlush();
+            flush();
             return Status::Done;
         }
         m_lastTask.description.append('\n');
@@ -275,7 +275,7 @@ IOutputParser::Status ClangClParser::doHandleLine(const QString &line, OutputFor
     return Status::NotHandled;
 }
 
-void ClangClParser::doFlush()
+void ClangClParser::flush()
 {
     if (!m_lastTask.isNull()) {
         emit addTask(m_lastTask, m_linkedLines, 1);

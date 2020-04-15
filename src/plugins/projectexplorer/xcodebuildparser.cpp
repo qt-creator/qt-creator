@@ -52,7 +52,7 @@ XcodebuildParser::XcodebuildParser()
     QTC_CHECK(m_buildRe.isValid());
 }
 
-IOutputParser::Status XcodebuildParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status XcodebuildParser::handleLine(const QString &line, OutputFormat type)
 {
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {

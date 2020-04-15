@@ -66,7 +66,7 @@ Core::Id KeilParser::id()
 
 void KeilParser::newTask(const Task &task)
 {
-    doFlush();
+    flush();
     m_lastTask = task;
     m_lines = 1;
 }
@@ -206,7 +206,7 @@ static bool hasDetailsPointer(const QString &trimmedLine)
     return trimmedLine.contains('_');
 }
 
-IOutputParser::Status KeilParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status KeilParser::handleLine(const QString &line, OutputFormat type)
 {
     QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
@@ -242,7 +242,7 @@ IOutputParser::Status KeilParser::doHandleLine(const QString &line, OutputFormat
                 return Status::InProgress;
             }
         }
-        doFlush();
+        flush();
         return Status::NotHandled;
     }
 
@@ -257,11 +257,11 @@ IOutputParser::Status KeilParser::doHandleLine(const QString &line, OutputFormat
         return Status::InProgress;
     }
 
-    doFlush();
+    flush();
     return Status::NotHandled;
 }
 
-void KeilParser::doFlush()
+void KeilParser::flush()
 {
     if (m_lastTask.isNull())
         return;

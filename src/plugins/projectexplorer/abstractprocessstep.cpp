@@ -132,7 +132,7 @@ AbstractProcessStep::~AbstractProcessStep()
      Deletes all existing output parsers and starts a new chain with the
      given parser.
 */
-void AbstractProcessStep::setOutputParser(IOutputParser *parser)
+void AbstractProcessStep::setOutputParser(OutputTaskParser *parser)
 {
     d->m_outputParser.setLineParsers({parser});
 }
@@ -140,16 +140,16 @@ void AbstractProcessStep::setOutputParser(IOutputParser *parser)
 /*!
     Appends the given output parser to the existing chain of parsers.
 */
-void AbstractProcessStep::appendOutputParser(IOutputParser *parser)
+void AbstractProcessStep::appendOutputParser(OutputTaskParser *parser)
 {
     if (!parser)
         return;
     d->m_outputParser.addLineParser(parser);
 }
 
-void AbstractProcessStep::appendOutputParsers(const QList<IOutputParser *> &parsers)
+void AbstractProcessStep::appendOutputParsers(const QList<OutputTaskParser *> &parsers)
 {
-    for (IOutputParser * const p : parsers)
+    for (OutputTaskParser * const p : parsers)
         appendOutputParser(p);
 }
 

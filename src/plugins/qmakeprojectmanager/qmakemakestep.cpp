@@ -166,18 +166,18 @@ bool QmakeMakeStep::init()
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
-    IOutputParser *xcodeBuildParser = nullptr;
+    OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
         xcodeBuildParser = new XcodebuildParser;
         appendOutputParser(xcodeBuildParser);
     }
-    QList<IOutputParser *> additionalParsers = target()->kit()->createOutputParsers();
+    QList<OutputTaskParser *> additionalParsers = target()->kit()->createOutputParsers();
 
-    // make may cause qmake to be run, add last to make sure // it has a low priority.
+    // make may cause qmake to be run, add last to make sure it has a low priority.
     additionalParsers << new QMakeParser;
 
     if (xcodeBuildParser) {
-        for (IOutputParser * const p : qAsConst(additionalParsers))
+        for (OutputTaskParser * const p : qAsConst(additionalParsers))
             p->setRedirectionDetector(xcodeBuildParser);
     }
     appendOutputParsers(additionalParsers);

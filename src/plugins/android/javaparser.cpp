@@ -51,7 +51,7 @@ void JavaParser::setSourceDirectory(const Utils::FilePath &sourceDirectory)
     m_sourceDirectory = sourceDirectory;
 }
 
-IOutputParser::Status JavaParser::doHandleLine(const QString &line, Utils::OutputFormat type)
+OutputTaskParser::Status JavaParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     Q_UNUSED(type);
     if (m_javaRegExp.indexIn(line) == -1)

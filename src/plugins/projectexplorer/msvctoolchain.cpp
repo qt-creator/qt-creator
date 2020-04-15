@@ -1169,7 +1169,7 @@ void MsvcToolChain::rescanForCompiler()
           });
 }
 
-QList<IOutputParser *> MsvcToolChain::outputParsers() const
+QList<OutputTaskParser *> MsvcToolChain::createOutputParsers() const
 {
     return {new MsvcParser};
 }
@@ -1656,7 +1656,7 @@ QStringList ClangClToolChain::suggestedMkspecList() const
     return {mkspec, "win32-clang-msvc"};
 }
 
-QList<IOutputParser *> ClangClToolChain::outputParsers() const
+QList<OutputTaskParser *> ClangClToolChain::createOutputParsers() const
 {
     return {new ClangClParser};
 }

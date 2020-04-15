@@ -129,7 +129,7 @@ Core::Id CustomParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Custom");
 }
 
-IOutputParser::Status CustomParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status CustomParser::handleLine(const QString &line, OutputFormat type)
 {
     const CustomParserExpression::CustomParserChannel channel = type == StdErrFormat
             ? CustomParserExpression::ParseStdErrChannel

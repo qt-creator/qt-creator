@@ -54,14 +54,14 @@ LdParser::LdParser()
     QTC_CHECK(m_regExpGccNames.isValid());
 }
 
-IOutputParser::Status LdParser::doHandleLine(const QString &line, Utils::OutputFormat type)
+OutputTaskParser::Status LdParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
 
     QString lne = rightTrimmed(line);
     if (!lne.isEmpty() && !lne.at(0).isSpace() && !m_incompleteTask.isNull()) {
-        doFlush();
+        flush();
         return Status::NotHandled;
     }
 
@@ -144,7 +144,7 @@ IOutputParser::Status LdParser::doHandleLine(const QString &line, Utils::OutputF
     return Status::NotHandled;
 }
 
-void LdParser::doFlush()
+void LdParser::flush()
 {
     if (m_incompleteTask.isNull())
         return;

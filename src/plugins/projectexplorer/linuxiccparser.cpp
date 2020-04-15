@@ -65,7 +65,7 @@ LinuxIccParser::LinuxIccParser() :
     QTC_CHECK(m_pchInfoLine.isValid());
 }
 
-IOutputParser::Status LinuxIccParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status LinuxIccParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
@@ -129,12 +129,12 @@ Core::Id LinuxIccParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Icc");
 }
 
-QList<IOutputParser *> LinuxIccParser::iccParserSuite()
+QList<OutputTaskParser *> LinuxIccParser::iccParserSuite()
 {
     return {new LinuxIccParser, new Internal::LldParser, new LdParser};
 }
 
-void LinuxIccParser::doFlush()
+void LinuxIccParser::flush()
 {
     if (m_temporary.isNull())
         return;

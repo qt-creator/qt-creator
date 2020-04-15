@@ -34,7 +34,7 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT XcodebuildParser : public IOutputParser
+class PROJECTEXPLORER_EXPORT XcodebuildParser : public OutputTaskParser
 {
     Q_OBJECT
 public:
@@ -47,7 +47,7 @@ public:
     XcodebuildParser();
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
     bool hasDetectedRedirection() const override;
     bool hasFatalErrors() const override { return m_fatalErrorCount > 0; }
 

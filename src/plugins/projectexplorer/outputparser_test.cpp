@@ -102,7 +102,7 @@ TestTerminator::TestTerminator(OutputParserTester *t) :
     m_tester(t)
 { }
 
-IOutputParser::Status TestTerminator::doHandleLine(const QString &line, Utils::OutputFormat type)
+OutputTaskParser::Status TestTerminator::handleLine(const QString &line, Utils::OutputFormat type)
 {
     QTC_CHECK(line.endsWith('\n'));
     if (type == Utils::StdOutFormat)

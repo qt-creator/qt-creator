@@ -180,7 +180,8 @@ private:
     QList<Target *> m_targets;
     QList<FileGroup *> m_fileGroups;
 
-    CMakeParser m_parser;
+    CMakeParser *m_cmakeParser = nullptr;
+    ProjectExplorer::IOutputParser m_parser;
 
 #if defined(WITH_TESTS)
     friend class CMakeProjectPlugin;

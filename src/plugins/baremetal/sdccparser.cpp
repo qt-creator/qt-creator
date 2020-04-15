@@ -66,7 +66,7 @@ Core::Id SdccParser::id()
 
 void SdccParser::newTask(const Task &task)
 {
-    doFlush();
+    flush();
     m_lastTask = task;
     m_lines = 1;
 }
@@ -87,7 +87,7 @@ void SdccParser::amendDescription(const QString &desc)
     ++m_lines;
 }
 
-IOutputParser::Status SdccParser::doHandleLine(const QString &line, OutputFormat type)
+OutputTaskParser::Status SdccParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == StdOutFormat)
         return Status::NotHandled;
@@ -150,11 +150,11 @@ IOutputParser::Status SdccParser::doHandleLine(const QString &line, OutputFormat
         return Status::InProgress;
     }
 
-    doFlush();
+    flush();
     return Status::NotHandled;
 }
 
-void SdccParser::doFlush()
+void SdccParser::flush()
 {
     if (m_lastTask.isNull())
         return;

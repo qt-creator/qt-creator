@@ -43,7 +43,7 @@ QtParser::QtParser() :
     m_translationRegExp.setMinimal(true);
 }
 
-IOutputParser::Status QtParser::doHandleLine(const QString &line, Utils::OutputFormat type)
+OutputTaskParser::Status QtParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;

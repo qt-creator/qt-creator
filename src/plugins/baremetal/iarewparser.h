@@ -33,7 +33,7 @@ namespace Internal {
 
 // IarParser
 
-class IarParser final : public ProjectExplorer::IOutputParser
+class IarParser final : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
@@ -52,8 +52,8 @@ private:
     bool parseErrorInCommandLineMessage(const QString &lne);
     bool parseErrorMessage1(const QString &lne);
 
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) final;
-    void doFlush() final;
+    Status handleLine(const QString &line, Utils::OutputFormat type) final;
+    void flush() final;
 
     ProjectExplorer::Task m_lastTask;
     int m_lines = 0;

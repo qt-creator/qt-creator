@@ -73,7 +73,7 @@ private:
     friend class TestTerminator;
 };
 
-class TestTerminator : public IOutputParser
+class TestTerminator : public OutputTaskParser
 {
     Q_OBJECT
 
@@ -81,7 +81,7 @@ public:
     TestTerminator(OutputParserTester *t);
 
 private:
-    Status doHandleLine(const QString &line, Utils::OutputFormat type) override;
+    Status handleLine(const QString &line, Utils::OutputFormat type) override;
 
     OutputParserTester *m_tester = nullptr;
 };

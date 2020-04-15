@@ -151,7 +151,7 @@ static void parse(QFutureInterface<void> &future, const QString &output,
 
 void ParseIssuesDialog::accept()
 {
-    const QList<IOutputParser *> lineParsers = d->kitChooser.currentKit()->createOutputParsers();
+    const QList<OutputTaskParser *> lineParsers = d->kitChooser.currentKit()->createOutputParsers();
     if (lineParsers.isEmpty()) {
         QMessageBox::critical(this, tr("Cannot Parse"), tr("Cannot parse: The chosen kit does "
                                                            "not provide an output parser."));

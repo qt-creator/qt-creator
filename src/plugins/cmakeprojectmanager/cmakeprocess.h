@@ -70,7 +70,7 @@ private:
     void checkForCancelled();
 
     std::unique_ptr<Utils::QtcProcess> m_process;
-    std::unique_ptr<ProjectExplorer::IOutputParser> m_parser;
+    ProjectExplorer::IOutputParser m_parser;
     std::unique_ptr<QFutureInterface<void>> m_future;
     bool m_processWasCanceled = false;
     QTimer m_cancelTimer;

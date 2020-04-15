@@ -76,9 +76,7 @@ CMakeProcess::~CMakeProcess()
         Core::Reaper::reap(m_process.release());
     }
 
-    // Delete issue parser:
-    if (m_parser)
-        m_parser->flush();
+    m_parser.flush();
 
     if (m_future) {
         reportCanceled();
@@ -88,7 +86,7 @@ CMakeProcess::~CMakeProcess()
 
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
-    QTC_ASSERT(!m_process && !m_parser && !m_future, return);
+    QTC_ASSERT(!m_process && !m_future, return);
 
     CMakeTool *cmake = parameters.cmakeTool();
     QTC_ASSERT(parameters.isValid() && cmake, return);
@@ -98,10 +96,11 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     const QString srcDir = parameters.sourceDirectory.toString();
 
-    auto parser = std::make_unique<CMakeParser>();
+    const auto parser = new CMakeParser;
     parser->setSourceDirectory(srcDir);
+    m_parser.addLineParser(parser);
     QDir source = QDir(srcDir);
-    connect(parser.get(), &IOutputParser::addTask, parser.get(),
+    connect(&m_parser, &IOutputParser::addTask, this,
             [source](const Task &task) {
                 if (task.file.isEmpty() || task.file.toFileInfo().isAbsolute()) {
                     TaskHub::addTask(task);
@@ -155,7 +154,6 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     process->start();
 
     m_process = std::move(process);
-    m_parser = std::move(parser);
     m_future = std::move(future);
 }
 
@@ -201,7 +199,7 @@ void CMakeProcess::processStandardError()
 
     static QString rest;
     rest = lineSplit(rest, m_process->readAllStandardError(), [this](const QString &s) {
-        m_parser->handleStderr(s);
+        m_parser.handleStderr(s);
         Core::MessageManager::write(s);
     });
 }

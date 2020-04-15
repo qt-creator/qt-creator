@@ -35,6 +35,7 @@
 #include <QVariant>
 
 namespace ProjectExplorer {
+class OutputTaskParser;
 class ToolChain;
 
 class KitAspectWidget;
@@ -84,7 +85,7 @@ public:
 
     void addToEnvironment(const Kit *k, Utils::Environment &env) const override;
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
-    QList<IOutputParser *> createOutputParsers(const Kit *k) const override;
+    QList<OutputTaskParser *> createOutputParsers(const Kit *k) const override;
     QSet<Core::Id> availableFeatures(const Kit *k) const override;
 
     static Core::Id id();

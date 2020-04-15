@@ -46,7 +46,7 @@ class MacroExpander;
 
 namespace ProjectExplorer {
 class Task;
-class IOutputParser;
+class OutputTaskParser;
 class KitAspectWidget;
 class KitManager;
 
@@ -91,7 +91,7 @@ public:
     virtual KitAspectWidget *createConfigWidget(Kit *) const = 0;
 
     virtual void addToEnvironment(const Kit *k, Utils::Environment &env) const;
-    virtual QList<IOutputParser *> createOutputParsers(const Kit *k) const;
+    virtual QList<OutputTaskParser *> createOutputParsers(const Kit *k) const;
 
     virtual QString displayNamePostfix(const Kit *k) const;
 

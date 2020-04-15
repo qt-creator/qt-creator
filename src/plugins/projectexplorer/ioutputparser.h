@@ -36,6 +36,45 @@
 namespace ProjectExplorer {
 class Task;
 
+class PROJECTEXPLORER_EXPORT OutputTaskParser : public QObject
+{
+    Q_OBJECT
+public:
+    OutputTaskParser();
+    ~OutputTaskParser() override;
+
+    void addSearchDir(const Utils::FilePath &dir);
+    void dropSearchDir(const Utils::FilePath &dir);
+    const Utils::FilePaths searchDirectories() const;
+
+    enum class Status { Done, InProgress, NotHandled };
+    virtual Status handleLine(const QString &line, Utils::OutputFormat type) = 0;
+
+    virtual bool hasFatalErrors() const { return false; }
+    virtual void flush() {}
+
+    void setRedirectionDetector(const OutputTaskParser *detector);
+    bool needsRedirection() const;
+    virtual bool hasDetectedRedirection() const { return false; }
+
+#ifdef WITH_TESTS
+    void skipFileExistsCheck();
+#endif
+
+signals:
+    void newSearchDir(const Utils::FilePath &dir);
+    void searchDirExpired(const Utils::FilePath &dir);
+    void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
+
+protected:
+    static QString rightTrimmed(const QString &in);
+    Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath);
+
+private:
+    class Private;
+    Private * const d;
+};
+
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
 {
@@ -47,51 +86,34 @@ public:
     void handleStdout(const QString &data);
     void handleStderr(const QString &data);
 
-    virtual bool hasFatalErrors() const;
+    bool hasFatalErrors() const;
 
     using Filter = std::function<QString(const QString &)>;
     void addFilter(const Filter &filter);
 
+    // Forwards to line parsers. Add those before.
     void addSearchDir(const Utils::FilePath &dir);
     void dropSearchDir(const Utils::FilePath &dir);
-    const Utils::FilePaths searchDirectories() const;
 
     void flush();
     void clear();
 
-    void addLineParser(IOutputParser *parser);
-    void addLineParsers(const QList<IOutputParser *> &parsers);
-    void setLineParsers(const QList<IOutputParser *> &parsers);
+    void addLineParser(OutputTaskParser *parser);
+    void addLineParsers(const QList<OutputTaskParser *> &parsers);
+    void setLineParsers(const QList<OutputTaskParser *> &parsers);
 
 #ifdef WITH_TESTS
-    QList<IOutputParser *> lineParsers() const;
-    void skipFileExistsCheck();
+    QList<OutputTaskParser *> lineParsers() const;
 #endif
 
-    void setRedirectionDetector(const IOutputParser *detector);
-
-    static QString rightTrimmed(const QString &in);
-
 signals:
-    void searchDirIn(const Utils::FilePath &dir);
-    void searchDirOut(const Utils::FilePath &dir);
     void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
-protected:
-    enum class Status { Done, InProgress, NotHandled };
-
-    Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath);
-
 private:
-    virtual Status doHandleLine(const QString &line, Utils::OutputFormat type);
-    virtual void doFlush();
-    virtual bool hasDetectedRedirection() const { return false; }
-
     void handleLine(const QString &line, Utils::OutputFormat type);
     QString filteredLine(const QString &line) const;
-    void connectLineParser(IOutputParser *parser);
-    bool needsRedirection() const;
-    Utils::OutputFormat outputTypeForParser(const IOutputParser *parser,
+    void connectLineParser(OutputTaskParser *parser);
+    Utils::OutputFormat outputTypeForParser(const OutputTaskParser *parser,
                                             Utils::OutputFormat type) const;
 
     class OutputChannelState;

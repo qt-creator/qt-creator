@@ -677,7 +677,7 @@ void KitAspect::addToEnvironment(const Kit *k, Environment &env) const
     Q_UNUSED(env)
 }
 
-QList<IOutputParser *> KitAspect::createOutputParsers(const Kit *k) const
+QList<OutputTaskParser *> KitAspect::createOutputParsers(const Kit *k) const
 {
     Q_UNUSED(k)
     return {};
