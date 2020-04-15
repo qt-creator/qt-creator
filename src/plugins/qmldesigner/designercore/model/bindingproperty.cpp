@@ -210,10 +210,7 @@ void BindingProperty::addModelNodeToArray(const ModelNode &modelNode)
             QString string = expression();
             string.chop(1);
             string.remove(0, 1);
-            QStringList simplifiedList = commaSeparatedSimplifiedStringList(string);
-            ModelNode node = modelNode;
-            simplifiedList.append(node.validId());
-            setExpression('[' + simplifiedList.join(',') + ']');
+            simplifiedList = commaSeparatedSimplifiedStringList(string);
         } else {
             ModelNode currentNode = resolveToModelNode();
             if (currentNode.isValid())
