@@ -47,10 +47,16 @@
     build that is delivered with separate debug information. It is best suited
     for analyzing applications.
 
+    \section1 Managing Build Configurations
+
     You specify build settings in the \uicontrol Projects mode.
     To add a new build configuration, click \uicontrol Add and select the type of
     configuration you would like to add. You can add as many build
-    configurations as you need.
+    configurations as you need. You can also select \uicontrol Clone to
+    add a build configuration that is based on the currently selected one.
+
+    Select \uicontrol Rename to give the currently selected build configuration
+    a new name.
 
     To delete the build configuration currently selected, click \uicontrol Remove.
 
