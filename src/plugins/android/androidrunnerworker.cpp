@@ -161,7 +161,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     , m_adbLogcatProcess(nullptr, deleter)
     , m_psIsAlive(nullptr, deleter)
     , m_logCatRegExp(regExpLogcat)
-    , m_gdbServerProcess(nullptr, deleter)
+    , m_debugServerProcess(nullptr, deleter)
     , m_jdbProcess(nullptr, deleter)
 
 {
@@ -178,8 +178,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         m_qmlDebugServices = QmlDebug::QmlPreviewServices;
     else
         m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
-    m_localGdbServerPort = Utils::Port(5039);
-    QTC_CHECK(m_localGdbServerPort.isValid());
+    m_localDebugServerPort = Utils::Port(5039);
+    QTC_CHECK(m_localDebugServerPort.isValid());
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         qCDebug(androidRunWorkerLog) << "QML debugging enabled";
         QTcpServer server;
@@ -228,8 +228,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
     if (!preferredAbi.isEmpty())
-        m_gdbserverPath = AndroidConfigurations::instance()
-                              ->currentConfig().gdbServer(preferredAbi, version).toString();
+        m_debugServerPath = AndroidConfigurations::currentConfig()
+                .gdbServer(preferredAbi, version).toString();
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 
@@ -254,9 +254,9 @@ bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
     return result.success();
 }
 
-bool AndroidRunnerWorker::uploadGdbServer()
+bool AndroidRunnerWorker::uploadDebugServer()
 {
-    // Push the gdbserver to  temp location and then to package dir.
+    // Push the gdbserver or lldb-server to  temp location and then to package dir.
     // the files can't be pushed directly to package because of permissions.
     qCDebug(androidRunWorkerLog) << "Uploading GdbServer";
 
@@ -281,7 +281,7 @@ bool AndroidRunnerWorker::uploadGdbServer()
     *tempGdbServerPath = tempGdbServerPath->arg(count);
 
     // Copy gdbserver to temp location
-    if (!runAdb({"push", m_gdbserverPath , *tempGdbServerPath})) {
+    if (!runAdb({"push", m_debugServerPath , *tempGdbServerPath})) {
         qCDebug(androidRunWorkerLog) << "Gdbserver upload to temp directory failed";
         return false;
     }
@@ -447,32 +447,32 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
-        QString gdbServerExecutable = "gdbserver";
-        QString gdbServerPrefix = "./lib/";
-        auto findGdbServer = [this, &gdbServerExecutable, gdbServerPrefix](const QString& gdbEx) {
-            if (!packageFileExists(gdbServerPrefix + gdbEx))
+        QString debugServerExecutable = "gdbserver";
+        QString debugServerPrefix = "./lib/";
+        auto findGdbServer = [this, &debugServerExecutable, debugServerPrefix](const QString& gdbEx) {
+            if (!packageFileExists(debugServerPrefix + gdbEx))
                 return false;
-            gdbServerExecutable = gdbEx;
+            debugServerExecutable = gdbEx;
             return true;
         };
 
         if (!findGdbServer("gdbserver") && !findGdbServer("libgdbserver.so")) {
             // Armv8. symlink lib is not available.
             // Kill the previous instances of gdbserver. Do this before copying the gdbserver.
-            runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
-            if (!m_gdbserverPath.isEmpty() && uploadGdbServer()) {
-                gdbServerPrefix = "./";
+            runAdb({"shell", "run-as", m_packageName, "killall", debugServerExecutable});
+            if (!m_debugServerPath.isEmpty() && uploadDebugServer()) {
+                debugServerPrefix = "./";
             } else {
                 emit remoteProcessFinished(tr("Cannot find or copy C++ debug server."));
                 return;
             }
         } else {
             qCDebug(androidRunWorkerLog) << "Found GDB server under ./lib";
-            runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
+            runAdb({"shell", "run-as", m_packageName, "killall", debugServerExecutable});
         }
 
         QString debuggerServerErr;
-        if (!startDebuggerServer(packageDir, gdbServerPrefix, gdbServerExecutable, &debuggerServerErr)) {
+        if (!startDebuggerServer(packageDir, debugServerPrefix, debugServerExecutable, &debuggerServerErr)) {
             emit remoteProcessFinished(debuggerServerErr);
             return;
         }
@@ -525,8 +525,8 @@ void AndroidRunnerWorker::asyncStartHelper()
 }
 
 bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
-                                              const QString &gdbServerPrefix,
-                                              const QString &gdbServerExecutable,
+                                              const QString &debugServerPrefix,
+                                              const QString &debugServerExecutable,
                                               QString *errorStr)
 {
     QString gdbServerSocket = packageDir + "/debug-socket";
@@ -534,22 +534,22 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
 
     QString gdbProcessErr;
     QStringList gdbServerArgs = selector();
-    gdbServerArgs << "shell" << "run-as" << m_packageName << gdbServerPrefix + gdbServerExecutable
+    gdbServerArgs << "shell" << "run-as" << m_packageName << debugServerPrefix + debugServerExecutable
                   << "--multi" << "+" + gdbServerSocket;
-    m_gdbServerProcess.reset(AndroidManager::runAdbCommandDetached(gdbServerArgs, &gdbProcessErr));
+    m_debugServerProcess.reset(AndroidManager::runAdbCommandDetached(gdbServerArgs, &gdbProcessErr));
 
-    if (!m_gdbServerProcess) {
+    if (!m_debugServerProcess) {
         qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << gdbProcessErr;
         if (errorStr)
             *errorStr = tr("Failed to start debugger server.");
         return false;
     }
     qCDebug(androidRunWorkerLog) << "Debugger process started";
-    m_gdbServerProcess->setObjectName("AndroidDebugServerProcess");
+    m_debugServerProcess->setObjectName("AndroidDebugServerProcess");
 
-    QStringList removeForward{"forward", "--remove", "tcp:" + m_localGdbServerPort.toString()};
+    QStringList removeForward{"forward", "--remove", "tcp:" + m_localDebugServerPort.toString()};
     runAdb(removeForward);
-    if (!runAdb({"forward", "tcp:" + m_localGdbServerPort.toString(),
+    if (!runAdb({"forward", "tcp:" + m_localDebugServerPort.toString(),
                 "localfilesystem:" + gdbServerSocket})) {
         if (errorStr)
             *errorStr = tr("Failed to forward C++ debugging ports.");
@@ -577,7 +577,7 @@ void AndroidRunnerWorker::asyncStop()
         forceStop();
 
     m_jdbProcess.reset();
-    m_gdbServerProcess.reset();
+    m_debugServerProcess.reset();
 }
 
 void AndroidRunnerWorker::handleJdbWaiting()
@@ -659,7 +659,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
         m_adbLogcatProcess.reset();
         m_psIsAlive.reset();
         m_jdbProcess.reset();
-        m_gdbServerProcess.reset();
+        m_debugServerProcess.reset();
 
         // Run adb commands after application quit.
         for (const QString &entry: m_afterFinishAdbCommands)
@@ -667,7 +667,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
     } else {
         // In debugging cases this will be funneled to the engine to actually start
         // and attach gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
-        emit remoteProcessStarted(m_localGdbServerPort, m_qmlServer, m_processPID);
+        emit remoteProcessStarted(m_localDebugServerPort, m_qmlServer, m_processPID);
         logcatReadStandardOutput();
         QTC_ASSERT(!m_psIsAlive, /**/);
         QStringList isAliveArgs = selector() << "shell" << pidPollingScript.arg(m_processPID);

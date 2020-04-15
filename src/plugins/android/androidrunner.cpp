@@ -226,11 +226,11 @@ void AndroidRunner::remoteErrorOutput(const QString &output)
     m_outputParser.processOutput(output);
 }
 
-void AndroidRunner::handleRemoteProcessStarted(Utils::Port gdbServerPort,
+void AndroidRunner::handleRemoteProcessStarted(Utils::Port debugServerPort,
                                                const QUrl &qmlServer, qint64 pid)
 {
     m_pid = ProcessHandle(pid);
-    m_gdbServerPort = gdbServerPort;
+    m_debugServerPort = debugServerPort;
     m_qmlServer = qmlServer;
     reportStarted();
 }

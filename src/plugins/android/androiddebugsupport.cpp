@@ -148,10 +148,10 @@ void AndroidDebugSupport::start()
         setUseExtendedRemote(true);
         QString devicePreferredAbi = AndroidManager::apkDevicePreferredAbi(target);
         setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
-        QUrl gdbServer;
-        gdbServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
-        gdbServer.setPort(m_runner->gdbServerPort().number());
-        setRemoteChannel(gdbServer);
+        QUrl debugServer;
+        debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
+        debugServer.setPort(m_runner->debugServerPort().number());
+        setRemoteChannel(debugServer);
 
         auto qt = static_cast<AndroidQtVersion *>(qtVersion);
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
